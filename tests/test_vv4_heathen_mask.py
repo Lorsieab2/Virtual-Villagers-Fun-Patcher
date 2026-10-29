@@ -601,7 +601,7 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
 
     def test_dialog_214_is_wide_layout(self) -> None:
         # Wide 620x340 (VV2 parity) clears the fullscreen-centering height cap.
-        self.assertIn("214 DIALOGEX 0, 0, 620, 340", self.rc)
+        self.assertIn("214 DIALOGEX 0, 0, 620, 349", self.rc)
 
     def test_head_body_forall_wired(self) -> None:
         # The two new village-wide groups drive fa_head_mode/fa_body_mode and
@@ -678,7 +678,7 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
             entry,
         )
         self.assertNotIn("MessageBoxA(NULL", entry)
-        self.assertEqual(entry.count("MessageBoxA(owner"), 6)
+        self.assertEqual(entry.count("MessageBoxA(owner"), 7)
 
     def test_successful_cure_result_is_foreground_information_popup(self) -> None:
         cure = self.c.split(

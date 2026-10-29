@@ -2179,8 +2179,8 @@ static void appearance_revert(void) {
    fields, and returns 1 only when the player actually confirmed with
    OK. */
 /* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
-   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; choosing a look is free
-   and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; kept on OK with the head, body
+   and mask, and charged like any change -- a look chosen alone too. */
 #define IDD_ORIGINS_APPEARANCE_LOOK 208
 #define ID_LOOK_AUTO  2030
 #define ID_LOOK_OLD   2032
@@ -2202,6 +2202,63 @@ static int appearance_keep_look(HWND window) {
     return 0;
 }
 
+/* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the window's dice. */
+static unsigned int appearance_rng;
+static int appearance_hair_head(int colour);
+
+/* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
+   to original or a random. */
+static void appearance_show(HWND window) {
+    appearance_state.is_old = vvfp_head_look_old(
+        appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
+    SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[vv_get_mask(appearance_state.villager)]);
+    if (appearance_look_offered) {
+        CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
+    }
+    InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
+    InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
+    InvalidateRect(GetDlgItem(window, ID_MASK_PIC), NULL, TRUE);
+}
+
+/* The window's extra buttons, written to the live record like the arrows; 1 when `command` was one. */
+static int appearance_extra(HWND window, unsigned int command) {
+    int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
+    int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+    if (command == VVFP_AX_UNDO) {
+        appearance_revert();
+        appearance_look = appearance_look_was;
+    } else if (command == VVFP_AX_RESET) {
+        int h, b, m;
+        if (!vvfp_original_look(4, appearance_state.villager, &h, &b, &m) || h < 0 || h >= VV_HEAD_COUNT
+            || b < 0 || b >= VV_BODY_COUNT || m < 0 || m >= VV_MASK_COUNT) {
+            MessageBoxA(window, VVFP_ORIGINAL_LOOK_UNKNOWN ". Nothing was changed.", "Villager Upgrades",
+                        MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+            return 1;
+        }
+        *head = h;
+        *body = b;
+        vv_set_mask(appearance_state.villager, m);
+        if (appearance_look_offered) {
+            appearance_look = VVFP_HEAD_LOOK_AUTO;
+        }
+    } else if (command == VVFP_AX_RANDOM_HEAD) {
+        *head = vvfp_ax_pick_other(&appearance_rng, appearance_state.head_count, *head);
+    } else if (command >= VVFP_AX_HAIR_FIRST && command <= VVFP_AX_HAIR_LAST) {
+        *head = appearance_hair_head((int)(command - VVFP_AX_HAIR_FIRST));
+    } else if (command == VVFP_AX_RANDOM_BODY) {
+        *body = vvfp_ax_pick_other(&appearance_rng, appearance_state.body_count, *body);
+    } else if (command == VVFP_AX_RANDOM_MASK) {
+        vv_set_mask(appearance_state.villager,
+                    vvfp_ax_pick_other(&appearance_rng, VV_MASK_COUNT, vv_get_mask(appearance_state.villager)));
+    } else if (command == VVFP_AX_RANDOM_LOOK && appearance_look_offered) {
+        appearance_look = vvfp_ax_random_look(&appearance_rng, appearance_look);
+    } else {
+        return 0;
+    }
+    appearance_show(window);
+    return 1;
+}
+
 static INT_PTR CALLBACK appearance_dialog(
     HWND window,
     UINT message,
@@ -2217,11 +2274,7 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body/mask fields directly. Show the current mask name. */
-        SetDlgItemTextA(window, ID_MASK_LABEL,
-                        g_mask_names[vv_get_mask(appearance_state.villager)]);
-        if (appearance_look_offered) {
-            CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
-        }
+        appearance_show(window);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -2256,6 +2309,9 @@ static INT_PTR CALLBACK appearance_dialog(
             appearance_state.is_old = vvfp_head_look_old(
                 appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
+            return TRUE;
+        }
+        if (appearance_extra(window, command)) {
             return TRUE;
         }
         if (command == ID_MASK_PREV || command == ID_MASK_NEXT) {
@@ -2293,9 +2349,8 @@ static INT_PTR CALLBACK appearance_dialog(
                                 != appearance_state.original_mask);
             if (!head_changed && !body_changed && !mask_changed
                 && appearance_look_offered && appearance_look != appearance_look_was) {
-                /* The look alone: kept, and free -- nothing for the exe to charge (return 0). */
-                appearance_keep_look(window);
-                EndDialog(window, 0);
+                /* The look alone: kept, and charged like any change -- 1, so the exe charges 5,000. */
+                EndDialog(window, appearance_keep_look(window) ? 1 : 0);
                 return TRUE;
             }
             if (!head_changed && !body_changed && !mask_changed) {
@@ -2405,6 +2460,20 @@ static const struct fa_bucket fa_buckets[2][5] = {
       {fa_f_other,  (int)(sizeof fa_f_other)} },
 };
 
+/* Change Appearance's "Head by hair colour" (colour 0 Black .. 4 Other): a head of the villager's sex from
+   the colour groups above, another one than now when the group has one. */
+static int appearance_hair_head(int colour) {
+    const struct fa_bucket *b = &fa_buckets[appearance_state.sex ? 1 : 0][colour];
+    return vvfp_ax_pick_from(&appearance_rng, b->rows, b->n,
+                             *(const int *)(appearance_state.villager + VV_HEAD_OFFSET));
+}
+
+/* The Head look rows ([0] men, [1] women) and Reset to original (native/shared/appearance_extras.h). */
+static int fa_look[2];
+static int fa_reset;
+static vvfp_head_look_api fa_look_api;
+static int fa_look_offered;
+
 static unsigned int fa_rng;
 static unsigned int fa_rand(void) {
     fa_rng ^= fa_rng << 13; fa_rng ^= fa_rng >> 17; fa_rng ^= fa_rng << 5;
@@ -2428,6 +2497,36 @@ static unsigned char *fa_record(int idx) {
 }
 static int fa_is_male(const unsigned char *rec) {
     return *(const int *)(rec + VV_SEX_OFFSET) == 0;   /* 0 = male */
+}
+
+/* A villager's original look for Reset to original, when known and in this window's ranges. */
+static int fa_original(const unsigned char *rec, int *head, int *body, int *mask) {
+    return vvfp_original_look(4, rec, head, body, mask) && *head >= 0 && *head < VV_HEAD_COUNT
+        && *body >= 0 && *body < VV_BODY_COUNT && *mask >= 0 && *mask < VV_MASK_COUNT;
+}
+
+/* How many occupied villagers' originals are known and not. */
+static void fa_count_originals(int *known, int *unknown) {
+    int idx, h, b, m, slots = vv_slots();
+    *known = *unknown = 0;
+    for (idx = 0; idx < slots; idx++) {
+        const unsigned char *rec = fa_record(idx);
+        if (rec[VV_OCCUPIED_OFFSET] == 0) continue;
+        if (fa_original(rec, &h, &b, &m)) ++*known; else ++*unknown;
+    }
+}
+
+/* The Head look rows' (and Reset to original's) looks for every occupied villager, planned first. */
+static void fa_plan_looks(vvfp_ax_look_plan *plan) {
+    int idx, h, b, m, slots = vv_slots();
+    plan->count = 0;
+    if (!fa_look_offered) return;
+    for (idx = 0; idx < slots; idx++) {
+        const unsigned char *rec = fa_record(idx);
+        if (rec[VV_OCCUPIED_OFFSET] == 0) continue;
+        vvfp_ax_look_plan_add(plan, &fa_look_api, 4, rec, fa_look[fa_is_male(rec) ? 0 : 1],
+                              fa_reset && fa_original(rec, &h, &b, &m), &fa_rng);
+    }
 }
 
 /* Pick a head row for the village-wide HEAD mode: FA_HEAD_RANDOM = any row of
@@ -2473,7 +2572,7 @@ static int vv4_apply_for_all(void) {
     fa_rng = GetTickCount() | 1u;
     for (idx = 0; idx < slots; idx++) {
         unsigned char *rec = fa_record(idx);
-        int male;
+        int male, known, oh, ob, om;
         if (rec[VV_OCCUPIED_OFFSET] == 0) {
             continue;                          /* empty/dead slot */
         }
@@ -2503,17 +2602,22 @@ static int vv4_apply_for_all(void) {
             mask_selected[nact] = forall_state.tribe_mode != FA_MODE_OFF ||
                 forall_state.female_mask != FA_NOCHANGE;
         }
+        /* Reset to original first (a villager whose original look is known); every other choice over it. */
+        known = fa_reset && fa_original(rec, &oh, &ob, &om);
+        if (known) {
+            head_selected[nact] = body_selected[nact] = mask_selected[nact] = 1;
+        }
         if (forall_state.head_mode == FA_HEAD_OFF) {
             plan_head[nact] = male ? forall_state.male_head : forall_state.female_head;
-            if (plan_head[nact] == FA_NOCHANGE) plan_head[nact] = current_head[nact];
+            if (plan_head[nact] == FA_NOCHANGE) plan_head[nact] = known ? oh : current_head[nact];
         }
         if (forall_state.body_mode == FA_BODY_OFF) {
             plan_body[nact] = male ? forall_state.male_body : forall_state.female_body;
-            if (plan_body[nact] == FA_NOCHANGE) plan_body[nact] = current_body[nact];
+            if (plan_body[nact] == FA_NOCHANGE) plan_body[nact] = known ? ob : current_body[nact];
         }
         if (forall_state.tribe_mode == FA_MODE_OFF) {
             plan_mask[nact] = male ? forall_state.male_mask : forall_state.female_mask;
-            if (plan_mask[nact] == FA_NOCHANGE) plan_mask[nact] = current_mask[nact];
+            if (plan_mask[nact] == FA_NOCHANGE) plan_mask[nact] = known ? om : current_mask[nact];
         }
         nact++;
     }
@@ -2632,6 +2736,26 @@ static void fa_sync_enable(HWND window) {
     }
 }
 
+/* Every control to its start: the window opening, and Undo changes. */
+static void fa_start(HWND window) {
+    static const int pics[6] = { 3003, 3013, 3023, 3103, 3113, 3123 };
+    int i;
+    forall_state.male_head = forall_state.male_body = forall_state.male_mask =
+        FA_NOCHANGE;
+    forall_state.female_head = forall_state.female_body =
+        forall_state.female_mask = FA_NOCHANGE;
+    forall_state.tribe_mode = FA_MODE_OFF;
+    forall_state.head_mode = FA_HEAD_OFF;
+    forall_state.body_mode = FA_BODY_OFF;
+    fa_reset = 0;
+    CheckRadioButton(window, FA_RADIO_FIRST, FA_RADIO_LAST, FA_RADIO_FIRST);
+    CheckRadioButton(window, FA_HEAD_RADIO_FIRST, FA_HEAD_RADIO_LAST, FA_HEAD_RADIO_FIRST);
+    CheckRadioButton(window, FA_BODY_RADIO_FIRST, FA_BODY_RADIO_LAST, FA_BODY_RADIO_FIRST);
+    vvfp_ax_look_rows_init(window, fa_look_offered, fa_look);
+    for (i = 0; i < 6; i++) InvalidateRect(GetDlgItem(window, pics[i]), NULL, TRUE);
+    fa_sync_enable(window);
+}
+
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
                                       WPARAM wparam, LPARAM lparam) {
     INT_PTR vk_handled;
@@ -2641,17 +2765,7 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
     (void)lparam;
     if (message == WM_INITDIALOG) {
         vvfp_story_relabel(4, window);   /* "OK deducts 0 tech points" */
-        forall_state.male_head = forall_state.male_body = forall_state.male_mask =
-            FA_NOCHANGE;
-        forall_state.female_head = forall_state.female_body =
-            forall_state.female_mask = FA_NOCHANGE;
-        forall_state.tribe_mode = FA_MODE_OFF;
-        forall_state.head_mode = FA_HEAD_OFF;
-        forall_state.body_mode = FA_BODY_OFF;
-        CheckDlgButton(window, FA_RADIO_FIRST, BST_CHECKED);
-        CheckDlgButton(window, FA_HEAD_RADIO_FIRST, BST_CHECKED);
-        CheckDlgButton(window, FA_BODY_RADIO_FIRST, BST_CHECKED);
-        fa_sync_enable(window);
+        fa_start(window);
         vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
@@ -2688,6 +2802,14 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
             InvalidateRect(GetDlgItem(window, pic), NULL, TRUE);
             return TRUE;
         }
+        if (vvfp_ax_look_rows_command((unsigned int)id, fa_look)) return TRUE;
+        if (id == VVFP_AX_UNDO) { fa_start(window); return TRUE; }
+        if (id == VVFP_AX_RESET) {
+            int known, unknown;
+            fa_count_originals(&known, &unknown);
+            if (vvfp_ax_reset_all_ask(window, "Change Appearance for All", known, unknown)) fa_reset = 1;
+            return TRUE;
+        }
         if (id >= FA_RADIO_FIRST && id <= FA_RADIO_LAST) {
             forall_state.tribe_mode = id - FA_RADIO_FIRST;   /* auto-radio handles check */
             fa_sync_enable(window);
@@ -2716,7 +2838,8 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
    apply. Returns 1 when applied+charged, 0 otherwise. No arg needed -- VV4's
    tech points are the global at 0x4D6F88 and the record array is fixed. */
 static int fa_nothing_selected(void) {
-    return forall_state.tribe_mode == FA_MODE_OFF &&
+    return forall_state.tribe_mode == FA_MODE_OFF && !fa_reset &&
+           fa_look[0] == VVFP_AX_LEAVE && fa_look[1] == VVFP_AX_LEAVE &&
            forall_state.head_mode == FA_HEAD_OFF &&
            forall_state.body_mode == FA_BODY_OFF &&
            forall_state.male_head == FA_NOCHANGE &&
@@ -2728,9 +2851,12 @@ static int fa_nothing_selected(void) {
 }
 
 static int __stdcall ShowVv4AppearanceForAll(void) {
-    int affected;
+    int affected, known, unknown;
     int delta = -vvfp_story_price(4, 450000);   /* 0 under Story / Cheat Upgrades */
     HWND owner = GetForegroundWindow();
+    static vvfp_ax_look_plan looks;
+    char done[320];
+    fa_look_offered = vvfp_head_look_find(4, &fa_look_api);
     vv4_prep_fullscreen();
     /* Buy-confirm before the dialog (parity wording across all 5 games). */
     if (MessageBoxA(owner,
@@ -2760,7 +2886,7 @@ static int __stdcall ShowVv4AppearanceForAll(void) {
     /* Head is hereditary: warn once before committing a head change en-masse. */
     if (forall_state.male_head != FA_NOCHANGE ||
         forall_state.female_head != FA_NOCHANGE ||
-        forall_state.head_mode != FA_HEAD_OFF) {
+        forall_state.head_mode != FA_HEAD_OFF || fa_reset) {
         if (MessageBoxA(owner,
                 "Warning: This will change the head genetics of every villager "
                 "of the selected sex, affecting their descendants.\r\n\r\n"
@@ -2770,7 +2896,18 @@ static int __stdcall ShowVv4AppearanceForAll(void) {
             return 0;
         }
     }
-    affected = vv4_apply_for_all();
+    /* The looks first, in one write: the only step that can fail, so a failure changes nothing. */
+    fa_rng = GetTickCount() | 1u;
+    fa_count_originals(&known, &unknown);
+    fa_plan_looks(&looks);
+    if (!vvfp_ax_look_plan_commit(&looks, &fa_look_api, 4)) {
+        MessageBoxA(owner,
+            "The head looks could not be kept: the patcher's file for this save could not be written. "
+            "Nothing was changed and no tech points have been deducted.",
+            "Change Appearance for All", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
+        return 0;
+    }
+    affected = vv4_apply_for_all() + looks.count;
     if (affected == 0) {
         MessageBoxA(owner,
             "No occupied villagers matched the selected appearance options. "
@@ -2786,8 +2923,8 @@ static int __stdcall ShowVv4AppearanceForAll(void) {
             call eax
         }
     }
-    MessageBoxA(owner, "Change Appearance for All applied to every villager.",
-                "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    vvfp_ax_applied_text(done, "Change Appearance for All applied to every villager.", fa_reset, unknown);
+    MessageBoxA(owner, done, "Change Appearance for All", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return 1;
 }
 
@@ -2814,6 +2951,7 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_look = appearance_look_was =
         appearance_look_offered ? appearance_look_api.get(4, villager) : VVFP_HEAD_LOOK_AUTO;
     appearance_state.is_old = vvfp_head_look_old(appearance_look, *(int *)(villager + VV_DISPLAY_AGE_OFFSET));
+    appearance_rng = GetTickCount() | 1u;
     result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(appearance_look_offered ? IDD_ORIGINS_APPEARANCE_LOOK : IDD_ORIGINS_APPEARANCE),

@@ -3315,8 +3315,8 @@ static void vv3_appearance_repaint(HWND window, int control) {
 }
 
 /* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
-   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; choosing a look is free
-   and is kept on OK -- with the head, body and mask when they changed too, alone when they did not. */
+   villager, never in the record.  Offered (dialog 208) when that DLL is in the game; kept on OK with the head, body
+   and mask, and charged like any change -- a look chosen alone too. */
 #define IDD_VV3_APPEARANCE_LOOK 208
 #define IDC_LOOK_AUTO  3120
 #define IDC_LOOK_OLD   3122
