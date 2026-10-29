@@ -616,6 +616,34 @@ int main(int argc, char **argv) {
         check(u32_at(buf, 16) == 3 && got == 28 + 150 * 20 + 3 * 16, "the companion keeps the logs' part as it read it");
     }
 
+    printf("the game's own changes are kept\n");
+    fresh_disk();
+    new_session();
+    g_game_slot = 1;
+    founders(6, "Kai");
+    settle();
+    game_saves(1);
+    check(original(2) == 20020, "(Kai2's original: head 2, body 2)");
+    check(ol_game_body(rec(2), 29) == 1, "the robe (the game's own writer) is told to the store");
+    set_look(2, 2, 29);
+    (void)tick();
+    check(original(2) == 20290, "the game-made body is folded into the original; the head stays");
+    file_path(1, path);
+    got = read_file(path, buf, sizeof buf);
+    check(u32_at(buf, 24 + 2 * 20 + 12) == 29, "...and written at once");
+    set_look(2, 9, 9);
+    (void)tick();
+    check(original(2) == 20290, "a Change Appearance after it is not folded in");
+    check(ol_game_body(rec(2), 29) == 0, "the same body again changes nothing");
+    villager(6, "Newborn", 0, "Kai0", "Kai1", 4, 4);
+    check(ol_game_body(rec(6), 12) == 0, "a villager not seen yet: left to the first sight");
+    set_look(6, 4, 12);
+    (void)tick();
+    check(original(6) == 40120, "...which sees the game's body");
+    new_session();
+    g_game_slot = 1;
+    check(ol_game_body(rec(2), 5) == 0, "no village bound: nothing");
+
     printf("a corrupt or missing file\n");
     {
         static const char *const WHAT[] = { "a wrong checksum", "a short file", "another version", "another game" };

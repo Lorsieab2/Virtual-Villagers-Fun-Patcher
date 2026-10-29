@@ -12,7 +12,9 @@
        3 LOGS       the look the patcher's logs prove they had before their first logged change -- the Old head
                     and Old body of the EARLIEST "Appearance changed" record of them (src/vv_original_look.py,
                     run by Repair Saves & Logs with the game closed).
-   An original is never written over by a later first sight.  Nothing is ever written into a villager record.
+   An original is never written over by a later first sight.  A body the game itself gives a villager (the
+   robe, the clothing dialog's outfit) is folded into it (ol_game_body); Change Appearance and island events
+   never are.  Nothing is ever written into a villager record.
 
    THE FILE.  "Virtual Villagers Fun Patcher\Save <S>\Data\Original Looks\Original Looks - Save <S>.dat"
    (native/shared/per_save_data.h routes it; an older-layout copy is used while one is there), next to the
@@ -578,6 +580,27 @@ static int ol_index(const unsigned char *record) {
         return -1;
     }
     return (int)(offset / stride);
+}
+
+/* THE GAME'S OWN CHANGES ARE KEPT (the owner, 2026-10-28: "Keep game changes"): Reset to original undoes only
+   Change Appearance and island events, so a body the game itself gives a villager -- The Secret City's robe
+   for a new Tribal Chief, the outfit the game's own clothing dialog puts on -- becomes part of their
+   original.  Called by the includer from the game's own writer of that body, just before it writes
+   (vvfp_original_look.c GAME_WRITERS: no Change Appearance window and no island event reaches those
+   instructions).  A villager with no original yet is left to the first sight, which sees the new body.
+   1 when an original changed. */
+static int ol_game_body(const unsigned char *record, int body) {
+    int i;
+    if (record == NULL || g_state == OL_UNBOUND || (i = ol_index(record)) < 0 || g_source[i] == OL_NONE
+        || g_roster[i] == 0 || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]
+        || g_body[i] == body) {
+        return 0;
+    }
+    g_body[i] = body;
+    if (g_state == OL_BOUND) {
+        ol_publish();
+    }
+    return 1;
 }
 
 /* The original look of the villager in `record`: 1 and the three filled when it is known. */

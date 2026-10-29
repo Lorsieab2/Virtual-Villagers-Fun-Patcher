@@ -243,9 +243,10 @@ class Village:
         return {v.seen.name: by_id[v.id] for v in self.people if v.id in by_id}
 
 
-def change(name: str, old: tuple[int, int], new: tuple[int, int]) -> str:
+def change(name: str, old: tuple[int, int], new: tuple[int, int], masks: tuple[str, str] | None = None) -> str:
+    masked = f"  Old mask: {masks[0]}\n  New mask: {masks[1]}\n" if masks else ""
     return (f"Appearance changed\n  Name: {name}\n  Old head: {old[0]}\n  Old body: {old[1]}\n"
-            f"  New head: {new[0]}\n  New body: {new[1]}\n\n")
+            f"  New head: {new[0]}\n  New body: {new[1]}\n{masked}\n")
 
 
 def birth(number: int, name: str, sex: str, looks: tuple[int, int], mask: str | None = None) -> str:
@@ -339,6 +340,44 @@ class Backfill(unittest.TestCase):
         got = v.logged()
         self.assertEqual(got[a.name].kind, ol.UNKNOWN)
         self.assertEqual((got[b.name].kind, got[b.name].head, got[b.name].body, got[b.name].mask), (ol.KNOWN, 6, 6, 0))
+
+    def test_the_mask_in_the_record_itself_is_used_in_every_game(self):
+        """Every "Appearance changed" record carries the mask before and after since 2026-10-28; its "Old
+        mask" is Change Appearance's own store, so New Believers takes it too."""
+        for game in (2, 5):
+            with self.subTest(game=game):
+                v = self.village(game)
+                a, b = v.people[0].seen, v.people[1].seen
+                v.births(birth(1, a.name, a.sex, (5, 5)) + change(a.name, (5, 5), (5, 5), ("Red Mask", "none"))
+                         + change(a.name, (5, 5), (a.head, a.body), ("none", "none"))
+                         + birth(2, b.name, b.sex, (6, 6)) + change(b.name, (6, 6), (b.head, b.body)))
+                ol.backfill(v.folder, game, 1)
+                got = v.logged()
+                self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body, got[a.name].mask),
+                                 (ol.KNOWN, 5, 5, 3), "a mask-only record is on the way; its Old mask wins")
+                self.assertEqual((got[b.name].kind, got[b.name].mask), (ol.KNOWN, 0),
+                                 "an older record without mask lines still reads (the Birth record's mask)")
+
+    def test_the_secret_citys_robe_is_kept(self):
+        import vv_last_names as ln
+        v = self.village(3)
+        a, b = v.people[0].seen, v.people[1].seen
+        save = v.folder / f"{tools.load_checker().SAVE_STEMS[3]}1.ldw"
+        data = bytearray(save.read_bytes())
+        f = ln.FIELDS[3]
+        struct.pack_into("<i", data, a.at + f.body, 29)
+        data[a.at + ol.VV3_CHIEF_FROM_NAME] = 1
+        save.write_bytes(bytes(data))
+        v.people = ol.living(v.folder, 3, 1)
+        self.assertTrue(v.people[0].robed and not v.people[1].robed)
+        # Changed by Change Appearance (logged), then robed by the game (no record).
+        v.births(birth(1, a.name, a.sex, (4, 7)) + change(a.name, (4, 7), (a.head, 9))
+                 + birth(2, b.name, b.sex, (b.head, 7)) + change(b.name, (b.head, 7), (b.head, b.body)))
+        ol.backfill(v.folder, 3, 1)
+        got = v.logged()
+        self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body), (ol.KNOWN, 4, 29),
+                         "the robed chief's original: the head before Change Appearance, the robe")
+        self.assertEqual((got[b.name].kind, got[b.name].body), (ol.KNOWN, 7), "anyone else: as before")
 
     def test_one_record_on_two_ways_is_never_given_to_either(self):
         import vv_last_names as ln
@@ -435,6 +474,107 @@ class Backfill(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------------------------------
+# Mask-only changes are logged ("Appearance changed" with "Old mask" / "New mask")
+# ---------------------------------------------------------------------------------------------------
+
+LOGGER = r'''
+#include <windows.h>
+#include <stdio.h>
+#include "patcher_files.h"
+static char g_text[512];
+static int g_calls;
+static int __stdcall fake_write(int game, int kind, const void *record, int detail, const char *before,
+                                const char *after, int flags) {
+    (void)game; (void)record; (void)detail; (void)after; (void)flags;
+    ++g_calls;
+    _snprintf(g_text, sizeof g_text, "%d|%s", kind, before);
+    return 1;
+}
+static HMODULE fake_load(const char *name) { (void)name; return (HMODULE)(UINT_PTR)0x1000; }
+static HMODULE WINAPI fake_module(LPCSTR name) { (void)name; return NULL; }
+static FARPROC WINAPI fake_proc(HMODULE m, LPCSTR name) { (void)m; (void)name; return (FARPROC)fake_write; }
+#define vvfp_load_patcher_dll fake_load
+#define GetModuleHandleA fake_module
+#define GetProcAddress fake_proc
+#include "appearance_log.h"
+int main(void) {
+    static unsigned char record[16];
+    vv_log_appearance_mask(3, record, 4, 5, 0, 4, 5, 3);
+    printf("MASKONLY %d [%s]\n", g_calls, g_text);
+    vv_log_appearance_mask(3, record, 4, 5, 2, 6, 7, 2);
+    printf("BOTH %d [%s]\n", g_calls, g_text);
+    vv_log_appearance_mask(3, record, 4, 5, 2, 4, 5, 2);
+    printf("NOTHING %d\n", g_calls);
+    vv_log_appearance(3, record, 1, 2, 3, 4);
+    printf("OLD %d [%s]\n", g_calls, g_text);
+    vv_log_appearance(3, record, 1, 2, 1, 2);
+    printf("OLDNOTHING %d\n", g_calls);
+    return 0;
+}
+'''
+
+
+@functools.lru_cache(maxsize=None)
+def logger_output() -> str:
+    script = ROOT / "scripts" / "build_head_look_harness.ps1"
+    text = script.read_text(encoding="utf-8")
+    tools_dir = re.search(r'\$vsTools = "([^"]+)"', text).group(1)
+    sdk = re.search(r'\$sdkRoot = "([^"]+)"', text).group(1)
+    version = re.search(r'\$sdkVersion = "([^"]+)"', text).group(1)
+    cl = Path(tools_dir) / "bin" / "Hostx64" / "x86" / "cl.exe"
+    if not cl.is_file():
+        raise unittest.SkipTest("the compiler is not installed")
+    with tempfile.TemporaryDirectory() as d:
+        src = Path(d) / "logger.c"
+        src.write_text(LOGGER, encoding="utf-8")
+        exe = Path(d) / "logger.exe"
+        result = subprocess.run(
+            [str(cl), "/nologo", "/W4", f"/Fo{d}\\", "/I", str(ROOT / "native" / "shared"),
+             "/I", str(Path(tools_dir) / "include"), "/I", f"{sdk}\\Include\\{version}\\um",
+             "/I", f"{sdk}\\Include\\{version}\\shared", "/I", f"{sdk}\\Include\\{version}\\ucrt", str(src),
+             "/link", f"/LIBPATH:{Path(tools_dir) / 'lib' / 'x86'}", f"/LIBPATH:{sdk}\\Lib\\{version}\\um\\x86",
+             f"/LIBPATH:{sdk}\\Lib\\{version}\\ucrt\\x86", "user32.lib", "shell32.lib", f"/OUT:{exe}"],
+            capture_output=True, text=True, timeout=300, cwd=d)
+        if result.returncode != 0:
+            raise AssertionError(result.stdout[-3000:] + result.stderr[-2000:])
+        return subprocess.run([str(exe)], capture_output=True, text=True, timeout=60).stdout
+
+
+class MaskOnlyChangesAreLogged(unittest.TestCase):
+    def test_the_writer(self):
+        out = logger_output()
+        self.assertIn("MASKONLY 1 [7|  Old head: 4\n  Old body: 5\n  New head: 4\n  New body: 5\n  Old mask: none\n"
+                      "  New mask: Red Mask\n]", out)
+        self.assertIn("BOTH 2 [7|  Old head: 4\n  Old body: 5\n  New head: 6\n  New body: 7\n  Old mask: Orange Mask\n"
+                      "  New mask: Orange Mask\n]", out)
+        self.assertIn("NOTHING 2", out, "nothing changed: nothing logged")
+        self.assertIn("OLD 3 [7|  Old head: 1\n  Old body: 2\n  New head: 3\n  New body: 4\n]", out,
+                      "the head and body alone, as before: no mask lines")
+        self.assertIn("OLDNOTHING 3", out)
+
+    def test_the_parentage_exporter_still_reads_the_four_look_lines_first(self):
+        export = (ROOT / "native" / "parentage_export" / "parentage_export.c").read_text(encoding="utf-8")
+        self.assertIn('"  Old head: %d\\n  Old body: %d\\n  New head: %d\\n  New body: %d"', export)
+
+    def test_the_readers_take_a_mask_only_record_for_no_change_of_look(self):
+        import vv_genealogy as gen
+        import vv_log_additions as additions
+        root = Path(tempfile.mkdtemp())
+        try:
+            v = Village(root, 4)
+            a = v.people[0].seen
+            v.births(change(a.name, (a.head, a.body), (a.head, a.body), ("none", "Blue Mask"))
+                     + change(a.name, (1, 1), (a.head, a.body)))
+            reg = gen._Registry()
+            gen._appearance_changes(reg, v.folder, 4, 1)
+            self.assertNotIn((a.name, a.head, a.body), reg.relooked, "the tree draws the same look")
+            self.assertEqual(reg.relooked.get((a.name, 1, 1)), (a.name, a.head, a.body))
+            self.assertEqual(additions.plan_appearance(v.folder, 4, 1).id, "appearance", "the Repair plan reads it")
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+# ---------------------------------------------------------------------------------------------------
 # The DLL in each game, and how it ships
 # ---------------------------------------------------------------------------------------------------
 
@@ -447,38 +587,172 @@ def stock_path(game: int) -> Path:
     return ROOT / "inputs" / f"vv{game}-stock-copy" / _builds()[f"vv{game}"].input_name
 
 
-@unittest.skipUnless(HAVE_EMULATOR, "pefile and unicorn are not installed")
-class WritesNothingIntoTheGame(unittest.TestCase):
-    """The all-or-none rule, for a companion with nothing to install: VvfpStartup writes no byte of any
-    game's image and unlocks no page; it sets one WH_GETMESSAGE hook on the game's own thread and one
-    thread timer, and nothing else."""
+# THE GAME'S OWN WRITERS of a villager's head or body in each stock executable (the owner, 2026-10-28: "Keep
+# game changes"), every store to the record's head or body field -- directly, or through the record's
+# +0xDC4 / +0x1B8C block -- found by reading every instruction (the scan in test_every_writer_is_accounted_for),
+# and what each is.  Only GAME's are spliced (their body is folded into the original); CREATION is seen at
+# first sight; ISLAND events are Reset's to undo.
+CREATION, ISLAND, GAME, NOT_A_RECORD = "creation", "island event", "game", "not a villager record"
+GAME_WRITERS = {
+    1: {0x41C1F1: CREATION, 0x41C214: CREATION, 0x41C22B: CREATION,       # a new village's founders
+        0x42C94B: ISLAND, 0x42C9E7: ISLAND, 0x42CA14: ISLAND, 0x42CA41: ISLAND,   # the crates (0x42D050)
+        0x43C633: CREATION, 0x43C647: CREATION,                          # the villager creator 0x43C350
+        0x43C7EF: CREATION, 0x43C7F5: CREATION,                          # ...its Golden Child (family 199)
+        0x43C9D3: CREATION, 0x43C9DF: CREATION},                         # twins and triplets 0x43C840
+    2: {0x4228E4: GAME,                                                  # the clothing dialog's OK
+        0x424F2B: CREATION, 0x424F4E: CREATION, 0x424F65: CREATION,     # a new village's founders
+        0x43960B: ISLAND, 0x4396AD: ISLAND, 0x4396DA: ISLAND, 0x439707: ISLAND,   # the crates
+        **{va: CREATION for va in (0x44CC00, 0x44CC08, 0x44CC19, 0x44CC2F, 0x44CC3C, 0x44CC6A, 0x44CC79,
+                                   0x44CC91, 0x44CCA3, 0x44CCC5, 0x44CCE4)},   # the villager creator
+        0x44D00F: CREATION, 0x44D01B: CREATION,                          # the child materializer 0x44CEC0
+        0x44D35F: CREATION, 0x44D36B: CREATION,                          # a new record copied from its source
+        0x4664A4: NOT_A_RECORD},                                         # a byte of the scene object 0x4663B0 builds
+    3: {0x41594E: ISLAND, 0x415965: ISLAND, 0x41752C: ISLAND, 0x41753E: ISLAND,  # island event outcomes
+        0x417649: ISLAND, 0x41764E: ISLAND,
+        0x41BF89: GAME,                                                  # the clothing dialog's OK
+        0x456527: CREATION, 0x456550: CREATION, 0x456571: CREATION,     # the villager creator
+        0x45650A: CREATION, 0x45650F: CREATION, 0x456519: CREATION,
+        0x45FBDE: GAME},                                                 # the robe (robing 0x45FBC0)
+    4: {0x41961D: GAME,                                                  # theFernsaceDialog's OK
+        0x45F2BF: CREATION, 0x45F2DE: CREATION, 0x45F2FF: CREATION,     # the villager creator
+        0x45F298: CREATION, 0x45F29D: CREATION, 0x45F2A7: CREATION},
+    5: {0x419D68: GAME, 0x419E8E: GAME,                                  # theFernsaceDialog's two buttons
+        0x4685C4: CREATION, 0x4685E3: CREATION, 0x468604: CREATION,     # the villager creator
+        0x46859D: CREATION, 0x4685A2: CREATION, 0x4685AC: CREATION},
+}
+LOOK_FIELDS = {1: (0x360, 0x364), 2: (0x548, 0x54C), 3: (0xDF0, 0xDF4), 4: (0x1BB8, 0x1BBC), 5: (0x1BB8, 0x1BBC)}
+WINDOW = {3: 0xDC4, 4: 0x1B8C, 5: 0x1B8C}
+# What each spliced writer does: (record registers, value register or None, the immediate, the field).
+SPLICED = {
+    2: {0x4228E4: (("eax", "edx"), "ecx", None, 0x54C)},
+    3: {0x41BF89: (("eax",), "ecx", None, 0xDF4), 0x45FBDE: (("eax",), None, 29, 0xDF4)},
+    4: {0x41961D: (("eax",), "edx", None, 0x1BBC)},
+    5: {0x419D68: (("edi",), "edx", None, 0x1BBC), 0x419E8E: (("edi",), "ecx", None, 0x1BBC)},
+}
 
-    def test_each_game(self):
+
+def scan_writers(game: int) -> set[int]:
+    """Every instruction of the stock executable that stores to a record's head or body field."""
+    from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+    from capstone.x86 import X86_OP_MEM, X86_OP_REG
+    pe = pefile.PE(str(stock_path(game)))
+    base = pe.OPTIONAL_HEADER.ImageBase
+    text = next(s for s in pe.sections if s.Characteristics & 0x20000000)
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    md.detail = True
+    md.skipdata = True
+    found = set()
+    inss = list(md.disasm(text.get_data(), base + text.VirtualAddress))
+    for i, ins in enumerate(inss):
+        try:
+            ops = ins.operands
+        except Exception:      # skipdata
+            continue
+        if not ops:
+            continue
+        if ins.mnemonic.startswith("mov") and ops[0].type == X86_OP_MEM and ops[0].mem.disp in LOOK_FIELDS[game]:
+            found.add(ins.address)
+        if game in WINDOW and len(ops) == 2 and ops[0].type == X86_OP_REG and (
+                (ins.mnemonic == "lea" and ops[1].type == X86_OP_MEM and ops[1].mem.disp == WINDOW[game])
+                or (ins.mnemonic == "add" and ops[1].type not in (X86_OP_MEM, X86_OP_REG)
+                    and ops[1].imm == WINDOW[game])):
+            reg = ops[0].reg
+            for w in inss[i + 1:i + 60]:
+                try:
+                    wo = w.operands
+                except Exception:
+                    break
+                if wo and wo[0].type == X86_OP_MEM and wo[0].mem.base == reg and wo[0].mem.disp in (0x2C, 0x30) \
+                        and w.mnemonic.startswith("mov"):
+                    found.add(w.address)
+                if wo and wo[0].type == X86_OP_REG and wo[0].reg == reg and w.mnemonic in ("mov", "lea", "pop", "xor"):
+                    break
+    return found
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "pefile and unicorn are not installed")
+class TheGamesOwnChanges(unittest.TestCase):
+    """The game's own writers: every one accounted for, and only the game's spliced, all or none."""
+
+    def test_every_writer_is_accounted_for(self):
+        try:
+            import capstone  # noqa: F401
+        except ImportError:
+            self.skipTest("capstone is not installed")
         for game in (1, 2, 3, 4, 5):
             if not stock_path(game).is_file():
                 continue
             with self.subTest(game=game):
-                m = Process(stock_path(game).read_bytes(), DLL)
-                writes = []
-                base = m._exe_pe.OPTIONAL_HEADER.ImageBase
-                size = m._exe_pe.OPTIONAL_HEADER.SizeOfImage
-                from unicorn import UC_HOOK_MEM_WRITE
-                m.mu.hook_add(UC_HOOK_MEM_WRITE, lambda mu, a, addr, s, v, u: writes.append(addr),
-                              begin=base, end=base + size - 1)
-                hooks, timers = [], []
-                m.api_handlers["GetCurrentThreadId"] = lambda p: (0x1234, 0)
-                m.api_handlers["SetWindowsHookExA"] = lambda p: (hooks.append((p.arg(0), p.arg(2), p.arg(3))) or 0x77, 16)
-                m.api_handlers["SetTimer"] = lambda p: (timers.append((p.arg(0), p.arg(2), p.arg(3))) or 1, 16)
-                m.export("VvfpStartup", game, 0)
-                self.assertEqual(writes, [], "no byte of the game's image is written")
-                self.assertNotIn("VirtualProtect", m.api_calls)
+                self.assertEqual(scan_writers(game), set(GAME_WRITERS[game]))
+
+    def test_the_spliced_writers_are_the_dlls(self):
+        source = (ROOT / "native" / "vvfp_original_look" / "vvfp_original_look.c").read_text(encoding="utf-8")
+        for game, writers in GAME_WRITERS.items():
+            for va, kind in writers.items():
+                with self.subTest(game=game, va=hex(va)):
+                    self.assertEqual(f"{{ 0x{va:06X}u," in source, kind == GAME)
+
+    def machine(self, game: int):
+        m = Process(stock_path(game).read_bytes(), DLL)
+        writes = []
+        base = m._exe_pe.OPTIONAL_HEADER.ImageBase
+        size = m._exe_pe.OPTIONAL_HEADER.SizeOfImage
+        from unicorn import UC_HOOK_MEM_WRITE
+        m.mu.hook_add(UC_HOOK_MEM_WRITE, lambda mu, a, addr, s, v, u: writes.append(addr),
+                      begin=base, end=base + size - 1)
+        hooks, timers = [], []
+        m.api_handlers["GetCurrentThreadId"] = lambda p: (0x1234, 0)
+        m.api_handlers["SetWindowsHookExA"] = lambda p: (hooks.append((p.arg(0), p.arg(2), p.arg(3))) or 0x77, 16)
+        m.api_handlers["SetTimer"] = lambda p: (timers.append((p.arg(0), p.arg(2), p.arg(3))) or 1, 16)
+        m.export("VvfpStartup", game, 0)
+        return m, writes, hooks, timers
+
+    def test_startup_splices_only_the_games_writers_and_watches_between_frames(self):
+        for game in (1, 2, 3, 4, 5):
+            if not stock_path(game).is_file():
+                continue
+            with self.subTest(game=game):
+                m, writes, hooks, timers = self.machine(game)
+                sites = SPLICED.get(game, {})
+                allowed = {va + k for va in sites for k in range(10)}
+                self.assertTrue(set(writes) <= allowed, "only the game's own writers are written")
+                for va in sites:
+                    self.assertEqual(m.read(va, 1), b"\xE9", hex(va))
+                if not sites:
+                    self.assertEqual(writes, [], "A New Home: nothing")
                 self.assertEqual(len(hooks), 1)
-                self.assertEqual(hooks[0][0], 3, "WH_GETMESSAGE")
-                self.assertEqual(hooks[0][1:], (0, 0x1234), "on the game's own thread, no module")
+                self.assertEqual(hooks[0], (3, 0, 0x1234), "WH_GETMESSAGE on the game's own thread, no module")
                 self.assertEqual(timers, [(0, 250, 0)], "a thread timer: no window, 250 ms, no procedure")
                 m.export("VvfpStartup", game, 0)
                 self.assertEqual(len(hooks), 1, "a second start changes nothing")
 
+    def test_a_splice_makes_the_games_own_write(self):
+        for game, sites in SPLICED.items():
+            if not stock_path(game).is_file():
+                continue
+            for va, (regs, value_reg, imm, field) in sites.items():
+                with self.subTest(game=game, va=hex(va)):
+                    m, _w, _h, _t = self.machine(game)
+                    stock = pefile.PE(str(stock_path(game)))
+                    length = len(bytes.fromhex(json.loads(
+                        (ROOT / "data" / f"vv{game}_original_look_feature.json").read_text(encoding="utf-8"))
+                        ["runtime_detours"][list(sites).index(va)]["stock_bytes"]))
+                    record = m.alloc(0x10000)
+                    values = {"eax": 0x1111, "ebx": 0x2222, "ecx": 0x3333, "edx": 0x4444, "esi": 0x5555,
+                              "edi": 0x6666, "ebp": 0x7777}
+                    values[regs[0]] = record
+                    if len(regs) > 1:
+                        values[regs[1]] = 0
+                    expected = imm if value_reg is None else 0x1C
+                    if value_reg is not None:
+                        values[value_reg] = expected
+                    for name, value in values.items():
+                        m.set_reg(name, value)
+                    m.run(va, va + length)
+                    self.assertEqual(struct.unpack("<i", m.read(record + field, 4))[0], expected)
+                    for name, value in values.items():
+                        self.assertEqual(m.reg(name), value, name)
+                    del stock
 
 class HowItShips(unittest.TestCase):
     def test_started_from_the_second_word(self):

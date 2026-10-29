@@ -281,7 +281,8 @@ Repair Saves & Logs also adds the ORIGINAL LOOKS the logs prove (the Original
 Looks patch, on by default): for each villager whose head or body Change
 Appearance or an island event changed, the look before their earliest
 "Appearance changed" record, which Change Appearance's "Reset to original"
-puts back. It never guesses: where the logs cannot prove a villager's
+puts back. A look the game itself gave (The Secret City's chief's robe) is
+kept as part of the original. It never guesses: where the logs cannot prove a villager's
 original (a change seen with no record of it, a mask the logs never named),
 that villager is marked "not known" and Reset to original says so. Villagers
 the patch sees itself -- born or arrived, or already there the first time you

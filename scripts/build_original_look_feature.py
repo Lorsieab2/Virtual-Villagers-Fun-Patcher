@@ -25,7 +25,9 @@ GAMES = (1, 2, 3, 4, 5)
 DESCRIPTION = (
     "Remembers each villager's original look -- the head, body and mask they had before any Change Appearance "
     "or island event changed them -- so Change Appearance and Change Appearance for All can put them back with "
-    "Reset to original (the head look goes back to Auto too). Each villager's look is noted the first time "
+    "Reset to original (the head look goes back to Auto too). A look the game itself gives a villager stays: "
+    "The Secret City's robe for a new Tribal Chief, and the outfit the game's own clothing dialog puts on "
+    "(The Lost Children to New Believers), become part of the original. Each villager's look is noted the first time "
     "the patcher sees them: when they are born or arrive, or, for a village you already have, the first time "
     "you play it with this patch; a look noted is never written over. For villagers changed before this "
     "patch, Repair Saves & Logs adds the original the patcher's logs prove -- the look before their earliest "
@@ -35,9 +37,20 @@ DESCRIPTION = (
     "them. **On by default.** **Requires the Origins-exclusive base, which the patcher installs "
     "automatically with it** (Change Appearance is there). **Works the same with every other patch and in "
     "every population mode.** **Not yet seen in a running game.** The companion is \"" + DLL_NAME + "\", "
-    "started by VVFP Startup.dll; it changes nothing in the game itself. If it cannot be loaded, Change "
+    "started by VVFP Startup.dll; it changes nothing the game does. If it cannot be loaded, Change "
     "Appearance says the original look is not known."
 )
+
+# The game's own writers of a villager's body it splices (native/vvfp_original_look/vvfp_original_look.c
+# GAME_WRITERS): (va, stock bytes, what writes there).
+WRITERS = {
+    2: ((0x4228E4, "898C104C050000", "the clothing dialog's OK (mov [eax+edx+0x54C], ecx)"),),
+    3: ((0x41BF89, "8988F40D0000", "the clothing dialog's OK (mov [eax+0xDF4], ecx)"),
+        (0x45FBDE, "C780F40D00001D000000", "the robing 0x45FBC0: the new Tribal Chief's robe, body 29")),
+    4: ((0x41961D, "8990BC1B0000", "theFernsaceDialog's OK (mov [eax+0x1BBC], edx)"),),
+    5: ((0x419D68, "8997BC1B0000", "theFernsaceDialog's OK (mov [edi+0x1BBC], edx)"),
+        (0x419E8E, "898FBC1B0000", "theFernsaceDialog's other button (mov [edi+0x1BBC], ecx)")),
+}
 
 
 def row(game: int, dll_sha: str) -> dict:
@@ -67,10 +80,19 @@ def row(game: int, dll_sha: str) -> dict:
             "before it when logged; where a change is seen with no record, the original is marked not known.",
             "Change Appearance's Reset to original reads it through VvfpOriginalLookGet "
             "(native/shared/original_look.h).",
+            "The game's own changes are kept: each instruction by which the game itself writes a villager's body "
+            "outside Change Appearance and island events -- The Secret City's robe (0x45FBDE in the robing "
+            "0x45FBC0) and the clothing dialog's OK (The Lost Children 0x4228E4, The Secret City 0x41BF89, The "
+            "Tree of Life 0x41961D, New Believers 0x419D68 and 0x419E8E) -- tells the companion the body first, "
+            "which becomes part of that villager's original; the game's write then happens exactly as before. "
+            "A New Home's stock game has no such writer.",
         ],
         "explicit_non_changes": [
-            "This row changes no executable bytes and writes nothing into the game's memory: no splice, no "
-            "record byte; the companion only reads the villager records and the slot field.",
+            "This row changes no executable bytes: the companion splices the game's own body writers listed "
+            "above at run time, after checking their stock bytes, through the shared all-or-none writer (a "
+            "different build installs none, and then the game's own changes are not kept); it writes no "
+            "record byte of its own -- the splice makes the very write the game makes.",
+            "Change Appearance and island events are never folded in: neither reaches those instructions.",
             "The save is never written; the Original Looks file is the patcher's own.",
             "A corrupt Original Looks file is moved aside intact and never read or written over; another "
             "village's file is never replaced on what is on screen alone.",
@@ -79,6 +101,11 @@ def row(game: int, dll_sha: str) -> dict:
             {"source": f"assets/original_look/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
         ],
         "patches": [],
+        "runtime_detours": [
+            {"va": f"0x{va:06X}", "stock_bytes": stock, "routine": what,
+             "installed_by": f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"}
+            for va, stock, what in WRITERS.get(game, ())
+        ],
     }
 
 

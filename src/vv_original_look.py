@@ -20,9 +20,16 @@ THE RULES (never guess):
     alike), found by following their records back from the look they have in the save -- each record's New
     head and body must be the look the next one starts from, under one of their names (a "Name changed"
     record, an island event's rename or a rename the patcher made gives the older names).
-  * The mask is the one they had before that first logged change: the "old" side of their earliest island
-    event "Mask:" step when there is one, otherwise the "Mask:" line of their own Birth, Arrived or island
-    event newcomer record (no line: no mask).  No such record: the mask is not known.
+  * The mask is the one they had before that first logged change: that record's own "Old mask" line (every
+    "Appearance changed" record carries the mask before and after since 2026-10-28, a change of the mask
+    alone too: native/shared/appearance_log.h); for an older record, the "old" side of their earliest
+    island event "Mask:" step when there is one, otherwise the "Mask:" line of their own Birth, Arrived or
+    island event newcomer record (no line: no mask).  No such record: the mask is not known.
+  * THE GAME'S OWN CHANGES ARE KEPT (the owner, 2026-10-28): The Secret City's Tribal Chief wears the robe
+    the game gave (body 29, the chief flag +0xE80 set: the robing 0x45FBC0, which no log records), so a
+    robed chief's records are followed by the head alone and their original body is the robe.  The
+    clothing dialog's outfits (The Lost Children to New Believers) are not in any log either; a villager
+    whose body it changed reads as "changed with no record" below, so not known.
   * NOT KNOWN, recorded as such so the DLL never records a first sight for them either: the mask cannot be
     told (and in New Believers any mask the logs name, which may be a Heathen's own); or the looks of their
     own Birth / Arrived / newcomer record are not where their records start (they were seen changed with no
@@ -61,6 +68,8 @@ MASKS = {"none": 0, "": 0, "blue mask": 1, "orange mask": 2, "red mask": 3, "pur
 # FIELDS) -- the same bytes the DLL reads from the record in memory (original_look_records.inc LAYOUT).
 NAME_BYTES = {1: 0x1C, 2: 0x18, 3: 0x19, 4: 0x19, 5: 0x19}
 PARENT_BYTES = 0x19
+VV3_CHIEF_FROM_NAME = 0xAC
+ROBE_BODY = 29
 _LOG_NUMBER = re.compile(r" Log (\d+)\.txt$", re.I)
 
 
@@ -207,6 +216,7 @@ class Living:
     """One living villager of the save."""
     seen: object                            # src/vv_reconcile.py Seen
     id: int
+    robed: bool = False                     # The Secret City's Tribal Chief in the robe the game gave them
 
 
 def living(folder: Path, game: int, slot: int) -> list[Living]:
@@ -227,7 +237,10 @@ def living(folder: Path, game: int, slot: int) -> list[Living]:
         else:
             ident, _ = identity(game, name, sex, data[at + f.father:at + f.father + PARENT_BYTES],
                                 data[at + f.mother:at + f.mother + PARENT_BYTES])
-        out.append(Living(s, ident))
+        # The Secret City's chief flag +0xE80 (the robing 0x45FBC0 is its only writer), saved in the
+        # record's second window, 0xAC after the name; the robe is body 29 (0x45FBDE).
+        robed = game == 3 and data[at + VV3_CHIEF_FROM_NAME] != 0 and s.body == ROBE_BODY
+        out.append(Living(s, ident, robed))
     return out
 
 
@@ -240,6 +253,8 @@ class Change:
     name: str
     old: tuple
     new: tuple
+    old_mask: int | None = None             # "Old mask" / "New mask" (since 2026-10-28; None: not recorded)
+    new_mask: int | None = None
 
 
 @dataclass
@@ -311,7 +326,9 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 new = (_int(b.value("New head")), _int(b.value("New body")))
                 name = b.value("Name") or ""
                 if None not in old + new and name:
-                    out.changes.append(Change(name, old, new))
+                    masked = b.value("Old mask") is not None and b.value("New mask") is not None
+                    out.changes.append(Change(name, old, new, _mask(b.value("Old mask")) if masked else None,
+                                              _mask(b.value("New mask")) if masked else None))
                     out.names.add(name)
             elif head == "Name changed":
                 if b.value("Old name") and b.value("Name"):
@@ -389,14 +406,20 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     other living villagers."""
     s = v.seen
     names = _names(s.name, ev.renames)
+    # The game's own change is kept (the owner, 2026-10-28): a Secret City chief's robe was given by the game
+    # with no record, so their records are followed by the head alone and the original body is the robe.
+    def same(a: tuple, b: tuple) -> bool:
+        return a[0] == b[0] if v.robed else a == b
     state = (s.head, s.body)
     chain = []
     for k in range(len(ev.changes) - 1, -1, -1):
         c = ev.changes[k]
-        if c.name in names and c.new == state:
+        if c.name in names and same(c.new, state):
             chain.append(k)
             state = c.old
     chain.reverse()
+    if v.robed:
+        state = (state[0], ROBE_BODY)
     unique_name = not (names & set(others)) and not _shared_name(ev, names)
     off_chain = [k for k, c in enumerate(ev.changes) if c.name in names and k not in chain]
     # An island event's head or body step with no "Appearance changed" record of it (one written before
@@ -407,7 +430,7 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     own = [o for o in ev.own if o[0] in names
            and (o[1] is None or s.sex is None or o[1].strip().lower() == str(s.sex).strip().lower())]
     record_looks = own[0][2] if len(own) == 1 and None not in own[0][2] else None
-    if record_looks is not None and record_looks != state:
+    if record_looks is not None and not same(record_looks, state):
         return Found(UNKNOWN, why="their own record's looks are not where their changes start: changed with no "
                                   "record of it")
     if unplaced and unique_name:
@@ -416,7 +439,11 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
         return Found(None)
     if off_chain and unique_name:
         return Found(UNKNOWN, why="a record of their name changed a look that is not on their way")
+    first = ev.changes[chain[0]]
     masks = [m for m in ev.masks if m[0] in names]
+    if first.old_mask is not None:
+        # The earliest change's own "Old mask": Change Appearance's mask store, whatever the game.
+        return Found(KNOWN, state[0], state[1], first.old_mask, chain=tuple(chain))
     if masks and masks[0][1] is not None:
         mask = masks[0][1]
     elif len(own) == 1 and own[0][3] is not None:

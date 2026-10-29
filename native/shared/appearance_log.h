@@ -13,6 +13,16 @@
          Old body: 4
          New head: 7
          New body: 8
+         Old mask: none
+         New mask: Red Mask
+
+   The two mask lines (the owner, 2026-10-28: mask-only changes "Log them") name the Heathen mask
+   Change Appearance keeps on the villager before and after, by the names every log uses
+   (native/shared/mask_line.h: "none", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask", "Tribal
+   Chief Mask"); they are written whenever the caller knows the masks (vv_log_appearance_mask), so a
+   change of the mask alone is logged too, its head and body lines old = new.  Records written before
+   carry no mask lines, and every reader takes them as they are (the mask not recorded).  The lines
+   after "New body" keep the four look lines first, as parentage_export.c relook_last_name reads them.
 
    Nothing is written when the Births and Conceptions log is not part of the game (the DLL is not
    there), or when the look did not change.  It never changes the villager or the game. */
@@ -30,12 +40,20 @@ typedef int (__stdcall *vv_write_village_record_fn)(int, int, const void *, int,
 
 typedef int (__stdcall *vv_story_appearance_fn)(int, const void *, int, int);
 
-static void vv_log_appearance(int game, const void *record, int old_head, int old_body, int new_head,
-                              int new_body) {
+/* The masks Change Appearance keeps, by the names every log uses (mask_line.h VV_MASK_NAMES; "none"). */
+static const char *const VV_APPEARANCE_MASK_NAMES[6] = {
+    "none", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask", "Tribal Chief Mask"
+};
+
+/* Log one villager's change of look: head, body and -- when the caller knows them, 0..5 each -- the mask
+   before and after (-1 for either: not known, no mask lines).  Nothing when nothing changed. */
+static void vv_log_appearance_mask(int game, const void *record, int old_head, int old_body, int old_mask,
+                                   int new_head, int new_body, int new_mask) {
     static vv_write_village_record_fn write_record;
     static int looked;
-    char before[160];
-    if (record == NULL || (old_head == new_head && old_body == new_body)) {
+    char before[220];
+    int masks = old_mask >= 0 && old_mask <= 5 && new_mask >= 0 && new_mask <= 5;
+    if (record == NULL || (old_head == new_head && old_body == new_body && (!masks || old_mask == new_mask))) {
         return;
     }
     /* The Story / Cheat Upgrades companion keeps a custom title by the villager's
@@ -61,9 +79,21 @@ static void vv_log_appearance(int game, const void *record, int old_head, int ol
     if (write_record == NULL) {
         return;
     }
-    wsprintfA(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n",
-              old_head, old_body, new_head, new_body);
+    if (masks) {
+        wsprintfA(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n  Old mask: %s\n"
+                  "  New mask: %s\n", old_head, old_body, new_head, new_body, VV_APPEARANCE_MASK_NAMES[old_mask],
+                  VV_APPEARANCE_MASK_NAMES[new_mask]);
+    } else {
+        wsprintfA(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n",
+                  old_head, old_body, new_head, new_body);
+    }
     (void)write_record(game, VV_KIND_APPEARANCE, record, 1, before, NULL, 0);
 }
 
+/* The head and body alone (the masks not known: no mask lines), as every caller logged before the
+   masks were.  Nothing when old_head == new_head && old_body == new_body. */
+static void vv_log_appearance(int game, const void *record, int old_head, int old_body, int new_head,
+                              int new_body) {
+    vv_log_appearance_mask(game, record, old_head, old_body, -1, new_head, new_body, -1);
+}
 #endif
