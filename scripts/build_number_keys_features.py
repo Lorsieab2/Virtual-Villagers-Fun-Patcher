@@ -14,8 +14,12 @@ Every `before` is read from the stock executable rather than typed in, and
 each site is asserted to hold exactly what the design says before a manifest
 is written, so a wrong address fails here instead of at apply time.
 
-THE VV1 TIP.  The game picks a loading-screen tip as string id
-0x207 + rand(30) at 0x4256B0 and resolves ids through a first-match linear
+THE VV1 TIP.  The game picks the tip it shows when the mask is clicked as
+string id 0x207 + rand(30) at 0x4256B0, inside the village screen's mouse
+handler 0x424EF0 (vtable 0x4598B0 +4; the mask test is 0x425661..0x42567F).
+That is A New Home's only random-tip picker: 0x4256BA is the code's only use
+of 0x207, and the loading screen (built by 0x41F650) shows only "Loading..."
+(string 79).  The game resolves ids through a first-match linear
 scan of 629 twenty-byte {id, en, de, fr, es} records at 0x487208 (0x433880,
 ids below 0x280 only).  Ids 0x205/0x206 and 0x225/0x226 are all taken, so the
 range cannot simply grow.  What is free: the demo-version string record
@@ -26,7 +30,10 @@ renumbered to 0x27E, the demo record becomes id 0x225 with all four language
 pointers at its own storage, the new tip is written over that storage, and
 the picker draws from 31.  No executable space is claimed anywhere.
 
-THE VV2 TIP.  Record 0x312 keeps its id; only its English pointer moves to
+THE VV2 TIP.  0x312 is random tip 45 of 50 (0x2E6 + 44).  The loading
+screen (0x429530) draws only 0x2E6 + rand(30) (0x42972A), so this tip comes
+only from the mask click: 0x2E6 + rand(50) in the village screen's mouse
+handler 0x4308D0 (0x431394).  Record 0x312 keeps its id; only its English pointer moves to
 the demo record's storage (id 0x35C, also unreferenced), where the longer
 wording fits with room to spare.  The German pointer is untouched.
 """
@@ -89,7 +96,8 @@ def vv1() -> dict:
         raise SystemExit("VV1 demo storage is not what the design says")
     patches = [
         patch(src, VV1_PICKER, b"\x6a\x1e", b"\x6a\x1f",
-              "draw the loading-screen tip from 31 ids instead of 30 (0x4256B0: push 0x1e -> push 0x1f), "
+              "draw the tip shown when the mask is clicked from 31 ids instead of 30 (0x4256B0, in the village "
+              "screen's mouse handler 0x424EF0: push 0x1e -> push 0x1f), "
               "so id 0x225 -- the new tip -- can come up; the picker is 0x207 + rand(n)"),
         patch(src, VV1_POINTS_PUSH, b"\x68\x25\x02\x00\x00", b"\x68\x7e\x02\x00\x00",
               "the one reader of string id 0x225 (\"points.\", 0x4346E7) asks for 0x27E instead, a free id, "
@@ -119,8 +127,8 @@ def vv1() -> dict:
             "against the glide while the mouse button is held and releasing the button (or any click) ends it, "
             "and opening another screen ends it. The keys work on the village screen: the top-row digits, and "
             "the numeric keypad when Num Lock is on. "
-            "Adds the loading-screen tip \"You can zip "
-            "around the island with your numeric keys.\" "
+            "Adds the tip \"You can zip around the island with your numeric keys.\" to the helpful tips "
+            "shown at the bottom of the screen when you click the mask. "
             + ORIGINS_BASE_SENTENCE
             + " That base's companion loads this patch's DLL."
         ),
@@ -141,7 +149,7 @@ def vv1() -> dict:
             "0x420998) and the screen constructor (0x422555) now also clear the glide, where The Lost Children "
             "clears it. These six sites are detoured at run time by the companion after their stock bytes are "
             "checked; if any differs, nothing is installed.",
-            "One more loading-screen tip can appear: \"You can zip around the island with your numeric keys.\"",
+            "Clicking the mask can show one more tip: \"You can zip around the island with your numeric keys.\"",
         ],
         "explicit_non_changes": [
             "The companion writes only the camera pair and the screen's edge velocity pair (+0x2D8/+0x2DC); "
@@ -187,13 +195,14 @@ def vv2() -> dict:
         "game_id": "vv2",
         "name": "Tip Wording: Numeric Keys",
         "description": (
-            "Rewords the loading-screen tip \"You can zip around the island with your keypad.\" to "
-            "\"You can zip around the island with your numeric keys.\", matching A New Home's new tip. "
+            "Rewords the tip \"You can zip around the island with your keypad.\", one of the helpful tips "
+            "shown at the bottom of the screen when you click the mask, to \"You can zip around the island "
+            "with your numeric keys.\", matching A New Home's new tip. "
             "The keys themselves already work in The Lost Children; nothing else changes."
         ),
         "output_tag": "Numeric Keys Tip",
         "behavior_changes": [
-            "One loading-screen tip reads \"numeric keys\" instead of \"keypad\".",
+            "One of the tips shown when you click the mask reads \"numeric keys\" instead of \"keypad\".",
         ],
         "explicit_non_changes": [
             "No code, save, or village-state byte changes; the German text is untouched.",

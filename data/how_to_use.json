@@ -399,7 +399,7 @@
     {
       "ids": ["vv2_numeric_keys_tip_wording"],
       "guide": [
-        "Changes one loading-screen tip to say \"numeric keys\" instead of \"keypad\".",
+        "Changes one of the tips shown when you click the mask to say \"numeric keys\" instead of \"keypad\".",
         "The number keys themselves already work in The Lost Children."
       ]
     },
