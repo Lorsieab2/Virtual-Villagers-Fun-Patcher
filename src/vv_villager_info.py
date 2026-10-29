@@ -16,6 +16,7 @@ from tkinter import ttk
 
 import vv_family_tree as ft
 import vv_genealogy as gen
+import vv_relationships
 
 # Coloured by sex (not bold: the owner found bold pink and blue hard on the eyes), readable on the
 # panel's light grey (contrast 5:1 or better on #f0f0f0).
@@ -494,7 +495,8 @@ class VillagerInfoTab:
                     tags += ["link", tag]
                 text.insert("end", words, tuple(tags))
             text.insert("end", "\n")
-        text.tag_raise("title")                         # the name larger than the rest, still in its colour
+        vv_relationships.add_section(self, ed.village, p.id, names)     # the Relationships dropdown
+        text.tag_raise("title")                       # the name larger than the rest, still in its colour
         text.configure(state="disabled")
 
     def _go(self, pid: int) -> None:
