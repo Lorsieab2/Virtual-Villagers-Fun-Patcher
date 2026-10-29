@@ -458,7 +458,8 @@ class VV3MaskSlotPersistenceTests(unittest.TestCase):
         chooser_va = pe.OPTIONAL_HEADER.ImageBase + exports["ShowVV3AppearanceChooser"]
         setter_va = pe.OPTIONAL_HEADER.ImageBase + exports["VV3_SetMaskForRecord"]
         chooser_raw = pe.get_offset_from_rva(exports["ShowVV3AppearanceChooser"])
-        code = pe.__data__[chooser_raw : chooser_raw + 0x200]
+        # 0x600: the chooser grew when it learned the head look (native/shared/head_look.h).
+        code = pe.__data__[chooser_raw : chooser_raw + 0x600]
         instructions = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(code, chooser_va))
 
         # The compiler routes both the exported setter and the chooser through

@@ -1,13 +1,16 @@
 """Render a companion DLL's dialog template to a PNG, as Windows draws it: the Change Appearance pictures in
 docs/ (the head look row, the owner, 2026-10-28).
 
-    python scripts/render_change_appearance.py <dll> <dialog id> <out.png> [<control>=<bitmap>:<cell> ...]
+    python scripts/render_change_appearance.py <dll> <dialog id> <out.png> [<control>=<bitmap>:<cell>[:v][@<dll>] ...]
+        [--check <control> ...]
 
 The DLL is loaded as a resource file only (none of its code runs).  The dialog is created by Windows from
 its own template, off screen, and printed with PrintWindow; each owner-drawn preview named on the command
-line is filled with that cell (40 x 65) of that BITMAP resource of the DLL, scaled to fit as the companions
-draw it, and every other owner-drawn control is left blank.  The first radio button of each group is
-checked, as the windows open for a villager whose look is Auto.  Windows only.
+line is filled with that cell (40 x 65) of that BITMAP resource -- of the DLL, or of the one after "@" -- scaled
+to fit as the companions draw it: cells side by side, or one under another with ":v" (A New Home's 40 x 1300
+strips and Grey Hair's grey ones).  Every other owner-drawn control is left blank.  The first radio button of
+each group is checked, as the windows open for a villager whose look is Auto, unless --check names others.
+Windows only.
 """
 from __future__ import annotations
 
@@ -19,7 +22,8 @@ from pathlib import Path
 CELL_W, CELL_H = 40, 65
 
 
-def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int]]) -> tuple[int, int]:
+def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int, bool, Path | None]],
+           checked: tuple[int, ...] = ()) -> tuple[int, int]:
     from PIL import Image
 
     user32 = ctypes.WinDLL("user32", use_last_error=True)
@@ -30,6 +34,12 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
     module = kernel32.LoadLibraryExW(str(dll), None, 0x2 | 0x20)   # LOAD_LIBRARY_AS_DATAFILE | AS_IMAGE_RESOURCE
     if not module:
         raise OSError(f"cannot load {dll} as a resource file")
+    extra = {}
+    for _, _, _, other in previews.values():
+        if other is not None and other not in extra:
+            extra[other] = kernel32.LoadLibraryExW(str(other), None, 0x2 | 0x20)
+            if not extra[other]:
+                raise OSError(f"cannot load {other} as a resource file")
 
     DLGPROC = ctypes.WINFUNCTYPE(ctypes.c_ssize_t, wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
 
@@ -64,6 +74,7 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
     user32.GetWindow.argtypes = [wintypes.HWND, wintypes.UINT]
     user32.GetWindowLongW.argtypes = [wintypes.HWND, ctypes.c_int]
     user32.GetClassNameW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+    user32.GetDlgCtrlID.argtypes = [wintypes.HWND]
     user32.SendMessageW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM]
     user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
     user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND] + [ctypes.c_int] * 4 + [wintypes.UINT]
@@ -78,8 +89,9 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
         gdi32.DeleteObject(brush)
         if item.CtlID not in previews:
             return
-        bitmap_id, cell = previews[item.CtlID]
-        bitmap = user32.LoadImageW(module, ctypes.c_void_p(bitmap_id), 0, 0, 0, 0)   # IMAGE_BITMAP
+        bitmap_id, cell, vertical, other = previews[item.CtlID]
+        source_module = extra[other] if other is not None else module
+        bitmap = user32.LoadImageW(source_module, ctypes.c_void_p(bitmap_id), 0, 0, 0, 0)   # IMAGE_BITMAP
         if not bitmap:
             return
         source = gdi32.CreateCompatibleDC(item.hDC)
@@ -89,7 +101,8 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
         w, h = int(CELL_W * scale), int(CELL_H * scale)
         gdi32.SetStretchBltMode(item.hDC, 3)                   # COLORONCOLOR
         gdi32.StretchBlt(item.hDC, rc.left + (width - w) // 2, rc.top + (height - h) // 2, w, h,
-                         source, cell * CELL_W, 0, CELL_W, CELL_H, 0x00CC0020)  # SRCCOPY
+                         source, 0 if vertical else cell * CELL_W, cell * CELL_H if vertical else 0, CELL_W, CELL_H,
+                         0x00CC0020)  # SRCCOPY
         gdi32.SelectObject(source, previous)
         gdi32.DeleteDC(source)
         gdi32.DeleteObject(bitmap)
@@ -101,7 +114,9 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
                 style = user32.GetWindowLongW(child, -16)
                 name = ctypes.create_unicode_buffer(32)
                 user32.GetClassNameW(child, name, 32)
-                if name.value.lower() == "button" and style & 0xF == 9 and style & 0x00020000:   # first of a group
+                is_radio = name.value.lower() == "button" and style & 0xF == 9
+                wanted = user32.GetDlgCtrlID(child) in checked if checked else style & 0x00020000   # first of a group
+                if is_radio and wanted:
                     user32.SendMessageW(child, 0x00F1, 1, 0)   # BM_SETCHECK
                 child = user32.GetWindow(child, 2)             # GW_HWNDNEXT
             return 1
@@ -150,6 +165,8 @@ def render(dll: Path, dialog: int, out: Path, previews: dict[int, tuple[int, int
     finally:
         user32.DestroyWindow(window)
         kernel32.FreeLibrary(module)
+        for handle in extra.values():
+            kernel32.FreeLibrary(handle)
 
 
 def main(argv: list[str]) -> int:
@@ -157,11 +174,18 @@ def main(argv: list[str]) -> int:
         print(__doc__)
         return 2
     previews = {}
-    for spec in argv[3:]:
+    checked = []
+    specs = argv[3:]
+    while specs:
+        spec = specs.pop(0)
+        if spec == "--check":
+            checked.append(int(specs.pop(0)))
+            continue
         control, rest = spec.split("=")
-        bitmap, cell = rest.split(":")
-        previews[int(control)] = (int(bitmap), int(cell))
-    size = render(Path(argv[0]), int(argv[1]), Path(argv[2]), previews)
+        rest, _, other = rest.partition("@")
+        parts = rest.split(":")
+        previews[int(control)] = (int(parts[0]), int(parts[1]), parts[2:] == ["v"], Path(other) if other else None)
+    size = render(Path(argv[0]), int(argv[1]), Path(argv[2]), previews, tuple(checked))
     print(f"wrote {argv[2]} ({size[0]} x {size[1]})")
     return 0
 

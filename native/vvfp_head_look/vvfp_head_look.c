@@ -241,7 +241,6 @@ static const hl_site VV2_SITES[] = {
 };
 
 static const hl_site *g_sites;
-static int g_site_count;
 
 /* The age the compare at site `n` makes, for the registers in `frame`: [0..7] pushad (edi, esi, ebp, esp,
    ebx, edx, ecx, eax).  The villager's look decides it; anything that is not plainly a villager record of
@@ -292,17 +291,20 @@ static void (*const HL_STUBS[])(void) = {
     hl_stub_19,
 };
 
+/* Every game's sites have a stub each (checked when this compiles). */
+typedef char hl_enough_stubs[(sizeof VV2_SITES / sizeof VV2_SITES[0] <= sizeof HL_STUBS / sizeof HL_STUBS[0]
+                              && sizeof VV3_SITES / sizeof VV3_SITES[0] <= sizeof HL_STUBS / sizeof HL_STUBS[0]
+                              && sizeof VV4_SITES / sizeof VV4_SITES[0] <= sizeof HL_STUBS / sizeof HL_STUBS[0]
+                              && sizeof VV5_SITES / sizeof VV5_SITES[0] <= sizeof HL_STUBS / sizeof HL_STUBS[0])
+                             ? 1 : -1];
+
 static void hl_install(const hl_site *sites, int count) {
     vvfp_site_write w[sizeof HL_STUBS / sizeof HL_STUBS[0]];
     int i;
-    if (count > (int)(sizeof HL_STUBS / sizeof HL_STUBS[0])) {
-        return;
-    }
     for (i = 0; i < count; ++i) {
         vvfp_site_branch(&w[i], sites[i].va, sites[i].length, sites[i].stock, 0xE9, (const void *)HL_STUBS[i]);
     }
     g_sites = sites;
-    g_site_count = count;
     g_installed = vvfp_install_sites(w, count);
 }
 
