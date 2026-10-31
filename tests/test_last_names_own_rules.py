@@ -382,9 +382,9 @@ class TheRowsReadAsTheLastNamesWindow(unittest.TestCase):
         parents = {goro.identity: (("Kito Wanjiko", 1, 1), ("Chika Helaku", 2, 2)),
                    copy.identity: (("Ago", 1, 1), None)}
         self.assertEqual(self.rows([goro, iruwa, copy, gone], parents), [
-            "Goro Wanjiko (Male) -- father Kito Wanjiko, mother Chika Helaku",
-            "Iruwa Bandele (Female) -- arrived",
-            "Kito (Male) -- father Ago, mother unknown -- arrived",
+            "Goro Wanjiko (Male, 20 years old) -- father Kito Wanjiko, mother Chika Helaku",
+            "Iruwa Bandele (Female, 25 years old) -- arrived",
+            "Kito (Male, 25 years old) -- father Ago, mother unknown -- arrived",
             "Chika (Female, no longer in the village)",
         ])
 
@@ -397,10 +397,18 @@ class TheRowsReadAsTheLastNamesWindow(unittest.TestCase):
         parents = {twin1.identity: pa, twin2.identity: pa, older.identity: pa}
         rows = self.rows([twin1, older, twin2, lone], parents)
         self.assertEqual(rows, [
-            "Soda (Female) -- father Kito, mother Chika -- aged 2 -- 1 of 2",
-            "Soda (Female) -- father Kito, mother Chika -- aged 0",
-            "Soda (Female) -- father Kito, mother Chika -- aged 2 -- 2 of 2",
-            "Ago (Male)",
+            "Soda (Female, 2 years old) -- father Kito, mother Chika -- 1 of 2",
+            "Soda (Female, 0 years old) -- father Kito, mother Chika",
+            "Soda (Female, 2 years old) -- father Kito, mother Chika -- 2 of 2",
+            "Ago (Male, 0 years old)",
+        ])
+        # The dead and gone show no age in the row (the logs' is their age at death or when last seen):
+        # namesakes among them are still told apart by it.
+        gone1 = ln.Living(-1, "Soda", "Female", 0, 0, 0, "", alive=False, age=40)
+        gone2 = ln.Living(-1, "Soda", "Female", 0, 1, 0, "", alive=False, age=900)
+        self.assertEqual(self.rows([gone1, gone2], {}), [
+            "Soda (Female, no longer in the village) -- aged 2",
+            "Soda (Female, no longer in the village) -- aged 45",
         ])
         for row in rows:
             self.assertNotRegex(row, r"head|body")

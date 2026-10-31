@@ -2309,10 +2309,12 @@ class Missing:
     auto: bool = False              # an arrival the arrivals toggle names, without asking
     conflict: list = field(default_factory=list)   # last names an earlier record of them gives
 
-    def describe(self) -> str:
+    def describe(self, who: str | None = None) -> str:
+        """`who`: how to name the villager (the last-names prompt adds their age); default, their name."""
         v = self.villager
-        text = (f"{v.name} arrived ({self.how or 'an event'}) with no last name" if v.arrived
-                else f"{v.name} has no last name")
+        who = v.name if who is None else who
+        text = (f"{who} arrived ({self.how or 'an event'}) with no last name" if v.arrived
+                else f"{who} has no last name")
         if self.conflict:
             text += f", but an earlier record calls them {' or '.join(self.conflict)}"
         return text
