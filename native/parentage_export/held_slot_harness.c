@@ -202,10 +202,10 @@ static const char *title_now(void) {
 }
 
 int main(void) {
+    harness_ldw_tree_begin();       /* first: Documents is a throwaway folder from here on */
     char exe[MAX_PATH], files_dir[MAX_PATH], marker[MAX_PATH], *cut;
     HANDLE stand_in;
 
-    harness_ldw_tree_begin();       /* first: Documents is a throwaway folder from here on */
     printf("held records and titles go to the loaded save's files\n");
     if (GetModuleFileNameA(NULL, exe, MAX_PATH) == 0 || (cut = strrchr(exe, '\\')) == NULL) {
         printf("could not locate this executable\n");
