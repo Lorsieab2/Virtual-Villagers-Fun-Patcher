@@ -177,7 +177,11 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_items_vv1", "vv_game_mechanics_items_vv2", "vv_game_mechanics_items_vv3",
                "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5", "vv_game_mechanics_parity",
                "vv_game_mechanics_hidden","vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
-               "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5"}
+               "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
+               # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
+               # renderer, found by name (importlib) and so listed here for the release zip.
+               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_vv1", "vv_pictures_vv2",
+               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -324,6 +328,12 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
+            # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
+            # files as the log checker reads them (function-level), and each game's renderer.
+            ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common"}),
+            ("vv_picture_image", set()),
+            ("vv_pictures_common", {"vv_picture_image", "vv_log_tools", "vv_save_backup", "vv_save_layout"}),
+            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 2, 3, 4, 5)),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",

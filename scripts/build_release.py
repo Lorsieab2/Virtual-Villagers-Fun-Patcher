@@ -342,6 +342,22 @@ FILES = [
     "src/vv_game_mechanics_hidden_vv3.py",
     "src/vv_game_mechanics_hidden_vv4.py",
     "src/vv_game_mechanics_hidden_vv5.py",
+    # Picture Studio (Tools tab): its window, the pure-Python image and PNG code, the save reading, and each
+    # game's renderer (found by name).  No game art ships: the pictures come from the player's own game.
+    "src/vv_picture_studio.py",
+    "src/vv_picture_image.py",
+    "src/vv_pictures_common.py",
+    "src/vv_pictures_vv1.py",
+    "src/vv_pictures_vv2.py",
+    "src/vv_pictures_vv3.py",
+    "src/vv_pictures_vv4.py",
+    "src/vv_pictures_vv5.py",
+    "docs/picture-studio.md",
+    "docs/picture-studio-vv1.md",
+    "docs/picture-studio-vv2.md",
+    "docs/picture-studio-vv3.md",
+    "docs/picture-studio-vv4.md",
+    "docs/picture-studio-vv5.md",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

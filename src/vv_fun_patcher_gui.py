@@ -41,6 +41,7 @@ import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
+import vv_picture_studio
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
 
@@ -1832,6 +1833,13 @@ class App(tk.Tk):
             command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
+        # Picture Studio (the owner, 2026-10-31): the villagers drawn as each game draws them, saved as PNGs.
+        ttk.Button(
+            genealogy_tools,
+            text="Picture Studio...",
+            command=lambda: vv_picture_studio.open_picture_studio(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "picture_studio").pack(side="left", padx=(2, 0))
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
