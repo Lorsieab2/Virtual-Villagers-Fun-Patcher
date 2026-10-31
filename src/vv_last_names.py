@@ -998,17 +998,22 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
 
     def drawn(v: Living) -> str:
         """OWN_LIST: the list's name a child carries is the game's draw at the birth and stays; a child
-        with none (or another) gets one of the whole list, every name equally likely, the same each
-        time for the same villager.  An arrival: none by default (ARRIVALS)."""
+        with none (or another) gets one of the list's names that fit (`fits`), every one equally likely,
+        the same each time for the same villager -- with none that fits, the name it has (the DLL's
+        drawn_last_name leaves the name as it is).  An arrival: none by default (ARRIVALS)."""
         have = carried(v.name)
         if v.arrived or (have and (have in listed or not pool)):
             return have
-        return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool else v.default
+        if not pool:
+            return v.default
+        names = [n for n in pool if fit(v, n)]
+        return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(names) if names else have
 
     def drawn_used(v: Living) -> str:
         """VILLAGE_NAMES: a last name the village has used that a child carries is the game's draw at the
         birth and stays; a child with none gets one of them that fits, every one equally likely, the same
-        each time for the same villager -- with none that fits, as OWN_LIST.  An arrival: theirs."""
+        each time for the same villager -- with none that fits, as OWN_LIST (the game's list, only names that
+        fit; none: the name it has).  An arrival: theirs."""
         have = carried(v.name)
         if v.arrived or (have and have in used_names):
             return have
@@ -2095,13 +2100,16 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     if not work.renames:
         raise NothingToDo("Nothing to do: every villager already has the last name chosen, so nothing was "
                           "changed.")
+    # The last names the village has used, read BEFORE the renames: a surname whose last bearer is renamed
+    # here was used all the same ("ever used", VILLAGE_NAMES), and is never read from the files again after.
+    used_before = _used_now(folder, game, slot) if rule else set()
     result = apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
     if rule:                                    # what "right" is, for Check Saves & Logs' wrong last names
         _old_rule, fixed = read_record(folder, game, slot)
         known = known_names(folder, game, slot, whole) | {last for last in (mine or {}).values() if last}
         for (name, head, body), last in (mine or {}).items():
             fixed[(split_name(game, name, known)[0], head, body)] = last
-        write_record(folder, game, slot, rule, fixed, whole, used=_used_now(folder, game, slot))
+        write_record(folder, game, slot, rule, fixed, whole, used=used_before | _used_now(folder, game, slot))
     return result
 
 

@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import vv_last_names as ln  # noqa: E402
+import vv_log_tools as tools  # noqa: E402
 from test_last_names_own_rules import save  # noqa: E402
 from test_last_names_rename import NoGame, entry  # noqa: E402
 
@@ -109,6 +110,26 @@ class VillageNamesInRepair(unittest.TestCase):
         fits = lambda v, last: len(last) <= 6  # noqa: E731
         got = self.given(kids, fits=fits)
         self.assertEqual({got[k.identity] for k in kids}, {"Bahati"})
+
+    def test_the_lists_fallback_only_draws_names_that_fit(self):
+        # Codex, PR #658: no used name fits, so the fallback drew from the whole list -- "Tasunke" for a
+        # 16-letter first name, past The Secret City's 23 characters, though "Akikai" fits.
+        pool = list(tools.load_checker().LAST_NAMES[3])
+        dad, mum = person("Ago", "Male", 5, 6), person("Aipi", "Female", 7, 8)
+        fits = ln.fitter(3)
+        kids = [person("Longfirstnameabc", "Male", 9, n) for n in range(60)]
+        parents = {kid.identity: (dad.identity, mum.identity) for kid in kids}
+        got = ln.inherited([dad, mum, *kids], parents, "village", pool, None, carried, None, {"Reallylongname"}, fits)
+        self.assertEqual(got[kids[0].identity], "Akikai", "Codex's example")
+        for kid in kids:
+            self.assertTrue(fits(kid, got[kid.identity]), got[kid.identity])
+        # Nothing fits at all: the name is left as it is (the DLL leaves it too).
+        tight = lambda v, last: False  # noqa: E731
+        got = ln.inherited([dad, mum, *kids], parents, "village", pool, None, carried, None, {"Bahati"}, tight)
+        self.assertEqual({got[k.identity] for k in kids}, {""})
+        own = {ln.own_key(dad): "list"}
+        got = ln.inherited([dad, mum, *kids], parents, "father", pool, None, carried, own, None, tight)
+        self.assertEqual({got[k.identity] for k in kids}, {""}, "a parent's own list rule likewise")
 
     def test_none_ever_used_draws_from_the_list(self):
         dad, mum = person("Ago", "Male", 5, 6), person("Aipi", "Female", 7, 8)
@@ -240,6 +261,20 @@ class TheRecord(unittest.TestCase):
         self.assertEqual(own, {"Aipi": "mother"}, "a villager's own 'village' is no own rule there")
         # And the DLL of v1.35.85: its village rule wants six letters and its own_line_of four or six.
         self.assertEqual(len("village"), 7)
+
+    def test_a_renamed_last_bearers_surname_stays_used(self):
+        # Codex, PR #658: the used names were read only after the renames, so renaming the last bearer of a
+        # surname (rules unchanged: the window then skips save_own_rules) lost it from the record.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            save(folder, [entry("Ago Bahati", 0, 1, 5, 6), entry("Aipi Wanjiko", 1, 50, 7, 8)])
+            ln.write_record(folder, 3, 1, "father", {})
+            self.assertEqual(ln.read_used(folder, 3, 1), set(), "no used lines yet")
+            ago = {v.name: v for v in ln.living(folder, 3, 1)}["Ago Bahati"]
+            ln.give_last_names(folder, 3, 1, {ago.identity: "Okelani"}, NoGame(), rule="father")
+            self.assertEqual([v.name for v in ln.living(folder, 3, 1)], ["Ago Okelani", "Aipi Wanjiko"])
+            self.assertEqual(ln.read_used(folder, 3, 1), {"Bahati", "Okelani", "Wanjiko"},
+                             "the surname before the rename, and the ones after")
 
     def test_repair_keeps_the_villages_names_when_it_keeps_the_rules(self):
         with tempfile.TemporaryDirectory() as tmp:
