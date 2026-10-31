@@ -228,6 +228,35 @@ class MisfiledRecordsTests(unittest.TestCase):
         self.assertEqual(two.count("Conception 316\r\n"), 1)
         self.assertNotIn("Kiwi Jumapili", self.fx.births(1).read_bytes().decode("latin-1"))
 
+    def test_a_new_log_gets_its_header_when_the_first_record_is_declined(self):
+        # Codex (#659): with the header on the first PLANNED record, declining it and moving the second
+        # made Save 2's new log with no "Village:" line, so its record was nobody's village.
+        self.fx.build()
+        self.fx.births(2).unlink()                          # Save 2 has no Births and Conceptions log yet
+        kind = self.plan()
+        keys = sorted(kind.questions, key=lambda k: int(k.rsplit("|", 1)[1]))
+        self.assertEqual(len(keys), 2)
+        additions.apply(self.base, [kind], {kind.id}, {keys[0]: misfiled.LEAVE_IT, keys[1]: misfiled.MOVE_IT})
+        two = self.fx.births(2).read_bytes().decode("latin-1")
+        self.assertTrue(two.startswith(self.fx.h2 + "\r\n"), two[:80])
+        self.assertEqual(two.count("Village: "), 1)
+        self.assertNotIn("Conception 312", two)
+        found = [b for b in additions.blocks(self.fx.births(2)) if b.heading == "Conception 316"]
+        self.assertEqual(len(found), 1)
+        self.assertEqual((found[0].slot, found[0].village), (2, self.fx.h2))
+        one = self.fx.births(1).read_bytes().decode("latin-1")
+        self.assertIn("Conception 312", one)                # declined: still where it was
+        self.assertNotIn("Conception 316", one)
+
+    def test_a_new_log_gets_its_header_once_when_both_are_moved(self):
+        self.fx.build()
+        self.fx.births(2).unlink()
+        self.apply(self.plan())
+        two = self.fx.births(2).read_bytes().decode("latin-1")
+        self.assertTrue(two.startswith(self.fx.h2 + "\r\n"), two[:80])
+        self.assertEqual(two.count("Village: "), 1)
+        self.assertLess(two.index("Conception 312"), two.index("Conception 316"))
+
     def test_repair_offers_it_with_every_other_step(self):
         source = (ROOT / "src" / "vv_log_additions.py").read_text(encoding="utf-8")
         self.assertIn("kinds.append(vv_misfiled_records.plan(folder, game, slot))", source)

@@ -1706,6 +1706,21 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         doc = docs.setdefault(path, _Doc(path))
         for after, rank, line, kind_id in sorted(set(adds), key=lambda a: (a[0], a[1])):
             doc.inserts.setdefault(after, []).append([rank, line, kind_id])
+    # Records MOVED to another save's log (src/vv_misfiled_records.py) each carry the separation and the
+    # destination's village header: kept on the first record the player chose to move, taken off the rest
+    # (Codex, #659: kept on the first one PLANNED, a declined first record left a new log with no header).
+    for kind in kinds:
+        if kind.id in chosen:
+            for target, lead in (kind.context.get("leads") or {}).items():
+                if not lead or target not in docs:
+                    continue
+                first = True
+                for after in sorted(docs[target].inserts):
+                    for item in sorted(docs[target].inserts[after], key=lambda it: it[0]):
+                        if item[2] == kind.id and item[1].startswith(lead):
+                            if not first:
+                                item[1] = item[1][len(lead):]
+                            first = False
     # Records the player chose to take out (a backfilled Arrived record of a villager born here), then
     # every later "Arrived <n>" in the game's Births and Conceptions files renumbered, so the running
     # count the game continues from stays whole.

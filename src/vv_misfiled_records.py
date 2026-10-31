@@ -146,6 +146,25 @@ def _own_logs(folder: Path, game: int, slot: int) -> list[tuple[Path, str, str, 
     return out
 
 
+def _logged_header(folder: Path, game: int, slot: int) -> str | None:
+    """The slot's village header as its own logs last wrote it (when the save can not name it): the last
+    "Village: <name> (Save <slot>)" of its Village Population pages and Village History."""
+    found = None
+    for sub, stem in (("Tribe History", "Village History"), ("Tribe Population", "Village Population")):
+        for path in layout.numbered_logs(folder, sub, stem, slot):
+            if layout.is_slot_folder(path) != slot:
+                continue
+            try:
+                lines = additions.read_lines(path)
+            except OSError:
+                continue
+            for line in lines:
+                m = additions.VILLAGE.match(line)
+                if m and int(m.group(1)) == slot:
+                    found = line.rstrip()
+    return found
+
+
 def stem_of(path: Path) -> str:
     """"Virtual Villagers 3 Births and Conceptions Log" of "... Log 7.txt"."""
     return re.sub(r" \d+\.txt$", "", path.name)
@@ -229,13 +248,15 @@ def plan(folder: Path, game: int, slot: int, rosters: dict | None = None) -> add
             target = layout.append_target(folder, sub, stem, home, marker)
             villages = additions.current_villages(folder, game, home)
             import vv_answered_questions
-            header = vv_answered_questions.village_header(folder, game, home)
+            header = vv_answered_questions.village_header(folder, game, home) or _logged_header(folder, game, home)
             anchor, lead = additions._append_point(target, home, game, villages, header)
             targets[(home, sub)] = (target, anchor, lead)
         target, anchor, lead = targets[(home, sub)]
-        # Only the first record appended needs the separation and the header: the rest follow it.
-        if any(i.path == target for i in kind.inserts):
-            lead = ""
+        # Every record carries the separation and the header: which one is written first depends on the
+        # player's answers, so vv_log_additions.apply keeps it on the first ACCEPTED one only
+        # (leads_once; Codex, #659: on the first PLANNED one, a declined first record left a new log
+        # with no header).
+        kind.context.setdefault("leads", {})[target] = lead
         who = ", ".join(p.name if label == "Name" else f"{label} {p.name}" for label, p in people)
         key = f"{KIND_ID}|{path.name}|{b.start}"
         kind.questions[key] = additions.Question(
