@@ -301,6 +301,8 @@ FILES = [
     "src/vv_reconcile_view.py",
     # The original looks Repair Saves & Logs adds from the logs (Change Appearance's Reset to original).
     "src/vv_original_look.py",
+    # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
+    "src/vv_misfiled_records.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
     "src/vv_game_mechanics_window.py",
     # The tool windows' fonts (the VF1 patcher's), shared by every Tools tab window.

@@ -22,6 +22,11 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new (unreleased)
+
+- **Fixed: a record could be written into another save's log** (all five games, the Births and Conceptions, Deaths and Disappearances, Island Events and Unaccounted Villagers logs). A record made before the village on screen had been saved is held and written at the next save; it was written under whichever village that save was, so in The Secret City two of Save 2's conceptions (Conception 312, Kiwi Jumapili and Motu Okelani; Conception 316, Matate Jumapili and Motu Okelani) went into Save 1's log. A held record now goes to the log of the save the game had loaded when it was made, written at that save's next save; one made before any save is loaded (the game's own pre-tribe simulation) is written as before. A record is also no longer written at once into the log of the village saved last when another slot holds a copy of that village and is the one loaded. **Repair Saves & Logs moves the records older builds wrote into the wrong save's log** to the end of their own save's log of the same kind -- their text and numbers unchanged, with a Note saying where they came from -- and only after that log is written takes them out of the wrong one. It asks about each one (Move it / Leave it where it is) and moves only a record marked "Recorded before this village was saved" whose every villager is in exactly one other save's village (its save, older save copies, Village History and Village Population), by name, looks, likes and dislikes; the pre-tribe simulation's records, and any whose villagers are in no save or in two, are left where they are. Both logs are copied first. **Patch every game again** after updating. Not yet seen in a running game (checked on copies of real logs and by native harnesses).
+- **Fixed: Custom titles in the logs could be another save's** (all five games). The "Custom title:" line of Death, Disappeared, Epitaph changed, Appearance changed and Name changed records, the title an island event's record compares, and New Believers' "Former Heathen" titles were read from the files of the village saved last, so after saving one village and loading another, the second village's records could show the first village's titles, or none. They are now read from the files of the save the game has loaded. **Patch every game again** after updating.
+
 ## What's new in v1.35.85
 
 - **Grey Hair at 55** (A New Home, new, on by default). A villager of 55 years or more is now drawn with a grey-haired version of the same head, the age The Lost Children, The Secret City, The Tree of Life and New Believers switch to their older heads -- in the village, on the map and in the Villager Details portrait, and Change Appearance previews it the same way. Villagers already grey or bald look the same. The Golden Child's head follows the same rule: he himself never grows old, so he never changes, but anyone else given his head shows its old version from 55. Only the picture changes: the head number in the save stays the same, so logs, the Family Tree, genetics and Change Appearance read the same head as before. **Show Parents' small pictures of a child's parents and the Family Tree keep the usual heads.** The new "VVFP VV1 Grey Hair.dll" is started by VVFP Startup.dll and draws two new pictures, Images\vvfp_grey_male_heads.png and Images\vvfp_grey_female_heads.png; the game's own pictures are not changed. **Patch A New Home again** after updating. Not yet seen in a running game (checked by emulation on the stock exe).
@@ -448,7 +453,10 @@ believers; heathens remain unchanged. This optional patch is off by default.
 
 **Write Births and Conceptions Log to Text File** is also available for all
 five games. Records made before a village's first save are held and written
-at that save; none is dropped. Since v1.35.30, a held record from a villager
+at that save; none is dropped. A held record goes to the log of the save the
+game had loaded when it was made, at that save's next save (one made before
+any save is loaded, such as the game's pre-tribe simulation, goes to the next
+save's log as before). Since v1.35.30, a held record from a villager
 table where hardly anyone is still present at that save ends with a `Note:`
 line saying it was probably recorded among villagers who were not in the
 village (for example the game's pre-tribe simulation, or a tribe left unsaved
