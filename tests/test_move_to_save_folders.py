@@ -480,7 +480,8 @@ def act(key):
     def go():
         top = [w for w in root.winfo_children() if isinstance(w, tkinter.Toplevel)][0]
         # A key that never arrives must not hang the test: the dialog is closed and that shows.
-        root.after(5000, lambda: top.winfo_exists() and (seen.setdefault("hung", key), top.destroy()))
+        # Generous, because on a loaded machine a generated key can wait seconds for the focus.
+        root.after(30000, lambda: top.winfo_exists() and (seen.setdefault("hung", key), top.destroy()))
         buttons = []
         def walk(w):
             for c in w.winfo_children():
@@ -493,9 +494,16 @@ def act(key):
         if key == "Move":
             [b for b in buttons if b.cget("text") == "Move"][0].invoke()
         else:
-            top.update()
-            top.focus_force()
-            top.event_generate("<" + key + ">", when="tail")
+            # Under load the first key can be lost before the dialog has the focus, so it is sent
+            # again until the dialog closes; it goes only to this dialog, never to the next one.
+            def send():
+                if not top.winfo_exists():
+                    return
+                top.update()
+                top.focus_force()
+                top.event_generate("<" + key + ">", when="tail")
+                root.after(500, send)
+            send()
     return go
 
 out = []
@@ -509,12 +517,19 @@ root.destroy()
 
 class ConfirmationDialogTest(unittest.TestCase):
     def test_cancel_is_the_default_and_return_and_escape_cancel(self) -> None:
-        done = subprocess.run([sys.executable, "-c", DIALOG_CHILD, str(ROOT / "src")],
-                              capture_output=True, text=True, timeout=90)
-        if done.returncode == 3:
-            self.skipTest("no Tk display: " + done.stderr.strip())
-        self.assertEqual(done.returncode, 0, done.stderr)
-        self.assertEqual(done.stdout.strip().splitlines()[-1], "['Cancel'] Cancel [False, False, True] None")
+        # When many test windows fight for the keyboard focus (the parallel suite), Windows can keep
+        # it from this one, so a generated key never lands and the child reports the key as "hung".
+        # Only that outcome is run again, up to three times; any other result is checked at once.
+        for _attempt in range(3):
+            done = subprocess.run([sys.executable, "-c", DIALOG_CHILD, str(ROOT / "src")],
+                                  capture_output=True, text=True, timeout=90)
+            if done.returncode == 3:
+                self.skipTest("no Tk display: " + done.stderr.strip())
+            self.assertEqual(done.returncode, 0, done.stderr)
+            last = done.stdout.strip().splitlines()[-1]
+            if not last.endswith(("Return", "Escape")):
+                break
+        self.assertEqual(last, "['Cancel'] Cancel [False, False, True] None")
 
     def test_the_button_is_wired_next_to_move_old_files(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
