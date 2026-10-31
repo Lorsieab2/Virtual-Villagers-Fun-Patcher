@@ -999,6 +999,17 @@
         "The patcher's logs carry on for the same village under the new name."
       ]
     },
+    "copy_player_slot": {
+      "title": "Copy Player Slot",
+      "guide": [
+        "Copies a village into an empty save slot of the same game, under a new name.",
+        "Quit the game first, from its own menu.",
+        "Pick the game, save folder, the village to copy and an empty slot, type the new name and click Copy.",
+        "You are asked to confirm first; No copies nothing.",
+        "The save folder is backed up first, and the village you copy from is never changed.",
+        "The copy takes the patcher's logs and data for that village with it, under the new slot."
+      ]
+    },
     "check_logs": {
       "title": "Check Saves & Logs",
       "guide": [
