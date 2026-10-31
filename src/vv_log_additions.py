@@ -68,6 +68,9 @@ CHECKED = {
                          "player's answers",
     "looks_numbers": "the villagers numbered only because their own looks or title changed (no other villager of "
                      "the name, living, dead, gone or in any record), and the player's answers",
+    "misfiled": "the records written before a village was saved, against every save slot's village (its save, "
+                "the save's older generations, its Village History and Village Population), and the "
+                "player's answers",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -79,6 +82,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "born_arrived": "Duplicate backfilled Arrived record removed",
          "false_unaccounted": "False Unaccounted record removed",
          "looks_numbers": "Number taken off",
+         "misfiled": "Record moved to its own save's log",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -1421,6 +1425,10 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
     # Numbers a change of a villager's own looks or title gave (src/vv_number_names.py, v1.35.80 update).
     import vv_number_names
     kinds.append(vv_number_names.plan_unnumber(folder, game, slot))
+    # Records an older companion wrote into this save's log though they were another save's (the owner,
+    # 2026-10-31): moved to their own save's log (src/vv_misfiled_records.py).
+    import vv_misfiled_records
+    kinds.append(vv_misfiled_records.plan(folder, game, slot))
     # The read-only reconciliation's contradictions, asked before any repair (src/vv_reconcile.py).
     import vv_reconcile
     kinds.append(vv_reconcile.kind(folder, game, slot))
@@ -1698,6 +1706,21 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         doc = docs.setdefault(path, _Doc(path))
         for after, rank, line, kind_id in sorted(set(adds), key=lambda a: (a[0], a[1])):
             doc.inserts.setdefault(after, []).append([rank, line, kind_id])
+    # Records MOVED to another save's log (src/vv_misfiled_records.py) each carry the separation and the
+    # destination's village header: kept on the first record the player chose to move, taken off the rest
+    # (Codex, #659: kept on the first one PLANNED, a declined first record left a new log with no header).
+    for kind in kinds:
+        if kind.id in chosen:
+            for target, lead in (kind.context.get("leads") or {}).items():
+                if not lead or target not in docs:
+                    continue
+                first = True
+                for after in sorted(docs[target].inserts):
+                    for item in sorted(docs[target].inserts[after], key=lambda it: it[0]):
+                        if item[2] == kind.id and item[1].startswith(lead):
+                            if not first:
+                                item[1] = item[1][len(lead):]
+                            first = False
     # Records the player chose to take out (a backfilled Arrived record of a villager born here), then
     # every later "Arrived <n>" in the game's Births and Conceptions files renumbered, so the running
     # count the game continues from stays whole.
@@ -1710,7 +1733,9 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             doc.removed.update(range(start, start + count))
             # An Unaccounted record's number is not the Arrived records' running count: taking one out
             # renumbers nothing (the exporter numbers on above the highest, native/parentage_export).
-            if kind_id != "false_unaccounted" and (m := GAME_IN_NAME.search(path.name)):
+            # Nor does a record MOVED to another save's log (src/vv_misfiled_records.py): it keeps its
+            # number there.
+            if kind_id not in ("false_unaccounted", "misfiled") and (m := GAME_IN_NAME.search(path.name)):
                 removed_by[int(m.group(1))] = kind_id
     # Lines put right where they are (a repeated "Death <n>" or "Repair <n>" heading): decided, or only
     # on the answers they name (a contradiction's resolution and "Yes").
@@ -1745,7 +1770,12 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
         _number_births(folder, adding[0].context["game"], adding[0].context["slot"], docs, apply=True,
                        added_only=True)
     written = 0
-    for path, doc in docs.items():
+    # A record MOVED to another save's log (src/vv_misfiled_records.py) is taken out of the wrong log only
+    # once its new log is written: every file a move takes a record out of is written last, so a failure
+    # before it leaves the record where it was (a copy in both is put right by the next Repair; one in
+    # neither could not be).
+    ordered = sorted(docs.items(), key=lambda item: any(kind == "misfiled" for _s, _c, kind in item[1].removes))
+    for path, doc in ordered:
         if not doc.changed:
             continue
         text = doc.render()

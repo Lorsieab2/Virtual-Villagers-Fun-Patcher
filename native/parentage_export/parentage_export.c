@@ -2658,10 +2658,19 @@ static int is_record_slot(
    likes / dislikes lists of PREFERENCE_TEXT_MAX each (a Conception names both parents'). */
 #define RECORD_TEXT_MAX (2048 + 4 * PREFERENCE_TEXT_MAX)
 
+/* The game's own current save slot (its save manager's field; see game_slot_now below), and
+   whether that save manager can be read at all. */
+static int game_slot_now(int game_id);
+static int game_has_save_manager(int game_id);
+
 struct pending_record {
     int game_id;
     int kind;
     int tribe;          /* index into held_tribes; -1 = not snapshotted */
+    /* The slot the game had loaded when the record was made (game_slot_now), 0 when it had none
+       (the pre-tribe simulation, before the save manager exists).  A held record is written to
+       ITS OWN save's log: at a save of another slot it stays held (the owner, 2026-10-31). */
+    int slot;
     char *text;
 };
 
@@ -3284,22 +3293,47 @@ static char *label_record(const char *text) {
    "Appearance changed" record stays held, and everything behind it with it, in order: the game
    writes the new look into the save only at the save, so a crash before it must not leave the log
    saying the villager changed (Codex, #558). */
+/* Whether a held record goes into the log of the village `header_slot` names: a record made while
+   the game had ANOTHER slot loaded belongs to that slot's log and waits for that slot's own save
+   (the owner, 2026-10-31: "Recorded before this village was saved" records go to their own save's
+   log).  A record made with no slot loaded (0: the pre-tribe simulation, or no save manager), or a
+   flush that names no slot (no publisher), keeps the old rule: the village named now. */
+static int pending_goes_to(const struct pending_record *entry, int game_id, int header_slot) {
+    return entry->game_id == game_id
+        && (entry->slot == 0 || header_slot == 0 || entry->slot == header_slot);
+}
+
+/* Held records of this game still waiting for the log of the village `header_slot` names. */
+static int pending_for(int game_id, int header_slot) {
+    int i, count = 0;
+    for (i = 0; i < pending_count; ++i) {
+        if (pending_goes_to(&pending[i], game_id, header_slot)) {
+            ++count;
+        }
+    }
+    return count;
+}
+
 static void flush_pending(int game_id, const char *village, int at_save) {
     const struct game_layout *g = layout_of(game_id);
     int i;
     int kept = 0;
     int stopped = 0;
+    int header_slot = vv_log_header_slot(village);
     int now_known = tribes_ready() && take_tribe(game_id, NULL, scratch_tribe);
 
     for (i = 0; i < pending_count; ++i) {
         struct pending_record *entry = &pending[i];
         int release = 0;
-        if (entry->game_id == game_id && !at_save
+        /* Another game's, or a record made while another slot was loaded: kept, in order, for its
+           own village's save -- never written here, never dropped. */
+        int ours = pending_goes_to(entry, game_id, header_slot);
+        if (ours && !at_save
             && (entry->kind == KIND_APPEARANCE || entry->kind == KIND_ISLAND_EVENT
                 || entry->kind == KIND_NAME_CHANGE)) {
             stopped = 1;
         }
-        if (entry->game_id == game_id && !stopped) {
+        if (ours && !stopped) {
             const char *text = entry->text;
             char *labelled = NULL;
             int outcome;
@@ -3356,6 +3390,7 @@ static int hold_record(int game_id, int kind, const unsigned char *records,
     memcpy(entry->text, text, length);
     entry->game_id = game_id;
     entry->kind = kind;
+    entry->slot = game_slot_now(game_id);
     entry->tribe = current_tribe_index(game_id, records);
     ++pending_count;
     return 1;
@@ -3382,12 +3417,20 @@ static int emit_record(
         && village_publisher_present(game_id)) {
         return hold_record(game_id, kind, records, text);   /* written at the next save */
     }
-    if (village[0] != '\0' && saved_tribe_still_loaded(game_id)) {
+    /* THE RECALLED HEADER MUST NAME THE SLOT THE GAME HAS LOADED.  The header is published only at
+       a save, and the table check alone is not enough: a copy of the village in another slot (a
+       copied save, a fork) passes the strict rule, and its records went into the saved village's
+       log.  So with the game's own slot known (game_slot_now), a record is written now only when
+       the header names that slot; otherwise it is held for its own slot's save.  An unknown slot
+       (0) keeps the table check alone, as before. */
+    if (village[0] != '\0' && saved_tribe_still_loaded(game_id)
+        && (game_slot_now(game_id) == 0 || game_slot_now(game_id) == vv_log_header_slot(village))) {
         flush_pending(game_id, village, 0);
-        /* Written now only when nothing is still waiting and the write works.
-           Otherwise it queues BEHIND what is waiting, so a failed write can
-           neither lose it nor let it overtake an earlier record. */
-        if (pending_count == 0) {
+        /* Written now only when nothing is still waiting for this village's
+           log and the write works.  Otherwise it queues BEHIND what is
+           waiting, so a failed write can neither lose it nor let it overtake
+           an earlier record. */
+        if (pending_for(game_id, vv_log_header_slot(village)) == 0) {
             int outcome = append_record(g, village, kind, text);
             if (outcome == APPEND_WRITTEN) {
                 return 1;
@@ -4146,6 +4189,35 @@ static int game_slot_now(int game_id) {
     return vv_game_save_slot(game_id);
 }
 
+static int game_has_save_manager(int game_id) {
+    const unsigned char *const volatile *at;
+    const unsigned char *manager;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    at = VV_GAME_SAVE_MANAGER_AT(game_id);
+    if (!memory_is_readable((const void *)at, sizeof *at)) {
+        return 0;
+    }
+    manager = *at;
+    return manager != NULL && memory_is_readable(manager + VV_GAME_SAVE_SLOT_FIELD[game_id], sizeof(int));
+}
+
+/* The slot whose per-save files (Custom Titles, Former Heathens) are the village on screen's: the
+   game's own slot (game_slot_now), 0 -- no file, no title -- while it has none.  Never the
+   " (Save N)" of the header last published, which still names the village saved last after the
+   player loads another (see game_slot_now): that read the other village's Custom Titles during
+   this one's catch-up.  Only with no save manager to read at all (before the game builds it, and
+   in the native harnesses that load this DLL into a process of their own) is the published header
+   used, as it was before. */
+static int village_files_slot(int game_id) {
+    char village[VV_VILLAGE_NAME_MAX + 32];
+    if (game_has_save_manager(game_id)) {
+        return game_slot_now(game_id);
+    }
+    return vv_village_recall(village, sizeof village) ? vv_log_header_slot(village) : 0;
+}
+
 static int last_names_slot(int game_id) {
     return game_slot_now(game_id);
 }
@@ -4361,8 +4433,10 @@ __declspec(dllexport) int __stdcall WriteParentageBirth(
    villager logs too.
 
    The titles are kept per save slot (native/shared/custom_titles.h); the
-   slot is the one the village header names ("... (Save <n>)", its LAST such
-   marker, as every reader takes it).
+   slot is the game's own, the village on screen's (village_files_slot) --
+   no longer the " (Save <n>)" of the header last published, which after
+   saving one village and loading another named the first one, so the
+   second's catch-up read the first's titles.
 
    A LIVE RECORD (one of the game's villager records, `departed` 0) is given
    the entry bound to its own record index, by native/shared/
@@ -4384,28 +4458,21 @@ static int record_custom_title(int game_id, const struct game_layout *g,
                                int departed, char *out, size_t out_size) {
     static unsigned char data[VV_TITLES_FILE_MAX];
     static vv_custom_title titles[VV_TITLES_MAX];
-    char village[VV_VILLAGE_NAME_MAX + 32];
     char folder[MAX_PATH];
     char path[MAX_PATH];
-    const char *at = NULL;
-    const char *scan;
     vv_titles_check check;
     unsigned int identity;
     HANDLE h;
     DWORD got = 0;
     int count, i, found = -1, slot;
     out[0] = '\0';
-    if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u
-        || !vv_village_recall(village, sizeof village)) {
+    if (g->likes == 0u || g->dislikes == 0u || g->preference_slots == 0u) {
         return 0;
     }
-    for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
-        at = scan;
-    }
-    if (at == NULL || at[7] < '1' || at[7] > '5' || at[8] != ')') {
+    slot = village_files_slot(game_id);       /* the village on screen's, never the one saved last */
+    if (slot < 1 || slot > 5) {
         return 0;
     }
-    slot = at[7] - '0';
     if (!vv_save_folder(folder, (int)sizeof("\\" VV_TITLES_SUBFOLDER "\\Custom Titles - Save 0.dat"))) {
         return 0;
     }
@@ -4511,10 +4578,10 @@ static int record_custom_title(int game_id, const struct game_layout *g,
 static const char *record_special_title(int game_id, const struct game_layout *g,
                                         const unsigned char *record) {
     static unsigned char former[VV_FORMER_FILE_MAX];
-    char village[VV_VILLAGE_NAME_MAX + 32];
     int kind = -1;
-    if (game_id == GAME_VV5 && g->likes != 0u && vv_village_recall(village, sizeof village)
-        && vv_former_load(vv_former_header_slot(village), former)) {
+    /* The Former Heathens file of the village on screen's slot (village_files_slot), never the
+       slot of the header last published; no slot, no file, no title. */
+    if (game_id == GAME_VV5 && g->likes != 0u && vv_former_load(village_files_slot(game_id), former)) {
         unsigned int identity = vv_title_identity(record, g->name, g->name_capacity, g->likes,
                                                   g->dislikes, g->preference_slots);
         const unsigned char *records = villager_table(game_id);

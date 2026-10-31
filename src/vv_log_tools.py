@@ -560,7 +560,8 @@ def approve_repair(
         if added.get(kind.id):
             note_word_repair(folder, game, village, added[kind.id], now,
                              checked=additions.CHECKED[kind.id], corrected=additions.ADDED[kind.id],
-                             unit="record(s)" if kind.id in ("contradictions", "false_unaccounted") else "villager(s)",
+                             unit="record(s)" if kind.id in ("contradictions", "false_unaccounted", "misfiled")
+                             else "villager(s)",
                              slot=slot)
     # The original looks behind Change Appearance's "Reset to original" (src/vv_original_look.py, the owner,
     # 2026-10-28): what the logs prove of the villagers changed before "VVFP Original Look.dll" first saw

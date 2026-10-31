@@ -4734,6 +4734,9 @@ class App(tk.Tk):
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
             text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+                    # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
+                    else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
+                    if kind.id == "misfiled"
                     else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"

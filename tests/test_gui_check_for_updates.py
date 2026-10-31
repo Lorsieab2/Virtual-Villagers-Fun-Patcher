@@ -162,7 +162,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_original_look",
+               "vv_original_look", "vv_misfiled_records",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -226,7 +226,12 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)
-                                  "vv_number_names"}),         # numbers a looks change gave (v1.35.80 update)
+                                  "vv_number_names",           # numbers a looks change gave (v1.35.80 update)
+                                  "vv_misfiled_records"}),     # records moved to their own save's log (2026-10-31)
+            # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
+            # reads them (function-level imports).
+            ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",
+                                     "vv_answered_questions"}),
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",

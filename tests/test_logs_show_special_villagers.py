@@ -148,7 +148,10 @@ class TheLogsPrintIt(unittest.TestCase):
                       parentage.replace("\r\n", "\n"))
         # Both read New Believers' Former Heathens file for the slot.
         self.assertIn("vv_former_load(slot, g_former)", population)
-        self.assertIn("vv_former_load(vv_former_header_slot(village), former)", parentage)
+        # ...the parentage companion for the slot the game has loaded, never the header published last
+        # (which still names the village saved last after another is loaded).
+        self.assertIn("vv_former_load(village_files_slot(game_id), former)", parentage)
+        self.assertNotIn("vv_former_load(vv_former_header_slot(village), former)", parentage)
 
     def test_a_former_heathen_identity_two_villagers_share_is_nobodys(self):
         # Codex (#553): the Former Heathens file keys a villager by name, likes and
