@@ -369,6 +369,8 @@ def _relative_key(relative: Path) -> str:
 
 def _plan_trees(plan: Plan, headers: set[str], game: rename.GameSaves) -> None:
     """The Family Tree Maker's saved trees of this village (its game, slot and tribe), named for the target."""
+    from vv_genealogy_window import tree_file_name
+
     folder = plan.folder / TREES
     try:
         trees = sorted(p for p in folder.glob("*.vvtree") if p.is_file())
@@ -385,9 +387,13 @@ def _plan_trees(plan: Plan, headers: set[str], game: rename.GameSaves) -> None:
         if not isinstance(tree, dict) or (tree.get("game"), tree.get("slot"), tree.get("tribe")) != (
                 game.number, plan.source, plan.old_name):
             continue
-        name = _rename_slot_in_name(path.name, plan.source, plan.target)
-        if name.startswith(f"{plan.old_name} (Save {plan.target})"):
-            name = plan.new_name + name[len(plan.old_name):]
+        # The tree the Family Tree Maker opens for the tribe and slot gets the name it opens for the copy
+        # (its own tree_file_name: a name may hold characters Windows refuses in a file name, "A/B",
+        # "A:B"); any other tree keeps its own name with the slot changed.  Inside, the tribe is as typed.
+        if path.name.casefold() == tree_file_name(plan.old_name, plan.source).casefold():
+            name = tree_file_name(plan.new_name, plan.target)
+        else:
+            name = _rename_slot_in_name(path.name, plan.source, plan.target)
         data = json.dumps({**tree, "slot": plan.target, "tribe": plan.new_name}, indent=1).encode("utf-8")
         plan.files.append(NewFile(folder / name, data, path, "file"))
 

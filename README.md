@@ -25,6 +25,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## Unreleased
 
 - **Copy Player Slot** (Tools tab, all five games). Copies a village into an empty save slot of the same save folder under a new name, with everything the patcher keeps for it -- its logs, data and saved family trees -- made the new slot's. You confirm first (No is the default and writes nothing); the save folder is backed up first as `(before copy)`; the village you copy from is never changed and nothing is ever written over; any failure removes everything the copy made. Not yet seen in a running game (checked on the real test saves of every game). No need to patch again.
+- **Fixed: Restore Saves did not list most tools' backups** (all five games). Only backups labelled `(before restore)`, `(before rename)` or `(before repair re-arm)` were offered; those made first by Last Names, Number Duplicate Names, Restore Cut Names, Restore Lost Titles, Fix Graves, Reset Corrupted Skills, Revive the Golden Child, settling custom titles, the Elder Totems tools and Restore A New Home Parents were kept in the Backups folder but never listed. Every `Backup <date> (before ...)` is now listed and restorable, the older `before parents restore` backups too; a failed copy (`INCOMPLETE`, `(in progress)`) is still never offered. No need to patch again.
 
 ## What's new in v1.35.85
 

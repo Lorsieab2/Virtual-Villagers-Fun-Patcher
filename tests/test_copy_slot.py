@@ -269,6 +269,24 @@ class CopyTests(Base):
         self.assertEqual(rename.save_name(game, game.save_path(folder, 3).read_bytes()), "x" * 19)
         self.assertEqual(self.snapshot(folder)[game.save_path(folder, 1).name], before[game.save_path(folder, 1).name])
 
+    def test_a_name_windows_refuses_in_a_file_name_still_copies_the_tree(self) -> None:
+        """Codex, #657: "A/B" made a sub-folder and "A:B" an invalid file name that rolled the whole copy
+        back.  The copied tree is named as the Family Tree Maker names it; inside, the name is as typed."""
+        import vv_genealogy_window as gw
+        for number, name in ((3, "A/B"), (4, "A:B"), (5, 'C*?"<>|\\D')):
+            with self.subTest(name=name):
+                game, folder, _old = self.make("huttest", number, "Modded")
+                self.assertIsNone(rename.name_problem(game, name))
+                cs.copy_slot(game, folder, 1, 3, name, processes=FakeProcesses(), now=NOW)
+                expected = folder / TREES / gw.tree_file_name(name, 3)
+                self.assertEqual(expected.parent, folder / TREES)
+                self.assertNotIn("/", expected.name)
+                self.assertNotIn(":", expected.name)
+                tree = json.loads(expected.read_text(encoding="utf-8"))
+                self.assertEqual((tree["slot"], tree["tribe"]), (3, name))
+                self.assertEqual([p for p in (folder / TREES).iterdir() if p.is_dir()], [])
+                self.assertEqual(rename.save_name(game, game.save_path(folder, 3).read_bytes()), name)
+
     def test_a_failure_part_way_leaves_no_partial_target(self) -> None:
         for number in (1, 2, 3, 4, 5):
             for fail in (0, 1, 3, 8):

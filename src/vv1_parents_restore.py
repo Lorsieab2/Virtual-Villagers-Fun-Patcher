@@ -538,7 +538,7 @@ def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController
         raise RestoreError(f"A file could not be read ({exc}); nothing was changed.") from exc
     if not work.restored:
         return Result(work, None, None)
-    backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix="before parents restore")
+    backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix="(before parents restore)")
     for k in range(1, 1000):
         target = tools.copy_before_repair(folder, work.path, COPY_SUFFIX + ("" if k == 1 else f"-{k}"))
         if not target.exists():

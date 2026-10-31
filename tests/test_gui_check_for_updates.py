@@ -197,7 +197,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # function-level: the villagers as Last Names reads them, the refuse-if-running helper, the
             # shared Like and Dislike Words boundaries and The Lost Children's ElderTotems.dat.
             ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_tribe_rename", "vv_last_names",
-                              "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store"}),
+                              "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
+                              "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
             ("vv_copy_slot_window", {"vv_copy_slot", "vv_save_backup", "vv_tribe_rename", "vv_fun_patcher_gui",
                                      "vv_tree_editor_tools"}),

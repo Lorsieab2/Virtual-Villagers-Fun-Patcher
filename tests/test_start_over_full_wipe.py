@@ -85,7 +85,8 @@ class TheWipeRulesTests(unittest.TestCase):
         # src/vv_genealogy_window.py writes that key, and names the file "(Save N)".
         window = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
         self.assertIn('"slot": self.slot', window)
-        self.assertIn('f"{tribe} (Save {self.slot}) Family Tree{TREE_SUFFIX}"', window)
+        self.assertIn('f"{clean} (Save {slot}) Family Tree{TREE_SUFFIX}"', window)
+        self.assertIn("tree_file_name(self.village.tribe, self.slot)", window)
         tree = (ROOT / "src" / "vv_family_tree.py").read_text(encoding="utf-8")
         self.assertIn('f"Virtual Villagers {game} Village Matchmaker - Save {slot}.txt"', tree)
         self.assertIn('f"Virtual Villagers {game} Genealogy - Save {slot}"', tree)
