@@ -5234,6 +5234,8 @@ class App(tk.Tk):
             return split(name)[1]
         now = {v.identity: carried(v.name) for v in people}
         pool = list(checker.LAST_NAMES[number])
+        # Every last name the village has ever used, for "Random from the existing Village Names".
+        village_used = vv_last_names.village_names(folder, number, info.slot, people, parents, known)
         by_father = vv_last_names.inherited(people, parents, "father", pool, carried=carried)
         by_mother = vv_last_names.inherited(people, parents, "mother", pool, carried=carried)
         window = tk.Toplevel(parent)
@@ -5249,7 +5251,9 @@ class App(tk.Tk):
                        "the rule above. A villager who arrived through an event has no last name unless you give "
                        "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. Random last names gives villagers random ones from the game's list (see them here "
-                       "first). A villager whose last name, or whose own rule for their children's last names, "
+                       "first). Random from the existing Village Names gives each child a random last name the village has "
+                       "ever used (any villager, living or dead). A villager's own rule always beats the village rule. "
+                       "A villager whose last name, or whose own rule for their children's last names, "
                        "will change is shown in red bold. The game must stay closed."
                   ).pack(anchor="w")
         rule_row = ttk.Frame(frame, padding=(12, 8, 12, 0))
@@ -5259,7 +5263,8 @@ class App(tk.Tk):
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         # Named, so the rule's box is told from the Sort by box by what it is, never by its place.
         ttk.Combobox(rule_row, name="last_names_rule", textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
-                     state="readonly", width=34).pack(side="left", padx=(6, 0))
+                     state="readonly", width=max(34, max(len(t) for t in vv_last_names.INHERIT.values()) + 2)
+                     ).pack(side="left", padx=(6, 0))
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
@@ -5401,7 +5406,8 @@ class App(tk.Tk):
             # wrong last names, with the dead parents' own rules too (the owner's Akika Akikai, v1.35.73).
             return vv_last_names.expected_last_names(
                 people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
-                vv_last_names.check_rules(recorded_own, own_state, living_keys))
+                vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,
+                lambda v, last: not too_long(v, last))
 
         def given() -> dict:
             return {key: should for key, (should, _used, _either) in expected().items()}
@@ -5413,13 +5419,13 @@ class App(tk.Tk):
             # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
             # the established Bahati family) -- as the boxes stand now.
             # Not under "Random from list": its picks share names by chance, by design (review, 2026-10-07).
-            shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(
+            shared = {} if rule_key() in ("list", "village") else vv_last_names.unrelated_namesakes(
                 people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
                 right, used, either = should.get(v.identity, ("", None, ()))
                 bad = (v.identity not in mine and vv_last_names.wrong_last_name(have, right, either)
-                       and rule_key() not in ("list", *vv_last_names.PLAYER_RULES))
+                       and rule_key() not in vv_last_names.RANDOM_RULES)
                 if too_long(v, have):
                     mark.set(f"too long: {room} characters at most")
                 elif bad:
@@ -5724,8 +5730,11 @@ class App(tk.Tk):
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
                   text="Where each living villager's children get their last name, if not by the village "
                        "rule. Random last name from the list gives each child, twins and triplets too, a last "
-                       "name of its own drawn at random from the game's own list. When only one parent has a rule of their own, it is used; when both do and they "
-                       "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
+                       "name of its own drawn at random from the game's own list. Random from the existing Village "
+                       "Names draws it from the last names the village has ever used (any villager, living or dead). "
+                       "A villager's own rule always beats the village rule: when only one parent has a rule of their "
+                       "own, it is used; when both do and they agree, theirs; when they disagree, a coin toss for each "
+                       "child picks the father's or the mother's; only when neither has one, the village rule. Villagers "
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
                        "The game must stay closed.").pack(side="top", anchor="w")

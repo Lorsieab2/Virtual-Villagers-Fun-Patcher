@@ -419,12 +419,25 @@ LAST NAMES: EACH VILLAGER'S OWN RULE
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
 villager's own rule..." sets, for any living villager, where their children's
 last names come from: Use the village rule, From the father, From the mother,
-50:50, or Random last name from the list. With "Random last name from the
-list", each child of that villager is given a last name drawn at random from
-the game's own list of 50 when it is born (every name equally likely; twins
-and triplets each get their own draw). When both parents have own rules that
-disagree, the village rule is used. The game must be closed. An older patcher
-build ignores this choice and uses the village rule.
+50:50, Random last name from the list, or Random from the existing Village
+Names. With "Random last name from the list", each child of that villager is
+given a last name drawn at random from the game's own list of 50 when it is
+born (every name equally likely; twins and triplets each get their own draw).
+With "Random from the existing Village Names" (also a choice for the whole
+village in "Last names come from"), the draw is from the last names the
+village has ever used -- any villager, living or dead, in the save or the
+logs -- and only names that fit the game's name field; a village that has
+never used a last name draws from the game's list instead. Repair Saves & Logs
+keeps such a name a child already carries and gives one with none a draw of
+its own.
+
+A villager's own rule always beats the village rule. When both parents have
+own rules that disagree, a coin toss for each child picks the father's or the
+mother's own rule (Repair Saves & Logs keeps the last name a child already
+carries when either parent's rule gives it). The village rule is used only
+when neither parent has a rule of their own. The game must be closed. An
+older patcher build ignores the new choices: it reads "Random from the
+existing Village Names" as no rule ("From the father" for the village).
 
 VILLAGERS WHO SHARE A NAME ARE NUMBERED AUTOMATICALLY (all five games)
 
