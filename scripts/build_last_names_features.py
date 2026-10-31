@@ -65,11 +65,14 @@ def row(game: str, sha: str) -> dict:
         f"the game's own list of 50 last names ({examples} ... {last[-1]}) -- a list the game has always "
         "carried but never used, and the one Virtual Villagers 6 and 7 later used for villagers' last names. "
         "A baby takes its father's or its mother's last name by the rule chosen in Repair Saves & Logs (Last "
-        "names come from: from the father, from the mother, or 50:50); without a rule recorded, a baby takes its "
+        "names come from: from the father, from the mother, 50:50, or a random one of the last names the village "
+        "has ever used); without a rule recorded, a baby takes its "
         "father's last name (the village's default is from the father). A villager can also have a rule of "
-        "their own for their children (Each villager's own rule): from the father, from the mother, 50:50, or "
+        "their own for their children (Each villager's own rule): from the father, from the mother, 50:50, "
         "a random last name from the list, which gives each child -- twins and triplets too -- its own random "
-        "draw from the game's list, every name equally likely. "
+        "draw from the game's list, every name equally likely, or a random one of the village's existing last "
+        "names. A villager's own rule always beats the village's; when both parents have one and they "
+        "disagree, a coin toss for each child picks whose. "
         "Villagers who arrive "
         "through an island event get no last name, because theirs would not be their family's. Only "
         "villagers named from now on get one: villagers who already have names keep them. The last "
@@ -98,8 +101,12 @@ def row(game: str, sha: str) -> dict:
             "A villager whose family is outside 1-50 gets no last name.",
             "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the "
             "father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from "
-            "the list\" -- a name drawn at random from the game's list; every random draw is a fresh, unbiased "
-            "one for each child.",
+            "the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village "
+            "Names\", the village's rule or a parent's own -- one of the last names the village has ever used (the "
+            "record's \"used\" lines, the villagers in the game at the birth, VvfpRuleLastName3, and the parents'; "
+            "the game's list when there are none); every random draw is a fresh, unbiased one for each child.",
+            "A parent's own rule always beats the village's; parents whose own rules disagree: a fresh coin toss "
+            "for each child picks the father's or the mother's.",
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "
             "characters.",
         ],

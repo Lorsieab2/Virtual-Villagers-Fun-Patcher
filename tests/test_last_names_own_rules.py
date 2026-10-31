@@ -6,7 +6,8 @@ village, ie so that half the village doesn't inherit a single person's last name
 
 A living villager may have a rule of their own for their children's last name -- From the father, From
 the mother or 50:50 -- or use the village's.  At a birth one parent's own rule is used, both parents'
-when they agree, and the village's when they disagree or neither has one.  The rules are kept in the
+when they agree, a fair coin for each child between the two when they disagree (the owner, 2026-10-31: "a
+villager's own rule ALWAYS overrides the village-wide rule"), and the village's only when neither has one.  The rules are kept in the
 village's Last Names record as "villager" lines, keyed by the whole name, head, body and sex
 (src/vv_last_names.py); VVFP Last Names.dll's VvfpRuleLastName2 reads them at each birth
 (native/vvfp_last_names/last_names_harness.c runs it over every combination).
@@ -36,10 +37,11 @@ SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
 # ...and 3 for section 9: the record in the save's own folder (native/shared/per_save.h) is read and
 # written there; 9 a game for section 10 (Random last name from the list), 2 a game for section 11 (50:50
-# for twins) and 8 a game for section 12 (From the mother is the mother's).
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8
+# for twins), 8 a game for section 12 (From the mother is the mother's) and 8 a game for section 13
+# (Random from the existing Village Names, VvfpRuleLastName3's villager table).
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8
 NOW = datetime(2026, 10, 9, 12, 0, 0)
-RULES = (None, "father", "mother", "random")
+RULES = (None, "father", "mother", "random", "list", "village")
 
 
 def person(name: str, sex: str, head: int = 1, body: int = 1, alive: bool = True) -> ln.Living:
@@ -48,22 +50,33 @@ def person(name: str, sex: str, head: int = 1, body: int = 1, alive: bool = True
 
 class TheBirthsRule(unittest.TestCase):
     def test_every_combination_of_the_parents_and_the_village(self):
+        kids = [("Kid", n, n) for n in range(40)]
         for father in RULES:
             for mother in RULES:
-                for village in (*RULES, "list", "each"):
+                for village in (*RULES, "each"):
                     with self.subTest(father=father, mother=mother, village=village):
-                        if father and mother:
-                            want = father if father == mother else village
+                        got = {ln.decide(father, mother, village, kid) for kid in kids}
+                        if father and mother and father != mother:
+                            # A coin for each child between their own rules, never the village's.
+                            self.assertEqual(got, {father, mother})
                         else:
-                            want = father or mother or village
-                        self.assertEqual(ln.decide(father, mother, village), want)
+                            self.assertEqual(got, {father or mother or village})
 
-    def test_the_owners_four_cases(self):
+    def test_the_owners_cases(self):
         self.assertEqual(ln.decide("mother", None, "father"), "mother", "only one parent has one: theirs")
         self.assertEqual(ln.decide(None, "random", "father"), "random")
         self.assertEqual(ln.decide("mother", "mother", "father"), "mother", "both, the same: that one")
-        self.assertEqual(ln.decide("mother", "random", "father"), "father", "both, disagreeing: the village's")
+        self.assertIn(ln.decide("mother", "random", "father"), ("mother", "random"),
+                      "both, disagreeing: one of theirs, never the village's (the owner, 2026-10-31)")
         self.assertEqual(ln.decide(None, None, "father"), "father", "neither: the village's")
+        self.assertEqual(ln.decide(None, "village", "father"), "village", "Random from the existing Village Names")
+
+    def test_the_coin_is_fair_and_the_same_each_time_for_a_child(self):
+        kids = [("Kid", n, n % 7) for n in range(2000)]
+        fathers = sum(ln.decide("father", "mother", "random", kid) == "father" for kid in kids)
+        self.assertTrue(900 < fathers < 1100, fathers)
+        for kid in kids[:50]:
+            self.assertEqual(ln.decide("father", "list", None, kid), ln.decide("father", "list", None, kid))
 
 
 class InheritedFollowsTheOwnRules(unittest.TestCase):
@@ -84,10 +97,46 @@ class InheritedFollowsTheOwnRules(unittest.TestCase):
         self.assertEqual(self.given("father", {}), "Bahati")
         self.assertEqual(self.given("father", {ln.own_key(self.dad): "mother"}), "Wanjiko")
 
-    def test_disagreeing_parents_use_the_village_rule(self):
+    def rename(self, name: str) -> None:
+        self.kid.name = name
+        self.parents = {self.kid.identity: (self.dad.identity, self.mum.identity)}
+
+    def test_disagreeing_parents_keep_the_childs_name_either_rule_gives(self):
+        # His own From the mother, her own From the father: either parent's name is the game's coin.
         own = {ln.own_key(self.dad): "mother", ln.own_key(self.mum): "father"}
-        self.assertEqual(self.given("father", own), "Bahati")
-        self.assertEqual(self.given("mother", own), "Wanjiko")
+        for village in ("father", "mother", "random", "each", "village"):
+            for carried in ("Bahati", "Wanjiko"):
+                with self.subTest(village=village, carried=carried):
+                    self.rename(f"Kid {carried}")
+                    self.assertEqual(self.given(village, own), carried, "kept: never the village's rule")
+        self.rename("Kid")
+
+    def test_disagreeing_parents_a_coin_for_a_child_with_neither(self):
+        own = {ln.own_key(self.dad): "father", ln.own_key(self.mum): "mother"}
+        got = set()
+        for n in range(60):
+            kid = person("Kid", "Male", 9, 100 + n)
+            parents = {kid.identity: (self.dad.identity, self.mum.identity)}
+            carried = lambda name: ln.split_name(3, name)[1]  # noqa: E731
+            for village in ("random", "father"):
+                one = ln.inherited([self.dad, self.mum, kid], parents, village, None, None, carried, own)
+                want = "Bahati" if ln.own_coin(kid.identity) else "Wanjiko"
+                self.assertEqual(one[kid.identity], want)
+                got.add(one[kid.identity])
+        self.assertEqual(got, {"Bahati", "Wanjiko"}, "both parents' rules are reached")
+
+    def test_disagreeing_own_list_and_from_the_mother(self):
+        pool = [f"Ln{n}" for n in range(50)]
+        own = {ln.own_key(self.dad): "list", ln.own_key(self.mum): "mother"}
+        carried = lambda name: ln.split_name(3, name)[1]  # noqa: E731
+        for have in ("Ln7", "Wanjiko"):
+            self.rename(f"Kid {have}")
+            self.assertEqual(ln.inherited(self.people, self.parents, "father", pool, None, carried, own)
+                             [self.kid.identity], have, "his draw or her name: kept")
+        self.rename("Kid Bahati")        # the village's From the father: never right here
+        got = ln.inherited(self.people, self.parents, "father", pool, None, carried, own)[self.kid.identity]
+        self.assertIn(got, (*pool, "Wanjiko"))
+        self.rename("Kid")
 
     def test_agreeing_parents_use_theirs(self):
         own = {ln.own_key(self.dad): "mother", ln.own_key(self.mum): "mother"}

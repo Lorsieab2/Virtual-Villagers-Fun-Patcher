@@ -74,7 +74,8 @@ class TheRule(unittest.TestCase):
     def test_the_label_and_the_code(self):
         self.assertEqual(ln.OWN_RULES["list"], "Random last name from the list")
         self.assertEqual(ln.OWN_LIST, "list")
-        self.assertEqual(list(ln.OWN_RULES)[-1], "list", "the last entry of the window's dropdown")
+        self.assertEqual(list(ln.OWN_RULES)[-2:], ["list", "village"],
+                         "the window's dropdown ends with the two random rules (the owner, 2026-10-31)")
 
     def test_a_child_gets_a_name_from_the_list(self):
         for own in ({ln.own_key(self.dad): "list"}, {ln.own_key(self.mum): "list"},
@@ -114,10 +115,16 @@ class TheRule(unittest.TestCase):
         self.assertEqual(set(counts), set(self.pool), "the first and the last name of the list too")
         self.assertLess(chi_square(counts, self.pool, draws), CHI_50)
 
-    def test_disagreeing_parents_use_the_village_rule(self):
-        kid = person("Kid", "Male", 2, 2)
-        self.assertEqual(self.given([kid], {ln.own_key(self.dad): "list", ln.own_key(self.mum): "mother"})
-                         [kid.identity], "Bahati")
+    def test_disagreeing_parents_never_use_the_village_rule(self):
+        # The owner, 2026-10-31: an own rule always beats the village's; a coin for each child picks whose.
+        own = {ln.own_key(self.dad): "list", ln.own_key(self.mum): "mother"}
+        got = set()
+        for n in range(40):
+            kid = person("Kid", "Male", 2, 100 + n)
+            name = self.given([kid], own)[kid.identity]
+            self.assertIn(name, (*self.pool, "Wanjiko"), "never the village's From the father")
+            got.add(name if name == "Wanjiko" else "drawn")
+        self.assertEqual(got, {"drawn", "Wanjiko"})
 
     def test_an_arrival_gets_none(self):
         kid = person("Kid", "Male", 2, 2, arrived=True)
@@ -557,11 +564,35 @@ class TheShippedDllAtABirth(unittest.TestCase):
                 same = sum(b.born(DAD[0], DAD[1], MUM[0], MUM[1]) == b.born(DAD[0], DAD[1], MUM[0], MUM[1])
                            for _ in range(300))
                 self.assertLess(same, 25)
-                # Her own rule draws too; disagreeing parents use the village's.
+                # Her own rule draws too.
                 b.file("father", "villager\tAipi Wanjiko\t7\t8\tF\tlist\n")
                 self.assertIn(b.born(DAD[0], DAD[1], MUM[0], MUM[1])[len(first) + 1:], last)
+                # Disagreeing parents (the owner, 2026-10-31): a coin for each child between his draw and her
+                # name, never the village's From the father alone.
                 b.file("father", FATHER_LIST + "villager\tAipi Wanjiko\t7\t8\tF\tmother\n")
-                self.assertEqual(b.born(DAD[0], DAD[1], MUM[0], MUM[1]), f"{first} Bahati")
+                got = [b.born(DAD[0], DAD[1], MUM[0], MUM[1])[len(first) + 1:] for _ in range(200)]
+                self.assertTrue(set(got) <= set(last) | {"Wanjiko"}, set(got) - set(last))
+                hers = got.count("Wanjiko")
+                self.assertTrue(70 < hers < 140, hers)
+                self.assertGreater(len(set(got)), 20, "his draws from the list")
+
+    def test_random_from_the_existing_village_names_in_every_game(self):
+        # The shipped DLL at a birth, through VvfpRuleLastName2 (no villager table): the record's "used"
+        # names and the parents' last names, each equally likely; a name with a space never.
+        for game in tln.EXE:
+            with self.subTest(game=game):
+                _, male = self.lists(game)
+                first = male[4]
+                b = Birth(game, shipped())
+                b.file("village", "used\tAlpha\nused\tBeta\nused\tTwo Words\n")
+                counts = collections.Counter(b.born(DAD[0], DAD[1], MUM[0], MUM[1])[len(first) + 1:]
+                                             for _ in range(1000))
+                self.assertEqual(set(counts), {"Alpha", "Beta", "Bahati", "Wanjiko"})
+                self.assertTrue(all(180 < n < 320 for n in counts.values()), counts)
+                # A villager's own "village" beats the village's From the father.
+                b.file("father", "villager\tAgo Bahati\t5\t6\tM\tvillage\nused\tAlpha\n")
+                got = {b.born(DAD[0], DAD[1], MUM[0], MUM[1])[len(first) + 1:] for _ in range(200)}
+                self.assertEqual(got, {"Alpha", "Bahati", "Wanjiko"})
 
     def test_fifty_fifty_twins_each_draw_in_every_game(self):
         for game in tln.EXE:

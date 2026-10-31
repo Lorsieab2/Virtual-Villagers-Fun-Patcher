@@ -130,15 +130,27 @@ int main(int argc, char **argv) {
                     _snprintf(lines + n, sizeof lines - n, "villager\tAipi Wanjiko\t7\t8\tF\t%s\n", OWN[m]);
                 }
                 record(VILLAGE[v], lines);
-                decided = OWN[f] && OWN[m] ? (strcmp(OWN[f], OWN[m]) == 0 ? OWN[f] : VILLAGE[v])
+                decided = OWN[f] && OWN[m] ? (strcmp(OWN[f], OWN[m]) == 0 ? OWN[f] : "coin")
                           : OWN[f] ? OWN[f] : OWN[m] ? OWN[m] : VILLAGE[v];
                 if (decided == NULL) {
                     decided = "father";             /* no village rule: DEFAULT_RULE */
                 }
                 _snprintf(what, sizeof what, "father %-6s mother %-6s village %-6s -> %s",
                           OWN[f] ? OWN[f] : "-", OWN[m] ? OWN[m] : "-", VILLAGE[v] ? VILLAGE[v] : "-",
-                          decided ? decided : "-");
-                if (decided && strcmp(decided, "random") == 0) {
+                          strcmp(decided, "coin") == 0 ? "a coin between the parents' own rules" : decided);
+                if (strcmp(decided, "coin") == 0) {
+                    /* The owner, 2026-10-31: an own rule always beats the village's; disagreeing parents'
+                       own rules are picked by a fair coin for each child -- never the village's rule, so
+                       never "Kid Akikai" (the village's "Random from list" leaves the family's). */
+                    int dad = 0, mum = 0;
+                    for (k = 0; k < 128; ++k) {
+                        got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                        dad += strcmp(got, "Kid Bahati") == 0;
+                        mum += strcmp(got, "Kid Wanjiko") == 0;
+                    }
+                    /* father vs mother: about 64 / 64; father vs 50:50 (or mother vs 50:50): about 96 / 32. */
+                    check(dad + mum == 128 && dad >= 16 && mum >= 16, what);
+                } else if (strcmp(decided, "random") == 0) {
                     int dad = 0, mum = 0;
                     for (k = 0; k < 64; ++k) {
                         got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
@@ -149,7 +161,7 @@ int main(int argc, char **argv) {
                     check(dad + mum == 64 && dad > 0 && mum > 0, what);
                 } else {
                     got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
-                    check(strcmp(got, decided == NULL || strcmp(decided, "list") == 0 ? "Kid Akikai"
+                    check(strcmp(got, strcmp(decided, "list") == 0 ? "Kid Akikai"
                                       : strcmp(decided, "father") == 0 ? "Kid Bahati" : "Kid Wanjiko") == 0,
                           what);
                 }
@@ -388,8 +400,22 @@ int main(int argc, char **argv) {
             }
             check(reached >= 45, "the mother's own rule: drawn from the list too");
             record("father", "villager\tAgo Bahati\t5\t6\tM\tlist\nvillager\tAipi Wanjiko\t7\t8\tF\tmother\n");
-            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
-                  "parents' own rules disagree: the village's, never a draw");
+            {
+                int drawn = 0, hers = 0, other = 0;
+                for (i = 0; i < 200; ++i) {
+                    const char *got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                    if (strcmp(got, "Kid Wanjiko") == 0) {
+                        ++hers;
+                    } else if (strncmp(got, "Kid Ln", 6) == 0) {
+                        ++drawn;
+                    } else {
+                        ++other;
+                    }
+                }
+                check(other == 0 && hers > 60 && drawn > 60,
+                      "parents' own rules disagree: a coin for each child between his draw and her name, "
+                      "never the village's From the father");
+            }
             record("list", "villager\tAgo Bahati\t5\t6\tM\tlist\nvillager\tAipi Wanjiko\t7\t8\tF\tlist\n");
             check(strncmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Ln", 6) == 0,
                   "both parents' own: a draw (under the village's Random from list too)");
@@ -457,6 +483,102 @@ int main(int argc, char **argv) {
             record("father", "villager\tAgo Bahati\t5\t6\tM\tmother\n");
             check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Wanjiko") == 0,
                   "his own From the mother: the mother's, not his");
+            DeleteFileA(g_path);
+        }
+        g_game = 3;
+    }
+
+    printf("13. \"Random from the existing Village Names\" (the owner, 2026-10-31), in every game\n");
+    {
+        /* A New Believers-sized table (its stride names its look-alike byte, +0x1CE1): 5 records, the
+           active byte at +4, the name (24 bytes) at +0x10. */
+        static unsigned char table[5 * 0x2F44];
+        static const char *const NAMES[5] = { "Tiki Okelani", "Gone Zzzyx", "Kid Akikai", "Papa Powaka II",
+                                              "Statue Stoney" };
+        static const char used5[] = "used\tAlpha\nused\tBeta\nused\tGamma\nused\tTwo Words\n"
+                                    "used\tAbcdefghijklmnopqrstuvwxyz\n";
+        int g, i, j;
+        memset(table, 0, sizeof table);
+        for (j = 0; j < 5; ++j) {
+            unsigned char *r = table + (size_t)j * 0x2F44;
+            r[4] = j == 1 ? 0 : 1;                   /* record 1 is not in use */
+            r[0x1CE1] = j == 4 ? 1 : 0;              /* record 4 is a stand-in (a look-alike) */
+            memcpy(r + 0x10, NAMES[j], strlen(NAMES[j]));
+        }
+        for (g = 1; g <= 5; ++g) {
+            static const char *const EVER[5] = { "Alpha", "Beta", "Gamma", "Bahati", "Wanjiko" };
+            int counts[5], other = 0, reached = 0, seen_dad = 0, from_list = 0, okelani = 0, powaka = 0, bad = 0;
+            double chi = 0.0;
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            record("village", used5);
+            memset(counts, 0, sizeof counts);
+            for (i = 0; i < 2500; ++i) {
+                const char *got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                int found = -1;
+                for (j = 0; j < 5; ++j) {
+                    if (strcmp(got + 4, EVER[j]) == 0) {
+                        found = j;
+                    }
+                }
+                if (strncmp(got, "Kid ", 4) != 0 || found < 0) {
+                    ++other;
+                } else {
+                    ++counts[found];
+                }
+            }
+            for (j = 0; j < 5; ++j) {
+                reached += counts[j] > 0;
+                chi += (counts[j] - 500.0) * (counts[j] - 500.0) / 500.0;
+            }
+            check(other == 0, "the village's rule: only the record's used names and the parents' -- never one "
+                              "with a space, one too long for the field, or the family's");
+            check(reached == 5 && chi < 25.0, "every ever-used name drawn, evenly (chi-square, 4 df, below 25)");
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tvillage\nused\tAlpha\n");
+            for (i = 0; i < 300; ++i) {
+                const char *got = born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8);
+                seen_dad += strcmp(got, "Kid Bahati") == 0;
+                bad += strcmp(got, "Kid Alpha") != 0 && strcmp(got, "Kid Bahati") != 0
+                       && strcmp(got, "Kid Wanjiko") != 0;
+            }
+            check(bad == 0 && seen_dad > 40 && seen_dad < 160,
+                  "his own rule under the village's From the father: a draw of three, not always his");
+            record("father", "villager\tAgo\t5\t6\tM\tvillage\n");
+            for (i = 0; i < 200; ++i) {
+                from_list += strncmp(born("Ago", 5, 6, "Aipi", 7, 8), "Kid Ln", 6) == 0;
+            }
+            check(from_list == 200, "no name ever used: the game's own list instead");
+            {
+                static char name[8];
+                record("village", "used\tAlpha\n");
+                strcpy(name, "Kid");             /* room 8: "Kid Alpha" needs 10 bytes; no list name fits */
+                VvfpRuleLastName2(name, sizeof name, "Ago", 5, 6, "Aipi", 7, 8, 1);
+                check(strcmp(name, "Kid") == 0, "nothing fits the field: the name is left as it is");
+            }
+            record("village", "");
+            for (i = 0; i < 400; ++i) {
+                char *name = (char *)table + 2 * 0x2F44 + 0x10;   /* the newborn is record 2 */
+                memset(name, 0, 0x18);
+                memcpy(name, "Kid Akikai", 10);
+                VvfpRuleLastName3(name, 0x18, "Ago", 5, 6, "Aipi", 7, 8, 1, table, 0x2F44, 5, 4, 0x10, 0x18);
+                okelani += strcmp(name, "Kid Okelani") == 0;
+                powaka += strcmp(name, "Kid Powaka") == 0;
+                bad += strcmp(name, "Kid Okelani") != 0 && strcmp(name, "Kid Powaka") != 0;
+            }
+            memcpy(table + 2 * 0x2F44 + 0x10, "Kid Akikai\0\0\0\0", 14);
+            check(bad == 0 && okelani > 120 && powaka > 120,
+                  "VvfpRuleLastName3: the table's villagers' names (a numeral passed over), never a record not "
+                  "in use, a look-alike, or the newborn's own family name");
+            {
+                static char name[24];
+                strcpy(name, "Kid Akikai");
+                VvfpRuleLastName2(name, sizeof name, "Ago", 5, 6, "Aipi", 7, 8, 1);
+                check(strncmp(name, "Kid Ln", 6) == 0, "VvfpRuleLastName2 (no table): the record's and the parents' only");
+            }
+            record("father", "villager\tAgo Bahati\t5\t6\tM\tvillagex\nvillager\tAgo Bahati\t5\t6\tM\tvillag\n");
+            check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
+                  "a misspelt rule code is no rule: the village's");
             DeleteFileA(g_path);
         }
         g_game = 3;

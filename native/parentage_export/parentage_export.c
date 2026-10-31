@@ -4164,6 +4164,11 @@ static int game_of_layout(const struct game_layout *g) {
 typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father, int father_head,
                                            int father_body, const char *mother, int mother_head,
                                            int mother_body, int slot);
+typedef int (__stdcall *rule_last_name3_t)(char *name, unsigned int room, const char *father, int father_head,
+                                            int father_body, const char *mother, int mother_head,
+                                            int mother_body, int slot, const unsigned char *table,
+                                            unsigned int stride, int slots, unsigned int active,
+                                            unsigned int name_at, unsigned int capacity);
 
 /* The Lost Children to New Believers, at the child's creation: its name made
    its first name and the last name the player's rule gives (Repair Saves &
@@ -4173,19 +4178,25 @@ typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const c
    record or anything else names it (the owner, 2026-10-08: babies named for
    their mother's family number, not by the rule -- "fix it").  A New Home's
    companion does the same at its own birth hook, with the parents it
-   recorded. */
+   recorded.  The villager table goes along (VvfpRuleLastName3), so "Random
+   from the existing Village Names" counts the last names of the villagers in
+   the game at the birth; a Last Names DLL of an earlier build, without it, is
+   asked by VvfpRuleLastName2 as before. */
 static void rule_last_name(int game_id, unsigned char *rec) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static rule_last_name_t rule;
+    static rule_last_name3_t rule3;
     const struct game_layout *g;
+    const unsigned char *records;
     char father[MAX_NAME_BYTES], mother[MAX_NAME_BYTES];
     if (game_id < GAME_VV2 || game_id > GAME_VV5 || rec == NULL) {
         return;
     }
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
-        state = rule ? 1 : -1;
+        rule3 = dll ? (rule_last_name3_t)GetProcAddress(dll, "VvfpRuleLastName3") : NULL;
+        rule = dll && rule3 == NULL ? (rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
+        state = rule3 != NULL || rule != NULL ? 1 : -1;
     }
     g = layout_of(game_id);
     if (state != 1 || !layout_is_usable(g) || g->parent_father_name == 0u) {
@@ -4193,6 +4204,15 @@ static void rule_last_name(int game_id, unsigned char *rec) {
     }
     copy_name_field(rec + g->parent_father_name, father, sizeof father, g->name_capacity);
     copy_name_field(rec + g->parent_mother_name, mother, sizeof mother, g->name_capacity);
+    if (rule3 != NULL) {
+        records = villager_table(game_id);
+        rule3((char *)(rec + g->name), g->name_capacity,
+              father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
+              mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
+              last_names_slot(game_id), records != NULL ? records + g->record_base : NULL, g->stride, g->slots,
+              g->active, g->name, g->name_capacity);
+        return;
+    }
     rule((char *)(rec + g->name), g->name_capacity,
          father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
          mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
