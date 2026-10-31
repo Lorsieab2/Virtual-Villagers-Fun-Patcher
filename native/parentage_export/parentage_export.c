@@ -91,6 +91,7 @@
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
+#include "game_save_slot.h"       /* the slot the game itself saves to */
 
 enum {
     /* The log sits beside the executable, so the path is bounded by the
@@ -4109,19 +4110,55 @@ static int compose_birth(
     return 1;
 }
 
-/* The village's save slot for VVFP Last Names: the " (Save N)" the village
-   was last saved under, or 0 -- named only once it is saved; a birth in the
-   catch-up as it loads comes first, and the DLL then finds the slot from the
-   names. */
-static int last_names_slot(void) {
-    char village[VV_VILLAGE_NAME_MAX + 32];
-    const char *at = NULL, *scan;
-    if (vv_village_recall(village, sizeof village)) {
-        for (scan = village; (scan = strstr(scan, " (Save ")) != NULL; ++scan) {
-            at = scan;
+/* The village's save slot for VVFP Last Names (and Number Names): the slot the
+   game itself saves the village on screen to -- its save manager's own field,
+   which the slot menu sets before it loads or creates a village there
+   (native/shared/game_save_slot.h) -- or 0 when the game has no save manager
+   yet; the DLL then finds the slot from the parents' names.
+
+   NEVER the " (Save N)" of the village header last published
+   (vv_village_recall), as this did before: that header is published only when
+   a village is SAVED, so after the player saves one village and loads another
+   in the same session it still names the first one until the second is saved
+   -- and the load's catch-up, where most births happen, comes before that
+   save.  Those births read the other slot's Last Names record: its village
+   rule and none of this village's own rules.  The owner's Secret City,
+   2026-10-30/31: three times Save 2 was saved and Save 1 loaded in the same
+   session (Village History: Save 2 at 22:07:21, Save 1 at 22:11:45; 23:46:36,
+   23:46:47; 15:10:35, 15:12:05), and each time the catch-up's babies read
+   Save 2's record ("From the father", no villager lines) instead of Save 1's,
+   where Pio Bandele's own rule was 50:50 -- all 37 of his children were born
+   Bandele. */
+static int game_slot_now(int game_id) {
+    const unsigned char *const volatile *at;
+    const unsigned char *manager;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5) {
+        return 0;
+    }
+    at = VV_GAME_SAVE_MANAGER_AT(game_id);
+    if (!memory_is_readable((const void *)at, sizeof *at)) {
+        return 0;
+    }
+    manager = *at;
+    if (manager == NULL || !memory_is_readable(manager + VV_GAME_SAVE_SLOT_FIELD[game_id], sizeof(int))) {
+        return 0;
+    }
+    return vv_game_save_slot(game_id);
+}
+
+static int last_names_slot(int game_id) {
+    return game_slot_now(game_id);
+}
+
+/* The game whose layout `g` is (relook_last_name is handed the layout). */
+static int game_of_layout(const struct game_layout *g) {
+    int game_id;
+    for (game_id = GAME_VV1; game_id <= GAME_VV5; ++game_id) {
+        if (layout_of(game_id) == g) {
+            return game_id;
         }
     }
-    return at != NULL && at[7] >= '1' && at[7] <= '9' && at[8] == ')' ? at[7] - '0' : 0;
+    return 0;
 }
 
 typedef int (__stdcall *rule_last_name_t)(char *name, unsigned int room, const char *father, int father_head,
@@ -4159,7 +4196,7 @@ static void rule_last_name(int game_id, unsigned char *rec) {
     rule((char *)(rec + g->name), g->name_capacity,
          father, *(const int *)(rec + g->parent_father_head), *(const int *)(rec + g->parent_father_body),
          mother, *(const int *)(rec + g->parent_mother_head), *(const int *)(rec + g->parent_mother_body),
-         last_names_slot());
+         last_names_slot(game_id));
 }
 
 typedef int (__stdcall *number_new_name_t)(int game, unsigned char *child, const unsigned char *first,
@@ -4192,7 +4229,7 @@ static void number_new_name(int game_id, unsigned char *rec) {
         return;
     }
     (void)number(game_id, rec, records + g->record_base, g->stride, g->slots, g->active, g->name,
-                 g->name_capacity, last_names_slot());
+                 g->name_capacity, last_names_slot(game_id));
 }
 
 typedef int (__stdcall *relook_last_name_t)(const char *name, int male, int old_head, int old_body, int new_head,
@@ -4224,7 +4261,7 @@ static void relook_last_name(const struct game_layout *g, const unsigned char *r
         return;
     }
     copy_villager_name(g, record, name, sizeof name);
-    (void)relook(name, male, oh, ob, nh, nb, last_names_slot());
+    (void)relook(name, male, oh, ob, nh, nb, last_names_slot(game_of_layout(g)));
 }
 
 /* WriteParentageBirth with the delivery's babies given: 1-3, or -1 when not
