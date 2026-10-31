@@ -549,11 +549,33 @@ def _documents_folder() -> Path:
     return Path.home() / "Documents"
 
 
+def last_name_age(v) -> str:
+    """A villager's age in the last-names windows (the owner, v1.35.85: "please add Villager Ages to all
+    places that list villagers in the last names windows"): "34 years old", in whole villager years from
+    the save's own age (20 game units a year, as the family tree and the logs word it).  "" for one no
+    longer in the village (the logs' age is when they died or were last seen, not their age now) and for
+    an age the save does not give."""
+    age = getattr(v, "age", None)
+    if not getattr(v, "alive", True) or not isinstance(age, int) or age < 0:
+        return ""
+    return f"{age // vv_genealogy.UNITS_PER_YEAR} years old"
+
+
+def last_name_who(v) -> str:
+    """A villager named in a last-names list or message: "Goro Wanjiko (34 years old)", or the name alone
+    when there is no age to show (last_name_age)."""
+    age = last_name_age(v)
+    return f"{v.name} ({age})" if age else v.name
+
+
 def last_name_row(v, parents: dict) -> str:
-    """A villager's row in the last-names windows: "Goro Wanjiko (Male) -- father Kito Wanjiko, mother
-    Chika Helaku", "Iruwa Bandele (Female) -- arrived".  Never their head or body (the owner)."""
+    """A villager's row in the last-names windows: "Goro Wanjiko (Male, 34 years old) -- father Kito
+    Wanjiko, mother Chika Helaku", "Iruwa Bandele (Female, 20 years old) -- arrived".  Never their head
+    or body (the owner)."""
     father, mother = parents.get(v.identity, (None, None))
-    who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
+    age = last_name_age(v)
+    who = (f"{v.name} ({v.sex or 'sex unknown'}{f', {age}' if age else ''}"
+           f"{'' if v.alive else ', no longer in the village'})")
     if father or mother:
         who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
     if v.arrived:
@@ -564,10 +586,21 @@ def last_name_row(v, parents: dict) -> str:
     return who
 
 
+def missing_last_names_lines(missing: list, limit: int = 20) -> list[str]:
+    """The "Villagers with no last name" prompt's list: "• Aipi (12 years old) has no last name --
+    suggested: Bahati", the first `limit`, then "... and N more"."""
+    lines = [f"• {m.describe(last_name_who(m.villager))}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
+             for m in missing[:limit]]
+    if len(missing) > limit:
+        lines.append(f"... and {len(missing) - limit} more")
+    return lines
+
+
 def last_name_rows(people: list, parents: dict) -> list[str]:
     """Each villager's row (last_name_row), in their order.  Rows that would read alike are told apart
-    by age -- " -- aged N", in years as the logs word them -- and those still alike (same-named twins) by
-    " -- 1 of 2", " -- 2 of 2" in the game's own order (the owner: "no body/head value")."""
+    by age -- " -- aged N", in years as the logs word them, for a row that does not show its age already
+    (the dead and gone) -- and those still alike (same-named twins) by " -- 1 of 2", " -- 2 of 2" in the
+    game's own order (the owner: "no body/head value")."""
     rows = [last_name_row(v, parents) for v in people]
     for _round in range(2):
         seen: dict[str, list[int]] = {}
@@ -579,7 +612,7 @@ def last_name_rows(people: list, parents: dict) -> list[str]:
             for n, k in enumerate(same, 1):
                 age = getattr(people[k], "age", None)
                 if _round == 0:
-                    if age is not None:
+                    if age is not None and not last_name_age(people[k]):
                         rows[k] += f" -- aged {age // vv_genealogy.UNITS_PER_YEAR}"
                 else:
                     rows[k] += f" -- {n} of {len(same)}"
@@ -4489,10 +4522,7 @@ class App(tk.Tk):
         window.title("Villagers with no last name")
         window.transient(parent)
         frame = scrollable_frame(window, padding=16)
-        lines = [f"• {m.describe()}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
-                 for m in missing[:20]]
-        if len(missing) > 20:
-            lines.append(f"... and {len(missing) - 20} more")
+        lines = missing_last_names_lines(missing)
         ttk.Label(frame, wraplength=640, justify="left",
                   text=f"{tribe} ({folder.name}, Save {slot}): these villagers have no last name:\n\n"
                        + "\n".join(lines) + "\n\nGive them one now? The game must stay closed; the save folder is "
@@ -5379,10 +5409,10 @@ class App(tk.Tk):
                 wrong += bad
             alerts = [f"{wrong} last name(s) are not what the rule gives."] if wrong else []
             if shared:
-                firsts = [f"{name} ({last}: the family of {', '.join(family[:3])}"
+                firsts = [f"{name}{f', {age}' if age else ''} ({last}: the family of {', '.join(family[:3])}"
                           f"{'...' if len(family) > 3 else ''})"
-                          for name, (last, family) in sorted((v.name, shared[v.identity]) for v in people
-                                                             if v.identity in shared)][:4]
+                          for name, age, (last, family) in sorted((v.name, last_name_age(v), shared[v.identity])
+                                                                  for v in people if v.identity in shared)][:4]
                 alerts.append(f"{len(shared)} villager(s) share a last name with a family they are not related "
                               f"to: {'; '.join(firsts)}{' and more' if len(shared) > 4 else ''}.")
             wrong_var.set("\n".join(alerts))
@@ -5545,7 +5575,8 @@ class App(tk.Tk):
                     return
                 asked = [v for v in changed_now if v.identity in earlier and not shown_before[v.identity]]
                 if asked:
-                    lines = "\n".join(f"{v.name}: an earlier record calls them {' or '.join(earlier[v.identity])}"
+                    lines = "\n".join(f"{last_name_who(v)}: an earlier record calls them "
+                                      f"{' or '.join(earlier[v.identity])}"
                                       for v in asked[:12])
                     answer = messagebox.askyesnocancel(
                         "Random last names",
@@ -5609,7 +5640,7 @@ class App(tk.Tk):
                         problem = (f"{vv_last_names.with_last(number, v.name, last, known)} is longer than "
                                    f"the game's {room} characters.")
                     if problem:
-                        messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
+                        messagebox.showerror("Last names", f"{last_name_who(v)}: {problem}", parent=window)
                         return
                 chosen[v.identity] = last
             try:
