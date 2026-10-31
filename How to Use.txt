@@ -349,6 +349,32 @@ running the game's own code carries the label UNCONFIRMED. It only reads: nothin
 game may be running (it shows the save as it was last written). Refresh reads
 the save again.
 
+PICTURE STUDIO
+
+On the Tools tab, click Picture Studio... It draws villagers exactly as the
+game draws them, in all five games, and saves them as PNG pictures with a
+clear (transparent) background.
+- From my save: choose the game, the save folder and the save. The list shows
+  everyone the save holds: the villagers, the bodies awaiting burial (drawn as
+  the game draws them, a skeleton), The Lost Children's Esteemed Elder statues
+  and New Believers' heathens. Each is drawn with the head, body, age and life
+  stage the save gives, and with the patcher's own changes: the Origins masks,
+  Change Appearance's head look (Young, Old or Auto) and, in A New Home, Grey
+  Hair at 55. The save does not keep a villager's pose, so choose the pose,
+  direction, frame and the rest under the picture.
+- Make your own: choose the sex, the life stage and age (children are drawn
+  smaller year by year, as the game scales them), every head and body the
+  game has, the mask, the head look, the pose, the direction and the frame.
+  Choices marked (patcher) are the patcher's own art.
+- Saving: Save PNG... saves the picture shown at the game's size, 2x or 4x
+  (crisp), or a width and height of your own (smooth). Save all in this
+  group... and Save the whole village... save everyone into a new folder.
+The pictures come from your own copy of the game: the first time, the window
+copies the pictures it needs into "Picture Studio Pictures" beside the
+patcher. If it cannot find the game, click Find game... and choose the game
+folder (the one with the Images folder). Saves and game folders are only
+read, never changed, so the game may be running.
+
 ANSWERED QUESTIONS
 
 Once you answer one of Repair Saves & Logs' questions, it is not asked

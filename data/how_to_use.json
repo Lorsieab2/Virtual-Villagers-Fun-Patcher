@@ -1067,6 +1067,16 @@
         "It only reads: nothing is changed, so the game may be running (it shows the save as it was last written)."
       ]
     },
+    "picture_studio": {
+      "title": "Picture Studio",
+      "guide": [
+        "Draws villagers exactly as each game draws them and saves them as clear-background PNG pictures, in all five games.",
+        "From my save: pick the game, save folder and save, then anyone in it. Pick the pose, direction and frame under the picture.",
+        "Make your own: any head, body, mask, sex, age, life stage, pose and frame the game has, plus the patcher's own masks, grey hair and head look.",
+        "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
+        "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
+      ]
+    },
     "check_logs_automatically": {
       "title": "Check logs automatically",
       "guide": [
