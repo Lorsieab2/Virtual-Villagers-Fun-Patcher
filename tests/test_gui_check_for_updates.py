@@ -163,6 +163,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look",
+               # Copy Player Slot (the owner, 2026-10-31) and its window.
+               "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
@@ -191,6 +193,14 @@ class ReleasesLinkTests(unittest.TestCase):
             # imports nothing of the patcher's.
             ("vv_save_backup", {"vv_save_clock", "vv3_second_faction"}),
             ("vv_save_clock", set()),
+            # Copy Player Slot: Rename Tribe's slot reading and name rule, Back Up Saves, the per-save layout;
+            # function-level: the villagers as Last Names reads them, the refuse-if-running helper, the
+            # shared Like and Dislike Words boundaries and The Lost Children's ElderTotems.dat.
+            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_tribe_rename", "vv_last_names",
+                              "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store"}),
+            # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
+            ("vv_copy_slot_window", {"vv_copy_slot", "vv_save_backup", "vv_tribe_rename", "vv_fun_patcher_gui",
+                                     "vv_tree_editor_tools"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store"}),

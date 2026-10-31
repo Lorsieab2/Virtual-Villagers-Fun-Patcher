@@ -728,8 +728,10 @@ BEFORE_RESTORE = "(before restore)"
 BEFORE_RENAME = "(before rename)"
 # Repair Saves & Logs (src/vv_log_tools.py) backs the folder up first under this label.
 BEFORE_REARM = "(before repair re-arm)"
+# Copy Player Slot (src/vv_copy_slot.py) backs the folder up first under this label.
+BEFORE_COPY = "(before copy)"
 INCOMPLETE = " INCOMPLETE"
-_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename|repair re-arm)\)))?$")
+_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename|repair re-arm|copy)\)))?$")
 _TEMP_GLOB = "*.vvfp-restore-*.tmp"
 
 # The game's save file: a small file header, then the save buffer (measured
@@ -791,6 +793,7 @@ class BackupInfo:
     villages: dict[int, str]     # slot -> village name ("" when unreadable)
     before_rename: bool = False
     before_rearm: bool = False
+    before_copy: bool = False
 
     @property
     def label(self) -> str:
@@ -801,6 +804,8 @@ class BackupInfo:
             text += " " + BEFORE_RENAME
         if self.before_rearm:
             text += " " + BEFORE_REARM
+        if self.before_copy:
+            text += " " + BEFORE_COPY
         return text
 
 
@@ -1122,7 +1127,7 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
 
 
 def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
-    """(when, sequence, label) -- the label "", BEFORE_RESTORE, BEFORE_RENAME or BEFORE_REARM."""
+    """(when, sequence, label) -- the label "", BEFORE_RESTORE, BEFORE_RENAME, BEFORE_REARM or BEFORE_COPY."""
     match = _BACKUP_NAME.match(name)
     if not match:
         return None
@@ -1177,6 +1182,7 @@ def list_backups(save_folder: Path) -> list[BackupInfo]:
                 entry, when, label == BEFORE_RESTORE, len(files), size, villages,
                 before_rename=label == BEFORE_RENAME,
                 before_rearm=label == BEFORE_REARM,
+                before_copy=label == BEFORE_COPY,
             ),
         ))
     found.sort(key=lambda item: (item[0], item[1]), reverse=True)

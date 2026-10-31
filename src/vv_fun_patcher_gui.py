@@ -17,6 +17,7 @@ from tkinter import filedialog, messagebox, ttk
 from transparency import PATCHER_VERSION
 import patcher_files
 import vv_answered_questions
+import vv_copy_slot_window
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
@@ -1713,6 +1714,13 @@ class App(tk.Tk):
             genealogy, "Game Mechanics...", self._game_mechanics_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(genealogy, "game_mechanics").pack(side="left", padx=(3, 0))
+        # Copy Player Slot (the owner, 2026-10-31): a village copied into an empty slot (src/vv_copy_slot.py).
+        slot_links = ttk.Frame(box)
+        slot_links.grid(row=3, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            slot_links, "Copy Player Slot...", self._copy_single_slot
+        ).pack(side="left")
+        self._help_button(slot_links, "copy_player_slot").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1832,6 +1840,20 @@ class App(tk.Tk):
             command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
+        slot_tools = ttk.Frame(box)
+        slot_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            slot_tools,
+            text="Copy Player Slot...",
+            command=lambda: vv_copy_slot_window.open_copy_slot(self, None),
+        ).pack(side="left")
+        self._help_button(slot_tools, "copy_player_slot").pack(side="left", padx=(2, 0))
+
+    def _copy_single_slot(self) -> None:
+        """Copy Player Slot for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_copy_slot_window.open_copy_slot(self, build)
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()

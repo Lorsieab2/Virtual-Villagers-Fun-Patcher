@@ -287,6 +287,9 @@ FILES = [
     "src/vv3_second_faction.py",
     # Rename Tribe; the GUI imports it too.
     "src/vv_tribe_rename.py",
+    # Copy Player Slot and its window; the GUI imports the window.
+    "src/vv_copy_slot.py",
+    "src/vv_copy_slot_window.py",
     # Check Saves & Logs and Repair Saves & Logs; the GUI imports it, and Check Saves & Logs runs
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",

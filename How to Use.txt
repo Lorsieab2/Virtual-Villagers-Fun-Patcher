@@ -17,7 +17,7 @@ THE "?" BUTTONS
 
 Every feature in the patcher window has a small "?" button beside it: every
 patch, every population mode, every button and link (Back Up Saves, Restore
-Saves, Rename Tribe, Check Saves & Logs, Repair Saves & Logs, the folder links, Validate, Dry
+Saves, Rename Tribe, Copy Player Slot, Check Saves & Logs, Repair Saves & Logs, the folder links, Validate, Dry
 Run, Create Modified EXE, Patch All 5 ...) and every setting (Check logs
 automatically). Click it for a short, plain guide: what it does, how to use it
 in the game, and anything to watch out for. On the All 5 Games tab, the "?"
@@ -236,6 +236,36 @@ The patcher can change a tribe's name inside its save, in all five games.
 7. The patcher's own data follows the village too: your answered questions
    are not asked again, The Lost Children's Elder Totems stay with the
    village, and saved family trees keep following renamed villagers.
+
+COPY PLAYER SLOT
+
+The patcher can copy a village into an empty save slot of the same game,
+under a new name, in all five games. Both villages can then be played.
+
+1. Quit the game first (from its own menu). A game that is running is
+   refused.
+2. On the Tools tab, click "Copy Player Slot..." (under the game chosen on
+   the One Game tab, or below the five games to pick any game).
+3. Pick the game, the save folder, the village to copy ("Copy from", each
+   slot listed with its name) and an empty slot ("Copy to": only empty slots
+   are listed), and type the new name. The name follows the same rules as
+   Rename Tribe.
+4. Click "Copy...". You are asked to confirm, with the village, both slots,
+   the new name and the save folder named; "No" is the default and copies
+   nothing at all.
+5. On "Yes" the save folder is backed up first, into
+       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before copy)
+   Then the slot's save (and its older copies) is copied to the empty slot
+   with the new name, and so is everything the patcher keeps for that
+   village: its logs, its data, and its saved family trees, now for the new
+   slot. The village you copied from is never changed, and no file already
+   there is ever written over: if the patcher still keeps files for a
+   village that was in the empty slot before, the copy is refused and names
+   them. Everything is checked after writing; if anything fails, everything
+   the copy made is removed again.
+6. Not copied: the older patcher builds' shared logs (from before each save
+   had its own folder of logs), which keep every village of the game in the
+   same files.
 
 CHECK SAVES & LOGS AND REPAIR SAVES & LOGS
 
