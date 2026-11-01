@@ -185,7 +185,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
-               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_vv1", "vv_pictures_vv2",
+               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1",
+               "vv_pictures_vv2",
                "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
@@ -352,10 +353,13 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common"}),
             ("vv_picture_image", set()),
             ("vv_pictures_common", {"vv_picture_image", "vv_log_tools", "vv_save_backup", "vv_save_layout"}),
-            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 3, 4, 5)),
+            # ...and every item a villager can carry, named (vv_pictures_carried).
+            ("vv_pictures_carried", {"vv_picture_image"}),
+            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common", "vv_pictures_carried"})
+              for n in (1, 3, 4, 5)),
             # The Lost Children's Elder Totems store, read and bound to the save by Repair's own reader
             # (function-level; Codex, PR #660).
-            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_vv2_totem_store"}),
+            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_vv2_totem_store"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",

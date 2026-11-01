@@ -260,6 +260,23 @@ class CompositorMatchesTheGame(unittest.TestCase):
                                                     frame=2, direction=direction, item=item, litter=litter,
                                                     selected=selected, held=held, variant=3))
 
+    def test_every_carried_item(self) -> None:
+        """Every item of vv_pictures_carried.VV2 (the Golden Mushroom, the game's own collectables picture,
+        included), in every direction and every pose that draws the item, for a child and an adult (with twins
+        and triplets), is blitted by the game's own compositor as the plan says."""
+        import vv_pictures_carried as carried
+        n = 0
+        for it in carried.items(v2.GAME):
+            for age in (100, 600):
+                for state in (0, 1, 2, 3, 8, 10):
+                    for direction in range(4):
+                        for litter in ((0, 2, 3) if age >= v2.CHILD_AGE and state in (0, 2) else (0,)):
+                            self.check(v2.State(male=direction % 2 == 0, age=age, head=4, body=9, state=state, frame=1,
+                                                direction=direction, item=it.value, litter=litter, height=6),
+                                       f"{it.name} age {age} state {state} direction {direction} litter {litter}")
+                            n += 1
+        self.assertGreater(n, len(carried.items(v2.GAME)) * 48)
+
     def test_swimming_and_water(self) -> None:
         for age in (100, 280, 900, 1100):
             for terrain in (0, 0x18, 0x19):

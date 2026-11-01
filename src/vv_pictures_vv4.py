@@ -37,6 +37,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 import vv_picture_image as pi
+import vv_pictures_carried as carried
 import vv_pictures_common as common
 
 GAME = 4
@@ -98,7 +99,8 @@ def required_data_files() -> list[str]:
 
 
 def patcher_art() -> dict[str, Path]:
-    return {MASK_FILE: ROOT / "assets" / "vv4_masks" / "vvfp_mask_atlas.png",
+    return {carried.GOLDEN_FILE: carried.GOLDEN_ART,
+            MASK_FILE: ROOT / "assets" / "vv4_masks" / "vvfp_mask_atlas.png",
             BIG_MASK_FILE: ROOT / "assets" / "vv4_masks" / "vvfp_bighead_mask_atlas.png"}
 
 
@@ -282,9 +284,11 @@ def _cdivmod(a: int, b: int) -> tuple[int, int]:
     return q, a - q * b
 
 
-def plan_village(sheets: pi.Sheets, tables: Tables, look: Look, pose: Pose, x0: int = 400, y0: int = 300) -> list:
+def plan_village(sheets: pi.Sheets, tables: Tables, look: Look, pose: Pose, x0: int = 400, y0: int = 300,
+                 golden_art: bool = True) -> list:
     """0x467DA0 for one villager at world (x0, y0), camera at rest (no scroll, zoom 1), record +0x1CB8 = 0
-    (on the ground), +0x1CD8 != 6, and the carried item's bob [0x4DEA04] = 0."""
+    (on the ground), +0x1CD8 != 6, and the carried item's bob [0x4DEA04] = 0.  `golden_art`: the Golden
+    Mushroom companion's picture for the patch's item 0x78 (False: the stock draw, collectables frame 50)."""
     out = []
     alpha = GHOST_ALPHA if look.ghost else 1.0
     bs = body_scale(look.age)
@@ -315,7 +319,7 @@ def plan_village(sheets: pi.Sheets, tables: Tables, look: Look, pose: Pose, x0: 
             out.append(_draw(sheets, SHADOW, sx, sy, 0, 0, s, alpha, "shadow"))
     behind = pose.direction in (0, 3, 4)
     if behind and not water:
-        out += _item(sheets, look, x0 + _trunc(0 * bs), y0 - elev + _trunc(bs * _trunc(18.0 * ZOOM)), bs)
+        out += _item(sheets, look, x0 + _trunc(0 * bs), y0 - elev + _trunc(bs * _trunc(18.0 * ZOOM)), bs, golden_art)
     ex, ey = X, Y - elev
     if not pose.held and water and col != 0x29:
         out.append(pi.Draw(*sheets.cell(SPRITES[RIPPLE], pose.ripple & 3, 0), X - 0x20, Y - elev - 0x20,
@@ -337,20 +341,24 @@ def plan_village(sheets: pi.Sheets, tables: Tables, look: Look, pose: Pose, x0: 
         out.append(_draw(sheets, 0, head_x, head_y - lift, pose.head_column & 7, look.mask - 1, hs, alpha,
                          "mask", MASK_ATLAS))
     if pose.direction in (1, 2, 5, 6, 7) and not water:
-        out += _item(sheets, look, x0 + _trunc(0 * bs), y0 - elev + _trunc(bs * _trunc(18.0 * ZOOM)), bs)
+        out += _item(sheets, look, x0 + _trunc(0 * bs), y0 - elev + _trunc(bs * _trunc(18.0 * ZOOM)), bs, golden_art)
     return out
 
 
-def _item(sheets: pi.Sheets, look: Look, x: int, y: int, bs: float) -> list:
+def _item(sheets: pi.Sheets, look: Look, x: int, y: int, bs: float, golden_art: bool = True) -> list:
     """0x466770: the carried item (record +0x1CDC, -1 none) at (x, y) plus the bob (0 here), and a second
-    and third copy for a litter of 2 and 3 (+0x1C50)."""
+    and third copy for a litter of 2 and 3 (+0x1C50).  Each goes through the world draw 0x44C640, where
+    "VVFP Golden Mushroom.dll" draws golden_mushroom.png, 7 to the right, for collectables frame 50."""
     if look.item == NO_ITEM:
         return []
-    if look.item >= 0x46:
-        sprite, frame = COLLECTABLES, look.item - 0x46
+    if golden_art and look.item == carried.GOLDEN_ITEM[GAME]:
+        out = [carried.golden_draw(GAME, x, y, what="item", sheets=sheets)]
     else:
-        sprite, frame = CARRYING, look.item
-    out = [_draw_frame(sheets, sprite, x, y, frame, 1.0, 1.0, "item")]
+        if look.item >= 0x46:
+            sprite, frame = COLLECTABLES, look.item - 0x46
+        else:
+            sprite, frame = CARRYING, look.item
+        out = [_draw_frame(sheets, sprite, x, y, frame, 1.0, 1.0, "item")]
     # The copies are always carrying.png's, at the item's own number (0x4667C8 / 0x4667F3: [mgr+0x24] and ESI,
     # the record's value): a collectable's copies are another carrying.png cell.  As the game draws it.
     if look.litter > 1:
@@ -431,10 +439,11 @@ def _pose_options() -> tuple:
     return tuple(out)
 
 
-ITEM_OPTIONS = ((pi.Option(NO_ITEM, "Nothing"),)
-                + tuple(pi.Option(k, f"carrying.png item {k + 1}" + (" (a baby)" if k == 3 else ""))
-                        for k in range(13 * 6))
-                + tuple(pi.Option(0x46 + k, f"collectables_small.png item {k + 1}") for k in range(6 * 9)))
+# Every item, named (vv_pictures_carried.VV4): carrying.png below 0x46, collectables_small.png from 0x46.
+# carrying.png's last eight cells (70-77) are empty art no item number reaches (only a litter's copy of a
+# collectable would, and only children carry those).
+ITEM_OPTIONS = carried.options(GAME)
+SAVED_ITEM_OPTIONS = carried.options(GAME, saved=True)
 MASK_OPTIONS = (pi.Option(0, common.MASK_NAMES[0]),) + tuple(pi.Option(k, common.MASK_NAMES[k], patcher=True)
                                                               for k in range(1, 6))
 LOOK_OPTIONS = (pi.Option(common.LOOK_AUTO, "Auto (old from 55)"), pi.Option(common.LOOK_YOUNG, "Young", True),
@@ -442,7 +451,7 @@ LOOK_OPTIONS = (pi.Option(common.LOOK_AUTO, "Auto (old from 55)"), pi.Option(com
 VIEW_OPTIONS = (pi.Option("village", "In the village"), pi.Option("details", "Villager Details portrait"))
 
 
-def pose_fields() -> tuple:
+def pose_fields(saved: bool = False) -> tuple:
     return (
         pi.Field("view", "Picture", VIEW_OPTIONS, "village"),
         pi.Field("pose", "Pose", _pose_options(), ("walk", 0)),
@@ -452,9 +461,10 @@ def pose_fields() -> tuple:
         pi.Field("portrait_facing", "Portrait facing",
                  tuple(pi.Option(c, f"Portrait head {c + 1}") for c in range(3)), 1),
         pi.Field("shadow", "Shadow", (pi.Option(True, "With its shadow"), pi.Option(False, "No shadow")), True),
-        pi.Field("item", "Carrying", ITEM_OPTIONS, NO_ITEM),
-        pi.Field("litter", "How many", (pi.Option(1, "One"), pi.Option(2, "Two (twins)"),
-                                        pi.Option(3, "Three (triplets)")), 1),
+        pi.Field("item", "Carrying", SAVED_ITEM_OPTIONS if saved else ITEM_OPTIONS,
+                 carried.SAVED if saved else NO_ITEM),
+        pi.Field("litter", "Babies carried", carried.litter_options((1, 2, 3), saved),
+                 carried.SAVED if saved else 1),
     )
 
 
@@ -533,7 +543,10 @@ class Renderer:
 
     # ---- From my save
     def saved_fields(self) -> tuple:
-        return pose_fields()
+        """The save does not keep +0x1CDC (the writer 0x4660A0 saves the record windows only): on loading
+        the reset 0x45D8A0 clears it and an expecting mother (+0x1C4C) gets the baby back at her next action
+        stop (0x468CDE) -- the "As the game shows it" choice.  The litter +0x1C50 is saved."""
+        return pose_fields(saved=True)
 
     def _read(self, folder, slot):
         key = (str(folder), slot)
@@ -555,6 +568,8 @@ class Renderer:
                 detail.append(f"Mask: {common.MASK_NAMES[v.mask]} (the patcher's Origins mask)")
             if v.look:
                 detail.append(f"Head look: {common.LOOK_NAMES[v.look]} (Change Appearance)")
+            if not v.dead and v.i32(0xB0):
+                detail.append("Expecting: carries " + {2: "twins", 3: "triplets"}.get(v.i32(0xB4), "a baby"))
             out.append(pi.SavedItem(str(v.rank), f"{v.name} ({stage}, {_age_text(v.age)})", where, kind,
                                     "\n".join(detail)))
         return out
@@ -581,10 +596,11 @@ class Renderer:
     def plan_saved(self, folder, slot, item_id, **options) -> list:
         v = self._person(folder, slot, item_id)
         look = self.look_of(v)
-        spec = {f.key: f.default for f in pose_fields()}
+        spec = {f.key: f.default for f in pose_fields(saved=True)}
         spec.update({k: val for k, val in options.items() if val is not None})
-        look = replace(look, item=spec.get("item", NO_ITEM),
-                       litter=spec.get("litter", 1) if spec.get("item", NO_ITEM) != NO_ITEM else look.litter)
+        litter = spec.get("litter", carried.SAVED)
+        look = replace(look, item=carried.resolve(spec.get("item"), look.expecting, NO_ITEM),
+                       litter=look.litter if litter == carried.SAVED else int(litter))
         return self.plan(look, make_pose(spec))
 
     def render_saved(self, folder, slot, item_id, **options) -> pi.Image:

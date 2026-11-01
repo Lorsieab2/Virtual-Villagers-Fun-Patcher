@@ -366,6 +366,7 @@ FILES = [
     "src/vv_picture_studio.py",
     "src/vv_picture_image.py",
     "src/vv_pictures_common.py",
+    "src/vv_pictures_carried.py",
     "src/vv_pictures_vv1.py",
     "src/vv_pictures_vv2.py",
     "src/vv_pictures_vv3.py",

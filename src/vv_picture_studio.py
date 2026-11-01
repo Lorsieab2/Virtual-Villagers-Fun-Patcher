@@ -54,6 +54,13 @@ HELP = (
         "Make your own: pick the sex, the life stage and age (children are drawn smaller year by year, exactly as "
         "the game scales them), the head and body (every one the game has), the mask, the head look, and the "
         "pose, direction and frame. Choices marked (patcher) are the patcher's own art.",
+        "Carrying: every item a villager can carry in that game -- food, wood, stone, herbs, mushrooms, fish, "
+        "tools, puzzle and story pieces, collectables and the baby (with Babies carried: twins and triplets are "
+        "the item drawn two or three times, as the game draws them) -- named as the game names it. Pictures the "
+        "game has but never shows a villager carrying are offered too, marked (unused in the game); the "
+        "patcher's Golden Mushroom is marked (patcher). The save does not keep what a villager holds: on From "
+        "my save the first choice draws what the game gives back on loading, the baby for a villager who is "
+        "expecting.",
         "Saving: \"Save PNG...\" saves the picture shown. Pick the size first: the game's own size, 2x or 4x "
         "(each pixel made a crisp square), or your own width and height (smoothly scaled; leave one empty to keep "
         "the shape). The picture is cut to what is drawn, with a small clear margin, or none if you untick it. "
