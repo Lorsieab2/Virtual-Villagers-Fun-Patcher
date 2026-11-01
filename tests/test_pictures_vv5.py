@@ -304,6 +304,40 @@ class VillageDrawMatchesTheGame(unittest.TestCase):
             with self.subTest(look=look, pose=pose):
                 self.assertEqual(plan_keys(self.renderer, look, pose), self.game.draw(look, pose))
 
+    def test_every_carried_item(self) -> None:
+        """Every item of vv_pictures_carried.VV5 (the patcher's Golden Mushroom included), in every direction,
+        walking (with twins and triplets), sitting, lying, in action poses and as a child, Believer and
+        Heathen, is blitted by the game's own draw 0x4720E0 as the plan says.  The Golden Mushroom's stock
+        blit (collectables frame 50) is what the patched game's world draw 0x44F380 swaps (carried_golden)."""
+        import carried_golden
+        import vv_pictures_carried as carried
+        golden = carried.GOLDEN_ITEM[v5.GAME]
+        atlas = v5.SPRITES[v5.COLLECTABLES]
+        frame50 = self.renderer.sheets.cell(atlas, 50 % atlas.cols, 50 // atlas.cols)
+        planner = self.renderer.planner
+        n = 0
+        for it in carried.items(v5.GAME):
+            for direction in range(4):
+                cases = [(v5.Look(age=600), v5.Pose(item=it.value, litter=litter, direction=direction))
+                         for litter in (1, 2, 3)]
+                cases += [(v5.Look(age=600, male=False), v5.Pose(pose=p, item=it.value, direction=direction))
+                          for p in (33, 40, 41, 48)]
+                cases += [(v5.Look(age=130), v5.Pose(pose=3, item=it.value, direction=direction)),
+                          (v5.Look(age=700, faction=1, rank=14), v5.Pose(pose=5, item=it.value, direction=direction))]
+                for look, pose in cases:
+                    planner.golden_art = False
+                    try:
+                        pose.x, pose.y = 1000, 1000
+                        stock = planner.plan(look, pose)
+                    finally:
+                        planner.golden_art = True
+                    self.assertEqual([d.key() for d in stock], self.game.draw(look, pose), (it.name, look, pose))
+                    if it.value == golden:
+                        self.assertEqual(plan_keys(self.renderer, look, pose),
+                                         carried_golden.swapped(stock, v5.GAME, lambda d: (d.file, d.rect) == frame50))
+                    n += 1
+        self.assertEqual(n, len(carried.items(v5.GAME)) * 4 * 9)
+
     def test_head_look_only_moves_the_age_compare(self) -> None:
         """VVFP Head Look.dll changes only the compare at 0x4722A2: Old at 30 is the game at 1,100, Young at
         60 is the game at 1,099 (the scale is a grown-up's either way)."""
