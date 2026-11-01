@@ -139,8 +139,8 @@ static int vv_rename_apply(char *header, size_t size, const char *line) {
     }
     for (i = 0; i < new_length; ++i) {
         unsigned char c = (unsigned char)rest[i];
-        if (c < 0x20 || c > 0x7E) {
-            return 0;           /* only a name a player could have typed */
+        if (c < 0x20 || c == 0x7F || c == 0x81 || c == 0x8D || c == 0x8F || c == 0x90 || c == 0x9D) {
+            return 0;           /* only a name a player could have typed (Windows-1252, v1.35.87) */
         }
     }
     if (VV_RENAME_HEADER_PREFIX_LENGTH + new_length + suffix_length + 1 > sizeof(updated)

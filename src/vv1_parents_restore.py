@@ -38,6 +38,7 @@ from pathlib import Path
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 MAGIC = b"VP02"
 HEADER = 12
@@ -90,7 +91,7 @@ def parents_path(folder: Path, slot: int) -> Path:
 
 
 def _cstr(buf: bytes, at: int) -> str:
-    return bytes(buf[at:at + NAME]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(buf[at:at + NAME]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 @dataclass
@@ -253,7 +254,7 @@ def _births_log_parents(folder: Path, slot: int) -> dict[tuple[str, int, int], s
         if not path.is_file() or not re.search(r"Log \d+\.txt$", path.name):
             continue
         try:
-            text = path.read_bytes().decode("latin-1")
+            text = path.read_bytes().decode(GAME_TEXT)
         except OSError:
             continue
         ours = False
@@ -295,7 +296,7 @@ def _slot_blocks(folder: Path, slot: int, pattern: str):
         if not path.is_file() or not re.search(r" \d+\.txt$", path.name):
             continue
         try:
-            text = path.read_bytes().decode("latin-1")
+            text = path.read_bytes().decode(GAME_TEXT)
         except OSError:
             continue
         ours = False
@@ -372,7 +373,7 @@ def _refined(table: Table, by_identity: dict[tuple, list[int]], shared: set[tupl
 
 
 def _name_field(name: str) -> bytes:
-    return name.encode("latin-1").ljust(NAME, b"\0")
+    return name.encode(GAME_TEXT).ljust(NAME, b"\0")
 
 
 def _same_but_numbered(father: str, mother: str, logged: set[tuple[str, str]]) -> tuple[str, str] | None:
@@ -389,7 +390,7 @@ def _same_but_numbered(father: str, mother: str, logged: set[tuple[str, str]]) -
         return None
     f, m = next(iter(found))
     try:
-        if len(f.encode("latin-1")) >= NAME or len(m.encode("latin-1")) >= NAME:
+        if len(f.encode(GAME_TEXT)) >= NAME or len(m.encode(GAME_TEXT)) >= NAME:
             return None
     except UnicodeEncodeError:
         return None
@@ -519,7 +520,7 @@ def _village(folder: Path, slot: int) -> str | None:
     for path in layout.numbered_logs(Path(folder), "Births and Conceptions",
                                      "Virtual Villagers 1 Births and Conceptions Log", slot):
         try:
-            for ln in path.read_bytes().decode("latin-1").splitlines():
+            for ln in path.read_bytes().decode(GAME_TEXT).splitlines():
                 if ln.startswith("Village:") and ln.rstrip().endswith(f"(Save {slot})"):
                     found = ln.rstrip()
         except OSError:

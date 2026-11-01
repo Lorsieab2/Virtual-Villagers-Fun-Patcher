@@ -87,6 +87,9 @@ FILES = [
     # The original looks behind Change Appearance's Reset to original (all five games): shipped by each game's
     # Original Looks row, started by VVFP Startup.dll.
     "assets/original_look/VVFP Original Look.dll",
+    # Render Unicode with In-Game Fonts (all five games): every Windows-1252 character drawn, measured and typed;
+    # shipped by each game's row, started by VVFP Startup.dll.
+    "assets/unicode_text/VVFP Unicode Text.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -144,6 +147,8 @@ FILES = [
     "data/statistics_features.json",
     # The Family Tree Maker's traced portrait shapes (scripts/build_tree_shapes.py).
     "data/tree_shapes.json",
+    # The Text tab's font cell tables, numbers only (scripts/build_vv_font_tables.py).
+    "data/vv_font_tables.json",
     "data/vv1_parentage_feature.json",
     "data/vv2_parentage_feature.json",
     "data/vv3_parentage_feature.json",
@@ -191,6 +196,13 @@ FILES = [
     "data/vv3_original_look_feature.json",
     "data/vv4_original_look_feature.json",
     "data/vv5_original_look_feature.json",
+    "data/vv1_unicode_text_feature.json",
+    "data/vv2_unicode_text_feature.json",
+    "data/vv3_unicode_text_feature.json",
+    "data/vv4_unicode_text_feature.json",
+    "data/vv5_unicode_text_feature.json",
+    # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
+    "data/font_glyph_tables.json",
     "data/vv3_both_factions_feature.json",
     "data/vv3_fruit_trees_refill_together_feature.json",
     "data/vv3_fruit_trees_take_turns_feature.json",
@@ -304,6 +316,10 @@ FILES = [
     "src/vv_reconcile_view.py",
     # The original looks Repair Saves & Logs adds from the logs (Change Appearance's Reset to original).
     "src/vv_original_look.py",
+    # The games' fonts and the letters the patcher makes for them (shared with the Picture Studio Text tool),
+    # and the games' own text bytes read as Windows-1252 with every byte kept.
+    "src/vv_font_glyphs.py",
+    "src/vv_game_text.py",
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
     "src/vv_misfiled_records.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
@@ -352,17 +368,39 @@ FILES = [
     "src/vv_picture_studio.py",
     "src/vv_picture_image.py",
     "src/vv_pictures_common.py",
+    "src/vv_pictures_carried.py",
     "src/vv_pictures_vv1.py",
     "src/vv_pictures_vv2.py",
     "src/vv_pictures_vv3.py",
     "src/vv_pictures_vv4.py",
     "src/vv_pictures_vv5.py",
+    # Its Text tab: the games' font model, the tab, and the maker of missing glyphs.
+    "src/vv_pictures_text.py",
+    "src/vv_pictures_text_tab.py",
+    "src/vv_glyph_maker.py",
     "docs/picture-studio.md",
+    "docs/picture-studio-text.md",
     "docs/picture-studio-vv1.md",
     "docs/picture-studio-vv2.md",
     "docs/picture-studio-vv3.md",
     "docs/picture-studio-vv4.md",
     "docs/picture-studio-vv5.md",
+    # Picture Studio's Everything tab: every picture each game ships, by category (each game's table found by
+    # name), and the JPEG reader.  Still no game art: it is read from the player's own game.
+    "src/vv_picture_studio_everything.py",
+    "src/vv_pictures_assets.py",
+    "src/vv_jpeg.py",
+    "src/vv_assets_vv1.py",
+    "src/vv_assets_vv2.py",
+    "src/vv_assets_vv3.py",
+    "src/vv_assets_vv4.py",
+    "src/vv_assets_vv5.py",
+    "docs/picture-studio-assets.md",
+    "docs/picture-studio-assets-vv1.md",
+    "docs/picture-studio-assets-vv2.md",
+    "docs/picture-studio-assets-vv3.md",
+    "docs/picture-studio-assets-vv4.md",
+    "docs/picture-studio-assets-vv5.md",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

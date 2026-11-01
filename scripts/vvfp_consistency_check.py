@@ -48,6 +48,10 @@ try:
 except ImportError:                     # run on its own: src/ is beside scripts/
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
     import vv_save_layout as layout
+# The games' own text bytes: Windows-1252, every byte kept -- the one decoding every patcher reader uses
+# (src/vv_game_text.py), so a name like "Šárka" is the same person in the save and in the logs, and
+# village_id() hashes the very bytes the companions hash.
+from vv_game_text import GAME_TEXT  # noqa: E402
 
 GAME_TITLES = {
     1: "A New Home", 2: "The Lost Children", 3: "The Secret City",
@@ -126,7 +130,7 @@ class Report:
 # ---- the save -------------------------------------------------------------------------------
 
 def cstr(data: bytes, offset: int, capacity: int) -> str:
-    return data[offset:offset + capacity].split(b"\0", 1)[0].decode("latin-1")
+    return data[offset:offset + capacity].split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def i32(data: bytes, offset: int) -> int:
@@ -249,7 +253,9 @@ NAME_RE = re.compile(rb"[A-Z][A-Za-z0-9' -]{1,23}\0")
 # Any name a villager may have once the table is found: any printable characters, one at least
 # (Give villagers last names takes any printable last name, the Custom Island Event . , ! ? : - ',
 # Cheat Engine anything).  The game itself reads whatever is there.
-ANY_NAME_RE = re.compile(rb"[\x21-\x7E\xA0-\xFF][\x20-\x7E\xA0-\xFF]{0,23}\0")
+ANY_NAME_RE = re.compile(rb"[\x21-\x7E\x80\x82-\x8C\x8E\x91-\x9C\x9E-\xFF]"
+                         rb"[\x20-\x7E\x80\x82-\x8C\x8E\x91-\x9C\x9E-\xFF]{0,23}\0")
+# (0x80-0x9F: the printable Windows-1252 characters Render Unicode with In-Game Fonts lets the player type.)
 
 
 def plausible(data: bytes, p: int, lay: SaveLayout, names: re.Pattern = NAME_RE) -> bool:
@@ -427,7 +433,7 @@ def repeated_birth_numbers(game_dir: Path, game: int) -> dict[int, list[str]]:
     seen: dict[int, list[str]] = {}
     # Numbered per GAME (src/vv_save_layout.py): the shared folder and every slot's, one sequence.
     for path in game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log"):
-        for k, line in enumerate(path.read_bytes().decode("latin-1").splitlines(), 1):
+        for k, line in enumerate(path.read_bytes().decode(GAME_TEXT).splitlines(), 1):
             m = BIRTH_HEADING.fullmatch(line.strip())
             if m and line.strip() != "Birth":
                 seen.setdefault(int(line.split()[1]), []).append(f"{log_label(path)} line {k}")
@@ -608,7 +614,7 @@ class LogUnreadable(Exception):
 
 def read_log_text(path: Path) -> str:
     try:
-        return path.read_text(encoding="latin-1").replace("\r\n", "\n")
+        return path.read_text(encoding=GAME_TEXT).replace("\r\n", "\n")
     except OSError as exc:            # locked, denied: reported, never a crash (Codex, #522)
         raise LogUnreadable(f"{path.name}: {exc.strerror or exc}") from exc
 
@@ -686,7 +692,7 @@ def population_files(game_dir: Path, slot: int) -> list[Path]:
 
 def population_for_slot(game_dir: Path, slot: int) -> list[dict] | None:
     for path in population_files(game_dir, slot):
-        text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
+        text = path.read_text(encoding=GAME_TEXT).replace("\r\n", "\n")
         m = re.search(r"^Village: .*\(Save (\d)\)\s*$", text, re.M)
         if m and int(m.group(1)) == slot:
             return snapshot_villagers(text)
@@ -702,7 +708,7 @@ def history_files(game_dir: Path, slot: int | None = None) -> list[Path]:
 def history_last(game_dir: Path, slot: int) -> tuple[str, list[dict]] | None:
     last = None
     for path in history_files(game_dir, slot):
-        text = path.read_text(encoding="latin-1").replace("\r\n", "\n")
+        text = path.read_text(encoding=GAME_TEXT).replace("\r\n", "\n")
         for snap in re.split(r"\n(?==== )", "\n" + text):
             m = re.search(r"^Village: .*\(Save (\d)\)\s*$", snap, re.M)
             stamp = re.search(r"^=== .* -- (.*) ===", snap.strip("\n"), re.M)
@@ -1228,7 +1234,7 @@ def check_elders(game_dir: Path, slot: int, game: int, roster: list[Villager], r
     if not path.is_file():
         rep.add(label, "UNCHECKED", "no Village Elders file")
         return None
-    lines = path.read_text(encoding="latin-1").replace("\r\n", "\n").split("\n")
+    lines = path.read_text(encoding=GAME_TEXT).replace("\r\n", "\n").split("\n")
     if len(lines) < 2 or lines[0] != f"VVFP VILLAGE ELDERS v2 game={game}" or not lines[1].startswith("graves_seen="):
         rep.add(label, "UNCHECKED", "not a v2 Village Elders file for this game")
         return None
@@ -1328,7 +1334,7 @@ def read_stats_text(game_dir: Path, slot: int) -> dict[str, str] | None:
     if p is not None:
         if p.is_file():
             rows = {}
-            for line in p.read_text(encoding="latin-1").splitlines():
+            for line in p.read_text(encoding=GAME_TEXT).splitlines():
                 m = re.match(r"^([A-Za-z' ]+):\s*(.*)$", line)
                 if m and m.group(1) != "Village":
                     rows[m.group(1).strip()] = m.group(2).strip()
@@ -1379,7 +1385,7 @@ def read_counters(game_dir: Path, slot: int, game: int) -> dict[str, int] | None
     p = layout.route(game_dir, f"{DATA}\\Village Statistics\\Village Statistics - Save {slot}.dat")
     if not p.is_file():
         return None
-    lines = p.read_text(encoding="latin-1").replace("\r\n", "\n").split("\n")
+    lines = p.read_text(encoding=GAME_TEXT).replace("\r\n", "\n").split("\n")
     if not lines or lines[0] != f"VVFP VILLAGE STATISTICS v1 game={game}":
         return None
     out = {}
@@ -1736,7 +1742,7 @@ def check_rosters(game_dir: Path, slot: int, game: int, roster: list[Villager], 
     stats_roster = layout.route(game_dir, f"{DATA}\\Village Statistics\\Villagers Counted - Save {slot}.dat")
     label = f"{DATA}\\Village Statistics\\{stats_roster.name}"
     if stats_roster.is_file():
-        lines = stats_roster.read_text(encoding="latin-1").splitlines()
+        lines = stats_roster.read_text(encoding=GAME_TEXT).splitlines()
         rows = [l for l in lines[1:] if l]
         names = sorted(l.split("\t")[1] for l in rows if l.count("\t") == 2)
         if lines and lines[0] == "VVFP VILLAGE ROSTER v1" and any(l.count("\t") != 2 for l in rows):
@@ -1762,7 +1768,7 @@ def check_stews(game_dir: Path, slot: int, game: int, rep: Report) -> None:
     label = f"{DATA}\\Stew Discoveries\\Stew Discoveries - Save {slot}.dat"
     if not path.is_file():
         return
-    lines = path.read_text(encoding="latin-1").splitlines()
+    lines = path.read_text(encoding=GAME_TEXT).splitlines()
     ok = lines and lines[0] == f"VVFP STEW DISCOVERIES v1 game={game}" and all(
         re.fullmatch(r"stew=\d+ herbs=[0-9A-F]{2},[0-9A-F]{2},[0-9A-F]{2}( water=(fresh|salt))?", l) for l in lines[1:] if l)
     rep.add(label, "OK" if ok else "UNCHECKED",
@@ -1795,7 +1801,7 @@ LAST_GRAVES = 0
 def village_id(header: str) -> int:
     """vv1_xc_village_id: FNV-1a of the village's Births-log header line, never 0."""
     h = 2166136261
-    for c in header.encode("latin-1"):
+    for c in header.encode(GAME_TEXT):
         h = ((h ^ c) * 16777619) & 0xFFFFFFFF
     return h or 1
 
@@ -2073,7 +2079,7 @@ def old_words(game_dir: Path, game: int) -> list[OldWords]:
             boundary = min(bounds.get(name.lower(), len(data)), len(data))
             changes = []
             for m in WORD_LINE.finditer(data, 0, boundary):
-                word = m.group(2).decode("latin-1").strip()
+                word = m.group(2).decode(GAME_TEXT).strip()
                 new = fixes.get(word, word)
                 if new != word:
                     changes.append((m.start(2), m.end(2), word, new))
@@ -2409,7 +2415,7 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
             by_name.setdefault(v.name, set()).add(sex)
     for path in log_files(game_dir):
         try:
-            lines = path.read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+            lines = path.read_bytes().decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
         except OSError:
             continue
         for s, e in _blocks("\n".join(lines)):
@@ -2463,7 +2469,7 @@ def missing_sex(game_dir: Path, game: int) -> list[tuple[Path, list[tuple[int, s
     exact, by_name = known_sexes(game_dir, game)
     out = []
     for path in log_files(game_dir):
-        lines = path.read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+        lines = path.read_bytes().decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
         adds = []
         for s, e in _blocks("\n".join(lines)):
             for p in _block_people(lines[s:e]):

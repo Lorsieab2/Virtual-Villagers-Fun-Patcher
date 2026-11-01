@@ -78,6 +78,10 @@ STDCALL = {
 DOCUMENTS = "D:\\Documents"
 LOCAL_TIME = (2026, 10, 0, 11, 21, 5, 9, 0)        # Sun Oct 11 21:05:09 2026
 FILE_HANDLE = 0x0000F11E
+# Imports a test answers itself, for what it runs after WinMain is reached (tests/unicode_text_emulation.py):
+# name -> (bytes popped on return, 0 for a cdecl function; handler(machine, arg, ret)).  Registered before
+# the machine maps the modules that import them.
+EXTRA_IMPORTS: dict = {}
 
 
 @dataclass
@@ -189,7 +193,7 @@ class StartupMachine:
                 self._next_stub += 16
                 self.stub_names[stub] = name
                 struct.pack_into("<I", image, imp.address - base, stub)
-                popped = STDCALL.get(name)
+                popped = STDCALL.get(name, EXTRA_IMPORTS[name][0] if name in EXTRA_IMPORTS else None)
                 self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", popped) if popped is not None else b"\xF4")
 
     def _load(self, name: str) -> Module | None:
@@ -403,6 +407,8 @@ class StartupMachine:
             base_name = text.split("\\")[-1].lower()
             there = base_name in self.shipped and text.lower() == (self.files_dir + base_name).lower()
             ret(0x20 if there else 0xFFFFFFFF)
+        elif name in EXTRA_IMPORTS:
+            EXTRA_IMPORTS[name][1](self, arg, ret)
         else:
             self.error = f"unexpected import {name}"
             mu.emu_stop()

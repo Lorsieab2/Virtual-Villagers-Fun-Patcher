@@ -71,6 +71,7 @@ from pathlib import Path
 import vv_save_backup
 import vv_save_layout as layout
 import vv_tribe_rename as rename
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = vv_save_backup.BEFORE_COPY
 SLOTS = rename.SLOTS
@@ -174,7 +175,7 @@ def copy_folders(title: str, documents: Path | None) -> list[Path]:
 
 def _fnv1a32(text: str) -> int:
     h = 2166136261
-    for byte in text.encode("latin-1", "replace"):
+    for byte in text.encode(GAME_TEXT, "replace"):
         h = ((h ^ byte) * 16777619) & 0xFFFFFFFF
     return h or 1
 
@@ -272,7 +273,7 @@ _IDENTITY_LINE = re.compile(r"^(?:Village: |Tribe renamed from |Save [1-5]: )")
 def record_numbers(data: bytes) -> dict[str, set[int]]:
     """Every record number that opens a line of ``data``, by kind."""
     found: dict[str, set[int]] = {}
-    for line in data.decode("latin-1").splitlines():
+    for line in data.decode(GAME_TEXT).splitlines():
         match = _MARKER.match(line)
         if match:
             found.setdefault(match.group(1), set()).add(int(match.group(2)))
@@ -370,14 +371,14 @@ def rewrite_log(data: bytes, headers, new_header: str,
     for line in data.splitlines(keepends=True):
         body = line.rstrip(b"\r\n")
         ending = line[len(body):]
-        text = body.decode("latin-1")
+        text = body.decode(GAME_TEXT)
         whole = mapped.get(text.rstrip(" \t"))
         if whole is None:
             whole = (lines or {}).get(text)
         if whole is None and note is not None and text.startswith(rename.RENAME_PREFIX):
             whole = note_rewrite(text, *note)
         if whole is not None:
-            replaced = whole.encode("latin-1", "replace")
+            replaced = whole.encode(GAME_TEXT, "replace")
             mapping.changes.append((at, len(body), len(replaced)))
             out += replaced + ending
         elif numbers and not _IDENTITY_LINE.match(text):
@@ -387,11 +388,11 @@ def rewrite_log(data: bytes, headers, new_header: str,
                 if new is None:
                     continue
                 digits = str(new)
-                out += text[last:match.start(2)].encode("latin-1")
+                out += text[last:match.start(2)].encode(GAME_TEXT)
                 out += digits.encode("ascii")
                 mapping.changes.append((at + match.start(2), match.end(2) - match.start(2), len(digits)))
                 last = match.end(2)
-            out += text[last:].encode("latin-1") + ending
+            out += text[last:].encode(GAME_TEXT) + ending
         else:
             out += line
         at += len(line)
@@ -435,10 +436,10 @@ def village_ranges(data: bytes, headers: set[str]) -> list[tuple[int, int]]:
     owners: list[str | None] = []
     current: str | None = None
     for i, line in enumerate(lines):
-        text = line.rstrip(b"\r\n").decode("latin-1").rstrip(" \t")
+        text = line.rstrip(b"\r\n").decode(GAME_TEXT).rstrip(" \t")
         if text.startswith("Village: "):
             current = text
-            if i and owners and lines[i - 1].decode("latin-1").startswith(_HISTORY_MARK):
+            if i and owners and lines[i - 1].decode(GAME_TEXT).startswith(_HISTORY_MARK):
                 owners[i - 1] = current
         elif current is not None and text.startswith(names.RENAME_PREFIX):
             owners.append(current)
@@ -482,7 +483,7 @@ def shared_log_names(folder: Path, slot: int) -> set[str]:
             continue
         for path in files:
             try:
-                text = path.read_bytes().decode("latin-1")
+                text = path.read_bytes().decode(GAME_TEXT)
             except OSError:
                 continue
             header: str | None = None
@@ -528,7 +529,7 @@ def _record_ranges(data: bytes) -> list[tuple[int, int]]:
     starts = []
     at = 0
     for line in data.splitlines(keepends=True):
-        text = line.decode("latin-1")
+        text = line.decode(GAME_TEXT)
         if _MARKER.match(text) or text.startswith("Village: "):
             starts.append((at, bool(_MARKER.match(text))))
         at += len(line)
@@ -597,8 +598,8 @@ def transform_binary(data: bytes, source: int, target: int, ids: dict[int, int],
                 and len(out) >= totems.HEADER + 4:
             cap = totems.VILLAGE_CAP
             field_ = bytes(out[totems.HEADER_V1:totems.HEADER_V1 + cap])
-            if field_.split(b"\0", 1)[0].decode("latin-1") == old_name:
-                raw = new_name.encode("latin-1", "replace")[:cap - 1]
+            if field_.split(b"\0", 1)[0].decode(GAME_TEXT) == old_name:
+                raw = new_name.encode(GAME_TEXT, "replace")[:cap - 1]
                 out[totems.HEADER_V1:totems.HEADER_V1 + cap] = raw + bytes(cap - len(raw))
         struct.pack_into("<I", out, len(out) - 4, totems._fnv1a(bytes(out[:-4])))
         return bytes(out)
@@ -1113,7 +1114,7 @@ def _plan_shared_logs(folder: Path, source: int, target: int, headers: set[str],
                 continue
             if newest == "Tribe Population":
                 # A Village Population page is one village's, its header on its second line: the whole page.
-                villages = {l.decode("latin-1").rstrip(" \t\r\n") for l in data.splitlines()
+                villages = {l.decode(GAME_TEXT).rstrip(" \t\r\n") for l in data.splitlines()
                             if l.startswith(b"Village: ")}
                 if not villages <= headers:
                     continue
@@ -1161,11 +1162,11 @@ def _normalise_words(folder: Path, game: int, checker, pieces: list[tuple[int, P
         until = min(piece.offset(boundary), len(text)) if boundary is not None else len(text)
         out, at = [], 0
         for match in checker.WORD_LINE.finditer(text, 0, until):
-            word = match.group(2).decode("latin-1").strip()
+            word = match.group(2).decode(GAME_TEXT).strip()
             new = fixes.get(word, word)
             if new != word:
                 out.append(text[at:match.start(2)])
-                out.append(new.encode("latin-1"))
+                out.append(new.encode(GAME_TEXT))
                 at = match.end(2)
         out.append(text[at:])
         piece.data = b"".join(out)

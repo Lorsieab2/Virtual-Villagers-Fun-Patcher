@@ -29,6 +29,7 @@ from fractions import Fraction
 from pathlib import Path
 
 import vv_log_tools as tools
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 UNITS_PER_YEAR = 20
 
@@ -368,7 +369,7 @@ def _i32(data: bytes, at: int) -> int:
 
 
 def _cstr(data: bytes, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def _like_words(text: str | None) -> frozenset | None:

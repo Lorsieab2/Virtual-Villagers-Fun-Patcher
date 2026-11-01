@@ -1,4 +1,4 @@
-"""Story / Cheat Upgrades (all five games, default-off).
+"""Story / Cheat Upgrades (all five games, on by default with its cost row, owner 2026-11-01).
 
 The owner: "When enabled, all Origins Upgrades cost 0 Tech Points. Also adds
 ... Pick Island Event -- Allows the player to directly choose which stock
@@ -144,7 +144,8 @@ class RowTests(unittest.TestCase):
                 text = row.raw["description"]
                 self.assertIn("all Origins Upgrades cost 0 Tech Points", text)
                 self.assertIn("Pick Island Event", text)
-                self.assertIn("Off by default", text)
+                self.assertIn("On by default, with Story / Cheat Upgrades cost Tech Points ticked too", text)
+                self.assertNotIn("Off by default", text)
                 self.assertIn("**Requires Enable Origins Tech, Details, and Village-Wide Upgrades", text)
                 self.assertEqual(text.count("**") % 2, 0)
                 # Part 2, in the owner's own words.
@@ -164,11 +165,13 @@ class RowTests(unittest.TestCase):
                     self.assertTrue(omitted["reason"], omitted)
                 self.assertEqual(row.raw["dependencies"], [f"{game}_origins_village_wide_upgrades"])
 
-    def test_off_by_default_and_ticked_by_owners_defaults(self):
+    def test_on_by_default_and_ticked_by_owners_defaults(self):
+        # The owner, 2026-11-01: anything that costs or adds content stays ON by default.
         for game in GAMES:
             with self.subTest(game=game):
-                self.assertIn(feature_id(game), DEFAULT_OFF_FUN_PATCH_IDS)
-                self.assertFalse(default_fun_patch_selection(feature_id(game)))
+                self.assertNotIn(feature_id(game), DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertTrue(default_fun_patch_selection(feature_id(game)))
+                self.assertTrue(default_fun_patch_selection(feature_id(game) + "_cost_tech_points"))
                 self.assertTrue(owners_default_fun_patch_selection(feature_id(game)))
 
     def test_requires_the_origins_upgrades(self):

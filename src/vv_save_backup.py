@@ -862,9 +862,13 @@ def read_village_name(game: int, path: Path) -> str | None:
         return None
     raw = data[header + _NAME_OFFSET[game]: header + _NAME_OFFSET[game] + _NAME_MAX]
     name = raw.split(b"\0", 1)[0]
-    if any(byte < 0x20 or byte > 0x7E for byte in name):
+    # Printable ASCII or, since Render Unicode with In-Game Fonts (v1.35.87), any printable Windows-1252
+    # character: the companions' own rule (native/shared/village_identity.c is_name_byte).
+    from vv_game_text import GAME_TEXT, printable
+    text = name.decode(GAME_TEXT)
+    if not all(printable(ch) for ch in text):
         return ""
-    return name.decode("ascii")
+    return text
 
 
 # GAME SPEED.  Every game keeps its speed in the save buffer, as a dword the game

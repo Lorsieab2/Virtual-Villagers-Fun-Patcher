@@ -59,6 +59,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_log_tools as tools
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 KIND_ID = "history_revision"
 LABEL = ("Remove villagers from the history that are not in this save (a restarted tribe with the same "
@@ -695,7 +696,7 @@ def revise(folder: Path, game: int, slot: int, confirmed: Plan, processes=None,
                 raise OSError(f"the copy of {doc.path.name} did not read back")
             # Recorded before the write: a file that fails its read-back has already been replaced.
             done.append((doc.path, copy))
-            _write(doc.path, doc.render().encode("latin-1"))
+            _write(doc.path, doc.render().encode(GAME_TEXT))
             written.append((doc.path, copy, count))
         for doc, _count in docs:
             additions._move_boundaries(folder, doc)
@@ -793,7 +794,7 @@ def _repairs_records(folder: Path, game: int, slot: int) -> list[dict]:
                        key=lambda p: int(m.group(1)) if (m := re.search(r" (\d+)\.txt$", p.name)) else 0)
         for path in files:
             record = None
-            for line in path.read_bytes().decode("latin-1").splitlines() + [""]:
+            for line in path.read_bytes().decode(GAME_TEXT).splitlines() + [""]:
                 if re.match(r"^Repair \d+\s*$", line) or not line.strip():
                     if record and record["checked"] == CHECKED and record["backups"]:
                         order += 1

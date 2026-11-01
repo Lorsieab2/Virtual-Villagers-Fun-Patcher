@@ -55,7 +55,7 @@ SIZES = {
     "male_actions00.png": (360, 650), "male_actions01.png": (360, 650),
     "carrying.png": (600, 25), "skelly.png": (240, 65), "ripple.png": (260, 65),
     "peep_shadow1.png": (68, 64), "focus_circle.png": (68, 64),
-    "mask_atlas.png": (280, 800),
+    "mask_atlas.png": (280, 800), "golden_mushroom.png": (29, 22),
     "vvfp_grey_male_heads.png": (280, 1300), "vvfp_grey_female_heads.png": (280, 1300),
 }
 
@@ -328,6 +328,32 @@ class VillageDrawIsTheGames(unittest.TestCase):
                 self.check(vv1.Villager(male=True, age=120, direction=direction, item=item, frame=1), "child carrying")
                 self.check(vv1.Villager(male=True, age=120, state=1, direction=direction, item=item, frame=2),
                            "child bent carrying")
+
+    def test_every_carried_item(self) -> None:
+        """Every item of vv_pictures_carried.VV1 (the patcher's Golden Mushroom included), in every direction
+        and every pose that draws the item -- walking (with twins and triplets), bent over, sitting, standing
+        at work, a child walking and bent -- is blitted by the game's own draw as the plan says.  The Golden
+        Mushroom's stock blits are what the patched game swaps for golden_mushroom.png (carried_golden)."""
+        import carried_golden
+        import vv_pictures_carried as carried
+        golden = carried.GOLDEN_ITEM[vv1.GAME]
+        n = 0
+        for it in carried.items(vv1.GAME):
+            for direction in range(4):
+                cases = [vv1.Villager(male=direction % 2 == 0, age=500, head=7, body=3, state=state, direction=direction,
+                                      item=it.value, litter=litter, frame=1)
+                         for state, litter in ((0, 0), (0, 2), (0, 3), (1, 0), (2, 0), (2, 3), (3, 0))]
+                cases += [vv1.Villager(male=True, age=120, direction=direction, item=it.value, frame=1),
+                          vv1.Villager(male=False, age=60, state=1, direction=direction, item=it.value, frame=2)]
+                for v in cases:
+                    game = self.village.draw(v)
+                    stock = vv1.plan(v, self.sheets, 1000, 1000, golden_art=False)
+                    self.assertEqual(keys(stock), keys(game), f"{it.name}: {v}")
+                    if it.value == golden:
+                        self.assertEqual(keys(vv1.plan(v, self.sheets, 1000, 1000)),
+                                         carried_golden.swapped(stock, vv1.GAME, lambda d: d.what == "carried"), v)
+                    n += 1
+        self.assertEqual(n, len(carried.items(vv1.GAME)) * 4 * 9)
 
     def test_children_at_every_age(self) -> None:
         for age in range(0, vv1.ADULT + 1):

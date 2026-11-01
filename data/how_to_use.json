@@ -578,6 +578,17 @@
       ]
     },
     {
+      "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
+      "guide": [
+        "Nothing to click: tick the patch and patch the game again.",
+        "Type accented letters, ß, ¿ ¡, € £, curly quotes and dashes in the tribe name, villager names (the Details screen) and every other text box; dead keys and Alt codes work.",
+        "Every text the game draws shows them in its own fonts, at their real widths.",
+        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it).",
+        "Windows-1252 only: Greek, Cyrillic, Chinese, Japanese and emoji are not drawn yet.",
+        "On by default. Needs no other patch. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",
@@ -667,7 +678,7 @@
         "Its villager list shows each villager's special role: the Golden Child, the Tribal Chief, or Believer and Heathen type.",
         "In New Believers it also has All Heathens and one button for each Heathen type: blue, red, orange, purple, Chief and Heathen Mommy.",
         "Find both in the Origins Upgrades menus.",
-        "Watch out: it skips the game's normal progress. Off by default.",
+        "Watch out: it skips the game's normal progress. On by default, with its cost Tech Points, so nothing is free.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
@@ -679,7 +690,7 @@
         "Its villager list shows who your Tribal Chief is.",
         "Adds Recharge Chief Powers: your chief's once-a-day powers are ready to use again at once.",
         "Find them in the Origins Upgrades menus.",
-        "Watch out: it skips the game's normal progress. Off by default.",
+        "Watch out: it skips the game's normal progress. On by default, with its cost Tech Points, so nothing is free.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
@@ -692,13 +703,13 @@
         "Adds Pick Gong of Wonder Outcome: choose what the next ring of the Gong does -- any of its 23 results, and which villager it acts on.",
         "Buying it makes the Gong ready to ring at once. Ring it within ten minutes. It needs the Gong whole.",
         "Find them in the Origins Upgrades menus.",
-        "Watch out: it skips the game's normal progress. Off by default.",
+        "Watch out: it skips the game's normal progress. On by default, with its cost Tech Points, so nothing is free.",
         "Needs Enable Origins Tech, Details, and Village-Wide Upgrades; ticking this ticks it for you."
       ]
     },
-    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
-    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv3_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Recharge Chief Powers each cost 30,000 tech points.", "You pay when you buy it; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv1_story_cheat_upgrades_cost_tech_points", "vv4_story_cheat_upgrades_cost_tech_points", "vv5_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event and Custom Island Event each cost 30,000 tech points, like an Island Event.", "You pay when the event is queued; with too few tech points nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
+    {"ids": ["vv2_story_cheat_upgrades_cost_tech_points"], "guide": ["The Origins Upgrades keep their normal tech-point prices instead of costing 0.", "Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost 30,000 tech points.", "You pay when it is queued; with too few tech points, or no whole Gong, nothing happens and you are told.", "Choose Time Skip Amount costs 50,000 tech points, like a Time Warp, paid when the skip starts.", "On by default, and ticking Story / Cheat Upgrades ticks this too. Untick it to keep every upgrade free.", "Needs Story / Cheat Upgrades; ticking this ticks it for you."]},
     {
       "ids": ["vv1_cause_of_death"],
       "guide": [
@@ -831,9 +842,10 @@
     "default_patches": {
       "title": "Default Patches",
       "guide": [
-        "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points,",
+        "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
+        "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
@@ -1074,6 +1086,7 @@
         "Draws villagers exactly as each game draws them and saves them as clear-background PNG pictures, in all five games.",
         "From my save: pick the game, save folder and save, then anyone in it. Pick the pose, direction and frame under the picture.",
         "Make your own: any head, body, mask, sex, age, life stage, pose and frame the game has, plus the patcher's own masks, grey hair and head look.",
+        "Everything: every picture the game has, drawn the game's way and sorted by kind (animals, buildings, the Tech screen, meters, buttons, screens). Unused art is marked (unused).",
         "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
         "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
       ]

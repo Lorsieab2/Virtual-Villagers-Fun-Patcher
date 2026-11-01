@@ -1,0 +1,43 @@
+{
+  "id": "vv3_unicode_text",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Render Unicode with In-Game Fonts",
+  "description": "Lets the game draw and measure every Western European character, and lets you type them: accented letters (\u00e0 \u00e1 \u00e2 \u00e3 \u00e4 \u00e5 \u00e6 \u00e7 \u00e8 \u00e9 \u00ea \u00eb \u00ec \u00ed \u00ee \u00ef \u00f1 \u00f2 \u00f3 \u00f4 \u00f5 \u00f6 \u00f8 \u00f9 \u00fa \u00fb \u00fc \u00fd \u00ff and their capitals), \u00df, \u00bf \u00a1, \u20ac \u00a3, the curly quotes and the dashes -- every printable character of Windows-1252, in both of the game's fonts (the big Burweed story font and the small Arial Bold font). The Secret City's fonts already hold the Latin-1 letters, so this adds the 29 they lack: the euro, the curly quotes and dashes, \u2026 \u2022 \u2020 \u2021 \u2030 \u2122, \u0160 \u0161 \u017d \u017e \u0178 \u0152 \u0153 \u0192 and the inverted exclamation mark. Before this, a character a font lacks was drawn as the font's first letter, and the game threw away every typed character outside plain English. The new letters are made in each font's own style -- same height, baseline and weight, white with soft edges, tinted by the game like the rest -- from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface (Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in for the signs). Names on the Details screen, the tribe name, popups, logs shown in the game and every other text use them, with their real widths, so centring and line breaks stay right. Typing: the tribe name, villager names and every other text box take these characters (dead keys and Alt codes included, as Windows sends them); each is one byte in the save, as before, so names keep their lengths and a save stays readable by the base game and older patchers (there, the new characters show as the font's first letter). **Covers Windows-1252 only: Greek, Cyrillic, Chinese, Japanese, emoji and other scripts cannot be stored in the game's one-byte names and are not drawn yet.** **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Unicode Text.dll\", started by VVFP Startup.dll; the game's own pictures and saves are never changed.",
+  "output_tag": "Unicode Text",
+  "behavior_changes": [
+    "The font constructor (0x402510) runs unchanged, then for the game's two fonts -- ldwBurweed27 (stock glyph table 0x4A5B78) and ldwarialbold (0x4A6A80) -- every printable Windows-1252 character the font lacks is made (src/vv_font_glyphs.py, run in C by native/vvfp_unicode_text/glyphs.inc) and added: as new rows under the loaded font picture (a new SDL surface of the same format; the old one is freed) and as new entries in a copy of the glyph table, with the font's 256-entry index pointing each code at its letter. NBSP draws as the space and the soft hyphen as '-'.",
+    "Every text draw and measure reads letters through the font's glyph lookup, so names, the Details screen, popups, the Tech screen, logs shown in the game and word wrapping all draw the new letters and measure them by their real widths, in every text colour.",
+    "The SDL_TEXTINPUT case (0x40444B) posts a typed text of ONE character that Windows-1252 has as that byte (0x80-0xFF zero-extended, which the game's text boxes already accept: they take 0x20..0xFF); plain ASCII is posted exactly as before, and anything else is skipped as before."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the constructor's first instructions and the SDL_TEXTINPUT case's first seven bytes at run time, all or none, only after verifying their stock bytes, and installs nothing on a different build.",
+    "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed; the new letters exist only in the game's memory. Nothing of the game's art is shipped.",
+    "Every character stays one byte: no name or text box holds more bytes than before, and nothing is cut inside a character. Saves, villager records and the patcher's files are never written.",
+    "A font that is not one of the two, not 32-bit, or whose letters cannot be made is left exactly as the game built it; a fault while adding letters leaves the font stock."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/unicode_text/VVFP Unicode Text.dll",
+      "destination": "VVFP Unicode Text.dll",
+      "sha256": "A04A090418D2A7AAA5319B191B003411D0832E0451F15FEEE362FDBB6583DAF0"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x402510",
+      "stock_bytes": "64A1000000006AFF",
+      "routine": "the LDW font constructor (thiscall: font; picture name, glyph table, spacing)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40444B",
+      "stock_bytes": "8D4424348D5001",
+      "routine": "the event pump's SDL_TEXTINPUT case (lea eax, [esp + text]; lea edx, [eax + 1])",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

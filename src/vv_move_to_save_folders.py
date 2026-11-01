@@ -44,6 +44,7 @@ from pathlib import Path
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 TITLE = "Move Files to Save Folders"
 COPY_SUFFIX = " (before move to save folder)"
@@ -642,4 +643,4 @@ def note_move_slot(folder: Path, game: int, slot: int, result: MoveResult, now: 
         text += f"  Copies made first: {_rel(folder, copies_folder(mine))}\r\n"
     text += "\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

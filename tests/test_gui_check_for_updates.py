@@ -163,6 +163,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records",
+               # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
+               # the patcher makes for them (v1.35.87).
+               "vv_game_text", "vv_font_glyphs",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -182,8 +185,14 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
-               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_vv1", "vv_pictures_vv2",
-               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5"}
+               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
+               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5",
+               # Its Text tab (the owner, 2026-11-01).
+               "vv_pictures_text_tab", "vv_pictures_text", "vv_glyph_maker",
+               # Picture Studio's Everything tab (the owner, 2026-11-01): the tab, the shared asset code, the JPEG
+               # reader and each game's table, found by name.
+               "vv_picture_studio_everything", "vv_pictures_assets", "vv_jpeg", "vv_assets_vv1", "vv_assets_vv2",
+               "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -346,13 +355,25 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
             # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
             # files as the log checker reads them (function-level), and each game's renderer.
-            ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common"}),
+            ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common", "vv_pictures_text_tab",
+                                   "vv_picture_studio_everything"}),
+            ("vv_pictures_text_tab", {"vv_picture_image", "vv_pictures_text"}),
+            ("vv_pictures_text", {"vv_picture_image", "vv_glyph_maker", "vv_font_glyphs"}),
+            ("vv_glyph_maker", {"vv_picture_image"}),
             ("vv_picture_image", set()),
+            # The Everything tab: its asset code, which reads each game's table (by name) and the JPEG reader.
+            ("vv_picture_studio_everything", {"vv_picture_image", "vv_pictures_assets"}),
+            ("vv_pictures_assets", {"vv_picture_image", "vv_jpeg"}),
+            ("vv_jpeg", {"vv_picture_image"}),
+            *((f"vv_assets_vv{n}", {"vv_picture_image", "vv_pictures_assets"}) for n in range(1, 6)),
             ("vv_pictures_common", {"vv_picture_image", "vv_log_tools", "vv_save_backup", "vv_save_layout"}),
-            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 3, 4, 5)),
+            # ...and every item a villager can carry, named (vv_pictures_carried).
+            ("vv_pictures_carried", {"vv_picture_image"}),
+            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common", "vv_pictures_carried"})
+              for n in (1, 3, 4, 5)),
             # The Lost Children's Elder Totems store, read and bound to the save by Repair's own reader
             # (function-level; Codex, PR #660).
-            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_vv2_totem_store"}),
+            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_vv2_totem_store"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
@@ -401,7 +422,15 @@ class ReleasesLinkTests(unittest.TestCase):
                 elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
                     imported.add(node.module.split(".")[0])
             with self.subTest(module=module):
-                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import, set())
+                # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
+                # every byte kept.  vv_game_text imports only the standard library.
+                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import - {"vv_game_text"}, set())
+        tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
+        own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
+                       for alias in node.names}
+        own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)
+                        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0}
+        self.assertEqual(own_imports - set(sys.stdlib_module_names), set())
 
 
 if __name__ == "__main__":

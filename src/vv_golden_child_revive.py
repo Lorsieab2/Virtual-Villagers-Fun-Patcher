@@ -40,6 +40,7 @@ from pathlib import Path
 import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 GAME = 1
 BACKUP_LABEL = "(before reviving the Golden Child)"
@@ -69,7 +70,7 @@ def _rel(i: int, offset: int) -> int:
 
 
 def _name(data, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 @dataclass
@@ -208,7 +209,7 @@ def _append_returned(folder: Path, slot: int, village: str | None, text: str) ->
     target.parent.mkdir(parents=True, exist_ok=True)
     body = (lead + text + "\n").replace("\r\n", "\n").replace("\n", newline)
     with open(target, "ab") as log:
-        log.write(body.encode("latin-1", "replace"))
+        log.write(body.encode(GAME_TEXT, "replace"))
     return target
 
 
@@ -278,4 +279,4 @@ def _note(folder: Path, village: str | None, found: Survey, save: Path, copy: st
     text += f"  File: {Path(save).relative_to(folder)} -- copy kept: {copy}\r\n"
     text += f"  Backup: {Path(backup.backup_folder).name}\r\n\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))
