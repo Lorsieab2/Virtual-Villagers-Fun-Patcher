@@ -22,6 +22,32 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new (unreleased)
+
+- **Picture Studio: Text** (Tools tab, all five games, new). Type anything, in several lines, and see it in
+  the game's own fonts: **Arial Bold (game font)**, **Burweed (game font)**, and **Burweed ICG (installed)**
+  at any size when that font is on your computer. You can pick:
+  - any colour the game draws text in, or your own, and the opacity;
+  - left, centred (as the game centres), centre each line or right;
+  - The Tree of Life's and New Believers' outlined title effect.
+
+  Save it as a transparent PNG at the game's size, 2x, 4x or your own size.
+  - **The game's letters** are drawn exactly as the game draws them: the same sheet cells, letter spacing,
+    line height, recolour and fade, checked by running each game's own text code on the original games.
+  - **Anything else** is made to match the font, and the preview outlines it (the PNG does not):
+    - accents (A New Home's and The Lost Children's fonts have none) are the game's letter with the accent
+      added;
+    - other alphabets and symbols come from a Windows font, sized and shaded like the game's letters;
+    - emoji are in full colour, with skin tones, families and keycaps kept whole.
+  - **Insert character...** finds any character by name or code (for example "e acute" or U+00E9), and has
+    the common accents.
+  - **The name counter.** The line under the text says how many bytes it takes as a villager's name in each
+    game.
+  - **The font pictures come from your own copy of the game.** No game art and no font file ships. See
+    docs/picture-studio-text.md.
+
+  No need to patch again.
+
 ## What's new in v1.35.86
 
 - **Copy Player Slot** (Tools tab, all five games). Copies a village into another save slot of the same save folder under a new name, with everything the patcher keeps for it -- its logs, data and saved family trees -- made the new slot's, so the copy reads exactly like the original. **Copy to** lists every slot but the source: an empty one (a slot is empty when the game has no `<game>N.ldw` for it, whatever its slot list says), or one that holds a player, shown "(will be overwritten)". You confirm first; **No is the default, and Return and Escape answer No**, which writes nothing. Copying over a player asks "Save N holds the <name> village. It will be replaced by a copy of ... Replace it?". The whole save folder is backed up first as `Backup <date> (before copy)`; then every file of the target slot -- the old village's save and its older copies, its logs and patcher files in both layouts, its saved trees, or the leftovers an earlier village left in an empty slot (listed in the question) -- is **moved, never deleted**, into `Backups\Replaced by copy <date> - Save N - <name>\` (not offered as a backup and read by nothing; Restore Saves can bring the old village back from the `(before copy)` backup); any failure after that moves them back, byte for byte. **The copy's records are renumbered** after the game's highest Birth, Conception, Death, Arrived, Island event, Unaccounted and Repair numbers (every slot shares those numbers), in their own order, with every reference to them (Repairs records, the reconciliation report, answered questions) and the like/dislike word boundaries following, so Check Saves & Logs finds no repeated number in either village. **The village's records in the older builds' shared logs come along** into the copy's own logs (only those under that village's own lines), so A New Home's copy has every Birth, Conception, Arrived and Death the original has. Only the current name's `Village:` lines get the new name; lines of an older name keep it (only the slot changes) and the "Tribe renamed" notes end at the new name, exactly as the original reads them. A pending Repair Saves & Logs approval is not copied (the copy starts with no repair waiting), nor are set-aside and before-repair copies or the Family Tree Maker's reports and Matchmaker text (made again whenever wanted). The village you copy from and every other slot are never changed. Not yet seen in a running game (checked on copies of the owner's saves and the real test saves of every game). No need to patch again.

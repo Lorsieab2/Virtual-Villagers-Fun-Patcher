@@ -78,6 +78,17 @@ Heathen Chief (rank 13, Believer), Former Heathen (orange/red mask) from the col
 * `test_scaled_and_faded_pixels`: `0x404C40` on a test picture at 9 scales x 3 cells x alphas.
 * `test_sprite_descriptors`, `test_saved_heathen_fields`: read from the executable.
 
+## Text (the Text tab)
+
+New Believers builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 1940 x 20, table 0x4C7FE0, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 2384 x 27 (a wider "q"), table 0x4C8F08, 27 pixels a line.
+
+They hold 0x20-0x7E and the Windows-1252 letters and signs from 0xA1 (The Secret City: 0xA2) to 0xFF, accented letters included. Bytes 0x80-0xA0 draw "!". The Text tab makes everything else in the font's style.
+
+The game's text draw is 0x409930 and its centred draw is 0x409EB0. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered / not proven
 
 * **The Villager Details portrait** (`0x466C40`, big heads/bodies `bigheads*`, `bigbodies.png`, the

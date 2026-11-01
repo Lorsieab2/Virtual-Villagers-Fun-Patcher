@@ -12,6 +12,7 @@ game's own villager draw code, proven against the game in tests/test_pictures_vv
   "Save PNG...", "Save all in this group..." and "Save the whole village...".
 * "Make your own": every head, body, mask, sex, life stage and age, pose, direction and frame the game
   has, and the patcher's own art (the Origins masks, A New Home's grey hair, Change Appearance's head look).
+* "Text" (src/vv_pictures_text_tab.py, docs/picture-studio-text.md): any text in the game's own fonts.
 * PNGs: transparent, cut to the drawn pixels with a small margin (or none), at the game's size, 2x or 4x
   (crisp) or any width and height (smooth).
 
@@ -54,6 +55,15 @@ HELP = (
         "Make your own: pick the sex, the life stage and age (children are drawn smaller year by year, exactly as "
         "the game scales them), the head and body (every one the game has), the mask, the head look, and the "
         "pose, direction and frame. Choices marked (patcher) are the patcher's own art.",
+        "Text: type anything (several lines too) and see it in one of the game's own fonts, Arial Bold or "
+        "Burweed (and Burweed ICG at any size, if it is installed on your computer), in the colours the game "
+        "uses or your own, left, centred or right. Letters the game's font has are drawn exactly as the game "
+        "draws them. Anything else -- accents, other alphabets, symbols, emoji -- is made to match: an accented "
+        "letter is the game's letter with the accent added, other characters come from a Windows font sized and "
+        "shaded like the game's, emoji are in full colour. Made letters get a dotted outline in the preview (not "
+        "in the PNG); untick it to hide them. \"Insert character...\" finds any character by name or code (for "
+        "example \"e acute\" or U+00E9) and has the common accents. The line under the box says how many bytes "
+        "the text takes as a villager's name in each game.",
         "Saving: \"Save PNG...\" saves the picture shown. Pick the size first: the game's own size, 2x or 4x "
         "(each pixel made a crisp square), or your own width and height (smoothly scaled; leave one empty to keep "
         "the shape). The picture is cut to what is drawn, with a small clear margin, or none if you untick it. "
@@ -91,6 +101,15 @@ def show_help(parent: tk.Misc) -> tk.Toplevel:
     window.help_text = text
     window.bind("<Escape>", lambda _e: window.destroy())
     return window
+
+
+def add_text_tab(studio) -> None:
+    """The "Text" tab (src/vv_pictures_text_tab.py): any text in the game's own fonts."""
+    try:
+        import vv_pictures_text_tab
+    except ImportError:
+        return
+    vv_pictures_text_tab.add_tab(studio)
 
 
 def load_renderer_module(game: int):
@@ -365,6 +384,7 @@ class PictureStudio:
         self.notebook.pack(fill="both", expand=True)
         self._build_save_tab()
         self._build_custom_tab()
+        add_text_tab(self)
 
     # ---- shared widgets
     def _preview_pane(self, parent) -> dict:
