@@ -57,9 +57,20 @@ class Clipboard:
         self.handles: dict[int, tuple[int, int]] = {}
 
 
-def _register(ref: dict) -> None:
+RUNS: dict = {}          # each machine's run: the imports answer the machine that calls them
+
+
+def _register() -> None:
+    current: dict = {}
+
     def m():
-        return ref["run"]
+        return current["run"]
+
+    def bind(handler):
+        def call(mc, arg, ret):
+            current["run"] = RUNS[id(mc)]
+            handler(mc, arg, ret)
+        return call
 
     def alloc(n: int) -> int:
         run = m()
@@ -147,7 +158,7 @@ def _register(ref: dict) -> None:
         m().mu.mem_write(dst, out)
         ret(len(out) // 2)
 
-    se.EXTRA_IMPORTS.update({
+    table = {
         "IsClipboardFormatAvailable": (4, available),
         "OpenClipboard": (4, open_),
         "CloseClipboard": (0, close),
@@ -161,7 +172,8 @@ def _register(ref: dict) -> None:
         "GlobalSize": (4, global_size),
         "GlobalFree": (4, global_free),
         "NormalizeString": (20, normalize),
-    })
+    }
+    se.EXTRA_IMPORTS.update({name: (popped, bind(handler)) for name, (popped, handler) in table.items()})
 
 
 class PasteRun:
@@ -169,10 +181,9 @@ class PasteRun:
 
     def __init__(self, game: str, selection, mode: str = "collection_progression") -> None:
         from test_startup_loader import run
-        ref: dict = {}
-        _register(ref)
+        _register()
         self.machine, _result, self.features, _before, self.shipped = run(game, mode, tuple(selection))
-        ref["run"] = self
+        RUNS[id(self.machine)] = self
         self.game = game
         self.mu = self.machine.mu
         self.mu.mem_map(ARENA, ARENA_SIZE)

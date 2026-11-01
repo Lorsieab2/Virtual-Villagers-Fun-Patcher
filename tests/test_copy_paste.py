@@ -385,7 +385,9 @@ class TheGame(unittest.TestCase):
                         self.assertEqual(run.raw(b, len(stored) + 2), stored + b"\0\0")    # untouched
                         self.assertEqual(run.press(self.emu.SDLK_INSERT, self.emu.KMOD_LCTRL), {"to": "next event"})
                         self.assertEqual(run.clip.text, text)
-                        if kind != "1252" or stored != b"\x80\x81\x9f":
+                        # bytes the game would not store this way (an undefined Windows-1252 byte, a
+                        # Windows-1252 letter in a UTF-8 game) copy as text but paste back as that text
+                        if stored not in (b"\x80\x81\x9f", b"Zo\xeb"):
                             run.clear_listeners()
                             self.assertEqual(self._paste(run, run.clip.text, limit=40), stored)
                 if kind == "utf8":
