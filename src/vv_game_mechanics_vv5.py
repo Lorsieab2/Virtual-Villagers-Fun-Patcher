@@ -59,7 +59,7 @@ HIDDEN_LINES = (
      'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
      'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),
     ('Rain: a villager who likes it drinks the rain 98.7% of the time (12% otherwise); one who dislikes it gets '
-     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (150 otherwise); disliked, 40, '
+     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (100 otherwise, 0x4659BF); disliked, 40 (0x465A06), '
      'except when fleeing. Jumping: liked, Dancing becomes a 30-jump dance; disliked, jump steps are skipped.',
      gm.RUNNING),
     ('Dancing, disliked: no dancing or rain dancing, and no dance moves at celebrations. Laundry: liked 53% of the '

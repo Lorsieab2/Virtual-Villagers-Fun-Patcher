@@ -235,7 +235,9 @@ Where this report contradicts an existing doc, it says so.
 ### Reachability chains (cited by tag)
 
 - **[LIVE-AI]** Village-scene update `0x423390` (a virtual method: its address is stored at vtable slot `0x4598D0`) calls
-  the idle sweep `0x448450` at most once every 40 real seconds (`0x4233E7..0x423405`). The sweep runs the adult/child
+  the idle sweep `0x448450` (`0x4233E7..0x423405`) only when the game clock reaches `[0xADE4]`, which the sweep and
+  every 2-second step (`0x42347A`) set to the clock + 40: so only after 40 seconds with no 2-second step, not every 40
+  seconds in normal play. The sweep runs the adult/child
   scheduler `0x448220` for each villager whose action queue is empty, retrying up to 10 times (`0x448480..0x448492`).
   The action runner `0x448600` (called at `0x42403F` while not paused) also calls `0x448220` one second after a
   villager's queue empties (`0x4487C8`). The runner's opcode 6 is the skill test `0x43D440` (`0x448846`) and opcode 14

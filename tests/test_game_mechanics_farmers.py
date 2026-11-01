@@ -146,5 +146,51 @@ class ThePage(unittest.TestCase):
                     self.assertNotRegex(f.text, r"\b[A-Z]{2,}_[A-Z_]+\b|\b[a-z]+_[a-z_]+\(", f.text)
 
 
+class WalkAndRedecisionClaims(unittest.TestCase):
+    """Lines the farming emulation contradicted are corrected and stay so: adults walk at 100 (1 pixel a 33 ms
+    frame), likers of running at 300, the elderly and dislikers at 40 -- measured by tests/farmers_emulation_vvN.py
+    in every game -- and the game's 40-second re-decision sweep runs only after 40 seconds with no 2-second step
+    (A New Home 0x42347A, The Secret City 0x46865F, The Tree of Life 0x43F962), never every 40 seconds."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.general = {game: gm.general(game, now=NOW) for game in range(1, 6)}
+
+    def test_the_measured_walk_speeds_are_in_every_games_module(self) -> None:
+        self.assertEqual(round(1000 / (1000 // 30), 1), 30.3)       # 1 pixel a 33 ms frame
+        for game in range(1, 6):
+            words = " ".join(farmers.game_module(game).__doc__.split())
+            with self.subTest(game=game):
+                self.assertRegex(words, r"(?:adult|believer) walks at 100 \(1 pixel a frame,? 30\.3 pixels a real-life second")
+
+    def test_no_page_gives_another_normal_walk_speed(self) -> None:
+        for game, facts in self.general.items():
+            for f in facts:
+                for found in re.finditer(r"speed 300 (?:\((\d+) otherwise|instead of (\d+))", f.text):
+                    with self.subTest(game=game, line=f.text[:80]):
+                        self.assertEqual(found.group(1) or found.group(2), "100")
+                self.assertNotRegex(f.text, r"\b150 otherwise\b|instead of 150\)")
+        vv4 = " ".join(f.text for f in self.general[4])
+        self.assertIn("walks at speed 300 (100 otherwise) and one who dislikes it at 40", vv4)
+        self.assertIn("30.3 pixels a real-life second at 100, 3 times that at 300 and 0.4 times at 40", vv4)
+        self.assertIn("a walk at speed 300 (100 otherwise, 0x4659BF); disliked, 40 (0x465A06)",
+                      " ".join(f.text for f in self.general[5]))
+
+    def test_the_sweep_is_never_every_40_seconds(self) -> None:
+        for game, facts in self.general.items():
+            for f in facts:
+                with self.subTest(game=game, line=f.text[:80]):
+                    self.assertNotRegex(f.text, r"(?i)every 40 (?:real-life )?seconds?[^.]*(?:decide|refresh|sweep)"
+                                                r"|(?:sweep|decides again)[^.]*every 40 (?:real-life )?seconds")
+        expected = {1: "the idle sweep that has every idle villager decide again runs only when 40 real-life seconds",
+                    3: "runs only when 40 real-life seconds pass without the village's 2-second step",
+                    4: "refreshed only when 40 seconds of the game's clock"}
+        for game, words in expected.items():
+            with self.subTest(game=game):
+                text = " ".join(f.text for f in self.general[game])
+                self.assertIn(words, text)
+                self.assertRegex(text, r"not (?:every 40 seconds )?in normal play")
+
+
 if __name__ == "__main__":
     unittest.main()

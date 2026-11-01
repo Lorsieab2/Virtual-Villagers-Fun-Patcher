@@ -192,9 +192,11 @@ class SettledClocks(unittest.TestCase):
 
     def test_unproven_clocks_say_so(self) -> None:
         # Each in a line of its own, so the label stands beside it (a confirmed line never carries the word).
-        for game, words in ((4, "Running: whether a walk's 3.4, 6.7 or 24.9 seconds are real time or on the game's clock "
-                                "was not traced."),
-                            (4, "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
+        # A walk's clock is now proven: real time, measured by running the game's walk frame by frame
+        # (tests/test_game_mechanics_farmers_vv4.py).
+        self.assertIn("30.3 pixels a real-life second at 100, 3 times that at 300 and 0.4 times at 40, in real time, "
+                      "the same at every speed", self.text["general 4"])
+        for game, words in ((4, "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
                                 "the game's clock was not traced.")):
             with self.subTest(words=words):
                 self.assertIn(f"{gm.UNCONFIRMED}  {words}", self.text[f"general {game}"])
