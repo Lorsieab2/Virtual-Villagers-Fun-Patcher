@@ -12,6 +12,7 @@ game's own villager draw code, proven against the game in tests/test_pictures_vv
   "Save PNG...", "Save all in this group..." and "Save the whole village...".
 * "Make your own": every head, body, mask, sex, life stage and age, pose, direction and frame the game
   has, and the patcher's own art (the Origins masks, A New Home's grey hair, Change Appearance's head look).
+* "Text" (src/vv_pictures_text_tab.py, docs/picture-studio-text.md): any text in the game's own fonts.
 * PNGs: transparent, cut to the drawn pixels with a small margin (or none), at the game's size, 2x or 4x
   (crisp) or any width and height (smooth).
 
@@ -54,11 +55,36 @@ HELP = (
         "Make your own: pick the sex, the life stage and age (children are drawn smaller year by year, exactly as "
         "the game scales them), the head and body (every one the game has), the mask, the head look, and the "
         "pose, direction and frame. Choices marked (patcher) are the patcher's own art.",
+        "Carrying: every item a villager can carry in that game -- food, wood, stone, herbs, mushrooms, fish, "
+        "tools, puzzle and story pieces, collectables and the baby (with Babies carried: twins and triplets are "
+        "the item drawn two or three times, as the game draws them) -- named as the game names it. Pictures the "
+        "game has but never shows a villager carrying are offered too, marked (unused in the game); the "
+        "patcher's Golden Mushroom is marked (patcher). The save does not keep what a villager holds: on From "
+        "my save the first choice draws what the game gives back on loading, the baby for a villager who is "
+        "expecting.",
+        "Text: type anything (several lines too) and see it in one of the game's own fonts, Arial Bold or "
+        "Burweed (and Burweed ICG at any size, if it is installed on your computer), in the colours the game "
+        "uses or your own, left, centred or right. Letters the game's font has are drawn exactly as the game "
+        "draws them. Anything else -- accents, other alphabets, symbols, emoji -- is made to match: an accented "
+        "letter is the game's letter with the accent added, other characters come from a Windows font sized and "
+        "shaded like the game's, emoji are in full colour. Made letters get a dotted outline in the preview (not "
+        "in the PNG); untick it to hide them. \"Insert character...\" finds any character by name or code (for "
+        "example \"e acute\" or U+00E9) and has the common accents. The line under the box says how many bytes "
+        "the text takes as a villager's name in each game.",
         "Saving: \"Save PNG...\" saves the picture shown. Pick the size first: the game's own size, 2x or 4x "
         "(each pixel made a crisp square), or your own width and height (smoothly scaled; leave one empty to keep "
         "the shape). The picture is cut to what is drawn, with a small clear margin, or none if you untick it. "
         "\"Save all in this group\" saves everyone in the group picked in the list; \"Save the whole village\" "
         "saves everyone, each group in its own folder, inside a new folder you choose.",
+        "Everything: every picture the game ships, drawn as the game draws it, sorted by category: creatures, "
+        "buildings and objects at each stage, puzzles in each state, collectibles, plants and food, the island "
+        "scene, the Tech screen's bars empty, part filled and full, meters at several fill levels, panels and "
+        "buttons in each state, icons, cursors, fonts, effects and whole screens, then every sheet the game ships, "
+        "cell by cell (Source sheets). Art the game ships but never draws is marked (unused); the patcher's own art "
+        "is marked (patcher). Pick a picture in the Picture box. \"Save all of this\" saves every picture of the "
+        "entry picked; \"Save all\" saves every picture of the category chosen beside it (or of every category), "
+        "each category in its own folder. The size and margin choices above apply. The first time, every picture "
+        "of the game's Images folder is copied into \"Picture Studio Pictures\\Everything\" beside the patcher.",
         "The pictures come from your own copy of the game: the first time the window finds the game folder, it "
         "copies the pictures it needs into its own folder, \"Picture Studio Pictures\" beside the patcher, and "
         "uses them from then on. If it has not found one yet, click \"Find game...\" and pick the game folder "
@@ -91,6 +117,15 @@ def show_help(parent: tk.Misc) -> tk.Toplevel:
     window.help_text = text
     window.bind("<Escape>", lambda _e: window.destroy())
     return window
+
+
+def add_text_tab(studio) -> None:
+    """The "Text" tab (src/vv_pictures_text_tab.py): any text in the game's own fonts."""
+    try:
+        import vv_pictures_text_tab
+    except ImportError:
+        return
+    vv_pictures_text_tab.add_tab(studio)
 
 
 def load_renderer_module(game: int):
@@ -358,13 +393,20 @@ class PictureStudio:
         self.pose_boxes = {}
         self.custom_boxes = {}
         if self.renderer is None:
-            ttk.Label(self.body, text="The pictures for this game could not be loaded.",
-                      font=("Segoe UI", 11)).pack(anchor="w", pady=20)
-            return
+            ttk.Label(self.body, text="The villager pictures for this game could not be loaded.",
+                      font=("Segoe UI", 11)).pack(anchor="w", pady=(10, 6))
         self.notebook = ttk.Notebook(self.body)
         self.notebook.pack(fill="both", expand=True)
-        self._build_save_tab()
-        self._build_custom_tab()
+        if self.renderer is not None:
+            self._build_save_tab()
+            self._build_custom_tab()
+        add_text_tab(self)
+        self._build_everything_tab()
+
+    def _build_everything_tab(self) -> None:
+        """Every picture the game ships, by category (src/vv_picture_studio_everything.py)."""
+        import vv_picture_studio_everything as everything
+        self.everything = everything.add_tab(self, self.notebook)
 
     # ---- shared widgets
     def _preview_pane(self, parent) -> dict:
@@ -707,6 +749,11 @@ class PictureStudio:
             self._tell("warning", result)
             return result
         self.extra_game_folders.setdefault(game, []).insert(0, folder)
+        everything = getattr(self, "everything", None)
+        if everything is not None:             # its own cache is rebuilt from this folder when next shown
+            everything.prefer[game] = folder
+            everything.loaded_for = None
+            everything._maybe_load(self.notebook)
         built, why = pi.build_cache(game, folder, self.module.required_files(), data_files=data_files(self.module))
         if not built:
             self._tell("warning", f"The pictures could not be copied: {why} They are read from the game folder "

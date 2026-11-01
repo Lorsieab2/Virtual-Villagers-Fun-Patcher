@@ -103,7 +103,11 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 # Patches the default selection leaves OFF.
 #
 # The owner's rule: the defaults select every patch except Learning Skills
-# Never Fails, in all five games. Everything else is on, so this is a
+# Never Fails and the other patches the owner named below, in all five games.
+# The owner (2026-11-01): "Anything that costs (money tech points food etc)
+# and anything that adds new content to the game (besides the stuff I
+# explicitly mentioned to turn off) stays ON by default." Everything else is
+# on, so this is a
 # deny-list rather than an allow-list -- a new patch is included in the
 # defaults automatically, which is what the "all patches on by default"
 # requirement means, and only a patch named here is held back.
@@ -119,12 +123,12 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
-    # The owner: Story / Cheat Upgrades (all five games) is off by default;
-    # Owner's Defaults ticks it (owner, 2026-10-03).
-    + ["vv%d_story_cheat_upgrades" % game for game in range(1, 6)]
-    # ...and so is Story / Cheat Upgrades cost Tech Points, which is ticked
-    # with it (COTICKED_FUN_PATCH_IDS; owner, 2026-10-06).
-    + ["vv%d_story_cheat_upgrades_cost_tech_points" % game for game in range(1, 6)]
+    # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
+    # five games) are NOT here: they are on by default (owner, 2026-11-01:
+    # "Anything that costs (money tech points food etc) and anything that adds
+    # new content to the game (besides the stuff I explicitly mentioned to turn
+    # off) stays ON by default."). The cost patch is ticked with the upgrades
+    # (COTICKED_FUN_PATCH_IDS), so the default selection never makes them free.
     # 256 Villagers (Experimental) is off by default: it moves the villager
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
@@ -135,6 +139,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # Ticking the key ticks the value too (the value can still be unticked on its
 # own).  The owner (2026-10-06): Story / Cheat Upgrades cost Tech Points
 # "should be checked on if Story/Cheat upgrades is also on by default".
+# Both are on by default since 2026-11-01 (DEFAULT_OFF_FUN_PATCH_IDS).
 COTICKED_FUN_PATCH_IDS = {
     "vv%d_story_cheat_upgrades" % game: "vv%d_story_cheat_upgrades_cost_tech_points" % game
     for game in range(1, 6)
@@ -418,8 +423,8 @@ def owners_default_fun_patch_selection(patch_id: str) -> bool:
     """Whether the Owner's Defaults button ticks this.
 
     The owner: "Every patch EXCEPT FOR LEARNING NEVER FAILS is on." -- so the
-    other default-off patches are ticked here too, Story / Cheat Upgrades and
-    256 Villagers (Experimental) included.  Matched by exact id.
+    other default-off patches are ticked here too, 256 Villagers (Experimental)
+    included.  Matched by exact id.
     """
     return patch_id not in OWNERS_DEFAULT_OFF_FUN_PATCH_IDS
 

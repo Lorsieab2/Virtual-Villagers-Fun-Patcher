@@ -48,6 +48,7 @@ import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
 import vv_titles_file
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = "(before restoring lost titles)"
 COPY_SUFFIX = ".before-title-restore"
@@ -726,4 +727,4 @@ def note_restore(folder: Path, game: int, village: str | None, restored: list[Re
         text += f"  File: {Path(p).relative_to(folder)} -- copy kept: {copy}\r\n"
     text += f"  Backup: {Path(backup.backup_folder).name}\r\n\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

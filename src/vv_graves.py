@@ -60,6 +60,7 @@ from pathlib import Path
 import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = "(before fixing graves)"
 COPY_SUFFIX = ".before-grave-repair"
@@ -181,7 +182,7 @@ def _i32(data, at: int) -> int:
 
 
 def _text(data, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def grave_line(game: int, job: int, value: int, age: int) -> str:
@@ -678,7 +679,7 @@ class _Lines:
         self.path = path
         self.original = path.read_bytes()
         self.crlf = b"\r\n" in self.original
-        self.lines = self.original.decode("latin-1").replace("\r\n", "\n").split("\n")
+        self.lines = self.original.decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
         self.head: dict[int, str | None] = {}      # a line replaced (None: taken out)
         self.extra: dict[int, list[str]] = {}      # lines added after it
         self.count = 0
@@ -702,15 +703,15 @@ class _Lines:
         text = "\n".join(out)
         if self.crlf:
             text = text.replace("\n", "\r\n")
-        return text.encode("latin-1")
+        return text.encode(GAME_TEXT)
 
     def moved(self, offset: int) -> int:
         nl = 2 if self.crlf else 1
         old = new = 0
         for i, line in enumerate(self.lines):
-            length = len(line.encode("latin-1")) + nl
+            length = len(line.encode(GAME_TEXT)) + nl
             now = self._now(i)
-            now_length = sum(len(t.encode("latin-1")) + nl for t in now)
+            now_length = sum(len(t.encode(GAME_TEXT)) + nl for t in now)
             if offset < old + length:
                 return new + min(offset - old, now_length)
             old += length
@@ -729,7 +730,7 @@ class Plan:
 
 
 def _set_text(buf: bytearray, at: int, cap: int, text: str) -> None:
-    encoded = text.encode("latin-1")
+    encoded = text.encode(GAME_TEXT)
     if len(encoded) >= cap:
         raise GraveError(f"{text!r} does not fit its {cap}-byte field.")
     buf[at:at + cap] = encoded + bytes(cap - len(encoded))
@@ -811,7 +812,7 @@ def _plan_sidecar(folder: Path, game: int, slot: int, by_place: dict, rekey: dic
                     e[12:44] = bytes(32)
                 else:
                     e[9], e[10] = 0, 1
-                    e[12:44] = text.encode("latin-1") + bytes(32 - len(text))
+                    e[12:44] = text.encode(GAME_TEXT) + bytes(32 - len(text))
             touched = True
         for place, (old_fp, new_fp) in rekey.items():
             for e in entries:

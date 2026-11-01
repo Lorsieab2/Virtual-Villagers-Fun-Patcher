@@ -55,7 +55,8 @@ ORIGINS = "vv5_enable_origins_exclusive_features"
 DIFFICULTY = "vv5_difficulty_settings"
 CLICKABLE_TIPS = "vv5_clickable_tips"
 PATCHES = (CLICKABLE_TIPS, DIFFICULTY, ORIGINS, STORY)
-DEFAULT_OFF = frozenset({STORY})
+# Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
+DEFAULT_OFF: frozenset[str] = frozenset()
 
 
 def _keys() -> list[Entry]:

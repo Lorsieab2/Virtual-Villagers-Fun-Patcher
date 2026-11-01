@@ -52,6 +52,7 @@ from pathlib import Path
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = "(before last names)"
 FNV_BASIS, FNV_PRIME = 2166136261, 16777619
@@ -193,7 +194,7 @@ def _rename_graves(buf: bytearray, game: int, renames: dict[tuple, str], ages: d
                 result.notes.append(f"The grave of {name} (age {age}) could be more than one villager's, so it "
                                     "keeps its name.")
             continue
-        encoded = new.encode("latin-1", "replace")
+        encoded = new.encode(GAME_TEXT, "replace")
         if len(encoded) > cap - 1:
             result.notes.append(f"{new} is too long for {name}'s grave, which keeps its name.")
             continue
@@ -314,7 +315,7 @@ def _fnv(h: int, data: bytes) -> int:
 
 
 def _cstr(data: bytes | bytearray, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def _i32(data, at: int) -> int:
@@ -444,7 +445,8 @@ NUMERAL = re.compile(r"^[IVXLCDM]+$")
 def storable(name: str) -> bool:
     """A name the games keep and show safely: printable ASCII or a Latin-1 letter or sign the game's
     own text box accepts (Élodie; Codex, #566) -- never a control byte, and never '%', which an
-    unpatched game reads as a formatting instruction (Fix Vanilla Bugs)."""
+    unpatched game reads as a formatting instruction (Fix Vanilla Bugs).  The Last Names companion's
+    own rule (native/vvfp_last_names: 0x80-0x9F refused) is kept, so the two sides agree."""
     return all((0x20 <= ord(ch) < 0x7F or 0xA0 <= ord(ch) <= 0xFF) and ch != "%" for ch in name)
 # In a `known` set: a name (without its numeral) whose words are all one first name -- the owner,
 # 2026-10-07, for a two-word name whose second word is no known last name: "Ask per villager".
@@ -1194,7 +1196,7 @@ NOT_THEM = "No: someone else (leave the name)"
 
 
 def _put_name(buf: bytearray, at: int, cap: int, name: str) -> None:
-    encoded = name.encode("latin-1")
+    encoded = name.encode(GAME_TEXT)
     if len(encoded) + 1 > cap:
         raise LastNamesError(f"{name!r} does not fit a {cap}-byte name field.")
     buf[at:at + cap] = encoded + b"\0" * (cap - len(encoded))
@@ -1805,7 +1807,7 @@ def _plan_family_trees(result: Plan, folder: Path, game: int, slot: int, renames
 
 def _first_line(path: Path) -> str:
     try:
-        return path.read_bytes().decode("latin-1").split("\n", 1)[0].rstrip("\r")
+        return path.read_bytes().decode(GAME_TEXT).split("\n", 1)[0].rstrip("\r")
     except OSError:
         return ""
 
@@ -1841,7 +1843,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
                             "name this game); left as it is.")
     elif roster.is_file():
         original = roster.read_bytes()
-        lines = original.decode("latin-1").split("\n")
+        lines = original.decode(GAME_TEXT).split("\n")
         changed = False
         left = set()
         alone = alone or {}
@@ -1870,14 +1872,14 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
                 left.add(parts[1])
         _left(result, roster, left)
         if changed:
-            result.changes.append(Change(roster, original, "\n".join(lines).encode("latin-1"),
+            result.changes.append(Change(roster, original, "\n".join(lines).encode(GAME_TEXT),
                                         "the statistics roster"))
     elders = _data_file(data_dir.parent, "Village Elders", f"Village Elders - Save {slot}.dat")
     if elders.is_file() and _first_line(elders) != f"VVFP VILLAGE ELDERS v2 game={game}":
         result.notes.append(f"{elders.name} is not this game's version 2 Village Elders file; left as it is.")
     elif elders.is_file():
         original = elders.read_bytes()
-        lines = original.decode("latin-1").split("\n")
+        lines = original.decode(GAME_TEXT).split("\n")
         changed = False
         left = set()
         for k, line in enumerate(lines):
@@ -1896,7 +1898,7 @@ def _plan_statistics(result: Plan, game: int, slot: int, data_dir: Path, by_name
                 lines[k] = "\t".join(parts)
         _left(result, elders, left)
         if changed:
-            result.changes.append(Change(elders, original, "\n".join(lines).encode("latin-1"), "the Village Elders"))
+            result.changes.append(Change(elders, original, "\n".join(lines).encode(GAME_TEXT), "the Village Elders"))
 
 
 # ---------------------------------------------------------------------------
@@ -1927,7 +1929,7 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
     for path in checker.log_files(folder):
         original = path.read_bytes()
         crlf = b"\r\n" in original
-        lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
+        lines = original.decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
         n = 0
         left = set()
         if ordered:
@@ -1989,7 +1991,7 @@ def _plan_logs(result: Plan, folder: Path, game: int, slot: int, renames: dict[t
             text = "\n".join(lines)
             if crlf:
                 text = text.replace("\n", "\r\n")
-            result.changes.append(Change(path, original, text.encode("latin-1"), "the logs"))
+            result.changes.append(Change(path, original, text.encode(GAME_TEXT), "the logs"))
     _plan_repairs_logs(result, folder, game, slot, by_name, villages, renames)
 
 
@@ -2036,7 +2038,7 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
                 continue
             original = path.read_bytes()
             crlf = b"\r\n" in original
-            lines = original.decode("latin-1").replace("\r\n", "\n").split("\n")
+            lines = original.decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
             n = 0
             for b in additions.blocks(path, lines):
                 if not b.of(slot, game, villages):
@@ -2051,7 +2053,7 @@ def _plan_repairs_logs(result: Plan, folder: Path, game: int, slot: int, by_name
                 text = "\n".join(lines)
                 if crlf:
                     text = text.replace("\n", "\r\n")
-                result.changes.append(Change(path, original, text.encode("latin-1"), "the Repairs log"))
+                result.changes.append(Change(path, original, text.encode(GAME_TEXT), "the Repairs log"))
 
 
 # ---------------------------------------------------------------------------
@@ -2463,7 +2465,7 @@ def read_missing(folder: Path, game: int, slot: int) -> tuple[str | None, set[tu
     """The slot's request: (REMIND or NOT_NOW, the villagers it lists by (name, head, body)); (None,
     set()) without one."""
     try:
-        lines = missing_path(folder, game, slot).read_bytes().decode("latin-1").splitlines()
+        lines = missing_path(folder, game, slot).read_bytes().decode(GAME_TEXT).splitlines()
     except OSError:
         return None, set()
     if not lines or lines[0] != MISSING_HEADER.format(game=game):
@@ -2488,7 +2490,7 @@ def write_missing(folder: Path, game: int, slot: int, state: str, who) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [MISSING_HEADER.format(game=game), f"asked\t{state}"]
     lines += [f"villager\t{name}\t{head}\t{body}" for name, head, body in sorted(set(who))]
-    _write(path, ("\n".join(lines) + "\n").encode("latin-1", errors="replace"))
+    _write(path, ("\n".join(lines) + "\n").encode(GAME_TEXT, errors="replace"))
 
 
 def clear_missing(folder: Path, game: int, slot: int) -> None:

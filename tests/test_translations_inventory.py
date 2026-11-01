@@ -78,6 +78,9 @@ class InventoryFilesTests(unittest.TestCase):
     def test_startup_starts_the_companion(self):
         import vv_fun_patcher as vfp
         self.assertEqual(vfp.STARTUP_LOADER_COMPANIONS_2[-1], "VVFP Translations.dll")
+        # The Unicode text companion starts first, so VVFP Translations.dll finds its VvfpGlyphsUtf8 at start.
+        names = list(vfp.STARTUP_LOADER_COMPANIONS_2)
+        self.assertLess(names.index("VVFP Unicode Text.dll"), names.index("VVFP Translations.dll"))
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('"VVFP Translations.dll",', header)
         startup = ROOT / "assets" / "startup" / "VVFP Startup.dll"

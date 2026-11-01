@@ -1180,10 +1180,12 @@ class ManifestTests(unittest.TestCase):
         # Totems Use No Villager Records (vv2_totems_out_of_entries), no executable byte --
         # its companion detours the load, save, totem maker, drawing and mouse at run time;
         # 33 with Original Looks for Reset to Original (vv2_original_look), no executable
-        # byte -- its companion splices the game's own body writers at run time; 34 with
+        # byte -- its companion splices the game's own body writers at run time;
+        # 34 with Render Unicode with In-Game Fonts (vv2_unicode_text), no executable byte --
+        # its companion detours the font constructor and the SDL_TEXTINPUT case at run time; 35 with
         # Translations (vv2_translations), no executable byte -- its companion writes only while
         # a language is chosen, at run time.
-        self.assertEqual(len(feature_ids), 34)
+        self.assertEqual(len(feature_ids), 35)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4129,7 +4131,9 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_game_log",
                 "vv2_totems_out_of_entries",
                 "vv2_original_look",
-                "vv2_translations",
+            # Render Unicode with In-Game Fonts: companion only, no executable bytes.
+            "vv2_unicode_text",
+            "vv2_translations",
             },
         )
         for mode in ALL_MODES:

@@ -1,0 +1,6 @@
+LIBRARY "VVFP Unicode Text"
+EXPORTS
+    VvfpStartup
+    VvfpUnicodeTextKey
+    VvfpUnicodeTextFonts
+    VvfpGlyphsUtf8

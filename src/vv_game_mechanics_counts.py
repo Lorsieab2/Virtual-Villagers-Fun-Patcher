@@ -29,6 +29,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import vv_game_mechanics as gm
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 COUNTS = "Village counts"
 VITALS = "Vital statistics"
@@ -108,7 +109,7 @@ def statistics_log(village: gm.Village) -> StatisticsLog | None:
     for place in places:
         path = Path(place) / name
         try:
-            text = path.read_text(encoding="latin-1")
+            text = path.read_text(encoding=GAME_TEXT)
             written = path.stat().st_mtime
         except OSError:
             continue

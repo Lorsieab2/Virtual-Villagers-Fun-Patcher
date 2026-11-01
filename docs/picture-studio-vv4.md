@@ -87,6 +87,17 @@ The masks come from the save's "Village Masks" file (`common.masks_by_rank`), th
 * Without the emulator (CI): tables from a made-up file, plans on blank sheets of the real sizes, the
   save reader on a made-up save.
 
+## Text (the Text tab)
+
+The Tree of Life builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 1940 x 20, table 0x4BA140, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 2364 x 27, table 0x4BB068, 27 pixels a line.
+
+They hold 0x20-0x7E and the Windows-1252 letters and signs from 0xA1 (The Secret City: 0xA2) to 0xFF, accented letters included. Bytes 0x80-0xA0 draw "!". The Text tab makes everything else in the font's style.
+
+The game's text draw is 0x409700 and its centred draw is 0x409BE0. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered or not proven
 
 * **The emulated renderer is fed by stubs** for the terrain test (water or not), the selection test, the
@@ -114,3 +125,165 @@ digit of a body sheet is the sheet's place across the 2 x 3 grid (directions 2-3
 "old" body preview read another direction's frame. It now always reads `<sex>_bodies0<page>.png`, the
 sheet the game draws the body from (the head still comes from `_heads00` / `_heads10` by the look).
 `tests/test_vv4_appearance_preview_sheets.py` runs the shipped DLL's window procedure in Unicorn.
+
+## Carried items
+
+Every item a villager can be drawn carrying, as offered under **Carrying** on both tabs (`src/vv_pictures_carried.py`). "Unused in the game" items are drawn with the game's own carry code, which draws any number, but nothing the game runs carries them.
+
+| Number | Name | Status | When the game carries it (or why it never does) |
+|---|---|---|---|
+| 0 (0x0) | Berries | in the game | Harvesting blackberries; Researching; Adding to the stew |
+| 1 (0x1) | Rock | in the game | Heating a rock in the fire; Clearing rubble; Doing exercise |
+| 2 (0x2) | Feathers | in the game | Researching |
+| 3 (0x3) | Baby | in the game | expecting |
+| 4 (0x4) | Wood | in the game | Attempting to fix the piers; Keeping the stream clear; Fixing the hut; Gathering firewood; Building a hut |
+| 5 (0x5) | Laundry | in the game | Washing the laundry |
+| 6 (0x6) | Crops | in the game | Adding to the stew |
+| 7 (0x7) | Flowers | in the game | Honoring the Dead; Researching |
+| 8 (0x8) | Fish (carrying.png) | unused in the game | no code stores it |
+| 9 (0x9) | Crab | in the game | Catching a crab |
+| 10 (0xA) | Water | in the game | Filling a pot; Emptying the pot; Cleaning up the nasty mold; Cleaning up after the rain |
+| 11 (0xB) | Body | in the game | Burying the dead |
+| 12 (0xC) | Magic fish | unused in the game | no code stores it |
+| 13 (0xD) | Brown mushroom (carrying.png) | unused in the game | no code stores it (a carried mushroom is collectables picture 49) |
+| 14 (0xE) | Red mushroom (carrying.png) | unused in the game | no code stores it |
+| 15 (0xF) | Dry grass | in the game | Gathering dry grass; Researching |
+| 16 (0x10) | Coconut | unused in the game | no code stores it |
+| 17 (0x11) | Empty bowl | in the game | Filling a pot with fresh water / salt water; Researching |
+| 18 (0x12) | Tool | in the game | Sharpening into a cutting tool; Cutting some pulpy vines; Looking for a tool to cut some stalks |
+| 19 (0x13) | Pot | unused in the game | only the never-started jobs Hiding something / Spring cleaning store it (DEAD) |
+| 20 (0x14) | Stew pot | in the game | Something smells YUMMY! |
+| 21 (0x15) | Big leaf | in the game | Covering the hot rocks |
+| 22 (0x16) | Stone tips | in the game | Attempting to cut the branch |
+| 23 (0x17) | Bounty | unused in the game | only the never-started jobs Hiding something / Spring cleaning store it (DEAD) |
+| 24 (0x18) | Lab bowl | in the game | Researching |
+| 25 (0x19) | Nothing to see (an empty picture) | in the game | Researching (1 in 7: the hands look empty) |
+| 26 (0x1A) | Lab bowl (second picture) | unused in the game | no code stores it |
+| 27 (0x1B) | Striped jar | unused in the game | no code stores it |
+| 28 (0x1C) | Striped vase | unused in the game | no code stores it |
+| 29 (0x1D) | Tool (second picture) | unused in the game | no code stores it |
+| 30 (0x1E) | Clay amphora | unused in the game | no code stores it |
+| 31 (0x1F) | Spicy herb | in the game | Gathering herbs; Retrieving medicinal plant for study; Cooking |
+| 32 (0x20) | Sweet herb | in the game | Gathering herbs; Retrieving medicinal plant for study; Cooking |
+| 33 (0x21) | Soapy herb | in the game | Gathering herbs; Retrieving medicinal plant for study; Cooking |
+| 34 (0x22) | Pulpy vines | in the game | Gathering herbs; Cutting some pulpy vines; Cooking |
+| 35 (0x23) | Medicinal plant | in the game | Retrieving medicinal plant for study; Cooking |
+| 36 (0x24) | Red-topped stalk | unused in the game | no code stores it |
+| 37 (0x25) | Yellow berry cluster | unused in the game | no code stores it |
+| 38 (0x26) | Banana | unused in the game | no code stores it |
+| 39 (0x27) | Mango | unused in the game | no code stores it |
+| 40 (0x28) | Papaya | unused in the game | no code stores it |
+| 41 (0x29) | Cloth pulp | in the game | Spreading cloth pulp; Honoring the tree |
+| 42 (0x2A) | Lit torch | unused in the game | no code stores it |
+| 43 (0x2B) | Debris | in the game | Cleaning up after the rain |
+| 44 (0x2C) | Keystone | in the game | Attempting to install the keystone |
+| 45 (0x2D) | Red gem | unused in the game | no code stores it |
+| 46 (0x2E) | Dark sphere | unused in the game | no code stores it |
+| 47 (0x2F) | Red striped pot | unused in the game | no code stores it |
+| 48 (0x30) | Leaves | unused in the game | no code stores it |
+| 49 (0x31) | Pearl | unused in the game | no code stores it |
+| 50 (0x32) | Unlit torch | unused in the game | no code stores it |
+| 51 (0x33) | Irregular pearl | unused in the game | no code stores it |
+| 52 (0x34) | Hot rock | in the game | Taking a hot rock to the pot; Carrying a hot rock |
+| 53 (0x35) | Cloth | in the game | Repairing braid for a lei; Attempting to fix fishing nets; Storing finished cloth; Attempting to bind the branch |
+| 54 (0x36) | Yellow fruit | in the game | Shaking down some fruit! |
+| 55 (0x37) | Orange fruit | in the game | Carrying fruit to the food bin; Adding to the stew |
+| 56 (0x38) | Fish | in the game | Retrieving a fish |
+| 57 (0x39) | Golden fish | in the game | Retrieving a fish (once the fish scales are found) |
+| 58 (0x3A) | Soap | in the game | Stacking soap; Attempting to clean the stump; Adding soap to the pond |
+| 59 (0x3B) | Fish bone | in the game | Retrieving a fish bone |
+| 60 (0x3C) | Heat-treated bone | in the game | Heat treating a fish bone |
+| 61 (0x3D) | Beetle | in the game | Purifying the tree |
+| 62 (0x3E) | Blackberries | in the game | Harvesting blackberries |
+| 63 (0x3F) | Lei braid | in the game | Taking braid to start a lei |
+| 64 (0x40) | Lei | in the game | Hanging a lei on the tree |
+| 65 (0x41) | Lei flower (orange) | in the game | Picking a flower for the lei; Taking flower to lab |
+| 66 (0x42) | Lei flower (purple) | in the game | Picking a flower for the lei; Taking flower to lab |
+| 67 (0x43) | Lei flower (white) | in the game | Picking a flower for the lei; Taking flower to lab |
+| 68 (0x44) | Frog | in the game | Rescuing frogs |
+| 69 (0x45) | Twig nest | unused in the game | no code stores it |
+| 70 (0x46) | Fish scale, common 1 | in the game | Collecting a fish scale (children) |
+| 71 (0x47) | Fish scale, common 2 | in the game | Collecting a fish scale (children) |
+| 72 (0x48) | Fish scale, common 3 | in the game | Collecting a fish scale (children) |
+| 73 (0x49) | Fish scale, common 4 | in the game | Collecting a fish scale (children) |
+| 74 (0x4A) | Fish scale, uncommon 1 | in the game | Collecting a fish scale (children) |
+| 75 (0x4B) | Fish scale, uncommon 2 | in the game | Collecting a fish scale (children) |
+| 76 (0x4C) | Fish scale, uncommon 3 | in the game | Collecting a fish scale (children) |
+| 77 (0x4D) | Fish scale, uncommon 4 | in the game | Collecting a fish scale (children) |
+| 78 (0x4E) | Fish scale, rare 1 | in the game | Collecting a fish scale (children) |
+| 79 (0x4F) | Fish scale, rare 2 | in the game | Collecting a fish scale (children) |
+| 80 (0x50) | Fish scale, rare 3 | in the game | Collecting a fish scale (children) |
+| 81 (0x51) | Fish scale, rare 4 | in the game | Collecting a fish scale (children) |
+| 82 (0x52) | Lab equipment, common 1 | in the game | Collecting lab gear (children) |
+| 83 (0x53) | Lab equipment, common 2 | in the game | Collecting lab gear (children) |
+| 84 (0x54) | Lab equipment, common 3 | in the game | Collecting lab gear (children) |
+| 85 (0x55) | Lab equipment, common 4 | in the game | Collecting lab gear (children) |
+| 86 (0x56) | Lab equipment, uncommon 1 | in the game | Collecting lab gear (children) |
+| 87 (0x57) | Lab equipment, uncommon 2 | in the game | Collecting lab gear (children) |
+| 88 (0x58) | Lab equipment, uncommon 3 | in the game | Collecting lab gear (children) |
+| 89 (0x59) | Lab equipment, uncommon 4 | in the game | Collecting lab gear (children) |
+| 90 (0x5A) | Lab equipment, rare 1 | in the game | Collecting lab gear (children) |
+| 91 (0x5B) | Lab equipment, rare 2 | in the game | Collecting lab gear (children) |
+| 92 (0x5C) | Lab equipment, rare 3 | in the game | Collecting lab gear (children) |
+| 93 (0x5D) | Lab equipment, rare 4 | in the game | Collecting lab gear (children) |
+| 94 (0x5E) | Mausoleum mural piece, common 1 | in the game | Collecting mausoleum piece (children) |
+| 95 (0x5F) | Mausoleum mural piece, common 2 | in the game | Collecting mausoleum piece (children) |
+| 96 (0x60) | Mausoleum mural piece, common 3 | in the game | Collecting mausoleum piece (children) |
+| 97 (0x61) | Mausoleum mural piece, common 4 | in the game | Collecting mausoleum piece (children) |
+| 98 (0x62) | Mausoleum mural piece, uncommon 1 | in the game | Collecting mausoleum piece (children) |
+| 99 (0x63) | Mausoleum mural piece, uncommon 2 | in the game | Collecting mausoleum piece (children) |
+| 100 (0x64) | Mausoleum mural piece, uncommon 3 | in the game | Collecting mausoleum piece (children) |
+| 101 (0x65) | Mausoleum mural piece, uncommon 4 | in the game | Collecting mausoleum piece (children) |
+| 102 (0x66) | Mausoleum mural piece, rare 1 | in the game | Collecting mausoleum piece (children) |
+| 103 (0x67) | Mausoleum mural piece, rare 2 | in the game | Collecting mausoleum piece (children) |
+| 104 (0x68) | Mausoleum mural piece, rare 3 | in the game | Collecting mausoleum piece (children) |
+| 105 (0x69) | Mausoleum mural piece, rare 4 | in the game | Collecting mausoleum piece (children) |
+| 106 (0x6A) | Wind flute head, common 1 | in the game | Collecting a wind flute head (children) |
+| 107 (0x6B) | Wind flute head, common 2 | in the game | Collecting a wind flute head (children) |
+| 108 (0x6C) | Wind flute head, common 3 | in the game | Collecting a wind flute head (children) |
+| 109 (0x6D) | Wind flute head, common 4 | in the game | Collecting a wind flute head (children) |
+| 110 (0x6E) | Wind flute head, uncommon 1 | in the game | Collecting a wind flute head (children) |
+| 111 (0x6F) | Wind flute head, uncommon 2 | in the game | Collecting a wind flute head (children) |
+| 112 (0x70) | Wind flute head, uncommon 3 | in the game | Collecting a wind flute head (children) |
+| 113 (0x71) | Wind flute head, uncommon 4 | in the game | Collecting a wind flute head (children) |
+| 114 (0x72) | Wind flute head, rare 1 | in the game | Collecting a wind flute head (children) |
+| 115 (0x73) | Wind flute head, rare 2 | in the game | Collecting a wind flute head (children) |
+| 116 (0x74) | Wind flute head, rare 3 | in the game | Collecting a wind flute head (children) |
+| 117 (0x75) | Wind flute head, rare 4 | in the game | Collecting a wind flute head (children) |
+| 118 (0x76) | Brown mushroom | in the game | Picking a mushroom (children) |
+| 119 (0x77) | Red mushroom | in the game | Picking a mushroom (children; 8%) |
+| 120 (0x78) | Golden Mushroom | patcher | Picking a mushroom (Super-Secret Golden Mushroom) |
+| 121 (0x79) | Collectables picture 52 | blank picture, unused | the game refuses it (0x4132B5: nothing above 0x78) |
+| 122 (0x7A) | Collectables picture 53 | blank picture, unused | the game refuses it |
+| 123 (0x7B) | Collectables picture 54 | blank picture, unused | the game refuses it |
+
+The carry field is record +0x1CDC (-1 = nothing). Every store, read from the stock exe:
+
+- **The setter** 0x45ED50 (10 callers; it asks the listener registry 0x4132B0, which refuses anything
+  above 0x78, 0x4132B5) and the plain -1 stores 0x45D99F (the record reset, also on loading), 0x45DB19 and
+  0x45F370. Action type 0x11 carries its number (0x46A657, 0x468BCF); only 0x4697C0 builds it (94 call
+  sites, each resolved). The baby (3) is given at every action stop while +0x1C4C is set (0x468CDE,
+  0x43B99D, 0x4658B8).
+- **Collectables**: a child sent to one (the drop handler 0x44101F -> 0x4131A0) carries its number:
+  0x46-0x75 the 48 collectables (Fish Scales, Lab Equipment, Mausoleum Mural pieces, Wind Flute heads: 4
+  common, 4 uncommon, 4 rare each), 0x76 / 0x77 the brown and red mushrooms (0x4543D3, and the stew 0x42E1CC);
+  0x78 only with the Super-Secret Golden Mushroom patch. 0x79-0x7B are blank cells the setter refuses.
+- **DEAD**: jobs 0x55 "Hiding something" and 0x56 "Spring cleaning" (0x4589E0, 0x458E90: one of 0, 1, 2, 4,
+  5, 6, 15, 18, 19, 23) and job 0x6D (0x434040: 1 and 0x34) are never assigned, so the Pot (19) and the
+  Bounty (23) appear only there. The patcher's Story Upgrades can start any job, and so can make them appear.
+- **Unused**: the other pictures marked unused are on carrying.png but nothing stores their number;
+  carrying.png's cells 70-77 are empty art no number reaches (a litter's copy of a collectable would, and
+  only children carry collectables).
+- **The Golden Mushroom**: the item draw 0x466770 draws through 0x44C640, where "VVFP Golden Mushroom.dll"
+  draws golden_mushroom.png, 7 to the right, for collectables frame 50 (the village's sheet and the
+  collectables manager's are both 0x44CB70's sprite for id 260).
+- **The save** keeps the record windows only, not +0x1CDC: the reset clears it on loading and an expecting
+  mother (+0x1C4C, name + 0xB0) gets the baby back at her next action stop. The litter +0x1C50 (name + 0xB4)
+  is saved and cleared at the birth (0x468A17).
+
+**Proven** by tests/test_pictures_vv4.py `test_every_carried_item`: the game's own draw, run in
+Unicorn on the stock executable, blits every item above in each of the four directions and in every pose
+that draws the item (walking with twins and triplets, the work poses, a child) exactly as the plan says;
+for the Golden Mushroom, the plan with the patcher's picture is the stock blits with the companion's swap
+(tests/carried_golden.py, the offsets read from its source). The list itself is pinned by
+tests/test_pictures_carried.py.

@@ -45,6 +45,7 @@ from pathlib import Path
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = vv_save_backup.BEFORE_REARM    # Repair Saves & Logs' own label, listed by Restore Saves
 FIRST_VERSION = (1, 35, 64)          # the first patcher whose games read the new names
@@ -242,7 +243,7 @@ def _blocks(text: str) -> list[tuple[str | None, str]]:
 
 
 def _read(path: Path) -> str:
-    return path.read_bytes().decode("latin-1")
+    return path.read_bytes().decode(GAME_TEXT)
 
 
 def combined_log(new_text: str, old_text: str, present: Counter) -> tuple[str, int]:
@@ -553,7 +554,7 @@ def _merge_log_folder(folder: Path, group: list[Item], games: set[int], lower: d
             if Path(item.new).parent != Path(group[0].new).parent or old.suffix.lower() != ".txt":
                 continue
             if item.kind == "combine log":
-                (staged / new.name).write_bytes(texts[id(item)][1].encode("latin-1"))
+                (staged / new.name).write_bytes(texts[id(item)][1].encode(GAME_TEXT))
             elif item.kind == "move":
                 shutil.copyfile(old, staged / new.name)
             expect.update(_blocks(_read(old)))
@@ -588,10 +589,10 @@ def _merge_log_folder(folder: Path, group: list[Item], games: set[int], lower: d
             new_text, text, added = texts[id(item)]
             if added:
                 key = checker.word_key(_rel(folder, new)).lower()
-                size = len(new_text.encode("latin-1"))
+                size = len(new_text.encode(GAME_TEXT))
                 lower[key] = min(size, lower.get(key, size))
                 _set_aside(folder, new, result, copy=True)
-                _write_atomic(new, text.encode("latin-1"))
+                _write_atomic(new, text.encode(GAME_TEXT))
             _set_aside(folder, old, result)
             result.combined.append(f"{item.old} + {item.new} ({added} record(s) added)")
         else:
@@ -639,7 +640,7 @@ def note_move(folder: Path, game: int, result: MoveResult, now: datetime | None 
         text += f"  Backup: {result.backup.backup_folder.name}\r\n"
     text += "\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))
 
 
 def note_move_slot(folder: Path, game: int, slot: int, files: list[str], result: MoveResult,
@@ -661,4 +662,4 @@ def note_move_slot(folder: Path, game: int, slot: int, files: list[str], result:
         text += f"  Backup: {result.backup.backup_folder.name}\r\n"
     text += "\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

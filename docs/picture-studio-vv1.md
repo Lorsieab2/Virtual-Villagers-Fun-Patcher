@@ -151,6 +151,17 @@ The software blitter is 0x403D70 (place, cell, surface alpha, scale). It is repr
 
 Without Unicorn, pefile or the stock executable (CI), the emulated classes skip.
 
+## Text (the Text tab)
+
+A New Home builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 728 x 40, table 0x486888, 1 pixel between letters, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 793 x 54, table 0x4862A0, 27 pixels a line.
+
+They hold only space, ``! " ' , - . / 0-9 : ? A-Z ` a-z``. Every other byte draws "A", so the Text tab makes every other character in the font's style, accented letters included.
+
+The game's text draw is 0x409160 and its centred draw is 0x4094C0, box-centred 0x409510. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered or not proven
 
 - **Plain blits:** the blend arithmetic of SDL's own blitter is not emulated (SDL2.dll is not loaded).
@@ -166,3 +177,58 @@ Without Unicorn, pefile or the stock executable (CI), the emulated classes skip.
   from the save. It is a choice, on by default as the patch is.
 - **Origins masks in the owner's save:** the save copy used for the samples has no Village Masks file,
   so no saved masks were seen. Masks were proven on synthetic tables only.
+
+## Carried items
+
+Every item a villager can be drawn carrying, as offered under **Carrying** on both tabs (`src/vv_pictures_carried.py`). "Unused in the game" items are drawn with the game's own carry code, which draws any number, but nothing the game runs carries them.
+
+| Number | Name | Status | When the game carries it (or why it never does) |
+|---|---|---|---|
+| 0 (0x0) | Berries | in the game | Foraging |
+| 1 (0x1) | Rock | in the game | Exercising; Clearing blockage; Building small hut |
+| 2 (0x2) | Crops (second picture) | unused in the game | no code stores 2 (the art is cell 6's) |
+| 3 (0x3) | Baby | in the game | expecting (until the birth) |
+| 4 (0x4) | Wood | in the game | Fixing hut; Building small hut; Cleaning up the beach; Uncovering the well |
+| 5 (0x5) | Laundry | in the game | Laundry |
+| 6 (0x6) | Crops | in the game | Planting crops; Harvesting crops |
+| 7 (0x7) | Flowers | in the game | Honoring the Dead; Honoring the Idol; Honoring the temple |
+| 8 (0x8) | Fish | in the game | Fishing |
+| 9 (0x9) | Crab | in the game | Fishing (Farming 90 or more, 1 in 5) |
+| 10 (0xA) | Water | in the game | Watering crops; Watering the field; Trying to water strange patch |
+| 11 (0xB) | Body | in the game | Burying the dead |
+| 12 (0xC) | Strange fish | in the game | Hunting a strange fish! |
+| 13 (0xD) | Brown mushroom | in the game | Picking a mushroom |
+| 14 (0xE) | Red mushroom | in the game | Picking a mushroom (1 in 20 mushrooms) |
+| 15 (0xF) | Golden Mushroom | patcher | Picking a mushroom (Super-Secret Golden Mushroom) |
+
+The carry field is record +0x3C (0x13 = nothing). Every store, read from the stock exe:
+
+- **Action steps.** Each job queues steps with the step adder 0x4399F0; the runner 0x448600 (from the
+  village update 0x4224A0) carries out step type 0xC, "pick up" (`mov [rec+0x3C], value`, 0x448860; the
+  post-load fast-forward 0x448450 the same at 0x4484E1), and type 0xD, "drop" (0x13, 0x44889B). All 818
+  calls of 0x4399F0 were resolved: the 27 pick-up steps all push a number, so the list above is every
+  number a job carries. Building a hut pushes 4 or 1 (0x442224 / 0x442280, rand(100) > 50); picking a
+  mushroom pushes 0xD or 0xE (0x44459B, the mushroom's colour: red 1 in 20, 0x4236D1).
+- **Direct stores**: the reset 0x439470 (3 when +0x358 is set, else 0x13, 0x4394B2), 0x448220 (3 for an
+  expecting adult, 0x4482AF), and 0x13 at 0x439763, 0x43C6E4, 0x43CA8D, 0x43CBB4 (picked up by the hand,
+  except the baby), 0x41C325, 0x424330 (the Golden Child) and 0x42F0BC (the birth).
+- **Reached**: the runner calls the villager's own choice 0x448220 (0x4487C8), which calls the job
+  dispatcher 0x447CD0, the dragged-job routine 0x4472C0, the idle chooser 0x4479B0 and 0x446030 /
+  0x4462E0 / 0x4480F0; the strange fish, the mushrooms, the well and the strange patch are started by
+  dropping a villager (the drop handler 0x424150).
+- **Unused**: no store ever gives 2 (cell 2 is cell 6's picture again).
+- **Past the sheet**: the cell cut 0x409F90 clamps the row, so 15-18 would draw cells 0-3; only 15 is offered,
+  as the patcher's Golden Mushroom (the Super-Secret Golden Mushroom row pushes `[+0xACB0] + 0xD` at
+  0x444591, 2 meaning golden), which "VVFP Golden Mushroom.dll" draws as golden_mushroom.png, 6 right and 2
+  down, at the frame draw 0x4093D0 (every carried draw, the litter's copies too).
+- **The save** keeps +0x33C..+0x3D7 of each record (0x43B5D0 / 0x43B8C0), not +0x3C. After loading, 0x448450
+  runs the reset for everyone: the baby (3) for a villager whose +0x358 (name - 0x18) is set, nothing for the
+  rest -- From my save's "As the game shows it after loading". The litter +0x35C (name - 0x14) is saved: 2
+  twins, 3 triplets (0x43BC4E, 0x43BC8C); the game never sets 1.
+
+**Proven** by tests/test_pictures_vv1.py `test_every_carried_item`: the game's own draw, run in
+Unicorn on the stock executable, blits every item above in each of the four directions and in every pose
+that draws the item (walking with twins and triplets, the work poses, a child) exactly as the plan says;
+for the Golden Mushroom, the plan with the patcher's picture is the stock blits with the companion's swap
+(tests/carried_golden.py, the offsets read from its source). The list itself is pinned by
+tests/test_pictures_carried.py.
