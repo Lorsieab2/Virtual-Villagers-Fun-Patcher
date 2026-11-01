@@ -779,6 +779,28 @@ class RecordTests(Base):
                                    {}, "x", {"Birth": {3: 9}})
         self.assertEqual(out, b"Tribe renamed from Birth 3 to Other on 2026-10-01\r\nSave 1: Birth 3\r\n")
 
+    def test_a_source_s_older_name_the_replaced_village_used_refuses_the_slot(self) -> None:
+        """The source's older names keep their headers in the copy, as "(Save T)": when the target slot's
+        earlier village has records in the shared logs under one of them, the copy cannot go there."""
+        game, folder, old = self.make("huttest", 3, "Modded")
+        self.put(folder, f"{OWN}\\Save 1\\Logs\\Deaths and Disappearances\\Virtual Villagers 3 Deaths Log 1.txt",
+                 (f"Village: KT N (Save 1)\r\nDeath 1\r\n\r\n"
+                  f"Tribe renamed from KT N to {old} on 2026-10-01\r\n").encode())
+        self.occupy(game, folder, 2, "Old Village")
+        shared = f"{OLD_LOGS}\\Deaths and Disappearances\\Virtual Villagers 3 Deaths Log 1.txt"
+        self.put(folder, shared, b"Village: KT N (Save 2)\r\nDeath 9\r\n")
+        before = self.snapshot(folder)
+        with self.assertRaises(cs.CopyError) as caught:
+            cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW)
+        self.assertEqual(str(caught.exception),
+                         f"{old}'s older name KT N was also used by the village being replaced in Save 2, and its "
+                         "old records still use it, so the copy can't go into Save 2. Choose another slot.")
+        self.assertEqual(self.snapshot(folder), before)
+        self.assertEqual(self.backups(folder), [])
+        # Another slot, whose earlier villages never used that name: copied.
+        cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        self.assertEqual(rename.save_name(game, game.save_path(folder, 3).read_bytes()), "Copied")
+
     def test_the_window_says_why_the_name_is_refused(self) -> None:
         source = (ROOT / "src" / "vv_copy_slot_window.py").read_text(encoding="utf-8")
         self.assertIn("name in taken_names(target)", source)

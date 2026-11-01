@@ -518,6 +518,11 @@ def name_taken_message(name: str, slot: int) -> str:
             "it. Please choose another name.")
 
 
+def older_name_taken_message(source_name: str, older: str, slot: int) -> str:
+    return (f"{source_name}'s older name {older} was also used by the village being replaced in Save {slot}, "
+            f"and its old records still use it, so the copy can't go into Save {slot}. Choose another slot.")
+
+
 def _record_ranges(data: bytes) -> list[tuple[int, int]]:
     """Each numbered record of ``data``: from its own line to the next record or village line."""
     starts = []
@@ -935,8 +940,15 @@ def plan_copy(game: rename.GameSaves, folder: Path, source: int, target: int, ne
     after[flag] = 1
     # The older shared logs are never changed: a name an earlier village of the target slot keeps records
     # under there would make every reader take those records for the copy's own history.
-    if new_name in shared_log_names(folder, target):
+    taken = shared_log_names(folder, target)
+    if new_name in taken:
         raise CopyError(name_taken_message(new_name, target))
+    # ...and the source's OLDER names keep their headers in the copy, as "(Save <T>)": one the target
+    # slot's earlier village also has records under there would mix the two villages the same way.
+    for header in sorted(rename._village_names(game, folder, source, old)):
+        match = _HEADER.match(header)
+        if match and match.group(1) != old and match.group(1) in taken:
+            raise CopyError(older_name_taken_message(old, match.group(1), target))
     plan = Plan(game, folder, source, target, old, new_name, index, bytes(after), source_villagers=villagers)
     plan.overwritten = overwritten
     try:
