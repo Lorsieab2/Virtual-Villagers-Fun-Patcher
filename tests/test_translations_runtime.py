@@ -364,6 +364,28 @@ class TranslationsRuntimeTests(unittest.TestCase):
     def _exe_literal(self, game: int, va: int):
         return self.probe(game).cstring(va).encode("latin-1").decode("cp1252") or None
 
+    # -- a translation too long for the game's buffers stays English ---------------------------------
+    def test_too_long_stays_english(self):
+        game = 1
+        # A line of 80-200 bytes: three times it is past TR_SHORT (224), so the short-line cap decides.
+        ident = en = None
+        for i in range(1, 640):
+            try:
+                e = self.table_en(game, i)
+            except AssertionError:
+                continue
+            if 80 <= len(e) < 200 and not any(ch in e for ch in "%*^&+=|~@#$"):
+                ident, en = i, e
+                break
+        self.assertIsNotNone(ident)
+        for length, used in ((223, True), (224, False)):
+            with self.subTest(length=length):
+                tr = "x" * length
+                tf = template(game, [row("table", str(ident), en, tr)])
+                g = Game(game, self.exes[game], file_bytes(tf))
+                g.start()
+                self.assertEqual(self.lookup(g, ident).decode("cp1252"), tr if used else en)
+
     # -- (f) UTF-8 kept with the glyph companion, else Windows-1252 -----------------------------------
     def test_encoding_follows_glyph_companion(self):
         game = 1

@@ -59,6 +59,10 @@
    a text the game copies into a buffer sized for its English must still fit. */
 #define TR_GROWTH 3u
 #define TR_GROWTH_PLUS 64u
+/* A short English line may land in one of the games' 0x100-byte buffers (A New Home's and The Lost Children's
+   event choice captions, which the expander fills without a bound, a name of up to 0x1C bytes included; the
+   0xFF-byte labels): its translation stays below TR_SHORT bytes, whatever TR_GROWTH allows. */
+#define TR_SHORT 224u
 #define TR_FMT_STACK 0x1000
 #define TR_EXP_BUF 0x4000
 #define TR_INTERN_MAX (4u * 1024u * 1024u)
@@ -2083,7 +2087,8 @@ static void __cdecl tr_after_loader(void) {
         while (row->prepared[prep_n]) {
             ++prep_n;
         }
-        if (prep_n > TR_GROWTH * live_n && prep_n > live_n + TR_GROWTH_PLUS) {
+        if ((prep_n > TR_GROWTH * live_n && prep_n > live_n + TR_GROWTH_PLUS)
+            || (live_n < TR_SHORT && prep_n >= TR_SHORT)) {
             continue;
         }
         {
@@ -2400,7 +2405,8 @@ static int tr_prepare(const tr_row *row, tr_prep *prep) {
 /* May a prepared text replace `live` (the game's English)? */
 static int tr_fits(const tr_prep *prep, const unsigned char *live) {
     unsigned int live_n = tr_strlen(live);
-    if (prep->n > TR_GROWTH * live_n && prep->n > live_n + TR_GROWTH_PLUS) {
+    if ((prep->n > TR_GROWTH * live_n && prep->n > live_n + TR_GROWTH_PLUS)
+        || (live_n < TR_SHORT && prep->n >= TR_SHORT)) {
         return 0;
     }
     if (prep->source == TR_SRC_TABLE && tr_count_tokens(prep->bytes) > tr_count_tokens_live(live) + 2u) {

@@ -732,6 +732,7 @@ class RowRules:
     required_tokens: tuple[str, ...] = ()
     forbid_chars: str = ""                                       # characters the game would misread here
     selects_allowed: bool = True
+    byte_limit: int = 0                                          # the longest translation (UTF-8 bytes); 0: none
 
 
 def find_emails(text: str) -> list[str]:
@@ -844,6 +845,9 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
             err(f"the character {ch!r} has a meaning to the game in this line; it cannot be added")
     if english[:1].isspace() != translation[:1].isspace() or english[-1:].isspace() != translation[-1:].isspace():
         warn("the spaces at the start or end differ from the English")
+    if rules.byte_limit and len(plain_tr.encode("utf-8")) > rules.byte_limit:
+        err(f"too long for the game: at most {rules.byte_limit} bytes here (a letter outside A-Z can take 2 to "
+            "4 bytes); the line would stay English")
     if english.count("\n") and not translation.count("\n"):
         warn("the English has line breaks (\\n) and the translation has none")
     for ch in translation:

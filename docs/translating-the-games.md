@@ -55,8 +55,10 @@ English you see.
   number + "hours", or the tech screen's cost line). Each piece is its own line; their order is fixed. Make
   each piece read well on its own.
 - **Very long lines.** The game keeps some text in fixed-size boxes and buffers. A translation much longer
-  than its English may be cut off, or (when it would not fit a buffer at all) is not used and the English
-  shows. The editor warns when a line is much wider than its English.
+  than its English may be cut off, and a line of the game's own text more than three times as long as its
+  English (plus 64 bytes; a Chinese or Japanese character takes 3 bytes) is not used: the English shows, so a
+  fixed-size buffer in the game can never overflow. No line may be longer than 4,000 bytes. The editor warns
+  when a line is much wider than its English.
 
 ## Editing the file
 

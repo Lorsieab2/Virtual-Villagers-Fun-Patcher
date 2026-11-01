@@ -221,6 +221,17 @@ def game_english(game, exe: Path, sm_xml: Path | None = None) -> dict[str, str]:
     return out
 
 
+def game_byte_limit(english: str) -> int:
+    """The longest translation VVFP Translations.dll uses for this English (its tr_fits: three times the English
+    or the English plus 64 bytes, below 224 bytes for an English below 224, at most 4,000), counted in UTF-8
+    bytes as the strictest case."""
+    n = len(english.encode("cp1252", errors="replace"))
+    limit = max(3 * n, n + 64)
+    if n < 224:
+        limit = min(limit, 223)
+    return min(limit, 3999)
+
+
 def _rules_for(entry: dict) -> fmt.RowRules:
     return fmt.RowRules(
         subjects=dict(entry.get("subjects", {})),
@@ -256,8 +267,9 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
             continue
         source, _slash, ident = stem.partition("/")
         key = fmt.make_key(source, ident, text)
-        rows.append(TemplateRow(fmt.Row(key, text, "", entry.get("notes", "")), _rules_for(entry),
-                                entry.get("context", "")))
+        rules = _rules_for(entry)
+        rules.byte_limit = game_byte_limit(text)
+        rows.append(TemplateRow(fmt.Row(key, text, "", entry.get("notes", "")), rules, entry.get("context", "")))
     tag = f"vv{number}"
     for entry in load_patcher_strings():
         if tag not in entry.get("games", ()):
