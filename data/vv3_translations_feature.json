@@ -1,0 +1,74 @@
+{
+  "id": "vv3_translations",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Translations",
+  "description": "Plays the game in another language. Choose a language for each game in Tools > Translations... (or make your own there: the patcher writes a file with every English line of the game, its menus, events, tips, tech names and the patcher's own windows, and a built-in editor shows each line in the game's font). The game uses the chosen language from its next start, with no re-patching; lines a translation leaves out, or gets wrong, stay English. Gender and plural words follow the villager or the number (for example il / elle, 1 pomme / 2 pommes). **On by default, and English until you choose a language: with English chosen the game is exactly as without this patch.** **Letters the game's own font does not have (for example Turkish ğ ş ı, Greek, Cyrillic, Chinese, Japanese or Cuneiform) need \"Render Unicode with In-Game Fonts\"; without it they show as \"?\".** **Words painted into pictures (buttons, the title screen, help pages) stay English.** **Text the game draws for the patcher (Cause of Death words, island event popups) is translated only with \"Render Unicode with In-Game Fonts\".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game.** The companion is \"VVFP Translations.dll\", started by VVFP Startup.dll; if it cannot be loaded, or the game's text is not the version a translation was made from, those lines stay English.",
+  "output_tag": "Translations",
+  "dependencies": [],
+  "behavior_changes": [
+    "At game start the companion reads \"Virtual Villagers Fun Patcher Files\\Translation\\Translation.txt\" (written by the patcher's Translations window; docs/translation-file-format.md). With no such file it returns at once and writes nothing.",
+    "Each translated line replaces the English where the game looks it up: the string table at 0x4AB990: each translated entry's loaded-text pointer (+0xC), after the loader; the visible literals outside the table by the address their loading instruction pushes (data/translations/vv3_strings.json).  A line is used only when the English it was made from is the English this game shows (the key's SHA-256), its placeholders match and its selects are well formed.",
+    "The patcher's own windows (Origins, Story / Cheat Upgrades, Custom Island Event) are translated as they open (a WH_CALLWNDPROCRET hook on the game's own thread, only when the file translates any of them).",
+    "Without \"Render Unicode with In-Game Fonts\" (its companion's VvfpGlyphsUtf8), translations are given to the game in Windows-1252, '?' for what it cannot spell."
+  ],
+  "explicit_non_changes": [
+    "This row changes no executable bytes: the companion checks each site's stock bytes and writes them at run time through the shared all-or-none writer, and writes only the ones the chosen file needs; if any check fails it writes nothing, not even a table pointer, and the game stays English.",
+    "No save, record or game file is written; the game's own English text stays in memory unchanged.",
+    "With English chosen (no Translation.txt), nothing at all is written."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/translations/VVFP Translations.dll",
+      "destination": "VVFP Translations.dll",
+      "sha256": "6D509D5782BEAC8334A5E6D4D18A8B17B49131285DBBF34EBC7DD8E3081405A1"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x471CFD",
+      "stock_bytes": "558BEC81EC54020000",
+      "routine": "the C runtime's _output (every sprintf): selects on placeholders resolved",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x42F6E5",
+      "stock_bytes": "E806FEFFFF",
+      "routine": "the string table's loader call (call 0x42F4F0): after it, each translated entry's text",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41E115",
+      "stock_bytes": "6888F44700",
+      "routine": "loads the text at 0x47f488 (OK button of every message popup (0x41de90)): its address becomes the translation's",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x46B388",
+      "stock_bytes": "68E0E94900",
+      "routine": "loads the text at 0x49e9e0 (version line, main/options screen (inferred screen)): its address becomes the translation's",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x469E6A",
+      "stock_bytes": "6880E94900",
+      "routine": "loads the text at 0x49e980 (hours/minutes duration in a message bar line (h = hours, m =): its address becomes the translation's",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x469F8E",
+      "stock_bytes": "6880E94900",
+      "routine": "loads the text at 0x49e980 (hours/minutes duration in a message bar line (h = hours, m =): its address becomes the translation's",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x46A04F",
+      "stock_bytes": "6880E94900",
+      "routine": "loads the text at 0x49e980 (hours/minutes duration in a message bar line (h = hours, m =): its address becomes the translation's",
+      "installed_by": "VVFP Translations.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}
