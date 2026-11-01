@@ -38,6 +38,7 @@ typedef struct rg_page {
     void *image[2];                 /* the picture object: +0 SDL_Surface* */
     sdl_surface *surf;
     int (*table)[5];
+    int width;                      /* the picture's width: RG_PAGE_W, or one wide unit's own */
     int slots;                      /* entries used (entry 0 is a blank) */
     int cx, row;
     int colour;
@@ -588,7 +589,8 @@ static int rg_make_cell(const rg_font *f, const unsigned char *bytes, int len, u
                 }
             }
         }
-        if (r >= 0 && (b - t + 1) > line && ppem > 4) {
+        if (r >= 0 && (b - t + 1) > line && ppem > 4 && tries < 3) {
+            /* Taller than the line: smaller (the last try is kept as it is, its edges cut by the cell). */
             ppem = ppem * line / (b - t + 1);
             if (ppem < 4) ppem = 4;
             vg_free(cv.px);
@@ -644,7 +646,7 @@ static void rg_flush_tints(rg_page *p) {
     *(unsigned int **)(p->impl + 0x41C) = NULL;
 }
 
-static rg_page *rg_new_page(rg_font *f, int colour) {
+static rg_page *rg_new_page(rg_font *f, int colour, int width) {
     sdl_create_fn create = *(sdl_create_fn *)(UINT_PTR)g_game->sdl_create;
     rg_page *p = (rg_page *)vg_alloc(sizeof *p);
     int h = RG_PAGE_ROWS * (f->m.line + 1);
@@ -653,7 +655,8 @@ static rg_page *rg_new_page(rg_font *f, int colour) {
     }
     ZeroMemory(p, sizeof *p);
     p->table = (int (*)[5])vg_alloc(sizeof(int[5]) * 257);
-    p->surf = (sdl_surface *)create(0, RG_PAGE_W, h, f->format_bits, f->rmask, f->gmask, f->bmask, f->amask);
+    p->width = width;
+    p->surf = (sdl_surface *)create(0, width, h, f->format_bits, f->rmask, f->gmask, f->bmask, f->amask);
     if (p->table == NULL || p->surf == NULL || p->surf->pixels == NULL) {
         if (p->surf != NULL) {
             (*(sdl_free_fn *)(UINT_PTR)g_game->sdl_free)(p->surf);
@@ -666,7 +669,7 @@ static rg_page *rg_new_page(rg_font *f, int colour) {
     {
         int y;
         for (y = 0; y < h; ++y) {
-            ZeroMemory((unsigned char *)p->surf->pixels + y * p->surf->pitch, (size_t)RG_PAGE_W * 4);
+            ZeroMemory((unsigned char *)p->surf->pixels + y * p->surf->pitch, (size_t)width * 4);
         }
     }
     /* The font object: the game's own (vtable, line height, spacing), with this page's picture. */
@@ -674,7 +677,7 @@ static rg_page *rg_new_page(rg_font *f, int colour) {
     p->image[0] = p->surf;
     p->image[1] = (void *)1;
     *(void ***)(p->impl + VT_FONT_PICTURE) = p->image;
-    *(int *)(p->impl + 0x10) = RG_PAGE_W;
+    *(int *)(p->impl + 0x10) = width;
     *(int *)(p->impl + 0x14) = h;
     *(int (**)[5])(p->impl + VT_FONT_TABLE) = p->table;
     ZeroMemory(p->impl + VT_FONT_INDEX, 256 * sizeof(int));
@@ -697,22 +700,21 @@ static rg_page *rg_new_page(rg_font *f, int colour) {
 static int rg_place(rg_font *f, const unsigned int *px, int w, int colour, rg_page **out) {
     rg_page **list = colour ? &f->colour : &f->mono, *p;
     int line = f->m.line, x, y;
-    if (w > RG_PAGE_W) {
-        w = RG_PAGE_W;
-    }
+    /* A unit wider than a page (a long shaped name) gets a page of its own width: nothing is clipped,
+       and the cell is copied with its own stride (w) into the page's. */
     for (p = *list; p != NULL; p = p->next) {
         if (p->slots < RG_SLOTS + 1) {
-            if (p->cx + w > RG_PAGE_W && p->row + 1 < RG_PAGE_ROWS) {
+            if (p->cx + w > p->width && p->row + 1 < RG_PAGE_ROWS) {
                 p->row++;
                 p->cx = 0;
             }
-            if (p->cx + w <= RG_PAGE_W) {
+            if (p->cx + w <= p->width) {
                 break;
             }
         }
     }
     if (p == NULL) {
-        p = rg_new_page(f, colour);
+        p = rg_new_page(f, colour, w + 2 > RG_PAGE_W ? w + 2 : RG_PAGE_W);
         if (p == NULL) {
             return 0;
         }

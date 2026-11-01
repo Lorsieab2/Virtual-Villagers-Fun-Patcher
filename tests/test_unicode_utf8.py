@@ -302,6 +302,27 @@ class InTheGame(unittest.TestCase):
                     run._call(CENTRED[game], holder, run.cstring(raw), 500, 50, 0xFFFFFFFF, run.fonts["ldwBurweed27"])
                     self.assertEqual(run.m.blits[0][3][0], 500 - w // 2)
 
+    def test_a_long_arabic_name_wider_than_a_page_is_drawn_whole(self):
+        """Codex (#676): a shaped run wider than a 1024-px page was clipped with the wrong stride.  It now gets
+        a page of its own width: one letter as wide as the text, ink to its far end."""
+        name = ("عبد الرحمن بن محمد "
+                "بن عبد الله ") * 6
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                raw = _bytes_of(name.strip())
+                w = run.width_of("ldwBurweed27", raw)
+                self.assertGreater(w, 1100)
+                blits = run.draw_text("ldwBurweed27", raw, 0, 10)
+                self.assertEqual(len(blits), 1)                      # one shaped run, one letter
+                src, rect, _dst, to = blits[0]
+                self.assertEqual(rect[2], w)
+                sw, sh, pitch, pixels, amask, ashift = run.surface(src)
+                self.assertGreaterEqual(sw, w)
+                # ink in the first and in the last 100 columns, on every one of them a real stride
+                for lo, hi in ((rect[0], rect[0] + 100), (rect[0] + rect[2] - 100, rect[0] + rect[2])):
+                    self.assertTrue(any((struct.unpack_from("<I", pixels, (rect[1] + y) * pitch + 4 * x)[0] & amask)
+                                        for y in range(rect[3]) for x in range(lo, hi)))
+
     def test_typing_stores_each_character_whole(self):
         for game, run in self.runs.items():
             with self.subTest(game=game):
