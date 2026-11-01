@@ -889,9 +889,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
                                               "level 3"),
         puzzles=puzzles, village_extra=village_extra,
-        food_words="2 food a villager every age unit while there is more than 500; on Medium at 8,000 or more, and "
+        food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
+                   "eaten, 0x460040); on Medium at 8,000 or more, and "
                    "on Hard at any amount, 2 more 76% of the time; never more on Easy.",
-        trips=[("fruit or honey picks", pick_food), ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed])])
+        trips=[("fruit picks", pick_food), ("honey picks", pick_food), ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed])])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
                            nature=max(level[5], nature)))

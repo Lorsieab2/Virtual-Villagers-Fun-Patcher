@@ -173,6 +173,8 @@ class ReleasesLinkTests(unittest.TestCase):
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
                "vv_game_mechanics_vv4", "vv_game_mechanics_vv5", "vv_game_mechanics_life", "vv_game_mechanics_counts",
+               "vv_game_mechanics_farmers", "vv_game_mechanics_farmers_vv1", "vv_game_mechanics_farmers_vv2",
+               "vv_game_mechanics_farmers_vv3", "vv_game_mechanics_farmers_vv4", "vv_game_mechanics_farmers_vv5",
                "vv_game_mechanics_death", "vv_game_mechanics_genetics", "vv_game_mechanics_catchup",
                "vv_game_mechanics_powers_vv5", "vv_game_mechanics_chances", "vv_game_mechanics_chances_vv1",
                "vv_game_mechanics_chances_vv2", "vv_game_mechanics_chances_vv3", "vv_game_mechanics_chances_vv4",
@@ -192,7 +194,9 @@ class ReleasesLinkTests(unittest.TestCase):
                # Picture Studio's Everything tab (the owner, 2026-11-01): the tab, the shared asset code, the JPEG
                # reader and each game's table, found by name.
                "vv_picture_studio_everything", "vv_pictures_assets", "vv_jpeg", "vv_assets_vv1", "vv_assets_vv2",
-               "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5"}
+               "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5",
+               # Translations (the owner, 2026-11-01): the window, the game side and the shared file format.
+               "vv_translations_window", "vv_translations", "vv_translation_format"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -396,7 +400,10 @@ class ReleasesLinkTests(unittest.TestCase):
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
               for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
-            ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout"}),
+            ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
+                                        "vv_game_mechanics_farmers"}),
+            ("vv_game_mechanics_farmers", set()),
+            *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
             ("vv_game_mechanics_genetics", {"vv_game_mechanics", "vv_last_names"}),
             # The Chances groups: the shared table, and each game's rolls (found by name).

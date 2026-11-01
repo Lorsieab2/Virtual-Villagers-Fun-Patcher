@@ -139,11 +139,13 @@ HIDDEN_LINES = (
     ("Medicine, disliked: a healer considers Healing half as often and cures about half as often. Wood, disliked: "
      "builders take huts 29% of the time instead of 70%, 41% stop half-way (\"Running away\"), and half of "
      "drops on the wood pile end in running away.", gm.RUNNING),
-    ("Running: a liking adult walks at speed 300 (150 otherwise) and one who dislikes it at 40 -- 3.4, 6.7 or "
-     "24.9 seconds for the same walk (whether real time or on the game's clock was not traced: see the next line); children run unless they dislike it; the elderly always walk at 40. "
-     "Jumping: liked, Dancing becomes 30 hops; disliked, every hop is skipped.", gm.RUNNING),
-    ("Running: whether a walk's 3.4, 6.7 or 24.9 seconds are real time or on the game's clock was not traced.",
-     False),
+    # The walk speed 0x45E2C0: 300 for running (0x45E2FF), 40 for a dislike (0x45E325); the elderly 0x465EB0; the walk
+    # 0x461120 moves speed / 100 pixels a 33 ms frame (tests/test_game_mechanics_farmers_vv4.py measures it).
+    ("Running: an adult who likes it walks at speed 300 (100 otherwise) and one who dislikes it at 40; children run "
+     "unless they dislike it; the elderly (840 + 160 x Medicine level age units or more) always walk at 40; sickness "
+     "only takes the running away. A walk moves speed ÷ 100 pixels each 33 ms frame: 30.3 pixels a real-life second "
+     "at 100, 3 times that at 300 and 0.4 times at 40, in real time, the same at every speed. Jumping: liked, "
+     "Dancing becomes 30 hops; disliked, every hop is skipped.", gm.RUNNING),
     ("Rain: liked, always \"Drinking rain\" in the rain; disliked, always \"Getting out of the rain\". Laundry: "
      "liked 38% of the time (11% otherwise), disliked never. Playing: liked, a child only plays; disliked, no "
      "dirt or sandcastle play. Dancing, disliked: never dances, and dance steps are cut from 5 other actions.",
@@ -177,11 +179,14 @@ CHANCE_V4 = (
      "(Refills, Villager timers), births (Births and gender), ghost visits and the hummingbird (Collectibles), how "
      "long an item lies (Mushrooms), the stews and the Fire Pit (Other), weather an event brings (Island "
      "events).", gm.RUNNING),
-    ("A new village: one of the first five villagers has a 30% chance of liking running, and every 40 seconds "
-     "each villager's queue of actions is refreshed (read from the coordinator's spec, not traced in the game's "
-     "code here, so neither the 30% nor the 40 seconds' clock -- real time or the game's clock -- is proven: "
-     "UNCONFIRMED).",
-     False),
+    ("A new village: one of the first five villagers has a 30% chance of liking running (read from the "
+     "coordinator's spec, not traced in the game's code here: UNCONFIRMED).", False),
+    # The refresh 0x466D20 runs at 0x43F801 when the game's clock reaches [game+0x171BC]; the 2-second step sets
+    # that to the clock + 40 every time (0x43F962), as does the pause (0x43F7E3) and the refresh itself (0x43F814).
+    ("Every villager's queue of actions is refreshed only when 40 seconds of the game's clock (whole real-life "
+     "seconds) pass without the village's 2-second step, which pushes that moment 40 seconds ahead each time it "
+     "runs (real time): not every 40 seconds in normal play, only after the village has stopped updating for 40 "
+     "real-life seconds or more.", gm.CODE),
     ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed, and the "
      "wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 real-life seconds (read from the coordinator's "
      "spec, not traced in the game's weather code here).", False),
@@ -389,7 +394,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
                  life.Source("The fishing net and the fruit", None, unlimited=True,
-                             refill_words="no store of theirs is read here: they bring what the gatherers fetch",
+                             refill_words="no store of theirs is read here: they bring what the farmers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
@@ -409,7 +414,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         collectibles=collectibles,
         limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),
         puzzles=puzzles,
-        food_words="2 food a villager every age unit while there is more than 500; on Medium at 8,000 or more, or "
+        food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
+                   "eaten, 0x46848B); on Medium at 8,000 or more, or "
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
         trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
     out.extend(life.sections(ctx))

@@ -86,6 +86,7 @@ class Placement(unittest.TestCase):
         with mock.patch.object(gm.importlib, "import_module", return_value=module), \
                 mock.patch.object(gm, "genetics_facts", return_value=[]), \
                 mock.patch.object(gm, "catchup_facts", return_value=[]), \
+                mock.patch.object(gm, "farmers_facts", return_value=[]), \
                 mock.patch.object(gm, "chances_facts", return_value=[]), \
                 mock.patch.object(gm, "items_facts", return_value=[]), \
                 mock.patch.object(gm, "hidden_facts", return_value=[]), \

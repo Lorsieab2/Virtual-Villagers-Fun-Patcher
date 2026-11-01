@@ -1,0 +1,5 @@
+LIBRARY "VVFP Translations"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpTranslateText=_VvfpTranslateText@4
+    VvfpTranslationsActive=_VvfpTranslationsActive@0

@@ -1,0 +1,78 @@
+name: Share a translation
+description: Send a translation you made in the patcher's Translations window, so every player can use it.
+title: "Translation: "
+labels: [translation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for translating the Virtual Villagers Fun Patcher!
+
+        **A GitHub account is required** to send this form. If you do not have one, [create a free account here](https://github.com/signup), then come back to this page.
+
+        The patcher has already filled in the game, the language and its code. There are three steps:
+
+        1. **Drag your exported .txt file** into the "Translation file" box below (the patcher opened its folder with the file selected).
+        2. **Check the box** at the bottom to agree the translation can be shared.
+        3. **Press Submit.**
+
+        The maintainer checks the file and adds it to the patcher; you will get a reply on this page. Everything on this page is public.
+  - type: dropdown
+    id: game
+    attributes:
+      label: Game
+      description: The game this translation is for.
+      options:
+        - Virtual Villagers - A New Home
+        - Virtual Villagers - The Lost Children
+        - Virtual Villagers - The Secret City
+        - Virtual Villagers - The Tree of Life
+        - Virtual Villagers - New Believers
+    validations:
+      required: true
+  - type: input
+    id: language
+    attributes:
+      label: Language (its own name)
+      description: The language's name in that language, for example Français, Deutsch or 日本語.
+    validations:
+      required: true
+  - type: input
+    id: code
+    attributes:
+      label: Language code
+      description: For example fr, de, ja or zh-Hans.
+    validations:
+      required: true
+  - type: input
+    id: credit
+    attributes:
+      label: Credit
+      description: >-
+        The name you wish to be credited as. Type it yourself; it will be public, shown in the patcher's
+        Translations list beside your language. Email addresses are never saved and are rejected from
+        translation files.
+    validations:
+      required: true
+  - type: input
+    id: coverage
+    attributes:
+      label: Coverage
+      description: How much is translated, in percent (the patcher fills this in; optional).
+    validations:
+      required: false
+  - type: textarea
+    id: file
+    attributes:
+      label: Translation file
+      description: Drag your exported .txt file into this box. Do not paste the file's text.
+      placeholder: Drag your exported .txt file into this box
+    validations:
+      required: true
+  - type: checkboxes
+    id: licence
+    attributes:
+      label: Licence
+      options:
+        - label: I agree this translation can be shared under the patcher's licence
+          required: true

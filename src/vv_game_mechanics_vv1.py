@@ -67,7 +67,8 @@ MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
 # done, rand(25000) < 3 at 0x423ED9 while the cave [0x9FA8] is shut; each calls 0x41AFA0 -> 0x41A960, which only
 # fills the 256-entry list of on-screen effects (0x34 bytes each) with a picture.  The new village's first event:
 # 0x41C4A9 (now + 900 s); the tutorial mushroom: 0x4234C4 (now + 100 s); the village step every 2 real seconds
-# (0x42345D), the idle sweep 40 real seconds after the last (0x4233F9 -> 0x448450).
+# (0x42345D); the idle sweep 0x448450 runs (0x423405) only when the game clock reaches [0xADE4], which the sweep
+# (0x4233FC) and every 2-second step (0x42347A) set to the clock + 40: only after 40 seconds with no 2-second step.
 # The autosave (the owner, 2026-10-25: the games autosave): 0x41BFC0, the last step of the game object's per-frame
 # update 0x41B350 (0x41B8BD; the main loop 0x402690 calls it, vtable slot 0x1C, then the frame's drawing, on every
 # pass), when the real clock time() (0x401E10) has reached [0xADEC] sets [0xADEC] = now + 600 and runs the save
@@ -93,7 +94,9 @@ CHANCE_LINES = (
     ("Timers: an age unit is 3, 6 or 10 real-life minutes on Fast, Normal or Slow (ageing, eating, sickness, health, "
      "pregnancy, birthdays); regrowth every 2 hours, 4 hours or 6 hours 40 minutes of real-life play, every missed "
      "one added when the game is next played; island events 12 to 23 real-life hours apart at any speed (Island "
-     "events); the village step every 2 real-life seconds; the idle sweep every 40 real-life seconds; a mushroom "
+     "events); the village step every 2 real-life seconds; the idle sweep that has every idle villager decide again "
+     "runs only when 40 real-life seconds (real time) pass without that step, since each step pushes it 40 real-life "
+     "seconds ahead, so not in normal play; a mushroom "
      "lies 1 real-life minute.", gm.CODE),
     ("A new village's first island event comes 15 real-life minutes after it is made (real time, the same at every "
      "speed; the pause pushes it on), and its tutorial mushroom lies 1 minute 40 real-life seconds (real time).",

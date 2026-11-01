@@ -1,0 +1,4280 @@
+{
+ "game": 1,
+ "title": "Virtual Villagers - A New Home",
+ "stock_exe_sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+ "table": {
+  "va": 4747784,
+  "count": 629,
+  "stride": 20,
+  "id_offset": 0,
+  "english_offset": 4
+ },
+ "literals": [
+  {
+   "va": "0x459bdc",
+   "context": "the \"Menu\" button on the in-game screen (separate literal from table id 70)",
+   "sites": [
+    "0x429fd7"
+   ]
+  },
+  {
+   "va": "0x459a44",
+   "context": "version label",
+   "sites": [
+    "0x426b89"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "stem": "table/1",
+   "stock_hash": "3e4ce79c",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/43",
+   "stock_hash": "757a0e33",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/2",
+   "stock_hash": "e4eb1806",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/549",
+   "stock_hash": "9e95e3fb",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/550",
+   "stock_hash": "4ece2634",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/551",
+   "stock_hash": "4889951f",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/552",
+   "stock_hash": "d4818f90",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/553",
+   "stock_hash": "40a33876",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/554",
+   "stock_hash": "ec9b10a4",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/555",
+   "stock_hash": "50dd0398",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/556",
+   "stock_hash": "8ac122ae",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/557",
+   "stock_hash": "a656107e",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/558",
+   "stock_hash": "52747494",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/559",
+   "stock_hash": "404314b1",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/560",
+   "stock_hash": "b764cdc0",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/561",
+   "stock_hash": "4e565dbc",
+   "context": "Details/Statistics/player screens and online statistics",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "Details/Statistics/player screens and online statistics; game codes $ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/562",
+   "stock_hash": "5f27067d",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/563",
+   "stock_hash": "449d701c",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/564",
+   "stock_hash": "0678a5ce",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/565",
+   "stock_hash": "fe5075ab",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/566",
+   "stock_hash": "565339bc",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/567",
+   "stock_hash": "19766ed6",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/568",
+   "stock_hash": "e2d0a549",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/569",
+   "stock_hash": "0e916101",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/570",
+   "stock_hash": "9ffa29f9",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/571",
+   "stock_hash": "ccfb44fa",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/572",
+   "stock_hash": "e5b761ec",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/573",
+   "stock_hash": "61435985",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/574",
+   "stock_hash": "7f0d3067",
+   "context": "Details/Statistics/player screens and online statistics",
+   "notes": "Details/Statistics/player screens and online statistics"
+  },
+  {
+   "stem": "table/601",
+   "stock_hash": "b6a445a1",
+   "notes": ""
+  },
+  {
+   "stem": "table/602",
+   "stock_hash": "3db75c30",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/603",
+   "stock_hash": "ffeb30a5",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/604",
+   "stock_hash": "4c9c8019",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/605",
+   "stock_hash": "a658cfe5",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/606",
+   "stock_hash": "a814a612",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/607",
+   "stock_hash": "0b355986",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/608",
+   "stock_hash": "86f09c19",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/609",
+   "stock_hash": "45818b8c",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/610",
+   "stock_hash": "827a641c",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/611",
+   "stock_hash": "db762260",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/612",
+   "stock_hash": "0a2618fd",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/613",
+   "stock_hash": "89ba1740",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/614",
+   "stock_hash": "8da9d181",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/615",
+   "stock_hash": "34281180",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/616",
+   "stock_hash": "532eb623",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/617",
+   "stock_hash": "e93a88df",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/618",
+   "stock_hash": "de7a692a",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/619",
+   "stock_hash": "85257938",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/620",
+   "stock_hash": "28391d3b",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/575",
+   "stock_hash": "4e1cb13b",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/576",
+   "stock_hash": "ae6e5d55",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/577",
+   "stock_hash": "e73373f5",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/578",
+   "stock_hash": "a20d12c5",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/579",
+   "stock_hash": "0342acb3",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/580",
+   "stock_hash": "ee9e49ff",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/581",
+   "stock_hash": "4cf98f9e",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/582",
+   "stock_hash": "9879cda2",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/583",
+   "stock_hash": "adba289c",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/584",
+   "stock_hash": "718541b5",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/585",
+   "stock_hash": "79cea8ff",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/586",
+   "stock_hash": "49a12385",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/587",
+   "stock_hash": "85f544b0",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/588",
+   "stock_hash": "a6abd853",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/589",
+   "stock_hash": "377c90a8",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/590",
+   "stock_hash": "d37fc74a",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/591",
+   "stock_hash": "ea41abe0",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/592",
+   "stock_hash": "9b6da9e2",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/593",
+   "stock_hash": "321b7396",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/594",
+   "stock_hash": "f3a7de58",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/595",
+   "stock_hash": "231d8fd0",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/596",
+   "stock_hash": "bf2bc5c9",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/597",
+   "stock_hash": "e3ebbb1c",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/598",
+   "stock_hash": "cf0ff35d",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/599",
+   "stock_hash": "f68ed0bc",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/600",
+   "stock_hash": "6289d324",
+   "context": "villager action/status text (second list)",
+   "notes": "villager action/status text (second list)"
+  },
+  {
+   "stem": "table/621",
+   "stock_hash": "6f305c4b",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/623",
+   "stock_hash": "92c1cdfd",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/624",
+   "stock_hash": "75081b59",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/622",
+   "stock_hash": "6eb00b4b",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/625",
+   "stock_hash": "be44133e",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/626",
+   "stock_hash": "d6915875",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/627",
+   "stock_hash": "8e588cd1",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/628",
+   "stock_hash": "9e73f8fa",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/629",
+   "stock_hash": "08e7f4a9",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/630",
+   "stock_hash": "e159b061",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/631",
+   "stock_hash": "a7248eeb",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/632",
+   "stock_hash": "e555e88d",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/633",
+   "stock_hash": "59242999",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/634",
+   "stock_hash": "c461dbb2",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/635",
+   "stock_hash": "13001175",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/636",
+   "stock_hash": "ca7981b4",
+   "context": "statistics labels, options, demo/expiry",
+   "notes": "statistics labels, options, demo/expiry"
+  },
+  {
+   "stem": "table/639",
+   "stock_hash": "2048983f",
+   "notes": ""
+  },
+  {
+   "stem": "table/235",
+   "stock_hash": "30efdfb5",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/236",
+   "stock_hash": "d602e91d",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/237",
+   "stock_hash": "372f7e2f",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/238",
+   "stock_hash": "2cda85e5",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/239",
+   "stock_hash": "5a7cf4ac",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/241",
+   "stock_hash": "73c9c986",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/240",
+   "stock_hash": "354cbfc8",
+   "context": "pronouns substituted for ^ & + = tokens by the event expanders",
+   "notes": "pronouns substituted for ^ & + = tokens by the event expanders"
+  },
+  {
+   "stem": "table/3",
+   "stock_hash": "33d514df",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/66",
+   "stock_hash": "5ff135e5",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/63",
+   "stock_hash": "16a552db",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/64",
+   "stock_hash": "d2c41274",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/4",
+   "stock_hash": "72973186",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/5",
+   "stock_hash": "b83feee3",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/6",
+   "stock_hash": "0ad4bcbc",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/7",
+   "stock_hash": "b663c8f3",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/8",
+   "stock_hash": "a02ceffc",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/9",
+   "stock_hash": "856cb15c",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/10",
+   "stock_hash": "f5709a4b",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/11",
+   "stock_hash": "c163ed00",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/12",
+   "stock_hash": "dcf0bc44",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/13",
+   "stock_hash": "a4bf070f",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/14",
+   "stock_hash": "dcf0bc44",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/15",
+   "stock_hash": "21f91584",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/16",
+   "stock_hash": "b095a856",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/17",
+   "stock_hash": "9e778f4f",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/18",
+   "stock_hash": "70c9055f",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/19",
+   "stock_hash": "0715cfc5",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/20",
+   "stock_hash": "df362939",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/21",
+   "stock_hash": "f80fd3df",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/22",
+   "stock_hash": "93ff8d97",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/23",
+   "stock_hash": "e964fb28",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/25",
+   "stock_hash": "ea71c974",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/26",
+   "stock_hash": "ac710369",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/27",
+   "stock_hash": "f19ccd36",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/24",
+   "stock_hash": "a03b221c",
+   "notes": ""
+  },
+  {
+   "stem": "table/28",
+   "stock_hash": "bea7f2be",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/29",
+   "stock_hash": "dbcf0364",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/30",
+   "stock_hash": "8bbf8f13",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/31",
+   "stock_hash": "c389d321",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/32",
+   "stock_hash": "343f250e",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/33",
+   "stock_hash": "8012abed",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/65",
+   "stock_hash": "8db90ee2",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/34",
+   "stock_hash": "cbe36c0d",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/35",
+   "stock_hash": "88a9f1e0",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/36",
+   "stock_hash": "7eafdcf5",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/37",
+   "stock_hash": "3b8fd6f1",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/38",
+   "stock_hash": "c3ccf77a",
+   "notes": ""
+  },
+  {
+   "stem": "table/39",
+   "stock_hash": "3a919063",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/40",
+   "stock_hash": "d2d8f63e",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/41",
+   "stock_hash": "7e5e4123",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/42",
+   "stock_hash": "abf5f25f",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/53",
+   "stock_hash": "b7fd7473",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/44",
+   "stock_hash": "8a1e3ac8",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/45",
+   "stock_hash": "96c4c4bb",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/46",
+   "stock_hash": "85bed015",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/47",
+   "stock_hash": "85bed015",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/48",
+   "stock_hash": "85bed015",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/49",
+   "stock_hash": "9768aef6",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/50",
+   "stock_hash": "36d0209f",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/51",
+   "stock_hash": "85bed015",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/52",
+   "stock_hash": "76c7723c",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/55",
+   "stock_hash": "b96a0e25",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/54",
+   "stock_hash": "f1c75156",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/56",
+   "stock_hash": "144aabb5",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/57",
+   "stock_hash": "3465dc7a",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/58",
+   "stock_hash": "0c90b27d",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/59",
+   "stock_hash": "01b679e0",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/60",
+   "stock_hash": "4258b713",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/61",
+   "stock_hash": "957dda56",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/62",
+   "stock_hash": "dc7e4feb",
+   "context": "message bar / feedback popups (task results, warnings, game state)",
+   "notes": "message bar / feedback popups (task results, warnings, game state)"
+  },
+  {
+   "stem": "table/67",
+   "stock_hash": "572b8d9e",
+   "notes": ""
+  },
+  {
+   "stem": "table/68",
+   "stock_hash": "565339bc",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/69",
+   "stock_hash": "b79cac92",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/70",
+   "stock_hash": "99af6606",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/71",
+   "stock_hash": "2a6b24ad",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/72",
+   "stock_hash": "1318ec24",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/73",
+   "stock_hash": "be176b00",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/74",
+   "stock_hash": "0fc46d05",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/75",
+   "stock_hash": "fb5f27d5",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/76",
+   "stock_hash": "85a39ab3",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/77",
+   "stock_hash": "1ea442a1",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/78",
+   "stock_hash": "2bb9b087",
+   "notes": ""
+  },
+  {
+   "stem": "table/79",
+   "stock_hash": "47d2a515",
+   "context": "UI buttons and system messages",
+   "notes": "UI buttons and system messages"
+  },
+  {
+   "stem": "table/80",
+   "stock_hash": "5b828861",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/81",
+   "stock_hash": "dcd1d522",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/82",
+   "stock_hash": "6df1bb18",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/83",
+   "stock_hash": "64cff131",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/84",
+   "stock_hash": "84aba5b4",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/85",
+   "stock_hash": "98c57b07",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/86",
+   "stock_hash": "02ded049",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/87",
+   "stock_hash": "dc063a8f",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/88",
+   "stock_hash": "376a11e9",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/89",
+   "stock_hash": "c4d4c2c6",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/90",
+   "stock_hash": "dc01da54",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/91",
+   "stock_hash": "5f7953f7",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/92",
+   "stock_hash": "090940e7",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/93",
+   "stock_hash": "1532e258",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/94",
+   "stock_hash": "24669ff4",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/95",
+   "stock_hash": "6d6d0dcd",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/96",
+   "stock_hash": "11a6767d",
+   "context": "Population screen headers, skill levels, jobs",
+   "notes": "Population screen headers, skill levels, jobs"
+  },
+  {
+   "stem": "table/97",
+   "stock_hash": "149d5a87",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/98",
+   "stock_hash": "2e20ed91",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/99",
+   "stock_hash": "749d6fb6",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/100",
+   "stock_hash": "f846b408",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/101",
+   "stock_hash": "5c40f90a",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/102",
+   "stock_hash": "9173552d",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/103",
+   "stock_hash": "bfd38a20",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/104",
+   "stock_hash": "6883cdf1",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/105",
+   "stock_hash": "55475855",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/106",
+   "stock_hash": "308b83ad",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/107",
+   "stock_hash": "a88a04e6",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/108",
+   "stock_hash": "8739d0c7",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/109",
+   "stock_hash": "70c2836a",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/110",
+   "stock_hash": "b26908b4",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/111",
+   "stock_hash": "74e0e259",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/112",
+   "stock_hash": "fe1e185a",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/113",
+   "stock_hash": "d99c64e8",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/114",
+   "stock_hash": "a703f5cc",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/115",
+   "stock_hash": "76ed475d",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/116",
+   "stock_hash": "6c8d1bcd",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/117",
+   "stock_hash": "18550e14",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/118",
+   "stock_hash": "201142b7",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/119",
+   "stock_hash": "7303ab53",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/120",
+   "stock_hash": "0ca7bdee",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/121",
+   "stock_hash": "cf3ec570",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/122",
+   "stock_hash": "8e864caf",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/123",
+   "stock_hash": "67c5d138",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/124",
+   "stock_hash": "b6042baf",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/125",
+   "stock_hash": "3168de87",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/126",
+   "stock_hash": "3659e977",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/127",
+   "stock_hash": "aec709ac",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/128",
+   "stock_hash": "451c0935",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/129",
+   "stock_hash": "4fc8e3de",
+   "context": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)",
+   "notes": "villager hover tips in the message bar: appended after the villager name (0x4209C0 strcat)"
+  },
+  {
+   "stem": "table/130",
+   "stock_hash": "e08942d7",
+   "context": "grave hover: name + \"`s remains\"",
+   "notes": "grave hover: name + \"`s remains\""
+  },
+  {
+   "stem": "table/131",
+   "stock_hash": "436e6101",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/132",
+   "stock_hash": "09d37c7e",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/133",
+   "stock_hash": "d0db8b5e",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/134",
+   "stock_hash": "b3eb37ac",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/135",
+   "stock_hash": "cd260f09",
+   "notes": ""
+  },
+  {
+   "stem": "table/136",
+   "stock_hash": "b8d07162",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/137",
+   "stock_hash": "6b12689d",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/138",
+   "stock_hash": "64e3cb0e",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/139",
+   "stock_hash": "1735c210",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/140",
+   "stock_hash": "6b9fa95d",
+   "context": "main menu / title screen / tech button labels",
+   "notes": "main menu / title screen / tech button labels"
+  },
+  {
+   "stem": "table/141",
+   "stock_hash": "a61abd5d",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/142",
+   "stock_hash": "c4d3d42e",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/143",
+   "stock_hash": "283a45e5",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/144",
+   "stock_hash": "9dc7e90e",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/145",
+   "stock_hash": "9d948c73",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/146",
+   "stock_hash": "0de3eb7d",
+   "context": "technology names",
+   "notes": "technology names"
+  },
+  {
+   "stem": "table/147",
+   "stock_hash": "f13bce03",
+   "context": "grave epitaph prefix \"Here Lies \" + name",
+   "notes": "grave epitaph prefix \"Here Lies \" + name"
+  },
+  {
+   "stem": "table/148",
+   "stock_hash": "ad617a0f",
+   "context": "column headers",
+   "notes": "column headers"
+  },
+  {
+   "stem": "table/149",
+   "stock_hash": "39b7370f",
+   "context": "column headers",
+   "notes": "column headers"
+  },
+  {
+   "stem": "table/150",
+   "stock_hash": "4cb8449b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/151",
+   "stock_hash": "67e1bca0",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/152",
+   "stock_hash": "ca528111",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/153",
+   "stock_hash": "6c7f56a6",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/154",
+   "stock_hash": "4864f44b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/155",
+   "stock_hash": "8a70c787",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/156",
+   "stock_hash": "284bcd37",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/157",
+   "stock_hash": "f1eca9f7",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/158",
+   "stock_hash": "edd01e57",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/159",
+   "stock_hash": "cc2afcf3",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/160",
+   "stock_hash": "93a74c6b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/161",
+   "stock_hash": "7bc1daa7",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/162",
+   "stock_hash": "72067438",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/163",
+   "stock_hash": "13a60dde",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/164",
+   "stock_hash": "3d97b944",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/165",
+   "stock_hash": "da26dd69",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/166",
+   "stock_hash": "63c34f0d",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/167",
+   "stock_hash": "e96ec6dc",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/168",
+   "stock_hash": "031321d1",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/169",
+   "stock_hash": "a4966b4b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/170",
+   "stock_hash": "60d37426",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/171",
+   "stock_hash": "00b55e0c",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/172",
+   "stock_hash": "e3ebbb1c",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/173",
+   "stock_hash": "ad88a46e",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/174",
+   "stock_hash": "c3818b16",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/175",
+   "stock_hash": "dc01b072",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/176",
+   "stock_hash": "7da55e67",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/177",
+   "stock_hash": "1a366a47",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/178",
+   "stock_hash": "1a211411",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/179",
+   "stock_hash": "50dbf043",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/180",
+   "stock_hash": "9ae01aee",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/181",
+   "stock_hash": "d73033b4",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/182",
+   "stock_hash": "c58ae81b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/183",
+   "stock_hash": "5d2521dd",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/184",
+   "stock_hash": "e0b39bfc",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/185",
+   "stock_hash": "ed643395",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/186",
+   "stock_hash": "29776800",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/187",
+   "stock_hash": "10de817e",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/188",
+   "stock_hash": "f9660bd8",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/189",
+   "stock_hash": "6713132e",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/190",
+   "stock_hash": "2208ad42",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/191",
+   "stock_hash": "6e2915ef",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/192",
+   "stock_hash": "e3ac96d0",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/193",
+   "stock_hash": "327a4868",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/194",
+   "stock_hash": "47c04bb5",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/195",
+   "stock_hash": "8683d40e",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/196",
+   "stock_hash": "bf062e02",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/197",
+   "stock_hash": "81d2a832",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/198",
+   "stock_hash": "22ad579a",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/199",
+   "stock_hash": "05866616",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/200",
+   "stock_hash": "69bae5e5",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/201",
+   "stock_hash": "4fa4fa5a",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/202",
+   "stock_hash": "37cb1fbf",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/203",
+   "stock_hash": "99b85cd5",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/204",
+   "stock_hash": "4ca57702",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/205",
+   "stock_hash": "9ebd21e4",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/206",
+   "stock_hash": "5adbe6a1",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/207",
+   "stock_hash": "11e9eea8",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/208",
+   "stock_hash": "c7baaea8",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/209",
+   "stock_hash": "4e1cb13b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/210",
+   "stock_hash": "ae6e5d55",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/211",
+   "stock_hash": "bc1c84ce",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/212",
+   "stock_hash": "8ce7918b",
+   "context": "villager action/status text (Details screen and hover)",
+   "notes": "villager action/status text (Details screen and hover)"
+  },
+  {
+   "stem": "table/213",
+   "stock_hash": "71c9c50c",
+   "context": "likes/dislikes word pool",
+   "notes": "likes/dislikes word pool"
+  },
+  {
+   "stem": "table/214",
+   "stock_hash": "71c9c50c",
+   "context": "likes/dislikes word pool",
+   "notes": "likes/dislikes word pool"
+  },
+  {
+   "stem": "table/215",
+   "stock_hash": "f5437d53",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/216",
+   "stock_hash": "66d0f523",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/217",
+   "stock_hash": "979d6300",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/218",
+   "stock_hash": "21d39388",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/219",
+   "stock_hash": "87c5912f",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/220",
+   "stock_hash": "44bc3799",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/221",
+   "stock_hash": "a04630ef",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/222",
+   "stock_hash": "920e413c",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/223",
+   "stock_hash": "cca0662f",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/224",
+   "stock_hash": "c9d5a333",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/225",
+   "stock_hash": "49d0f2f6",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/226",
+   "stock_hash": "03f8c127",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/227",
+   "stock_hash": "e8cca808",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/228",
+   "stock_hash": "ec9b10a4",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/229",
+   "stock_hash": "40a33876",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/230",
+   "stock_hash": "2fabd809",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/231",
+   "stock_hash": "0c6b67b6",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/232",
+   "stock_hash": "7f1e323b",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/233",
+   "stock_hash": "e5ae0c63",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/234",
+   "stock_hash": "1f6fa6f6",
+   "context": "Villager Detail screen labels",
+   "notes": "Villager Detail screen labels"
+  },
+  {
+   "stem": "table/242",
+   "stock_hash": "c5fd5573",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/243",
+   "stock_hash": "e17df75a",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/244",
+   "stock_hash": "860eb423",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/245",
+   "stock_hash": "11a3bccf",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/246",
+   "stock_hash": "57aa6ad3",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/247",
+   "stock_hash": "f49f13c2",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/248",
+   "stock_hash": "01282bd6",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/249",
+   "stock_hash": "993e4811",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/250",
+   "stock_hash": "4e452aba",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/251",
+   "stock_hash": "94f3df24",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/252",
+   "stock_hash": "9f73dc65",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/253",
+   "stock_hash": "5cea716b",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/255",
+   "stock_hash": "793eeeec",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/256",
+   "stock_hash": "940546d1",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/257",
+   "stock_hash": "ac74a0f0",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/258",
+   "stock_hash": "8789a4b8",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/259",
+   "stock_hash": "bb643810",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/260",
+   "stock_hash": "b9be248d",
+   "context": "intro / cave-ending story lines",
+   "notes": "intro / cave-ending story lines"
+  },
+  {
+   "stem": "table/262",
+   "stock_hash": "e2bf618d",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/263",
+   "stock_hash": "b5537522",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/264",
+   "stock_hash": "9cfd5288",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/265",
+   "stock_hash": "8da53cfb",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/266",
+   "stock_hash": "a1687fb9",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/267",
+   "stock_hash": "4a1288c9",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/268",
+   "stock_hash": "5093912e",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/269",
+   "stock_hash": "bb3a71af",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/270",
+   "stock_hash": "28be7c29",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/271",
+   "stock_hash": "dae989cc",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/272",
+   "stock_hash": "8553382a",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/273",
+   "stock_hash": "8f2a09ba",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/274",
+   "stock_hash": "3c613efa",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/275",
+   "stock_hash": "d15fb6ba",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/276",
+   "stock_hash": "a780796b",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/277",
+   "stock_hash": "b9e8e3d9",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/278",
+   "stock_hash": "37946f58",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/279",
+   "stock_hash": "ba7820c7",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/280",
+   "stock_hash": "48c07f47",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/281",
+   "stock_hash": "e8c50481",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/282",
+   "stock_hash": "d4f8caa1",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/283",
+   "stock_hash": "f009fb54",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/284",
+   "stock_hash": "de3143c0",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/285",
+   "stock_hash": "568a6a68",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/286",
+   "stock_hash": "484a7929",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/287",
+   "stock_hash": "2b83e8f1",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/288",
+   "stock_hash": "5807bea5",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/289",
+   "stock_hash": "f6ff0f1b",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/290",
+   "stock_hash": "f07400dd",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/291",
+   "stock_hash": "9a58e43a",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/292",
+   "stock_hash": "05830dcb",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/293",
+   "stock_hash": "1e1aa302",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/294",
+   "stock_hash": "b30cff7c",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/295",
+   "stock_hash": "74c7c4da",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/296",
+   "stock_hash": "794c0903",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/297",
+   "stock_hash": "d0acd068",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/298",
+   "stock_hash": "69439352",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/299",
+   "stock_hash": "674774c4",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/300",
+   "stock_hash": "059aa5b1",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/301",
+   "stock_hash": "acc33e8a",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/302",
+   "stock_hash": "ee16094c",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/303",
+   "stock_hash": "a878d9eb",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/304",
+   "stock_hash": "b504e939",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/305",
+   "stock_hash": "21848e08",
+   "context": "tutorial / help popups",
+   "notes": "tutorial / help popups"
+  },
+  {
+   "stem": "table/317",
+   "stock_hash": "a422f72e",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/308",
+   "stock_hash": "c2c556bf",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/309",
+   "stock_hash": "8dc87d9a",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/310",
+   "stock_hash": "c11017ec",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/311",
+   "stock_hash": "a2810f25",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/312",
+   "stock_hash": "ec30b1c6",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/313",
+   "stock_hash": "aecf2967",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/314",
+   "stock_hash": "9544f30c",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/315",
+   "stock_hash": "af0571c4",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/316",
+   "stock_hash": "b8c04b81",
+   "context": "milestone and warning popups",
+   "notes": "milestone and warning popups"
+  },
+  {
+   "stem": "table/319",
+   "stock_hash": "cb28b483",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/320",
+   "stock_hash": "735291dd",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/318",
+   "stock_hash": "ccff28f6",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/321",
+   "stock_hash": "0a1824c7",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/322",
+   "stock_hash": "79a7dcd1",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/323",
+   "stock_hash": "e9c21af1",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/324",
+   "stock_hash": "3a1df256",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/325",
+   "stock_hash": "361abd32",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/326",
+   "stock_hash": "38fbbd44",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/327",
+   "stock_hash": "10cca742",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/328",
+   "stock_hash": "f63e486d",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/329",
+   "stock_hash": "88913624",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/330",
+   "stock_hash": "6a761aa8",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/331",
+   "stock_hash": "53026242",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/333",
+   "stock_hash": "5b489d98",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/332",
+   "stock_hash": "4708e13f",
+   "context": "puzzle solved texts (Puzzles and Milestones)",
+   "notes": "puzzle solved texts (Puzzles and Milestones)"
+  },
+  {
+   "stem": "table/519",
+   "stock_hash": "17c083cb",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/520",
+   "stock_hash": "0331d8ad",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/521",
+   "stock_hash": "3b6edd5d",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/522",
+   "stock_hash": "febeb438",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/523",
+   "stock_hash": "6cc7f40e",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/524",
+   "stock_hash": "b1ff2a90",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/525",
+   "stock_hash": "8f1aa25f",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/526",
+   "stock_hash": "3baac827",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/527",
+   "stock_hash": "126a1fc5",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/528",
+   "stock_hash": "c868e5db",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/529",
+   "stock_hash": "3b376450",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/530",
+   "stock_hash": "24f7848c",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/531",
+   "stock_hash": "028fccd5",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/532",
+   "stock_hash": "fe8fa9f2",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/533",
+   "stock_hash": "40df0b21",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/534",
+   "stock_hash": "5e2693c5",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/535",
+   "stock_hash": "078cdfb7",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/536",
+   "stock_hash": "e5b6565f",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/537",
+   "stock_hash": "08ded0c2",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/538",
+   "stock_hash": "2c5df628",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/539",
+   "stock_hash": "fd990346",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/540",
+   "stock_hash": "84785f5d",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/541",
+   "stock_hash": "f1d1cb46",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/542",
+   "stock_hash": "a3bd27f5",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/543",
+   "stock_hash": "7f81437a",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/544",
+   "stock_hash": "211e217e",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/545",
+   "stock_hash": "592fe222",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/546",
+   "stock_hash": "d2ff11a6",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/547",
+   "stock_hash": "1ea7d722",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/548",
+   "stock_hash": "f4d684ef",
+   "context": "random tips (message bar)",
+   "notes": "random tips (message bar)"
+  },
+  {
+   "stem": "table/501",
+   "stock_hash": "a61abd5d",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/502",
+   "stock_hash": "9d948c73",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/503",
+   "stock_hash": "283a45e5",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/504",
+   "stock_hash": "9dc7e90e",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/505",
+   "stock_hash": "0de3eb7d",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/506",
+   "stock_hash": "c4d3d42e",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/507",
+   "stock_hash": "c4672eaa",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/508",
+   "stock_hash": "b9090a98",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/509",
+   "stock_hash": "e84163e2",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/510",
+   "stock_hash": "5bc208c6",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/511",
+   "stock_hash": "fc1257f9",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/512",
+   "stock_hash": "3fd1df4b",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/513",
+   "stock_hash": "83330ce8",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/514",
+   "stock_hash": "3ba2263f",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/515",
+   "stock_hash": "97c94eff",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/516",
+   "stock_hash": "8c32e612",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/517",
+   "stock_hash": "7a11eabd",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/518",
+   "stock_hash": "9bde6f39",
+   "context": "Technologies screen",
+   "notes": "Technologies screen"
+  },
+  {
+   "stem": "table/336",
+   "stock_hash": "38903d07",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/337",
+   "stock_hash": "86774aac",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/338",
+   "stock_hash": "e12f2635",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/339",
+   "stock_hash": "c4ef070b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/340",
+   "stock_hash": "0b1bf019",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/341",
+   "stock_hash": "6cdaa22e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/342",
+   "stock_hash": "51e13550",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/343",
+   "stock_hash": "df32a147",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/344",
+   "stock_hash": "ff68b2b4",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/345",
+   "stock_hash": "f7cc896e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/346",
+   "stock_hash": "d59c517a",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/347",
+   "stock_hash": "880e9186",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/348",
+   "stock_hash": "2719d0dd",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/349",
+   "stock_hash": "297b4304",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/350",
+   "stock_hash": "4ed5c57d",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/351",
+   "stock_hash": "77c4e0c3",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/357",
+   "stock_hash": "22076cc0",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/358",
+   "stock_hash": "547e5f6e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/359",
+   "stock_hash": "6399475c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/360",
+   "stock_hash": "876c5343",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/361",
+   "stock_hash": "c27096a9",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/362",
+   "stock_hash": "aae7d0da",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/363",
+   "stock_hash": "04ac0270",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/364",
+   "stock_hash": "c843cd4b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/365",
+   "stock_hash": "7686165a",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/366",
+   "stock_hash": "554e37d8",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/367",
+   "stock_hash": "ffcab07c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/352",
+   "stock_hash": "acc10b03",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/353",
+   "stock_hash": "9c693b8a",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/354",
+   "stock_hash": "7f46b1b6",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/355",
+   "stock_hash": "455b458d",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/356",
+   "stock_hash": "0a6d23aa",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/368",
+   "stock_hash": "88405b94",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/369",
+   "stock_hash": "a551011e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/370",
+   "stock_hash": "248023a6",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/371",
+   "stock_hash": "7d42e642",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/372",
+   "stock_hash": "adfd3238",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/373",
+   "stock_hash": "bea6a026",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/374",
+   "stock_hash": "5b2daa85",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/375",
+   "stock_hash": "bba837ef",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/376",
+   "stock_hash": "12273318",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/377",
+   "stock_hash": "0fcfc603",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/378",
+   "stock_hash": "94c05124",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/379",
+   "stock_hash": "3f05447d",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/380",
+   "stock_hash": "e5f77560",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/381",
+   "stock_hash": "6ab07e6f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/382",
+   "stock_hash": "6eb08894",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/383",
+   "stock_hash": "6fb1efd8",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/384",
+   "stock_hash": "3a611b9b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/385",
+   "stock_hash": "9527e720",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/386",
+   "stock_hash": "7a244cb5",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/387",
+   "stock_hash": "e1273605",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/388",
+   "stock_hash": "00ca21ad",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/389",
+   "stock_hash": "128dee3e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/395",
+   "stock_hash": "856a4803",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/396",
+   "stock_hash": "d458ec3b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/397",
+   "stock_hash": "7d5e86db",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/398",
+   "stock_hash": "b69b1ce4",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/399",
+   "stock_hash": "53bf287b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/390",
+   "stock_hash": "b843fcf6",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/391",
+   "stock_hash": "8cfad6d8",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/392",
+   "stock_hash": "9843630c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/393",
+   "stock_hash": "7b72d1f6",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/394",
+   "stock_hash": "7f965389",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/400",
+   "stock_hash": "4bfc8465",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/401",
+   "stock_hash": "f6f813da",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/402",
+   "stock_hash": "422ec191",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/403",
+   "stock_hash": "44290571",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/404",
+   "stock_hash": "03171e14",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/405",
+   "stock_hash": "71057a57",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/406",
+   "stock_hash": "6e47ec77",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/407",
+   "stock_hash": "ff6ac213",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/408",
+   "stock_hash": "bc16a357",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/409",
+   "stock_hash": "d03af075",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/410",
+   "stock_hash": "15a92802",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/411",
+   "stock_hash": "271877c2",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/412",
+   "stock_hash": "0aad3294",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/413",
+   "stock_hash": "3d612b09",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/414",
+   "stock_hash": "27ca4038",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/415",
+   "stock_hash": "84bd70d6",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * ^ | ~ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/416",
+   "stock_hash": "4e7d92dd",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/438",
+   "stock_hash": "9a5b22bd",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/439",
+   "stock_hash": "e744103b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/417",
+   "stock_hash": "768e3329",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * # must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/440",
+   "stock_hash": "9ee01c1e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/418",
+   "stock_hash": "500406b7",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/419",
+   "stock_hash": "50d73205",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/420",
+   "stock_hash": "52183e19",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/421",
+   "stock_hash": "983e6175",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/424",
+   "stock_hash": "41d14f24",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/423",
+   "stock_hash": "7432ba07",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/425",
+   "stock_hash": "6c5ec3da",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * ^ | ~ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/426",
+   "stock_hash": "0863f7c8",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/427",
+   "stock_hash": "b645cd93",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/428",
+   "stock_hash": "ef2cbb42",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/429",
+   "stock_hash": "b624f8fc",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/430",
+   "stock_hash": "f153a6f4",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/431",
+   "stock_hash": "09a1e6aa",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/432",
+   "stock_hash": "5b47a2ea",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/435",
+   "stock_hash": "2799e6b3",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/434",
+   "stock_hash": "d2928989",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/433",
+   "stock_hash": "7beb1348",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/436",
+   "stock_hash": "81da425f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/437",
+   "stock_hash": "77ab82ca",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/441",
+   "stock_hash": "eefab548",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes | ~ @ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/442",
+   "stock_hash": "a9bd7599",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes # must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/443",
+   "stock_hash": "77f0d77f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes # must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/444",
+   "stock_hash": "66dd231b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/445",
+   "stock_hash": "a57cf9ea",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/446",
+   "stock_hash": "acbd39d0",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/447",
+   "stock_hash": "b7e9057d",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/448",
+   "stock_hash": "0da71d46",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/449",
+   "stock_hash": "a84195c8",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/450",
+   "stock_hash": "90290ad7",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/451",
+   "stock_hash": "2740e59f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/452",
+   "stock_hash": "2dace66b",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/453",
+   "stock_hash": "86592b8c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/454",
+   "stock_hash": "ca978112",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/456",
+   "stock_hash": "ea325d76",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/455",
+   "stock_hash": "13375094",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/457",
+   "stock_hash": "8f2b6648",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * ^ | ~ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/462",
+   "stock_hash": "9732d630",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/463",
+   "stock_hash": "0bdc336f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/470",
+   "stock_hash": "b1f51a51",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/471",
+   "stock_hash": "3d4d9503",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/472",
+   "stock_hash": "16477688",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/473",
+   "stock_hash": "e2ff9270",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * # must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/474",
+   "stock_hash": "00f67471",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/475",
+   "stock_hash": "7791622c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * # must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/458",
+   "stock_hash": "4088edba",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/459",
+   "stock_hash": "e47dc04c",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/460",
+   "stock_hash": "0685195f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes * ^ | ~ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/461",
+   "stock_hash": "0de48297",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/464",
+   "stock_hash": "4c6a4839",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/467",
+   "stock_hash": "9a305815",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/466",
+   "stock_hash": "9abe0fce",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/465",
+   "stock_hash": "6e5d6c4e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/468",
+   "stock_hash": "8d8c8722",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/469",
+   "stock_hash": "6b99a9be",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/476",
+   "stock_hash": "41e6aa38",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/478",
+   "stock_hash": "7a01adea",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/479",
+   "stock_hash": "66f62d18",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/477",
+   "stock_hash": "7bd09a62",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/480",
+   "stock_hash": "e904883f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/481",
+   "stock_hash": "9c53c074",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/482",
+   "stock_hash": "5f0e8595",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes $ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/483",
+   "stock_hash": "15e528e3",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes | ~ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/484",
+   "stock_hash": "586f4c7e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/485",
+   "stock_hash": "d142bda3",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/487",
+   "stock_hash": "4fe6c71d",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/488",
+   "stock_hash": "383550c1",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "required_tokens": [
+    "*"
+   ],
+   "subjects": {
+    "*": "person"
+   },
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; * = the villager's name (person; sex from the villager record); ^ & + = = he, He, him, his (the game picks them by sex)"
+  },
+  {
+   "stem": "table/489",
+   "stock_hash": "4b18ae46",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes $ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/490",
+   "stock_hash": "11450e44",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "tokens": "*^&+=|~@#$",
+   "forbid_chars": "*^&+=|~@#$",
+   "selects_allowed": false,
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces; game codes $ must stay; selects cannot be used in this piece"
+  },
+  {
+   "stem": "table/491",
+   "stock_hash": "30f8ee17",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/492",
+   "stock_hash": "6a83f95e",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/493",
+   "stock_hash": "7d39eb25",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/486",
+   "stock_hash": "b86f366f",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/495",
+   "stock_hash": "1e6acbe5",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/496",
+   "stock_hash": "a7618ab5",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/497",
+   "stock_hash": "96dabe82",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/498",
+   "stock_hash": "f0c730c1",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/499",
+   "stock_hash": "3926cba5",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "table/494",
+   "stock_hash": "b9dbfadb",
+   "context": "island events: titles, bodies, choice buttons, outcome pieces",
+   "notes": "island events: titles, bodies, choice buttons, outcome pieces"
+  },
+  {
+   "stem": "exe/0x459bdc",
+   "stock_hash": "99af6606",
+   "context": "the \"Menu\" button on the in-game screen (separate literal from table id 70)",
+   "notes": "the \"Menu\" button on the in-game screen (separate literal from table id 70)"
+  },
+  {
+   "stem": "exe/0x459a44",
+   "stock_hash": "04922047",
+   "context": "version label",
+   "notes": "version label; %1 = a number (number)"
+  }
+ ]
+}

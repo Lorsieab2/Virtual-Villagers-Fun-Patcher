@@ -185,7 +185,7 @@ class Source:
     per_unit: float = 0.0
     next_refill: float | None = None
     refill_words: str = ""
-    unlimited: bool = False                  # the sea: limited only by the gatherers
+    unlimited: bool = False                  # the sea: limited only by the farmers
     verified: bool | str = False
     # The game's own refill steps, for the time to fill up: what one refill adds (in the source's units; a refill
     # "to" the cap is a step of the cap), the real seconds between refills at the save's speed, the next refill's
@@ -233,8 +233,8 @@ class Context:
     villager_extra: list[gm.Fact] = field(default_factory=list)
     vitals_extra: list[gm.Fact] = field(default_factory=list)
     food_words: str = ""                     # how the game feeds its villagers, for the estimates
-    gatherer_words: str = ""
-    trips: list[tuple[str, float]] = field(default_factory=list)   # (a gathering trip, the food it brings)
+    farmer_words: str = ""
+    trips: list[tuple[str, float]] = field(default_factory=list)   # (a farming trip, the food it brings)
 
     @property
     def game(self) -> int:
@@ -733,7 +733,7 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
     add(f"Food eaten: about {per_hour:,.0f} per real-life hour; refilled on the sources about {refill_hour:,.0f} per "
         f"real-life hour; net change about {net_hour:+,.0f} per real-life hour. All three are on {on} speed: the "
         "eating and the refills follow the speed (the game's clock).", True)
-    add("The refills land on the sources, not in storage: they count here once gatherers pick them, as these figures "
+    add("The refills land on the sources, not in storage: they count here once farmers pick them, as these figures "
         "take it; a full source adds nothing until it is picked.", True)
     stay = ctx.low_food + 1
     for hours in (8, 24):
@@ -766,12 +766,12 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
                 + ".", True)
         else:
             add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: the refills keep up "
-                "with the eating, so it lasts while gatherers bring it in.", True)
+                "with the eating, so it lasts while farmers bring it in.", True)
     per_villager_unit = per_unit
     if per_villager_unit:
         add(f"Sustainable population on the refills alone: about {refill_unit / per_villager_unit:,.1f} villagers "
             f"(refills {refill_unit:,.2f} food per age unit, each villager eats {per_villager_unit:g})"
-            + ("; fishing adds without limit, as far as the gatherers bring it" if any(s.unlimited for s in ctx.sources)
+            + ("; fishing adds without limit, as far as the farmers bring it" if any(s.unlimited for s in ctx.sources)
                else "") + ".", True)
     gap = per_hour - refill_hour
     if gap > 0:
@@ -789,15 +789,10 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         add(line, True)
     else:
         add("The refills cover the eating: no mushrooms are needed.", True)
-    trips = [(name, food * ctx.mastery) for name, food in ctx.trips if food > 0]
-    if trips and per_hour > 0:
-        add("Gatherers: to bring in what is eaten takes about " + ", or ".join(
-            f"{per_hour / food:,.0f} {name} per real-life hour on {on} speed ({food:g} each)" for name, food in trips)
-            + "; the number of gatherers this takes is not given, because a trip's length is each walk's own path "
-            "and the save keeps no trip times.", True)
-    if ctx.gatherer_words:
-        add(ctx.gatherer_words, True)
-    add("How many villagers gather now is not kept in the save.", True, gm.SAVE)
+    out.extend(farmer_lines(ctx, eaters, per_unit))
+    if ctx.farmer_words:
+        add(ctx.farmer_words, True)
+    add("How many villagers farm now is not kept in the save.", True, gm.SAVE)
 
     # Time away: the closed-game estimates.
     if ctx.paused:
@@ -811,6 +806,51 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
                 f"closed are real time), so about {eaten:,.0f} food is eaten while "
                 f"catching up; every refill missed while closed is added, about {credited:,.0f} on the sources (each "
                 f"stops at its limit); net change about {credited - eaten:+,.0f} once that is picked.", True)
+    return out
+
+
+def farmer_lines(ctx: Context, eaters: int, per_unit: float) -> list[gm.Fact]:
+    """The Farmers needed lines: the food eaten against what one farmer brings, while catching up (the game's job
+    turns) and in live play (the measured trips), from src/vv_game_mechanics_farmers.py."""
+    import vv_game_mechanics_farmers as farmers
+    out: list[gm.Fact] = []
+    add = lambda text, ok=gm.RUNNING: out.append(gm.Fact(VITALS, text, ok, True))  # noqa: E731
+    eaten_unit = eaters * per_unit
+    if eaten_unit <= 0:
+        return out
+    turns, supply = farmers.supplies(ctx.game, dict(ctx.trips), ctx.speed, ctx.unit, ctx.mastery, ctx.food, eaten_unit)
+    if not supply:
+        return out
+    on = gm.speed_name(ctx.speed)
+    level = farmers.FARMING_SHOWN
+    eaten_hour = eaten_unit * 3600.0 / ctx.unit
+    add(f"Farmers needed to supply the village with food, each with Farming {level} and set to one food source: the "
+        f"village eats {eaten_unit:,.1f} food each counted age unit, {eaten_hour:,.0f} per real-life hour of play on "
+        f"{on} speed.")
+    for s in supply:
+        name = s.trip.key[0].upper() + s.trip.key[1:]
+        if s.catch_up_unit > 0:
+            share = "" if s.share == 1 else f" x {s.share:.3g} reaching the food bin"
+            words = (f"while catching up, farmers needed: {s.catch_up_needed:,} (one brings {s.catch_up_unit:,.1f} food each "
+                     f"counted age unit: {turns} job turns x {s.turn_trips:.3f} trips a turn x {s.pays:.0%} passing the "
+                     f"Farming check{share} x {s.catch_up_food:g} food)")
+        else:
+            words = "while catching up, no farmer can supply it: no job turn is ever sent to it"
+        if s.live_hour:
+            words += (f"; live, farmers needed: {s.live_needed:,} (one brings {s.live_hour:,.0f} food per real-life hour on {on} "
+                      f"speed: food once every {s.cycle:g} real-life seconds, {s.live_food:g} each)")
+        add(f"{name}: {words}.")
+    add("How it is worked out: farmers needed = the food eaten ÷ the food one farmer brings, rounded up. While "
+        f"catching up the game runs each counted age unit at once: every villager who eats has its meal ({per_unit:g} "
+        f"food on average now) and every working adult gets {turns} job turns, each a whole trip with no walking, "
+        "so one farmer brings job turns x the share of turns that farm its source x "
+        "the share that pass the Farming check x the food a trip. Live, one farmer brings food once every so many "
+        "real-life seconds, measured by running the game's own villager update and choices frame by frame (failed "
+        "checks, rests and other jobs included); the trips take the same real-life time at every speed while the "
+        f"eating follows the speed (an age unit is {gm.duration(ctx.unit)} of real-life play on {on} speed), so Slow "
+        "needs fewer farmers live and Fast more. The trips, their times and the catch-up rules are under Food earned.")
+    add("Only working adults farm: aged 14 or more, not sick, pregnant or nursing, with 20 health or more; while "
+        "catching up the job turns stop for the last 2 counted age units, the eating does not.")
     return out
 
 
