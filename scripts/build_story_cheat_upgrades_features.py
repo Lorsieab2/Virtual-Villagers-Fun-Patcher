@@ -92,7 +92,9 @@ DESCRIPTION = (
     "be picked anyway, and developer-dead events proven to work are offered as never happening in "
     "the original game; events that need something the village lacks, or room for new villagers, "
     "stay locked with the reason. "
-    "Off by default. **Requires Enable Origins Tech, Details, and Village-Wide "
+    "On by default, with Story / Cheat Upgrades cost Tech Points ticked too, so the upgrades "
+    "keep their normal tech-point prices until that row is unticked. **Requires Enable Origins "
+    "Tech, Details, and Village-Wide "
     "Upgrades: ticking this ticks it, and without it there are no Origins Upgrades "
     "to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a "
     "custom event starts is written to the Births and Conceptions log only with Write "
@@ -882,8 +884,9 @@ def cost_record(game: str) -> dict:
             "points you are told, and nothing is queued or spent."
             + (" Pick Gong of Wonder Outcome is refused, and nothing spent, while the Gong is not "
                "whole." if game == "vv2" else "") + skip
-            + (VV3_RECHARGE_COST if game == "vv3" else "") + " Untick it to keep "
-            "every upgrade free. Ticking Story / Cheat Upgrades ticks this too."
+            + (VV3_RECHARGE_COST if game == "vv3" else "") + " On by default, with "
+            "Story / Cheat Upgrades. Untick it to keep every upgrade free. Ticking Story / Cheat "
+            "Upgrades ticks this too."
         ),
         "output_tag": "Story Cheat Costs",
         "dependencies": [f"{game}_story_cheat_upgrades"],
