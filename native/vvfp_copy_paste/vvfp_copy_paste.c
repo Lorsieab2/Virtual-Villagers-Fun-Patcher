@@ -323,13 +323,15 @@ static void paste(unsigned char *box) {
         if (cp == 0xFFFFFFFFu) {
             continue;
         }
-        if (cp == '\r' || cp == '\n' || cp == '\t') {
+        if (cp == '\r' || cp == '\n' || cp == '\t' || cp == 0x2028 || cp == 0x2029) {
             if (cp == '\r' && at < n && units[at] == '\n') {
                 ++at;
             }
-            cp = ' ';
-        } else if (cp < 0x20 || (cp >= 0x7F && cp < 0xA0)) {
-            continue;
+            cp = ' ';                           /* a line break or tab: one space */
+        } else if (cp < 0x20 || (cp >= 0x7F && cp < 0xA0) || cp == 0xFEFF
+                   || (cp >= 0x200B && cp <= 0x200F && cp != 0x200C && cp != 0x200D)
+                   || (cp >= 0x202A && cp <= 0x202E) || (cp >= 0x2060 && cp <= 0x206F)) {
+            continue;                           /* a control or invisible formatting character */
         }
         /* the whole character: the code point and all that belongs to it */
         size = encode(cp, mode, one);

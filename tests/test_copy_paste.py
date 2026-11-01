@@ -321,6 +321,7 @@ class TheGame(unittest.TestCase):
                 # 'Zoë' is 4 bytes; a 3-byte room takes 'Zo' and stops before the 2-byte 'ë'
                 self.assertEqual(self._paste(run, "Zoë", limit=3), b"Zo")
                 self.assertEqual(self._paste(run, "aé日", limit=5), "aé".encode())
+                self.assertEqual(self._paste(run, "﻿a​b\r\nc\x85d\ud800e"), b"ab cde")
                 self.assertEqual(self._paste(run, "é", text=b"abcd", limit=5), b"abcd")
                 # a letter with its accent, a skin tone, a family joined by ZWJ and a flag stay whole
                 for whole in ("ẹ́", "👍🏽", "👩‍👩‍👧", "🇫🇷"):
@@ -340,7 +341,8 @@ class TheGame(unittest.TestCase):
                 self.assertEqual(self._paste(run, "-12a3 4", digits=True), b"-1234")
                 self.assertEqual(self._paste(run, "-4", text=b"5", digits=True), b"54")
                 self.assertEqual(self._paste(run, "a\r\nb\tc\nd\re", ), b"a b c d e")
-                self.assertEqual(self._paste(run, "a\x07b\x1bc\x7fd\x85e f"), b"abcdef")
+                self.assertEqual(self._paste(run, "a\x07b\x1bc\x7fd\x85e f g"), b"abcde f g")
+                self.assertEqual(self._paste(run, "﻿a​b‮c⁠d"), b"abcd")
                 self.assertEqual(self._paste(run, "x\ud800y\udc00z"), b"xyz")
                 self.assertEqual(self._paste(run, "é ñ"), "é ñ".encode("cp1252"))   # composed first
                 self.assertEqual(self._paste(run, "Ω日😀€"), "€".encode("cp1252"))                 # dropped, not '?'
