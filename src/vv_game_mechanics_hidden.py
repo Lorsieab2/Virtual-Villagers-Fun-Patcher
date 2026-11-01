@@ -131,3 +131,21 @@ def sites_note(sites) -> str:
     if not sites:
         return ""
     return "asked for at " + ", ".join(f"{site:#x}" for site in sites)
+
+
+# Copy and Paste in Text Boxes (all five games, on by default): the same keys in every game.  Emulated from each
+# published build's own SDL_KEYDOWN case into the text box class's own handler (tests/test_copy_paste.py).
+COPY_PASTE_SITES = {1: 0x4039D6, 2: 0x403C66, 3: 0x404286, 4: 0x4048A6, 5: 0x404836}
+
+
+def copy_paste_entry(game: int) -> Entry:
+    return Entry(PATCHER, "Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)", (
+        "while a text box has typing focus (a new village's tribe name, a villager's name on the Details screen, "
+        "...): Ctrl+V or Shift+Insert pastes the Windows clipboard's text at the end (the boxes have no movable "
+        "caret), Ctrl+C or Ctrl+Insert copies the box's whole text, Ctrl+X cuts it. Pasted text keeps the box's "
+        "filter and length limit and is cut before the first character that does not fit; line breaks and tabs "
+        "become spaces, and characters the game cannot show are left out (with Render Unicode with In-Game Fonts, "
+        "every Windows-1252 character; without it, plain English letters and signs). Ctrl+A does nothing. The "
+        f"keys never reach the game (its SDL_KEYDOWN case, 0x{COPY_PASTE_SITES[game]:06X}, goes on with the next "
+        "event); with no box focused they reach the game as before (native/vvfp_copy_paste)"), E,
+        feature=f"vv{game}_copy_paste")

@@ -46,6 +46,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('patcher', 'Difficulty (Options dialog)', C, ()),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
+        ('patcher', 'Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)', 'VERIFIED-E', ()),
     )
     TIP_COUNTS = {
         'The 50 random tips (eRandomTip1 to 50; the loading screen draws from the first 30)': {C: 30, U: 20},
