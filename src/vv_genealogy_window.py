@@ -324,6 +324,15 @@ EVERYONE = "Everyone"                   # the "Settings for:" pickers: every por
 # The editable tree file Save to Save Folder writes (the owner: "an editable file to be worked on later").
 TREE_SUFFIX = ft.TREE_SUFFIX
 TREE_FORMAT = ft.TREE_FORMAT
+
+
+def tree_file_name(tribe: str | None, slot: int) -> str:
+    """The editable tree file's name for a tribe and slot: the tribe without the characters Windows refuses
+    in a file name (Copy Player Slot names a copied tree the same way, src/vv_copy_slot.py)."""
+    clean = "".join(ch for ch in (tribe or "Village") if ch not in '\\/:*?"<>|')
+    return f"{clean} (Save {slot}) Family Tree{TREE_SUFFIX}"
+
+
 PRESET_MARKS = {"Tribal Chief": "#d4a017", "Esteemed Elder": "#7b68ee", "Scholar": "#1e90ff",
                 "Golden Child": "#ffb000", "Favourite": "#ff1493", "Heathen": "#8b0000", "Founder": "#2e8b57"}
 # Every special status the tree marks by itself (ft.STATUS_COLOURS) is a ready-made mark too, in its colour.
@@ -5929,8 +5938,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
     def _tree_file(self) -> Path | None:
         """The editable tree file: in the save folder's Family Trees folder, named after the tribe and slot."""
         folder = self._trees_folder()
-        tribe = "".join(ch for ch in (self.village.tribe or "Village") if ch not in '\\/:*?"<>|')
-        return folder / f"{tribe} (Save {self.slot}) Family Tree{TREE_SUFFIX}" if folder else None
+        return folder / tree_file_name(self.village.tribe, self.slot) if folder else None
 
     def _save_tree(self) -> bool:
         """The tree saved to be worked on later (the owner: "Save to Save Folder - should save the

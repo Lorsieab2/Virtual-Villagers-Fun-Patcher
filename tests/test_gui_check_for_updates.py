@@ -162,7 +162,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_original_look",
+               "vv_original_look", "vv_misfiled_records",
+               # Copy Player Slot (the owner, 2026-10-31) and its window.
+               "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
@@ -177,7 +179,11 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_items_vv1", "vv_game_mechanics_items_vv2", "vv_game_mechanics_items_vv3",
                "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5", "vv_game_mechanics_parity",
                "vv_game_mechanics_hidden","vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
-               "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5"}
+               "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
+               # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
+               # renderer, found by name (importlib) and so listed here for the release zip.
+               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_vv1", "vv_pictures_vv2",
+               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -191,6 +197,15 @@ class ReleasesLinkTests(unittest.TestCase):
             # imports nothing of the patcher's.
             ("vv_save_backup", {"vv_save_clock", "vv3_second_faction"}),
             ("vv_save_clock", set()),
+            # Copy Player Slot: Rename Tribe's slot reading and name rule, Back Up Saves, the per-save layout;
+            # function-level: the villagers as Last Names reads them, the refuse-if-running helper, the
+            # shared Like and Dislike Words boundaries and The Lost Children's ElderTotems.dat.
+            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_tribe_rename", "vv_last_names",
+                              "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
+                              "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
+            # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
+            ("vv_copy_slot_window", {"vv_copy_slot", "vv_save_backup", "vv_tribe_rename", "vv_fun_patcher_gui",
+                                     "vv_tree_editor_tools"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store"}),
@@ -215,7 +230,12 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)
-                                  "vv_number_names"}),         # numbers a looks change gave (v1.35.80 update)
+                                  "vv_number_names",           # numbers a looks change gave (v1.35.80 update)
+                                  "vv_misfiled_records"}),     # records moved to their own save's log (2026-10-31)
+            # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
+            # reads them (function-level imports).
+            ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",
+                                     "vv_answered_questions"}),
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
             ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
@@ -324,6 +344,15 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
+            # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
+            # files as the log checker reads them (function-level), and each game's renderer.
+            ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common"}),
+            ("vv_picture_image", set()),
+            ("vv_pictures_common", {"vv_picture_image", "vv_log_tools", "vv_save_backup", "vv_save_layout"}),
+            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 3, 4, 5)),
+            # The Lost Children's Elder Totems store, read and bound to the save by Repair's own reader
+            # (function-level; Codex, PR #660).
+            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_vv2_totem_store"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",

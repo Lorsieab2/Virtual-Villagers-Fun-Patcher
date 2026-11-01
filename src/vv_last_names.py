@@ -397,11 +397,28 @@ INHERIT = {
     "father": "From the father",
     "random": "Equal mother/father (50:50)",
     "list": "Random from list",
+    "village": "Random from the existing Village Names",
     "each": "Choose from list",
 }
+# "Random from the existing Village Names" (the owner, 2026-10-31), the record keyword "village", the village's
+# rule ("rule\tvillage") and a villager's own: each child a last name drawn at random -- every eligible name
+# equally likely, a fresh draw for each child, only names that fit the name field -- among the last names the
+# village has EVER used: any villager of this village, living or dead, the save's and the logs' (village_names),
+# kept cumulatively in the record as "used\t<last name>" lines (never shrinking) so VVFP Last Names.dll knows
+# them at a birth; the DLL adds the last names of the villagers in the game at the birth (VvfpRuleLastName3)
+# and the parents'.  No name ever used: a draw from the game's own list ("list").  Repair keeps the last name
+# a child carries when it is one the village has used (the game's draw) and draws one for a child with none.
+# A villager with no recorded parent is not drawn for: they keep their own (separate), as under the parents'
+# rules.  An earlier build's readers skip "used" lines and take "rule\tvillage" for no rule -- this file's
+# read_record (INHERIT had no "village") and the DLL's (it wants six letters) -- so there the village shows and
+# gives "From the father" (DEFAULT_RULE); a villager's own "village" is no own rule there (OWN_RULES had none).
+VILLAGE_NAMES = "village"
 # The rules where the player gives each villager's last name: a villager keeps the one they carry
 # until the player changes it, so choosing the rule never wipes a name.
 PLAYER_RULES = ("each",)
+# The village's rules whose names are drawn, not a parent's: their picks are never "wrong" (Check Saves &
+# Logs) and share names by chance, by design.
+RANDOM_RULES = ("list", "village", *PLAYER_RULES)
 # The rule of a village with no rule recorded: "From the father" -- the one the last-names window
 # shows, and the one VVFP Last Names.dll (DEFAULT_RULE) gives its babies (the owner, 2026-10-14:
 # "vv3-5 and the other games still have the last-names bug when new children are born").
@@ -409,6 +426,11 @@ DEFAULT_RULE = "father"
 # The entry in each villager's own list for typing a last name of the player's own (the owner,
 # 2026-10-07: "IN THE LIST THERE SHOULD BE A (CUSTOM LAST NAME - TYPE HERE...) ENTRY").
 CUSTOM = "(custom last name - type here...)"
+
+
+def fitter(game: int, known: set[str] | frozenset = frozenset()):
+    """fits(villager, last name): whether the villager's name with that last name fits the game's name field."""
+    return lambda v, last: len(with_last(game, v.name, last, known)) <= ROOM[game]
 
 
 def own_last_name(name: str) -> str:
@@ -498,6 +520,42 @@ def read_record(folder: Path, game: int, slot: int) -> tuple[str | None, dict[tu
     return rule, fixed
 
 
+def read_used(folder: Path, game: int, slot: int) -> set[str]:
+    """The last names the record says the village has ever used ("used" lines; VILLAGE_NAMES)."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return set()
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return set()
+    return {parts[1] for parts in (line.split("\t") for line in lines[1:])
+            if parts[0] == "used" and len(parts) == 2 and usable_village_name(parts[1])}
+
+
+def usable_village_name(last: str) -> bool:
+    """A last name the "used" lines may keep: one word the games can store (storable), short enough for any
+    game's name field after a one-letter first name."""
+    return bool(last) and " " not in last and "\t" not in last and storable(last) and len(last) <= max(ROOM.values()) - 2
+
+
+def lasts_in_use(people: list, parents: dict[tuple, tuple], carried=own_last_name) -> set[str]:
+    """The last names `people` (the living and the dead the logs know) and the parents their records name
+    carry: what the village has used."""
+    names = {carried(v.name) for v in people}
+    names |= {carried(key[0]) for pair in parents.values() for key in pair if key is not None}
+    return {n for n in names if usable_village_name(n)}
+
+
+def village_names(folder: Path, game: int, slot: int, people: list | None = None,
+                  parents: dict[tuple, tuple] | None = None, known: set[str] | None = None) -> set[str]:
+    """Every last name this village has ever used (VILLAGE_NAMES): the record's "used" lines and the last
+    names of every villager the save and the logs know, living or dead (everyone)."""
+    known = known_names(folder, game, slot) if known is None else known
+    if people is None or parents is None:
+        people, parents = everyone(folder, game, slot)
+    return read_used(folder, game, slot) | lasts_in_use(people, parents, lambda name: split_name(game, name, known)[1])
+
+
 def read_whole(folder: Path, game: int, slot: int) -> set[str]:
     """The names the player said are one first name, not a first and a last ("whole" lines; a
     reader that does not know them skips them)."""
@@ -520,12 +578,14 @@ def known_names(folder: Path, game: int, slot: int, whole: set[str] | None = Non
 
 def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: dict[tuple, str],
                  whole: set[str] | None = None, own: dict[tuple, str] | None = None,
-                 arrivals: bool | None = None) -> None:
+                 arrivals: bool | None = None, used: set[str] | None = None) -> None:
     """The record, kept whole: `whole`, `own` (each villager's own rule) and `arrivals` (the arrivals
-    toggle) default to the record's."""
+    toggle) default to the record's.  `used` (the last names the village has used) is added to the record's
+    "used" lines, never taking one away."""
     whole = read_whole(folder, game, slot) if whole is None else whole
     own = read_own(folder, game, slot) if own is None else own
     arrivals = read_arrivals(folder, game, slot) if arrivals is None else arrivals
+    used = read_used(folder, game, slot) | {n for n in (used or ()) if usable_village_name(n)}
     path = record_path(folder, game, slot)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [RECORD_HEADER.format(game=game)] + ([f"rule\t{rule}"] if rule else [])
@@ -534,6 +594,7 @@ def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: di
     lines += [own_line(key, r) for key, r in sorted(own.items()) if r in OWN_RULES and r]
     if not arrivals:                            # on is the default: a line only when off
         lines.append(f"arrivals\t{ARRIVALS_NONE}")
+    lines += [f"used\t{name}" for name in sorted(used)]
     _write(path, ("\n".join(lines) + "\n").encode("utf-8"))
 
 
@@ -594,8 +655,9 @@ def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: s
 # to the existing Global Settings (so certain villagers can pass their last name with different rules
 # from the rest of the village, ie so that half the village doesn't inherit a single person's last
 # name)".  A living villager may have a rule of their own for their children's last name; at a birth
-# (decide) one parent's own rule is used, both parents' when they agree, and the village's when they
-# disagree or neither has one.  Kept in the same record, a line per villager:
+# (decide) one parent's own rule is used, both parents' when they agree, a fair coin for each child between
+# the two when they disagree (the owner, 2026-10-31: an own rule always beats the village's), and the
+# village's only when neither has one.  Kept in the same record, a line per villager:
 #     villager<TAB>name<TAB>head<TAB>body<TAB>M|F<TAB>father|mother|random|list
 # A villager is their whole name, head, body and sex: what a child's record (A New Home: its parentage
 # entry) keeps of each parent, so VVFP Last Names.dll (VvfpRuleLastName2) finds the same villager at
@@ -609,12 +671,14 @@ def unique_last_name(game: int, v: Living, living_lasts: set[str], dead_lasts: s
 # one of the list's (the draw the game made), and gives one with none a draw of their own (inherited).
 # An earlier build's reader -- this file's (OWN_RULES had no "list") and the DLL's (it wants six letters)
 # -- skips such a line, so there the village's rule applies to that villager's children.
+# "village" (the owner, 2026-10-31): Random from the existing Village Names (VILLAGE_NAMES).
 OWN_RULES = {
     "": "Use the village rule",
     "father": "From the father",
     "mother": "From the mother",
     "random": "50:50",
     "list": "Random last name from the list",
+    "village": "Random from the existing Village Names",
 }
 # The own rule whose children's last names are drawn from the game's list, not taken from a parent.
 OWN_LIST = "list"
@@ -662,11 +726,23 @@ def read_own(folder: Path, game: int, slot: int) -> dict[tuple, str]:
     return {key: rule for key, rule in out.items() if key not in clash}
 
 
-def decide(father_rule: str | None, mother_rule: str | None, village: str | None) -> str | None:
-    """The rule a birth uses (the owner, 2026-10-09): one parent's own; both parents' when they are the
-    same; the village's when they disagree or neither parent has one."""
+def own_coin(identity: tuple) -> bool:
+    """The fair coin that picks, for the child `identity`, whose own rule applies when both parents have one
+    and they disagree: True the father's, False the mother's.  The game tosses a fresh one at each birth
+    (VVFP Last Names' random_below); Repair's is the same each time for the same child."""
+    return random.Random(zlib.crc32(("own rule|" + repr(identity)).encode("utf-8"))).random() < 0.5
+
+
+def decide(father_rule: str | None, mother_rule: str | None, village: str | None,
+           identity: tuple = ()) -> str | None:
+    """The rule a birth uses (the owner, 2026-10-09 and 2026-10-31: "a villager's own rule ALWAYS overrides
+    the village-wide rule"): one parent's own; both parents' when they are the same; when they disagree,
+    the father's or the mother's by a fair coin for this child (own_coin of `identity`); the village's only
+    when neither parent has one.  Through v1.35.85 disagreeing parents used the village's rule."""
     if father_rule and mother_rule:
-        return father_rule if father_rule == mother_rule else village
+        if father_rule == mother_rule:
+            return father_rule
+        return father_rule if own_coin(identity) else mother_rule
     return father_rule or mother_rule or village
 
 
@@ -789,7 +865,7 @@ def save_own_rules(folder: Path, game: int, slot: int, rule: str, own: dict[tupl
             if key not in alive and key[3] == "Male" and key[0] in expected}
     kept.update(wanted)
     _old_rule, fixed = read_record(folder, game, slot)
-    write_record(folder, game, slot, rule, fixed, own=kept)
+    write_record(folder, game, slot, rule, fixed, own=kept, used=_used_now(folder, game, slot))
     return kept
 
 
@@ -881,7 +957,8 @@ def separate(people: list[Living], parents: dict[tuple, tuple], pool: list[str],
 
 def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
               pool: list[str] | None = None, fixed: dict[tuple, str] | None = None,
-              carried=own_last_name, own_rules: dict[tuple, str] | None = None) -> dict[tuple, str]:
+              carried=own_last_name, own_rules: dict[tuple, str] | None = None,
+              used: set[str] | None = None, fits=None) -> dict[tuple, str]:
     """Each living villager's last name by `rule` ("" for none): the father's, the mother's,
     either parent's at random, or one at random from the game's list -- a parent's being the one
     their name carries, else (a living parent being given one now) the one this rule gives them,
@@ -899,32 +976,51 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
     name, not the one carried (a change of rule re-derives the family); one without keeps theirs.
     `own_rules`: each villager's own rule, (name, head, body, sex) -> rule: a child's rule is the one
     decide() gives from their father's, their mother's and `rule`; a parent's own "list" (Random last
-    name from the list) keeps the list's name a child carries and draws one for a child with none."""
+    name from the list) keeps the list's name a child carries and draws one for a child with none.
+    Parents whose own rules disagree (the owner, 2026-10-31): a child carrying the last name either
+    parent's rule gives keeps it (the game's coin at the birth); any other gets the one own_coin picks.
+    "village" (VILLAGE_NAMES, the village's rule or a parent's own): a child keeps a last name of `used`
+    it carries and is drawn one of `used` -- every one equally likely, the same each time for the same
+    child -- when it has none; `used` defaults to the last names `people` and their parents carry
+    (lasts_in_use); only names `fits(villager, last name)` allows; none: as "list"."""
     fixed = fixed or {}
     own_rules = own_rules or {}
     living_keys = {own_key(v) for v in people if v.alive}
+    used_names = lasts_in_use(people, parents, carried) if used is None else set(used)
+    fit = fits or (lambda _v, _n: True)
 
-    def rule_of(v: Living) -> str:
+    def parent_rules(v: Living) -> tuple[str | None, str | None]:
         father, mother = parents.get(v.identity, (None, None))
-        return decide(_parent_rule(own_rules, father, "Male", living_keys),
-                      _parent_rule(own_rules, mother, "Female", living_keys), rule)
-
-    def drawn_by_own_rule(v: Living) -> bool:
-        """Whether a parent's own rule -- not the village's -- is "Random last name from the list"."""
-        father, mother = parents.get(v.identity, (None, None))
-        return decide(_parent_rule(own_rules, father, "Male", living_keys),
-                      _parent_rule(own_rules, mother, "Female", living_keys), None) == OWN_LIST
+        return (_parent_rule(own_rules, father, "Male", living_keys),
+                _parent_rule(own_rules, mother, "Female", living_keys))
 
     listed = set(pool or ())
 
     def drawn(v: Living) -> str:
         """OWN_LIST: the list's name a child carries is the game's draw at the birth and stays; a child
-        with none (or another) gets one of the whole list, every name equally likely, the same each
-        time for the same villager.  An arrival: none by default (ARRIVALS)."""
+        with none (or another) gets one of the list's names that fit (`fits`), every one equally likely,
+        the same each time for the same villager -- with none that fits, the name it has (the DLL's
+        drawn_last_name leaves the name as it is).  An arrival: none by default (ARRIVALS)."""
         have = carried(v.name)
         if v.arrived or (have and (have in listed or not pool)):
             return have
-        return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(pool) if pool else v.default
+        if not pool:
+            return v.default
+        names = [n for n in pool if fit(v, n)]
+        return random.Random(zlib.crc32(repr(v.identity).encode("utf-8"))).choice(names) if names else have
+
+    def drawn_used(v: Living) -> str:
+        """VILLAGE_NAMES: a last name the village has used that a child carries is the game's draw at the
+        birth and stays; a child with none gets one of them that fits, every one equally likely, the same
+        each time for the same villager -- with none that fits, as OWN_LIST (the game's list, only names that
+        fit; none: the name it has).  An arrival: theirs."""
+        have = carried(v.name)
+        if v.arrived or (have and have in used_names):
+            return have
+        names = sorted(n for n in used_names if fit(v, n))
+        if not names:
+            return drawn(v)
+        return random.Random(zlib.crc32(("village|" + repr(v.identity)).encode("utf-8"))).choice(names)
 
     def chosen_or_listed(v: Living, r: str) -> str:
         if v.identity in fixed:
@@ -947,35 +1043,28 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
             return carried(key[0])
         return give(living_by[key], seen)
 
-    def give(v: Living, seen: frozenset = frozenset()) -> str:
-        if v.identity in out:
-            return out[v.identity]
-        if v.identity in fixed:                 # the player's own choice
-            out[v.identity] = fixed[v.identity]
-            return out[v.identity]
-        r = rule_of(v)
-        if r == OWN_LIST and drawn_by_own_rule(v):
-            out[v.identity] = drawn(v)
-            return out[v.identity]
-        if r in (*PLAYER_RULES, "list"):
-            out[v.identity] = chosen_or_listed(v, r)
-            return out[v.identity]
-        if v.identity in seen:                  # a loop in the records: their own
-            return own.get(v.identity) or v.default
+    def outcome(v: Living, r: str | None, by_own: bool, seen: frozenset) -> str | None:
+        """The last name rule `r` gives `v` (a parent's own rule when `by_own`); None: a loop in the
+        records, so their own."""
         father, mother = parents.get(v.identity, (None, None))
+        if r == OWN_LIST and by_own:
+            return drawn(v)
+        if r == VILLAGE_NAMES and (by_own or father is not None or mother is not None):
+            return drawn_used(v)
+        if r in (*PLAYER_RULES, "list"):
+            return chosen_or_listed(v, r)
+        if v.identity in seen:                  # a loop in the records: their own
+            return None
         if father is None and mother is None and carried(v.name):   # no parent: the name they have
-            out[v.identity] = carried(v.name)
-            return out[v.identity]
+            return carried(v.name)
         if v.arrived:                           # ARRIVALS: none by default, parents on record or not
-            out[v.identity] = carried(v.name)
-            return out[v.identity]
+            return carried(v.name)
         seen = seen | {v.identity}
         dad, mum = last_of(father, seen), last_of(mother, seen)
         if r in ("father", "mother"):           # the rule names one parent: never the other's name
             named = father if r == "father" else mother
             result = dad if r == "father" else mum
             if named is not None:               # nor the family's: a child's family is the mother's
-                out[v.identity] = result
                 return result
         elif dad and mum and carried(v.name) in (dad, mum):
             # "random": a child carrying either parent's last name already had its 50:50 -- the
@@ -984,7 +1073,29 @@ def inherited(people: list[Living], parents: dict[tuple, tuple], rule: str,
         else:                                   # "random": 50:50 for each child (the owner)
             pick = random.Random(zlib.crc32(repr(v.identity).encode("utf-8")))
             result = pick.choice([dad, mum]) if dad and mum else (dad or mum)
-        result = result or own.get(v.identity) or v.default
+        return result or own.get(v.identity) or v.default
+
+    def give(v: Living, seen: frozenset = frozenset()) -> str:
+        if v.identity in out:
+            return out[v.identity]
+        if v.identity in fixed:                 # the player's own choice
+            out[v.identity] = fixed[v.identity]
+            return out[v.identity]
+        father_rule, mother_rule = parent_rules(v)
+        if father_rule and mother_rule and father_rule != mother_rule:
+            # Their own rules disagree (the owner, 2026-10-31): the game tossed a coin at the birth, so the
+            # last name either rule gives is right; with neither, Repair's own coin for this child.
+            by_father = outcome(v, father_rule, True, seen)
+            by_mother = outcome(v, mother_rule, True, seen)
+            if by_father is None or by_mother is None:
+                return own.get(v.identity) or v.default
+            have = carried(v.name)
+            result = have if have and have in (by_father, by_mother) else \
+                (by_father if own_coin(v.identity) else by_mother)
+        else:
+            result = outcome(v, decide(father_rule, mother_rule, rule), bool(father_rule or mother_rule), seen)
+            if result is None:
+                return own.get(v.identity) or v.default
         out[v.identity] = result
         return result
 
@@ -1989,14 +2100,27 @@ def give_last_names(folder: Path, game: int, slot: int, chosen: dict[tuple, str]
     if not work.renames:
         raise NothingToDo("Nothing to do: every villager already has the last name chosen, so nothing was "
                           "changed.")
+    # The last names the village has used, read BEFORE the renames: a surname whose last bearer is renamed
+    # here was used all the same ("ever used", VILLAGE_NAMES), and is never read from the files again after.
+    used_before = _used_now(folder, game, slot) if rule else set()
     result = apply(folder, work, controller, now, BACKUP_LABEL, "giving the last names")
     if rule:                                    # what "right" is, for Check Saves & Logs' wrong last names
         _old_rule, fixed = read_record(folder, game, slot)
         known = known_names(folder, game, slot, whole) | {last for last in (mine or {}).values() if last}
         for (name, head, body), last in (mine or {}).items():
             fixed[(split_name(game, name, known)[0], head, body)] = last
-        write_record(folder, game, slot, rule, fixed, whole)
+        write_record(folder, game, slot, rule, fixed, whole, used=used_before | _used_now(folder, game, slot))
     return result
+
+
+def _used_now(folder: Path, game: int, slot: int) -> set[str]:
+    """The last names the save and the logs know of this village now, for the record's "used" lines; none
+    when they cannot be read (the record's own lines stay as they are)."""
+    import vv_genealogy as gen
+    try:
+        return village_names(folder, game, slot)
+    except (LastNamesError, gen.GenealogyError, OSError, ValueError, struct.error, UnicodeError):
+        return set()
 
 
 def unrelated_namesakes(people: list[Living], parents: dict[tuple, tuple],
@@ -2076,13 +2200,14 @@ def wrong_last_names_explained(folder: Path, game: int, slot: int) -> tuple[str,
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     carried = lambda name: split_name(game, name, known)[1]  # noqa: E731
     want = expected_last_names(people, parents, rule or DEFAULT_RULE, list(tools.load_checker().LAST_NAMES[game]),
-                               with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people))
+                               with_siblings(mine, parents), carried, own_rules_now(folder, game, slot, people),
+                               village_names(folder, game, slot, people, parents, known), fitter(game, known))
     out = []
     for v in people:
         now = carried(v.name)
         should, used, either = want[v.identity]
         if v.identity in mine or not wrong_last_name(now, should, either) or (rule is None and not now) \
-                or rule in ("list", *PLAYER_RULES):
+                or rule in RANDOM_RULES:
             continue
         out.append((v, now, should, used, either))
     return rule or DEFAULT_RULE, out
@@ -2102,12 +2227,14 @@ def check_rules(recorded: dict[tuple, str], pending: dict[tuple, str], living_ke
 
 def expected_last_names(people: list[Living], parents: dict[tuple, tuple], rule: str,
                         pool: list[str] | None, fixed: dict[tuple, str], carried,
-                        own_rules: dict[tuple, str]) -> dict[tuple, tuple[str, str, tuple]]:
+                        own_rules: dict[tuple, str], used: set[str] | None = None,
+                        fits=None) -> dict[tuple, tuple[str, str, tuple]]:
     """identity -> (the last name the rules give, the rule that gave it, (either, or) or ()): the one
     reading both the last-names window's marks and Check Saves & Logs' wrong last names use, so the two
     never disagree.  The rule is decide()'s from the parents' own rules and the village's `rule`; under
-    50:50 both parents' last names are right."""
-    given = inherited(people, parents, rule, pool, fixed, carried, own_rules)
+    50:50 both parents' last names are right, and so they are when the parents' own rules disagree and
+    each gives one of them (the game's coin at the birth).  `used`, `fits`: inherited()'s."""
+    given = inherited(people, parents, rule, pool, fixed, carried, own_rules, used, fits)
     living_keys = {own_key(v) for v in people if v.alive}
 
     def last_of(key) -> str:
@@ -2115,11 +2242,19 @@ def expected_last_names(people: list[Living], parents: dict[tuple, tuple], rule:
     out = {}
     for v in people:
         father, mother = parents.get(v.identity, (None, None))
-        used = decide(_parent_rule(own_rules, father, "Male", living_keys),
-                      _parent_rule(own_rules, mother, "Female", living_keys), rule)
-        either = tuple(n for n in dict.fromkeys((last_of(father), last_of(mother))) if n) \
-            if used == "random" and father is not None and mother is not None else ()
-        out[v.identity] = (given.get(v.identity, ""), used, either if len(either) == 2 else ())
+        father_rule = _parent_rule(own_rules, father, "Male", living_keys)
+        mother_rule = _parent_rule(own_rules, mother, "Female", living_keys)
+        rule_used = decide(father_rule, mother_rule, rule, v.identity)
+        both = father is not None and mother is not None
+        if father_rule and mother_rule and father_rule != mother_rule and both:
+            gives = {"father": (last_of(father),), "mother": (last_of(mother),),
+                     "random": (last_of(father), last_of(mother))}
+            either = tuple(n for n in dict.fromkeys((*gives.get(father_rule, ()), *gives.get(mother_rule, ())))
+                           if n)
+        else:
+            either = tuple(n for n in dict.fromkeys((last_of(father), last_of(mother))) if n) \
+                if rule_used == "random" and both else ()
+        out[v.identity] = (given.get(v.identity, ""), rule_used, either if len(either) == 2 else ())
     return out
 
 
@@ -2309,10 +2444,12 @@ class Missing:
     auto: bool = False              # an arrival the arrivals toggle names, without asking
     conflict: list = field(default_factory=list)   # last names an earlier record of them gives
 
-    def describe(self) -> str:
+    def describe(self, who: str | None = None) -> str:
+        """`who`: how to name the villager (the last-names prompt adds their age); default, their name."""
         v = self.villager
-        text = (f"{v.name} arrived ({self.how or 'an event'}) with no last name" if v.arrived
-                else f"{v.name} has no last name")
+        who = v.name if who is None else who
+        text = (f"{who} arrived ({self.how or 'an event'}) with no last name" if v.arrived
+                else f"{who} has no last name")
         if self.conflict:
             text += f", but an earlier record calls them {' or '.join(self.conflict)}"
         return text
@@ -2403,7 +2540,8 @@ def missing_last_names(folder: Path, game: int, slot: int) -> list[Missing]:
     mine = {v.identity: fixed[key] for v in people
             if (key := (split_name(game, v.name, known)[0], v.head, v.body)) in fixed}
     given = inherited(people, parents, rule or DEFAULT_RULE, pool, with_siblings(mine, parents), carried,
-                      own_rules_now(folder, game, slot, people))
+                      own_rules_now(folder, game, slot, people),
+                      village_names(folder, game, slot, people, parents, known), fitter(game, known))
     taken = {carried(v.name) for v in alive} - {""}
     dead = {carried(v.name) for v in people if not v.alive} - {""}
     unique = read_arrivals(folder, game, slot)

@@ -63,7 +63,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
 
     def test_an_unknown_village_holds_rather_than_writes(self) -> None:
         emit = function("emit_record")
-        known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {")
+        known = emit.index("if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)\n")
         publisher = emit.index("if (village[0] == '\\0' && !village_publisher_present(game_id)) {")
         held = emit.rindex("return hold_record(game_id, kind, records, text);")
         self.assertLess(known, publisher)
@@ -160,8 +160,13 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         published, so a record may go straight under it only while the table
         still holds the tribe that was saved; otherwise it is held."""
         emit = function("emit_record")
+        # ...and only while the recalled header names the slot the game has loaded (a copy of the
+        # village in another slot passes the table check; 2026-10-31).  An unknown slot (0) keeps the
+        # table check alone.
         self.assertIn(
-            "if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)) {", emit)
+            "if (village[0] != '\\0' && saved_tribe_still_loaded(game_id)\n"
+            "        && (game_slot_now(game_id) == 0 || game_slot_now(game_id) == vv_log_header_slot(village))) {",
+            emit)
         still = function("saved_tribe_still_loaded")
         self.assertIn("return same_tribe(saved_tribe, scratch_tribe, TRIBE_STRICT);", still)
         # This decides only when and where a record is written. A wrong "not

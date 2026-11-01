@@ -17,6 +17,7 @@ from tkinter import filedialog, messagebox, ttk
 from transparency import PATCHER_VERSION
 import patcher_files
 import vv_answered_questions
+import vv_copy_slot_window
 import vv_how_to_use
 import vv_log_tools
 import vv_log_additions
@@ -41,6 +42,7 @@ import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
+import vv_picture_studio
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
 
@@ -549,11 +551,33 @@ def _documents_folder() -> Path:
     return Path.home() / "Documents"
 
 
+def last_name_age(v) -> str:
+    """A villager's age in the last-names windows (the owner, v1.35.85: "please add Villager Ages to all
+    places that list villagers in the last names windows"): "34 years old", in whole villager years from
+    the save's own age (20 game units a year, as the family tree and the logs word it).  "" for one no
+    longer in the village (the logs' age is when they died or were last seen, not their age now) and for
+    an age the save does not give."""
+    age = getattr(v, "age", None)
+    if not getattr(v, "alive", True) or not isinstance(age, int) or age < 0:
+        return ""
+    return f"{age // vv_genealogy.UNITS_PER_YEAR} years old"
+
+
+def last_name_who(v) -> str:
+    """A villager named in a last-names list or message: "Goro Wanjiko (34 years old)", or the name alone
+    when there is no age to show (last_name_age)."""
+    age = last_name_age(v)
+    return f"{v.name} ({age})" if age else v.name
+
+
 def last_name_row(v, parents: dict) -> str:
-    """A villager's row in the last-names windows: "Goro Wanjiko (Male) -- father Kito Wanjiko, mother
-    Chika Helaku", "Iruwa Bandele (Female) -- arrived".  Never their head or body (the owner)."""
+    """A villager's row in the last-names windows: "Goro Wanjiko (Male, 34 years old) -- father Kito
+    Wanjiko, mother Chika Helaku", "Iruwa Bandele (Female, 20 years old) -- arrived".  Never their head
+    or body (the owner)."""
     father, mother = parents.get(v.identity, (None, None))
-    who = f"{v.name} ({v.sex or 'sex unknown'}{'' if v.alive else ', no longer in the village'})"
+    age = last_name_age(v)
+    who = (f"{v.name} ({v.sex or 'sex unknown'}{f', {age}' if age else ''}"
+           f"{'' if v.alive else ', no longer in the village'})")
     if father or mother:
         who += f" -- father {father[0] if father else 'unknown'}, mother {mother[0] if mother else 'unknown'}"
     if v.arrived:
@@ -564,10 +588,21 @@ def last_name_row(v, parents: dict) -> str:
     return who
 
 
+def missing_last_names_lines(missing: list, limit: int = 20) -> list[str]:
+    """The "Villagers with no last name" prompt's list: "• Aipi (12 years old) has no last name --
+    suggested: Bahati", the first `limit`, then "... and N more"."""
+    lines = [f"• {m.describe(last_name_who(m.villager))}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
+             for m in missing[:limit]]
+    if len(missing) > limit:
+        lines.append(f"... and {len(missing) - limit} more")
+    return lines
+
+
 def last_name_rows(people: list, parents: dict) -> list[str]:
     """Each villager's row (last_name_row), in their order.  Rows that would read alike are told apart
-    by age -- " -- aged N", in years as the logs word them -- and those still alike (same-named twins) by
-    " -- 1 of 2", " -- 2 of 2" in the game's own order (the owner: "no body/head value")."""
+    by age -- " -- aged N", in years as the logs word them, for a row that does not show its age already
+    (the dead and gone) -- and those still alike (same-named twins) by " -- 1 of 2", " -- 2 of 2" in the
+    game's own order (the owner: "no body/head value")."""
     rows = [last_name_row(v, parents) for v in people]
     for _round in range(2):
         seen: dict[str, list[int]] = {}
@@ -579,7 +614,7 @@ def last_name_rows(people: list, parents: dict) -> list[str]:
             for n, k in enumerate(same, 1):
                 age = getattr(people[k], "age", None)
                 if _round == 0:
-                    if age is not None:
+                    if age is not None and not last_name_age(people[k]):
                         rows[k] += f" -- aged {age // vv_genealogy.UNITS_PER_YEAR}"
                 else:
                     rows[k] += f" -- {n} of {len(same)}"
@@ -1713,6 +1748,13 @@ class App(tk.Tk):
             genealogy, "Game Mechanics...", self._game_mechanics_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(genealogy, "game_mechanics").pack(side="left", padx=(3, 0))
+        # Copy Player Slot (the owner, 2026-10-31): a village copied into an empty slot (src/vv_copy_slot.py).
+        slot_links = ttk.Frame(box)
+        slot_links.grid(row=3, column=0, columnspan=3, sticky="w", pady=(6, 0))
+        self._folder_link(
+            slot_links, "Copy Player Slot...", self._copy_single_slot
+        ).pack(side="left")
+        self._help_button(slot_links, "copy_player_slot").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1832,6 +1874,27 @@ class App(tk.Tk):
             command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
+        # Picture Studio (the owner, 2026-10-31): the villagers drawn as each game draws them, saved as PNGs.
+        ttk.Button(
+            genealogy_tools,
+            text="Picture Studio...",
+            command=lambda: vv_picture_studio.open_picture_studio(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(genealogy_tools, "picture_studio").pack(side="left", padx=(2, 0))
+        slot_tools = ttk.Frame(box)
+        slot_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            slot_tools,
+            text="Copy Player Slot...",
+            command=lambda: vv_copy_slot_window.open_copy_slot(self, None),
+        ).pack(side="left")
+        self._help_button(slot_tools, "copy_player_slot").pack(side="left", padx=(2, 0))
+
+    def _copy_single_slot(self) -> None:
+        """Copy Player Slot for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_copy_slot_window.open_copy_slot(self, build)
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -4489,10 +4552,7 @@ class App(tk.Tk):
         window.title("Villagers with no last name")
         window.transient(parent)
         frame = scrollable_frame(window, padding=16)
-        lines = [f"• {m.describe()}" + (f" -- suggested: {m.suggested}" if m.suggested else "")
-                 for m in missing[:20]]
-        if len(missing) > 20:
-            lines.append(f"... and {len(missing) - 20} more")
+        lines = missing_last_names_lines(missing)
         ttk.Label(frame, wraplength=640, justify="left",
                   text=f"{tribe} ({folder.name}, Save {slot}): these villagers have no last name:\n\n"
                        + "\n".join(lines) + "\n\nGive them one now? The game must stay closed; the save folder is "
@@ -4682,6 +4742,9 @@ class App(tk.Tk):
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
             text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+                    # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
+                    else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
+                    if kind.id == "misfiled"
                     else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
@@ -5182,6 +5245,8 @@ class App(tk.Tk):
             return split(name)[1]
         now = {v.identity: carried(v.name) for v in people}
         pool = list(checker.LAST_NAMES[number])
+        # Every last name the village has ever used, for "Random from the existing Village Names".
+        village_used = vv_last_names.village_names(folder, number, info.slot, people, parents, known)
         by_father = vv_last_names.inherited(people, parents, "father", pool, carried=carried)
         by_mother = vv_last_names.inherited(people, parents, "mother", pool, carried=carried)
         window = tk.Toplevel(parent)
@@ -5197,7 +5262,9 @@ class App(tk.Tk):
                        "the rule above. A villager who arrived through an event has no last name unless you give "
                        "one (or the box below gives arrivals their own). Highlighted: no last name yet. A last name the rule does not give is marked; Fix wrong last names "
                        "puts them right. Random last names gives villagers random ones from the game's list (see them here "
-                       "first). A villager whose last name, or whose own rule for their children's last names, "
+                       "first). Random from the existing Village Names gives each child a random last name the village has "
+                       "ever used (any villager, living or dead). A villager's own rule always beats the village rule. "
+                       "A villager whose last name, or whose own rule for their children's last names, "
                        "will change is shown in red bold. The game must stay closed."
                   ).pack(anchor="w")
         rule_row = ttk.Frame(frame, padding=(12, 8, 12, 0))
@@ -5207,7 +5274,8 @@ class App(tk.Tk):
         rule_var = tk.StringVar(value=vv_last_names.INHERIT.get(saved_rule, vv_last_names.INHERIT["father"]))
         # Named, so the rule's box is told from the Sort by box by what it is, never by its place.
         ttk.Combobox(rule_row, name="last_names_rule", textvariable=rule_var, values=list(vv_last_names.INHERIT.values()),
-                     state="readonly", width=34).pack(side="left", padx=(6, 0))
+                     state="readonly", width=max(34, max(len(t) for t in vv_last_names.INHERIT.values()) + 2)
+                     ).pack(side="left", padx=(6, 0))
         # Each living villager's own rule for their children's last name (the owner, 2026-10-09), beside
         # the village's: the record's, or what the player chose here before.
         living_keys = {vv_last_names.own_key(v) for v in people if v.alive}
@@ -5349,7 +5417,8 @@ class App(tk.Tk):
             # wrong last names, with the dead parents' own rules too (the owner's Akika Akikai, v1.35.73).
             return vv_last_names.expected_last_names(
                 people, parents, rule_key(), pool, vv_last_names.with_siblings(fixed(), parents), carried,
-                vv_last_names.check_rules(recorded_own, own_state, living_keys))
+                vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,
+                lambda v, last: not too_long(v, last))
 
         def given() -> dict:
             return {key: should for key, (should, _used, _either) in expected().items()}
@@ -5361,13 +5430,13 @@ class App(tk.Tk):
             # Unrelated villagers sharing a last name (the owner: Thabo Bahati, a new arrival, beside
             # the established Bahati family) -- as the boxes stand now.
             # Not under "Random from list": its picks share names by chance, by design (review, 2026-10-07).
-            shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(
+            shared = {} if rule_key() in ("list", "village") else vv_last_names.unrelated_namesakes(
                 people, parents, {v.identity: last_in(value) for v, value, _m in rows})
             for v, value, mark in rows:
                 have = last_in(value)
                 right, used, either = should.get(v.identity, ("", None, ()))
                 bad = (v.identity not in mine and vv_last_names.wrong_last_name(have, right, either)
-                       and rule_key() not in ("list", *vv_last_names.PLAYER_RULES))
+                       and rule_key() not in vv_last_names.RANDOM_RULES)
                 if too_long(v, have):
                     mark.set(f"too long: {room} characters at most")
                 elif bad:
@@ -5379,10 +5448,10 @@ class App(tk.Tk):
                 wrong += bad
             alerts = [f"{wrong} last name(s) are not what the rule gives."] if wrong else []
             if shared:
-                firsts = [f"{name} ({last}: the family of {', '.join(family[:3])}"
+                firsts = [f"{name}{f', {age}' if age else ''} ({last}: the family of {', '.join(family[:3])}"
                           f"{'...' if len(family) > 3 else ''})"
-                          for name, (last, family) in sorted((v.name, shared[v.identity]) for v in people
-                                                             if v.identity in shared)][:4]
+                          for name, age, (last, family) in sorted((v.name, last_name_age(v), shared[v.identity])
+                                                                  for v in people if v.identity in shared)][:4]
                 alerts.append(f"{len(shared)} villager(s) share a last name with a family they are not related "
                               f"to: {'; '.join(firsts)}{' and more' if len(shared) > 4 else ''}.")
             wrong_var.set("\n".join(alerts))
@@ -5545,7 +5614,8 @@ class App(tk.Tk):
                     return
                 asked = [v for v in changed_now if v.identity in earlier and not shown_before[v.identity]]
                 if asked:
-                    lines = "\n".join(f"{v.name}: an earlier record calls them {' or '.join(earlier[v.identity])}"
+                    lines = "\n".join(f"{last_name_who(v)}: an earlier record calls them "
+                                      f"{' or '.join(earlier[v.identity])}"
                                       for v in asked[:12])
                     answer = messagebox.askyesnocancel(
                         "Random last names",
@@ -5609,7 +5679,7 @@ class App(tk.Tk):
                         problem = (f"{vv_last_names.with_last(number, v.name, last, known)} is longer than "
                                    f"the game's {room} characters.")
                     if problem:
-                        messagebox.showerror("Last names", f"{v.name}: {problem}", parent=window)
+                        messagebox.showerror("Last names", f"{last_name_who(v)}: {problem}", parent=window)
                         return
                 chosen[v.identity] = last
             try:
@@ -5671,8 +5741,11 @@ class App(tk.Tk):
         ttk.Label(window, padding=(12, 12, 12, 0), wraplength=620, justify="left",
                   text="Where each living villager's children get their last name, if not by the village "
                        "rule. Random last name from the list gives each child, twins and triplets too, a last "
-                       "name of its own drawn at random from the game's own list. When only one parent has a rule of their own, it is used; when both do and they "
-                       "agree, theirs; when they disagree, or neither has one, the village rule. Villagers "
+                       "name of its own drawn at random from the game's own list. Random from the existing Village "
+                       "Names draws it from the last names the village has ever used (any villager, living or dead). "
+                       "A villager's own rule always beats the village rule: when only one parent has a rule of their "
+                       "own, it is used; when both do and they agree, theirs; when they disagree, a coin toss for each "
+                       "child picks the father's or the mother's; only when neither has one, the village rule. Villagers "
                        "who share a name, looks and sex cannot have one (number the duplicate names first). "
                        "A villager whose rule will change is shown in red bold. "
                        "The game must stay closed.").pack(side="top", anchor="w")

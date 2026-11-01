@@ -55,7 +55,7 @@ class NoRuleRecorded(unittest.TestCase):
     def test_the_dll_uses_the_same_default(self):
         source = (ROOT / "native" / "vvfp_last_names" / "vvfp_last_names.c").read_text(encoding="utf-8")
         self.assertIn("#define DEFAULT_RULE 'f'", source)
-        rule = source[source.index("int __stdcall VvfpRuleLastName2("):source.index("int __stdcall VvfpRelookLastName(")]
+        rule = source[source.index("static int rule_last_name("):source.index("int __stdcall VvfpRelookLastName(")]
         self.assertRegex(rule, r"if \(rule\[0\] == '\\0' && !names_a_rule\(\)\) \{\s+rule\[0\] = DEFAULT_RULE;")
         # A missing record is no longer the end of it.
         self.assertIsNone(re.search(r"if \(!read_record\(slot, rule, sizeof rule\)\) \{\s+return 0;", rule))

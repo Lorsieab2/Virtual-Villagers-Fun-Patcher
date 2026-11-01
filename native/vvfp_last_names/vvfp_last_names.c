@@ -139,6 +139,7 @@
 #include <stdint.h>
 #include "../shared/per_save.h"          /* one folder per save */
 #include "../shared/install_sites.h"     /* every site written, or none */
+#include "../shared/villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -294,11 +295,34 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    all of those -- as the child's record (or A New Home's parentage entry)
    names the parent, so a father who died before the birth is still found.
    Repair Saves & Logs refuses a line for two living villagers who share all
-   four.  At a birth (decide): one parent with a rule of their own -- theirs;
-   both with the same -- that one; both, disagreeing -- the village's; neither
-   -- the village's.  A parent whose looks are not known has no rule of their
-   own.  A reader that does not know these lines (an earlier build) skips
-   them. */
+   four.  At a birth (decide; the owner, 2026-10-31: "a villager's own rule
+   ALWAYS overrides the village-wide rule"): one parent with a rule of their
+   own -- theirs; both with the same -- that one; both, disagreeing -- a fair
+   coin for each child (random_below(2)) picks the father's or the mother's
+   own rule, never the village's; neither -- the village's.  A parent whose
+   looks are not known has no rule of their own.  A reader that does not know
+   these lines (an earlier build) skips them.  Through v1.35.85 disagreeing
+   parents fell back to the village's rule.
+
+   "Random from the existing Village Names" (the owner, 2026-10-31), the
+   record keyword "village", both as the village's rule ("rule\tvillage") and
+   as a villager's own: a last name drawn at random -- a fresh draw for each
+   child, every eligible name equally likely -- among the last names the
+   village has EVER used: the record's "used\t<last name>" lines (Repair Saves
+   & Logs writes every last name the save and the logs know of any villager of
+   this village, living or dead, and only ever adds to them), the last names
+   of the villagers in the game's villager table at the birth (VvfpRuleLastName3
+   is handed the table, so a name that appeared since the last Repair counts;
+   never the newborn's own record, which still holds its mother's family name,
+   nor a statue, ghost or stand-in), and the parents' own.  Only names whose
+   "<first> <last>" fits the name field.  Each such birth adds to the record
+   the names it saw that its "used" lines lack (persist_used), so a name stays
+   ever used after its last bearer is gone, between Repairs too.  With none (a village whose record
+   has no "used" lines and whose villagers have no last names yet), the draw is
+   from the game's own list instead, as "list" does.  An earlier build's
+   reader skips "used" lines; it takes "rule\tvillage" for no rule (it wants
+   six letters: so "From the father", DEFAULT_RULE) and a villager's own
+   "village" for no own rule. */
 #define RULE_FILE_MAX 65536
 #define DEFAULT_RULE 'f'
 static char g_rule_file[RULE_FILE_MAX + 1];
@@ -339,7 +363,7 @@ static int save_folder(char *out, size_t size) {
     return 1;
 }
 
-/* The village's rule ("father", "mother", "random"; "" for none or anything
+/* The village's rule ("father", "mother", "random", "village"; "" for none or anything
    else) and the file, kept in g_rule_file for the "whole" and "villager"
    lines.  0 when there is no file of this game to use. */
 static DWORD g_rule_size;                /* the bytes read; RULE_FILE_MAX: perhaps not all */
@@ -396,7 +420,7 @@ static int read_record(int slot, char *rule, size_t rule_size) {
             const char *v = line + 5;
             size_t n = strcspn(v, "\r\n");
             if ((n == 6 && strncmp(v, "father", 6) == 0) || (n == 6 && strncmp(v, "mother", 6) == 0)
-                || (n == 6 && strncmp(v, "random", 6) == 0)) {
+                || (n == 6 && strncmp(v, "random", 6) == 0) || (n == 7 && strncmp(v, "village", 7) == 0)) {
                 if (n + 1 > rule_size) {
                     return 0;
                 }
@@ -474,7 +498,7 @@ static int number_of(const char *text, size_t n, int *value) {
 }
 
 /* One "villager" line (from `line` to its end): its name, head, body, sex
-   ('M' / 'F') and rule ('f', 'm', 'r', 'l'), and where the head and body are, for
+   ('M' / 'F') and rule ('f', 'm', 'r', 'l', 'v'), and where the head and body are, for
    a re-key.  0 for any other line, or a malformed one. */
 struct own_line {
     char name[LONGEST_LAST + 1];
@@ -506,10 +530,16 @@ static int own_line_of(const char *line, struct own_line *o) {
     if (k < 5 || memchr(field[4], '\t', len[4]) != NULL
         || !latin1_of(field[0], len[0], o->name, sizeof o->name)
         || !number_of(field[1], len[1], &o->head) || !number_of(field[2], len[2], &o->body)
-        || len[3] != 1 || (field[3][0] != 'M' && field[3][0] != 'F') || (len[4] != 6 && len[4] != 4)) {
+        || len[3] != 1 || (field[3][0] != 'M' && field[3][0] != 'F')
+        || (len[4] != 6 && len[4] != 4 && len[4] != 7)) {
         return 0;
     }
-    if (len[4] == 4) {
+    if (len[4] == 7) {
+        if (strncmp(field[4], "village", 7) != 0) {
+            return 0;
+        }
+        o->rule = 'v';
+    } else if (len[4] == 4) {
         if (strncmp(field[4], "list", 4) != 0) {
             return 0;
         }
@@ -530,7 +560,7 @@ static int own_line_of(const char *line, struct own_line *o) {
 }
 
 /* The rule of the parent `name` with these looks and sex ('M' / 'F') from
-   the record's "villager" lines: 'f', 'm', 'r' or 'l'; 0 for none -- no line, the
+   the record's "villager" lines: 'f', 'm', 'r', 'l' or 'v'; 0 for none -- no line, the
    looks unknown (negative; a head or body 0 is a real look), or two lines for
    the same villager that disagree. */
 static char own_rule(const char *name, int head, int body, char sex) {
@@ -609,13 +639,173 @@ static const char *drawn_last_name(size_t first_len, unsigned int room) {
     return count == 0 ? "" : g_last[fits[random_below((unsigned int)count)]];
 }
 
-/* The rule a birth uses (the owner, 2026-10-09): one parent's own; both
-   parents' when they agree; else the village's (0: none). */
+/* The rule a birth uses (the owner, 2026-10-09 and 2026-10-31): one parent's
+   own; both parents' when they agree; when they disagree, a fair coin for
+   this child picks the father's or the mother's own -- an own rule always
+   beats the village's; the village's only when neither parent has one (0:
+   none). */
 static char decide(char father_rule, char mother_rule, char village) {
     if (father_rule != 0 && mother_rule != 0) {
-        return father_rule == mother_rule ? father_rule : village;
+        return father_rule == mother_rule ? father_rule : random_below(2) ? father_rule : mother_rule;
     }
     return father_rule != 0 ? father_rule : mother_rule != 0 ? mother_rule : village;
+}
+
+/* "village" (Random from the existing Village Names): the last names the
+   village has ever used, gathered at each birth that needs them (see EACH
+   VILLAGER'S OWN RULE above). */
+#define USED_MAX 1024
+#define TABLE_NAME_MAX 64
+static char g_used[USED_MAX][LONGEST_LAST + 1];
+static int g_used_count;
+
+static void add_used(const char *last) {
+    int i;
+    if (last == NULL || last[0] == '\0' || strlen(last) > LONGEST_LAST || strchr(last, ' ') != NULL
+        || g_used_count >= USED_MAX) {
+        return;
+    }
+    for (i = 0; i < g_used_count; ++i) {
+        if (strcmp(g_used[i], last) == 0) {
+            return;
+        }
+    }
+    memcpy(g_used[g_used_count], last, strlen(last) + 1);
+    ++g_used_count;
+}
+
+static int readable(const void *at, size_t size);
+static void carried_last(const char *name, char *out);
+
+/* The record's "used\t<last name>" lines (UTF-8, the game's Latin-1 here). */
+static void used_of_record(void) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        char last[LONGEST_LAST + 1];
+        size_t n;
+        if (strncmp(line, "used\t", 5) != 0) {
+            continue;
+        }
+        n = strcspn(line + 5, "\r\n");
+        if (n > 0 && memchr(line + 5, '\t', n) == NULL && latin1_of(line + 5, n, last, sizeof last)) {
+            add_used(last);
+        }
+    }
+}
+
+/* The last names of the villagers in the game's table (`first`: `slots`
+   records of `stride` bytes, each with its active byte at `active` and its
+   name of `capacity` bytes at `name_at`), never the newborn's (`child_name`)
+   nor a statue, ghost or stand-in.  A table that does not read whole is
+   passed over. */
+static void used_of_table(const unsigned char *first, unsigned int stride, int slots, unsigned int active,
+                          unsigned int name_at, unsigned int capacity, const char *child_name) {
+    int i;
+    if (first == NULL || stride == 0 || slots <= 0 || slots > 4096 || capacity == 0 || capacity >= TABLE_NAME_MAX
+        || name_at + capacity > stride || active >= stride || !readable(first, (size_t)slots * stride)) {
+        return;
+    }
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *r = first + (size_t)i * stride;
+        char whole[TABLE_NAME_MAX], last[LONGEST_LAST + 1];
+        if (r[active] != 1 || vv_lookalike(stride, r) || (const char *)(r + name_at) == child_name) {
+            continue;
+        }
+        memcpy(whole, r + name_at, capacity);
+        whole[capacity] = '\0';
+        carried_last(whole, last);
+        add_used(last);
+    }
+}
+
+/* The last names this birth saw that the record's "used" lines do not hold
+   yet (g_used[from ...]) added to the slot's record as "used\t<last name>"
+   lines (UTF-8, as Repair writes them), so a surname that first appeared after
+   the last Repair -- an arrival's, say -- stays "ever used" once its last
+   bearer is gone (Codex, PR #661).  Only lines are added: the record read at
+   this birth (g_rule_file, read_record) is written back byte for byte with
+   the new lines after it, through a temporary file swapped in whole, as
+   VvfpRelookLastName writes.  Never for a slot that cannot be told (`slot`
+   0), a record not read whole, or a record that would pass RULE_FILE_MAX; a
+   name with a byte Repair would not keep (a control byte, '%') is not
+   written.  Returns the lines added. */
+static int persist_used(int slot, int from) {
+    static char out[RULE_FILE_MAX + 1];
+    char path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    size_t used;
+    int i, added = 0;
+    HANDLE h;
+    DWORD wrote = 0;
+    if (slot < 1 || from >= g_used_count || g_rule_size == 0 || g_rule_size >= RULE_FILE_MAX
+        || !record_path(slot, path, sizeof path)) {
+        return 0;
+    }
+    memcpy(out, g_rule_file, g_rule_size);
+    used = g_rule_size;
+    if (out[used - 1] != '\n') {
+        out[used++] = '\n';
+    }
+    for (i = from; i < g_used_count; ++i) {
+        const unsigned char *p = (const unsigned char *)g_used[i];
+        char line[5 + 2 * LONGEST_LAST + 2];
+        size_t k = 0;
+        int ok = strlen(g_used[i]) <= 25;      /* Repair keeps names of at most 25 characters */
+        memcpy(line, "used\t", 5);
+        k = 5;
+        for (; *p != '\0' && ok; ++p) {
+            if (*p < 0x20 || *p == 0x7F || *p == '%' || (*p >= 0x80 && *p < 0xA0)) {
+                ok = 0;
+            } else if (*p < 0x80) {
+                line[k++] = (char)*p;
+            } else {
+                line[k++] = (char)(0xC0 | (*p >> 6));
+                line[k++] = (char)(0x80 | (*p & 0x3F));
+            }
+        }
+        if (!ok) {
+            continue;
+        }
+        line[k++] = '\n';
+        if (used + k >= RULE_FILE_MAX) {
+            break;                              /* the size cap: what does not fit waits for Repair */
+        }
+        memcpy(out + used, line, k);
+        used += k;
+        ++added;
+    }
+    if (added == 0 || _snprintf(temporary, sizeof temporary, "%s.used-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return added;
+}
+
+/* One of the ever-used last names that fits after a first name of
+   `first_len` bytes in `room`, every one equally likely; the game's list's
+   draw (drawn_last_name) when none does. */
+static const char *drawn_village_name(size_t first_len, unsigned int room) {
+    int fits[USED_MAX], count = 0, i;
+    for (i = 0; i < g_used_count; ++i) {
+        if (first_len + 1 + strlen(g_used[i]) + 1 <= room) {
+            fits[count++] = i;
+        }
+    }
+    return count == 0 ? drawn_last_name(first_len, room) : g_used[fits[random_below((unsigned int)count)]];
 }
 
 /* Each game's slot saves: "<stem><slot>.ldw" in the save folder (the checker's
@@ -761,12 +951,15 @@ static void carried_last(const char *name, char *out) {
    (NULL or "" unknown), with each one's head and body as the child's record
    (A New Home: the parentage entry) keeps them (negative: unknown) -- what
    tells which villager's own rule is theirs.  `slot`: the village's save
-   slot, or 0 when the caller cannot know it yet (slot_of_parents).  Returns 1
-   when the name changed. */
-__declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int room,
-                                                      const char *father, int father_head, int father_body,
-                                                      const char *mother, int mother_head, int mother_body,
-                                                      int slot) {
+   slot, or 0 when the caller cannot know it yet (slot_of_parents).  `table`
+   etc.: the game's villager table at the birth, for "village" (used_of_table;
+   NULL: the record's names and the parents' only).  Returns 1 when the name
+   changed. */
+static int rule_last_name(char *name, unsigned int room,
+                          const char *father, int father_head, int father_body,
+                          const char *mother, int mother_head, int mother_body, int slot,
+                          const unsigned char *table, unsigned int stride, int slots, unsigned int active,
+                          unsigned int name_at, unsigned int capacity) {
     char rule[8], dad[LONGEST_LAST + 1], mum[LONGEST_LAST + 1], first[LONGEST_LAST + 1];
     const char *last;
     char use;
@@ -780,6 +973,7 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
     if (!read_record(slot, rule, sizeof rule)) {
         rule[0] = '\0';                     /* no record of this village (yet): no lines of it either */
         g_rule_file[0] = '\0';
+        g_rule_size = 0;                    /* nothing of it to add to (persist_used) */
     }
     if (rule[0] == '\0' && !names_a_rule()) {
         rule[0] = DEFAULT_RULE;             /* no rule chosen: the one Repair shows (the owner, 2026-10-14) */
@@ -803,6 +997,19 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
         last = mum;
     } else if (use == 'l') {                /* "Random last name from the list": a fresh draw */
         last = drawn_last_name(n, room);
+    } else if (use == 'v') {                /* "Random from the existing Village Names": a fresh draw */
+        int recorded;
+        g_used_count = 0;
+        used_of_record();
+        recorded = g_used_count;
+        used_of_table(table, stride, slots, active, name_at, capacity, name);
+        add_used(dad);
+        add_used(mum);
+        last = drawn_village_name(n, room);
+        if (last[0] != '\0' && n + 1 + strlen(last) + 1 <= room) {
+            add_used(last);                 /* a draw from the game's list (none used fits) is used now too */
+        }
+        (void)persist_used(slot, recorded);  /* ever used: the names seen here stay in the record */
     } else {                                /* "random": 50:50 for each child (the owner) */
         last = dad[0] && mum[0] ? (random_below(2) ? dad : mum) : (dad[0] ? dad : mum);
     }
@@ -824,6 +1031,29 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int r
     name[n] = ' ';
     memcpy(name + n + 1, last, strlen(last) + 1);
     return 1;
+}
+
+/* The parentage companions of an earlier build: no villager table, so
+   "village" draws from the record's names and the parents' only. */
+__declspec(dllexport) int __stdcall VvfpRuleLastName2(char *name, unsigned int room,
+                                                      const char *father, int father_head, int father_body,
+                                                      const char *mother, int mother_head, int mother_body,
+                                                      int slot) {
+    return rule_last_name(name, room, father, father_head, father_body, mother, mother_head, mother_body, slot,
+                          NULL, 0, 0, 0, 0, 0);
+}
+
+/* VvfpRuleLastName2 with the game's villager table at the birth (the parentage
+   companions pass what they pass VVFP Number Names' VvfpNumberNewName): the
+   table's last names count for "Random from the existing Village Names". */
+__declspec(dllexport) int __stdcall VvfpRuleLastName3(char *name, unsigned int room,
+                                                      const char *father, int father_head, int father_body,
+                                                      const char *mother, int mother_head, int mother_body,
+                                                      int slot, const unsigned char *table, unsigned int stride,
+                                                      int slots, unsigned int active, unsigned int name_at,
+                                                      unsigned int capacity) {
+    return rule_last_name(name, room, father, father_head, father_body, mother, mother_head, mother_body, slot,
+                          table, stride, slots, active, name_at, capacity);
 }
 
 /* A villager's looks changed (the coordinator, 2026-10-09: the rule must

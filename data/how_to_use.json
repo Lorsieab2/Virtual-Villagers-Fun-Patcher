@@ -331,7 +331,8 @@
       "ids": ["vv1_last_names", "vv2_last_names", "vv3_last_names", "vv4_last_names", "vv5_last_names"],
       "guide": [
         "New villagers get a last name after their first name.",
-        "A baby takes its father's or mother's last name by the rule chosen in Repair Saves & Logs; a parent's own rule can instead give each child a random one from the list.",
+        "A baby takes its father's or mother's last name by the rule chosen in Repair Saves & Logs, or a random one: from the list, or one the village has ever used.",
+        "A parent's own rule always beats the village's; parents whose own rules disagree: a coin toss for each child.",
         "Without a rule, its family's name, from a list of 50 the game has always had but never used.",
         "Villagers who already have names keep them. Nothing to click: tick it, patch, and play."
       ]
@@ -999,6 +1000,18 @@
         "The patcher's logs carry on for the same village under the new name."
       ]
     },
+    "copy_player_slot": {
+      "title": "Copy Player Slot",
+      "guide": [
+        "Copies a village into another save slot of the same game, under a new name. Quit the game first.",
+        "A slot with no save file is empty, whatever the game's slot list says; a slot with a player is overwritten.",
+        "You are asked first; No (also Return or Escape) changes nothing.",
+        "The whole save folder is backed up first, as (before copy).",
+        "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
+        "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
+      ]
+    },
     "check_logs": {
       "title": "Check Saves & Logs",
       "guide": [
@@ -1053,6 +1066,16 @@
         "Every time is a real date and time, at the save's game speed. For The Secret City: each fruit tree, when it was planted, when it refills and when it can be picked.",
         "It counts the techs the village has and the patches in the game that change a rule, when it can find that game's folder.",
         "It only reads: nothing is changed, so the game may be running (it shows the save as it was last written)."
+      ]
+    },
+    "picture_studio": {
+      "title": "Picture Studio",
+      "guide": [
+        "Draws villagers exactly as each game draws them and saves them as clear-background PNG pictures, in all five games.",
+        "From my save: pick the game, save folder and save, then anyone in it. Pick the pose, direction and frame under the picture.",
+        "Make your own: any head, body, mask, sex, age, life stage, pose and frame the game has, plus the patcher's own masks, grey hair and head look.",
+        "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
+        "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
       ]
     },
     "check_logs_automatically": {

@@ -65,7 +65,13 @@ CALLER_LO, CALLER_HI = 0x445B50, 0x4478DF
 CHILD_CALLER_LO, CHILD_CALLER_HI = 0x445540, 0x449060
 MAP_CALLER_LO = 0x4478E0          # first byte of the Map overview renderer (index in EBP)
 DRAWOBJ_PTR = 0xE574D0
-HEAD_ATLASES = (0xE574A0, 0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
+# The four HEAD atlases the asset loader fills (0x44C232 .. 0x44C599): female_heads, male_heads,
+# female_heads_old, male_heads_old.  0xE574A0 is NOT a head atlas: it is female_actions (the
+# women's and girls' bending/sitting/arms-out bodies).  It used to be listed here, so a woman's
+# action body whose row equals her head value, and every girl's bending or sitting body (the child
+# stub has no row check), got a second mask over the body (fixed in v1.35.86; tests/
+# test_vv2_mask_head_only.py runs the patched compositor).
+HEAD_ATLASES = (0xE574A8, 0xE574AC, 0xE574B0, 0xE574B4)
 MASK_BYTE_OFF = 0x480             # unused per-villager record byte = mask choice (0=none, 1..5)
 # VERIFIED FREE via LIVE process read (131 active villagers in varied states + 125 empty slots):
 # +0x480 reads 0 on EVERY slot and has no record-field disp refs; it sits mid-way in a 191-byte
@@ -354,6 +360,10 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
     # _rendered_page, which fails on the old placement.
     code0 = (TAG_STR_VA + len(TAG_STR) + 3) & ~3
 
+    # The head-atlas gate: the draw's atlas argument (EDX adult, EAX child) against each head atlas.
+    A_HEADS = "\n        ".join(f"cmp  edx, [esi+0x{a:X}]\n        je   a_have" for a in HEAD_ATLASES)
+    C_HEADS = "\n        ".join(f"cmp  eax, [esi+0x{a:X}]\n        je   c_have" for a in HEAD_ATLASES)
+
     # ---- ADULT head stub: draw mask (row MASK_ROW_TEST) then original head ----
     # entry: jumped from `call 0x4095B0`; [esp]=ret,[+4]=atlas,[+8]=x,[+c]=y,[+10]=row,[+14]=frame
     #        ecx=drawobj-ptr, esi=gameCtx, edi=villager idx.
@@ -371,16 +381,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         cmp  edx, [esp+0x14]                  /* row arg == head index? */
         jne  aorig
         mov  edx, [esp+8]                     /* atlas arg in head set? */
-        cmp  edx, [esi+0x{HEAD_ATLASES[0]:X}]
-        je   a_have
-        cmp  edx, [esi+0x{HEAD_ATLASES[1]:X}]
-        je   a_have
-        cmp  edx, [esi+0x{HEAD_ATLASES[2]:X}]
-        je   a_have
-        cmp  edx, [esi+0x{HEAD_ATLASES[3]:X}]
-        je   a_have
-        cmp  edx, [esi+0x{HEAD_ATLASES[4]:X}]
-        je   a_have
+        {A_HEADS}
     aorig:
         pop  eax
         mov  ecx, [ecx]
@@ -431,16 +432,7 @@ def build(out_path: Path, force_row: int | None = None, src_exe: Path | None = N
         cmp  eax, 0x{CHILD_CALLER_HI:X}
         ja   corig
         mov  eax, [esp+8]
-        cmp  eax, [esi+0x{HEAD_ATLASES[0]:X}]
-        je   c_have
-        cmp  eax, [esi+0x{HEAD_ATLASES[1]:X}]
-        je   c_have
-        cmp  eax, [esi+0x{HEAD_ATLASES[2]:X}]
-        je   c_have
-        cmp  eax, [esi+0x{HEAD_ATLASES[3]:X}]
-        je   c_have
-        cmp  eax, [esi+0x{HEAD_ATLASES[4]:X}]
-        je   c_have
+        {C_HEADS}
     corig:
         pop  eax
         mov  ecx, [ecx]

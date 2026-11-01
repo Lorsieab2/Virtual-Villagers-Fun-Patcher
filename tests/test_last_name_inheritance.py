@@ -64,7 +64,7 @@ class UnrelatedNamesakeTests(unittest.TestCase):
     def test_the_window_shows_the_alert(self) -> None:
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         body = gui[gui.index("    def _last_names_dialog("):gui.index("    def _repair_questions(")]
-        self.assertIn('shared = {} if rule_key() == "list" else vv_last_names.unrelated_namesakes(', body)
+        self.assertIn('shared = {} if rule_key() in ("list", "village") else vv_last_names.unrelated_namesakes(', body)
         self.assertIn("share a last name with a family they are not related", body)
         self.assertIn('mark.set(f"not related to the other {shared[v.identity][0]}s")', body)
 
@@ -219,11 +219,12 @@ class InheritanceTests(unittest.TestCase):
     def test_every_rule_is_offered(self) -> None:
         # A typed name goes in the villager's own box, whose list offers "(custom last name - type
         # here...)" (the owner, 2026-10-07); it is not a rule.
-        self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "each"])
+        self.assertEqual(list(ln.INHERIT), ["mother", "father", "random", "list", "village", "each"])
         self.assertEqual(ln.CUSTOM, "(custom last name - type here...)")
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried,\n"
-                      "                vv_last_names.check_rules(recorded_own, own_state, living_keys))", gui)
+                      "                vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,\n"
+                      "                lambda v, last: not too_long(v, last))", gui)
         self.assertIn("values=[none, custom] + first", gui)
         self.assertIn('if value.get() == custom:\n                value.set("")', gui)
         # The whole new name is held to the game's room, and a box past it is marked.

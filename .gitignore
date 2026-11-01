@@ -36,3 +36,6 @@ review_bodies.json
 *.junit.xml
 junit*.xml
 j*.xml
+
+# Picture Studio's copy of the player's own game pictures (src/vv_picture_image.py CACHE_ROOT): never commit game art
+Picture Studio Pictures/

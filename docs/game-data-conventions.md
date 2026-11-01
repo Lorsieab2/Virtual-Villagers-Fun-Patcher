@@ -224,6 +224,24 @@ village's log (`native/parentage_export/parentage_export.c`, `emit_record`).
 Where the pre-tribe simulation comes from (for example the scene behind the
 menus) is **UNVERIFIED**; the fix does not depend on it.
 
+Since 2026-10-31 each held record keeps the slot the game had loaded when it
+was made (the save manager's field, `native/shared/game_save_slot.h`) and is
+written only at a save of that slot, into that slot's log (the owner's
+decision, after two of The Secret City's Save 2 conceptions were written into
+Save 1's log). A record made with no slot loaded is written at the next save,
+as before. Repair Saves & Logs moves records an older build wrote into the
+wrong save's log (`src/vv_misfiled_records.py`).
+
+Static reading of The Secret City (`0x4285E0`, called once by `0x46C7D0`):
+at start the game loads its meta block (slot 0, which sets the field to the
+slot played last), then loads each of slots 1-5 in turn to fill the slot
+list -- **without** changing the field -- and then loads the field's slot
+(`0x428420`). The slot menu (`0x41B670`) saves the village on screen, sets
+the field and loads the chosen slot. So during that start-up scan the field
+names the slot played last, not the slot being read. Whether any record is
+made during the scan is **UNVERIFIED** (no live check yet); if one is, it
+carries the slot played last, and only Repair's move puts it right.
+
 ## A villager can be born without a father on purpose
 
 VV2's Gong ("grants life", caller `0x44EB3E`) starts a pregnancy whose father

@@ -728,8 +728,19 @@ BEFORE_RESTORE = "(before restore)"
 BEFORE_RENAME = "(before rename)"
 # Repair Saves & Logs (src/vv_log_tools.py) backs the folder up first under this label.
 BEFORE_REARM = "(before repair re-arm)"
+# Copy Player Slot (src/vv_copy_slot.py) backs the folder up first under this label.
+BEFORE_COPY = "(before copy)"
 INCOMPLETE = " INCOMPLETE"
-_BACKUP_NAME = re.compile(r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before (?:restore|rename|repair re-arm)\)))?$")
+# Every tool that backs the folder up first names its backup "Backup <date>[ (n)] (before <what it did>)"
+# (copy_save_folder's suffix): Last Names "(before last names)", Number Duplicate Names "(before numbering
+# names)", the Elder Totems tools, Graves, Lost Titles... ANY such label is a usable backup, listed and
+# restored like the others (tests/test_save_backup_labels.py collects every label the source uses).  Before
+# that, only the four labels named here were recognised, and every other tool's backup was never offered.
+# Restore A New Home Parents once passed its label without the brackets ("Backup <date> before parents
+# restore"); such a backup is recognised too.  A failed copy -- "... INCOMPLETE", "... (in progress)" -- never is.
+_BACKUP_NAME = re.compile(
+    r"^Backup (\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2})(?: \((\d+)\))?(?: (\(before [^()]+\)|before [^()]+))?$")
+_FAILED_BACKUP = re.compile(r"(?: INCOMPLETE(?: \(\d+\))?| \(in progress\))$")
 _TEMP_GLOB = "*.vvfp-restore-*.tmp"
 
 # The game's save file: a small file header, then the save buffer (measured
@@ -791,16 +802,22 @@ class BackupInfo:
     villages: dict[int, str]     # slot -> village name ("" when unreadable)
     before_rename: bool = False
     before_rearm: bool = False
+    before_copy: bool = False
+    suffix: str = ""             # the backup's own label, "(before <what>)"; "" for a plain backup
 
     @property
     def label(self) -> str:
         text = self.when.strftime("%Y-%m-%d %H:%M:%S")
+        if self.suffix:
+            return f"{text} {self.suffix}"
         if self.before_restore:
             text += " " + BEFORE_RESTORE
         if self.before_rename:
             text += " " + BEFORE_RENAME
         if self.before_rearm:
             text += " " + BEFORE_REARM
+        if self.before_copy:
+            text += " " + BEFORE_COPY
         return text
 
 
@@ -1122,7 +1139,11 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
 
 
 def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
-    """(when, sequence, label) -- the label "", BEFORE_RESTORE, BEFORE_RENAME or BEFORE_REARM."""
+    """(when, sequence, label) -- the label "" for a plain backup, else "(before <what>)" (BEFORE_RESTORE,
+    BEFORE_RENAME, BEFORE_REARM, BEFORE_COPY or any other tool's); None for a name this tool never gives a
+    usable backup, a failed copy's among them."""
+    if _FAILED_BACKUP.search(name):
+        return None
     match = _BACKUP_NAME.match(name)
     if not match:
         return None
@@ -1130,7 +1151,10 @@ def _parse_backup_name(name: str) -> tuple[datetime, int, str] | None:
         when = datetime.strptime(match.group(1), "%Y-%m-%d %H-%M-%S")
     except ValueError:
         return None
-    return when, int(match.group(2) or 1), match.group(3) or ""
+    label = match.group(3) or ""
+    if label and not label.startswith("("):
+        label = f"({label})"                 # an older build's label without its brackets
+    return when, int(match.group(2) or 1), label
 
 
 def slot_villages(game: int, folder: Path) -> dict[int, str]:
@@ -1153,9 +1177,10 @@ def slot_villages(game: int, folder: Path) -> dict[int, str]:
 def list_backups(save_folder: Path) -> list[BackupInfo]:
     """The usable backups in ``save_folder``\\Backups, newest first.
 
-    Only folders this tool names ("Backup <date>", "Backup <date> (2)",
-    "Backup <date> (before restore)") are listed; an "... INCOMPLETE" copy
-    is not a usable backup and is never offered.
+    Only folders the patcher names ("Backup <date>", "Backup <date> (2)",
+    "Backup <date> (before <what>)", whichever tool made it) are listed; an
+    "... INCOMPLETE" or "... (in progress)" copy is not a usable backup and is
+    never offered.
     """
     backups = save_folder / BACKUPS_FOLDER
     game = game_number(save_folder)
@@ -1177,6 +1202,8 @@ def list_backups(save_folder: Path) -> list[BackupInfo]:
                 entry, when, label == BEFORE_RESTORE, len(files), size, villages,
                 before_rename=label == BEFORE_RENAME,
                 before_rearm=label == BEFORE_REARM,
+                before_copy=label == BEFORE_COPY,
+                suffix=label,
             ),
         ))
     found.sort(key=lambda item: (item[0], item[1]), reverse=True)

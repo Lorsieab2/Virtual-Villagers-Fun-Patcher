@@ -2400,9 +2400,16 @@ static void vv1_golden_last_name(unsigned char *child, const unsigned char *moth
 typedef int (__stdcall *vv1_rule_last_name_t)(char *name, unsigned int room, const char *father,
                                                int father_head, int father_body, const char *mother,
                                                int mother_head, int mother_body, int slot);
+typedef int (__stdcall *vv1_rule_last_name3_t)(char *name, unsigned int room, const char *father,
+                                                int father_head, int father_body, const char *mother,
+                                                int mother_head, int mother_body, int slot,
+                                                const unsigned char *table, unsigned int stride, int slots,
+                                                unsigned int active, unsigned int name_at, unsigned int capacity);
 
 /* The last name the player's rule gives (Repair Saves & Logs' "Last names
-   come from", and a parent's own rule; VVFP Last Names' VvfpRuleLastName2),
+   come from", and a parent's own rule; VVFP Last Names' VvfpRuleLastName3 --
+   with the villager table, for "Random from the existing Village Names" --
+   or, from a Last Names DLL of an earlier build, VvfpRuleLastName2),
    from the parents this birth recorded -- names and looks, as the Birth
    record shows them; a look not recorded (0) is unknown (-1) -- before
    anything is logged or kept under the child's name
@@ -2437,13 +2444,16 @@ static void vv1_only_looks(const char *parent, int male, int *head, int *body) {
 static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
     static int state;             /* 0 not tried, 1 resolved, -1 unavailable */
     static vv1_rule_last_name_t rule;
+    static vv1_rule_last_name3_t rule3;
     char *name = (char *)(child + VV1_NAME_OFFSET);
     vv1_parent_entry *e;
+    const unsigned char *records;
     int fh, fb, mh, mb;
     if (state == 0) {
         HMODULE dll = GetModuleHandleA("VVFP Last Names.dll");
-        rule = dll ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
-        state = rule ? 1 : -1;
+        rule3 = dll ? (vv1_rule_last_name3_t)GetProcAddress(dll, "VvfpRuleLastName3") : NULL;
+        rule = dll && rule3 == NULL ? (vv1_rule_last_name_t)GetProcAddress(dll, "VvfpRuleLastName2") : NULL;
+        state = rule3 != NULL || rule != NULL ? 1 : -1;
     }
     if (state != 1 || memchr(name, '\0', VV1_NAME_CAPACITY) == NULL) {
         return;
@@ -2463,7 +2473,12 @@ static void vv1_rule_last_name(unsigned char *child, int c, int slot) {
     if (mh < 0) {
         vv1_only_looks(e->mother_name, 0, &mh, &mb);
     }
-    if (rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot)
+    records = vv1_records();
+    if ((rule3 != NULL
+         ? rule3(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot,
+                 records, VV1_RECORD_STRIDE, VV1_RECORD_COUNT,
+                 VV1_OCCUPIED_OFFSET, VV1_NAME_OFFSET, VV1_NAME_CAPACITY)
+         : rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot))
         && g_have_prev) {
         memcpy(g_prev_name[c], name, VV1_NAME_CAPACITY);
     }
