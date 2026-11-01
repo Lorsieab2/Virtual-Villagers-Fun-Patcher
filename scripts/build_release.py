@@ -90,6 +90,9 @@ FILES = [
     # Render Unicode with In-Game Fonts (all five games): every Windows-1252 character drawn, measured and typed;
     # shipped by each game's row, started by VVFP Startup.dll.
     "assets/unicode_text/VVFP Unicode Text.dll",
+    # Copy and Paste in Text Boxes (all five games): copy, cut and paste in the game's text boxes; shipped by
+    # each game's row, started by VVFP Startup.dll.
+    "assets/copy_paste/VVFP Copy and Paste.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -201,6 +204,11 @@ FILES = [
     "data/vv3_unicode_text_feature.json",
     "data/vv4_unicode_text_feature.json",
     "data/vv5_unicode_text_feature.json",
+    "data/vv1_copy_paste_feature.json",
+    "data/vv2_copy_paste_feature.json",
+    "data/vv3_copy_paste_feature.json",
+    "data/vv4_copy_paste_feature.json",
+    "data/vv5_copy_paste_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     "data/vv3_both_factions_feature.json",
