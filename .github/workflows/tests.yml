@@ -127,12 +127,16 @@ jobs:
         #
         # Each shard runs its own files; PYTHONPATH carries src/ because some files import the patcher
         # without adding it themselves and no longer get it from an earlier file in the same run.
+        #
+        # faulthandler_timeout: a test still running after 10 minutes prints every thread's stack
+        # (it is not stopped). A shard of v1.35.86 stalled twice at the same point with no output,
+        # so a stall now names its test.
         shell: bash
         env:
           PYTHONPATH: src
         run: |
           set -o pipefail
-          python -m pytest $(python scripts/ci_test_shard.py ${{ matrix.shard }} 6) -q -rf --junit-xml=junit.xml 2>&1 | tee pytest.log
+          python -m pytest $(python scripts/ci_test_shard.py ${{ matrix.shard }} 6) -q -rf -o faulthandler_timeout=600 --junit-xml=junit.xml 2>&1 | tee pytest.log
 
       - name: Summarise the run
         # Always, so a red run gets the same breakdown as a green one -- that
