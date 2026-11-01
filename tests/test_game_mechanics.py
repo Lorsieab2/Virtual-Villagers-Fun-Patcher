@@ -761,10 +761,10 @@ class EveryGame(unittest.TestCase):
         self.assertIn("The game's own fish count is -1,162,256", text)
         self.assertNotIn("-1,162,256 (they never grow back)", text)
         self.assertIn("fishing adds without limit", text)
-        self.assertIn("fishing trips per real-life hour", text)
+        self.assertIn("Fishing trips: while catching up, farmers needed: ", text)       # the Farmers needed line for the sea
         level1 = render(-40, 1, 1)
         self.assertIn("Fish: -40; Sustainable Fishing is solved, but at Farming level 1", level1)
-        self.assertNotIn("fishing trips per real-life hour", level1)
+        self.assertNotIn("Fishing trips: while catching up", level1)
         stock = render(700, 0, 3)
         self.assertIn("Fish: 700 (they never grow back); a trip brings 8 on Normal speed", stock)
         self.assertNotIn("fishing adds without limit", stock)
