@@ -33,7 +33,8 @@ def stock_exe(game: int) -> Path | None:
 class Game:
     """One game process with the DLL; `files` maps a full path to its bytes."""
 
-    def __init__(self, game: int, exe: bytes, translation: bytes | None, *, glyphs: int | None = None):
+    def __init__(self, game: int, exe: bytes, translation: bytes | None, *, glyphs: int | None = None,
+                 glyphs_dll: str = "VVFP Unicode Text.dll", font_shipped: bool = False):
         self.game = game
         self.p = p = Process(exe, DLL)
         p.exe_path = EXE_PATH.encode()
@@ -44,16 +45,23 @@ class Game:
         self.writes: list[tuple[int, int]] = []
         self.hooks: list[tuple] = []
         self.glyphs = glyphs
+        # Which companion answers: "VVFP Unicode Text.dll" (started before Translations), or "VVFP Unicode
+        # Font.dll" -- already loaded, or (font_shipped) only shipped beside it, loaded and started on use.
+        self.glyphs_dll = glyphs_dll
+        self.font_shipped = font_shipped
+        self.font_loaded = False
+        self.font_started: list[tuple[int, int]] = []
         if glyphs is not None:
-            # A fake module exporting VvfpGlyphsUtf8: `mov eax, glyphs; ret`.
+            # A fake module exporting VvfpGlyphsUtf8 (`mov eax, glyphs; ret`) and VvfpStartup (`ret 8`).
             p.mu.mem_map(GLYPHS_MODULE, 0x1000)
             p.write(GLYPHS_MODULE, b"\xB8" + struct.pack("<I", glyphs) + b"\xC3")
+            p.write(GLYPHS_MODULE + 0x10, b"\xC2\x08\x00")
         h = p.api_handlers
         h.update(
             CreateFileW=self._open, GetFileSizeEx=self._size, ReadFile=self._read, CloseHandle=self._close,
             VirtualAlloc=self._valloc, VirtualFree=lambda p: (1, 12), GetModuleHandleW=self._module,
             GetProcAddress=self._proc, GetCurrentThreadId=lambda p: (0x1234, 0),
-            SetWindowsHookExW=self._hook,
+            SetWindowsHookExW=self._hook, GetFileAttributesW=self._attributes, LoadLibraryExW=self._load,
         )
 
     # -- the APIs -----------------------------------------------------------------------------------
@@ -88,13 +96,30 @@ class Game:
 
     def _module(self, p):
         name = p.wstring(p.arg(0))
-        if name == "VVFP Unicode Text.dll" and self.glyphs is not None:
+        if self.glyphs is not None and name == self.glyphs_dll and (not self.font_shipped or self.font_loaded):
             return GLYPHS_MODULE, 4
         return 0, 4
 
+    FONT_PATH = "C:\\Games\\Village\\Virtual Villagers Fun Patcher Files\\VVFP Unicode Font.dll"
+
+    def _attributes(self, p):
+        if self.font_shipped and p.wstring(p.arg(0)).lower() == self.FONT_PATH.lower():
+            return 0x20, 4
+        return INVALID, 4
+
+    def _load(self, p):
+        if self.font_shipped and self.glyphs is not None and p.wstring(p.arg(0)).lower() == self.FONT_PATH.lower():
+            self.font_loaded = True
+            return GLYPHS_MODULE, 12
+        return 0, 12
+
     def _proc(self, p):
-        if p.arg(0) == GLYPHS_MODULE and p.cstring(p.arg(1)) == "VvfpGlyphsUtf8":
+        name = p.cstring(p.arg(1))
+        if p.arg(0) == GLYPHS_MODULE and name == "VvfpGlyphsUtf8":
             return GLYPHS_MODULE, 8
+        if p.arg(0) == GLYPHS_MODULE and name == "VvfpStartup":
+            self.font_started.append((self.game, 0))
+            return GLYPHS_MODULE + 0x10, 8
         return 0, 8
 
     def _hook(self, p):
