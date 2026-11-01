@@ -104,7 +104,10 @@ def row(game: str, sha: str) -> dict:
             "the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village "
             "Names\", the village's rule or a parent's own -- one of the last names the village has ever used (the "
             "record's \"used\" lines, the villagers in the game at the birth, VvfpRuleLastName3, and the parents'; "
-            "the game's list when there are none); every random draw is a fresh, unbiased one for each child.",
+            "the game's list when there are none); every random draw is a fresh, unbiased one for each child. "
+            "Each such birth adds the names it saw that the record lacks as \"used\" lines (only adding, through "
+            "a temporary file, never for a slot it cannot tell), so a name stays ever used after its last bearer "
+            "is gone.",
             "A parent's own rule always beats the village's; parents whose own rules disagree: a fresh coin toss "
             "for each child picks the father's or the mother's.",
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "

@@ -11,7 +11,7 @@
     "A baby born in the village from now on (a mother's delivery: the first child, a twin or a triplet) and a new village's founders are called \"<first name> <last name>\": the first name is the game's own pick, and the last name is name number <family - 1> of the game's unused third list (0X4B8450), read from the running executable.",
     "A villager the game creates any other way -- brought by an island event, a cheat or the Origins page -- keeps the game's own first name only: the companion tells a birth or a founder by the callers' return addresses on the stack, at fixed places.",
     "A villager whose family is outside 1-50 gets no last name.",
-    "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village Names\", the village's rule or a parent's own -- one of the last names the village has ever used (the record's \"used\" lines, the villagers in the game at the birth, VvfpRuleLastName3, and the parents'; the game's list when there are none); every random draw is a fresh, unbiased one for each child.",
+    "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village Names\", the village's rule or a parent's own -- one of the last names the village has ever used (the record's \"used\" lines, the villagers in the game at the birth, VvfpRuleLastName3, and the parents'; the game's list when there are none); every random draw is a fresh, unbiased one for each child. Each such birth adds the names it saw that the record lacks as \"used\" lines (only adding, through a temporary file, never for a slot it cannot tell), so a name stays ever used after its last bearer is gone.",
     "A parent's own rule always beats the village's; parents whose own rules disagree: a fresh coin toss for each child picks the father's or the mother's.",
     "The whole name always fits the game's own name field: the longest pairing is far below its 23 characters."
   ],
@@ -25,7 +25,7 @@
     {
       "source": "assets/last_names/VVFP Last Names.dll",
       "destination": "VVFP Last Names.dll",
-      "sha256": "33CB84FD06BB94BC969B4F9DB43B94A32407E3B5706142D9B72784E57349C6C8"
+      "sha256": "B6946D3B4F69294EADF559AFD8AFE527809981B390E8A02840ACA3F20512D863"
     }
   ],
   "runtime_detours": [

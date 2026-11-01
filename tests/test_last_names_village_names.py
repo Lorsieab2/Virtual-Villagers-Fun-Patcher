@@ -235,6 +235,23 @@ class TheRecord(unittest.TestCase):
             ln.save_arrivals(folder, 3, 1, False, NoGame())
             self.assertEqual(ln.read_used(folder, 3, 1), {"Bahati", "Élan", "Okelani"})
 
+    def test_repair_reads_the_lines_the_game_adds_back_unchanged(self):
+        # VVFP Last Names.dll appends "used" lines at a birth (persist_used; Codex, PR #661): the record as
+        # it was, byte for byte, then "used\t<last name>" in UTF-8 -- as the harness's section 14 checks.
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            path = ln.record_path(folder, 3, 1)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"VVFP LAST NAMES v1 game=3\nrule\tvillage\nwhole\tBig Bob\n"
+                             b"used\tZephyr\nused\t\xc3\x89lan\n")
+            self.assertEqual(ln.read_used(folder, 3, 1), {"Zephyr", "\u00c9lan"})
+            self.assertEqual(ln.read_record(folder, 3, 1)[0], "village")
+            self.assertEqual(ln.read_whole(folder, 3, 1), {"Big Bob"})
+            ln.write_record(folder, 3, 1, "village", {}, used={"Bahati"})
+            text = path.read_bytes()
+            for line in (b"used\tZephyr\n", b"used\t\xc3\x89lan\n", b"used\tBahati\n", b"whole\tBig Bob\n"):
+                self.assertIn(line, text, "Repair keeps the game's lines as they are")
+
     def test_an_earlier_builds_reader_skips_the_new_lines(self):
         """v1.35.85's readers, as they were: the rule must be one of its INHERIT, an own line's rule one of
         its OWN_RULES; any other line is skipped.  They read "village" as no rule ("From the father") and
