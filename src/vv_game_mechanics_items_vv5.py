@@ -121,8 +121,8 @@ def _feature(feature: str) -> str:
 
 # The VV5 patches named below that the patcher's default selection leaves off (vv_fun_patcher_gui.DEFAULT_OFF_FUN_PATCH_IDS;
 # the test keeps the two the same).
-DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
-                         "vv5_story_cheat_upgrades", "vv5_story_cheat_upgrades_cost_tech_points"})
+# Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
+DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"

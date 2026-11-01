@@ -209,7 +209,7 @@ class Pinned(unittest.TestCase):
         self.assertIn("3, 6 or 10 real-life minutes on Fast, Normal or Slow", text)
         self.assertIn("With the patcher (\"Learning Skills Never Fails\", off by default)", text)
         self.assertIn("With the patcher (\"Enable Origins-Exclusive Features\", on by default)", text)
-        self.assertIn("With the patcher (\"Story / Cheat Upgrades\", off by default)", text)
+        self.assertIn("With the patcher (\"Story / Cheat Upgrades\", on by default)", text)
         # The settled rules: Grant Youth delays a pregnant villager's birth (described, not fixed).
         self.assertIn("the birth comes that much later (0x41FEB0)", text)
 

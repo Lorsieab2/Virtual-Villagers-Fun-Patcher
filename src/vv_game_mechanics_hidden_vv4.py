@@ -53,7 +53,8 @@ STORY = "vv4_story_cheat_upgrades"
 ORIGINS = "vv4_enable_origins_exclusive_features"
 DIFFICULTY = "vv4_difficulty_settings"
 PATCHES = (DIFFICULTY, ORIGINS, STORY)
-DEFAULT_OFF = frozenset({STORY})
+# Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
+DEFAULT_OFF: frozenset[str] = frozenset()
 
 ARMING = ("press C (it opens Collections; come back with Esc) and then D (it opens Detail; come back with Esc), or F "
           "and then D, in the village: C sets the screen's step value (+0x50) to 1, F flips it between 0 and 1, D with "
