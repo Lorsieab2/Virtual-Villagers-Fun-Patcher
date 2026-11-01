@@ -26,6 +26,29 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points are now on by default** (all five games). The owner, 2026-11-01: "Anything that costs (money tech points food etc) and anything that adds new content to the game (besides the stuff I explicitly mentioned to turn off) stays ON by default." **Default Patches** and a fresh install now tick both, so Pick Island Event, Custom Island Event, Choose Time Skip Amount, The Lost Children's Pick Gong of Wonder Outcome and The Secret City's Recharge Chief Powers are in the game and every one of them, like every Origins Upgrade, costs its normal tech points; untick the cost row to make them free. Learning Skills Never Fails, Super-Secret Golden Mushroom, VV1 Mushroom/Collectible Duplication Cheat, Manual Drop-Breeding overrides Birth Control, 256 Villagers (Experimental) and Fruit Trees Take Turns Refilling stay off. Owner's Defaults and Select All Patches are unchanged. **Your own selection is kept**: a patcher that has saved its selection (patcher_local_settings.json) shows it exactly as before, Story / Cheat Upgrades unticked if you had it unticked; the new default applies only to a fresh install or when you click Default Patches. The "?" guides of the cost row now also name Choose Time Skip Amount's price (50,000 tech points). No need to patch again.
 - **Picture Studio: every item a villager can carry** (Tools tab, all five games). **Carrying** now lists every item each game draws in a villager's hands, by name -- food, wood, stones, herbs, mushrooms, fish, tools, the baby, puzzle and story pieces (The Secret City's keys, pearls and shark charmer vial, The Tree of Life's lei, soap and hot rocks, New Believers' necklace pieces, dyes and golden eye ...) and every collectable a child picks up -- on both **Make your own** and **From my save**, with **Babies carried** (one, twins, triplets: the game draws the item again for each) in every game. Pictures the game has on its item sheets but never shows a villager carrying are offered too, marked "(unused in the game)" (docs/picture-studio-vv1.md ... vv5.md give the reason for each), and the Super-Secret Golden Mushroom is marked "(patcher)" and drawn as the patcher's golden mushroom picture, where the game draws it. No game keeps the carried item in its save, so From my save's first choice draws what the game gives back on loading: the baby, with the save's twins or triplets, for a villager who is expecting. New Believers no longer offers its last eleven carrying pictures twice. Every item is drawn by the game's own carry code and checked by running that code on the original games in every direction and carrying pose. No need to patch again.
+- **Picture Studio: Text** (Tools tab, all five games, new). Type anything, in several lines, and see it in
+  the game's own fonts: **Arial Bold (game font)**, **Burweed (game font)**, and **Burweed ICG (installed)**
+  at any size when that font is on your computer. You can pick:
+  - any colour the game draws text in, or your own, and the opacity;
+  - left, centred (as the game centres), centre each line or right;
+  - The Tree of Life's and New Believers' outlined title effect.
+
+  Save it as a transparent PNG at the game's size, 2x, 4x or your own size.
+  - **The game's letters** are drawn exactly as the game draws them: the same sheet cells, letter spacing,
+    line height, recolour and fade, checked by running each game's own text code on the original games.
+  - **Anything else** is made to match the font, and the preview outlines it (the PNG does not):
+    - accents (A New Home's and The Lost Children's fonts have none) are the game's letter with the accent
+      added;
+    - other alphabets and symbols come from a Windows font, sized and shaded like the game's letters;
+    - emoji are in full colour, with skin tones, families and keycaps kept whole.
+  - **Insert character...** finds any character by name or code (for example "e acute" or U+00E9), and has
+    the common accents.
+  - **The name counter.** The line under the text says how many bytes it takes as a villager's name in each
+    game.
+  - **The font pictures come from your own copy of the game.** No game art and no font file ships. See
+    docs/picture-studio-text.md.
+
+  No need to patch again.
 
 ## What's new in v1.35.86
 

@@ -87,6 +87,17 @@ The masks come from the save's "Village Masks" file (`common.masks_by_rank`), th
 * Without the emulator (CI): tables from a made-up file, plans on blank sheets of the real sizes, the
   save reader on a made-up save.
 
+## Text (the Text tab)
+
+The Tree of Life builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 1940 x 20, table 0x4BA140, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 2364 x 27, table 0x4BB068, 27 pixels a line.
+
+They hold 0x20-0x7E and the Windows-1252 letters and signs from 0xA1 (The Secret City: 0xA2) to 0xFF, accented letters included. Bytes 0x80-0xA0 draw "!". The Text tab makes everything else in the font's style.
+
+The game's text draw is 0x409700 and its centred draw is 0x409BE0. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered or not proven
 
 * **The emulated renderer is fed by stubs** for the terrain test (water or not), the selection test, the
