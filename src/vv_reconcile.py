@@ -71,6 +71,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 REPORT_FOLDER = "Reconciliation"
 REPORT_NAME = "Virtual Villagers {game} Reconciliation - Save {slot}.txt"
@@ -318,9 +319,9 @@ def read_save(path: Path, game: int) -> tuple[list[Seen], list[Seen]]:
             prefs[label] = _words(lt.list_text(game, values))
         father = mother = None
         if f.father is not None:
-            father = data[at + f.father:at + f.father + f.parent_cap].split(b"\0", 1)[0].decode("latin-1")
-            mother = data[at + f.mother:at + f.mother + f.parent_cap].split(b"\0", 1)[0].decode("latin-1")
-        seen = Seen(data[at:at + f.name_cap].split(b"\0", 1)[0].decode("latin-1"), i32(f.head), i32(f.body),
+            father = data[at + f.father:at + f.father + f.parent_cap].split(b"\0", 1)[0].decode(GAME_TEXT)
+            mother = data[at + f.mother:at + f.mother + f.parent_cap].split(b"\0", 1)[0].decode(GAME_TEXT)
+        seen = Seen(data[at:at + f.name_cap].split(b"\0", 1)[0].decode(GAME_TEXT), i32(f.head), i32(f.body),
                     "Male" if i32(f.sex) == f.male else "Female", i32(age_at), prefs["likes"], prefs["dislikes"],
                     father, mother, rank, None, ln._title_identity(data, at, f),
                     titles_file.looks_from_save(game, data, at), at, records.get(at))
@@ -542,7 +543,7 @@ def _qwhen(c: "Census") -> str:
 def _tail(text: str) -> str:
     """The unfinished last line of a file cut short, as a checksum: the same cut, however long the file
     has grown above it."""
-    return f"{zlib.crc32(text.rsplit(chr(10), 1)[-1].encode('latin-1', 'replace')):08X}"
+    return f"{zlib.crc32(text.rsplit(chr(10), 1)[-1].encode(GAME_TEXT, 'replace')):08X}"
 
 
 _KEY_IN_ID = re.compile(r"\((?:'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\"), (?:-?\d+|None), (?:-?\d+|None)\)")
@@ -1031,7 +1032,7 @@ class _Builder:
             for p in root.rglob("*.txt"):
                 if p.parent.name in ("Repairs", layout.REPAIRS_LOGS):
                     try:
-                        repairs += _repair_entries(p.read_bytes().decode("latin-1"))
+                        repairs += _repair_entries(p.read_bytes().decode(GAME_TEXT))
                     except OSError:
                         pass
         for path in self.logs.files:
@@ -1041,7 +1042,7 @@ class _Builder:
                 self.ask("file", f"unreadable|{path.name}", f"{_rel(folder, path)} could not be read ({exc}).",
                          [f"{KEEP}"])
                 continue
-            text = data.decode("latin-1")
+            text = data.decode(GAME_TEXT)
             if data and not text.endswith("\n"):
                 self.ask("file", f"cut|{_answer_place(folder, _rel(folder, path))}|end:{_tail(text)}",
                          f"{_rel(folder, path)} ends in the middle of a line: it may have been cut short "
@@ -1058,7 +1059,7 @@ class _Builder:
             chain: list[tuple[Path | None, int, datetime]] = []
             for copy in sorted(_copies_of(path, copies_root, folder), key=lambda p: p.stat().st_mtime):
                 try:
-                    chain.append((copy, _record_count(copy.read_bytes().decode("latin-1")),
+                    chain.append((copy, _record_count(copy.read_bytes().decode(GAME_TEXT)),
                                   datetime.fromtimestamp(copy.stat().st_mtime)))
                 except OSError:
                     continue
@@ -1602,7 +1603,7 @@ def export(rec: Reconciliation) -> Path:
     target = report_path(rec.folder, rec.game, rec.slot)
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_name(target.name + ".tmp")
-    temporary.write_bytes(rec.render().replace("\n", "\r\n").encode("latin-1", "replace"))
+    temporary.write_bytes(rec.render().replace("\n", "\r\n").encode(GAME_TEXT, "replace"))
     os.replace(temporary, target)
     return target
 
@@ -1727,7 +1728,7 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
             continue
         try:
             here = a.at is not None and a.at in living \
-                and data[a.at:a.at + f.name_cap].split(b"\0", 1)[0].decode("latin-1") == a.name \
+                and data[a.at:a.at + f.name_cap].split(b"\0", 1)[0].decode(GAME_TEXT) == a.name \
                 and ln._title_identity(data, a.at, f) == a.identity \
                 and lt._record_index(game, data, a.at) == a.record
             looks = titles_file.looks_from_save(game, data, a.at) if here else None
@@ -1796,7 +1797,7 @@ def settle_titles(folder: Path, game: int, slot: int, actions: list[TitleAction]
         text += f"  File: {path.relative_to(folder)} -- copy kept: {copy.name}\r\n"
         text += f"  Backup: {Path(backup_folder).name}\r\n\r\n"
         with open(record_path, "ab") as log:
-            log.write(text.encode("latin-1", "replace"))
+            log.write(text.encode(GAME_TEXT, "replace"))
     except OSError:
         pass                                # the change stands; the reconciliation still sees it
     return done

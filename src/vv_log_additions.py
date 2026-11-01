@@ -29,6 +29,7 @@ from pathlib import Path
 
 import vv_log_tools as tools
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 DONT_KNOW = "Don't know (add nothing)"
 
@@ -246,7 +247,7 @@ class Block:
 
 
 def read_lines(path: Path) -> list[str]:
-    return path.read_bytes().decode("latin-1").replace("\r\n", "\n").split("\n")
+    return path.read_bytes().decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
 
 
 def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:
@@ -1509,7 +1510,7 @@ class _Doc:
         self.new = not path.exists()
         self.raw = b"" if self.new else path.read_bytes()
         self.crlf = self.new or b"\r\n" in self.raw
-        parts = self.raw.decode("latin-1").split("\n")
+        parts = self.raw.decode(GAME_TEXT).split("\n")
         self.lines = [p[:-1] if p.endswith("\r") else p for p in parts]
         self.ends = ["\r" if p.endswith("\r") else "" for p in parts]
         self.inserts: dict[int, list[list]] = {}          # after -> [[rank, text, kind id]]
@@ -1787,7 +1788,7 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             else:
                 with open(path, "rb") as source, open(backup, "xb") as copy:
                     copy.write(source.read())
-            temporary.write_bytes(text.encode("latin-1"))
+            temporary.write_bytes(text.encode(GAME_TEXT))
             os.replace(temporary, path)
             if backup is None:
                 tools.new_log_words(folder, path)

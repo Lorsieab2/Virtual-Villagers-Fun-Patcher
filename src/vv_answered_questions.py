@@ -51,6 +51,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_log_decisions as decisions
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 KIND = "answered"
 # The decisions the section lists, and what each is called there.
@@ -84,7 +85,7 @@ def fingerprint(lines: list[str]) -> str:
             continue
         if line.strip():
             kept.append(line.strip())
-    digest = hashlib.sha1("\n".join(kept).encode("latin-1", "replace")).hexdigest()[:16]
+    digest = hashlib.sha1("\n".join(kept).encode(GAME_TEXT, "replace")).hexdigest()[:16]
     return f"{heading}:{digest}"
 
 

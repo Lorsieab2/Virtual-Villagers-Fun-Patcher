@@ -46,6 +46,7 @@ from pathlib import Path
 import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = "(before resetting corrupted skills)"
 COPY_SUFFIX = ".before-skill-reset"
@@ -233,4 +234,4 @@ def note_reset(folder: Path, game: int, village: str | None, found: list[Reset],
     text += f"  File: {Path(save).relative_to(folder)} -- copy kept: {copy}\r\n"
     text += f"  Backup: {Path(backup.backup_folder).name}\r\n\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

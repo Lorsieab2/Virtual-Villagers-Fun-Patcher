@@ -44,6 +44,7 @@ import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
 import vv_vv2_totems as totems
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 GAME = 2
 MAGIC = b"VVFP VV2 TOTEMS\0"
@@ -88,7 +89,7 @@ def _fnv1a(data: bytes) -> int:
 
 
 def _text(data: bytes, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def _i32(data: bytes, at: int) -> int:
@@ -213,10 +214,10 @@ def parse(data: bytes) -> Store:
 def serialize(store: Store) -> bytes:
     body = bytearray(MAGIC)
     body += struct.pack("<6I", VERSION, GAME, store.slot, ENTRY, len(store.roster), len(store.totems))
-    name = store.village.encode("latin-1", "replace")[:VILLAGE_CAP - 1]
+    name = store.village.encode(GAME_TEXT, "replace")[:VILLAGE_CAP - 1]
     body += name + bytes(VILLAGE_CAP - len(name))
     for name, head, body_no, sex in store.roster:
-        raw = name.encode("latin-1", "replace")[:NAME_CAP - 1]
+        raw = name.encode(GAME_TEXT, "replace")[:NAME_CAP - 1]
         body += raw + bytes(24 - len(raw)) + struct.pack("<iii", head, body_no, sex)
     for t in store.totems:
         if len(t.entry) != ENTRY:
@@ -771,7 +772,7 @@ def pending_path(folder: Path, slot: int) -> Path:
 
 
 def _name24(name: str) -> bytes:
-    raw = name.encode("latin-1", "replace")[:NAME_CAP - 1]
+    raw = name.encode(GAME_TEXT, "replace")[:NAME_CAP - 1]
     return raw + bytes(24 - len(raw))
 
 

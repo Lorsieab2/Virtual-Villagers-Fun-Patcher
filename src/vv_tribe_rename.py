@@ -89,6 +89,8 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_save_backup
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
+from vv_game_text import printable as game_printable
 
 MAGIC = b"ldwg"
 BACKUP_LABEL = vv_save_backup.BEFORE_RENAME
@@ -195,6 +197,9 @@ PRINTABLE = frozenset(chr(code) for code in range(0x20, 0x7F))
 # A New Home's and The Lost Children's font has no glyph for these; the game
 # draws each of them as an "A". The later three draw all of printable ASCII.
 UNDRAWABLE_VV1_VV2 = frozenset("#$%&()*+;<=>@[\\]^_{}|~")
+# Render Unicode with In-Game Fonts (v1.35.87) lets the games take and draw every printable Windows-1252
+# character above ASCII: SDL's text is posted as its one byte (0x80..0xFF), which the key filter takes.
+WINDOWS_1252_EXTRA = frozenset(ch for ch in bytes(range(0x80, 0x100)).decode(GAME_TEXT) if game_printable(ch))
 
 
 # The width, in pixels, of each printable character (0x20..0x7E) in the font
@@ -232,7 +237,9 @@ def text_width(game: GameSaves, text: str) -> int:
         return 0
     def glyph(ch: str) -> int:
         code = ord(ch)
-        return glyphs[code - 0x20] if 0x20 <= code < 0x7F else glyphs[0]
+        if 0x20 <= code < 0x7F:
+            return glyphs[code - 0x20]
+        return max(glyphs)          # a Windows-1252 letter: its width depends on the fonts; count it wide
 
     return sum(glyph(ch) + spacing for ch in text) - spacing
 
@@ -256,9 +263,12 @@ def shown_shortened(game: GameSaves, name: str) -> bool:
 
 
 def allowed_characters(game: GameSaves) -> frozenset[str]:
+    """Printable ASCII and, since Render Unicode with In-Game Fonts (v1.35.87), every printable
+    Windows-1252 character (one byte each, which the games' text boxes take and draw with that patch;
+    without it a game shows them as its font's first letter, which harms nothing)."""
     if game.number in (1, 2):
-        return PRINTABLE - UNDRAWABLE_VV1_VV2
-    return PRINTABLE
+        return (PRINTABLE | WINDOWS_1252_EXTRA) - UNDRAWABLE_VV1_VV2
+    return PRINTABLE | WINDOWS_1252_EXTRA
 
 
 def name_problem(game: GameSaves, name: str) -> str | None:
@@ -291,15 +301,16 @@ def name_problem(game: GameSaves, name: str) -> str | None:
 
 
 def _read_c_string(data: bytes, offset: int, width: int) -> str | None:
-    """The NUL-terminated printable-ASCII string at ``offset``, or None."""
+    """The NUL-terminated printable string at ``offset`` (printable ASCII, or a Windows-1252 character
+    typed with Render Unicode with In-Game Fonts), or None."""
     raw = data[offset:offset + width]
     end = raw.find(b"\0")
     if end < 0:
         return None
-    text = raw[:end]
-    if any(byte < 0x20 or byte > 0x7E for byte in text):
+    text = raw[:end].decode(GAME_TEXT)
+    if not all(game_printable(ch) for ch in text):
         return None
-    return text.decode("ascii")
+    return text
 
 
 def _save_layout(game: GameSaves, data: bytes) -> tuple[int, int] | None:
@@ -396,7 +407,7 @@ def read_slots(game: GameSaves, folder: Path) -> list[SlotInfo]:
 
 def _with_name(data: bytes, offset: int, width: int, name: str) -> bytes:
     """``data`` with the field at ``offset`` holding ``name``, NUL-padded."""
-    encoded = name.encode("ascii")
+    encoded = name.encode(GAME_TEXT)          # one byte a character (name_problem allows no other)
     if len(encoded) + 1 > width:
         raise RenameError(f"{name!r} does not fit a {width}-byte name field.")
     field = encoded + b"\0" * (width - len(encoded))
@@ -556,7 +567,7 @@ def _village_logs(game: GameSaves, folder: Path, slot: int) -> list[LogTarget]:
 
 
 def _read_text(path: Path) -> str:
-    return path.read_bytes().decode("latin-1")
+    return path.read_bytes().decode(GAME_TEXT)
 
 
 @dataclass
@@ -581,12 +592,12 @@ def plan_log_notes(
         if target.with_slot:
             line = f"{note} (Save {slot})"
         else:
-            text = data.decode("latin-1")
+            text = data.decode(GAME_TEXT)
             if effective_header(text, target.header_line) != old_header:
                 continue
             line = note
         prefix = b"" if not data or data.endswith(b"\n") else b"\r\n"
-        notes.append(LogNote(target.path, len(data), prefix + line.encode("ascii") + b"\r\n\r\n"))
+        notes.append(LogNote(target.path, len(data), prefix + line.encode(GAME_TEXT) + b"\r\n\r\n"))
     return notes
 
 

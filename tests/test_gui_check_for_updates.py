@@ -163,6 +163,9 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records",
+               # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
+               # the patcher makes for them (v1.35.87).
+               "vv_game_text", "vv_font_glyphs",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -401,7 +404,15 @@ class ReleasesLinkTests(unittest.TestCase):
                 elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
                     imported.add(node.module.split(".")[0])
             with self.subTest(module=module):
-                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import, set())
+                # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
+                # every byte kept.  vv_game_text imports only the standard library.
+                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import - {"vv_game_text"}, set())
+        tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
+        own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
+                       for alias in node.names}
+        own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)
+                        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0}
+        self.assertEqual(own_imports - set(sys.stdlib_module_names), set())
 
 
 if __name__ == "__main__":

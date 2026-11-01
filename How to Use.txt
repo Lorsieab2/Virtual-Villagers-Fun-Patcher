@@ -363,6 +363,17 @@ running the game's own code carries the label UNCONFIRMED. It only reads: nothin
 game may be running (it shows the save as it was last written). Refresh reads
 the save again.
 
+ACCENTED LETTERS AND OTHER WINDOWS-1252 CHARACTERS
+
+With Render Unicode with In-Game Fonts (on by default, all five games) the
+games draw and accept every Western European character: accented letters,
+ß, ¿ ¡, € £, curly quotes and dashes. Type them in the tribe name, a
+villager's name on the Details screen or any other text box (dead keys and
+Alt codes work). Each is still one byte in the save. For the best-matching
+letters in the big Burweed font, install the Burweed ICG font (the patcher
+never ships it). Greek, Cyrillic, Chinese, Japanese and emoji are not drawn
+yet.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the
