@@ -389,7 +389,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
                  life.Source("The fishing net and the fruit", None, unlimited=True,
-                             refill_words="no store of theirs is read here: they bring what the gatherers fetch",
+                             refill_words="no store of theirs is read here: they bring what the farmers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
@@ -409,7 +409,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         collectibles=collectibles,
         limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),
         puzzles=puzzles,
-        food_words="2 food a villager every age unit while there is more than 500; on Medium at 8,000 or more, or "
+        food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
+                   "eaten, 0x46848B); on Medium at 8,000 or more, or "
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
         trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
     out.extend(life.sections(ctx))

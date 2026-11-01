@@ -49,3 +49,25 @@ A fact whose clock is stopped (saved paused, a frozen clock) passes `due=None` a
   disagree. The choice is kept per save folder in the patcher's own settings file
   (`patcher_local_settings.json`, `game_mechanics_exes`), never in the save.
 - Closing the window cancels its timer and every callback it scheduled before the window is destroyed.
+
+## Farmers needed
+
+The Vital statistics' food estimates end with "Farmers needed to supply the village with food", for a farmer with
+Farming 50 set to one food source (`src/vv_game_mechanics_farmers.py`; the numbers per game in
+`src/vv_game_mechanics_farmers_vv1.py` .. `_vv5.py`):
+
+- **While catching up** (time away and Time Warp): each counted age unit every villager who eats has its meal, and
+  every working adult gets the game's job turns (5 in A New Home, 4 in the other games), each a whole trip at once
+  with no walking. One farmer brings `job turns x trips a turn x (Farming + K)/100 x food a trip` each counted age
+  unit (The Secret City's honey also x 11/12, the trips that reach the food bin). Farmers needed = the food eaten
+  each counted age unit / that, rounded up.
+- **Live**: one farmer brings food once every so many real-life seconds, measured by running the stock game's own
+  per-frame villager update, walk and job choices frame by frame (33 ms, the game's 30 frames a second) over the
+  game's real map, with failed checks, rests and other jobs included. The trips take the same real-life time at
+  Fast, Normal and Slow (nothing in the walk or the waits reads the speed); the eating follows the speed.
+- Each source's trip, its steps, its clock, the catch-up rule with addresses and the trip times of elders and
+  villagers who like running are under Food earned.
+
+The emulation tests (`tests/test_game_mechanics_farmers_vv1.py` .. `_vv5.py`) re-measure from the stock exes in
+`research/stock-executables` and the game data copied into `research/game-data/vvN` (both gitignored); without them
+the tests skip. The long re-measurements run only with `VVFP_RELEASE=1`.

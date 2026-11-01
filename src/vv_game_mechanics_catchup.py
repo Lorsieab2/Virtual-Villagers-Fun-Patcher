@@ -235,8 +235,9 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "job turns of this kind: villagers walk and work in real time.")
     add("Food while catching up: at 250 food or less a believer with Farming 20 or more farms first, as in live "
         "play, but nobody stops to be \"Worried about food\". A crop harvest gives 7 food at any speed (live: 10, 7 "
-        "or 4 on Fast, Normal or Slow). Noni are picked only once the granary is made and The Hungry Totem is "
-        "solved (live: the granary alone). Fishing gives 4 food, as live.")
+        "or 4 on Fast, Normal or Slow). The game's own job choice sends a believer to the noni only once the "
+        "granary is made and The Hungry Totem is solved (live: the granary alone); a believer the player dropped on "
+        "the noni bushes keeps picking them without the totem (0x46BE86). Fishing gives 4 food, as live.")
     add("Research while catching up: nobody researches until The Knowing Totem is solved (live: any time). A "
         "success gives the skill ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, the same at every speed (live: ÷ 11, ÷ 9 or "
         "÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) is skipped, but the 2% chance "
