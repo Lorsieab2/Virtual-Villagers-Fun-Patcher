@@ -23,6 +23,11 @@ emulating that code on the vanilla executable.
   Esteemed Elder statue), one picker per field: sex, life stage and age (children year by year),
   every head row and body row of the game's sheets, mask, head look, pose, direction, frame, head
   turn, carried item, litter, shadow... Choices marked **(patcher)** are the patcher's own art.
+- **Text**: any text in the game's own fonts (Arial Bold and Burweed, and Burweed ICG when it is
+  installed) and the colours the game uses. Letters the font has are drawn exactly as the game's own
+  text draw draws them. Anything else (accents, other scripts, symbols, emoji) is made in the font's
+  style and outlined in the preview. See [picture-studio-text.md](picture-studio-text.md). The font
+  sheets are copied into `Picture Studio Pictures\Fonts\<game>`.
 - **Saving**: the picture shown, cut to its drawn pixels with a small clear margin (or none), at the
   game's size, 2x or 4x (crisp, nearest pixel) or any width and height (smooth). **Save all in this
   group...** writes every member of the group picked; **Save the whole village...** writes everyone,

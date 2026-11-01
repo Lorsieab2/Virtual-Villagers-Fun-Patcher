@@ -86,6 +86,17 @@ blit (`0x404620`, recorded) are not run. The x87 runs with Windows' control word
 The mask's registration is checked against the companion's C source (constants, rows, column, rounding,
 the shipped atlas); it is **not** emulated through the companion DLL.
 
+## Text (the Text tab)
+
+The Secret City builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 1940 x 20, table 0x4A6A80, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 2364 x 27, table 0x4A5B78, 27 pixels a line.
+
+They hold 0x20-0x7E and the Windows-1252 letters and signs from 0xA1 (The Secret City: 0xA2) to 0xFF, accented letters included. Bytes 0x80-0xA0 draw "!". The Text tab makes everything else in the font's style.
+
+The game's text draw is 0x409CD0 and its centred draw is 0x40A070. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered
 
 * The selection ring (`focus_circle.png`, `0x42E4B0`) and the splash particles (`0x429400`) are not drawn.
