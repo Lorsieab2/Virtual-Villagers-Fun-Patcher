@@ -696,6 +696,94 @@ class RecordTests(Base):
         self.assertEqual(additions.current_villages(folder, 3, 1), {f"Village: {old} (Save 1)", "Village: KT N (Save 1)"})
         self.assertEqual(additions.current_villages(folder, 3, 3), {"Village: Copied (Save 3)", "Village: KT N (Save 3)"})
 
+    def test_a_name_the_replaced_village_keeps_in_the_shared_logs_is_refused(self) -> None:
+        """The older shared logs are never changed, so an overwritten village's records there stay under
+        "<old name> (Save T)"; the copy may not take that name (or one its rename chain gives it), only
+        when such records are there."""
+        game, folder, old = self.make("huttest", 1, "Modded")
+        self.occupy(game, folder, 2, "Old Village")
+        shared = f"{OLD_LOGS}\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        self.put(folder, shared, (f"Village: {old} (Save 1)\r\nConception 1\r\n\r\n"
+                                  "Village: Old Village (Save 2)\r\nConception 2\r\n\r\n"
+                                  "Tribe renamed from Old Village to Later Name on 2026-10-01\r\n\r\n"
+                                  "Village: Not Recorded (Save 2)\r\n\r\n"
+                                  "Village: Other Slot (Save 4)\r\nConception 3\r\n").encode())
+        self.assertEqual(cs.shared_log_names(folder, 2), {"Old Village", "Later Name"})
+        before = self.snapshot(folder)
+        for name in ("Old Village", "Later Name"):
+            with self.subTest(name=name):
+                with self.assertRaises(cs.CopyError) as caught:
+                    cs.copy_slot(game, folder, 1, 2, name, processes=FakeProcesses(), now=NOW)
+                self.assertEqual(str(caught.exception),
+                                 f"{name} was the name of the village being replaced in Save 2, and its old "
+                                 "records still use it. Please choose another name.")
+                self.assertEqual(self.snapshot(folder), before)
+                self.assertEqual(self.backups(folder), [])
+        # A header with no record, another slot's name, or a name the shared logs never used: allowed.
+        for name in ("Not Recorded", "Other Slot", "Brand New"):
+            self.assertNotIn(name, cs.shared_log_names(folder, 2))
+        cs.copy_slot(game, folder, 1, 2, "Brand New", processes=FakeProcesses(), now=NOW)
+        self.assertEqual(rename.save_name(game, game.save_path(folder, 2).read_bytes()), "Brand New")
+        self.assertEqual((folder / shared).read_bytes(), before[shared.replace("\\", "/")])
+
+    def test_pieces_with_different_word_states_are_put_right_before_they_are_merged(self) -> None:
+        """Codex, #665: a shared-log piece whose words are all the game's own (boundary 0) and the slot's
+        older-layout log with no boundary (all old words) merged into one file would have one boundary for
+        both.  Each piece's old words are put right first (the checker's own list), and the file gets 0."""
+        game, folder, old = self.make("huttest", 1, "Modded")
+        header = f"Village: {old} (Save 1)"
+        name = "Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        shared = f"{OLD_LOGS}\\Births and Conceptions\\{name}"
+        slot_log = f"{OLD_LOGS}\\Save 1\\Births and Conceptions\\{name}"
+        self.put(folder, shared, f"{header}\r\nBirth 5\r\n  Child: Ana\r\n    Likes: rough wood\r\n".encode())
+        self.put(folder, slot_log, f"{header}\r\nBirth 6\r\n  Child: Bo\r\n    Likes: heights\r\n".encode())
+        words = f"{OLD_DATA}\\Like and Dislike Words\\Virtual Villagers 1 Log Words.dat"
+        # The shared log: all the game's own words.  The slot's log: no line, so all old words ("heights" in
+        # the old list is the game's "rough wood").
+        self.put(folder, words, f"0\t{shared}\r\n".encode())
+        cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        merged = (folder / OLD_LOGS / "Save 3" / "Births and Conceptions" / name).read_bytes()
+        self.assertEqual(merged.count(b"Likes: rough wood"), 2)
+        self.assertNotIn(b"heights", merged)
+        key = f"{OLD_LOGS}\\Save 3\\Births and Conceptions\\{name}"
+        lines = [l for l in (folder / words).read_bytes().decode().splitlines() if l.endswith("\t" + key)]
+        self.assertEqual(lines[-1], f"0\t{key}")
+        # The source's logs are as they were.
+        self.assertIn(b"heights", (folder / slot_log).read_bytes())
+
+    def test_a_tribe_named_like_a_record_keeps_its_name(self) -> None:
+        """Codex, #665: a new name like "Birth 3" is an identity, never a record reference -- in the
+        decisions' village, the logs' headers, rename notes and the reconciliation report."""
+        game, folder, old = self.make("huttest", 1, "Modded")
+        header = f"Village: {old} (Save 1)"
+        repairs = f"{OWN}\\Save 1\\Logs\\Repairs Made\\Virtual Villagers 1 Repairs Log 1.txt"
+        self.put(folder, repairs, (f"{header}\r\nRepair 1\r\n  Checked: Birth 3\r\n\r\n"
+                                   "Village: Death 1 (Save 1)\r\n").encode())
+        decisions = f"{OWN}\\Save 1\\Data\\Log Checks\\Virtual Villagers 1 Log Decisions - Save 1.json"
+        self.put(folder, decisions, json.dumps({"version": 1, "decisions": [
+            {"kind": "answered", "village": header, "fact": "Birth 3 says Ana"}]}, indent=1).encode())
+        cs.copy_slot(game, folder, 1, 3, "Birth 3", processes=FakeProcesses(), now=NOW)
+        doc = json.loads((folder / OWN / "Save 3" / "Data" / "Log Checks" /
+                          "Virtual Villagers 1 Log Decisions - Save 3.json").read_text())
+        self.assertEqual(doc["decisions"][0]["village"], "Village: Birth 3 (Save 3)")
+        self.assertEqual(doc["decisions"][0]["fact"], "Birth 4 says Ana")         # the record: renumbered
+        text = (folder / OWN / "Save 3" / "Logs" / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt").read_bytes()
+        self.assertEqual(text, b"Village: Birth 3 (Save 3)\r\nRepair 2\r\n  Checked: Birth 4\r\n\r\n"
+                               b"Village: Death 1 (Save 1)\r\n")
+        births = (folder / OWN / "Save 3" / "Logs" / "Births and Conceptions" /
+                  "Virtual Villagers 1 Births and Conceptions Log 1.txt").read_bytes()
+        self.assertEqual(births.count(b"Village: Birth 3 (Save 3)"), 2)
+        self.assertEqual(cs.note_rewrite(f"Tribe renamed from Birth 3 to {old} on 2026-10-01", old, "Death 1", 1, 3),
+                         "Tribe renamed from Birth 3 to Death 1 on 2026-10-01")
+        out, _map = cs.rewrite_log(b"Tribe renamed from Birth 3 to Other on 2026-10-01\r\nSave 1: Birth 3\r\n",
+                                   {}, "x", {"Birth": {3: 9}})
+        self.assertEqual(out, b"Tribe renamed from Birth 3 to Other on 2026-10-01\r\nSave 1: Birth 3\r\n")
+
+    def test_the_window_says_why_the_name_is_refused(self) -> None:
+        source = (ROOT / "src" / "vv_copy_slot_window.py").read_text(encoding="utf-8")
+        self.assertIn("name in taken_names(target)", source)
+        self.assertIn("vv_copy_slot.name_taken_message(name, target)", source)
+
     def test_pending_repairs_and_set_aside_clutter_are_not_copied(self) -> None:
         game, folder, _old = self.make("huttest", 1, "Modded")
         for rel in (f"{OWN}\\Save 1\\Data\\Log Checks\\Virtual Villagers 1 Repair Approved - Save 1.dat",

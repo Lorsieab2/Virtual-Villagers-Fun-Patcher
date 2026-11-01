@@ -187,6 +187,16 @@ def open_copy_slot(app, build) -> None:
     def game() -> vv_tribe_rename.GameSaves:
         return vv_tribe_rename.game_for_title(game_var.get())
 
+    def taken_names(target: int) -> set[str]:
+        """The names the older shared logs keep an earlier village of ``target`` under (read once per
+        folder and slot): the copy may not take one (vv_copy_slot.shared_log_names)."""
+        folder = state["folders"][folder_box.current()]
+        key = (str(folder), target)
+        cache = state.setdefault("taken", {})
+        if key not in cache:
+            cache[key] = vv_copy_slot.shared_log_names(folder, target)
+        return cache[key]
+
     def chosen():
         slots = state["slots"]
         if slots is None or not state["folders"]:
@@ -211,6 +221,8 @@ def open_copy_slot(app, build) -> None:
             problem = "Choose the slot to copy to."
         elif name:
             problem = vv_tribe_rename.name_problem(saves, name)
+            if problem is None and name in taken_names(target):
+                problem = vv_copy_slot.name_taken_message(name, target)
         problem_var.set(problem or "")
         copy_button.configure(state="normal" if problem is None and name else "disabled")
 
@@ -231,6 +243,7 @@ def open_copy_slot(app, build) -> None:
     def load_slots(*_args) -> None:
         index = folder_box.current()
         state["slots"] = None
+        state["taken"] = {}
         if 0 <= index < len(state["folders"]):
             state["slots"] = vv_copy_slot.read_slots(game(), state["folders"][index])
         slots = state["slots"]

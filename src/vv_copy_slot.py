@@ -264,6 +264,11 @@ _MARKER = re.compile(rf"^({_KINDS}) (\d+)(?=\s|$)")
 _REFERENCE = re.compile(rf"(?<![^\s(\"'])({_KINDS}) (\d+)\b")
 
 
+# Lines that name a village, never a record: a header, a rename note, the reconciliation report's
+# "Save <S>: <name>".  A tribe may be named "Birth 3"; such a line is never renumbered.
+_IDENTITY_LINE = re.compile(r"^(?:Village: |Tribe renamed from |Save [1-5]: )")
+
+
 def record_numbers(data: bytes) -> dict[str, set[int]]:
     """Every record number that opens a line of ``data``, by kind."""
     found: dict[str, set[int]] = {}
@@ -375,7 +380,7 @@ def rewrite_log(data: bytes, headers, new_header: str,
             replaced = whole.encode("latin-1", "replace")
             mapping.changes.append((at, len(body), len(replaced)))
             out += replaced + ending
-        elif numbers:
+        elif numbers and not _IDENTITY_LINE.match(text):
             last = 0
             for match in _REFERENCE.finditer(text):
                 new = numbers.get(match.group(1), {}).get(int(match.group(2)))
@@ -451,6 +456,66 @@ def village_ranges(data: bytes, headers: set[str]) -> list[tuple[int, int]]:
                 ranges.append((at, end))
         at = end
     return ranges
+
+
+_HEADER = re.compile(r"^Village: (.*) \(Save ([1-5])\)\s*$")
+
+
+def shared_log_names(folder: Path, slot: int) -> set[str]:
+    """Every village name the older SHARED logs keep records under for ``slot`` -- a header's own name, and
+    each name a "Tribe renamed" note under it gives it -- counting only blocks that hold a record.  Those
+    files are never changed, so a copy into ``slot`` must not take one of these names: every reader would
+    take that earlier village's records for the copy's own history."""
+    import vv_tribe_rename as names
+
+    found: set[str] = set()
+    shared = Path(folder) / LOGS
+    try:
+        subs = [p for p in shared.iterdir() if p.is_dir() and p.name.casefold() in _SHARED_FOLDERS]
+    except OSError:
+        return found
+    for sub in subs:
+        try:
+            files = [p for p in sub.iterdir() if p.is_file() and p.name.casefold().endswith(".txt")
+                     and not re.search(r"Save [1-5]", p.name) and not _clutter(p.name)]
+        except OSError:
+            continue
+        for path in files:
+            try:
+                text = path.read_bytes().decode("latin-1")
+            except OSError:
+                continue
+            header: str | None = None
+            block: set[str] = set()
+            records = False
+            for line in text.splitlines() + ["Village: "]:      # the last block closed like the others
+                if line.startswith("Village: "):
+                    if header is not None and records:
+                        found.update(block)
+                    match = _HEADER.match(line.rstrip())
+                    header, records = None, False
+                    block = set()
+                    if match and int(match.group(2)) == slot:
+                        header = line.rstrip()
+                        block = {match.group(1)}
+                    continue
+                if header is None:
+                    continue
+                if line.startswith(names.RENAME_PREFIX):
+                    renamed = names.apply_rename_note(header, line.rstrip())
+                    if renamed != header:
+                        header = renamed
+                        new = _HEADER.match(renamed)
+                        if new:
+                            block.add(new.group(1))
+                elif _MARKER.match(line):
+                    records = True
+    return found
+
+
+def name_taken_message(name: str, slot: int) -> str:
+    return (f"{name} was the name of the village being replaced in Save {slot}, and its old records still use "
+            "it. Please choose another name.")
 
 
 def _record_ranges(data: bytes) -> list[tuple[int, int]]:
@@ -560,7 +625,9 @@ def transform_decisions(data: bytes, headers, new_header: str,
     for d in doc["decisions"]:
         if isinstance(d, dict) and d.get("village") in headers:
             village = headers[d["village"]] if isinstance(headers, dict) else new_header
-            new = renumbered({**d, "village": village})
+            # The record numbers in what the decision says; never in the village it is filed under (a
+            # tribe may be named "Birth 3": its header is an identity, not a record reference).
+            new = {k: (village if k == "village" else renumbered(v)) for k, v in d.items()}
         else:
             new = d
         changed = changed or new != d
@@ -866,6 +933,10 @@ def plan_copy(game: rename.GameSaves, folder: Path, source: int, target: int, ne
         raise CopyError(f"The slot list {index_file.name} is not one this tool can read.")
     after = bytearray(rename._with_name(index, game.index_offset(target), game.index_stride, new_name))
     after[flag] = 1
+    # The older shared logs are never changed: a name an earlier village of the target slot keeps records
+    # under there would make every reader take those records for the copy's own history.
+    if new_name in shared_log_names(folder, target):
+        raise CopyError(name_taken_message(new_name, target))
     plan = Plan(game, folder, source, target, old, new_name, index, bytes(after), source_villagers=villagers)
     plan.overwritten = overwritten
     try:
@@ -931,17 +1002,24 @@ def plan_copy(game: rename.GameSaves, folder: Path, source: int, target: int, ne
     _plan_shared_logs(folder, source, target, headers, relatives, add_text)
 
     # The copy's records renumbered after the game's highest of each kind (log_slot.h numbers per game).
+    import vv_log_tools as tools
+    checker = tools.load_checker()
     assembled: dict[str, bytes] = {}
+    normalised: set[str] = set()
     for key, (destination, pieces) in texts.items():
         pieces.sort(key=lambda item: item[0])
         _drop_older_duplicates(pieces)
+        if len(pieces) > 1 and game.number in checker.WORD_FIXES:
+            # One file keeps one like/dislike boundary (log_words.h), but its pieces may each have had
+            # their own: each piece's older words are put right first, with the checker's own list
+            # (as Repair Saves & Logs does), so the whole file is the game's words and its boundary is 0.
+            _normalise_words(folder, game.number, checker, pieces)
+            normalised.add(key)
         assembled[key] = b"".join(piece.text() for _rank, piece in pieces)
     numbers = renumbering(list(assembled.values()), highest_numbers(folder))
     plan.renumbered = {kind: len(values) for kind, values in numbers.items()}
     recon = {f"Save {source}: {old}": f"Save {target}: {new_name}"}
 
-    import vv_log_tools as tools
-    checker = tools.load_checker()
     maps: dict[str, LogMap] = {}
     for key, (destination, pieces) in texts.items():
         data, mapping = rewrite_log(assembled[key], mapped, new_header, numbers, recon, note)
@@ -949,6 +1027,10 @@ def plan_copy(game: rename.GameSaves, folder: Path, source: int, target: int, ne
         plan.files.append(NewFile(folder / destination, data, folder / first.relative, "file"))
         if destination.parts[0].casefold() == SAVES.casefold():
             maps[_relative_key(first.relative).casefold()] = mapping       # its own words file: below
+        elif key in normalised:
+            words_key = checker.word_key(_relative_key(destination))
+            plan.words.append(WordsAppend(layout.words_file_for(folder, game.number, words_key),
+                                          f"0\t{words_key}\r\n".encode("utf-8")))
         else:
             plan.words += _shared_boundary(folder, game.number, checker, destination, pieces, mapping)
     for relative, new_relative, raw in others:
@@ -1048,6 +1130,34 @@ def _drop_older_duplicates(pieces: list[tuple[int, Piece]]) -> None:
             if b > cut:
                 kept.append((cut, b))
         piece.ranges = kept
+
+
+def _normalise_words(folder: Path, game: int, checker, pieces: list[tuple[int, Piece]]) -> None:
+    """Each piece's like/dislike words written with the old list (before its own boundary; all of it when
+    its source recorded none -- log_words.h) put right with the checker's own list
+    (scripts/vvfp_consistency_check.py WORD_FIXES / WORD_LINE, as old_words and Repair Saves & Logs use
+    them).  Each piece then holds only the game's own words."""
+    import vv_move_to_save_folders as mover
+
+    fixes = checker.WORD_FIXES.get(game) or {}
+    for _rank, piece in pieces:
+        text = piece.text()
+        try:
+            boundary = mover._boundary(folder, game, checker.word_key(_relative_key(piece.relative)))
+        except OSError:
+            boundary = None
+        until = min(piece.offset(boundary), len(text)) if boundary is not None else len(text)
+        out, at = [], 0
+        for match in checker.WORD_LINE.finditer(text, 0, until):
+            word = match.group(2).decode("latin-1").strip()
+            new = fixes.get(word, word)
+            if new != word:
+                out.append(text[at:match.start(2)])
+                out.append(new.encode("latin-1"))
+                at = match.end(2)
+        out.append(text[at:])
+        piece.data = b"".join(out)
+        piece.ranges = [(0, len(piece.data))]
 
 
 def _shared_boundary(folder: Path, game: int, checker, destination: Path, pieces: list[tuple[int, Piece]],
