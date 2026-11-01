@@ -603,8 +603,9 @@
         "Nothing to click: tick the patch and patch the game again.",
         "In the game, click in a text box (a new village's tribe name, a villager's name on the Details screen, ...).",
         "Ctrl+V or Shift+Insert pastes; Ctrl+C or Ctrl+Insert copies the whole text; Ctrl+X cuts it.",
-        "Pasted text goes at the end (the boxes have no movable caret) and stops before the first character that does not fit; nothing is cut in half.",
-        "Line breaks and tabs become spaces; characters the game cannot show are left out. With Render Unicode with In-Game Fonts or Use Unicode Font, every character they let you type pastes too (accented letters, curly quotes, the euro, ...); with neither, plain English letters and signs only.",
+        "Pasted text goes at the end (no movable caret) and stops before the first character that does not fit.",
+        "Line breaks and tabs become spaces; characters the game cannot show are left out.",
+        "With Render Unicode with In-Game Fonts or Use Unicode Font, accented letters and the rest paste too; with neither, plain English only.",
         "Ctrl+A does nothing: the game's boxes cannot select.",
         "On by default. Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font. Not yet seen in a running game."
       ]
