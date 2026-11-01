@@ -17,7 +17,9 @@
    picks the head atlas or column exactly as it would for a villager of that age: nothing else about the
    villager, the record or the head value (+head offset) is changed, so the logs, the Family Tree, the
    genetics and the Origins masks see the same head as before.  A compare whose registers do not name a
-   villager record of this game, or whose age is not that record's, keeps the real age.
+   villager record of this game, or whose age is not that record's, keeps the real age.  Where the compare
+   is too short to splice (The Lost Children's village, `cmp ecx, ebx`), the age LOAD before it is spliced
+   instead and hands the compare the effective age (hl_site.load).
 
    A NEW HOME has no old head of its own: its old (grey) heads are Grey Hair at 55's (native/vv1_grey_hair),
    which asks VvfpHeadLookGet for each villager it draws.  Here this DLL writes nothing to the game.
@@ -190,7 +192,14 @@ enum { R_EAX, R_ECX, R_EDX, R_EBX, R_ESP, R_EBP, R_ESI, R_EDI, HL_NONE = 0xFF };
 
 /* A compare of the shown age against 1,100.  `age_reg` HL_NONE: `cmp dword [rec + age], 1100`, the
    record in `rec_a`; else `cmp age_reg, 1100`, the record `rec_a` + `rec_b` (the age already read from it,
-   and checked against it again here). */
+   and checked against it again here).
+
+   `load` 1: not a compare but the LOAD of the age the game then compares against a register that holds
+   1,100 (`mov age_reg, [rec_a + rec_b + age]`, The Lost Children's village: `mov ebx, 0x44C` once per
+   villager, then `cmp ecx, ebx` -- two bytes, too short to splice -- in every pose but swimming).  The
+   stub puts the EFFECTIVE age in `age_reg` instead, and every other register and the flags as they were;
+   the game's own compare then picks the head.  Each such load's register is read only by that compare
+   (tests/test_head_look.py). */
 typedef struct {
     unsigned int va;
     unsigned char length;
@@ -198,6 +207,7 @@ typedef struct {
     unsigned char rec_a;
     unsigned char rec_b;
     unsigned char stock[10];
+    unsigned char load;
 } hl_site;
 
 #define CMP_MEM_ESI(va) { va, 10, HL_NONE, R_ESI, HL_NONE, { 0x81, 0xBE, 0x8C, 0x1B, 0x00, 0x00, 0x4C, 0x04, 0x00, 0x00 } }
@@ -227,11 +237,28 @@ static const hl_site VV3_SITES[] = {
     CMP_ECX(0x456A15u, R_ESI, HL_NONE), CMP_ECX(0x456DCBu, R_ESI, HL_NONE),
 };
 
+/* `mov ecx, [edx + esi + 0x530]` (7 bytes) and `mov ecx, [eax + 0x530]` (6 bytes): The Lost Children's
+   age loads before a `cmp ecx, ebx` (EBX = 1,100). */
+#define LOAD_ECX_EDX_ESI(va) { va, 7, R_ECX, R_EDX, R_ESI, { 0x8B, 0x8C, 0x32, 0x30, 0x05, 0x00, 0x00 }, 1 }
+#define LOAD_ECX_EAX(va) { va, 6, R_ECX, R_EAX, HL_NONE, { 0x8B, 0x88, 0x30, 0x05, 0x00, 0x00 }, 1 }
+
 /* The Lost Children: the Villager Details portrait 0x445540 (record in EDI), a villager's strip figure
-   0x445950 (EDI; the island-event and puzzle dialogs), the village 0x445B50 (EAX), and the map 0x4478E0
-   (ECX, or EDX + ESI -- the pool plus the record's offset). */
+   0x445950 (EDI; the island-event and puzzle dialogs), the village 0x445B50 (EAX for the swimming head;
+   the other poses' thirteen age loads, below), and the map 0x4478E0 (ECX, or EDX + ESI -- the pool plus
+   the record's offset).
+
+   THE VILLAGE'S OTHER POSES.  0x445C32 `mov ebx, 0x44C` once per villager; every adult pose but swimming
+   then loads the age into ECX and compares `cmp ecx, ebx` (two bytes, too short to splice), so the age
+   LOAD is spliced instead (`load` 1): the thirteen loads below, one before each such compare.  Before
+   v1.35.86 only the swimming head (0x4469BA) followed the look in the village (tests/
+   test_vv2_head_look_village.py runs the compositor with this DLL in every pose). */
 static const hl_site VV2_SITES[] = {
     CMP_ECX(0x445694u, R_EDI, HL_NONE), CMP_ECX(0x445A77u, R_EDI, HL_NONE), CMP_ECX(0x4469BAu, R_EAX, HL_NONE),
+    LOAD_ECX_EDX_ESI(0x446B22u), LOAD_ECX_EDX_ESI(0x446BCCu), LOAD_ECX_EDX_ESI(0x446C8Fu),
+    LOAD_ECX_EDX_ESI(0x446D00u), LOAD_ECX_EAX(0x44702Eu), LOAD_ECX_EDX_ESI(0x447181u),
+    LOAD_ECX_EDX_ESI(0x447213u), LOAD_ECX_EDX_ESI(0x4472CBu), LOAD_ECX_EAX(0x447370u),
+    LOAD_ECX_EDX_ESI(0x44759Du), LOAD_ECX_EDX_ESI(0x447635u), LOAD_ECX_EDX_ESI(0x4476ECu),
+    LOAD_ECX_EDX_ESI(0x44777Au),
     CMP_EAX(0x4481D9u, R_ECX, HL_NONE), CMP_EAX(0x448210u, R_ECX, HL_NONE), CMP_EAX(0x4482DCu, R_ECX, HL_NONE),
     CMP_EAX(0x448390u, R_ECX, HL_NONE), CMP_EAX(0x448481u, R_ECX, HL_NONE), CMP_EAX(0x44851Cu, R_ECX, HL_NONE),
     CMP_EAX(0x44868Au, R_ECX, HL_NONE), CMP_EAX(0x44872Bu, R_EDX, R_ESI), CMP_EAX(0x44887Eu, R_EDX, R_ESI),
@@ -248,7 +275,8 @@ static const hl_site *g_sites;
 static int hl_effective_age(const hl_site *s, const unsigned int *frame) {
     const hl_layout *l = &LAYOUT[g_game];
     unsigned int rec = frame[7 - s->rec_a] + (s->rec_b != HL_NONE ? frame[7 - s->rec_b] : 0u);
-    int age = s->age_reg == HL_NONE ? *(const int *)(UINT_PTR)(rec + l->age) : (int)frame[7 - s->age_reg];
+    int age = s->age_reg == HL_NONE || s->load ? *(const int *)(UINT_PTR)(rec + l->age)
+                                               : (int)frame[7 - s->age_reg];
     int look;
     hl_locate();
     if (g_records == 0 || rec < g_records || (rec - g_records) % l->stride != 0
@@ -279,16 +307,47 @@ static __declspec(naked) void hl_site_common(void) {
     }
 }
 
-#define HL_STUB(n) static __declspec(naked) void hl_stub_##n(void) { __asm push n __asm jmp hl_site_common }
+/* A `load` site: `frame` [0..7] pushad, [8] the flags (pushfd), [9] the site's number, replaced with where
+   the game goes on.  The age register gets the effective age -- what the game's load would have read,
+   unless the villager's look says otherwise. */
+static void __cdecl hl_load_age(unsigned int *frame) {
+    const hl_site *s = &g_sites[frame[9]];
+    frame[9] = s->va + s->length;
+    frame[7 - s->age_reg] = (unsigned int)hl_effective_age(s, frame);
+}
+
+static __declspec(naked) void hl_load_common(void) {
+    __asm {
+        pushfd                              ; the flags as the game had them (a load sets none)
+        pushad
+        push esp
+        call hl_load_age
+        add esp, 4
+        popad                               ; the age register now holds the effective age
+        popfd
+        ret                                 ; to the instruction after the site
+    }
+}
+
+#define HL_STUB(n) static __declspec(naked) void hl_stub_##n(void) { __asm push n __asm jmp hl_site_common } \
+    static __declspec(naked) void hl_lstub_##n(void) { __asm push n __asm jmp hl_load_common }
 HL_STUB(0) HL_STUB(1) HL_STUB(2) HL_STUB(3) HL_STUB(4) HL_STUB(5) HL_STUB(6) HL_STUB(7) HL_STUB(8) HL_STUB(9)
 HL_STUB(10) HL_STUB(11) HL_STUB(12) HL_STUB(13) HL_STUB(14) HL_STUB(15) HL_STUB(16) HL_STUB(17) HL_STUB(18)
-HL_STUB(19)
+HL_STUB(19) HL_STUB(20) HL_STUB(21) HL_STUB(22) HL_STUB(23) HL_STUB(24) HL_STUB(25) HL_STUB(26) HL_STUB(27)
+HL_STUB(28) HL_STUB(29) HL_STUB(30) HL_STUB(31) HL_STUB(32)
 
-/* One per site of the game with the most (The Lost Children's 20). */
+/* One per site of the game with the most (The Lost Children's 33), for a compare and for a load. */
 static void (*const HL_STUBS[])(void) = {
     hl_stub_0, hl_stub_1, hl_stub_2, hl_stub_3, hl_stub_4, hl_stub_5, hl_stub_6, hl_stub_7, hl_stub_8, hl_stub_9,
     hl_stub_10, hl_stub_11, hl_stub_12, hl_stub_13, hl_stub_14, hl_stub_15, hl_stub_16, hl_stub_17, hl_stub_18,
-    hl_stub_19,
+    hl_stub_19, hl_stub_20, hl_stub_21, hl_stub_22, hl_stub_23, hl_stub_24, hl_stub_25, hl_stub_26, hl_stub_27,
+    hl_stub_28, hl_stub_29, hl_stub_30, hl_stub_31, hl_stub_32,
+};
+static void (*const HL_LSTUBS[])(void) = {
+    hl_lstub_0, hl_lstub_1, hl_lstub_2, hl_lstub_3, hl_lstub_4, hl_lstub_5, hl_lstub_6, hl_lstub_7, hl_lstub_8,
+    hl_lstub_9, hl_lstub_10, hl_lstub_11, hl_lstub_12, hl_lstub_13, hl_lstub_14, hl_lstub_15, hl_lstub_16,
+    hl_lstub_17, hl_lstub_18, hl_lstub_19, hl_lstub_20, hl_lstub_21, hl_lstub_22, hl_lstub_23, hl_lstub_24,
+    hl_lstub_25, hl_lstub_26, hl_lstub_27, hl_lstub_28, hl_lstub_29, hl_lstub_30, hl_lstub_31, hl_lstub_32,
 };
 
 /* Every game's sites have a stub each (checked when this compiles). */
@@ -302,7 +361,8 @@ static void hl_install(const hl_site *sites, int count) {
     vvfp_site_write w[sizeof HL_STUBS / sizeof HL_STUBS[0]];
     int i;
     for (i = 0; i < count; ++i) {
-        vvfp_site_branch(&w[i], sites[i].va, sites[i].length, sites[i].stock, 0xE9, (const void *)HL_STUBS[i]);
+        vvfp_site_branch(&w[i], sites[i].va, sites[i].length, sites[i].stock, 0xE9,
+                         (const void *)(sites[i].load ? HL_LSTUBS[i] : HL_STUBS[i]));
     }
     g_sites = sites;
     g_installed = vvfp_install_sites(w, count);

@@ -106,9 +106,11 @@ The masks come from the save's "Village Masks" file (`common.masks_by_rank`), th
   game blends onto its scene (the blitter's own formula is proven for each sprite on an opaque
   background).
 
-## A note for the patcher (not fixed here)
+## Change Appearance's preview (fixed in v1.35.86)
 
-`native/vv4_origins_icons/vv4_origins_icons.c` `appearance_draw_cell` names the body sheet
-`<sex>_bodies<age><page>.png` with the head look's age digit; the first digit of a body sheet is the
-sheet's place across the 2 x 3 grid (directions 2-3), not an age, so an "old" body preview reads the
-wrong sheet.
+`native/vv4_origins_icons/vv4_origins_icons.c` `appearance_draw_cell` used to name the body sheet
+`<sex>_bodies<age><page>.png` with the old-head digit (head look Old, or Auto at 55 and over); the first
+digit of a body sheet is the sheet's place across the 2 x 3 grid (directions 2-3), not an age, so an
+"old" body preview read another direction's frame. It now always reads `<sex>_bodies0<page>.png`, the
+sheet the game draws the body from (the head still comes from `_heads00` / `_heads10` by the look).
+`tests/test_vv4_appearance_preview_sheets.py` runs the shipped DLL's window procedure in Unicorn.

@@ -338,11 +338,15 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # crash): the stub grew 27 bytes, so the slot (0x3160), compositor
         # (0x45B50) and init (0x4C5E6) detours' rel32 follow it in the
         # appended page -- nothing in any doubler region.
+        # Re-pinned when the mask stubs stopped treating female_actions
+        # (0xE574A0) as a head atlas (v1.35.86: no second mask over a body):
+        # both stubs lost one compare, so the detours' rel32 follow them in the
+        # appended page -- nothing in any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "F02756411C8456C54E9384A2060DEB852284B7480382400C10C4A24898CCD55E",
+            "F348FCF3D9ED9B39D0D3A782BEA11695C22F6434F3B14D842461B2DD8BFEFE20",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.
