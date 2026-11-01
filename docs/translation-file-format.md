@@ -112,7 +112,10 @@ The English text's placeholders are a contract the translation must keep. Two ki
 - **printf conversions**: `%d`, `%i`, `%u`, `%s`, `%c`, `%x`, `%f`, with flags, width and precision
   (`%5.1f`, `%-3d`, `%02d`), and `%%` for a literal percent sign. The translation must contain **the same
   conversions in the same order** (the program passes the values in English order and cannot reorder
-  them). `%%` may be used freely.
+  them). Write `%%` for a percent sign in such a line.
+- **No `%` where the English has none.** A program may pass any line through a printf-style formatter,
+  so a translation may contain `%` only when its English has printf conversions (and then only as a
+  conversion or `%%`). Write the word for "percent" instead.
 - **Named variables**: `{name}`, `{count}`, `{village}`, etc. The translation must contain **every
   variable the English has, at least once, spelled exactly**, in any order. A variable not in the
   English is an error. Write `{{` and `}}` for literal braces.
@@ -121,8 +124,11 @@ A gender or plural select (below) only chooses words by its subject; it does not
 English has `%s` for a name, the translation must still contain that `%s`, even if it also has
 `{%1: m=Il | f=Elle}`.
 
-Programs may declare further protected tokens (for example a colour or line-break code); the export
-lists them in the Notes column, and they follow the named-variable rule.
+Programs may declare further protected tokens (for example a colour or line-break code, or a game's own
+one-character name and pronoun codes); the export lists them in the Notes column. A token the program
+marks as required must stay; a token the English does not have may not be added where the program says
+it has a meaning there. A game token can also be a select subject when the Notes column declares it a
+person (for example `{*: m=content | f=contente}` where `*` stands for the villager's name).
 
 A row whose placeholders do not match is an **error**: that row falls back to English and is reported.
 It never crashes, and it never affects the other rows.
@@ -138,7 +144,8 @@ One syntax covers both, usable anywhere in a line, any number of times:
 ```
 
 - **SUBJECT** says what the choice depends on:
-  - a named variable from the English, such as `{actor: ...}` or `{count: ...}`;
+  - a named variable from the English, such as `{actor: ...}` or `{count: ...}`, or a game token the
+    Notes column declares a person, such as `{*: ...}`;
   - `%1`, `%2`, ... for the 1st, 2nd, ... printf conversion of the English, counted in English order
     (`%%` does not count). `{%1: ...}` chooses by the first value.
 - Whether a subject is a **person** or a **number** is fixed by the program and written in the Notes
