@@ -102,9 +102,11 @@ def encode_game_text(text: str, errors: str = "strict") -> bytes:
         b = ENCODING_MAP.get(ord(ch))
         parts.append(bytes([b]) if b is not None else ch.encode("utf-8", errors))
     raw = b"".join(parts)
-    if decode_game_text(raw) == text:
+    # A Latin-1 control U+0080-U+009F (how an older patcher read bytes 0x80-0x9F) is written as its own byte,
+    # which now reads as its Windows-1252 character: the same byte, so the same text.
+    if decode_game_text(raw) == "".join(DECODING_TABLE[ord(c)] if 0x80 <= ord(c) <= 0x9F else c for c in text):
         return raw
-    return "".join(ch for ch in text).encode("utf-8", errors)
+    return text.encode("utf-8", errors)
 
 
 class _Codec(codecs.Codec):

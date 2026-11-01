@@ -129,24 +129,27 @@ class TheRows(unittest.TestCase):
                 self.assertIn(row["id"], public)
                 self.assertEqual(row["name"], "Render Unicode with In-Game Fonts")
                 self.assertEqual(row["patches"], [])
-                self.assertNotIn("dependencies", row)
+                self.assertEqual(row["dependencies"], [f"{game}_details_full_names"])
+                self.assertEqual(row["conflicts"], [f"{game}_unicode_font"])
                 self.assertEqual(row["companion_files"], [{"source": f"assets/unicode_text/{DLL_NAME}",
                                                            "destination": DLL_NAME, "sha256": sha}])
                 d = row["description"]
-                for words in ("**On by default.**", "**Needs no other patch.**", "**Not yet seen in a running game**",
-                              "**Covers Windows-1252 only", "**for Burweed, install the Burweed ICG font"):
+                for words in ("**On by default and in Owner's Defaults.**", "**Needs \"Full Names on the Details Screen\"",
+                              "**Not yet seen in a running game**", "**Cannot be used with",
+                              "**for Burweed, install the Burweed ICG font"):
                     self.assertIn(words, d)
                 g = TABLES["games"][game]
-                self.assertEqual([x["va"] for x in row["runtime_detours"]], [g["ctor"], g["text_input"]["site"]])
+                self.assertEqual([x["va"] for x in row["runtime_detours"]][:2], [g["ctor"], g["text_input"]["site"]])
 
     def test_the_generator_reproduces_the_rows(self):
         module = _load_script("build_unicode_text_feature")
         sha = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
         for number, game in enumerate(GAMES, start=1):
-            self.assertEqual(module.row(number, sha, TABLES), _manifest(game))
+            self.assertEqual(module.row(number, False, sha, TABLES, module.routines()), _manifest(game))
 
     def test_started_by_the_startup_loader_second_word(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], DLL_NAME)
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[5], DLL_NAME)
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], "VVFP Unicode Font.dll")
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Original Look.dll",\n    "VVFP Unicode Text.dll",\n', header)
         self.assertIn(DLL_NAME.encode(), (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())
@@ -179,7 +182,8 @@ class TheRows(unittest.TestCase):
     def test_the_dll_exports_and_imports(self):
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpGlyphsUtf8", "VvfpStartup", "VvfpUnicodeTextFonts", "VvfpUnicodeTextKey"])
+        self.assertEqual(names, ["VvfpBoxInsertUtf8", "VvfpGlyphsUtf8", "VvfpStartup", "VvfpUnicodeTextFonts",
+                                 "VvfpUnicodeTextKey", "VvfpUnicodeTextOwnDraws", "VvfpUnicodeTextUnits"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA", "OutputDebugStringW",
                                     "MessageBoxA", "MessageBoxW", "DeleteFileW", "RegSetValueExW",
@@ -282,7 +286,8 @@ class TheGame(unittest.TestCase):
         cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.runs = {}
         for game in GAMES:
-            cls.runs[(game, True)] = emu.FontRun(game, "collection_progression", (f"{game}_unicode_text",), TABLES)
+            cls.runs[(game, True)] = emu.FontRun(game, "collection_progression",
+                                                 (f"{game}_unicode_text", f"{game}_details_full_names"), TABLES)
             cls.runs[(game, False)] = emu.FontRun(game, "collection_progression", (), TABLES)
         cls.outer = {}
         for (game, patched), run in cls.runs.items():
@@ -371,13 +376,21 @@ class TheGame(unittest.TestCase):
                     x += g.mask.w + made.metrics.spacing
 
     def test_typing_every_character(self):
+        """v1.35.89: ASCII is posted as before; every other well-formed text is handed to the box whole (a
+        mark the box's handler takes: tests/test_unicode_utf8.py checks what it stores)."""
         for game in GAMES:
             run = self.runs[(game, True)]
             for ch in glyphs.PRINTABLE:
                 with self.subTest(game=game, ch=ch):
-                    self.assertEqual(run.type_text(ch.encode("utf-8")), ("post", glyphs.to_byte(ch)))
+                    kind, value = run.type_text(ch.encode("utf-8"))
+                    self.assertEqual(kind, "post")
+                    if ord(ch) < 0x80:
+                        self.assertEqual(value, ord(ch))
+                    else:
+                        self.assertEqual(value & 0xFF0000FF, 0x56000000)
             for text in ("日", "Ω", "😀", "ab", "é\u0301", "\u0100"):
-                self.assertEqual(run.type_text(text.encode("utf-8")), ("skip", None), (game, text))
+                kind, value = run.type_text(text.encode("utf-8"))
+                self.assertEqual((kind, value & 0xFF0000FF), ("post", 0x56000000), (game, text))
             # malformed or overlong UTF-8 is skipped
             for raw in (b"\xc3", b"\xc0\xa9", b"\xe2\x82", b"\xff"):
                 self.assertEqual(run.type_text(raw), ("skip", None), (game, raw))
