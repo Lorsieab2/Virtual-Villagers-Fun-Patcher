@@ -128,7 +128,7 @@ ROLLS = (
          "at any speed); each decision goes on to look for something to do only {0} of the time (a roll of 0 to 99 "
          "above 65), except for the Tribal Chief, who always does. The sweep that has every villager decide again "
          "(up to 10 tries each) runs only when 40 real-life seconds pass without the village's 2-second step, "
-         "which pushes it 40 seconds ahead each time, so not in normal play.",
+         "which pushes it 40 real-life seconds ahead each time, so not in normal play.",
          (Check(0x45C0BC, 100, 0x41, "jg"),)),
     Roll("Choosing a job, at each try to look for something to do: a villager who does not like work takes no job {0} of the time; one who dislikes "
          "work takes none a further {1} of the time.",

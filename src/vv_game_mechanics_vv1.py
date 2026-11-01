@@ -95,8 +95,8 @@ CHANCE_LINES = (
      "pregnancy, birthdays); regrowth every 2 hours, 4 hours or 6 hours 40 minutes of real-life play, every missed "
      "one added when the game is next played; island events 12 to 23 real-life hours apart at any speed (Island "
      "events); the village step every 2 real-life seconds; the idle sweep that has every idle villager decide again "
-     "runs only when 40 real-life seconds (real time) pass without that step, since each step pushes it 40 seconds "
-     "ahead, so not in normal play; a mushroom "
+     "runs only when 40 real-life seconds (real time) pass without that step, since each step pushes it 40 real-life "
+     "seconds ahead, so not in normal play; a mushroom "
      "lies 1 real-life minute.", gm.CODE),
     ("A new village's first island event comes 15 real-life minutes after it is made (real time, the same at every "
      "speed; the pause pushes it on), and its tutorial mushroom lies 1 minute 40 real-life seconds (real time).",
