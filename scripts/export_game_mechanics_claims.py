@@ -16,7 +16,10 @@ Read-only: it reads the committed fixtures and writes only into the output folde
 """
 from __future__ import annotations
 
+import contextlib
+import functools
 import gzip
+import hashlib
 import re
 import struct
 import sys
@@ -56,8 +59,10 @@ _TALLY = re.compile(r"^(Graves by cause of death, [^:]*|Graves by epitaph|The pa
                     r"(: | \()?.*$")
 
 
+@functools.lru_cache(maxsize=200_000)
 def _plain(text: str) -> str:
-    """A line as rendered, with a villager's name (the per-villager lines) as <villager>."""
+    """A line as rendered, with a villager's name (the per-villager lines) as <villager>.  It depends on the text
+    alone, and the export meets the same line millions of times, so each is worked out once."""
     import vv_game_mechanics_life as life
     text = _VILLAGER.sub("<villager>", gm.tidy(text), count=1)
     text = _TALLY.sub(lambda m: f"{m.group(1)}: <tally>.", text)
@@ -68,14 +73,17 @@ def _tokens(text: str) -> list[tuple[str, str]]:
     return [(m.lastgroup, m.group(0)) for m in _TOKEN.finditer(_plain(text))]
 
 
+@functools.lru_cache(maxsize=200_000)
 def template(text: str) -> str:
-    """A line's shape: every date, length of time and number replaced -- the key its renderings share."""
+    """A line's shape: every date, length of time and number replaced -- the key its renderings share (from the
+    text alone, so each is worked out once)."""
     return _TOKEN.sub(lambda m: _PLACE[m.lastgroup], _plain(text))
 
 
 def merged(texts: list[str]) -> str:
     """One line from all its renderings: a value the same in every one is kept (a rule's own figure); one that
     differs is "#" (a number), "<time>" (a length of time) or "<date>" (a date and time) from the save."""
+    texts = list(dict.fromkeys(texts))         # a rendering seen again changes nothing: the first stays first
     rows = [_tokens(t) for t in texts]
     keep = [len({row[k][1] for row in rows}) == 1 for k in range(len(rows[0]))]
     pieces = iter(keep)
@@ -318,10 +326,47 @@ def _tree_timer_file(data: bytes, mode: int) -> bytes | None:
             + bytes(vv3.TIMER_ENTRY * (vv3.TIMER_ENTRIES - 1)))
 
 
+@contextlib.contextmanager
+def _each_villager_table_found_once():
+    """While the export reads its thousands of pages, each save's villager table is found once.
+
+    The window's sections each look the table up again (scripts/vvfp_consistency_check.py villager_offsets, a
+    scan of the whole save), and the export renders every save at several speeds, moments and patch sets, so
+    the same scan of the same bytes ran tens of thousands of times.  villager_offsets depends only on the game,
+    the save's bytes and the hint names, so its answer (or its "no villager table found") is kept per save, by
+    the bytes' SHA-256, for the export only: the checker's own function is put back afterwards."""
+    import vv_log_tools
+    checker = vv_log_tools.load_checker()
+    real = checker.villager_offsets
+    found: dict[tuple, list[int] | ValueError] = {}
+
+    def once(game: int, data: bytes, hint_names: list[str]) -> list[int]:
+        if not isinstance(data, bytes):
+            return real(game, data, hint_names)
+        key = (game, len(data), hashlib.sha256(data).digest(), tuple(hint_names))
+        if key not in found:
+            try:
+                found[key] = list(real(game, data, hint_names))
+            except ValueError as error:
+                found[key] = error
+        answer = found[key]
+        if isinstance(answer, ValueError):
+            raise ValueError(*answer.args)
+        return list(answer)
+
+    checker.villager_offsets = once
+    try:
+        yield
+    finally:
+        checker.villager_offsets = real
+
+
 def claims(game: int) -> dict[str, dict[str, tuple[str, str, str, str]]]:
     """{group: {template: (line, status, evidence, patches)}} in the window's group order."""
     seen: dict[tuple[str, str], list[gm.Fact]] = {}
-    for page in pages(game):
+    with _each_villager_table_found_once():
+        every_page = pages(game)
+    for page in every_page:
         for fact in page:
             if fact.group == gm.SOURCES:       # where this page was read from: no claim about the game
                 continue
