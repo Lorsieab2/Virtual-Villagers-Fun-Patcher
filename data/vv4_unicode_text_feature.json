@@ -5,24 +5,29 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Render Unicode with In-Game Fonts",
-  "description": "Lets the game draw and measure every Western European character, and lets you type them: accented letters (\u00e0 \u00e1 \u00e2 \u00e3 \u00e4 \u00e5 \u00e6 \u00e7 \u00e8 \u00e9 \u00ea \u00eb \u00ec \u00ed \u00ee \u00ef \u00f1 \u00f2 \u00f3 \u00f4 \u00f5 \u00f6 \u00f8 \u00f9 \u00fa \u00fb \u00fc \u00fd \u00ff and their capitals), \u00df, \u00bf \u00a1, \u20ac \u00a3, the curly quotes and the dashes -- every printable character of Windows-1252, in both of the game's fonts (the big Burweed story font and the small Arial Bold font). The Tree of Life's fonts already hold the Latin-1 letters, so this adds the 28 they lack: the euro, the curly quotes and dashes, \u2026 \u2022 \u2020 \u2021 \u2030 \u2122, \u0160 \u0161 \u017d \u017e \u0178 \u0152 \u0153 and \u0192. Before this, a character a font lacks was drawn as the font's first letter, and the game threw away every typed character outside plain English. The new letters are made in each font's own style -- same height, baseline and weight, white with soft edges, tinted by the game like the rest -- from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface (Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in for the signs). Names on the Details screen, the tribe name, popups, logs shown in the game and every other text use them, with their real widths, so centring and line breaks stay right. Typing: the tribe name, villager names and every other text box take these characters (dead keys and Alt codes included, as Windows sends them); each is one byte in the save, as before, so names keep their lengths and a save stays readable by the base game and older patchers (there, the new characters show as the font's first letter). **Covers Windows-1252 only: Greek, Cyrillic, Chinese, Japanese, emoji and other scripts cannot be stored in the game's one-byte names and are not drawn yet.** **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Unicode Text.dll\", started by VVFP Startup.dll; the game's own pictures and saves are never changed.",
+  "description": "Lets the game draw, measure and accept ANY character -- accented letters, Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew (joined and right to left), Indian scripts, cuneiform, symbols and colour emoji -- in the game's own two fonts (the big Burweed story font and the small Arial Bold font). The Tree of Life's fonts hold ASCII and the Latin-1 letters; every other Windows-1252 character is added to the fonts in their own style when the game starts (from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface: Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in), and every other character is made the first time it is shown, in the font's size, baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe UI Emoji in colour, Yu Gothic, Microsoft YaHei, Malgun Gothic, Nirmala UI, Ebrima, then Noto fonts if installed). Names, the Details screen, popups, dialogs and every other text use them with their real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. Typing: every text box -- the tribe name, villager names on the Details screen, epitaphs -- takes any character Windows sends (dead keys, Alt codes, the Windows emoji panel, an input method for Japanese or Chinese), each stored whole or not at all, and Backspace erases a whole character (a whole emoji, flag or accented letter). Every box takes the same limit: 1200 bytes (the engine's own text-box ceiling; a Japanese character is 3 bytes, an emoji or cuneiform sign 4). A name longer than the save's own field (a villager's name 23 bytes, the tribe name 19) is saved there as a short form ending in \u2026 and kept whole in a per-save file (Virtual Villagers Fun Patcher\\Save <n>\\Data\\Long Names), and shown whole wherever the game draws it. Characters are stored as UTF-8 (a Western European letter keeps its one Windows-1252 byte), so every older name reads as before; the base game and older patchers show other characters as odd letters but never break. **On by default and in Owner's Defaults.** **Cannot be used with \"Use Unicode Font (overrides in-game fonts)\" (ticking one unticks the other).** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Unicode Text.dll\", started by VVFP Startup.dll; the game's own pictures and saves are never changed, and no font is shipped.",
   "output_tag": "Unicode Text",
+  "conflicts": [
+    "vv4_unicode_font"
+  ],
   "behavior_changes": [
-    "The font constructor (0x4027A0) runs unchanged, then for the game's two fonts -- ldwBurweed27 (stock glyph table 0x4BB068) and ldwarialbold (0x4BA140) -- every printable Windows-1252 character the font lacks is made (src/vv_font_glyphs.py, run in C by native/vvfp_unicode_text/glyphs.inc) and added: as new rows under the loaded font picture (a new SDL surface of the same format; the old one is freed) and as new entries in a copy of the glyph table, with the font's 256-entry index pointing each code at its letter. NBSP draws as the space and the soft hyphen as '-'.",
-    "Every text draw and measure reads letters through the font's glyph lookup, so names, the Details screen, popups, the Tech screen, logs shown in the game and word wrapping all draw the new letters and measure them by their real widths, in every text colour.",
-    "The SDL_TEXTINPUT case (0x404A25) posts a typed text of ONE character that Windows-1252 has as that byte (0x80-0xFF zero-extended, which the game's text boxes already accept: they take 0x20..0xFF); plain ASCII is posted exactly as before, and anything else is skipped as before."
+    "The font constructor (0x4027A0) runs unchanged; for the game's two fonts -- ldwBurweed27 (stock glyph table 0x4BB068) and ldwarialbold (0x4BA140) -- the companion records the font's line height, baseline, capital height and pixel format, then adds every printable Windows-1252 character the font lacks (src/vv_font_glyphs.py, run in C by native/vvfp_unicode_text/glyphs.inc) as new rows under the loaded picture and new entries in a copy of the glyph table.",
+    "Text is read by one rule (src/vv_game_text.py, native/vvfp_unicode_text/text_utf8.h): a well-formed UTF-8 sequence is its character, every other byte its Windows-1252 character, so every existing name reads as before. The width, draw, line-fitting, counted-draw and justified-paragraph routines are detoured: text without a multi-byte sequence goes to the game's own routine unchanged; other text is cut into whole units (grapheme clusters; shaped runs of Arabic, Hebrew, Indic and other scripts) and drawn in runs by the game's own draw and width routines, from the font's own letters or from pages of letters made at run time (Uniscribe shaping, GDI glyphs, COLR colour layers for emoji) in the font's size and baseline.",
+    "Each detoured text routine first offers the text to VvfpTranslateText of \"VVFP Translations.dll\" when that companion is loaded (fails open), and shows a long name's short form as the whole name.",
+    "Line breaking breaks Chinese and Japanese between characters (never before a closing mark or small kana) and other text at spaces, and breaks a word wider than the line between whole units only.",
+    "The SDL_TEXTINPUT case (0x404A25) posts a typed ASCII character exactly as before; any other well-formed text is handed whole to the focused text box, which stores each character whole (a Windows-1252 character as its one byte, any other as UTF-8) while it fits the box's limit. Backspace erases a whole unit. A box never cuts its text by pixels. Every box's limit is 1200 bytes; a text longer than the field GetText copies it to leaves as a short form ending in \u2026 (\u2026 and a number when another long name has it), whose whole text is appended to the save's Long Names file and given back when the game puts the short form into a box."
   ],
   "explicit_non_changes": [
-    "No executable byte is patched: the companion replaces the constructor's first instructions and the SDL_TEXTINPUT case's first seven bytes at run time, all or none, only after verifying their stock bytes, and installs nothing on a different build.",
-    "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed; the new letters exist only in the game's memory. Nothing of the game's art is shipped.",
-    "Every character stays one byte: no name or text box holds more bytes than before, and nothing is cut inside a character. Saves, villager records and the patcher's files are never written.",
-    "A font that is not one of the two, not 32-bit, or whose letters cannot be made is left exactly as the game built it; a fault while adding letters leaves the font stock."
+    "No executable byte is patched: the companion replaces each routine's first instructions at run time, all of them or none, only after verifying their stock bytes, and installs nothing on a different build.",
+    "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed and nothing of the game's art and no font is shipped; letters are made in memory from the player's own Windows fonts.",
+    "A save's records only ever hold what fits their fields: every stock copy of a name sees the short form, never more bytes than the stock game wrote. Nothing is cut inside a character.",
+    "A fault in any detour falls back to the game's own routine with the game's own text."
   ],
   "companion_files": [
     {
       "source": "assets/unicode_text/VVFP Unicode Text.dll",
       "destination": "VVFP Unicode Text.dll",
-      "sha256": "A04A090418D2A7AAA5319B191B003411D0832E0451F15FEEE362FDBB6583DAF0"
+      "sha256": "EE92FAE17C99C26CDE01B252061564E87D395B9F193F3B5006413B457E1B87ED"
     }
   ],
   "patches": [],
@@ -37,6 +42,72 @@
       "va": "0x404A25",
       "stock_bytes": "8D4424308D5001",
       "routine": "the event pump's SDL_TEXTINPUT case (lea eax, [esp + text]; lea edx, [eax + 1])",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x402430",
+      "stock_bytes": "83EC10558B6904",
+      "routine": "the text width routine (thiscall: font; text, scale)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x409700",
+      "stock_bytes": "83EC448B442458",
+      "routine": "the text draw routine (thiscall: draw context; text, x, y, colour, font)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x402550",
+      "stock_bytes": "83EC185355",
+      "routine": "the line-fitting routine of dialogs (thiscall: font; text, line buffer, bytes, width, ...)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4094F0",
+      "stock_bytes": "83EC4C8B442468",
+      "routine": "the counted text draw/measure routine justified paragraphs use",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x409C30",
+      "stock_bytes": "81ECDC040000",
+      "routine": "the justified paragraph routine",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40CE20",
+      "stock_bytes": "83EC34568BF1",
+      "routine": "the text control's draw routine (an editable box cuts its text one byte at a time here)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D050",
+      "stock_bytes": "538A5C2408",
+      "routine": "the text box's SetEditable (its byte limit)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D110",
+      "stock_bytes": "568BF18B4630",
+      "routine": "the text box's SetText",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D420",
+      "stock_bytes": "8B41108B4830",
+      "routine": "the text box's GetText(buffer, size)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D767",
+      "stock_bytes": "8B44240483F806",
+      "routine": "the text box's character handler, at its message check (mov eax,[esp+4]; cmp eax,6)",
+      "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D7B8",
+      "stock_bytes": "8B5130C64402FF00",
+      "routine": "the text box's Backspace (mov edx,[ecx+0x30]; mov byte [edx+eax-1],0)",
       "installed_by": "VVFP Unicode Text.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]

@@ -21,6 +21,12 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
     "VVFP Unicode Text.dll",
+    /* Started after the Unicode text companion when a build ships both: VVFP Translations.dll asks it, at
+       start, whether the game draws UTF-8 (VvfpGlyphsUtf8). */
+    "VVFP Translations.dll",
+    /* Use Unicode Font (all five games): the Unicode text companion's code, drawing every letter in a
+       Windows typeface; a build ships it or "VVFP Unicode Text.dll", never both. */
+    "VVFP Unicode Font.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -1,5 +1,10 @@
 """How the patcher reads and writes the games' own text bytes: names, tribe names, logs, saves.
 
+v1.35.89 (UTF-8 in game): a well-formed UTF-8 sequence is read as its character, every other byte as
+Windows-1252 as below -- the rule native/vvfp_unicode_text uses in the game.  Writing keeps each
+Windows-1252 character as its one byte and writes every other character as UTF-8 (encode_game_text), so
+every name the base game, an older patcher or PR #670 wrote reads and writes back byte for byte.
+
 The games keep every character in one byte, and with "Render Unicode with In-Game Fonts" they draw and
 accept every printable Windows-1252 character -- 0x80-0x9F included (the euro, curly quotes, dashes,
 S and Z with caron, OE).  The patcher used to read those bytes as Latin-1, which shows 0x80-0x9F as
@@ -40,22 +45,95 @@ ENCODING_MAP: dict[int, int] = {b: b for b in range(256)}          # Latin-1, as
 ENCODING_MAP.update({ord(ch): b for b, ch in enumerate(DECODING_TABLE)})
 
 
+def _utf8_length(data, i: int) -> int:
+    """The length of the well-formed UTF-8 sequence starting at data[i] (Unicode Table 3-7), or 0 when
+    there is none -- a lone byte, a cut-off sequence, an overlong form, a surrogate, or beyond U+10FFFF."""
+    b = data[i]
+    n = len(data)
+    if 0xC2 <= b <= 0xDF:
+        return 2 if i + 1 < n and 0x80 <= data[i + 1] <= 0xBF else 0
+    if 0xE0 <= b <= 0xEF:
+        lo, hi = (0xA0, 0xBF) if b == 0xE0 else (0x80, 0x9F) if b == 0xED else (0x80, 0xBF)
+        return 3 if (i + 2 < n and lo <= data[i + 1] <= hi and 0x80 <= data[i + 2] <= 0xBF) else 0
+    if 0xF0 <= b <= 0xF4:
+        lo, hi = (0x90, 0xBF) if b == 0xF0 else (0x80, 0x8F) if b == 0xF4 else (0x80, 0xBF)
+        return 4 if (i + 3 < n and lo <= data[i + 1] <= hi and 0x80 <= data[i + 2] <= 0xBF
+                     and 0x80 <= data[i + 3] <= 0xBF) else 0
+    return 0
+
+
+def decode_game_text(data) -> str:
+    """The games' rule (the same in native/vvfp_unicode_text): each well-formed UTF-8 sequence is its
+    character; every other byte is its Windows-1252 character (the five undefined ones as Latin-1)."""
+    data = bytes(data)
+    if data.isascii():
+        return data.decode("ascii")
+    out = []
+    i = 0
+    n = len(data)
+    while i < n:
+        b = data[i]
+        if b < 0x80:
+            j = i + 1
+            while j < n and data[j] < 0x80:
+                j += 1
+            out.append(data[i:j].decode("ascii"))
+            i = j
+            continue
+        k = _utf8_length(data, i)
+        if k:
+            out.append(data[i:i + k].decode("utf-8"))
+            i += k
+        else:
+            out.append(DECODING_TABLE[b])
+            i += 1
+    return "".join(out)
+
+
+def encode_game_text(text: str, errors: str = "strict") -> bytes:
+    """The bytes the games store for `text`: each character Windows-1252 has as its one byte (so a name an
+    older patcher or the base game wrote keeps its bytes, and stays as short as it can), every other
+    character as UTF-8 -- unless that mix would read back as different text (a Windows-1252 pair such as
+    "Ã©" is also the UTF-8 of "é"), when every non-ASCII character is written as UTF-8."""
+    if text.isascii():
+        return text.encode("ascii")
+    parts = []
+    for ch in text:
+        b = ENCODING_MAP.get(ord(ch))
+        parts.append(bytes([b]) if b is not None else ch.encode("utf-8", errors))
+    raw = b"".join(parts)
+    if decode_game_text(raw) == text:
+        return raw
+    return "".join(ch for ch in text).encode("utf-8", errors)
+
+
 class _Codec(codecs.Codec):
     def encode(self, text, errors="strict"):
-        return codecs.charmap_encode(text, errors, ENCODING_MAP)
+        return encode_game_text(text, errors), len(text)
 
     def decode(self, data, errors="strict"):
-        return codecs.charmap_decode(data, errors, DECODING_TABLE)
+        return decode_game_text(data), len(data)
 
 
 class _IncrementalEncoder(codecs.IncrementalEncoder):
     def encode(self, text, final=False):
-        return codecs.charmap_encode(text, self.errors, ENCODING_MAP)[0]
+        return encode_game_text(text, self.errors)
 
 
-class _IncrementalDecoder(codecs.IncrementalDecoder):
-    def decode(self, data, final=False):
-        return codecs.charmap_decode(data, self.errors, DECODING_TABLE)[0]
+class _IncrementalDecoder(codecs.BufferedIncrementalDecoder):
+    def _buffer_decode(self, data, errors, final):
+        data = bytes(data)
+        if not final:
+            # Hold back a trailing partial UTF-8 sequence until the next chunk (or the end) decides it.
+            for back in (1, 2, 3):
+                if len(data) >= back:
+                    b = data[-back]
+                    need = 2 if 0xC2 <= b <= 0xDF else 3 if 0xE0 <= b <= 0xEF else 4 if 0xF0 <= b <= 0xF4 else 0
+                    if need > back and all(0x80 <= c <= 0xBF for c in data[len(data) - back + 1:]):
+                        return decode_game_text(data[:-back]), len(data) - back
+                    if b < 0x80 or b >= 0xC0:
+                        break
+        return decode_game_text(data), len(data)
 
 
 class _StreamWriter(_Codec, codecs.StreamWriter):
@@ -90,10 +168,34 @@ def game_char(ch: str) -> int | None:
 
 
 def printable(ch: str) -> bool:
-    """A character the games draw (with Render Unicode with In-Game Fonts) and accept typed: printable
-    ASCII or a printable Windows-1252 character above it -- never a control byte, never a byte
-    Windows-1252 leaves undefined."""
-    b = game_char(ch)
-    if b is None or b < 0x20 or b == 0x7F:
+    """A character the games draw and accept typed with "Render Unicode with In-Game Fonts" or "Use Unicode
+    Font": any character but a control, a lone surrogate, a private-use or unassigned code point and the
+    five bytes Windows-1252 leaves undefined (format characters such as the zero-width joiner of emoji
+    sequences are taken)."""
+    import unicodedata
+    if len(ch) != 1:
         return False
-    return not 0x80 <= ord(DECODING_TABLE[b]) <= 0x9F     # the five bytes Windows-1252 leaves undefined
+    if ch in "":
+        return False
+    return unicodedata.category(ch) not in ("Cc", "Cs", "Co", "Cn")
+
+
+def byte_length(text: str) -> int:
+    """How many bytes the games store for `text` (their limits count bytes)."""
+    return len(encode_game_text(text))
+
+
+def fit_bytes(text: str, limit: int) -> str:
+    """The longest start of `text`, cut between whole characters (grapheme clusters where Python can
+    tell: a combining mark, variation selector, emoji modifier or zero-width-joined part never left
+    alone), whose bytes fit `limit`."""
+    import unicodedata
+    out = text
+    while out and byte_length(out) > limit:
+        out = out[:-1]
+        while out and (unicodedata.combining(out[-1]) or out[-1] == "‍"
+                       or 0xFE00 <= ord(out[-1]) <= 0xFE0F or 0x1F3FB <= ord(out[-1]) <= 0x1F3FF):
+            out = out[:-1]
+        if out.endswith("‍"):
+            out = out[:-1]
+    return out

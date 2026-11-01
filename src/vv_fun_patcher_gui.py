@@ -153,6 +153,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner's own pick of the fruit-tree pair is the other way round: Fruit
     # Trees Take Turns Refilling on, All Fruit Trees Refill at the Same Time off.
     + ["vv3_fruit_trees_refill_together"]
+    # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
+    # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
+    + ["vv%d_unicode_font" % game for game in range(1, 6)]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
