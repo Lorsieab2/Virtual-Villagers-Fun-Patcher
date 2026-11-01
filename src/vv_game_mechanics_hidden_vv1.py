@@ -51,7 +51,8 @@ NUMBER_KEYS = "vv1_number_keys"
 F6 = "vv1_f6_clothing_change_cheat"
 SORT_BY = "vv1_sort_by"
 PATCHES = (NUMBER_KEYS, F6, SORT_BY, ORIGINS, STORY)
-DEFAULT_OFF = frozenset({STORY})
+# Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
+DEFAULT_OFF: frozenset[str] = frozenset()
 
 
 def _keys() -> list[Entry]:

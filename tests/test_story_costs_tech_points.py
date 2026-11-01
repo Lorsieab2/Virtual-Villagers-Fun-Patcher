@@ -15,6 +15,7 @@ but writes none of the zero prices, and charges the Island Event upgrade's
 from __future__ import annotations
 
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -92,8 +93,68 @@ class SelectionTests(unittest.TestCase):
         for n in range(1, 6):
             with self.subTest(game=n):
                 self.assertEqual(gui.COTICKED_FUN_PATCH_IDS[f"vv{n}_story_cheat_upgrades"], COST.format(n))
-                self.assertIn(COST.format(n), gui.DEFAULT_OFF_FUN_PATCH_IDS)
+                # On by default with Story / Cheat Upgrades (owner, 2026-11-01).
+                self.assertNotIn(COST.format(n), gui.DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertTrue(gui.default_fun_patch_selection(COST.format(n)))
                 self.assertNotIn(COST.format(n), gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+
+
+# Every item Story / Cheat Upgrades adds at "0 Tech Points" -- the Origins Upgrades it lists ("Name --
+# ...") and each "Also adds Name (0 Tech Points ...)" -- must have its price named wherever the cost row
+# is described, so with the cost row ticked nothing it adds is free or unexplained.
+_LISTED = re.compile(r"(?:Upgrades: |\. |\) )([A-Z][A-Za-z ]+?) -- ")
+_ALSO = re.compile(r"Also adds ([A-Z][A-Za-z ]+?) \(0 Tech Points")
+_PRICE = re.compile(r"\d{1,3},\d{3}")
+
+
+def _free_items(game: str) -> list[str]:
+    text = json.loads((ROOT / "data" / f"{game}_story_cheat_upgrades_feature.json").read_text(
+        encoding="utf-8"))["description"]
+    return list(dict.fromkeys(_LISTED.findall(text) + _ALSO.findall(text)))
+
+
+def _priced(test: unittest.TestCase, where: str, text: str, items: list[str]) -> None:
+    for item in items:
+        sentences = [s for s in re.split(r"(?<=[.;])\s+", text) if item in s]
+        with test.subTest(where=where, item=item):
+            test.assertTrue(sentences, f"{item} is not named in {where}")
+            test.assertTrue(any(_PRICE.search(s) for s in sentences), f"{item} has no price in {where}")
+
+
+class EveryFreeItemHasAPriceTests(unittest.TestCase):
+    def test_the_items_are_found(self):
+        expected = {
+            "vv1": {"Pick Island Event", "Custom Island Event", "Choose Time Skip Amount"},
+            "vv2": {"Pick Island Event", "Custom Island Event", "Pick Gong of Wonder Outcome",
+                    "Choose Time Skip Amount"},
+            "vv3": {"Pick Island Event", "Custom Island Event", "Choose Time Skip Amount",
+                    "Recharge Chief Powers"},
+            "vv4": {"Pick Island Event", "Custom Island Event", "Choose Time Skip Amount"},
+            "vv5": {"Pick Island Event", "Custom Island Event", "Choose Time Skip Amount"},
+        }
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.assertEqual(set(_free_items(game)), expected[game])
+
+    def test_the_patch_description_prices_every_item(self):
+        for game in GAMES:
+            raw = json.loads((ROOT / "data" / f"{COST.format(game[2])}_feature.json").read_text(
+                encoding="utf-8"))["description"]
+            _priced(self, f"{game} patch description", raw, _free_items(game))
+
+    def test_the_question_mark_guide_prices_every_item(self):
+        import vv_how_to_use as how
+        for game in GAMES:
+            text = " ".join(how.guide(how.patch_key(COST.format(game[2])), "x").lines)
+            _priced(self, f"{game} guide", text, _free_items(game))
+
+    def test_the_readme_prices_every_item(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        for game in GAMES:
+            start = readme.index(f"- Patch ID: `{game}_story_cheat_upgrades`")
+            start = readme.index("**Story / Cheat Upgrades cost Tech Points**", start)
+            text = readme[start:readme.index("- Patch ID:", start)]
+            _priced(self, f"{game} README", text, _free_items(game))
 
 
 if __name__ == "__main__":

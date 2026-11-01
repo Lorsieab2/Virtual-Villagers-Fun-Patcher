@@ -74,10 +74,10 @@ HUT_START_SHORT = (250, 1_600, 2_000, 2_000)
 CLOTHES_PRICE = 5_000
 
 # The patcher's defaults (src/vv_fun_patcher_gui.py DEFAULT_OFF_FUN_PATCH_IDS / ALTERNATIVE_OFF_FUN_PATCH_IDS, for
-# this game): every other patch is ticked by default.  tests/test_game_mechanics_items_vv3.py checks this mirror.
+# this game): every other patch is ticked by default, Story / Cheat Upgrades and its cost row included (owner,
+# 2026-11-01).  tests/test_game_mechanics_items_vv3.py checks this mirror.
 DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like_vv1",
                          "vv3_super_secret_golden_mushroom", "vv3_manual_drop_breeding_overrides_birth_control",
-                         "vv3_story_cheat_upgrades", "vv3_story_cheat_upgrades_cost_tech_points",
                          "vv3_population_256", "vv3_fruit_trees_take_turns"})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
