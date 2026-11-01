@@ -192,7 +192,9 @@ class ReleasesLinkTests(unittest.TestCase):
                # Picture Studio's Everything tab (the owner, 2026-11-01): the tab, the shared asset code, the JPEG
                # reader and each game's table, found by name.
                "vv_picture_studio_everything", "vv_pictures_assets", "vv_jpeg", "vv_assets_vv1", "vv_assets_vv2",
-               "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5"}
+               "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5",
+               # Translations (the owner, 2026-11-01): the window, the game side and the shared file format.
+               "vv_translations_window", "vv_translations", "vv_translation_format"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves

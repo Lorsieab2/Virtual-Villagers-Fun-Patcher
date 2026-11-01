@@ -37,6 +37,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
+import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
 import vv_genealogy
@@ -1760,6 +1761,11 @@ class App(tk.Tk):
             slot_links, "Copy Player Slot...", self._copy_single_slot
         ).pack(side="left")
         self._help_button(slot_links, "copy_player_slot").pack(side="left", padx=(3, 0))
+        # Translations (the owner, 2026-11-01): the language each game uses, and making and sharing one.
+        self._folder_link(
+            slot_links, "Translations...", self._translations_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(slot_links, "translations").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1894,12 +1900,24 @@ class App(tk.Tk):
             command=lambda: vv_copy_slot_window.open_copy_slot(self, None),
         ).pack(side="left")
         self._help_button(slot_tools, "copy_player_slot").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            slot_tools,
+            text="Translations...",
+            command=lambda: vv_translations_window.open_translations(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(slot_tools, "translations").pack(side="left", padx=(2, 0))
 
     def _copy_single_slot(self) -> None:
         """Copy Player Slot for the game chosen on the One Game tab."""
         build = self._single_build()
         if build is not None:
             vv_copy_slot_window.open_copy_slot(self, build)
+
+    def _translations_single(self) -> None:
+        """Translations for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            vv_translations_window.open_translations(self, build)
 
     def _mode(self) -> str:
         return self.patch_mode_var.get()
@@ -2183,6 +2201,10 @@ class App(tk.Tk):
         saved_exes = data.get("game_mechanics_exes", {})
         self.game_mechanics_exes = ({str(k): v for k, v in saved_exes.items() if isinstance(v, str)}
                                     if isinstance(saved_exes, dict) else {})
+        # Translations: the language each game uses (vv_translations_window; a file name, "" for English).
+        saved_translations = data.get(vv_translations_window.SETTINGS_KEY, {})
+        self.translation_choices = saved_translations if isinstance(saved_translations, dict) else {}
+        vv_translations_window.restore_display_choices(self)
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
@@ -2206,6 +2228,7 @@ class App(tk.Tk):
             "tree_window": self.tree_window,
             "tree_style": self.tree_style,
             "game_mechanics_exes": self.game_mechanics_exes,
+            vv_translations_window.SETTINGS_KEY: getattr(self, "translation_choices", {}),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds
@@ -2501,6 +2524,8 @@ class App(tk.Tk):
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
+            # The language chosen in the Translations window, also when it was chosen before this copy existed.
+            vv_translations_window.apply_after_build(self, build.id, output.parent)
             self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(
                 f"Success. Created {output.name} in {output.parent.name}."
@@ -2571,6 +2596,8 @@ class App(tk.Tk):
                 build.id: output
                 for (build, _), (output, _) in zip(validated, results, strict=True)
             }
+            for (build, _), (output, _) in zip(validated, results, strict=True):
+                vv_translations_window.apply_after_build(self, build.id, output.parent)
             self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set("Success. Created all five modified game folders.")
             self._save_settings()
