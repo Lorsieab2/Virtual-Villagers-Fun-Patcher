@@ -13,7 +13,7 @@ import idautils
 import idc
 
 ida_auto.auto_wait()
-out_path = os.environ["DIVS_OUT"]
+out_path = os.environ.get("DIVS_OUT") or (os.path.splitext(os.path.splitext(idc.get_idb_path())[0])[0] + "_divs.json")
 ida_hexrays.init_hexrays_plugin()
 
 HELPER_NAMES = ("_alldiv", "_aulldiv", "_allrem", "_aullrem", "_alldvrm", "_aulldvrm")

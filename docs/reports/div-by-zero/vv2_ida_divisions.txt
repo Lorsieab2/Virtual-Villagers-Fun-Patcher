@@ -1,0 +1,118 @@
+lib hits 50 const exprs 336 var exprs 166
+== 0x4031a0 sub_4031A0 hits=1 const=0
+   4031ba  [a1]   _rand() % a1
+== 0x404000 sub_404000 hits=51 const=4
+   4057e2  [v211]   v217 / v211
+   405864  [v211]   v340 / v211
+   405880  [v211]   v212 / v211
+   4058a5  [v211]   v362 / v211
+   405791  [v211]   v218 / v211
+   4059d5  [v211]   v245 / v211
+   4045a9  [v46]   v358 / v46
+   404646  [v46]   v47 / v46
+   404669  [v46]   v48 / v46
+   404689  [v46]   v53 / v46
+   404801  [v46]   v77 / v46
+== 0x405d60 sub_405D60 hits=28 const=0
+   407592  [v230]   v231 / v230
+   4075b4  [v230]   v469 / v230
+   4075cf  [v230]   v236 / v230
+   40754e  [v230]   v450 / v230
+   4074bc  [v230]   v422 / v230
+   4062d5  [v41]   v455 / v41
+   4062ec  [v41]   v42 / v41
+   40630c  [v41]   v43 / v41
+   40632a  [v41]   v440 / v41
+   40634d  [v41]   v48 / v41
+== 0x408340 sub_408340 hits=1 const=0
+   40834b  [a2]   1000 / a2
+== 0x4089b0 sub_4089B0 hits=2 const=0
+   4089e7  [sub_40A170(a1)]   a4 / sub_40A170(a1)
+   4089f6  [v4]   a4 % v4
+== 0x408a40 sub_408A40 hits=2 const=0
+   408a77  [v7]   a5 / v7
+   408a86  [v9]   v8 % v9
+== 0x408da0 sub_408DA0 hits=2 const=0
+   408dd7  [v8]   a5 / v8
+   408de6  [v10]   v9 % v10
+== 0x40a190 sub_40A190 hits=3 const=0
+   40a1b1  [v4]   a3 % v4
+   40a1b4  [v5]   a2 / v5
+   40a1b6  [v5]   a2 % v5
+   40a1ab  [v4]   a3 / v4
+   40a1cd  [v10]   v11 %= v10
+== 0x40a270 sub_40A270 hits=2 const=0
+   40a2bd  [*(this + 2)]   v6 % *(this + 2)
+   40a2bd  [*(this + 2)]   v6 / *(this + 2)
+   40a2cc  [*(this + 3)]   sub_40A980(v8, v7) / *(this + 3)
+== 0x40a2f0 sub_40A2F0 hits=4 const=0
+   40a456  [*((_DWORD *)this + 2)]   j / *((_DWORD *)this + 2)
+   40a463  [*((_DWORD *)this + 3)]   i / *((_DWORD *)this + 3)
+   40a46f  [v17]   *((_DWORD *)this + 6) / v17
+   40a47b  [v19]   v15 / v19
+== 0x40a540 sub_40A540 hits=2 const=0
+   40a557  [sub_40A170(this)]   a2 / sub_40A170(this)
+   40a564  [v4]   a2 % v4
+== 0x40ce30 sub_40CE30 hits=2 const=0
+   40ce45  [*(this + 1)]   (*(this + 1) + dword_499E18 + a2 - 1) / *(this + 1)
+   40ce5f  [v3]   (v3 + dword_499E14 + a3 - 1) / v3
+== 0x40ea10 sub_40EA10 hits=2 const=0
+   40ea4c  [v5]   NumberOfBytesRead / v5
+   40ea86  [v5]   v6 / v5
+== 0x412160 sub_412160 hits=16 const=8
+   41240c  [v5]   (v6 - 1) % v5
+   412449  [v5]   v6 % v5
+   41247d  [v5]   (v6 + 1) % v5
+   4124b1  [v5]   (v6 + 2) % v5
+   4124e4  [v5]   (v6 + 3) % v5
+   412518  [v5]   (v6 + 4) % v5
+   41254c  [v5]   v7 % v5
+   412583  [v5]   v8 % v5
+== 0x41bad0 sub_41BAD0 hits=28 const=28
+   41c0f6  [v47]   sub_40A150(*v3) / v47
+   41c11d  [v48]   sub_40A140(*v3) / v48
+   41bb6c  [v7]   sub_40A150(*v3) / v7
+   41bb93  [v8]   v9 / v8
+   41bbdd  [v10]   sub_40A150(*v3) / v10
+   41bc04  [v11]   v12 / v11
+   41bc4e  [v13]   sub_40A150(*v3) / v13
+   41bc75  [v14]   v15 / v14
+   41bcbf  [v16]   sub_40A150(*v3) / v16
+   41bce6  [v17]   v18 / v17
+   41bd43  [v19]   sub_40A150(*v3) / v19
+   41bd6a  [v20]   v21 / v20
+   41bdb2  [v22]   sub_40A150(*v3) / v22
+   41bdd9  [v23]   sub_40A140(*v3) / v23
+   41be14  [v25]   sub_40A150(*v3) / v25
+   41be3b  [v26]   v27 / v26
+   41be83  [v28]   sub_40A150(*v3) / v28
+   41beaa  [v29]   sub_40A140(*v3) / v29
+   41bee5  [v31]   sub_40A150(*v3) / v31
+   41bf0c  [v32]   v33 / v32
+   41bf54  [v34]   sub_40A150(*v3) / v34
+   41bf7b  [v35]   sub_40A140(*v3) / v35
+   41c0a1  [v44]   sub_40A150(*v3) / v44
+   41c0c8  [v45]   sub_40A140(*v3) / v45
+   41c03a  [v41]   sub_40A150(*v3) / v41
+   41c061  [v42]   v43 / v42
+   41bfbe  [v38]   sub_40A150(*v3) / v38
+   41bfe5  [v39]   v40 / v39
+== 0x4272e0 sub_4272E0 hits=1 const=0
+   42734b  [v7]   50 / v7
+== 0x428240 sub_428240 hits=1 const=0
+   4282a0  [v6]   50 / v6
+== 0x428910 sub_428910 hits=1 const=0
+   42897e  [a1]   50 / a1
+== 0x4292c0 sub_4292C0 hits=1 const=0
+   429338  [a1]   50 / a1
+== 0x43b5a0 sub_43B5A0 hits=2 const=0
+   43b5ea  [v3]   v5 * (v7 - v6) / v3
+   43b608  [v3]   v5 * (v8 - v6) / v3
+== 0x43b690 sub_43B690 hits=5 const=12
+   43b766  [*(_DWORD *)(*this + 191240)]   (sub_403200(*this) - *(_DWORD *)(v9 + 1320)) / 0x3Cu / *(_DWORD *)(*this + 191240)
+   43b8fb  [*(_DWORD *)(*this + 191240)]   *(_DWORD *)(v20 + 1316) / 0x3Cu / *(_DWORD *)(*this + 191240)
+== 0x443b90 sub_443B90 hits=1 const=7
+   443ca3  [v13]   v12 / v13
+== 0x46aa2d sub_46AA2D hits=1 const=1
+   46b03a  [v51]   __PAIR64__(v21, v20) % v51
+   46b04a  [v51]   v33 / v51
