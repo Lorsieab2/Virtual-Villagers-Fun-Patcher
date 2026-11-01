@@ -474,7 +474,7 @@ def apply_rename_note(header: str, line: str) -> str:
     if tail is None or len(rest) <= 14:
         return header
     new = rest[:-14]
-    if not new or len(new) > 63 or any(not (0x20 <= ord(ch) <= 0x7E) for ch in new):
+    if not new or len(new) > 63 or not all(game_printable(ch) for ch in new):    # village_rename.h's rule
         return header
     return f"Village: {new}{suffix}"
 

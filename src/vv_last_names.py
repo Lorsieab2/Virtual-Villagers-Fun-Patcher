@@ -443,12 +443,11 @@ NUMERAL = re.compile(r"^[IVXLCDM]+$")
 
 
 def storable(name: str) -> bool:
-    """A name the games keep and show safely: printable ASCII or a Windows-1252 letter or sign the
-    game's own text box accepts (Élodie; Codex, #566; Šárka with Render Unicode with In-Game Fonts)
-    -- never a control byte, never a byte Windows-1252 leaves undefined, and never '%', which an
-    unpatched game reads as a formatting instruction (Fix Vanilla Bugs)."""
-    from vv_game_text import printable
-    return all(printable(ch) and ch != "%" for ch in name)
+    """A name the games keep and show safely: printable ASCII or a Latin-1 letter or sign the game's
+    own text box accepts (Élodie; Codex, #566) -- never a control byte, and never '%', which an
+    unpatched game reads as a formatting instruction (Fix Vanilla Bugs).  The Last Names companion's
+    own rule (native/vvfp_last_names: 0x80-0x9F refused) is kept, so the two sides agree."""
+    return all((0x20 <= ord(ch) < 0x7F or 0xA0 <= ord(ch) <= 0xFF) and ch != "%" for ch in name)
 # In a `known` set: a name (without its numeral) whose words are all one first name -- the owner,
 # 2026-10-07, for a two-word name whose second word is no known last name: "Ask per villager".
 WHOLE = "\0whole\t"

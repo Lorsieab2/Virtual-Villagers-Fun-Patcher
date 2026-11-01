@@ -772,9 +772,11 @@ class GuiTests(unittest.TestCase):
             return imported - set(sys.stdlib_module_names)
 
         # Its own modules, the save folder's names (src/vv_save_layout.py) and the Custom Titles file's
-        # reader (src/vv_titles_file.py, v1.35.70), ship beside it and are themselves stdlib-only.
-        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"), {"vv_save_layout", "vv_titles_file"})
-        for module in ("vv_save_layout", "vv_titles_file"):
+        # reader (src/vv_titles_file.py, v1.35.70), and the games' text decoding (src/vv_game_text.py, v1.35.87),
+        # ship beside it and are themselves stdlib-only.
+        self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"),
+                         {"vv_save_layout", "vv_titles_file", "vv_game_text"})
+        for module in ("vv_save_layout", "vv_titles_file", "vv_game_text"):
             self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
             self.assertIn(f'"src/{module}.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 

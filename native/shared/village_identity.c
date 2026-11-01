@@ -53,7 +53,13 @@ unsigned int vv_village_name_offset(int game_id) {
    What it excludes is control bytes, which is what uninitialised or structural
    memory looks like -- the thing actually worth guarding against. */
 static int is_name_byte(unsigned char c) {
-    return c >= 0x20 && c <= 0x7E;
+    /* Printable ASCII, and (Render Unicode with In-Game Fonts, v1.35.87, which lets the player type them)
+       every printable Windows-1252 character above it: not DEL, not the five bytes Windows-1252 leaves
+       undefined.  src/vv_game_text.py printable() is the same rule. */
+    if (c >= 0x20 && c <= 0x7E) {
+        return 1;
+    }
+    return c >= 0x80 && c != 0x81 && c != 0x8D && c != 0x8F && c != 0x90 && c != 0x9D;
 }
 
 int vv_village_name(int game_id, const void *manager, char *out) {
