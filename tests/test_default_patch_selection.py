@@ -112,7 +112,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")
                   # The alternative of a pair that can never be built together:
                   # All Fruit Trees Refill at the Same Time is the one ticked.
-                  or p == "vv3_fruit_trees_take_turns"})
+                  or p == "vv3_fruit_trees_take_turns"
+                  # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
+                  # (the owner, 2026-11-01: off by default and in Owner's Defaults).
+                  or p.endswith("_unicode_font")})
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
@@ -208,7 +211,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # (Fruit Trees Take Turns Refilling; its pair is ticked), so Select All
         # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
-        held_back = experimental | {"vv3_fruit_trees_take_turns"}
+        held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

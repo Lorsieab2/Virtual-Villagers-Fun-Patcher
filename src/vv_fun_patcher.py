@@ -10817,6 +10817,7 @@ def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch])
             continue
         for item in feature.raw.get("companion_files", []):
             dll = output_folder / _safe_companion_destination(item["destination"])
+            dll.parent.mkdir(parents=True, exist_ok=True)
             (dll.parent / UNICODE_FONT_CHOICE_FILE).write_text(_unicode_font_face + "\n", encoding="utf-8")
 
 
