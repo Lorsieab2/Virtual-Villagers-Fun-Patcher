@@ -589,8 +589,9 @@ ORIGINS = (
                   "mask."), C),
     )),
     Entry(PATCHER, "Story / Cheat Upgrades", (
-        ("With the patcher (Story / Cheat Upgrades, off by default; needs the Origins upgrades): every Origins "
-         "upgrade costs 0 tech points unless Story / Cheat Upgrades cost Tech Points (ticked with it) is also on.", C),
+        ("With the patcher (Story / Cheat Upgrades, on by default; needs the Origins upgrades): every Origins "
+         "upgrade costs 0 tech points only while Story / Cheat Upgrades cost Tech Points (ticked with it, and on by "
+         "default) is unticked.", C),
         ("Pick Island Event (0, or 30,000 tech points): choose which of 40 island events comes next and, where the "
          "event rolls for it, how it turns out (its result, every amount, who it hits, its strength 1 to 10); the "
          "game's own event code runs it. One pending event at a time.", C),

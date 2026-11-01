@@ -1,7 +1,9 @@
 # Story / Cheat Upgrades
 
 The owner's patch for custom stories, experiments, sandbox play and cheats,
-in all five games, **off by default**; Owner's Defaults ticks it. It
+in all five games, **on by default** (the owner, 2026-11-01), with Story /
+Cheat Upgrades cost Tech Points ticked with it, so the upgrades keep their
+prices until that row is unticked. It
 requires the Origins upgrades row (Enable Origins Tech, Details, and
 Village-Wide Upgrades). Part 1: every Origins upgrade costs 0 tech points,
 and a new Origins upgrade, **Pick Island Event**. Part 2: **Custom Island
