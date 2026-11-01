@@ -25,9 +25,12 @@ try:
     import pefile
     import unicorn  # noqa: F401
     from translations_emulation import DLL, Game, TITLES, stock_exe
-    HAVE = DLL.exists()
+    # Every input, or the whole file skips: CI has unicorn and the DLL but no stock executable (stock_exe
+    # answers None there), and a test that reached one would error instead of skipping.
+    HAVE = DLL.is_file() and all(stock_exe(n) is not None and stock_exe(n).is_file() for n in range(1, 6))
 except ImportError:
     HAVE = False
+    TITLES = {}
 
 
 class Image:
