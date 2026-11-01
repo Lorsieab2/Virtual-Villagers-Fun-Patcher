@@ -334,6 +334,13 @@ FILES = [
     "src/vv_game_mechanics_vv5.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
+    # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
+    "src/vv_game_mechanics_farmers.py",
+    "src/vv_game_mechanics_farmers_vv1.py",
+    "src/vv_game_mechanics_farmers_vv2.py",
+    "src/vv_game_mechanics_farmers_vv3.py",
+    "src/vv_game_mechanics_farmers_vv4.py",
+    "src/vv_game_mechanics_farmers_vv5.py",
     "src/vv_game_mechanics_death.py",
     "src/vv_game_mechanics_genetics.py",
     "src/vv_game_mechanics_chances.py",
