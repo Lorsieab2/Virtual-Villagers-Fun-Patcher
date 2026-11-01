@@ -722,6 +722,11 @@ class PictureStudio:
             self._tell("warning", result)
             return result
         self.extra_game_folders.setdefault(game, []).insert(0, folder)
+        everything = getattr(self, "everything", None)
+        if everything is not None:             # its own cache is rebuilt from this folder when next shown
+            everything.prefer[game] = folder
+            everything.loaded_for = None
+            everything._maybe_load(self.notebook)
         built, why = pi.build_cache(game, folder, self.module.required_files(), data_files=data_files(self.module))
         if not built:
             self._tell("warning", f"The pictures could not be copied: {why} They are read from the game folder "

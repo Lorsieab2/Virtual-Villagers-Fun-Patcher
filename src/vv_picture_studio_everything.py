@@ -41,6 +41,7 @@ class EverythingTab:
         self.frame = ttk.Frame(notebook, padding=6)
         notebook.add(self.frame, text=TAB_TITLE)
         self.loaded_for: int | None = None
+        self.prefer: dict[int, Path] = {}       # game -> the folder last picked with "Find game..."
         self.sheets = None
         self.assets: list[pa.Asset] = []
         self.nodes: dict[str, pa.Asset] = {}
@@ -97,7 +98,8 @@ class EverythingTab:
         studio = self.studio
         game = studio.game
         self.loaded_for = game
-        self.sheets, _module, self.assets, problem = pa.load(game, studio.game_folders())
+        self.sheets, _module, self.assets, problem = pa.load(game, studio.game_folders(),
+                                                             prefer=self.prefer.pop(game, None))
         tree = self.tree
         tree.delete(*tree.get_children())
         self.nodes = {}

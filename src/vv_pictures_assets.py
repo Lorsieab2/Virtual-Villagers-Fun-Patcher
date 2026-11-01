@@ -525,6 +525,24 @@ def game_pictures(folder: Path) -> list[str]:
         return []
 
 
+# A picture each game ships and no other game has, so one game's folder (or cache) is never taken for
+# another's: the villager sheets the Studio requires are shared (A New Home's are in The Lost Children and
+# The Secret City, The Tree of Life's in New Believers).  Each was checked against all five installs.
+GAME_MARKERS = {1: ("berry1.png",), 2: ("briars.png",), 3: ("alchemylab.png",), 4: ("blacktreesap.png",),
+                5: ("blinkyeyes.png",)}
+
+
+def is_games_pictures(game: int, names) -> bool:
+    """Whether a list of Images file names is this game's (it has the game's own marker pictures)."""
+    have = {n.casefold() for n in names}
+    return all(m.casefold() in have for m in GAME_MARKERS[game])
+
+
+def is_everything_folder(game: int, folder: Path) -> bool:
+    """Whether `folder` is this game's folder: its Images has pictures, among them the game's markers."""
+    return is_games_pictures(game, game_pictures(Path(folder)))
+
+
 class EverythingCache:
     """The Everything tab's copy of one game's pictures (every file of its Images), checked against its
     manifest before use."""
@@ -563,6 +581,10 @@ class EverythingCache:
                 return
             self._data[name.casefold()] = data
             self._names.append(name)
+        if not is_games_pictures(game, self._names):
+            self.problem = f"it holds another game's pictures, not {pi.GAME_FOLDERS[game]}'s"
+            self._data, self._names = {}, []
+            return
         self.copy = manifest.get("built_from")
 
     @property
@@ -598,6 +620,8 @@ def build_everything_cache(game: int, folder: Path, root: Path | None = None) ->
     names = game_pictures(folder)
     if not names:
         return False, f"{folder} has no pictures in an Images folder."
+    if not is_games_pictures(game, names):
+        return False, f"{folder} is not a Virtual Villagers - {pi.GAME_FOLDERS[game]} game folder."
     temp = root / f".{final.name}.building-{uuid.uuid4().hex[:12]}"
     old = root / f".{final.name}.old-{uuid.uuid4().hex[:12]}"
     try:
@@ -748,13 +772,18 @@ class PatcherOverlay:
         return lister() if callable(lister) else []
 
 
-def picture_source(game: int, folders, patcher: dict | None = None, root: Path | None = None) -> PatcherOverlay:
-    """The Everything tab's pictures for a game: the cache when it is whole; else built from the first of
-    `folders` with an Images folder of pictures; else read from that folder; else none (with why)."""
+def picture_source(game: int, folders, patcher: dict | None = None, root: Path | None = None,
+                   prefer: Path | None = None) -> PatcherOverlay:
+    """The Everything tab's pictures for a game: the cache when it is whole and this game's; else built
+    from the first of `folders` that is this game's folder; else read from that folder; else none (with
+    why).  `prefer` (the folder just picked with "Find game...") replaces the cache when it was built from
+    another folder."""
     cache = EverythingCache(game, root)
-    if cache.ok:
+    if cache.ok and (prefer is None or str(cache.copy) == str(prefer)):
         return PatcherOverlay(cache, patcher)
-    found = [Path(f) for f in dict.fromkeys(str(f) for f in folders if f) if game_pictures(Path(f))]
+    if prefer is not None:
+        folders = [prefer, *folders]
+    found = [Path(f) for f in dict.fromkeys(str(f) for f in folders if f) if is_everything_folder(game, Path(f))]
     for folder in found:
         built, _why = build_everything_cache(game, folder, root)
         if built:
@@ -770,12 +799,12 @@ def picture_source(game: int, folders, patcher: dict | None = None, root: Path |
     return overlay
 
 
-def load(game: int, folders=(), root: Path | None = None):
+def load(game: int, folders=(), root: Path | None = None, prefer: Path | None = None):
     """(sheets, module, assets, problem) for the Everything tab."""
     module = load_module(game)
     patcher = dict(module.patcher_art()) if module is not None and hasattr(module, "patcher_art") else {}
     patcher.update({name: path for name, (_mod, _replaces, path) in mod_art(game).items()})
-    source = picture_source(game, folders, patcher, root)
+    source = picture_source(game, folders, patcher, root, prefer)
     sheets = AssetSheets(source)
     problem = source.problem
     try:

@@ -154,6 +154,7 @@ class Cache(unittest.TestCase):
         (self.game / "Images" / "a.png").write_bytes(png(2, 2))
         (self.game / "Images" / "b.jpg").write_bytes(b"\xff\xd8\xff\xd9")
         (self.game / "Images" / "notes.css").write_text("x")
+        (self.game / "Images" / "berry1.png").write_bytes(png(1, 1))       # A New Home's marker
         self.root = self.tmp / "cache"
 
     def tearDown(self) -> None:
@@ -163,7 +164,7 @@ class Cache(unittest.TestCase):
         before = {p.name: p.read_bytes() for p in (self.game / "Images").iterdir()}
         source = pa.picture_source(1, [self.game], root=self.root)
         self.assertIsInstance(source.base, pa.EverythingCache)
-        self.assertEqual(sorted(source.names()), ["a.png", "b.jpg"])
+        self.assertEqual(sorted(source.names()), ["a.png", "b.jpg", "berry1.png"])
         self.assertEqual({p.name: p.read_bytes() for p in (self.game / "Images").iterdir()}, before)
         again = pa.picture_source(1, [], root=self.root)
         self.assertEqual(again.read("A.PNG"), before["a.png"])
@@ -173,6 +174,30 @@ class Cache(unittest.TestCase):
         (self.root / pi.GAME_FOLDERS[1] / "a.png").write_bytes(png(3, 3))
         self.assertFalse(pa.EverythingCache(1, self.root).ok)
         self.assertIsInstance(pa.picture_source(1, [self.game], root=self.root).base, pa.EverythingCache)
+
+    def test_another_games_folder_is_never_cached(self) -> None:
+        # A New Home's folder offered for The Lost Children (both are configured): it is skipped.
+        source = pa.picture_source(2, [self.game], root=self.root)
+        self.assertIsNone(source.base)
+        self.assertFalse((self.root / pi.GAME_FOLDERS[2]).exists())
+        self.assertFalse(pa.build_everything_cache(2, self.game, self.root)[0])
+
+    def test_a_cache_of_another_games_pictures_is_not_used(self) -> None:
+        pa.picture_source(1, [self.game], root=self.root)
+        shutil.copytree(self.root / pi.GAME_FOLDERS[1], self.root / pi.GAME_FOLDERS[2])
+        manifest = self.root / pi.GAME_FOLDERS[2] / pi.MANIFEST
+        manifest.write_text(manifest.read_text(encoding="utf-8").replace('"game": 1', '"game": 2'),
+                            encoding="utf-8")
+        self.assertIn("another game", pa.EverythingCache(2, self.root).problem)
+
+    def test_find_game_replaces_a_cache_built_from_another_folder(self) -> None:
+        pa.picture_source(1, [self.game], root=self.root)
+        other = self.tmp / "other"
+        shutil.copytree(self.game, other)
+        (other / "Images" / "c.png").write_bytes(png(2, 2))
+        source = pa.picture_source(1, [self.game], root=self.root, prefer=other)
+        self.assertIn("c.png", source.names())
+        self.assertEqual(pa.EverythingCache(1, self.root).copy, str(other))
 
     def test_no_game_folder(self) -> None:
         source = pa.picture_source(3, [], root=self.root)
@@ -311,6 +336,7 @@ class Window(unittest.TestCase):
         (game / "Images").mkdir(parents=True)
         (game / "Images" / "a.png").write_bytes(png(4, 4))
         (game / "Images" / "b.png").write_bytes(png(6, 2, lambda x, y: (0, 255, 0, 255) if x != 2 else (0, 0, 0, 0)))
+        (game / "Images" / "berry1.png").write_bytes(png(1, 1))            # A New Home's marker
         self.saved = (common.save_folders, pi.CACHE_ROOT, pa.load_module)
         common.save_folders = lambda game_, documents=None: []
         pi.CACHE_ROOT = self.tmp / "cache"
@@ -355,7 +381,8 @@ class Window(unittest.TestCase):
         out.mkdir()
         self.assertTrue(tab.save_png(str(out / "b.png")).is_file())
         target = tab.save_all(str(out), category=pa.SHEETS)
-        self.assertEqual(len([p for p in target.rglob("*.png") if p.is_file()]), 4 + 3)
+        # a.png, b.png, berry1.png and b.png's two pieces, plus the patcher's 3
+        self.assertEqual(len([p for p in target.rglob("*.png") if p.is_file()]), 5 + 3)
         everything = tab.save_all(str(out))
         self.assertTrue((everything / "UI - Tech screen" / "Farming bar.png").is_file())
 
