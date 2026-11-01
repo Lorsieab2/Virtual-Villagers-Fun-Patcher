@@ -31,6 +31,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import vv_translation_format as fmt
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "translations"
@@ -75,13 +76,7 @@ def game_number(game) -> int:
 
 def decode_game_text(data: bytes) -> str:
     """The games' single-byte text: Windows-1252, the five bytes it leaves undefined as Latin-1."""
-    out = []
-    for b in data:
-        try:
-            out.append(bytes([b]).decode("cp1252"))
-        except UnicodeDecodeError:
-            out.append(chr(b))
-    return "".join(out)
+    return bytes(data).decode(GAME_TEXT)
 
 
 class ExeImage:
@@ -143,7 +138,7 @@ def _sm_file_texts(sm: bytes) -> bytes:
 
 def _sm_lookup(buffer: bytes, name: str) -> bytes | None:
     """The loader's own search: the first `id="NAME"`, the text after the next '>' up to `</Text>`."""
-    at = buffer.find(b'id="' + name.encode("latin-1") + b'"')
+    at = buffer.find(b'id="' + name.encode(GAME_TEXT) + b'"')
     if at < 0:
         return None
     gt = buffer.find(b">", at)
@@ -204,7 +199,7 @@ def game_english(game, exe: Path, sm_xml: Path | None = None) -> dict[str, str]:
                 continue
             # Two of the games' own names end in tabs ("eSayApprentice\t"): the key spells them without, as
             # VVFP Translations.dll matches them (tr_after_loader); the sm.xml search keeps the game's own name.
-            name = name_raw.decode("latin-1")
+            name = name_raw.decode(GAME_TEXT)
             stem = f"sm/{name.rstrip()}"
             if stem in out:
                 continue                       # a duplicate entry: the game uses the first
