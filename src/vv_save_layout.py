@@ -46,7 +46,6 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 LOGS = "Virtual Villagers Fun Patcher Logs"
 DATA = "Virtual Villagers Fun Patcher Data"
@@ -259,7 +258,7 @@ def marker_numbers(path: Path, marker: str) -> tuple[int, int]:
     printed straight after it; 0 when none): log_slot.h vv_log_marker_numbers_a.  (0, 0) when the
     file is not there; OSError when it is there and cannot be read."""
     try:
-        text = Path(path).read_bytes().decode(GAME_TEXT)
+        text = Path(path).read_bytes().decode("latin-1")
     except FileNotFoundError:
         return 0, 0
     count = highest = 0

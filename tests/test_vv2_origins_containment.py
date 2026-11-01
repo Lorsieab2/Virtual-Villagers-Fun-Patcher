@@ -32,6 +32,8 @@ REMAINING = {
     "vv2_last_names",
     # companion only: detours at run time, owns no executable bytes
     "vv2_totems_out_of_entries",
+    # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
+    "vv2_unicode_text",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

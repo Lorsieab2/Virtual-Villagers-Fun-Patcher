@@ -371,13 +371,14 @@ class FontRun:
         return w, h, pitch, bytes(self.m.mu.mem_read(pix, pitch * h)), amask, ashift
 
     def _picture(self, path: str) -> int:
-        from PIL import Image
+        from vv_picture_image import decode_png
         name = path.replace("/", "\\").split("\\")[-1]
         stem = name.split(".")[0]
-        img = Image.open(IMAGES[self.game] / f"{stem}.png").convert("RGBA")
+        img = decode_png((IMAGES[self.game] / f"{stem}.png").read_bytes())
         raw = bytearray()
-        for r, g, b, a in img.getdata():
-            raw += struct.pack("<I", (a << 24) | (r << 16) | (g << 8) | b)
+        d = img.data
+        for i in range(0, len(d), 4):
+            raw += struct.pack("<I", (d[i + 3] << 24) | (d[i] << 16) | (d[i + 1] << 8) | d[i + 2])
         return self._new_surface(img.width, img.height, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000, bytes(raw))
 
     # -- the game's routines the emulation answers --------------------------------------------------
