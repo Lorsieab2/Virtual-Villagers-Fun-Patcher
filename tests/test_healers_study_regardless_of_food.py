@@ -326,8 +326,16 @@ class HealersStudyTests(unittest.TestCase):
                     share = done / n
                     self.assertTrue(low <= share <= high, f"{game} preference {preference}: {share:.3f}")
                     if preference != HEALING[game]:
-                        given = done / r.preference_rolls()
-                        self.assertTrue(0.11 <= given <= 0.17, f"{game}: 14% roll passed {given:.3f}")
+                        # Real rolls: the bounds are 5 binomial standard deviations around 14% (about
+                        # +/-4.5 points at ~1,500 rolls), so a correct roll fails about once in 1.7
+                        # million runs; the fixed 0.11-0.17 bounds were ~3.4 sd and failed on CI at
+                        # 0.171.  The exact 14 is pinned in the source
+                        # (NOT_PREFERRED_PERCENT, below); this checks the real draws land near it.
+                        rolls = r.preference_rolls()
+                        given = done / rolls
+                        spread = 5 * (0.14 * 0.86 / rolls) ** 0.5
+                        self.assertTrue(abs(given - 0.14) <= spread,
+                                        f"{game}: 14% roll passed {given:.3f} of {rolls} (allowed ±{spread:.3f})")
                     print(f"{game} preference {preference}: continued {share:.3f} of {n} checks")
 
     @unittest.skipUnless(TEST_DLL.is_file(), TEST_BUILD_ABSENT)
