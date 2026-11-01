@@ -42,3 +42,23 @@ Work in progress. Saved as it goes so nothing is lost on a restart.
   0x415ED0, the sprite-sheet helpers 0x409F90 / 0x40A070 / 0x40A340 / 0x4087B0 / 0x408840 /
   0x408BA0 (frame columns and rows), 0x40C450 (tile size), 0x40DF80 (read element size),
   the image scalers 0x403D70 / 0x405AD0 (pixel weights).
+
+## First reachable candidate: the line drawer (The Secret City, The Tree of Life, New Believers)
+
+- The engine's alpha line drawer (The Secret City 0x403D20, The Tree of Life 0x404280, New Believers
+  0x404210) divides the alpha step by max(2|dx|, 2|dy|) (`idiv ebx` at 0x403EC4 / 0x404432 / 0x4043C2).
+  A line whose two ends are the same point divides by 0.  Unicorn on each stock exe: a 10x30 line
+  returns; a zero-length line faults at exactly that `idiv`.
+- Its only callers: the rain (The Secret City 0x41F5F0, The Tree of Life 0x46B74A's routine,
+  New Believers 0x476730; each drop is a line from (x, y) to its previous point) and New Believers'
+  lightning (0x41DBF0, which skips a zero-length segment itself).  A rain drop is zero-length when
+  its new point equals its previous point: the rain initialiser (New Believers 0x4764C0) picks
+  x = rand(800), y = rand(600) but never sets the previous point, which the rain object's
+  constructor (0x476860) zeroes -- so a drop that rolls (0, 0) before its first rain update is a
+  zero-length line.
+- A New Home and The Lost Children have no such routine (no rain line drawer).
+- The rest of New Believers' game code checked so far is safe: the puzzle progress percent
+  0x43AEA0 (every puzzle total is 1, 2, 3, 5, 30 or 2000 and the getter never makes it 0), the
+  mausoleum list 0x43FAF0 (its arrow buttons only exist when its scroll range is > 0, 0x43F4C0),
+  the bar 0x450380 (clamped to 10..1000), the speed field +0x1CC8 (only 1 or 10), the high-score
+  digest (A New Home 0x4336EE / The Lost Children 0x441300 skip it when the name is empty).
