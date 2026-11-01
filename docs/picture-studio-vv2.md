@@ -131,3 +131,118 @@ The game's text draw is 0x409360 and its centred draw is 0x4096B0, box-centred 0
   level). On an opaque background the colours agree to within that rounding.
 * The animation fields (state, frame, direction, head column, carried item) are not in the save: From my
   save draws the save's villager in the pose picked.
+
+## Carried items
+
+Every item a villager can be drawn carrying, as offered under **Carrying** on both tabs (`src/vv_pictures_carried.py`). "Unused in the game" items are drawn with the game's own carry code, which draws any number, but nothing the game runs carries them.
+
+| Number | Name | Status | When the game carries it (or why it never does) |
+|---|---|---|---|
+| 0 (0x0) | Berries | unused in the game | no code stores 0 |
+| 1 (0x1) | Rock | in the game | Exercising; Building small hut |
+| 2 (0x2) | Feathers | unused in the game | no code stores 2 |
+| 3 (0x3) | Baby | in the game | expecting (until the birth) |
+| 4 (0x4) | Wood | in the game | Rebuilding broken hut; Building small hut; Fixing hut; Gathering firewood; Creating cutting tools; Building a scarecrow; Building a dam; Teaching children |
+| 5 (0x5) | Laundry | in the game | Doing laundry; Teaching children |
+| 6 (0x6) | Crops | in the game | Harvesting crops; Adding food to the stew; Teaching children |
+| 7 (0x7) | Flowers | in the game | Honoring the Dead; Researching; Teaching children |
+| 8 (0x8) | Fish | in the game | Fishing; Teaching children |
+| 9 (0x9) | Crab | in the game | Fishing; Teaching children |
+| 10 (0xA) | Water | in the game | Adding water to the stew; Watering crops |
+| 11 (0xB) | Body | in the game | Burying the dead |
+| 12 (0xC) | Algae-eating fish | in the game | Catching algae-eating fish! |
+| 13 (0xD) | Brown mushroom (carrying.png) | unused in the game | no code stores 13: a carried mushroom is collectables picture 49 |
+| 14 (0xE) | Red mushroom (carrying.png) | unused in the game | no code stores 14 |
+| 15 (0xF) | Dry grass | in the game | Gathering dry grass |
+| 16 (0x10) | Coconut | in the game | Harvesting coconuts |
+| 17 (0x11) | Empty bowl | unused in the game | no code stores 17 |
+| 18 (0x12) | Cutting tool | in the game | Fishing; Removing the vines; Cutting away briar thorns |
+| 19 (0x13) | Cauldron | in the game | Retrieving a cauldron |
+| 20 (0x14) | Pot of stew | unused in the game | no code stores 20 |
+| 21 (0x15) | Herb | in the game | Adding an herb to the stew |
+| 22 (0x16) | Stone blades | in the game | Creating cutting tools |
+| 23 (0x17) | Gong piece | in the game | Retrieving something from the pond; Retrieving a piece of the gong |
+| 24 (0x18) | Mortar | unused in the game | no code stores 24 |
+| 25 (0x19) | Potion | unused in the game | no code stores 25 |
+| 30 (0x1E) | Butterfly, common 1 | in the game | Collecting a new item! (children) |
+| 31 (0x1F) | Butterfly, common 2 | in the game | Collecting a new item! (children) |
+| 32 (0x20) | Butterfly, common 3 | in the game | Collecting a new item! (children) |
+| 33 (0x21) | Butterfly, common 4 | in the game | Collecting a new item! (children) |
+| 34 (0x22) | Butterfly, uncommon 1 | in the game | Collecting a new item! (children) |
+| 35 (0x23) | Butterfly, uncommon 2 | in the game | Collecting a new item! (children) |
+| 36 (0x24) | Butterfly, uncommon 3 | in the game | Collecting a new item! (children) |
+| 37 (0x25) | Butterfly, uncommon 4 | in the game | Collecting a new item! (children) |
+| 38 (0x26) | Butterfly, rare 1 | in the game | Collecting a new item! (children) |
+| 39 (0x27) | Butterfly, rare 2 | in the game | Collecting a new item! (children) |
+| 40 (0x28) | Butterfly, rare 3 | in the game | Collecting a new item! (children) |
+| 41 (0x29) | Butterfly, rare 4 | in the game | Collecting a new item! (children) |
+| 42 (0x2A) | Shell, common 1 | in the game | Collecting a new item! (children) |
+| 43 (0x2B) | Shell, common 2 | in the game | Collecting a new item! (children) |
+| 44 (0x2C) | Shell, common 3 | in the game | Collecting a new item! (children) |
+| 45 (0x2D) | Shell, common 4 | in the game | Collecting a new item! (children) |
+| 46 (0x2E) | Shell, uncommon 1 | in the game | Collecting a new item! (children) |
+| 47 (0x2F) | Shell, uncommon 2 | in the game | Collecting a new item! (children) |
+| 48 (0x30) | Shell, uncommon 3 | in the game | Collecting a new item! (children) |
+| 49 (0x31) | Shell, uncommon 4 | in the game | Collecting a new item! (children) |
+| 50 (0x32) | Shell, rare 1 | in the game | Collecting a new item! (children) |
+| 51 (0x33) | Shell, rare 2 | in the game | Collecting a new item! (children) |
+| 52 (0x34) | Shell, rare 3 | in the game | Collecting a new item! (children) |
+| 53 (0x35) | Shell, rare 4 | in the game | Collecting a new item! (children) |
+| 54 (0x36) | Beetle, common 1 | in the game | Collecting a new item! (children) |
+| 55 (0x37) | Beetle, common 2 | in the game | Collecting a new item! (children) |
+| 56 (0x38) | Beetle, common 3 | in the game | Collecting a new item! (children) |
+| 57 (0x39) | Beetle, common 4 | in the game | Collecting a new item! (children) |
+| 58 (0x3A) | Beetle, uncommon 1 | in the game | Collecting a new item! (children) |
+| 59 (0x3B) | Beetle, uncommon 2 | in the game | Collecting a new item! (children) |
+| 60 (0x3C) | Beetle, uncommon 3 | in the game | Collecting a new item! (children) |
+| 61 (0x3D) | Beetle, uncommon 4 | in the game | Collecting a new item! (children) |
+| 62 (0x3E) | Beetle, rare 1 | in the game | Collecting a new item! (children) |
+| 63 (0x3F) | Beetle, rare 2 | in the game | Collecting a new item! (children) |
+| 64 (0x40) | Beetle, rare 3 | in the game | Collecting a new item! (children) |
+| 65 (0x41) | Beetle, rare 4 | in the game | Collecting a new item! (children) |
+| 66 (0x42) | Pebble, common 1 | in the game | Collecting a new item! (children) |
+| 67 (0x43) | Pebble, common 2 | in the game | Collecting a new item! (children) |
+| 68 (0x44) | Pebble, common 3 | in the game | Collecting a new item! (children) |
+| 69 (0x45) | Pebble, common 4 | in the game | Collecting a new item! (children) |
+| 70 (0x46) | Pebble, uncommon 1 | in the game | Collecting a new item! (children) |
+| 71 (0x47) | Pebble, uncommon 2 | in the game | Collecting a new item! (children) |
+| 72 (0x48) | Pebble, uncommon 3 | in the game | Collecting a new item! (children) |
+| 73 (0x49) | Pebble, uncommon 4 | in the game | Collecting a new item! (children) |
+| 74 (0x4A) | Pebble, rare 1 | in the game | Collecting a new item! (children) |
+| 75 (0x4B) | Pebble, rare 2 | in the game | Collecting a new item! (children) |
+| 76 (0x4C) | Pebble, rare 3 | in the game | Collecting a new item! (children) |
+| 77 (0x4D) | Pebble, rare 4 | in the game | Collecting a new item! (children) |
+| 78 (0x4E) | Brown mushroom | in the game | Picking a mushroom (children) |
+| 79 (0x4F) | Red mushroom | in the game | Picking a mushroom (children; 1 in 10) |
+| 80 (0x50) | Golden Mushroom | patcher | Picking a mushroom (Super-Secret Golden Mushroom; the game's own picture) |
+| 81 (0x51) | Collectables picture 52 | blank picture, unused | no code stores it |
+| 82 (0x52) | Collectables picture 53 | blank picture, unused | no code stores it |
+| 83 (0x53) | Collectables picture 54 | blank picture, unused | no code stores it |
+
+The carry field is record +0x44 (0x1A = nothing). Every store, read from the stock exe:
+
+- **Steps.** The villager tick 0x464CD0 runs each record's step queue (jump table 0x4653C0): opcode 0xF
+  carries the step's number (`mov [rec+0x44], [rec+0x60]`, 0x464F1F), opcode 0x10 carries nothing
+  (0x464F46). Steps are queued only by add_step 0x449B70; its 54 opcode-0xF calls all push a number, except
+  teaching (0x44A5B3, 0x44A712: 4 + rand(6), so 4 to 9).
+- **Direct stores**: the job reset 0x4492A0 (3 when +0x540 is set, else 0x1A, 0x4492E2), 0x4496E3, the
+  coconut climb 0x4497FB (16), 0x44BA3C, 0x44CD87, 0x44D11F, 0x44D446, the hand's pick-up 0x44D6C8 (drops
+  anything but the baby), the birth 0x43BF7A and 0x42506C.
+- **Collectables**: a child sent to a collectable or a mushroom carries the ground item's kind + 0x1E
+  ("Collecting a new item!" 0x45BFE4; "Picking a mushroom" 0x45BD49): 0x1E-0x4D the 48 collectables, 0x4E the
+  brown mushroom, 0x4F the red one, and with the Super-Secret Golden Mushroom patch 0x50, the game's own
+  golden mushroom picture (collectables cell 50). A walking child draws collectables_images.png cell
+  item - 0x1E; a bending child item - 0x1A (so the mushroom picker, who bends while carrying, shows cells
+  52-54, blank or clamped); an adult draws carrying.png at the item's own number -- all as the game does.
+- **Unused**: 0, 2, 13, 14, 17, 20, 24 and 25 are on carrying.png but no step or store gives them.
+  Numbers 0x1B-0x1D are never stored and are not offered.
+- **The save** (the packer 0x44B580) keeps +0x524..+0x804, not +0x44: after loading (0x464450) the job
+  reset gives the baby to a villager whose +0x540 (name - 0x24) is set. The litter +0x544 (name - 0x20) is
+  saved: 2 twins (7% of conceptions), 3 triplets (a quarter of those), 0 for one baby.
+
+**Proven** by tests/test_pictures_vv2.py `test_every_carried_item`: the game's own draw, run in
+Unicorn on the stock executable, blits every item above in each of the four directions and in every pose
+that draws the item (walking with twins and triplets, the work poses, a child) exactly as the plan says;
+for the Golden Mushroom, the plan with the patcher's picture is the stock blits with the companion's swap
+(tests/carried_golden.py, the offsets read from its source). The list itself is pinned by
+tests/test_pictures_carried.py.

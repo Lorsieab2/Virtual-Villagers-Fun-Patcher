@@ -108,3 +108,180 @@ The game's text draw is 0x409930 and its centred draw is 0x409EB0. They are run 
   patched executable.
 * `Assets\animpts.dat` is read from the game folder the pictures came from (the Studio's picture cache
   copies `Images` only).
+
+## Carried items
+
+Every item a villager can be drawn carrying, as offered under **Carrying** on both tabs (`src/vv_pictures_carried.py`). "Unused in the game" items are drawn with the game's own carry code, which draws any number, but nothing the game runs carries them.
+
+| Number | Name | Status | When the game carries it (or why it never does) |
+|---|---|---|---|
+| 0 (0x0) | Noni | in the game | Harvesting noni; Harvesting crops; Researching |
+| 1 (0x1) | Rock | in the game | Doing exercise |
+| 2 (0x2) | Feathers | in the game | Researching (a random pick) |
+| 3 (0x3) | Baby | in the game | expecting (heathens too) |
+| 4 (0x4) | Wood | in the game | Building; Gathering firewood; Fixing huts; the totems, the mausoleum, the aqueduct, the granary |
+| 5 (0x5) | Laundry | in the game | Washing the laundry |
+| 6 (0x6) | Bowl of nuts | unused in the game | only the never-started actions Hiding something / Spring cleaning store it (DEAD) |
+| 7 (0x7) | Flowers | in the game | Honoring the dead; Researching (a random pick) |
+| 8 (0x8) | Fish (carrying.png) | unused in the game | no code stores it |
+| 9 (0x9) | Crab | unused in the game | no code stores it |
+| 10 (0xA) | Pan | in the game | Panning for gold; Retrieving a pan |
+| 11 (0xB) | Body | in the game | Burying the dead |
+| 12 (0xC) | Magic fish | unused in the game | no code stores it |
+| 13 (0xD) | Brown mushroom (carrying.png) | unused in the game | no code stores it (a carried mushroom is collectables picture 49) |
+| 14 (0xE) | Red mushroom (carrying.png) | unused in the game | no code stores it |
+| 15 (0xF) | Dry grass | in the game | Gathering dry grass; Researching (a random pick) |
+| 16 (0x10) | Coconut | unused in the game | no code stores it |
+| 17 (0x11) | Bowl of soup | in the game | Researching (a random pick) |
+| 18 (0x12) | Tool | in the game | Building a statue |
+| 19 (0x13) | Pot | unused in the game | only the never-started actions Hiding something / Spring cleaning store it (DEAD) |
+| 20 (0x14) | Stew pot | unused in the game | no code stores it |
+| 21 (0x15) | Big leaf | unused in the game | no code stores it |
+| 22 (0x16) | Spear tips | in the game | Building a statue |
+| 23 (0x17) | Bounty | unused in the game | only the never-started actions Hiding something / Spring cleaning store it (DEAD) |
+| 24 (0x18) | Lab bowl | in the game | Researching (a random pick) |
+| 25 (0x19) | Nothing to see (an empty picture) | in the game | Researching (a random pick): the hands look empty |
+| 26 (0x1A) | Lab bowl (second picture) | unused in the game | no code stores it |
+| 27 (0x1B) | Striped jar | unused in the game | no code stores it |
+| 28 (0x1C) | Striped vase | unused in the game | no code stores it |
+| 29 (0x1D) | Tool (second picture) | unused in the game | no code stores it |
+| 30 (0x1E) | Red amphora | unused in the game | no code stores it |
+| 31 (0x1F) | Medicinal plant 1 (orange flowers) | in the game | Studying medicine |
+| 32 (0x20) | Medicinal plant 2 (yellow flowers) | in the game | Studying medicine; Scratching for roots (heathens) |
+| 33 (0x21) | Medicinal plant 3 (white flowers) | in the game | Studying medicine |
+| 34 (0x22) | Medicinal plant 4 (dark leaves) | in the game | Studying medicine |
+| 35 (0x23) | Medicinal plant 5 (red berries) | in the game | Studying medicine |
+| 36 (0x24) | Red-topped stalk | unused in the game | no code stores it |
+| 37 (0x25) | Yellow berry cluster | unused in the game | no code stores it |
+| 38 (0x26) | Banana | unused in the game | no code stores it |
+| 39 (0x27) | Mango | unused in the game | no code stores it |
+| 40 (0x28) | Papaya | unused in the game | no code stores it |
+| 41 (0x29) | Gold dust | in the game | Panning for gold |
+| 42 (0x2A) | Lit torch | unused in the game | no code stores it |
+| 43 (0x2B) | Debris | unused in the game | no code stores it |
+| 44 (0x2C) | Flat stone | unused in the game | no code stores it |
+| 45 (0x2D) | Red gem | unused in the game | no code stores it |
+| 46 (0x2E) | Dark sphere | unused in the game | no code stores it |
+| 47 (0x2F) | Red striped pot | unused in the game | no code stores it |
+| 48 (0x30) | Leaves | unused in the game | no code stores it |
+| 49 (0x31) | Pearl | unused in the game | no code stores it |
+| 50 (0x32) | Unlit torch | unused in the game | no code stores it |
+| 51 (0x33) | Irregular pearl | unused in the game | no code stores it |
+| 52 (0x34) | Hot rock | unused in the game | no code stores it |
+| 53 (0x35) | Cloth | unused in the game | no code stores it |
+| 54 (0x36) | Yellow fruit | unused in the game | no code stores it |
+| 55 (0x37) | Orange fruit | unused in the game | no code stores it |
+| 56 (0x38) | Flying fish | in the game | Retrieving a fish |
+| 57 (0x39) | Golden fish | unused in the game | no code stores it |
+| 58 (0x3A) | Soap | unused in the game | no code stores it |
+| 59 (0x3B) | Fish bone | unused in the game | no code stores it |
+| 60 (0x3C) | Heat-treated bone | unused in the game | no code stores it |
+| 61 (0x3D) | Beetle | unused in the game | no code stores it |
+| 62 (0x3E) | Big bowl of noni | unused in the game | only the never-started action Harvesting noni (the other way) stores it (DEAD) |
+| 63 (0x3F) | Lei braid | unused in the game | no code stores it |
+| 64 (0x40) | Lei | unused in the game | no code stores it |
+| 65 (0x41) | Lei flower (orange) | unused in the game | no code stores it |
+| 66 (0x42) | Lei flower (purple) | unused in the game | no code stores it |
+| 67 (0x43) | Lei flower (white) | unused in the game | no code stores it |
+| 68 (0x44) | Frog | unused in the game | no code stores it |
+| 69 (0x45) | Twig nest | unused in the game | no code stores it |
+| 70 (0x46) | Scientist's necklace piece | in the game | bringing a necklace piece (The Heathen Chief's necklace) |
+| 71 (0x47) | Farmer's necklace piece | in the game | bringing a necklace piece |
+| 72 (0x48) | Doctor's necklace piece | in the game | bringing a necklace piece |
+| 73 (0x49) | Builder's necklace piece | in the game | bringing a necklace piece |
+| 74 (0x4A) | Necklace | in the game | Bringing necklace to chief |
+| 75 (0x4B) | Red dye | in the game | Putting dye in the pools |
+| 76 (0x4C) | Yellow dye | in the game | Putting dye in the pools |
+| 77 (0x4D) | Blue dye | in the game | Putting dye in the pools |
+| 78 (0x4E) | Smelted gold | in the game | Smelting the gold dust |
+| 79 (0x4F) | Golden eye | in the game | Installing the golden eye (The Blind Totem) |
+| 80 (0x50) | Lab gear, common 1 | in the game | Collecting science item (children) |
+| 81 (0x51) | Lab gear, common 2 | in the game | Collecting science item (children) |
+| 82 (0x52) | Lab gear, common 3 | in the game | Collecting science item (children) |
+| 83 (0x53) | Lab gear, common 4 | in the game | Collecting science item (children) |
+| 84 (0x54) | Lab gear, common 5 | in the game | Collecting science item (children) |
+| 85 (0x55) | Lab gear, common 6 | in the game | Collecting science item (children) |
+| 86 (0x56) | Lab gear, common 7 | in the game | Collecting science item (children) |
+| 87 (0x57) | Lab gear, common 8 | in the game | Collecting science item (children) |
+| 88 (0x58) | Lab gear, uncommon 1 | in the game | Collecting science item (children) |
+| 89 (0x59) | Lab gear, uncommon 2 | in the game | Collecting science item (children) |
+| 90 (0x5A) | Lab gear, uncommon 3 | in the game | Collecting science item (children) |
+| 91 (0x5B) | Lab gear, uncommon 4 | in the game | Collecting science item (children) |
+| 92 (0x5C) | Lab gear, uncommon 5 | in the game | Collecting science item (children) |
+| 93 (0x5D) | Lab gear, uncommon 6 | in the game | Collecting science item (children) |
+| 94 (0x5E) | Lab gear, uncommon 7 | in the game | Collecting science item (children) |
+| 95 (0x5F) | Lab gear, uncommon 8 | in the game | Collecting science item (children) |
+| 96 (0x60) | Lab gear, rare 1 | in the game | Collecting science item (children) |
+| 97 (0x61) | Lab gear, rare 2 | in the game | Collecting science item (children) |
+| 98 (0x62) | Lab gear, rare 3 | in the game | Collecting science item (children) |
+| 99 (0x63) | Lab gear, rare 4 | in the game | Collecting science item (children) |
+| 100 (0x64) | Lab gear, rare 5 | in the game | Collecting science item (children) |
+| 101 (0x65) | Lab gear, rare 6 | in the game | Collecting science item (children) |
+| 102 (0x66) | Lab gear, rare 7 | in the game | Collecting science item (children) |
+| 103 (0x67) | Lab gear, rare 8 | in the game | Collecting science item (children) |
+| 104 (0x68) | Relic, common 1 | in the game | Collecting a relic (children) |
+| 105 (0x69) | Relic, common 2 | in the game | Collecting a relic (children) |
+| 106 (0x6A) | Relic, common 3 | in the game | Collecting a relic (children) |
+| 107 (0x6B) | Relic, common 4 | in the game | Collecting a relic (children) |
+| 108 (0x6C) | Relic, common 5 | in the game | Collecting a relic (children) |
+| 109 (0x6D) | Relic, common 6 | in the game | Collecting a relic (children) |
+| 110 (0x6E) | Relic, common 7 | in the game | Collecting a relic (children) |
+| 111 (0x6F) | Relic, common 8 | in the game | Collecting a relic (children) |
+| 112 (0x70) | Relic, uncommon 1 | in the game | Collecting a relic (children) |
+| 113 (0x71) | Relic, uncommon 2 | in the game | Collecting a relic (children) |
+| 114 (0x72) | Relic, uncommon 3 | in the game | Collecting a relic (children) |
+| 115 (0x73) | Relic, uncommon 4 | in the game | Collecting a relic (children) |
+| 116 (0x74) | Relic, uncommon 5 | in the game | Collecting a relic (children) |
+| 117 (0x75) | Relic, uncommon 6 | in the game | Collecting a relic (children) |
+| 118 (0x76) | Relic, uncommon 7 | in the game | Collecting a relic (children) |
+| 119 (0x77) | Relic, uncommon 8 | in the game | Collecting a relic (children) |
+| 120 (0x78) | Relic, rare 1 | in the game | Collecting a relic (children) |
+| 121 (0x79) | Relic, rare 2 | in the game | Collecting a relic (children) |
+| 122 (0x7A) | Relic, rare 3 | in the game | Collecting a relic (children) |
+| 123 (0x7B) | Relic, rare 4 | in the game | Collecting a relic (children) |
+| 124 (0x7C) | Relic, rare 5 | in the game | Collecting a relic (children) |
+| 125 (0x7D) | Relic, rare 6 | in the game | Collecting a relic (children) |
+| 126 (0x7E) | Relic, rare 7 | in the game | Collecting a relic (children) |
+| 127 (0x7F) | Relic, rare 8 | in the game | Collecting a relic (children) |
+| 128 (0x80) | Brown mushroom | in the game | Picking a mushroom (children) |
+| 129 (0x81) | Red mushroom | in the game | Picking a mushroom (children) |
+| 130 (0x82) | Golden Mushroom | patcher | Picking a mushroom (Super-Secret Golden Mushroom) |
+| 131 (0x83) | Collectables picture 52 | blank picture, unused | the game refuses it (0x41375B: nothing above 0x82) |
+| 132 (0x84) | Collectables picture 53 | blank picture, unused | the game refuses it |
+| 133 (0x85) | Collectables picture 54 | blank picture, unused | the game refuses it |
+
+The carry field is record +0x1D0C (-1 = nothing). Every store, read from the stock exe:
+
+- **The setter** SetCarrying 0x466420 (it asks the listener registry 0x413750, which refuses anything above
+  0x82, 0x41375B) with 11 callers, and -1 at 0x46525E (the record reset), 0x46645A, 0x468675 and 0x468967.
+  Step opcode 0x12 carries its number (0x473C90, and the fast-forward 0x4754D2); only 0x474D80 builds it
+  (76 call sites, each resolved to its action).
+- **Reached**: each step belongs to an action registered at 0x452C20 / 0x452C40 and started by 0x465580
+  (directly, through the redirector 0x4716D0, or through a shared tail). The golden eye (79, action 0xB7
+  "Installing the golden eye") is started by dropping a villager at The Blind Totem: 0x479C19 `push 0xB7`
+  jumps to the shared start 0x479CFF -> 0x465580 when the puzzle is at its last step (0x479BE9..0x479C06).
+- **Collectables**: a child dropped on one (0x413660 -> actions 35 and 36, children only) carries its
+  number: 0x50-0x67 Lab gear and 0x68-0x7F Relics (8 common, 8 uncommon, 8 rare each), 0x80 / 0x81 the brown
+  and red mushrooms; 0x82 only with the Super-Secret Golden Mushroom patch. 0x83-0x85 are blank cells the
+  setter refuses.
+- **DEAD**: actions 0x5B "Hiding something" and 0x5C "Spring cleaning" (one of 0, 1, 2, 4, 5, 6, 15, 18, 19,
+  23) and action 0x82 "Harvesting noni" the other way (62) are registered but never started (no start site
+  or shared tail pushes them), so the bowl of nuts (6), the Pot (19), the Bounty (23) and the big bowl of
+  noni (62) appear only there. The patcher's Story Upgrades can start any action, and so can make them
+  appear.
+- **Unused**: the other pictures marked unused are on carrying.png (much of it The Tree of Life's sheet) but
+  nothing stores their number; cells 80-90 are empty art no number reaches.
+- **The Golden Mushroom**: the item draw 0x4701C0 draws through 0x44F380, where "VVFP Golden Mushroom.dll"
+  draws golden_mushroom.png, 7 right and 1 down, for collectables frame 50 (the village's sheet and the
+  collectables manager's are both 0x44FA30's sprite for id 0xEC).
+- **The save** (0x465270) keeps the record windows only, not +0x1D0C: an expecting villager (+0x1C4C, name
+  + 0xB0) gets the baby back from the AI tick or Stop (0x466470, 0x47356D; a Heathen too). The litter +0x1C50
+  (name + 0xB4) is saved, and nothing clears it at the birth: a mother of twins carries two of whatever she
+  holds until she conceives again (derived from the complete list of stores; not seen in a running game).
+
+**Proven** by tests/test_pictures_vv5.py `test_every_carried_item`: the game's own draw, run in
+Unicorn on the stock executable, blits every item above in each of the four directions and in every pose
+that draws the item (walking with twins and triplets, the work poses, a child) exactly as the plan says;
+for the Golden Mushroom, the plan with the patcher's picture is the stock blits with the companion's swap
+(tests/carried_golden.py, the offsets read from its source). The list itself is pinned by
+tests/test_pictures_carried.py.

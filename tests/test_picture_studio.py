@@ -251,7 +251,7 @@ class HeadLooks(unittest.TestCase):
 class Release(unittest.TestCase):
     def test_every_module_ships(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
-        for name in ["vv_picture_studio", "vv_picture_image", "vv_pictures_common"] + \
+        for name in ["vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried"] + \
                 [f"vv_pictures_vv{n}" for n in range(1, 6)]:
             with self.subTest(module=name):
                 self.assertIn(f'"src/{name}.py"', release)

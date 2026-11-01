@@ -159,7 +159,7 @@ class VillagerDrawIsTheGames(unittest.TestCase):
         cls.emu = VillageEmulator()
 
     def check(self, look: v3.Look, label: str) -> None:
-        want = [d.key() for d in v3.plan(look, 1000, 1000, mask_art=False)]
+        want = [d.key() for d in v3.plan(look, 1000, 1000, mask_art=False, golden_art=False)]
         self.assertEqual(self.emu.draw(look), want, label)
 
     def test_atlases_are_the_resource_tables(self) -> None:
@@ -241,6 +241,34 @@ class VillagerDrawIsTheGames(unittest.TestCase):
                     for age in (30, 600):
                         self.check(v3.Look(age=age, item=item, litter=litter, direction=direction, frame=20),
                                    f"item {item} dir {direction} litter {litter}")
+
+    def test_every_carried_item(self) -> None:
+        """Every item of vv_pictures_carried.VV3 (the patcher's Golden Mushroom included), in every direction,
+        walking (with twins and triplets), kneeling, standing at work, sitting, lying, arms raised, a child, and
+        swimming, is blitted by the game's own draw 0x4605F0 as the plan says.  The Golden Mushroom's stock
+        blit (collectables frame 50) is what the patched game's world draw 0x42E510 swaps (carried_golden)."""
+        import carried_golden
+        import vv_pictures_carried as carried
+        golden = carried.GOLDEN_ITEM[v3.GAME]
+        frame50 = v3._linear(v3._Sizes, v3.COLLECTABLES, 50)
+        n = 0
+        for it in carried.items(v3.GAME):
+            for direction in range(4):
+                looks = [v3.Look(age=600, item=it.value, litter=litter, direction=direction, frame=19)
+                         for litter in (1, 2, 3)]
+                looks += [v3.Look(age=600, item=it.value, direction=direction, frame=f) for f in (2, 5, 8, 9, 14)]
+                looks += [v3.Look(age=120, male=False, item=it.value, direction=direction, frame=21),
+                          v3.Look(age=600, item=it.value, direction=direction, frame=18, swimming=True)]
+                for look in looks:
+                    label = f"{it.name}: {vars(look)}"
+                    self.check(look, label)
+                    if it.value == golden:
+                        stock = v3.plan(look, 1000, 1000, mask_art=False, golden_art=False)
+                        self.assertEqual(
+                            [d.key() for d in v3.plan(look, 1000, 1000, mask_art=False)],
+                            carried_golden.swapped(stock, v3.GAME, lambda d: (d.file, d.rect) == frame50), label)
+                    n += 1
+        self.assertEqual(n, len(carried.items(v3.GAME)) * 4 * 10)
 
     def test_swimming(self) -> None:
         for direction in range(4):
@@ -402,7 +430,7 @@ class MaskIsTheCompanions(unittest.TestCase):
         saved = v3.MASK_ART
         try:
             v3.MASK_ART = ROOT / "no such file.png"
-            self.assertEqual(v3.patcher_art(), {})
+            self.assertNotIn("heathen_masks.png", v3.patcher_art())
             self.assertEqual(v3.load(None).source.read("heathen_masks.png"), loose.read_bytes())
         finally:
             v3.MASK_ART = saved
@@ -530,7 +558,8 @@ class SyntheticSave(unittest.TestCase):
         custom = {f.key: f for f in r.custom_choices()[0].fields}
         for key in ("item", "litter"):
             self.assertIn(key, saved)
-            self.assertEqual([o.key for o in saved[key].options], [o.key for o in custom[key].options])
+            # From my save adds "As the game shows it" / "As in the save" (the save does not keep the item)
+            self.assertEqual([o.key for o in saved[key].options], ["saved"] + [o.key for o in custom[key].options])
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
             self.make(folder)

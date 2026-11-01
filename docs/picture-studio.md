@@ -101,11 +101,49 @@ Each game's own page has the drawing rules with their addresses, the proofs and 
 
 | Game | Draw code ported | Parts | Life stages | Poses | Patcher art | Emulated proof |
 |---|---|---|---|---|---|---|
-| A New Home | village compositor `0x437790` | heads 0-19, bodies 0-19, both sexes; action sheets; 15 carried items | child (body age/7+50 %, head age/14+80 %), adult, elder (Grey Hair), dead (skeleton), the Golden Child | walk (4 directions x 8 frames x 7 head facings), bent over, standing at work, sitting, swimming, the Golden Child's action | Origins masks (`assets/origins/mask_atlas.png`), Grey Hair at 55, head look | 1,067 compositor states; 276 on the patched exe with the real mask hooks; 264 with the real Grey Hair DLL; atlas cut, centring and blitter |
-| The Lost Children | village compositor `0x445B50` | heads 0-29 (young and old), bodies 0-29, actions, items | child, adult, elder (old head from 55), dead (skeleton), Esteemed Elder statues (8) | walk, bending, sitting, arms out, two in-the-air poses, resting, swimming | Origins masks (from the shipped Origins DLL), head look, Elder Totems statues | about 13,300 records on the stock exe; about 4,800 on the patched exe with the real mask code |
-| The Secret City | villager handler `0x4605F0` (+ action overlay) | heads 0-29 (young and old), bodies 0-29 (29 = the Tribal Chief's robe), both item sheets | child (body age/700+0.5, head (age/14+80)/100), adult, elder, dead (skeleton) | 25 animation frames (walk 17-24 in 4 directions, 17 action poses), 8 head facings, height, swimming | Origins masks (ported from the companion's `VV3WorldMaskDrawAt`), head look | about 6,000 cases on the stock exe through the game's own resource table, atlases, camera and wrappers |
-| The Tree of Life | village figure `0x467DA0`, Villager Details figure `0x45F550` | heads 0-29 (`00` young, `10` old), bodies 0-29 (29 = chief outfit), 78 carrying + 54 collectable cells | child (every year), adult, elder, dead (skeleton), ghost (60 %) | 8 walking steps x 4 directions, 17 action poses, held, standing in water; the Details portrait (3 facings, an expecting mother's babies) | Origins masks in the village and the Details portrait, head look | 2,304 combined states plus every pose x direction, skeletons, ghosts, water, items; masks on the patcher's own bytes; Details figure |
-| New Believers | village draw `0x4720E0` | heads 0-29 (young and old halves), bodies 0-29, actions, items | child (per age unit), adult, elder, dead (skeleton, the save's frame) | walk (8 x 4), action poses 32-48, 8 head turns, swimming | the native heathen masks (Blue, Orange, Red, Purple, Chief), the Origins cosmetic mask (as the patcher's mask flip makes the game draw it), head look | the real loader on the real `animpts.dat` (all 50 x 4 records); over 1,300 records through `0x4720E0` |
+| A New Home | village compositor `0x437790` | heads 0-19, bodies 0-19, both sexes; action sheets; every carried item (15, and the Golden Mushroom) | child (body age/7+50 %, head age/14+80 %), adult, elder (Grey Hair), dead (skeleton), the Golden Child | walk (4 directions x 8 frames x 7 head facings), bent over, standing at work, sitting, swimming, the Golden Child's action | Origins masks (`assets/origins/mask_atlas.png`), Grey Hair at 55, head look | 1,067 compositor states; 276 on the patched exe with the real mask hooks; 264 with the real Grey Hair DLL; atlas cut, centring and blitter |
+| The Lost Children | village compositor `0x445B50` | heads 0-29 (young and old), bodies 0-29, actions; every carried item (26 + 54 collectables) | child, adult, elder (old head from 55), dead (skeleton), Esteemed Elder statues (8) | walk, bending, sitting, arms out, two in-the-air poses, resting, swimming | Origins masks (from the shipped Origins DLL), head look, Elder Totems statues | about 13,300 records on the stock exe; about 4,800 on the patched exe with the real mask code |
+| The Secret City | villager handler `0x4605F0` (+ action overlay) | heads 0-29 (young and old), bodies 0-29 (29 = the Tribal Chief's robe); every carried item (52 + 54 collectables) | child (body age/700+0.5, head (age/14+80)/100), adult, elder, dead (skeleton) | 25 animation frames (walk 17-24 in 4 directions, 17 action poses), 8 head facings, height, swimming | Origins masks (ported from the companion's `VV3WorldMaskDrawAt`), head look | about 6,000 cases on the stock exe through the game's own resource table, atlases, camera and wrappers |
+| The Tree of Life | village figure `0x467DA0`, Villager Details figure `0x45F550` | heads 0-29 (`00` young, `10` old), bodies 0-29 (29 = chief outfit); every carried item (70 + 54 collectables) | child (every year), adult, elder, dead (skeleton), ghost (60 %) | 8 walking steps x 4 directions, 17 action poses, held, standing in water; the Details portrait (3 facings, an expecting mother's babies) | Origins masks in the village and the Details portrait, head look | 2,304 combined states plus every pose x direction, skeletons, ghosts, water, items; masks on the patcher's own bytes; Details figure |
+| New Believers | village draw `0x4720E0` | heads 0-29 (young and old halves), bodies 0-29, actions; every carried item (80 + 54 collectables) | child (per age unit), adult, elder, dead (skeleton, the save's frame) | walk (8 x 4), action poses 32-48, 8 head turns, swimming | the native heathen masks (Blue, Orange, Red, Purple, Chief), the Origins cosmetic mask (as the patcher's mask flip makes the game draw it), head look | the real loader on the real `animpts.dat` (all 50 x 4 records); over 1,300 records through `0x4720E0` |
+
+## Carried items (`src/vv_pictures_carried.py`)
+
+**Carrying** lists every item a villager can be drawn carrying, in all five games, named the way the game
+or the patcher's Game Mechanics pages name it (The Secret City's names are its own eCarrying_* list), with
+the babies carried (one, twins, triplets: the game draws the item again for each). Each game's page has
+the full list with the jobs that carry each item and the addresses:
+
+| Game | Items the game carries | Unused pictures (offered, marked) | Blank | Patcher |
+|---|---|---|---|---|
+| A New Home | 14 | 1 | 0 | Golden Mushroom |
+| The Lost Children | 68 (18 + 48 collectables and 2 mushrooms) | 8 | 3 | Golden Mushroom (the game's own picture) |
+| The Secret City | 102 (52 + 48 collectables and 2 mushrooms) | 0 | 3 | Golden Mushroom |
+| The Tree of Life | 94 (44 + 50) | 26 | 3 | Golden Mushroom |
+| New Believers | 82 (32 + 50) | 48 | 3 | Golden Mushroom |
+
+- **In the game**: the game's own code carries it (every store of the carry field was found and each
+  number traced to its job; the status texts are the game's).
+- **"(unused in the game)"**: the picture is on the item sheet and the game's carry draw draws it -- the
+  Studio draws it with that same code -- but nothing the game runs carries it: no store gives the number,
+  or only code that never runs (DEAD: The Tree of Life's and New Believers' "Hiding something" / "Spring
+  cleaning", which nothing starts). Each game's page gives the reason per item.
+- **"(blank picture, unused in the game)"**: the collectables sheets' last three cells are empty.
+- **"(patcher)"**: the Super-Secret Golden Mushroom. In A New Home, The Secret City, The Tree of Life and
+  New Believers "VVFP Golden Mushroom.dll" draws the patcher's golden_mushroom.png where the game would
+  draw the golden frame (A New Home 6 right and 2 down, the others 7 right, New Believers also 1 down); The
+  Lost Children's own sheet has the picture.
+- **From my save**: no game keeps the carried item in its save. On loading each game gives a villager who
+  is expecting (or nursing) the baby and everyone else nothing, so the first choice, "As the game shows it
+  after loading", draws exactly that; the babies carried come from the save's litter.
+- **Proof**: each game's `test_every_carried_item` runs the game's own draw on the stock executable for
+  every item in the list, in the four directions and the carrying poses, and requires every blit to be the
+  plan's; the Golden Mushroom's plan is the stock blits with the companion's swap (`tests/carried_golden.py`,
+  its offsets read from the companion's source). `tests/test_pictures_carried.py` pins the list and the
+  facts read from the executables.
+- **Not offered**: numbers that are no picture of their own (A New Home's 16-18 draw cells 1-3 again; The
+  Lost Children's 0x1B-0x1D, which nothing stores), and the empty cells of carrying.png no number reaches
+  (The Tree of Life's 70-77, New Believers' 80-90).
 
 ## Not covered, or not proven
 
@@ -117,8 +155,9 @@ Said plainly, game by game in each page; in short:
   nearest-pixel model for at 150 %, 172 % and 186 %), the map overview and dialog figures are not drawn.
 - **Transient effects** are left out: the selection ring and splash/sparkle particles (A New Home draws
   its selection circle as an option), New Believers' colour flash and heathen sparkle, a ghost's fading.
-- **What the save does not keep** (pose, direction, frame, head turn, carried item, height) is picked,
-  never guessed; some pose names describe the art rather than the game's own activity names.
+- **What the save does not keep** (pose, direction, frame, head turn, height) is picked, never guessed;
+  some pose names describe the art rather than the game's own activity names.  The carried item is not
+  saved either; From my save offers what the game gives back on loading (the baby while expecting).
 - **Masks**: The Secret City's mask placement is checked against the companion's C source, not by
   running the companion; New Believers' cosmetic mask is proven by giving the emulated stock exe the
   flipped fields, not by running the patched exe.
