@@ -522,6 +522,31 @@ class SyntheticSave(unittest.TestCase):
             elder = r.plan_saved(folder, 1, items[2].id)
             self.assertEqual(elder[-1].file, "male_heads_old.png")
 
+    def test_a_saved_villager_can_carry(self) -> None:
+        """Codex (PR #660): From my save offers the carried item and the litter Make your own has, and
+        they reach the plan exactly as the custom tab's do."""
+        r = v3.load(pi.Pictures(3, None))
+        saved = {f.key: f for f in r.saved_fields()}
+        custom = {f.key: f for f in r.custom_choices()[0].fields}
+        for key in ("item", "litter"):
+            self.assertIn(key, saved)
+            self.assertEqual([o.key for o in saved[key].options], [o.key for o in custom[key].options])
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            self.make(folder)
+            r.sheets = v3._Sizes
+            items = r.saved_items(folder, 1)
+            plain = r.plan_saved(folder, 1, items[0].id, pose="walk")
+            self.assertNotIn("item", [d.what for d in plain])
+            for item, litter in ((3, 1), (3, 2), (v3.COLLECTABLE_FIRST + 4, 3)):
+                carried = r.plan_saved(folder, 1, items[0].id, pose="walk", item=item, litter=litter)
+                spec = {"subject": "villager", "sex": "male", "stage": 900, "head": 0, "body": 29,
+                        "pose": "walk", "item": item, "litter": litter}
+                custom_plan = r.plan_custom(spec)
+                self.assertEqual([d.key() for d in carried if d.what == "item"],
+                                 [d.key() for d in custom_plan if d.what == "item"])
+                self.assertEqual(len([d for d in carried if d.what == "item"]), litter)
+
     def test_masks_from_the_companions_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)

@@ -283,7 +283,23 @@ def pose_fields() -> tuple:
             pi.Field("shadow", "Shadow", SHADOWS, "on"))
 
 
+def carry_fields() -> tuple:
+    """What a villager carries (0x460ADF's item, and the copies a litter adds): offered on both tabs -- the
+    save keeps neither the item in hand nor (for this picture) how it is held, so From my save picks it too
+    (Codex, PR #660)."""
+    items = ((pi.Option(NO_ITEM, "Nothing"),)
+             + tuple(pi.Option(k, f"carrying.png item {k + 1}") for k in range(52))
+             + tuple(pi.Option(COLLECTABLE_FIRST + k, f"collectables_small.png item {k + 1}") for k in range(54)))
+    litters = (pi.Option(1, "One"), pi.Option(2, "Twins (drawn twice)"), pi.Option(3, "Triplets (drawn three times)"))
+    return (pi.Field("item", "Carrying", items, NO_ITEM),
+            pi.Field("litter", "Babies carried", litters, 1))
+
+
 def apply_pose(look: Look, pose: dict) -> Look:
+    if "item" in pose:
+        look.item = NO_ITEM if pose["item"] is None else int(pose["item"])
+    if "litter" in pose:
+        look.litter = int(pose["litter"] or 1)
     p = pose.get("pose", "walk")
     direction = int(pose.get("direction", 1) or 0) & 3
     frame = int(pose.get("frame", 0) or 0)
@@ -404,7 +420,7 @@ class Renderer:
         return items
 
     def saved_fields(self) -> tuple:
-        return pose_fields()
+        return pose_fields() + carry_fields()
 
     def saved_look(self, folder, slot, item_id) -> Look:
         people = self._people.get((str(folder), slot)) or {str(v.rank): v for v in self._village(folder, slot)}
@@ -435,18 +451,12 @@ class Renderer:
         masks = tuple(pi.Option(k, name, patcher=k > 0) for k, name in enumerate(common.MASK_NAMES))
         looks = (pi.Option(common.LOOK_AUTO, "Auto (old from 55)"), pi.Option(common.LOOK_YOUNG, "Young", True),
                  pi.Option(common.LOOK_OLD, "Old", True))
-        items = ((pi.Option(NO_ITEM, "Nothing"),)
-                 + tuple(pi.Option(k, f"carrying.png item {k + 1}") for k in range(52))
-                 + tuple(pi.Option(COLLECTABLE_FIRST + k, f"collectables_small.png item {k + 1}") for k in range(54)))
-        litters = (pi.Option(1, "One"), pi.Option(2, "Twins (drawn twice)"), pi.Option(3, "Triplets (drawn three times)"))
         fields = (pi.Field("sex", "Sex", (pi.Option("male", "Male"), pi.Option("female", "Female")), "male"),
                   pi.Field("stage", "Life stage", tuple(stages), 30 * common.UNITS_PER_YEAR),
                   pi.Field("head", "Head", heads, 0),
                   pi.Field("body", "Body", bodies, 0),
                   pi.Field("look", "Head look", looks, common.LOOK_AUTO),
-                  pi.Field("mask", "Mask", masks, 0)) + pose_fields() + (
-                  pi.Field("item", "Carrying", items, NO_ITEM),
-                  pi.Field("litter", "Babies carried", litters, 1))
+                  pi.Field("mask", "Mask", masks, 0)) + pose_fields() + carry_fields()
         note = ("Children grow from half size at birth to full size at 14, the head from 80%; from 55 the old head "
                 "is drawn (or as the head look says). A Tribal Chief wears body 29. Dead villagers lie as a "
                 "skeleton (frame 1-4). Masks and head looks are the patcher's.")

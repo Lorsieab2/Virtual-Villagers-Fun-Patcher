@@ -601,19 +601,7 @@ class SyntheticSave(unittest.TestCase):
 
     def test_the_elder_totems_patchs_statues(self) -> None:
         """native/vvfp_vv2_totems: the store's file (version 2: header, roster rows, entries, FNV-1a)."""
-        entries = [_entry("Hoku", male=True, age=1900, head=2, body=6, statue=True, variant=13, health=0)[:0x2E0],
-                   _entry("Lani", male=False, age=1500, head=9, body=1, statue=True, variant=4, health=0)[:0x2E0]]
-        header = bytearray(72)
-        header[:16] = v2.TOTEMS_MAGIC
-        struct.pack_into("<iiiiii", header, 16, 2, 2, 1, 0x2E0, 1, len(entries))
-        roster = bytes(36)
-        body = bytes(header) + roster + b"".join(entries)
-        h = common.FNV_BASIS
-        for b in body:
-            h = ((h ^ b) * common.FNV_PRIME) & 0xFFFFFFFF
-        path = v2.totems_file(self.folder, 1)
-        path.parent.mkdir(parents=True)
-        path.write_bytes(body + struct.pack("<I", h))
+        body, h, path = self._store([("Kaimana", 12, 4, 1), ("Leilani", 3, 22, 2), ("Makoa", 20, 9, 1)])
         r = v2.load(_NullSource())
         items = [i for i in r.saved_items(self.folder, 1) if i.id.startswith("t")]
         self.assertEqual([i.label for i in items], ["Hoku's totem (statue)", "Lani's totem (statue)"])
@@ -622,6 +610,43 @@ class SyntheticSave(unittest.TestCase):
                                                             ("statue", (200, 0, 240, 100))])
         path.write_bytes(body + struct.pack("<I", h ^ 1))           # a damaged file is not read
         self.assertFalse([i for i in v2.load(_NullSource()).saved_items(self.folder, 1) if i.id.startswith("t")])
+
+    def _store(self, roster) -> tuple[bytes, int, Path]:
+        """An ElderTotems.dat (version 2: header, the village's name, roster rows, entries, FNV-1a) holding
+        two statues, for the village whose living villagers are `roster` (name, head, body, sex)."""
+        entries = [_entry("Hoku", male=True, age=1900, head=2, body=6, statue=True, variant=13, health=0)[:0x2E0],
+                   _entry("Lani", male=False, age=1500, head=9, body=1, statue=True, variant=4, health=0)[:0x2E0]]
+        header = bytearray(72)
+        header[:16] = v2.TOTEMS_MAGIC
+        struct.pack_into("<iiiiii", header, 16, 2, 2, 1, 0x2E0, len(roster), len(entries))
+        rows = b"".join(name.encode().ljust(24, b"\0") + struct.pack("<iii", head, body, sex)
+                        for name, head, body, sex in roster)
+        body = bytes(header) + rows + b"".join(entries)
+        h = common.FNV_BASIS
+        for b in body:
+            h = ((h ^ b) * common.FNV_PRIME) & 0xFFFFFFFF
+        path = v2.totems_file(self.folder, 1)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(body + struct.pack("<I", h))
+        return body, h, path
+
+    def test_another_villages_totems_are_not_listed(self) -> None:
+        """Codex (PR #660): a slot whose village was replaced can still hold the old village's
+        ElderTotems.dat, whole and checked.  The game's companion loads a store only when it is bound to
+        the save (bound_to: more than half of its roster stands in the save); Picture Studio uses the same
+        test (vv_vv2_totem_store.bound), so the old village's statues are not listed."""
+        self._store([("Ahiga", 1, 2, 1), ("Bena", 3, 4, 2), ("Kaimana", 12, 4, 1)])   # one of three here
+        items = v2.load(_NullSource()).saved_items(self.folder, 1)
+        self.assertFalse([i for i in items if i.id.startswith("t")])
+        self.assertEqual(len(items), 5)                                       # the save's own records stay
+        self._store([("Ahiga", 1, 2, 1), ("Leilani", 3, 22, 2), ("Kaimana", 12, 4, 1)])   # two of three
+        self.assertEqual(len([i for i in v2.load(_NullSource()).saved_items(self.folder, 1)
+                              if i.id.startswith("t")]), 2)
+
+    def test_the_store_is_read_by_the_repair_tools_reader(self) -> None:
+        source = (ROOT / "src" / "vv_pictures_vv2.py").read_text(encoding="utf-8")
+        self.assertIn("store_file.bound(store, data)", source)
+        self.assertIn("store_file.read(Path(folder), int(slot))", source)
 
     def test_nothing_is_written(self) -> None:
         before = sorted(p.name for p in self.folder.rglob("*"))

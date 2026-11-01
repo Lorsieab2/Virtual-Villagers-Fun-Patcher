@@ -285,6 +285,27 @@ class Release(unittest.TestCase):
         import vv_pictures_vv2
         self.assertIn(vv_pictures_vv2.ORIGINS_DLL.relative_to(ROOT).as_posix(), build_release.FILES)
 
+    def test_from_my_save_offers_every_pose_control_make_your_own_has(self) -> None:
+        """Codex (PR #660, The Secret City's carried item): what the save does not keep -- pose, direction,
+        frame, head turn, carried item, litter, shadow... -- is picked on From my save with the same
+        controls Make your own has, in every game.  Left out: what the save itself gives (appearance,
+        age, mask, head look, and the fields named below)."""
+        import importlib
+        from_save = {"sex", "stage", "life", "head", "body", "mask", "look",
+                     "expecting", "dead_frame", "skeleton"}      # The Tree of Life / The Lost Children: the save's own
+        for n in range(1, 6):
+            module = importlib.import_module(f"vv_pictures_vv{n}")
+            renderer = module.load(pi.Pictures(n, None))
+            saved = {f.key for f in renderer.saved_fields()}
+            for subject in renderer.custom_choices():
+                if subject.key != "villager":
+                    continue
+                for field in subject.fields:
+                    if field.key in from_save:
+                        continue
+                    with self.subTest(game=n, field=field.key):
+                        self.assertIn(field.key, saved)
+
     def test_the_tools_tab_opens_it(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("vv_picture_studio.open_picture_studio(self, None)", source)
