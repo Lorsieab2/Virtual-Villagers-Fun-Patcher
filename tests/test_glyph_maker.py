@@ -102,6 +102,16 @@ class Rendering(unittest.TestCase):
             self.assertIsNotNone(g.image.bbox(), hex(cp))
             self.assertEqual(g.kind, "system")
 
+    def test_characters_past_the_bmp(self):
+        # Two UTF-16 code units each: the GDI calls must be given both, or they draw a lone surrogate.
+        self.assertEqual(gm._utf16_len("\U00012000"), 2)
+        self.assertEqual(gm._utf16_len("a\U0001D11Eb"), 4)
+        g = gm.render_cluster("\U00012000", style(face="Segoe UI Historic"))
+        if g is None:
+            self.skipTest("Segoe UI Historic is not installed")
+        self.assertIsNotNone(g.image.bbox())
+        self.assertGreater(g.advance, 0)
+
     def test_space_and_newline(self):
         g = gm.render_cluster(" ", style())
         self.assertIsNotNone(g)

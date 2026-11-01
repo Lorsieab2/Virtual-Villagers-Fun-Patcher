@@ -1010,6 +1010,11 @@ def _round_up(v: int, m: int) -> int:
     return -(-v // m) * m
 
 
+def _utf16_len(text: str) -> int:
+    """The wide GDI calls count UTF-16 code units: a character past U+FFFF is two of them."""
+    return len(text.encode("utf-16-le")) // 2
+
+
 def _raster(text: str, face: str, em_ss: int, bold: bool, ss: int):
     """Draw `text` at em_ss pixels (supersampled by ss) and box-filter it down.  Returns
     (coverage bytearray, w, h, left, top, advance): left/top place the coverage's top-left corner
@@ -1018,7 +1023,7 @@ def _raster(text: str, face: str, em_ss: int, bold: bool, ss: int):
     with _Font(face, em_ss, bold):
         tm = _metrics(a)
         size = a.W.SIZE()
-        a.GetTextExtentPoint32W(a.dc, text, len(text), ctypes.byref(size))
+        a.GetTextExtentPoint32W(a.dc, text, _utf16_len(text), ctypes.byref(size))
         pad = _round_up(max(em_ss, 4), ss)
         width = _round_up(size.cx + 2 * pad, ss)
         base = _round_up(pad + tm.tmAscent, ss)
@@ -1055,7 +1060,7 @@ def _dib_text(a, text: str, width: int, height: int, x: int, y: int) -> bytes | 
             a.SetBkMode(a.dc, 1)                        # TRANSPARENT
             a.SetTextColor(a.dc, 0xFFFFFF)
             a.SetTextAlign(a.dc, TA_BASELINE)
-            a.TextOutW(a.dc, x, y, text, len(text))
+            a.TextOutW(a.dc, x, y, text, _utf16_len(text))
             a.GdiFlush()
             return ctypes.string_at(bits, width * height * 4)
         finally:
@@ -1126,7 +1131,7 @@ def _raster_rows_height(text: str, face: str, em: int, bold: bool):
     with _Font(face, em, bold):
         tm = _metrics(a)
         size = a.W.SIZE()
-        a.GetTextExtentPoint32W(a.dc, text, len(text), ctypes.byref(size))
+        a.GetTextExtentPoint32W(a.dc, text, _utf16_len(text), ctypes.byref(size))
         width, height = size.cx + 8, tm.tmAscent + tm.tmDescent + 8
         bits = _dib_text(a, text, width, height, 4, 4 + tm.tmAscent)
     if bits is None:
