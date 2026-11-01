@@ -239,33 +239,47 @@ The patcher can change a tribe's name inside its save, in all five games.
 
 COPY PLAYER SLOT
 
-The patcher can copy a village into an empty save slot of the same game,
+The patcher can copy a village into another save slot of the same game,
 under a new name, in all five games. Both villages can then be played.
 
 1. Quit the game first (from its own menu). A game that is running is
    refused.
 2. On the Tools tab, click "Copy Player Slot..." (under the game chosen on
    the One Game tab, or below the five games to pick any game).
-3. Pick the game, the save folder, the village to copy ("Copy from", each
-   slot listed with its name) and an empty slot ("Copy to": only empty slots
-   are listed), and type the new name. The name follows the same rules as
-   Rename Tribe.
-4. Click "Copy...". You are asked to confirm, with the village, both slots,
-   the new name and the save folder named; "No" is the default and copies
-   nothing at all.
-5. On "Yes" the save folder is backed up first, into
+3. Pick the game, the save folder, the village to copy ("Copy from") and
+   the slot to copy to ("Copy to"), and type the new name. The name follows
+   the same rules as Rename Tribe. A slot is empty when the game has no save
+   file for it (Virtual Villagers3.ldw, say), whatever the game's own slot
+   list says. A slot that holds a player is listed with its village and
+   "(will be overwritten)".
+4. Click "Copy...". You are asked first. For an empty slot: "Save N is
+   empty. It will get a copy of ... Copy it?", with any files an earlier
+   village left in that slot listed. For a slot that holds a player:
+   "Save N holds the ... village. It will be replaced by a copy of ...
+   Replace it?". "No" is the default; Return and Escape answer No, and No
+   changes nothing at all.
+5. On "Yes" the whole save folder is backed up first, into
        (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before copy)
-   Then the slot's save (and its older copies) is copied to the empty slot
-   with the new name, and so is everything the patcher keeps for that
-   village: its logs, its data, and its saved family trees, now for the new
-   slot. The village you copied from is never changed, and no file already
-   there is ever written over: if the patcher still keeps files for a
-   village that was in the empty slot before, the copy is refused and names
-   them. Everything is checked after writing; if anything fails, everything
-   the copy made is removed again.
-6. Not copied: the older patcher builds' shared logs (from before each save
-   had its own folder of logs), which keep every village of the game in the
-   same files.
+   Then every file of the slot you copy to (the old village's save, its
+   logs and data, its saved trees, or an earlier village's leftovers) is
+   moved -- never deleted -- into
+       (save folder)\Backups\Replaced by copy YYYY-MM-DD HH-MM-SS - Save N - (name)
+   which Restore Saves never offers and nothing reads; to get the old
+   village back, restore the "(before copy)" backup. Then the village is
+   copied with the new name, with everything the patcher keeps for it: its
+   logs (its records in older patcher builds' shared logs too), its data
+   and its saved family trees, now for the new slot.
+6. The copy's records get new numbers (Birth, Death, Repair...): every slot
+   of a game shares those numbers, so the copy's come after the highest the
+   game has used, in the same order, and everything that names a record
+   follows. The copy reads exactly like the original: lines under an older
+   name of the village keep that name.
+7. Not copied: a repair waiting to run (the copy starts with none),
+   set-aside copies of files, and the Family Tree Maker's reports and
+   pictures and the Village Matchmaker's text (made again whenever you want
+   them). The village you copied from is never changed. Everything is
+   checked after writing; if anything fails, everything the copy made is
+   removed again and the slot's old files are moved back.
 
 CHECK SAVES & LOGS AND REPAIR SAVES & LOGS
 

@@ -1,11 +1,15 @@
-"""The Copy Player Slot window (Tools tab): pick a game, its save folder, the village to copy, an empty
-slot and a name; confirm; then src/vv_copy_slot.py copies it off the main thread.
+"""The Copy Player Slot window (Tools tab): pick a game, its save folder, the village to copy, the slot to
+copy it to and a name; confirm; then src/vv_copy_slot.py copies it off the main thread.
 
-The owner: "All 'Copy Player Slot' should have a confirmation prompt too", with No as the default (Enter
-never copies).  Answering No writes nothing, not even the backup (`confirm_and_copy`).
+The owner: "All 'Copy Player Slot' should have a confirmation prompt too", then "I want the Copy Player
+slot to be able to overwrite existing slots (with a confirmation prompt of course)".  "Copy to" lists every
+slot but the source; a slot that holds a player says "(will be overwritten)" and gets its own question.
+No is the default; Return and Escape answer No (`ask_yes_no`).  Answering No writes nothing, not even the
+backup (`confirm_and_copy`).  The prompts' words are the ones every patcher shares.
 """
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
@@ -17,15 +21,77 @@ import vv_save_backup
 import vv_tribe_rename
 
 TITLE = "Copy Player Slot"
+# The most set-aside leftover files named one by one in the question; the rest are counted.
+SHOWN_LEFTOVERS = 25
 
 
-def confirmation_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, new_name: str) -> str:
-    return (
-        f"Copy \"{source.name}\" (Save {source.slot}) to the empty Save {target} as \"{new_name}\"?\n\n"
-        f"Save folder: {folder.name}\n\n"
-        "The save folder is backed up first, into Backups\\Backup <date and time> (before copy). "
-        f"\"{source.name}\" itself is not changed."
-    )
+def _stamp(when: datetime) -> str:
+    return when.strftime("%Y-%m-%d %H-%M-%S")
+
+
+def replace_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, old_name: str, new_name: str,
+                 when: datetime) -> str:
+    """The question for a target slot that holds a player (the patchers' shared words)."""
+    return (f"Save {target} holds the {old_name} village. It will be replaced by a copy of {source.name} "
+            f"(Save {source.slot}), named {new_name}. The whole save folder ({folder}) is backed up first, and "
+            f"{old_name}'s files are kept in Backups\\Replaced by copy {_stamp(when)}. Replace it?")
+
+
+def empty_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, new_name: str, when: datetime,
+               leftovers: list[Path] | None = None) -> str:
+    """The question for an empty target slot (the patchers' shared words), with its leftovers listed."""
+    text = (f"Save {target} is empty. It will get a copy of {source.name} (Save {source.slot}), named {new_name}. "
+            f"The whole save folder ({folder}) is backed up first.")
+    if leftovers:
+        names = [str(Path(p).relative_to(folder)) for p in leftovers]
+        shown = "\n".join(f"  {n}" for n in names[:SHOWN_LEFTOVERS])
+        more = f"\n  ...and {len(names) - SHOWN_LEFTOVERS} more" if len(names) > SHOWN_LEFTOVERS else ""
+        text += (f" Leftover files from an earlier village in Save {target} are kept in "
+                 f"Backups\\Replaced by copy {_stamp(when)}.\n\n{shown}{more}\n\n")
+    else:
+        text += " "
+    return text + "Copy it?"
+
+
+def ask_yes_no(parent, title: str, message: str) -> bool:
+    """Yes / No, No the default: Return and Escape (and closing the window) answer No, as only a click on
+    Yes (or Space on it) says Yes."""
+    top, answer = build_yes_no(parent, title, message)
+    top.wait_window()
+    return answer["yes"]
+
+
+def build_yes_no(parent, title: str, message: str):
+    """The question's window and its answer ({"yes": False} until Yes is chosen); `ask_yes_no` waits."""
+    top = tk.Toplevel(parent)
+    top.title(title)
+    if parent is not None:
+        top.transient(parent)
+    answer = {"yes": False}
+    frame = ttk.Frame(top, padding=16)
+    frame.pack(fill="both", expand=True)
+    ttk.Label(frame, text=message, wraplength=560, justify="left").pack(anchor="w")
+    buttons = ttk.Frame(frame)
+    buttons.pack(anchor="e", pady=(12, 0))
+
+    def say(yes: bool) -> None:
+        answer["yes"] = yes
+        top.destroy()
+
+    yes = ttk.Button(buttons, text="Yes", command=lambda: say(True))
+    no = ttk.Button(buttons, text="No", command=lambda: say(False), default="active")
+    yes.pack(side="left")
+    no.pack(side="left", padx=(8, 0))
+    for key in ("<Return>", "<KP_Enter>", "<Escape>"):
+        top.bind(key, lambda _event: say(False))
+    top.protocol("WM_DELETE_WINDOW", lambda: say(False))
+    top.yes_button, top.no_button = yes, no
+    no.focus_set()
+    try:
+        top.grab_set()
+    except tk.TclError:
+        pass
+    return top, answer
 
 
 def confirm_and_copy(
@@ -38,13 +104,26 @@ def confirm_and_copy(
     new_name: str,
     parent=None,
     processes=None,
+    now: datetime | None = None,
 ) -> vv_copy_slot.CopyResult | None:
-    """Ask first (No is the default button); only a Yes backs up and copies.  None when the player said
-    No: then nothing at all was written."""
-    if not ask(TITLE, confirmation_text(folder, source, target, new_name), parent=parent, default="no",
-               icon="question"):
+    """Ask first -- the replace question for a slot that holds a player, the copy question (with every
+    leftover file named) for an empty one; No is the default.  Only a Yes backs up and copies, and only the
+    files named are set aside.  None when the player said No: then nothing at all was written."""
+    when = now or datetime.now().replace(microsecond=0)
+    files = vv_copy_slot.slot_files(game, folder, target)
+    save = game.save_path(Path(folder), target)
+    if save.is_file():
+        try:
+            old_name = vv_tribe_rename.save_name(game, save.read_bytes()) or "unreadable"
+        except OSError:
+            old_name = "unreadable"
+        message = replace_text(folder, source, target, old_name, new_name, when)
+    else:
+        message = empty_text(folder, source, target, new_name, when, files)
+    if not ask(parent, TITLE, message):
         return None
-    return run(lambda: vv_copy_slot.copy_slot(game, folder, source.slot, target, new_name, processes=processes))
+    return run(lambda: vv_copy_slot.copy_slot(game, folder, source.slot, target, new_name, processes=processes,
+                                              now=when, expected_removals=files))
 
 
 def open_copy_slot(app, build) -> None:
@@ -65,17 +144,20 @@ def open_copy_slot(app, build) -> None:
     ttk.Label(
         frame,
         text=(
-            "Copies a village into an empty slot of the same save folder, under a new name, with "
-            "everything the patcher keeps for it (its logs and data). The game must be closed. The "
-            "save folder is backed up first, into <save folder>\\Backups\\Backup <date and time> "
-            "(before copy). The village you copy from is not changed."
+            "Copies a village into another slot of the same save folder, under a new name, with "
+            "everything the patcher keeps for it (its logs and data). A slot is empty when the game has no "
+            "save for it, whatever its slot list says. Copying over a slot that holds a player replaces "
+            "that village: you are asked first. The game must be closed. The whole save folder is backed up "
+            "first, into <save folder>\\Backups\\Backup <date and time> (before copy), and the files the "
+            "copy replaces are kept in <save folder>\\Backups\\Replaced by copy <date and time>. The "
+            "village you copy from is not changed."
         ),
         wraplength=560, justify="left",
     ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 10))
     game_var = tk.StringVar(value=build.title if build is not None else titles[0])
     folder_var, source_var, target_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
     name_var, counter_var, problem_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
-    state: dict = {"folders": [], "slots": None}
+    state: dict = {"folders": [], "slots": None, "targets": []}
 
     ttk.Label(frame, text="Game:").grid(row=1, column=0, sticky="w")
     game_box = ttk.Combobox(frame, textvariable=game_var, values=titles, state="readonly", width=48)
@@ -105,13 +187,23 @@ def open_copy_slot(app, build) -> None:
     def game() -> vv_tribe_rename.GameSaves:
         return vv_tribe_rename.game_for_title(game_var.get())
 
+    def taken_names(target: int) -> set[str]:
+        """The names the older shared logs keep an earlier village of ``target`` under (read once per
+        folder and slot): the copy may not take one (vv_copy_slot.shared_log_names)."""
+        folder = state["folders"][folder_box.current()]
+        key = (str(folder), target)
+        cache = state.setdefault("taken", {})
+        if key not in cache:
+            cache[key] = vv_copy_slot.shared_log_names(folder, target)
+        return cache[key]
+
     def chosen():
         slots = state["slots"]
         if slots is None or not state["folders"]:
             return None, None
         s, t = source_box.current(), target_box.current()
         source = slots.sources[s] if 0 <= s < len(slots.sources) else None
-        target = slots.targets[t] if 0 <= t < len(slots.targets) else None
+        target = state["targets"][t] if 0 <= t < len(state["targets"]) else None
         return source, target
 
     def refresh(*_args) -> None:
@@ -124,31 +216,43 @@ def open_copy_slot(app, build) -> None:
         if not state["folders"]:
             problem = "No save folder was found for this game."
         elif source is None:
-            problem = "This save folder has no village to copy."
+            problem = "This save folder has no player to copy (no slot has a save the game can load)."
         elif target is None:
-            problem = "Every slot is in use: there is no empty slot to copy to."
+            problem = "Choose the slot to copy to."
         elif name:
             problem = vv_tribe_rename.name_problem(saves, name)
+            if problem is None and name in taken_names(target):
+                problem = vv_copy_slot.name_taken_message(name, target)
         problem_var.set(problem or "")
         copy_button.configure(state="normal" if problem is None and name else "disabled")
+
+    def load_targets(*_args) -> None:
+        """Every slot but the source: an empty one, or the village it would overwrite."""
+        slots = state["slots"]
+        source = chosen()[0]
+        state["targets"] = [s for s in vv_copy_slot.SLOTS if source is None or s != source.slot] if slots else []
+        labels = [slots.label(s) for s in state["targets"]] if slots else []
+        target_box.configure(values=labels)
+        empty = next((n for n, s in enumerate(state["targets"]) if s in slots.targets), 0) if slots else 0
+        if labels:
+            target_box.current(empty)
+        else:
+            target_var.set("")
+        refresh()
 
     def load_slots(*_args) -> None:
         index = folder_box.current()
         state["slots"] = None
+        state["taken"] = {}
         if 0 <= index < len(state["folders"]):
             state["slots"] = vv_copy_slot.read_slots(game(), state["folders"][index])
         slots = state["slots"]
         sources = [info.label for info in slots.sources] if slots else []
-        targets = [f"Save {slot}: (empty)" for slot in slots.targets] if slots else []
         source_box.configure(values=sources)
-        target_box.configure(values=targets)
         source_var.set(sources[0] if sources else "")
-        target_var.set(targets[0] if targets else "")
         if sources:
             source_box.current(0)
-        if targets:
-            target_box.current(0)
-        refresh()
+        load_targets()
 
     def load_folders(*_args) -> None:
         state["folders"] = vv_copy_slot.copy_folders(game_var.get(), documents)
@@ -172,7 +276,7 @@ def open_copy_slot(app, build) -> None:
             return
         try:
             result = confirm_and_copy(
-                messagebox.askyesno,
+                ask_yes_no,
                 lambda work: app._run_with_wait("Copying the slot…\n\nThe save folder is backed up first.", work),
                 saves, folder, source, target, new_name, parent=dialog)
         except (vv_copy_slot.CopyError, vv_save_backup.BackupError, OSError) as exc:
@@ -187,11 +291,13 @@ def open_copy_slot(app, build) -> None:
             return
         app.status_var.set(f"Copy Player Slot: {result.old_name} copied to Save {result.target} as {result.new_name}.")
         skipped = ("\n\nNot copied:\n" + "\n".join(result.skipped)) if result.skipped else ""
+        aside = (f"\n\nThe {len(result.removed)} file(s) Save {result.target} held before are kept in "
+                 f"{result.set_aside}." if result.set_aside else "")
         messagebox.showinfo(
             TITLE,
             f"\"{result.old_name}\" (Save {result.source}) was copied to Save {result.target} as "
             f"\"{result.new_name}\" ({folder.name}).\n\n{len(result.created)} file(s) made and read back."
-            f"{skipped}\n\nBackup: {result.backup.backup_folder}",
+            f"{skipped}{aside}\n\nBackup: {result.backup.backup_folder}",
             parent=dialog,
         )
         name_var.set("")
@@ -200,7 +306,7 @@ def open_copy_slot(app, build) -> None:
     copy_button.configure(command=start)
     game_box.bind("<<ComboboxSelected>>", load_folders)
     folder_box.bind("<<ComboboxSelected>>", load_slots)
-    source_box.bind("<<ComboboxSelected>>", refresh)
+    source_box.bind("<<ComboboxSelected>>", load_targets)
     target_box.bind("<<ComboboxSelected>>", refresh)
     name_var.trace_add("write", refresh)
     frame.columnconfigure(1, weight=1)
