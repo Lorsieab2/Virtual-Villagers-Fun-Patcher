@@ -349,7 +349,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common"}),
             ("vv_picture_image", set()),
             ("vv_pictures_common", {"vv_picture_image", "vv_log_tools", "vv_save_backup", "vv_save_layout"}),
-            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 2, 3, 4, 5)),
+            *((f"vv_pictures_vv{n}", {"vv_picture_image", "vv_pictures_common"}) for n in (1, 3, 4, 5)),
+            # The Lost Children's Elder Totems store, read and bound to the save by Repair's own reader
+            # (function-level; Codex, PR #660).
+            ("vv_pictures_vv2", {"vv_picture_image", "vv_pictures_common", "vv_vv2_totem_store"}),
             # Each game's module: the page's words, and the speed found as Back Up Saves finds it.
             # ...and each game's Death and graves lines (src/vv_game_mechanics_death.py) and Island events catalog.
             *((f"vv_game_mechanics_vv{n}", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",

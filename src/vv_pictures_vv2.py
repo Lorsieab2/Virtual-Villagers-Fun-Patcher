@@ -515,30 +515,33 @@ def totems_file(folder: Path, slot: int) -> Path:
             / "ElderTotems.dat")
 
 
-def read_totems(folder: Path, slot: int) -> list[dict]:
-    """The Elder Totems patch's statues for a save slot (its own file, checked as the DLL checks it:
-    magic, version 1 or 2, game 2, entry size, exact length, FNV-1a hash), read only; [] when none."""
+def read_totems(folder: Path, slot: int, data: bytes | None = None) -> list[dict]:
+    """The Elder Totems patch's statues for a save slot, read only; [] when none.  The file is read and
+    checked by Repair Saves & Logs' own reader (src/vv_vv2_totem_store.py parse: magic, version 1 or 2,
+    game 2, entry size, exact length, FNV-1a hash) and listed only when it BELONGS to the save the slot
+    holds now (vv_vv2_totem_store.bound, the companion's bound_to): a store left behind by a village the
+    slot no longer holds is never loaded by the game, so its statues are not listed.  `data`: the save's
+    bytes (read from the slot when not given)."""
+    import vv_vv2_totem_store as store_file
     try:
-        d = totems_file(folder, slot).read_bytes()
-    except OSError:
+        store = store_file.read(Path(folder), int(slot))
+    except (store_file.StoreError, OSError):
         return []
-    if len(d) < 44 or d[:16] != TOTEMS_MAGIC:
+    if store is None or not store.totems:
         return []
-    version, game, _slot, entry, rows, count = struct.unpack_from("<iiiiII", d, 16)
-    header = 40 if version == 1 else 72
-    if version not in (1, 2) or game != GAME or entry != TOTEM_ENTRY or rows > 256 or count > 100000:
-        return []
-    if header + rows * 36 + count * TOTEM_ENTRY + 4 != len(d):
-        return []
-    h = common.FNV_BASIS
-    for b in d[:-4]:
-        h = ((h ^ b) * common.FNV_PRIME) & 0xFFFFFFFF
-    if h != struct.unpack_from("<I", d, len(d) - 4)[0]:
+    if data is None:
+        try:
+            data = common.save_path(Path(folder), GAME, int(slot)).read_bytes()
+        except OSError:
+            return []
+    try:
+        if not store_file.bound(store, data):
+            return []
+    except (ValueError, IndexError, struct.error):
         return []
     out = []
-    start = header + rows * 36
-    for k in range(count):
-        e = d[start + k * TOTEM_ENTRY:start + (k + 1) * TOTEM_ENTRY]
+    for t in store.totems:
+        e = t.entry
         i = lambda off: struct.unpack_from("<i", e, off)[0]   # noqa: E731
         out.append({"name": e[TOTEM_NAME:TOTEM_NAME + 0x18].split(b"\0", 1)[0].decode("latin-1"),
                     "type": i(TOTEM_TYPE), "age": i(TOTEM_AGE), "male": i(TOTEM_SEX) == 1,
@@ -567,7 +570,7 @@ class Renderer:
                            litter=v.i32(0x544 - 0x564), variant=v.i32(0x550 - 0x564), statue=v.statue,
                            mask=v.mask, look=v.look)
                 found[f"r{v.rank}"] = _Saved(v, st, v.name)
-            for k, t in enumerate(read_totems(Path(folder), int(slot))):
+            for k, t in enumerate(read_totems(Path(folder), int(slot), people[0].data if people else None)):
                 st = State(male=t["male"], age=t["age"], head=t["head"], body=t["body"], health=0,
                            variant=t["type"], statue=True)
                 found[f"t{k}"] = _Saved(None, st, t["name"])
