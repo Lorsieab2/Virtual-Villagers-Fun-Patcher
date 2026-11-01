@@ -570,6 +570,8 @@ int main(int argc, char **argv) {
             check(bad == 0 && okelani > 120 && powaka > 120,
                   "VvfpRuleLastName3: the table's villagers' names (a numeral passed over), never a record not "
                   "in use, a look-alike, or the newborn's own family name");
+            /* The births above added the table's names to the record (section 14): a fresh record. */
+            record("village", "");
             {
                 static char name[24];
                 strcpy(name, "Kid Akikai");
@@ -579,6 +581,94 @@ int main(int argc, char **argv) {
             record("father", "villager\tAgo Bahati\t5\t6\tM\tvillagex\nvillager\tAgo Bahati\t5\t6\tM\tvillag\n");
             check(strcmp(born("Ago Bahati", 5, 6, "Aipi Wanjiko", 7, 8), "Kid Bahati") == 0,
                   "a misspelt rule code is no rule: the village's");
+            DeleteFileA(g_path);
+        }
+        g_game = 3;
+    }
+
+    printf("14. A name seen at a birth stays ever used (Codex, PR #661), in every game\n");
+    {
+        static unsigned char table[3 * 0x2F44];
+        int g, i;
+        for (g = 1; g <= 5; ++g) {
+            char want[512], got[2048], head[128], tmp[MAX_PATH * 2 + 16];
+            char *name = (char *)table + 2 * 0x2F44 + 0x10;   /* the newborn is record 2 */
+            FILE *fp;
+            size_t n;
+            int zephyr = 0, other = 0;
+            g_game = g;
+            _snprintf(g_path, sizeof g_path, "%s\\Virtual Villagers %d Last Names - Save 1.dat", folder, g);
+            printf("  game %d\n", g);
+            _snprintf(head, sizeof head, "VVFP LAST NAMES v1 game=%d\nrule\tvillage\nwhole\tBig Bob\n", g);
+            fp = fopen(g_path, "wb");
+            fputs(head, fp);                     /* no "used" lines yet */
+            fclose(fp);
+            memset(table, 0, sizeof table);
+            table[4] = 1;                         /* record 0: an arrival since the last Repair */
+            memcpy(table + 0x10, "Newcomer Zephyr", 15);
+            table[0x2F44 + 4] = 1;                /* record 1: a Latin-1 surname */
+            memcpy(table + 0x2F44 + 0x10, "Ana \xC9lan", 8);
+            table[2 * 0x2F44 + 4] = 1;
+            memcpy(name, "Kid Akikai", 10);
+            VvfpRuleLastName3(name, 0x18, "Ago", 5, 6, "Aipi", 7, 8, 1, table, 0x2F44, 3, 4, 0x10, 0x18);
+            fp = fopen(g_path, "rb");
+            n = fread(got, 1, sizeof got - 1, fp);
+            fclose(fp);
+            got[n] = '\0';
+            _snprintf(want, sizeof want, "%sused\tZephyr\nused\t\xC3\x89lan\n", head);
+            check(strcmp(got, want) == 0,
+                  "birth 1: the record gains the names it saw (UTF-8), every other line byte for byte");
+            _snprintf(tmp, sizeof tmp, "%s.used-tmp", g_path);
+            check(GetFileAttributesA(tmp) == INVALID_FILE_ATTRIBUTES, "no temporary file left");
+            table[4] = 0;                         /* the last Zephyr and the last Elan are gone */
+            table[0x2F44 + 4] = 0;
+            for (i = 0; i < 300; ++i) {
+                memset(name, 0, 0x18);
+                memcpy(name, "Kid Akikai", 10);
+                VvfpRuleLastName3(name, 0x18, "Ago", 5, 6, "Aipi", 7, 8, 1, table, 0x2F44, 3, 4, 0x10, 0x18);
+                zephyr += strcmp(name, "Kid Zephyr") == 0;
+                other += strcmp(name, "Kid Zephyr") != 0 && strcmp(name, "Kid \xC9lan") != 0;
+            }
+            check(other == 0 && zephyr > 100 && zephyr < 200,
+                  "birth 2 on: Zephyr is still drawn with its bearer gone");
+            fp = fopen(g_path, "rb");
+            n = fread(got, 1, sizeof got - 1, fp);
+            fclose(fp);
+            got[n] = '\0';
+            check(strcmp(got, want) == 0, "nothing new seen: the record is not written again");
+            /* A slot that cannot be told (slot 0, no save holds the parents): nothing written. */
+            fp = fopen(g_path, "wb");
+            fputs(head, fp);
+            fclose(fp);
+            table[4] = 1;
+            memset(name, 0, 0x18);
+            memcpy(name, "Kid Akikai", 10);
+            VvfpRuleLastName3(name, 0x18, "Ago", 5, 6, "Aipi", 7, 8, 0, table, 0x2F44, 3, 4, 0x10, 0x18);
+            fp = fopen(g_path, "rb");
+            n = fread(got, 1, sizeof got - 1, fp);
+            fclose(fp);
+            got[n] = '\0';
+            check(strcmp(got, head) == 0, "slot not known: the record is left alone");
+            /* A record near the size cap is never grown past it. */
+            {
+                static char big[RULE_FILE_MAX + 16];
+                size_t size = strlen(head);
+                memcpy(big, head, size);
+                while (size < RULE_FILE_MAX - 8) {
+                    memcpy(big + size, "whole\tX\n", 8);
+                    size += 8;
+                }
+                fp = fopen(g_path, "wb");
+                fwrite(big, 1, size, fp);
+                fclose(fp);
+                memset(name, 0, 0x18);
+                memcpy(name, "Kid Akikai", 10);
+                VvfpRuleLastName3(name, 0x18, "Ago", 5, 6, "Aipi", 7, 8, 1, table, 0x2F44, 3, 4, 0x10, 0x18);
+                fp = fopen(g_path, "rb");
+                fseek(fp, 0, SEEK_END);
+                check((size_t)ftell(fp) == size, "a record near the size cap is not grown");
+                fclose(fp);
+            }
             DeleteFileA(g_path);
         }
         g_game = 3;

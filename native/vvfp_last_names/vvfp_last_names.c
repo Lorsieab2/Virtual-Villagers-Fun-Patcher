@@ -315,7 +315,9 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    is handed the table, so a name that appeared since the last Repair counts;
    never the newborn's own record, which still holds its mother's family name,
    nor a statue, ghost or stand-in), and the parents' own.  Only names whose
-   "<first> <last>" fits the name field.  With none (a village whose record
+   "<first> <last>" fits the name field.  Each such birth adds to the record
+   the names it saw that its "used" lines lack (persist_used), so a name stays
+   ever used after its last bearer is gone, between Repairs too.  With none (a village whose record
    has no "used" lines and whose villagers have no last names yet), the draw is
    from the game's own list instead, as "list" does.  An earlier build's
    reader skips "used" lines; it takes "rule\tvillage" for no rule (it wants
@@ -717,6 +719,82 @@ static void used_of_table(const unsigned char *first, unsigned int stride, int s
     }
 }
 
+/* The last names this birth saw that the record's "used" lines do not hold
+   yet (g_used[from ...]) added to the slot's record as "used\t<last name>"
+   lines (UTF-8, as Repair writes them), so a surname that first appeared after
+   the last Repair -- an arrival's, say -- stays "ever used" once its last
+   bearer is gone (Codex, PR #661).  Only lines are added: the record read at
+   this birth (g_rule_file, read_record) is written back byte for byte with
+   the new lines after it, through a temporary file swapped in whole, as
+   VvfpRelookLastName writes.  Never for a slot that cannot be told (`slot`
+   0), a record not read whole, or a record that would pass RULE_FILE_MAX; a
+   name with a byte Repair would not keep (a control byte, '%') is not
+   written.  Returns the lines added. */
+static int persist_used(int slot, int from) {
+    static char out[RULE_FILE_MAX + 1];
+    char path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    size_t used;
+    int i, added = 0;
+    HANDLE h;
+    DWORD wrote = 0;
+    if (slot < 1 || from >= g_used_count || g_rule_size == 0 || g_rule_size >= RULE_FILE_MAX
+        || !record_path(slot, path, sizeof path)) {
+        return 0;
+    }
+    memcpy(out, g_rule_file, g_rule_size);
+    used = g_rule_size;
+    if (out[used - 1] != '\n') {
+        out[used++] = '\n';
+    }
+    for (i = from; i < g_used_count; ++i) {
+        const unsigned char *p = (const unsigned char *)g_used[i];
+        char line[5 + 2 * LONGEST_LAST + 2];
+        size_t k = 0;
+        int ok = strlen(g_used[i]) <= 25;      /* Repair keeps names of at most 25 characters */
+        memcpy(line, "used\t", 5);
+        k = 5;
+        for (; *p != '\0' && ok; ++p) {
+            if (*p < 0x20 || *p == 0x7F || *p == '%' || (*p >= 0x80 && *p < 0xA0)) {
+                ok = 0;
+            } else if (*p < 0x80) {
+                line[k++] = (char)*p;
+            } else {
+                line[k++] = (char)(0xC0 | (*p >> 6));
+                line[k++] = (char)(0x80 | (*p & 0x3F));
+            }
+        }
+        if (!ok) {
+            continue;
+        }
+        line[k++] = '\n';
+        if (used + k >= RULE_FILE_MAX) {
+            break;                              /* the size cap: what does not fit waits for Repair */
+        }
+        memcpy(out + used, line, k);
+        used += k;
+        ++added;
+    }
+    if (added == 0 || _snprintf(temporary, sizeof temporary, "%s.used-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return added;
+}
+
 /* One of the ever-used last names that fits after a first name of
    `first_len` bytes in `room`, every one equally likely; the game's list's
    draw (drawn_last_name) when none does. */
@@ -895,6 +973,7 @@ static int rule_last_name(char *name, unsigned int room,
     if (!read_record(slot, rule, sizeof rule)) {
         rule[0] = '\0';                     /* no record of this village (yet): no lines of it either */
         g_rule_file[0] = '\0';
+        g_rule_size = 0;                    /* nothing of it to add to (persist_used) */
     }
     if (rule[0] == '\0' && !names_a_rule()) {
         rule[0] = DEFAULT_RULE;             /* no rule chosen: the one Repair shows (the owner, 2026-10-14) */
@@ -919,12 +998,18 @@ static int rule_last_name(char *name, unsigned int room,
     } else if (use == 'l') {                /* "Random last name from the list": a fresh draw */
         last = drawn_last_name(n, room);
     } else if (use == 'v') {                /* "Random from the existing Village Names": a fresh draw */
+        int recorded;
         g_used_count = 0;
         used_of_record();
+        recorded = g_used_count;
         used_of_table(table, stride, slots, active, name_at, capacity, name);
         add_used(dad);
         add_used(mum);
         last = drawn_village_name(n, room);
+        if (last[0] != '\0' && n + 1 + strlen(last) + 1 <= room) {
+            add_used(last);                 /* a draw from the game's list (none used fits) is used now too */
+        }
+        (void)persist_used(slot, recorded);  /* ever used: the names seen here stay in the record */
     } else {                                /* "random": 50:50 for each child (the owner) */
         last = dad[0] && mum[0] ? (random_below(2) ? dad : mum) : (dad[0] ? dad : mum);
     }

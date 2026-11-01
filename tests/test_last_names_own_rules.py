@@ -39,7 +39,8 @@ SDK_VERSION = "10.0.26100.0"
 # written there; 9 a game for section 10 (Random last name from the list), 2 a game for section 11 (50:50
 # for twins), 8 a game for section 12 (From the mother is the mother's) and 8 a game for section 13
 # (Random from the existing Village Names, VvfpRuleLastName3's villager table).
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8
+# ...and 6 a game for section 14 (a name seen at a birth stays ever used: the DLL adds "used" lines).
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8 + 5 * 6
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random", "list", "village")
 
