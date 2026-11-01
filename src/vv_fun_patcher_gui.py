@@ -52,7 +52,9 @@ LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
     ALTERNATIVE_FUN_PATCH_IDS,
+    UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
+    set_unicode_font_face,
     patch_requirement_text,
     unmet_needs_on_text,
     DEFAULT_PATCH_MODE,
@@ -1385,6 +1387,19 @@ class App(tk.Tk):
             command=self._open_patch_selection_settings,
         ).pack(side="left")
         self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
+        # Use Unicode Font (overrides in-game fonts): the typeface it draws with (the owner, 2026-11-01:
+        # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.
+        ttk.Label(fun_settings, text="Unicode Font:").pack(side="left", padx=(16, 4))
+        self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
+        try:
+            families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
+        except tk.TclError:
+            families = [UNICODE_FONT_DEFAULT_FACE]
+        unicode_font_box = ttk.Combobox(fun_settings, textvariable=self.unicode_font_var, values=families, width=28)
+        unicode_font_box.pack(side="left")
+        unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
+        unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
+        self._help_button(fun_settings, "unicode_font").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -2171,6 +2186,12 @@ class App(tk.Tk):
             data = json.loads(SETTINGS.read_text(encoding="utf-8-sig"))
         except (OSError, ValueError):
             data = {}
+        saved_font = data.get("unicode_font", UNICODE_FONT_DEFAULT_FACE)
+        if hasattr(self, "unicode_font_var"):
+            try:
+                self.unicode_font_var.set(set_unicode_font_face(saved_font if isinstance(saved_font, str) else None))
+            except Exception:  # noqa: BLE001 -- an unreadable saved name: Segoe UI
+                self.unicode_font_var.set(set_unicode_font_face(None))
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
@@ -2215,8 +2236,20 @@ class App(tk.Tk):
                         value = str(path.parent)
                     self.all_folder_vars[build.id].set(value)
 
+    def _unicode_font_changed(self) -> None:
+        """The Unicode Font box: the typeface Use Unicode Font draws with (blank = Segoe UI)."""
+        try:
+            face = set_unicode_font_face(self.unicode_font_var.get())
+        except Exception:  # noqa: BLE001 -- a name the patcher cannot write: back to Segoe UI
+            face = set_unicode_font_face(None)
+        if self.unicode_font_var.get() != face:
+            self.unicode_font_var.set(face)
+        self._save_settings()
+
     def _save_settings(self) -> None:
         data = {
+            "unicode_font": (self.unicode_font_var.get() if hasattr(self, "unicode_font_var")
+                             else UNICODE_FONT_DEFAULT_FACE),
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
             "output_root": self.output_root_var.get().strip(),

@@ -335,11 +335,13 @@ int __stdcall VvfpUnicodeTextOwnDraws(void) {
     return (int)g_own_draws;
 }
 
-/* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside the game (UTF-8,
-   first line; the patcher writes it).  Segoe UI when there is none. */
+static HINSTANCE g_self;
+
+/* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in
+   the patcher's files folder; UTF-8, first line; the patcher writes it).  Segoe UI when there is none. */
 static void read_override_face(void) {
     WCHAR path[MAX_PATH];
-    DWORD n = GetModuleFileNameW(NULL, path, MAX_PATH);
+    DWORD n = GetModuleFileNameW(g_self, path, MAX_PATH);
     HANDLE f;
     char raw[256];
     DWORD got = 0;
@@ -472,6 +474,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
+        g_self = instance;
         DisableThreadLibraryCalls(instance);
     }
     return TRUE;

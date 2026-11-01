@@ -581,11 +581,20 @@
       "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
       "guide": [
         "Nothing to click: tick the patch and patch the game again.",
-        "Type accented letters, ß, ¿ ¡, € £, curly quotes and dashes in the tribe name, villager names (the Details screen) and every other text box; dead keys and Alt codes work.",
-        "Every text the game draws shows them in its own fonts, at their real widths.",
-        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it).",
-        "Windows-1252 only: Greek, Cyrillic, Chinese, Japanese and emoji are not drawn yet.",
-        "On by default. Needs no other patch. Not yet seen in a running game."
+        "Type any character in the tribe name, villager names (the Details screen), epitaphs and every other text box: accents (dead keys, Alt codes), Greek, Cyrillic, Turkish, Chinese and Japanese (Windows' input methods), Arabic, Hebrew, cuneiform, and emoji from the emoji panel (Windows key + .).",
+        "Backspace erases a whole character (a whole emoji or accented letter). Every box holds up to 1,200 bytes; a name longer than the save's field is saved short (ending in …) and kept whole in the save's Long Names file, and shown whole in the game.",
+        "Every text the game draws shows them in its own fonts, at their real widths; emoji are in colour; Chinese and Japanese lines break between characters.",
+        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it). Other characters come from the fonts Windows has.",
+        "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen (ticked with it). On by default and in Owner's Defaults. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv1_unicode_font", "vv2_unicode_font", "vv3_unicode_font", "vv4_unicode_font", "vv5_unicode_font"],
+      "guide": [
+        "Tick it to draw ALL of the game's text in a Windows typeface instead of the game's own bitmap fonts, then patch the game again.",
+        "Pick the typeface in the Unicode Font box under the patch list (Segoe UI unless you choose another); the patcher writes it next to the game as VVFP Unicode Font.txt. Characters the face lacks come from Windows' other fonts.",
+        "Every character works, as with Render Unicode with In-Game Fonts: typing, whole-character Backspace, the 1,200-byte limit and long names.",
+        "Cannot be used with Render Unicode with In-Game Fonts (ticking one unticks the other). Needs Full Names on the Details Screen (ticked with it). Off by default and in Owner's Defaults. Not yet seen in a running game."
       ]
     },
     {
@@ -864,6 +873,15 @@
       "guide": [
         "Unticks every patch, so you can tick just the ones you want.",
         "The population mode you chose still applies."
+      ]
+    },
+    "unicode_font": {
+      "title": "Unicode Font",
+      "guide": [
+        "The typeface Use Unicode Font (overrides in-game fonts) draws all of the game's text in: pick one of the fonts Windows has, or leave Segoe UI.",
+        "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
+        "Characters the chosen typeface lacks come from Windows' other fonts (Segoe UI, Segoe UI Historic, Segoe UI Emoji in colour, Yu Gothic, Microsoft YaHei, ...).",
+        "It does nothing while Render Unicode with In-Game Fonts is used instead."
       ]
     },
     "patch_selection_settings": {

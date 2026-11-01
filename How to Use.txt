@@ -363,16 +363,40 @@ running the game's own code carries the label UNCONFIRMED. It only reads: nothin
 game may be running (it shows the save as it was last written). Refresh reads
 the save again.
 
-ACCENTED LETTERS AND OTHER WINDOWS-1252 CHARACTERS
+ANY CHARACTER IN THE GAMES (UNICODE)
 
 With Render Unicode with In-Game Fonts (on by default, all five games) the
-games draw and accept every Western European character: accented letters,
-ß, ¿ ¡, € £, curly quotes and dashes. Type them in the tribe name, a
-villager's name on the Details screen or any other text box (dead keys and
-Alt codes work). Each is still one byte in the save. For the best-matching
-letters in the big Burweed font, install the Burweed ICG font (the patcher
-never ships it). Greek, Cyrillic, Chinese, Japanese and emoji are not drawn
-yet.
+games draw and accept ANY character in their own fonts: accented letters,
+Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew,
+Indian scripts, cuneiform, symbols and colour emoji. Type them in the tribe
+name, a villager's name on the Details screen, an epitaph or any other text
+box: dead keys and Alt codes, Windows' input methods for Japanese or Chinese,
+and the emoji panel (Windows key + .) all work. Backspace erases a whole
+character. For the best-matching letters in the big Burweed font, install
+the Burweed ICG font (the patcher never ships it); other characters are drawn
+from the fonts Windows has, in the font's own size.
+
+Use Unicode Font (overrides in-game fonts) draws ALL the game's text in a
+Windows typeface instead (Segoe UI unless you pick another in the Unicode
+Font box under the patch list). The two cannot be used together: ticking one
+unticks the other. Both need Full Names on the Details Screen (ticked with
+them).
+
+Every text box holds up to 1,200 bytes (a Western European letter is 1 byte,
+a Japanese character 3, an emoji or cuneiform sign 4). A name longer than the
+save's own field (a villager's name: 27 bytes in A New Home, 23 in the
+others; the tribe name: 31 / 19) is saved there in short, ending in "…", and
+kept whole in the save's Long Names file; the game shows it whole. Names are
+stored as UTF-8 (Western European letters keep their one byte), so older
+names read as before; the base game shows other characters as odd letters.
+
+THE PATCHER'S OWN FILES (Unicode)
+  Virtual Villagers Fun Patcher\Save <n>\Data\Long Names\
+      Virtual Villagers <N> Long Names - Save <n>.dat
+                      one line per long name: its short form, a tab, the
+                      whole name. Lines are only added; Start Over clears it.
+  VVFP Unicode Font.txt (beside the game, with Use Unicode Font)
+                      the typeface the game draws its text in.
 
 PICTURE STUDIO
 

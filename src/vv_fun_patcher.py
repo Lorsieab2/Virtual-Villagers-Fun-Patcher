@@ -10789,7 +10789,35 @@ def _copy_companion_files(
             finally:
                 if generated_temp is not None:
                     generated_temp.cleanup()
+    _write_unicode_font_choice(output_folder, fun_patches)
     return copied
+
+
+# Use Unicode Font (overrides in-game fonts): the typeface the game draws its text in, written beside
+# "VVFP Unicode Font.dll" (which reads its first line, UTF-8; Segoe UI when the file is missing).  The window's
+# Unicode Font box and the command line's --unicode-font set it; Segoe UI unless chosen.
+UNICODE_FONT_CHOICE_FILE = "VVFP Unicode Font.txt"
+UNICODE_FONT_DEFAULT_FACE = "Segoe UI"
+_unicode_font_face = UNICODE_FONT_DEFAULT_FACE
+
+
+def set_unicode_font_face(face: str | None) -> str:
+    """Choose the typeface Use Unicode Font draws with (a font family name; blank = Segoe UI)."""
+    global _unicode_font_face
+    text = (face or "").strip()
+    if any(ch in text for ch in "\r\n\t\0") or len(text) > 63:
+        raise PatcherError(f"Not a typeface name: {face!r}")
+    _unicode_font_face = text or UNICODE_FONT_DEFAULT_FACE
+    return _unicode_font_face
+
+
+def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
+    for feature in fun_patches:
+        if not feature.id.endswith("_unicode_font"):
+            continue
+        for item in feature.raw.get("companion_files", []):
+            dll = output_folder / _safe_companion_destination(item["destination"])
+            (dll.parent / UNICODE_FONT_CHOICE_FILE).write_text(_unicode_font_face + "\n", encoding="utf-8")
 
 
 def _remove_unselected_companions(
@@ -13571,6 +13599,11 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         default=[],
         help="optional game-specific patch; may be supplied more than once",
     )
+    parser.add_argument(
+        "--unicode-font",
+        default=None,
+        help="the typeface Use Unicode Font (overrides in-game fonts) draws with (default: Segoe UI)",
+    )
 
 
 def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
@@ -13723,6 +13756,8 @@ def main() -> int:
     try:
         _preparse_publication_mode()
         args = _parser().parse_args()
+        if getattr(args, "unicode_font", None) is not None:
+            set_unicode_font_face(args.unicode_font)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":
