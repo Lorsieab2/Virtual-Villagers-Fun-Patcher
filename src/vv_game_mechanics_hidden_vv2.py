@@ -53,7 +53,8 @@ STORY = "vv2_story_cheat_upgrades"
 ORIGINS = "vv2_enable_origins_exclusive_features"
 TIP_WORDING = "vv2_numeric_keys_tip_wording"
 PATCHES = (TIP_WORDING, ORIGINS, STORY)
-DEFAULT_OFF = frozenset({STORY})
+# Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
+DEFAULT_OFF: frozenset[str] = frozenset()
 
 
 def _keys() -> list[Entry]:

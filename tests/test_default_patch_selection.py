@@ -105,9 +105,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
-                  or p.endswith("_story_cheat_upgrades")
-                  # ...and its "cost Tech Points" row, ticked with it (owner, 2026-10-06).
-                  or p.endswith("_story_cheat_upgrades_cost_tech_points")
+                  # Story / Cheat Upgrades and its cost row are NOT here: on by
+                  # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves
                   # the villager table and changes the save format.
                   or p in ("vv3_population_256", "vv4_population_256", "vv5_population_256")
@@ -115,15 +114,38 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # All Fruit Trees Refill at the Same Time is the one ticked.
                   or p == "vv3_fruit_trees_take_turns"})
 
-    def test_story_cheat_upgrades_is_off_by_default_in_all_five(self) -> None:
-        """The owner: Story / Cheat Upgrades is a default-off patch."""
+    def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
+        """The owner (2026-11-01): "Anything that costs (money tech points food
+        etc) and anything that adds new content to the game (besides the stuff
+        I explicitly mentioned to turn off) stays ON by default." -- so the
+        normal defaults tick Story / Cheat Upgrades AND its cost Tech Points
+        row in every game, and the upgrades it adds are never free by default."""
+        from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS
+
         ids = fun_patch_ids()
         for game in range(1, 6):
-            patch_id = "vv%d_story_cheat_upgrades" % game
-            with self.subTest(patch=patch_id):
-                self.assertIn(patch_id, ids)
-                self.assertIn(patch_id, DEFAULT_OFF_FUN_PATCH_IDS)
-                self.assertFalse(default_fun_patch_selection(patch_id))
+            story = "vv%d_story_cheat_upgrades" % game
+            cost = "vv%d_story_cheat_upgrades_cost_tech_points" % game
+            with self.subTest(game=game):
+                self.assertIn(story, ids)
+                self.assertIn(cost, ids)
+                self.assertNotIn(story, DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertNotIn(cost, DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertTrue(default_fun_patch_selection(story))
+                # With Story / Cheat Upgrades on by default, its cost row is on
+                # by default too: nothing is free.
+                self.assertTrue(default_fun_patch_selection(cost))
+                # ...and ticking the upgrades still ticks the cost row.
+                self.assertEqual(COTICKED_FUN_PATCH_IDS[story], cost)
+
+    def test_no_default_selection_ticks_story_without_its_costs(self) -> None:
+        """Whatever the default ticks, a ticked Story / Cheat Upgrades always
+        comes with its cost Tech Points row (all five games)."""
+        ids = fun_patch_ids()
+        for story in sorted(p for p in ids if p.endswith("_story_cheat_upgrades")):
+            with self.subTest(patch=story):
+                if default_fun_patch_selection(story):
+                    self.assertTrue(default_fun_patch_selection(story + "_cost_tech_points"))
 
     def test_manual_drop_breeding_is_off_by_default_in_all_five(self) -> None:
         """The owner: "Default-OFF. Owner's-Defaults ON." -- all five games."""

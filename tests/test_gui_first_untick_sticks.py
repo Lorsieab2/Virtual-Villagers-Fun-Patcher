@@ -84,8 +84,9 @@ class FirstUntickTests(unittest.TestCase):
         exercised = 0
         for prerequisite in sorted(self.start["dependents"]):
             if prerequisite not in self.start["defaults"]:
-                # Off by default (Story / Cheat Upgrades, the prerequisite of
-                # its tech-point row): there is no first untick to make.
+                # Off by default: there is no first untick to make.  (Story /
+                # Cheat Upgrades, the prerequisite of its tech-point row, is on
+                # by default since 2026-11-01, so it is exercised below.)
                 self.assertNotIn(prerequisite, self.start["selected"])
                 continue
             exercised += 1
