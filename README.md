@@ -49,6 +49,24 @@ prerequisite are rejected before any copied game folder or EXE is written.
     docs/picture-studio-text.md.
 
   No need to patch again.
+- **Picture Studio: Everything** (Tools tab -> Picture Studio, all five games, new tab). Every picture the game ships, drawn the way the game draws it and sorted by category.
+  - **What is shown:**
+    - creatures frame by frame;
+    - huts and buildings at each build stage;
+    - puzzle objects in each state;
+    - collectibles, plants and food, fruit trees from empty to full;
+    - the island assembled from its tiles;
+    - the Tech screen's bars empty, at each level and joined into the whole screen;
+    - the Villager Details skill and health bars, Divine Energy and the loading bar at several fill levels;
+    - dialog panels at the game's sizes and buttons normal, mouse over and pressed;
+    - icons, cursors, fonts, effects, and the title, loading, help and other screens;
+    - every sheet the game ships, cell by cell.
+  - **Labels:** art the game ships but never draws is marked "(unused)" (and listed under Unused); the patcher's own art (Origins masks and icons, grey hair, the Golden Mushroom, Visual Mods, Guardians of Isola, Sort By) is marked "(patcher)".
+  - **Saving:** "Save all..." saves one category or every category into folders by category, at the game's size, 2x, 4x or your own size.
+  - **Where the pictures come from:** your own copy of the game (copied once into "Picture Studio Pictures\Everything"); no game art ships. JPEG pictures are decoded exactly as the games' own libjpeg decodes them (checked on all 238 of the games' JPEGs).
+  - **How it is checked:** each composed picture is checked by running the game's own draw code on the original executables.
+  - **Not drawn or not proven** (docs/picture-studio-assets.md): colour fills, tints and text. Saves are only read.
+  - No need to patch again.
 
 ## What's new in v1.35.86
 

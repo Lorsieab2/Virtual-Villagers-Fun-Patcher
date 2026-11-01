@@ -38,6 +38,11 @@ emulating that code on the vanilla executable.
   then on. The patcher's own art (mask atlases, A New Home's grey heads) is read from `assets\` or
   from the companion DLL the release ships it in.
 
+- **Everything**: every other picture the game ships, drawn as the game draws it, by category (creatures,
+  buildings at each stage, puzzles, collectibles, plants, the island, the Tech screen's bars, meters, buttons,
+  icons, screens, then every sheet cell by cell; unused art marked "(unused)"), with Save all by category:
+  [picture-studio-assets.md](picture-studio-assets.md).
+
 Nothing is written but the PNGs the player saves and the picture cache.
 
 ## The renderer interface
