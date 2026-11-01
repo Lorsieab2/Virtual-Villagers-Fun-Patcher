@@ -27,7 +27,7 @@
     {
       "source": "assets/unicode_text/VVFP Unicode Text.dll",
       "destination": "VVFP Unicode Text.dll",
-      "sha256": "EE92FAE17C99C26CDE01B252061564E87D395B9F193F3B5006413B457E1B87ED"
+      "sha256": "E890A3A594B7B8206EB702347A303198B3D94D603B090D4DF7604D41E8AED0BE"
     }
   ],
   "patches": [],

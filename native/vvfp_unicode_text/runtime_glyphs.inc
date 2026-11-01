@@ -491,8 +491,24 @@ static int rg_utf16(const unsigned char *s, int len, WCHAR *out, int cap) {
     return n;
 }
 
+/* An emoji (Extended_Pictographic, keycaps, emoji presentation): Segoe UI Emoji is tried before the
+   other Windows faces, so it is drawn in colour (Segoe UI Symbol holds many in black and white). */
+static int rg_emoji(const unsigned char *s, int len) {
+    const unsigned char *end = s + len;
+    while (s < end) {
+        unsigned int cp;
+        s += ut_next(s, end, &cp);
+        if ((cp >= 0x1F000 && cp <= 0x1FAFF) || (cp >= 0x2600 && cp <= 0x27BF) || cp == 0xFE0F || cp == 0x20E3
+            || cp == 0x2B50 || cp == 0x2B55 || (cp >= 0x2B1B && cp <= 0x2B1C) || cp == 0x231A || cp == 0x231B
+            || (cp >= 0x23E9 && cp <= 0x23FA) || cp == 0x200D) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* The faces to try for a font, in order. */
-static int rg_chain(const rg_font *f, int *faces, int cap) {
+static int rg_chain(const rg_font *f, const unsigned char *bytes, int len, int *faces, int cap) {
     int n = 0, i;
     if (g_override) {
         faces[n++] = rg_face_index(g_override_face[0] ? g_override_face : L"Segoe UI", 700);
@@ -503,6 +519,9 @@ static int rg_chain(const rg_font *f, int *faces, int cap) {
         faces[n++] = rg_face_index(L"Comic Sans MS", 700);
     } else {
         faces[n++] = rg_face_index(L"Arial", 700);
+    }
+    if (rg_emoji(bytes, len)) {
+        faces[n++] = rg_face_index(L"Segoe UI Emoji", 400);
     }
     for (i = 0; RG_CHAIN[i] != NULL && n < cap; ++i) {
         int weight = lstrcmpW(RG_CHAIN[i], L"Segoe UI Emoji") == 0 || lstrcmpW(RG_CHAIN[i], L"Segoe UI Historic") == 0
@@ -522,7 +541,7 @@ static int rg_make_cell(const rg_font *f, const unsigned char *bytes, int len, u
     if (n <= 0 || g_dc == NULL) {
         return 0;
     }
-    nfaces = rg_chain(f, faces, RG_FACES);
+    nfaces = rg_chain(f, bytes, len, faces, RG_FACES);
     for (i = 0; i < nfaces && chosen < 0; ++i) {
         if (faces[i] < 0 || !rg_present(faces[i])) {
             continue;

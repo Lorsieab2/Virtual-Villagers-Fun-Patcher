@@ -192,7 +192,18 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
     for (k = 1; k < 1000; ++k) {
         char digits[8];
         unsigned char mark[4];
-        int nd = k == 1 ? 0 : wsprintfA(digits, "%d", k), base, nm, n, clash = 0;
+        int nd = 0, base, nm, n, clash = 0;
+        if (k > 1) {
+            int v = k, j;
+            char rev[8];
+            while (v > 0 && nd < 7) {
+                rev[nd++] = (char)('0' + v % 10);
+                v /= 10;
+            }
+            for (j = 0; j < nd; ++j) {
+                digits[j] = rev[nd - 1 - j];
+            }
+        }
         /* Room for the ellipsis (1 or 3 bytes) and the number. */
         base = ut_fit(text, len, cap - 1 - 3 - nd);
         if (base <= 0 && len > 0) {
@@ -253,10 +264,6 @@ static const unsigned char *ln_expand(const unsigned char *s) {
     if (s == NULL) {
         return s;
     }
-    ln_load();
-    if (g_ln_count == 0) {
-        return s;
-    }
     end = ut_end(s);
     for (p = s; p < end; ++p) {
         if (*p == 0x85 || (*p == 0xE2 && p + 2 < end && p[1] == 0x80 && p[2] == 0xA6)) {
@@ -265,6 +272,10 @@ static const unsigned char *ln_expand(const unsigned char *s) {
         h = (h ^ *p) * 16777619u;
     }
     if (!has) {
+        return s;
+    }
+    ln_load();
+    if (g_ln_count == 0) {
         return s;
     }
     n = (int)(end - s);
