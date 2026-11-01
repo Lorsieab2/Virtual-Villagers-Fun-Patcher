@@ -146,7 +146,7 @@ def copy_paste_entry(game: int) -> Entry:
         "filter and length limit and is cut before the first character that does not fit; line breaks and tabs "
         "become spaces, and characters the game cannot show are left out (with Render Unicode with In-Game Fonts or "
         "Use Unicode Font, "
-        "every Windows-1252 character; without it, plain English letters and signs). Ctrl+A does nothing. The "
+        "every character they let you type; with neither, plain English letters and signs). Ctrl+A does nothing. The "
         f"keys never reach the game (its SDL_KEYDOWN case, 0x{COPY_PASTE_SITES[game]:06X}, goes on with the next "
         "event); with no box focused they reach the game as before (native/vvfp_copy_paste)"), E,
         feature=f"vv{game}_copy_paste")

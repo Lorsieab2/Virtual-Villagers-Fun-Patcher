@@ -305,6 +305,27 @@ class TheGame(unittest.TestCase):
                 self.both[game].set_glyphs_utf8(1)
                 self.assertEqual(self._paste(self.both[game], ZOE + " 日本"), (ZOE + " 日本").encode("utf-8"))
 
+    def test_utf8_paste_goes_through_the_unicode_companions_insert(self):
+        """With VvfpGlyphsUtf8() == 1 and a VvfpBoxInsertUtf8 export (PR #676), the cleaned, whole-character text
+        is handed to it once; with 0 it is never called and the bytes are typed in."""
+        for game in GAMES:
+            run = self.both[game]
+            calls = run.give_insert()
+            try:
+                run.set_glyphs_utf8(1)
+                b = run.box(text=b"Zo", limit=8)
+                run.clip.text = "ë Ñúñez\r\n日"
+                self.assertEqual(run.paste(), {"to": "next event"})
+                self.assertEqual(calls, [(b, "ë Ñ".encode())], game)          # 6 bytes of room: cut before 'ú'
+                self.assertEqual(run.text(b), "Zoë Ñ".encode())
+                run.set_glyphs_utf8(0)
+                run.clear_listeners()
+                self.assertEqual(self._paste(run, "é€"), "é€".encode("cp1252"))
+                self.assertEqual(len(calls), 1)
+            finally:
+                run.take_insert()
+                run.set_glyphs_utf8(0)
+
     def test_paste_goes_at_the_end_after_the_typed_text(self):
         for game in GAMES:
             self.assertEqual(self._paste(self.both[game], "ñez", text=b"Zo\xeb \xd1\xfa"), ZOE.encode("cp1252"))

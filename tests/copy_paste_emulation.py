@@ -310,6 +310,38 @@ class PasteRun:
         at = module.exports["VvfpGlyphsUtf8"]
         self.mu.mem_write(at, b"\xB8" + struct.pack("<I", value) + b"\xC3")
 
+    def give_insert(self) -> list:
+        """Give VVFP Unicode Text.dll a VvfpBoxInsertUtf8(box, utf8) export, as the later stage has (PR #676):
+        here it appends the text to the box's buffer up to the limit and answers 1.  Returns its calls."""
+        module = self.machine.modules["vvfp unicode text.dll"]
+        if getattr(self, "_insert_at", None):
+            module.exports["VvfpBoxInsertUtf8"] = self._insert_at
+            self.insert_calls.clear()
+            return self.insert_calls
+        at = self._insert_at = self.alloc(16)
+        self.mu.mem_write(at, b"\xC2\x08\x00")                    # ret 8 (stdcall, two arguments)
+        module.exports["VvfpBoxInsertUtf8"] = at
+        self.insert_calls = []
+
+        def insert(uc, address, size, user):
+            if address != at:
+                return
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            box, text = struct.unpack("<II", uc.mem_read(esp + 4, 8))
+            raw = bytes(uc.mem_read(text, 0x1000)).split(b"\0")[0]
+            self.insert_calls.append((box, raw))
+            buf = self.dword(box + 0x30)
+            have = bytes(uc.mem_read(buf, 0x800)).split(b"\0")[0]
+            limit = struct.unpack("<i", uc.mem_read(box + 0x28, 4))[0]
+            uc.mem_write(buf, (have + raw)[:limit] + b"\0")
+            uc.reg_write(UC_X86_REG_EAX, 1)
+
+        self.mu.hook_add(UC_HOOK_CODE, insert, begin=at, end=at)
+        return self.insert_calls
+
+    def take_insert(self) -> None:
+        self.machine.modules["vvfp unicode text.dll"].exports.pop("VvfpBoxInsertUtf8", None)
+
     def type_text(self, utf8: bytes, text_site: int, post: int, skip: int, offset: int):
         """SDL_TEXTINPUT through the Unicode Text companion's detour: ("post", char) or ("skip", None)."""
         mu = self.mu
