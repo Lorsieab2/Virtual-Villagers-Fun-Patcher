@@ -183,8 +183,8 @@ class TheRows(unittest.TestCase):
                                                            "destination": DLL_NAME, "sha256": sha}])
                 d = row["description"]
                 for words in ("**On by default.**", "**Needs no other patch; works with or without Render "
-                              "Unicode with In-Game Fonts.**", "**Not yet seen in a running game**",
-                              "**with Render Unicode with In-Game Fonts on, every Windows-1252 character"):
+                              "Unicode with In-Game Fonts and Use Unicode Font.**", "**Not yet seen in a running game**",
+                              "**with Render Unicode with In-Game Fonts or Use Unicode Font on, every character"):
                     self.assertIn(words, d)
                 for keys in ("Ctrl+V", "Shift+Insert", "Ctrl+C", "Ctrl+Insert", "Ctrl+X", "Ctrl+A"):
                     self.assertIn(keys, d)

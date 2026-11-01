@@ -382,7 +382,8 @@ the Details screen, ...) and press Ctrl+V or Shift+Insert to paste, Ctrl+C or
 Ctrl+Insert to copy the whole text, Ctrl+X to cut it. Pasted text goes at the
 end, stops before the first character that does not fit the box, and keeps
 only the characters the game can show (with Render Unicode with In-Game Fonts
-on, accented letters too; without it, plain English letters and signs). Line
+or Use Unicode Font on, accented letters too; with neither, plain English
+letters and signs). Line
 breaks and tabs become spaces. Ctrl+A does nothing: the boxes cannot select.
 
 PICTURE STUDIO

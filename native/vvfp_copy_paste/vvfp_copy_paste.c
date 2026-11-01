@@ -30,9 +30,11 @@
    a flag's two halves), and each character is turned into the bytes the box stores:
      * CR, LF (and CR LF as one) and Tab become a space; every other control character and every lone
        surrogate is dropped;
-     * "VVFP Unicode Text.dll" loaded and its VvfpGlyphsUtf8() == 1: UTF-8;
+     * a Unicode companion loaded ("VVFP Unicode Text.dll", else "VVFP Unicode Font.dll") and its
+       VvfpGlyphsUtf8() == 1: UTF-8, handed to its VvfpBoxInsertUtf8(box, text), which inserts it as typing
+       does (without that export: typed in byte by byte as below);
        loaded, VvfpGlyphsUtf8() == 0: every printable Windows-1252 character, one byte each;
-       not loaded: printable ASCII only;
+       neither loaded: printable ASCII only;
        a character the game cannot show is dropped, never turned into '?';
      * a digits box keeps only digits, and '-' only as its first character.
    The bytes go in through the box's own handler, one typed character each, so the game's own filter,
@@ -76,6 +78,8 @@ typedef struct cp_node {
 /* thiscall(box; type, 0, character), ret 0xC -- called as fastcall with edx unused. */
 typedef char (__fastcall *cp_handler_fn)(unsigned char *box, int unused, int type, int zero, int ch);
 typedef int (__stdcall *cp_utf8_fn)(void);
+/* The Unicode companions' "insert as typing does" (the limit, whole characters, the caret). */
+typedef int (__stdcall *cp_insert_fn)(void *box, const char *utf8);
 
 static const cp_game *g_game;
 static unsigned int g_sym_offset, g_cmp_imm, g_back, g_cont;
@@ -85,7 +89,7 @@ static volatile LONG g_handled;     /* combinations handled so far (for the test
 
 static WCHAR g_units[CP_MAX_UNITS + 1];
 static WCHAR g_norm[CP_MAX_UNITS * 3 + 1];
-static unsigned char g_bytes[CP_MAX_UNITS * 4];
+static unsigned char g_bytes[CP_MAX_UNITS * 4 + 1];
 
 /* Windows-1252 0x80..0x9F (0: not a character). */
 static const unsigned short CP_HIGH[32] = {
@@ -97,14 +101,35 @@ static const unsigned short CP_HIGH[32] = {
 
 /* ---- What the game can store ---------------------------------------------------------------- */
 
-static int text_mode(void) {
-    HMODULE module = GetModuleHandleA("VVFP Unicode Text.dll");
+/* The loaded Unicode companion: "VVFP Unicode Text.dll", else "VVFP Unicode Font.dll" (Use Unicode Font);
+   NULL when neither is loaded. */
+static HMODULE unicode_module(void) {
+    HMODULE module = GetModuleHandleW(L"VVFP Unicode Text.dll");
+    if (module == NULL) {
+        module = GetModuleHandleW(L"VVFP Unicode Font.dll");
+    }
+    return module;
+}
+
+/* What the boxes store, by the loaded Unicode companion's own answer (resolved on every key, so a later
+   build of it is followed without rebuilding this one); *insert gets its VvfpBoxInsertUtf8, if it has one. */
+static int text_mode(cp_insert_fn *insert) {
+    HMODULE module = unicode_module();
     cp_utf8_fn utf8;
+    if (insert != NULL) {
+        *insert = NULL;
+    }
     if (module == NULL) {
         return MODE_ASCII;
     }
     utf8 = (cp_utf8_fn)GetProcAddress(module, "VvfpGlyphsUtf8");
-    return (utf8 != NULL && utf8() == 1) ? MODE_UTF8 : MODE_CP1252;
+    if (utf8 == NULL || utf8() != 1) {
+        return MODE_CP1252;
+    }
+    if (insert != NULL) {
+        *insert = (cp_insert_fn)GetProcAddress(module, "VvfpBoxInsertUtf8");
+    }
+    return MODE_UTF8;
 }
 
 /* The bytes of one code point in `mode`; 0 when the game cannot show it. */
@@ -298,7 +323,8 @@ static int clipboard_write(const WCHAR *units, int n) {
 /* ---- The three actions ------------------------------------------------------------------------ */
 
 static void paste(unsigned char *box) {
-    int mode = text_mode();
+    cp_insert_fn insert;
+    int mode = text_mode(&insert);
     int n = clipboard_read();
     const WCHAR *units = g_units;
     int at = 0, made = 0, length, room, digits, i;
@@ -364,6 +390,15 @@ static void paste(unsigned char *box) {
         CopyMemory(g_bytes + made, one, (SIZE_T)size);
         made += size;
     }
+    if (made == 0) {
+        return;
+    }
+    if (insert != NULL) {
+        /* the Unicode companion inserts it exactly as typing does (its limit, whole characters, caret) */
+        g_bytes[made] = 0;
+        insert(box, (const char *)g_bytes);
+        return;
+    }
     for (i = 0; i < made; ++i) {
         type_into(box, g_bytes[i]);
         if (box_length(box) != length + i + 1) {
@@ -378,7 +413,7 @@ static int copy(unsigned char *box) {
     if (length <= 0) {
         return 0;
     }
-    mode = text_mode();
+    mode = text_mode(NULL);
     while (i < length && n < CP_MAX_UNITS - 1) {
         unsigned int b = text[i], cp = b;
         int extra = 0, k;

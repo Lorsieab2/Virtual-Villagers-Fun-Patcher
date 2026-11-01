@@ -51,12 +51,13 @@ def description(game: int) -> str:
         "the box's own rules: its own character filter (a numbers-only box takes only digits), and its own "
         "length limit, cut before the first character that does not fit, never inside a character. Line "
         "breaks and tabs become spaces; other control characters are dropped, and so is every character "
-        "the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts on, every "
-        "Windows-1252 character (accented letters, curly quotes, €, ...) is pasted; without it, plain "
-        "English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. "
+        "the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode "
+        "Font on, every character those patches let you type is pasted (at least every Windows-1252 character: "
+        "accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs "
+        "only.** The keys never reach the game as letters or shortcuts. "
         "Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no "
         "text, nothing happens. **On by default.** **Needs no other patch; works with or without Render "
-        "Unicode with In-Game Fonts.** **Not yet seen in a running game** (checked by emulation of each "
+        "Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each "
         "stock executable). The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; saves are "
         "never written by it."
     )
@@ -83,11 +84,13 @@ def row(game: int, dll_sha: str) -> dict:
             f"box's ({handler}) that has focus ([box+0x25]) on a screen that takes input.",
             "Paste: the clipboard's CF_UNICODETEXT, composed (NFC) and split into whole characters, CR/LF/Tab "
             "as spaces, other control characters and lone surrogates dropped, each character turned into the "
-            "box's bytes (UTF-8 when VVFP Unicode Text.dll's VvfpGlyphsUtf8() returns 1; every printable "
-            "Windows-1252 character when it returns 0; printable ASCII when that DLL is not loaded), a "
-            "character the game cannot show dropped, a numbers-only box's filter applied, and the whole cut "
-            "before the first character that does not fit the box's byte limit ([box+0x28]). The bytes are "
-            "typed into the box through its own handler, one character message each.",
+            "box's bytes (UTF-8 when the loaded Unicode companion -- VVFP Unicode Text.dll, else VVFP Unicode "
+            "Font.dll -- answers VvfpGlyphsUtf8() == 1; every printable Windows-1252 character when it answers 0; "
+            "printable ASCII when neither is loaded), a character the game cannot show dropped, a numbers-only "
+            "box's filter applied, and the whole cut before the first character that does not fit the box's byte "
+            "limit ([box+0x28]). UTF-8 text goes in through that companion's VvfpBoxInsertUtf8 (it inserts as "
+            "typing does); otherwise the bytes are typed into the box through its own handler, one character "
+            "message each.",
             "Copy: the box's text bytes, read back by the same rule, put on the clipboard as CF_UNICODETEXT; "
             "Cut: the same, then (only when the copy succeeded) the box's own Backspace for each byte.",
         ],
