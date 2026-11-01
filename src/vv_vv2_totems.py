@@ -81,6 +81,7 @@ from pathlib import Path
 import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 GAME = 2
 RECORDS = 256
@@ -151,7 +152,7 @@ def _i32(data, at: int) -> int:
 
 
 def _text(data, at: int, cap: int) -> str:
-    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode("latin-1")
+    return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
 def _first(name: str) -> str:
@@ -666,7 +667,7 @@ def _new_entry(data: bytes, e: Elder, totem_type: int, x: int, y: int, clock: in
     if e.at is not None:
         entry[:] = data[e.at + ENTRY:e.at + ENTRY + STRIDE]
     else:
-        raw = e.name.encode("latin-1", "replace")[:NAME_CAP - 1]
+        raw = e.name.encode(GAME_TEXT, "replace")[:NAME_CAP - 1]
         entry[n:n + NAME_CAP] = raw + bytes(NAME_CAP - len(raw))
         struct.pack_into("<i", entry, n + SEX, e.sex or 0)
         struct.pack_into("<ii", entry, n + HEAD, e.head, e.body)
@@ -733,7 +734,7 @@ def _record(folder: Path, village: str | None, slot: int, now: datetime | None, 
     path, text = tools.repair_record_start(folder, GAME, header, layout.header_slot(village) or slot, now)
     text += "".join(f"  {line}\r\n" for line in lines) + "\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))
 
 
 @dataclass

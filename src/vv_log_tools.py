@@ -52,6 +52,7 @@ from pathlib import Path
 import vv_save_backup
 import vv_save_layout as layout
 from transparency import PATCHER_VERSION
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 DATA = "Virtual Villagers Fun Patcher Data"
 LOGS = "Virtual Villagers Fun Patcher Logs"
@@ -763,7 +764,7 @@ def fix_log_words(folder: Path, game: int) -> list[WordFix]:
         out, at = [], 0
         for start, end, _old, new in f.fixes:
             out.append(data[at:start])
-            out.append(new.encode("latin-1"))
+            out.append(new.encode(GAME_TEXT))
             at = end
         out.append(data[at:])
         backup = _word_backup(folder, f.path)
@@ -812,7 +813,7 @@ def repair_record_start(folder: Path, game: int, header: str, slot: int | None,
     while (logs / f"{stem} {number + 1}.txt").exists():
         number += 1
     path = logs / f"{stem} {number}.txt"
-    existing = path.read_bytes().decode("latin-1") if path.exists() else ""
+    existing = path.read_bytes().decode(GAME_TEXT) if path.exists() else ""
     repairs = sum(line.startswith("Repair ") for line in existing.splitlines())
     if repairs >= 256 or len(existing) >= 4 * 1024 * 1024:
         path = logs / f"{stem} {number + 1}.txt"
@@ -821,7 +822,7 @@ def repair_record_start(folder: Path, game: int, header: str, slot: int | None,
     if logs.name == layout.REPAIRS_LOGS and not layout.is_slot_folder(logs):
         old = Path(folder) / layout.LOGS / "Repairs" / path.name
         if old.is_file():
-            older = sum(1 for line in old.read_bytes().decode("latin-1").splitlines()
+            older = sum(1 for line in old.read_bytes().decode(GAME_TEXT).splitlines()
                         if line.startswith("Repair ") and line[7:8].isdigit())
     last = [line for line in existing.splitlines() if line.startswith("Village:")]
     when = (now or datetime.now()).strftime("%Y-%m-%d %H:%M:%S")
@@ -854,4 +855,4 @@ def note_word_repair(folder: Path, game: int, village: str | None, fixes: list[W
             text += f"  {corrected}: {fix.name} -- {fix.count} " + ("word(s)" if corrected == "Corrected" else unit) + "\r\n"
     text += "  Backup: " + ", ".join(dict.fromkeys(fix.backup for fix in fixes)) + "\r\n\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

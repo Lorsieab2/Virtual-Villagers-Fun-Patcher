@@ -39,6 +39,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 GENETICS = gm.GENETICS
 
@@ -295,7 +296,7 @@ def _villagers(village: gm.Village) -> list[gm.Fact]:
         if not 0 <= at < len(data):
             return ""
         raw = data[at:at + cap]
-        return raw.split(b"\0", 1)[0].decode("latin-1", "replace")
+        return raw.split(b"\0", 1)[0].decode(GAME_TEXT, "replace")
 
     def i32(at: int) -> int | None:
         return struct.unpack_from("<i", data, at)[0] if 0 <= at <= len(data) - 4 else None

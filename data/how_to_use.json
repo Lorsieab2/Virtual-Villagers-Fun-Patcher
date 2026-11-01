@@ -578,6 +578,17 @@
       ]
     },
     {
+      "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
+      "guide": [
+        "Nothing to click: tick the patch and patch the game again.",
+        "Type accented letters, ß, ¿ ¡, € £, curly quotes and dashes in the tribe name, villager names (the Details screen) and every other text box; dead keys and Alt codes work.",
+        "Every text the game draws shows them in its own fonts, at their real widths.",
+        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it).",
+        "Windows-1252 only: Greek, Cyrillic, Chinese, Japanese and emoji are not drawn yet.",
+        "On by default. Needs no other patch. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",

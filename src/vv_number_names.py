@@ -30,6 +30,7 @@ import vv_genealogy as gen
 import vv_last_names as ln
 import vv_save_backup
 import vv_save_layout as layout
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 BACKUP_LABEL = "(before numbering names)"
 
@@ -168,7 +169,7 @@ def evidence(folder: Path, game: int, slot: int) -> tuple[dict[tuple, int], set[
                           (layout.route(folder, f"{layout.DATA}\\Village Elders\\Village Elders - Save {slot}.dat"),
                            (2, 3, 4))):
         try:
-            lines = path.read_bytes().decode("latin-1").split("\n")
+            lines = path.read_bytes().decode(GAME_TEXT).split("\n")
         except OSError:
             continue
         for line in lines:
@@ -388,7 +389,7 @@ def _numbering_lines(folder: Path, game: int, slot: int) -> list[str]:
     checker = ln.tools.load_checker()
     for path in checker.game_logs(Path(folder), layout.REPAIRS_LOGS, f"Virtual Villagers {game} Repairs Log"):
         try:
-            text = path.read_bytes().decode("latin-1")
+            text = path.read_bytes().decode(GAME_TEXT)
         except OSError:
             continue
         out += [line.strip() for line in text.splitlines() if line.strip().startswith("Renamed: ")]
@@ -466,7 +467,7 @@ def take_numbers_off(folder: Path, game: int, slot: int, cases: list[Misnumbered
         text += f"  Files changed: {len(result.files)}\r\n"
         text += f"  Backup: {Path(result.backup.backup_folder).name}\r\n\r\n"
         with open(path, "ab") as log:
-            log.write(text.encode("latin-1", "replace"))
+            log.write(text.encode(GAME_TEXT, "replace"))
     except OSError:
         pass                                    # the renames stand; the save and the logs show them
     return result
@@ -537,4 +538,4 @@ def note_numbering(folder: Path, game: int, slot: int, result: ln.Result, wanted
     text += f"  Files changed: {len(result.files)}\r\n"
     text += f"  Backup: {Path(result.backup.backup_folder).name}\r\n\r\n"
     with open(path, "ab") as log:
-        log.write(text.encode("latin-1", "replace"))
+        log.write(text.encode(GAME_TEXT, "replace"))

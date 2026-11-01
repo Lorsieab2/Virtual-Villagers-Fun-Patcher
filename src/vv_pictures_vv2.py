@@ -51,6 +51,7 @@ from pathlib import Path
 import vv_picture_image as pi
 import vv_pictures_carried as carried
 import vv_pictures_common as common
+from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 GAME = 2
 ROOT = Path(__file__).resolve().parents[1]
@@ -554,7 +555,7 @@ def read_totems(folder: Path, slot: int, data: bytes | None = None) -> list[dict
     for t in store.totems:
         e = t.entry
         i = lambda off: struct.unpack_from("<i", e, off)[0]   # noqa: E731
-        out.append({"name": e[TOTEM_NAME:TOTEM_NAME + 0x18].split(b"\0", 1)[0].decode("latin-1"),
+        out.append({"name": e[TOTEM_NAME:TOTEM_NAME + 0x18].split(b"\0", 1)[0].decode(GAME_TEXT),
                     "type": i(TOTEM_TYPE), "age": i(TOTEM_AGE), "male": i(TOTEM_SEX) == 1,
                     "head": i(TOTEM_HEAD), "body": i(TOTEM_BODY)})
     return out

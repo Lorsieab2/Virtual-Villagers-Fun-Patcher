@@ -196,9 +196,19 @@ class NameRuleTests(unittest.TestCase):
 
     def test_characters_the_game_cannot_take_are_refused(self) -> None:
         game = rename.GAMES[0]
-        for name in ("Tab\tTribe", "Caf\u00e9", "Line\nBreak", "\u4e00", "Nul\0"):
+        for name in ("Tab\tTribe", "Line\nBreak", "\u4e00", "Nul\0", "Bad\x81", "Emoji\U0001F4A9"):
             with self.subTest(name=name):
                 self.assertIsNotNone(rename.name_problem(game, name))
+
+    def test_windows_1252_letters_are_allowed_and_written_as_one_byte(self) -> None:
+        # Render Unicode with In-Game Fonts (v1.35.87): the games take and draw every printable
+        # Windows-1252 character, one byte each.
+        for game in rename.GAMES:
+            with self.subTest(game=game.number):
+                self.assertIsNone(rename.name_problem(game, "Caf\u00e9 \u0160\u00e1rka \u20ac"))
+        self.assertEqual(rename._with_name(b"\0" * 32, 0, 32, "Caf\u00e9\u20ac")[:6], b"Caf\xe9\x80\0")
+        self.assertEqual(rename._read_c_string(b"Caf\xe9\x80\0", 0, 6), "Caf\u00e9\u20ac")
+        self.assertIsNone(rename._read_c_string(b"Bad\x81\0", 0, 5))
 
     def test_printable_punctuation_and_digits_are_allowed(self) -> None:
         game = rename.GAMES[4]
