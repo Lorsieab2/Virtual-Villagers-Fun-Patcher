@@ -62,7 +62,7 @@
 #define KMOD_ALT     0x0300u
 #define KMOD_GUI     0x0C00u
 
-enum { CP_NONE, CP_PASTE, CP_COPY, CP_CUT };
+enum { ACT_NONE, ACT_PASTE, ACT_COPY, ACT_CUT };
 enum { MODE_ASCII, MODE_CP1252, MODE_UTF8 };
 
 typedef struct cp_node {
@@ -428,32 +428,32 @@ static int key(const unsigned char *frame) {
     unsigned int sym = *(const unsigned int *)(frame + g_sym_offset);
     unsigned int mod = *(const unsigned short *)(frame + g_sym_offset + 4);
     unsigned char repeat = frame[g_sym_offset - 7];
-    int action = CP_NONE;
+    int action = ACT_NONE;
     unsigned char *box;
     if ((mod & (KMOD_ALT | KMOD_GUI)) != 0) {
         return 0;
     }
     if (mod & KMOD_CTRL) {
         if (sym == 'v') {
-            action = CP_PASTE;
+            action = ACT_PASTE;
         } else if (sym == 'c' || (sym == SDLK_INSERT && !(mod & KMOD_SHIFT))) {
-            action = CP_COPY;
+            action = ACT_COPY;
         } else if (sym == 'x') {
-            action = CP_CUT;
+            action = ACT_CUT;
         }
     } else if ((mod & KMOD_SHIFT) && sym == SDLK_INSERT) {
-        action = CP_PASTE;
+        action = ACT_PASTE;
     }
-    if (action == CP_NONE || (box = focused_box()) == NULL || box[CP_BOX_OTHER] != 0) {
+    if (action == ACT_NONE || (box = focused_box()) == NULL || box[CP_BOX_OTHER] != 0) {
         return 0;
     }
     InterlockedIncrement(&g_handled);
     if (repeat) {
         return 1;
     }
-    if (action == CP_PASTE) {
+    if (action == ACT_PASTE) {
         paste(box);
-    } else if (action == CP_COPY) {
+    } else if (action == ACT_COPY) {
         copy(box);
     } else {
         cut(box);

@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vvfp_copy_paste"
-$outputRoot = Join-Path $projectRoot "assets\unicode_text"
+$outputRoot = Join-Path $projectRoot "assets\copy_paste"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
 $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231"

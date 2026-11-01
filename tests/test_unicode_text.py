@@ -146,7 +146,8 @@ class TheRows(unittest.TestCase):
             self.assertEqual(module.row(number, sha, TABLES), _manifest(game))
 
     def test_started_by_the_startup_loader_second_word(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], DLL_NAME)
+        # sixth in the second word (Copy and Paste in Text Boxes came after it, v1.35.89)
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[5], DLL_NAME)
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Original Look.dll",\n    "VVFP Unicode Text.dll",\n', header)
         self.assertIn(DLL_NAME.encode(), (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())

@@ -1,0 +1,38 @@
+{
+  "id": "vv1_copy_paste",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Copy and Paste in Text Boxes",
+  "description": "Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts on, every Windows-1252 character (accented letters, curly quotes, \u20ac, ...) is pasted; without it, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Copy and Paste.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Copy and Paste",
+  "behavior_changes": [
+    "The event pump's SDL_KEYDOWN case (0x4039D6) first asks the companion about the key: Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert and Ctrl+X (no Alt, no Windows key), while a text box has typing focus, are handled and the pump goes on with the next event; every other key, and these keys while no box has focus, go on to the stock case exactly as before.",
+    "The focused box is found the way the game types into it: the game's own keyboard listeners (event manager 0x48AEC8), in the game's order, the first whose keyboard handler is the text box's (0x40BE30) that has focus ([box+0x25]) on a screen that takes input.",
+    "Paste: the clipboard's CF_UNICODETEXT, composed (NFC) and split into whole characters, CR/LF/Tab as spaces, other control characters and lone surrogates dropped, each character turned into the box's bytes (UTF-8 when VVFP Unicode Text.dll's VvfpGlyphsUtf8() returns 1; every printable Windows-1252 character when it returns 0; printable ASCII when that DLL is not loaded), a character the game cannot show dropped, a numbers-only box's filter applied, and the whole cut before the first character that does not fit the box's byte limit ([box+0x28]). The bytes are typed into the box through its own handler, one character message each.",
+    "Copy: the box's text bytes, read back by the same rule, put on the clipboard as CF_UNICODETEXT; Cut: the same, then (only when the copy succeeded) the box's own Backspace for each byte."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the SDL_KEYDOWN case's first ten bytes at run time, only after verifying their stock bytes, and installs nothing on a different build.",
+    "Nothing is written but a focused box's text, through the box's own handler and its own rules: opening and closing a box without these keys leaves its bytes exactly as they were. Saves, villager records and the patcher's files are never written.",
+    "The clipboard is opened and closed on the game thread and never waited for; busy or empty means nothing happens. A fault is abandoned and the key goes on to the stock code.",
+    "The SDL_TEXTINPUT case (detoured by Render Unicode with In-Game Fonts) is not touched; both patches work together or alone."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/copy_paste/VVFP Copy and Paste.dll",
+      "destination": "VVFP Copy and Paste.dll",
+      "sha256": "22BB8B635D6F7D4667C097A6CD581E74E71C570F606CDF9D6B2AAB781E248D1F"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4039D6",
+      "stock_bytes": "8B4C243C81F941000040",
+      "routine": "the event pump's SDL_KEYDOWN case (mov ecx, [esp + sym]; cmp ecx, imm32)",
+      "installed_by": "VVFP Copy and Paste.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

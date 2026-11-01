@@ -21,6 +21,7 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
     "VVFP Unicode Text.dll",
+    "VVFP Copy and Paste.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
