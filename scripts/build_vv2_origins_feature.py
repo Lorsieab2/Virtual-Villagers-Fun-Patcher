@@ -319,9 +319,11 @@ VV2_MASK_STAGE2_PATCH_SPECS = (
 # Re-pinned when the slot-change stub stopped clearing the removed Barrel
 # "three children" flag (0x49C704): nothing arms or reads it any more; and when it
 # stopped taking a save's backup generation (slot 21..25) for a village change,
-# which dropped a bought Barrel O' Babies at every save (v1.35.66).
+# which dropped a bought Barrel O' Babies at every save (v1.35.66); and when the head stubs
+# stopped treating female_actions (0xE574A0) as a head atlas, which drew a second mask over a
+# woman's or girl's action-pose body (v1.35.86).
 VV2_MASK_STAGE2_APPEND_SHA256 = (
-    "423988D28C27E6737739FA335707304B1F0AD2B88F71E2C7A02D7F2CC9DB05F3"
+    "22BA267ADE3B11E2A67571FE9AB4786F0D2EC5C9474C741958AA9BF9EFE57400"
 )
 
 

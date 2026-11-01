@@ -18,6 +18,12 @@ New Believers (record in ESI, `cmp dword [esi+0x1B8C], 0x44C`, 10 bytes)
   (0x43F824 in 0x43F6C0, CMausoleumScene 0x43FB50: a GRAVE's portrait in the Mausoleum, from the Roster of
    the Dead entry's own age at death (entry +0x1C).  Not a villager record: see the report.)
 
+The Lost Children's village (0x445B50) compares `cmp ecx, 0x44C` only for the swimming head (0x4469BA);
+every other pose loads the age into ECX and compares `cmp ecx, ebx` (EBX = 0x44C from 0x445C32), two bytes
+too short to splice, so the thirteen LOADS before them (0x446B22 .. 0x44777A) are spliced: the stub hands
+ECX the effective age, every other register and the flags as they were (v1.35.86; before that only the
+swimming head followed the look).  tests/test_vv2_head_look_village.py runs the whole compositor with it.
+
 Each is emulated on the stock executable and on the executables the patcher renders (every population
 mode, all of the game's patches): Auto draws young at 1,099 and old at 1,100; Young draws young at 1,100
 and 3,000; Old draws old at 0 and 1,099; the registers and memory after the compare are the stock ones
@@ -160,6 +166,18 @@ def _jump(consumer: int, taken_is_old: bool, regs):
     return run
 
 
+def _load(regs, age_reg: str = "ecx"):
+    """An age LOAD before a `cmp ecx, ebx` (The Lost Children's village, EBX = 1,100): the loaded age is
+    what the game compares, so the head is old when it is 1,100 or more.  Only the load is run."""
+    def run(g: Game, record: int) -> bool:
+        va = SITE[g.game][run.site]
+        g.run(va, regs=regs(g, record), until=va + DRAWS[g.game][run.site][1], count=100_000)
+        return g.p.reg(age_reg) >= 1100
+    run.regs = regs
+    run.load_reg = age_reg
+    return run
+
+
 _EDI_ECX = _regs(("edi",), "ecx")
 _EAX_ECX = _regs(("eax",), "ecx")
 _ECX_EAX = _regs(("ecx",), "eax")
@@ -180,6 +198,15 @@ DRAWS = {
             (0x448BF4, 0x448C04, False, _EDX_ESI_EAX), (0x448CFA, 0x448D03, False, _ECX_EAX),
             (0x448DB4, 0x448DBD, False, _ECX_EAX), (0x448F1C, 0x448F2C, False, _ECX_EAX),
             (0x448FC6, 0x448FD1, False, _EDX_ESI_EAX))},
+        # The village's other poses: the age loads before `cmp ecx, ebx` (v1.35.86).
+        **{f"village load {va:#x}": (va, length, _load(regs)) for va, length, regs in (
+            (0x446B22, 7, _regs(("edx", "esi"))), (0x446BCC, 7, _regs(("edx", "esi"))),
+            (0x446C8F, 7, _regs(("edx", "esi"))), (0x446D00, 7, _regs(("edx", "esi"))),
+            (0x44702E, 6, _regs(("eax",))), (0x447181, 7, _regs(("edx", "esi"))),
+            (0x447213, 7, _regs(("edx", "esi"))), (0x4472CB, 7, _regs(("edx", "esi"))),
+            (0x447370, 6, _regs(("eax",))), (0x44759D, 7, _regs(("edx", "esi"))),
+            (0x447635, 7, _regs(("edx", "esi"))), (0x4476EC, 7, _regs(("edx", "esi"))),
+            (0x44777A, 7, _regs(("edx", "esi"))))},
     },
     5: {
         "village": (0x4722A2, 10, _column_offset(0x4722B9, "ecx", _regs(ecx=0))),
@@ -242,21 +269,32 @@ class _DrawsBase:
                     self.assertEqual(g.p.u32(r + g.g["head"]), 7)                  # the head value unchanged
 
     def test_registers_are_the_stock_compares(self):
-        """The stub leaves every register as the stock compare would: only the flags carry the look."""
+        """The stub leaves every register as the stock compare would: only the flags carry the look.  At a
+        load site (The Lost Children's village) only the loaded register carries it -- the effective age --
+        and the flags too are the stock ones."""
         stock = self.game(start=False)
         hooked = self.game()
         for g in (stock, hooked):
             g.villager(2, "Moana", age=1500, head=3)
         hooked.set_look(2, YOUNG)
         for name, (va, length, run) in DRAWS[self.GAME].items():
+            load_reg = getattr(run, "load_reg", None)
             with self.subTest(site=name):
                 seen = []
                 for g in (stock, hooked):
                     regs = {"eax": 0x11, "ebx": 0x22, "ecx": 0x33, "edx": 0x44, "edi": 0x55, "ebp": 0x66, "esi": 0x77}
                     regs.update(run.regs(g, g.record(2)))
-                    g.run(va, regs=regs, until=va + length, count=100_000)
-                    seen.append({r: g.p.reg(r) for r in ("eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp")})
-                self.assertEqual(seen[0], seen[1])
+                    for flags in (0x202, 0xAD7):      # flags clear, and CF PF AF ZF SF OF set
+                        g.p.set_reg("eflags", flags)
+                        g.run(va, regs=regs, until=va + length, count=100_000)
+                        seen.append({r: g.p.reg(r) for r in ("eax", "ebx", "ecx", "edx", "esi", "edi", "ebp", "esp")
+                                     if r != load_reg})
+                        if load_reg:
+                            seen[-1]["flags"] = g.p.reg("eflags") & 0xCD5
+                self.assertEqual(seen[:2], seen[2:])
+                if load_reg:
+                    self.assertEqual(stock.p.reg(load_reg), 1500)
+                    self.assertEqual(hooked.p.reg(load_reg), 0)
 
     def test_a_record_that_is_not_a_villager_keeps_the_real_age(self):
         g = self.game()

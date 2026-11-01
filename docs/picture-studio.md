@@ -118,15 +118,25 @@ Said plainly, game by game in each page; in short:
   running the companion; New Believers' cosmetic mask is proven by giving the emulated stock exe the
   flipped fields, not by running the patched exe.
 
-## Patcher behaviour found along the way (not changed here)
+## Patcher bugs found along the way (fixed in v1.35.86)
 
-- **The Lost Children, Origins masks**: the mask patch's list of head sheets includes `female_actions`,
-  so in the game a woman whose body value equals her head value gets a second mask over her body in
-  action poses, and a girl in the bending or sitting pose gets one whatever her body. Picture Studio
-  draws what the game draws.
-- **The Lost Children, head look**: in the village only a swimming villager's head follows Change
-  Appearance's head look; every other village head still switches to the old head at 55.
+Picture Studio's emulation of the games' draw code found three bugs in shipped patches; each is fixed
+at its root and the Studio draws what the FIXED game draws:
+
+- **The Lost Children, Origins masks**: the mask stubs' list of head sheets held `female_actions`
+  (0xE574A0), so a woman whose body value equals her head value got a second mask over her body in
+  action poses, and a girl bending or sitting got one whatever her body. The list is now the four head
+  atlases (`scripts/build_vv2_mask_stage2.py`); `tests/test_vv2_mask_head_only.py`.
+- **The Lost Children, head look**: `VVFP Head Look.dll` spliced only the swimming head's age compare,
+  so every other village head still switched to the old head at 55. The other poses compare
+  `cmp ecx, ebx` (too short to splice), so the DLL now splices the thirteen age loads before them;
+  `tests/test_vv2_head_look_village.py`. The Secret City, The Tree of Life and New Believers were
+  checked: each village draw picks the head sheet with compares the DLL already splices (none of their
+  callees compares the age with 1,100). A New Home's old heads are Grey Hair at 55's, drawn at the head
+  thunks for every pose.
 - **The Tree of Life, Change Appearance preview**: `appearance_draw_cell`
-  (`native/vv4_origins_icons/vv4_origins_icons.c`) builds the body sheet's name from the head look's
-  age digit, but that digit is the sheet's place in the body sheets' grid, so with the head look Old
-  the body preview shows the wrong sheet.
+  (`native/vv4_origins_icons/vv4_origins_icons.c`) built the body sheet's name from the old-head digit
+  (for the head look Old, or Auto at 55 and over), but a body sheet's first digit is its place in the
+  body sheets' grid, so the body preview showed another direction's frame. The body is now always read
+  from the sheet the game draws it from; `tests/test_vv4_appearance_preview_sheets.py`. The other games'
+  previews take only the head picture from the look (their bodies are one sheet per sex).

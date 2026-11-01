@@ -79,19 +79,27 @@ with action frames (8) or walking frames (10), Resting (9 with an odd variant), 
 * **Origins heathen masks** (`vv2_enable_origins_exclusive_features`, built by
   `scripts/build_vv2_mask_stage2.py`): the adult head thunk 0x4095B0 and the child thunk 0x409600 are
   detoured into the `.vvmk` stubs. Adult: a draw from the village (callers 0x445B50..0x4478DF) whose row is
-  the record's head and whose sheet is one of 0xE574A0 (female_actions), the four head sheets, draws the head
-  then the mask atlas cell (row mask - 1, the head's column) unscaled at (x, y - 42). Child: any such draw
-  through the scaled thunk draws the mask at the same scale at (x, y - (scale x 54 >> 7)). The atlas
+  the record's head and whose sheet is one of the four head atlases 0xE574A8..0xE574B4 (young and old, both
+  sexes) draws the head then the mask atlas cell (row mask - 1, the head's column) unscaled at (x, y - 42).
+  Child: a draw from one of those head atlases through the scaled thunk draws the mask at the same scale at
+  (x, y - (scale x 54 >> 7)). The atlas
   (`heathen_masks.png`, 520 x 725, 8 x 5 cells of 65 x 145) is read from inside the shipped
   `assets/origins/VVFP VV2 Origins Icons.dll` (RCDATA 5000; byte-identical to
   `native/vv2_origins_icons/heathen_masks.png`). `MasksMatchThePatchedGame` builds the patched executable with
-  the patcher itself and runs the compositor with every mask, stage and pose.
-  Faithfully reproduced patch behaviour: because the patch's sheet list holds `female_actions` (0xE574A0),
-  a woman whose body value equals her head value gets a second mask over her action-pose body (bending,
-  sitting, arms out, in the air, resting), and a girl gets one over her bending or sitting body.
-* **Head look** (`VVFP Head Look.dll`): of the village compositor's age compares only the swimming head's
-  (0x4469BA) is spliced (`vvfp_head_look.c` VV2_SITES; the DLL is run on it by `tests/test_head_look.py`).
-  Every other village head uses the age, so the Studio applies the look to swimming only.
+  the patcher itself and runs the compositor with every mask, stage and pose: the mask is drawn once, on the
+  head, in every pose.
+  Fixed in v1.35.86: the patch's sheet list used to hold `female_actions` (0xE574A0) as a fifth "head"
+  sheet, so a woman whose body value equals her head value got a second mask over her action-pose body
+  (bending, sitting, arms out, in the air, resting), and a girl got one over her bending or sitting body.
+  `tests/test_vv2_mask_head_only.py` runs the patched compositor on those cases.
+* **Head look** (`VVFP Head Look.dll`): every adult head's age check in the village follows it. The swimming
+  head's compare `cmp ecx, 0x44C` (0x4469BA) is spliced; every other pose compares `cmp ecx, ebx` with EBX
+  = 0x44C (set at 0x445C32), two bytes too short to splice, so the DLL splices the thirteen age loads before
+  them (0x446B22 .. 0x44777A, `vvfp_head_look.c` VV2_SITES, `load` 1) and hands the compare the look's age.
+  Before v1.35.86 only the swimming head followed the look. `tests/test_vv2_head_look_village.py` runs the
+  compositor with the DLL loaded, in every pose, Auto / Young / Old, on the stock and the patched
+  executable, and requires the Studio's plan. Children always have the young head (the compositor has no
+  age check for a child's head).
 * **Elder Totems** (`VVFP VV2 Totems.dll`, `native/vvfp_vv2_totems`): the patch keeps statues out of the
   villager records, in `Virtual Villagers Fun Patcher\Save <N>\Data\Elder Totems\ElderTotems.dat`, and
   draws each one with the game's own calls exactly as a statue record is drawn (`draw_one`: shadow at

@@ -31,11 +31,11 @@ THE PATCHER'S OWN ART AND CHANGES:
     65 x 145; row = the mask - 1, column = the head's own column) -- adults unscaled at (x, y - 42),
     children at the head's scale and (x, y - (scale x 54 >> 7)).  The atlas is the one the patch ships
     inside "VVFP VV2 Origins Icons.dll" (RCDATA 5000), read from assets\\origins.  The stubs' gate is
-    the patch's own: any draw through those thunks from the village whose sheet is one of the five
-    "head" sheets the patch lists (which include female_actions) -- so a woman's action body whose
-    value equals her head value, and a girl's action body, get a mask too, as in the game;
-  * Change Appearance's head look ("VVFP Head Look.dll"): in the village it changes only the compare at
-    0x4469BA, the swimming head; every other village head keeps the game's own age rule (0x44C);
+    the patch's own: a draw through those thunks from the village whose sheet is one of the four head
+    sheets (young and old, both sexes), so the mask is drawn once, on the head, in every pose;
+  * Change Appearance's head look ("VVFP Head Look.dll"): every adult head's age check in the village
+    follows it -- the swimming head's compare 0x4469BA and the thirteen age loads before the other
+    poses' `cmp ecx, ebx` (EBX = 0x44C) -- so Young and Old pick the head sheet in every pose;
   * the Elder Totems patch ("VVFP VV2 Totems.dll"): statues kept in its own ElderTotems.dat instead of
     villager records, drawn exactly as a statue record (its draw_one); From my save lists them too.
 
@@ -85,8 +85,8 @@ ATLAS = {
     "ripple": pi.Atlas("ripple.png", 4, 1),                    # +0xE574C8
 }
 MASK_ATLAS = pi.Atlas(MASK_FILE, 8, 5)
-# The sheets the mask stubs treat as heads (build_vv2_mask_stage2.py HEAD_ATLASES 0xE574A0..0xE574B4).
-MASKED_SHEETS = ("f_actions", "f_heads", "m_heads", "f_heads_old", "m_heads_old")
+# The sheets the mask stubs treat as heads (build_vv2_mask_stage2.py HEAD_ATLASES 0xE574A8..0xE574B4).
+MASKED_SHEETS = ("f_heads", "m_heads", "f_heads_old", "m_heads_old")
 
 
 def required_files() -> list[str]:
@@ -352,14 +352,14 @@ class _Planner:
     def _adult(self, state: int) -> None:
         st, x, y = self.st, self.x, self.y
         sex = "m" if st.male else "f"
-        old = st.age >= OLD_AGE
-        heads = f"{sex}_heads_old" if old else f"{sex}_heads"
+        # Every adult head's age compare (the swimming head's 0x4469BA and the thirteen `cmp ecx, ebx`
+        # of the other poses) sees the head look's age: VVFP Head Look.dll splices them all.
+        shown = {common.LOOK_YOUNG: 0, common.LOOK_OLD: OLD_AGE}.get(st.look, st.age)
+        heads = f"{sex}_heads_old" if shown >= OLD_AGE else f"{sex}_heads"
         f = st.frame
         if not st.held and st.terrain == DEEP_WATER and state != 9:         # 0x4468A6: swimming
             self.frame("ripple", x - 0xC, y + 0x1C, st.timer & 3, "ripple", alpha=0.4)
-            shown = {common.LOOK_YOUNG: 0, common.LOOK_OLD: OLD_AGE}.get(st.look, st.age)
-            swim_heads = f"{sex}_heads_old" if shown >= OLD_AGE else f"{sex}_heads"
-            self.cell(swim_heads, x, y + 0x1F, st.head, st.facing, "head")
+            self.cell(heads, x, y + 0x1F, st.head, st.facing, "head")
             return
         if state in (0, 5, 9):                                              # 0x4473AD
             if st.direction in (0, 3) and st.item != NO_ITEM:
@@ -641,9 +641,9 @@ class Renderer:
             *pose_fields(),
             pi.Field("skeleton", "Skeleton frame", tuple(pi.Option(k, f"Frame {k + 1}") for k in range(4)), 0),
         ), note="The pictures are cut from your own copy of the game. Children are drawn smaller by age, as the "
-                "game draws them; the old (grey) head is the game's own from 55 years. In the village the head look "
-                "changes only a swimming villager's head (the rest follow the age): that is how the game draws it. "
-                "Masks are the Origins patch's heathen masks.")
+                "game draws them; the old (grey) head is the game's own from 55 years. The head look (Change "
+                "Appearance) picks the young or old head of an adult in every pose; children always have the "
+                "young head. Masks are the Origins patch's heathen masks.")
         statue = pi.Subject("statue", "Esteemed Elder statue", (
             pi.Field("kind", "Statue", tuple(pi.Option(k, f"Statue {k + 1}") for k in range(8)), 0),
             pi.Field("shadow", "Shadow", (pi.Option("shadow", "Shadow"), pi.Option("none", "No shadow")), "shadow"),

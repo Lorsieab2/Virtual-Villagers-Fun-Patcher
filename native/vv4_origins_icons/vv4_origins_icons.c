@@ -1451,10 +1451,16 @@ static void appearance_draw_cell(HDC hdc, RECT rc, int is_head, int value, int c
         row = value;
         wsprintfW(path, L"Images\\%ls_heads%d0.png", sex, age);
     } else {
+        /* The body does not change with the head look or the age: the game draws every body from the
+           same sheets.  A body sheet's FIRST digit is its place across the body atlas' 2 x 3 grid of
+           sheets (0: columns 0-15, directions 0-1, which hold column VV_BODY_FRAME_COL; 1: columns
+           16-31), the second its page of rows -- never an age.  Before v1.35.86 the head look's age digit
+           went in the first place, so with the head look Old the preview showed column 24 of the next
+           sheet (another direction's frame) instead of the body the village draws. */
         col = VV_BODY_FRAME_COL;
         page = value / VV_BODY_ROWS_PER_PAGE;
         row = value % VV_BODY_ROWS_PER_PAGE;
-        wsprintfW(path, L"Images\\%ls_bodies%d%d.png", sex, age, page);
+        wsprintfW(path, L"Images\\%ls_bodies0%d.png", sex, page);
     }
     if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;

@@ -72,21 +72,29 @@ def _png_size(data: bytes) -> tuple[int, int]:
 class VillageEmulator:
     """The Lost Children's village compositor on one record, in Unicorn."""
 
-    def __init__(self, exe: bytes) -> None:
-        self.p = p = Process(exe)
-        p.mu.mem_map(API_STUBS, 0x10000)
-        p.api_names = {}
-        slot = 0
-        for entry in p._exe_pe.DIRECTORY_ENTRY_IMPORT:
-            for imp in entry.imports:
-                if not imp.name:
-                    continue
-                stub = API_STUBS + slot * 16
-                slot += 1
-                p.mu.mem_write(stub, b"\xC3")
-                p.api_names[stub] = imp.name.decode()
-                p.mu.mem_write(imp.address, struct.pack("<I", stub))
-                p.api_handlers[imp.name.decode()] = lambda q: (0, 0)
+    def __init__(self, exe: bytes, process: Process | None = None) -> None:
+        """`process`: one already holding the executable and a companion DLL (its APIs already stubbed);
+        the game's own imports that nothing answers yet then return 0."""
+        if process is not None:
+            self.p = p = process
+            for name in set(p.api_names.values()):
+                if name not in p.api_handlers and not hasattr(p, "_api_" + name):
+                    p.api_handlers[name] = lambda q: (0, 0)
+        else:
+            self.p = p = Process(exe)
+            p.mu.mem_map(API_STUBS, 0x10000)
+            p.api_names = {}
+            slot = 0
+            for entry in p._exe_pe.DIRECTORY_ENTRY_IMPORT:
+                for imp in entry.imports:
+                    if not imp.name:
+                        continue
+                    stub = API_STUBS + slot * 16
+                    slot += 1
+                    p.mu.mem_write(stub, b"\xC3")
+                    p.api_names[stub] = imp.name.decode()
+                    p.mu.mem_write(imp.address, struct.pack("<I", stub))
+                    p.api_handlers[imp.name.decode()] = lambda q: (0, 0)
         self.names: dict[int, str] = {}
         self.blits: list[tuple] = []
         self.terrain = 0
@@ -446,25 +454,32 @@ class BlitterMatchesTheGame(unittest.TestCase):
 
 
 class HeadLookInTheVillage(unittest.TestCase):
-    """VVFP Head Look.dll's compares in The Lost Children's village compositor: only the swimming head's
-    (0x4469BA); tests/test_head_look.py runs the DLL on it."""
+    """VVFP Head Look.dll's sites in The Lost Children's village compositor: the swimming head's compare
+    (0x4469BA) and the thirteen age loads before the other poses' `cmp ecx, ebx` (since v1.35.86);
+    tests/test_vv2_head_look_village.py runs the compositor with the DLL in every pose."""
 
-    def test_only_the_swimming_compare_is_spliced(self) -> None:
+    VILLAGE_SITES = [0x4469BA, 0x446B22, 0x446BCC, 0x446C8F, 0x446D00, 0x44702E, 0x447181, 0x447213,
+                     0x4472CB, 0x447370, 0x44759D, 0x447635, 0x4476EC, 0x44777A]
+
+    def test_every_village_age_check_is_spliced(self) -> None:
         source = (ROOT / "native" / "vvfp_head_look" / "vvfp_head_look.c").read_text(encoding="utf-8")
         body = source[source.index("static const hl_site VV2_SITES[]"):]
         body = body[:body.index("};")]
         sites = [int(v, 16) for v in re.findall(r"0x([0-9A-F]{6})u", body)]
         village = [s for s in sites if v2.COMPOSITOR_START <= s <= v2.COMPOSITOR_END]
-        self.assertEqual(village, [0x4469BA])
+        self.assertEqual(village, self.VILLAGE_SITES)
 
-    def test_the_plan_follows_it(self) -> None:
+    def test_the_plan_follows_it_in_every_pose(self) -> None:
         r = v2.load(_NullSource())
-        st = v2.State(age=600, head=3, body=3, terrain=v2.DEEP_WATER)
         files = lambda s: [d.file for d in v2.plan(r.sheets, s) if d.what == "head"]   # noqa: E731
-        self.assertEqual(files(replace(st, look=common.LOOK_OLD)), ["male_heads_old.png"])
-        self.assertEqual(files(replace(st, look=common.LOOK_YOUNG, age=2000)), ["male_heads.png"])
-        walking = replace(st, terrain=0, look=common.LOOK_OLD)
-        self.assertEqual(files(walking), ["male_heads.png"])
+        for terrain, state in ((v2.DEEP_WATER, 0), (0, 0), (0, 1), (0, 2), (0, 3), (0, 8), (0, 9), (0, 10)):
+            st = v2.State(age=600, head=3, body=3, terrain=terrain, state=state, frame=1)
+            with self.subTest(terrain=terrain, state=state):
+                self.assertEqual(files(replace(st, look=common.LOOK_OLD)), ["male_heads_old.png"])
+                self.assertEqual(files(replace(st, look=common.LOOK_YOUNG, age=2000)), ["male_heads.png"])
+                self.assertEqual(files(replace(st, look=common.LOOK_AUTO, age=2000)), ["male_heads_old.png"])
+        child = v2.State(age=150, head=3, body=3, look=common.LOOK_OLD)
+        self.assertEqual(files(child), ["male_heads.png"])
 
 
 class _NullSource:
