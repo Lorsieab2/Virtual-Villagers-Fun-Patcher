@@ -26,6 +26,47 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points are now on by default** (all five games). The owner, 2026-11-01: "Anything that costs (money tech points food etc) and anything that adds new content to the game (besides the stuff I explicitly mentioned to turn off) stays ON by default." **Default Patches** and a fresh install now tick both, so Pick Island Event, Custom Island Event, Choose Time Skip Amount, The Lost Children's Pick Gong of Wonder Outcome and The Secret City's Recharge Chief Powers are in the game and every one of them, like every Origins Upgrade, costs its normal tech points; untick the cost row to make them free. Learning Skills Never Fails, Super-Secret Golden Mushroom, VV1 Mushroom/Collectible Duplication Cheat, Manual Drop-Breeding overrides Birth Control, 256 Villagers (Experimental) and Fruit Trees Take Turns Refilling stay off. Owner's Defaults and Select All Patches are unchanged. **Your own selection is kept**: a patcher that has saved its selection (patcher_local_settings.json) shows it exactly as before, Story / Cheat Upgrades unticked if you had it unticked; the new default applies only to a fresh install or when you click Default Patches. The "?" guides of the cost row now also name Choose Time Skip Amount's price (50,000 tech points). No need to patch again.
 - **Picture Studio: every item a villager can carry** (Tools tab, all five games). **Carrying** now lists every item each game draws in a villager's hands, by name -- food, wood, stones, herbs, mushrooms, fish, tools, the baby, puzzle and story pieces (The Secret City's keys, pearls and shark charmer vial, The Tree of Life's lei, soap and hot rocks, New Believers' necklace pieces, dyes and golden eye ...) and every collectable a child picks up -- on both **Make your own** and **From my save**, with **Babies carried** (one, twins, triplets: the game draws the item again for each) in every game. Pictures the game has on its item sheets but never shows a villager carrying are offered too, marked "(unused in the game)" (docs/picture-studio-vv1.md ... vv5.md give the reason for each), and the Super-Secret Golden Mushroom is marked "(patcher)" and drawn as the patcher's golden mushroom picture, where the game draws it. No game keeps the carried item in its save, so From my save's first choice draws what the game gives back on loading: the baby, with the save's twins or triplets, for a villager who is expecting. New Believers no longer offers its last eleven carrying pictures twice. Every item is drawn by the game's own carry code and checked by running that code on the original games in every direction and carrying pose. No need to patch again.
+- **Picture Studio: Text** (Tools tab, all five games, new). Type anything, in several lines, and see it in
+  the game's own fonts: **Arial Bold (game font)**, **Burweed (game font)**, and **Burweed ICG (installed)**
+  at any size when that font is on your computer. You can pick:
+  - any colour the game draws text in, or your own, and the opacity;
+  - left, centred (as the game centres), centre each line or right;
+  - The Tree of Life's and New Believers' outlined title effect.
+
+  Save it as a transparent PNG at the game's size, 2x, 4x or your own size.
+  - **The game's letters** are drawn exactly as the game draws them: the same sheet cells, letter spacing,
+    line height, recolour and fade, checked by running each game's own text code on the original games.
+  - **Anything else** is made to match the font, and the preview outlines it (the PNG does not):
+    - accents (A New Home's and The Lost Children's fonts have none) are the game's letter with the accent
+      added;
+    - other alphabets and symbols come from a Windows font, sized and shaded like the game's letters;
+    - emoji are in full colour, with skin tones, families and keycaps kept whole.
+  - **Insert character...** finds any character by name or code (for example "e acute" or U+00E9), and has
+    the common accents.
+  - **The name counter.** The line under the text says how many bytes it takes as a villager's name in each
+    game.
+  - **The font pictures come from your own copy of the game.** No game art and no font file ships. See
+    docs/picture-studio-text.md.
+
+  No need to patch again.
+- **Picture Studio: Everything** (Tools tab -> Picture Studio, all five games, new tab). Every picture the game ships, drawn the way the game draws it and sorted by category.
+  - **What is shown:**
+    - creatures frame by frame;
+    - huts and buildings at each build stage;
+    - puzzle objects in each state;
+    - collectibles, plants and food, fruit trees from empty to full;
+    - the island assembled from its tiles;
+    - the Tech screen's bars empty, at each level and joined into the whole screen;
+    - the Villager Details skill and health bars, Divine Energy and the loading bar at several fill levels;
+    - dialog panels at the game's sizes and buttons normal, mouse over and pressed;
+    - icons, cursors, fonts, effects, and the title, loading, help and other screens;
+    - every sheet the game ships, cell by cell.
+  - **Labels:** art the game ships but never draws is marked "(unused)" (and listed under Unused); the patcher's own art (Origins masks and icons, grey hair, the Golden Mushroom, Visual Mods, Guardians of Isola, Sort By) is marked "(patcher)".
+  - **Saving:** "Save all..." saves one category or every category into folders by category, at the game's size, 2x, 4x or your own size.
+  - **Where the pictures come from:** your own copy of the game (copied once into "Picture Studio Pictures\Everything"); no game art ships. JPEG pictures are decoded exactly as the games' own libjpeg decodes them (checked on all 238 of the games' JPEGs).
+  - **How it is checked:** each composed picture is checked by running the game's own draw code on the original executables.
+  - **Not drawn or not proven** (docs/picture-studio-assets.md): colour fills, tints and text. Saves are only read.
+  - No need to patch again.
 - **Render Unicode with In-Game Fonts** (all five games, new, on by default). The games can now draw, measure and let you type every Western European character -- every printable character of Windows-1252: accented letters (é, ñ, ü, ç, ø, å and their capitals), ß, ¿ ¡, € £, curly quotes and dashes -- in both of each game's fonts, the big Burweed story font and the small Arial Bold font. A New Home and The Lost Children's fonts had only English letters, digits and a few signs (145 characters are added to each, # $ % & ( ) @ among them); The Secret City, The Tree of Life and New Believers had the Latin-1 accents but not the euro, curly quotes, dashes, Š Ž Ÿ Œ and the rest (28-29 added). Before, a missing character was drawn as the font's first letter, and the games threw away any typed character outside plain English. The tribe name, villager names on the Details screen (Rename) and every other text box now take them -- dead keys and Alt codes too -- and each is still one byte in the save, so names keep their lengths and the base game and older patchers still read the save (showing the new characters as the font's first letter). The new letters are made in each font's own style from the font's own plain letter plus the accent, or drawn by Windows in the font's own typeface: Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** (the patcher never ships it; without it, Comic Sans MS stands in for the signs). Nothing of the game's art is changed or shipped. The new "VVFP Unicode Text.dll" is started by VVFP Startup.dll. **Covers Windows-1252 only: Greek, Cyrillic, Chinese, Japanese, emoji and other scripts are not drawn yet.** **Patch every game again** after updating. Not yet seen in a running game (checked by emulation of each stock executable: the game's own font, width, draw, typing and text-box code).
 - **The patcher reads the games' text as Windows-1252** (all five games). Logs, last names, the Family Tree, Copy Player Slot, Check / Repair Saves & Logs and every other reader now show the characters the games show (the euro, curly quotes, Š and the rest were shown as invisible characters before); every byte is kept, so nothing the patcher copies or rewrites changes. No need to patch again for this part.
 

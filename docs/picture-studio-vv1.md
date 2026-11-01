@@ -151,6 +151,17 @@ The software blitter is 0x403D70 (place, cell, surface alpha, scale). It is repr
 
 Without Unicorn, pefile or the stock executable (CI), the emulated classes skip.
 
+## Text (the Text tab)
+
+A New Home builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 728 x 40, table 0x486888, 1 pixel between letters, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 793 x 54, table 0x4862A0, 27 pixels a line.
+
+They hold only space, ``! " ' , - . / 0-9 : ? A-Z ` a-z``. Every other byte draws "A", so the Text tab makes every other character in the font's style, accented letters included.
+
+The game's text draw is 0x409160 and its centred draw is 0x4094C0, box-centred 0x409510. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered or not proven
 
 - **Plain blits:** the blend arithmetic of SDL's own blitter is not emulated (SDL2.dll is not loaded).

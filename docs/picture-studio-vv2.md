@@ -107,6 +107,17 @@ with action frames (8) or walking frames (10), Resting (9 with an odd variant), 
   with the DLL's own checks (magic, version, game, entry size, length, FNV-1a hash); a damaged file is not
   read. A statue record's health is 0 (the totem maker 0x44D467), so the village draws only its own shadow.
 
+## Text (the Text tab)
+
+The Lost Children builds two bitmap fonts:
+
+- **Arial Bold**: `ldwarialbold.png`, 728 x 40, table 0x4958A8, 1 pixel between letters, 20 pixels a line.
+- **Burweed**: `ldwBurweed27.png`, 793 x 54, table 0x4952C0, 27 pixels a line.
+
+They hold only space, ``! " ' , - . / 0-9 : ? A-Z ` a-z``. Every other byte draws "A", so the Text tab makes every other character in the font's style, accented letters included.
+
+The game's text draw is 0x409360 and its centred draw is 0x4096B0, box-centred 0x409700. They are run in Unicorn on the stock executable, and every blit is compared with the Text tab's plan (`tests/test_pictures_text.py`). See [picture-studio-text.md](picture-studio-text.md).
+
 ## Not covered, or not proven
 
 * The Villager Details portrait (0x445540) and the strip figure (0x445950): they draw at up to 2x, and the

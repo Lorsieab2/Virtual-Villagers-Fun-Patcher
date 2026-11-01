@@ -147,6 +147,8 @@ FILES = [
     "data/statistics_features.json",
     # The Family Tree Maker's traced portrait shapes (scripts/build_tree_shapes.py).
     "data/tree_shapes.json",
+    # The Text tab's font cell tables, numbers only (scripts/build_vv_font_tables.py).
+    "data/vv_font_tables.json",
     "data/vv1_parentage_feature.json",
     "data/vv2_parentage_feature.json",
     "data/vv3_parentage_feature.json",
@@ -372,12 +374,33 @@ FILES = [
     "src/vv_pictures_vv3.py",
     "src/vv_pictures_vv4.py",
     "src/vv_pictures_vv5.py",
+    # Its Text tab: the games' font model, the tab, and the maker of missing glyphs.
+    "src/vv_pictures_text.py",
+    "src/vv_pictures_text_tab.py",
+    "src/vv_glyph_maker.py",
     "docs/picture-studio.md",
+    "docs/picture-studio-text.md",
     "docs/picture-studio-vv1.md",
     "docs/picture-studio-vv2.md",
     "docs/picture-studio-vv3.md",
     "docs/picture-studio-vv4.md",
     "docs/picture-studio-vv5.md",
+    # Picture Studio's Everything tab: every picture each game ships, by category (each game's table found by
+    # name), and the JPEG reader.  Still no game art: it is read from the player's own game.
+    "src/vv_picture_studio_everything.py",
+    "src/vv_pictures_assets.py",
+    "src/vv_jpeg.py",
+    "src/vv_assets_vv1.py",
+    "src/vv_assets_vv2.py",
+    "src/vv_assets_vv3.py",
+    "src/vv_assets_vv4.py",
+    "src/vv_assets_vv5.py",
+    "docs/picture-studio-assets.md",
+    "docs/picture-studio-assets-vv1.md",
+    "docs/picture-studio-assets-vv2.md",
+    "docs/picture-studio-assets-vv3.md",
+    "docs/picture-studio-assets-vv4.md",
+    "docs/picture-studio-assets-vv5.md",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

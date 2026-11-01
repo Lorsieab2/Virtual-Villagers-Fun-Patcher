@@ -51,8 +51,9 @@ class TheCodec(unittest.TestCase):
     def test_no_reader_of_game_text_is_left_on_latin_1(self):
         """Every src/ module and the cross-check script decode the games' bytes with GAME_TEXT.  Only two
         latin-1 reads remain, neither of game text: vv_save_layout counts ASCII record markers (it must stay
-        stdlib-only), and vv_font_glyphs reads a font file's Macintosh name record."""
-        allowed = {("vv_save_layout.py", 1), ("vv_font_glyphs.py", 1)}
+        stdlib-only), and vv_font_glyphs and Picture Studio's vv_glyph_maker read a font file's Macintosh name
+        record."""
+        allowed = {("vv_save_layout.py", 1), ("vv_font_glyphs.py", 1), ("vv_glyph_maker.py", 1)}
         found = set()
         for path in sorted((ROOT / "src").glob("*.py")) + [ROOT / "scripts" / "vvfp_consistency_check.py"]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
