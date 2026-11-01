@@ -183,7 +183,9 @@ class ReleasesLinkTests(unittest.TestCase):
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_vv1", "vv_pictures_vv2",
-               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5"}
+               "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5",
+               # Translations (the owner, 2026-11-01): the window, the game side and the shared file format.
+               "vv_translations_window", "vv_translations", "vv_translation_format"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves

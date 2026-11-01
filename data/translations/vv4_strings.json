@@ -3284,10 +3284,10 @@
    "notes": "eSayNovice"
   },
   {
-   "stem": "sm/eSayApprentice\t",
+   "stem": "sm/eSayApprentice",
    "stock_hash": "02ded049",
-   "context": "eSayApprentice\t",
-   "notes": "eSayApprentice\t"
+   "context": "eSayApprentice",
+   "notes": "eSayApprentice"
   },
   {
    "stem": "sm/eSayTrainee",
@@ -5921,10 +5921,10 @@
    "notes": "eReplayTutorialInstruction"
   },
   {
-   "stem": "sm/eTTipInstruct1\t\t\t\t\t",
+   "stem": "sm/eTTipInstruct1",
    "stock_hash": "8be4d430",
-   "context": "eTTipInstruct1\t\t\t\t\t",
-   "notes": "eTTipInstruct1\t\t\t\t\t"
+   "context": "eTTipInstruct1",
+   "notes": "eTTipInstruct1"
   },
   {
    "stem": "sm/eTTipInfo2",

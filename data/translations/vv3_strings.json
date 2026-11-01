@@ -1933,10 +1933,10 @@
    "notes": "general UI text: eSay* keys cover screen labels (e.g. eSayFood -> label 0x40d930) as well as villager status/message-bar lines; see the consumer in evidence"
   },
   {
-   "stem": "sm/eSayApprentice\t",
+   "stem": "sm/eSayApprentice",
    "stock_hash": "02ded049",
-   "context": "general UI text: eSay* keys cover screen labels (e.g. eSayFood -> label 0x40d930) as well as villager status/message-bar lines; see the consumer in evidence",
-   "notes": "general UI text: eSay* keys cover screen labels (e.g. eSayFood -> label 0x40d930) as well as villager status/message-bar lines; see the consumer in evidence"
+   "context": "eSayApprentice",
+   "notes": "eSayApprentice"
   },
   {
    "stem": "sm/eSayTrainee",
@@ -4730,10 +4730,10 @@
    "notes": "UI label / message (key name says where)"
   },
   {
-   "stem": "sm/eTTipInstruct1\t\t\t\t\t",
+   "stem": "sm/eTTipInstruct1",
    "stock_hash": "8be4d430",
-   "context": "tooltip",
-   "notes": "tooltip"
+   "context": "eTTipInstruct1",
+   "notes": "eTTipInstruct1"
   },
   {
    "stem": "sm/eTTipInfo2",

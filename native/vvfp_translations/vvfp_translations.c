@@ -2064,6 +2064,11 @@ static void __cdecl tr_after_loader(void) {
         while (name[n] && n < 200u) {
             ++n;
         }
+        /* Two of the games' own names end in tabs ("eSayApprentice\t"); a key spells them without
+           (src/vv_translations.py game_english). */
+        while (n > 0u && (name[n - 1u] == '\t' || name[n - 1u] == ' ')) {
+            --n;
+        }
         e = tr_lookup(g_sm_rows, name, n);
         if (e == NULL) {
             continue;

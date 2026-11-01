@@ -59,7 +59,10 @@ def game_number(game) -> int:
         value = getattr(game, attr, None)
         if isinstance(value, int) and 1 <= value <= 5:
             return value
-    text = str(getattr(game, "id", None) or getattr(game, "title", None) or game)
+    if isinstance(game, str):
+        text = game
+    else:
+        text = str(getattr(game, "id", None) or getattr(game, "title", None) or game)
     if text.lower().startswith("vv") and text[2:3].isdigit():
         return int(text[2])
     for number, title in TITLES.items():
@@ -199,8 +202,10 @@ def game_english(game, exe: Path, sm_xml: Path | None = None) -> dict[str, str]:
             name_raw = image.cstring(image.dword(entry + sm["name_offset"]))
             if not name_raw:
                 continue
+            # Two of the games' own names end in tabs ("eSayApprentice\t"): the key spells them without, as
+            # VVFP Translations.dll matches them (tr_after_loader); the sm.xml search keeps the game's own name.
             name = name_raw.decode("latin-1")
-            stem = f"sm/{name}"
+            stem = f"sm/{name.rstrip()}"
             if stem in out:
                 continue                       # a duplicate entry: the game uses the first
             raw = _sm_lookup(buffer, name) if buffer is not None else None
@@ -383,3 +388,63 @@ def current_choice(game_folder: Path) -> fmt.TranslationFile | None:
 def export_copy(source: Path, destination: Path) -> None:
     """Export translation...: the file as it is, to where the player chose."""
     _atomic_copy(Path(source), Path(destination))
+
+
+# ---- the patcher's own windows -------------------------------------------------------------------------
+#
+# A patcher window that shows a game's own words (a tech name, a menu word) can show them in the language the
+# player chose for that game in the Translations window: display_text(game, english).  Only for what is shown
+# on screen -- never for logs or files the patcher writes, which stay in the game's English.
+
+_display_choice: dict[int, Path | None] = {}
+_display_cache: dict[int, tuple[tuple[str, int], dict[str, str]]] = {}
+
+
+def set_display_choice(game, translation: Path | None) -> None:
+    """The translation the patcher's windows use for `game` (None: English)."""
+    number = game_number(game)
+    _display_choice[number] = Path(translation) if translation else None
+    _display_cache.pop(number, None)
+
+
+def _display_table(number: int, path: Path) -> dict[str, str]:
+    try:
+        stamp = (str(path), path.stat().st_mtime_ns)
+    except OSError:
+        return {}
+    cached = _display_cache.get(number)
+    if cached is not None and cached[0] == stamp:
+        return cached[1]
+    table: dict[str, str] = {}
+    try:
+        tf = fmt.read_file(path)
+    except (OSError, fmt.FormatError):
+        tf = None
+    if tf is not None and not fmt.check_info(tf, TITLES[number]):
+        for row in tf.rows:
+            if not row.translation or row.english in table:
+                continue
+            parts = fmt.split_key(row.key)
+            if parts is None or parts[2] != fmt.english_hash(row.english):
+                continue                        # the English column was edited: not this line
+            if any(i.severity == "error" for i in fmt.check_row(row.english, row.translation)):
+                continue                        # a line with a mistake stays English, as in the game
+            try:
+                table[row.english] = fmt.render(row.translation, code=tf.code)
+            except fmt.SelectError:
+                continue
+    _display_cache[number] = (stamp, table)
+    return table
+
+
+def display_text(game, english: str, translation: Path | None = None) -> str:
+    """`english` in the chosen language of `game` (or of `translation`), else `english` itself.  Read once per
+    file and refreshed when the file changes."""
+    try:
+        number = game_number(game)
+    except ValueError:
+        return english
+    path = Path(translation) if translation else _display_choice.get(number)
+    if path is None:
+        return english
+    return _display_table(number, path).get(english, english)

@@ -2,6 +2,15 @@
   "_comment": "The patcher window's \"?\" guides. One short, plain guide for every public patch (by patch id), every population mode (by mode id) and every button, tool and setting (by control key). Each guide is a list of short lines: what it does, how to use it, and what to watch out for. tests/test_how_to_use.py refuses a public patch, mode or control without one, and a guide that is too long or uses technical words. Write each from what the feature really does (its description in the patcher, README and How to Use.txt).",
   "patches": [
     {
+      "ids": ["vv1_translations", "vv2_translations", "vv3_translations", "vv4_translations", "vv5_translations"],
+      "guide": [
+        "Lets the game play in another language. Choose the language in Tools, Translations...; the game uses it from its next start, no re-patching.",
+        "On by default, and English until you choose a language: then the game is exactly as without this patch.",
+        "Lines a translation leaves out, or gets wrong, stay English. Words painted into pictures stay English.",
+        "Letters the game's font lacks (Turkish, Greek, Cyrillic, Chinese, Japanese) need Render Unicode with In-Game Fonts too."
+      ]
+    },
+    {
       "ids": ["vv1_learning_never_fails", "vv2_learning_never_fails", "vv3_learning_never_fails", "vv4_learning_never_fails"],
       "guide": [
         "Every time a villager practises Farming, Building, Research, Healing or Parenting at work, the skill check succeeds, so skills grow faster.",
@@ -1076,6 +1085,18 @@
         "Make your own: any head, body, mask, sex, age, life stage, pose and frame the game has, plus the patcher's own masks, grey hair and head look.",
         "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
         "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
+      ]
+    },
+    "translations": {
+      "title": "Translations",
+      "guide": [
+        "Plays a patched game in another language. Pick the game, then a Language: the game uses it from its next start, with no re-patching.",
+        "The game must be patched with the Translations row (on by default). English (original) brings back the game's own words.",
+        "Make a translation: pick your language; the editor opens with every English line of your game. Type on the right; it saves by itself.",
+        "Keep %d, %s and {name} exactly. The preview shows the line in the game's letters and warns when it may not fit its box.",
+        "Add translation file... (or drop a file on the window) checks a file and adds it; lines with mistakes stay English. Export translation... saves a copy.",
+        "Share on GitHub...: answer Yes, type the name to be credited as, then drag the file Explorer shows into the page that opens and press Submit.",
+        "Email addresses are never saved and are rejected from translation files."
       ]
     },
     "check_logs_automatically": {
