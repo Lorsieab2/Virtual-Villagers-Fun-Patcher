@@ -382,6 +382,38 @@ class VillageMatchesTheGame(_Emulated):
                                p4.Pose(pose=1, direction=direction))
                 self.check(p4.Look(age=120, head=2, body=3, item=item, litter=litter), p4.Pose(water=True))
 
+    def test_every_carried_item(self) -> None:
+        """Every item of vv_pictures_carried.VV4 (the patcher's Golden Mushroom included), in every direction,
+        walking (with twins and triplets), in action poses, as a child and held up by the hand, is blitted by
+        the game's own draw 0x467DA0 as the plan says.  The Golden Mushroom's stock blit (collectables frame
+        50) is what the patched game's world draw 0x44C640 swaps (carried_golden)."""
+        import carried_golden
+        import vv_pictures_carried as carried
+        golden = carried.GOLDEN_ITEM[p4.GAME]
+        frame50 = p4._draw_frame(self.renderer.sheets, p4.COLLECTABLES, 0, 0, 50, 1.0, 1.0, "")
+        n = 0
+        for it in carried.items(p4.GAME):
+            for direction in range(4):
+                cases = [(p4.Look(age=500, head=2, body=3, item=it.value, litter=litter), p4.Pose(pose=1,
+                                                                                               direction=direction))
+                         for litter in (1, 2, 3)]
+                cases += [(p4.Look(age=500, head=2, body=3, item=it.value), p4.Pose(pose=pose_no, direction=direction))
+                          for pose_no in (33, 40, 48)]
+                cases += [(p4.Look(age=120, female=True, head=5, body=6, item=it.value), p4.Pose(pose=6,
+                                                                                              direction=direction)),
+                          (p4.Look(age=600, head=5, body=6, item=it.value), p4.Pose(pose=4, direction=direction,
+                                                                                    held=True))]
+                for look, pose in cases:
+                    stock = p4.plan_village(self.renderer.sheets, self.tables, look, pose, golden_art=False)
+                    self.assertEqual(keys(stock), self.game.village(look, pose), (it.name, look, pose))
+                    if it.value == golden:
+                        self.assertEqual(keys(p4.plan_village(self.renderer.sheets, self.tables, look, pose)),
+                                         carried_golden.swapped(stock, p4.GAME,
+                                                                lambda d: (d.file, d.rect) == (frame50.file,
+                                                                                               frame50.rect)))
+                    n += 1
+        self.assertEqual(n, len(carried.items(p4.GAME)) * 4 * 8)
+
     def test_shadow_left_out_is_the_shadow_draw_only(self) -> None:
         look, pose = p4.Look(age=300, head=6, body=8), p4.Pose(pose=3, direction=2)
         full = self.plan(look, pose)

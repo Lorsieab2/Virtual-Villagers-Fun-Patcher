@@ -53,6 +53,11 @@ THE PATCHER'S OWN ART.
     always under the head look Old, never under Young (native/vv1_grey_hair/vv1_grey_hair.c drawn_grey).
     The masks still see the young sheet, so a grey head keeps its mask.
   * Change Appearance's head look: the save's "Head Looks - Save <S>.dat" (vv_pictures_common).
+  * The Golden Mushroom (Super-Secret Golden Mushroom, carried as item 15): "VVFP Golden Mushroom.dll"
+    draws golden_mushroom.png in place of carrying.png frame 15, 6 right and 2 down (vv_pictures_carried).
+
+WHAT A VILLAGER CARRIES: every item the game (or the patcher) puts in +0x3C is named in
+vv_pictures_carried.VV1, with the ones nothing stores marked unused.
 """
 from __future__ import annotations
 
@@ -60,6 +65,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 import vv_picture_image as pi
+import vv_pictures_carried as carried
 import vv_pictures_common as common
 
 GAME = 1
@@ -94,8 +100,9 @@ GREY_ATLAS = {True: pi.Atlas(GREY[True], 7, 20), False: pi.Atlas(GREY[False], 7,
 
 HEAD_ROWS = 20
 BODY_ROWS = 20
-ITEMS = 15
 RIPPLE_ALPHA = pi.f32(0.4)
+SAVE_EXPECTING = 0x358 - 0x370      # the conception stamp, from the name: non-zero = carrying the baby
+SAVE_LITTER = 0x35C - 0x370         # the litter (2 twins, 3 triplets)
 SHADOW_HELD_ALPHA = 0.5
 
 
@@ -108,6 +115,7 @@ def required_files() -> list[str]:
 
 def patcher_art() -> dict[str, Path]:
     return {
+        carried.GOLDEN_FILE: carried.GOLDEN_ART,
         MASK_FILE: ROOT / "assets" / "origins" / "mask_atlas.png",
         GREY[True]: ROOT / "assets" / "vv1_grey_hair" / "vvfp_grey_male_heads.png",
         GREY[False]: ROOT / "assets" / "vv1_grey_hair" / "vvfp_grey_female_heads.png",
@@ -137,6 +145,7 @@ class Villager:
     ripple: int = 0                 # the random ripple frame (0x402F70 & 3)
     mask: int = 0                   # the Origins cosmetic mask 1..5 (patcher)
     grey: bool = False              # drawn from Grey Hair's sheet (patcher)
+    expecting: bool = False         # +0x358 non-zero: carries the baby (item 3) after loading
 
 
 def _cdiv(a: int, b: int) -> int:
@@ -185,10 +194,12 @@ class Planner:
         self.out.append(pi.Draw(name, rect, self.x0 + x + dx, self.y0 + y + dy, pi.percent_scale(percent), what=what))
 
 
-def plan(v: Villager, sheets: pi.Sheets, x: int = 0, y: int = 0, shadow: bool = True) -> list[pi.Draw]:
+def plan(v: Villager, sheets: pi.Sheets, x: int = 0, y: int = 0, shadow: bool = True,
+         golden_art: bool = True) -> list[pi.Draw]:
     """The blits 0x437790 makes for one record at (x, y) (camera at 0), with the patcher's masks and
     grey heads.  `shadow` False leaves out the shadow and selection circle (a picture of the villager
-    alone; the game always draws them)."""
+    alone; the game always draws them).  `golden_art` False leaves the Golden Mushroom (item 15) to the
+    stock frame draw, as the game draws it without the "VVFP Golden Mushroom.dll" companion."""
     p = Planner(sheets, x, y)
     if v.state == 4:                    # 0x4377BE: a record in state 4 is not drawn at all
         return p.out
@@ -218,6 +229,11 @@ def plan(v: Villager, sheets: pi.Sheets, x: int = 0, y: int = 0, shadow: bool = 
             p.cell(MASK_ATLAS, hx, hy - 48, v.mask - 1, col, "mask")
 
     def item(ix: int, iy: int) -> None:
+        if golden_art and v.item == carried.GOLDEN_ITEM[GAME]:
+            # VVFP Golden Mushroom.dll at the frame-draw thunk 0x4093D0: carrying.png frame 15 becomes
+            # golden_mushroom.png (frame 0 of a 1 x 1 sprite) moved by (6, 2)
+            p.out.append(carried.golden_draw(GAME, p.x0 + ix, p.y0 + iy, sheets=sheets))
+            return
         p.frame(CARRYING, ix, iy, v.item, "carried")
 
     if v.health <= 0:
@@ -315,12 +331,10 @@ def pose_fields() -> tuple:
         pi.Field("direction", "Body direction", _options(DIRECTIONS), 2),
         pi.Field("frame", "Frame", tuple(pi.Option(f, f"Frame {f + 1}") for f in range(9)), 0),
         pi.Field("head_col", "Head facing", _options(HEAD_FACINGS), 5),
-        pi.Field("item", "Carrying", (pi.Option(NO_ITEM, "Nothing"),)
-                 + tuple(pi.Option(i, f"Carried item {i + 1}" + (" (a baby)" if i == 3 else ""))
-                         for i in range(ITEMS)),
-                 NO_ITEM),
-        pi.Field("litter", "Carried copies (litter +0x35C)",
-                 _options(((0, "One"), (1, "Two (litter 1)"), (2, "Two (twins)"), (3, "Three (triplets)"))), 0),
+        pi.Field("item", "Carrying", carried.options(GAME), NO_ITEM),
+        pi.Field("litter", "Babies carried (litter +0x35C)",
+                 _options(((0, "One"), (2, "Twins (the item drawn twice)"), (3, "Triplets (the item drawn three times)"),
+                           (1, "Two (litter 1: never set by the game)"))), 0),
         pi.Field("shadow", "Shadow", _options(((True, "Shadow (as the game draws it)"), (False, "No shadow"))), True),
         pi.Field("selected", "Selected", _options(((False, "Not selected"), (True, "Selected (circle)"))), False),
         pi.Field("held", "Held by the hand", _options(((False, "On the ground"), (True, "Picked up"))), False),
@@ -331,8 +345,18 @@ def pose_fields() -> tuple:
 
 def saved_pose_fields() -> tuple:
     """From my save: the pose pickers, and whether the save's game has Grey Hair at 55 (the window may
-    set the default from the game copy; the patch is on by default)."""
-    return pose_fields() + (
+    set the default from the game copy; the patch is on by default).  The save does not keep the carried
+    item (+0x3C is outside the saved +0x33C..+0x3D8): after loading, the reset 0x439470 gives a villager
+    expecting (+0x358 non-zero) the baby, item 3, and everyone else nothing -- the "As the game shows it"
+    choice; the litter +0x35C is saved."""
+    fields = []
+    for f in pose_fields():
+        if f.key == "item":
+            f = pi.Field("item", f.label, carried.options(GAME, saved=True), carried.SAVED)
+        elif f.key == "litter":
+            f = pi.Field("litter", f.label, (pi.Option(carried.SAVED, "As in the save"),) + f.options, carried.SAVED)
+        fields.append(f)
+    return tuple(fields) + (
         pi.Field("grey_hair", "Grey Hair at 55",
                  (pi.Option(True, "On (grey from 55, or as the head look says)", patcher=True),
                   pi.Option(False, "Off (the stock game: never grey)")), True),
@@ -349,7 +373,8 @@ def _apply_pose(v: Villager, pose: dict) -> tuple[Villager, bool]:
     v = replace(v, state=POSE_STATE[name], frame=frame,
                 direction=int(pose.get("direction", v.direction)) & 3,
                 head_col=int(pose.get("head_col", v.head_col)),
-                item=int(pose.get("item", v.item)), litter=int(pose.get("litter", v.litter)),
+                item=carried.resolve(pose.get("item", v.item), v.expecting, NO_ITEM),
+                litter=v.litter if pose.get("litter") in (None, carried.SAVED) else int(pose["litter"]),
                 selected=bool(pose.get("selected", False)), held=bool(pose.get("held", False)),
                 water=name == "swim", ripple=int(pose.get("ripple", 0)) & 3,
                 act=6 if name == "golden_act" else 0)
@@ -366,6 +391,10 @@ def stage_word(age: int, golden: bool = False) -> str:
     if age < ADULT:
         return "child"
     return "elder" if age >= common.OLD_AGE else "adult"
+
+
+def _babies(litter: int) -> str:
+    return {2: "twins", 3: "triplets"}.get(litter, "a baby")
 
 
 class Renderer:
@@ -388,7 +417,8 @@ class Renderer:
         """The record as the save keeps it (+0x33C..+0x3D8 of each record; offsets from the name +0x370)."""
         golden = s.i32(0x36C - 0x370) == GOLDEN
         return Villager(male=s.male, age=s.age, head=s.head, body=s.body, health=s.health, golden=golden,
-                        bones=s.i32(0x368 - 0x370), mask=s.mask,
+                        bones=s.i32(0x368 - 0x370), mask=s.mask, expecting=s.i32(SAVE_EXPECTING) != 0,
+                        litter=s.i32(SAVE_LITTER),
                         grey=common.old_head(s.age, s.look))
 
     def saved_items(self, folder, slot: int) -> list[pi.SavedItem]:
@@ -403,7 +433,8 @@ class Renderer:
             detail = (f"{'Male' if s.male else 'Female'}, {common.age_label(s.age)}; head {s.head}, body {s.body}; "
                       f"mask: {common.MASK_NAMES[s.mask] if 0 <= s.mask < len(common.MASK_NAMES) else s.mask}; "
                       f"head look: {common.LOOK_NAMES.get(s.look, s.look)}"
-                      + ("; grey (Grey Hair at 55)" if v.grey and not s.dead else ""))
+                      + ("; grey (Grey Hair at 55)" if v.grey and not s.dead else "")
+                      + (f"; expecting: carries {_babies(v.litter)}" if v.expecting and not s.dead else ""))
             out.append(pi.SavedItem(str(s.rank), label, where, kind, detail))
         return out
 

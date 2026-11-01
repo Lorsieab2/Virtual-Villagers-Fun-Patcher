@@ -14,7 +14,8 @@ THE DRAW CODE, ported.  The village compositor 0x445B50 (one loop over the 256 r
     walking / standing (0, 5, 9), bending (1), sitting (2), arms up (3), in the air (8, 10), resting
     (9 with an odd +0x550) -- or swimming in deep water (terrain 0x18 at its feet: the ripple and the head);
   * what it carries (+0x44: carrying.png, collectables_images.png) and, for a litter (+0x544), the
-    copies the game draws of it.
+    copies the game draws of it.  Every item the game (or the patcher) carries is named in
+    vv_pictures_carried.VV2; the Golden Mushroom (the patch's 0x50) is the game's own collectables picture.
 
 Every one of those branches is in `plan()` below in the game's own order, with the game's own offsets,
 cells and scales; tests/test_pictures_vv2.py runs the compositor itself in Unicorn on the stock
@@ -48,6 +49,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 import vv_picture_image as pi
+import vv_pictures_carried as carried
 import vv_pictures_common as common
 
 GAME = 2
@@ -200,6 +202,7 @@ class State:
     mask: int = 0                   # the Origins patch's mask, 1..5 (0: none)
     masks_patch: bool = True        # the mask stubs are in the game
     look: int = common.LOOK_AUTO    # Change Appearance's head look
+    expecting: bool = False         # +0x540 non-zero (saved): the game gives the baby, item 3, after loading
 
 
 def _cdiv(a: int, b: int) -> int:
@@ -438,14 +441,19 @@ SHADOWS = (("shadow", "Shadow"), ("none", "No shadow"), ("selected", "Shadow and
 MASK_OPTIONS = tuple(pi.Option(k, common.MASK_NAMES[k], patcher=k > 0) for k in range(6))
 
 
-def _carry_options() -> tuple:
-    out = [pi.Option(NO_ITEM, "Nothing")]
-    out += [pi.Option(k, f"carrying.png picture {k + 1}") for k in range(26)]
-    out += [pi.Option(k, f"collectables_images.png picture {k - 0x1A + 1}") for k in range(0x1B, 0x1B + 54)]
-    return tuple(out)
+def _carry_options(saved: bool = False) -> tuple:
+    """Every item (vv_pictures_carried.VV2): carrying.png below 0x1A; from 0x1E the collectables (a walking
+    child draws collectables_images.png cell item - 0x1E, a bending child item - 0x1A, an adult carrying.png
+    at the item's own number -- all as the game does)."""
+    return carried.options(GAME, saved)
 
 
-def pose_fields() -> tuple:
+LITTERS = (0, 2, 3)                     # +0x544: one baby 0, twins 2, triplets 3 (0x44B980)
+
+
+def pose_fields(saved: bool = False) -> tuple:
+    litter = pi.Field("litter", "Babies carried", carried.litter_options(LITTERS, saved),
+                      carried.SAVED if saved else 0)
     return (
         pi.Field("pose", "Pose", tuple(pi.Option(k, t) for k, t in POSES), "walk"),
         pi.Field("direction", "Direction", tuple(pi.Option(k, t) for k, t in DIRECTIONS), 0),
@@ -453,7 +461,8 @@ def pose_fields() -> tuple:
         pi.Field("facing", "Head turned", tuple(pi.Option(k, t) for k, t in FACINGS), 5),
         pi.Field("height", "Height in the air", tuple(pi.Option(k, f"{k} pixels") for k in (0, 4, 8, 12, 16, 20)), 8),
         pi.Field("ripple", "Ripple frame", tuple(pi.Option(k, f"Frame {k + 1}") for k in range(4)), 0),
-        pi.Field("carrying", "Carrying", _carry_options(), NO_ITEM),
+        pi.Field("carrying", "Carrying", _carry_options(saved), carried.SAVED if saved else NO_ITEM),
+        litter,
         pi.Field("shadow", "Shadow", tuple(pi.Option(k, t) for k, t in SHADOWS), "shadow"),
     )
 
@@ -468,7 +477,9 @@ def _apply_pose(st: State, pose: dict) -> State:
         frame = min(frame, 3)
     st = replace(st, state=POSE_STATE[name], direction=int(pose.get("direction", 0) or 0), frame=frame,
                  facing=int(pose.get("facing", 5) if pose.get("facing") is not None else 5),
-                 height=int(pose.get("height", 8) or 0), item=int(pose.get("carrying", NO_ITEM)),
+                 height=int(pose.get("height", 8) or 0),
+                 item=carried.resolve(pose.get("carrying", NO_ITEM), st.expecting, NO_ITEM),
+                 litter=st.litter if pose.get("litter") in (None, carried.SAVED) else int(pose["litter"]),
                  timer=int(pose.get("ripple", 0) or 0),
                  selected=shadow == "selected", held=shadow == "held")
     if name == "swim":
@@ -549,6 +560,10 @@ def read_totems(folder: Path, slot: int, data: bytes | None = None) -> list[dict
     return out
 
 
+def _babies(litter: int) -> str:
+    return {2: "twins", 3: "triplets"}.get(litter, "a baby")
+
+
 class Renderer:
     game = GAME
 
@@ -568,6 +583,7 @@ class Renderer:
             for v in people:
                 st = State(male=v.male, age=v.age, head=v.head, body=v.body, health=v.health,
                            litter=v.i32(0x544 - 0x564), variant=v.i32(0x550 - 0x564), statue=v.statue,
+                           expecting=v.i32(0x540 - 0x564) != 0,
                            mask=v.mask, look=v.look)
                 found[f"r{v.rank}"] = _Saved(v, st, v.name)
             for k, t in enumerate(read_totems(Path(folder), int(slot), people[0].data if people else None)):
@@ -599,13 +615,17 @@ class Renderer:
             look = common.LOOK_NAMES.get(v.look, "Auto")
             detail = (f"{v.name}: {'male' if v.male else 'female'}, {common.age_label(v.age)} ({v.age} age units), "
                       f"{stage}; head {v.head}, body {v.body}; mask: {common.MASK_NAMES[v.mask] if v.mask < 6 else v.mask}; "
-                      f"head look: {look}" + (f"; statue {_crem(st.variant, 8) + 1}" if v.statue else ""))
+                      f"head look: {look}" + (f"; statue {_crem(st.variant, 8) + 1}" if v.statue else "")
+                      + (f"; expecting: carries {_babies(st.litter)}" if st.expecting and not (v.dead or v.statue)
+                         else ""))
             out.append(pi.SavedItem(item_id, label, location, kind, detail))
         order = {"Villagers": 0, "Bodies awaiting burial": 1, "Esteemed Elder statues": 2}
         return sorted(out, key=lambda i: order[i.location])
 
     def saved_fields(self) -> tuple:
-        return pose_fields()
+        """The save does not keep +0x44 (the packer 0x44B580 saves +0x524..+0x804): after loading, the job
+        reset 0x4492A0 gives the baby (3) to a villager whose +0x540 is set, nothing to the rest."""
+        return pose_fields(saved=True)
 
     def plan_saved(self, save_folder, slot: int, item_id: str, **pose) -> list[pi.Draw]:
         saved = self._read(save_folder, slot).get(item_id)
