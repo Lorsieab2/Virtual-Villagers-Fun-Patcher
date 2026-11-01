@@ -72,6 +72,9 @@ STDCALL = {
     # The original looks companion (native/vvfp_original_look) looks at the village between frames: a
     # WH_GETMESSAGE hook on the game's own thread and a thread timer, set at start.
     "GetCurrentThreadId": 0, "SetWindowsHookExA": 16, "SetTimer": 16,
+    # The translations companion (native/vvfp_translations) opens "Translation\Translation.txt" with
+    # OPEN_EXISTING (CreateFileW above answers INVALID_HANDLE_VALUE when it is not there) and, with no file,
+    # does nothing more.
 }
 # What the emulated machine answers for the Documents folder and the local time.
 # Not under \\Users\\<name>: a tracked file never names an account (test_archive_has_no_personal_paths).
@@ -377,6 +380,9 @@ class StartupMachine:
         elif name == "CreateFileW":
             path = wstr(arg(0))
             self.calls.append((name, path, arg(1), arg(4)))
+            if arg(4) == 3 and path not in self.files:       # OPEN_EXISTING a file that is not there
+                ret(0xFFFFFFFF)                               # INVALID_HANDLE_VALUE, as Windows answers
+                return
             self._open_path = path
             self.files.setdefault(path, b"")
             ret(FILE_HANDLE)

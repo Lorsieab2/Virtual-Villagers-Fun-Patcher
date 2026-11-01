@@ -443,7 +443,7 @@ def _patcher() -> list[Entry]:
          "(ties: Farming, Building, Research, Healing, Parenting, in that order); the No Parenting one ignores "
          "Parenting; a villager with no progress yet keeps theirs.", UNCONFIRMED),
         ("All Villagers Like Running", f"{vw}: {_tp(1_000_000)}: every villager likes running (an adult who likes "
-                                       "running walks at speed 300 instead of 150).", UNCONFIRMED),
+                                       "running walks at speed 300 instead of 100).", UNCONFIRMED),
         ("Grant Full Mastery to All Villagers", f"{vw}: {_tp(1_000_000)}: every villager's five skills become 100.",
          UNCONFIRMED),
         ("All Villagers are Exactly 18", f"{vw}: {_tp(1_000_000)}: every villager's age becomes exactly 18 (360 age "

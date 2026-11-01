@@ -34,6 +34,9 @@ REMAINING = {
     "vv2_totems_out_of_entries",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
     "vv2_unicode_text",
+    # companion only: writes the string table and its sites at run time, only while a language is chosen;
+    # owns no executable bytes and no Origins bytes
+    "vv2_translations",
     # companion only: detours the SDL_KEYDOWN case at run time, owns no bytes
     "vv2_copy_paste",
     "vv2_island_events",

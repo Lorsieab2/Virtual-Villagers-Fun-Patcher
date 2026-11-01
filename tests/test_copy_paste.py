@@ -200,9 +200,11 @@ class TheRows(unittest.TestCase):
             self.assertEqual(module.row(number, sha), _manifest(game))
 
     def test_started_by_the_startup_loader_second_word_after_unicode_text(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[5:], ("VVFP Unicode Text.dll", DLL_NAME))
+        names = list(patcher.STARTUP_LOADER_COMPANIONS_2)
+        self.assertEqual(names[-1], DLL_NAME)                       # appended last (append only)
+        self.assertLess(names.index("VVFP Unicode Text.dll"), names.index(DLL_NAME))
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
-        self.assertIn('    "VVFP Unicode Text.dll",\n    "VVFP Copy and Paste.dll",\n    /* APPEND ONLY', header)
+        self.assertIn('    "VVFP Copy and Paste.dll",\n    /* APPEND ONLY', header)
         loader = (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes()
         self.assertIn(DLL_NAME.encode(), loader)
         self.assertEqual(hashlib.sha256(loader).hexdigest().upper(), patcher.STARTUP_LOADER_COMPANION["sha256"])

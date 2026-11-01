@@ -396,7 +396,7 @@ class Vitals(unittest.TestCase):
                 gross, _low, credit, on, need = (n(m.group(k)) for k in range(1, 6))
                 self.assertLessEqual(abs(credit - 8 * refilled), 8)
                 self.assertLessEqual(abs(need - max(0, gross - credit - on)), 2)
-                self.assertIn("they count here once gatherers pick them", vitals)
+                self.assertIn("they count here once farmers pick them", vitals)
                 self.assertRegex(vitals, r"Closed for 24 real-life hours: .*about [\d,]+ on the sources \(each stops at its "
                                          r"limit\); net change about [+-][\d,]+ once that is picked\.")
                 self.assertRegex(vitals, r"To fill the gap of about [\d,]+ food per real-life hour|The refills cover the eating")
