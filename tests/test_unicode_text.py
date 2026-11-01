@@ -146,7 +146,11 @@ class TheRows(unittest.TestCase):
             self.assertEqual(module.row(number, sha, TABLES), _manifest(game))
 
     def test_started_by_the_startup_loader_second_word(self):
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_2[-1], DLL_NAME)
+        # Appended after VVFP Original Look.dll; VVFP Translations.dll (#672) comes after it, so it finds this
+        # companion's VvfpGlyphsUtf8 already loaded.
+        names = list(patcher.STARTUP_LOADER_COMPANIONS_2)
+        self.assertEqual(names[names.index("VVFP Original Look.dll") + 1], DLL_NAME)
+        self.assertLess(names.index(DLL_NAME), names.index("VVFP Translations.dll"))
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Original Look.dll",\n    "VVFP Unicode Text.dll",\n', header)
         self.assertIn(DLL_NAME.encode(), (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())
