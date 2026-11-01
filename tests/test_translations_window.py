@@ -451,6 +451,79 @@ class WindowTests(TkCase):
         window.close()
 
 
+class UnsavedEditsTests(WindowTests):
+    """Codex, #672: closing with edits that could not be saved, answered "No" to "Close anyway?", keeps both
+    the editor and the Translations window open."""
+
+    def test_a_failed_save_and_no_keeps_both_windows(self) -> None:
+        window = self.open()
+        rows = template_rows()
+        editor = window.open_editor("Français", "fr", rows=rows)
+        self.pump()
+        editor.set_translation(rows[1].row.key, "Bonjour")
+        self.assertTrue(editor.dirty)
+        with mock.patch.object(editor, "save", return_value=False), \
+                mock.patch.object(w.messagebox, "askyesno", return_value=False) as ask:
+            self.assertFalse(window.close())
+        ask.assert_called_once()
+        self.assertTrue(editor.top.winfo_exists())
+        self.assertTrue(window.top.winfo_exists())
+        self.assertTrue(editor.dirty)                                   # the edit is still there
+        with mock.patch.object(editor, "save", return_value=False), \
+                mock.patch.object(w.messagebox, "askyesno", return_value=True):
+            self.assertTrue(window.close())                             # "Yes": both close
+        self.assertFalse(window.top.winfo_exists())
+
+
+class RememberedChoiceTests(TempTranslations):
+    """Codex, #672: a language chosen before any patched copy existed is used by the copies built later."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.installed = tr.install_file(GAME, write_translation(self.temp / "fr.txt"))
+        self.copy = self.temp / "games" / f"{TITLE} - Modded (Stock)"
+        (self.copy / tr.PATCHER_FILES).mkdir(parents=True)
+
+    def test_after_build_applies_the_remembered_language(self) -> None:
+        app = SimpleNamespace(translation_choices={"vv3": {"file": self.installed.name}})
+        self.assertEqual(w.apply_after_build(app, "vv3", self.copy), self.installed)
+        self.assertEqual(tr.runtime_path(self.copy).read_bytes(), self.installed.read_bytes())
+        app.translation_choices["vv3"]["file"] = ""                    # English chosen: removed
+        self.assertIsNone(w.apply_after_build(app, "vv3", self.copy))
+        self.assertFalse(tr.runtime_path(self.copy).exists())
+
+    def test_nothing_chosen_leaves_the_copy_as_built(self) -> None:
+        tr.apply_choice(self.copy, self.installed)                     # e.g. a file the player put there
+        app = SimpleNamespace(translation_choices={})
+        self.assertIsNone(w.apply_after_build(app, "vv3", self.copy))
+        self.assertTrue(tr.runtime_path(self.copy).is_file())
+
+    def test_apply_patch_applies_the_saved_choice(self) -> None:
+        import json
+        import vv_fun_patcher as vfp
+        settings = self.temp / "patcher_local_settings.json"
+        settings.write_text(json.dumps({"translations": {"vv3": {"file": self.installed.name}}}), encoding="utf-8")
+        ships = SimpleNamespace(raw={"companion_files": [{"destination": "VVFP Translations.dll"}]})
+        other = SimpleNamespace(raw={"companion_files": [{"destination": "VVFP Origins Icons.dll"}]})
+        with mock.patch.object(tr, "SETTINGS_FILE", settings):
+            vfp._apply_remembered_translation(SimpleNamespace(id="vv3"), self.copy, [other])
+            self.assertFalse(tr.runtime_path(self.copy).exists())     # a build without the Translations row
+            vfp._apply_remembered_translation(SimpleNamespace(id="vv3"), self.copy, [other, ships])
+        self.assertEqual(tr.runtime_path(self.copy).read_bytes(), self.installed.read_bytes())
+
+    def test_apply_patch_calls_it_after_publishing(self) -> None:
+        import inspect
+        import vv_fun_patcher as vfp
+        source = inspect.getsource(vfp.apply_patch)
+        self.assertLess(source.index("_apply_remembered_translation(build, output_folder, fun_patches)"),
+                        source.index("return output, log_path"))
+        gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        apply_one = gui[gui.index("    def _apply(self)"):gui.index("    def _apply_all(self)")]
+        apply_all = gui[gui.index("    def _apply_all(self)"):]
+        self.assertIn("vv_translations_window.apply_after_build(self, build.id, output.parent)", apply_one)
+        self.assertIn("vv_translations_window.apply_after_build(self, build.id, output.parent)", apply_all)
+
+
 class EditorTests(TkCase):
     def setUp(self) -> None:
         super().setUp()

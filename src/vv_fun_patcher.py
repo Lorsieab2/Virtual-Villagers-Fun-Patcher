@@ -13403,8 +13403,25 @@ def apply_patch(
     finally:
         if staging_folder.exists():
             _cleanup_owned_tree(staging_folder)
+    _apply_remembered_translation(build, output_folder, fun_patches)
     refresh_shell_icons(output)
     return output, log_path
+
+
+def _apply_remembered_translation(build: "Build", output_folder: Path, fun_patches: list) -> None:
+    """A build that ships "VVFP Translations.dll" gets the language the Translations window remembers for its
+    game (src/vv_translations.py apply_remembered; Codex, #672: a language chosen before this copy existed was
+    remembered but never used).  A failure here never fails the finished build: the game is then English and
+    the Translations window applies the choice again when it is opened."""
+    ships = any(str(item.get("destination", "")).casefold() == "vvfp translations.dll"
+                for feature in fun_patches for item in feature.raw.get("companion_files", []))
+    if not ships:
+        return
+    try:
+        import vv_translations
+        vv_translations.apply_remembered(build.id, output_folder)
+    except (OSError, ValueError):
+        pass
 
 
 SHCNE_UPDATEITEM = 0x00002000

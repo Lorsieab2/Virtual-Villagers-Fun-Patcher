@@ -2519,6 +2519,8 @@ class App(tk.Tk):
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
+            # The language chosen in the Translations window, also when it was chosen before this copy existed.
+            vv_translations_window.apply_after_build(self, build.id, output.parent)
             self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(
                 f"Success. Created {output.name} in {output.parent.name}."
@@ -2589,6 +2591,8 @@ class App(tk.Tk):
                 build.id: output
                 for (build, _), (output, _) in zip(validated, results, strict=True)
             }
+            for (build, _), (output, _) in zip(validated, results, strict=True):
+                vv_translations_window.apply_after_build(self, build.id, output.parent)
             self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set("Success. Created all five modified game folders.")
             self._save_settings()

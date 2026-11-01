@@ -387,6 +387,46 @@ def apply_choice(game_folder: Path, translation: Path | None) -> None:
     _atomic_copy(Path(translation), target)
 
 
+# The patcher's local settings, where the Translations window remembers each game's language
+# (vv_translations_window.SETTINGS_KEY: {"vv3": {"file": "<installed file name>" or "" for English, ...}}).
+SETTINGS_FILE = ROOT / "patcher_local_settings.json"
+SETTINGS_KEY = "translations"
+
+
+def remembered_choice(game, settings: dict | None = None, settings_file: Path | None = None):
+    """The language remembered for `game`: (True, path) for a chosen installed file, (True, None) for English
+    chosen, (False, None) when nothing was ever chosen (or the remembered file is gone)."""
+    number = game_number(game)
+    if settings is None:
+        try:
+            settings = json.loads(Path(settings_file or SETTINGS_FILE).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return False, None
+    store = settings.get(SETTINGS_KEY) if isinstance(settings, dict) else None
+    entry = store.get(f"vv{number}") if isinstance(store, dict) else None
+    if not isinstance(entry, dict) or not isinstance(entry.get("file", ""), str):
+        return False, None
+    name = entry.get("file", "")
+    if not name:
+        return True, None
+    if Path(name).name != name:
+        return False, None
+    path = game_dir(number) / name
+    return (True, path) if path.is_file() else (False, None)
+
+
+def apply_remembered(game, game_folder: Path, settings: dict | None = None,
+                     settings_file: Path | None = None) -> Path | None:
+    """After a build (Codex, #672): the patched copy in `game_folder` gets the language remembered for its game,
+    so a language chosen before this copy existed is used from its first start.  Nothing ever chosen: the folder
+    is left as the build made it.  Returns the translation applied (None: English or nothing)."""
+    known, path = remembered_choice(game, settings, settings_file)
+    if not known or not (Path(game_folder) / PATCHER_FILES).is_dir():
+        return None
+    apply_choice(game_folder, path)
+    return path
+
+
 def current_choice(game_folder: Path) -> fmt.TranslationFile | None:
     target = runtime_path(game_folder)
     if not target.is_file():

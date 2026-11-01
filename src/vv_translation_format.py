@@ -768,6 +768,12 @@ def subjects_from_notes(notes: str) -> dict[str, str]:
     return out
 
 
+def _outside_selects(text: str) -> str:
+    """`text` without its selects (escaped braces kept as written)."""
+    plain = _strip_escaped_braces(text)
+    return "".join(piece for piece, is_select in _split_selects_loose(plain) if not is_select)
+
+
 def _safe_selects(text: str) -> list[Select]:
     try:
         return parse_selects(text)
@@ -834,14 +840,20 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
             continue
         if kind and kind != sel.kind:
             err(f"{{{sel.subject}: ...}} uses {sel.kind} keys, but {sel.subject} is a {kind} here")
+    # The same rules VVFP Translations.dll applies (tr_game_codes_ok): a token is kept when it is outside the
+    # selects or in every branch of one; a forbidden character may appear nowhere, in no branch either.
+    outside = _outside_selects(translation) if selects else translation
+    branches = [value for sel in selects for value in sel.branches.values()]
     for token in rules.required_tokens:
-        if token not in plain_tr and token in english:
+        kept = token in outside or any(sel.branches and all(token in v for v in sel.branches.values())
+                                        for sel in selects)
+        if token in english and not kept:
             err(f"the game token {token!r} must stay in this line")
     for token in rules.tokens:
         if token in english and token not in translation and token not in rules.required_tokens:
             warn(f"the game token {token!r} from the English is not in the translation")
     for ch in rules.forbid_chars:
-        if ch in plain_tr and ch not in english:
+        if ch not in english and (ch in outside or any(ch in v for v in branches)):
             err(f"the character {ch!r} has a meaning to the game in this line; it cannot be added")
     if english[:1].isspace() != translation[:1].isspace() or english[-1:].isspace() != translation[-1:].isspace():
         warn("the spaces at the start or end differ from the English")

@@ -652,6 +652,89 @@ static void tr_notes_subjects(tr_span notes, tr_subjects *out) {
 }
 
 static tr_parsed g_ptr, g_pen;      /* the translation and the English being checked */
+
+/* A New Home's and The Lost Children's island-event codes (scripts/build_translations_inventory.py row_entry:
+   EVENT_TOKENS + PIECE_TOKENS, the inventory's tokens / forbid_chars / required_tokens / selects_allowed). */
+static const char TR_EVENT_CODES[] = "*^&";
+static const char TR_GAME_CODES[] = "*^&+=|~@#$";
+static const char TR_PIECE_CODES[] = "|~@#$";
+
+static int tr_cp_in(tr_cp c, const char *set) {
+    for (; *set; ++set) {
+        if (c == (tr_cp)(unsigned char)*set) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int tr_has(const tr_cp *t, int n, tr_cp c) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (t[i] == c) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* No game code the English lacks: 1 when t[0..n) adds none. */
+static int tr_codes_ok(const tr_row *row, const tr_cp *t, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (tr_cp_in(t[i], TR_GAME_CODES) && !tr_has(row->en, row->en_n, t[i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* The editor's row rules for an island-event line of A New Home or The Lost Children (the English has one of
+   * ^ & | ~ @ # $), applied to the parsed translation in g_ptr: no code the English lacks (outside the selects
+   and in every branch), '*' kept when the English has it (outside the selects, or in every branch of one),
+   and no select at all in a line with the outcome-piece codes.  Any other row: 1. */
+static int tr_game_codes_ok(const tr_row *row) {
+    int i, k, has_event = 0, has_piece = 0, star = 0;
+    if (row->source != TR_SRC_TABLE || g_game < 1 || g_game > 2) {
+        return 1;
+    }
+    for (i = 0; i < row->en_n; ++i) {
+        has_event |= tr_cp_in(row->en[i], TR_EVENT_CODES);
+        has_piece |= tr_cp_in(row->en[i], TR_PIECE_CODES);
+    }
+    if (!has_event && !has_piece) {
+        return 1;
+    }
+    if (has_piece && g_ptr.nsel > 0) {
+        return 0;
+    }
+    for (i = 0; i < g_ptr.npieces; ++i) {
+        const tr_piece *p = &g_ptr.pieces[i];
+        if (p->select) {
+            continue;
+        }
+        if (!tr_codes_ok(row, g_ptr.strip + p->start, p->end - p->start)) {
+            return 0;
+        }
+        star |= tr_has(g_ptr.strip + p->start, p->end - p->start, '*');
+    }
+    for (i = 0; i < g_ptr.nsel; ++i) {
+        const tr_select *sel = &g_ptr.sel[i];
+        int every = sel->count > 0;
+        for (k = 0; k < sel->count; ++k) {
+            const tr_cp *v = g_ptr.values[i] + sel->br[k].start;
+            if (!tr_codes_ok(row, v, sel->br[k].len)) {
+                return 0;
+            }
+            every &= tr_has(v, sel->br[k].len, '*');
+        }
+        star |= every;
+    }
+    if (tr_has(row->en, row->en_n, '*') && !star) {
+        return 0;
+    }
+    return 1;
+}
 static tr_conv g_en_conv[TR_MAX_CONVS];
 static int g_en_nconv;
 static tr_subjects g_subjects;
@@ -760,6 +843,20 @@ static int tr_check_row(const tr_row *row) {
             }
         }
         tr_notes_subjects(row->notes, &g_subjects);
+        /* An island-event line of A New Home or The Lost Children: '*' is the event's villager, as the
+           inventory declares it (row_entry), whether or not the file kept the Notes column. */
+        if (row->source == TR_SRC_TABLE && g_game >= 1 && g_game <= 2 && tr_has(row->en, row->en_n, '*')) {
+            int piece = 0;
+            tr_span none;
+            none.p = NULL;
+            none.n = 0;
+            for (i = 0; i < row->en_n; ++i) {
+                piece |= tr_cp_in(row->en[i], TR_PIECE_CODES);
+            }
+            if (!piece) {
+                tr_subject_put(&g_subjects, TR_SUBJ_STAR, 0, none, TR_KIND_PERSON, 0);
+            }
+        }
     }
     for (i = 0; i < g_ptr.nsel; ++i) {
         const tr_select *sel = &g_ptr.sel[i];
@@ -780,7 +877,7 @@ static int tr_check_row(const tr_row *row) {
             return 0;
         }
     }
-    return 1;
+    return tr_game_codes_ok(row);
 }
 
 /* ---- preparing a translation ------------------------------------------------------------------------ */

@@ -134,6 +134,17 @@ def remember_folder(app, number: int, folder: Path) -> None:
     _save_settings(app)
 
 
+def apply_after_build(app, game, folder: Path) -> Path | None:
+    """After a successful build (the GUI's _apply / _apply_all; apply_patch does the same from the saved
+    settings): the new patched copy gets the language remembered for its game, so a language chosen before
+    any patched copy existed is used (Codex, #672).  Nothing chosen: the copy is left as built.  Never
+    raises: a copy it cannot write keeps English, and the Translations window applies the choice again."""
+    try:
+        return tr.apply_remembered(game, Path(folder), settings={SETTINGS_KEY: _store(app)})
+    except (OSError, ValueError):
+        return None
+
+
 def restore_display_choices(app) -> None:
     """At start: the patcher's own windows use each game's remembered language (vv_translations.display_text)."""
     for number in tr.TITLES:
@@ -1066,12 +1077,15 @@ class Editor:
             self.on_saved(self.path)
         return True
 
-    def close(self) -> None:
+    def close(self) -> bool:
+        """Close the editor; False when it stays open (its edits could not be saved and the player chose to
+        keep it), so a window closing it must stay open too (Codex, #672)."""
         if self.dirty and not self.save():
             if not messagebox.askyesno(TITLE, "The translation could not be saved. Close anyway?",
                                        parent=self.top, default="no"):
-                return
+                return False
         self.top.destroy()
+        return True
 
     def _gone(self, event) -> None:
         """However the window goes, nothing it scheduled runs after it."""
@@ -1443,7 +1457,8 @@ class TranslationsWindow:
         elif path is None:
             self._say(f"{short} will be in English.")
         else:
-            self._say(f"{label} is remembered for {short}; no patched copy of the game was found yet.")
+            self._say(f"{label} is remembered for {short}; no patched copy of the game was found yet. Every copy "
+                      "you patch from now on uses it.")
         if problems:
             messagebox.showerror(TITLE, "Could not update:\n\n" + "\n".join(problems), parent=self.top)
         return done
@@ -1632,15 +1647,17 @@ class TranslationsWindow:
             self._say(f"Saved {target.name} for sharing; drag it into the GitHub page and press Submit.")
         return target
 
-    def close(self) -> None:
+    def close(self) -> bool:
+        """Close the window and its editor; False (both stay open) when the editor's unsaved edits are kept."""
         if self.editor is not None:
             try:
-                if self.editor.top.winfo_exists():
-                    self.editor.close()
+                if self.editor.top.winfo_exists() and not self.editor.close():
+                    return False
             except tk.TclError:
                 pass
         self.drop.remove()
         self.top.destroy()
+        return True
 
 
 def open_translations(app, build=None) -> tk.Toplevel:

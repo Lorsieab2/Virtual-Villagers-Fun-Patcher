@@ -364,6 +364,35 @@ class TranslationsRuntimeTests(unittest.TestCase):
     def _exe_literal(self, game: int, va: int):
         return self.probe(game).cstring(va).encode("latin-1").decode("cp1252") or None
 
+    # -- the editor's row rules for A New Home's island-event codes (Codex, #672) ----------------------
+    def test_event_codes_follow_the_row_rules(self):
+        import vv_translations as vt
+        game = 1
+        en = self.table_en(game, 336)                   # The Trapped Whale: "* noticed ... ^ discovers ..."
+        self.assertIn("*", en)
+        entry = next(r for r in vt.load_inventory(game)["rows"] if r["stem"] == "table/336")
+        rules = vt._rules_for(entry)                    # the rules the editor checks this line with
+        cases = (
+            ("La baleine échouée : quelqu'un a vu une baleine.", False),         # the name (*) dropped
+            ("La baleine : * a vu une baleine, + aussi.", False),                # + added (him/her)
+            ("La baleine : * a vu une baleine.", True),
+            ("La baleine : {*: m=* l'a vue | f=* l'a vue | o=* l'a vue}.", True),  # * in every branch
+            ("La baleine : {*: m=* l'a vue | f=elle l'a vue}.", False),          # * not in every branch
+            ("La baleine : * {*: m=ravi | f=ravie + | o=ravi}.", False),         # + inside a branch
+        )
+        for tr, used in cases:
+            with self.subTest(tr=tr):
+                editor_ok = not [i for i in F.check_row(en, tr, rules) if i.severity == "error"]
+                self.assertEqual(editor_ok, used)
+                tf = template(game, [row("table", "336", en, tr)])
+                g = Game(game, self.exes[game], file_bytes(tf))
+                g.start()
+                got = self.lookup(g, 336).decode("cp1252")
+                if used:
+                    self.assertNotEqual(got, en)
+                else:
+                    self.assertEqual(got, en)
+
     # -- a translation too long for the game's buffers stays English ---------------------------------
     def test_too_long_stays_english(self):
         game = 1
