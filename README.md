@@ -22,6 +22,27 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.87
+
+- **Picture Studio: Everything** (Tools tab -> Picture Studio, all five games, new tab). Every picture the game ships, drawn the way the game draws it and sorted by category.
+  - **What is shown:**
+    - creatures frame by frame;
+    - huts and buildings at each build stage;
+    - puzzle objects in each state;
+    - collectibles, plants and food, fruit trees from empty to full;
+    - the island assembled from its tiles;
+    - the Tech screen's bars empty, at each level and joined into the whole screen;
+    - the Villager Details skill and health bars, Divine Energy and the loading bar at several fill levels;
+    - dialog panels at the game's sizes and buttons normal, mouse over and pressed;
+    - icons, cursors, fonts, effects, and the title, loading, help and other screens;
+    - every sheet the game ships, cell by cell.
+  - **Labels:** art the game ships but never draws is marked "(unused)" (and listed under Unused); the patcher's own art (Origins masks and icons, grey hair, the Golden Mushroom, Visual Mods, Guardians of Isola, Sort By) is marked "(patcher)".
+  - **Saving:** "Save all..." saves one category or every category into folders by category, at the game's size, 2x, 4x or your own size.
+  - **Where the pictures come from:** your own copy of the game (copied once into "Picture Studio Pictures\Everything"); no game art ships. JPEG pictures are decoded exactly as the games' own libjpeg decodes them (checked on all 238 of the games' JPEGs).
+  - **How it is checked:** each composed picture is checked by running the game's own draw code on the original executables.
+  - **Not drawn or not proven** (docs/picture-studio-assets.md): colour fills, tints and text. Saves are only read.
+  - No need to patch again.
+
 ## What's new in v1.35.86
 
 - **Copy Player Slot** (Tools tab, all five games). Copies a village into another save slot of the same save folder under a new name, with everything the patcher keeps for it -- its logs, data and saved family trees -- made the new slot's, so the copy reads exactly like the original. **Copy to** lists every slot but the source: an empty one (a slot is empty when the game has no `<game>N.ldw` for it, whatever its slot list says), or one that holds a player, shown "(will be overwritten)". You confirm first; **No is the default, and Return and Escape answer No**, which writes nothing. Copying over a player asks "Save N holds the <name> village. It will be replaced by a copy of ... Replace it?". The whole save folder is backed up first as `Backup <date> (before copy)`; then every file of the target slot -- the old village's save and its older copies, its logs and patcher files in both layouts, its saved trees, or the leftovers an earlier village left in an empty slot (listed in the question) -- is **moved, never deleted**, into `Backups\Replaced by copy <date> - Save N - <name>\` (not offered as a backup and read by nothing; Restore Saves can bring the old village back from the `(before copy)` backup); any failure after that moves them back, byte for byte. **The copy's records are renumbered** after the game's highest Birth, Conception, Death, Arrived, Island event, Unaccounted and Repair numbers (every slot shares those numbers), in their own order, with every reference to them (Repairs records, the reconciliation report, answered questions) and the like/dislike word boundaries following, so Check Saves & Logs finds no repeated number in either village. **The village's records in the older builds' shared logs come along** into the copy's own logs (only those under that village's own lines), so A New Home's copy has every Birth, Conception, Arrived and Death the original has. Only the current name's `Village:` lines get the new name; lines of an older name keep it (only the slot changes) and the "Tribe renamed" notes end at the new name, exactly as the original reads them. A pending Repair Saves & Logs approval is not copied (the copy starts with no repair waiting), nor are set-aside and before-repair copies or the Family Tree Maker's reports and Matchmaker text (made again whenever wanted). The village you copy from and every other slot are never changed. Not yet seen in a running game (checked on copies of the owner's saves and the real test saves of every game). No need to patch again.

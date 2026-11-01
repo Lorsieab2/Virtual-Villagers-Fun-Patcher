@@ -1074,6 +1074,7 @@
         "Draws villagers exactly as each game draws them and saves them as clear-background PNG pictures, in all five games.",
         "From my save: pick the game, save folder and save, then anyone in it. Pick the pose, direction and frame under the picture.",
         "Make your own: any head, body, mask, sex, age, life stage, pose and frame the game has, plus the patcher's own masks, grey hair and head look.",
+        "Everything: every picture the game has, drawn the game's way and sorted by kind (animals, buildings, the Tech screen, meters, buttons, screens). Unused art is marked (unused).",
         "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
         "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
       ]

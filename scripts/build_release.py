@@ -363,6 +363,22 @@ FILES = [
     "docs/picture-studio-vv3.md",
     "docs/picture-studio-vv4.md",
     "docs/picture-studio-vv5.md",
+    # Picture Studio's Everything tab: every picture each game ships, by category (each game's table found by
+    # name), and the JPEG reader.  Still no game art: it is read from the player's own game.
+    "src/vv_picture_studio_everything.py",
+    "src/vv_pictures_assets.py",
+    "src/vv_jpeg.py",
+    "src/vv_assets_vv1.py",
+    "src/vv_assets_vv2.py",
+    "src/vv_assets_vv3.py",
+    "src/vv_assets_vv4.py",
+    "src/vv_assets_vv5.py",
+    "docs/picture-studio-assets.md",
+    "docs/picture-studio-assets-vv1.md",
+    "docs/picture-studio-assets-vv2.md",
+    "docs/picture-studio-assets-vv3.md",
+    "docs/picture-studio-assets-vv4.md",
+    "docs/picture-studio-assets-vv5.md",
     "src/vv_startup_questions.py",
     # The Family Tree Maker and the Village Matchmaker; the GUI imports the window, which
     # imports the rest (vv_tree_editor_tools is the editor's canvas tools).

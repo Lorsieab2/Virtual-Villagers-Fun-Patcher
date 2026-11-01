@@ -59,6 +59,15 @@ HELP = (
         "the shape). The picture is cut to what is drawn, with a small clear margin, or none if you untick it. "
         "\"Save all in this group\" saves everyone in the group picked in the list; \"Save the whole village\" "
         "saves everyone, each group in its own folder, inside a new folder you choose.",
+        "Everything: every picture the game ships, drawn as the game draws it, sorted by category: creatures, "
+        "buildings and objects at each stage, puzzles in each state, collectibles, plants and food, the island "
+        "scene, the Tech screen's bars empty, part filled and full, meters at several fill levels, panels and "
+        "buttons in each state, icons, cursors, fonts, effects and whole screens, then every sheet the game ships, "
+        "cell by cell (Source sheets). Art the game ships but never draws is marked (unused); the patcher's own art "
+        "is marked (patcher). Pick a picture in the Picture box. \"Save all of this\" saves every picture of the "
+        "entry picked; \"Save all\" saves every picture of the category chosen beside it (or of every category), "
+        "each category in its own folder. The size and margin choices above apply. The first time, every picture "
+        "of the game's Images folder is copied into \"Picture Studio Pictures\\Everything\" beside the patcher.",
         "The pictures come from your own copy of the game: the first time the window finds the game folder, it "
         "copies the pictures it needs into its own folder, \"Picture Studio Pictures\" beside the patcher, and "
         "uses them from then on. If it has not found one yet, click \"Find game...\" and pick the game folder "
@@ -358,13 +367,19 @@ class PictureStudio:
         self.pose_boxes = {}
         self.custom_boxes = {}
         if self.renderer is None:
-            ttk.Label(self.body, text="The pictures for this game could not be loaded.",
-                      font=("Segoe UI", 11)).pack(anchor="w", pady=20)
-            return
+            ttk.Label(self.body, text="The villager pictures for this game could not be loaded.",
+                      font=("Segoe UI", 11)).pack(anchor="w", pady=(10, 6))
         self.notebook = ttk.Notebook(self.body)
         self.notebook.pack(fill="both", expand=True)
-        self._build_save_tab()
-        self._build_custom_tab()
+        if self.renderer is not None:
+            self._build_save_tab()
+            self._build_custom_tab()
+        self._build_everything_tab()
+
+    def _build_everything_tab(self) -> None:
+        """Every picture the game ships, by category (src/vv_picture_studio_everything.py)."""
+        import vv_picture_studio_everything as everything
+        self.everything = everything.add_tab(self, self.notebook)
 
     # ---- shared widgets
     def _preview_pane(self, parent) -> dict:
