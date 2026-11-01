@@ -1003,12 +1003,13 @@
     "copy_player_slot": {
       "title": "Copy Player Slot",
       "guide": [
-        "Copies a village into an empty save slot of the same game, under a new name.",
-        "Quit the game first, from its own menu.",
-        "Pick the game, save folder, the village to copy and an empty slot, type the new name and click Copy.",
-        "You are asked to confirm first; No copies nothing.",
-        "The save folder is backed up first, and the village you copy from is never changed.",
-        "The copy takes the patcher's logs and data for that village with it, under the new slot."
+        "Copies a village into another save slot of the same game, under a new name. Quit the game first.",
+        "A slot with no save file is empty, whatever the game's slot list says; a slot with a player is overwritten.",
+        "You are asked first; No (also Return or Escape) changes nothing.",
+        "The whole save folder is backed up first, as (before copy).",
+        "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
+        "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
       ]
     },
     "check_logs": {

@@ -138,6 +138,30 @@ class Base(unittest.TestCase):
         place = folder / "Backups"
         return sorted(p.name for p in place.iterdir()) if place.is_dir() else []
 
+    def occupy(self, game, folder: Path, slot: int, name: str) -> dict[str, bytes]:
+        """Slot ``slot`` given a village of its own (``name``) with its logs and patcher files, in both
+        layouts; returns those files' bytes."""
+        number = game.number
+        save = bytearray(fixture(f"vv{number}-huttest-1"))
+        at = rename._save_layout(game, bytes(save))[0] + game.name_offset
+        save = rename._with_name(bytes(save), at, game.save_field, name)
+        header = f"Village: {name} (Save {slot})"
+        files = {
+            game.save_path(folder, slot).name: save,
+            game.generation_path(folder, "2", slot).name: save,
+            f"{OWN}\\Save {slot}\\Logs\\Births and Conceptions\\Virtual Villagers {number} Births and "
+            f"Conceptions Log 1.txt": f"{header}\r\nConception 50\r\n  Mother: Old\r\n".encode(),
+            f"{OWN}\\Save {slot}\\Data\\Graves\\Virtual Villagers {number} Graves - Save {slot}.dat": b"old graves",
+            f"{OLD_LOGS}\\Save {slot}\\Deaths and Disappearances\\Virtual Villagers {number} Deaths Log 1.txt":
+                f"{header}\r\nDeath 60\r\n".encode(),
+            f"{OLD_DATA}\\Graves\\Virtual Villagers {number} Graves - Save {slot}.dat": b"older graves",
+            f"{TREES}\\{name} (Save {slot}) Family Tree.vvtree":
+                json.dumps({"format": 1, "game": number, "slot": slot, "tribe": name}).encode(),
+        }
+        for rel, data in files.items():
+            self.put(folder, rel, data)
+        return {Path(rel).as_posix().replace("\\", "/"): data for rel, data in files.items()}
+
 
 class CopyTests(Base):
     def test_every_game_copies_the_village_and_its_files(self) -> None:
@@ -189,7 +213,11 @@ class CopyTests(Base):
                 deaths_key = (f"{OLD_LOGS}\\Save 3\\Deaths and Disappearances\\"
                               f"Virtual Villagers {number} Deaths Log 1.txt")
                 self.assertTrue(after[shared].endswith(f"0\t{deaths_key}\r\n".encode()))
-                self.assertEqual((folder / deaths_key).read_bytes(), f"{new_header}\r\nDeath 1\r\n".encode())
+                # Renumbered after the game's highest of each kind (Death 1 was the only one): Death 2.
+                self.assertEqual((folder / deaths_key).read_bytes(), f"{new_header}\r\nDeath 2\r\n".encode())
+                self.assertIn("Conception 3", text)
+                self.assertIn("Conception 4", text)
+                self.assertIn("Birth 4", text)
                 paid = (folder / OWN / "Save 3" / "Data" / "Paid Purchases" /
                         f"Virtual Villagers {number} Paid Purchases - Save 3.dat").read_bytes()
                 self.assertEqual(struct.unpack_from("<I", paid, 12)[0], 3)
@@ -233,23 +261,103 @@ class CopyTests(Base):
                 self._tmp = tempfile.TemporaryDirectory()
                 self.documents = Path(self._tmp.name) / "D"
 
-    def test_an_occupied_target_is_refused_and_nothing_is_written(self) -> None:
-        game, folder, _old = self.make("huttest", 4, "Modded")
-        self.put(folder, game.save_path(folder, 2).name, fixture("vv4-huttest-1"))
-        before = self.snapshot(folder)
-        with self.assertRaisesRegex(cs.CopyError, "Save 2 is in use"):
-            cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW)
-        self.assertEqual(self.snapshot(folder), before)
-        self.assertEqual(self.backups(folder), [])
+    def test_an_occupied_target_is_overwritten_and_its_files_set_aside(self) -> None:
+        """The owner: "I want the Copy Player slot to be able to overwrite existing slots"."""
+        for number in (1, 2, 3, 4, 5):
+            with self.subTest(game=number):
+                game, folder, old = self.make("huttest", number, f"Modded {number}")
+                theirs = self.occupy(game, folder, 2, "Old Village")
+                before = self.snapshot(folder)
+                result = cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW)
+                self.assertEqual(result.overwritten, "Old Village")
+                aside = folder / "Backups" / "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village"
+                self.assertEqual(result.set_aside, aside)
+                # Every file of the old village is in the set-aside folder, byte for byte, its path kept.
+                for rel, data in theirs.items():
+                    self.assertEqual((aside / rel).read_bytes(), data, rel)
+                # ...and gone from the slot: the copy is the source's village.
+                self.assertEqual(rename.save_name(game, game.save_path(folder, 2).read_bytes()), "Copied")
+                after = self.snapshot(folder)
+                self.assertNotIn(f"{OLD_DATA}/Graves/Virtual Villagers {number} Graves - Save 2.dat", after)
+                deaths = after[f"{OLD_LOGS}/Save 2/Deaths and Disappearances/Virtual Villagers {number} "
+                               f"Deaths Log 1.txt"]                     # the copy's own (the source has one)
+                self.assertNotIn(b"Old Village", deaths)
+                self.assertIn(b"Village: Copied (Save 2)\r\nDeath 61\r\n", deaths)
+                self.assertNotIn(f"{TREES}/Old Village (Save 2) Family Tree.vvtree", after)
+                births = after[f"{OWN}/Save 2/Logs/Births and Conceptions/Virtual Villagers {number} Births and "
+                               f"Conceptions Log 1.txt"].decode("latin-1")
+                self.assertNotIn("Old Village", births)
+                # The numbers the overwritten village used stay retired: the copy's come after them.
+                self.assertIn("Conception 51", births)
+                # The source is untouched; no other slot is touched.
+                index_name = game.index_path(folder).name
+                shared = f"{OLD_DATA}/Like and Dislike Words/Virtual Villagers {number} Log Words.dat"
+                for name, data in before.items():
+                    if name in theirs or "Save 2" in name or name in (index_name, shared):
+                        continue
+                    self.assertEqual(after.get(name), data, name)
+                # The set-aside folder is never offered as a backup, and nothing reads it.
+                self.assertEqual([b.path.name for b in backup.list_backups(folder)],
+                                 ["Backup 2026-10-31 12-00-00 (before copy)"])
+                import vv3_second_faction as faction
+                self.assertFalse(any(aside in p.parents for p in faction._candidates(
+                    folder, 2, game.save_path(folder, 2).name[:-len("2.ldw")])))
+                self.assertFalse([r for r in backup.files_to_back_up(folder) if "Replaced by copy" in str(r)])
+                self.assertIn(game.save_path(folder, 2), cs.slot_files(game, folder, 2))
+                self.assertFalse([p for p in cs.slot_files(game, folder, 2) if "Backups" in p.parts])
+                self.put(aside, "sentinel.txt", b"Death 999\r\n")
+                self.assertEqual(cs.highest_numbers(folder)["Death"], 61)     # the copy's; never the set-aside
 
-    def test_a_target_whose_patcher_files_are_there_is_refused(self) -> None:
+    def test_a_failure_after_the_set_aside_brings_the_old_village_back(self) -> None:
+        for fail in (0, 2, 6):
+            with self.subTest(after=fail):
+                game, folder, _old = self.make("huttest", 2, f"Modded {fail}")
+                self.occupy(game, folder, 2, "Old Village")
+                before = self.snapshot(folder)
+                times = {p: os.stat(folder / p).st_mtime_ns for p in before}
+                with self.assertRaisesRegex(cs.CopyError, "everything it made was removed"):
+                    cs.copy_slot(game, folder, 1, 2, "Copied", processes=FakeProcesses(), now=NOW, _fail_after=fail)
+                self.assertEqual(self.snapshot(folder), before)
+                self.assertEqual({p: os.stat(folder / p).st_mtime_ns for p in before}, times)
+                aside = folder / "Backups" / "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village"
+                self.assertFalse(aside.exists())
+
+    def test_leftovers_of_an_empty_slot_are_set_aside(self) -> None:
+        """An empty slot (no "<stem>N.ldw") whose earlier village left files, the other layout's
+        counterparts of the copy's data files among them: set aside, listed, then the copy is made."""
         game, folder, _old = self.make("huttest", 1, "Modded")
-        self.put(folder, f"{OWN}\\Save 4\\Data\\Graves\\Virtual Villagers 1 Graves - Save 4.dat", b"old village")
-        before = self.snapshot(folder)
-        with self.assertRaisesRegex(cs.CopyError, "already keeps files for it"):
-            cs.copy_slot(game, folder, 1, 4, "Copied", processes=FakeProcesses(), now=NOW)
-        self.assertEqual(self.snapshot(folder), before)
-        self.assertEqual(self.backups(folder), [])
+        left = {
+            f"{OWN}\\Save 4\\Data\\Graves\\Virtual Villagers 1 Graves - Save 4.dat": b"old village",
+            f"{OLD_DATA}\\Custom Titles\\Custom Titles - Save 4.dat": b"VCT1 leftover",
+            f"{OLD_DATA}\\Graves\\Virtual Villagers 1 Graves - Save 4.dat": b"older layout counterpart",
+            "Virtual Villagers44.ldw": b"an older generation",
+        }
+        for rel, data in left.items():
+            self.put(folder, rel, data)
+        listed = {str(p.relative_to(folder)) for p in cs.slot_files(game, folder, 4)}
+        self.assertEqual(listed, set(left))
+        result = cs.copy_slot(game, folder, 1, 4, "Copied", processes=FakeProcesses(), now=NOW)
+        self.assertIsNone(result.overwritten)
+        for rel, data in left.items():
+            self.assertEqual((result.set_aside / rel).read_bytes(), data)
+        self.assertFalse((folder / OLD_DATA / "Graves" / "Virtual Villagers 1 Graves - Save 4.dat").exists())
+        self.assertEqual(rename.save_name(game, (folder / "Virtual Villagers44.ldw").read_bytes()), "Copied")
+
+    def test_the_slot_list_never_decides_whether_a_slot_is_empty(self) -> None:
+        """The owner: "the game sees (game name)1-5.ldw as player slots"."""
+        game, folder, old = self.make("huttest", 3, "Modded")
+        index = bytearray(game.index_path(folder).read_bytes())
+        # The list says slot 4 is in use (a name, its byte 1) and slot 1 is a New Player (byte 0).
+        index[:] = rename._with_name(bytes(index), game.index_offset(4), game.index_stride, "Ghost")
+        index[cs.FLAG_OFFSET[3] + 3] = 1
+        index[:] = rename._with_name(bytes(index), game.index_offset(1), game.index_stride, "NEW PLAYER")
+        index[cs.FLAG_OFFSET[3]] = 0
+        game.index_path(folder).write_bytes(bytes(index))
+        slots = cs.read_slots(game, folder)
+        self.assertIn(4, slots.targets)
+        self.assertEqual([s.slot for s in slots.sources], [1])
+        cs.copy_slot(game, folder, 1, 4, "Copied", processes=FakeProcesses(), now=NOW)
+        self.assertEqual(rename.save_name(game, game.save_path(folder, 4).read_bytes()), "Copied")
 
     def test_a_running_game_is_refused_before_the_backup(self) -> None:
         game, folder, _old = self.make("huttest", 5, "Modded")
@@ -360,44 +468,249 @@ class ConfirmationTests(Base):
     def _ask(self, answer: bool):
         calls = []
 
-        def ask(title, message, **kwargs):
-            calls.append((title, message, kwargs))
+        def ask(parent, title, message):
+            calls.append((title, message))
             return answer
         return ask, calls
 
-    def test_no_writes_nothing_and_is_the_default(self) -> None:
-        game, folder, old = self.make("huttest", 1, "Modded")
-        before = self.snapshot(folder)
-        ask, calls = self._ask(False)
-        ran = []
-        source = cs.read_slots(game, folder).sources[0]
-        result = window.confirm_and_copy(ask, lambda work: ran.append(work), game, folder, source, 3, "Copied",
-                                         processes=FakeProcesses())
-        self.assertIsNone(result)
-        self.assertEqual(ran, [])
-        self.assertEqual(self.snapshot(folder), before)
-        self.assertEqual(self.backups(folder), [])
-        title, message, kwargs = calls[0]
-        self.assertEqual(kwargs["default"], "no")       # Enter never copies
-        for part in (old, "Save 1", "Save 3", "Copied", folder.name, "(before copy)", "backed up first"):
-            self.assertIn(part, message)
+    def test_no_writes_nothing(self) -> None:
+        for target, occupied in ((3, False), (2, True)):
+            with self.subTest(target=target):
+                game, folder, old = self.make("huttest", 1, f"Modded {target}")
+                if occupied:
+                    self.occupy(game, folder, 2, "Old Village")
+                before = self.snapshot(folder)
+                ask, calls = self._ask(False)
+                ran = []
+                source = cs.read_slots(game, folder).sources[0]
+                result = window.confirm_and_copy(ask, lambda work: ran.append(work), game, folder, source, target,
+                                                 "Copied", processes=FakeProcesses(), now=NOW)
+                self.assertIsNone(result)
+                self.assertEqual(ran, [])
+                self.assertEqual(self.snapshot(folder), before)
+                self.assertEqual(self.backups(folder), [])
+                self.assertEqual(len(calls), 1)
 
     def test_yes_backs_up_and_copies(self) -> None:
         game, folder, _old = self.make("huttest", 2, "Modded")
         ask, calls = self._ask(True)
         source = cs.read_slots(game, folder).sources[0]
         result = window.confirm_and_copy(ask, lambda work: work(), game, folder, source, 3, "Copied",
-                                         processes=FakeProcesses())
+                                         processes=FakeProcesses(), now=NOW)
         self.assertEqual(result.new_name, "Copied")
-        self.assertEqual(calls[0][2]["default"], "no")
         self.assertEqual(rename.save_name(game, game.save_path(folder, 3).read_bytes()), "Copied")
         self.assertEqual(len(self.backups(folder)), 1)
 
-    def test_the_window_asks_through_the_confirmation_with_no_as_default(self) -> None:
+    def test_the_shared_words_are_pinned(self) -> None:
+        """The words every patcher's Copy Player Slot shares, exactly."""
+        game, folder, old = self.make("huttest", 1, "Modded")
+        source = cs.read_slots(game, folder).sources[0]
+        self.assertEqual(
+            window.replace_text(folder, source, 2, "Old Village", "Copied", NOW),
+            f"Save 2 holds the Old Village village. It will be replaced by a copy of {old} (Save 1), named "
+            f"Copied. The whole save folder ({folder}) is backed up first, and Old Village's files are kept in "
+            "Backups\\Replaced by copy 2026-10-31 12-00-00. Replace it?")
+        self.assertEqual(
+            window.empty_text(folder, source, 3, "Copied", NOW),
+            f"Save 3 is empty. It will get a copy of {old} (Save 1), named Copied. The whole save folder "
+            f"({folder}) is backed up first. Copy it?")
+        leftover = folder / OWN / "Save 3" / "Data" / "x - Save 3.dat"
+        self.assertEqual(
+            window.empty_text(folder, source, 3, "Copied", NOW, [leftover]),
+            f"Save 3 is empty. It will get a copy of {old} (Save 1), named Copied. The whole save folder "
+            f"({folder}) is backed up first. Leftover files from an earlier village in Save 3 are kept in "
+            "Backups\\Replaced by copy 2026-10-31 12-00-00.\n\n"
+            f"  {OWN}\\Save 3\\Data\\x - Save 3.dat\n\nCopy it?")
+        self.assertEqual(cs.BACKUP_LABEL, "(before copy)")
+        self.assertEqual(cs.set_aside_folder(folder, NOW, 2, "Old Village").name,
+                         "Replaced by copy 2026-10-31 12-00-00 - Save 2 - Old Village")
+        self.assertEqual(window.TITLE, "Copy Player Slot")
+
+    def test_the_prompt_names_the_leftovers_it_sets_aside(self) -> None:
+        game, folder, _old = self.make("huttest", 1, "Modded")
+        self.put(folder, f"{OWN}\\Save 3\\Data\\Graves\\Virtual Villagers 1 Graves - Save 3.dat", b"old")
+        ask, calls = self._ask(False)
+        source = cs.read_slots(game, folder).sources[0]
+        window.confirm_and_copy(ask, lambda work: work(), game, folder, source, 3, "Copied", now=NOW)
+        self.assertIn(f"{OWN}\\Save 3\\Data\\Graves\\Virtual Villagers 1 Graves - Save 3.dat", calls[0][1])
+        self.assertIn("Leftover files from an earlier village in Save 3", calls[0][1])
+
+    def test_the_window_asks_through_the_yes_no_question(self) -> None:
         source = (ROOT / "src" / "vv_copy_slot_window.py").read_text(encoding="utf-8")
-        self.assertIn('default="no"', source)
-        self.assertIn("confirm_and_copy(\n                messagebox.askyesno,", source)
+        self.assertIn("confirm_and_copy(\n                ask_yes_no,", source)
         self.assertNotIn("vv_copy_slot.copy_slot(", source[source.index("def open_copy_slot("):])
+
+
+def _tk_root():
+    try:
+        import tkinter as tk
+        root = tk.Tk()
+        root.withdraw()
+        return root
+    except Exception:  # noqa: BLE001 -- no display (CI): the question's keys are not tested here
+        return None
+
+
+class YesNoKeyTests(unittest.TestCase):
+    """No is the default; Return and Escape answer No; only Yes copies."""
+
+    def setUp(self) -> None:
+        self.root = _tk_root()
+        if self.root is None:
+            self.skipTest("no Tk display")
+
+    def tearDown(self) -> None:
+        self.root.destroy()
+
+    def answer(self, act) -> bool:
+        top, answer = window.build_yes_no(self.root, "Copy Player Slot", "Replace it?")
+        self.root.update()
+        act(top)
+        self.root.update()
+        return answer["yes"]
+
+    def test_return_escape_and_closing_answer_no(self) -> None:
+        self.assertFalse(self.answer(lambda top: top.event_generate("<Return>")))
+        self.assertFalse(self.answer(lambda top: top.event_generate("<Escape>")))
+        self.assertFalse(self.answer(lambda top: top.tk.eval(top.protocol("WM_DELETE_WINDOW"))))
+        self.assertFalse(self.answer(lambda top: top.no_button.invoke()))
+        self.assertTrue(self.answer(lambda top: top.yes_button.invoke()))
+
+    def test_no_is_the_default_button(self) -> None:
+        top, _answer = window.build_yes_no(self.root, "Copy Player Slot", "Replace it?")
+        self.root.update()
+        self.assertEqual(str(top.no_button.cget("default")), "active")
+        top.destroy()
+
+
+class RecordTests(Base):
+    """The owner chose "Renumber the copy"; the older shared logs' records come along; nothing pending."""
+
+    def test_records_are_renumbered_after_the_games_highest_and_references_follow(self) -> None:
+        game, folder, old = self.make("huttest", 1, "Modded")
+        header = f"Village: {old} (Save 1)"
+        # Another slot already used Birth 10 and Repair 7: the copy's numbers come after the game's highest.
+        self.put(folder, f"{OWN}\\Save 2\\Logs\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions "
+                         f"Log 1.txt", b"Village: Other (Save 2)\r\nBirth 10\r\n")
+        repairs = (f"{header}\r\nRepair 7\r\n  Checked: Death 1's cause of death\r\n  Answered: Birth 3 says Ana\r\n"
+                   f"  Dislikes:Conception 1\r\n").encode()
+        self.put(folder, f"{OWN}\\Save 1\\Logs\\Repairs Made\\Virtual Villagers 1 Repairs Log 1.txt", repairs)
+        self.put(folder, f"{OWN}\\Save 1\\Logs\\Reconciliation\\Virtual Villagers 1 Reconciliation - Save 1.txt",
+                 f"Virtual Villagers 1 (A New Home) -- read-only reconciliation\r\nSave 1: {old}\r\n"
+                 f"  - Birth 3 says Ana\r\n".encode())
+        decisions = f"{OWN}\\Save 1\\Data\\Log Checks\\Virtual Villagers 1 Log Decisions - Save 1.json"
+        self.put(folder, decisions, json.dumps({"version": 1, "decisions": [
+            {"kind": "answered", "village": header, "fact": "Birth 3 says Ana", "who": [["Death 1", 2]]}]},
+            indent=1).encode())
+        before = self.snapshot(folder)
+        result = cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        self.assertEqual(result.renumbered, {"Conception": 2, "Birth": 1, "Death": 1, "Repair": 1})
+        text = (folder / OWN / "Save 3" / "Logs" / "Repairs Made" / "Virtual Villagers 1 Repairs Log 1.txt").read_bytes()
+        # Death 1 -> 2, Birth 3 -> 11 (after Birth 10), Repair 7 -> 8; a like/dislike word is no reference.
+        self.assertEqual(text, b"Village: Copied (Save 3)\r\nRepair 8\r\n  Checked: Death 2's cause of death\r\n"
+                               b"  Answered: Birth 11 says Ana\r\n  Dislikes:Conception 1\r\n")
+        births = (folder / OWN / "Save 3" / "Logs" / "Births and Conceptions" /
+                  "Virtual Villagers 1 Births and Conceptions Log 1.txt").read_bytes()
+        self.assertIn(b"Conception 3\r\n", births)          # its first record, then the second, in order
+        self.assertLess(births.index(b"Conception 3"), births.index(b"Conception 4"))
+        recon = (folder / OWN / "Save 3" / "Logs" / "Reconciliation" /
+                 "Virtual Villagers 1 Reconciliation - Save 3.txt").read_bytes()
+        self.assertIn(b"\r\nSave 3: Copied\r\n", recon)
+        self.assertIn(b"Birth 11 says", recon)
+        doc = json.loads((folder / OWN / "Save 3" / "Data" / "Log Checks" /
+                          "Virtual Villagers 1 Log Decisions - Save 3.json").read_text())
+        self.assertEqual(doc["decisions"][0]["fact"], "Birth 11 says Ana")
+        self.assertEqual(doc["decisions"][0]["who"], [["Death 2", 2]])
+        # The words boundary still falls where it did in the record it marks.
+        words = (folder / OWN / "Save 3" / "Data" / "Like and Dislike Words" /
+                 "Virtual Villagers 1 Log Words.dat").read_text()
+        self.assertEqual(int(words.split("\t")[0]), births.index(b"Village: Someone"))
+        # The source's files are exactly as they were.
+        after = self.snapshot(folder)
+        for name in before:
+            if "Save 1" in name:
+                self.assertEqual(after[name], before[name], name)
+
+    def test_the_village_s_records_in_the_older_shared_logs_come_along(self) -> None:
+        game, folder, old = self.make("huttest", 1, "Modded")
+        mine, theirs = f"Village: {old} (Save 1)", "Village: Neighbours (Save 2)"
+        shared = (f"{mine}\r\nConception 5\r\n  Mother: Ana\r\n\r\n{theirs}\r\nConception 6\r\n  Mother: Bo\r\n\r\n"
+                  f"{mine}\r\nBirth 7\r\n  Child: Cy\r\n").encode()
+        rel = f"{OLD_LOGS}\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        self.put(folder, rel, shared)
+        history = (f"=== Virtual Villagers -- 2026-10-01 ===\r\n{mine}\r\nAna\r\n\r\n"
+                   f"=== Virtual Villagers -- 2026-10-02 ===\r\n{theirs}\r\nBo\r\n\r\n").encode()
+        self.put(folder, f"{OLD_LOGS}\\Tribe History\\Village History 1.txt", history)
+        self.put(folder, f"{OLD_DATA}\\Like and Dislike Words\\Virtual Villagers 1 Log Words.dat",
+                 f"0\t{OLD_LOGS}\\Save 1\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt\r\n"
+                 f"{shared.index(theirs.encode())}\t{rel}\r\n".encode())
+        before = self.snapshot(folder)
+        cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        after = self.snapshot(folder)
+        self.assertEqual(after[rel.replace("\\", "/")], shared)               # the shared log: untouched
+        copy = after[f"{OLD_LOGS}/Save 3/Births and Conceptions/Virtual Villagers 1 Births and Conceptions Log 1.txt"]
+        # The copy's records (Conception 1, 2 and 5; Birth 3 and 7) numbered after the game's highest (Conception
+        # 6, Birth 7), in their own order: Conception 5 -> 9, Birth 7 -> 9.
+        self.assertEqual(copy, b"Village: Copied (Save 3)\r\nConception 9\r\n  Mother: Ana\r\n\r\n"
+                               b"Village: Copied (Save 3)\r\nBirth 9\r\n  Child: Cy\r\n")
+        snap = after[f"{OLD_LOGS}/Save 3/Tribe History/Village History 1.txt"]
+        self.assertEqual(snap, b"=== Virtual Villagers -- 2026-10-01 ===\r\nVillage: Copied (Save 3)\r\nAna\r\n\r\n")
+        words = after[f"{OLD_DATA}/Like and Dislike Words/Virtual Villagers 1 Log Words.dat"]
+        key = f"{OLD_LOGS}\\Save 3\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions Log 1.txt"
+        # The shared file's boundary fell after the village's first record: in the copy, the same place.
+        self.assertIn(f"{copy.index(b'Village: Copied (Save 3)', 1)}\t{key}\r\n".encode(), words)
+        self.assertTrue(words.startswith(before[f"{OLD_DATA}/Like and Dislike Words/Virtual Villagers 1 Log Words.dat"]))
+
+    def test_the_copy_reads_exactly_like_the_source_after_a_rename(self) -> None:
+        """The live check (The Secret City, renamed "KT N" -> "Kalahuna Tribe 3: N"): the save-time reconcile
+        counts only records under the CURRENT header, exactly (statistics_reconcile.inc), so an older name's
+        header keeps its name in the copy -- only its slot changes -- and the rename note ends at the copy's
+        name, so every reader follows the same chain."""
+        import vv_log_additions as additions
+        game, folder, old = self.make("huttest", 3, "Modded")
+        deaths = f"{OWN}\\Save 1\\Logs\\Deaths and Disappearances\\Virtual Villagers 3 Deaths Log 1.txt"
+        self.put(folder, deaths, (f"Village: KT N (Save 1)\r\nDeath 1\r\n  Grave: yes\r\n\r\n"
+                                  f"Tribe renamed from KT N to {old} on 2026-10-01\r\n\r\n"
+                                  f"Village: {old} (Save 1)\r\nDeath 2\r\n  Grave: yes\r\n").encode())
+        cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        copy = (folder / OWN / "Save 3" / "Logs" / "Deaths and Disappearances" /
+                "Virtual Villagers 3 Deaths Log 1.txt").read_bytes()
+        self.assertEqual(copy, b"Village: KT N (Save 3)\r\nDeath 3\r\n  Grave: yes\r\n\r\n"
+                               b"Tribe renamed from KT N to Copied on 2026-10-01\r\n\r\n"
+                               b"Village: Copied (Save 3)\r\nDeath 4\r\n  Grave: yes\r\n")
+
+        def exact(slot: int, header: str) -> int:
+            """statistics_reconcile.inc rc_visit_deaths: Death records under the current header, exactly."""
+            text = (folder / OWN / f"Save {slot}" / "Logs" / "Deaths and Disappearances" /
+                    "Virtual Villagers 3 Deaths Log 1.txt").read_text(encoding="latin-1")
+            ours, count = False, 0
+            for line in text.splitlines():
+                if line.startswith("Village:"):
+                    ours = line == header
+                elif ours and re.match(r"Death \d", line):
+                    count += 1
+            return count
+        self.assertEqual(exact(1, f"Village: {old} (Save 1)"), exact(3, "Village: Copied (Save 3)"))
+        self.assertEqual(exact(3, "Village: Copied (Save 3)"), 1)
+        # The rename chain: the same older name, for the copy's slot.
+        self.assertEqual(additions.current_villages(folder, 3, 1), {f"Village: {old} (Save 1)", "Village: KT N (Save 1)"})
+        self.assertEqual(additions.current_villages(folder, 3, 3), {"Village: Copied (Save 3)", "Village: KT N (Save 3)"})
+
+    def test_pending_repairs_and_set_aside_clutter_are_not_copied(self) -> None:
+        game, folder, _old = self.make("huttest", 1, "Modded")
+        for rel in (f"{OWN}\\Save 1\\Data\\Log Checks\\Virtual Villagers 1 Repair Approved - Save 1.dat",
+                    f"{OLD_DATA}\\Cross-Check\\Virtual Villagers 1 Repair Approved - Save 1.dat",
+                    f"{OWN}\\Save 1\\Data\\Graves\\Virtual Villagers 1 Graves - Save 1.dat.another-village-1-0",
+                    f"{OWN}\\Save 1\\Data\\Graves\\Virtual Villagers 1 Graves - Save 1.dat.unreadable-2",
+                    f"{OLD_DATA}\\Virtual Villagers 1 Parentage Records - Save 1.dat.before-repair",
+                    f"{TREES}\\Reports\\Virtual Villagers 1 Genealogy - Save 1.txt",
+                    f"{TREES}\\Virtual Villagers 1 Village Matchmaker - Save 1.txt"):
+            self.put(folder, rel, b"VRA1" + struct.pack("<3I", 1, 1, 1))
+        result = cs.copy_slot(game, folder, 1, 3, "Copied", processes=FakeProcesses(), now=NOW)
+        made = [str(p.relative_to(folder)) for p in result.created]
+        for word in ("Repair Approved", "another-village", "unreadable", "before-repair", "Genealogy",
+                     "Matchmaker"):
+            self.assertFalse([m for m in made if word in m], word)
 
 
 class GuiWiringTests(unittest.TestCase):
