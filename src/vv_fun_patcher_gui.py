@@ -166,10 +166,21 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
+# Pairs where ticking one unticks the other instead of greying it out (the owner, 2026-11-01: "Render
+# Unicode with In-Game Fonts" and "Use Unicode Font (overrides in-game fonts)" are mutually exclusive, and
+# selecting one unticks the other).
+UNTICKING_CONFLICT_IDS = {}
+for _game in range(1, 6):
+    UNTICKING_CONFLICT_IDS["vv%d_unicode_text" % _game] = "vv%d_unicode_font" % _game
+    UNTICKING_CONFLICT_IDS["vv%d_unicode_font" % _game] = "vv%d_unicode_text" % _game
+del _game
+
+
 def conflict_blockers(patch_id: str, fun_patches, ticked) -> list[str]:
     """The names of the ticked patches that patch `patch_id` can never be built with (either one
-    naming the other in "conflicts"); empty when it is ticked itself or nothing blocks it."""
-    if patch_id in ticked:
+    naming the other in "conflicts"); empty when it is ticked itself or nothing blocks it.  A pair in
+    UNTICKING_CONFLICT_IDS never blocks: ticking one unticks the other."""
+    if patch_id in ticked or patch_id in UNTICKING_CONFLICT_IDS:
         return []
     by_id = {patch.id: patch for patch in fun_patches}
     mine = set(conflict_ids(by_id[patch_id])) if patch_id in by_id else set()
@@ -1975,6 +1986,12 @@ class App(tk.Tk):
         previous = set(self._last_fun_selection)
         dependencies = self._patch_dependency_map()
         by_id = {patch.id: patch for patch in self.fun_patches}
+
+        # Ticking one of an unticking pair unticks the other (UNTICKING_CONFLICT_IDS).
+        for patch_id in sorted(current - previous):
+            other = UNTICKING_CONFLICT_IDS.get(patch_id)
+            if other in current and other in previous:
+                current.discard(other)
 
         # Checking a dependent automatically checks every prerequisite.
         added = current - previous

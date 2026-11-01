@@ -6,3 +6,4 @@ EXPORTS
     VvfpUnicodeTextUnits
     VvfpUnicodeTextOwnDraws
     VvfpGlyphsUtf8
+    VvfpBoxInsertUtf8

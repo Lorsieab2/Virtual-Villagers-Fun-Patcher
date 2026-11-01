@@ -66,6 +66,10 @@ NAMES_AND_TYPING = (
 )
 
 
+NEEDS = ("**Needs \"Full Names on the Details Screen\" (ticked with it): its Details box keeps the whole stored "
+         "name, so opening a villager's Details and closing it never changes a name.**")
+
+
 def text_description(game: int) -> str:
     return (
         "Lets the game draw, measure and accept ANY character -- accented letters, Greek, Cyrillic, Turkish, "
@@ -82,7 +86,7 @@ def text_description(game: int) -> str:
         "real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**On by default and in Owner's Defaults.** **Cannot be used with \"" + FONT_NAME + "\" (ticking one "
-        "unticks the other).** **Needs no other patch.** **Not yet seen in a running game** (checked by "
+        "unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + TEXT_DLL + "\", started by VVFP "
         "Startup.dll; the game's own pictures and saves are never changed, and no font is shipped."
     )
@@ -98,7 +102,7 @@ def font_description(game: int) -> str:
         "height, so every screen keeps its layout; every character works, as with \"" + TEXT_NAME + "\". "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**Off by default and in Owner's Defaults.** **Cannot be used with \"" + TEXT_NAME + "\" (ticking "
-        "one unticks the other).** **Needs no other patch.** **Not yet seen in a running game** (checked by "
+        "one unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + FONT_DLL + "\" (the same code as \""
         + TEXT_DLL + "\"), started by VVFP Startup.dll; the game's own pictures and saves are never changed, "
         "and no font is shipped."
@@ -203,6 +207,7 @@ def row(game: int, override: bool, dll_sha: str, tables: dict, found: dict) -> d
         "description": font_description(game) if override else text_description(game),
         "output_tag": "Unicode Font" if override else "Unicode Text",
         "conflicts": [other],
+        "dependencies": [f"vv{game}_details_full_names"],
         "behavior_changes": behaviour(game, tables, override),
         "explicit_non_changes": [
             "No executable byte is patched: the companion replaces each routine's first instructions at run time, "

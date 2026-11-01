@@ -567,19 +567,64 @@ static int __fastcall gettext_hook(unsigned char *wrapper, void *edx, unsigned c
 
 /* A typed text from SDL: ASCII of one character is posted as the game posts it; anything else that is
    well-formed UTF-8 goes into the ring and is posted as MARK | slot << 8, which only the box takes. */
+static unsigned int g_high_surrogate;   /* the first half of a pair SDL sent on its own */
+
+/* SDL 2.0.3 (the games' SDL2.dll) turns each WM_CHAR into text by itself, so a character above U+FFFF
+   (an emoji, a cuneiform sign) typed with the emoji panel arrives as TWO texts: each UTF-16 half
+   written as a three-byte sequence (ED A0..AF xx, then ED B0..BF xx), which is not UTF-8.  The halves
+   are joined here into the character's own four bytes; a half on its own is dropped. */
+static int vt_join_surrogates(const unsigned char *s, unsigned char *out, int cap) {
+    const unsigned char *end = ut_end(s), *p = s;
+    int n = 0;
+    while (p < end) {
+        unsigned int cp;
+        int k = ut_seq(p, end, &cp);
+        if (k == 0 && end - p >= 3 && p[0] == 0xED && p[1] >= 0xA0 && (p[2] & 0xC0) == 0x80) {
+            unsigned int half = 0xD000u | ((unsigned int)(p[1] & 0x3F) << 6) | (p[2] & 0x3Fu);
+            p += 3;
+            if (half < 0xDC00) {
+                g_high_surrogate = half;
+            } else if (g_high_surrogate != 0) {
+                cp = 0x10000u + ((g_high_surrogate - 0xD800u) << 10) + (half - 0xDC00u);
+                g_high_surrogate = 0;
+                if (n + 4 >= cap) {
+                    return -1;
+                }
+                n += ut_encode(cp, out + n);
+            }
+            continue;
+        }
+        if (k == 0) {
+            return -1;                  /* malformed: skipped, as the game skipped it */
+        }
+        g_high_surrogate = 0;
+        if (n + k >= cap) {
+            return -1;
+        }
+        CopyMemory(out + n, p, (size_t)k);
+        n += k;
+        p += k;
+    }
+    out[n] = 0;
+    return n;
+}
+
 static int vt_text_key(const unsigned char *s) {
     const unsigned char *end, *p;
+    unsigned char joined[sizeof g_ring[0]];
     int printable = 0;
     if (s == NULL || s[0] == 0) {
         return -1;
     }
     if (s[0] < 0x80 && s[1] == 0) {
+        g_high_surrogate = 0;
         return s[0];
     }
-    end = ut_end(s);
-    if (end - s >= (int)sizeof g_ring[0]) {
+    if (ut_end(s) - s >= (int)sizeof g_ring[0] || vt_join_surrogates(s, joined, (int)sizeof joined) <= 0) {
         return -1;
     }
+    s = joined;
+    end = ut_end(s);
     for (p = s; p < end;) {
         unsigned int cp;
         int k = ut_seq(p, end, &cp);
@@ -683,4 +728,64 @@ __declspec(naked) static void backspace_hook(void) {
         mov     byte ptr [edx + eax], 0
         jmp     dword ptr [g_backspace_back]
     }
+}
+
+/* For "VVFP Copy and Paste.dll": put UTF-8 text into a text box (the box object, the one at its
+   wrapper's +0x10) exactly as typing does -- each character whole, a Windows-1252 character as its one
+   byte, stopping before the first one that does not fit the box's byte limit ([box+0x28]).  Returns the
+   number of bytes the box's text grew by; 0 for malformed or empty text. */
+int __stdcall VvfpBoxInsertUtf8(unsigned char *box, const char *utf8) {
+    __try {
+        unsigned char *text;
+        int before, key;
+        if (box == NULL || utf8 == NULL || g_vt == NULL || (text = *(unsigned char **)(box + 0x30)) == NULL) {
+            return 0;
+        }
+        before = ln_len(text);
+        while (*utf8) {
+            /* A ring slot holds at most 39 bytes: insert in whole-character chunks. */
+            unsigned char chunk[36];
+            const unsigned char *s = (const unsigned char *)utf8, *end = ut_end(s);
+            int n = 0;
+            while (s + n < end) {
+                unsigned int cp;
+                int k = ut_seq(s + n, end, &cp);
+                if (k == 0) {
+                    k = 1;                  /* a stray byte: read by the rule (Windows-1252) */
+                }
+                if (n + k > 32) {
+                    break;
+                }
+                n += k;
+            }
+            CopyMemory(chunk, s, (size_t)n);
+            chunk[n] = 0;
+            utf8 += n;
+            g_ring_next = (g_ring_next + 1) % VT_RING;
+            {
+                /* Stray bytes become their Windows-1252 characters, re-encoded as UTF-8 for the ring. */
+                const unsigned char *p = chunk, *e = chunk + n;
+                int o = 0;
+                while (p < e && o + 4 < (int)sizeof g_ring[0]) {
+                    unsigned int cp;
+                    p += ut_next(p, e, &cp);
+                    o += ut_encode(cp, g_ring[g_ring_next] + o);
+                }
+                g_ring[g_ring_next][o] = 0;
+            }
+            key = (int)(VT_MARK | ((unsigned int)g_ring_next << 8));
+            vt_box_insert(box, (unsigned int)key);
+            text = *(unsigned char **)(box + 0x30);
+            if (text == NULL || ln_len(text) - before < 0) {
+                break;
+            }
+            if (*utf8 && ln_len(text) + 1 > *(int *)(box + 0x28)) {
+                break;
+            }
+        }
+        text = *(unsigned char **)(box + 0x30);
+        return text != NULL ? ln_len(text) - before : 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 0;
 }

@@ -185,17 +185,41 @@ def byte_length(text: str) -> int:
     return len(encode_game_text(text))
 
 
-def fit_bytes(text: str, limit: int) -> str:
-    """The longest start of `text`, cut between whole characters (grapheme clusters where Python can
-    tell: a combining mark, variation selector, emoji modifier or zero-width-joined part never left
-    alone), whose bytes fit `limit`."""
+ZERO_WIDTH_JOINER = chr(0x200D)
+
+
+def _extends(ch: str) -> bool:
     import unicodedata
-    out = text
-    while out and byte_length(out) > limit:
-        out = out[:-1]
-        while out and (unicodedata.combining(out[-1]) or out[-1] == "‍"
-                       or 0xFE00 <= ord(out[-1]) <= 0xFE0F or 0x1F3FB <= ord(out[-1]) <= 0x1F3FF):
-            out = out[:-1]
-        if out.endswith("‍"):
-            out = out[:-1]
+    cp = ord(ch)
+    return (unicodedata.combining(ch) != 0 or unicodedata.category(ch) in ("Mn", "Me")
+            or cp in (0x200C, 0x200D) or 0xFE00 <= cp <= 0xFE0F or 0xE0100 <= cp <= 0xE01EF
+            or 0x1F3FB <= cp <= 0x1F3FF or 0xE0020 <= cp <= 0xE007F)
+
+
+def clusters(text: str) -> list[str]:
+    """`text` cut into the units the games' companion draws and erases whole (native text_utf8.h): a
+    character with its combining marks, variation selectors, emoji modifiers, tags and zero-width-joined
+    parts; a regional-indicator pair (a flag)."""
+    out: list[str] = []
+    i, n = 0, len(text)
+    while i < n:
+        j = i + 1
+        if 0x1F1E6 <= ord(text[i]) <= 0x1F1FF and j < n and 0x1F1E6 <= ord(text[j]) <= 0x1F1FF:
+            j += 1
+        while j < n and _extends(text[j]):
+            j += 1
+            if text[j - 1] == ZERO_WIDTH_JOINER and j < n and text[j] not in " \n":
+                j += 1
+        out.append(text[i:j])
+        i = j
+    return out
+
+
+def fit_bytes(text: str, limit: int) -> str:
+    """The longest start of `text`, cut between whole units (clusters()), whose bytes fit `limit`."""
+    out = ""
+    for unit in clusters(text):
+        if byte_length(out + unit) > limit:
+            break
+        out += unit
     return out
