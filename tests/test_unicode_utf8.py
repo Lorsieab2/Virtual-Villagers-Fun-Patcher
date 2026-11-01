@@ -85,6 +85,46 @@ class TheReadingRule(unittest.TestCase):
         self.assertTrue(printable(POO) and printable("‍") and not printable("\x07"))
 
 
+class TheLongNamesFile(unittest.TestCase):
+    """src/vv_long_names.py reads the file native/vvfp_unicode_text/long_names.inc appends to."""
+
+    def test_pairs_and_whole_lines_only(self):
+        import vv_long_names as ln
+        short = fit_bytes(JAPANESE, 19) + "…"
+        data = (b"VVFP Long Names v1\n" + short.encode(GAME_TEXT) + b"\t" + JAPANESE.encode(GAME_TEXT) + b"\n"
+                + short.encode(GAME_TEXT) + b"\tsomething else\n" + b"half\tline")
+        pairs = ln.parse(data)
+        self.assertEqual(pairs, {short.encode(GAME_TEXT): JAPANESE.encode(GAME_TEXT)})   # the first pair wins
+        self.assertEqual(ln.whole_name(short.encode(GAME_TEXT), pairs), JAPANESE)
+        self.assertEqual(ln.expand(f"{short} has died.", pairs), f"{JAPANESE} has died.")
+        self.assertEqual(ln.parse(b"not ours\na\tb\n"), {})
+
+    def test_the_file_name_matches_the_companion(self):
+        import vv_long_names as ln
+        native = (ROOT / "native" / "vvfp_unicode_text" / "long_names.inc").read_text(encoding="utf-8")
+        self.assertIn('L"Virtual Villagers %d Long Names - Save %d.dat"', native)
+        self.assertIn('L"Long Names"', native)
+        self.assertIn('"VVFP Long Names v1\\n"', native)
+        self.assertEqual(ln.file_name(3, 2), "Virtual Villagers 3 Long Names - Save 2.dat")
+        self.assertIn("#define VV_SHARED_NAME_BYTES 1200", native)
+        self.assertEqual(ln.SHARED_NAME_BYTES, 1200)
+
+    def test_the_font_choice_is_written_beside_the_companion(self):
+        import tempfile
+        import vv_fun_patcher as vfp
+        patch = next(p for p in vfp.load_public_fun_patches() if p.id == "vv2_unicode_font")
+        with tempfile.TemporaryDirectory() as folder:
+            try:
+                vfp.set_unicode_font_face("Yu Gothic")
+                vfp._write_unicode_font_choice(Path(folder), [patch])
+            finally:
+                vfp.set_unicode_font_face(None)
+            dll = Path(folder) / vfp._safe_companion_destination("VVFP Unicode Font.dll")
+            self.assertEqual((dll.parent / "VVFP Unicode Font.txt").read_text(encoding="utf-8"), "Yu Gothic\n")
+        with self.assertRaises(vfp.PatcherError):
+            vfp.set_unicode_font_face("bad\nname")
+
+
 class TheTables(unittest.TestCase):
     @unittest.skipUnless(HAVE_STOCK and HAVE_EMULATOR, "stock executables are not available")
     def test_every_detoured_site_is_the_stock_executables_own(self):
