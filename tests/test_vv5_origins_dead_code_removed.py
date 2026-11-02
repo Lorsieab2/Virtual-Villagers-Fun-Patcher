@@ -84,7 +84,9 @@ def render(scope: str, mode: str) -> bytes:
         if scope == "alone":
             ids = [BASE_ID]
         else:
-            public = [p.id for p in vfp.load_public_fun_patches() if p.game_id == "vv5"]
+            # the full catalog but each pair's alternative (Use Unicode Font), as Select All
+            public = [p.id for p in vfp.load_public_fun_patches() if p.game_id == "vv5"
+                      and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
             ids = vfp.resolve_fun_patch_ids(public, game_id="vv5")
         image, _ = vfp.render_patched_bytes(STOCK, build, mode, ids)
         _renders[key] = bytes(image)
