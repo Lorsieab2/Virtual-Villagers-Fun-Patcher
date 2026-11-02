@@ -727,6 +727,7 @@ static int record_missing_core(
             }
         }
     }
+    vv_note_save_names(game_id);
     /* A record that matches a context villager is theirs first (Codex,
        #536) -- but only a record of their own kind: a context villager of
        the Births call has no parents (an Arrived record is theirs), one of

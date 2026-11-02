@@ -699,6 +699,7 @@ static void mark_alive(int game_id, struct backfill_target *targets, int count) 
         || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
         return;
     }
+    vv_note_save_names(game_id);
     for (slot = 0; slot < g->slots; ++slot) {
         const unsigned char *record = records + g->record_base + (size_t)slot * g->stride;
         char name[MAX_NAME_BYTES];

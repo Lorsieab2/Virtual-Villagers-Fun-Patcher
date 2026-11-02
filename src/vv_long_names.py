@@ -122,14 +122,27 @@ def legacy_mask(name: str) -> str:
     return "".join(chr(c) if c < 0x80 else "?" for c in raw)
 
 
+def only_question_marks(name: str) -> bool:
+    """A name of '?' alone (and any trailing spaces): a real, deliberate name.  The island events that make a
+    villager forget their name write exactly "?" -- The Lost Children 0x41FD61 / 0x4211EE ("A Bump On The
+    Head"), The Secret City 0x418433, The Tree of Life 0x4156D9, New Believers 0x415BDA; the string is "?"
+    and a NUL in every game, no space -- so it is never read as an older exporter's mask."""
+    stripped = name.rstrip(" \t")
+    return bool(stripped) and set(stripped) == {"?"}
+
+
 def legacy_names(save_names) -> dict[str, str]:
-    """Masked -> real name, for the save's names that have a byte 0x80-0xFF and whose mask is theirs alone."""
+    """Masked -> real name, for the save's names that have a byte 0x80-0xFF and whose mask is theirs alone.
+    Never a mask that is '?' alone (only_question_marks), and never a mask that is itself the name of a save
+    villager (that is her own name, not anybody's mask)."""
+    names = [n for n in save_names if n]
+    actual = set(names)
     seen: dict[str, set[str]] = {}
-    for name in save_names:
+    for name in names:
         masked = legacy_mask(name)
-        if masked != name:
+        if masked != name and not only_question_marks(masked) and masked not in actual:
             seen.setdefault(masked, set()).add(name)
-    return {masked: next(iter(names)) for masked, names in seen.items() if len(names) == 1}
+    return {masked: next(iter(group)) for masked, group in seen.items() if len(group) == 1}
 
 
 def _legacy_lines(text: str) -> str:

@@ -65,16 +65,37 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
     only."""
     folder = Path(folder)
     people = _villagers(folder, game, slot)
+    actual = {v.name for v in people}
     by_mask: dict[str, list] = {}
     for v in people:
         masked = vv_long_names.legacy_mask(v.name)
-        if masked != v.name:
+        # Never "?" alone (the bump-on-the-head name), never a name a save villager really has.
+        if masked != v.name and not vv_long_names.only_question_marks(masked) and masked not in actual:
             by_mask.setdefault(masked, []).append(v)
     result = Survey()
     if not by_mask:
         return result
     import vv_log_tools as tools
     checker = tools.load_checker()
+    # A name a "Name changed" record gave or took (a rename the logs record) was chosen as it is.
+    renamed: set[str] = set()
+    for path in checker.log_files(folder):
+        try:
+            text = path.read_bytes().decode("vv-game-text").replace("\r\n", "\n")
+        except OSError:
+            continue
+        for block in text.split("\n\n"):
+            lines = block.strip("\n").split("\n")
+            if lines and lines[0].strip() == "Name changed":
+                for line in lines[1:]:
+                    m = _VALUE.match(line)
+                    if m is not None and m.group("label") in ("Name", "Old name", "New name"):
+                        renamed.add(m.group("value"))
+    for masked in list(by_mask):
+        if masked in renamed:
+            del by_mask[masked]
+    if not by_mask:
+        return result
     for path in checker.log_files(folder):
         try:
             lines = path.read_bytes().decode("vv-game-text").replace("\r\n", "\n").split("\n")
@@ -96,12 +117,15 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
             # the next name or record.
             head = body = sex = None
             indent = len(m.group("indent"))
-            for nxt in lines[k + 1:k + 12]:
+            for nxt in lines[k + 1:k + 16]:
                 n = _VALUE.match(nxt)
-                if n is None or not nxt.strip():
-                    break
-                if len(n.group("indent")) <= indent and n.group("label") not in ("Head", "Body", "Sex"):
-                    break
+                if not nxt.strip() or not nxt[:1].isspace():
+                    break                       # the record ends (a blank line, the next heading)
+                if n is None:
+                    continue
+                if len(n.group("indent")) <= indent and n.group("label") in ("Name", "Child", "Mother", "Father",
+                                                                              "Parents"):
+                    break                       # somebody else's name: these looks are not hers
                 label, value = n.group("label"), n.group("value")
                 if label == "Head" and head is None:
                     head = value

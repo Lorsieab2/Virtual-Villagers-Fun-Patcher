@@ -951,11 +951,48 @@ static const struct game_layout *layout_of(int game_id) {
    bytes, or when one has a '?' and is the other with each byte 0x80-0xFF turned into '?'.  Used only
    where the rest of the identity (head, body, age, parents...) is compared too, so two villagers are
    never merged; never between two names that both come from the save. */
+/* The save's own names of the village being matched (vv_note_save_names): a log name that IS one of
+   them is that villager's name, never an older exporter's mask of another's. */
+#define VV_SAVE_NAMES_MAX 512
+static char vv_save_names[VV_SAVE_NAMES_MAX][MAX_NAME_BYTES];
+static int vv_save_name_count;
+
+static int vv_is_save_name(const char *name) {
+    int i;
+    for (i = 0; i < vv_save_name_count; ++i) {
+        if (strcmp(vv_save_names[i], name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A name made only of '?' (with any trailing spaces) is a real, deliberate name: the island events
+   that make a villager forget their name write exactly "?" (The Lost Children 0x41FD61 / 0x4211EE,
+   The Secret City 0x418433, The Tree of Life 0x4156D9, New Believers 0x415BDA; the string is "?" and
+   a NUL in every game, no space).  It is never read as an older exporter's mask. */
+static int vv_only_question_marks(const char *name) {
+    const unsigned char *p = (const unsigned char *)name;
+    int marks = 0;
+    for (; *p == '?'; ++p) {
+        ++marks;
+    }
+    while (*p == ' ' || *p == '\t') {
+        ++p;
+    }
+    return marks > 0 && *p == 0;
+}
+
 static int vv_name_same(const char *a, const char *b) {
     const unsigned char *x = (const unsigned char *)a, *y = (const unsigned char *)b;
     int legacy_ab = 1, legacy_ba = 1, marked = 0;
     if (strcmp(a, b) == 0) {
         return 1;
+    }
+    /* Never the bump-on-the-head "?" (or "??", "? "), never a name a save villager really has. */
+    if (vv_only_question_marks(a) || vv_only_question_marks(b) || vv_is_save_name(a) && strchr(a, '?') != NULL
+        || vv_is_save_name(b) && strchr(b, '?') != NULL) {
+        return 0;
     }
     for (; *x && *y; ++x, ++y) {
         if (*x == '?' || *y == '?') {
@@ -2874,6 +2911,12 @@ static struct tribe *saved_tribe;       /* the tribe at the last save */
 static int saved_valid;
 static struct tribe *scratch_tribe;
 static const unsigned char *last_table[6];
+
+static const unsigned char *villager_table(int game_id);
+
+/* Every name the save's villager table holds now, for vv_name_same (rule: a log name a villager really
+   has is never another's mask). */
+static void vv_note_save_names(int game_id);
 
 static const unsigned char *villager_table(int game_id) {
     const unsigned char *module;
@@ -4995,6 +5038,25 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         return 0;
     }
     return emit_record(game_id, kind, check ? records : NULL, text);
+}
+
+static void vv_note_save_names(int game_id) {
+    const struct game_layout *g = layout_of(game_id);
+    const unsigned char *records = villager_table(game_id);
+    int slot;
+    vv_save_name_count = 0;
+    if (g == NULL || records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return;
+    }
+    for (slot = 0; slot < g->slots && vv_save_name_count < VV_SAVE_NAMES_MAX; ++slot) {
+        const unsigned char *record = records + g->record_base + (size_t)slot * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        copy_villager_name(g, record, vv_save_names[vv_save_name_count], MAX_NAME_BYTES);
+        ++vv_save_name_count;
+    }
 }
 
 #include "grave_backfill.inc"
