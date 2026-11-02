@@ -95,6 +95,10 @@ from test_details_name_identity import name_identity_fixes  # noqa: E402
 # The Details name box is written back only to the villager it was filled for
 # (tests/test_details_name_identity.py).
 FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES + name_identity_fixes("vv4")
+# No divide-by-zero crash in the line drawer (tests/test_no_divide_by_zero_crashes.py).
+from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
+
+FIXES = FIXES + zero_length_line_fixes("vv4")
 
 
 def _vv4():
