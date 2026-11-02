@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    ALTERNATIVE_FUN_PATCH_IDS,
     PatcherError,
     _pe_checksum_layout,
     identify,
@@ -289,6 +290,7 @@ class VV2BirthControlTests(unittest.TestCase):
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
             and patch.id != "vv2_full_mastery_all_stage_a_candidate"
+            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
         ]
         ids = [patch.id for patch in catalog]
         selected = resolve_fun_patch_ids(ids, game_id="vv2", patches=catalog)

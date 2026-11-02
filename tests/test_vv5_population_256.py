@@ -1097,7 +1097,8 @@ class CompositionTests(unittest.TestCase):
 
     def test_every_public_patch(self):
         public = [p.id for p in vfp.load_public_fun_patches()
-                  if p.raw.get("game_id") == "vv5" and p.id != "vv5_population_256"]
+                  if p.raw.get("game_id") == "vv5" and p.id != "vv5_population_256"
+                  and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         origins = {"vv5_enable_origins_exclusive_features"}
         no_origins = [i for i in public if not origins & set(_with_prerequisites([i]))]
         selections = [("all", public), ("all without Origins", no_origins)]
@@ -1115,7 +1116,8 @@ class CompositionTests(unittest.TestCase):
         256 Villagers do name the stock table."""
         build = next(b for b in vfp.load_builds() if b.id == "vv5")
         public = [p.id for p in vfp.load_public_fun_patches()
-                  if p.raw.get("game_id") == "vv5" and p.id != "vv5_population_256"]
+                  if p.raw.get("game_id") == "vv5" and p.id != "vv5_population_256"
+                  and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         data, applied = vfp.render_patched_bytes(EXE, build, "collection_progression", public)
         found = _leftovers(bytes(data), applied)
         for what in ("manager", "records", "mask table", "slot gate 150"):

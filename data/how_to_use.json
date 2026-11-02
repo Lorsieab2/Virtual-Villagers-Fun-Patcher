@@ -590,20 +590,24 @@
       "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
       "guide": [
         "Nothing to click: tick the patch and patch the game again.",
-        "Type any character in the tribe name, villager names (the Details screen), epitaphs and every other text box: accents (dead keys, Alt codes), Greek, Cyrillic, Turkish, Chinese and Japanese (Windows' input methods), Arabic, Hebrew, cuneiform, and emoji from the emoji panel (Windows key + .).",
-        "Backspace erases a whole character (a whole emoji or accented letter). Every box holds up to 1,200 bytes; a name longer than the save's field is saved short (ending in …) and kept whole in the save's Long Names file, and shown whole in the game.",
-        "Every text the game draws shows them in its own fonts, at their real widths; emoji are in colour; Chinese and Japanese lines break between characters.",
-        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it). Other characters come from the fonts Windows has.",
-        "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen (ticked with it). On by default and in Owner's Defaults. Not yet seen in a running game."
+        "Type any character in names, the tribe name and every text box: accents, Greek, Cyrillic, Chinese,",
+        "Japanese, Arabic, cuneiform, emoji (Windows key + .). Backspace erases a whole character.",
+        "Boxes take 1,200 English letters (fewer in other scripts); a longer name is saved short (ending in …), kept whole.",
+        "The game draws them in its own fonts, emoji in colour; Chinese and Japanese lines break between characters.",
+        "For Burweed text, install the Burweed ICG font (never shipped); other letters come from Windows' fonts.",
+        "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen.",
+        "On by default and in Owner's Defaults. Not yet seen in a running game."
       ]
     },
     {
       "ids": ["vv1_unicode_font", "vv2_unicode_font", "vv3_unicode_font", "vv4_unicode_font", "vv5_unicode_font"],
       "guide": [
-        "Tick it to draw ALL of the game's text in a Windows typeface instead of the game's own bitmap fonts, then patch the game again.",
-        "Pick the typeface in the Unicode Font box under the patch list (Segoe UI unless you choose another); the patcher writes it next to the game as VVFP Unicode Font.txt. Characters the face lacks come from Windows' other fonts.",
-        "Every character works, as with Render Unicode with In-Game Fonts: typing, whole-character Backspace, the 1,200-byte limit and long names.",
-        "Cannot be used with Render Unicode with In-Game Fonts (ticking one unticks the other). Needs Full Names on the Details Screen (ticked with it). Off by default and in Owner's Defaults. Not yet seen in a running game."
+        "Tick it to draw ALL of the game's text in a Windows typeface instead of its own fonts; patch again.",
+        "Pick the typeface in the Unicode Font box under the patch list (Segoe UI unless you choose another).",
+        "Every character works, as with Render Unicode with In-Game Fonts.",
+        "Cannot be used with Render Unicode with In-Game Fonts (ticking one unticks the other).",
+        "Needs Full Names on the Details Screen. Off by default; Select All does not tick it.",
+        "Not yet seen in a running game."
       ]
     },
     {
@@ -854,6 +858,7 @@
         "Ticks every patch for every game.",
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
+        "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "It does not change the population mode."
       ]
     },
@@ -863,6 +868,7 @@
         "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
+        "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
@@ -873,6 +879,7 @@
       "guide": [
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
+        "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It does not change the population mode."
       ]

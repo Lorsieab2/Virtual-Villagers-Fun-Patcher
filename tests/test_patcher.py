@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    ALTERNATIVE_FUN_PATCH_IDS,
     SHARED_SECTION_HEADERS,
     DEFAULT_PATCH_MODE,
     PatcherError,
@@ -1136,6 +1137,8 @@ class ManifestTests(unittest.TestCase):
         source = STOCK / build.input_name
         feature_ids = [
             patch.id for patch in load_fun_patches() if patch.game_id == "vv2"
+            # every patch but each pair's alternative (Use Unicode Font), as Select All
+            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
         ]
         # 11 since the tip-wording row (vv2_numeric_keys_tip_wording), which
         # changes one string pointer and dead storage and composes with everything;

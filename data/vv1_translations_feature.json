@@ -12,7 +12,7 @@
     "At game start the companion reads \"Virtual Villagers Fun Patcher Files\\Translation\\Translation.txt\" (written by the patcher's Translations window; docs/translation-file-format.md). With no such file it returns at once and writes nothing.",
     "Each translated line replaces the English where the game looks it up: the string table at 0x487208 (629 rows): each translated row's English pointer (+4); the visible literals outside the table by the address their loading instruction pushes (data/translations/vv1_strings.json).  A line is used only when the English it was made from is the English this game shows (the key's SHA-256), its placeholders match and its selects are well formed.",
     "The patcher's own windows (Origins, Story / Cheat Upgrades, Custom Island Event) are translated as they open (a WH_CALLWNDPROCRET hook on the game's own thread, only when the file translates any of them).",
-    "Without \"Render Unicode with In-Game Fonts\" (its companion's VvfpGlyphsUtf8), translations are given to the game in Windows-1252, '?' for what it cannot spell."
+    "Without \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font (overrides in-game fonts)\" (their companion's VvfpGlyphsUtf8; Use Unicode Font's, which starts later, is loaded and started on first use), translations are given to the game in Windows-1252, '?' for what it cannot write."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the companion checks each site's stock bytes and writes them at run time through the shared all-or-none writer, and writes only the ones the chosen file needs; if any check fails it writes nothing, not even a table pointer, and the game stays English.",

@@ -116,8 +116,9 @@ def row(game: int, dll_sha: str) -> dict:
             % game,
             "The patcher's own windows (Origins, Story / Cheat Upgrades, Custom Island Event) are translated as they "
             "open (a WH_CALLWNDPROCRET hook on the game's own thread, only when the file translates any of them).",
-            "Without \"Render Unicode with In-Game Fonts\" (its companion's VvfpGlyphsUtf8), translations are "
-            "given to the game in Windows-1252, '?' for what it cannot spell.",
+            "Without \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font (overrides in-game fonts)\" "
+            "(their companion's VvfpGlyphsUtf8; Use Unicode Font's, which starts later, is loaded and started on "
+            "first use), translations are given to the game in Windows-1252, '?' for what it cannot write.",
         ],
         "explicit_non_changes": [
             "This row changes no executable bytes: the companion checks each site's stock bytes and writes them at "

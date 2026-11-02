@@ -93,8 +93,8 @@ def decode_game_text(data) -> str:
 def encode_game_text(text: str, errors: str = "strict") -> bytes:
     """The bytes the games store for `text`: each character Windows-1252 has as its one byte (so a name an
     older patcher or the base game wrote keeps its bytes, and stays as short as it can), every other
-    character as UTF-8 -- unless that mix would read back as different text (a Windows-1252 pair such as
-    "Ã©" is also the UTF-8 of "é"), when every non-ASCII character is written as UTF-8."""
+    character as UTF-8 -- unless that mix would read back as different text (two Windows-1252 letters can
+    also spell one UTF-8 character), when every non-ASCII character is written as UTF-8."""
     if text.isascii():
         return text.encode("ascii")
     parts = []
