@@ -40,7 +40,7 @@ GAME_NAMES = {"vv1": "A New Home", "vv2": "The Lost Children", "vv3": "The Secre
               "vv4": "The Tree of Life", "vv5": "New Believers"}
 IMAGES = {g: ROOT / "research" / "game-images" / f"Virtual Villagers - {n}" / "Images" for g, n in GAME_NAMES.items()}
 ARENA = 0x30000000            # the game-side heap this module hands out
-ARENA_SIZE = 0x04000000
+ARENA_SIZE = 0x10000000          # 256 MB: the emulated HeapFree keeps nothing
 RETURN = 0x0BAD0000
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 

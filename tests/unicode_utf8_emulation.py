@@ -179,6 +179,22 @@ def _register_uniscribe() -> None:
             a, b = a.casefold(), b.casefold()
         ret(2 + ((a > b) - (a < b)))
 
+    def wsprintf_w(mc, arg, ret):
+        fmt = ute._wstr(mc.mu, arg(1), 512)
+        out, k = [], 2
+        for piece in re.split(r"(%d|%ls|%s)", fmt):
+            if piece == "%d":
+                out.append(str(struct.unpack("<i", struct.pack("<I", arg(k)))[0]))
+                k += 1
+            elif piece in ("%ls", "%s"):
+                out.append(ute._wstr(mc.mu, arg(k), 1024))
+                k += 1
+            else:
+                out.append(piece)
+        text = "".join(out)
+        ute._wput(mc.mu, arg(0), text)
+        ret(len(text))
+
     se.EXTRA_IMPORTS.update({
         "ScriptItemize": (28, itemize),
         "ScriptLayout": (16, layout),
@@ -189,7 +205,10 @@ def _register_uniscribe() -> None:
         "lstrcmpA": (8, cmp_a),
         "SHGetSpecialFolderPathW": (16, none(0)),
         "CreateFileW": (28, none(0xFFFFFFFF)),
-        "wsprintfW": (0, none(0)),
+        "wsprintfW": (0, wsprintf_w),
+        # Without use_files(): no Documents folder is found, nothing is read or written.
+        "GetFileAttributesExW": (12, none(0)),
+        "SetFilePointerEx": (20, none(0)),
         "CompareStringW": (24, compare_w),
         "SDL_MapRGBA": (0, map_rgba),
         "wsprintfA": (0, none(0)),
@@ -202,12 +221,110 @@ class TextRun(ute.FontRun):
     def __init__(self, game: str, selection, tables: dict) -> None:
         _register_uniscribe()
         super().__init__(game, "collection_progression", selection, tables)
+        _register_uniscribe()               # after unicode_text_emulation's own answers (wsprintfW...)
         self.addr = routines()[game]
         self.fonts = {}
         for font in ("ldwBurweed27", "ldwarialbold"):
             spacing = tables["games"][game]["fonts"][font]["spacing"]
             self.fonts[font] = self.build_font(font, spacing)
         self.dll = next((m for k, m in self.m.modules.items() if "unicode" in k), None)
+        self._files_installed = False
+
+    # -- the Documents folder and the save slot (the Long Names file) ------------------------------------
+    MANAGER = {"vv1": (0x48AEDC, 0xABE4), "vv2": (0x4997BC, 0x30378), "vv3": (0x4B309C, 0x12F24),
+               "vv4": (0x4CB51C, 0x17114), "vv5": (0x4DACE0, 0x17D80)}      # native/shared/game_save_slot.h
+
+    def use_files(self, slot: int = 1) -> dict:
+        """Answer the file APIs from an in-memory Documents folder (startup_emulation's, D:\\Documents) and
+        give the game a save manager on `slot`.  write_fault: None, "fail" (nothing written) or "short"
+        (half the bytes written, half reported).  Returns the files dict (path -> bytes)."""
+        m = self.m
+        mu = m.mu
+        if not self._files_installed:
+            self._files_installed = True
+            self.write_fault = None
+            self.tick = 1000
+            self.pos: dict[str, int] = {}
+            original = m._import
+            run = self
+
+            def _import(name: str) -> None:
+                sp = mu.reg_read(UC_X86_REG_ESP)
+
+                def arg(k):
+                    return struct.unpack("<I", mu.mem_read(sp + 4 + 4 * k, 4))[0]
+
+                def ret(value, pop):
+                    ret_to = struct.unpack("<I", mu.mem_read(sp, 4))[0]
+                    mu.reg_write(UC_X86_REG_EAX, value & 0xFFFFFFFF)
+                    mu.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
+                    mu.reg_write(UC_X86_REG_EIP, ret_to)
+
+                if name == "GetTickCount":
+                    ret(run.tick, 0)
+                elif name == "GetFileAttributesExW":
+                    path = ute._wstr(mu, arg(0), 300)
+                    if path in m.files:
+                        # WIN32_FILE_ATTRIBUTE_DATA: 36 bytes
+                        mu.mem_write(arg(2), struct.pack("<I24sII", 0x20, b"\0" * 24, 0, len(m.files[path])))
+                        run.last_error = 0
+                        ret(1, 12)
+                    elif any(p.lower().startswith(path.lower() + "\\") for p in m.files) or path in run.dirs:
+                        mu.mem_write(arg(2), struct.pack("<I24sII", 0x10, b"\0" * 24, 0, 0))
+                        ret(1, 12)
+                    else:
+                        run.last_error = 2
+                        ret(0, 12)
+                elif name == "GetLastError":
+                    ret(getattr(run, "last_error", 2), 0)
+                elif name == "CreateDirectoryW":
+                    run.dirs.add(ute._wstr(mu, arg(0), 300))
+                    ret(1, 8)
+                elif name == "FindFirstFileW":
+                    run.last_error = 2
+                    ret(0xFFFFFFFF, 8)
+                elif name == "CreateFileW":
+                    path = ute._wstr(mu, arg(0), 300)
+                    if arg(4) == 3 and path not in m.files:
+                        run.last_error = 2
+                        ret(0xFFFFFFFF, 28)
+                        return
+                    m._open_path = path
+                    m.files.setdefault(path, b"")
+                    run.pos[path] = 0
+                    ret(se.FILE_HANDLE, 28)
+                elif name == "GetFileSize":
+                    ret(len(m.files.get(m._open_path or "", b"")), 8)
+                elif name == "SetFilePointerEx":
+                    run.pos[m._open_path] = arg(1)
+                    ret(1, 20)
+                elif name == "ReadFile":
+                    data = m.files.get(m._open_path, b"")
+                    at = run.pos.get(m._open_path, 0)
+                    chunk = data[at:at + arg(2)]
+                    mu.mem_write(arg(1), chunk)
+                    run.pos[m._open_path] = at + len(chunk)
+                    if arg(3):
+                        mu.mem_write(arg(3), struct.pack("<I", len(chunk)))
+                    ret(1, 20)
+                elif name == "WriteFile" and run.write_fault:
+                    data = bytes(mu.mem_read(arg(1), arg(2)))
+                    kept = b"" if run.write_fault == "fail" else data[:len(data) // 2]
+                    m.files[m._open_path] += kept
+                    if arg(3):
+                        mu.mem_write(arg(3), struct.pack("<I", len(kept)))
+                    ret(0 if run.write_fault == "fail" else 1, 20)
+                else:
+                    original(name)
+
+            self.dirs: set[str] = set()
+            m._import = _import
+        heap = m.font_heap
+        address, field = self.MANAGER[self.game]
+        manager = heap.alloc(field + 8)
+        mu.mem_write(manager + field, struct.pack("<i", slot))
+        mu.mem_write(address, struct.pack("<I", manager))
+        return m.files
 
     # -- the companion's counters ------------------------------------------------------------------
     def export(self, name: str) -> int:

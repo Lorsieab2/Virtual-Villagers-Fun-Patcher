@@ -395,10 +395,10 @@ static void rg_stamp(rg_canvas *cv, int pen, WORD glyph, unsigned int argb, int 
 
 /* Shape `text` in one face; 1 and the canvas drawn when every glyph is in the face. */
 static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv, int *advance) {
-    SCRIPT_ITEM items[65];
+    static SCRIPT_ITEM items[RG_MAX_UNIT + 1];      /* one per run of a script, direction or digits */
     int nitems = 0, i, pen = 0, ok = 1;
-    BYTE levels[64];
-    int order[64];
+    static BYTE levels[RG_MAX_UNIT];
+    static int order[RG_MAX_UNIT];
     WORD glyphs[RG_MAX_UNIT];
     WORD clusters[RG_MAX_UNIT];
     SCRIPT_VISATTR attrs[RG_MAX_UNIT];
@@ -407,7 +407,7 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
     rg_hfont *h = rg_font_at(face, ppem);
     rg_colr *colr;
     if (h == NULL || n <= 0 || n > RG_MAX_UNIT
-        || ScriptItemize(text, n, 64, NULL, NULL, items, &nitems) != S_OK || nitems <= 0 || nitems > 64) {
+        || ScriptItemize(text, n, RG_MAX_UNIT, NULL, NULL, items, &nitems) != S_OK || nitems <= 0 || nitems > RG_MAX_UNIT) {
         return 0;
     }
     colr = rg_colr_of(face);

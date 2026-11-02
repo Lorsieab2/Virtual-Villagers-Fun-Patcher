@@ -40,6 +40,7 @@ STOCK = ROOT / "research" / "stock-executables"
 IMAGES = ROOT / "research" / "game-images"
 POO = "\U0001F4A9"
 CUNEIFORM = "\U0001208D\U00012000\U0001223E\U00012362\U00012155"
+ELLIPSIS = chr(0x2026)
 ZOE = "Zoë Ñúñez"
 JAPANESE = "山田太郎・アレクサンドラ・モンゴメリー・スミス三世"
 CENTRED = {"vv1": 0x4094C0, "vv2": 0x4096B0, "vv3": 0x40A070, "vv4": 0x409BE0, "vv5": 0x409EB0}
@@ -88,23 +89,28 @@ class TheReadingRule(unittest.TestCase):
 class TheLongNamesFile(unittest.TestCase):
     """src/vv_long_names.py reads the file native/vvfp_unicode_text/long_names.inc appends to."""
 
-    def test_pairs_and_whole_lines_only(self):
+    def test_pairs_and_whole_records_only(self):
         import vv_long_names as ln
-        short = fit_bytes(JAPANESE, 19) + "…"
-        data = (b"VVFP Long Names v1\n" + short.encode(GAME_TEXT) + b"\t" + JAPANESE.encode(GAME_TEXT) + b"\n"
-                + short.encode(GAME_TEXT) + b"\tsomething else\n" + b"half\tline")
+        short = (fit_bytes(JAPANESE, 19) + ELLIPSIS).encode(GAME_TEXT)
+        whole = JAPANESE.encode(GAME_TEXT)
+        good = ln.record(short, whole)
+        data = (ln.HEADER + good + ln.record(short, b"something else") + good[:-9] + b"\n"   # a cut record
+                + b"x\ty\t00000000\n" + b"half\tline")
         pairs = ln.parse(data)
-        self.assertEqual(pairs, {short.encode(GAME_TEXT): JAPANESE.encode(GAME_TEXT)})   # the first pair wins
-        self.assertEqual(ln.whole_name(short.encode(GAME_TEXT), pairs), JAPANESE)
-        self.assertEqual(ln.expand(f"{short} has died.", pairs), f"{JAPANESE} has died.")
+        self.assertEqual(pairs, {short: whole})                         # the first record wins
+        self.assertEqual(ln.whole_name(short, pairs), JAPANESE)
+        self.assertEqual(ln.expand(short.decode(GAME_TEXT) + " has died.", pairs), JAPANESE + " has died.")
         self.assertEqual(ln.parse(b"not ours\na\tb\n"), {})
+        # a record cut by a failed write, then the companion's own newline first: only it is lost
+        merged = ln.HEADER + good[:10] + b"\n" + ln.record(b"A\x85", b"Abc")
+        self.assertEqual(ln.parse(merged), {b"A\x85": b"Abc"})
 
     def test_the_file_name_matches_the_companion(self):
         import vv_long_names as ln
         native = (ROOT / "native" / "vvfp_unicode_text" / "long_names.inc").read_text(encoding="utf-8")
         self.assertIn('L"Virtual Villagers %d Long Names - Save %d.dat"', native)
         self.assertIn('L"Long Names"', native)
-        self.assertIn('"VVFP Long Names v1\\n"', native)
+        self.assertIn('#define LN_HEADER "VVFP Long Names v2\\n"', native)
         self.assertEqual(ln.file_name(3, 2), "Virtual Villagers 3 Long Names - Save 2.dat")
         self.assertIn("#define VV_SHARED_NAME_BYTES 1200", native)
         self.assertEqual(ln.SHARED_NAME_BYTES, 1200)
@@ -390,6 +396,45 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(run.get_text(wrapper2, FIELD[game]).split(b"\0")[0], short)
                 # Drawn and measured as the whole name.
                 self.assertEqual(run.width_of("ldwarialbold", short), run.width_of("ldwarialbold", raw))
+
+    def test_the_long_names_file_is_written_whole_or_written_again(self):
+        """The pair is appended to the save's Long Names file in one write; a failed or short write leaves it
+        pending and it is written again at a later draw; a cut record never hides a good one (Codex, #676)."""
+        import vv_long_names as ln
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                files = run.use_files(1)
+                n = int(game[2])
+
+                def the_file():
+                    found = [p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}")]
+                    self.assertEqual(len(found), 1, list(files))
+                    self.assertIn("\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Long Names\\", found[0])
+                    return files[found[0]]
+
+                def leave(name, fault=None):
+                    run.write_fault = fault
+                    wrapper, box = run.new_box(23)
+                    run.set_text(box, _bytes_of(name))
+                    short = run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
+                    run.write_fault = None
+                    return short
+
+                first = leave(JAPANESE + "一")
+                self.assertEqual(ln.parse(the_file()).get(first), _bytes_of(JAPANESE + "一"))
+                failed = leave(JAPANESE + "二", "fail")
+                self.assertNotIn(failed, ln.parse(the_file()))
+                cut = leave(JAPANESE + "三", "short")
+                self.assertNotIn(cut, ln.parse(the_file()))
+                # A later draw, two seconds on, writes the pending pairs again.
+                run.tick += 5000
+                run.draw_text("ldwarialbold", _bytes_of(POO))
+                pairs = ln.parse(the_file())
+                self.assertEqual(pairs.get(failed), _bytes_of(JAPANESE + "二"))
+                self.assertEqual(pairs.get(cut), _bytes_of(JAPANESE + "三"))
+                self.assertEqual(pairs.get(first), _bytes_of(JAPANESE + "一"))
+                self.assertEqual(len({first, failed, cut}), 3)
+                self.assertTrue(the_file().endswith(b"\n"))
 
     def test_line_fitting_breaks_japanese_between_characters(self):
         for game, run in self.runs.items():

@@ -3,26 +3,31 @@ Fonts" and "Use Unicode Font", all five games).
 
 Every text box in the games takes VV_SHARED_NAME_BYTES (1200) bytes.  A text that leaves a box for a shorter
 field (a villager's name: 27 bytes in A New Home, 23 in the others; the tribe name 31 / 19; an epitaph) is
-saved there as its SHORT FORM -- the longest start of whole characters that fits, then the ellipsis "…" (and
-a number when another long name already has that short form) -- and the companion appends one line,
-"<short form><TAB><whole text>\\n" in the game's own bytes, to
+saved there as its SHORT FORM -- the longest start of whole characters that fits, then the ellipsis (and a
+number when another long name already has that short form) -- and the companion appends one record,
+"<short form><TAB><whole text><TAB><CRC-32 of the two and the tab, 8 upper-case hex><LF>" in the game's own
+bytes, in one write, to
 
     <save folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Long Names\\
         Virtual Villagers <N> Long Names - Save <S>.dat
 
-(first line "VVFP Long Names v1"; lines are only ever added, and the first line for a short form wins).
-native/vvfp_unicode_text/long_names.inc writes it; this module reads it, so the patcher's windows, logs and
-family trees can show the whole name: whole_name(raw) gives it for one name read from a save.
+(first line "VVFP Long Names v2"; records are only ever added, and the first record for a short form wins;
+a record cut short by a failed write fails its checksum and is skipped).  native/vvfp_unicode_text/
+long_names.inc writes it; this module reads it, so the patcher's windows, logs and family trees show the
+whole name: whole_name(raw) for one name read from a save, expand(text) for a log line.
 """
 from __future__ import annotations
 
+import zlib
 from pathlib import Path
 
 from vv_game_text import GAME_TEXT
 
 SHARED_NAME_BYTES = 1200
-HEADER = b"VVFP Long Names v1"
+HEADER = b"VVFP Long Names v2" + b"\n"
 FOLDER = Path("Virtual Villagers Fun Patcher")
+ELLIPSIS = chr(0x2026)
+_TAB, _LF = b"\t", b"\n"
 
 
 def file_name(game: int, slot: int) -> str:
@@ -33,17 +38,25 @@ def path(save_folder: Path, game: int, slot: int) -> Path:
     return Path(save_folder) / FOLDER / f"Save {slot}" / "Data" / "Long Names" / file_name(game, slot)
 
 
+def record(short: bytes, whole: bytes) -> bytes:
+    """One record as the companion writes it."""
+    body = short + _TAB + whole
+    return body + _TAB + b"%08X" % zlib.crc32(body) + _LF
+
+
 def parse(data: bytes) -> dict[bytes, bytes]:
-    """Short form -> whole text, in the game's bytes; whole lines only (a line still being written is
-    ignored), the first pair of a short form wins."""
+    """Short form -> whole text, in the game's bytes: every whole record whose checksum holds (a record cut
+    short, or merged with the next, is skipped); the first record of a short form wins."""
     pairs: dict[bytes, bytes] = {}
     if not data.startswith(HEADER):
         return pairs
-    lines = data.split(b"\n")
-    for line in lines[1:-1]:                  # the last piece has no newline yet: not a whole line
-        short, tab, whole = line.partition(b"\t")
-        if tab and short and whole and short not in pairs:
-            pairs[short] = whole
+    for line in data[len(HEADER):].split(_LF)[:-1]:       # the last piece has no LF: not a whole record
+        parts = line.split(_TAB)
+        if len(parts) != 3 or not parts[0] or not parts[1] or len(parts[2]) != 8:
+            continue
+        if b"%08X" % zlib.crc32(parts[0] + _TAB + parts[1]) != parts[2]:
+            continue
+        pairs.setdefault(parts[0], parts[1])
     return pairs
 
 
@@ -68,7 +81,7 @@ def whole_name(raw: bytes, pairs: dict[bytes, bytes]) -> str:
 
 def expand(text: str, pairs: dict[bytes, bytes]) -> str:
     """`text` with each short form in it replaced by its whole text, the longest first (as the game draws)."""
-    if not pairs or "…" not in text:
+    if not pairs or ELLIPSIS not in text:
         return text
     by_text = sorted(((s.decode(GAME_TEXT), w.decode(GAME_TEXT)) for s, w in pairs.items()),
                      key=lambda item: -len(item[0]))

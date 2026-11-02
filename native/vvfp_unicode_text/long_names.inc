@@ -11,8 +11,10 @@
    The pair (short form, whole name) is appended at once to
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Long Names\
            Virtual Villagers <N> Long Names - Save <S>.dat
-   (one "short<TAB>whole" line each, the game's own bytes; the file starts "VVFP Long Names v1").  Lines
-   are only ever added, so a name set and never saved (the game saves only on a clean quit) leaves a
+   (one "short<TAB>whole<TAB>CRC-32" line each, the game's own bytes; the file starts "VVFP Long Names
+   v2").  Lines are only ever added, each in one write, and a pair counts as kept only when the whole
+   line was written (else it is written again two seconds later, at the next draw); a line cut short is
+   skipped by its checksum.  A name set and never saved (the game saves only on a clean quit) leaves a
    line nothing uses, which harms nothing.  The patcher reads the same files (src/vv_long_names.py).
 
    Wherever the game draws or measures text, each short form in it is drawn as its whole name; a text
@@ -21,6 +23,8 @@
 
 #define VV_SHARED_NAME_BYTES 1200       /* the engine's own text-box ceiling (SetEditable caps at 1200) */
 #define LN_MAX 4096
+#define LN_HEADER "VVFP Long Names v2\n"
+#define LN_HEADER_LEN 19
 #define LN_ARENA (2 * 1024 * 1024)
 
 typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, pending; } ln_pair;
@@ -77,6 +81,34 @@ static void ln_add(const unsigned char *shrt, int sl, const unsigned char *full,
     }
 }
 
+/* CRC-32 (IEEE, the zlib one): each record carries the checksum of its "short<TAB>whole" bytes. */
+static unsigned int ln_crc32(const unsigned char *p, int n) {
+    unsigned int c = 0xFFFFFFFFu;
+    int i, k;
+    for (i = 0; i < n; ++i) {
+        c ^= p[i];
+        for (k = 0; k < 8; ++k) {
+            c = (c >> 1) ^ (0xEDB88320u & (0u - (c & 1u)));
+        }
+    }
+    return ~c;
+}
+
+static int ln_hex8(const unsigned char *p, unsigned int *v) {
+    int i;
+    *v = 0;
+    for (i = 0; i < 8; ++i) {
+        unsigned int d;
+        if (p[i] >= '0' && p[i] <= '9') d = p[i] - '0';
+        else if (p[i] >= 'A' && p[i] <= 'F') d = p[i] - 'A' + 10;
+        else return 0;
+        *v = (*v << 4) | d;
+    }
+    return 1;
+}
+
+/* Every whole, intact record of a file: "short<TAB>whole<TAB>CRC32 (8 hex)\n".  A record cut short (a full
+   disk, a crash) or merged with the next fails its checksum and is skipped; nothing else is lost. */
 static void ln_load_slot(int slot) {
     WCHAR path[MAX_PATH];
     HANDLE f;
@@ -90,33 +122,37 @@ static void ln_load_slot(int slot) {
         return;
     }
     size = GetFileSize(f, NULL);
-    if (size == INVALID_FILE_SIZE || size > 4 * 1024 * 1024 || size < 18) {
+    if (size == INVALID_FILE_SIZE || size > 16 * 1024 * 1024 || size < LN_HEADER_LEN) {
         CloseHandle(f);
         return;
     }
     data = (unsigned char *)vg_alloc(size + 1);
-    if (data == NULL || !ReadFile(f, data, size, &got, NULL) || got != size || memcmp(data, "VVFP Long Names v1", 18) != 0) {
+    if (data == NULL || !ReadFile(f, data, size, &got, NULL) || got != size
+        || memcmp(data, LN_HEADER, LN_HEADER_LEN) != 0) {
         vg_free(data);
         CloseHandle(f);
         return;
     }
     CloseHandle(f);
     data[size] = 0;
-    p = data;
+    p = data + LN_HEADER_LEN;
     end = data + size;
-    while (p < end && *p != '\n') ++p;
     while (p < end) {
-        unsigned char *line = ++p, *tab = NULL;
+        unsigned char *line = p, *tab1 = NULL, *tab2 = NULL;
         while (p < end && *p != '\n') {
-            if (*p == '\t' && tab == NULL) tab = p;
+            if (*p == '\t') {
+                if (tab1 == NULL) tab1 = p; else if (tab2 == NULL) tab2 = p; else tab2 = (unsigned char *)1;
+            }
             ++p;
         }
-        if (tab != NULL && p <= end && (p < end || p == end)) {
-            int sl = (int)(tab - line), fl = (int)(p - tab - 1);
-            if (p < end && fl > 0 && sl > 0) {          /* only a whole line (it ends with '\n') */
-                ln_add(line, sl, tab + 1, fl);
+        if (p < end && tab1 != NULL && tab2 != NULL && tab2 != (unsigned char *)1 && p - tab2 == 9) {
+            unsigned int want;
+            int sl = (int)(tab1 - line), fl = (int)(tab2 - tab1 - 1);
+            if (sl > 0 && fl > 0 && ln_hex8(tab2 + 1, &want) && ln_crc32(line, (int)(tab2 - line)) == want) {
+                ln_add(line, sl, tab1 + 1, fl);
             }
         }
+        ++p;                          /* past the '\n' (or the end) */
     }
     vg_free(data);
 }
@@ -132,30 +168,77 @@ static void ln_load(void) {
     }
 }
 
+/* Append one pair to the save's file: the header (a new file), a '\n' when the file does not end with one
+   (a record cut short before stays alone and fails its checksum), then the whole record -- in ONE write.
+   The pair stays pending, to be written again later, unless every byte was written. */
+static void ln_write_once(ln_pair *pair);
+
 static void ln_write(ln_pair *pair) {
+    pair->pending = 1;
+    ln_write_once(pair);
+    if (pair->pending) {
+        g_ln_slot_pending = 1;          /* tried again at a later draw (ln_flush_pending) */
+    }
+}
+
+static void ln_write_once(ln_pair *pair) {
     WCHAR path[MAX_PATH];
     HANDLE f;
-    DWORD put;
-    int slot = vv_current_save_slot(g_game_number, 0);
-    pair->pending = 1;
+    DWORD put = 0, size;
+    unsigned char *rec;
+    int slot = vv_current_save_slot(g_game_number, 0), fl = ln_len(pair->full), n = 0, body;
+    unsigned int crc;
+    static const char HEX[] = "0123456789ABCDEF";
     if (!ln_path(slot, path)) {
-        g_ln_slot_pending = 1;
         return;
     }
-    f = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    rec = (unsigned char *)vg_alloc((size_t)(LN_HEADER_LEN + 1 + pair->shrt_len + 1 + fl + 1 + 8 + 1));
+    if (rec == NULL) {
+        return;
+    }
+    f = CreateFileW(path, GENERIC_READ | FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (f == INVALID_HANDLE_VALUE) {
-        g_ln_slot_pending = 1;
+        vg_free(rec);
         return;
     }
-    pair->pending = 0;
-    if (GetFileSize(f, NULL) == 0) {
-        WriteFile(f, "VVFP Long Names v1\n", 19, &put, NULL);
+    size = GetFileSize(f, NULL);
+    if (size == INVALID_FILE_SIZE) {
+        CloseHandle(f);
+        vg_free(rec);
+        return;
     }
-    WriteFile(f, pair->shrt, (DWORD)pair->shrt_len, &put, NULL);
-    WriteFile(f, "\t", 1, &put, NULL);
-    WriteFile(f, pair->full, (DWORD)ln_len(pair->full), &put, NULL);
-    WriteFile(f, "\n", 1, &put, NULL);
+    if (size == 0) {
+        CopyMemory(rec, LN_HEADER, LN_HEADER_LEN);
+        n = LN_HEADER_LEN;
+    } else {
+        unsigned char last = 0;
+        DWORD got = 0;
+        LARGE_INTEGER at;
+        at.QuadPart = (LONGLONG)size - 1;
+        if (SetFilePointerEx(f, at, NULL, FILE_BEGIN) && ReadFile(f, &last, 1, &got, NULL) && got == 1 && last != '\n') {
+            rec[n++] = '\n';
+        }
+    }
+    body = n;
+    CopyMemory(rec + n, pair->shrt, (size_t)pair->shrt_len);
+    n += pair->shrt_len;
+    rec[n++] = '\t';
+    CopyMemory(rec + n, pair->full, (size_t)fl);
+    n += fl;
+    crc = ln_crc32(rec + body, n - body);
+    rec[n++] = '\t';
+    {
+        int k;
+        for (k = 7; k >= 0; --k) {
+            rec[n++] = (unsigned char)HEX[(crc >> (4 * k)) & 0xF];
+        }
+    }
+    rec[n++] = '\n';
+    if (WriteFile(f, rec, (DWORD)n, &put, NULL) && put == (DWORD)n) {
+        pair->pending = 0;
+    }
     CloseHandle(f);
+    vg_free(rec);
 }
 
 /* The whole name of a short form, or NULL. */
@@ -242,10 +325,13 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
 
 /* Pairs made before the save had a slot: written once it has one. */
 static void ln_flush_pending(void) {
+    static DWORD last_try;
+    DWORD now = GetTickCount();
     int i;
-    if (!g_ln_slot_pending || vv_current_save_slot(g_game_number, 0) == 0) {
+    if (!g_ln_slot_pending || vv_current_save_slot(g_game_number, 0) == 0 || now - last_try < 2000) {
         return;
     }
+    last_try = now;
     g_ln_slot_pending = 0;
     for (i = 0; i < g_ln_count; ++i) {
         if (g_ln[i].pending) {
