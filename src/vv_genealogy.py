@@ -375,6 +375,20 @@ def _cstr(data: bytes, at: int, cap: int) -> str:
     return vv_long_names.whole_bytes(bytes(data[at:at + cap]).split(b"\0", 1)[0]).decode(GAME_TEXT)
 
 
+def _note_legacy_names(reg) -> None:
+    """Logs written before v1.35.89 hold each name byte 0x80-0xFF as '?': while this full-name load runs, a
+    log value that is exactly one save name so masked reads as that name (vv_long_names.LEGACY).  The rest
+    of the identity (head, body, sex...) is still compared wherever records are matched."""
+    import vv_long_names
+    if vv_long_names.ACTIVE is not None and vv_game_text_hook_is_on():
+        vv_long_names.LEGACY.update(vv_long_names.legacy_names(p.name for p in reg.people.values() if p.name))
+
+
+def vv_game_text_hook_is_on() -> bool:
+    import vv_game_text
+    return vv_game_text.LONG_NAMES is not None
+
+
 def _cstr_raw(data: bytes, at: int, cap: int) -> str:
     """A name field exactly as written (matched against A New Home's own sidecar, which keeps the field's
     bytes)."""
@@ -1287,6 +1301,7 @@ def _load_village(folder: Path, game: int, slot: int, full_names: bool = True,
             reg.full[v.identity] = (cut.full, v.head, v.body)
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
+    _note_legacy_names(reg)
     _births(reg, folder, game, slot)
     _living_namesake_births(reg)
     _namesakes_by_birth(reg, notes)

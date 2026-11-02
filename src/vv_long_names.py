@@ -85,15 +85,17 @@ class activate:
     Names and Number Duplicate Names rename what is written, so they need the short forms)."""
 
     def __init__(self, save_folder: Path | None, game: int | None) -> None:
-        self.pairs = load(save_folder, game) if save_folder is not None and game else {}
+        self.on = save_folder is not None and bool(game)
+        self.pairs = load(save_folder, game) if self.on else {}
 
     def __enter__(self):
         global ACTIVE
         import vv_game_text
         self.before = ACTIVE
         self.before_hook = vv_game_text.LONG_NAMES
+        self.before_legacy = dict(LEGACY)
         ACTIVE = self.pairs
-        vv_game_text.LONG_NAMES = expand_line if self.pairs else None
+        vv_game_text.LONG_NAMES = expand_line if self.on else None
         return self.pairs
 
     def __exit__(self, *exc):
@@ -101,7 +103,41 @@ class activate:
         import vv_game_text
         ACTIVE = self.before
         vv_game_text.LONG_NAMES = self.before_hook
+        LEGACY.clear()
+        LEGACY.update(self.before_legacy)
         return False
+
+
+# Logs written before v1.35.89 hold each name byte 0x80-0xFF as '?' (the parentage exporter's old rule):
+# "Zo? ??ez" is the save's "Zoe Nunez" with her accents.  While a full-name reader runs, a log line whose
+# value is exactly such a name of the save reads as that name (legacy_names(): only names no other
+# villager of the save shares once masked, so two villagers are never made one).
+LEGACY: dict[str, str] = {}
+
+
+def legacy_mask(name: str) -> str:
+    """A name as the exporter wrote it before v1.35.89: each byte 0x80-0xFF as '?'."""
+    import vv_game_text
+    raw = vv_game_text.encode_game_text(name)
+    return "".join(chr(c) if c < 0x80 else "?" for c in raw)
+
+
+def legacy_names(save_names) -> dict[str, str]:
+    """Masked -> real name, for the save's names that have a byte 0x80-0xFF and whose mask is theirs alone."""
+    seen: dict[str, set[str]] = {}
+    for name in save_names:
+        masked = legacy_mask(name)
+        if masked != name:
+            seen.setdefault(masked, set()).add(name)
+    return {masked: next(iter(names)) for masked, names in seen.items() if len(names) == 1}
+
+
+def _legacy_lines(text: str) -> str:
+    if not LEGACY or "?" not in text:
+        return text
+    import re
+    return re.sub(r"(?m)^([ \t]*[A-Za-z][A-Za-z ]*: )(.*?)(\r?)$",
+                  lambda m: m.group(1) + LEGACY.get(m.group(2), m.group(2)) + m.group(3), text)
 
 
 def whole_bytes(raw: bytes) -> bytes:
@@ -110,8 +146,9 @@ def whole_bytes(raw: bytes) -> bytes:
 
 
 def expand_line(line: str) -> str:
-    """A log line with each short form of the active village whole."""
-    return expand(line, ACTIVE) if ACTIVE else line
+    """A log line (or a whole log) with each short form of the active village whole, and each name an older
+    exporter wrote with '?' for its letters 0x80-0xFF as the save's (LEGACY)."""
+    return _legacy_lines(expand(line, ACTIVE) if ACTIVE else line)
 
 
 def whole_name(raw: bytes, pairs: dict[bytes, bytes]) -> str:

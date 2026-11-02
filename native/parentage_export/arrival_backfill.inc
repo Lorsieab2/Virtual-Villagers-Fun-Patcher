@@ -547,7 +547,7 @@ static int is_founder(int i, char (*names)[ARRIVAL_KEY_NAME], const int *heads, 
     int k, j;
     int same_name = 0;
     for (k = 0; k < founder_count; ++k) {
-        if (strcmp(founders[k].name, names[i]) != 0) {
+        if (!vv_name_same(founders[k].name, names[i])) {
             continue;
         }
         if (founders[k].head == heads[i] && founders[k].body == bodies[i]) {
@@ -745,7 +745,7 @@ static int record_missing_core(
                 for (j = 0; j < arrival_key_count && !found; ++j) {
                     struct arrival_key *k = &arrival_keys[j];
                     if (!k->reserved && k->kind == context_kind && k->held == pass
-                        && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+                        && k->head == heads[i] && k->body == bodies[i] && vv_name_same(k->name, names[i])) {
                         k->reserved = 1;
                         found = 1;
                     }
@@ -763,7 +763,7 @@ static int record_missing_core(
         for (j = 0; j < arrival_key_count; ++j) {
             const struct arrival_key *k = &arrival_keys[j];
             if (!k->reserved
-                && k->head == heads[i] && k->body == bodies[i] && strcmp(k->name, names[i]) == 0) {
+                && k->head == heads[i] && k->body == bodies[i] && vv_name_same(k->name, names[i])) {
                 if (k->held) {
                     ++held;
                 } else {
@@ -793,7 +793,7 @@ static int record_missing_core(
             int m;
             for (j = 0; j < arrival_key_count; ++j) {
                 int claimed = 0;
-                if (strcmp(arrival_keys[j].name, names[i]) != 0) {
+                if (!vv_name_same(arrival_keys[j].name, names[i])) {
                     continue;
                 }
                 for (m = 0; m < count && !claimed; ++m) {
@@ -811,7 +811,7 @@ static int record_missing_core(
                     continue;
                 }
                 for (m = 0; m < arrival_key_count && !own && j != i; ++m) {
-                    own = strcmp(arrival_keys[m].name, names[j]) == 0 && arrival_keys[m].head == heads[j]
+                    own = vv_name_same(arrival_keys[m].name, names[j]) && arrival_keys[m].head == heads[j]
                         && arrival_keys[m].body == bodies[j];
                 }
                 if (!own) {
@@ -842,14 +842,14 @@ static int record_missing_core(
             for (j = 0; j < arrival_key_count; ++j) {
                 const struct arrival_key *k = &arrival_keys[j];
                 if (!k->reserved && k->head == heads[i] && k->body == bodies[i]
-                    && strcmp(k->name, names[i]) != 0 && arrival_names_fit(k->name, names[i])) {
+                    && !vv_name_same(k->name, names[i]) && arrival_names_fit(k->name, names[i])) {
                     ++records_fit;
                     only = k;
                 }
             }
             for (j = 0; j < count; ++j) {
                 if (only != NULL && heads[j] == heads[i] && bodies[j] == bodies[i]
-                    && (strcmp(only->name, names[j]) == 0 || arrival_names_fit(only->name, names[j]))) {
+                    && (vv_name_same(only->name, names[j]) || arrival_names_fit(only->name, names[j]))) {
                     ++villagers_fit;
                 }
             }
@@ -875,7 +875,7 @@ static int record_missing_core(
                 }
                 for (v = 0; v < count; ++v) {
                     if (names[v][0] != '\0' && heads[v] == k->head && bodies[v] == k->body
-                        && (strcmp(names[v], k->name) == 0
+                        && (vv_name_same(names[v], k->name)
                             || (v != i && arrival_names_related(game_id, k->name, names[v])))) {
                         ++owners;
                     }
@@ -919,13 +919,13 @@ static int record_missing_core(
                 struct arrival_key *k = &arrival_keys[j];
                 int owners = 0;
                 if (k->reserved || k->kind != ARRIVAL_READ_BIRTH || k->head != heads[i] || k->body != bodies[i]
-                    || strcmp(k->name, names[i]) == 0
+                    || vv_name_same(k->name, names[i])
                     || strcmp(k->father, fathers[i]) != 0 || strcmp(k->mother, mothers[i]) != 0) {
                     continue;
                 }
                 for (v = 0; v < count; ++v) {
                     if (names[v][0] != '\0' && heads[v] == k->head && bodies[v] == k->body
-                        && strcmp(names[v], k->name) == 0) {
+                        && vv_name_same(names[v], k->name)) {
                         ++owners;
                     }
                 }

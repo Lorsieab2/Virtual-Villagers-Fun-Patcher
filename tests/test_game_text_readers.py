@@ -125,5 +125,45 @@ class OneLongNamedVillager(unittest.TestCase):
         self.assertEqual(ln.ACTIVE, {})
 
 
+class OlderLogsWithQuestionMarks(unittest.TestCase):
+    """Up to v1.35.88 the parentage exporter wrote each name byte 0x80-0xFF as '?': a v1.35.87 player's
+    "Zoe Nunez" with her accents is "Zo? ???ez" in the Births log.  The Family Tree Maker's readers make
+    her one villager (the save's name), and a name masked the same for two villagers is never guessed."""
+
+    ZOE = "Zo\u00eb \u00d1\u00fa\u00f1ez"
+
+    def _village(self, names_in_save, log_name):
+        folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        people = [entry("Ma", 1, 7, 4, 4), entry("Pa", 0, 7, 2, 2)]
+        for name, head in names_in_save:
+            people.append(_entry(name, 1, 7, head, 5, father=("Pa", 2, 2), mother=("Ma", 4, 4)))
+        (folder / "Virtual Villagers - The Secret City1.ldw").write_bytes(
+            bytes(bytearray(b"ldwg" + bytes(TABLE - 4)) + b"".join(people) + bytes(64)))
+        (folder / DATA).mkdir(parents=True)
+        births = folder / LOGS / "Births and Conceptions" / "Virtual Villagers 3 Births and Conceptions Log 1.txt"
+        births.parent.mkdir(parents=True)
+        births.write_bytes((VILLAGE + f"Birth\n  Child: {log_name}\n    Head: 3\n    Body: 5\n"
+                            "  Mother: Ma\n    Head: 4\n    Body: 4\n  Father: Pa\n    Head: 2\n"
+                            "    Body: 2\n\n").replace("\n", "\r\n").encode("ascii"))
+        return gen.load_village(folder, 3, 1)
+
+    def test_an_older_log_name_is_the_save_villager(self):
+        import vv_long_names as ln
+        self.assertEqual(ln.legacy_mask(self.ZOE), "Zo? ???ez")
+        village = self._village([(self.ZOE, 3)], "Zo? ???ez")
+        names = sorted(p.name for p in village.people.values() if p.name.startswith("Zo"))
+        self.assertEqual(names, [self.ZOE], "one villager, by her real name")
+        zoe = next(p for p in village.people.values() if p.name == self.ZOE)
+        self.assertEqual((village.people[zoe.mother].name, village.people[zoe.father].name), ("Ma", "Pa"))
+        self.assertEqual(ln.LEGACY, {})
+
+    def test_a_mask_two_save_names_share_is_never_guessed(self):
+        other = "Zo\u00e9 \u00d1\u00fa\u00f1ez"           # "Zoe" with an acute accent: the same mask
+        village = self._village([(self.ZOE, 3), (other, 6)], "Zo? ???ez")
+        names = sorted(p.name for p in village.people.values() if p.name.startswith("Zo"))
+        self.assertIn("Zo? ???ez", names)
+        self.assertIn(self.ZOE, names)
+        self.assertIn(other, names)
+
 if __name__ == "__main__":
     unittest.main()

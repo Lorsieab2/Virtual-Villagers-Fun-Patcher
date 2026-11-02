@@ -105,6 +105,9 @@ CHECKS += 4 * 5
 # + 2 per game: a newcomer the game made, robed in the same session, keeps her arrival report (case h,
 # cod_arrivals.inc who_still)
 CHECKS += 2 * 5
+# + 3 per game with Birth records (v1.35.89): a Birth record an older exporter wrote with '?' for each
+# name byte 0x80-0xFF is the save's villager -- nothing asked, nothing written (legacy_question_mark_cases)
+CHECKS += 3 * 4
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

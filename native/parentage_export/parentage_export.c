@@ -945,6 +945,32 @@ static const struct game_layout *layout_of(int game_id) {
     return &GAME_LAYOUTS[game_id];
 }
 
+/* One villager's name as a log holds it and as the save holds it.  Up to v1.35.88 this exporter wrote
+   every byte 0x80-0xFF of a name as '?' (so "Zo\xEB" became "Zo?"); a log written then must still
+   match the villager, or a backfill would add a second record of them.  Equal when the two are the same
+   bytes, or when one has a '?' and is the other with each byte 0x80-0xFF turned into '?'.  Used only
+   where the rest of the identity (head, body, age, parents...) is compared too, so two villagers are
+   never merged; never between two names that both come from the save. */
+static int vv_name_same(const char *a, const char *b) {
+    const unsigned char *x = (const unsigned char *)a, *y = (const unsigned char *)b;
+    int legacy_ab = 1, legacy_ba = 1, marked = 0;
+    if (strcmp(a, b) == 0) {
+        return 1;
+    }
+    for (; *x && *y; ++x, ++y) {
+        if (*x == '?' || *y == '?') {
+            marked = 1;
+        }
+        if (!(*x == *y || (*x == '?' && *y >= 0x80))) {
+            legacy_ab = 0;
+        }
+        if (!(*x == *y || (*y == '?' && *x >= 0x80))) {
+            legacy_ba = 0;
+        }
+    }
+    return marked && *x == 0 && *y == 0 && (legacy_ab || legacy_ba);
+}
+
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
    name that exactly fills the buffer leaves no terminator. Copy into a local
    that is one byte longer and terminate it ourselves rather than trusting the
