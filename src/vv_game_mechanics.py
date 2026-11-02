@@ -410,6 +410,12 @@ def chances_facts(village: "Village") -> list[Fact]:
     return list(importlib.import_module("vv_game_mechanics_chances").facts(village))
 
 
+def farmers_facts(village: "Village") -> list[Fact]:
+    """The measured farming trips (src/vv_game_mechanics_farmers.py), in the Food earned group."""
+    farmers = importlib.import_module("vv_game_mechanics_farmers")
+    return [Fact(farmers.GROUP, text, basis, sub) for text, basis, sub in farmers.rule_facts(village.game)]
+
+
 def catchup_facts(village: "Village") -> list[Fact]:
     """The game's own Time away (catch-up) lines (src/vv_game_mechanics_catchup.py, found by name)."""
     return list(importlib.import_module("vv_game_mechanics_catchup").facts(village))
@@ -985,7 +991,7 @@ def read(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         return [Fact("Other", "Nothing is shown for this game yet.")]
     facts = list(module.facts(village))
     if any(fact.group != "Other" for fact in facts):     # not for a save the game's module could not read
-        facts += catchup_facts(village) + genetics_facts(village)
+        facts += catchup_facts(village) + farmers_facts(village) + genetics_facts(village)
         facts += chances_facts(village) + items_facts(village) + hidden_facts(village)
     import vv_game_mechanics_counts as counts      # the Village counts group (src/vv_game_mechanics_counts.py)
     facts += counts.facts(village, facts)
@@ -1030,7 +1036,8 @@ def general(game: int, now: float | None = None) -> list[Fact]:
     module = importlib.import_module(f"vv_game_mechanics_vv{game}")
     keep = []
     items = items_facts(village)               # the reference entries: kept whole, never filtered as save values
-    for fact in list(module.facts(village)) + catchup_facts(village) + genetics_facts(village) + chances_facts(village):
+    for fact in list(module.facts(village)) + catchup_facts(village) + farmers_facts(village) + genetics_facts(village) \
+            + chances_facts(village):
         if fact.due is not None:
             continue                           # a moment of the empty save's village
         if fact.verified == SAVE or fact.text.startswith(("If it were played now", "Time since then", "Next ",

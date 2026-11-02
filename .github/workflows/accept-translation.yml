@@ -1,0 +1,112 @@
+name: accept-translation
+
+# A player shares a translation with the "Share a translation" issue form (.github/ISSUE_TEMPLATE/
+# translation.yml; the patcher's Share on GitHub... opens it pre-filled). Nothing happens until the owner
+# adds the "accept-translation" label to that issue. Then this workflow downloads the attached file, checks
+# it with the patcher's own validator (scripts/validate_translation.py), and either opens a pull request
+# adding translations/<Game title>/<Game title> - <Language>.txt (which "Closes #N" the issue when merged) or
+# comments with the problems and removes the label. docs/translations-for-maintainers.md is the owner's guide.
+#
+# Security (the issue's text and the file are written by anyone with a GitHub account):
+# - only the three permissions below, and only the workflow's own GITHUB_TOKEN;
+# - the issue body reaches the script ONLY through an environment variable: no ${{ github.event.issue.* }}
+#   appears inside a run: script, so no issue text can become shell code;
+# - the file is downloaded by scripts/accept_translation.py with curl: https only, the link must be a
+#   github.com/user-attachments/files/... attachment, every redirect is checked against the allow-list
+#   (objects.githubusercontent.com), at most 4 MB (--max-filesize, then the size on disk);
+# - the file is data only: decoded as text and parsed, never executed, sourced or evaluated;
+# - commits are made as github-actions[bot], never as the person who sent the translation.
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  # One run per issue at a time; a second label event waits rather than racing the first.
+  group: accept-translation-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  accept:
+    if: >-
+      github.event.label.name == 'accept-translation' &&
+      contains(github.event.issue.labels.*.name, 'translation') &&
+      github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check the translation
+        id: prepare
+        # Everything the issue says arrives through env, never by interpolation into the script.
+        shell: bash
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          WORK: ${{ runner.temp }}/translation
+        run: |
+          set -euo pipefail
+          python -I scripts/accept_translation.py
+
+      - name: Open the pull request
+        if: steps.prepare.outputs.verdict == 'accepted'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          WORK: ${{ runner.temp }}/translation
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          branch="translation/issue-${ISSUE_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898213+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -- translations
+          if git diff --cached --quiet; then
+            printf 'This translation is already in the repository exactly as sent; nothing needed to change.\n' > "$WORK/accepted.md"
+            gh issue comment "$ISSUE_NUMBER" --body-file "$WORK/accepted.md"
+            exit 0
+          fi
+          git commit --file "$WORK/commit_message.txt"
+          # The branch belongs to this workflow: a second accept replaces it with the newly checked file.
+          git push --force origin "$branch"
+          url="$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // ""')"
+          if [ -z "$url" ]; then
+            url="$(gh pr create --base "$BASE" --head "$branch" --title "$(cat "$WORK/pr_title.txt")" --body-file "$WORK/pr_body.md")"
+          fi
+          printf 'Thank you! The translation passed the checks and is ready for review in %s\n\nIt will be added when that pull request is merged, and ships in the next release.\n' "$url" > "$WORK/accepted.md"
+          gh issue comment "$ISSUE_NUMBER" --body-file "$WORK/accepted.md"
+
+      - name: Report the problem on the issue
+        if: failure() || steps.prepare.outputs.verdict == 'refused'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          WORK: ${{ runner.temp }}/translation
+          VERDICT: ${{ steps.prepare.outputs.verdict }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -uo pipefail
+          mkdir -p "$WORK"
+          if [ "$VERDICT" = "refused" ] && [ -s "$WORK/comment.md" ]; then
+            cp "$WORK/comment.md" "$WORK/report.md"
+          else
+            printf 'The translation could not be added because the workflow stopped unexpectedly. The maintainer will look at the run: %s\n' "$RUN_URL" > "$WORK/report.md"
+          fi
+          gh issue comment "$ISSUE_NUMBER" --body-file "$WORK/report.md"
+          gh issue edit "$ISSUE_NUMBER" --remove-label accept-translation
+
+      - name: Mark the run as refused
+        if: steps.prepare.outputs.verdict == 'refused'
+        run: exit 1

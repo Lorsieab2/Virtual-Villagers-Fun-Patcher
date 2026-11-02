@@ -90,6 +90,8 @@ FILES = [
     # Render Unicode with In-Game Fonts (all five games): every Windows-1252 character drawn, measured and typed;
     # shipped by each game's row, started by VVFP Startup.dll.
     "assets/unicode_text/VVFP Unicode Text.dll",
+    # Translations (all five games): the chosen language's text, shipped by each game's Translations row.
+    "assets/translations/VVFP Translations.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -203,6 +205,24 @@ FILES = [
     "data/vv5_unicode_text_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
+    "data/vv1_translations_feature.json",
+    "data/vv2_translations_feature.json",
+    "data/vv3_translations_feature.json",
+    "data/vv4_translations_feature.json",
+    "data/vv5_translations_feature.json",
+    # The Translations window (Tools tab): the file format, the games' string inventories (keys and addresses,
+    # never the games' words) and the patcher's own English, and the format's guide.
+    "src/vv_translation_format.py",
+    "src/vv_translations.py",
+    "src/vv_translations_window.py",
+    "data/translations/vv1_strings.json",
+    "data/translations/vv2_strings.json",
+    "data/translations/vv3_strings.json",
+    "data/translations/vv4_strings.json",
+    "data/translations/vv5_strings.json",
+    "data/translations/patcher_strings.json",
+    "docs/translation-file-format.md",
+    "docs/translating-the-games.md",
     "data/vv3_both_factions_feature.json",
     "data/vv3_fruit_trees_refill_together_feature.json",
     "data/vv3_fruit_trees_take_turns_feature.json",
@@ -334,6 +354,13 @@ FILES = [
     "src/vv_game_mechanics_vv5.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
+    # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
+    "src/vv_game_mechanics_farmers.py",
+    "src/vv_game_mechanics_farmers_vv1.py",
+    "src/vv_game_mechanics_farmers_vv2.py",
+    "src/vv_game_mechanics_farmers_vv3.py",
+    "src/vv_game_mechanics_farmers_vv4.py",
+    "src/vv_game_mechanics_farmers_vv5.py",
     "src/vv_game_mechanics_death.py",
     "src/vv_game_mechanics_genetics.py",
     "src/vv_game_mechanics_chances.py",
@@ -521,6 +548,30 @@ FILES = [
     "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
     "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
+# The community translations accepted on GitHub (translations/<Game title>/<Game title> - <Language>.txt; the
+# owner's "accept-translation" workflow adds them): every one ships and appears in the Translations window.
+TRANSLATION_FILES = sorted(
+    path.relative_to(ROOT).as_posix()
+    for path in (ROOT / "translations").glob("*/*.txt")
+    if path.is_file()
+)
+FILES += TRANSLATION_FILES
+
+
+def _assert_translations_valid(files: list[str]) -> None:
+    """Every shipped translation reads, names its game and language, and holds no email address."""
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "src"))
+    import vv_translation_format as _fmt
+    for relative in files:
+        path = ROOT / relative
+        tf = _fmt.read_file(path)
+        game = Path(relative).parent.name
+        problems = _fmt.check_info(tf, game)
+        report = _fmt.validate(tf, game_title=game)
+        problems += report.file_errors
+        if problems:
+            raise RuntimeError(f"{relative}: " + "; ".join(problems))
 
 
 def _assert_no_executable_members(members: list[str]) -> None:
@@ -653,6 +704,7 @@ def _build_source_archive() -> dict | None:
 
 def main() -> int:
     _assert_no_executable_members(FILES)
+    _assert_translations_valid(TRANSLATION_FILES)
     # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
     _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)

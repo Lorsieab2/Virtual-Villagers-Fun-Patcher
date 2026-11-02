@@ -352,8 +352,9 @@ GAME MECHANICS
 On the Tools tab, click Game Mechanics... (or Game mechanics... on any game's
 row). Choose a game, its save folder and a tribe. The page shows, for the
 curious, that village's hidden rules worked out from its save: food sources
-and refills, mushrooms and collectibles, tech points, food eaten, time away
-and Time Warp, island events and their odds, and more. Every time is a real
+and refills, mushrooms and collectibles, tech points, food eaten and the
+farmers needed to supply it (live and while catching up, from farming trips
+measured by running the game's own code), time away and Time Warp, island events and their odds, and more. Every time is a real
 date and time at the save's game speed, for example:
   Tree 1: Mango, planted at 22 October 2026, 3:14 PM, refills every 3 hours
   on Normal speed
