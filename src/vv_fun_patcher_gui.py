@@ -25,6 +25,7 @@ import vv_move_old_names
 import vv_move_to_save_folders
 import vv_last_names
 import vv_cut_names
+import vv_legacy_names
 import vv_corrupt_skills
 import vv_golden_child_revive
 import vv_graves
@@ -4279,6 +4280,12 @@ class App(tk.Tk):
                 skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
             except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
+            # Names an older exporter wrote with '?' for each letter 0x80-0xFF (src/vv_legacy_names.py; the
+            # owner, 2026-11-02: "Yes you can rewrite old ? Names").
+            try:
+                skills["legacy"] = vv_legacy_names.survey(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                skills["legacy_note"] = f"Old \"?\" names were not checked: a file could not be read ({exc})."
             # A New Home's Golden Child, dead or gone with his record still there (src/vv_golden_child_revive.py).
             if number == vv_golden_child_revive.GAME:
                 try:
@@ -4391,6 +4398,16 @@ class App(tk.Tk):
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         if skills.get("revive_golden"):
             grave_lines += self._revive_golden_child(parent, folder, info)
+        # Old "?" names back to the real names (src/vv_legacy_names.py): the logs only, in place.
+        if skills.get("rewrite_legacy"):
+            try:
+                self._run_with_wait("Rewriting the old \"?\" names…\n\nThe save folder is backed up first.",
+                                    lambda: vv_legacy_names.repair(folder, number, info.slot))
+                grave_lines.append(f"Rewrote {len(skills['legacy'].found)} old \"?\" name(s) to the real names.")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The old \"?\" names were not rewritten. {exc}",
+                                     parent=parent)
         # The Lost Children's totems (src/vv_vv2_totems.py), before any rename: the villagers turned into
         # totems first, so a reverted record is never counted as an elder's totem.
         if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
@@ -4952,6 +4969,23 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # Old "?" names (src/vv_legacy_names.py): each record's name back to the save's real name, ticked when
+        # there is any; a name two villagers share once masked is listed and left alone.
+        legacy = skills.get("legacy")
+        legacy_var = tk.BooleanVar(value=bool(legacy is not None and legacy.found))
+        if legacy is not None and legacy.found:
+            ttk.Checkbutton(frame, variable=legacy_var,
+                            text=f"Rewrite {len(legacy.found)} old \"?\" name(s) to the real names "
+                                 "(written by an older Fun Patcher)").pack(anchor="w", pady=(4, 0))
+            ttk.Label(frame, text=vv_legacy_names.describe(legacy.found), wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
+        if legacy is not None and legacy.shared:
+            ttk.Label(frame, text="Left alone (two villagers share the name once masked): " + "; ".join(
+                f"\"{masked}\" ({' / '.join(names)})" for masked, names in legacy.shared.items()),
+                wraplength=600, justify="left", foreground="#555555").pack(anchor="w", padx=(20, 0))
+        if skills.get("legacy_note"):
+            ttk.Label(frame, text=skills["legacy_note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # A New Home's Golden Child (src/vv_golden_child_revive.py; the owner, 2026-10-24): offered only when he
         # is dead or gone and his record is still in the save; never ticked for the player.
         golden = skills.get("golden")
@@ -5174,6 +5208,7 @@ class App(tk.Tk):
             numbers["auto"] = number_auto_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             skills["revive_golden"] = golden is not None and golden.revivable and golden_var.get()
+            skills["rewrite_legacy"] = bool(legacy is not None and legacy.found) and legacy_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
             totems["move"] = totem_survey is not None and move_var.get()

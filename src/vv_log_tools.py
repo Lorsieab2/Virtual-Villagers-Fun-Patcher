@@ -186,6 +186,22 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
                        "Repair Saves & Logs restores them.")
         for note in cut_notes:
             report.add(f"{LOGS} (cut names)", "NOTE", note)
+    # Names an older Fun Patcher wrote with '?' for each letter 0x80-0xFF (src/vv_legacy_names.py): fixable,
+    # Repair Saves & Logs rewrites them to the save's real names.
+    import vv_legacy_names
+    try:
+        legacy = vv_legacy_names.survey(Path(folder), game, slot)
+    except (vv_last_names.LastNamesError, OSError, ValueError, struct.error) as exc:
+        report.add(f"{LOGS} (old ? names)", "UNCHECKED", f"could not be read ({exc})")
+    else:
+        if legacy.found:
+            report.add(f"{LOGS} (old ? names)", "NOTE",
+                       f"{len(legacy.found)} name(s) an older Fun Patcher wrote with \"?\" for each accented or "
+                       f"other non-English letter, fixable: {vv_legacy_names.describe(legacy.found)}; "
+                       "Repair Saves & Logs rewrites them to the real names.")
+        for masked, names in legacy.shared.items():
+            report.add(f"{LOGS} (old ? names)", "NOTE",
+                       f"\"{masked}\" is left as it is: {' and '.join(names)} share it once masked.")
     # Skill values no game can hold (the owner, v1.35.70: "reset obviously-corrupted skill values";
     # src/vv_corrupt_skills.py): NaN, infinite, below 0 or above 100.
     import vv_corrupt_skills

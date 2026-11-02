@@ -166,8 +166,9 @@ class ReleasesLinkTests(unittest.TestCase):
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
-               # Long names: the whole name of a name longer than its field (v1.35.89).
-               "vv_long_names",
+               # Long names: the whole name of a name longer than its field, and older logs' '?' names
+               # rewritten by Repair Saves & Logs (v1.35.89).
+               "vv_long_names", "vv_legacy_names",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -227,6 +228,8 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
                               "vv_log_contradictions",
+                              # Check Saves & Logs' NOTE for older logs' '?' names (v1.35.89).
+                              "vv_legacy_names",
                               # Check Saves & Logs' NOTE for corrupted skill values (v1.35.70).
                               "vv_corrupt_skills",
                               "vv_reconcile",          # the read-only reconciliation (2026-10-11)

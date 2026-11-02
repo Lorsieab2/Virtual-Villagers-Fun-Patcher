@@ -391,6 +391,17 @@ kept whole in the save's Long Names file; the game shows it whole. Names are
 stored as UTF-8 (Western European letters keep their one byte), so older
 names read as before; the base game shows other characters as odd letters.
 
+OLDER LOGS' "?" NAMES
+
+Logs written before v1.35.89 hold each accented or other non-English letter of a
+name as "?" ("Zo? ???ez" for "Zoe Nunez" with her accents). The patcher knows
+such a record is the save's villager when no other villager shares the masked
+name and the record's head and body are hers, so nobody is counted twice. Check
+Saves & Logs lists them as fixable; Repair Saves & Logs offers "Rewrite old "?"
+names to the real names": each record's name is rewritten in place (the save
+folder is backed up first; no record is added, removed or renumbered). A name
+two villagers share once masked is listed and left as it is.
+
 THE PATCHER'S OWN FILES (Unicode)
   Virtual Villagers Fun Patcher\Save <n>\Data\Long Names\
       Virtual Villagers <N> Long Names - Save <n>.dat
