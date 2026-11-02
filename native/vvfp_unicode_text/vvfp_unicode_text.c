@@ -321,6 +321,19 @@ int __stdcall VvfpGlyphsUtf8(void) {
     return g_installed ? 1 : 0;
 }
 
+/* For the companions that write logs (native/shared/long_name.h): the whole name of a long name's short
+   form (long_names.inc), or `name` itself.  The answer stays valid for the rest of the game. */
+const char *__stdcall VvfpLongName(const char *name) {
+    __try {
+        const unsigned char *whole = g_game != NULL ? ln_full_of((const unsigned char *)name) : NULL;
+        if (whole != NULL) {
+            return (const char *)whole;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return name;
+}
+
 /* Number of fonts given letters so far (for the tests' emulation). */
 int __stdcall VvfpUnicodeTextFonts(void) {
     return (int)g_fonts_extended;

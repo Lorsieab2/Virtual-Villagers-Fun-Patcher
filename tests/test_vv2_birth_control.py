@@ -290,9 +290,9 @@ class VV2BirthControlTests(unittest.TestCase):
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
             and patch.id != "vv2_full_mastery_all_stage_a_candidate"
-            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
         ]
-        ids = [patch.id for patch in catalog]
+        # every patch but each pair's alternative (Use Unicode Font), as Select All
+        ids = [patch.id for patch in catalog if patch.id not in ALTERNATIVE_FUN_PATCH_IDS]
         selected = resolve_fun_patch_ids(ids, game_id="vv2", patches=catalog)
         self.assertIn(FEATURE_ID, selected)
         for mode in load_patch_modes():

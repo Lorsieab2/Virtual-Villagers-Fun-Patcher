@@ -88,5 +88,42 @@ class OneVillagerInTheSaveAndTheLogs(unittest.TestCase):
         self.assertEqual((village.people[sarka.mother].name, village.people[sarka.father].name), ("Ma", "Pa"))
 
 
+class OneLongNamedVillager(unittest.TestCase):
+    """v1.35.89: a name longer than its field is saved as a short form ending in an ellipsis and kept whole
+    in the save's Long Names file (src/vv_long_names.py).  The save holds the short form and a log may too:
+    the Family Tree Maker's readers make both whole, so the villager is one person, shown by the whole
+    name; Last Names' readers (full_names=False) keep the names as written."""
+
+    def test_the_save_the_log_and_the_long_names_file_are_one_person(self):
+        import vv_long_names as ln
+        whole = "山田太郎・アレクサンドラ"
+        short = ln.ELLIPSIS.join([whole[:6], ""])
+        folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        people = [
+            entry("Ma", 1, 7, 4, 4), entry("Pa", 0, 7, 2, 2),
+            _entry(short, 1, 7, 3, 5, father=("Pa", 2, 2), mother=("Ma", 4, 4)),
+        ]
+        (folder / "Virtual Villagers - The Secret City1.ldw").write_bytes(
+            bytes(bytearray(b"ldwg" + bytes(TABLE - 4)) + b"".join(people) + bytes(64)))
+        (folder / DATA).mkdir(parents=True)
+        births = folder / LOGS / "Births and Conceptions" / "Virtual Villagers 3 Births and Conceptions Log 1.txt"
+        births.parent.mkdir(parents=True)
+        births.write_bytes((VILLAGE + f"Birth\n  Child: {short}\n    Head: 3\n    Body: 5\n"
+                            "  Mother: Ma\n    Head: 4\n    Body: 4\n  Father: Pa\n    Head: 2\n    Body: 2\n\n")
+                           .replace("\n", "\r\n").encode(GAME_TEXT))
+        sidecar = ln.path(folder, 3, 1)
+        sidecar.parent.mkdir(parents=True)
+        sidecar.write_bytes(ln.HEADER + ln.record(short.encode(GAME_TEXT), whole.encode(GAME_TEXT)))
+        village = gen.load_village(folder, 3, 1)
+        named = [p for p in village.people.values() if p.name.startswith(whole[:4])]
+        self.assertEqual([p.name for p in named], [whole], "one villager, by the whole name")
+        self.assertTrue(named[0].alive)
+        self.assertEqual(village.people[named[0].mother].name, "Ma")
+        # Last Names and Number Duplicate Names work from the names as written.
+        raw = gen.load_village(folder, 3, 1, full_names=False)
+        self.assertEqual([p.name for p in raw.people.values() if p.name.startswith(whole[:4])], [short])
+        self.assertEqual(ln.ACTIVE, {})
+
+
 if __name__ == "__main__":
     unittest.main()

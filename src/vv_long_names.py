@@ -74,16 +74,58 @@ def load(save_folder: Path, game: int) -> dict[bytes, bytes]:
     return pairs
 
 
+# The pairs of the village being read (activate()), for readers that decode one name or line at a time
+# (vv_genealogy._cstr, vv_log_additions.read_lines).  Empty: names are read as written.
+ACTIVE: dict[bytes, bytes] = {}
+
+
+class activate:
+    """`with activate(folder, game):` -- names read meanwhile are whole (the Family Tree Maker and the other
+    full-name readers); outside it, every reader keeps the names as the save and logs write them (Last
+    Names and Number Duplicate Names rename what is written, so they need the short forms)."""
+
+    def __init__(self, save_folder: Path | None, game: int | None) -> None:
+        self.pairs = load(save_folder, game) if save_folder is not None and game else {}
+
+    def __enter__(self):
+        global ACTIVE
+        import vv_game_text
+        self.before = ACTIVE
+        self.before_hook = vv_game_text.LONG_NAMES
+        ACTIVE = self.pairs
+        vv_game_text.LONG_NAMES = expand_line if self.pairs else None
+        return self.pairs
+
+    def __exit__(self, *exc):
+        global ACTIVE
+        import vv_game_text
+        ACTIVE = self.before
+        vv_game_text.LONG_NAMES = self.before_hook
+        return False
+
+
+def whole_bytes(raw: bytes) -> bytes:
+    """A name's bytes, whole when it is a short form of the active village."""
+    return ACTIVE.get(bytes(raw), bytes(raw)) if ACTIVE else bytes(raw)
+
+
+def expand_line(line: str) -> str:
+    """A log line with each short form of the active village whole."""
+    return expand(line, ACTIVE) if ACTIVE else line
+
+
 def whole_name(raw: bytes, pairs: dict[bytes, bytes]) -> str:
     """The text of a name read from a save: its whole text when it is a known short form."""
-    return pairs.get(bytes(raw), bytes(raw)).decode(GAME_TEXT)
+    import vv_game_text
+    return vv_game_text._decode(pairs.get(bytes(raw), bytes(raw)))
 
 
 def expand(text: str, pairs: dict[bytes, bytes]) -> str:
     """`text` with each short form in it replaced by its whole text, the longest first (as the game draws)."""
     if not pairs or ELLIPSIS not in text:
         return text
-    by_text = sorted(((s.decode(GAME_TEXT), w.decode(GAME_TEXT)) for s, w in pairs.items()),
+    import vv_game_text
+    by_text = sorted(((vv_game_text._decode(s), vv_game_text._decode(w)) for s, w in pairs.items()),
                      key=lambda item: -len(item[0]))
     for short, whole in by_text:
         if short in text:

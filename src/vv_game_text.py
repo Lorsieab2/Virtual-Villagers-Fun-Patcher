@@ -62,9 +62,20 @@ def _utf8_length(data, i: int) -> int:
     return 0
 
 
+# While a full-name reader runs (vv_long_names.activate: the Family Tree Maker's load_village), every
+# decoded text has each long name's short form made whole -- in the save, the logs and every other file
+# it reads -- so a long-named villager is one person everywhere.  None otherwise (names as written).
+LONG_NAMES = None
+
+
 def decode_game_text(data) -> str:
     """The games' rule (the same in native/vvfp_unicode_text): each well-formed UTF-8 sequence is its
     character; every other byte is its Windows-1252 character (the five undefined ones as Latin-1)."""
+    text = _decode(data)
+    return LONG_NAMES(text) if LONG_NAMES is not None else text
+
+
+def _decode(data) -> str:
     data = bytes(data)
     if data.isascii():
         return data.decode("ascii")
@@ -104,7 +115,7 @@ def encode_game_text(text: str, errors: str = "strict") -> bytes:
     raw = b"".join(parts)
     # A Latin-1 control U+0080-U+009F (how an older patcher read bytes 0x80-0x9F) is written as its own byte,
     # which now reads as its Windows-1252 character: the same byte, so the same text.
-    if decode_game_text(raw) == "".join(DECODING_TABLE[ord(c)] if 0x80 <= ord(c) <= 0x9F else c for c in text):
+    if _decode(raw) == "".join(DECODING_TABLE[ord(c)] if 0x80 <= ord(c) <= 0x9F else c for c in text):
         return raw
     return text.encode("utf-8", errors)
 

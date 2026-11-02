@@ -75,6 +75,7 @@
 #endif
 
 #include "village_identity.h"
+#include "long_name.h"       /* a long name's whole name (v1.35.89) */
 #include "village_rename.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "save_folder.h"
@@ -114,7 +115,7 @@ enum {
     /* A fixed local bound for a name, checked against each game's own
        name_capacity before use, so adding a game with a longer name field
        fails the guard rather than overrunning these buffers. */
-    MAX_NAME_BYTES = 64,
+    MAX_NAME_BYTES = 256,     /* a name read whole from the Long Names file (long_name.h) fits */
 
     /* How a game records the other parent.
 
@@ -947,8 +948,12 @@ static const struct game_layout *layout_of(int game_id) {
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
    name that exactly fills the buffer leaves no terminator. Copy into a local
    that is one byte longer and terminate it ourselves rather than trusting the
-   buffer, and replace anything unprintable so one corrupt record cannot make
-   the whole log unreadable. */
+   buffer, and replace control bytes so one corrupt record cannot make the
+   whole log unreadable.  Bytes 0x80-0xFF are the name's own letters (Windows-
+   1252, or UTF-8 with Render Unicode with In-Game Fonts) and are kept: before
+   v1.35.89 they were written as '?', so "Zoe" with its accent, an emoji or a
+   cuneiform name reached the logs as question marks.  A long name's short
+   form (ending in an ellipsis) is written whole when it fits (long_name.h). */
 static void copy_name_field(
     const unsigned char *source,
     char *out,
@@ -965,9 +970,12 @@ static void copy_name_field(
         if (value == 0) {
             break;
         }
-        out[index] = (value >= 0x20 && value < 0x7F) ? (char)value : '?';
+        out[index] = (value >= 0x20 && value != 0x7F) ? (char)value : '?';
     }
     out[index] = '\0';
+    if (index > 0) {
+        vv_long_name_into(out, out_size);
+    }
     if (index == 0) {
         /* An empty name is not an error worth dropping the record over: the
            rest of the row still identifies the villager by id, head and body. */

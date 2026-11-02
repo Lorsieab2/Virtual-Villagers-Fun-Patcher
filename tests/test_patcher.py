@@ -2606,6 +2606,8 @@ class StockIntegrationTests(unittest.TestCase):
             patch.id
             for patch in load_fun_patches()
             if patch.game_id == "vv1"
+            # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font), as Select All
+            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
             and patch.id
             not in {
                 "vv1_enable_origins_exclusive_features",
@@ -4092,6 +4094,8 @@ class StockIntegrationTests(unittest.TestCase):
             patch.id
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
+            # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font), as Select All
+            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
             and patch.id
             not in {
                 "vv2_full_mastery_all_stage_a_candidate",
