@@ -64,9 +64,13 @@ def _offsets(text: str) -> set[int]:
 
 
 def run_harness(cases: list[tuple[str, str]]) -> list[str]:
+    return run_harness_lines([f"{cmd} {text.encode('utf-8').hex()}" for cmd, text in cases])
+
+
+def run_harness_lines(lines: list[str]) -> list[str]:
     with tempfile.TemporaryDirectory() as tmp:
         src, out = Path(tmp, "in.txt"), Path(tmp, "out.txt")
-        src.write_text("".join(f"{cmd} {text.encode('utf-8').hex()}\n" for cmd, text in cases), encoding="ascii")
+        src.write_text("".join(line + chr(10) for line in lines), encoding="ascii")
         done = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                                str(ROOT / "scripts" / "build_layout_harness.ps1"), str(src), str(out)],
                               capture_output=True, text=True, timeout=600)
@@ -88,8 +92,8 @@ class TheLineBreaks(unittest.TestCase):
     """text_layout.h tl_breaks, on Windows' ICU and on the built-in table."""
 
     CASES = (
-        "日本語、です。次の文",
-        "「日本」と書く",
+        "\u65e5本語、です。次の文",
+        "「\u65e5本」と書く",
         THAI,
         "abc\u200bdef",
         "hello world",
@@ -101,7 +105,7 @@ class TheLineBreaks(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cases = [(cmd, text) for text in cls.CASES for cmd in ("B", "F")]
-        cases += [("F", "日" + chr(c)) for c in VV_CLOSING] + [("F", chr(c) + "日") for c in VV_OPENING]
+        cases += [("F", "\u65e5" + chr(c)) for c in VV_CLOSING] + [("F", chr(c) + "\u65e5") for c in VV_OPENING]
         cls.out = dict(zip(cases, run_harness(cases)))
 
     def test_windows_icu_is_used_when_windows_has_it(self):
@@ -119,14 +123,14 @@ class TheLineBreaks(unittest.TestCase):
     def test_kinsoku_no_line_starts_with_a_closing_mark_or_ends_with_an_opening_one(self):
         for cmd in ("B", "F"):
             with self.subTest(cmd=cmd):
-                _icu, at = breaks(self.out[(cmd, "日本語、です。次の文")])
-                b = "日本語、です。次の文".encode("utf-8")
+                _icu, at = breaks(self.out[(cmd, "\u65e5本語、です。次の文")])
+                b = "\u65e5本語、です。次の文".encode("utf-8")
                 self.assertNotIn(9, at)                            # before 、
                 self.assertNotIn(18, at)                           # before 。
-                self.assertIn(3, at)                               # between 日 and 本
+                self.assertIn(3, at)                               # between \u65e5 and 本
                 self.assertIn(21, at)                              # after 。
                 self.assertEqual(len(b), 30)
-                _icu, at = breaks(self.out[(cmd, "「日本」と書く")])
+                _icu, at = breaks(self.out[(cmd, "「\u65e5本」と書く")])
                 self.assertNotIn(3, at)                            # after 「
                 self.assertNotIn(9, at)                            # before 」
                 _icu, at = breaks(self.out[(cmd, "東京タワーっす")])
@@ -136,10 +140,10 @@ class TheLineBreaks(unittest.TestCase):
     def test_the_built_in_table_keeps_vvs_own_kinsoku_list(self):
         for c in VV_CLOSING:
             with self.subTest(closing=hex(c)):
-                self.assertEqual(breaks(self.out[("F", "日" + chr(c))])[1], set())
+                self.assertEqual(breaks(self.out[("F", "\u65e5" + chr(c))])[1], set())
         for c in VV_OPENING:
             with self.subTest(opening=hex(c)):
-                self.assertEqual(breaks(self.out[("F", chr(c) + "日")])[1], set())
+                self.assertEqual(breaks(self.out[("F", chr(c) + "\u65e5")])[1], set())
 
     @unittest.skipUnless(ICU.is_file(), "this Windows has no icu.dll")
     def test_icu_knows_the_thai_words(self):
@@ -180,6 +184,38 @@ class TheComposition(unittest.TestCase):
         for (text, want), line in zip(COMPOSED, got):
             with self.subTest(text=text):
                 self.assertEqual(line, "-" if want is None else want.hex().upper())
+
+
+@unittest.skipUnless(HAVE_COMPILER, "the MSVC toolchain is not available")
+class TheFitToWidth(unittest.TestCase):
+    """text_layout.h tl_fit_ellipsis over a model width (W 10, i 2, byte 0x89 12, "\u2026" 5, other letters 4)."""
+
+    def fit(self, room: int, raw: bytes) -> str:
+        return run_harness_lines([f"E {room} {raw.hex()}"])[0]
+
+    def test_a_text_that_fits_is_unchanged(self):
+        self.assertEqual(self.fit(30, b"WWi"), "-")
+        self.assertEqual(self.fit(22, b"WWi"), "-")                 # exactly the room
+
+    def test_the_longest_start_then_an_ellipsis(self):
+        # WWiWW is 32 wide; room 30: "WWi" + "\u2026" (0x85, 5) = 27 fits, "WWiW" + "\u2026" = 37 does not
+        self.assertEqual(self.fit(30, b"WWiWW"), (b"WWi\x85").hex().upper())
+        # trailing spaces are dropped before the mark
+        self.assertEqual(self.fit(20, b"W iWWWW"), (b"W\x85").hex().upper())
+
+    def test_a_fitted_text_as_long_as_the_original_is_still_a_fitted_text(self):
+        """Codex (#692): narrow letters and a wide last one fit as the same prefix + a one-byte "\u2026" of exactly
+        the original's length, but narrower.  That is a fitted text, not "unchanged" (it is told by -1, never
+        by comparing lengths)."""
+        whole = b"WWi\x89"                                           # 10 + 10 + 2 + 12 = 34 wide, room 30
+        fitted = self.fit(30, whole)
+        self.assertEqual(fitted, (b"WWi\x85").hex().upper())
+        self.assertEqual(len(bytes.fromhex(fitted)), len(whole))
+        self.assertNotEqual(fitted, "-")
+
+    def test_utf8_text_gets_the_ellipsis_in_utf8(self):
+        raw = "WWiWW\u65e5".encode("utf-8")
+        self.assertEqual(self.fit(30, raw), (b"WWi" + "\u2026".encode("utf-8")).hex().upper())
 
 
 class TheSource(unittest.TestCase):
@@ -226,7 +262,7 @@ class InTheGame(unittest.TestCase):
         return lines
 
     def test_kinsoku_holds_in_the_games_line_fitting(self):
-        text = "日本語、です。次の文「名前」と書く。" * 4
+        text = "\u65e5本語、です。次の文「名前」と書く。" * 4
         for game, run in self.runs.items():
             with self.subTest(game=game):
                 lines = self._lines(run, text, 120)
@@ -271,8 +307,8 @@ class InTheGame(unittest.TestCase):
         for game, run in self.runs.items():
             for font in ("ldwBurweed27", "ldwarialbold"):
                 with self.subTest(game=game, font=font):
-                    decomposed = "Zoé Ñuñez 日".encode("utf-8")
-                    composed = "Zoé Ñuñez 日".encode("utf-8")
+                    decomposed = "Zoé Ñuñez \u65e5".encode("utf-8")
+                    composed = "Zoé Ñuñez \u65e5".encode("utf-8")
                     self.assertEqual(run.width_of(font, decomposed), run.width_of(font, composed))
                     got = run.draw_text(font, decomposed, 10, 10)
                     want = run.draw_text(font, composed, 10, 10)

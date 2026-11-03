@@ -444,11 +444,11 @@ class InTheGame(unittest.TestCase):
         best = ELLIPSIS
         for k in range(1, len(whole)):
             candidate = whole[:k].rstrip(" ") + ELLIPSIS
-            if run.width_of(font, candidate.encode("utf-8")) > room:
+            if run.width_of(font, _bytes_of(candidate)) > room:
                 break
             best = candidate
         self.assertLess(len(best), len(whole))
-        return run.width_of(font, best.encode("utf-8"))
+        return run.width_of(font, _bytes_of(best))
 
     def test_a_whole_name_is_fitted_to_its_field_with_an_ellipsis(self):
         """docs/UNICODE_SPEC.md row 3: a whole name wider than the room the game leaves for its field (as many W

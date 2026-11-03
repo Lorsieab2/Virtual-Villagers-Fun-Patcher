@@ -81,7 +81,7 @@ static int vt_fit_width(void *state, const unsigned char *s, int len) {
 static int vt_fit_name(void *state, const unsigned char *whole, int len, int room_bytes, unsigned char *out, int cap) {
     vt_fit *f = (vt_fit *)state;
     unsigned char ws[VV_SHARED_NAME_BYTES + 1];
-    int room, n;
+    int room;
     if (f == NULL || f->font == NULL || room_bytes <= 0 || room_bytes > VV_SHARED_NAME_BYTES) {
         return -1;
     }
@@ -91,8 +91,7 @@ static int vt_fit_name(void *state, const unsigned char *whole, int len, int roo
     if (cap > VV_SHARED_NAME_BYTES + 4) {
         cap = VV_SHARED_NAME_BYTES + 4;
     }
-    n = tl_fit_ellipsis(whole, len, room, vt_fit_width, f, out, cap);
-    return n == len ? -1 : n;
+    return tl_fit_ellipsis(whole, len, room, vt_fit_width, f, out, cap);
 }
 
 static const unsigned char *vt_source(const unsigned char *s, void *font, float scale) {

@@ -329,8 +329,9 @@ static int tl_compose(const unsigned char *u, int len, unsigned char *out, int c
 
 typedef int (*tl_width_fn)(void *state, const unsigned char *s, int len);
 
-/* text[0..len) fitted to `room` pixels (measured by width): the text itself when it fits (returns len and out
-   untouched), else its longest start of whole units (a shaped run: of whole clusters) whose width with "…" is at
+/* text[0..len) fitted to `room` pixels (measured by width): -1 when it fits as it is (out untouched; never
+   inferred from the byte length, since "…" can be one byte, so a narrower fitted text can be as long as the
+   original), else its longest start of whole units (a shaped run: of whole clusters) whose width with "…" is at
    most room (at least nothing), trailing spaces dropped, then "…" -- written to out (cap bytes, with its NUL);
    returns the bytes written.  The starts are measured by halving, so a long text is measured only a few times. */
 static int tl_fit_ellipsis(const unsigned char *text, int len, int room, tl_width_fn width, void *state,
@@ -339,7 +340,7 @@ static int tl_fit_ellipsis(const unsigned char *text, int len, int room, tl_widt
     int nm, best = 0, at = 0, n = 0, lo, hi, *ends;
     const unsigned char *s = text, *end = text + len;
     if (width(state, text, len) <= room) {
-        return len;
+        return -1;
     }
     if (!ut_has_utf8(text, end)) {
         mark[0] = 0x85;

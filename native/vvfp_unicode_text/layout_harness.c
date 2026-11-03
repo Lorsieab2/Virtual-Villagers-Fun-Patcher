@@ -6,6 +6,9 @@
      in:  one case per line: a command letter, a space, then the text as hex UTF-8 bytes ("E381AE E381AF").
           B  where a line may break (ICU when Windows has it)      -> "icu=<0|1> <byte offsets>"
           F  where a line may break by the built-in table alone    -> "<byte offsets>"
+          E  fit a text to a room with "…" (the line starts with the room in decimal after the letter)
+             over a model width: 'W' 10, 'i' 2, byte 0x89 12, byte 0x85 or U+2026 5, anything else 4
+                                                                -> "-" when it fits, else the fitted bytes in hex
           N  the cluster composed (NFC) as the companion draws it  -> its bytes in hex, or "-" when unchanged
      out: one line per case. */
 #include <windows.h>
@@ -14,6 +17,18 @@
 #include "unicode_text_tables.h"
 #include "text_utf8.h"
 #include "text_layout.h"
+
+static int model_width(void *state, const unsigned char *s, int len) {
+    int w = 0, i;
+    (void)state;
+    for (i = 0; i < len;) {
+        unsigned int cp;
+        int k = ut_next(s + i, s + len, &cp);
+        w += cp == 'W' ? 10 : cp == 'i' ? 2 : cp == 0x89 || cp == 0x2030 ? 12 : cp == 0x85 || cp == 0x2026 ? 5 : 4;
+        i += k;
+    }
+    return w;
+}
 
 static int hexval(int c) {
     if (c >= '0' && c <= '9') return c - '0';
@@ -32,7 +47,13 @@ int main(int argc, char **argv) {
     while (fgets(line, sizeof line, in) != NULL) {
         int n = 0, i, hi = -1, b;
         char cmd = line[0];
-        for (i = 1; line[i]; ++i) {
+        int room = 0;
+        i = 1;
+        if (cmd == 'E') {
+            while (line[i] == ' ') ++i;
+            while (line[i] >= '0' && line[i] <= '9') room = room * 10 + (line[i++] - '0');
+        }
+        for (; line[i]; ++i) {
             int v = hexval((unsigned char)line[i]);
             if (v < 0) continue;
             if (hi < 0) {
@@ -53,6 +74,16 @@ int main(int argc, char **argv) {
                 if (marks[b]) {
                     fprintf(out, " %d", b);
                 }
+            }
+            fprintf(out, "\n");
+        } else if (cmd == 'E') {
+            unsigned char fitted[128];
+            int k = tl_fit_ellipsis(text, n, room, model_width, NULL, fitted, (int)sizeof fitted);
+            if (k < 0) {
+                fprintf(out, "-");
+            }
+            for (b = 0; b < k; ++b) {
+                fprintf(out, "%02X", fitted[b]);
             }
             fprintf(out, "\n");
         } else if (cmd == 'N') {
