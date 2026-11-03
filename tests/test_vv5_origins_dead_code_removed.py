@@ -200,7 +200,7 @@ class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
         self.assertEqual(route["patches"], [])
         self.assertEqual(route["dependencies"], [BASE_ID])
         self.assertNotIn("extension_abi", route)
-        public = {p.id for p in vfp.load_public_fun_patches() if p.game_id == "vv5"}
+        public = {p.id for p in vfp.load_public_fun_patches() if p.game_id == "vv5" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS}
         self.assertIn(ROUTE_ID, public)
         build = next(b for b in vfp.load_builds() if b.id == "vv5")
         for mode in MODES:

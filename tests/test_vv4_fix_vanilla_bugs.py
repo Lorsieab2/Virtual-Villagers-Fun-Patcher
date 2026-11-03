@@ -114,7 +114,7 @@ def _other_public_vv4_ids() -> list[str]:
     # The ordinary build: 256 Villagers (Experimental) replaces the save
     # writer and loader these rows fix (its own tests cover the two together,
     # tests/test_vv4_population_256.py FixVanillaBugsTests).
-    return [p.id for p in load_public_fun_patches()
+    return [p.id for p in [alt for alt in load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
             if p.game_id == "vv4" and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS]
 
 

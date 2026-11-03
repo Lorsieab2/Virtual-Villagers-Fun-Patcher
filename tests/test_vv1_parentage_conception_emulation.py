@@ -289,7 +289,7 @@ def _render(label: str) -> bytes:
         else:
             ids = [
                 patch.id
-                for patch in patcher.load_public_fun_patches()
+                for patch in [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
                 if patch.game_id == "vv1"
             ]
             assert "vv1_write_parentage_log" in ids

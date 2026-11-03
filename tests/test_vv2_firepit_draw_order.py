@@ -89,7 +89,7 @@ def _render(mode: str, ids) -> bytes:
 def _other_public_vv2_ids() -> list[str]:
     return [
         patch.id
-        for patch in load_public_fun_patches()
+        for patch in [alt for alt in load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
         if patch.game_id == "vv2" and patch.id != FEATURE_ID
     ]
 

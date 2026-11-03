@@ -195,7 +195,7 @@ static void vv1_popup_made(int site, const unsigned int *regs) {
     if (entry == NULL) {
         return;
     }
-    epitaph = cod_entry_epitaph(entry);
+    epitaph = cod_entry_epitaph_shown(entry);
     box = ((vv1_new_fn)(uintptr_t)0x44AF03u)(0x14u);
     if (box == NULL) {
         return;
@@ -237,6 +237,13 @@ static void vv1_commit_epitaph(int slot, const unsigned char *grave, char *text)
     }
     if (epitaph_same(old_text, text, EPITAPH_TEXT)) {
         return;
+    }
+    /* The box showed the epitaph in the player's language: left as shown, it is not a change. */
+    {
+        const char *shown = cod_entry_epitaph_shown(entry);
+        if (shown != NULL && epitaph_same(shown, text, EPITAPH_TEXT)) {
+            return;
+        }
     }
     e.type = EVENT_GRAVE;
     e.index = slot;

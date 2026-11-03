@@ -239,6 +239,41 @@ static const char *const CE_WHY_WORDS[CE_WHY_COUNT] = {
    0 for the count alone. */
 static int ce_compose_reasons = 1;
 
+/* A line the island event popup shows, in the player's language (native/shared/vvfp_translate.h): the row's
+   English filled in, then its translation with the same values when "VVFP Translations.dll" has one that fits
+   `cap` bytes; else the English line. */
+static void ce_tr_done(char *out, int cap, const char *stem, const char *english, const char *filled) {
+    const char *shown = vvfp_trf(stem, english, filled, out, (unsigned int)cap);
+    if (shown != out) {
+        lstrcpynA(out, filled, cap);
+    }
+}
+
+/* ce_tr_printf(out, cap, stem, english, values...): the English filled in by wsprintfA, then translated. */
+#define ce_tr_printf(out, cap, stem, english, ...)                                                          \
+    do {                                                                                                     \
+        char ce_filled_[1024];                                                                               \
+        wsprintfA(ce_filled_, english, __VA_ARGS__);                                                         \
+        ce_tr_done((out), (int)(cap), (stem), (english), ce_filled_);                                        \
+    } while (0)
+
+/* One of the reasons below in the player's language (its row: story_custom.CE_WHY_WORDS.<k>). */
+static const char *ce_why_word(int k) {
+    char stem[64];
+    wsprintfA(stem, "vvfp.story/story_custom.CE_WHY_WORDS.%d", k);
+    return vvfp_tr(stem, CE_WHY_WORDS[k], 72);
+}
+
+static int ce_adapter_game(const ce_adapter *a);
+
+/* The outcome's food / tech line of the adapter's game (rows story_c<N>.C<N>_ADAPTER.43 .. 46). */
+static void ce_amount_line(char *out, int cap, const ce_adapter *a, int which, const char *english, int value) {
+    char stem[64];
+    int game = ce_adapter_game(a);
+    wsprintfA(stem, "vvfp.story/story_c%d.C%d_ADAPTER.%d", game, game, 43 + which);
+    ce_tr_printf(out, cap, stem, english, value);
+}
+
 /* The refusals with their reasons, into `out` (CE_WHY_COUNT * 72 + 48
    bytes: every reason at its longest): "58 changes could not be made: 52
    because ..., 6 because ...", or "... because ..." for one reason.  0 when
@@ -258,17 +293,23 @@ static int ce_why_line(const ce_result *r, char *out) {
         for (k = 0; r->why[k] == 0; ++k) {
         }
         if (r->refused == 1) {
-            wsprintfA(out, "1 change could not be made because %s.", CE_WHY_WORDS[k]);
+            ce_tr_printf(out, CE_WHY_COUNT * 72 + 48, "vvfp.story/story_custom.ce_why_line.s0",
+                         "1 change could not be made because %s.", ce_why_word(k));
         } else {
-            wsprintfA(out, "%d changes could not be made because %s.", r->refused, CE_WHY_WORDS[k]);
+            ce_tr_printf(out, CE_WHY_COUNT * 72 + 48, "vvfp.story/story_custom.ce_why_line.s1",
+                         "%d changes could not be made because %s.", r->refused, ce_why_word(k));
         }
         return 1;
     }
-    wsprintfA(out, "%d changes could not be made: ", r->refused);
+    ce_tr_printf(out, CE_WHY_COUNT * 72 + 48, "vvfp.story/story_custom.ce_why_line.s2",
+                 "%d changes could not be made: ", r->refused);
     for (k = 0; k < CE_WHY_COUNT; ++k) {
         if (r->why[k] > 0) {
-            wsprintfA(part, "%d because %s%s", r->why[k], CE_WHY_WORDS[k], ++shown == kinds ? "." : ", ");
-            lstrcatA(out, part);
+            ce_tr_printf(part, sizeof part, "vvfp.story/story_custom.ce_why_line.s3", "%d because %s%s", r->why[k],
+                         ce_why_word(k), ++shown == kinds ? "." : ", ");
+            if (lstrlenA(out) + lstrlenA(part) < CE_WHY_COUNT * 72 + 48) {
+                lstrcatA(out, part);
+            }
         }
     }
     return 1;
@@ -1090,7 +1131,8 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             int delta = r->food_after - r->food_before;
             ce_newline(&w);
             first = 0;
-            wsprintfA(line, delta < 0 ? a->food_loss : a->food_gain, delta < 0 ? -delta : delta);
+            ce_amount_line(line, sizeof line, a, delta < 0 ? 1 : 0, delta < 0 ? a->food_loss : a->food_gain,
+                           delta < 0 ? -delta : delta);
             ce_line(&w, line);
         }
         if (e->tech_op != CE_AMOUNT_NONE && (a->caps & CAP_TECH) && r->tech_after != r->tech_before) {
@@ -1099,7 +1141,8 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
                 ce_newline(&w);
                 first = 0;
             }
-            wsprintfA(line, delta < 0 ? a->tech_loss : a->tech_gain, delta < 0 ? -delta : delta);
+            ce_amount_line(line, sizeof line, a, delta < 0 ? 3 : 2, delta < 0 ? a->tech_loss : a->tech_gain,
+                           delta < 0 ? -delta : delta);
             ce_line(&w, line);
         }
         if ((r->no_room_spawns > 0 || r->no_room_babies > 0 || r->no_room_revives > 0
@@ -1108,17 +1151,18 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             ce_newline(&w);
         }
         if (r->no_room_spawns > 0 || r->no_room_babies > 0) {
-            wsprintfA(line, "The village had no room for %d of the new villagers.",
-                      r->no_room_spawns + r->no_room_babies);
+            ce_tr_printf(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s0",
+                         "The village had no room for %d of the new villagers.", r->no_room_spawns + r->no_room_babies);
             ce_line(&w, line);
         }
         if (r->no_room_revives > 0) {
-            wsprintfA(line, "The village had no room for %d of the villagers brought back.",
-                      r->no_room_revives);
+            ce_tr_printf(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s1",
+                         "The village had no room for %d of the villagers brought back.", r->no_room_revives);
             ce_line(&w, line);
         }
         if (r->skipped > 0) {
-            wsprintfA(line, "%d of the chosen villagers were no longer here.", r->skipped);
+            ce_tr_printf(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s2",
+                         "%d of the chosen villagers were no longer here.", r->skipped);
             ce_line(&w, line);
         }
         if (r->refused > 0) {
@@ -1126,8 +1170,13 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
                has room, why (ce_why_line). */
             char reasons[CE_WHY_COUNT * 72 + 48];
             if (!ce_compose_reasons || !ce_why_line(r, reasons)) {
-                wsprintfA(reasons, r->refused == 1 ? "1 change could not be made."
-                                                   : "%d changes could not be made.", r->refused);
+                if (r->refused == 1) {
+                    ce_tr_done(reasons, sizeof reasons, "vvfp.story/story_custom.ce_compose_in_once.s3",
+                               "1 change could not be made.", "1 change could not be made.");
+                } else {
+                    ce_tr_printf(reasons, sizeof reasons, "vvfp.story/story_custom.ce_compose_in_once.s4",
+                                 "%d changes could not be made.", r->refused);
+                }
             }
             ce_line(&w, reasons);
         }
