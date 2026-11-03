@@ -111,3 +111,8 @@ assets/vv4_masks/** -text
 
 # Unicode 18.0 tables (v1.35.90): binary, pinned by SHA-256
 data/unicode18/*.gz -text
+
+# The bundled fonts and their licence texts are pinned by raw SHA-256 (data/vvN_unicode_*_feature.json): exact bytes,
+# never rewritten by core.autocrlf (a Windows CI checkout turned the LF licence files into CRLF).
+assets/unicode_fonts/** -text
+assets/unicode_fonts/SOURCES.json text eol=lf
