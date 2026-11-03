@@ -580,6 +580,12 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 
 - Patch ID: `vv1_copy_paste`
 
+**Skip All on the Intro Story**
+
+Adds a "Skip All" button to the story shown when a new village starts, as The Secret City has. The story is two pages (the second asks the help question); on every page before the question, a Skip All button sits at the bottom right, in the game's own button style and font. Clicking it ends the story at once: the page fades out as it always does and you land straight on the help question, "Would you like HELP the first time?", with its Yes and No buttons already showing. Yes and No are the game's own and do exactly what they do at the end of the story read to the end. Without a click on Skip All the story is unchanged (a click anywhere else still turns the page). The button's word is translatable. **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Skip Intro.dll", started by VVFP Startup.dll; saves are never written by it.
+
+- Patch ID: `vv1_skip_all_intro`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **In A New Home this only changes anything when Birth Control is also ticked: A New Home itself never refuses a woman aged 50 or older on a manual drop. Birth Control adds that refusal, and with both ticked this patch takes it back out for manual drops only; the rest of Birth Control is unchanged.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -822,6 +828,12 @@ Draws ALL of the game's text in a Windows typeface instead of the game's own bit
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
 
 - Patch ID: `vv2_copy_paste`
+
+**Skip All on the Intro Story**
+
+Adds a "Skip All" button to the story shown when a new village starts, as The Secret City has. The story is three pages (the third asks the help question); on every page before the question, a Skip All button sits at the bottom right, in the game's own button style and font. Clicking it ends the story at once: the page fades out as it always does and you land straight on the help question, "Would you like tutorial tips turned on?", with its Yes and No buttons already showing. Yes and No are the game's own and do exactly what they do at the end of the story read to the end. Without a click on Skip All the story is unchanged (a click anywhere else still turns the page). The button's word is translatable. **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Skip Intro.dll", started by VVFP Startup.dll; saves are never written by it.
+
+- Patch ID: `vv2_skip_all_intro`
 
 **Manual Drop-Breeding overrides Birth Control**
 

@@ -213,7 +213,7 @@ class TheRows(unittest.TestCase):
 
     def test_started_by_the_startup_loader_second_word_after_unicode_text(self):
         names = list(patcher.STARTUP_LOADER_COMPANIONS_2)
-        self.assertGreater(names.index(DLL_NAME), names.index("VVFP Unicode Font.dll"))   # append only
+        self.assertEqual(names.index(DLL_NAME), 8)                  # its bit (append only: never moves)
         self.assertLess(names.index("VVFP Unicode Text.dll"), names.index(DLL_NAME))
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Copy and Paste.dll",\n', header)

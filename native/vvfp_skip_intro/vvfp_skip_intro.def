@@ -1,0 +1,4 @@
+LIBRARY "VVFP Skip Intro"
+EXPORTS
+    VvfpStartup
+    VvfpSkipIntroSites
