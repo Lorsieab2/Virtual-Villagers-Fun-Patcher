@@ -213,6 +213,12 @@ FILES = [
     "data/vv5_unicode_font_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
+    # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
+    # names for the Text tab's search, their sources and the Unicode License.
+    "data/unicode18/ucd18.json.gz",
+    "data/unicode18/names18.txt.gz",
+    "data/unicode18/SOURCES.json",
+    "data/unicode18/LICENSE-Unicode.txt",
     "data/vv1_translations_feature.json",
     "data/vv2_translations_feature.json",
     "data/vv3_translations_feature.json",
@@ -348,6 +354,7 @@ FILES = [
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",
     "src/vv_game_text.py",
+    "src/vv_unicode18.py",
     "src/vv_long_names.py",
     "src/vv_legacy_names.py",
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).

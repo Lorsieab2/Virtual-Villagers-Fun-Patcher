@@ -108,3 +108,7 @@ assets/vv4_masks/** -text
 # the second its files. See tests/test_shipped_dlls_have_no_test_hooks.py.
 /tests/test_dlls export-ignore
 /tests/test_dlls/** export-ignore
+
+# Unicode 18.0 tables and bundled fonts (v1.35.90): binary, pinned by SHA-256
+data/unicode18/*.gz -text
+assets/unicode_fonts/** -text
