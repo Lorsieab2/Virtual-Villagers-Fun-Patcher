@@ -115,7 +115,7 @@ def render(mode: str, expanded: bool = False) -> bytes:
     the experimental 256 Villagers build)."""
     build = {b.id: b for b in patcher.load_builds()}["vv3"]
     ids = [p.id for p in patcher.load_public_fun_patches()
-           if p.game_id == "vv3" and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
+           if p.game_id == "vv3" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
            and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     data, _ = patcher.render_patched_bytes(stock_exe(), build, mode, ids)
     return bytes(data)

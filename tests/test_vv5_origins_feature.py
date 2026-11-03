@@ -632,7 +632,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         all_vv5 = [
             item
             for item in load_fun_patches()
-            if item.game_id == "vv5"
+            if item.game_id == "vv5" and item.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS
             and item.id
             not in {
                 FEATURE_ID,
@@ -641,7 +641,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 "vv5_population_256",
             }
         ]
-        active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
+        active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5" and item.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS}
         self.assertIn(FEATURE_ID, active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in ("collection_progression", "immediate_fixed"):

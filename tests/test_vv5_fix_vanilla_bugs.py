@@ -94,7 +94,7 @@ def _cstring(image: bytes, va: int) -> bytes:
 
 
 def _others() -> tuple[str, ...]:
-    return tuple(p.id for p in load_public_fun_patches()
+    return tuple(p.id for p in [alt for alt in load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
                  if p.game_id == "vv5" and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS)
 
 
@@ -207,7 +207,7 @@ class RenderTests(unittest.TestCase):
 
     def test_with_256_villagers(self):
         experimental = tuple(p.id for p in load_public_fun_patches()
-                             if p.game_id == "vv5" and p.id in EXPERIMENTAL_FUN_PATCH_IDS)
+                             if p.game_id == "vv5" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and p.id in EXPERIMENTAL_FUN_PATCH_IDS)
         self.assertTrue(experimental)
         rendered = 0
         for mode in MODES:

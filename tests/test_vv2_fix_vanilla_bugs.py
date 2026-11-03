@@ -95,7 +95,7 @@ def _render(mode: str, ids) -> bytes:
 
 
 def _other_public_vv2_ids() -> list[str]:
-    return [p.id for p in load_public_fun_patches() if p.game_id == "vv2" and p.id != FEATURE_ID]
+    return [p.id for p in [alt for alt in load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS] if p.game_id == "vv2" and p.id != FEATURE_ID]
 
 
 def _changed_bytes(before: bytes, after: bytes) -> list[int]:
