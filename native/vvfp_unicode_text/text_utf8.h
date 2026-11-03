@@ -13,16 +13,19 @@
 
    UNITS (ut_unit).  Text is cut, measured and drawn in whole units, never inside one:
      - a newline, a space;
-     - a grapheme cluster: a character with every combining mark, variation selector, emoji modifier,
-       tag and zero-width-joined part after it (a regional-indicator pair is one flag);
+     - an extended grapheme cluster by UAX #29 as of Unicode 18.0 (ut_grapheme; ucd18_tables.h, generated
+       from the 18.0 UCD): a character with every combining mark, variation selector, emoji modifier, tag
+       and zero-width-joined emoji after it, a Hangul syllable of jamo, an Indic conjunct, a flag;
      - a run of a script that needs shaping (Arabic, Hebrew, Syriac, Thaana, N'Ko, the Indic scripts,
        Thai, Lao, Tibetan, Myanmar, Khmer, Mongolian), its marks, joiners and the spaces between its
-       words: Windows shapes and orders the whole run (src: runtime_glyphs.inc).
+       words: Windows shapes and orders the whole run (src: runtime_glyphs.inc).  A run is cut and erased
+       between its grapheme clusters.
    Header-only, file-static, no CRT. */
 #ifndef VVFP_TEXT_UTF8_H
 #define VVFP_TEXT_UTF8_H
 
 #include "unicode_text_tables.h"
+#include "ucd18_tables.h"
 
 /* The length of the well-formed UTF-8 sequence at s (s < end), 0 when there is none. */
 static int ut_seq(const unsigned char *s, const unsigned char *end, unsigned int *cp) {
@@ -196,13 +199,14 @@ static int ut_append(const unsigned char *text, int len, unsigned int cp, unsign
 
 /* ---- Character classes ------------------------------------------------------------------------ */
 
-/* Joins the character before it into one cluster. */
+static unsigned int ut_gcb(unsigned int cp) {
+    return u18_lookup(u18_gcb, U18_GCB_COUNT, cp);
+}
+
+/* Joins the character before it into one cluster (Grapheme_Cluster_Break Extend, ZWJ or SpacingMark). */
 static int ut_extends(unsigned int cp) {
-    return (cp >= 0x0300 && cp <= 0x036F) || (cp >= 0x0483 && cp <= 0x0489) || (cp >= 0x1AB0 && cp <= 0x1AFF)
-        || (cp >= 0x1DC0 && cp <= 0x1DFF) || (cp >= 0x20D0 && cp <= 0x20FF) || (cp >= 0xFE20 && cp <= 0xFE2F)
-        || (cp >= 0xFE00 && cp <= 0xFE0F) || (cp >= 0xE0100 && cp <= 0xE01EF) || (cp >= 0x1F3FB && cp <= 0x1F3FF)
-        || (cp >= 0xE0020 && cp <= 0xE007F) || cp == 0x200D || cp == 0x200C
-        || (cp >= 0x3099 && cp <= 0x309A);
+    unsigned int p = ut_gcb(cp);
+    return p == U18_GCB_EXTEND || p == U18_GCB_ZWJ || p == U18_GCB_SPACINGMARK;
 }
 
 static int ut_regional(unsigned int cp) {
@@ -258,6 +262,61 @@ typedef struct ut_unit_t {
     unsigned int first, last;   /* the first and last characters (for line breaking) */
 } ut_unit_t;
 
+/* The byte length of the extended grapheme cluster at s (UAX #29 as of Unicode 18.0: GB3-GB13, GB9c's
+   Indic conjuncts, GB11's emoji ZWJ sequences, GB12/13's flags).  The same rule as src/vv_unicode18.py. */
+static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigned int *last) {
+    const unsigned char *p = s;
+    unsigned int cp, prev, incb;
+    int ri, emoji, conj, k;
+    if (s >= end || *s == 0) {
+        return 0;
+    }
+    k = ut_next(p, end, &cp);
+    p += k;
+    *last = cp;
+    prev = ut_gcb(cp);
+    ri = prev == U18_GCB_REGIONAL_INDICATOR;
+    emoji = u18_lookup(u18_extpict, U18_EXTPICT_COUNT, cp) ? 1 : 0;
+    incb = u18_lookup(u18_incb, U18_INCB_COUNT, cp);
+    conj = incb == U18_INCB_CONSONANT ? 1 : incb == U18_INCB_LINKER ? 2 : 0;
+    while (p < end && *p) {
+        unsigned int next, q, ib;
+        int join, pict;
+        k = ut_next(p, end, &next);
+        q = ut_gcb(next);
+        ib = u18_lookup(u18_incb, U18_INCB_COUNT, next);
+        pict = u18_lookup(u18_extpict, U18_EXTPICT_COUNT, next) != 0;
+        if (prev == U18_GCB_CR && q == U18_GCB_LF) join = 1;                                        /* GB3 */
+        else if (prev == U18_GCB_CONTROL || prev == U18_GCB_CR || prev == U18_GCB_LF
+                 || q == U18_GCB_CONTROL || q == U18_GCB_CR || q == U18_GCB_LF) join = 0;           /* GB4, GB5 */
+        else if (prev == U18_GCB_L && (q == U18_GCB_L || q == U18_GCB_V || q == U18_GCB_LV || q == U18_GCB_LVT))
+            join = 1;                                                                                /* GB6 */
+        else if ((prev == U18_GCB_LV || prev == U18_GCB_V) && (q == U18_GCB_V || q == U18_GCB_T)) join = 1;  /* GB7 */
+        else if ((prev == U18_GCB_LVT || prev == U18_GCB_T) && q == U18_GCB_T) join = 1;           /* GB8 */
+        else if (q == U18_GCB_EXTEND || q == U18_GCB_ZWJ || q == U18_GCB_SPACINGMARK) join = 1;    /* GB9, GB9a */
+        else if (prev == U18_GCB_PREPEND) join = 1;                                                  /* GB9b */
+        else if (conj == 2 && ib == U18_INCB_CONSONANT) join = 1;                                    /* GB9c */
+        else if (emoji == 2 && pict) join = 1;                                                       /* GB11 */
+        else if (prev == U18_GCB_REGIONAL_INDICATOR && q == U18_GCB_REGIONAL_INDICATOR && (ri & 1)) join = 1;  /* GB12/13 */
+        else join = 0;
+        if (!join) {
+            break;
+        }
+        p += k;
+        *last = next;
+        ri = q == U18_GCB_REGIONAL_INDICATOR ? ri + 1 : 0;
+        if (pict) emoji = 1;
+        else if (emoji == 1 && q == U18_GCB_EXTEND) emoji = 1;
+        else if (emoji == 1 && q == U18_GCB_ZWJ) emoji = 2;
+        else emoji = 0;
+        if (ib == U18_INCB_CONSONANT) conj = 1;
+        else if (ib == U18_INCB_LINKER) conj = 2;
+        else if (!(conj && ib == U18_INCB_EXTEND)) conj = 0;
+        prev = q;
+    }
+    return (int)(p - s);
+}
+
 /* The unit at s.  A shaped run takes spaces only between two of its own words. */
 static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t *u) {
     unsigned int cp, next;
@@ -277,8 +336,8 @@ static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t 
         u->len = 1;
         return;
     }
-    if (cp == ' ') {
-        u->kind = UT_SPACE;
+    if (cp == ' ' && !(p < end && *p && (ut_next(p, end, &next), ut_extends(next)))) {
+        u->kind = UT_SPACE;         /* (a space with a mark on it is a cluster) */
         u->len = 1;
         return;
     }
@@ -309,30 +368,7 @@ static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t 
         return;
     }
     u->kind = UT_CLUSTER;
-    if (ut_regional(cp) && p < end && *p) {
-        int k = ut_next(p, end, &next);
-        if (ut_regional(next)) {
-            p += k;
-            u->last = next;
-        }
-    }
-    while (p < end && *p) {
-        int k = ut_next(p, end, &next);
-        if (ut_extends(next)) {
-            p += k;
-            u->last = next;
-            if (next == 0x200D && p < end && *p) {      /* a zero-width joiner takes the next character */
-                k = ut_next(p, end, &next);
-                if (next != '\n' && next != ' ') {
-                    p += k;
-                    u->last = next;
-                }
-            }
-            continue;
-        }
-        break;
-    }
-    u->len = (int)(p - s);
+    u->len = ut_grapheme(s, end, &u->last);
 }
 
 /* May a line break between a unit ending with `a` and one starting with `b` (neither a space)? */
@@ -343,8 +379,8 @@ static int ut_break_between(unsigned int a, unsigned int b) {
     return ut_cjk(a) || ut_cjk(b);
 }
 
-/* The length text[0..len) keeps when its last unit is erased (Backspace): the last grapheme cluster,
-   or the last character of a shaped run. */
+/* The length text[0..len) keeps when its last unit is erased (Backspace): the last grapheme cluster
+   (a shaped run is erased one grapheme cluster at a time). */
 static int ut_erase_last(const unsigned char *text, int len) {
     const unsigned char *s = text, *end = text + len;
     int last = 0, at = 0;
@@ -356,18 +392,16 @@ static int ut_erase_last(const unsigned char *text, int len) {
         }
         last = at;
         if (u.kind == UT_RUN) {
-            /* Erase one character (and its marks) from a shaped run. */
             const unsigned char *p = s, *q = s + u.len;
-            int prev = at;
             while (p < q) {
-                unsigned int cp;
-                int k = ut_next(p, q, &cp);
-                if (!ut_extends(cp)) {
-                    prev = at + (int)(p - s);
+                unsigned int lastcp;
+                int k = ut_grapheme(p, q, &lastcp);
+                if (k <= 0) {
+                    break;
                 }
+                last = at + (int)(p - s);
                 p += k;
             }
-            last = prev;
         }
         s += u.len;
         at += u.len;
@@ -375,7 +409,8 @@ static int ut_erase_last(const unsigned char *text, int len) {
     return last;
 }
 
-/* The longest start of text[0..len) of whole units whose bytes fit `cap`. */
+/* The longest start of text[0..len) of whole units whose bytes fit `cap` (a shaped run may be cut between
+   its grapheme clusters, never inside one). */
 static int ut_fit(const unsigned char *text, int len, int cap) {
     const unsigned char *s = text, *end = text + len;
     int at = 0;
@@ -384,27 +419,14 @@ static int ut_fit(const unsigned char *text, int len, int cap) {
         ut_unit(s, end, &u);
         if (u.len <= 0 || at + u.len > cap) {
             if (u.kind == UT_RUN && at < cap) {
-                /* A shaped run cut between its characters. */
-                const unsigned char *p = s;
-                while (p < s + u.len) {
-                    unsigned int cp;
-                    int k = ut_next(p, end, &cp);
-                    if (at + (int)(p - s) + k > cap) {
+                const unsigned char *p = s, *q = s + u.len;
+                while (p < q) {
+                    unsigned int lastcp;
+                    int k = ut_grapheme(p, q, &lastcp);
+                    if (k <= 0 || at + (int)(p - s) + k > cap) {
                         break;
                     }
                     p += k;
-                }
-                while (p > s) {         /* never leave a joiner or mark at the end */
-                    const unsigned char *b = s, *lastc = s;
-                    unsigned int cp = 0;
-                    while (b < p) {
-                        lastc = b;
-                        b += ut_next(b, p, &cp);
-                    }
-                    if (!ut_extends(cp)) {
-                        break;
-                    }
-                    p = lastc;
                 }
                 at += (int)(p - s);
             }
