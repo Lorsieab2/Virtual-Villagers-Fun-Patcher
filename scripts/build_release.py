@@ -98,6 +98,9 @@ FILES = [
     # Copy and Paste in Text Boxes (all five games): copy, cut and paste in the game's text boxes; shipped by
     # each game's row, started by VVFP Startup.dll.
     "assets/copy_paste/VVFP Copy and Paste.dll",
+    # Skip All on the Intro Story (A New Home, The Lost Children): the story pages' Skip All button; shipped by
+    # each game's Skip All row.
+    "assets/skip_intro/VVFP Skip Intro.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -219,6 +222,8 @@ FILES = [
     "data/vv3_copy_paste_feature.json",
     "data/vv4_copy_paste_feature.json",
     "data/vv5_copy_paste_feature.json",
+    "data/vv1_skip_all_intro_feature.json",
+    "data/vv2_skip_all_intro_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the

@@ -155,6 +155,16 @@ class RowTests(unittest.TestCase):
         self.assertTrue(self.errors("%s left", "%.99999s restants"))
         self.assertEqual(fmt.translation_tokens("%100000d", "%d left"), [])
 
+    def test_a_row_the_companion_fills_itself_keeps_its_conversions_exactly(self):
+        # vvfp.* pattern rows go through tr_fill_pattern, which only knows a literal %s %d %i %u
+        def errors(key, tr):
+            return [i for i in fmt.check_row("Reset %d %s", tr, fmt.RowRules(), 1, key) if i.severity == "error"]
+        self.assertTrue(errors("vvfp.ui/reset~00000000", "Reset %3d %s"))
+        self.assertEqual(errors("vvfp.ui/reset~00000000", "Reset %d %s"), [])
+        self.assertEqual(errors("sm/eReset~00000000", "Reset %3d %s"), [])           # a sprintf row: allowed
+        self.assertEqual(errors("table/12~00000000", "Reset %3d %s"), [])
+        self.assertEqual(fmt.translation_tokens("Reset %3d %s", "Reset %d %s", exact=True), ["%s"])
+
     def test_runtime_text_writes_double_percent_in_a_format_line(self):
         self.assertEqual(fmt.runtime_text("%d restants, 50 %", "%d left"), "%d restants, 50 %%")
         self.assertEqual(fmt.runtime_text("%d restants, 50 %%", "%d left"), "%d restants, 50 %%")   # old way kept

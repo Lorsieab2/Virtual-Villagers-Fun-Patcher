@@ -531,6 +531,10 @@ static int tr_space_flag(const tr_cp *t, const tr_conv *c) {
 
 /* Python _small_field(): a changed width or precision is at most 64 (the game prints into fixed-size buffers: a
    "%100000d" or "%.99999s" could overflow one).  A '*' takes its number at run time. */
+/* Set by tr_check_row for a row the companion fills itself (tr_fill_pattern: vvfp.* pattern rows, which only know a
+   literal %s %d %i %u): its translation keeps the English's own conversions exactly. */
+static int g_exact_conversions;
+
 static int tr_small_field(const tr_cp *t, const tr_conv *c) {
     int j = c->start + 1, k;
     while (j < c->end && (t[j] == '-' || t[j] == '+' || t[j] == ' ' || t[j] == '#' || t[j] == '0')) {
@@ -610,7 +614,7 @@ static int tr_token_at(const tr_cp *masked, int n, int i, const tr_cp *en, const
             }
         }
     }
-    if (!tr_space_flag(masked, c) && tr_small_field(masked, c)) {
+    if (!g_exact_conversions && !tr_space_flag(masked, c) && tr_small_field(masked, c)) {
         for (k = 0; k < nsrc; ++k) {
             if (tr_same_value(&src[k], c)) {
                 return 1;

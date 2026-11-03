@@ -446,6 +446,14 @@ or Use Unicode Font on, accented letters too; with neither, plain English
 letters and signs). Line
 breaks and tabs become spaces. Ctrl+A does nothing: the boxes cannot select.
 
+SKIP ALL ON THE INTRO STORY
+
+With Skip All on the Intro Story (on by default, A New Home and The Lost
+Children), the story shown after you name a new tribe has a Skip All button
+at the bottom right, as in The Secret City. Click it to go straight to the
+help question; its Yes and No do exactly what they do at the end of the
+story. A click anywhere else still turns the page.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

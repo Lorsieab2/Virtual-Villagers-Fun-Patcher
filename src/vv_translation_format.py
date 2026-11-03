@@ -337,6 +337,7 @@ class Source:
     "%" is plain text, so French "2 %" and "50 % de réduction" are fine."""
     conversions: tuple = ()
     format_line: bool = False
+    exact: bool = False        # a row the companion fills itself (vvfp.* pattern rows): the English's own tokens only
 
     def token_at(self, text: str, i: int):
         """The placeholder at text[i] (a '%'): its text, or None (a plain '%').  "%%" is always the escape of a
@@ -350,7 +351,7 @@ class Source:
         if found in self.conversions:
             return found
         # the same kind of value with another width or precision (%d -> %3d), never by the space flag alone
-        if " " not in match.group("flags") and _small_field(match):
+        if not self.exact and " " not in match.group("flags") and _small_field(match):
             mine = _signature(match)
             for known in self.conversions:
                 other = _CONV_RE.fullmatch(known)
@@ -359,17 +360,17 @@ class Source:
         return None
 
 
-def english_source(english: str, is_format: bool | None = None) -> Source:
+def english_source(english: str, is_format: bool | None = None, exact: bool = False) -> Source:
     """The placeholders of a line's English.  A line the program is known not to use as a printf format
     (is_format False) has none: every '%' in it is plain text.  Unknown (None): its conversions without the space
     flag (a "95% of" is a "% o" only to printf), and its "%%"."""
     if is_format is False:
-        return Source()
+        return Source(exact=exact)
     masked = _mask_subjects(english)
     convs = [m.group(0) for m in _CONV_RE.finditer(masked)]
     if not is_format:
         convs = [c for c in convs if " " not in _CONV_RE.match(c).group("flags")]
-    return Source(tuple(convs), bool(convs) or "%%" in masked)
+    return Source(tuple(convs), bool(convs) or "%%" in masked, exact)
 
 
 def line_is_format(english: str, is_format: bool | None = None) -> bool:
@@ -377,9 +378,10 @@ def line_is_format(english: str, is_format: bool | None = None) -> bool:
     return is_format if is_format is not None else english_source(english).format_line
 
 
-def translation_tokens(translation: str, english: str, is_format: bool | None = None) -> list[str]:
+def translation_tokens(translation: str, english: str, is_format: bool | None = None,
+                       exact: bool = False) -> list[str]:
     """The placeholders of a translation, in order, "%%" left out.  Only tokens its English has count."""
-    source = english_source(english, is_format)
+    source = english_source(english, is_format, exact)
     text = _mask_subjects(translation)
     out: list[str] = []
     i = 0
@@ -851,6 +853,7 @@ class RowRules:
     forbid_chars: str = ""                                       # characters the game would misread here
     selects_allowed: bool = True
     byte_limit: int = 0                                          # the longest translation (UTF-8 bytes); 0: none
+    exact_conversions: bool = False                              # the companion fills the line itself: no changed width, flags or precision
     is_format: bool | None = None                                # the program uses the line as a printf format; None: unknown
 
 
@@ -922,9 +925,10 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
         err(f"malformed select: {error}")
         selects = []
     plain_tr = render(translation) if not any(i.severity == "error" for i in issues) else translation
-    source = english_source(english, rules.is_format)
+    exact = rules.exact_conversions or key.startswith("vvfp")
+    source = english_source(english, rules.is_format, exact)
     en_conv = list(source.conversions)
-    tr_conv = translation_tokens(translation, english, rules.is_format)
+    tr_conv = translation_tokens(translation, english, rules.is_format, exact)
     en_sig = [_signature(_CONV_RE.fullmatch(c)) for c in en_conv]
     tr_sig = [_signature(_CONV_RE.fullmatch(c)) for c in tr_conv]
     if en_sig != tr_sig:

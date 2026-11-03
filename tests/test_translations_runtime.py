@@ -528,6 +528,18 @@ class TranslationsRuntimeTests(unittest.TestCase):
         self.assertEqual(g.translate(b"Kemala cured 3 villagers"),
                          "Kemala a guéri 3 villageois (100 %)".encode("cp1252"))
 
+    def test_a_pattern_row_with_a_changed_width_never_reaches_tr_fill_pattern(self):
+        game = 1
+        tf = template(game, [
+            row("table", "1", self.table_en(game, 1), "x"),
+            row("vvfp.ui", "reset", "Reset %d %s", "Réinitialiser %3d %s"),      # refused: stays English
+            row("vvfp.ui", "kept", "Kept %d %s", "Gardé %d %s"),                  # exact: used
+        ])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(g.translate(b"Reset 2 coins"), b"Reset 2 coins")
+        self.assertEqual(g.translate(b"Kept 2 coins"), "Gardé 2 coins".encode("cp1252"))
+
     def test_translate_text_stable_pointer(self):
         game = 1
         tf = template(game, [row("vvfp.ui", "greeting", "Welcome", "Bienvenue")])
