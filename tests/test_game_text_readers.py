@@ -99,7 +99,14 @@ class OneLongNamedVillager(unittest.TestCase):
     def test_the_save_the_log_and_the_long_names_file_are_one_person(self):
         import vv_long_names as ln
         whole = "山田太郎・アレクサンドラ"
-        short = ln.ELLIPSIS.join([whole[:6], ""])
+        # "..." and "2..." (the number first) are the short forms the companion makes now; "…" ones
+        # (v1.35.89) are read forever.
+        for short in (whole[:6] + ln.MARK, whole[:5] + "2" + ln.MARK, whole[:6] + ln.ELLIPSIS,
+                      whole[:6] + ln.ELLIPSIS + "2"):
+            with self.subTest(short=short):
+                self._one_person(ln, whole, short)
+
+    def _one_person(self, ln, whole, short):
         folder = Path(self.enterContext(tempfile.TemporaryDirectory()))
         people = [
             entry("Ma", 1, 7, 4, 4), entry("Pa", 0, 7, 2, 2),

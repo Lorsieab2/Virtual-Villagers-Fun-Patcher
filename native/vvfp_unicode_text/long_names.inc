@@ -4,9 +4,11 @@
    own fields are shorter (a villager's name 27/23 bytes, the tribe name 31/19, an epitaph 64/31), and
    its code copies them through fixed buffers sized for them, so a box's text leaves the box through
    GetText(buffer, size) -- the only way out -- cut to the field: the SHORT FORM, the longest start of
-   whole characters that fits with "\x85" (the Windows-1252 ellipsis) after it, "\x85" plus a number when
-   another long name already has that short form.  Every stock path therefore only ever holds a short
-   form, never more bytes than it was written for.
+   whole characters that fits, trailing spaces dropped, then "..." -- or "2...", "3..." (the number
+   first) when another long name already has that short form (docs/UNICODE_SPEC.md: ASCII dots draw in
+   every stock font).  The short forms of v1.35.89 end in the ellipsis "…" (0x85, or E2 80 A6) and a
+   number; they and their records are read forever, and a name that has one keeps it.  Every stock path
+   therefore only ever holds a short form, never more bytes than it was written for.
 
    The pair (short form, whole name) is appended at once to
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Long Names\
@@ -26,6 +28,8 @@
 #define LN_HEADER "VVFP Long Names v2\n"
 #define LN_HEADER_LEN 19
 #define LN_ARENA (2 * 1024 * 1024)
+#define LN_MARK "..."                   /* the end of a new short form (the number, if any, goes first) */
+#define LN_MARK_LEN 3
 
 typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, pending; } ln_pair;
 
@@ -273,33 +277,36 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
         }
     }
     for (k = 1; k < 1000; ++k) {
-        char digits[8];
-        unsigned char mark[4];
-        int nd = 0, base, nm, n, clash = 0;
+        char tail[8 + LN_MARK_LEN];
+        int tl = 0, base, n, clash = 0;
         if (k > 1) {
             int v = k, j;
             char rev[8];
-            while (v > 0 && nd < 7) {
-                rev[nd++] = (char)('0' + v % 10);
+            while (v > 0 && tl < 7) {
+                rev[tl++] = (char)('0' + v % 10);
                 v /= 10;
             }
-            for (j = 0; j < nd; ++j) {
-                digits[j] = rev[nd - 1 - j];
+            for (j = 0; j < tl; ++j) {
+                tail[j] = rev[tl - 1 - j];
             }
         }
-        /* Room for the ellipsis (1 or 3 bytes) and the number. */
-        base = ut_fit(text, len, cap - 1 - 3 - nd);
+        CopyMemory(tail + tl, LN_MARK, LN_MARK_LEN);
+        tl += LN_MARK_LEN;
+        if (tl > cap - 1) {
+            break;
+        }
+        /* The longest start of whole characters that fits with the number and the mark, trailing spaces
+           dropped. */
+        base = ut_fit(text, len, cap - 1 - tl);
+        while (base > 0 && text[base - 1] == ' ') {
+            --base;
+        }
         if (base <= 0 && len > 0) {
             break;
         }
         CopyMemory(cand, text, (size_t)base);
-        nm = ut_append(cand, base, 0x2026, mark);
-        CopyMemory(cand + base, mark, (size_t)nm);
-        n = base + nm;
-        if (nd) {
-            CopyMemory(cand + n, digits, (size_t)nd);
-            n += nd;
-        }
+        CopyMemory(cand + base, tail, (size_t)tl);
+        n = base + tl;
         cand[n] = 0;
         for (i = 0; i < g_ln_count; ++i) {
             if (g_ln[i].shrt_len == n && memcmp(g_ln[i].shrt, cand, (size_t)n) == 0) {
@@ -352,7 +359,9 @@ static const unsigned char *ln_expand(const unsigned char *s) {
     }
     end = ut_end(s);
     for (p = s; p < end; ++p) {
-        if (*p == 0x85 || (*p == 0xE2 && p + 2 < end && p[1] == 0x80 && p[2] == 0xA6)) {
+        /* "..." (every new short form) or "…" (0x85 / E2 80 A6: the short forms of v1.35.89, read forever). */
+        if (*p == 0x85 || (*p == 0xE2 && p + 2 < end && p[1] == 0x80 && p[2] == 0xA6)
+            || (*p == '.' && p + 2 < end && p[1] == '.' && p[2] == '.')) {
             has = 1;
         }
         h = (h ^ *p) * 16777619u;

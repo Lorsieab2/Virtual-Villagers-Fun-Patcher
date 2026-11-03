@@ -73,8 +73,8 @@ NAMES_AND_TYPING = (
     "Chinese), each stored whole or not at all, and Backspace erases a whole character (a whole emoji, flag or "
     "accented letter). Every box takes the same limit: " + str(SHARED_NAME_BYTES) + " bytes (the engine's own "
     "text-box ceiling; a Japanese character is 3 bytes, an emoji or cuneiform sign 4). A name longer than the "
-    "save's own field ({fields}) is saved there as a short form ending in … and kept whole in a per-save "
-    "file (Virtual Villagers Fun Patcher\\Save <n>\\Data\\Long Names), and shown whole wherever the game "
+    "save's own field ({fields}) is saved there as a short form ending in \"...\" (\"2...\" when two start "
+    "alike) and kept whole in a per-save file (Virtual Villagers Fun Patcher\\Save <n>\\Data\\Long Names), and shown whole wherever the game "
     "draws it. Characters are stored as UTF-8 (a Western European letter keeps its one Windows-1252 byte), "
     "so every older name reads as before; the base game and older patchers show other characters as odd "
     "letters but never break. "
@@ -205,8 +205,9 @@ def behaviour(game: int, tables: dict, override: bool) -> list:
         "other well-formed text is handed whole to the focused text box, which stores each character whole (a "
         "Windows-1252 character as its one byte, any other as UTF-8) while it fits the box's limit. Backspace erases "
         "a whole unit. A box never cuts its text by pixels. Every box's limit is " + str(SHARED_NAME_BYTES) + " bytes; "
-        "a text longer than the field GetText copies it to leaves as a short form ending in … (… and a number "
-        "when another long name has it), whose whole text is appended to the save's Long Names file and given back "
+        "a text longer than the field GetText copies it to leaves as a short form: its longest "
+        "start of whole characters, then \"...\" (\"2...\", \"3...\", the number first, when another long name has it; the older short forms ending in … "
+        "stay readable), whose whole text is appended to the save's Long Names file and given back "
         "when the game puts the short form into a box.",
     ]
 

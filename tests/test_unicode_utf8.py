@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import struct
 import sys
 import unittest
@@ -385,9 +386,12 @@ class InTheGame(unittest.TestCase):
                 run.set_text(box, raw)
                 short = run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
                 self.assertLess(len(short), FIELD[game])
-                self.assertTrue(short.endswith(b"\x85") or short.endswith("…".encode("utf-8")))
+                # The spec's short form: the longest start of whole characters, then "..." (ASCII dots draw
+                # in every stock font), never the v1.35.89 ellipsis.
+                self.assertTrue(short.endswith(b"...") and b"\x85" not in short, short)
                 text = short.decode(GAME_TEXT)
-                self.assertTrue(text.endswith("…") and JAPANESE.startswith(text[:-1]), text)
+                self.assertTrue(JAPANESE.startswith(text[:-3]), text)
+                self.assertGreater(len(_bytes_of(text[:-3] + JAPANESE[len(text) - 3])) + 3, FIELD[game] - 1)
                 # The game puts the short form back into a box: the box holds the whole name ...
                 wrapper2, box2 = run.new_box(23)
                 run.set_text(box2, short)
@@ -434,6 +438,16 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(pairs.get(cut), _bytes_of(JAPANESE + "三"))
                 self.assertEqual(pairs.get(first), _bytes_of(JAPANESE + "一"))
                 self.assertEqual(len({first, failed, cut}), 3)
+                # Names that start alike: "...", then the number first, "2...", "3...", ... (the class's
+                # earlier tests may already hold one of these starts, so only the order is fixed).
+                def number(short):
+                    self.assertTrue(short.endswith(b"..."), short)
+                    digits = re.search(rb"(\d*)\.\.\.$", short).group(1)
+                    return int(digits) if digits else 1
+                self.assertLess(number(first), number(failed))
+                self.assertEqual(number(failed) + 1, number(cut))
+                for short in (first, failed, cut):
+                    self.assertLessEqual(len(short), FIELD[game] - 1)
                 self.assertTrue(the_file().endswith(b"\n"))
 
     def test_line_fitting_breaks_japanese_between_characters(self):
