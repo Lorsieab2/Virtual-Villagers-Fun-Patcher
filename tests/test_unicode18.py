@@ -421,8 +421,18 @@ class InTheGame(unittest.TestCase):
     runs: dict = {}
 
     @classmethod
+    def tearDownClass(cls):
+        # the emulation's import answers as they were (test_skip_intro's machines expect their own SDL answers)
+        import startup_emulation
+        startup_emulation.EXTRA_IMPORTS.clear()
+        startup_emulation.EXTRA_IMPORTS.update(cls.saved_imports)
+        cls.runs.clear()
+
+    @classmethod
     def setUpClass(cls):
+        import startup_emulation
         import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.ue = ue
         cls.tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
         for game in GAMES:
