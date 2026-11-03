@@ -437,6 +437,114 @@ def export_copy(source: Path, destination: Path) -> None:
     _atomic_copy(Path(source), Path(destination))
 
 
+def export_many(sources, folder: Path) -> tuple[list[Path], list[str]]:
+    """Export... with several files selected: each file as it is, under its own name, into `folder`.
+    (exported, problems)."""
+    folder = Path(folder)
+    done, problems = [], []
+    for source in sources:
+        source = Path(source)
+        target = folder / source.name
+        try:
+            if source.resolve() == target.resolve():
+                done.append(target)
+                continue
+            export_copy(source, target)
+            done.append(target)
+        except OSError as exc:
+            problems.append(f"{source.name}: {exc}")
+    return done, problems
+
+
+# ---- deleting: to the Recycle Bin, never a hard delete ---------------------------------------------------------
+
+class RecycleBinUnavailable(OSError):
+    """The file cannot go to the Recycle Bin (none on that drive, or Windows refused): it is left in place."""
+
+
+def _shell_recycle(paths: list[Path]) -> None:
+    """SHFileOperationW(FO_DELETE) with FOF_ALLOWUNDO: the files go to the Recycle Bin.  Raises
+    RecycleBinUnavailable, and deletes nothing, when the drive has no Recycle Bin (SHQueryRecycleBinW fails) --
+    Windows would otherwise delete them for good.  FOF_WANTNUKEWARNING makes Windows ask rather than destroy a
+    file it cannot recycle."""
+    import ctypes  # noqa: PLC0415
+    from ctypes import wintypes  # noqa: PLC0415
+
+    if os.name != "nt":
+        raise RecycleBinUnavailable("the Recycle Bin needs Windows")
+    shell32 = ctypes.WinDLL("shell32")
+
+    class SHQUERYRBINFO(ctypes.Structure):
+        _fields_ = [("cbSize", wintypes.DWORD), ("i64Size", ctypes.c_longlong), ("i64NumItems", ctypes.c_longlong)]
+
+    class SHFILEOPSTRUCTW(ctypes.Structure):
+        _fields_ = [("hwnd", wintypes.HWND), ("wFunc", wintypes.UINT), ("pFrom", ctypes.c_wchar_p),
+                    ("pTo", ctypes.c_wchar_p), ("fFlags", ctypes.c_ushort), ("fAnyOperationsAborted", wintypes.BOOL),
+                    ("hNameMappings", ctypes.c_void_p), ("lpszProgressTitle", ctypes.c_wchar_p)]
+
+    query = shell32.SHQueryRecycleBinW
+    query.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(SHQUERYRBINFO)]
+    query.restype = ctypes.c_long
+    for path in paths:
+        root = os.path.splitdrive(str(path))[0] + "\\"
+        info = SHQUERYRBINFO()
+        info.cbSize = ctypes.sizeof(SHQUERYRBINFO)
+        result = query(root, ctypes.byref(info))
+        if result != 0:
+            raise RecycleBinUnavailable(
+                f"the drive {root} has no Recycle Bin (Windows error 0x{result & 0xFFFFFFFF:08X})")
+    FO_DELETE, FOF_SILENT, FOF_NOCONFIRMATION, FOF_ALLOWUNDO, FOF_NOERRORUI, FOF_WANTNUKEWARNING = (
+        3, 0x4, 0x10, 0x40, 0x400, 0x4000)
+    op = SHFILEOPSTRUCTW()
+    op.wFunc = FO_DELETE
+    op.pFrom = "\0".join(str(Path(p).resolve()) for p in paths) + "\0\0"
+    op.fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI | FOF_WANTNUKEWARNING
+    operation = shell32.SHFileOperationW
+    operation.argtypes = [ctypes.POINTER(SHFILEOPSTRUCTW)]
+    operation.restype = ctypes.c_int
+    result = operation(ctypes.byref(op))
+    if result != 0 or op.fAnyOperationsAborted:
+        raise RecycleBinUnavailable(
+            f"Windows could not move the files to the Recycle Bin (error 0x{result & 0xFFFF:X})")
+
+
+def recycle(paths, *, shell=None) -> None:
+    """Every path to the Recycle Bin (never a hard delete); `shell` replaces the Windows call in tests."""
+    paths = [Path(p) for p in paths]
+    if paths:
+        (shell or _shell_recycle)(paths)
+
+
+def delete_installed(game, paths, *, shell=None) -> tuple[list[Path], list[str]]:
+    """Delete...: the installed translations `paths` of `game` to the Recycle Bin.  Only files in the game's own
+    translations folder are touched.  (deleted, problems); a refused Recycle Bin deletes nothing."""
+    folder = game_dir(game).resolve()
+    chosen, problems = [], []
+    for path in paths:
+        path = Path(path)
+        try:
+            inside = path.resolve().parent == folder
+        except OSError:
+            inside = False
+        if not inside or path.suffix.lower() != ".txt":
+            problems.append(f"{path.name} is not an installed translation of {TITLES[game_number(game)]}.")
+        elif not path.is_file():
+            problems.append(f"{path.name} is already gone.")
+        else:
+            chosen.append(path)
+    if not chosen:
+        return [], problems
+    try:
+        recycle(chosen, shell=shell)
+    except RecycleBinUnavailable as exc:
+        return [], problems + [f"Nothing was deleted: {exc}. The files were left where they are."]
+    except OSError as exc:
+        return [], problems + [f"Nothing was deleted: {exc}."]
+    deleted = [p for p in chosen if not p.exists()]
+    problems += [f"{p.name} is still there." for p in chosen if p.exists()]
+    return deleted, problems
+
+
 # ---- the patcher's own windows -------------------------------------------------------------------------
 #
 # A patcher window that shows a game's own words (a tech name, a menu word) can show them in the language the

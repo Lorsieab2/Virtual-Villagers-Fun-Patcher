@@ -1128,12 +1128,12 @@
     "translations": {
       "title": "Translations",
       "guide": [
-        "Plays a patched game in another language. Pick the game, then a Language: the game uses it from its next start, with no re-patching.",
-        "The game must be patched with the Translations row (on by default). English (original) brings back the game's own words.",
-        "Make a translation: pick your language; the editor opens with every English line of your game. Type on the right; it saves by itself.",
-        "Keep %d, %s and {name} exactly. The preview shows the line in the game's letters and warns when it may not fit its box.",
-        "Add translation file... (or drop a file on the window) checks a file and adds it; lines with mistakes stay English. Export translation... saves a copy.",
-        "Share on GitHub...: answer Yes, type the name to be credited as, then drag the file Explorer shows into the page that opens and press Submit.",
+        "Pick the game, then a Language: the patched game uses it from its next start. English (original) is the game's own words.",
+        "Needs the Translations row (on by default). Make a translation: the editor lists every English line, patches' text too.",
+        "Add translation file... (or drop one here) checks and adds a file. Download from GitHub... gets shared ones.",
+        "Ctrl+click, Shift+click, Ctrl+A or Select All pick several files. Export... copies them (several into one folder).",
+        "Delete... moves them to the Recycle Bin after one Yes/No (No is the default). English can't be deleted; a deleted language in use goes back to English.",
+        "Share on GitHub...: answer Yes, type a credit name, then drag the file into the page that opens.",
         "Email addresses are never saved and are rejected from translation files."
       ]
     },

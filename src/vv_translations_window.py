@@ -10,8 +10,13 @@ The owner (2026-11-01): one window per patcher, "Translations...", with
   * Make a translation: a language from the list (or Other...), the template read from the player's own game,
     and the built-in editor (two columns, search, untranslated only, % done, each line's problems, protected
     placeholders, a preview in the game's own letters with every gender and plural form, autosave);
+  * the Files list, several selectable (the owner, 2026-11-02: "select all/ctrl select for multiple
+    selections": click, Ctrl+click, Shift+click, Ctrl+A, Select All);
   * Add translation file... (and a file dropped on the window: Windows' own WM_DROPFILES, no extra packages),
-    Export translation..., and Share on GitHub... (the owner's question first, No the default; a typed credit
+    Export... (one file, or each selected file into a folder), Delete... (the owner, 2026-11-02: "can you add
+    the ability to delete translation files too?": one Yes / No question, No the default, the files to the
+    Recycle Bin, never a hard delete; English (original) skipped; a deleted active language falls back to
+    English), and Share on GitHub... (the owner's question first, No the default; a typed credit
     name, never pre-filled, never an email address; then the file is exported, shown in Explorer, and the
     new-issue page opens with nothing personal in its address).
 
@@ -321,6 +326,49 @@ def export_name(number: int, language: str) -> str:
 def export_translation(source: Path, destination: Path) -> Path:
     tr.export_copy(Path(source), Path(destination))
     return Path(destination)
+
+
+DELETE_TITLE = "Delete translations"
+ENGLISH_KEPT = f"{tr.ENGLISH} is the game's own text: it can't be deleted and is skipped."
+
+
+def delete_question(number: int, paths: list[Path], english: bool, active: str) -> str:
+    """The one Yes / No question Delete... asks: every file named, English (original) named when it was
+    selected, and the game's active language named when it is one of them."""
+    short = tr.TITLES[number].removeprefix("Virtual Villagers - ")
+    what = "this translation file" if len(paths) == 1 else "these %d translation files" % len(paths)
+    goes = "It goes" if len(paths) == 1 else "They go"
+    lines = [f"Delete {what} of {short}? {goes} to the Recycle Bin.", ""]
+    lines += [f"    {Path(p).name}" for p in paths]
+    if english:
+        lines += ["", ENGLISH_KEPT]
+    if active:
+        lines += ["", f"{active} is the language {short} uses now: the game goes back to English from its next "
+                      "start."]
+    return "\n".join(lines)
+
+
+def delete_translations(app, number: int, paths, *, ask=None, shell=None, parent=None):
+    """Delete...: every selected translation file of game `number` to the Recycle Bin after one Yes / No question
+    (No the default; No does nothing).  `paths` may hold None for English (original), which is skipped and
+    named.  A deleted file that is the game's chosen language: the choice falls back to English from the game's
+    next start, and the copied Translation.txt is removed from every patched copy, as choosing English does.
+    (deleted, problems) -- None when nothing was asked or the answer was No."""
+    english = any(p is None for p in paths)
+    files = list(dict.fromkeys(Path(p) for p in paths if p is not None))
+    if not files:
+        return None
+    active_name = chosen_name(app, number)
+    active = next((p.name for p in files if p.name == active_name), "")
+    ask = ask or vv_copy_slot_window.ask_yes_no
+    if not ask(parent, DELETE_TITLE, delete_question(number, files, english, active)):
+        return None
+    deleted, problems = tr.delete_installed(number, files, shell=shell)
+    if active and any(p.name == active for p in deleted):
+        remember_choice(app, number, None)
+        _done, failed = apply_to_games(number, None, patched_folders(app, number))
+        problems += failed
+    return deleted, problems
 
 
 def export_dir() -> Path:
@@ -1333,10 +1381,20 @@ class TranslationsWindow:
 
         files = ttk.LabelFrame(frame, text="Translation files", padding=10)
         files.grid(row=5, column=0, columnspan=3, sticky="we", pady=(12, 0))
-        ttk.Label(files, text="File:").grid(row=0, column=0, sticky="w")
-        self.file_var = tk.StringVar(master=top)
-        self.file_box = ttk.Combobox(files, textvariable=self.file_var, state="readonly", width=46)
-        self.file_box.grid(row=0, column=1, sticky="we", pady=2)
+        ttk.Label(files, text="Files:").grid(row=0, column=0, sticky="nw")
+        # Several can be selected: a click selects one, Ctrl+click adds or removes one, Shift+click a range,
+        # Ctrl+A (or Select All) every one.
+        list_frame = ttk.Frame(files)
+        list_frame.grid(row=0, column=1, sticky="we", pady=2)
+        self.file_list = tk.Listbox(list_frame, selectmode="extended", height=6, width=52, exportselection=False,
+                                    activestyle="dotbox")
+        scroll = ttk.Scrollbar(list_frame, orient="vertical", command=self.file_list.yview)
+        self.file_list.configure(yscrollcommand=scroll.set)
+        self.file_list.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="left", fill="y")
+        for key in ("<Control-a>", "<Control-A>"):
+            self.file_list.bind(key, self.select_all)
+        self.file_list.bind("<Delete>", lambda _e: self.delete())
         row1 = ttk.Frame(files)
         row1.grid(row=1, column=0, columnspan=2, sticky="w", pady=(6, 0))
         ttk.Button(row1, text="Make a translation...", command=self.make).pack(side="left")
@@ -1344,7 +1402,9 @@ class TranslationsWindow:
         ttk.Button(row1, text="Add translation file...", command=self.add_dialog).pack(side="left", padx=(8, 0))
         row2 = ttk.Frame(files)
         row2.grid(row=2, column=0, columnspan=2, sticky="w", pady=(6, 0))
-        ttk.Button(row2, text="Export translation...", command=self.export).pack(side="left")
+        ttk.Button(row2, text="Select All", command=self.select_all).pack(side="left")
+        ttk.Button(row2, text="Export...", command=self.export).pack(side="left", padx=(8, 0))
+        ttk.Button(row2, text="Delete...", command=self.delete).pack(side="left", padx=(8, 0))
         ttk.Button(row2, text="Share on GitHub...", command=self.share).pack(side="left", padx=(8, 0))
         ttk.Label(files, text=SHARE_SENTENCE + "\n" + SHARE_HOW, wraplength=580, justify="left").grid(
             row=3, column=0, columnspan=2, sticky="w", pady=(8, 0))
@@ -1386,22 +1446,45 @@ class TranslationsWindow:
             if path is not None and chosen is not None and path.name == chosen.name:
                 index = n
         self.language_box.current(index)
-        self.file_box.configure(values=[item.label for item in installed])
-        if installed:
-            keep = next((n for n, item in enumerate(installed) if chosen is not None
-                         and item.path.name == chosen.name), 0)
-            self.file_box.current(keep)
-        else:
-            self.file_var.set("")
+        # The file list: English (original) first (never a file: Delete... and Export... skip it), then every
+        # installed translation; the game's chosen one is selected, else the first translation.
+        self.file_list.delete(0, "end")
+        for label, _path in self.entries:
+            self.file_list.insert("end", label)
+        keep = next((n + 1 for n, item in enumerate(installed) if chosen is not None
+                     and item.path.name == chosen.name), 1 if installed else 0)
+        self.file_list.selection_set(keep)
+        self.file_list.activate(keep)
+        self.file_list.see(keep)
 
     def language_labels(self) -> list[str]:
         return [label for label, _p in self.entries]
 
+    def file_labels(self) -> list[str]:
+        return list(self.file_list.get(0, "end"))
+
+    def selected_entries(self) -> list[Path | None]:
+        """The selected rows of the file list, in list order: a file's path, None for English (original)."""
+        return [self.entries[int(i)][1] for i in self.file_list.curselection() if 0 <= int(i) < len(self.entries)]
+
+    def selected_files(self) -> list[Path]:
+        return [p for p in self.selected_entries() if p is not None]
+
     def selected_file(self) -> Path | None:
-        index = self.file_box.current()
-        if 0 <= index < len(self.files):
-            return self.files[index].path
-        return None
+        """The one file Edit... and Share on GitHub... use: the first selected translation."""
+        files = self.selected_files()
+        return files[0] if files else None
+
+    def select(self, labels) -> None:
+        """Select exactly the rows with these labels (as clicking and Ctrl+clicking them does)."""
+        self.file_list.selection_clear(0, "end")
+        for n, label in enumerate(self.file_labels()):
+            if label in labels:
+                self.file_list.selection_set(n)
+
+    def select_all(self, _event=None):
+        self.file_list.selection_set(0, "end")
+        return "break"
 
     def _say(self, text: str) -> None:
         self.status_var.set(text)
@@ -1605,12 +1688,30 @@ class TranslationsWindow:
             self._say(f"Added {', '.join(p.name for p in added)}.")
         return added
 
-    def export(self) -> Path | None:
-        path = self.selected_file()
-        if path is None:
-            messagebox.showinfo(TITLE, "There is no translation for this game to export yet.", parent=self.top)
+    def export(self):
+        """Export...: one selected file to a name the player chooses; several, each under its own name, into a
+        folder the player chooses.  English (original) is not a file and is skipped.  The exported path (one
+        file), the list of exported paths (several) or None."""
+        paths = self.selected_files()
+        if not paths:
+            text = ("There is no translation for this game to export yet." if not self.files else
+                    f"Select the translations to export. {tr.ENGLISH} is the game's own text and is not a file.")
+            messagebox.showinfo(TITLE, text, parent=self.top)
             return None
         number = self.number
+        if len(paths) > 1:
+            chosen = filedialog.askdirectory(parent=self.top, mustexist=True,
+                                             title=f"Choose the folder to export {len(paths)} translations to")
+            self._regrab()
+            if not chosen:
+                return None
+            done, problems = tr.export_many(paths, Path(chosen))
+            if problems:
+                messagebox.showerror(TITLE, "Not exported:\n\n" + "\n".join(problems), parent=self.top)
+            if done:
+                self._say(f"Exported {len(done)} files to {chosen}.")
+            return done
+        path = paths[0]
         try:
             language = fmt.read_file(path).language
         except (OSError, fmt.FormatError) as exc:
@@ -1629,6 +1730,38 @@ class TranslationsWindow:
             return None
         self._say(f"Exported {target}.")
         return target
+
+    def delete(self, *, ask=None, shell=None):
+        """Delete...: every selected translation to the Recycle Bin after one Yes / No question (No the default).
+        English (original) is skipped and named.  An editor open on a deleted file is closed without saving.
+        (deleted, problems), or None when nothing was done."""
+        entries = self.selected_entries()
+        number = self.number
+        if not any(p is not None for p in entries):
+            messagebox.showinfo(DELETE_TITLE, ENGLISH_KEPT if entries else "Select the translations to delete.",
+                                parent=self.top)
+            return None
+        result = delete_translations(self.app, number, entries, ask=ask, shell=shell, parent=self.top)
+        self._regrab()
+        if result is None:
+            return None
+        deleted, problems = result
+        gone = {os.path.normcase(str(p)) for p in deleted}
+        editor = self.editor
+        if editor is not None and os.path.normcase(str(editor.path)) in gone:
+            try:
+                if editor.top.winfo_exists():
+                    editor.dirty = False
+                    editor.top.destroy()
+            except tk.TclError:
+                pass
+            self.editor = None
+        self.load()
+        if deleted:
+            self._say(f"Moved {', '.join(p.name for p in deleted)} to the Recycle Bin.")
+        if problems:
+            messagebox.showerror(DELETE_TITLE, "\n\n".join(problems), parent=self.top)
+        return deleted, problems
 
     def share(self) -> Path | None:
         path = self.selected_file()
