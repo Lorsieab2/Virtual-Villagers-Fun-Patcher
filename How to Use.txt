@@ -383,13 +383,19 @@ Font box under the patch list). The two cannot be used together: ticking one
 unticks the other. Both need Full Names on the Details Screen (ticked with
 them).
 
-Every text box holds up to 1,200 bytes (a Western European letter is 1 byte,
-a Japanese character 3, an emoji or cuneiform sign 4). A name longer than the
-save's own field (a villager's name: 27 bytes in A New Home, 23 in the
-others; the tribe name: 31 / 19) is saved there in short, ending in "…", and
-kept whole in the save's Long Names file; the game shows it whole. Names are
-stored as UTF-8 (Western European letters keep their one byte), so older
-names read as before; the base game shows other characters as odd letters.
+Long names, everywhere. Every name box takes names up to 1,200 bytes (up to 1,200 plain letters; fewer when
+letters need more bytes): the tribe name, villager names on the Details screen, epitaphs; Rename Tribe
+takes the same. It is one limit, shared with the other Fun Patchers. Characters are counted as you see
+them (a letter with its accents, an emoji with its skin tone or a flag is one), and Backspace removes one
+whole character. A long name scrolls in its box while you type it. The save itself is not changed: a name
+that fits its field (a villager's name: 27 bytes in A New Home, 23 in the others; the tribe name: 31 / 19)
+is kept there exactly as before; a longer one is kept there as its short form (its start and a mark, with
+a number when two would start alike) and the whole name is kept beside the save, in the Long Names
+folder of Virtual Villagers Fun Patcher\Save <n>\Data. The game shows the whole name wherever it shows
+that name. Back Up Saves, Restore Saves and Copy Player Slot carry the Long Names files with the saves.
+With both settings off the game still loads and plays such a save and shows the short form. Names are
+stored as UTF-8 (Western European letters keep their one byte), so older names read as before; the base
+game shows other characters as odd letters.
 
 OLDER LOGS' "?" NAMES
 
