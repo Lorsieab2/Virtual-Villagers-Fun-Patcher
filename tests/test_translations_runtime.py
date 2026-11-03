@@ -430,6 +430,21 @@ class TranslationsRuntimeTests(unittest.TestCase):
                 g.start()
                 self.assertEqual(self.lookup(g, 1), want)
 
+    def test_use_unicode_font_keeps_utf8_too(self):
+        """Use Unicode Font's companion starts after this one (append-only list): already loaded, or only
+        shipped beside it -- then loaded by its full path and started when the translations are prepared."""
+        game = 1
+        en = self.table_en(game, 1)
+        cjk = "日本語"
+        tf = template(game, [row("table", "1", en, cjk)], code="ja")
+        for shipped in (False, True):
+            with self.subTest(shipped_only=shipped):
+                g = Game(game, self.exes[game], file_bytes(tf), glyphs=1, glyphs_dll="VVFP Unicode Font.dll",
+                         font_shipped=shipped)
+                g.start()
+                self.assertEqual(self.lookup(g, 1), cjk.encode("utf-8"))
+                self.assertEqual(bool(g.font_started), shipped)
+
     def test_cuneiform_is_questionmarks_without_glyphs(self):
         game = 1
         en = self.table_en(game, 1)

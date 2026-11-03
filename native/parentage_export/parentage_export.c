@@ -75,6 +75,7 @@
 #endif
 
 #include "village_identity.h"
+#include "long_name.h"       /* a long name's whole name (v1.35.89) */
 #include "village_rename.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "save_folder.h"
@@ -114,7 +115,7 @@ enum {
     /* A fixed local bound for a name, checked against each game's own
        name_capacity before use, so adding a game with a longer name field
        fails the guard rather than overrunning these buffers. */
-    MAX_NAME_BYTES = 64,
+    MAX_NAME_BYTES = 256,     /* a name read whole from the Long Names file (long_name.h) fits */
 
     /* How a game records the other parent.
 
@@ -944,11 +945,78 @@ static const struct game_layout *layout_of(int game_id) {
     return &GAME_LAYOUTS[game_id];
 }
 
+/* One villager's name as a log holds it and as the save holds it.  Up to v1.35.88 this exporter wrote
+   every byte 0x80-0xFF of a name as '?' (so "Zo\xEB" became "Zo?"); a log written then must still
+   match the villager, or a backfill would add a second record of them.  Equal when the two are the same
+   bytes, or when one has a '?' and is the other with each byte 0x80-0xFF turned into '?'.  Used only
+   where the rest of the identity (head, body, age, parents...) is compared too, so two villagers are
+   never merged; never between two names that both come from the save. */
+/* The save's own names of the village being matched (vv_note_save_names): a log name that IS one of
+   them is that villager's name, never an older exporter's mask of another's. */
+#define VV_SAVE_NAMES_MAX 512
+static char vv_save_names[VV_SAVE_NAMES_MAX][MAX_NAME_BYTES];
+static int vv_save_name_count;
+
+static int vv_is_save_name(const char *name) {
+    int i;
+    for (i = 0; i < vv_save_name_count; ++i) {
+        if (strcmp(vv_save_names[i], name) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A name made only of '?' (with any trailing spaces) is a real, deliberate name: the island events
+   that make a villager forget their name write exactly "?" (The Lost Children 0x41FD61 / 0x4211EE,
+   The Secret City 0x418433, The Tree of Life 0x4156D9, New Believers 0x415BDA; the string is "?" and
+   a NUL in every game, no space).  It is never read as an older exporter's mask. */
+static int vv_only_question_marks(const char *name) {
+    const unsigned char *p = (const unsigned char *)name;
+    int marks = 0;
+    for (; *p == '?'; ++p) {
+        ++marks;
+    }
+    while (*p == ' ' || *p == '\t') {
+        ++p;
+    }
+    return marks > 0 && *p == 0;
+}
+
+static int vv_name_same(const char *a, const char *b) {
+    const unsigned char *x = (const unsigned char *)a, *y = (const unsigned char *)b;
+    int legacy_ab = 1, legacy_ba = 1, marked = 0;
+    if (strcmp(a, b) == 0) {
+        return 1;
+    }
+    /* Never the bump-on-the-head "?" (or "??", "? "), never a name a save villager really has. */
+    if (vv_only_question_marks(a) || vv_only_question_marks(b) || vv_is_save_name(a) && strchr(a, '?') != NULL
+        || vv_is_save_name(b) && strchr(b, '?') != NULL) {
+        return 0;
+    }
+    for (; *x && *y; ++x, ++y) {
+        if (*x == '?' || *y == '?') {
+            marked = 1;
+        }
+        if (!(*x == *y || (*x == '?' && *y >= 0x80))) {
+            legacy_ab = 0;
+        }
+        if (!(*x == *y || (*y == '?' && *x >= 0x80))) {
+            legacy_ba = 0;
+        }
+    }
+    return marked && *x == 0 && *y == 0 && (legacy_ab || legacy_ba);
+}
+
 /* Names are engine-written with sprintf into a fixed 0x1C-byte field, so a
    name that exactly fills the buffer leaves no terminator. Copy into a local
    that is one byte longer and terminate it ourselves rather than trusting the
-   buffer, and replace anything unprintable so one corrupt record cannot make
-   the whole log unreadable. */
+   buffer, and replace control bytes so one corrupt record cannot make the
+   whole log unreadable.  Bytes 0x80-0xFF are the name's own letters (Windows-
+   1252, or UTF-8 with Render Unicode with In-Game Fonts) and are kept: before
+   v1.35.89 they were written as '?', so "Zoe" with its accent, an emoji or a
+   cuneiform name reached the logs as question marks.  A long name's short
+   form (ending in an ellipsis) is written whole when it fits (long_name.h). */
 static void copy_name_field(
     const unsigned char *source,
     char *out,
@@ -965,9 +1033,12 @@ static void copy_name_field(
         if (value == 0) {
             break;
         }
-        out[index] = (value >= 0x20 && value < 0x7F) ? (char)value : '?';
+        out[index] = (value >= 0x20 && value != 0x7F) ? (char)value : '?';
     }
     out[index] = '\0';
+    if (index > 0) {
+        vv_long_name_into(out, out_size);
+    }
     if (index == 0) {
         /* An empty name is not an error worth dropping the record over: the
            rest of the row still identifies the villager by id, head and body. */
@@ -2840,6 +2911,12 @@ static struct tribe *saved_tribe;       /* the tribe at the last save */
 static int saved_valid;
 static struct tribe *scratch_tribe;
 static const unsigned char *last_table[6];
+
+static const unsigned char *villager_table(int game_id);
+
+/* Every name the save's villager table holds now, for vv_name_same (rule: a log name a villager really
+   has is never another's mask). */
+static void vv_note_save_names(int game_id);
 
 static const unsigned char *villager_table(int game_id) {
     const unsigned char *module;
@@ -4961,6 +5038,25 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         return 0;
     }
     return emit_record(game_id, kind, check ? records : NULL, text);
+}
+
+static void vv_note_save_names(int game_id) {
+    const struct game_layout *g = layout_of(game_id);
+    const unsigned char *records = villager_table(game_id);
+    int slot;
+    vv_save_name_count = 0;
+    if (g == NULL || records == NULL
+        || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
+        return;
+    }
+    for (slot = 0; slot < g->slots && vv_save_name_count < VV_SAVE_NAMES_MAX; ++slot) {
+        const unsigned char *record = records + g->record_base + (size_t)slot * g->stride;
+        if (*(const unsigned char *)(record + g->active) != 1) {
+            continue;
+        }
+        copy_villager_name(g, record, vv_save_names[vv_save_name_count], MAX_NAME_BYTES);
+        ++vv_save_name_count;
+    }
 }
 
 #include "grave_backfill.inc"

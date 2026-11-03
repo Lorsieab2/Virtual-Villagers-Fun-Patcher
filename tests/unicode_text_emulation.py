@@ -40,7 +40,7 @@ GAME_NAMES = {"vv1": "A New Home", "vv2": "The Lost Children", "vv3": "The Secre
               "vv4": "The Tree of Life", "vv5": "New Believers"}
 IMAGES = {g: ROOT / "research" / "game-images" / f"Virtual Villagers - {n}" / "Images" for g, n in GAME_NAMES.items()}
 ARENA = 0x30000000            # the game-side heap this module hands out
-ARENA_SIZE = 0x04000000
+ARENA_SIZE = 0x10000000          # 256 MB: the emulated HeapFree keeps nothing
 RETURN = 0x0BAD0000
 MD = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
 
@@ -197,6 +197,16 @@ def _register(machine_ref: dict) -> None:
         a, b = _wstr(mc.mu, arg(0)).casefold(), _wstr(mc.mu, arg(1)).casefold()
         return ((a > b) - (a < b)) & 0xFFFFFFFF
 
+    def compare_w(mc, arg):
+        def text(va, n):
+            if n == 0xFFFFFFFF:
+                return _wstr(mc.mu, va, 1024)
+            return bytes(mc.mu.mem_read(va, 2 * n)).decode("utf-16-le", "surrogatepass")
+        a, b = text(arg(2), arg(3)), text(arg(4), arg(5))
+        if arg(1) & 1:                      # NORM_IGNORECASE
+            a, b = a.casefold(), b.casefold()
+        return 2 + ((a > b) - (a < b))
+
     def len_w(mc, arg):
         return len(_wstr(mc.mu, arg(0)))
 
@@ -249,6 +259,12 @@ def _register(machine_ref: dict) -> None:
         "SDL_LockSurface": (0, gdi_call(none(0))),
         "SDL_UnlockSurface": (0, gdi_call(none(0))),
         "SDL_UpperBlit": (0, gdi_call(sdl_blit)),
+        # v1.35.89's long names: the Documents folder is answered as missing, so no file is read or written.
+        "SHGetSpecialFolderPathW": (16, gdi_call(none(0))),
+        "CreateFileW": (28, gdi_call(none(0xFFFFFFFF))),
+        "wsprintfW": (0, gdi_call(none(0))),
+        "wsprintfA": (0, gdi_call(none(0))),
+        "CompareStringW": (24, gdi_call(compare_w)),
     }
     se.EXTRA_IMPORTS.update(table)
 
@@ -511,21 +527,6 @@ class FontRun:
         mu.mem_write(box + 0x28, struct.pack("<i", limit))       # the box's limit
         mu.mem_write(box + 0x30, struct.pack("<I", text))
         for ch in chars:
-            esp = se.STACK_TOP - 0x31000
-            mu.mem_write(esp, struct.pack("<4I", RETURN, 5, 0, ch))
-            mu.reg_write(UC_X86_REG_ESP, esp)
-            mu.reg_write(UC_X86_REG_ECX, box)
-            hit = {}
-
-            def stop(uc, address, size, user):
-                if address in (r.box_done, RETURN):
-                    hit["at"] = address
-                    uc.emu_stop()
-
-            h = mu.hook_add(UC_HOOK_CODE, stop)
-            try:
-                self.m.stop_at = None
-                mu.emu_start(r.box_handler, 0, count=200_000)
-            finally:
-                mu.hook_del(h)
+            # The whole handler, to its return (it tells the screen the text changed, as in the game).
+            self._call(r.box_handler, box, 5, 0, ch, count=2_000_000)
         return bytes(mu.mem_read(text, 64)).split(b"\0")[0]

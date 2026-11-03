@@ -25,6 +25,7 @@ import vv_move_old_names
 import vv_move_to_save_folders
 import vv_last_names
 import vv_cut_names
+import vv_legacy_names
 import vv_corrupt_skills
 import vv_golden_child_revive
 import vv_graves
@@ -53,7 +54,9 @@ LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
     ALTERNATIVE_FUN_PATCH_IDS,
+    UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
+    set_unicode_font_face,
     patch_requirement_text,
     unmet_needs_on_text,
     DEFAULT_PATCH_MODE,
@@ -154,6 +157,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner's own pick of the fruit-tree pair is the other way round: Fruit
     # Trees Take Turns Refilling on, All Fruit Trees Refill at the Same Time off.
     + ["vv3_fruit_trees_refill_together"]
+    # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
+    # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
+    + ["vv%d_unicode_font" % game for game in range(1, 6)]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -164,10 +170,21 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
+# Pairs where ticking one unticks the other instead of greying it out (the owner, 2026-11-01: "Render
+# Unicode with In-Game Fonts" and "Use Unicode Font (overrides in-game fonts)" are mutually exclusive, and
+# selecting one unticks the other).
+UNTICKING_CONFLICT_IDS = {}
+for _game in range(1, 6):
+    UNTICKING_CONFLICT_IDS["vv%d_unicode_text" % _game] = "vv%d_unicode_font" % _game
+    UNTICKING_CONFLICT_IDS["vv%d_unicode_font" % _game] = "vv%d_unicode_text" % _game
+del _game
+
+
 def conflict_blockers(patch_id: str, fun_patches, ticked) -> list[str]:
     """The names of the ticked patches that patch `patch_id` can never be built with (either one
-    naming the other in "conflicts"); empty when it is ticked itself or nothing blocks it."""
-    if patch_id in ticked:
+    naming the other in "conflicts"); empty when it is ticked itself or nothing blocks it.  A pair in
+    UNTICKING_CONFLICT_IDS never blocks: ticking one unticks the other."""
+    if patch_id in ticked or patch_id in UNTICKING_CONFLICT_IDS:
         return []
     by_id = {patch.id: patch for patch in fun_patches}
     mine = set(conflict_ids(by_id[patch_id])) if patch_id in by_id else set()
@@ -1372,6 +1389,19 @@ class App(tk.Tk):
             command=self._open_patch_selection_settings,
         ).pack(side="left")
         self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
+        # Use Unicode Font (overrides in-game fonts): the typeface it draws with (the owner, 2026-11-01:
+        # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.
+        ttk.Label(fun_settings, text="Unicode Font:").pack(side="left", padx=(16, 4))
+        self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
+        try:
+            families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
+        except tk.TclError:
+            families = [UNICODE_FONT_DEFAULT_FACE]
+        unicode_font_box = ttk.Combobox(fun_settings, textvariable=self.unicode_font_var, values=families, width=28)
+        unicode_font_box.pack(side="left")
+        unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
+        unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
+        self._help_button(fun_settings, "unicode_font").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -1991,6 +2021,12 @@ class App(tk.Tk):
         dependencies = self._patch_dependency_map()
         by_id = {patch.id: patch for patch in self.fun_patches}
 
+        # Ticking one of an unticking pair unticks the other (UNTICKING_CONFLICT_IDS).
+        for patch_id in sorted(current - previous):
+            other = UNTICKING_CONFLICT_IDS.get(patch_id)
+            if other in current and other in previous:
+                current.discard(other)
+
         # Checking a dependent automatically checks every prerequisite.
         added = current - previous
         pending = list(added)
@@ -2169,6 +2205,12 @@ class App(tk.Tk):
             data = json.loads(SETTINGS.read_text(encoding="utf-8-sig"))
         except (OSError, ValueError):
             data = {}
+        saved_font = data.get("unicode_font", UNICODE_FONT_DEFAULT_FACE)
+        if hasattr(self, "unicode_font_var"):
+            try:
+                self.unicode_font_var.set(set_unicode_font_face(saved_font if isinstance(saved_font, str) else None))
+            except Exception:  # noqa: BLE001 -- an unreadable saved name: Segoe UI
+                self.unicode_font_var.set(set_unicode_font_face(None))
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
@@ -2217,8 +2259,20 @@ class App(tk.Tk):
                         value = str(path.parent)
                     self.all_folder_vars[build.id].set(value)
 
+    def _unicode_font_changed(self) -> None:
+        """The Unicode Font box: the typeface Use Unicode Font draws with (blank = Segoe UI)."""
+        try:
+            face = set_unicode_font_face(self.unicode_font_var.get())
+        except Exception:  # noqa: BLE001 -- a name the patcher cannot write: back to Segoe UI
+            face = set_unicode_font_face(None)
+        if self.unicode_font_var.get() != face:
+            self.unicode_font_var.set(face)
+        self._save_settings()
+
     def _save_settings(self) -> None:
         data = {
+            "unicode_font": (self.unicode_font_var.get() if hasattr(self, "unicode_font_var")
+                             else UNICODE_FONT_DEFAULT_FACE),
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
             "output_root": self.output_root_var.get().strip(),
@@ -4226,6 +4280,12 @@ class App(tk.Tk):
                 skills["found"] = vv_corrupt_skills.survey(folder, number, info.slot)
             except (vv_last_names.LastNamesError, ValueError, OSError, struct.error) as exc:
                 skills["note"] = f"Skills were not checked: the save could not be read ({exc})."
+            # Names an older exporter wrote with '?' for each letter 0x80-0xFF (src/vv_legacy_names.py; the
+            # owner, 2026-11-02: "Yes you can rewrite old ? Names").
+            try:
+                skills["legacy"] = vv_legacy_names.survey(folder, number, info.slot)
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
+                skills["legacy_note"] = f"Old \"?\" names were not checked: a file could not be read ({exc})."
             # A New Home's Golden Child, dead or gone with his record still there (src/vv_golden_child_revive.py).
             if number == vv_golden_child_revive.GAME:
                 try:
@@ -4338,6 +4398,16 @@ class App(tk.Tk):
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         if skills.get("revive_golden"):
             grave_lines += self._revive_golden_child(parent, folder, info)
+        # Old "?" names back to the real names (src/vv_legacy_names.py): the logs only, in place.
+        if skills.get("rewrite_legacy"):
+            try:
+                self._run_with_wait("Rewriting the old \"?\" names…\n\nThe save folder is backed up first.",
+                                    lambda: vv_legacy_names.repair(folder, number, info.slot))
+                grave_lines.append(f"Rewrote {len(skills['legacy'].found)} old \"?\" name(s) to the real names.")
+            except (vv_last_names.LastNamesError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                    OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The old \"?\" names were not rewritten. {exc}",
+                                     parent=parent)
         # The Lost Children's totems (src/vv_vv2_totems.py), before any rename: the villagers turned into
         # totems first, so a reverted record is never counted as an elder's totem.
         if totems["fix"] or totems["give"] or totems.get("move") or totems.get("put_back"):
@@ -4899,6 +4969,23 @@ class App(tk.Tk):
                      + ([skills["note"]] if skills.get("note") else [])):
             ttk.Label(frame, text=line, wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # Old "?" names (src/vv_legacy_names.py): each record's name back to the save's real name, ticked when
+        # there is any; a name two villagers share once masked is listed and left alone.
+        legacy = skills.get("legacy")
+        legacy_var = tk.BooleanVar(value=bool(legacy is not None and legacy.found))
+        if legacy is not None and legacy.found:
+            ttk.Checkbutton(frame, variable=legacy_var,
+                            text=f"Rewrite {len(legacy.found)} old \"?\" name(s) to the real names "
+                                 "(written by an older Fun Patcher)").pack(anchor="w", pady=(4, 0))
+            ttk.Label(frame, text=vv_legacy_names.describe(legacy.found), wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
+        if legacy is not None and legacy.shared:
+            ttk.Label(frame, text="Left alone (two villagers share the name once masked): " + "; ".join(
+                f"\"{masked}\" ({' / '.join(names)})" for masked, names in legacy.shared.items()),
+                wraplength=600, justify="left", foreground="#555555").pack(anchor="w", padx=(20, 0))
+        if skills.get("legacy_note"):
+            ttk.Label(frame, text=skills["legacy_note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # A New Home's Golden Child (src/vv_golden_child_revive.py; the owner, 2026-10-24): offered only when he
         # is dead or gone and his record is still in the save; never ticked for the player.
         golden = skills.get("golden")
@@ -5121,6 +5208,7 @@ class App(tk.Tk):
             numbers["auto"] = number_auto_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             skills["revive_golden"] = golden is not None and golden.revivable and golden_var.get()
+            skills["rewrite_legacy"] = bool(legacy is not None and legacy.found) and legacy_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
             totems["move"] = totem_survey is not None and move_var.get()

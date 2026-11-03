@@ -7,8 +7,13 @@ import shutil
 import os
 from unittest import mock
 from pathlib import Path
+import sys
 
-from src.vv5_individual_running import (
+# src.vv5_individual_running imports vv_fun_patcher by its bare name: src must be on the path even when
+# this file is the first of its CI shard.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from src.vv5_individual_running import (  # noqa: E402
     PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME,
     AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic,
     recover_atomic, recover_cleanup_atomic, _registry_members, _discover_reports, _quarantine_owned,

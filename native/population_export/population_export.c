@@ -56,6 +56,7 @@
 
 #include <windows.h>
 #include "save_folder.h"
+#include "long_name.h"       /* a long name's whole name (v1.35.89) */
 #include "log_slot.h"         /* one folder of logs per save slot */
 #include "log_words.h"
 #include "special_title.h"
@@ -84,7 +85,7 @@ enum {
     /* A fixed local bound for a name, checked against each game's own
        name_capacity before use, so a game with a longer field fails the guard
        rather than overrunning the buffer. */
-    MAX_NAME_BYTES = 64,
+    MAX_NAME_BYTES = 256,     /* a name read whole from the Long Names file (long_name.h) fits */
 
     /* The owner asked for "text files hold 256 villagers each". No game's
        array is larger (A New Home and The Lost Children 256, the later games
@@ -692,6 +693,7 @@ static void copy_name_field(
         : destination_size - 1;
     memcpy(destination, source, limit);
     destination[limit] = '\0';
+    vv_long_name_into(destination, destination_size);     /* whole, when it fits */
 }
 
 /* Build "<exe folder>\Village Population <n>.txt" and its .tmp sibling.

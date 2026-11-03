@@ -92,6 +92,9 @@ FILES = [
     "assets/unicode_text/VVFP Unicode Text.dll",
     # Translations (all five games): the chosen language's text, shipped by each game's Translations row.
     "assets/translations/VVFP Translations.dll",
+    # Use Unicode Font (overrides in-game fonts) (all five games): the same code, every letter from a Windows
+    # typeface; shipped by each game's row, started by VVFP Startup.dll.
+    "assets/unicode_font/VVFP Unicode Font.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -203,6 +206,11 @@ FILES = [
     "data/vv3_unicode_text_feature.json",
     "data/vv4_unicode_text_feature.json",
     "data/vv5_unicode_text_feature.json",
+    "data/vv1_unicode_font_feature.json",
+    "data/vv2_unicode_font_feature.json",
+    "data/vv3_unicode_font_feature.json",
+    "data/vv4_unicode_font_feature.json",
+    "data/vv5_unicode_font_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     "data/vv1_translations_feature.json",
@@ -340,6 +348,8 @@ FILES = [
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",
     "src/vv_game_text.py",
+    "src/vv_long_names.py",
+    "src/vv_legacy_names.py",
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
     "src/vv_misfiled_records.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).

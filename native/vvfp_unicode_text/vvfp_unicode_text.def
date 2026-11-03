@@ -3,4 +3,8 @@ EXPORTS
     VvfpStartup
     VvfpUnicodeTextKey
     VvfpUnicodeTextFonts
+    VvfpUnicodeTextUnits
+    VvfpUnicodeTextOwnDraws
     VvfpGlyphsUtf8
+    VvfpBoxInsertUtf8
+    VvfpLongName

@@ -591,11 +591,24 @@
       "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
       "guide": [
         "Nothing to click: tick the patch and patch the game again.",
-        "Type accented letters, ß, ¿ ¡, € £, curly quotes and dashes in the tribe name, villager names (the Details screen) and every other text box; dead keys and Alt codes work.",
-        "Every text the game draws shows them in its own fonts, at their real widths.",
-        "For Burweed text, install the Burweed ICG font for the best-matching letters (the patcher never ships it).",
-        "Windows-1252 only: Greek, Cyrillic, Chinese, Japanese and emoji are not drawn yet.",
-        "On by default. Needs no other patch. Not yet seen in a running game."
+        "Type any character in names, the tribe name and every text box: accents, Greek, Cyrillic, Chinese,",
+        "Japanese, Arabic, cuneiform, emoji (Windows key + .). Backspace erases a whole character.",
+        "Boxes take 1,200 English letters (fewer in other scripts); a longer name is saved short (ending in …), kept whole.",
+        "The game draws them in its own fonts, emoji in colour; Chinese and Japanese lines break between characters.",
+        "For Burweed text, install the Burweed ICG font (never shipped); other letters come from Windows' fonts.",
+        "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen.",
+        "On by default and in Owner's Defaults. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv1_unicode_font", "vv2_unicode_font", "vv3_unicode_font", "vv4_unicode_font", "vv5_unicode_font"],
+      "guide": [
+        "Tick it to draw ALL of the game's text in a Windows typeface instead of its own fonts; patch again.",
+        "Pick the typeface in the Unicode Font box under the patch list (Segoe UI unless you choose another).",
+        "Every character works, as with Render Unicode with In-Game Fonts.",
+        "Cannot be used with Render Unicode with In-Game Fonts (ticking one unticks the other).",
+        "Needs Full Names on the Details Screen. Off by default; Select All does not tick it.",
+        "Not yet seen in a running game."
       ]
     },
     {
@@ -847,6 +860,7 @@
         "Ticks every patch for every game.",
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
+        "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "It does not change the population mode."
       ]
     },
@@ -856,6 +870,7 @@
         "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
+        "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
@@ -866,6 +881,7 @@
       "guide": [
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
+        "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It does not change the population mode."
       ]
@@ -875,6 +891,15 @@
       "guide": [
         "Unticks every patch, so you can tick just the ones you want.",
         "The population mode you chose still applies."
+      ]
+    },
+    "unicode_font": {
+      "title": "Unicode Font",
+      "guide": [
+        "The typeface Use Unicode Font (overrides in-game fonts) draws all of the game's text in: pick one of the fonts Windows has, or leave Segoe UI.",
+        "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
+        "Characters the chosen typeface lacks come from Windows' other fonts (Segoe UI, Segoe UI Historic, Segoe UI Emoji in colour, Yu Gothic, Microsoft YaHei, ...).",
+        "It does nothing while Render Unicode with In-Game Fonts is used instead."
       ]
     },
     "patch_selection_settings": {
@@ -1050,11 +1075,11 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "Tick what to do, then Repair (backed up first). Reset corrupted skill values: NaN, infinite, below 0, above 100.",
+        "Tick what to do, then Repair (backed up first). Reset corrupted skill values. Rewrite old \"?\" names to the real ones.",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",
-        "Fix grave information (Choose...): where a grave and its records differ, pick the right value or Don't know, or edit a grave.",
+        "Fix grave information (Choose...): where a grave and its records differ, pick the right value, or edit a grave.",
         "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
         "Move Old Files to New Names / Move Files to Save Folders: rename older files, or move each save's into its own folder; repatch first."
       ]

@@ -50,6 +50,8 @@
 /* The Unicode glyph companion: when it is loaded and its VvfpGlyphsUtf8() answers 1, the game draws UTF-8
    and the translations are kept in UTF-8; otherwise they are converted to Windows-1252. */
 #define TR_GLYPHS_DLL L"VVFP Unicode Text.dll"
+#define TR_FONT_DLL L"VVFP Unicode Font.dll"
+#define TR_FONT_DLL_A "VVFP Unicode Font.dll"
 #define TR_FILE_LEAF "Translation\\Translation.txt"
 #define TR_MAX_FILE (4u * 1024u * 1024u)
 /* The longest prepared text: the island-event sprintf buffers of A New Home and The Lost Children are
@@ -2332,11 +2334,28 @@ static int tr_info_ok(tr_info *info, const char *title) {
     return 1;
 }
 
-/* The glyph companion keeps UTF-8 when it is loaded and says so. */
-static int tr_glyphs_utf8(void) {
-    HMODULE glyphs = GetModuleHandleW(TR_GLYPHS_DLL);
+/* The glyph companion keeps UTF-8 when it is loaded and says so.  "VVFP Unicode Text.dll" starts before
+   this companion.  "VVFP Unicode Font.dll" (Use Unicode Font, the same code drawing in a Windows typeface)
+   is later in VVFP Startup.dll's list (append-only), so when it is shipped beside this one and not yet
+   loaded it is loaded by its full path in the patcher's folder and started here, when the translations
+   are first prepared; its VvfpStartup installs once (VVFP Startup.dll's own call later does nothing). */
+static int tr_glyphs_utf8(int game) {
     typedef int(__stdcall * glyphs_fn)(void);
+    typedef void(__stdcall * start_fn)(int, unsigned int);
+    HMODULE glyphs = GetModuleHandleW(TR_GLYPHS_DLL);
     glyphs_fn fn;
+    if (glyphs == NULL) {
+        glyphs = GetModuleHandleW(TR_FONT_DLL);
+    }
+    if (glyphs == NULL && vvfp_patcher_file_exists(TR_FONT_DLL_A)) {
+        glyphs = vvfp_load_patcher_dll(TR_FONT_DLL_A);
+        if (glyphs != NULL) {
+            start_fn start = (start_fn)GetProcAddress(glyphs, "VvfpStartup");
+            if (start != NULL) {
+                start(game, 0);
+            }
+        }
+    }
     if (glyphs == NULL) {
         return 0;
     }
@@ -2714,7 +2733,7 @@ static void tr_start(int game) {
     if (!header || !tr_info_ok(info, g->title)) {
         return;
     }
-    g_utf8 = tr_glyphs_utf8();
+    g_utf8 = tr_glyphs_utf8(game);
     g_map = (tr_entry **)tr_keep(TR_BUCKETS * sizeof(tr_entry *));
     g_interns = (tr_entry **)tr_keep(TR_BUCKETS * sizeof(tr_entry *));
     if (g_map == NULL || g_interns == NULL) {

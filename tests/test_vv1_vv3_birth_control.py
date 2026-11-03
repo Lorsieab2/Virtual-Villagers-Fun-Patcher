@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from scripts.build_vv1_birth_control_page import build_page  # noqa: E402
 from vv_fun_patcher import (  # noqa: E402
+    ALTERNATIVE_FUN_PATCH_IDS,
     PatcherError,
     _apply_pe_append_transactions,
     _remove_feature_bytes,
@@ -412,6 +413,7 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             ],
             "all-current-vv1-features": [
                 item.id for item in load_fun_patches() if item.game_id == "vv1"
+                and item.id not in ALTERNATIVE_FUN_PATCH_IDS
             ],
         }
         for family, patch_ids in maximal_sets.items():

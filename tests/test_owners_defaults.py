@@ -33,7 +33,10 @@ def _owner_keeps_off(patch_id: str) -> bool:
     Story events patches").  ...and of The Secret City's two fruit-tree schedules, which are
     never built together, the owner picks Fruit Trees Take Turns Refilling, so All Fruit Trees
     Refill at the Same Time stays off."""
-    return "learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
+    # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on" -- Use
+    # Unicode Font, the alternative of Render Unicode with In-Game Fonts, stays off.
+    return ("learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
+            or patch_id.endswith("_unicode_font"))
 
 
 class OwnersDefaultsTests(unittest.TestCase):

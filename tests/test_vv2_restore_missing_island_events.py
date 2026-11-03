@@ -80,7 +80,8 @@ def _vv2():
 @functools.lru_cache(maxsize=None)
 def _public_vv2_ids() -> tuple[str, ...]:
     return tuple(p.id for p in patcher.load_public_fun_patches()
-                 if p.game_id == "vv2" and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
+                 if p.game_id == "vv2" and p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS
+                 and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS)
 
 
 @functools.lru_cache(maxsize=None)

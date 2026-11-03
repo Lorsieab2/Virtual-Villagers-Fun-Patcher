@@ -438,6 +438,7 @@ static void stand_in(const char *name, int present) {
     }
 }
 
+
 #define VILLAGE "Village: Arrival Tribe (Save 1)\n"
 
 /* The Births and Conceptions log an older build wrote, with the record
@@ -987,6 +988,96 @@ static void write_birth_tribe_save(void) {
    Zuri -- no second Birth record -- and takes nothing as settled either, so its
    marker is not written while the contradiction stands (the patcher asks the
    player); Kid, with no record at all, still gets his. */
+/* LOGS FROM BEFORE v1.35.89 (the owner, 2026-11-02: no duplicate record, ever).  Up to v1.35.88 the
+   parentage exporter wrote each name byte 0x80-0xFF as '?': a v1.35.87 player's "Zoe Nunez" with her
+   accents (Windows-1252 bytes) is "Zo? ???ez" in the Births log.  Her record matches her (the rest of the
+   identity too): the backfill asks nothing and writes nothing, and a later save writes nothing either. */
+static void legacy_question_mark_cases(void) {
+    char path[MAX_PATH], marker[MAX_PATH], before_log[1 << 13];
+    unsigned char *buffer;
+    scan_t scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
+    repair_t repair_births = (repair_t)GetProcAddress(cause, "VvfpCauseRepairBirths");
+    int i;
+    if (game == 1 || scan_births == NULL || repair_births == NULL) return;
+    reset(game, 1);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    parented(0, "Zo\xEB \xD1\xFA\xF1" "ez", 4, 4);
+    births_path(1, path);
+    write_text(path,
+        "Village: Birth Tribe (Save 1)\n"
+        "Birth 5\n  Child: Zo? ???ez\n    Head: 4\n    Body: 4\n    Likes: (none)\n    Dislikes: (none)\n"
+        "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n");
+    write_birth_tribe_save();
+    vv_village_publish("");
+    buffer = save_buffer("Birth Tribe");
+    births_marker_path(marker);
+    CHECK(scan_births(game, 1) == 0,
+          "legacy names: \"Zo? ???ez\" in an older log is Zo\xEB \xD1\xFA\xF1" "ez: nothing to ask about");
+    repair_births(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(count_of(text, "  Child: ") == 1 && count_of(text, "Arrived") == 0,
+          "legacy names: no second Birth record and no Arrived record");
+    lstrcpynA(before_log, text, sizeof before_log);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(strcmp(before_log, text) == 0, "legacy names: a later save writes nothing either");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Birth Tribe (Save 1)\n");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+}
+
+/* THE BUMP ON THE HEAD (the owner, 2026-11-02): the island events that make a villager forget their name
+   write exactly "?" -- a real name, never an older exporter's mask.  A villager named "?" (or "? ")
+   beside one named with a single accented letter: the "?" Birth record is the "?" villager's, nothing is
+   asked and nothing written. */
+static void bump_on_the_head_cases(void) {
+    static const char *const FORGOT[2] = { "?", "? " };
+    char path[MAX_PATH], before_log[1 << 13];
+    unsigned char *buffer;
+    scan_t scan_births = (scan_t)GetProcAddress(cause, "VvfpCauseScanBirths");
+    repair_t repair_births = (repair_t)GetProcAddress(cause, "VvfpCauseRepairBirths");
+    int i, k;
+    if (game == 1 || scan_births == NULL || repair_births == NULL) return;
+    for (k = 0; k < 2; ++k) {
+        char log[512];
+        reset(game, 1);
+        clean();
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        parented(0, FORGOT[k], 4, 4);
+        parented(1, "\xE9", 6, 6);
+        births_path(1, path);
+        _snprintf(log, sizeof log,
+            "Village: Birth Tribe (Save 1)\n"
+            "Birth 5\n  Child: %s\n    Head: 4\n    Body: 4\n    Likes: (none)\n    Dislikes: (none)\n"
+            "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n"
+            "Birth 6\n  Child: \xE9\n    Head: 6\n    Body: 6\n    Likes: (none)\n    Dislikes: (none)\n"
+            "  Mother: Chika\n    Head: 19\n    Body: 17\n  Father: Kito\n    Head: 0\n    Body: 18\n\n",
+            FORGOT[k]);
+        write_text(path, log);
+        write_birth_tribe_save();
+        vv_village_publish("");
+        buffer = save_buffer("Birth Tribe");
+        CHECK(scan_births(game, 1) == 0, "bump on the head (%s): the forgotten name \"%s\" and \"\xE9\" each have their "
+              "Birth record: nothing to ask", k ? "with a space" : "alone", FORGOT[k]);
+        repair_births(game, 1, 1);
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(count_of(text, "  Child: ") == 2 && count_of(text, "Arrived") == 0,
+              "bump on the head: no Birth record added, no Arrived record");
+        lstrcpynA(before_log, text, sizeof before_log);
+        save_done(1, buffer);
+        read_into(path);
+        CHECK(strcmp(before_log, text) == 0, "bump on the head: a later save writes nothing either");
+        reset(game, 1);
+        vv_reset_slot_state(game, 1, "Village: Birth Tribe (Save 1)\n");
+        for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+        free(buffer);
+    }
+}
+
 static void contradiction_cases(void) {
     char path[MAX_PATH], marker[MAX_PATH], before_log[1 << 13];
     unsigned char *buffer;
@@ -1949,6 +2040,8 @@ int main(int argc, char **argv) {
 
         births_cases();
         contradiction_cases();
+        legacy_question_mark_cases();
+        bump_on_the_head_cases();
         quit_cases();
         stale_slot_cases();
         creation_save_cases();

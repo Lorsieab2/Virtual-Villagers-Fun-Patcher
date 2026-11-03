@@ -369,6 +369,29 @@ def _i32(data: bytes, at: int) -> int:
 
 
 def _cstr(data: bytes, at: int, cap: int) -> str:
+    """A name field of the save: whole when it is a long name's short form (vv_long_names.activate, during a
+    full-name load_village), else as written."""
+    import vv_long_names
+    return vv_long_names.whole_bytes(bytes(data[at:at + cap]).split(b"\0", 1)[0]).decode(GAME_TEXT)
+
+
+def _note_legacy_names(reg) -> None:
+    """Logs written before v1.35.89 hold each name byte 0x80-0xFF as '?': while this full-name load runs, a
+    log value that is exactly one save name so masked reads as that name (vv_long_names.LEGACY).  The rest
+    of the identity (head, body, sex...) is still compared wherever records are matched."""
+    import vv_long_names
+    if vv_long_names.ACTIVE is not None and vv_game_text_hook_is_on():
+        vv_long_names.LEGACY.update(vv_long_names.legacy_names(p.name for p in reg.people.values() if p.name))
+
+
+def vv_game_text_hook_is_on() -> bool:
+    import vv_game_text
+    return vv_game_text.LONG_NAMES is not None
+
+
+def _cstr_raw(data: bytes, at: int, cap: int) -> str:
+    """A name field exactly as written (matched against A New Home's own sidecar, which keeps the field's
+    bytes)."""
     return bytes(data[at:at + cap]).split(b"\0", 1)[0].decode(GAME_TEXT)
 
 
@@ -514,7 +537,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if game == 1:
             p.expecting = ln.carrying(game, data, at)       # the delivery the game counts down
             # Who she is in the save's own words, for the Parents (A New Home) sidecar (_vv1_from_sidecar).
-            reg.vv1_living.append((p.id, _cstr(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
+            reg.vv1_living.append((p.id, _cstr_raw(data, at, f.name_cap)[:VV1_SIDECAR_NAME - 1],
                                    1 if _i32(data, at + f.sex) == f.male else 2, _i32(data, at + f.family),
                                    _i32(data, at + f.head), _i32(data, at + f.body)))
         elif f.expecting is not None:
@@ -1235,6 +1258,16 @@ def _identity_answers(folder: Path, game: int, slot: int) -> dict:
 
 def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
                  rename_answers: dict | None = None, identity_answers: dict | None = None) -> Village:
+    """The slot's village (_load_village).  With `full_names`, a name longer than its field is read whole
+    from the save's Long Names file (vv_long_names, v1.35.89) in the save and in every log, so a long-named
+    villager is one person; without, names are read as the save and logs write them."""
+    import vv_long_names
+    with vv_long_names.activate(Path(folder) if full_names else None, game):
+        return _load_village(folder, game, slot, full_names, rename_answers, identity_answers)
+
+
+def _load_village(folder: Path, game: int, slot: int, full_names: bool = True,
+                  rename_answers: dict | None = None, identity_answers: dict | None = None) -> Village:
     """The slot's village, its living villagers and every relative the save and logs know.
 
     With `full_names` (the Family Tree Maker and the Village Matchmaker), a living villager whose name
@@ -1268,6 +1301,7 @@ def load_village(folder: Path, game: int, slot: int, full_names: bool = True,
             reg.full[v.identity] = (cut.full, v.head, v.body)
     _appearance_changes(reg, folder, game, slot)
     _save_people(reg, folder, game, slot)
+    _note_legacy_names(reg)
     _births(reg, folder, game, slot)
     _living_namesake_births(reg)
     _namesakes_by_birth(reg, notes)
@@ -1760,7 +1794,7 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
 
     def person(buf: bytes, e: int, looks: int, at: int) -> Key | None:
         # Every value is stored +1: 0 is "not recorded", and head 0 / body 0 are real looks.
-        name, head, body = _cstr(buf, e + at, VV1_SIDECAR_NAME)[:cut], buf[e + looks], buf[e + looks + 1]
+        name, head, body = _cstr_raw(buf, e + at, VV1_SIDECAR_NAME)[:cut], buf[e + looks], buf[e + looks + 1]
         return (name, head - 1, body - 1) if name and head and body else None
 
     places = [(data, 12 + i * VV1_SIDECAR_OCCUPANT, 12 + 256 * VV1_SIDECAR_OCCUPANT + i * VV1_SIDECAR_ENTRY)
@@ -1771,7 +1805,7 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
         gender, departed, head, body = buf[occ], buf[occ + 1], buf[occ + 2], buf[occ + 3]
         if gender not in (1, 2):
             continue
-        who = (_cstr(buf, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(buf, occ + 4),
+        who = (_cstr_raw(buf, occ + 8, VV1_SIDECAR_NAME)[:cut], gender, _i32(buf, occ + 4),
                head - 1 if head and body else None, body - 1 if head and body else None)
         entry = _Vv1Entry(who, bool(departed) or buf is not data, person(buf, e, 0, 8), person(buf, e, 2, 36),
                           person(buf, e, 4, 64))

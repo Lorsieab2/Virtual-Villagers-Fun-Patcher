@@ -71,6 +71,8 @@ def public_vv4_ids() -> list[str]:
         patch.id
         for patch in vfp.load_public_fun_patches()
         if patch.raw.get("game_id") == "vv4" and patch.id != FEATURE
+        # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font), as Select All
+        and patch.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS
     ]
 
 
