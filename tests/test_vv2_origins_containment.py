@@ -40,6 +40,8 @@ REMAINING = {
     "vv2_translations",
     # companion only: detours the SDL_KEYDOWN case at run time, owns no bytes
     "vv2_copy_paste",
+    # companion only: replaces the story pages' vtable slots at run time, owns no bytes
+    "vv2_skip_all_intro",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

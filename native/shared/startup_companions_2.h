@@ -28,6 +28,14 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
        Windows typeface; a build ships it or the Unicode text companion, never both. */
     "VVFP Unicode Font.dll",
     "VVFP Copy and Paste.dll",
+    /* Skip All on the intro story (A New Home, The Lost Children). */
+    "VVFP Skip Intro.dll",
+    /* Fix Vanilla Bugs (The Lost Children): a walk looping on the shoreline band's waypoint tries alternate
+       standing points, then gives up keeping what the villager holds. */
+    "VVFP Stuck Walks.dll",
+    /* Fix Vanilla Bugs (A New Home, The Secret City, The Tree of Life, New Believers): a villager whose walk
+       gives up while it holds something looks for another way first and keeps the item. */
+    "VVFP Keep Carried.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

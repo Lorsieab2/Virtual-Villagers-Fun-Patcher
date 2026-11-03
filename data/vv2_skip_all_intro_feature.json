@@ -1,0 +1,80 @@
+{
+  "id": "vv2_skip_all_intro",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Skip All on the Intro Story",
+  "description": "Adds a \"Skip All\" button to the story shown when a new village starts, as The Secret City has. The story is three pages (the third asks the help question); on every page before the question, a Skip All button sits at the bottom right, in the game's own button style and font. Clicking it ends the story at once: the page fades out as it always does and you land straight on the help question, \"Would you like tutorial tips turned on?\", with its Yes and No buttons already showing. Yes and No are the game's own and do exactly what they do at the end of the story read to the end. Without a click on Skip All the story is unchanged (a click anywhere else still turns the page). The button's word is translatable. **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Skip Intro.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Skip All",
+  "behavior_changes": [
+    "When a story page before the last is activated, a button is built once for it as the last page builds its Yes button -- the game's allocator, button constructor and label call, with the art name pointer the Yes button uses -- at the Yes/No row (640, 550), drawn with popup_button1.png, the art of the help question's own Yes and No, labelled \"Skip All\" (asked of VVFP Translations.dll by key), id 0x5C1A, and added to the page as a child: the page draws it and the game's event manager hands it the mouse.",
+    "Its click (message 8, id 0x5C1A, to the page's button slot) sets skip pending and calls the page's own event slot with event 2 -- the stock code a click anywhere runs -- so the page fades out and moves on as it always does. When the first page's stock update has just moved the game to page 2's state (0x17) while skip is pending, the game goes to page 3's state (0x18) instead; page 3 was built with page 1.",
+    "On the first frame of the page 3 (the help question) while skip is pending, its frame count is put past its 50-frame (25 fast) wait before the stock update runs, so the stock update adds its Yes and No buttons on that frame; skip pending is then cleared (and is cleared whenever page 1 is activated).",
+    "The answer is the stock last page's own: Yes: the tutorial-tip flags [game+0x31+i] cleared and set from 0x186, the help flags +0x1F4..+0x1F7, +0x1FA, +0x1FB set, [game+0x2E4F8] = the clock, sound 0x4A. No: the same, then tips 0x186..0x1BE cleared, [game+0x1D8] = 1, sound 0x49 (the last page's button slot 0x428B30)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces vtable slots of the story page classes at run time, only after verifying every stock pointer, and installs nothing on a different build.",
+    "Without a click on Skip All every replaced slot runs the stock one with the same arguments; only the button is added. The pages' text, timing, the help question, its Yes and No buttons and what they set are the game's own.",
+    "The F1 key and the typed-character page turn are untouched.",
+    "No game art or font ships: the game draws its own button image with its own font. Nothing is written to a save, a villager record or a file."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/skip_intro/VVFP Skip Intro.dll",
+      "destination": "VVFP Skip Intro.dll",
+      "sha256": "BB1D4B28818BA58981A14D9D306404FE76985CD904D1660970C216A263212C2C"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x476AC4",
+      "stock_bytes": "20824200",
+      "routine": "the story page 1 (state 0x16)'s vtable, slot 0 (destructor, stock 0x428220)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476AD0",
+      "stock_bytes": "90114000",
+      "routine": "the story page 1 (state 0x16)'s vtable, slot 3 (button slot, stock 0x401190)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476AE4",
+      "stock_bytes": "40824200",
+      "routine": "the story page 1 (state 0x16)'s vtable, slot 8 (update, stock 0x428240)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476AE8",
+      "stock_bytes": "B07D4200",
+      "routine": "the story page 1 (state 0x16)'s vtable, slot 9 (activate, stock 0x427DB0)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476AFC",
+      "stock_bytes": "F0884200",
+      "routine": "the story page 2 (state 0x17)'s vtable, slot 0 (destructor, stock 0x4288F0)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476B08",
+      "stock_bytes": "90114000",
+      "routine": "the story page 2 (state 0x17)'s vtable, slot 3 (button slot, stock 0x401190)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476B20",
+      "stock_bytes": "B0A24300",
+      "routine": "the story page 2 (state 0x17)'s vtable, slot 9 (activate, stock 0x43A2B0)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x476B54",
+      "stock_bytes": "C0924200",
+      "routine": "the story page 3, the help question (state 0x18)'s vtable, slot 8 (update, stock 0x4292C0)",
+      "installed_by": "VVFP Skip Intro.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

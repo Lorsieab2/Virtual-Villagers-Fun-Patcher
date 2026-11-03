@@ -247,6 +247,95 @@ def _rules_for(entry: dict) -> fmt.RowRules:
     )
 
 
+_INTEGER_CONVERSION = re.compile(r"(?<!%)%[iu]")
+
+
+def content_key(english: str) -> str:
+    """The English as VVFP Translations.dll finds it: a pattern row matches the shown text, so %d, %i and %u are
+    one conversion ("Set %d %s to Age 18." and "Set %u %s to Age 18." are one text)."""
+    return _INTEGER_CONVERSION.sub("%d", english)
+
+
+def content_shadowed(entry: dict, taken: set[str]) -> bool:
+    """True for a row that would never be used, and so is left out of the template (the owner, 2026-11-03: a
+    translator is never given a row that does nothing).  A text drawn by the game's text routine or a dialog is
+    found by the English it shows ("content" route, scripts/scan_patch_text.py), and VVFP Translations.dll keeps
+    ONE translation per English: the first row with it.  A later row with the same English -- another patcher
+    row, or a game string the patch's text happens to equal -- is never reached, so it is not offered.  A row a
+    companion asks for by its stem ("route": "key") and an exe patch's own text ("patch/0x<va>") are found by
+    key and by address, so they are always offered, and (the DLL keeps a key row out of the content map) they
+    take no English from the content rows.  `taken` holds the content keys of the rows so far; it grows."""
+    if entry.get("route") == "key" or entry["stem"].startswith("patch/"):
+        return False
+    key = content_key(entry["english"])
+    if key in taken:
+        return True
+    taken.add(key)
+    return False
+
+
+class TemplateRows(list):
+    """The template's rows; `.shadows` maps the key of each row the template leaves out (content_shadowed) to the
+    key of the row that stays for the same English."""
+
+    shadows: dict
+    english: dict
+
+
+def adapt_conversions(translation: str, from_english: str, to_english: str) -> str | None:
+    """`translation` (of `from_english`) rewritten for `to_english`, which differs from it only in %d / %i / %u
+    (content_key treats those as one text): each conversion is replaced by the one at the same place in
+    `to_english`.  None when it cannot be done safely (the translation's conversions are not exactly the
+    English's, or the two Englishes differ in anything but those)."""
+    have = fmt.printf_conversions(translation)
+    if have != fmt.printf_conversions(from_english):
+        return None
+    if content_key(from_english) != content_key(to_english):
+        return None
+    want = iter(fmt.printf_conversions(to_english))
+
+    def swap(match):
+        if match.group(0) == "%%":
+            return "%%"
+        return next(want)
+
+    out = fmt._PRINTF_RE.sub(swap, translation)
+    return out
+
+
+def migrate_shadowed(tf: fmt.TranslationFile, shadows: dict, english: dict | None = None) -> list[str]:
+    """Before a file is brought up to the template: a translation written on a row the template now leaves out
+    moves to the row that stays when that one is blank (a row left blank used to be skipped by the DLL, which then
+    used the translated duplicate).  Its %d / %i / %u become the survivor's (the DLL and the row checks need the
+    survivor's own conversions); one that cannot be adapted safely is not moved, with a warning.  A translated
+    surviving row is never overwritten; when both are translated and differ, the survivor is kept.  `english` maps
+    a row key to its English.  Returns the warnings."""
+    english = english or {}
+    by_key = tf.by_key()
+    warnings = []
+    for removed, survivor in shadows.items():
+        gone, kept = by_key.get(removed), by_key.get(survivor)
+        if gone is None or not gone.translation:
+            continue
+        survivor_english = kept.english if kept is not None else english.get(survivor)
+        if survivor_english is None:
+            continue
+        if kept is not None and kept.translation:
+            if kept.translation != gone.translation:
+                warnings.append(f"{removed} was translated differently from {survivor}; {survivor} is kept")
+            continue
+        adapted = adapt_conversions(gone.translation, gone.english, survivor_english)
+        if adapted is None:
+            warnings.append(f"the translation of {removed} could not be moved to {survivor}; translate {survivor}")
+            continue
+        if kept is None:
+            kept = fmt.Row(survivor, survivor_english, "", "")
+            tf.rows.append(kept)
+            by_key[survivor] = kept
+        kept.translation = adapted
+    return warnings
+
+
 def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> list[TemplateRow]:
     """Every row of the game's template, its English read from the player's own game (the patched copy when
     `folder` holds one) and the patcher's own text that game shows.  Raises FileNotFoundError when no
@@ -262,7 +351,9 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
     sm_xml = exe.parent / "Assets" / "sm.xml"
     english = game_english(number, exe, sm_xml)
     inv = load_inventory(number)
-    rows: list[TemplateRow] = []
+    rows: list[TemplateRow] = TemplateRows()
+    rows.shadows = {}
+    rows.english = {}
     for entry in inv["rows"]:
         stem = entry["stem"]
         if stem not in english:
@@ -276,11 +367,19 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
         rules.byte_limit = game_byte_limit(text)
         rows.append(TemplateRow(fmt.Row(key, text, "", entry.get("notes", "")), rules, entry.get("context", "")))
     tag = f"vv{number}"
+    taken = {content_key(r.row.english) for r in rows}
+    owner = {}
+    for r in rows:
+        owner.setdefault(content_key(r.row.english), r.row.key)
     for entry in load_patcher_strings():
         if tag not in entry.get("games", ()):
             continue
         source, _slash, ident = entry["stem"].partition("/")
         key = fmt.make_key(source, ident, entry["english"])
+        if content_shadowed(entry, taken):
+            rows.shadows[key] = owner[content_key(entry["english"])]
+            continue
+        owner.setdefault(content_key(entry["english"]), key)
         rules = _rules_for(entry)
         if source == "patch":
             # An exe patch's own text is replaced in place: within the English's own bytes (a longer one is
@@ -288,6 +387,7 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
             rules.byte_limit = len(entry["english"].encode("cp1252", errors="replace"))
         rows.append(TemplateRow(fmt.Row(key, entry["english"], "", entry.get("notes", "")),
                                 rules, entry.get("context", "")))
+    rows.english = {r.row.key: r.row.english for r in rows}
     return rows
 
 

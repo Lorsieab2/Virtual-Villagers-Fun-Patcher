@@ -1,0 +1,4 @@
+LIBRARY "VVFP Stuck Walks"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpStuckWalksInstalled=_VvfpStuckWalksInstalled@0

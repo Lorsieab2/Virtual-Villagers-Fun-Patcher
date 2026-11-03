@@ -12215,7 +12215,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1",
@@ -12226,7 +12227,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.2",
@@ -12237,7 +12239,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.3",
@@ -12248,7 +12251,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.4",
@@ -12259,7 +12263,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.5",
@@ -12270,7 +12275,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.6",
@@ -12281,7 +12287,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Cause of Death.dll",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.1",
@@ -12292,7 +12299,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.2",
@@ -12303,7 +12311,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.3",
@@ -12314,7 +12323,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.4",
@@ -12325,7 +12335,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.5",
@@ -12336,7 +12347,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.6",
@@ -12347,7 +12359,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.7",
@@ -12358,7 +12371,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.8",
@@ -12369,7 +12383,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.9",
@@ -12380,7 +12395,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.10",
@@ -12391,7 +12407,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.11",
@@ -12402,7 +12419,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.12",
@@ -12413,7 +12431,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.13",
@@ -12424,7 +12443,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Cause of Death.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s0",
@@ -12434,7 +12454,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Storytelling.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s1",
@@ -12444,7 +12465,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Storytelling.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s2",
@@ -12454,7 +12476,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Storytelling.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s3",
@@ -12464,7 +12487,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Storytelling.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c1.C1_BEHAVIOURS.0.0",
@@ -14544,7 +14568,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c1.C1_ADAPTER.44",
@@ -14554,7 +14579,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c1.C1_ADAPTER.45",
@@ -14564,7 +14590,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c1.C1_ADAPTER.46",
@@ -14574,7 +14601,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c1.C1_ADAPTER.93",
@@ -17584,7 +17612,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c2.C2_ADAPTER.44",
@@ -17594,7 +17623,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c2.C2_ADAPTER.45",
@@ -17604,7 +17634,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c2.C2_ADAPTER.46",
@@ -17614,7 +17645,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c3.C3_BEHAVIOURS.0.0",
@@ -20614,7 +20646,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c3.C3_ADAPTER.44",
@@ -20624,7 +20657,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c3.C3_ADAPTER.45",
@@ -20634,7 +20668,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c3.C3_ADAPTER.46",
@@ -20644,7 +20679,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c4.C4_BEHAVIOURS.0.0",
@@ -23764,7 +23800,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.44",
@@ -23774,7 +23811,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.45",
@@ -23784,7 +23822,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.46",
@@ -23794,7 +23833,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c5.C5_STATUSES.0",
@@ -27754,7 +27794,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c5.C5_ADAPTER.44",
@@ -27764,7 +27805,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c5.C5_ADAPTER.45",
@@ -27774,7 +27816,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c5.C5_ADAPTER.46",
@@ -27784,7 +27827,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c5.C5_ADAPTER.93",
@@ -28074,7 +28118,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.1",
@@ -28088,7 +28133,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.2",
@@ -28102,7 +28148,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.3",
@@ -28116,7 +28163,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.4",
@@ -28130,7 +28178,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.5",
@@ -28144,7 +28193,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.6",
@@ -28158,7 +28208,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.7",
@@ -28172,7 +28223,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.8",
@@ -28186,7 +28238,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.9",
@@ -28200,7 +28253,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.10",
@@ -28214,7 +28268,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.11",
@@ -28228,7 +28283,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.12",
@@ -28242,7 +28298,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.13",
@@ -28256,7 +28313,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.14",
@@ -28270,7 +28328,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.CE_WHY_WORDS.15",
@@ -28284,7 +28343,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_why_line.s0",
@@ -28298,7 +28358,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher message shown by the game; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_why_line.s1",
@@ -28312,7 +28373,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_why_line.s2",
@@ -28326,7 +28388,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_why_line.s3",
@@ -28340,7 +28403,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_compose_in_once.s0",
@@ -28354,7 +28418,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_compose_in_once.s1",
@@ -28368,7 +28433,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_compose_in_once.s2",
@@ -28382,7 +28448,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_compose_in_once.s3",
@@ -28396,7 +28463,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_compose_in_once.s4",
@@ -28410,7 +28478,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom.ce_room_refusal.s0",
@@ -51016,7 +51085,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_time_skip.time_skip_notice_arm.s1",
@@ -51030,7 +51100,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_time_skip.time_skip_notice_arm.s2",
@@ -51044,7 +51115,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher message shown by the game; %1 = a number (number)"
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.factions/vvfp_vv3_both_factions.x.s0",
@@ -51054,7 +51126,8 @@
    ],
    "mechanism": "d",
    "context": "VVFP VV3 Both Factions.dll",
-   "notes": "a patcher message shown by the game"
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s0",
@@ -51064,7 +51137,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP VV1 Parentage.dll (Show Parents in Details Screen)",
-   "notes": "drawn by the game's text routine; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "drawn by the game's text routine; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s1",
@@ -51074,7 +51148,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP VV1 Parentage.dll (Show Parents in Details Screen)",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s2",
@@ -51084,7 +51159,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP VV1 Parentage.dll (Show Parents in Details Screen)",
-   "notes": "drawn by the game's text routine"
+   "notes": "drawn by the game's text routine",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.dlg201.caption",
@@ -63245,6 +63321,17 @@
    "mechanism": "b",
    "context": "data/vv5_expanded_time_warp.json (an exe patch's text, file offset 0xFB381 of its rebuilt executable)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.skip_intro/vvfp_skip_intro.label_text.s0",
+   "english": "Skip All",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "a",
+   "context": "VVFP Skip Intro.dll",
+   "notes": "drawn by the game's text routine; the label of the Skip All button on the intro story's pages (a button about 129 pixels wide)"
   }
  ]
 }

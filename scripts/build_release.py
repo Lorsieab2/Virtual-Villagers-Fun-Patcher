@@ -98,6 +98,9 @@ FILES = [
     # Copy and Paste in Text Boxes (all five games): copy, cut and paste in the game's text boxes; shipped by
     # each game's row, started by VVFP Startup.dll.
     "assets/copy_paste/VVFP Copy and Paste.dll",
+    # Skip All on the Intro Story (A New Home, The Lost Children): the story pages' Skip All button; shipped by
+    # each game's Skip All row.
+    "assets/skip_intro/VVFP Skip Intro.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -107,6 +110,10 @@ FILES = [
     "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll",
     # Fix Vanilla Bugs (The Lost Children, The Tree of Life, New Believers): head and body rolls reach row 29.
     "assets/appearance_rolls/VVFP Appearance Rolls.dll",
+    # Fix Vanilla Bugs (The Lost Children): a walk looping on the shoreline band's waypoint goes another way.
+    "assets/stuck_walks/VVFP Stuck Walks.dll",
+    # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
+    "assets/keep_carried/VVFP Keep Carried.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -219,6 +226,8 @@ FILES = [
     "data/vv3_copy_paste_feature.json",
     "data/vv4_copy_paste_feature.json",
     "data/vv5_copy_paste_feature.json",
+    "data/vv1_skip_all_intro_feature.json",
+    "data/vv2_skip_all_intro_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the

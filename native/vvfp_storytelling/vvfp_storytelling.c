@@ -181,24 +181,31 @@ static void v1_label(unsigned char *record, const char *text) {
     label[i] = '\0';
 }
 
+/* The English label (row vvfp_storytelling.x.s0), also what the game shows when its language is not known yet. */
+static const char *v1_listening_english(void) {
+    return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s0", LISTEN_EN, V1_LABEL_SIZE);
+}
+
 static const char *v1_listening(unsigned char *array) {
     const unsigned char *strings = *(const unsigned char **)(array + V1_STRINGS);
     const int *language;
     if (strings == NULL) {
-        return LISTEN_EN;
+        return v1_listening_english();
     }
     language = *(const int *const *)(strings + 4);
     if (language == NULL) {
-        return LISTEN_EN;
+        return v1_listening_english();
     }
+    /* Each language's label is a row of its own (x.s1 German, x.s2 Spanish, x.s3 French), asked for by its key
+       like the English one: a translation of this patch's label is shown whichever language the game is in. */
     switch (*language) {
-    case 1: return LISTEN_DE;
-    case 2: return LISTEN_ES;
-    case 3: return LISTEN_FR;
+    case 1: return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s1", LISTEN_DE, V1_LABEL_SIZE);
+    case 2: return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s2", LISTEN_ES, V1_LABEL_SIZE);
+    case 3: return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s3", LISTEN_FR, V1_LABEL_SIZE);
     default:
         /* The English game: a chosen translation's own words (its row vvfp_storytelling.x.s0), within the
            label's bytes. */
-        return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s0", LISTEN_EN, V1_LABEL_SIZE);
+        return v1_listening_english();
     }
 }
 
