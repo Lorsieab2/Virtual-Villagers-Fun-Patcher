@@ -322,12 +322,20 @@ static int clipboard_write(const WCHAR *units, int n) {
 
 /* ---- The three actions ------------------------------------------------------------------------ */
 
+/* The bytes one code point takes in the box once in: with the Unicode companion's VvfpBoxInsertUtf8, a
+   Windows-1252 character is stored as its one byte and anything else as UTF-8 (its "read by the rule");
+   otherwise the bytes we type. */
+static int stored(unsigned int cp, int bytes, cp_insert_fn insert) {
+    unsigned char one[4];
+    return (insert != NULL && encode(cp, MODE_CP1252, one) == 1) ? 1 : bytes;
+}
+
 static void paste(unsigned char *box) {
     cp_insert_fn insert;
     int mode = text_mode(&insert);
     int n = clipboard_read();
     const WCHAR *units = g_units;
-    int at = 0, made = 0, length, room, digits, i;
+    int at = 0, made = 0, grown = 0, length, room, digits, i;
     if (n <= 0) {
         return;
     }
@@ -345,7 +353,7 @@ static void paste(unsigned char *box) {
     while (at < n) {
         unsigned char one[64];
         unsigned int cp = next_cp(units, n, &at);
-        int size = 0, joined = 0, flag;
+        int size = 0, cost, k, joined = 0, flag;
         if (cp == 0xFFFFFFFFu) {
             continue;
         }
@@ -361,6 +369,7 @@ static void paste(unsigned char *box) {
         }
         /* the whole character: the code point and all that belongs to it */
         size = encode(cp, mode, one);
+        cost = stored(cp, size, insert);
         flag = regional(cp);
         while (at < n) {
             int peek = at;
@@ -375,20 +384,23 @@ static void paste(unsigned char *box) {
             flag = 0;
             at = peek;
             if (size + 4 <= (int)sizeof one) {
-                size += encode(next, mode, one + size);
+                k = encode(next, mode, one + size);
+                size += k;
+                cost += stored(next, k, insert);
             }
         }
         if (size == 0) {
             continue;                           /* nothing of it the game can show */
         }
-        if (digits && !(size == 1 && ((one[0] >= '0' && one[0] <= '9') || (one[0] == '-' && length + made == 0)))) {
+        if (digits && !(size == 1 && ((one[0] >= '0' && one[0] <= '9') || (one[0] == '-' && length + grown == 0)))) {
             continue;                           /* the box's own filter would drop it */
         }
-        if (made + size > room) {
+        if (grown + cost > room) {
             break;                              /* the box is full: cut before this character */
         }
         CopyMemory(g_bytes + made, one, (SIZE_T)size);
         made += size;
+        grown += cost;
     }
     if (made == 0) {
         return;
@@ -452,9 +464,13 @@ static void cut(unsigned char *box) {
         return;
     }
     for (i = 0; i < length; ++i) {
-        type_into(box, 8);
-        if (box_length(box) != length - i - 1) {
+        int before = box_length(box);
+        if (before <= 0) {
             break;
+        }
+        type_into(box, 8);
+        if (box_length(box) >= before) {
+            break;                              /* Backspace did nothing: stop */
         }
     }
 }

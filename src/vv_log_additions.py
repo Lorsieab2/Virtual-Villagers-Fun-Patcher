@@ -247,7 +247,11 @@ class Block:
 
 
 def read_lines(path: Path) -> list[str]:
-    return path.read_bytes().decode(GAME_TEXT).replace("\r\n", "\n").split("\n")
+    """A log's lines; inside vv_long_names.activate (a full-name load_village) each long name's short form
+    is whole, so a villager is one person in the save and the logs."""
+    import vv_long_names
+    text = path.read_bytes().decode(GAME_TEXT).replace("\r\n", "\n")
+    return vv_long_names.expand_line(text).split("\n")
 
 
 def blocks(path: Path, lines: list[str] | None = None) -> list[Block]:

@@ -1,0 +1,115 @@
+lib hits 60 const exprs 30 var exprs 145
+== 0x4036d0 sub_4036D0 hits=1 const=0
+   4036eb  [a1]   _rand() % a1
+== 0x404280 sub_404280 hits=2 const=0
+   404432  [v21]   v29 / v21
+   404428  [v20]   v29 / v20
+== 0x404cb0 sub_404CB0 hits=43 const=4
+   4063cd  [v230]   v234 / v230
+   4063f6  [v230]   v362 / v230
+   406420  [v230]   v231 / v230
+   40644b  [v230]   v375 / v230
+   4051fb  [v50]   v371 / v50
+   40521e  [v50]   v51 / v50
+   40524f  [v50]   v52 / v50
+   405275  [v50]   v56 / v50
+   405455  [v50]   v75 / v50
+== 0x406920 sub_406920 hits=26 const=0
+   407a9e  [v175]   v282 / v175
+   407ac9  [v175]   v304 / v175
+   407a3f  [v175]   v176 / v175
+   407a68  [v175]   v177 / v175
+   407b22  [v175]   v186 / v175
+   406e1e  [v49]   v271 / v49
+   406e39  [v49]   v50 / v49
+   406e62  [v49]   v51 / v49
+   406e80  [v49]   v278 / v49
+== 0x408150 sub_408150 hits=1 const=0
+   40815b  [a2]   1000 / a2
+== 0x4088f0 sub_4088F0 hits=2 const=0
+   408927  [sub_421570(a1)]   a4 / sub_421570(a1)
+   408936  [v4]   a4 % v4
+== 0x408980 sub_408980 hits=2 const=0
+   4089b7  [v7]   a5 / v7
+   4089c6  [v9]   v8 % v9
+== 0x408cf0 sub_408CF0 hits=2 const=0
+   408d27  [v8]   a5 / v8
+   408d36  [v10]   v9 % v10
+== 0x408dc0 sub_408DC0 hits=2 const=0
+   408df7  [v9]   a5 / v9
+   408e06  [v11]   v10 % v11
+== 0x408e90 sub_408E90 hits=2 const=0
+   408ec7  [v9]   a5 / v9
+   408ed6  [v11]   v10 % v11
+== 0x409c30 sub_409C30 hits=1 const=1
+   409e3e  [v23]   v24 / v23
+== 0x40a990 sub_40A990 hits=3 const=0
+   40a9b0  [v4]   a3 % v4
+   40a9b3  [v5]   a2 / v5
+   40a9b5  [v5]   a2 % v5
+   40a9aa  [v4]   a3 / v4
+   40a9cc  [v10]   v11 %= v10
+== 0x40aa40 sub_40AA40 hits=3 const=0
+   40aa61  [v5]   a3 % v5
+   40aa64  [v6]   a2 / v6
+   40aa66  [v6]   a2 % v6
+   40aa5b  [v5]   a3 / v5
+   40aa7d  [v11]   v12 %= v11
+== 0x40aad0 sub_40AAD0 hits=1 const=0
+   40aad9  [*(this + 2)]   a2 % *(this + 2)
+   40aad9  [*(this + 2)]   a2 / *(this + 2)
+== 0x40ab10 sub_40AB10 hits=2 const=0
+   40ab68  [*(this + 2)]   v6 % *(this + 2)
+   40ab68  [*(this + 2)]   v6 / *(this + 2)
+   40ab77  [*(this + 3)]   sub_40B300(v8, v7) / *(this + 3)
+== 0x40aba0 sub_40ABA0 hits=4 const=0
+   40ad2a  [*((_DWORD *)this + 2)]   v9 / *((_DWORD *)this + 2)
+   40ad37  [*((_DWORD *)this + 3)]   v24 / *((_DWORD *)this + 3)
+   40ad43  [v17]   *((_DWORD *)this + 6) / v17
+   40ad4e  [v19]   v15 / v19
+== 0x40ae20 sub_40AE20 hits=2 const=0
+   40ae37  [sub_421570(this)]   a2 / sub_421570(this)
+   40ae44  [v4]   a2 % v4
+== 0x40da30 sub_40DA30 hits=2 const=0
+   40da45  [*(this + 1)]   (*(this + 1) + unk_4CBBA8 + a2 - 1) / *(this + 1)
+   40da5f  [v3]   (v3 + unk_4CBBA4 + a3 - 1) / v3
+== 0x40f610 sub_40F610 hits=2 const=0
+   40f64e  [NumberOfBytesRead]   NumberOfBytesRead / NumberOfBytesRead
+   40f680  [NumberOfBytesRead]   v4 / NumberOfBytesRead
+== 0x412a20 sub_412A20 hits=1 const=0
+   412a46  [dword_4B8524[6 * a2]]   100 * v3 / dword_4B8524[6 * a2]
+== 0x41d230 sub_41D230 hits=2 const=0
+   41d277  [(v1[16] != 0) + 1]   v5 / sub_40A980(*((_DWORD *)v1 + 16)) / ((v1[16] != 0) + 1)
+   41d269  [sub_40A980(*((_DWORD *)v1 + 16))]   v5 / sub_40A980(*((_DWORD *)v1 + 16))
+== 0x41d2b0 sub_41D2B0 hits=2 const=4
+   41d2f4  [sub_40A980(v3[16])]   v5 / sub_40A980(v3[16])
+   41d30c  [sub_421570(v3[16])]   v6 / sub_421570(v3[16])
+== 0x41d6d0 sub_41D6D0 hits=2 const=0
+   41d711  [*v4]   10000 / *v4
+   41d71f  [*v4]   25000 / *v4
+== 0x426090 sub_426090 hits=1 const=0
+   426247  [(int)EnvironmentStringsW]   720000 * v20 / (int)EnvironmentStringsW
+== 0x438980 sub_438980 hits=1 const=0
+   4389c0  [v6 - v5]   100 * v7 / (v6 - v5)
+== 0x43ab20 sub_43AB20 hits=2 const=0
+   43abff  [*(_DWORD *)(this + 84)]   *(_DWORD *)(this + 76) * (*(_DWORD *)(this + 64) - *(_DWORD *)(this + 28)) / *(_DWORD *)(this + 84)
+   43abc3  [*(_DWORD *)(this + 64) - *(_DWORD *)(this + 28)]   *(_DWORD *)(this + 84) * (*(_DWORD *)(this + 44) - *(_DWORD *)(this + 28)) / (*(_DWORD *)(this + 64) - *(_DWORD *)(this + 28))
+== 0x43ac20 sub_43AC20 hits=1 const=0
+   43ac9d  [v4]   *(this + 19) * (*(this + 16) - *(this + 7)) / v4
+== 0x43d080 sub_43D080 hits=1 const=1
+   43d0a3  [v5]   *(this + 24) / v5
+   43d0a3  [v5]   *(this + 24) % v5
+== 0x43d220 sub_43D220 hits=1 const=0
+   43d24d  [*(this + 26)]   *(this + 24) * (*(this + 21) - *(this + 12)) / *(this + 26)
+== 0x43d280 sub_43D280 hits=1 const=0
+   43d2b9  [v2]   *(this + 24) / v2
+   43d2b9  [v2]   *(this + 24) % v2
+== 0x43d460 sub_43D460 hits=1 const=0
+   43d5b2  [*(_DWORD *)(this + 84) - *(_DWORD *)(this + 48)]   *(_DWORD *)(this + 104) * (*(_DWORD *)(this + 64) - *(_DWORD *)(this + 48)) / (*(_DWORD *)(this + 84) - *(_DWORD *)(this + 48))
+== 0x44f580 sub_44F580 hits=3 const=0
+   44f5c7  [2 * v13]   v14 % (2 * v13)
+   44f5d0  [v13]   v14 % v13
+   44f5eb  [v10[56]]   (int)abs32(a3) % v10[56]
+== 0x466450 sub_466450 hits=2 const=3
+   4664a7  [*(_DWORD *)(sub_41FE70() + 94480)]   v4 / *(_DWORD *)(sub_41FE70() + 94480)
+   466638  [*(_DWORD *)(sub_41FE70() + 94480)]   v14 / 0x3C / *(_DWORD *)(sub_41FE70() + 94480)

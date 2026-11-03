@@ -413,7 +413,7 @@ static void history_villager_done(struct history_villager *v, struct backfill_ta
     for (t = 0; t < count; ++t) {
         struct backfill_target *target = &targets[t];
         struct identity *id = NULL;
-        if (strcmp(target->name, v->name) != 0) {
+        if (!vv_name_same(target->name, v->name)) {
             continue;
         }
         for (k = 0; k < target->identity_count; ++k) {
@@ -699,6 +699,7 @@ static void mark_alive(int game_id, struct backfill_target *targets, int count) 
         || !memory_is_readable(records, g->record_base + (size_t)g->slots * g->stride)) {
         return;
     }
+    vv_note_save_names(game_id);
     for (slot = 0; slot < g->slots; ++slot) {
         const unsigned char *record = records + g->record_base + (size_t)slot * g->stride;
         char name[MAX_NAME_BYTES];
@@ -710,7 +711,7 @@ static void mark_alive(int game_id, struct backfill_target *targets, int count) 
         head = *(const int *)(record + g->head);
         body = *(const int *)(record + g->body);
         for (t = 0; t < count; ++t) {
-            if (strcmp(targets[t].name, name) != 0) {
+            if (!vv_name_same(targets[t].name, name)) {
                 continue;
             }
             for (k = 0; k < targets[t].identity_count; ++k) {
@@ -845,7 +846,7 @@ static int saved_village_header(int game_id, int slot, char *out, int size) {
 }
 
 static int same_key(const struct death_key *key, const char *name, const vv_grave_fact *f) {
-    return key->age == f->age && strcmp(key->name, name) == 0;
+    return key->age == f->age && vv_name_same(key->name, name);
 }
 
 __declspec(dllexport) int __stdcall RecordGravesMissingFromLog(

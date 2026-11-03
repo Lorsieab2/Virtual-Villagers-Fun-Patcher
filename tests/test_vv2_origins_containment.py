@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    ALTERNATIVE_FUN_PATCH_IDS,
     PatcherError,
     get_fun_patch,
     load_builds,
@@ -209,6 +210,8 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_original_look",
                 *PUBLIC,
             }
+            # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font)
+            and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
         ]
         self.assertEqual(set(remaining), REMAINING)
         public_offsets = set()

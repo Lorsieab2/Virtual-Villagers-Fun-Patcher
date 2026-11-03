@@ -423,6 +423,9 @@ FIX_PERCENT |= {0x5D79C, 0x5D23C}
 # stays with 256 Villagers too.
 from test_details_name_identity import name_identity_fixes  # noqa: E402
 FIX_PERCENT |= {off for off, _, _ in name_identity_fixes("vv4")}
+# The line drawer's zero-length fix (tests/test_no_divide_by_zero_crashes.py) stays with 256 Villagers too.
+from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
+FIX_PERCENT |= {off for off, _, _ in zero_length_line_fixes("vv4")}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 
@@ -1001,7 +1004,8 @@ class CompositionTests(unittest.TestCase):
 
     def test_every_public_patch(self):
         public = [p.id for p in vfp.load_public_fun_patches()
-                  if p.raw.get("game_id") == "vv4" and p.id != "vv4_population_256"]
+                  if p.raw.get("game_id") == "vv4" and p.id != "vv4_population_256"
+                  and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         origins = {"vv4_enable_origins_exclusive_features"}
         no_origins = [i for i in public if not origins & set(_with_prerequisites([i]))]
         selections = [("all", public), ("all without Origins", no_origins)]

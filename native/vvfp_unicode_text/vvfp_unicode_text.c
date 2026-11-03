@@ -31,11 +31,29 @@
    stock bytes first; the trampoline page is built read/write and sealed read/execute.  A font that is
    not one of the two known, not 32-bit, or whose letters cannot be made, is left exactly as the game
    built it; a fault while extending is abandoned (structured exception handling) and the font stays
-   stock.  Nothing is written into any save, record or file. */
+   stock.  Nothing is written into any save or record.
+
+   v1.35.89 -- ANY CHARACTER, IN UTF-8 (text_utf8.h, runtime_glyphs.inc, text_hooks.inc, long_names.inc).
+   Text is read by one rule everywhere: a well-formed UTF-8 sequence is its character, any other byte
+   its Windows-1252 character, so every older name reads as before.  The game's width, draw, line
+   fitting, counted draw and justification routines are detoured: text with UTF-8 in it is drawn by
+   units (grapheme clusters, shaped runs), each character a font holds from the font, every other one
+   from pages of letters made at run time from the player's Windows fonts (colour emoji included), and
+   all of it through the game's own draw and width routines.  Text boxes take any character whole,
+   erase whole characters, never cut by pixels, and take VV_SHARED_NAME_BYTES bytes; a name longer than
+   its field leaves the box as a short form whose whole name is kept in a per-save file.  Built with
+   VVFP_FONT_OVERRIDE this same source is "VVFP Unicode Font.dll" ("Use Unicode Font"): every letter is
+   a page letter drawn in the face the player chose. */
 #include <windows.h>
 #include <string.h>
+#include <usp10.h>
 #include "../shared/install_sites.h"
+#include "../shared/save_folder.h"
+#include "../shared/per_save_data.h"
+#include "../shared/game_save_slot.h"
 #include "unicode_text_tables.h"
+#include "text_routines.h"
+#include "text_utf8.h"
 #include "glyphs.inc"
 
 #define VT_FONT_PICTURE 0x0C        /* ldwImage*: +0 SDL_Surface* */
@@ -61,6 +79,7 @@ typedef struct sdl_surface {
 #define SDL_RLEACCEL 0x00000002u
 
 static const vg_game *g_game;
+static int g_game_number;
 static unsigned char *g_tramp;            /* the constructor's first instructions, then a jump back */
 static void *g_tramp_entry;
 static unsigned int g_text_offset, g_text_skip, g_text_post;
@@ -69,44 +88,19 @@ static int g_gdi_state;                   /* 0 not opened, 1 open, -1 failed */
 static int g_installed;
 static volatile LONG g_fonts_extended;    /* how many fonts were given letters (for tests) */
 
+#include "runtime_glyphs.inc"
+#include "long_names.inc"
+#include "text_hooks.inc"
+
 /* ---- Typing ---------------------------------------------------------------------------------- */
 
-/* The byte to post for SDL's UTF-8 text, or -1 to skip it as the stock code would.  One character
-   only (the stock rule); ASCII is returned as itself. */
+/* What to post for SDL's UTF-8 text: one ASCII character as the stock code posts it; any other
+   well-formed text as VT_MARK | slot << 8 (text_hooks.inc: the focused box takes it whole); -1 to skip
+   it as the stock code would (empty, malformed, or nothing printable). */
 int __cdecl VvfpUnicodeTextKey(const unsigned char *s) {
-    unsigned int cp;
-    int n, i;
-    if (s == NULL || s[0] == 0) {
-        return -1;
-    }
-    if (s[0] < 0x80) {
-        return s[1] == 0 ? (int)s[0] : -1;
-    }
-    if ((s[0] & 0xE0) == 0xC0) {
-        cp = s[0] & 0x1Fu; n = 1;
-    } else if ((s[0] & 0xF0) == 0xE0) {
-        cp = s[0] & 0x0Fu; n = 2;
-    } else if ((s[0] & 0xF8) == 0xF0) {
-        cp = s[0] & 0x07u; n = 3;
-    } else {
-        return -1;
-    }
-    for (i = 1; i <= n; ++i) {
-        if ((s[i] & 0xC0) != 0x80) {
-            return -1;
-        }
-        cp = (cp << 6) | (s[i] & 0x3Fu);
-    }
-    if (s[n + 1] != 0) {
-        return -1;
-    }
-    if ((n == 1 && cp < 0x80) || (n == 2 && cp < 0x800) || (n == 3 && cp < 0x10000) || cp > 0xFFFF) {
-        return -1;                          /* overlong, or beyond Windows-1252 anyway */
-    }
-    for (i = 0x80; i < 0x100; ++i) {
-        if (VG_CP1252[i] == cp) {
-            return i;
-        }
+    __try {
+        return vt_text_key(s);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
     return -1;
 }
@@ -189,6 +183,14 @@ static void extend_font(unsigned char *font, int burweed, int spacing) {
         g_gdi_state = vg_gdi_open(&g_gdi) ? 1 : -1;
     }
     if (!vg_font_open(&f, g_gdi_state == 1 ? &g_gdi : NULL, &sheet, spacing, burweed)) {
+        vg_font_close(&f);
+        vg_free(alpha);
+        return;
+    }
+    /* Pages of letters made while the game runs take this font's size, baseline and pixel format. */
+    rg_register(font, burweed, &f, fmt);
+    if (g_override) {
+        /* "Use Unicode Font": every letter is a page letter; the font's own are not extended. */
         vg_font_close(&f);
         vg_free(alpha);
         return;
@@ -313,10 +315,23 @@ __declspec(naked) static void ctor_hook(void) {
     }
 }
 
-/* For "VVFP Translations.dll": 1 would mean the game's draw, measure and wrap decode UTF-8.  They do
-   not -- every character is one Windows-1252 byte -- so translated text must be Windows-1252. */
+/* For "VVFP Translations.dll": 1 = the game's draw, measure and line breaking read UTF-8 (text_utf8.h's
+   rule) and call VvfpTranslateText first, so translated text may be any UTF-8.  0 until installed. */
 int __stdcall VvfpGlyphsUtf8(void) {
-    return 0;
+    return g_installed ? 1 : 0;
+}
+
+/* For the companions that write logs (native/shared/long_name.h): the whole name of a long name's short
+   form (long_names.inc), or `name` itself.  The answer stays valid for the rest of the game. */
+const char *__stdcall VvfpLongName(const char *name) {
+    __try {
+        const unsigned char *whole = g_game != NULL ? ln_full_of((const unsigned char *)name) : NULL;
+        if (whole != NULL) {
+            return (const char *)whole;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return name;
 }
 
 /* Number of fonts given letters so far (for the tests' emulation). */
@@ -324,38 +339,145 @@ int __stdcall VvfpUnicodeTextFonts(void) {
     return (int)g_fonts_extended;
 }
 
+/* Units of text made into page letters so far, and texts the companion drew or measured (tests). */
+int __stdcall VvfpUnicodeTextUnits(void) {
+    return (int)g_units_made;
+}
+
+int __stdcall VvfpUnicodeTextOwnDraws(void) {
+    return (int)g_own_draws;
+}
+
+static HINSTANCE g_self;
+
+/* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in
+   the patcher's files folder; UTF-8, first line; the patcher writes it).  Segoe UI when there is none. */
+static void read_override_face(void) {
+    WCHAR path[MAX_PATH];
+    DWORD n = GetModuleFileNameW(g_self, path, MAX_PATH);
+    HANDLE f;
+    char raw[256];
+    DWORD got = 0;
+    int i, start;
+    lstrcpyW(g_override_face, L"Segoe UI");
+    if (n == 0 || n >= MAX_PATH - 32) {
+        return;
+    }
+    while (n > 0 && path[n - 1] != L'\\') {
+        --n;
+    }
+    path[n] = 0;
+    lstrcatW(path, L"VVFP Unicode Font.txt");
+    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+    if (f == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    if (ReadFile(f, raw, sizeof raw - 1, &got, NULL) && got > 0) {
+        raw[got] = 0;
+        start = (got >= 3 && (unsigned char)raw[0] == 0xEF && (unsigned char)raw[1] == 0xBB) ? 3 : 0;
+        for (i = start; raw[i]; ++i) {
+            if (raw[i] == '\r' || raw[i] == '\n') {
+                raw[i] = 0;
+                break;
+            }
+        }
+        if (raw[start] && MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw + start, -1, g_override_face, 64) <= 0) {
+            lstrcpyW(g_override_face, L"Segoe UI");
+        }
+    }
+    CloseHandle(f);
+}
+
+/* A detour at a routine's entry: its first `len` bytes move to a trampoline that jumps back. */
+static unsigned char *g_page_at;
+
+static void *tramp(unsigned int va, int len, const unsigned char *bytes) {
+    unsigned char *t = g_page_at;
+    unsigned int back;
+    CopyMemory(t, bytes, (size_t)len);
+    t[len] = 0xE9;
+    back = (unsigned int)(va + (unsigned int)len - ((UINT_PTR)t + (unsigned int)len + 5));
+    CopyMemory(t + len + 1, &back, 4);
+    g_page_at += 16;
+    return t;
+}
+
+#define VT_SITES 13
+
 /* Called once by VVFP Startup.dll before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    vvfp_site_write sites[2];
+    vvfp_site_write sites[VT_SITES];
     const vg_game *g;
+    const vt_game *v;
     unsigned char *page;
-    unsigned int back;
+    void *t_ctor, *t_width, *t_draw, *t_linefit = NULL, *t_nbyte = NULL, *t_justify = NULL, *t_ctl, *t_edit,
+         *t_set, *t_get, *t_type;
+    int n = 0;
     (void)shipped;
     if (g_installed || game < 1 || game > 5) {
         return;
     }
+#ifdef VVFP_FONT_OVERRIDE
+    g_override = 1;
+    read_override_face();
+#endif
     g = &VG_GAMES[game];
-    page = vvfp_code_page_alloc(64);
+    v = &VT_GAMES[game];
+    page = vvfp_code_page_alloc(256);
     if (page == NULL) {
         return;
     }
-    CopyMemory(page, g->ctor_bytes, (size_t)g->ctor_len);
-    page[g->ctor_len] = 0xE9;
-    back = (unsigned int)(g->ctor + (unsigned int)g->ctor_len - ((UINT_PTR)page + g->ctor_len + 5));
-    CopyMemory(page + g->ctor_len + 1, &back, 4);
-    if (!vvfp_code_page_seal(page, 64)) {
+    g_page_at = page;
+    t_ctor = tramp(g->ctor, g->ctor_len, g->ctor_bytes);
+    t_width = tramp(v->width, 7, STOCK_WIDTH);
+    t_draw = tramp(v->draw, 7, STOCK_DRAW);
+    if (v->linefit) t_linefit = tramp(v->linefit, 5, STOCK_LINEFIT);
+    if (v->nbyte) t_nbyte = tramp(v->nbyte, 7, STOCK_NBYTE);
+    if (v->justify) t_justify = tramp(v->justify, 6, STOCK_JUSTIFY);
+    t_ctl = tramp(v->ctldraw, 6, STOCK_CTLDRAW);
+    t_edit = tramp(v->seteditable, 5, STOCK_SETEDITABLE);
+    t_set = tramp(v->settext, 6, STOCK_SETTEXT);
+    t_get = tramp(v->gettext, 6, STOCK_GETTEXT);
+    t_type = tramp(v->chartype, 7, STOCK_CHARTYPE);
+    if (!vvfp_code_page_seal(page, 256)) {
         return;
     }
     g_game = g;
+    g_game_number = game;
+    g_vt = v;
     g_tramp = page;
-    g_tramp_entry = page;
+    g_tramp_entry = t_ctor;
     g_text_offset = (unsigned int)g->text_offset;
     g_text_skip = g->text_skip;
     g_text_post = g->text_post;
-    vvfp_site_branch(&sites[0], g->ctor, g->ctor_len, g->ctor_bytes, 0xE9, (const void *)ctor_hook);
-    vvfp_site_branch(&sites[1], g->text_site, 7, g->text_bytes, 0xE9, (const void *)text_hook);
-    if (!vvfp_install_sites(sites, 2)) {
+    g_width = (vt_width_fn)t_width;
+    g_draw = (vt_draw_fn)t_draw;
+    g_linefit = (vt_linefit_fn)t_linefit;
+    g_nbyte = (vt_nbyte_fn)t_nbyte;
+    g_justify = (vt_justify_fn)t_justify;
+    g_ctldraw = (vt_ctldraw_fn)t_ctl;
+    g_seteditable = (vt_seteditable_fn)t_edit;
+    g_settext = (vt_settext_fn)t_set;
+    g_gettext = (vt_gettext_fn)t_get;
+    g_chartype_tramp = t_type;
+    g_handler = (vt_handler_fn)(UINT_PTR)v->handler;
+    g_backspace_back = (void *)(UINT_PTR)(v->backspace + 8);
+    vvfp_site_branch(&sites[n++], g->ctor, g->ctor_len, g->ctor_bytes, 0xE9, (const void *)ctor_hook);
+    vvfp_site_branch(&sites[n++], g->text_site, 7, g->text_bytes, 0xE9, (const void *)text_hook);
+    vvfp_site_branch(&sites[n++], v->width, 7, STOCK_WIDTH, 0xE9, (const void *)width_hook);
+    vvfp_site_branch(&sites[n++], v->draw, 7, STOCK_DRAW, 0xE9, (const void *)draw_hook);
+    if (v->linefit) vvfp_site_branch(&sites[n++], v->linefit, 5, STOCK_LINEFIT, 0xE9, (const void *)linefit_hook);
+    if (v->nbyte) vvfp_site_branch(&sites[n++], v->nbyte, 7, STOCK_NBYTE, 0xE9, (const void *)nbyte_hook);
+    if (v->justify) vvfp_site_branch(&sites[n++], v->justify, 6, STOCK_JUSTIFY, 0xE9, (const void *)justify_hook);
+    vvfp_site_branch(&sites[n++], v->ctldraw, 6, STOCK_CTLDRAW, 0xE9, (const void *)ctldraw_hook);
+    vvfp_site_branch(&sites[n++], v->seteditable, 5, STOCK_SETEDITABLE, 0xE9, (const void *)seteditable_hook);
+    vvfp_site_branch(&sites[n++], v->settext, 6, STOCK_SETTEXT, 0xE9, (const void *)settext_hook);
+    vvfp_site_branch(&sites[n++], v->gettext, 6, STOCK_GETTEXT, 0xE9, (const void *)gettext_hook);
+    vvfp_site_branch(&sites[n++], v->chartype, 7, STOCK_CHARTYPE, 0xE9, (const void *)chartype_hook);
+    vvfp_site_branch(&sites[n++], v->backspace, 8, STOCK_BACKSPACE, 0xE9, (const void *)backspace_hook);
+    if (!vvfp_install_sites(sites, n)) {
         g_game = NULL;
+        g_vt = NULL;
         VirtualFree(page, 0, MEM_RELEASE);
         return;
     }
@@ -365,6 +487,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
+        g_self = instance;
         DisableThreadLibraryCalls(instance);
     }
     return TRUE;
