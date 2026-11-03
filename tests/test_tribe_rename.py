@@ -240,7 +240,7 @@ class NameRuleTests(unittest.TestCase):
         # The game compares with "NEW PLAYER" exactly; other casings are names.
         self.assertIsNone(rename.name_problem(game, "New Player"))
 
-    def test_a_too_long_name_is_refused_and_never_truncated(self) -> None:
+    def test_a_name_over_the_shared_limit_is_refused_and_never_truncated(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp) / "LDW" / "Virtual Villagers - The Secret City - Modded"
             folder.mkdir(parents=True)
@@ -249,7 +249,7 @@ class NameRuleTests(unittest.TestCase):
             game.index_path(folder).write_bytes(fixture("vv3-huttest-0"))
             before = {p.name: p.read_bytes() for p in folder.iterdir()}
             with self.assertRaises(rename.RenameError):
-                rename.rename_tribe(game, folder, 1, "X" * 21, FakeProcesses(), NOW)
+                rename.rename_tribe(game, folder, 1, "X" * 1201, FakeProcesses(), NOW)    # over the shared 1,200 bytes
             self.assertEqual({p.name: p.read_bytes() for p in folder.iterdir()}, before)
 
 
@@ -871,7 +871,7 @@ class GuiTests(unittest.TestCase):
 
     def test_the_counter_and_the_refusals_come_from_the_module(self) -> None:
         self.assertIn("vv_tribe_rename.name_problem(", self.SOURCE)
-        self.assertIn("saves.max_length", self.SOURCE)
+        self.assertIn("SHARED_NAME_BYTES", self.SOURCE)       # the counter reads N / 1200 bytes
 
     def test_the_module_ships_in_the_release(self) -> None:
         build = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

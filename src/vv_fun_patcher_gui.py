@@ -3559,9 +3559,10 @@ class App(tk.Tk):
         def refresh_check(*_args) -> None:
             saves = game()
             name = name_var.get()
-            counter_var.set(f"{len(name)} / {saves.max_length} characters")
+            stored = vv_tribe_rename.byte_length(name)
+            counter_var.set(f"{stored} / {vv_tribe_rename.vv_long_names.SHARED_NAME_BYTES} bytes ({len(name)} characters)")
             counter.configure(
-                foreground="#a01010" if len(name) > saves.max_length else ""
+                foreground="#a01010" if stored > vv_tribe_rename.vv_long_names.SHARED_NAME_BYTES else ""
             )
             problem = None
             info = chosen_slot()
@@ -3578,17 +3579,24 @@ class App(tk.Tk):
             elif info.problem:
                 problem = info.problem
             elif name:
-                problem = vv_tribe_rename.name_problem(saves, name)
+                problem = vv_tribe_rename.name_problem(saves, name, long_names=True)
                 if problem is None and name == info.name:
                     problem = "That is already this tribe's name."
             problem_var.set(problem or "")
-            note_var.set(
-                "Allowed. The game's Change Tribe screen will show this name cut "
-                "short, as it does long names the game itself makes; the game "
-                "keeps and shows the whole name everywhere else."
-                if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
-                else ""
-            )
+            if problem is None and name and stored >= vv_tribe_rename.name_room(saves):
+                note_var.set(
+                    "Allowed. The save keeps this name as its short form (its start and \"...\") and the whole "
+                    "name beside the save, in the Long Names file. With Render Unicode with In-Game Fonts or "
+                    "Use Unicode Font on, the game shows the whole name; with both off it shows the short form."
+                )
+            else:
+                note_var.set(
+                    "Allowed. The game's Change Tribe screen will show this name cut "
+                    "short, as it does long names the game itself makes; the game "
+                    "keeps and shows the whole name everywhere else."
+                    if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
+                    else ""
+                )
             ok = problem is None and bool(name)
             rename_button.configure(state="normal" if ok else "disabled")
 
@@ -3623,7 +3631,7 @@ class App(tk.Tk):
             folder = state["folders"][folder_box.current()]
             saves = game()
             new_name = name_var.get()
-            problem = vv_tribe_rename.name_problem(saves, new_name)
+            problem = vv_tribe_rename.name_problem(saves, new_name, long_names=True)
             if problem is not None:
                 messagebox.showerror("Rename Tribe", problem, parent=dialog)
                 return

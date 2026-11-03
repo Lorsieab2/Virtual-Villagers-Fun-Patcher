@@ -89,7 +89,9 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_save_backup
+import vv_long_names
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
+from vv_game_text import byte_length, encode_game_text, fit_bytes
 from vv_game_text import printable as game_printable
 
 MAGIC = b"ldwg"
@@ -271,28 +273,80 @@ def allowed_characters(game: GameSaves) -> frozenset[str]:
     return PRINTABLE | WINDOWS_1252_EXTRA
 
 
-def name_problem(game: GameSaves, name: str) -> str | None:
+def name_problem(game: GameSaves, name: str, long_names: bool = False) -> str | None:
     """Why ``name`` cannot be a tribe name in ``game``, or None if it can.
 
     The rule is the game's own: at most ``max_length`` characters (what its
     name entry stores), characters it accepts and can draw, and never empty.
     Spaces are kept as typed, as the game keeps them, but a name of nothing
     but spaces is refused: it would show as a blank slot.
+
+    ``long_names`` (Rename Tribe, with Render Unicode with In-Game Fonts or Use Unicode Font): the name may be
+    any text the game draws, up to the shared 1,200 bytes as stored (UNICODE_SPEC section 2).  One that does not
+    fit the game's field is kept there as its short form and whole in the save's Long Names file
+    (storage_form); it is cut at whole characters, never mid-letter.
     """
     if not name:
         return "Type a name."
     short = game.title.removeprefix("Virtual Villagers - ")
-    bad = sorted({ch for ch in name if ch not in allowed_characters(game)})
+    if long_names:
+        bad = sorted({ch for ch in name if not game_printable(ch)
+                      or (game.number in (1, 2) and ch in UNDRAWABLE_VV1_VV2)})
+    else:
+        bad = sorted({ch for ch in name if ch not in allowed_characters(game)})
     if bad:
         shown = " ".join(repr(ch) for ch in bad)
         return f"{short} cannot use these characters in a name: {shown}."
-    if len(name) > game.max_length:
+    if long_names:
+        stored = byte_length(name)
+        if stored > vv_long_names.SHARED_NAME_BYTES:
+            return (f"{stored} bytes is too long: a name takes up to {vv_long_names.SHARED_NAME_BYTES:,} bytes "
+                    "as the game stores it (a letter outside A-Z can take 2 to 4 bytes).")
+    elif len(name) > game.max_length:
         return f"{len(name)} characters is too long: {short} allows at most {game.max_length}."
     if not name.strip(" "):
         return "A name cannot be only spaces."
     if name == EMPTY_SLOT:
         return f'"{EMPTY_SLOT}" is how the game marks an empty slot.'
     return None
+
+
+def name_room(game: GameSaves) -> int:
+    """The bytes of the field a tribe name is kept in, with its NUL: the room of its Long Names record."""
+    return game.max_length + 1
+
+
+def short_form(whole: str, room: int, pairs: dict[bytes, bytes]) -> bytes:
+    """The short form of a name that does not fit a field of ``room`` bytes (UNICODE_SPEC section 2): the
+    longest start of whole characters that fits, trailing spaces dropped, then "..."; when another name
+    already has it, the number goes first -- "2...", "3..." -- until it stands for no other name in any slot.
+    A short form already made for this very name is used again."""
+    raw = encode_game_text(whole)
+    for short, kept in pairs.items():
+        if kept == raw and len(short) < room:
+            return short
+    for number in range(1, 10000):
+        mark = (str(number) if number > 1 else "") + "..."
+        base = fit_bytes(whole, room - 1 - len(mark)).rstrip(" ")
+        if not base:
+            break
+        candidate = encode_game_text(base) + mark.encode("ascii")
+        if candidate not in pairs:
+            return candidate
+    raise RenameError("No short form could be made for this name.")
+
+
+def storage_form(game: GameSaves, name: str,
+                 pairs: dict[bytes, bytes]) -> tuple[str, tuple[bytes, int, bytes] | None]:
+    """What the save keeps for ``name``: (the text in the game's field, the Long Names record or None).  A name
+    that fits the field is kept exactly as it is, with no record; a longer one is kept as its short form, with
+    the record (short form, room, whole name) that gives the whole name back."""
+    room = name_room(game)
+    raw = encode_game_text(name)
+    if len(raw) < room:
+        return name, None
+    short = short_form(name, room, pairs)
+    return short.decode(GAME_TEXT), (short, room, raw)
 
 
 # ---------------------------------------------------------------------------
@@ -379,6 +433,7 @@ def read_slots(game: GameSaves, folder: Path) -> list[SlotInfo]:
     except OSError:
         index = b""
     index_ok = bool(index) and index_name(game, index, 1) is not None
+    pairs = vv_long_names.load(folder, game.number)         # a short form is shown as the whole name
     slots: list[SlotInfo] = []
     for slot in SLOTS:
         path = game.save_path(folder, slot)
@@ -391,6 +446,8 @@ def read_slots(game: GameSaves, folder: Path) -> list[SlotInfo]:
             slots.append(SlotInfo(slot, None, f"The save could not be read: {exc}"))
             continue
         name = save_name(game, data)
+        if name is not None:
+            name = vv_long_names.whole_name(name.encode(GAME_TEXT), pairs)
         info = SlotInfo(slot, name)
         if name is None:
             info.problem = f"{path.name} is not a {game.title} save this tool can read."
@@ -623,6 +680,9 @@ class RenameResult:
     changed: list[Path] = field(default_factory=list)
     notes: list[Path] = field(default_factory=list)
     data: list[Path] = field(default_factory=list)   # the patcher's data files moved to the new name
+    stored_name: str = ""        # what the save keeps in the game's field (the short form of a long name)
+    long_names: Path | None = None   # the Long Names file that holds the whole name, when the save keeps a short form
+    notes_skipped: str = ""      # why the logs got no rename note
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -823,15 +883,34 @@ def rename_tribe(
     """
     if slot not in SLOTS:
         raise RenameError(f"There is no save slot {slot}.")
-    problem = name_problem(game, new_name)
+    problem = name_problem(game, new_name, long_names=True)
     if problem is not None:
         raise RenameError(problem)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
     when = now or datetime.now()
     _refuse_if_running(folder, controller)
-    old, changes = plan_save_changes(game, folder, slot, new_name)
-    notes = plan_log_notes(game, folder, slot, old, new_name, when)
-    data_changes = plan_data_changes(game, folder, slot, old, new_name)
+    pairs = vv_long_names.load(folder, game.number)
+    stored, record = storage_form(game, new_name, pairs)
+    old, changes = plan_save_changes(game, folder, slot, stored)
+    old_whole = vv_long_names.whole_name(old.encode(GAME_TEXT), pairs)
+    if old_whole == new_name:
+        raise RenameError(f"Save {slot} is already called {new_name}.")
+    # The exporters follow a rename line only for a name of at most 63 characters (village_rename.h).
+    notes_skipped = ""
+    if len(new_name) > 63:
+        notes = []
+        notes_skipped = ("the new name is longer than 63 characters, which the logs' rename line cannot hold; the "
+                         "logs keep the previous name")
+    else:
+        notes = plan_log_notes(game, folder, slot, old_whole, new_name, when)
+    data_changes = plan_data_changes(game, folder, slot, old_whole, new_name)
+    long_file = vv_long_names.path(folder, game.number, slot)
+    try:
+        long_before = long_file.read_bytes()
+    except FileNotFoundError:
+        long_before = None
+    except OSError as exc:
+        raise RenameError(f"Could not read {long_file.name}: {exc}") from exc
     try:
         backup = vv_save_backup.copy_save_folder(folder, when, suffix=BACKUP_LABEL)
     except vv_save_backup.BackupError as exc:
@@ -840,7 +919,20 @@ def rename_tribe(
     _refuse_if_running(folder, controller)
     done: list[FileChange] = []
     appended: list[LogNote] = []
+    long_written = False
     try:
+        if record is not None:
+            # The record first: a short form is never in a save without the whole name beside it.
+            try:
+                now_bytes = long_file.read_bytes()
+            except FileNotFoundError:
+                now_bytes = None
+            if now_bytes != long_before:
+                raise RenameError(f"{long_file.name} changed while it was being renamed.")
+            long_written = True
+            vv_long_names.write(long_file, [record])
+            if record[0] not in vv_long_names.parse(long_file.read_bytes()):
+                raise RenameError(f"{long_file.name} did not read back as written.")
         for change in changes:
             if change.path.read_bytes() != change.original:
                 raise RenameError(f"{change.path.name} changed while it was being renamed.")
@@ -868,13 +960,21 @@ def rename_tribe(
         for change in changes:
             data = change.path.read_bytes()
             if change.path == index_file:
-                holds = index_name(game, data, slot) == new_name
+                holds = index_name(game, data, slot) == stored
             else:
-                holds = save_name(game, data) == new_name
+                holds = save_name(game, data) == stored
             if not holds:
                 raise RenameError(f"{change.path.name} does not hold the new name.")
-    except (OSError, RenameError) as exc:
+    except (OSError, RenameError, ValueError) as exc:
         problems = _restore(done, appended)
+        if long_written:
+            try:
+                if long_before is None:
+                    long_file.unlink(missing_ok=True)
+                else:
+                    _write_atomically(long_file, long_before)
+            except (OSError, RenameError) as undo:
+                problems.append(f"{long_file.name}: {undo}")
         if problems:
             raise RenameError(
                 f"The rename failed ({exc}) and these files could not be put back: "
@@ -893,6 +993,9 @@ def rename_tribe(
         [change.path for change in changes],
         [note.path for note in notes],
         [change.path for change in data_changes],
+        stored,
+        long_file if record is not None else None,
+        notes_skipped,
     )
 
 
