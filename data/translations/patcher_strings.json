@@ -63333,6 +63333,20 @@
    "context": "VVFP Skip Intro.dll",
    "notes": "drawn by the game's text routine; the label of the Skip All button on the intro story's pages (a button about 129 pixels wide)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
   }
  ]
 }
