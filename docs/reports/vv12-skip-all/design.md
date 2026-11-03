@@ -77,7 +77,7 @@ word of companions) it checks every vtable slot below holds its stock pointer an
 |---|---|---|---|
 | VV1 | page 1 slot 0 (dtor) `0x4597F4` | `0x41EA00` | our button freed, then stock |
 | VV1 | page 1 slot 3 (buttons) `0x459800` | `0x41F640` | Skip All handler, else stock |
-| VV1 | page 1 slot 9 (activate) `0x459818` | `0x41E5C0` | stock, then our button attached / detached |
+| VV1 | page 1 slot 9 (activate) `0x459818` | `0x41E5C0` | stock, then (once per page) our button built and added |
 | VV1 | page 2 slot 8 (update) `0x45984C` | `0x41F310` | "skipped here": buttons at once, then stock |
 | VV2 | page 1 slots 0 / 3 / 8 / 9 `0x476AC4 / 0x476AD0 / 0x476AE4 / 0x476AE8` | `0x428220 / 0x401190 / 0x428240 / 0x427DB0` | as VV1 page 1; slot 8: stock, then "skipped: go to page 3" |
 | VV2 | page 2 slots 0 / 3 / 9 `0x476AFC / 0x476B08 / 0x476B20` | `0x4288F0 / 0x401190 / 0x43A2B0` | as page 1 |
@@ -91,8 +91,10 @@ the game's button constructor (VV1 `0x4019B0`, VV2 `0x4019D0`) with the game's o
 in The Lost Children (The Secret City's Skip All column, on the row of the game's own Yes/No), id
 `0x5C1A`, and adds it to the page (`0x40AB80` / `0x40B560`). The label is "Skip All", asked of VVFP
 Translations.dll by key (`native/shared/vvfp_translate.h`), so it is translatable. No art or font ships:
-the game draws its own button image with its own font. When the page is deactivated the button is taken off
-(`0x40ABC0` / `0x40B5A0`); when the page object is destroyed the button is freed by its own destructor first.
+the game draws its own button image with its own font. The button stays a child of its page: the game's own
+activate / deactivate of the page (`0x40AC20` / `0x40B600`) switches its children with it, as it does the
+page's own widgets. When the page object is destroyed the button is first taken off (`0x40ABC0` / `0x40B5A0`)
+and freed by its own deleting destructor.
 
 **Click.** The button reports message 8 with its id to the page's slot 3, as every game button does. For
 `0x5C1A` the companion sets "skip pending" and calls the page's own event slot with event 2 -- the stock

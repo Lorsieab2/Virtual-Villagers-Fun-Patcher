@@ -28,6 +28,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
        Windows typeface; a build ships it or the Unicode text companion, never both. */
     "VVFP Unicode Font.dll",
     "VVFP Copy and Paste.dll",
+    /* Skip All on the intro story (A New Home, The Lost Children). */
+    "VVFP Skip Intro.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -63245,6 +63245,17 @@
    "mechanism": "b",
    "context": "data/vv5_expanded_time_warp.json (an exe patch's text, file offset 0xFB381 of its rebuilt executable)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.skip_intro/vvfp_skip_intro.label_text.s0",
+   "english": "Skip All",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "a",
+   "context": "VVFP Skip Intro.dll",
+   "notes": "drawn by the game's text routine; the label of the Skip All button on the intro story's pages (a button about 129 pixels wide)"
   }
  ]
 }
