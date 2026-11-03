@@ -48,3 +48,23 @@ at the third loop, the queue is empty, +0x44 keeps its value, and the scheduler 
   composition with vv2_improved_pathfinding is not tested.
 * Whether the in-game carried item is +0x44 (the stock clear 0x4492A0 sets +0x40 = 0 and +0x44 = 0x1A, or 0x0B when
   nursing): not proven live.
+
+## Native implementation: what I found (not built; needs a decision)
+* Patch mechanism: vv2_fix_vanilla_bugs is plain file-offset byte patches (offset = VA - 0x400000), rendered by
+  render_patched_bytes; no compiler is installed (keystone 0.9.2 is, for assembling bytes). The rain fix used 11 bytes
+  of padding. There is no padding run of 24 bytes or more in the VV2 .text; the zero slack at the end of .text
+  (0x73C40..0x73FFF, VA 0x473C40) is nearly full: rendering every VV2 feature in the three modes leaves only holes
+  of 14, 14, 9, 15, 24 and 14 bytes (0x73C62, 0x73C92, 0x73D77, 0x73E41, 0x73EB8, 0x73FDF); the expanded-256 modes
+  also use 0x73C40..0x73F9C (modes not rendered here: their names did not resolve in my script).
+* Free space can be made by re-encoding the band handler itself, 0x44FCB0..0x44FE0F (336 bytes of code plus the
+  16-byte jump table at 0x44FE00, entered only from 0x45EB1A and 0x45ECF5). It queues 12 fixed waypoints in four
+  cases, each as 7 pushes and a call (26 bytes); a table plus one loop is much smaller. Stock waypoints, in
+  insertion order (each inserted at the front, so the last is walked first):
+  case 76: (1157,647) (1190,466) (1384,323) (1510,354); case 77: (908,700) (1061,653) (1068,567);
+  case 78: (887,1183) (998,1228) (1010,1434) (781,1463); case 79: (1325,1242). Each entry: 3, x, y, 0, 2, 100.
+* Open problem, per-villager memory of "this approach has already been redirected": entry fields are all used
+  (+0x58 of the front entry is the step timer; +0x5C is the stuck counter; +0x60 the speed); in a 60,000-frame
+  emulation every record byte below 0x800 that is not persistent data (names 0x4FD..0x7EF) is written during play,
+  so no free transient record byte is proven. The .data section has 0x1638 bytes of zero-initialised tail
+  (VA 0x49A000..0x49B638); whether the game or another VVFP feature uses it is NOT checked. A counter keyed on the
+  target walk (stored target x, y plus count) in a global table would also work and needs only that area.
