@@ -641,6 +641,16 @@ static int rg_ignorable_unit(WCHAR c) {
            || c == 0xDB40;                 /* the high unit of a tag or variation selector, U+E0001..E01EF */
 }
 
+/* Whether the unit at u[k] belongs to a character that draws nothing by design: the units above, and the LOW
+   unit of a supplementary tag or variation selector (U+E0000..E01EF is DB40 followed by DC00..DDEF), which
+   rg_ignorable_unit alone cannot judge. */
+static int rg_ignorable_at(const WCHAR *u, int k) {
+    if (rg_ignorable_unit(u[k])) {
+        return 1;
+    }
+    return k > 0 && u[k - 1] == 0xDB40 && u[k] >= 0xDC00 && u[k] <= 0xDDEF;
+}
+
 /* Shape `text` in one face; 1 and the canvas drawn when every glyph is in the face. */
 static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv, int *advance) {
     static SCRIPT_ITEM items[RG_MAX_UNIT + 1];      /* one per run of a script, direction or digits */
@@ -696,7 +706,7 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
                 for (k = 0; k < len; ++k) {
                     /* clusters[k] is the glyph character k belongs to: judge the characters this glyph stands for */
                     if (clusters[k] == j && !rg_space_unit(text[start + k])
-                        && !(attrs[j].fZeroWidth && rg_ignorable_unit(text[start + k]))) {
+                        && !(attrs[j].fZeroWidth && rg_ignorable_at(text + start, k))) {
                         ok = 0;
                     }
                 }

@@ -402,6 +402,17 @@ class InTheGame(unittest.TestCase):
                         self.assertGreater(run.width_of("ldwarialbold", chr(cp).encode("utf-8")), 0)
                         self.assertGreater(self._ink(run, chr(cp)), 0)
 
+    def test_supplementary_ignorable_characters_do_not_reject_a_face(self):
+        # U+E0100.. (a variation selector) and U+E0020.. (a tag) are DB40 + a low surrogate: both units belong to a
+        # character that draws nothing by design, so the letter before it still draws from its first face (Codex on #686).
+        run = self.runs["vv3"]
+        plain = self._ink(run, "日")
+        for tail in ("\U000E0100", "\U000E01EF", "\U000E0067"):
+            with self.subTest(tail=hex(ord(tail))):
+                self.assertEqual(self._ink(run, "日" + tail), plain)
+        # a cuneiform sign with a variation selector keeps its ink
+        self.assertGreater(self._ink(run, "\U00012000\U000E0100"), 0)
+
     def _alphas_and_rows(self, run, text):
         blits = run.draw_text("ldwarialbold", text.encode("utf-8"), 100, 50)
         alphas, rows = set(), set()
