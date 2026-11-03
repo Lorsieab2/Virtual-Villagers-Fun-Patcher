@@ -181,18 +181,29 @@ static int vt_runs(void *font, const unsigned char *s, const unsigned char *end,
     }
     while (s < end) {
         void *target;
-        int colour_page = 0, b;
-        unsigned char byte;
+        int colour_page = 0, b, ul;
+        unsigned char byte, composed[64];
+        const unsigned char *us = s;
         ut_unit(s, end, &u);
         if (u.len <= 0) {
             break;
         }
-        b = (u.kind == UT_SPACE && !g_override) ? ' ' : vt_font_byte(impl, s, u.len);
+        ul = u.len;
+        if (u.kind == UT_CLUSTER && u.len > 1) {
+            /* a base letter and its marks as their precomposed letter where one exists (NFC: the font's own é
+               for e + U+0301); otherwise the whole cluster */
+            int c = tl_compose(s, u.len, composed, (int)sizeof composed);
+            if (c > 0) {
+                us = composed;
+                ul = c;
+            }
+        }
+        b = (u.kind == UT_SPACE && !g_override) ? ' ' : vt_font_byte(impl, us, ul);
         if (b >= 0) {
             target = font;
             byte = (unsigned char)b;
         } else {
-            rg_entry *e = rf != NULL ? rg_unit(rf, s, u.len) : NULL;
+            rg_entry *e = rf != NULL ? rg_unit(rf, us, ul) : NULL;
             if (e != NULL) {
                 target = e->page->outer;
                 colour_page = e->page->colour;

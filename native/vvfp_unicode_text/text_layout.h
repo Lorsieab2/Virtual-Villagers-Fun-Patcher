@@ -10,6 +10,9 @@
    below decides: next to an ideographic letter, never before a closing mark, never after an opening one.  A
    break after a run of spaces is marked too (every line breaker allows it).
 
+   COMPOSITION (tl_compose).  A cluster of a base letter and combining marks is drawn as its precomposed letter
+   when Windows' NormalizeString(NormalizationC) makes one (e + U+0301 is drawn as the font's own é).
+
    FITTING (tl_fit_ellipsis).  The longest start of whole units of a text whose width with "…" after it is at most
    a room, trailing spaces dropped, then "…" (U+2026; byte 0x85 in a text of one byte per character). */
 #ifndef VVFP_TEXT_LAYOUT_H
@@ -272,6 +275,54 @@ static int tl_breaks(const unsigned char *text, int n, unsigned char *out) {
     }
     tl_free(at); tl_free(cps); tl_free(icu); tl_free(u16); tl_free(unit_cp);
     return any;
+}
+
+/* ---- Composition ----------------------------------------------------------------------------- */
+
+/* The cluster u[0..len) in composed form (NFC) when that changes it: its bytes in out (cap bytes), as the
+   characters ut_append would write after nothing; 0 when it is one character already or does not change. */
+static int tl_compose(const unsigned char *u, int len, unsigned char *out, int cap) {
+    WCHAR in[64], norm[64];
+    const unsigned char *s = u, *end = u + len;
+    int n = 0, m, i, o = 0, chars = 0;
+    while (s < end) {
+        unsigned int cp;
+        s += ut_next(s, end, &cp);
+        if (n + 2 >= 64) {
+            return 0;
+        }
+        if (cp >= 0x10000) {
+            in[n++] = (WCHAR)(0xD800 + ((cp - 0x10000) >> 10));
+            in[n++] = (WCHAR)(0xDC00 + ((cp - 0x10000) & 0x3FF));
+        } else {
+            in[n++] = (WCHAR)cp;
+        }
+        ++chars;
+    }
+    if (chars < 2) {
+        return 0;
+    }
+    m = NormalizeString(NormalizationC, in, n, norm, 64);
+    if (m <= 0 || m > 64 || (m == n && memcmp(in, norm, sizeof(WCHAR) * (size_t)n) == 0)) {
+        return 0;
+    }
+    for (i = 0; i < m; ++i) {
+        unsigned int cp = norm[i];
+        unsigned char bytes[4];
+        int k;
+        if (cp >= 0xD800 && cp < 0xDC00 && i + 1 < m && norm[i + 1] >= 0xDC00 && norm[i + 1] < 0xE000) {
+            cp = 0x10000u + ((cp - 0xD800u) << 10) + (norm[i + 1] - 0xDC00u);
+            ++i;
+        }
+        k = ut_append(out, o, cp, bytes);
+        if (o + k >= cap) {
+            return 0;
+        }
+        CopyMemory(out + o, bytes, (size_t)k);
+        o += k;
+    }
+    out[o] = 0;
+    return o;
 }
 
 /* ---- Fitting with "…" ------------------------------------------------------------------------- */

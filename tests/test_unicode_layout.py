@@ -156,6 +156,32 @@ class TheLineBreaks(unittest.TestCase):
                 self.assertEqual(breaks(self.out[(cmd, "か\u3099き\u3099く")])[1] - {6, 12}, set())
 
 
+# A cluster and what the companion draws it as (text_layout.h tl_compose, Windows' NormalizeString NFC; a
+# character Windows-1252 has as its one byte, as the games store it).  None: drawn as the cluster it is.
+COMPOSED = (
+    ("é", b"\xe9"),                                   # é: the font's own letter
+    ("Å", b"\xc5"),                                   # Å
+    ("ñ", b"\xf1"),                                   # ñ
+    ("ẹ́", "ẹ́".encode("utf-8")),      # ẹ + acute: composes as far as Unicode goes
+    ("가", "가".encode("utf-8")),             # Hangul jamo -> 가
+    ("q́", None),                                      # no precomposed letter
+    ("\U0001F44D\U0001F3FD", None),                         # an emoji with its skin tone
+    ("é", None),                                       # one character already
+)
+
+
+@unittest.skipUnless(HAVE_COMPILER, "the MSVC toolchain is not available")
+class TheComposition(unittest.TestCase):
+    """docs/UNICODE_SPEC.md row 3: a base letter and combining marks are drawn as their precomposed letter where
+    one exists; one that does not compose is drawn as a whole cluster."""
+
+    def test_clusters_compose_by_nfc(self):
+        got = run_harness([("N", text) for text, _want in COMPOSED])
+        for (text, want), line in zip(COMPOSED, got):
+            with self.subTest(text=text):
+                self.assertEqual(line, "-" if want is None else want.hex().upper())
+
+
 class TheSource(unittest.TestCase):
     def test_icu_is_loaded_from_system32_only_and_used_by_the_line_fitting(self):
         native = ROOT / "native" / "vvfp_unicode_text"
@@ -238,6 +264,21 @@ class InTheGame(unittest.TestCase):
                 lines = run.linefit("ldwarialbold", b"The quick brown fox jumps over the lazy dog \xe6\x97\xa5", 120)
                 self.assertTrue(all(not line.startswith(b" ") for line in lines))
                 self.assertTrue(all(line.split(b" ")[-1] for line in lines))
+
+    def test_a_letter_with_combining_marks_is_drawn_as_the_fonts_precomposed_letter(self):
+        """e + U+0301 is drawn as the font's own é: the same width and the same letters from the font's own
+        picture as the precomposed name (no letter made at run time)."""
+        for game, run in self.runs.items():
+            for font in ("ldwBurweed27", "ldwarialbold"):
+                with self.subTest(game=game, font=font):
+                    decomposed = "Zoé Ñuñez 日".encode("utf-8")
+                    composed = "Zoé Ñuñez 日".encode("utf-8")
+                    self.assertEqual(run.width_of(font, decomposed), run.width_of(font, composed))
+                    got = run.draw_text(font, decomposed, 10, 10)
+                    want = run.draw_text(font, composed, 10, 10)
+                    # the very same letters, from the same pictures, at the same places
+                    self.assertEqual([(b[0], b[1], b[3]) for b in got], [(b[0], b[1], b[3]) for b in want])
+                    self.assertEqual(len(got), len(want))
 
     def test_the_justified_paragraph_finishes_for_thai(self):
         for game, run in self.runs.items():

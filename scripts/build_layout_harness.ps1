@@ -25,6 +25,7 @@ try {
         ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
+        normaliz.lib `
         ("/OUT:" + $out)
     if ($LASTEXITCODE -ne 0) { throw "layout harness failed to build" }
     & $out @args

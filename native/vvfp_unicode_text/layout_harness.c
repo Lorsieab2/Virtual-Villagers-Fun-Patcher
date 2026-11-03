@@ -1,4 +1,4 @@
-/* layout_harness.c -- runs text_layout.h, the in-game companions' line breaking (and its other layout rules),
+/* layout_harness.c -- runs text_layout.h, the in-game companions' line breaking and composition (NFC),
    outside the game, on the real Windows icu.dll, so tests/test_unicode_layout.py can hold the DLL's own C to the
    spec (docs/UNICODE_SPEC.md row 3).
 
@@ -6,6 +6,7 @@
      in:  one case per line: a command letter, a space, then the text as hex UTF-8 bytes ("E381AE E381AF").
           B  where a line may break (ICU when Windows has it)      -> "icu=<0|1> <byte offsets>"
           F  where a line may break by the built-in table alone    -> "<byte offsets>"
+          N  the cluster composed (NFC) as the companion draws it  -> its bytes in hex, or "-" when unchanged
      out: one line per case. */
 #include <windows.h>
 #include <stdio.h>
@@ -52,6 +53,16 @@ int main(int argc, char **argv) {
                 if (marks[b]) {
                     fprintf(out, " %d", b);
                 }
+            }
+            fprintf(out, "\n");
+        } else if (cmd == 'N') {
+            unsigned char composed[64];
+            int k = tl_compose(text, n, composed, (int)sizeof composed);
+            if (k <= 0) {
+                fprintf(out, "-");
+            }
+            for (b = 0; b < k; ++b) {
+                fprintf(out, "%02X", composed[b]);
             }
             fprintf(out, "\n");
         } else {
