@@ -398,8 +398,47 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(run.box_text(box2), raw)
                 # ... and gives back the very same short form (the record's bytes never change).
                 self.assertEqual(run.get_text(wrapper2, FIELD[game]).split(b"\0")[0], short)
-                # Drawn and measured as the whole name.
-                self.assertEqual(run.width_of("ldwarialbold", short), run.width_of("ldwarialbold", raw))
+                # Drawn and measured as the whole name, fitted with "…" to the room its field leaves.
+                for font in ("ldwarialbold", "ldwBurweed27"):
+                    self.assertEqual(run.width_of(font, short), self._fitted_width(run, font, JAPANESE, FIELD[game] - 1))
+
+    def _fitted_width(self, run, font, whole, room_bytes):
+        """The spec's fit-to-width: the whole name when it is no wider than as many W as the field holds bytes,
+        else its longest start of whole characters whose width with "…" is that, then "…"."""
+        room = run.width_of(font, b"W" * room_bytes)
+        if run.width_of(font, _bytes_of(whole)) <= room:
+            return run.width_of(font, _bytes_of(whole))
+        best = ELLIPSIS
+        for k in range(1, len(whole)):
+            candidate = whole[:k].rstrip(" ") + ELLIPSIS
+            if run.width_of(font, candidate.encode("utf-8")) > room:
+                break
+            best = candidate
+        self.assertLess(len(best), len(whole))
+        return run.width_of(font, best.encode("utf-8"))
+
+    def test_a_whole_name_is_fitted_to_its_field_with_an_ellipsis(self):
+        """docs/UNICODE_SPEC.md row 3: a whole name wider than the room the game leaves for its field (as many W
+        as the field holds bytes) is drawn as its longest start of whole characters, then "…"; one that fits is
+        drawn whole, exactly as before (a name of one byte per character stays the game's own drawing)."""
+        wide = "\U0001208D\U00012000\U0001223E\U00012362\U00012155" * 2 + "ab"
+        narrow = "Alexandria Montgomery-Smithson"
+        for game, run in self.runs.items():
+            for whole in (wide, narrow):
+                with self.subTest(game=game, whole=whole):
+                    wrapper, box = run.new_box(23)
+                    run.set_text(box, _bytes_of(whole))
+                    short = run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
+                    self.assertTrue(short.endswith(b"..."), short)
+                    for font in ("ldwarialbold", "ldwBurweed27"):
+                        got = run.width_of(font, short)
+                        self.assertEqual(got, self._fitted_width(run, font, whole, FIELD[game] - 1))
+                        if whole == narrow:
+                            self.assertEqual(got, run.width_of(font, _bytes_of(whole)))
+                        else:
+                            self.assertLessEqual(got, run.width_of(font, b"W" * (FIELD[game] - 1)))
+                    blits = run.draw_text("ldwarialbold", short, 10, 10)
+                    self.assertTrue(blits)
 
     def test_the_long_names_file_is_written_whole_or_written_again(self):
         """The pair is appended to the save's Long Names file in one write; a failed or short write leaves it

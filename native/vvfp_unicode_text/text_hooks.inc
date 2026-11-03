@@ -57,7 +57,46 @@ static volatile LONG g_own_draws;    /* for the tests: texts drawn or measured b
 
 /* ---- 2. Translations and long names ----------------------------------------------------------- */
 
-static const unsigned char *vt_source(const unsigned char *s) {
+static int vt_own_width(void *font, const unsigned char *s, float scale);
+static int vt_needs_own(const unsigned char *s, const unsigned char *end);
+
+typedef struct vt_fit { void *font; float scale; } vt_fit;
+
+/* The width of s[0..len) with the glyphs the game will draw: the companion's own units for UTF-8 (or with Use
+   Unicode Font), the game's own width routine for any other text. */
+static int vt_fit_width(void *state, const unsigned char *s, int len) {
+    vt_fit *f = (vt_fit *)state;
+    unsigned char buf[VV_SHARED_NAME_BYTES + 8];
+    if (len < 0 || len >= (int)sizeof buf) {
+        return 0x7FFFFFFF;
+    }
+    CopyMemory(buf, s, (size_t)len);
+    buf[len] = 0;
+    return vt_needs_own(buf, buf + len) ? vt_own_width(f->font, buf, f->scale) : g_width(f->font, NULL, buf, f->scale);
+}
+
+/* A whole name fitted to the room the game leaves for its field (docs/UNICODE_SPEC.md row 3, "Fit-to-width"):
+   the width of as many "W" as the field holds bytes -- the stock layout's own measure (its name boxes are sized
+   by a string of W) -- measured in the font it is drawn in.  -1: it fits as it is. */
+static int vt_fit_name(void *state, const unsigned char *whole, int len, int room_bytes, unsigned char *out, int cap) {
+    vt_fit *f = (vt_fit *)state;
+    unsigned char ws[VV_SHARED_NAME_BYTES + 1];
+    int room, n;
+    if (f == NULL || f->font == NULL || room_bytes <= 0 || room_bytes > VV_SHARED_NAME_BYTES) {
+        return -1;
+    }
+    FillMemory(ws, (size_t)room_bytes, 'W');
+    ws[room_bytes] = 0;
+    room = g_width(f->font, NULL, ws, f->scale);
+    if (cap > VV_SHARED_NAME_BYTES + 4) {
+        cap = VV_SHARED_NAME_BYTES + 4;
+    }
+    n = tl_fit_ellipsis(whole, len, room, vt_fit_width, f, out, cap);
+    return n == len ? -1 : n;
+}
+
+static const unsigned char *vt_source(const unsigned char *s, void *font, float scale) {
+    vt_fit fit;
     if (s == NULL) {
         return s;
     }
@@ -78,7 +117,13 @@ static const unsigned char *vt_source(const unsigned char *s) {
             s = t;
         }
     }
-    return ln_expand(s);
+    if (font == NULL) {
+        return ln_expand(s, NULL, NULL, NULL);
+    }
+    fit.font = font;
+    fit.scale = scale;
+    /* the cache key: the font and the scale (whole steps in the games) */
+    return ln_expand(s, vt_fit_name, &fit, (const void *)((UINT_PTR)font ^ ((UINT_PTR)(scale * 16.0f) << 24)));
 }
 
 static int vt_needs_own(const unsigned char *s, const unsigned char *end) {
@@ -260,7 +305,7 @@ static int vt_own_draw(void *ctx, const unsigned char *s, int x, int y, unsigned
 static int __fastcall width_hook(void *font, void *edx, const unsigned char *s, float scale) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(s);
+        const unsigned char *t = vt_source(s, font, scale);
         if (t != NULL && font != NULL && vt_needs_own(t, ut_end(t))) {
             return vt_own_width(font, t, scale);
         }
@@ -274,8 +319,8 @@ static int __fastcall draw_hook(void *ctx, void *edx, const unsigned char *s, in
                                 unsigned int colour, void *font) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(s);
         void *f = font != NULL ? font : *(void **)((unsigned char *)ctx + 0x5C);
+        const unsigned char *t = vt_source(s, f, 1.0f);
         if (g_ln_slot_pending) {
             ln_flush_pending();
         }
@@ -406,7 +451,7 @@ static const unsigned char *__fastcall linefit_hook(void *font, void *edx, const
                                                     int nl_as_space, float scale) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(src);
+        const unsigned char *t = vt_source(src, font, scale);
         if (t != NULL && out != NULL && font != NULL && vt_needs_own(t, ut_end(t))) {
             return vt_own_linefit(font, t, out, max_count, max_width, paragraph, nl_as_space, scale);
         }
@@ -473,9 +518,9 @@ static int __fastcall justify_hook(void *holder, void *edx, const unsigned char 
                                    unsigned int colour, void *font, int measure_only) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(text);
         void *ctx = holder != NULL ? *(void **)holder : NULL;
         void *f = font != NULL ? font : (ctx != NULL ? *(void **)((unsigned char *)ctx + 0x5C) : NULL);
+        const unsigned char *t = vt_source(text, f, 1.0f);
         if (t != NULL && f != NULL && width > 0 && vt_needs_own_paragraph(f, t, width)) {
             /* Lines broken by units, drawn from the left. */
             unsigned char line[4096];
