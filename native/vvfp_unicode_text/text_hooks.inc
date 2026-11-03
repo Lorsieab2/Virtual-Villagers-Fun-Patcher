@@ -841,12 +841,46 @@ static int vt_append_size(const unsigned char *text, int len, const unsigned cha
     return need;
 }
 
+/* The box whose last typed character it refused (its limit), and a checksum of the text it held then
+   (docs/UNICODE_SPEC.md row 4, from VF2): a mark typed right after belongs to the refused character, so it is
+   refused too and never lands on the box's last character.  Any change to the text -- a character the box
+   takes, Backspace, a paste -- ends it. */
+static unsigned char *g_refused_box;
+static unsigned int g_refused_text;
+
+static unsigned int vt_text_sum(const unsigned char *text) {
+    unsigned int h = 2166136261u;
+    while (*text) {
+        h = (h ^ *text++) * 16777619u;
+    }
+    return h;
+}
+
+static void vt_refused(unsigned char *box) {
+    const unsigned char *text = *(const unsigned char **)(box + 0x30);
+    g_refused_box = text != NULL ? box : NULL;
+    g_refused_text = text != NULL ? vt_text_sum(text) : 0;
+}
+
 /* The focused box takes a typed text: each grapheme cluster whole (Unicode 18.0, text_utf8.h), as long as
    all of it fits the box's limit -- an emoji sequence or an accented letter is never stored in part. */
 static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
     __try {
-        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p, *cluster_end = s;
-        for (p = s; p < end;) {
+        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p = s, *cluster_end = s;
+        const unsigned char *now = *(const unsigned char **)(box + 0x30);
+        if (g_refused_box == box && now != NULL && vt_text_sum(now) == g_refused_text) {
+            /* the marks and joiners that would join the character the box refused are refused with it */
+            while (p < end) {
+                unsigned int cp;
+                int k = ut_seq(p, end, &cp);
+                if (k == 0 || !ut_extends(cp)) {
+                    break;
+                }
+                p += k;
+            }
+            cluster_end = p;
+        }
+        for (; p < end;) {
             unsigned int cp;
             unsigned char bytes[4];
             unsigned char *text = *(unsigned char **)(box + 0x30);
@@ -860,6 +894,7 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
                 int g = ut_grapheme(p, end, &last);
                 cluster_end = p + (g > 0 ? g : k);
                 if (len + vt_append_size(text, len, p, cluster_end) > limit) {
+                    vt_refused(box);
                     break;
                 }
             }
@@ -868,7 +903,11 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
                 continue;
             }
             n = ut_append(text, len, cp, bytes);
-            if (len + n > limit || box[0x2D] != 0 || box[0x2F] != 0) {
+            if (len + n > limit) {
+                vt_refused(box);
+                break;
+            }
+            if (box[0x2D] != 0 || box[0x2F] != 0) {
                 break;
             }
             /* All but the last byte straight in; the last through the game's own handler, which checks
@@ -878,6 +917,7 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
             }
             text[len + n - 1] = 0;
             g_handler(box, NULL, 5, 0, bytes[n - 1]);
+            g_refused_box = NULL;
             text = *(unsigned char **)(box + 0x30);
             if (text == NULL || ln_len(text) != len + n) {
                 if (text != NULL && ln_len(text) >= len) {

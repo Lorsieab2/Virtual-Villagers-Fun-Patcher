@@ -368,6 +368,38 @@ class InTheGame(unittest.TestCase):
                 run.type_into(box, CUNEIFORM.encode("utf-8"))
                 self.assertEqual(run.box_text(box), _bytes_of(CUNEIFORM[:1]))
 
+    def test_a_mark_typed_after_a_refused_character_is_refused_too(self):
+        """docs/UNICODE_SPEC.md row 4: a combining mark typed right after a character the box refused (its limit)
+        belongs to that character, so it is refused too and never lands on the box's last character.  After a
+        character the box took, or after Backspace, a mark joins the last character as before."""
+        acute = "́"                                                   # two bytes: it would fit
+        for game, run in self.runs.items():
+            with self.subTest(game=game, refused="a character the box cannot hold"):
+                _w, box = run.new_box(23)
+                run.m.mu.mem_write(box + 0x28, struct.pack("<i", 8))
+                for ch in "かきく":
+                    run.type_into(box, ch.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))     # く is 9 bytes of 8
+                run.type_into(box, acute.encode("utf-8"))                  # く's mark: not on the き
+                run.type_into(box, acute.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+                run.backspace(box)
+                run.type_into(box, acute.encode("utf-8"))                  # after Backspace: on the か
+                self.assertEqual(run.box_text(box), _bytes_of("か" + acute))
+            with self.subTest(game=game, refused="a text with its own mark"):
+                _w, box = run.new_box(23)
+                run.m.mu.mem_write(box + 0x28, struct.pack("<i", 8))
+                run.type_into(box, "かき".encode("utf-8"))
+                run.type_into(box, ("e" + acute).encode("utf-8"))           # e fits, its mark does not: neither
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+                run.type_into(box, acute.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+            with self.subTest(game=game, refused="nothing"):
+                _w, box = run.new_box(23)
+                run.type_into(box, "か".encode("utf-8"))
+                run.type_into(box, acute.encode("utf-8"))                  # joins the か the box took
+                self.assertEqual(run.box_text(box), _bytes_of("か" + acute))
+
     def test_details_round_trip_leaves_every_name_identical(self):
         for game, run in self.runs.items():
             for name in (POO, CUNEIFORM, ZOE, JAPANESE[:7]):
