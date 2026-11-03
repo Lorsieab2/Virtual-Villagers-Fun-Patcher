@@ -88,6 +88,7 @@ typedef struct rg_hfont {
     HFONT font;
     SCRIPT_CACHE cache;
     WORD missing;                   /* the font's default glyph */
+    WORD blank;                     /* the font's blank (space) glyph, which some fonts map unsupported characters to */
     struct rg_hfont *next;
 } rg_hfont;
 
@@ -224,6 +225,7 @@ static rg_hfont *rg_font_at(int face, int ppem) {
     ZeroMemory(&props, sizeof props);
     props.cBytes = sizeof props;
     h->missing = ScriptGetFontProperties(g_dc, &h->cache, &props) == S_OK ? props.wgDefault : 0;
+    h->blank = props.wgBlank;
     h->next = g_hfonts;
     g_hfonts = h;
     return h;
@@ -328,7 +330,7 @@ static int rg_ppem(int face, const rg_font *f) {
     return ppem < 4 ? 4 : ppem > 200 ? 200 : ppem;
 }
 
-/* Smooth a pixel font's glyph (a 1-2-1 blur each way) and thicken it by a quarter, so it sits beside the
+/* Smooth a pixel font's glyph (a 1-2-1 blur each way) and thicken it (a 1 px stroke stays full strength), so it sits beside the
    game's anti-aliased letters instead of looking blocky.  Grows the box by one pixel on every side. */
 static void rg_smooth(unsigned char **px, int *w, int *h, int *ox, int *oy) {
     int nw = *w + 2, nh = *h + 2, x, y;
@@ -347,7 +349,7 @@ static void rg_smooth(unsigned char **px, int *w, int *h, int *ox, int *oy) {
                     }
                 }
             }
-            sum = sum * 5 / 64;                   /* the blur's /16, times 1.25 */
+            sum = sum / 8;                        /* the blur's /16, times 2: a 1 px stroke keeps its full strength */
             out[y * nw + x] = (unsigned char)(sum > 255 ? 255 : sum);
         }
     }
@@ -625,6 +627,20 @@ static int rg_shape_placeholder(int face, int ppem, const WCHAR *text, int n, rg
     return 1;
 }
 
+/* A space of any width: it draws nothing by design, in a face that has it or draws its blank glyph for it. */
+static int rg_space_unit(WCHAR c) {
+    return c == ' ' || c == 0x00A0 || c == 0x1680 || (c >= 0x2000 && c <= 0x200A) || c == 0x202F || c == 0x205F
+           || c == 0x3000 || c == 0x2028 || c == 0x2029 || c == '\t';
+}
+
+/* A UTF-16 unit of a character that draws nothing by design (joiners, variation selectors, tags, marks). */
+static int rg_ignorable_unit(WCHAR c) {
+    return c == 0x200B || c == 0x200C || c == 0x200D || c == 0x200E || c == 0x200F || c == 0x2060 || c == 0x00AD
+           || c == 0x034F || c == 0x061C || c == 0xFEFF || (c >= 0x180B && c <= 0x180F) || (c >= 0xFE00 && c <= 0xFE0F)
+           || (c >= 0x202A && c <= 0x202E) || (c >= 0x2061 && c <= 0x2064) || (c >= 0x2066 && c <= 0x206F)
+           || c == 0xDB40;                 /* the high unit of a tag or variation selector, U+E0001..E01EF */
+}
+
 /* Shape `text` in one face; 1 and the canvas drawn when every glyph is in the face. */
 static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv, int *advance) {
     static SCRIPT_ITEM items[RG_MAX_UNIT + 1];      /* one per run of a script, direction or digits */
@@ -670,10 +686,19 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
             break;
         }
         for (j = 0; j < count; ++j) {
-            if (glyphs[j] == h->missing && !attrs[j].fZeroWidth) {
-                /* A space (or another blank) may be the default glyph in no font; anything else is missing. */
-                if (!(len == 1 && (text[start] == ' ' || text[start] == 0x3000))) {
-                    ok = 0;
+            if (glyphs[j] == h->missing || glyphs[j] == 0 || (glyphs[j] == h->blank && h->blank != 0)) {
+                /* 0 is .notdef whatever the face calls its default, and some faces draw their blank glyph for a
+                   character they lack. */
+                /* A space (or another blank) may be the default glyph in no font, and a joiner, variation
+                   selector or tag has no glyph by design; anything else is missing (Uniscribe marks a character
+                   its font lacks "zero width" too, so that flag alone is not an answer). */
+                int k;
+                for (k = 0; k < len; ++k) {
+                    /* clusters[k] is the glyph character k belongs to: judge the characters this glyph stands for */
+                    if (clusters[k] == j && !rg_space_unit(text[start + k])
+                        && !(attrs[j].fZeroWidth && rg_ignorable_unit(text[start + k]))) {
+                        ok = 0;
+                    }
                 }
             }
         }
@@ -816,7 +841,7 @@ static int rg_make_cell(const rg_font *f, const unsigned char *bytes, int len, u
         ZeroMemory(&cv, sizeof cv);
         cv.h = line * 3;
         cv.base = line + f->m.baseline;
-        cv.w = ppem * (n + 2) + 8;
+        cv.w = ppem * (n + 3) + 8;
         if (cv.w > 8192) cv.w = 8192;
         cv.px = (unsigned int *)vg_alloc((size_t)cv.w * (size_t)cv.h * 4);
         if (cv.px == NULL) {
@@ -824,7 +849,7 @@ static int rg_make_cell(const rg_font *f, const unsigned char *bytes, int len, u
         }
         ZeroMemory(cv.px, (size_t)cv.w * (size_t)cv.h * 4);
         /* Draw with the pen 4 pixels in, so ink left of the origin is kept. */
-        cv.ox = 4;
+        cv.ox = 4 + ppem;       /* room for ink left of the origin: a mark drawn alone sits an em to its left */
         if (!rg_shape(chosen, ppem, text, n, &cv, &advance)) {
             /* Not every glyph is in the face (the last resort): draw what it has anyway. */
             advance = advance > 0 ? advance : ppem / 2;
@@ -848,8 +873,8 @@ static int rg_make_cell(const rg_font *f, const unsigned char *bytes, int len, u
             continue;
         }
         /* The cell: from the leftmost of origin and ink to the rightmost of advance and ink. */
-        cell_left = 4;
-        cell_right = 4 + advance;
+        cell_left = cv.ox;
+        cell_right = cv.ox + advance;
         if (r >= 0) {
             if (l < cell_left) cell_left = l;
             if (r + 1 > cell_right) cell_right = r + 1;
@@ -1103,15 +1128,9 @@ static void rg_register(unsigned char *impl, int burweed, const vg_font *vf, con
     f->amask = fmt->amask;
     f->ashift = fmt->ashift;
     {
-        /* The font's own alpha levels (the distinct values of its 'H'): bundled glyphs are quantised to them. */
-        unsigned char seen[256];
+        /* The font's own alpha levels (the distinct values of its picture): bundled glyphs are quantised to them. */
+        const unsigned char *seen = vf->alpha_seen;
         int i, j, k = 0;
-        ZeroMemory(seen, sizeof seen);
-        for (i = 0; i < vf->sheet_h.w * vf->sheet_h.h; ++i) {
-            if (vf->sheet_h.px[i] != 0) {
-                seen[vf->sheet_h.px[i]] = 1;
-            }
-        }
         for (i = 1; i < 256; ++i) {
             k += seen[i];
         }

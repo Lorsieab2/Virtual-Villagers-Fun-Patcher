@@ -1226,8 +1226,8 @@ def _text_coverage(cluster: str, face: str, fallbacks, bold: bool, cap: int, em_
     if r is None:
         return None
     if pixel and r[1] and r[2]:
-        # Smoothed by the supersampled box filter above, then thickened by a quarter (as the game does).
-        r = (bytearray(min(255, v * 5 // 4) for v in r[0]),) + tuple(r[1:])
+        # Smoothed by the supersampled box filter above, then thickened (a 1 px stroke stays full strength, as in the game).
+        r = (bytearray(min(255, v * 2) for v in r[0]),) + tuple(r[1:])
     return r + (info[0],)
 
 
