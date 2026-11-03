@@ -27,6 +27,7 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Use Unicode Font (all five games): the Unicode text companion's code, drawing every letter in a
        Windows typeface; a build ships it or the Unicode text companion, never both. */
     "VVFP Unicode Font.dll",
+    "VVFP Copy and Paste.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

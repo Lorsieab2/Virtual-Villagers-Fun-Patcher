@@ -29,6 +29,21 @@ ROOT = Path(__file__).resolve().parents[1]
 TEXT_DLL = "VVFP Unicode Text.dll"
 FONT_DLL = "VVFP Unicode Font.dll"
 DLLS = {TEXT_DLL: ROOT / "assets" / "unicode_text" / TEXT_DLL, FONT_DLL: ROOT / "assets" / "unicode_font" / FONT_DLL}
+FONT_FOLDER = ROOT / "assets" / "unicode_fonts"
+FONT_DESTINATION = "Unicode Fonts"
+# The open fonts bundled as the last steps of the glyph chain, and the licence texts that travel with them.
+BUNDLED_FONTS = ("NotoSansCuneiform-Regular.otf", "NotoSerifTangut-Regular.otf", "unifont-18.0.01.otf",
+                 "unifont_upper-18.0.01.otf", "LastResortHE-Regular.ttf")
+BUNDLED_NOTICES = ("NotoSansCuneiform-OFL-1.1.txt", "NotoSerifTangut-OFL-1.1.txt", "Unifont-OFL-1.1.txt",
+                   "Unifont-GPL-2.0-COPYING.txt", "LastResort-OFL-1.1.txt", "SOURCES.json")
+BUNDLED_SUMMARY = (
+    "**Bundles four open fonts, loaded privately by the game (never installed in Windows): GNU Unifont 18.0.01 "
+    "(GPL-2.0-or-later with the font exception, or OFL-1.1) and Unifont Upper for nearly every assigned "
+    "character, Noto Sans Cuneiform and Noto Serif Tangut (OFL-1.1), and Last Resort 18.000 (OFL-1.1), a "
+    "placeholder block for anything still without a glyph; about 14 MB of fonts (in the patcher's files "
+    "folder, in \"Unicode Fonts\", with their licence texts and sources), copied once per game folder, "
+    "and not again when the folder already has identical files.**"
+)
 TABLES = ROOT / "data" / "font_glyph_tables.json"
 ROUTINES = ROOT / "native" / "vvfp_unicode_text" / "text_routines.h"
 GAMES = (1, 2, 3, 4, 5)
@@ -87,13 +102,16 @@ def text_description(game: int) -> str:
         "Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans "
         "MS stands in), and every other character is made the first time it is shown, in the font's size, "
         "baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe "
-        "UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed). Names, the Details screen, popups, dialogs and every other text use them with their "
+        "UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed, then the bundled open fonts: "
+        "Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont and Unifont Upper, and last Last Resort, so every "
+        "one of Unicode 18.0's assigned characters draws, even ones no Windows font has). Names, the Details "
+        "screen, popups, dialogs and every other text use them with their "
         "real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**On by default and in Owner's Defaults.** **Cannot be used with \"" + FONT_NAME + "\" (ticking one "
         "unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + TEXT_DLL + "\", started by VVFP "
-        "Startup.dll; the game's own pictures and saves are never changed, and no font is shipped."
+        "Startup.dll; the game's own pictures and saves are never changed. " + BUNDLED_SUMMARY
     )
 
 
@@ -104,7 +122,8 @@ def font_description(game: int) -> str:
         "any installed family, or a .ttf, .otf or .ttc file; the choice is written next to the game as \"VVFP "
         "Unicode Font.txt\"), with Windows' fallback chain for every character it lacks (Segoe UI, Segoe UI "
         "Historic, Segoe UI Symbol, Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if "
-        "installed). Each of the game's two fonts keeps its line height, baseline and weight, and its size is "
+        "installed, then the bundled open fonts: Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont, Unifont "
+        "Upper and last Last Resort). Each of the game's two fonts keeps its line height, baseline and weight, and its size is "
         "fitted so a line is as wide as the game's own, so every screen keeps its layout; every character works, "
         "as with \"" + TEXT_NAME + "\". "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
@@ -112,7 +131,7 @@ def font_description(game: int) -> str:
         "one unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + FONT_DLL + "\" (the same code as \""
         + TEXT_DLL + "\"), started by VVFP Startup.dll; the game's own pictures and saves are never changed, "
-        "and no font is shipped."
+        "and no Windows font is shipped. " + BUNDLED_SUMMARY
     )
 
 
@@ -200,6 +219,14 @@ def behaviour(game: int, tables: dict, override: bool) -> list:
     ]
 
 
+def bundled_files() -> list:
+    """The bundled fonts, their licence texts and SOURCES.json: all five games, both rows, one pinned list."""
+    return [
+        {"source": f"assets/unicode_fonts/{name}", "destination": f"{FONT_DESTINATION}/{name}", "sha256": sha(FONT_FOLDER / name)}
+        for name in BUNDLED_FONTS + BUNDLED_NOTICES
+    ]
+
+
 def row(game: int, override: bool, dll_sha: str, tables: dict, found: dict) -> dict:
     dll = FONT_DLL if override else TEXT_DLL
     folder = "unicode_font" if override else "unicode_text"
@@ -220,13 +247,17 @@ def row(game: int, override: bool, dll_sha: str, tables: dict, found: dict) -> d
             "No executable byte is patched: the companion replaces each routine's first instructions at run time, "
             "all of them or none, only after verifying their stock bytes, and installs nothing on a different build.",
             "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed and nothing of "
-            "the game's art and no font is shipped; letters are made in memory from the player's own Windows fonts.",
+            "the game's art is shipped; letters are made in memory from the player's own Windows fonts and, for what "
+            "they lack, from the bundled open fonts (Unicode Fonts folder), which are added to the game's process "
+            "only (FR_PRIVATE) and never installed in Windows; a missing or unreadable font file only leaves its "
+            "step out.",
             "A save's records only ever hold what fits their fields: every stock copy of a name sees the short form, "
             "never more bytes than the stock game wrote. Nothing is cut inside a character.",
             "A fault in any detour falls back to the game's own routine with the game's own text.",
         ],
         "companion_files": [
             {"source": f"assets/{folder}/{dll}", "destination": dll, "sha256": dll_sha},
+            *bundled_files(),
         ],
         "patches": [],
         "runtime_detours": detours(game, dll, tables, found),

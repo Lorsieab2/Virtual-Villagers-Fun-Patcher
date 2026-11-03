@@ -382,7 +382,9 @@ class TextRun(ute.FontRun):
 
     def draw_text(self, font: str, text: bytes, x: int = 100, y: int = 100, colour: int = 0xFFFFFFFF) -> list:
         mu = self.m.mu
-        screen = self._new_surface(1024, 768, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)
+        if getattr(self, "_screen", None) is None:       # one screen for every draw: the emulated heap never frees
+            self._screen = self._new_surface(1024, 768, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)
+        screen = self._screen
         ctx = self.m.font_heap.alloc(0x400)
         mu.mem_write(ctx + 0x30, struct.pack("<I", screen))
         mu.mem_write(ctx + 0x5C, struct.pack("<I", self.fonts[font]))

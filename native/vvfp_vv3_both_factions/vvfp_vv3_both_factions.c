@@ -68,6 +68,7 @@
    Nothing jumps into the bytes the detours overwrite (checked in the stock
    executable). */
 #include <windows.h>
+#include "../shared/vvfp_translate.h"   /* the prompt in the player's language */
 #include <shlobj.h>
 #include <string.h>
 #include "../shared/sidecar_io.h"
@@ -833,9 +834,18 @@ static __declspec(naked) void confirm_stub(void) {
    0x46578C, so they stay on the stack.  (The first preview of this prompt
    dropped them, and the box's own ret 0xC then returned through a wrong
    address: the owner's crash at EIP 7 buying the second faction.) */
+/* The owner's text in the player's language (its row vvfp_vv3_both_factions.x.s0; drawn from a pointer). */
+static const char *__cdecl confirm_text(void) {
+    return vvfp_tr("vvfp.factions/vvfp_vv3_both_factions.x.s0", CONFIRM_TEXT, 0);
+}
+
 static __declspec(naked) void text_stub(void) {
     __asm {
-        mov eax, offset CONFIRM_TEXT
+        push ecx
+        push edx
+        call confirm_text
+        pop edx
+        pop ecx
         push 0x465787
         ret
     }

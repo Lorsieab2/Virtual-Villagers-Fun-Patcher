@@ -253,7 +253,7 @@ def test_workflow_permissions_are_exactly_three():
     perms = dict(line.strip().split(": ") for line in m.group(1).splitlines())
     assert perms == {"contents": "write", "pull-requests": "write", "issues": "write"}
     assert len(re.findall(r"^\s*permissions:", text, re.M)) == 1      # no job widens them
-    assert "secrets." not in text                                    # only GITHUB_TOKEN
+    assert set(re.findall(r"secrets\.(\w+)", text)) == {"VT_API_KEY"}      # GITHUB_TOKEN and the scan key only
 
 
 def test_workflow_triggers_only_on_the_label():
@@ -380,6 +380,12 @@ def test_download_follows_only_allowed_redirects(tmp_path):
         at.download(first, tmp_path / "c.txt", run=too_big)
 
 
+def _clean(data, name):
+    """VirusTotal mocked: every file clean."""
+    import virustotal_scan
+    return virustotal_scan.Verdict(virustotal_scan.CLEAN, virustotal_scan.sha256_of(data), [], "", 70)
+
+
 def _fetch_copy(source: Path):
     def fetch(url, dest):
         Path(dest).parent.mkdir(parents=True, exist_ok=True)
@@ -391,9 +397,9 @@ def test_prepare_accepts_and_credits_the_typed_name(tmp_path):
     source = make_file(tmp_path / "sent.txt", translator="someone else")
     repo = tmp_path / "repo"
     work = tmp_path / "work"
-    outcome = at.prepare(issue_body(credit="Ana"), 42, work, repo_root=repo, fetch=_fetch_copy(source))
+    outcome = at.prepare(issue_body(credit="Ana"), 42, work, repo_root=repo, fetch=_fetch_copy(source), scan=_clean)
     assert outcome.accepted, outcome.reasons
-    assert outcome.relative_path == f"translations/{GAME}/{GAME} - Français.txt"
+    assert outcome.relative_path == "translations/vv3/fr.tsv"
     assert fmt.read_file(repo / outcome.relative_path).translator == "Ana"
     body = (work / "pr_body.md").read_text(encoding="utf-8")
     assert "Closes #42" in body and "Ana" in body
@@ -404,14 +410,47 @@ def test_prepare_refuses_and_explains(tmp_path):
     source = make_file(tmp_path / "sent.txt")
     work = tmp_path / "work"
     outcome = at.prepare(issue_body(credit="me@example.com"), 7, work, repo_root=tmp_path / "repo",
-                         fetch=_fetch_copy(source))
+                         fetch=_fetch_copy(source), scan=_clean)
     assert not outcome.accepted
     comment = (work / "comment.md").read_text(encoding="utf-8")
     assert "me@example.com" not in comment and "email" in comment
     assert not (tmp_path / "repo" / "translations").exists()
     wrong = at.prepare(issue_body(game="Virtual Villagers - New Believers"), 8, tmp_path / "w2",
-                       repo_root=tmp_path / "repo", fetch=_fetch_copy(source))
+                       repo_root=tmp_path / "repo", fetch=_fetch_copy(source), scan=_clean)
     assert not wrong.accepted
+
+
+def test_prepare_never_overwrites_another_translators_file(tmp_path):
+    source = make_file(tmp_path / "sent.txt")
+    repo = tmp_path / "repo"
+    first = at.prepare(issue_body(credit="Ana"), 1, tmp_path / "w1", repo_root=repo, fetch=_fetch_copy(source),
+                       scan=_clean)
+    second = at.prepare(issue_body(credit="Zoë B."), 2, tmp_path / "w2", repo_root=repo,
+                        fetch=_fetch_copy(source), scan=_clean)
+    again = at.prepare(issue_body(credit="Ana"), 3, tmp_path / "w3", repo_root=repo, fetch=_fetch_copy(source),
+                       scan=_clean)
+    assert first.relative_path == "translations/vv3/fr.tsv"
+    assert second.relative_path == "translations/vv3/fr-zoe-b.tsv"           # the language exists: a variant
+    assert again.relative_path == "translations/vv3/fr.tsv"                  # Ana's own file is updated
+    assert fmt.read_file(repo / second.relative_path).translator == "Zoë B."
+    assert fmt.read_file(repo / first.relative_path).translator == "Ana"
+
+
+def test_prepare_refuses_a_flagged_or_unscanned_file(tmp_path):
+    import virustotal_scan
+    source = make_file(tmp_path / "sent.txt")
+
+    def flagged(data, name):
+        return virustotal_scan.Verdict(virustotal_scan.FLAGGED, "x", ["EngineA: malicious (Evil)"], "flagged")
+
+    for scanner in (flagged, lambda data, name: virustotal_scan.scan_bytes(data, name, key="")):
+        work = tmp_path / f"w{id(scanner)}"
+        outcome = at.prepare(issue_body(), 9, work, repo_root=tmp_path / "repo", fetch=_fetch_copy(source),
+                             scan=scanner)
+        assert not outcome.accepted
+        assert not (tmp_path / "repo" / "translations").exists()
+        comment = (work / "comment.md").read_text(encoding="utf-8")
+        assert "VirusTotal" in comment
 
 
 def test_markdown_cannot_mention_or_link():

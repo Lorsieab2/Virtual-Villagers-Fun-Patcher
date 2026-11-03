@@ -61,9 +61,11 @@ def write_translation(path: Path, language="Français", code="fr", translator=""
 class TempTranslations(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = Path(tempfile.mkdtemp(prefix="vvfp-tr-window-"))
-        patcher = mock.patch.object(tr, "TRANSLATIONS_DIR", self.temp / "translations")
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        for name, value in (("TRANSLATIONS_DIR", self.temp / "Installed translations"),
+                            ("LEGACY_DIR", self.temp / "translations")):
+            patcher = mock.patch.object(tr, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.addCleanup(tr._display_choice.clear)
         self.addCleanup(tr._display_cache.clear)
 
@@ -91,8 +93,8 @@ class WordsTests(unittest.TestCase):
         self.assertIn(fmt.EMAIL_SENTENCE, w.CREDIT_HINT)
         self.assertIn(fmt.EMAIL_SENTENCE, vv_how_to_use.guide("translations").lines)
         guide = " ".join(vv_how_to_use.guide("translations").lines)
-        for step in ("Make a translation", "Add translation file...", "Export translation...", "Share on GitHub...",
-                     "Translations row"):
+        for step in ("Make a translation", "Add translation file...", "Export...", "Delete...", "Recycle Bin",
+                     "Select All", "Ctrl+click", "Shift+click", "Ctrl+A", "Share on GitHub...", "Translations row"):
             self.assertIn(step, guide)
 
     def test_the_tools_tab_has_the_button_in_both_boxes_with_a_guide(self) -> None:
@@ -251,7 +253,7 @@ class FilesTests(TempTranslations):
         path = write_translation(self.temp / "good.txt", translator="Kalani",
                                  translations=("Nourriture : %d", "Bonjour {nom}", ""))
         installed, checked = w.add_translation(GAME, path, tr.template_map(template_rows()))
-        self.assertEqual(installed, tr.game_dir(GAME) / f"{TITLE} - Français.txt")
+        self.assertEqual(installed, tr.game_dir(GAME) / "fr.tsv")
         self.assertTrue(checked.ok)
         text = w.report_text(checked)
         self.assertIn("33%", text)
@@ -398,7 +400,7 @@ class WindowTests(TkCase):
         done = window.choose(1)
         self.assertEqual(done, [self.patched])
         self.assertEqual(runtime.read_bytes(), added[0].read_bytes())
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], f"{TITLE} - Français.txt")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/fr.tsv")
         self.assertGreaterEqual(self.app.saved, 1)
         settings = repr(self.app.translation_choices)
         self.assertNotIn("Kalani", settings)                     # the credit is never in the settings
@@ -435,7 +437,7 @@ class WindowTests(TkCase):
         rows = template_rows()
         editor = window.open_editor("Français", "fr", rows=rows)
         self.pump()
-        target = tr.game_dir(GAME) / f"{TITLE} - Français.txt"
+        target = tr.game_dir(GAME) / "fr.tsv"
         self.assertTrue(target.is_file())
         self.assertEqual(fmt.read_file(target).translator, "")       # nothing personal pre-filled
         self.assertEqual(window.language_labels(), [tr.ENGLISH, "Français"])
@@ -473,6 +475,236 @@ class UnsavedEditsTests(WindowTests):
                 mock.patch.object(w.messagebox, "askyesno", return_value=True):
             self.assertTrue(window.close())                             # "Yes": both close
         self.assertFalse(window.top.winfo_exists())
+
+
+def fake_recycle_bin(calls: list):
+    """The Recycle Bin call, mocked: records the paths and moves them out of the folder (as Windows would)."""
+    def shell(paths):
+        calls.append(list(paths))
+        for path in paths:
+            Path(path).unlink()
+    return shell
+
+
+class ManageFilesTests(WindowTests):
+    """The owner, 2026-11-02: "can you add the ability to delete translation files too?" and "and select
+    all/ctrl select for multiple selections too?"."""
+
+    def add_three(self, window) -> list[Path]:
+        paths = [write_translation(self.temp / f"{code}.txt", language=language, code=code)
+                 for language, code in (("Français", "fr"), ("Deutsch", "de"), ("Español", "es"))]
+        added = window.add_paths([str(p) for p in paths])
+        self.assertEqual(len(added), 3)
+        return added
+
+    def test_the_file_list_selects_several_and_select_all_selects_every_row(self) -> None:
+        window = self.open()
+        self.add_three(window)
+        self.assertEqual(window.file_labels(), [tr.ENGLISH, "Deutsch", "Español", "Français"])
+        self.assertEqual(str(window.file_list.cget("selectmode")), "extended")   # click, Ctrl+, Shift+click
+        window.select(["Deutsch", "Français"])
+        self.assertEqual([p.name for p in window.selected_files()], ["de.tsv", "fr.tsv"])
+        window.select_all()
+        self.assertEqual(window.selected_entries()[0], None)
+        self.assertEqual(len(window.selected_files()), 3)
+        window.file_list.selection_clear(0, "end")
+        for key in ("<Control-a>", "<Control-A>"):                              # Ctrl+A selects all
+            self.assertTrue(window.file_list.bind(key))
+        self.assertEqual(window.select_all(), "break")
+        self.assertEqual(len(window.file_list.curselection()), 4)
+        window.close()
+
+    def test_no_is_the_default_and_no_does_nothing(self) -> None:
+        window = self.open()
+        added = self.add_three(window)
+        window.select_all()
+        calls: list = []
+        asked: list = []
+
+        def ask(parent, title, message):
+            asked.append((title, message))
+            return False
+
+        self.assertIsNone(window.delete(ask=ask, shell=fake_recycle_bin(calls)))
+        self.assertEqual(len(asked), 1)                                         # ONE question
+        self.assertEqual(calls, [])
+        self.assertTrue(all(p.is_file() for p in added))
+        # The default question is the patcher's No-default Yes / No dialog (Return and Escape answer No).
+        with mock.patch.object(w.vv_copy_slot_window, "ask_yes_no", return_value=False) as dialog:
+            self.assertIsNone(window.delete(shell=fake_recycle_bin(calls)))
+        dialog.assert_called_once()
+        self.assertEqual(calls, [])
+        window.close()
+
+    def test_yes_recycles_every_selected_file_and_skips_english(self) -> None:
+        window = self.open()
+        added = self.add_three(window)
+        window.select([tr.ENGLISH, "Deutsch", "Español"])
+        calls: list = []
+        asked: list = []
+
+        def ask(parent, title, message):
+            asked.append(message)
+            return True
+
+        deleted, problems = window.delete(ask=ask, shell=fake_recycle_bin(calls))
+        self.assertEqual(problems, [])
+        self.assertEqual(len(calls), 1)                                         # one Recycle Bin call
+        self.assertEqual(sorted(p.name for p in calls[0]), ["de.tsv", "es.tsv"])
+        self.assertEqual(sorted(p.name for p in deleted), sorted(p.name for p in calls[0]))
+        message = asked[0]
+        self.assertIn("Recycle Bin", message)
+        self.assertIn("de.tsv", message)
+        self.assertIn("es.tsv", message)
+        self.assertIn(w.ENGLISH_KEPT, message)                                  # English named, skipped
+        self.assertNotIn("Français", message)
+        self.assertEqual(window.file_labels(), [tr.ENGLISH, "Français"])
+        self.assertTrue(added[2].is_file() or added[0].is_file())
+        window.close()
+
+    def test_english_alone_cannot_be_deleted(self) -> None:
+        window = self.open()
+        self.add_three(window)
+        window.select([tr.ENGLISH])
+        asked: list = []
+        self.assertIsNone(window.delete(ask=lambda *a: asked.append(a) or True, shell=fake_recycle_bin([])))
+        self.assertEqual(asked, [])
+        w.messagebox.showinfo.assert_called_with(w.DELETE_TITLE, w.ENGLISH_KEPT, parent=window.top)
+        window.close()
+
+    def test_deleting_the_active_language_falls_back_to_english(self) -> None:
+        window = self.open()
+        self.add_three(window)
+        window.choose(window.language_labels().index("Deutsch"))
+        runtime = tr.runtime_path(self.patched)
+        self.assertTrue(runtime.is_file())
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/de.tsv")
+        window.select(["Deutsch"])
+        asked: list = []
+        deleted, problems = window.delete(ask=lambda p, t, m: asked.append(m) or True, shell=fake_recycle_bin([]))
+        self.assertEqual(problems, [])
+        self.assertEqual([p.name for p in deleted], ["de.tsv"])
+        self.assertIn("goes back to English from its next start", asked[0])
+        self.assertFalse(runtime.exists())                                      # removed, as English does
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "")
+        self.assertEqual(window.language_box.get(), tr.ENGLISH)
+        self.assertEqual(tr.display_text(GAME, "Food: %d"), "Food: %d")
+        window.close()
+
+    def test_a_missing_recycle_bin_deletes_nothing_and_says_why(self) -> None:
+        window = self.open()
+        added = self.add_three(window)
+        window.choose(window.language_labels().index("Français"))
+        window.select(["Français"])
+
+        def no_bin(paths):
+            raise tr.RecycleBinUnavailable("the drive Z:\\ has no Recycle Bin")
+
+        deleted, problems = window.delete(ask=lambda *a: True, shell=no_bin)
+        self.assertEqual(deleted, [])
+        self.assertTrue(all(p.is_file() for p in added))
+        self.assertIn("Nothing was deleted", problems[-1])
+        self.assertIn("no Recycle Bin", problems[-1])
+        self.assertTrue(tr.runtime_path(self.patched).is_file())                # the choice is kept
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/fr.tsv")
+        w.messagebox.showerror.assert_called()
+        window.close()
+
+    def test_an_editor_open_on_a_deleted_file_is_closed_without_saving(self) -> None:
+        window = self.open()
+        rows = template_rows()
+        editor = window.open_editor("Français", "fr", rows=rows)
+        self.pump()
+        editor.set_translation(rows[1].row.key, "Bonjour")
+        window.select(["Français"])
+        window.delete(ask=lambda *a: True, shell=fake_recycle_bin([]))
+        self.pump(AUTOSAVE_WAIT)
+        self.assertFalse(editor.top.winfo_exists())
+        self.assertFalse((tr.game_dir(GAME) / "fr.tsv").exists())   # never saved back
+        window.close()
+
+    def test_export_writes_each_selected_file_into_the_chosen_folder(self) -> None:
+        window = self.open()
+        added = self.add_three(window)
+        out = self.temp / "exports"
+        out.mkdir()
+        window.select_all()                                                     # English skipped
+        with mock.patch.object(w.filedialog, "askdirectory", return_value=str(out)) as ask:
+            done = window.export()
+        ask.assert_called_once()
+        self.assertEqual(sorted(p.name for p in done), sorted(p.name for p in added))
+        for path in added:
+            self.assertEqual((out / path.name).read_bytes(), path.read_bytes())
+        # One file: a file name is asked, as before.
+        window.select(["Deutsch"])
+        target = self.temp / "one.txt"
+        with mock.patch.object(w.filedialog, "asksaveasfilename", return_value=str(target)):
+            self.assertEqual(window.export(), target)
+        self.assertTrue(target.is_file())
+        window.close()
+
+
+class RecycleBinCallTests(TempTranslations):
+    """vv_translations._shell_recycle: SHFileOperationW, FO_DELETE with FOF_ALLOWUNDO, through ctypes (Windows
+    mocked: no file reaches the real Recycle Bin)."""
+
+    def fake_shell32(self, query_result=0, op_result=0, aborted=False):
+        seen = SimpleNamespace(roots=[], ops=[])
+
+        def query(root, info):
+            seen.roots.append(root)
+            return query_result
+
+        def operation(op):
+            obj = op._obj
+            seen.ops.append((obj.wFunc, obj.fFlags, obj.pFrom))
+            obj.fAnyOperationsAborted = aborted
+            return op_result
+
+        return seen, SimpleNamespace(SHQueryRecycleBinW=query, SHFileOperationW=operation)
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_the_call_asks_for_the_recycle_bin(self) -> None:
+        seen, shell32 = self.fake_shell32()
+        file = self.temp / "a.txt"
+        file.write_text("x", encoding="utf-8")
+        with mock.patch("ctypes.WinDLL", return_value=shell32):
+            tr._shell_recycle([file])
+        (func, flags, source), = seen.ops
+        self.assertEqual(func, 3)                                               # FO_DELETE
+        self.assertTrue(flags & 0x40)                                           # FOF_ALLOWUNDO
+        self.assertTrue(flags & 0x4000)                                         # FOF_WANTNUKEWARNING
+        self.assertEqual(source, str(file.resolve()))
+        self.assertTrue(file.is_file())                                         # mocked: nothing moved
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_no_recycle_bin_refuses_before_any_delete(self) -> None:
+        seen, shell32 = self.fake_shell32(query_result=-2147024893)
+        with mock.patch("ctypes.WinDLL", return_value=shell32):
+            with self.assertRaises(tr.RecycleBinUnavailable):
+                tr._shell_recycle([self.temp / "a.txt"])
+        self.assertEqual(seen.ops, [])
+
+    @unittest.skipUnless(os.name == "nt", "Windows only")
+    def test_an_aborted_operation_is_reported(self) -> None:
+        _seen, shell32 = self.fake_shell32(aborted=True)
+        with mock.patch("ctypes.WinDLL", return_value=shell32):
+            with self.assertRaises(tr.RecycleBinUnavailable):
+                tr._shell_recycle([self.temp / "a.txt"])
+
+    def test_only_the_games_own_files_are_deleted(self) -> None:
+        installed = tr.install_file(GAME, write_translation(self.temp / "fr.txt"))
+        stray = self.temp / "elsewhere.txt"
+        stray.write_text("x", encoding="utf-8")
+        calls: list = []
+        deleted, problems = tr.delete_installed(GAME, [installed, stray], shell=fake_recycle_bin(calls))
+        self.assertEqual(deleted, [installed])
+        self.assertEqual(calls, [[installed]])
+        self.assertTrue(stray.is_file())
+        self.assertIn("not an installed translation", problems[0])
+
+
+AUTOSAVE_WAIT = w.AUTOSAVE_MS / 1000 + 0.3
 
 
 class RememberedChoiceTests(TempTranslations):

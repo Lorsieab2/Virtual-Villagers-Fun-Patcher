@@ -37,6 +37,19 @@ class FileTests(unittest.TestCase):
         data = fmt.dumps(tf).encode(encoding) if encoding != "utf-16" else fmt.dumps(tf).encode("utf-16")
         return fmt.parse(fmt.decode_bytes(data))
 
+    def test_carriage_returns_round_trip_exactly(self):
+        # Patch text with Windows line breaks (CR LF) or a lone CR: the cell keeps every byte, so the
+        # row's key (made from the exact English) still matches when the file is read back.
+        for english in ("Line one\r\nLine two", "Ends with CR\r", "a\r\rb\nc"):
+            with self.subTest(english=english):
+                self.assertEqual(fmt.unescape(fmt.escape(english)), english)
+                self.assertNotIn("\r", fmt.escape(english))
+                row = fmt.Row(fmt.make_key("vvfp.test", "cr", english), english)
+                tf = fmt.template_file([row], TITLE, "Français", "fr", "Test Translator")
+                back = self.roundtrip(tf)
+                self.assertEqual([r.english for r in back.rows if r.key == row.key], [english])
+        self.assertEqual(fmt.unescape("a\\rb"), "a\rb")
+
     def test_written_with_bom_and_read_back(self):
         tf = sample({"Hello": "Bonjour\tà tous\n\\ fin"})
         with tempfile.TemporaryDirectory() as tmp:

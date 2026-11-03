@@ -166,6 +166,9 @@ class ReleasesLinkTests(unittest.TestCase):
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
+               # Unicode 18.0: the character properties, grapheme clusters and normalization every version-
+               # dependent check reads (v1.35.90).
+               "vv_unicode18",
                # Long names: the whole name of a name longer than its field, and older logs' '?' names
                # rewritten by Repair Saves & Logs (v1.35.89).
                "vv_long_names", "vv_legacy_names",
@@ -199,7 +202,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_picture_studio_everything", "vv_pictures_assets", "vv_jpeg", "vv_assets_vv1", "vv_assets_vv2",
                "vv_assets_vv3", "vv_assets_vv4", "vv_assets_vv5",
                # Translations (the owner, 2026-11-01): the window, the game side and the shared file format.
-               "vv_translations_window", "vv_translations", "vv_translation_format"}
+               "vv_translations_window", "vv_translations", "vv_translation_format", "vv_translations_github"}
         allowed = set(sys.stdlib_module_names) | own
         self.assertEqual(self._imported() - allowed, set())
         # Every one of them ships in the release zip: a module the patcher imports but the zip leaves
@@ -439,8 +442,16 @@ class ReleasesLinkTests(unittest.TestCase):
             with self.subTest(module=module):
                 # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
                 # every byte kept.  vv_game_text imports only the standard library.
-                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import - {"vv_game_text"}, set())
+                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import - {"vv_game_text", "vv_unicode18"},
+                                 set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
+        own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
+                       for alias in node.names}
+        own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)
+                        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0}
+        # The games' text rule reads Unicode 18.0 (v1.35.90), which imports only the standard library.
+        self.assertEqual(own_imports - set(sys.stdlib_module_names), {"vv_unicode18"})
+        tree = ast.parse((ROOT / "src" / "vv_unicode18.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
                        for alias in node.names}
         own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)

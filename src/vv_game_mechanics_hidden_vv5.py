@@ -54,7 +54,8 @@ STORY = "vv5_story_cheat_upgrades"
 ORIGINS = "vv5_enable_origins_exclusive_features"
 DIFFICULTY = "vv5_difficulty_settings"
 CLICKABLE_TIPS = "vv5_clickable_tips"
-PATCHES = (CLICKABLE_TIPS, DIFFICULTY, ORIGINS, STORY)
+COPY_PASTE = "vv5_copy_paste"
+PATCHES = (CLICKABLE_TIPS, DIFFICULTY, ORIGINS, STORY, COPY_PASTE)
 # Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
 DEFAULT_OFF: frozenset[str] = frozenset()
 
@@ -212,7 +213,7 @@ def _patcher() -> list[Entry]:
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event and Choose Time Skip Amount, and makes every Origins Upgrade "
             "cost 0 tech points"), C, feature=STORY),
-    ]
+    ] + [hidden.copy_paste_entry(5)]
 
 
 def entries() -> list[Entry]:

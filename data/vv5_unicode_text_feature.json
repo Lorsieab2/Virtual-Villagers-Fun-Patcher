@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Render Unicode with In-Game Fonts",
-  "description": "Lets the game draw, measure and accept ANY character -- accented letters, Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew (joined and right to left), Indian scripts, cuneiform, symbols and colour emoji -- in the game's own two fonts (the big Burweed story font and the small Arial Bold font). New Believers' fonts hold ASCII and the Latin-1 letters; every other Windows-1252 character is added to the fonts in their own style when the game starts (from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface: Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in), and every other character is made the first time it is shown, in the font's size, baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed). Names, the Details screen, popups, dialogs and every other text use them with their real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. Typing: every text box -- the tribe name, villager names on the Details screen, epitaphs -- takes any character Windows sends (dead keys, Alt codes, the Windows emoji panel, an input method for Japanese or Chinese), each stored whole or not at all, and Backspace erases a whole character (a whole emoji, flag or accented letter). Long names, everywhere: every name box takes names up to 1,200 bytes (up to 1,200 plain letters; fewer when letters need more bytes): the tribe name, villager names on the Details screen, epitaphs; Rename Tribe takes the same. It is one limit, shared with the other Fun Patchers. Characters are counted as you see them (a letter with its accents, an emoji with its skin tone or a flag is one), and Backspace removes one whole character. A long name scrolls in its box while you type it. The save itself is not changed: a name that fits its field (a villager's name 23 bytes, the tribe name 19) is kept there exactly as before; a longer one is kept there as its short form (its start and a mark, with a number when two would start alike) and the whole name is kept beside the save, in Virtual Villagers Fun Patcher\\Save <n>\\Data\\Long Names. The game shows the whole name wherever it shows that name. Back Up Saves, Restore Saves and Copy Player Slot carry the Long Names files with the saves. With both settings off the game still loads and plays such a save and shows the short form. Characters are stored as UTF-8 (a Western European letter keeps its one Windows-1252 byte), so every older name reads as before; the base game and older patchers show other characters as odd letters but never break. **On by default and in Owner's Defaults.** **Cannot be used with \"Use Unicode Font (overrides in-game fonts)\" (ticking one unticks the other).** **Needs \"Full Names on the Details Screen\" (ticked with it): its Details box keeps the whole stored name, so opening a villager's Details and closing it never changes a name.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Unicode Text.dll\", started by VVFP Startup.dll; the game's own pictures and saves are never changed, and no font is shipped.",
+  "description": "Lets the game draw, measure and accept ANY character -- accented letters, Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew (joined and right to left), Indian scripts, cuneiform, symbols and colour emoji -- in the game's own two fonts (the big Burweed story font and the small Arial Bold font). New Believers' fonts hold ASCII and the Latin-1 letters; every other Windows-1252 character is added to the fonts in their own style when the game starts (from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface: Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in), and every other character is made the first time it is shown, in the font's size, baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed, then the bundled open fonts: Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont and Unifont Upper, and last Last Resort, so every one of Unicode 18.0's assigned characters draws, even ones no Windows font has). Names, the Details screen, popups, dialogs and every other text use them with their real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. Typing: every text box -- the tribe name, villager names on the Details screen, epitaphs -- takes any character Windows sends (dead keys, Alt codes, the Windows emoji panel, an input method for Japanese or Chinese), each stored whole or not at all, and Backspace erases a whole character (a whole emoji, flag or accented letter). Long names, everywhere: every name box takes names up to 1,200 bytes (up to 1,200 plain letters; fewer when letters need more bytes): the tribe name, villager names on the Details screen, epitaphs; Rename Tribe takes the same. It is one limit, shared with the other Fun Patchers. Characters are counted as you see them (a letter with its accents, an emoji with its skin tone or a flag is one), and Backspace removes one whole character. A long name scrolls in its box while you type it. The save itself is not changed: a name that fits its field (a villager's name 23 bytes, the tribe name 19) is kept there exactly as before; a longer one is kept there as its short form (its start and a mark, with a number when two would start alike) and the whole name is kept beside the save, in Virtual Villagers Fun Patcher\\Save <n>\\Data\\Long Names. The game shows the whole name wherever it shows that name. Back Up Saves, Restore Saves and Copy Player Slot carry the Long Names files with the saves. With both settings off the game still loads and plays such a save and shows the short form. Characters are stored as UTF-8 (a Western European letter keeps its one Windows-1252 byte), so every older name reads as before; the base game and older patchers show other characters as odd letters but never break. **On by default and in Owner's Defaults.** **Cannot be used with \"Use Unicode Font (overrides in-game fonts)\" (ticking one unticks the other).** **Needs \"Full Names on the Details Screen\" (ticked with it): its Details box keeps the whole stored name, so opening a villager's Details and closing it never changes a name.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is \"VVFP Unicode Text.dll\", started by VVFP Startup.dll; the game's own pictures and saves are never changed. **Bundles four open fonts, loaded privately by the game (never installed in Windows): GNU Unifont 18.0.01 (GPL-2.0-or-later with the font exception, or OFL-1.1) and Unifont Upper for nearly every assigned character, Noto Sans Cuneiform and Noto Serif Tangut (OFL-1.1), and Last Resort 18.000 (OFL-1.1), a placeholder block for anything still without a glyph; about 14 MB of fonts (in the patcher's files folder, in \"Unicode Fonts\", with their licence texts and sources), copied once per game folder, and not again when the folder already has identical files.**",
   "output_tag": "Unicode Text",
   "conflicts": [
     "vv5_unicode_font"
@@ -22,7 +22,7 @@
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion replaces each routine's first instructions at run time, all of them or none, only after verifying their stock bytes, and installs nothing on a different build.",
-    "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed and nothing of the game's art and no font is shipped; letters are made in memory from the player's own Windows fonts.",
+    "The game's pictures (Images\\ldwBurweed27.png, Images\\ldwarialbold.png) are never changed and nothing of the game's art is shipped; letters are made in memory from the player's own Windows fonts and, for what they lack, from the bundled open fonts (Unicode Fonts folder), which are added to the game's process only (FR_PRIVATE) and never installed in Windows; a missing or unreadable font file only leaves its step out.",
     "A save's records only ever hold what fits their fields: every stock copy of a name sees the short form, never more bytes than the stock game wrote. Nothing is cut inside a character.",
     "A fault in any detour falls back to the game's own routine with the game's own text."
   ],
@@ -30,7 +30,62 @@
     {
       "source": "assets/unicode_text/VVFP Unicode Text.dll",
       "destination": "VVFP Unicode Text.dll",
-      "sha256": "0E6CEB3EE562E790713203E687B5B73CEF4001A3B769161431EF595BB39ECF54"
+      "sha256": "846B04285A44C101AF08CCC411751686EA7C26DAD1422995063C58B24D043858"
+    },
+    {
+      "source": "assets/unicode_fonts/NotoSansCuneiform-Regular.otf",
+      "destination": "Unicode Fonts/NotoSansCuneiform-Regular.otf",
+      "sha256": "AC997E70013545B311A1703EACD3D8DEA080B7B9E17924A69391A6F568B9C023"
+    },
+    {
+      "source": "assets/unicode_fonts/NotoSerifTangut-Regular.otf",
+      "destination": "Unicode Fonts/NotoSerifTangut-Regular.otf",
+      "sha256": "CA10571246BDCE735FAC2698E875D86ED73354C76C650BB92C4D7CB43973AED6"
+    },
+    {
+      "source": "assets/unicode_fonts/unifont-18.0.01.otf",
+      "destination": "Unicode Fonts/unifont-18.0.01.otf",
+      "sha256": "88D0A14D4AA9A96419720B39BA5DA921A59560D76D4EC7D523ACC06ED85CD3C2"
+    },
+    {
+      "source": "assets/unicode_fonts/unifont_upper-18.0.01.otf",
+      "destination": "Unicode Fonts/unifont_upper-18.0.01.otf",
+      "sha256": "472201E45A050BFF4C7658208B8C73E34EBCE3764B287A5A46C7774038EF9391"
+    },
+    {
+      "source": "assets/unicode_fonts/LastResortHE-Regular.ttf",
+      "destination": "Unicode Fonts/LastResortHE-Regular.ttf",
+      "sha256": "CB7C2262CB86A33E7BDFABD0A51746E738B0DD10924126C4530C414C5FC7E4B6"
+    },
+    {
+      "source": "assets/unicode_fonts/NotoSansCuneiform-OFL-1.1.txt",
+      "destination": "Unicode Fonts/NotoSansCuneiform-OFL-1.1.txt",
+      "sha256": "83E16AED35737EA80911A82938AD4BFE762FDE24928010C2C80D21ECE07BEC14"
+    },
+    {
+      "source": "assets/unicode_fonts/NotoSerifTangut-OFL-1.1.txt",
+      "destination": "Unicode Fonts/NotoSerifTangut-OFL-1.1.txt",
+      "sha256": "BD8B32C064BE2225D55F878A689063C6F169CCD9E2792D7051F0D74CF4816F1B"
+    },
+    {
+      "source": "assets/unicode_fonts/Unifont-OFL-1.1.txt",
+      "destination": "Unicode Fonts/Unifont-OFL-1.1.txt",
+      "sha256": "869692AF094C57FB7258C57FE26820C759319603321D0FFEB278DE3651763DED"
+    },
+    {
+      "source": "assets/unicode_fonts/Unifont-GPL-2.0-COPYING.txt",
+      "destination": "Unicode Fonts/Unifont-GPL-2.0-COPYING.txt",
+      "sha256": "CD2785C2B8E0A01D203560265B2D2D47CDB1401D2707D25918AC5531BCDBA947"
+    },
+    {
+      "source": "assets/unicode_fonts/LastResort-OFL-1.1.txt",
+      "destination": "Unicode Fonts/LastResort-OFL-1.1.txt",
+      "sha256": "FC8FC512B27846BDB0D6645BED8069AC87EA599548B58A8D04BC3B0EA705A9C4"
+    },
+    {
+      "source": "assets/unicode_fonts/SOURCES.json",
+      "destination": "Unicode Fonts/SOURCES.json",
+      "sha256": "F53A5CD11CDB0317392B9792FE0BDFD0A8183DF0DF3522F904D764754A24D8D5"
     }
   ],
   "patches": [],

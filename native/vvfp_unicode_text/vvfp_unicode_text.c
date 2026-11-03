@@ -88,6 +88,7 @@ static int g_gdi_state;                   /* 0 not opened, 1 open, -1 failed */
 static int g_installed;
 static volatile LONG g_fonts_extended;    /* how many fonts were given letters (for tests) */
 
+static HINSTANCE g_self;            /* this companion (DllMain) */
 #include "runtime_glyphs.inc"
 #include "long_names.inc"
 #include "text_hooks.inc"
@@ -348,7 +349,6 @@ int __stdcall VvfpUnicodeTextOwnDraws(void) {
     return (int)g_own_draws;
 }
 
-static HINSTANCE g_self;
 
 /* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in the
    patcher's files folder; UTF-8; the patcher writes it).  First line: the face (Segoe UI when there is none).

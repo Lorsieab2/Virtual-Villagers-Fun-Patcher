@@ -1,0 +1,86 @@
+{
+  "version": "18.0.0",
+  "note": "The Unicode Character Database files these tables were generated from (scripts/build_unicode18_tables.py). The files themselves are not shipped.",
+  "sources": {
+    "ucd/UnicodeData.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/UnicodeData.txt",
+      "sha256": "0736451DE439AE7BAF1425136617DA495E09EE5AFBE6E394374DB7009EA08950",
+      "bytes": 2243593
+    },
+    "ucd/DerivedCoreProperties.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/DerivedCoreProperties.txt",
+      "sha256": "09C928886A178FCAFD93C29E4BD59073A058E5A100B716D425CB563AB50F68C9",
+      "bytes": 1159889
+    },
+    "ucd/DerivedNormalizationProps.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/DerivedNormalizationProps.txt",
+      "sha256": "98AC7F67D985FE781E317F6182E885E94CABB0C314769E6DD73E48B226931CCD",
+      "bytes": 1396877
+    },
+    "ucd/CompositionExclusions.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/CompositionExclusions.txt",
+      "sha256": "C759B100E9AE8960AE6B50FC5765950A7581FD9F30D4EF95F68F25A6D97E818E",
+      "bytes": 9007
+    },
+    "ucd/EastAsianWidth.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/EastAsianWidth.txt",
+      "sha256": "A0CF29EACD00CFCAEC4381C6B7C281685F18DBB4E7FF82B4076CCB342CA839AA",
+      "bytes": 204705
+    },
+    "ucd/Scripts.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/Scripts.txt",
+      "sha256": "0071FD81B6AEAE25F6E8BCE8EFEC3066A6476A91B49BDB2F52DC76E817862A6A",
+      "bytes": 196089
+    },
+    "ucd/Blocks.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/Blocks.txt",
+      "sha256": "A58F8D322F3C5E254F9F97B1CBF76A454A7E02DE6AC35619A5E4F27AAABFD553",
+      "bytes": 11906
+    },
+    "ucd/PropList.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/PropList.txt",
+      "sha256": "F438F532E8737BB8A2702126CDF9C4AF5E357C58C7ACF9D9EB2FC7C1A1D955D6",
+      "bytes": 149040
+    },
+    "ucd/extracted/DerivedBidiClass.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/extracted/DerivedBidiClass.txt",
+      "sha256": "D9E23222522551348EA1CCFBB4F62EFBF98982AFB95840F8959C08ED992C5607",
+      "bytes": 176412
+    },
+    "ucd/auxiliary/GraphemeBreakProperty.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/auxiliary/GraphemeBreakProperty.txt",
+      "sha256": "0839DCB79E4AC639ECD538B1ABF7C9D22E3F9DD265B7E182D33627AA4D75B45A",
+      "bytes": 100009
+    },
+    "ucd/auxiliary/GraphemeBreakTest.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/auxiliary/GraphemeBreakTest.txt",
+      "sha256": "B0CF047EE94485BBDC846DE2B902F5F8A815F6B674F9D04223CDDADD91C9DF31",
+      "bytes": 137090
+    },
+    "ucd/emoji/emoji-data.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/emoji/emoji-data.txt",
+      "sha256": "80D00F8E616A0EF27FD6B8DE3B758C06383B5D917E2977709578E68BAF733BF1",
+      "bytes": 108719
+    },
+    "emoji/emoji-sequences.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/emoji/emoji-sequences.txt",
+      "sha256": "1823DCE71F3DD9CB0AD1976797BAEE4FFBDC1909756F43AF8CE4C57F732843A4",
+      "bytes": 197000
+    },
+    "emoji/emoji-zwj-sequences.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/emoji/emoji-zwj-sequences.txt",
+      "sha256": "F61B5213BDF85A57741A9F903CB38D0F39A3D13BE6FF4ACA3B39857E859A9191",
+      "bytes": 277215
+    },
+    "ucd/NormalizationTest.txt": {
+      "url": "https://www.unicode.org/Public/18.0.0/ucd/NormalizationTest.txt",
+      "sha256": "25A50D816764B04ABFB4A646D3EB2B2A803284C3873D9A06757B94FE4513DDE3",
+      "bytes": 2863708
+    },
+    "license.txt": {
+      "url": "https://www.unicode.org/license.txt",
+      "sha256": "E7A93B009565CFCE55919A381437AC4DB883E9DA2126FA28B91D12732BC53D96",
+      "bytes": 1995
+    }
+  }
+}

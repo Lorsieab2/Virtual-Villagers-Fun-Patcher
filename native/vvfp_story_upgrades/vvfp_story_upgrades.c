@@ -69,6 +69,7 @@
 #include "../shared/per_save_data.h"       /* one folder per save */
 #include "../shared/patcher_files.h"
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
+#include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
 #include "story_targets.h"
 #include "story_custom.h"
 
@@ -578,6 +579,17 @@ static const ce_adapter *ce_adapter_for(int game) {
     case 5: return c5_adapter();
     default: return NULL;
     }
+}
+
+/* The game an adapter belongs to (its rows' keys: story_c<N>.C<N>_ADAPTER.<n>). */
+static int ce_adapter_game(const ce_adapter *a) {
+    int game;
+    for (game = 1; game <= 5; ++game) {
+        if (ce_adapter_for(game) == a) {
+            return game;
+        }
+    }
+    return 0;
 }
 
 static int story_record_count(int game) {

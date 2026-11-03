@@ -65,9 +65,10 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # build_change_appearance_extras_harness.ps1 (Undo, Reset to original and the Random buttons),
         # and build_original_look_harness.ps1 (the original looks behind Reset to original,
         # native/vvfp_original_look), and build_unicode_text_harness.ps1 (the in-game letters made
-        # by native/vvfp_unicode_text/glyphs.inc, compared with src/vv_font_glyphs.py), and
+        # by native/vvfp_unicode_text/glyphs.inc, compared with src/vv_font_glyphs.py),
+        # build_grapheme_harness.ps1 (the DLL's grapheme cutting against GraphemeBreakTest 18.0), and
         # build_colour_harness.ps1 (the Direct2D colour letters, native/vvfp_unicode_text/colour_fonts.inc).
-        self.assertEqual(len(SCRIPTS), 38, [path.name for path in SCRIPTS])
+        self.assertEqual(len(SCRIPTS), 39, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

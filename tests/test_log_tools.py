@@ -776,8 +776,12 @@ class GuiTests(unittest.TestCase):
         # ship beside it and are themselves stdlib-only.
         self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"),
                          {"vv_save_layout", "vv_titles_file", "vv_game_text"})
-        for module in ("vv_save_layout", "vv_titles_file", "vv_game_text"):
-            self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
+        # vv_game_text reads the Unicode 18.0 tables through vv_unicode18 (v1.35.90), also stdlib-only.
+        self.assertEqual(imports(ROOT / "src" / "vv_game_text.py"), {"vv_unicode18"})
+        self.assertEqual(imports(ROOT / "src" / "vv_unicode18.py"), set())
+        for module in ("vv_save_layout", "vv_titles_file", "vv_game_text", "vv_unicode18"):
+            if module not in ("vv_game_text",):
+                self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
             self.assertIn(f'"src/{module}.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
 
     def test_the_module_and_checker_ship_in_the_release(self) -> None:

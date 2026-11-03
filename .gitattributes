@@ -108,3 +108,11 @@ assets/vv4_masks/** -text
 # the second its files. See tests/test_shipped_dlls_have_no_test_hooks.py.
 /tests/test_dlls export-ignore
 /tests/test_dlls/** export-ignore
+
+# Unicode 18.0 tables (v1.35.90): binary, pinned by SHA-256
+data/unicode18/*.gz -text
+
+# The bundled fonts and their licence texts are pinned by raw SHA-256 (data/vvN_unicode_*_feature.json): exact bytes,
+# never rewritten by core.autocrlf (a Windows CI checkout turned the LF licence files into CRLF).
+assets/unicode_fonts/** -text
+assets/unicode_fonts/SOURCES.json text eol=lf

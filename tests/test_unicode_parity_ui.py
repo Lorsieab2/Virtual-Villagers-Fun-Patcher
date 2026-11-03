@@ -699,7 +699,7 @@ class DocsWording(unittest.TestCase):
         self.assertNotIn("Segoe UI Emoji in colour, Yu Gothic", readme)
         self.assertIn("Long names, everywhere. Every name box takes names up to 1,200 bytes", howto)
         self.assertIn("1,200 plain letters", howto)
-        self.assertIn("Name boxes take up to 1,200 bytes (1,200 plain letters", guide)
+        self.assertIn("Name boxes take up to 1,200 plain letters", guide)
 
     def test_the_setting_descriptions_say_characters_and_colour_emoji(self):
         import json
