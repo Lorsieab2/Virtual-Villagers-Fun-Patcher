@@ -335,6 +335,19 @@ const char *__stdcall VvfpLongName(const char *name) {
     return name;
 }
 
+/* For the save call of the statistics companion (native/shared/long_name.h vv_long_names_flush): every Long Names
+   record not yet kept is written now, before the game saves, so a long name set just before a quit is in its file. */
+int __stdcall VvfpLongNamesFlush(void) {
+    __try {
+        if (g_game != NULL) {
+            ln_flush_pending(1);
+            return 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 0;
+}
+
 /* Number of fonts given letters so far (for the tests' emulation). */
 int __stdcall VvfpUnicodeTextFonts(void) {
     return (int)g_fonts_extended;

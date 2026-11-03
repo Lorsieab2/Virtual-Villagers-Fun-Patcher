@@ -489,6 +489,44 @@ class InTheGame(unittest.TestCase):
                 run.draw_text("ldwarialbold", _bytes_of(POO))
                 self.assertEqual(mine(files[found], old_short, short, second, third), [old_short, short, second, third])
 
+    def test_a_long_name_is_in_its_file_at_once_and_a_pending_one_is_flushed_by_the_save_call(self):
+        """A long name must never be lost when the game quits right after it is set: the record is written the moment
+        the name leaves its box; one that could not be (no slot yet) is written by VvfpLongNamesFlush, which the
+        statistics companion calls at the game's own save call, before the writer runs."""
+        import vv_long_names as ln
+        FLUSHED = JAPANESE[::-1]               # its own start, so no other test's short form gets a number
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                n = int(game[2])
+                files = run.use_files(1)
+
+                def the_file():
+                    found = [p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}")]
+                    return files[found[0]] if found else b""
+
+                # 1. at once: set, and the save/quit path runs immediately (the export is the save call's flush)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of(FLUSHED + "金"))
+                short = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                self.assertEqual(ln.parse(the_file()).get(short), _bytes_of(FLUSHED + "金"))
+                # 2. no slot yet: pending, nothing in any file; the slot appears and the save call flushes it
+                before = dict(files)
+                run.use_files(0)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of(FLUSHED + "銀"))
+                pending = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                self.assertEqual(files, before)
+                run.use_files(1)
+                self.assertNotIn(pending, ln.parse(the_file()))              # no draw has happened: still pending
+                self.assertEqual(run.export("VvfpLongNamesFlush"), 1)      # the save call's flush
+                self.assertEqual(ln.parse(the_file()).get(pending), _bytes_of(FLUSHED + "銀"))
+
+    def test_the_statistics_save_call_flushes_the_long_names_before_the_writer(self):
+        source = (ROOT / "native" / "statistics_export" / "statistics_export.c").read_text(encoding="utf-8")
+        flush = source.index("vv_long_names_flush();")
+        self.assertLess(flush, source.index("result = ((save_writer)writer)("))
+        self.assertGreater(flush, source.index("SaveVillageStatistics("))
+
     def test_line_fitting_breaks_japanese_between_characters(self):
         for game, run in self.runs.items():
             if game == "vv1":

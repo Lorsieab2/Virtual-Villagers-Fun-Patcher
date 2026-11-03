@@ -287,7 +287,7 @@ static int __fastcall draw_hook(void *ctx, void *edx, const unsigned char *s, in
         const unsigned char *t = vt_source(s);
         void *f = font != NULL ? font : *(void **)((unsigned char *)ctx + 0x5C);
         if (g_ln_slot_pending) {
-            ln_flush_pending();
+            ln_flush_pending(0);
         }
         if (t != NULL && f != NULL && vt_needs_own(t, ut_end(t))) {
             vt_own_draw(ctx, t, x, y, colour, f);

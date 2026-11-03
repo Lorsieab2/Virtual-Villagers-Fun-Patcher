@@ -190,7 +190,7 @@ class TheRows(unittest.TestCase):
     def test_the_dll_exports_and_imports(self):
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpBoxInsertUtf8", "VvfpGlyphsUtf8", "VvfpLongName", "VvfpStartup",
+        self.assertEqual(names, ["VvfpBoxInsertUtf8", "VvfpGlyphsUtf8", "VvfpLongName", "VvfpLongNamesFlush", "VvfpStartup",
                                  "VvfpUnicodeTextFonts", "VvfpUnicodeTextKey", "VvfpUnicodeTextOwnDraws",
                                  "VvfpUnicodeTextUnits"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}

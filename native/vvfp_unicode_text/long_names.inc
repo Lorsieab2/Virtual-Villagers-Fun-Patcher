@@ -529,12 +529,13 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
     out[k] = 0;
 }
 
-/* Pairs made before the save had a slot: written once it has one. */
-static void ln_flush_pending(void) {
+/* Pairs not yet kept (made before the save had a slot, or a write that failed): written again.  At a draw at most
+   every 2 s; from the game's own save call (VvfpLongNamesFlush) at once, so a name set just before a quit is never lost. */
+static void ln_flush_pending(int force) {
     static DWORD last_try;
     DWORD now = GetTickCount();
     int i;
-    if (!g_ln_slot_pending || vv_current_save_slot(g_game_number, 0) == 0 || now - last_try < 2000) {
+    if (!g_ln_slot_pending || vv_current_save_slot(g_game_number, 0) == 0 || (!force && now - last_try < 2000)) {
         return;
     }
     last_try = now;
