@@ -109,6 +109,5 @@ assets/vv4_masks/** -text
 /tests/test_dlls export-ignore
 /tests/test_dlls/** export-ignore
 
-# Unicode 18.0 tables and bundled fonts (v1.35.90): binary, pinned by SHA-256
+# Unicode 18.0 tables (v1.35.90): binary, pinned by SHA-256
 data/unicode18/*.gz -text
-assets/unicode_fonts/** -text
