@@ -451,6 +451,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_text_skip = g->text_skip;
     g_text_post = g->text_post;
     g_width = (vt_width_fn)t_width;
+    g_ref_width = vt_reference_width;
     g_draw = (vt_draw_fn)t_draw;
     g_linefit = (vt_linefit_fn)t_linefit;
     g_nbyte = (vt_nbyte_fn)t_nbyte;

@@ -271,10 +271,26 @@ static void rg_face_fit(int face, const rg_font *f) {
     }
 }
 
+/* Use Unicode Font: the chosen face's em is fitted so that RG_FIT_REFERENCE is as wide as the game font draws it
+   (UNICODE_SPEC section 1, VF1's FitChosenFont), kept within 60% to 130% of the game font's own em.  The game
+   font's own width comes from the game's width routine (g_ref_width, set once the hooks are installed). */
+static int (*g_ref_width)(unsigned char *impl);
+static const WCHAR RG_FIT_REFERENCE[] = L"The quick brown fox jumps over the lazy dog 0123456789";
+static int rg_fit_em(int face, const rg_font *f, int own);
+
+static int rg_is_override_face(int face) {
+    return g_override && g_faces[face].weight == 700
+           && lstrcmpiW(g_faces[face].face, g_override_face[0] ? g_override_face : L"Segoe UI") == 0;
+}
+
 static int rg_ppem(int face, const rg_font *f) {
     int cap = f->m.baseline - f->m.cap_top, ppem;
     rg_face_fit(face, f);
     ppem = g_faces[face].cap_em > 0 ? (cap * 1000 + g_faces[face].cap_em / 2) / g_faces[face].cap_em : cap;
+    if (rg_is_override_face(face)) {
+        /* the game font's own em: the one a face with Arial's capitals (716 per 1000 em) has at this cap height */
+        ppem = rg_fit_em(face, f, (cap * 1000 + 358) / 716);
+    }
     return ppem < 4 ? 4 : ppem > 200 ? 200 : ppem;
 }
 
@@ -498,6 +514,34 @@ static int rg_utf16(const unsigned char *s, int len, WCHAR *out, int cap) {
         }
     }
     return n;
+}
+
+/* The em at which RG_FIT_REFERENCE is as wide in `face` as the game font draws it, within 60%..130% of `own`; `own`
+   when the game's width is not known or the face lacks a letter of the sentence.  Worked out once per face and font. */
+static int rg_fit_em(int face, const rg_font *f, int own) {
+    static struct { int face; const rg_font *font; int em; } cache[32];
+    static int used;
+    int i, game, adv = 0, em, lo, hi;
+    for (i = 0; i < used; ++i) {
+        if (cache[i].face == face && cache[i].font == f) {
+            return cache[i].em;
+        }
+    }
+    em = own;
+    game = g_ref_width != NULL ? g_ref_width(f->impl) : 0;
+    if (game > 0 && rg_shape(face, 200, RG_FIT_REFERENCE, lstrlenW(RG_FIT_REFERENCE), NULL, &adv) && adv > 0) {
+        em = (int)(((__int64)200 * game * 2 + adv) / (2 * (__int64)adv));
+        lo = own * 6 / 10;
+        hi = own * 13 / 10;
+        em = em < lo ? lo : em > hi ? hi : em;
+    }
+    if (used < 32 && g_ref_width != NULL) {
+        cache[used].face = face;
+        cache[used].font = f;
+        cache[used].em = em;
+        ++used;
+    }
+    return em;
 }
 
 /* An emoji (Extended_Pictographic, keycaps, emoji presentation): Segoe UI Emoji is tried before the

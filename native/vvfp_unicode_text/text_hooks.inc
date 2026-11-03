@@ -176,6 +176,16 @@ static int vt_runs(void *font, const unsigned char *s, const unsigned char *end,
     return 1;
 }
 
+/* The game's own width of Use Unicode Font's reference sentence in a font (rg_fit_em): its width routine, called
+   with the font handle whose +4 is the font object, for plain ASCII (so the game's own letters measure it). */
+static int vt_reference_width(unsigned char *impl) {
+    static const unsigned char REFERENCE[] = "The quick brown fox jumps over the lazy dog 0123456789";
+    void *outer[2];
+    outer[0] = NULL;
+    outer[1] = impl;
+    return g_width != NULL ? g_width(outer, NULL, REFERENCE, 1.0f) : 0;
+}
+
 typedef struct vt_measure { float scale; int total; int spacing; } vt_measure;
 
 static int vt_measure_run(void *state, vt_run *run) {

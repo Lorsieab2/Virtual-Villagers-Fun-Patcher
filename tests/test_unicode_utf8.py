@@ -532,6 +532,30 @@ class UseUnicodeFont(unittest.TestCase):
                 pictures = set(run.pictures.values())
                 self.assertFalse({b[0] for b in blits} & pictures)
 
+    def test_the_chosen_face_is_fitted_so_the_reference_sentence_is_as_wide_as_the_game_font(self):
+        """UNICODE_SPEC section 1 (VF1 FitChosenFont): each game font keeps its line, its em is fitted so that
+        "The quick brown fox ..." is as wide as the game font draws it."""
+        import unicode_utf8_emulation as ue
+        tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
+        reference = b"The quick brown fox jumps over the lazy dog 0123456789"
+        for game in GAMES:
+            stock = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), tables)
+            chosen = ue.TextRun(game, (f"{game}_unicode_font", f"{game}_details_full_names"), tables)
+            for font in ("ldwBurweed27", "ldwarialbold"):
+                with self.subTest(game=game, font=font):
+                    own = stock.width_of(font, reference)
+                    fitted = chosen.width_of(font, reference)
+                    self.assertGreater(own, 0)
+                    self.assertLess(abs(fitted - own), own * 0.15, (own, fitted))
+
+    def test_the_fit_is_kept_within_60_to_130_percent_of_the_fonts_own_em(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "runtime_glyphs.inc").read_text(encoding="utf-8")
+        self.assertIn("lo = own * 6 / 10;", source)
+        self.assertIn("hi = own * 13 / 10;", source)
+        self.assertIn('L"The quick brown fox jumps over the lazy dog 0123456789"', source)
+        hooks = (ROOT / "native" / "vvfp_unicode_text" / "text_hooks.inc").read_text(encoding="utf-8")
+        self.assertIn('"The quick brown fox jumps over the lazy dog 0123456789"', hooks)
+
 
 if __name__ == "__main__":
     unittest.main()
