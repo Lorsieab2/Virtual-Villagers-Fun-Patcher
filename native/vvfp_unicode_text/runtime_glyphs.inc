@@ -30,7 +30,7 @@
 #define RG_MAX_FONTS 16
 #define RG_CACHE 8192
 #define RG_MAX_UNIT 1024
-#define RG_FACES 24
+#define RG_FACES 48
 
 typedef struct rg_page {
     unsigned char impl[0x420];      /* a font object of the game's own class */
@@ -103,10 +103,18 @@ static WCHAR g_override_face[64];   /* "Use Unicode Font": the chosen face ("" =
 static int g_override;
 static volatile LONG g_units_made;  /* for the tests */
 
+/* The fallback chain, in the shared Unicode spec's order (UNICODE_SPEC section 3): Historic, Symbol and Emoji
+   before the CJK fonts; a face that is not installed is skipped (rg_present) and a face is used for a unit only
+   when it has every code point of it (rg_shape).  "Yu Gothic" / "Microsoft YaHei" (without UI) stay after
+   their UI faces, so nothing this build drew before is lost. */
 static const WCHAR *const RG_CHAIN[] = {
-    L"Segoe UI", L"Segoe UI Historic", L"Segoe UI Symbol", L"Segoe UI Emoji", L"Yu Gothic", L"Microsoft YaHei",
-    L"Malgun Gothic", L"Nirmala UI", L"Ebrima", L"Noto Sans", L"Noto Sans CJK JP", L"Noto Sans Symbols 2",
-    L"Noto Sans Cuneiform", L"Noto Color Emoji", NULL
+    L"Segoe UI", L"Segoe UI Historic", L"Segoe UI Symbol", L"Segoe UI Emoji",
+    L"Yu Gothic UI", L"Yu Gothic", L"Meiryo", L"Microsoft YaHei UI", L"Microsoft YaHei",
+    L"Microsoft JhengHei UI", L"Malgun Gothic", L"SimSun-ExtB", L"Nirmala UI", L"Ebrima", L"Gadugi",
+    L"Leelawadee UI", L"Myanmar Text", L"Javanese Text", L"Mongolian Baiti", L"Microsoft Himalaya",
+    L"Microsoft Yi Baiti", L"Microsoft New Tai Lue", L"Microsoft Tai Le", L"Microsoft PhagsPa", L"Sylfaen",
+    L"Cambria Math", L"Noto Sans", L"Noto Sans Symbols", L"Noto Sans Symbols 2", L"Noto Sans CJK JP",
+    L"Noto Sans CJK SC", L"Noto Sans Math", L"Noto Sans Cuneiform", L"Noto Color Emoji", NULL
 };
 
 static int rg_face_index(const WCHAR *face, int weight) {
