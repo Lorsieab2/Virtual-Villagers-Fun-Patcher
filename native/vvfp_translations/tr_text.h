@@ -376,6 +376,7 @@ typedef struct {
     tr_cp spec;              /* d i o u x X e E f g G c s p */
     int stars;               /* '*' width / precision: an int argument each, before the value */
     int wide;                /* the value takes 8 bytes (ll / I64 integers, every floating conversion) */
+    int lenid;               /* the length modifier (hh h ll l L I64 I32 I), -1 for none */
 } tr_conv;
 
 static int tr_conv_char(tr_cp c) {
@@ -401,6 +402,7 @@ static int tr_printf_at(const tr_cp *t, int n, int at, tr_conv *c) {
         c->spec = '%';
         c->stars = 0;
         c->wide = 0;
+        c->lenid = -1;
         return 1;
     }
     while (j < n && (t[j] == '-' || t[j] == '+' || t[j] == ' ' || t[j] == '#' || t[j] == '0')) {
@@ -444,6 +446,7 @@ static int tr_printf_at(const tr_cp *t, int n, int at, tr_conv *c) {
     c->spec = t[j];
     c->end = j + 1;
     c->stars = stars;
+    c->lenid = len;
     c->wide = (c->spec == 'e' || c->spec == 'E' || c->spec == 'f' || c->spec == 'g' || c->spec == 'G')
         || ((len == 2 || len == 5) && c->spec != 's' && c->spec != 'p' && c->spec != 'c');
     return 1;
@@ -509,31 +512,152 @@ static void tr_mask_subjects(const tr_cp *t, int n, tr_cp *out) {
     }
 }
 
-/* bare_percents(): is there a '%' that starts no conversion, in the masked text?  `scratch` holds n. */
-static int tr_bare_percent(const tr_cp *t, int n, tr_cp *scratch) {
-    int i = 0;
-    tr_conv c;
-    tr_mask_subjects(t, n, scratch);
-    while (i < n) {
-        if (scratch[i] == '%') {
-            if (!tr_printf_at(scratch, n, i, &c)) {
-                return 1;
-            }
-            i = c.end;
-            continue;
+/* ---- the "%" rule (Python Source / english_source / translation_tokens / runtime_text) ---------------
+   Only the tokens of a line's own English are placeholders: its printf conversions (those without the space
+   flag: a "95% of" is a "% o" only to printf) and "%%".  Any other '%' is plain text, so French "50 %" is fine.
+   When the line has a placeholder (the program passes it through printf), every plain '%' is written "%%". */
+
+/* Does the conversion at c carry the space flag? */
+static int tr_space_flag(const tr_cp *t, const tr_conv *c) {
+    int j = c->start + 1;
+    while (j < c->end && (t[j] == '-' || t[j] == '+' || t[j] == ' ' || t[j] == '#' || t[j] == '0')) {
+        if (t[j] == ' ') {
+            return 1;
         }
-        ++i;
+        ++j;
     }
     return 0;
 }
 
-/* Is there a '%' outside "{%N:" heads at all?  `scratch` holds n. */
-static int tr_any_percent(const tr_cp *t, int n, tr_cp *scratch) {
-    int i;
-    tr_mask_subjects(t, n, scratch);
-    for (i = 0; i < n; ++i) {
-        if (scratch[i] == '%') {
-            return 1;
+/* Python _signature(): the kind of value (i is d), its size and the arguments it takes. */
+static int tr_same_value(const tr_conv *a, const tr_conv *b) {
+    tr_cp sa = a->spec == 'i' ? 'd' : a->spec, sb = b->spec == 'i' ? 'd' : b->spec;
+    return sa == sb && a->stars == b->stars && a->lenid == b->lenid;
+}
+
+/* A line's English: its conversions without the space flag, in order.  *format: the line has a placeholder
+   (a conversion, or "%%").  -1 when there are more than `cap`. */
+static int tr_source_convs(const tr_cp *en, int n, tr_conv *out, int cap, int *format) {
+    int i = 0, count = 0;
+    tr_conv c;
+    *format = 0;
+    while (i < n) {
+        if (en[i] == '%' && tr_printf_at(en, n, i, &c)) {
+            if (c.percent) {
+                *format = 1;
+            } else if (!tr_space_flag(en, &c)) {
+                if (count >= cap) {
+                    return -1;
+                }
+                out[count++] = c;
+                *format = 1;
+            }
+            i = c.end;
+        } else {
+            ++i;
+        }
+    }
+    return count;
+}
+
+/* Source.token_at(): 2 for "%%", 1 for a placeholder of the English (c is it), 0 for a plain '%'.  `masked` is
+   the text with its "{%N:" heads made '#'. */
+static int tr_token_at(const tr_cp *masked, int n, int i, const tr_cp *en, const tr_conv *src, int nsrc,
+                       tr_conv *c) {
+    int k;
+    if (!tr_printf_at(masked, n, i, c)) {
+        return 0;
+    }
+    if (c->percent) {
+        return 2;
+    }
+    for (k = 0; k < nsrc; ++k) {
+        int len = src[k].end - src[k].start, m;
+        if (len == c->end - c->start) {
+            for (m = 0; m < len && en[src[k].start + m] == masked[c->start + m]; ++m) {
+            }
+            if (m == len) {
+                return 1;
+            }
+        }
+    }
+    if (!tr_space_flag(masked, c)) {
+        for (k = 0; k < nsrc; ++k) {
+            if (tr_same_value(&src[k], c)) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+/* translation_tokens(): the placeholders of a translation, in order, "%%" left out.  -1 when more than cap. */
+static int tr_translation_tokens(const tr_cp *t, int n, tr_cp *masked, const tr_cp *en, const tr_conv *src,
+                                 int nsrc, tr_conv *out, int cap) {
+    int i = 0, count = 0;
+    tr_conv c;
+    tr_mask_subjects(t, n, masked);
+    while (i < n) {
+        int token;
+        if (masked[i] != '%') {
+            ++i;
+            continue;
+        }
+        token = tr_token_at(masked, n, i, en, src, nsrc, &c);
+        if (token == 0) {
+            ++i;
+            continue;
+        }
+        if (token == 1) {
+            if (count >= cap) {
+                return -1;
+            }
+            out[count++] = c;
+        }
+        i = c.end;
+    }
+    return count;
+}
+
+/* runtime_text(): `out` (room for 2n) gets the translation with each plain '%' written "%%"; its length.
+   A line with no placeholder in its English is handed on as it is. */
+static int tr_escape_percent(const tr_cp *t, int n, tr_cp *masked, const tr_cp *en, const tr_conv *src,
+                             int nsrc, int format, tr_cp *out) {
+    int i = 0, o = 0;
+    tr_conv c;
+    tr_mask_subjects(t, n, masked);
+    while (i < n) {
+        int token;
+        if (masked[i] != '%' || !format) {
+            out[o++] = t[i++];
+            continue;
+        }
+        token = tr_token_at(masked, n, i, en, src, nsrc, &c);
+        if (token == 0) {
+            out[o++] = '%';
+            out[o++] = '%';
+            ++i;
+        } else {
+            while (i < c.end) {
+                out[o++] = t[i++];
+            }
+        }
+    }
+    return o;
+}
+
+/* A conversion with no space flag in a select branch (a placeholder belongs outside the select). */
+static int tr_branch_conversion(const tr_cp *t, int n) {
+    int i = 0;
+    tr_conv c;
+    while (i < n) {
+        if (t[i] == '%' && tr_printf_at(t, n, i, &c)) {
+            if (!c.percent && !tr_space_flag(t, &c)) {
+                return 1;
+            }
+            i = c.end;
+        } else {
+            ++i;
         }
     }
     return 0;
@@ -919,12 +1043,8 @@ static int tr_parse_one(const tr_cp *t, int start, int end, tr_select *sel, tr_c
                 }
             }
             value = tr_strip(value);
-            {
-                tr_conv convs[1];
-                int cn = tr_conversions(value.p, value.n, convs, 1);
-                if (cn != 0 || tr_bare_percent(value.p, value.n, scratch)) {
-                    return 0;                              /* a conversion or '%' inside a branch */
-                }
+            if (tr_branch_conversion(value.p, value.n)) {
+                return 0;                                  /* a conversion inside a branch */
             }
             if (sel->count >= TR_MAX_BRANCHES) {
                 return 0;

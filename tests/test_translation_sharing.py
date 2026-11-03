@@ -121,7 +121,7 @@ def test_file_with_no_translated_line_is_refused(tmp_path):
 
 
 def test_mostly_broken_file_is_refused_a_few_errors_are_not(tmp_path):
-    broken = make_file(tmp_path / "broken.txt", translations=["Partie", "%d a appris", "Bienvenue", "50 %"])
+    broken = make_file(tmp_path / "broken.txt", translations=["Partie", "%d a appris", "Bienvenue", "50 {nom}"])
     assert not vt.check_file(broken, game=GAME).accepted
     some = make_file(tmp_path / "some.txt", translations=["Partie", "%d a appris", "Bienvenue à {village}", "Q"])
     result = vt.check_file(some, game=GAME)

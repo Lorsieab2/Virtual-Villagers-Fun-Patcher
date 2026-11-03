@@ -153,7 +153,7 @@ class TranslationsRuntimeTests(unittest.TestCase):
                 rows = [
                     row("table", str(a), ena, "OBERSETZT"),              # used
                     row("table", str(b), self.table_en(game, b), ""),    # empty: English
-                    row("table", str(c), enc, "zwei %d dinge"),          # placeholder added: error
+                    row("table", str(c), enc, "zwei {nom} dinge"),         # variable added: error
                     row("table", str(d), end, "x {%1: m=a}"),            # %1 but no conversion: error
                 ]
                 stale = F.Row(f"table/{a}~{F.english_hash('STALE ENGLISH')}", "STALE ENGLISH", "VEALT")
@@ -263,7 +263,7 @@ class TranslationsRuntimeTests(unittest.TestCase):
         ident = img.u32(base + idx * 16)
         name = img.cstring(img.u32(base + idx * 16 + 4))
         english = "%s found %d apples"
-        tr = "{%1: m=Il | f=Elle | o=Iel} (%s) a %d {%2: one=pomme | other=pommes}"
+        tr = "{%1: m=Il | f=Elle | o=Iel} (%s) a %d {%2: one=pomme | other=pommes} sur 50 %"
         notes = "%1 = villager (person); %2 = number (number)"
         tf = template(game, [row("sm", name, english, tr, notes)], code="fr")
         g = Game(game, self.exes[game], file_bytes(tf))
@@ -290,6 +290,8 @@ class TranslationsRuntimeTests(unittest.TestCase):
             self.assertIn(b"Lin", text)
             self.assertIn(expect, text)
             self.assertTrue(expect == b"pommes" or b"pommes" not in text)
+            # a plain "%" of the translation is handed to printf as "%%", so it shows one "%"
+            self.assertTrue(text.endswith(b"sur 50 %"), text)
 
     def _sprintf(self, game: int) -> int:
         return {3: 0x46EFCD, 4: 0x4716DB, 5: 0x47C046}[game]
@@ -513,6 +515,19 @@ class TranslationsRuntimeTests(unittest.TestCase):
                          "Kemala a gu\xe9ri 3 villageois".encode("cp1252"))
         self.assertEqual(g.translate(b"not a known string"), b"not a known string")
 
+    def test_a_plain_percent_in_the_companions_own_text_is_one_percent(self):
+        game = 1
+        tf = template(game, [
+            row("table", "1", self.table_en(game, 1), "x"),
+            row("vvfp.ui", "sale", "Sale", "50 % de remise"),
+            row("vvfp.ui", "cured", "%s cured %d villagers", "%s a guéri %d villageois (100 %)"),
+        ])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(g.translate(b"Sale"), "50 % de remise".encode("cp1252"))
+        self.assertEqual(g.translate(b"Kemala cured 3 villagers"),
+                         "Kemala a guéri 3 villageois (100 %)".encode("cp1252"))
+
     def test_translate_text_stable_pointer(self):
         game = 1
         tf = template(game, [row("vvfp.ui", "greeting", "Welcome", "Bienvenue")])
@@ -557,6 +572,8 @@ class RowCheckParityTests(unittest.TestCase):
             "plain": "Traduit",
             "empty": "",
             "percent-added": "100% sûr",
+            "french-percent": "50 % de réduction",
+            "percent-and-space-conversion": "100 % d",
             "good-select": "{%1: m=x | o=y}",                  # no %1 here: error (no conversion)
             "bad-escape-ok": "ligne\\ndeux",                   # fine
             "control-char": "bad\x07char",

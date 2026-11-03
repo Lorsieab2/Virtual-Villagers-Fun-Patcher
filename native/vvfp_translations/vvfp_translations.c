@@ -754,30 +754,44 @@ static int tr_check_row(const tr_row *row) {
     if (tr_has_email(row->tr, row->tr_n)) {
         return 0;
     }
+    {
+        /* The "%" rule: a '%' is a placeholder only when the line's own English has that token; in a line with a
+           placeholder every other '%' is written "%%" (the text the program is handed). */
+        int format = 0, escaped_n;
+        tr_cp *masked = (tr_cp *)tr_scratch((unsigned int)row->tr_n * 4u + 8u);
+        tr_cp *escaped = (tr_cp *)tr_scratch((unsigned int)row->tr_n * 8u + 8u);
+        tr_row *mut = (tr_row *)row;
+        if (masked == NULL || escaped == NULL) {
+            return 0;
+        }
+        g_en_nconv = tr_source_convs(row->en, row->en_n, g_en_conv, TR_MAX_CONVS, &format);
+        if (g_en_nconv < 0) {
+            return 0;
+        }
+        /* The patcher's own lines (vvfp.*) are filled by the companion from captured values, never by printf. */
+        escaped_n = tr_escape_percent(row->tr, row->tr_n, masked, row->en, g_en_conv, g_en_nconv,
+                                      format && row->source != TR_SRC_VVFP, escaped);
+        if (escaped_n != row->tr_n) {
+            mut->tr = escaped;
+            mut->tr_n = escaped_n;
+        }
+        masked = (tr_cp *)tr_scratch((unsigned int)row->tr_n * 4u + 8u);
+        if (masked == NULL) {
+            return 0;
+        }
+        tr_nconv = tr_translation_tokens(row->tr, row->tr_n, masked, row->en, g_en_conv, g_en_nconv,
+                                         tr_conv_list, TR_MAX_CONVS);
+    }
     if (!tr_parse_selects(row->tr, row->tr_n, &g_ptr)) {
         return 0;
     }
-    g_en_nconv = tr_conversions(row->en, row->en_n, g_en_conv, TR_MAX_CONVS);
-    tr_nconv = tr_conversions(row->tr, row->tr_n, tr_conv_list, TR_MAX_CONVS);
-    if (g_en_nconv < 0 || tr_nconv != g_en_nconv) {
+    if (tr_nconv < 0 || tr_nconv != g_en_nconv) {
         return 0;
     }
     for (i = 0; i < tr_nconv; ++i) {
-        tr_span a, b;
-        a.p = row->en + g_en_conv[i].start;
-        a.n = g_en_conv[i].end - g_en_conv[i].start;
-        b.p = row->tr + tr_conv_list[i].start;
-        b.n = tr_conv_list[i].end - tr_conv_list[i].start;
-        if (!tr_span_eq(a, b)) {
+        if (!tr_same_value(&g_en_conv[i], &tr_conv_list[i])) {
             return 0;
         }
-    }
-    if (g_en_nconv == 0 && !tr_any_percent(row->en, row->en_n, scratch)) {
-        if (tr_any_percent(row->tr, row->tr_n, scratch)) {
-            return 0;
-        }
-    } else if (tr_bare_percent(row->tr, row->tr_n, scratch)) {
-        return 0;
     }
     /* named variables: the same set */
     {

@@ -112,10 +112,14 @@ The English text's placeholders are a contract the translation must keep. Two ki
 - **printf conversions**: `%d`, `%i`, `%u`, `%s`, `%c`, `%x`, `%f`, with flags, width and precision
   (`%5.1f`, `%-3d`, `%02d`), and `%%` for a literal percent sign. The translation must contain **the same
   conversions in the same order** (the program passes the values in English order and cannot reorder
-  them). Write `%%` for a percent sign in such a line.
-- **No `%` where the English has none.** A program may pass any line through a printf-style formatter,
-  so a translation may contain `%` only when its English has printf conversions (and then only as a
-  conversion or `%%`). Write the word for "percent" instead.
+  them). A width or precision may change (`%d` -> `%3d`), but a conversion never gains the space flag alone
+  (`% d`).
+- **A `%` is a placeholder only when the line's own English has that token.** Any other `%` is plain
+  text, so French "2 %", "2 %" and "50 % de réduction" are fine. When the program passes the line
+  through printf as a format, the patcher writes such a plain `%` as `%%` in the text it hands over, so
+  the game shows one `%` (the extra bytes count toward the line's room). Writing `%%` yourself still works
+  where the English has a conversion; in a line the program does not format it shows two signs, and the
+  checker warns.
 - **Named variables**: `{name}`, `{count}`, `{village}`, etc. The translation must contain **every
   variable the English has, at least once, spelled exactly**, in any order. A variable not in the
   English is an error. Write `{{` and `}}` for literal braces.
