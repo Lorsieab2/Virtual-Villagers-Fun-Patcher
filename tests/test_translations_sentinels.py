@@ -331,5 +331,52 @@ class ContentMapTests(unittest.TestCase):
             del g
 
 
+class MigrateShadowedTests(unittest.TestCase):
+    """A translation on a row the template now leaves out is not lost (Codex, PR 693)."""
+
+    def setUp(self) -> None:
+        import vv_translation_format as fmt   # noqa: PLC0415
+        self.fmt = fmt
+        self.s, self.d = "vvfp/a.s6", "vvfp/a.s6.2"
+        self.rows = [fmt.Row(fmt.make_key("vvfp", "a.s6", "Origins Upgrades"), "Origins Upgrades", ""),
+                     fmt.Row(fmt.make_key("vvfp", "a.s6.2", "Origins Upgrades"), "Origins Upgrades", "")]
+        self.shadows = {self.rows[1].key: self.rows[0].key}
+
+    def file(self, survivor: str, duplicate: str):
+        tf = self.fmt.template_file(self.rows, "T", "L", "zz")
+        tf.rows[0].translation, tf.rows[1].translation = survivor, duplicate
+        return tf
+
+    def test_blank_survivor_takes_the_duplicates_translation(self) -> None:
+        tf = self.file("", "Mises a niveau")
+        self.assertEqual(vt.migrate_shadowed(tf, self.shadows), [])
+        new, _status = self.fmt.update(tf, [self.rows[0]])
+        self.assertEqual(new.rows[0].translation, "Mises a niveau")
+
+    def test_both_translated_keeps_the_survivor_and_warns(self) -> None:
+        tf = self.file("Garde", "Autre")
+        warnings = vt.migrate_shadowed(tf, self.shadows)
+        self.assertEqual(len(warnings), 1)
+        new, _status = self.fmt.update(tf, [self.rows[0]])
+        self.assertEqual(new.rows[0].translation, "Garde")
+
+    def test_same_translation_and_blank_duplicate_are_quiet(self) -> None:
+        for survivor, duplicate in (("Meme", "Meme"), ("Garde", ""), ("", "")):
+            tf = self.file(survivor, duplicate)
+            self.assertEqual(vt.migrate_shadowed(tf, self.shadows), [])
+            new, _status = self.fmt.update(tf, [self.rows[0]])
+            self.assertEqual(new.rows[0].translation, survivor)
+
+    @unittest.skipUnless(HAVE, SKIP)
+    def test_the_template_names_the_survivor_of_every_left_out_row(self) -> None:
+        exe = stock_exe(1)
+        rows = vt.template_rows(1, exe=exe)
+        keys = {r.row.key for r in rows}
+        self.assertGreater(len(rows.shadows), 100)
+        for removed, survivor in rows.shadows.items():
+            self.assertNotIn(removed, keys)
+            self.assertIn(survivor, keys)
+
+
 if __name__ == "__main__":
     unittest.main()

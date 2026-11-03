@@ -274,6 +274,35 @@ def content_shadowed(entry: dict, taken: set[str]) -> bool:
     return False
 
 
+class TemplateRows(list):
+    """The template's rows; `.shadows` maps the key of each row the template leaves out (content_shadowed) to the
+    key of the row that stays for the same English."""
+
+    shadows: dict
+
+
+def migrate_shadowed(tf: fmt.TranslationFile, shadows: dict) -> list[str]:
+    """Before a file is brought up to the template: a translation written on a row the template now leaves out
+    moves to the row that stays when that one is blank (a row left blank used to be skipped by the DLL, which then
+    used the translated duplicate).  A translated surviving row is never overwritten; when both are translated and
+    differ, the survivor is kept.  Returns a warning for each such difference."""
+    by_key = tf.by_key()
+    warnings = []
+    for removed, survivor in shadows.items():
+        gone, kept = by_key.get(removed), by_key.get(survivor)
+        if gone is None or not gone.translation:
+            continue
+        if kept is None:
+            kept = fmt.Row(survivor, gone.english, "", "")
+            tf.rows.append(kept)
+            by_key[survivor] = kept
+        if not kept.translation:
+            kept.translation = gone.translation
+        elif kept.translation != gone.translation:
+            warnings.append(f"{removed} was translated differently from {survivor}; {survivor} is kept")
+    return warnings
+
+
 def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> list[TemplateRow]:
     """Every row of the game's template, its English read from the player's own game (the patched copy when
     `folder` holds one) and the patcher's own text that game shows.  Raises FileNotFoundError when no
@@ -289,7 +318,8 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
     sm_xml = exe.parent / "Assets" / "sm.xml"
     english = game_english(number, exe, sm_xml)
     inv = load_inventory(number)
-    rows: list[TemplateRow] = []
+    rows: list[TemplateRow] = TemplateRows()
+    rows.shadows = {}
     for entry in inv["rows"]:
         stem = entry["stem"]
         if stem not in english:
@@ -304,13 +334,18 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
         rows.append(TemplateRow(fmt.Row(key, text, "", entry.get("notes", "")), rules, entry.get("context", "")))
     tag = f"vv{number}"
     taken = {content_key(r.row.english) for r in rows}
+    owner = {}
+    for r in rows:
+        owner.setdefault(content_key(r.row.english), r.row.key)
     for entry in load_patcher_strings():
         if tag not in entry.get("games", ()):
             continue
-        if content_shadowed(entry, taken):
-            continue
         source, _slash, ident = entry["stem"].partition("/")
         key = fmt.make_key(source, ident, entry["english"])
+        if content_shadowed(entry, taken):
+            rows.shadows[key] = owner[content_key(entry["english"])]
+            continue
+        owner.setdefault(content_key(entry["english"]), key)
         rules = _rules_for(entry)
         if source == "patch":
             # An exe patch's own text is replaced in place: within the English's own bytes (a longer one is

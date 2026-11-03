@@ -1764,6 +1764,8 @@ class TranslationsWindow:
             except (OSError, fmt.FormatError) as exc:
                 messagebox.showerror(TITLE, f"{target.name} cannot be read: {exc}", parent=self.top)
                 return None
+            for warning in tr.migrate_shadowed(old, getattr(rows, "shadows", {})):
+                messagebox.showwarning(TITLE, warning, parent=self.top)
             tf, status = fmt.update(old, [r.row for r in rows])
             changed = {key for key, value in status.items() if value == "changed"}
         else:
