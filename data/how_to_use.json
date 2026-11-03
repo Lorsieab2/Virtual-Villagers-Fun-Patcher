@@ -625,6 +625,16 @@
       ]
     },
     {
+      "ids": ["vv1_skip_all_intro", "vv2_skip_all_intro"],
+      "guide": [
+        "Nothing to click in the patcher: tick the patch and patch the game again.",
+        "Start a new village and name your tribe: the story pages now have a Skip All button at the bottom right.",
+        "Click it to end the story at once: you go straight to the help question with its Yes and No buttons.",
+        "Yes and No do exactly what they do at the end of the story; a click anywhere else still turns the page.",
+        "On by default. Needs no other patch. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",
