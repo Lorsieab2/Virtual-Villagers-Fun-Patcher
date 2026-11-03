@@ -66,7 +66,7 @@ STOCK_TEXT = 0x31002000                # a stand-in sm.xml string for the stock 
 def owners_defaults() -> tuple[str, ...]:
     from vv_fun_patcher_gui import owners_default_fun_patch_selection
     ids = [p.id for p in vfp.load_public_fun_patches()
-           if p.game_id == "vv5" and owners_default_fun_patch_selection(p.id)]
+           if p.game_id == "vv5" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and owners_default_fun_patch_selection(p.id)]
     return tuple(vfp.resolve_fun_patch_ids(ids, game_id="vv5"))
 
 

@@ -1136,7 +1136,7 @@ class ManifestTests(unittest.TestCase):
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
         feature_ids = [
-            patch.id for patch in load_fun_patches() if patch.game_id == "vv2"
+            patch.id for patch in load_fun_patches() if patch.game_id == "vv2" and patch.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS
             # every patch but each pair's alternative (Use Unicode Font), as Select All
             and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
         ]
@@ -2607,7 +2607,7 @@ class StockIntegrationTests(unittest.TestCase):
         selected = [
             patch.id
             for patch in load_fun_patches()
-            if patch.game_id == "vv1"
+            if patch.game_id == "vv1" and patch.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS
             # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font), as Select All
             and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
             and patch.id
@@ -4095,7 +4095,7 @@ class StockIntegrationTests(unittest.TestCase):
         all_vv2_features = [
             patch.id
             for patch in load_fun_patches()
-            if patch.game_id == "vv2"
+            if patch.game_id == "vv2" and patch.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS
             # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font), as Select All
             and patch.id not in ALTERNATIVE_FUN_PATCH_IDS
             and patch.id
