@@ -230,6 +230,8 @@ FILES = [
     "data/translations/vv4_strings.json",
     "data/translations/vv5_strings.json",
     "data/translations/patcher_strings.json",
+    "data/translations/exe_patch_strings.json",
+    "data/translations/patch_text_exclusions.json",
     "docs/translation-file-format.md",
     "docs/translating-the-games.md",
     "data/vv3_both_factions_feature.json",

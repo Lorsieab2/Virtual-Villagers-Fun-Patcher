@@ -149,6 +149,7 @@
    a sidecar that is overwritten is lost for good.  File I/O happens only
    inside the exports, never in DllMain. */
 #include <windows.h>
+#include "../shared/vvfp_translate.h"   /* "Son of" / "Daughter of" in the player's language */
 #include <shlobj.h>
 #include <string.h>
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
@@ -2740,7 +2741,17 @@ __declspec(dllexport) int __stdcall Vv1ParentageDrawPortrait(void *gameobj, void
             parent = e->mother_name;
         }
         if (parent != NULL) {
-            wsprintfA(text, "%s of %s", male_child ? "Son" : "Daughter", parent);
+            char filled[16 + VV1_NAME_CAPACITY + 64];
+            const char *shown;
+            const char *relation = male_child
+                ? vvfp_tr("vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s1", "Son", 32)
+                : vvfp_tr("vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s2", "Daughter", 32);
+            wsprintfA(filled, "%s of %s", relation, parent);
+            shown = vvfp_trf("vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s0", "%s of %s", filled, text,
+                             sizeof text);
+            if (shown != text) {
+                lstrcpynA(text, filled, sizeof text);
+            }
             vv1_draw_text_centred(draw_wrapper, text, VV1_TEXT_CX, VV1_TEXT_Y);
         }
     }

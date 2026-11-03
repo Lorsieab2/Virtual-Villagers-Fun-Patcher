@@ -2953,7 +2953,9 @@ static void tr_start(int game) {
                     || id[2] == 0) {
                     continue;
                 }
-                for (k = 2; id[k]; ++k) {
+                /* "0x<va>", or "0x<va>.v<n>" for a second patch text at the same address (its hash tells them
+                   apart) */
+                for (k = 2; id[k] && id[k] != '.'; ++k) {
                     char c = id[k];
                     unsigned int v = (c >= '0' && c <= '9') ? (unsigned int)(c - '0')
                         : (c >= 'a' && c <= 'f') ? (unsigned int)(c - 'a' + 10)

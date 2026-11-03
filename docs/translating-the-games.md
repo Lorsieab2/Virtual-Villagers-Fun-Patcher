@@ -31,9 +31,11 @@ the game when the file is made (the patcher ships none of the games' words):
 | New Believers | about 1,410 lines | `Assets\sm.xml` and the game's built-in table (`sm/<name>`), plus 3 lines outside them |
 
 That is the menus, tips, tutorials, events and their choices, tech and job names, the Villager Details and
-Statistics screens, popups and puzzles. Every file also holds the patcher's own text for that game (about 1,500
-to 2,000 lines, `vvfp.<part>/...` keys): the Origins upgrades, the Story / Cheat Upgrades and the Custom Island
-Event windows.
+Statistics screens, popups and puzzles. Every file also holds every patch's own text for that game (about 1,500
+to 2,000 lines, `vvfp.<part>/...` and `patch/0x...` keys): the Origins upgrades, the Story / Cheat Upgrades and
+the Custom Island Event windows and their messages, the island event popups they show, Cause of Death words and
+epitaphs, Son / Daughter, "Listening to a story", the Both Factions prompt, and the text the exe patches write.
+A patch line whose translation does not fit the patch's own space stays English, as the game's lines do.
 
 The Tree of Life's Optional Text Changes and New Believers' Guardians of Isola Rewrite change some English
 lines. Make the file from the game you play (the patcher reads the patched copy first), so its English is the
@@ -45,10 +47,10 @@ English you see.
   not text.
 - **The window's title** (the game's name in the title bar) stays English.
 - **Villager names** are names, not translatable text.
-- **Text the game draws for the patcher** (Cause of Death words on graves, the island event popups the
-  Custom Island Event shows inside the game, Son / Daughter on A New Home's Details screen) stays English for
-  now; it will follow when "Render Unicode with In-Game Fonts" draws the game's text itself. The patcher's
-  own windows are translated.
+- **Log files** (Births, Deaths, History, Island Events, Statistics...) stay English: the patcher reads them
+  back, and every language's logs must match. **Villager names** a patch writes (Joey, Unknown) are names.
+  Every other patch's text is translated; data/translations/patch_text_exclusions.json lists what is left out,
+  with the reason.
 - **Lists drawn by the patcher itself** in a few windows (owner-drawn lists) and lists the window sorts
   alphabetically stay English.
 - **Word order glued in code.** A few screens build a sentence from pieces (for example "Completed in" +
