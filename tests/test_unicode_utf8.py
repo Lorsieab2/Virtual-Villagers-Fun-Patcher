@@ -441,6 +441,10 @@ class InTheGame(unittest.TestCase):
         old one (MoveFileEx REPLACE_EXISTING | WRITE_THROUGH); a refused move writes in place; v1/v2 files are
         read and rewritten as v3 with nothing lost."""
         import vv_long_names as ln
+        def mine(data, *wanted):
+            """This test's own records, in file order (other tests may have left pending pairs of their own)."""
+            return [r[0] for r in ln.records(data) if r[0] in wanted]
+
         for game, run in self.runs.items():
             with self.subTest(game=game):
                 files = run.use_files(1)
@@ -460,7 +464,7 @@ class InTheGame(unittest.TestCase):
                 short = leave(JAPANESE + "乙")
                 data = files[found]
                 self.assertTrue(data.startswith(b"VVFP Long Names v3\n"))
-                self.assertEqual([r[0] for r in ln.records(data)], [old_short, short])      # nothing lost
+                self.assertEqual(mine(data, old_short, short), [old_short, short])      # nothing lost
                 self.assertEqual(ln.parse(data)[old_short], old_whole)
                 room = {r[0]: r[1] for r in ln.records(data)}
                 self.assertEqual(room[old_short], 0)                                          # v2 has no room
@@ -475,15 +479,15 @@ class InTheGame(unittest.TestCase):
                 second = leave(JAPANESE + "丙")
                 run.move_fault = False
                 self.assertNotIn(found + ".tmp", files)
-                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second])
+                self.assertEqual(mine(files[found], old_short, short, second), [old_short, short, second])
                 # the disk refuses the copy: the old file is untouched and the pair is written again later
                 run.write_fault = "fail"
                 third = leave(JAPANESE + "丁")
                 run.write_fault = None
-                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second])
+                self.assertEqual(mine(files[found], old_short, short, second), [old_short, short, second])
                 run.tick += 5000
                 run.draw_text("ldwarialbold", _bytes_of(POO))
-                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second, third])
+                self.assertEqual(mine(files[found], old_short, short, second, third), [old_short, short, second, third])
 
     def test_line_fitting_breaks_japanese_between_characters(self):
         for game, run in self.runs.items():
