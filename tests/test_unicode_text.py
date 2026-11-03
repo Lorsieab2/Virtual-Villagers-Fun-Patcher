@@ -153,7 +153,8 @@ class TheRows(unittest.TestCase):
         names = list(patcher.STARTUP_LOADER_COMPANIONS_2)
         self.assertEqual(names[names.index("VVFP Original Look.dll") + 1], DLL_NAME)
         self.assertLess(names.index(DLL_NAME), names.index("VVFP Translations.dll"))
-        self.assertEqual(names[-1], "VVFP Unicode Font.dll")
+        # Use Unicode Font next; Copy and Paste in Text Boxes (v1.35.89) is appended after it
+        self.assertEqual(names[-2:], ["VVFP Unicode Font.dll", "VVFP Copy and Paste.dll"])
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Original Look.dll",\n    "VVFP Unicode Text.dll",\n', header)
         self.assertIn(DLL_NAME.encode(), (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())
