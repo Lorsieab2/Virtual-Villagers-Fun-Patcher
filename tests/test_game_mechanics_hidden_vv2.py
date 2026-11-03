@@ -40,6 +40,7 @@ class Hidden2(HiddenChecks, unittest.TestCase):
         ('patcher', 'Tip 786 (the mask)', C, (C,)),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
         ('patcher', 'Story / Cheat menus (in the Origins Upgrades menu)', C, ()),
+        ('patcher', 'Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)', 'VERIFIED-E', ()),
     )
     TIP_COUNTS = {
         'The 50 random tips (the loading screen draws from the first 30, the mask from all)': {C: 50},

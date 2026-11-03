@@ -1187,8 +1187,10 @@ class ManifestTests(unittest.TestCase):
         # 34 with Render Unicode with In-Game Fonts (vv2_unicode_text), no executable byte --
         # its companion detours the font constructor and the SDL_TEXTINPUT case at run time; 35 with
         # Translations (vv2_translations), no executable byte -- its companion writes only while
-        # a language is chosen, at run time.
-        self.assertEqual(len(feature_ids), 35)
+        # a language is chosen, at run time;
+        # 36 with Copy and Paste in Text Boxes (vv2_copy_paste), no executable byte -- its
+        # companion detours the SDL_KEYDOWN case at run time.
+        self.assertEqual(len(feature_ids), 36)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4141,6 +4143,8 @@ class StockIntegrationTests(unittest.TestCase):
             # Render Unicode with In-Game Fonts: companion only, no executable bytes.
             "vv2_unicode_text",
             "vv2_translations",
+            # Copy and Paste in Text Boxes: companion only, no executable bytes.
+            "vv2_copy_paste",
             },
         )
         for mode in ALL_MODES:

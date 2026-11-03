@@ -302,6 +302,7 @@ RELEASE_ONLY = (
     "tests/test_committed_dlls_match_their_source.py::CommittedDllsMatchTheirSourceTests::"
     "test_each_build_script_reproduces_its_committed_dlls",
     "tests/test_gui_first_untick_sticks.py::FirstUntickTests::test_the_first_untick_of_each_prerequisite_sticks",
+    "tests/test_no_divide_by_zero_crashes.py::EmulationTests::test_every_other_line_is_drawn_exactly_as_before",
     "tests/test_dll_builds_are_deterministic.py::BuildTwiceTests::"
     "test_two_builds_in_different_folders_are_the_same_bytes",
 )

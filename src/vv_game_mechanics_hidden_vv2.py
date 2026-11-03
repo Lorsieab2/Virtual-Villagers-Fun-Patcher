@@ -52,7 +52,8 @@ STORE_SLOTS = ((0x441D80, 0x442280), (0x443770, 0x4437C0), (0x4437C0, 0x443AD0))
 STORY = "vv2_story_cheat_upgrades"
 ORIGINS = "vv2_enable_origins_exclusive_features"
 TIP_WORDING = "vv2_numeric_keys_tip_wording"
-PATCHES = (TIP_WORDING, ORIGINS, STORY)
+COPY_PASTE = "vv2_copy_paste"
+PATCHES = (TIP_WORDING, ORIGINS, STORY, COPY_PASTE)
 # Story / Cheat Upgrades is on by default (owner, 2026-11-01), so no patch named here is off by default.
 DEFAULT_OFF: frozenset[str] = frozenset()
 
@@ -190,7 +191,7 @@ def _patcher() -> list[Entry]:
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event, Pick Gong of Wonder Outcome and Choose Time Skip Amount, and "
             "makes every Origins Upgrade cost 0 tech points"), C, feature=STORY),
-    ]
+    ] + [hidden.copy_paste_entry(2)]
 
 
 def entries() -> list[Entry]:
