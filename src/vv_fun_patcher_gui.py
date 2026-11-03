@@ -2368,6 +2368,18 @@ class App(tk.Tk):
             face = set_unicode_font_face(None)
         if self.unicode_font_var.get() != face:
             self.unicode_font_var.set(face)
+        chosen_file = unicode_font_file()
+        if chosen_file is not None:
+            # A family picked here that is not the chosen file's own drops the file: the box and what patches use
+            # must stay the same font (the file would otherwise win again on the next launch).
+            from vv_font_glyphs import ttf_family
+            try:
+                family = ttf_family(chosen_file.read_bytes())
+            except OSError:
+                family = None
+            if family != face:
+                set_unicode_font_file(None)
+                set_unicode_font_face(face)
         self._save_settings()
 
     def _save_settings(self) -> None:

@@ -403,8 +403,9 @@ static void read_override_face(void) {
             if (raw[i] == '\r' || raw[i] == '\n') {
                 raw[i] = 0;
             }
-            if (raw[second] && MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw + second, -1, file, 104) > 0
-                && n + 13 + 104 < MAX_PATH) {
+            /* the room needed is the folder, "Unicode Font\\" and the name's own length (with its NUL), not the buffer's */
+            int name_len = raw[second] ? MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw + second, -1, file, 104) : 0;
+            if (name_len > 0 && (int)n + 13 + name_len <= MAX_PATH) {
                 lstrcatW(dir, L"Unicode Font\\");
                 lstrcatW(dir, file);
                 AddFontResourceExW(dir, FR_PRIVATE, NULL);

@@ -492,6 +492,45 @@ class UnicodeFontChoice(unittest.TestCase):
             self.assertEqual((Path(out) / "Files" / "VVFP Unicode Font.txt").read_text(encoding="utf-8"), "Yu Gothic\n")
             self.assertFalse((Path(out) / "Files" / "Unicode Font").exists())
 
+    def test_picking_another_family_in_the_quick_box_drops_the_font_file(self):
+        import vv_fun_patcher_gui as gui
+        font = self.a_font()
+        self.vfp.set_unicode_font_file(font)
+        file_family = self.vfp.unicode_font_face()
+
+        class Var:
+            def __init__(self, value): self.value = value
+            def get(self): return self.value
+            def set(self, value): self.value = value
+
+        class Stub:
+            saved = 0
+            unicode_font_var = Var("Tahoma")
+            def _save_settings(self): self.saved += 1
+
+        stub = Stub()
+        # the same family as the file: the file stays
+        stub.unicode_font_var.set(file_family)
+        self.invoke(gui, stub)
+        self.assertEqual(self.vfp.unicode_font_file(), font)
+        # another family: the file is dropped and the face is the one in the box
+        stub.unicode_font_var.set("Tahoma" if file_family != "Tahoma" else "Arial")
+        self.invoke(gui, stub)
+        self.assertIsNone(self.vfp.unicode_font_file())
+        self.assertEqual(self.vfp.unicode_font_face(), stub.unicode_font_var.get())
+
+    def invoke(self, gui, stub):
+        cls = next(c for c in vars(gui).values() if isinstance(c, type) and "_unicode_font_changed" in vars(c))
+        cls._unicode_font_changed(stub)
+
+    def test_the_companion_checks_the_actual_file_name_length(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "vvfp_unicode_text.c").read_text(encoding="utf-8")
+        self.assertIn("(int)n + 13 + name_len <= MAX_PATH", source)
+        self.assertNotIn("n + 13 + 104", source)
+        # a 150-character folder with "Unicode Font\font.ttf" fits MAX_PATH, and the check says so
+        folder, name_len = 150, len("font.ttf") + 1
+        self.assertLessEqual(folder + 13 + name_len, 260)
+
     def test_the_command_line_takes_the_font_file(self):
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
         self.assertIn('"--unicode-font-file"', source)
