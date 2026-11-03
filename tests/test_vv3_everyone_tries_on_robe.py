@@ -238,20 +238,23 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "5E8DD35594ED2222AC44940DB91B53B70BDF3FF793C484EC47EFAC3923BFF4F2",
-        "85070D00",
+        "7B38B2054F8A63E4AA3C3286BA99F71A18D3D7024DB5F92CBAEA1F3B537ED2E1",
+        "84B80D00",
     ),
     "collection_progression": (
-        "892B274DE9FD750D8BB713D723F289829F897B52542CA1B68FD40BAE0AF064E2",
-        "85200D00",
+        "1B63CF9218F5EBD0BE340E0AA821A6AD8020644AC9E8B7ADB040CB6023E229EC",
+        "85D10C00",
     ),
     "immediate_fixed": (
-        "8D17B1EDC34F5197CAF46172EBEA6D5A8DB589BCA3FA9B4141DDD76D35C072BE",
-        "83620D00",
+        "E009F9F9F9C7FB3EBDE2DA1F26B5D07AA2BDC3D256C04BBEAE0F1F47E27658CD",
+        "83130D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
     # 33e96f52, byte for byte (the speed-change timers companion ships no executable bytes).
+    # Re-pinned for Fix Vanilla Bugs' zero-length line fix (no divide by zero in the rain): putting its
+    # two sites (0x3EB9..0x3EC5, 0x45A4..0x45AE) back to stock and restoring the previous CheckSum
+    # gives the previous digest in all three modes.
 }
 
 
