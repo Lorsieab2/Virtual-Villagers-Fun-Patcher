@@ -277,12 +277,12 @@
     {
       "ids": ["vv3_fix_vanilla_bugs"],
       "guide": [
-        "Fixes bugs in the original game: the Royal Jelly vials and the amber and quartz Mysterious Vials now do what their text says.",
+        "Fixes original-game bugs: the Royal Jelly and the amber and quartz Mysterious Vials now do what their text says.",
         "A village with exactly 150 villagers can be saved and loaded again; one already damaged that way is repaired when loaded.",
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
-        "After a Time Warp, or while the game catches up on time away, builders now really build the population huts that have been started.",
+        "After a Time Warp or time away, builders now really build started population huts. A raindrop of no length can no longer crash the game.",
         "The hospital's supply tables have their broken legs fixed (art by Lorsieab2). Unpausing at another speed gives the fire that speed's length.",
         "Keep it on with 256 Villagers (Experimental). On by default."
       ]
@@ -296,6 +296,7 @@
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Unpausing at a different speed now gives the Fire Pit the new speed's length (the original game kept the old one).",
+        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
     },
@@ -768,6 +769,7 @@
         "Villagers already named keep their names.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
+        "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
         "Nothing to click. On by default."
       ]
     },
