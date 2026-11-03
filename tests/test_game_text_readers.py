@@ -46,7 +46,9 @@ class TheCodec(unittest.TestCase):
     def test_printable(self):
         self.assertTrue(all(printable(c) for c in "Šárka €“”—"))
         self.assertTrue(all(printable(c) for c in ("日", "\U0001F4A9", "\U0001208D")))      # v1.35.89: any character
-        self.assertFalse(any(printable(c) for c in ("\x81", "\x7f", "\n", "\ue000")))
+        self.assertFalse(any(printable(c) for c in ("\x00", "\x81", "\x7f", "\n", "\ud800", "\u2028", "\ufeff")))
+        # Private use and code points newer than this Python's Unicode data are taken (docs/UNICODE_SPEC.md).
+        self.assertTrue(all(printable(c) for c in ("\ue000", "\U0010FFFD", "\U0003134F", "\U00031350")))
         self.assertEqual(len(DECODING_TABLE), 256)
 
     def test_no_reader_of_game_text_is_left_on_latin_1(self):

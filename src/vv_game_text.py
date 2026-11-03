@@ -182,15 +182,16 @@ def game_char(ch: str) -> int | None:
 
 def printable(ch: str) -> bool:
     """A character the games draw and accept typed with "Render Unicode with In-Game Fonts" or "Use Unicode
-    Font": any character but a control, a lone surrogate, a private-use or unassigned code point and the
-    five bytes Windows-1252 leaves undefined (format characters such as the zero-width joiner of emoji
-    sequences are taken)."""
-    import unicodedata
+    Font": decided by code point (docs/UNICODE_SPEC.md), never by this Python's Unicode version, so a letter
+    newer than its data is still taken. Refused: NUL and the C0 controls, DEL, the C1 controls (which hold
+    the five bytes Windows-1252 leaves undefined), lone surrogates, the line and paragraph separators
+    (U+2028, U+2029) and the byte order mark (U+FEFF). Private-use and not-yet-assigned code points are
+    taken, as in the other Fun Patchers; format characters such as the zero-width joiner of emoji too."""
     if len(ch) != 1:
         return False
-    if ch in "":
-        return False
-    return unicodedata.category(ch) not in ("Cc", "Cs", "Co", "Cn")
+    cp = ord(ch)
+    return not (cp < 0x20 or 0x7F <= cp <= 0x9F or 0xD800 <= cp <= 0xDFFF
+                or cp in (0x2028, 0x2029, 0xFEFF))
 
 
 def byte_length(text: str) -> int:
