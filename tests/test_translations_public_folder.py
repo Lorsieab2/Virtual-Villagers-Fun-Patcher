@@ -71,7 +71,10 @@ class NamingTests(unittest.TestCase):
 
     def test_a_new_language_is_its_code(self) -> None:
         self.assertEqual(tr.public_name("fr", "Ana", {}), "fr.tsv")
-        self.assertEqual(tr.public_name("pt-BR", "Ana", {"fr.tsv": "Ana"}), "pt-BR.tsv")
+        self.assertEqual(tr.public_name("pt-BR", "Ana", {"fr.tsv": "Ana"}), "pt-br.tsv")
+        for name in ("fr.tsv", "pt-br.tsv", "fr-zoe-b-2.tsv"):
+            self.assertRegex("translations/vv3/" + name, r"^translations/vv[1-5]/[a-z0-9-]+\.tsv$")
+            self.assertTrue(subs.NAME_RE.match("translations/vv3/" + name))
 
     def test_nobodys_file_is_overwritten(self) -> None:
         existing = {"fr.tsv": "Ana"}
@@ -100,6 +103,66 @@ class LocalLayoutTests(Temp):
         self.assertEqual(second, tr.game_dir(GAME) / "fr-zoe-b.tsv")
         self.assertEqual(tr.game_dir(GAME), self.temp / "Installed translations" / "vv3")
         self.assertEqual(sorted(i.label for i in tr.installed(GAME)), ["Français, by Ana", "Français, by Zoë B."])
+
+    def test_an_added_file_never_takes_a_shipped_files_name(self) -> None:
+        """Codex, #682: the shipped translations/vv3/fr.tsv and a player's added fr are different files."""
+        shipped = make_file(tr.shipped_dir(GAME) / "fr.tsv", translator="Ana")
+        added = tr.install_file(GAME, make_file(self.temp / "b.txt", translator="Bob"))
+        self.assertEqual(added.name, "fr-bob.tsv")
+        self.assertEqual(tr.choice_id(GAME, shipped), "shipped/fr.tsv")
+        self.assertEqual(tr.choice_id(GAME, added), "installed/fr-bob.tsv")
+        self.assertEqual(tr.find_installed(GAME, "shipped/fr.tsv"), shipped)
+        self.assertEqual(tr.find_installed(GAME, "installed/fr-bob.tsv"), added)
+        self.assertIsNone(tr.find_installed(GAME, "installed/fr.tsv"))
+        self.assertIsNone(tr.find_installed(GAME, "shipped/../x.tsv"))
+        # Ana's own update of the shipped file goes into the player's folder under its name, as her copy.
+        mine = tr.install_file(GAME, make_file(self.temp / "c.txt", translator="Ana"))
+        self.assertEqual(mine, tr.game_dir(GAME) / "fr.tsv")
+        self.assertEqual(tr.choice_id(GAME, mine), "installed/fr.tsv")
+        self.assertNotEqual(tr.find_installed(GAME, "installed/fr.tsv"), tr.find_installed(GAME, "shipped/fr.tsv"))
+
+    def test_remembered_bare_names_are_migrated(self) -> None:
+        added = tr.install_file(GAME, make_file(self.temp / "b.txt", translator="Bob"))
+        app = SimpleNamespace(translation_choices={"vv3": {"file": "fr.tsv"}}, _save_settings=lambda: None)
+        self.assertEqual(w.chosen_path(app, GAME), added)                  # the old bare name still resolves
+        self.assertEqual(app.translation_choices["vv3"]["file"], "installed/fr.tsv")
+        self.assertEqual(tr.remembered_choice(GAME, {tr.SETTINGS_KEY: {"vv3": {"file": "installed/fr.tsv"}}}),
+                         (True, added))
+
+    def test_a_legacy_file_of_another_translator_is_kept(self) -> None:
+        """Codex, #682: never a hard delete; another translator's older-layout file stays as a variant."""
+        theirs = make_file(tr.legacy_dir(GAME) / f"{TITLE} - Français.txt", translator="Zoë")
+        calls = []
+        tr.install_file(GAME, make_file(self.temp / "a.txt", translator="Ana"),
+                        shell=lambda paths: calls.append(list(paths)))
+        self.assertTrue(theirs.is_file())
+        self.assertEqual(calls, [])
+        self.assertEqual(sorted(i.translator for i in tr.installed(GAME)), ["Ana", "Zoë"])
+
+    def test_the_same_translators_legacy_file_goes_to_the_recycle_bin(self) -> None:
+        old = make_file(tr.legacy_dir(GAME) / f"{TITLE} - Français.txt", translator="Ana")
+        calls = []
+
+        def bin_(paths):
+            calls.append(list(paths))
+            for p in paths:
+                Path(p).unlink()
+
+        new = tr.install_file(GAME, make_file(self.temp / "a.txt", translator="Ana"), shell=bin_)
+        self.assertEqual(calls, [[old]])
+        self.assertFalse(old.exists())
+        self.assertTrue(new.is_file())
+        # No Recycle Bin: the old file stays, nothing is deleted for good.
+        old = make_file(tr.legacy_dir(GAME) / f"{TITLE} - Français.txt", translator="Ana")
+
+        def no_bin(paths):
+            raise tr.RecycleBinUnavailable("no Recycle Bin")
+
+        tr.install_file(GAME, make_file(self.temp / "b.txt", translator="Ana"), shell=no_bin)
+        self.assertTrue(old.is_file())
+        source = (ROOT / "src" / "vv_translations.py").read_text(encoding="utf-8")
+        install = source[source.index("def install_file("):source.index("def _atomic_copy(")]
+        self.assertNotIn(".unlink(", install)
 
     def test_old_layout_and_shipped_files_are_read_and_test_files_are_not_shipped(self) -> None:
         make_file(tr.legacy_dir(GAME) / f"{TITLE} - Deutsch.txt", language="Deutsch", code="de")
@@ -292,10 +355,72 @@ class ShapeTests(unittest.TestCase):
         self.assertIn("larger than 2 MB", subs.check_shape(good, b"x" * (2 * 1024 * 1024 + 1))[0])
         self.assertIn("not UTF-8", subs.check_shape(good, b"\xff\xfe\x00bad\xc0")[0])
         for path in ("translations/vv3/fr.txt", "translations/vv3/fr.exe", "translations/vv6/fr.tsv",
+                     "translations/vv3/pt-BR.tsv", "translations/vv3/a b.tsv", "translations/vv3/../x.tsv",
                      "translations/fr.tsv", "translations/vv3/sub/fr.tsv", "translations/vv3/French.tsv",
                      "translations/manifest.json", "translations/README.md"):
             with self.subTest(path=path):
                 self.assertTrue(subs.check_shape(path, DATA))
+
+    def test_fetch_reads_blobs_as_data_and_checks_every_path_first(self) -> None:
+        temp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, temp, True)
+        sha = "a" * 40
+        calls = []
+
+        def api(path, token):
+            calls.append(path)
+            if path == "/repos/o/r/pulls/7":
+                return json.dumps({"head": {"sha": "d" * 40}}).encode()
+            if "/pulls/7/files" in path:
+                return json.dumps([
+                    {"filename": "translations/vv3/fr.tsv", "status": "added", "sha": sha},
+                    {"filename": "translations/vv3/Evil Name.tsv", "status": "added", "sha": "b" * 40},
+                    {"filename": ".github/workflows/x.yml", "status": "modified", "sha": "c" * 40},
+                ]).encode()
+            if path.endswith(f"/git/blobs/{sha}"):
+                return json.dumps({"size": len(DATA), "content": base64.b64encode(DATA).decode()}).encode()
+            raise AssertionError(path)
+
+        listed = subs.fetch_pr("o/r", 7, "token", temp, api=api)
+        self.assertEqual([c for c in calls if "/git/blobs/" in c], [f"/repos/o/r/git/blobs/{sha}"])  # only the good one
+        good = [e for e in listed if e["path"] == "translations/vv3/fr.tsv"][0]
+        self.assertEqual(Path(good["local"]).read_bytes(), DATA)
+        self.assertNotIn("fr.tsv", Path(good["local"]).name)                     # stored under a number
+        self.assertTrue(any("lowercase" in e.get("error", "") for e in listed))
+        self.assertTrue(any("outside translations/" in e.get("error", "") for e in listed))
+        self.assertFalse(any(".github" in json.dumps(e) for e in listed))     # PR text is never echoed
+        ok, text, _verdicts = subs.scan(listed, scanner=lambda d, n: vts.Verdict(vts.CLEAN, "x", [], "", 70))
+        self.assertFalse(ok)
+
+    def test_a_head_that_moves_while_reading_is_refused_and_the_head_is_recorded(self) -> None:
+        """Codex, #682: the accept step merges only the commit the checks read."""
+        temp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, temp, True)
+        heads = iter(["1" * 40, "2" * 40])
+
+        def api(path, token):
+            if path == "/repos/o/r/pulls/7":
+                return json.dumps({"head": {"sha": next(heads)}}).encode()
+            if "/pulls/7/files" in path:
+                return b"[]"
+            raise AssertionError(path)
+
+        with self.assertRaises(subs.HeadMoved):
+            subs.fetch_pr("o/r", 7, "token", temp, api=api)
+        self.assertFalse((temp / "head.txt").exists())
+
+        def steady(path, token):
+            if path == "/repos/o/r/pulls/7":
+                return json.dumps({"head": {"sha": "3" * 40}}).encode()
+            return b"[]"
+
+        subs.fetch_pr("o/r", 7, "token", temp, api=steady)
+        self.assertEqual((temp / "head.txt").read_text(encoding="utf-8"), "3" * 40)
+        workflow = (ROOT / ".github" / "workflows" / "translation-pr.yml").read_text(encoding="utf-8")
+        self.assertIn('--match-head-commit "$SCANNED"', workflow)
+        self.assertIn("EXPECTED_HEAD: ${{ needs.scan.outputs.head }}", workflow)
+        self.assertIn('[ "$SCANNED" != "$VALIDATED" ]', workflow)
+        self.assertNotRegex(workflow, r"gh pr merge [^\n]*--squash\s*$")
 
     def test_scan_refuses_the_shape_before_virustotal(self) -> None:
         temp = Path(tempfile.mkdtemp())
@@ -393,8 +518,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("pull_request.head", body)
         self.assertNotIn("github.head_ref", body)
         for ref in re.findall(r"ref: (.+)", body):
-            self.assertIn(ref.strip(), ("${{ github.event.pull_request.base.sha }}",
-                                        "${{ github.event.pull_request.base.ref }}"))
+            self.assertEqual(ref.strip(), "${{ github.event.repository.default_branch }}")
         for run in re.findall(r"run: (.*)", body):
             self.assertNotIn("${{", run)
         permissions = set(re.findall(r"^\s+(\w[\w-]*): write$", body, re.M))

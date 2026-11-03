@@ -400,7 +400,7 @@ class WindowTests(TkCase):
         done = window.choose(1)
         self.assertEqual(done, [self.patched])
         self.assertEqual(runtime.read_bytes(), added[0].read_bytes())
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], "fr.tsv")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/fr.tsv")
         self.assertGreaterEqual(self.app.saved, 1)
         settings = repr(self.app.translation_choices)
         self.assertNotIn("Kalani", settings)                     # the credit is never in the settings
@@ -578,7 +578,7 @@ class ManageFilesTests(WindowTests):
         window.choose(window.language_labels().index("Deutsch"))
         runtime = tr.runtime_path(self.patched)
         self.assertTrue(runtime.is_file())
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], "de.tsv")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/de.tsv")
         window.select(["Deutsch"])
         asked: list = []
         deleted, problems = window.delete(ask=lambda p, t, m: asked.append(m) or True, shell=fake_recycle_bin([]))
@@ -606,7 +606,7 @@ class ManageFilesTests(WindowTests):
         self.assertIn("Nothing was deleted", problems[-1])
         self.assertIn("no Recycle Bin", problems[-1])
         self.assertTrue(tr.runtime_path(self.patched).is_file())                # the choice is kept
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], "fr.tsv")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "installed/fr.tsv")
         w.messagebox.showerror.assert_called()
         window.close()
 
