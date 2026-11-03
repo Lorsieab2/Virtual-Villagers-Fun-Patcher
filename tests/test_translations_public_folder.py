@@ -393,7 +393,8 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("pull_request.head", body)
         self.assertNotIn("github.head_ref", body)
         for ref in re.findall(r"ref: (.+)", body):
-            self.assertEqual(ref.strip(), "${{ github.event.repository.default_branch }}")
+            self.assertIn(ref.strip(), ("${{ github.event.pull_request.base.sha }}",
+                                        "${{ github.event.pull_request.base.ref }}"))
         for run in re.findall(r"run: (.*)", body):
             self.assertNotIn("${{", run)
         permissions = set(re.findall(r"^\s+(\w[\w-]*): write$", body, re.M))

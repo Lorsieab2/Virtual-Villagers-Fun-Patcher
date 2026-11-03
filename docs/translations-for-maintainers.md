@@ -84,8 +84,8 @@ left out of the manifest (the run names it): delete it.
 
 Why `pull_request_target`: a pull request from a fork gets no secrets under the plain `pull_request` event, so
 every outside submission would fail as "not scanned". `translation-pr.yml` therefore runs as
-`pull_request_target`, which runs the workflow **as it is on the default branch**, and it checks out **only
-the default branch**: nothing of the pull request is checked out, installed, imported or run. The submitted
+`pull_request_target`, which runs the workflow **as it is on the pull request's base branch** (this repository's own), and it checks out **only
+that base commit**: nothing of the pull request is checked out, installed, imported or run. The submitted
 files are read as data through the GitHub API, blob by blob, and only decoded and parsed. Pull request text
 never reaches a `run:` script except through environment variables. Its jobs ask only for `contents`,
 `pull-requests` and `issues` (write only where needed).
