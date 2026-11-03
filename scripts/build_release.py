@@ -227,6 +227,20 @@ FILES = [
     "data/unicode18/names18.txt.gz",
     "data/unicode18/SOURCES.json",
     "data/unicode18/LICENSE-Unicode.txt",
+    # The open fonts the Unicode companions load privately as the last steps of their glyph chain, with their
+    # licence texts and sources (OFL / GPL-with-font-exception notices travel with the fonts). Nothing else of any
+    # game or font ships (never Burweed ICG).
+    "assets/unicode_fonts/NotoSansCuneiform-Regular.otf",
+    "assets/unicode_fonts/NotoSerifTangut-Regular.otf",
+    "assets/unicode_fonts/unifont-18.0.01.otf",
+    "assets/unicode_fonts/unifont_upper-18.0.01.otf",
+    "assets/unicode_fonts/LastResortHE-Regular.ttf",
+    "assets/unicode_fonts/NotoSansCuneiform-OFL-1.1.txt",
+    "assets/unicode_fonts/NotoSerifTangut-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-GPL-2.0-COPYING.txt",
+    "assets/unicode_fonts/LastResort-OFL-1.1.txt",
+    "assets/unicode_fonts/SOURCES.json",
     "data/vv1_translations_feature.json",
     "data/vv2_translations_feature.json",
     "data/vv3_translations_feature.json",

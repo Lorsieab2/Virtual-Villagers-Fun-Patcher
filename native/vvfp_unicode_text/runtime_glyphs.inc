@@ -30,7 +30,7 @@
 #define RG_MAX_FONTS 16
 #define RG_CACHE 8192
 #define RG_MAX_UNIT 1024
-#define RG_FACES 24
+#define RG_FACES 32
 
 typedef struct rg_page {
     unsigned char impl[0x420];      /* a font object of the game's own class */
@@ -108,6 +108,49 @@ static const WCHAR *const RG_CHAIN[] = {
     L"Malgun Gothic", L"Nirmala UI", L"Ebrima", L"Noto Sans", L"Noto Sans CJK JP", L"Noto Sans Symbols 2",
     L"Noto Sans Cuneiform", L"Noto Color Emoji", NULL
 };
+
+/* The last steps: the open fonts the patcher bundles (assets/unicode_fonts, installed beside this companion in
+   "Unicode Fonts\"), loaded privately for this process only (AddFontResourceExW, FR_PRIVATE: never installed
+   in Windows).  A missing or unreadable file only leaves its step out (rg_present sees Windows substitute
+   another face).  In order: Noto Sans Cuneiform and Noto Serif Tangut (real typefaces for those scripts), GNU
+   Unifont and Unifont Upper (one glyph for nearly every assigned character), Last Resort (a placeholder
+   block naming the Unicode block, for anything still without a glyph). */
+static const WCHAR *const RG_BUNDLED[] = {
+    L"Noto Sans Cuneiform", L"Noto Serif Tangut", L"Unifont", L"Unifont Upper", L"Last Resort High-Efficiency", NULL
+};
+static const WCHAR *const RG_BUNDLED_FILES[] = {
+    L"NotoSansCuneiform-Regular.otf", L"NotoSerifTangut-Regular.otf", L"unifont-18.0.01.otf",
+    L"unifont_upper-18.0.01.otf", L"LastResortHE-Regular.ttf", NULL
+};
+static int g_bundled_loaded;        /* 0 not tried, -1 none found, else the files added to this process */
+
+/* Add the bundled files that sit in "<this DLL's folder>\Unicode Fonts\".  Once; fails open. */
+static void rg_load_bundled(void) {
+    WCHAR path[MAX_PATH];
+    DWORD n;
+    int i;
+    if (g_bundled_loaded != 0) {
+        return;
+    }
+    g_bundled_loaded = -1;
+    n = GetModuleFileNameW(g_self, path, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH - 80) {
+        return;
+    }
+    while (n > 0 && path[n - 1] != L'\\') {
+        --n;
+    }
+    path[n] = 0;
+    lstrcatW(path, L"Unicode Fonts\\");
+    n = (DWORD)lstrlenW(path);
+    for (i = 0; RG_BUNDLED_FILES[i] != NULL; ++i) {
+        path[n] = 0;
+        lstrcatW(path, RG_BUNDLED_FILES[i]);
+        if (AddFontResourceExW(path, FR_PRIVATE, NULL) > 0) {
+            g_bundled_loaded = g_bundled_loaded < 0 ? 1 : g_bundled_loaded + 1;
+        }
+    }
+}
 
 static int rg_face_index(const WCHAR *face, int weight) {
     int i;
@@ -529,6 +572,9 @@ static int rg_chain(const rg_font *f, const unsigned char *bytes, int len, int *
                      || lstrcmpW(RG_CHAIN[i], L"Noto Color Emoji") == 0 ? 400 : 700;
         faces[n++] = rg_face_index(RG_CHAIN[i], weight);
     }
+    for (i = 0; RG_BUNDLED[i] != NULL && n < cap; ++i) {
+        faces[n++] = rg_face_index(RG_BUNDLED[i], 400);
+    }
     return n;
 }
 
@@ -849,5 +895,6 @@ static void rg_register(unsigned char *impl, int burweed, const vg_font *vf, con
     if (g_dc == NULL) {
         g_dc = CreateCompatibleDC(NULL);
     }
+    rg_load_bundled();
     ++g_font_count;
 }

@@ -72,6 +72,7 @@ class _RealGdi:
 
 
 GDI: _RealGdi | None = None
+_ADDED_FONTS: set = set()   # bundled font files added to this process (private, never installed)
 
 
 def _gdi() -> _RealGdi:
@@ -225,6 +226,21 @@ def _register(machine_ref: dict) -> None:
         mc.blits.append((src, rect, dst, to))
         return 0
 
+    def add_font(mc, arg):
+        """The companion's bundled open fonts (assets/unicode_fonts, the "Unicode Fonts" folder beside it): added
+        privately to the test process for real, so the real GDI draws them; any other file is not found."""
+        path = _wstr(mc.mu, arg(0), 260)
+        name = path.replace("/", "\\").split("\\")[-1]
+        real = ROOT / "assets" / "unicode_fonts" / name
+        mc.__dict__.setdefault("added_fonts", []).append(path)
+        if not path.endswith("\\Unicode Fonts\\" + name) or not real.is_file():
+            return 0
+        if str(real) not in _ADDED_FONTS:
+            if ctypes.WinDLL("gdi32").AddFontResourceExW(str(real), 0x10, None) <= 0:
+                return 0
+            _ADDED_FONTS.add(str(real))
+        return 1
+
     table = {
         "GetProcessHeap": (0, lambda mc, arg, ret: ret(0x00EE0000)),
         "HeapAlloc": (12, heap_alloc),
@@ -236,7 +252,7 @@ def _register(machine_ref: dict) -> None:
         "GetTextFaceW": (12, gdi_call(text_face)),
         "GetGlyphIndicesW": (20, gdi_call(indices)),
         "GetGlyphOutlineW": (28, gdi_call(outline)),
-        "AddFontResourceExW": (12, gdi_call(none(0))),
+        "AddFontResourceExW": (12, gdi_call(add_font)),
         "GetEnvironmentVariableW": (12, gdi_call(none(0))),
         "RegOpenKeyExW": (20, gdi_call(none(2))),
         "RegEnumValueW": (32, gdi_call(none(259))),

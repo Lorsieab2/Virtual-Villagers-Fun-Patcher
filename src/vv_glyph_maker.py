@@ -58,6 +58,17 @@ DEFAULT_FALLBACKS = ("Segoe UI", "Arial Unicode MS", "Segoe UI Symbol", "Nirmala
                      "Mongolian Baiti", "Segoe UI Historic")
 EMOJI_FACE = "Segoe UI Emoji"
 SUPERSAMPLE = 4
+# The last steps of every chain: the open fonts the patcher bundles (assets/unicode_fonts), the same five and in
+# the same order as the in-game companions' RG_BUNDLED (native/vvfp_unicode_text/runtime_glyphs.inc), so what the
+# Text tool previews is what the game draws.  Loaded privately for this process (FR_PRIVATE), never installed;
+# a missing file only leaves its step out.
+BUNDLED_FONT_FILES = (("Noto Sans Cuneiform", "NotoSansCuneiform-Regular.otf"),
+                      ("Noto Serif Tangut", "NotoSerifTangut-Regular.otf"),
+                      ("Unifont", "unifont-18.0.01.otf"),
+                      ("Unifont Upper", "unifont_upper-18.0.01.otf"),
+                      ("Last Resort High-Efficiency", "LastResortHE-Regular.ttf"))
+BUNDLED_FACES = tuple(face for face, _ in BUNDLED_FONT_FILES)
+BUNDLED_FOLDER = Path(__file__).resolve().parents[1] / "assets" / "unicode_fonts"
 
 
 @dataclass(frozen=True)
@@ -282,6 +293,7 @@ class _Cmap:
         self.groups: list[tuple[int, int, int]] = []       # format 12: (start, end, first glyph)
         self.starts: list[int] = []
         self.fmt4 = None
+        self.many_to_one = False
         n = struct.unpack_from(">H", data, 2)[0]
         subs = {}
         for i in range(n):
@@ -292,10 +304,13 @@ class _Cmap:
             if off is None:
                 continue
             fmt = struct.unpack_from(">H", data, off)[0]
-            if fmt == 12:
+            if fmt not in (4, 12, 13):
+                continue
+            if fmt in (12, 13):
                 count = struct.unpack_from(">I", data, off + 12)[0]
                 self.groups = [struct.unpack_from(">III", data, off + 16 + 12 * k) for k in range(count)]
                 self.starts = [g[0] for g in self.groups]
+                self.many_to_one = fmt == 13       # format 13: every code point of a group has the one glyph
                 return
             if fmt == 4:
                 seg2 = struct.unpack_from(">H", data, off + 6)[0]
@@ -315,7 +330,7 @@ class _Cmap:
             if i >= 0:
                 s, e, g = self.groups[i]
                 if cp <= e:
-                    return g + cp - s
+                    return g if self.many_to_one else g + cp - s
             return 0
         if self.fmt4 is None:
             return 0
@@ -774,7 +789,22 @@ def _api():
         except (OSError, AttributeError):
             api = None
     _API.append(api)
+    if api is not None:
+        _load_bundled_fonts(api)
     return api
+
+
+def _load_bundled_fonts(a) -> int:
+    """Add the bundled open fonts to this process (private: never installed in Windows).  Fails open."""
+    added = 0
+    for _face, name in BUNDLED_FONT_FILES:
+        path = BUNDLED_FOLDER / name
+        try:
+            if path.is_file() and a.AddFontResourceExW(str(path), 0x10, None) > 0:      # FR_PRIVATE
+                added += 1
+        except (OSError, AttributeError, ValueError):
+            continue
+    return added
 
 
 def _bind() -> _Api:
@@ -1159,6 +1189,7 @@ def _sized(face: str, info, bold: bool, cap: int, em_px: int | None):
 def _text_coverage(cluster: str, face: str, fallbacks, bold: bool, cap: int, em_px: int | None = None):
     """(coverage, w, h, left, top_rel_baseline, advance, face used) or None."""
     faces = (face,) + tuple(f for f in fallbacks if f != face)
+    faces += tuple(f for f in BUNDLED_FACES if f not in faces)          # the last steps (as in the game)
     used, info = _pick_face(faces, bold, cluster)
     primary = _face_info(face, bold)
     if used is None:
