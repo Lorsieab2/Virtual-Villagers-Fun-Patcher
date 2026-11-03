@@ -69,14 +69,14 @@ table/827~ae6e5d55	Worried about food	S'inquiète pour la nourriture	misc UI: de
 table/828~e73373f5	Worried about housing	S'inquiète pour le logement	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/829~a20d12c5	Thinking	Réfléchit	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/830~0342acb3	Bored	S'ennuie	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
-table/831~d725026a	Curious about the thorny bushes	Intrigué par les buissons épineux	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
-table/832~accab689	Curious about the ancient place	Intrigué par le lieu antique	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
+table/831~d725026a	Curious about the thorny bushes	S'intéresse aux buissons épineux	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
+table/832~accab689	Curious about the ancient place	S'intéresse au lieu antique	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/833~9879cda2	Dancing	Danse	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/834~1eb7ee1a	Relaxing at the beach	Se détend à la plage	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
-table/835~adba289c	Sitting	Est assis	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
+table/835~adba289c	Sitting	S'assoit	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/836~718541b5	Calling Butterflies!	Appelle les papillons !	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/837~79cea8ff	Fishing	Pêche	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
-table/838~f09e2165	Disgusted by the algae	Dégoûté par les algues	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
+table/838~f09e2165	Disgusted by the algae	Trouve les algues dégoûtantes	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/839~85f544b0	Eating	Mange	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/840~562e2979	Reflecting	Réfléchit	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
 table/841~bb17fc67	Cooling feet in stream	Se rafraîchit les pieds dans le ruisseau	misc UI: details, puzzles/collections/statistics screens, player dialog, options, activities
@@ -340,8 +340,8 @@ table/218~8a70c787	Strolling	Se promène	villager activity (status text shown on
 table/219~284bcd37	Exercising	Fait de l'exercice	villager activity (status text shown on Details screen / hover)
 table/220~7c48c18c	Playing in the very narrow stream	Joue dans le tout petit ruisseau	villager activity (status text shown on Details screen / hover)
 table/222~5f44aec9	Trying to reach coconuts	Essaie d'attraper des noix de coco	villager activity (status text shown on Details screen / hover)
-table/223~22d10eb0	Curious about the vines	Intrigué par les lianes	villager activity (status text shown on Details screen / hover)
-table/224~2b306d4d	Curious about the patch of soil	Intrigué par le carré de terre	villager activity (status text shown on Details screen / hover)
+table/223~22d10eb0	Curious about the vines	S'intéresse aux lianes	villager activity (status text shown on Details screen / hover)
+table/224~2b306d4d	Curious about the patch of soil	S'intéresse au carré de terre	villager activity (status text shown on Details screen / hover)
 table/225~5869be7d	Looking at the fire	Regarde le feu	villager activity (status text shown on Details screen / hover)
 table/226~edd01e57	Sees something unusual...	Voit quelque chose d'inhabituel...	villager activity (status text shown on Details screen / hover)
 table/227~cc2afcf3	Rain dancing	Danse de la pluie	villager activity (status text shown on Details screen / hover)
@@ -375,7 +375,7 @@ table/252~cbe07852	Starting a fire	Allume un feu	villager activity (status text 
 table/253~8c4fa16c	Creating cutting tools	Fabrique des outils tranchants	villager activity (status text shown on Details screen / hover)
 table/254~e09ef86a	Retrieving a cauldron	Va chercher un chaudron	villager activity (status text shown on Details screen / hover)
 table/256~1a211411	Running away	S'enfuit	villager activity (status text shown on Details screen / hover)
-table/257~50dbf043	Curious about the field	Intrigué par le champ	villager activity (status text shown on Details screen / hover)
+table/257~50dbf043	Curious about the field	S'intéresse au champ	villager activity (status text shown on Details screen / hover)
 table/258~9ae01aee	Studying fruitless plant	Étudie la plante sans fruits	villager activity (status text shown on Details screen / hover)
 table/259~d73033b4	Enjoying magic fruit	Savoure un fruit magique	villager activity (status text shown on Details screen / hover)
 table/260~d88e88a4	Studying strange herb	Étudie une herbe étrange	villager activity (status text shown on Details screen / hover)
@@ -434,7 +434,7 @@ table/313~37cb1fbf	Trying to water strange patch	Essaie d'arroser l'étrange par
 table/314~99b85cd5	Waiting for someone	Attend quelqu'un	villager activity (status text shown on Details screen / hover)
 table/315~4ca57702	Embracing	Fait un câlin	villager activity (status text shown on Details screen / hover)
 table/316~9ebd21e4	Healing someone	Soigne quelqu'un	villager activity (status text shown on Details screen / hover)
-table/317~6e63b009	Curious about the strange flower	Intrigué par l'étrange fleur	villager activity (status text shown on Details screen / hover)
+table/317~6e63b009	Curious about the strange flower	S'intéresse à l'étrange fleur	villager activity (status text shown on Details screen / hover)
 table/221~2a6a568a	Looking at the dry shrubs	Regarde les arbustes secs	villager activity (status text shown on Details screen / hover)
 table/318~11e9eea8	Chasing butterflies	Chasse les papillons	villager activity (status text shown on Details screen / hover)
 table/319~89aea473	Retrieving something from the pond	Récupère quelque chose dans l'étang	villager activity (status text shown on Details screen / hover)
