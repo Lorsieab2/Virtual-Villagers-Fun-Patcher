@@ -109,6 +109,8 @@ FILES = [
     "assets/appearance_rolls/VVFP Appearance Rolls.dll",
     # Fix Vanilla Bugs (The Lost Children): a walk looping on the shoreline band's waypoint goes another way.
     "assets/stuck_walks/VVFP Stuck Walks.dll",
+    # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
+    "assets/keep_carried/VVFP Keep Carried.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
