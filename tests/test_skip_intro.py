@@ -145,6 +145,21 @@ class TheStockCode(unittest.TestCase):
                     english.setdefault(rid, en)
                 self.assertTrue(self._cstr(game, english[question]).startswith(words))
 
+    def test_the_page_draw_walks_its_children(self):
+        # each story page's draw (vtable slot 5) is the base draw: its own picture (slot 6), then every child
+        # in [page+4]+0x18 (where the button is added), each by its own draw (its vtable + 0x18)
+        for game, base, walk in (("vv1", 0x40AE70, 0x40AC50), ("vv2", 0x40B850, 0x40B630)):
+            for vtable in {vt for vt, _s, _st in SLOTS[game]}:
+                with self.subTest(game=game, page=hex(vtable)):
+                    self.assertEqual(self._dword(game, vtable + 4 * 5), base)
+            body = [f"{i.mnemonic} {i.op_str}" for i in self._dis(game, base, 0x20)]
+            self.assertIn("call dword ptr [eax + 0x18]", body)
+            self.assertIn(f"call {walk:#x}", body)
+            loop = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in self._dis(game, walk, 0x20))
+            for piece in ("mov eax, dword ptr [ecx + 4]", "dword ptr [eax + 0x18]", "call dword ptr [edx + 0x18]",
+                          "mov esi, dword ptr [esi + 4]"):
+                self.assertIn(piece, loop)
+
     def test_the_secret_city_has_the_button_in_stock(self):
         # its story overlay builds Skip All (sm 0x89) at (640, 540), Yes at (228, 550) and No at (428, 550)
         body = " ; ".join(f"{i.mnemonic} {i.op_str}" for i in self._dis("vv3", 0x4643D0, 0x1C0))
