@@ -527,6 +527,74 @@ class TranslationsRuntimeTests(unittest.TestCase):
         g.p.write(at, text + b"\0")
         return at
 
+    # -- a companion's own text by key (native/shared/vvfp_translate.h) ---------------------------------
+    def key(self, g: Game, stem: str, english: bytes, cap: int) -> bytes:
+        return g.raw(g.p.export("VvfpTranslateKey", self._cstr(g, stem.encode()), self._cstr(g, english), cap))
+
+    def test_translate_key_by_stem_hash_and_buffer(self):
+        game = 1
+        tf = template(game, [
+            row("vvfp.cod", "vvfp_cause_of_death.CAUSE_WORDS.1", "Disease", "Maladie"),
+            row("vvfp.parentage", "vv1_parentage.x.s0", "%s of %s", "%s de %s"),
+            row("vvfp.story", "story_time_skip.y.s2", "%d years have passed on the island.",
+                "%d {%1: one=an s'est écoulé | other=ans se sont écoulés} sur l'île."),
+        ])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Disease", 64), b"Maladie")
+        self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Disease", 0), b"Maladie")
+        # The English is not the row's (another patch's text, an edited English): English.
+        self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Plague", 64), b"Plague")
+        # It does not fit the companion's buffer: English.
+        self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Disease", 7), b"Disease")
+        self.assertEqual(self.key(g, "vvfp.cod/unknown", b"Disease", 64), b"Disease")
+        self.assertEqual(self.key(g, "vvfp.parentage/vv1_parentage.x.s0", b"%s of %s", 32), b"%s de %s")
+        # A filled-in format: the plural chosen by the value.
+        out = g.p.alloc(256)
+        stem = self._cstr(g, b"vvfp.story/story_time_skip.y.s2")
+        english = self._cstr(g, b"%d years have passed on the island.")
+        for value, expected in ((1, "1 an s'est écoulé sur l'île."), (4, "4 ans se sont écoulés sur l'île.")):
+            text = self._cstr(g, f"{value} years have passed on the island.".encode())
+            self.assertEqual(g.p.export("VvfpTranslateKeyText", stem, english, text, out, 256), 1)
+            self.assertEqual(g.raw(out), expected.encode("cp1252"))
+        text = self._cstr(g, b"4 years have passed on the island.")
+        self.assertEqual(g.p.export("VvfpTranslateKeyText", stem, english, text, out, 10), 0)   # too long
+
+    def test_without_a_translation_keys_answer_english(self):
+        game = 1
+        g = Game(game, self.exes[game], None)
+        g.start()
+        self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Disease", 64), b"Disease")
+
+    def test_exe_patch_text_in_place_when_it_fits(self):
+        game = 1
+        p = self.probe(game)
+        base, rows, stride = TABLE[game]
+        at = next(r for r in range(rows) if p.u32(base + r * stride) == 1)
+        va = p.u32(base + at * stride + 4)
+        en = self.table_en(game, 1)
+        short = en[: max(1, len(en) // 2)].strip() or "x"
+        tf = template(game, [row("patch", f"0x{va:x}", en, short)])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertTrue(g.active())
+        self.assertEqual(g.raw(va), short.encode("cp1252"))
+        # Too long for the English's own bytes: the bytes stay, the content map still has it.
+        tf = template(game, [row("patch", f"0x{va:x}", en, en + " and much more text")])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(g.raw(va), en.encode("cp1252"))
+        self.assertEqual(g.translate(en.encode("cp1252")), (en + " and much more text").encode("cp1252"))
+
+    def test_a_text_built_from_several_rows_is_translated_line_by_line(self):
+        game = 1
+        tf = template(game, [row("vvfp.story", "a.s0", "Not in A New Home:", "Pas dans A New Home :"),
+                             row("vvfp.story", "a.s1", "- Faction: none.", "- Faction : aucune.")])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(g.translate(b"Not in A New Home:\n\n- Faction: none.\n- Something else."),
+                         "Pas dans A New Home :\n\n- Faction : aucune.\n- Something else.".encode("cp1252"))
+
     # -- the dialog hook is set only with a vvfp row -------------------------------------------------
     def test_window_hook_only_with_vvfp_rows(self):
         game = 1

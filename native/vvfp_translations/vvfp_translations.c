@@ -18,8 +18,13 @@
        build_text.  The loader's call site calls a wrapper that runs the loader and then writes +0xC.
      * A literal outside the tables ("exe/0x<va>"): each instruction that pushes or loads its address
        (tr_sites.inc) gets the translation's address instead.
-     * The patcher's own companions' text ("vvfp.*"): no address; VvfpTranslateText and the dialog hook
-       match it by content.
+     * The patcher's own companions' text ("vvfp.*"): no address.  A companion that builds a text itself asks
+       for it by key (VvfpTranslateKey / VvfpTranslateKeyText, native/shared/vvfp_translate.h: the row's
+       stem and the English it holds; the translation only when the English is the row's and it fits the
+       companion's buffer); VvfpTranslateText (the Unicode Text draw hooks) and the dialog hook match it by
+       content (a dialog's text line by line when it was put together from several rows).
+     * Text an exe patch wrote ("patch/0x<va>"): the live text at <va> is replaced in place when its
+       translation fits the English's own bytes; a longer one is matched by content (VvfpTranslateText).
    A row is used only when the hash in its key is the hash of the live English (another patch that changed
    that text keeps its own text) and its translation passes the row checks of the format.
 
@@ -290,7 +295,7 @@ static tr_cp *tr_decode(const unsigned char *data, unsigned int size, int *count
 
 /* ---- rows ----------------------------------------------------------------------------------------- */
 
-enum { TR_SRC_TABLE = 1, TR_SRC_SM, TR_SRC_EXE, TR_SRC_VVFP, TR_SRC_OTHER };
+enum { TR_SRC_TABLE = 1, TR_SRC_SM, TR_SRC_EXE, TR_SRC_VVFP, TR_SRC_PATCH, TR_SRC_OTHER };
 
 typedef struct tr_row {
     struct tr_row *next;
@@ -1614,13 +1619,18 @@ typedef struct tr_entry {
     const unsigned char *utf8;         /* the translation, UTF-8 (a pattern row: with run-time selects) */
     const unsigned char *game;         /* the translation in the game's encoding (NULL for a pattern row) */
     int pattern;
+    unsigned int row_hash;             /* g_keys: the hash of the row's English (its key's ~hash) */
+    const unsigned char *english;      /* g_keys: the row's English, UTF-8 */
 } tr_entry;
 
 static tr_entry **g_map;               /* exact English -> translation */
 static tr_entry *g_patterns;           /* the vvfp rows matched as patterns */
 static tr_entry **g_interns;           /* VvfpTranslateText's pattern results: input -> result */
 static tr_entry *g_sm_rows[TR_BUCKETS]; /* VV3-VV5: eName -> the prepared row (utf8 = prepared, game = map form) */
+static tr_entry **g_keys;              /* "vvfp.*" and "patch/" rows by their stem ("source/id") */
 static int g_have_vvfp;
+
+static unsigned int tr_strlen(const unsigned char *p);
 
 static unsigned int tr_fnv(const unsigned char *p, unsigned int n) {
     unsigned int h = 2166136261u, i;
@@ -1729,6 +1739,41 @@ static void tr_map_add(const tr_cp *en, int en_n, const unsigned char *utf8, uns
             g_patterns = pe;
         }
     }
+}
+
+/* A companion's row by its stem: its static form in the game's encoding, its map form (UTF-8, run-time selects
+   kept for a pattern row) and its English. */
+static void tr_key_add(tr_span stem, unsigned int hash, const tr_cp *en, int en_n, const unsigned char *game,
+                       unsigned int game_n, const unsigned char *utf8, unsigned int utf8_n, int pattern) {
+    tr_out key, eng;
+    tr_entry *e;
+    if (g_keys == NULL) {
+        return;
+    }
+    key.utf8 = eng.utf8 = 1;
+    key.cap = (unsigned int)stem.n * 4u + 1u;
+    eng.cap = (unsigned int)en_n * 4u + 1u;
+    key.n = eng.n = 0;
+    key.p = (unsigned char *)tr_keep(key.cap);
+    eng.p = (unsigned char *)tr_keep(eng.cap);
+    if (key.p == NULL || eng.p == NULL) {
+        return;
+    }
+    tr_put_cps(&key, stem.p, stem.n);
+    tr_put_cps(&eng, en, en_n);
+    eng.p[eng.n] = 0;
+    if (tr_lookup(g_keys, key.p, key.n) != NULL) {
+        return;                                    /* the first row with a stem wins */
+    }
+    e = tr_insert(g_keys, key.p, key.n);
+    if (e == NULL) {
+        return;
+    }
+    e->game = tr_keep_copy(game, game_n);
+    e->utf8 = tr_keep_copy(utf8, utf8_n);
+    e->pattern = pattern;
+    e->row_hash = hash;
+    e->english = eng.p;
 }
 
 /* ---- pattern matching (vvfp rows with %s %d %i %u) ------------------------------------------------- */
@@ -1995,16 +2040,93 @@ static int tr_utf8_to_wide(const unsigned char *in, wchar_t *out, int cap) {
     return k;
 }
 
+/* A text put together from several rows (a companion's message built line by line): each longest run of whole
+   lines that is a row is translated, every other line kept.  1 when any run was. */
+static int tr_translate_lines(const unsigned char *text, unsigned int n, unsigned char *out, unsigned int cap) {
+    unsigned int starts[64], ends[64], count = 0, i = 0, o = 0, line;
+    unsigned char piece[TR_WIN_TEXT * 3], result[TR_WIN_TEXT * 3];
+    int any = 0;
+    while (i <= n && count < 64) {
+        unsigned int e = i;
+        while (e < n && text[e] != '\n') {
+            ++e;
+        }
+        starts[count] = i;
+        ends[count] = e;
+        ++count;
+        i = e + 1;
+    }
+    if (count < 2 || i <= n) {
+        return 0;                                  /* one line (already tried whole) or too many */
+    }
+    for (line = 0; line < count;) {
+        unsigned int last, best = 0, best_n = 0;
+        const unsigned char *best_text = NULL;
+        for (last = count; last > line; --last) {
+            unsigned int from = starts[line], to = ends[last - 1], k = to - from;
+            const tr_entry *exact;
+            /* a line's own \r stays outside the match */
+            if (k > 0 && text[to - 1] == '\r') {
+                --k;
+            }
+            if (k == 0 || k >= sizeof piece) {
+                continue;
+            }
+            memcpy(piece, text + from, k);
+            piece[k] = 0;
+            if (tr_translate_utf8(piece, k, result, sizeof result, &exact)) {
+                best_text = exact != NULL ? exact->utf8 : result;
+                best_n = tr_strlen(best_text);
+                best = last;
+                break;
+            }
+        }
+        if (best_text != NULL) {
+            unsigned int to = ends[best - 1];
+            if (o + best_n + 2 >= cap) {
+                return 0;
+            }
+            memcpy(out + o, best_text, best_n);
+            o += best_n;
+            if (to > starts[line] && text[to - 1] == '\r') {
+                out[o++] = '\r';
+            }
+            any = 1;
+            line = best;
+        } else {
+            unsigned int k = ends[line] - starts[line];
+            if (o + k + 2 >= cap) {
+                return 0;
+            }
+            memcpy(out + o, text + starts[line], k);
+            o += k;
+            ++line;
+        }
+        if (line < count) {
+            out[o++] = '\n';
+        }
+    }
+    out[o] = 0;
+    return any;
+}
+
 /* The translation of a window text (UTF-16), or 0. */
 static int tr_translate_wide(const wchar_t *w, int wn, wchar_t *out, int cap) {
     unsigned char text[TR_WIN_TEXT * 3], result[TR_WIN_TEXT * 3];
     const tr_entry *exact;
     unsigned int n = tr_wide_to_utf8(w, wn, text, sizeof text);
-    if (n == 0 || !tr_translate_utf8(text, n, result, sizeof result, &exact)) {
+    if (n == 0) {
         return 0;
     }
-    tr_utf8_to_wide(exact != NULL ? exact->utf8 : result, out, cap);
-    return 1;
+    if (tr_translate_utf8(text, n, result, sizeof result, &exact)) {
+        tr_utf8_to_wide(exact != NULL ? exact->utf8 : result, out, cap);
+        return 1;
+    }
+    if (tr_translate_lines(text, n, result, sizeof result)) {
+        tr_utf8_to_wide(result, out, cap);
+        return 1;
+    }
+    return 0;
 }
 
 static int tr_class_is(HWND hwnd, const wchar_t *name) {
@@ -2540,7 +2662,7 @@ static void tr_cleanup_failed(void) {
     }
     tr_free_all(&g_scratch);
     tr_free_all(&g_keep);
-    g_map = g_interns = NULL;
+    g_map = g_interns = g_keys = NULL;
     g_patterns = NULL;
     memset(g_sm_rows, 0, sizeof g_sm_rows);
     g_have_vvfp = 0;
@@ -2560,7 +2682,8 @@ static void tr_start(int game) {
     tr_prep *preps = NULL;
     int n_preps = 0;
     unsigned int fmt_bytes = 0, text_bytes = 0;
-    int need_output = 0, need_star = 0, need_loader = 0, n_sites = 0, n_table = 0;
+    int need_output = 0, need_star = 0, need_loader = 0, n_sites = 0, n_table = 0, n_patch = 0;
+    tr_prep *patch_preps = NULL;
     vvfp_site_write *sites;
     tr_entry **seen;
 
@@ -2715,6 +2838,8 @@ static void tr_start(int game) {
                     row->source = TR_SRC_SM;
                 } else if (tr_span_is(source, "exe")) {
                     row->source = TR_SRC_EXE;
+                } else if (tr_span_is(source, "patch")) {
+                    row->source = TR_SRC_PATCH;
                 } else if (source.n >= 4 && source.p[0] == 'v' && source.p[1] == 'v' && source.p[2] == 'f'
                            && source.p[3] == 'p' && (source.n == 4 || source.p[4] == '.')) {
                     row->source = TR_SRC_VVFP;
@@ -2736,12 +2861,14 @@ static void tr_start(int game) {
     g_utf8 = tr_glyphs_utf8(game);
     g_map = (tr_entry **)tr_keep(TR_BUCKETS * sizeof(tr_entry *));
     g_interns = (tr_entry **)tr_keep(TR_BUCKETS * sizeof(tr_entry *));
-    if (g_map == NULL || g_interns == NULL) {
+    g_keys = (tr_entry **)tr_keep(TR_BUCKETS * sizeof(tr_entry *));
+    if (g_map == NULL || g_interns == NULL || g_keys == NULL) {
         tr_cleanup_failed();
         return;
     }
     memset(g_map, 0, TR_BUCKETS * sizeof(tr_entry *));
     memset(g_interns, 0, TR_BUCKETS * sizeof(tr_entry *));
+    memset(g_keys, 0, TR_BUCKETS * sizeof(tr_entry *));
 
     /* every row: its English still the key's, its translation checked, its text found */
     {
@@ -2818,6 +2945,34 @@ static void tr_start(int game) {
                 if (live == NULL || tr_hash_cp1252(live) != row->hash) {
                     continue;
                 }
+            } else if (row->source == TR_SRC_PATCH) {
+                char id[16];
+                unsigned int value = 0;
+                int k;
+                if (!tr_span_ascii(row->id, id, sizeof id) || id[0] != '0' || (id[1] != 'x' && id[1] != 'X')
+                    || id[2] == 0) {
+                    continue;
+                }
+                for (k = 2; id[k]; ++k) {
+                    char c = id[k];
+                    unsigned int v = (c >= '0' && c <= '9') ? (unsigned int)(c - '0')
+                        : (c >= 'a' && c <= 'f') ? (unsigned int)(c - 'a' + 10)
+                        : (c >= 'A' && c <= 'F') ? (unsigned int)(c - 'A' + 10) : 16u;
+                    if (v > 15u || k > 9) {
+                        value = 0;
+                        break;
+                    }
+                    value = (value << 4) | v;
+                }
+                /* only the game's own image: never another module's memory */
+                if (value < 0x401000u || value >= 0x01000000u) {
+                    continue;
+                }
+                at = value;
+                live = tr_live_text(value);
+                if (live == NULL || tr_hash_cp1252(live) != row->hash) {
+                    continue;                   /* this build has no such patch text, or another one */
+                }
             } else if (row->source == TR_SRC_SM) {
                 if (g->sm == 0) {
                     continue;
@@ -2841,9 +2996,29 @@ static void tr_start(int game) {
             if (!tr_prepare(row, prep)) {
                 continue;
             }
-            if (row->source == TR_SRC_VVFP) {
-                tr_map_add(row->en, row->en_n, prep->map, prep->map_n,
-                           tr_pattern_english(row->en, row->en_n));
+            if (row->source == TR_SRC_VVFP || row->source == TR_SRC_PATCH) {
+                int pattern = tr_pattern_english(row->en, row->en_n);
+                tr_map_add(row->en, row->en_n, prep->map, prep->map_n, pattern);
+                {
+                    tr_span stem;
+                    stem.p = row->key.p;
+                    stem.n = 0;
+                    while (stem.n < row->key.n && row->key.p[stem.n] != '~') {
+                        ++stem.n;
+                    }
+                    tr_key_add(stem, row->hash, row->en, row->en_n, prep->bytes, prep->n, prep->map, prep->map_n,
+                               pattern);
+                }
+                if (row->source == TR_SRC_VVFP) {
+                    g_have_vvfp = 1;
+                    continue;
+                }
+                /* An exe patch's text: in place when the translation fits the English's own bytes. */
+                if (prep->n <= tr_strlen(live) && tr_strlen(live) + 1u <= VVFP_SITE_MAX_BYTES) {
+                    prep->next = patch_preps;
+                    patch_preps = prep;
+                    ++n_patch;
+                }
                 g_have_vvfp = 1;
                 continue;
             }
@@ -3016,6 +3191,25 @@ static void tr_start(int game) {
         }
     }
 
+    /* The exe patches' texts that fit in place: written over their English (all or none), after the code */
+    if (n_patch > 0) {
+        int w = 0;
+        tr_prep *prep;
+        vvfp_site_write *writes = (vvfp_site_write *)tr_scratch((unsigned int)n_patch
+                                                                * (unsigned int)sizeof(vvfp_site_write));
+        if (writes != NULL) {
+            for (prep = patch_preps; prep != NULL; prep = prep->next) {
+                unsigned int live_n = tr_strlen(prep->live);
+                unsigned char bytes[VVFP_SITE_MAX_BYTES];
+                memset(bytes, 0, sizeof bytes);
+                memcpy(bytes, prep->bytes, prep->n);
+                vvfp_site_bytes(&writes[w], prep->at, (int)live_n + 1, prep->live, bytes);
+                ++w;
+            }
+            vvfp_install_sites(writes, w);
+        }
+    }
+
     /* The Secret City to New Believers: the rows the loader's wrapper applies */
     if (need_loader) {
         tr_prep *prep;
@@ -3104,7 +3298,10 @@ const char *__stdcall VvfpTranslateText(const char *text) {
     }
     utf8[n] = 0;
     if (!tr_translate_utf8(utf8, n, result, sizeof result, &exact)) {
-        return text;
+        exact = NULL;
+        if (!tr_translate_lines(utf8, n, result, sizeof result)) {
+            return text;
+        }
     }
     if (exact != NULL) {
         return exact->game != NULL ? (const char *)exact->game : text;
@@ -3129,6 +3326,89 @@ const char *__stdcall VvfpTranslateText(const char *text) {
         g_interned += rn + len + 64u;
         return (const char *)game;
     }
+}
+
+/* A companion's own text by key (native/shared/vvfp_translate.h): `stem` is the row's "source/id", `english`
+   the English the companion holds (the game's encoding).  The translation, in the game's encoding, when a row
+   has that stem, its English is this English (the key's hash), and it fits `cap` bytes with its NUL (cap 0: a
+   text drawn from a pointer, held to the game's own rule for a text of that length); else `english`.  Every
+   select is its 'other' / 'o' branch: the result can be given to sprintf with the English's own arguments
+   (the row checks keep every conversion, in order).  Game thread only; valid for the process life. */
+const char *__stdcall VvfpTranslateKey(const char *stem, const char *english, unsigned int cap) {
+    const tr_entry *e;
+    unsigned int n, live_n;
+    if (!g_active || g_keys == NULL || stem == NULL || english == NULL) {
+        return english;
+    }
+    e = tr_lookup(g_keys, (const unsigned char *)stem, tr_strlen((const unsigned char *)stem));
+    if (e == NULL || e->game == NULL || tr_hash_cp1252((const unsigned char *)english) != e->row_hash) {
+        return english;
+    }
+    n = tr_strlen(e->game);
+    live_n = tr_strlen((const unsigned char *)english);
+    if (cap != 0 ? n + 1u > cap
+                 : ((n > TR_GROWTH * live_n && n > live_n + TR_GROWTH_PLUS) || (live_n < TR_SHORT && n >= TR_SHORT))) {
+        return english;
+    }
+    return (const char *)e->game;
+}
+
+/* `text` is the row's English (`english`, a format with %s %d %i %u) already filled in: its translation with
+   the same values, gender and plural selects chosen by them, written to `out` (game encoding) when it fits
+   `cap` bytes with its NUL.  1 when written; 0 leaves `out` untouched (the caller keeps `text`). */
+int __stdcall VvfpTranslateKeyText(const char *stem, const char *english, const char *text, char *out,
+                                   unsigned int cap) {
+    const tr_entry *e;
+    unsigned char utf8[TR_WIN_TEXT * 3], result[TR_WIN_TEXT * 3], game[TR_WIN_TEXT * 3];
+    tr_capture caps[TR_MAX_CONVS];
+    unsigned int len, n = 0, k, rn, gn;
+    int budget = 20000, ncaps = 0;
+    const unsigned char *p;
+    if (!g_active || g_keys == NULL || stem == NULL || english == NULL || text == NULL || out == NULL || cap == 0) {
+        return 0;
+    }
+    e = tr_lookup(g_keys, (const unsigned char *)stem, tr_strlen((const unsigned char *)stem));
+    if (e == NULL || tr_hash_cp1252((const unsigned char *)english) != e->row_hash) {
+        return 0;
+    }
+    if (!e->pattern) {
+        if (strcmp(english, text) != 0 || e->game == NULL || tr_strlen(e->game) + 1u > cap) {
+            return 0;
+        }
+        memcpy(out, e->game, tr_strlen(e->game) + 1u);
+        return 1;
+    }
+    len = tr_strlen((const unsigned char *)text);
+    if (len >= TR_WIN_TEXT) {
+        return 0;
+    }
+    if (tr_valid_utf8((const unsigned char *)text, len)) {
+        memcpy(utf8, text, len);
+        n = len;
+    } else {
+        for (k = 0; k < len; ++k) {
+            n += tr_utf8_put(tr_cp1252_char((unsigned char)text[k]), utf8 + n);
+        }
+    }
+    utf8[n] = 0;
+    if (!tr_match(e->english, utf8, caps, 0, &budget)) {
+        return 0;
+    }
+    for (p = e->english; *p; ++p) {
+        if (*p == '%' && p[1] == '%') {
+            ++p;
+        } else if (*p == '%') {
+            ++ncaps;
+            ++p;
+        }
+    }
+    rn = tr_fill_pattern(e->utf8, caps, ncaps, result, sizeof result);
+    gn = tr_utf8_to_game(result, rn, game);
+    if (gn + 1u > cap) {
+        return 0;
+    }
+    memcpy(out, game, gn + 1u);
+    return 1;
 }
 
 int __stdcall VvfpTranslationsActive(void) {
