@@ -247,6 +247,33 @@ def _rules_for(entry: dict) -> fmt.RowRules:
     )
 
 
+_INTEGER_CONVERSION = re.compile(r"(?<!%)%[iu]")
+
+
+def content_key(english: str) -> str:
+    """The English as VVFP Translations.dll finds it: a pattern row matches the shown text, so %d, %i and %u are
+    one conversion ("Set %d %s to Age 18." and "Set %u %s to Age 18." are one text)."""
+    return _INTEGER_CONVERSION.sub("%d", english)
+
+
+def content_shadowed(entry: dict, taken: set[str]) -> bool:
+    """True for a row that would never be used, and so is left out of the template (the owner, 2026-11-03: a
+    translator is never given a row that does nothing).  A text drawn by the game's text routine or a dialog is
+    found by the English it shows ("content" route, scripts/scan_patch_text.py), and VVFP Translations.dll keeps
+    ONE translation per English: the first row with it.  A later row with the same English -- another patcher
+    row, or a game string the patch's text happens to equal -- is never reached, so it is not offered.  A row a
+    companion asks for by its stem ("route": "key") and an exe patch's own text ("patch/0x<va>") are found by
+    key and by address, so they are always offered, and (the DLL keeps a key row out of the content map) they
+    take no English from the content rows.  `taken` holds the content keys of the rows so far; it grows."""
+    if entry.get("route") == "key" or entry["stem"].startswith("patch/"):
+        return False
+    key = content_key(entry["english"])
+    if key in taken:
+        return True
+    taken.add(key)
+    return False
+
+
 def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> list[TemplateRow]:
     """Every row of the game's template, its English read from the player's own game (the patched copy when
     `folder` holds one) and the patcher's own text that game shows.  Raises FileNotFoundError when no
@@ -276,8 +303,11 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
         rules.byte_limit = game_byte_limit(text)
         rows.append(TemplateRow(fmt.Row(key, text, "", entry.get("notes", "")), rules, entry.get("context", "")))
     tag = f"vv{number}"
+    taken = {content_key(r.row.english) for r in rows}
     for entry in load_patcher_strings():
         if tag not in entry.get("games", ()):
+            continue
+        if content_shadowed(entry, taken):
             continue
         source, _slash, ident = entry["stem"].partition("/")
         key = fmt.make_key(source, ident, entry["english"])
