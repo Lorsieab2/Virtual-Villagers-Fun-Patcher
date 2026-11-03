@@ -400,7 +400,8 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(run.get_text(wrapper2, FIELD[game]).split(b"\0")[0], short)
                 # Drawn and measured as the whole name, fitted with "…" to the room its field leaves.
                 for font in ("ldwarialbold", "ldwBurweed27"):
-                    self.assertEqual(run.width_of(font, short), self._fitted_width(run, font, JAPANESE, FIELD[game] - 1))
+                    want = self._fitted_width(run, font, JAPANESE, FIELD[game] - 1)
+                    self.assertEqual(run.width_of(font, short), want)
 
     def _fitted_width(self, run, font, whole, room_bytes):
         """The spec's fit-to-width: the whole name when it is no wider than as many W as the field holds bytes,

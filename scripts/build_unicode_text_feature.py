@@ -199,8 +199,11 @@ def behaviour(game: int, tables: dict, override: bool) -> list:
         "shaping, GDI glyphs, COLR colour layers for emoji) in the font's size and baseline.",
         "Each detoured text routine first offers the text to VvfpTranslateText of \"VVFP Translations.dll\" when "
         "that companion is loaded (fails open), and shows a long name's short form as the whole name.",
-        "Line breaking breaks Chinese and Japanese between characters (never before a closing mark or small kana) "
-        "and other text at spaces, and breaks a word wider than the line between whole units only.",
+        "Line breaking follows UAX #14 by Windows' own icu.dll (loaded from System32 only; a built-in table where "
+        "Windows has none): a text with Chinese, Japanese, Korean, Thai, Lao, Khmer, Myanmar or emoji breaks between "
+        "whole characters where the rules allow (never before a closing mark or small kana, never after an opening "
+        "one; Thai and the others at their words, inside a shaped run too), other text at spaces, and a word wider "
+        "than the line after its longest start of whole characters that fits.",
         f"The SDL_TEXTINPUT case ({g['text_input']['site']}) posts a typed ASCII character exactly as before; any "
         "other well-formed text is handed whole to the focused text box, which stores each character whole (a "
         "Windows-1252 character as its one byte, any other as UTF-8) while it fits the box's limit. Backspace erases "

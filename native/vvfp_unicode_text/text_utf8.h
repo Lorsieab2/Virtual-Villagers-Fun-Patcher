@@ -229,36 +229,6 @@ static int ut_complex(unsigned int cp) {
         || (cp >= 0x10800 && cp <= 0x10FFF) || (cp >= 0x1E800 && cp <= 0x1EFFF);
 }
 
-/* Ideographs, kana and their punctuation: a line may break between any two (Chinese, Japanese). */
-static int ut_cjk(unsigned int cp) {
-    return (cp >= 0x2E80 && cp <= 0x2FDF) || (cp >= 0x3000 && cp <= 0x30FF) || (cp >= 0x3190 && cp <= 0x31FF)
-        || (cp >= 0x3400 && cp <= 0x4DBF) || (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF)
-        || (cp >= 0xFF00 && cp <= 0xFF60) || (cp >= 0x20000 && cp <= 0x3FFFF);
-}
-
-/* Never at the start of a line (Japanese kinsoku: closing marks, small kana, the long-vowel mark). */
-static int ut_no_break_before(unsigned int cp) {
-    static const unsigned short CLOSE[] = {
-        0x3001, 0x3002, 0xFF0C, 0xFF0E, 0x300D, 0x300F, 0xFF09, 0x3009, 0x300B, 0x3011, 0x3015, 0x30FC,
-        0x3005, 0x3041, 0x3043, 0x3045, 0x3047, 0x3049, 0x3063, 0x3083, 0x3085, 0x3087, 0x308E, 0x30A1,
-        0x30A3, 0x30A5, 0x30A7, 0x30A9, 0x30C3, 0x30E3, 0x30E5, 0x30E7, 0x30EE, 0x30F5, 0x30F6, 0xFF01,
-        0xFF1F, 0xFF1A, 0xFF1B, 0x30FB, 0x2019, 0x201D, '.', ',', '!', '?', ':', ';', ')', ']', '}', 0
-    };
-    int i;
-    for (i = 0; CLOSE[i]; ++i) {
-        if (CLOSE[i] == cp) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/* Never at the end of a line (opening brackets and quotes). */
-static int ut_no_break_after(unsigned int cp) {
-    return cp == 0x300C || cp == 0x300E || cp == 0xFF08 || cp == 0x3008 || cp == 0x300A || cp == 0x3010
-        || cp == 0x3014 || cp == 0x2018 || cp == 0x201C || cp == '(' || cp == '[' || cp == '{';
-}
-
 /* ---- Units ------------------------------------------------------------------------------------ */
 
 enum { UT_END = 0, UT_NEWLINE, UT_SPACE, UT_CLUSTER, UT_RUN };
@@ -378,14 +348,6 @@ static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t 
     }
     u->kind = UT_CLUSTER;
     u->len = ut_grapheme(s, end, &u->last);
-}
-
-/* May a line break between a unit ending with `a` and one starting with `b` (neither a space)? */
-static int ut_break_between(unsigned int a, unsigned int b) {
-    if (ut_no_break_before(b) || ut_no_break_after(a)) {
-        return 0;
-    }
-    return ut_cjk(a) || ut_cjk(b);
 }
 
 /* The length text[0..len) keeps when its last unit is erased (Backspace): the last grapheme cluster
