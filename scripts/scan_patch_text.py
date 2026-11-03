@@ -334,6 +334,58 @@ def patch_texts() -> list[PatchText]:
     return list(unique.values())
 
 
+
+# ---- how a row's text reaches the screen ------------------------------------------------------------------------
+#
+# Three routes (docs/reports/translation-keys/audit.md):
+#   "key"     the companion asks "VVFP Translations.dll" for the row by its stem (native/shared/vvfp_translate.h:
+#             vvfp_tr / vvfp_trf / ce_tr_printf), so the row's own translation is what is drawn;
+#   "patch"   an exe patch's text at an address (patch/0x<va>): the DLL writes the translation over it in place;
+#   "content" the text is drawn by the game's text routine or a Windows dialog and the DLL finds its row by the
+#             English it sees (VvfpTranslateText / the dialog hook): one translation per distinct English.
+KEY_CALL = re.compile(r'(?:vvfp_tr|ce_tr_printf\([^;]*?|ce_tr_done\([^;]*?|vvfp_trf)\(?\s*"((?:vvfp|patch)[\w.\-]*/[\w.\-%]+)",\s*'
+                      r'"((?:[^"\\]|\\.)*)"', re.S)
+# Stems a companion builds with wsprintfA (native source: the format that builds each one is in KEY_FAMILY_SOURCES).
+KEY_FAMILIES = (
+    re.compile(r"^vvfp\.cod/vvfp_cause_of_death\.CAUSE_WORDS\.\d+$"),
+    re.compile(r"^vvfp\.cod/vvfp_cause_of_death\.EPITAPHS\.\d+$"),
+    re.compile(r"^vvfp\.story/story_custom\.CE_WHY_WORDS\.\d+$"),
+    re.compile(r"^vvfp\.story/story_c[1-5]\.C[1-5]_ADAPTER\.4[3-6]$"),
+)
+KEY_FAMILY_SOURCES = (
+    ("native/vvfp_cause_of_death/cod_vv12.inc", 'vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.%d'),
+    ("native/vvfp_cause_of_death/cod_vv12.inc", 'vvfp.cod/vvfp_cause_of_death.EPITAPHS.%d'),
+    ("native/vvfp_story_upgrades/story_custom.inc", 'vvfp.story/story_custom.CE_WHY_WORDS.%d'),
+    ("native/vvfp_story_upgrades/story_custom.inc", 'vvfp.story/story_c%d.C%d_ADAPTER.%d'),
+)
+
+
+KEY_CALL_STEM = re.compile(r'(?:vvfp_tr|vvfp_trf|ce_tr_printf\([^;]*?|ce_tr_done\([^;]*?)\(?\s*"((?:vvfp|patch)[\w.\-]*/[\w.\-%]+)"', re.S)
+
+
+def key_call_stems() -> dict[str, str | None]:
+    """Every stem a companion's source asks for by key (a literal stem): the English it passes when that is a
+    literal, else None (a named constant)."""
+    out: dict[str, str | None] = {}
+    for path, _relative in source_files():
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for m in KEY_CALL_STEM.finditer(text):
+            out.setdefault(m.group(1), None)
+        for m in KEY_CALL.finditer(text):
+            out[m.group(1)] = _decode(m.group(2), False)
+    return out
+
+
+def is_key_family(stem: str) -> bool:
+    return any(rx.match(stem) for rx in KEY_FAMILIES)
+
+
+def route_of(stem: str, key_stems) -> str:
+    """"key", "patch" or "content" for a patcher_strings.json row."""
+    if stem in key_stems or is_key_family(stem):
+        return "key"
+    return "patch" if stem.startswith("patch/") else "content"
+
 # ---- exclusions -------------------------------------------------------------------------------------------------
 
 def load_exclusions() -> list[dict]:
