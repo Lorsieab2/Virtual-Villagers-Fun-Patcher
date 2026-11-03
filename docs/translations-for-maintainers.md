@@ -7,14 +7,30 @@ file into the form, types the name they want to be credited as, checks the licen
 A GitHub account is needed; nothing else personal is asked for. The file format is in
 [translation-file-format.md](translation-file-format.md).
 
-Nothing is added to the repository until you say so.
+Translations also arrive as **pull requests** into the public folder `translations/` (one folder per game,
+`translations/vv1/` .. `translations/vv5/`, one `<language code>.tsv` per language; `translations/README.md`
+tells players how): anyone can use GitHub's **Add file -> Upload files** there, which opens a pull request
+for people without write access. Players download from the same folder with the patcher's **Download from
+GitHub...**.
+
+Nothing is added to the repository until you say so. **Every submitted file is sent to VirusTotal first**
+(the owner, 2026-11-02: "PLEASE RUN EVERY SINGLE USER-SUBMITTED FILE THROUGH VIRUSTOTAL AND REJECT ANYTHING
+THAT IS FLAGGED"); anything flagged, or not scanned for any reason, is refused.
 
 ## One-time setup
 
 1. **Labels.** Create two labels in the repository (Issues -> Labels): `translation` (the form puts it on
    every submission; GitHub only applies a label that already exists) and `accept-translation` (you add it
    to accept).
-2. **Let the workflow open pull requests.** Settings -> Actions -> General -> Workflow permissions: check
+2. **The VirusTotal key.** The scan needs a VirusTotal API key in the repository secret **`VT_API_KEY`**.
+   Without it every submission fails with "not scanned" (never a pass). To add it:
+   1. sign in at https://www.virustotal.com (a free account is enough; the free API allows 4 requests a
+      minute, which the scan respects), open your profile menu -> **API key**, and copy the key;
+   2. in this repository: Settings -> Secrets and variables -> Actions -> **New repository secret**, name
+      `VT_API_KEY`, paste the key, **Add secret**.
+   The key is only ever read by the scan step from its environment: it is never printed, logged, written to a
+   file or put on a command line.
+3. **Let the workflow open pull requests.** Settings -> Actions -> General -> Workflow permissions: check
    **Allow GitHub Actions to create and approve pull requests**. Without it the workflow's
    `gh pr create` is refused and the issue gets the "stopped unexpectedly" comment.
 
@@ -24,8 +40,10 @@ Nothing is added to the repository until you say so.
 2. Add the label **accept-translation**. The workflow `accept-translation`
    (`.github/workflows/accept-translation.yml`) starts; watch it under Actions if you like (about a minute).
 3. **If the file passes**, the workflow:
-   - writes `translations/<Game title>/<Game title> - <Language>.txt` (the language's own name, from the
-     file's `@language` row) with `@translator` set to the credit typed in the form;
+   - sends the attached file to VirusTotal (flagged or not scanned: refused, with the engines named);
+   - writes `translations/vv<N>/<code>.tsv` (from the file's `@code` row; when another translator's file of
+     that language is already there, `<code>-<credit slug>.tsv`, so nobody's file is overwritten; the same
+     translator's own file is updated) with `@translator` set to the credit typed in the form;
    - commits it on the branch `translation/issue-<N>` as **github-actions[bot]** (never as the player);
    - opens a pull request titled `Translation: <Game title> - <Language>`, crediting the translator by the
      typed name only, with the validation report and `Closes #<N>`;
@@ -41,6 +59,40 @@ Nothing is added to the repository until you say so.
    line in the file), removes the `accept-translation` label, and the run shows red. Nothing is committed.
    The player can fix the file in the Translations window and send it again, or edit the issue to drag the
    fixed file into the **Translation file** box; then add the label again.
+
+## Pull requests into translations/ (translation-pr.yml)
+
+Every pull request that touches `translations/` runs two required checks, in this order, and comments the
+results on the pull request:
+
+1. **scan**: each file must be a UTF-8 `.tsv` at `translations/vv1/` .. `translations/vv5/<code>.tsv` (or
+   `<code>-<credit slug>.tsv`), at most 2 MB; `README.md` and `manifest.json` cannot be changed by a
+   submission. Each file is looked up on VirusTotal by its SHA-256 (`GET /api/v3/files/{sha256}`); unknown to
+   VirusTotal, it is uploaded (`POST /api/v3/files`) and its analysis polled (`/api/v3/analyses/{id}`, up to
+   ten minutes, at most 4 requests a minute, waiting longer when VirusTotal says the limit was reached). ANY
+   engine reporting malicious or suspicious fails the check, naming the engines. No key, VirusTotal
+   unreachable, a timeout: **not scanned**, which fails the same way.
+2. **validate** (only after a clean scan): `scripts/validate_translation.py`, as below.
+
+To accept: **merge** the pull request, or add the **accept-translation** label to it. The label runs both
+checks again; if they pass the workflow merges the pull request itself and records the files; if not it
+removes the label and comments why. After any merge into the default branch, `translation-record.yml` scans
+the folder's files again where needed and writes **`translations/manifest.json`** (each clean, valid file's
+SHA-256, scan date, verdict, language, code and credit). **Download from GitHub... offers only files listed
+clean there, and refuses a download whose SHA-256 is not the one listed.** A file you merge that is flagged is
+left out of the manifest (the run names it): delete it.
+
+Why `pull_request_target`: a pull request from a fork gets no secrets under the plain `pull_request` event, so
+every outside submission would fail as "not scanned". `translation-pr.yml` therefore runs as
+`pull_request_target`, which runs the workflow **as it is on the default branch**, and it checks out **only
+the default branch**: nothing of the pull request is checked out, installed, imported or run. The submitted
+files are read as data through the GitHub API, blob by blob, and only decoded and parsed. Pull request text
+never reaches a `run:` script except through environment variables. Its jobs ask only for `contents`,
+`pull-requests` and `issues` (write only where needed).
+
+Files whose `@language` or `@translator` starts with `(TEST)` are test files: they stay here (and can be
+downloaded), and `scripts/build_release.py` keeps them out of every release. Every other accepted file ships
+in the release's `translations/vv<N>/`.
 
 ## What the workflow checks
 
@@ -78,8 +130,9 @@ Exit code 0 means accepted, 1 refused; emails are masked in everything it prints
 
 ## How an accepted translation ships
 
-- `scripts/build_release.py` collects every `translations/<Game title>/*.txt` into `TRANSLATION_FILES` and
-  adds them to the release zip automatically; nothing to list by hand.
+- `scripts/build_release.py` collects every `translations/vv<N>/*.tsv` into `TRANSLATION_FILES` and adds them
+  to the release zip automatically, except `(TEST)` files (owner, 2026-11-02: "Only exclude TEST files"),
+  which are left out of the release zip and the source zip; nothing to list by hand.
 - The release build checks each one again (`_assert_translations_valid`: it must read, be for the game its
   folder names, and contain no email address) and stops if one fails.
 - After the next release every player sees it in the game's **Translations** dropdown as
@@ -94,10 +147,10 @@ close the pull request without merging and delete its `translation/issue-<N>` br
 ## Updating a translation
 
 A translator sends the updated file with the form like a new one. Accepting it writes the same path
-(`translations/<Game title>/<Game title> - <Language>.txt`), so the pull request **replaces** the existing
+(`translations/vv<N>/<code>.tsv` for the same credit), so the pull request **replaces** that translator's
 file and says so; the diff shows exactly which lines changed. If a different person sends a translation for
-a language that already exists, the credit in the new file replaces the old one: check with both before
-merging if that matters. You can also edit the file yourself in a normal commit; the release build checks
+a language that already exists, it is added beside it as `<code>-<credit slug>.tsv`: both stay, and players
+see both in Download from GitHub..., each with its credit. You can also edit the file yourself in a normal commit; the release build checks
 it the same way.
 
 To accept a fixed file on the same issue, add the `accept-translation` label again: the workflow replaces
@@ -108,8 +161,9 @@ the `translation/issue-<N>` branch and the open pull request picks up the new fi
 - The workflow runs only when the `accept-translation` label is added to an issue that also has the
   `translation` label. Only people with triage access or more can add labels, so a stranger cannot start
   it.
-- Its token has exactly `contents: write`, `pull-requests: write` and `issues: write`, and it uses no secret
-  other than the workflow's own `GITHUB_TOKEN`.
+- Its token has exactly `contents: write`, `pull-requests: write` and `issues: write`. Its only secrets are
+  the workflow's own `GITHUB_TOKEN` and `VT_API_KEY`, which reaches only the step that prepares the file, as an
+  environment variable, and is never printed.
 - The issue's text is passed to `scripts/accept_translation.py` only through an environment variable. No
   `${{ github.event.issue.* }}` appears inside a `run:` script, so nothing a player types can become shell
   code (script injection). The PR title and body are written to files by the script and read by `gh` from

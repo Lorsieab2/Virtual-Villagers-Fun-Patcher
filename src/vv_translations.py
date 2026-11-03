@@ -14,8 +14,10 @@ module is the Virtual Villagers side:
   - "exe/0x<va>": the few visible literals outside the tables (button words, version lines, formats);
   - "vvfp.<part>/<id>": the patcher's own text inside the games (data/translations/patcher_strings.json,
     the patcher's own English, shipped).
-* INSTALLED translations: "translations\\<Game title>\\<Game title> - <Language>.txt" beside the patcher (the
-  release ships the community translations accepted on GitHub there; "Add translation file..." copies more in).
+* INSTALLED translations: "translations\\vv<N>\\<code>.tsv" beside the patcher, the same layout as the public
+  folder on GitHub (translations/vv<N>/<code>.tsv; the release ships the accepted ones there; "Add translation
+  file..." and "Download from GitHub..." put more in).  Files of the older layout,
+  "translations\\<Game title>\\<Game title> - <Language>.txt", are still read.
 * The CHOICE per game: a patched game uses the file copied to "<game folder>\\Virtual Villagers Fun Patcher
   Files\\Translation\\Translation.txt", which "VVFP Translations.dll" reads when the game starts.  No file there
   means the game is exactly as without translations.
@@ -24,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import struct
 import tempfile
@@ -35,7 +38,14 @@ from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "translations"
-TRANSLATIONS_DIR = ROOT / "translations"
+# The player's installed translations, beside the patcher: "Installed translations\vv<N>\<name>.tsv" (the public
+# folder's layout).  Not the repository's public translations/ folder: that one never ships with the patcher
+# (the owner, 2026-11-02: "do NOT include the ai french translation in the patcher, just put it in a
+# Translations folder in my repos"); its files arrive only through Download from GitHub....
+TRANSLATIONS_DIR = ROOT / "Installed translations"
+# Where v1.35.88 and v1.35.89 installed (translations\<Game title>\*.txt): still read, never written.
+LEGACY_DIR = ROOT / "translations"
+PUBLIC_FOLDER = "translations"           # the repository's public folder: translations/vv<N>/<name>.tsv
 PATCHER_FILES = "Virtual Villagers Fun Patcher Files"
 RUNTIME_SUBFOLDER = "Translation"
 RUNTIME_FILE = "Translation.txt"
@@ -287,7 +297,115 @@ def new_translation(game, language: str, code: str, rows: list[TemplateRow]) -> 
 # ---- installed translations ----------------------------------------------------------------------------
 
 def game_dir(game) -> Path:
-    return TRANSLATIONS_DIR / TITLES[game_number(game)]
+    """The game's folder of installed translations: translations/vv<N> (the public folder's layout on GitHub,
+    translations/vv<N>/<code>.tsv, the release ships it as is)."""
+    return TRANSLATIONS_DIR / f"vv{game_number(game)}"
+
+
+def legacy_dir(game) -> Path:
+    """The folder v1.35.88 and v1.35.89 installed into: translations/<Game title>/<Game title> - <Language>.txt.
+    Still read (and its files still chosen, exported and deleted); nothing new is written there."""
+    return LEGACY_DIR / TITLES[game_number(game)]
+
+
+TRANSLATION_SUFFIXES = (".tsv", ".txt")
+CODE_RE = re.compile(r"^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
+
+
+def installed_name(code: str) -> str:
+    """The name an installed translation gets: "<code>.tsv" (the shared spec); refused for a code that is not
+    one (it would not be a safe file name)."""
+    code = (code or "").strip()
+    if not CODE_RE.match(code):
+        raise fmt.FormatError(f"the @code row must be a language code such as fr or pt-BR, not {code!r}")
+    return f"{code}.tsv"
+
+
+def credit_slug(credit: str) -> str:
+    """The credit name as a file-name part: lowercase ASCII letters, digits and hyphens (accents dropped, every
+    other run of characters one hyphen, none at either end); "translator" when nothing is left."""
+    import unicodedata  # noqa: PLC0415
+    ascii_text = unicodedata.normalize("NFKD", credit or "").encode("ascii", "ignore").decode("ascii").lower()
+    slug = re.sub(r"[^a-z0-9]+", "-", ascii_text).strip("-")
+    return slug[:40].strip("-") or "translator"
+
+
+def public_name(code: str, credit: str, existing: dict[str, str] | None = None) -> str:
+    """The file name a translation gets in a game's folder (the public translations/vv<N>/ on GitHub and the
+    player's Installed translations\\vv<N>): "<code>.tsv"; when that language is already there from someone
+    else, "<code>-<credit slug>.tsv", then "-2", "-3" ... so nobody's file is overwritten.  `existing` maps each
+    name already in the folder to its @translator: a file of the same code and the same credit is that
+    translator's own and is updated in place."""
+    base = installed_name(code)
+    existing = dict(existing or {})
+    stem = base[:-4]
+    key = (credit or "").strip().casefold()
+    slug = credit_slug(credit)
+    own = re.compile(re.escape(stem) + r"(?:-" + re.escape(slug) + r"(?:-\d+)?)?\.tsv")
+    for name, translator in sorted(existing.items()):
+        if own.fullmatch(name) and key and (translator or "").strip().casefold() == key:
+            return name
+    if base not in existing:
+        return base
+    candidate = f"{stem}-{slug}.tsv"
+    n = 2
+    while candidate in existing:
+        candidate = f"{stem}-{slug}-{n}.tsv"
+        n += 1
+    return candidate
+
+
+def folder_names(folder: Path) -> dict[str, str]:
+    """Every translation file name in `folder` with its @translator ("" when unreadable)."""
+    out: dict[str, str] = {}
+    if not Path(folder).is_dir():
+        return out
+    for path in Path(folder).iterdir():
+        if path.suffix.lower() in TRANSLATION_SUFFIXES and path.is_file():
+            try:
+                out[path.name] = fmt.read_file(path).translator
+            except (OSError, fmt.FormatError):
+                out[path.name] = ""
+    return out
+
+
+def shipped_dir(game) -> Path:
+    """The accepted translations the release ships: translations/vv<N> beside the patcher (the public folder's
+    files, (TEST) ones left out).  Read only."""
+    return LEGACY_DIR / f"vv{game_number(game)}"
+
+
+def translation_dirs(game) -> list[Path]:
+    """Where installed translations are read: the player's own first, then the shipped ones, then the old
+    layout's."""
+    return [game_dir(game), shipped_dir(game), legacy_dir(game)]
+
+
+TEST_MARK = "(TEST)"
+
+
+def is_test(tf: fmt.TranslationFile) -> bool:
+    """A test file (the owner, 2026-11-02: "Only exclude TEST files"): its language name or its credit starts
+    with "(TEST)".  It stays in the repository and never ships."""
+    return any((value or "").strip().upper().startswith(TEST_MARK) for value in (tf.language, tf.translator))
+
+
+def is_test_translation(path: Path) -> bool:
+    try:
+        return is_test(fmt.read_file(Path(path)))
+    except (OSError, fmt.FormatError):
+        return False
+
+
+def find_installed(game, name: str) -> Path | None:
+    """An installed file of `game` by its file name, in the new folder first, then the old one."""
+    if not name or Path(name).name != name:
+        return None
+    for folder in translation_dirs(game):
+        path = folder / name
+        if path.is_file():
+            return path
+    return None
 
 
 @dataclass
@@ -304,38 +422,64 @@ class Installed:
 
 
 def installed(game) -> list[Installed]:
-    """Every readable translation for `game` in the translations folder, by language name."""
+    """Every readable translation for `game` in the translations folders (translations/vv<N>/*.tsv, and the
+    older translations/<Game title>/*.txt), by language name."""
     number = game_number(game)
-    folder = game_dir(number)
     out = []
-    if not folder.is_dir():
-        return out
-    for path in sorted(folder.glob("*.txt")):
-        try:
-            tf = fmt.read_file(path)
-        except (OSError, fmt.FormatError):
+    seen: set[tuple[str, str, str]] = set()
+    shipped = shipped_dir(number)
+    for folder in translation_dirs(number):
+        if not folder.is_dir():
             continue
-        if tf.game and tf.game.casefold() != TITLES[number].casefold():
-            continue
-        if fmt.check_info(tf, TITLES[number]):
-            continue
-        out.append(Installed(path, tf.language, tf.code, tf.translator, tf.game))
+        for path in sorted(p for p in folder.iterdir() if p.suffix.lower() in TRANSLATION_SUFFIXES):
+            if not path.is_file():
+                continue
+            try:
+                tf = fmt.read_file(path)
+            except (OSError, fmt.FormatError):
+                continue
+            if tf.game and tf.game.casefold() != TITLES[number].casefold():
+                continue
+            if fmt.check_info(tf, TITLES[number]):
+                continue
+            if folder == shipped and is_test(tf):
+                continue                        # a (TEST) file in a source checkout: never offered as shipped
+            ident = (tf.language.casefold(), tf.code.casefold(), tf.translator.casefold())
+            if ident in seen:
+                continue                        # the player's own copy (read first) wins over a shipped one
+            seen.add(ident)
+            out.append(Installed(path, tf.language, tf.code, tf.translator, tf.game))
     out.sort(key=lambda item: item.label.casefold())
     return out
 
 
+def install_target(game, tf: fmt.TranslationFile) -> Path:
+    """Where a translation is installed: Installed translations/vv<N>/<public_name> -- the same file of the
+    same translator is updated, another translator's of the same language is never replaced."""
+    folder = game_dir(game)
+    return folder / public_name(tf.code, tf.translator, folder_names(folder))
+
+
 def install_file(game, source: Path) -> Path:
-    """Copy a checked translation into the translations folder (atomically, never over an unreadable file
-    of the same name: that one is moved aside first).  Returns the installed path."""
+    """Copy a checked translation into the translations folder as <code>.tsv (atomically, never over an
+    unreadable file of the same name: that one is moved aside first).  An older-layout file of the same
+    language and code is replaced by it (removed after the copy).  Returns the installed path."""
     number = game_number(game)
     tf = fmt.read_file(source)
     problems = fmt.check_info(tf, TITLES[number])
     if problems:
         raise fmt.FormatError("; ".join(problems))
-    target = game_dir(number) / fmt.file_name(TITLES[number], tf.language)
+    target = install_target(number, tf)
     if Path(source).resolve() == target.resolve():
         return target
     _atomic_copy(Path(source), target)
+    old = legacy_dir(number) / fmt.file_name(TITLES[number], tf.language)
+    if old.is_file() and old.resolve() != Path(source).resolve():
+        try:
+            if fmt.read_file(old).code.casefold() == tf.code.casefold():
+                old.unlink()
+        except (OSError, fmt.FormatError):
+            pass
     return target
 
 
@@ -404,10 +548,8 @@ def remembered_choice(game, settings: dict | None = None, settings_file: Path | 
     name = entry.get("file", "")
     if not name:
         return True, None
-    if Path(name).name != name:
-        return False, None
-    path = game_dir(number) / name
-    return (True, path) if path.is_file() else (False, None)
+    path = find_installed(number, name)
+    return (True, path) if path is not None else (False, None)
 
 
 def apply_remembered(game, game_folder: Path, settings: dict | None = None,
@@ -518,15 +660,15 @@ def recycle(paths, *, shell=None) -> None:
 def delete_installed(game, paths, *, shell=None) -> tuple[list[Path], list[str]]:
     """Delete...: the installed translations `paths` of `game` to the Recycle Bin.  Only files in the game's own
     translations folder are touched.  (deleted, problems); a refused Recycle Bin deletes nothing."""
-    folder = game_dir(game).resolve()
+    folders = {f.resolve() for f in translation_dirs(game)}
     chosen, problems = [], []
     for path in paths:
         path = Path(path)
         try:
-            inside = path.resolve().parent == folder
+            inside = path.resolve().parent in folders
         except OSError:
             inside = False
-        if not inside or path.suffix.lower() != ".txt":
+        if not inside or path.suffix.lower() not in TRANSLATION_SUFFIXES:
             problems.append(f"{path.name} is not an installed translation of {TITLES[game_number(game)]}.")
         elif not path.is_file():
             problems.append(f"{path.name} is already gone.")

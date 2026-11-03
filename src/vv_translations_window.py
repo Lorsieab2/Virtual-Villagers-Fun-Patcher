@@ -45,6 +45,7 @@ from tkinter import font as tkfont
 import vv_copy_slot_window
 import vv_translation_format as fmt
 import vv_translations as tr
+import vv_translations_github
 
 TITLE = "Translations"
 SETTINGS_KEY = "translations"           # the patcher's local settings: {"vv3": {"file": ..., "folders": [...]}}
@@ -63,7 +64,11 @@ SHARE_HOW = "How: press Share on GitHub..., drag the file in, press Submit."
 CREDIT_TITLE = "Credit name"
 CREDIT_HINT = ("Type the name you want to be credited as (a nickname is fine). It is shown publicly with your "
                "translation. " + fmt.EMAIL_SENTENCE)
-ISSUE_URL = "https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/issues/new"
+# A separate note beside the owner's exact Share question (never part of it): the owner, 2026-11-02, "PLEASE RUN
+# EVERY SINGLE USER-SUBMITTED FILE THROUGH VIRUSTOTAL AND REJECT ANYTHING THAT IS FLAGGED".
+VIRUSTOTAL_NOTE = ("Every shared file is sent to VirusTotal to be scanned before anyone looks at it, and anything "
+                   "it flags is refused. That is one more reason never to put private details in a translation.")
+ISSUE_URL ="https://github.com/Lorsieab2/Virtual-Villagers-Fun-Patcher/issues/new"
 PATCH_ROW_NOTE = ("The game must be patched with the \"Translations\" row (it is on by default); the language "
                   "is used from the game's next start, with no re-patching.")
 GAME_FONT_NOTE = "game-font preview needs Render Unicode with In-Game Fonts"
@@ -120,8 +125,7 @@ def chosen_path(app, number: int) -> Path | None:
     name = chosen_name(app, number)
     if not name or Path(name).name != name:
         return None
-    path = tr.game_dir(number) / name
-    return path if path.is_file() else None
+    return tr.find_installed(number, name)
 
 
 def remember_choice(app, number: int, path: Path | None) -> None:
@@ -423,6 +427,8 @@ def build_credit(parent):
     frame = ttk.Frame(top, padding=16)
     frame.pack(fill="both", expand=True)
     ttk.Label(frame, text=CREDIT_HINT, wraplength=460, justify="left").pack(anchor="w")
+    ttk.Label(frame, text=VIRUSTOTAL_NOTE, wraplength=460, justify="left", foreground="#555555").pack(
+        anchor="w", pady=(6, 0))
     name_var = tk.StringVar(master=top, value="")
     entry = ttk.Entry(frame, textvariable=name_var, width=40)
     entry.pack(anchor="w", pady=(10, 0), fill="x")
@@ -1338,6 +1344,122 @@ def ask_language(parent) -> tuple[str, str] | None:
     return result["value"]
 
 
+# ---- Download from GitHub... -----------------------------------------------------------------------------------
+
+DOWNLOAD_TITLE = "Download from GitHub"
+DOWNLOAD_NOTE = ("The translations shared on the patcher's GitHub page (its public translations folder). Only "
+                 "files that passed the VirusTotal scan and the translation check are listed. Nothing is sent: "
+                 "the list is read without a login.")
+
+
+def download_selected(number: int, client, remotes, check=None) -> tuple[list[Path], list[str]]:
+    """Each chosen remote file downloaded, checked as data and installed like Add translation file....
+    (installed, problems)."""
+    check = check or (lambda path: check_translation(path, number))
+    done, problems = [], []
+    for remote in remotes:
+        try:
+            data = client.fetch(remote)
+            done.append(vv_translations_github.install(remote, data, check))
+        except vv_translations_github.RemoteError as error:
+            problems.append(str(error))
+    return done, problems
+
+
+class DownloadDialog:
+    def __init__(self, window, client):
+        self.window, self.client = window, client
+        self.number = window.number
+        self.remotes: list = []
+        top = self.top = tk.Toplevel(window.top)
+        top.title(f"{DOWNLOAD_TITLE} - {tr.TITLES[self.number]}")
+        top.transient(window.top)
+        frame = ttk.Frame(top, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text=DOWNLOAD_NOTE, wraplength=620, justify="left").pack(anchor="w")
+        self.tree = ttk.Treeview(frame, columns=("language", "credit", "changed", "status"), show="headings",
+                                 selectmode="extended", height=12)
+        for column, text, width in (("language", "Language", 170), ("credit", "Credit", 200),
+                                    ("changed", "Last changed", 110), ("status", "Status", 160)):
+            self.tree.heading(column, text=text)
+            self.tree.column(column, width=width, anchor="w")
+        self.tree.pack(fill="both", expand=True, pady=(8, 0))
+        for key in ("<Control-a>", "<Control-A>"):
+            self.tree.bind(key, self.select_all)
+        self.status_var = tk.StringVar(master=top)
+        ttk.Label(frame, textvariable=self.status_var, wraplength=620, justify="left",
+                  foreground="#245a9a").pack(anchor="w", pady=(6, 0))
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill="x", pady=(8, 0))
+        ttk.Button(buttons, text="Select All", command=self.select_all).pack(side="left")
+        ttk.Button(buttons, text="Download", command=self.download).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Refresh", command=self.refresh).pack(side="left", padx=(8, 0))
+        ttk.Button(buttons, text="Close", command=self.close).pack(side="right")
+        top.bind("<Escape>", lambda _e: self.close())
+        top.protocol("WM_DELETE_WINDOW", self.close)
+        top.download = self
+        try:
+            top.grab_set()
+        except tk.TclError:
+            pass
+        self.refresh()
+
+    def refresh(self) -> None:
+        self.status_var.set("Reading the list from GitHub...")
+        try:
+            self.top.update_idletasks()
+        except tk.TclError:
+            pass
+        try:
+            self.remotes = self.client.list_game(self.number)
+        except vv_translations_github.RemoteError as error:
+            self.remotes = []
+            self.status_var.set(str(error))
+        else:
+            self.status_var.set(f"{len(self.remotes)} translation(s) on GitHub." if self.remotes else
+                                "There is no translation of this game on GitHub yet.")
+        self.tree.delete(*self.tree.get_children())
+        for n, remote in enumerate(self.remotes):
+            self.tree.insert("", "end", iid=str(n), values=(remote.language, remote.translator or "-",
+                                                             remote.changed_text, remote.status))
+
+    def rows(self) -> list[tuple]:
+        return [tuple(self.tree.item(i, "values")) for i in self.tree.get_children()]
+
+    def select_all(self, _event=None):
+        self.tree.selection_set(self.tree.get_children())
+        return "break"
+
+    def selected(self) -> list:
+        return [self.remotes[int(i)] for i in self.tree.selection()]
+
+    def download(self):
+        chosen = self.selected()
+        if not chosen:
+            self.status_var.set("Select the translations to download (Ctrl+click or Shift+click for several).")
+            return [], []
+        done, problems = download_selected(self.number, self.client, chosen)
+        self.window.load()
+        if done:
+            self.window.reapply_all(done)
+        vv_translations_github.mark_status(self.number, self.remotes)
+        for n, remote in enumerate(self.remotes):
+            self.tree.set(str(n), "status", remote.status)
+        text = f"Downloaded and installed {len(done)} file(s)." if done else "Nothing was installed."
+        if problems:
+            text += " " + " ".join(problems)
+        self.status_var.set(text)
+        self.window._say(text)
+        return done, problems
+
+    def close(self) -> None:
+        try:
+            self.top.destroy()
+        except tk.TclError:
+            pass
+        self.window._regrab()
+
+
 # ---- the window ----------------------------------------------------------------------------------------------
 
 class TranslationsWindow:
@@ -1400,6 +1522,7 @@ class TranslationsWindow:
         ttk.Button(row1, text="Make a translation...", command=self.make).pack(side="left")
         ttk.Button(row1, text="Edit...", command=self.edit_selected).pack(side="left", padx=(8, 0))
         ttk.Button(row1, text="Add translation file...", command=self.add_dialog).pack(side="left", padx=(8, 0))
+        ttk.Button(row1, text=DOWNLOAD_TITLE + "...", command=self.download_dialog).pack(side="left", padx=(8, 0))
         row2 = ttk.Frame(files)
         row2.grid(row=2, column=0, columnspan=2, sticky="w", pady=(6, 0))
         ttk.Button(row2, text="Select All", command=self.select_all).pack(side="left")
@@ -1546,6 +1669,10 @@ class TranslationsWindow:
             messagebox.showerror(TITLE, "Could not update:\n\n" + "\n".join(problems), parent=self.top)
         return done
 
+    def reapply_all(self, paths) -> None:
+        for path in paths:
+            self.reapply(path)
+
     def reapply(self, path: Path) -> None:
         """The editor saved `path`: a game that uses it gets the new text from its next start."""
         number = self.number
@@ -1609,7 +1736,15 @@ class TranslationsWindow:
             rows, folder = self._template(number)
             if rows is None:
                 return None
-        target = Path(path) if path else tr.game_dir(number) / export_name(number, language)
+        if path:
+            target = Path(path)
+        else:
+            same = [i.path for i in tr.installed(number) if i.code.casefold() == code.casefold()]
+            try:
+                target = same[0] if same else tr.game_dir(number) / tr.installed_name(code)
+            except fmt.FormatError as exc:
+                messagebox.showerror(TITLE, str(exc), parent=self.top)
+                return None
         changed: set = set()
         if target.is_file():
             try:
@@ -1649,7 +1784,7 @@ class TranslationsWindow:
     # -- adding, exporting, sharing
     def add_dialog(self) -> None:
         chosen = filedialog.askopenfilenames(parent=self.top, title="Add translation file",
-                                             filetypes=[("Translation files", "*.txt"), ("All files", "*.*")])
+                                             filetypes=[("Translation files", "*.tsv *.txt"), ("All files", "*.*")])
         self._regrab()
         if chosen:
             self.add_paths(list(chosen))
@@ -1667,10 +1802,15 @@ class TranslationsWindow:
             if not checked.ok:
                 messagebox.showerror(TITLE, f"{path.name}\n\n" + report_text(checked), parent=self.top)
                 continue
-            target = tr.game_dir(number) / export_name(number, checked.tf.language)
+            try:
+                target = tr.install_target(number, checked.tf)
+            except fmt.FormatError as exc:
+                messagebox.showerror(TITLE, f"{path.name}\n\n{exc}", parent=self.top)
+                continue
             if target.exists() and target.resolve() != path.resolve():
                 if not vv_copy_slot_window.ask_yes_no(
-                        self.top, TITLE, f"{target.name} is already in the list. Replace it with {path.name}?"):
+                        self.top, TITLE, f"A {checked.tf.language} ({checked.tf.code}) translation is already "
+                                         f"in the list. Replace it with {path.name}?"):
                     continue
             try:
                 installed, checked = add_translation(number, path, template)
@@ -1730,6 +1870,11 @@ class TranslationsWindow:
             return None
         self._say(f"Exported {target}.")
         return target
+
+    def download_dialog(self, client=None):
+        """Download from GitHub...: the public folder's scanned translations of this game, several selectable."""
+        dialog = DownloadDialog(self, client or vv_translations_github.Client())
+        return dialog
 
     def delete(self, *, ask=None, shell=None):
         """Delete...: every selected translation to the Recycle Bin after one Yes / No question (No the default).
