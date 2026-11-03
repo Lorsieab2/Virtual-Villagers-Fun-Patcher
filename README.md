@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.90
+
+- **(TEST) French AI translations for all five games**, marked "(TEST) - French AI Translation". They are not included in the patcher: they are in the GitHub repository's translations folder (translations/vv1 to vv5, fr.tsv), and you get them in the Translations window with **Download from GitHub...**.
+
 ## What's new in v1.35.89
 
 - **Any character in the games: UTF-8 names, every script, colour emoji** (all five games; **Render Unicode with In-Game Fonts**, on by default and in Owner's Defaults). The games now draw, measure and accept ANY character in their own two fonts: accented letters, Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew (joined and right to left), Indian scripts, cuneiform, symbols and emoji in colour. A character the fonts lack is made the first time it is shown, in the font's size, baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe UI Emoji, Yu Gothic, Microsoft YaHei, Malgun Gothic, Nirmala UI, Ebrima, then Noto fonts if installed); nothing is shipped. Chinese and Japanese lines break between characters. Type in any text box with dead keys, Alt codes, Windows' input methods or the emoji panel (Windows key + .); Backspace erases a whole character. Names are stored as UTF-8 (a Western European letter keeps its one byte), so every older name reads as before.
