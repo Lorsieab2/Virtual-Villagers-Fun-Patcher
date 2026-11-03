@@ -4441,9 +4441,21 @@ static void relook_last_name(const struct game_layout *g, const unsigned char *r
    they changed to: VVFP Cause of Death's save-time roster asks (AppearanceAlreadyLogged) before it
    logs a look change the game made on its own, so Change Appearance's and the Island Events log's
    own records are never written twice. */
-#define LOOK_NOTES 64
+#define LOOK_NOTES 1024    /* 256 villagers, each changed a few times between two saves */
 static struct { int game; char name[MAX_NAME_BYTES]; int head, body; } look_notes[LOOK_NOTES];
 static int look_note_next;
+
+/* The save has caught up with every look noted for this game: start the next save's notes empty, so a
+   look changed back and forth is seen again (VVFP Cause of Death, once its roster is written). */
+__declspec(dllexport) int __stdcall AppearanceNotesSpent(int game_id) {
+    int i;
+    for (i = 0; i < LOOK_NOTES; ++i) {
+        if (look_notes[i].game == game_id) {
+            look_notes[i].game = 0;
+        }
+    }
+    return 1;
+}
 
 static void note_appearance_logged(const struct game_layout *g, const unsigned char *record, const char *before) {
     int oh, ob, nh, nb;

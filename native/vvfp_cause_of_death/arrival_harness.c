@@ -1491,6 +1491,42 @@ static void identity_cases(void) {
         CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Eli\r\n") == 1
               && strstr(text, "  Name: Eli\r\n  Old head: 0\r\n  Old body: 14\r\n  New head: 22\r\n  New body: 23\r\n  Changed by") == NULL,
               "identity: a look change the Change Appearance tool already logged is not logged again");
+        /* (2) A -> B by the tool, then B -> A by the tool, then A -> B by the game itself: the first
+           two notes are spent by their saves, so the third change is logged. */
+        write_village(game, 7, rec(i), 1, "  Old head: 22\n  Old body: 23\n  New head: 0\n  New body: 14\n", NULL, 0);
+        *(int *)(rec(i) + g->head) = 0;
+        *(int *)(rec(i) + g->body) = 14;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        *(int *)(rec(i) + g->head) = 22;
+        *(int *)(rec(i) + g->body) = 23;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Eli\r\n") == 3
+              && strstr(text, "  New head: 22\r\n  New body: 23\r\n  Changed by: the game") != NULL,
+              "identity: a look changed back and forth across saves: the later game-made change is logged");
+        /* (3) More than 64 notes between two saves (Change Appearance for All) lose none: Ivo's tool record
+           is followed by 70 others, and the roster still sees his look as logged. */
+        {
+            int k, ivo = unacc_find("Ivo"), before_n;
+            char line[160];
+            read_into(births);
+            before_n = count_of(text, "Appearance changed\r\n  Name: Ivo\r\n");
+            wsprintfA(line, "  Old head: %d\n  Old body: %d\n  New head: 40\n  New body: 41\n",
+                      *(int *)(rec(ivo) + g->head), *(int *)(rec(ivo) + g->body));
+            write_village(game, 7, rec(ivo), 1, line, NULL, 0);
+            *(int *)(rec(ivo) + g->head) = 40;
+            *(int *)(rec(ivo) + g->body) = 41;
+            for (k = 0; k < 70; ++k) {
+                wsprintfA(line, "  Old head: 0\n  Old body: 14\n  New head: %d\n  New body: 9\n", 100 + k);
+                write_village(game, 7, rec(i), 1, line, NULL, 0);
+            }
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Ivo\r\n") == before_n + 1
+                  && strstr(text, "  Name: Ivo\r\n  Old head: ") != NULL,
+                  "identity: 70 other look records between two saves: the tool's record for Ivo is not doubled");
+        }
     }
 
     /* g. Her looks changed, then she was buried before the next save: her Death record, with the new looks,

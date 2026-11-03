@@ -19,3 +19,4 @@ EXPORTS
     VillagePreferenceListText=_VillagePreferenceListText@20
     AppearanceAlreadyLogged=_AppearanceAlreadyLogged@16
     AppearanceChangedAtSave=_AppearanceChangedAtSave@12
+    AppearanceNotesSpent=_AppearanceNotesSpent@4

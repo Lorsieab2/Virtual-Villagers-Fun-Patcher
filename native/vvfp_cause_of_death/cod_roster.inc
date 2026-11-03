@@ -1035,6 +1035,9 @@ static void roster_reconcile(int slot) {
         parts[0] = head;
         sizes[0] = ROSTER_HEADER + count * roster_entry_size();
         if (vv_sidecar_publish(&roster.gate, roster.path, parts, sizes, 1)) {
+            if (look_spent != NULL) {
+                (void)look_spent(g_game);     /* the roster holds the looks now: the next save's notes start empty */
+            }
             for (i = 0; i < r->slots; ++i) {
                 if (report_counts(departed[i], slot)) {
                     departed[i] = REPORT_NONE;
