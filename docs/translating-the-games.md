@@ -53,6 +53,13 @@ English you see.
   with the reason.
 - **Lists drawn by the patcher itself** in a few windows (owner-drawn lists) and lists the window sorts
   alphabetically stay English.
+- **One translation per English.** The patcher's windows and the words its patches draw are found by the
+  English they show, so two lines with the same English (a patch's "Farming" and the game's own, or one word
+  used in two windows) have one translation, the first row with it; the editor offers one row for it, and
+  nothing is lost. The few texts a patch builds itself (Cause of Death's words, Show Parents' Son / Daughter,
+  Storytelling, Time Skip, Custom Island Event) are asked for by their own line instead: a line of their own
+  that no other text can take over. [docs/reports/translation-keys/audit.md](reports/translation-keys/audit.md)
+  lists every route and what is proven.
 - **Word order glued in code.** A few screens build a sentence from pieces (for example "Completed in" +
   number + "hours", or the tech screen's cost line). Each piece is its own line; their order is fixed. Make
   each piece read well on its own.
