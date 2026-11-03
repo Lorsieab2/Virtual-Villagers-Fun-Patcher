@@ -12551,7 +12551,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "202ADC1D19C52DE9AC99E2595F7606CB1F5098A737BD369F7B7ACED49EB36515",
+    "sha256": "DADFD96EFD1341665F2B5AA6815324EAC43A9EC407D20E85584C7AA075A7AC24",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12624,6 +12624,12 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Copy and Paste.dll",
     # Skip All on the intro story (A New Home, The Lost Children): the story pages' Skip All button.
     "VVFP Skip Intro.dll",
+    # Fix Vanilla Bugs (The Lost Children): a walk that loops on the shoreline band's waypoint tries alternate
+    # standing points, then gives up keeping what the villager holds.
+    "VVFP Stuck Walks.dll",
+    # Fix Vanilla Bugs (A New Home, The Secret City, The Tree of Life, New Believers): a villager whose walk
+    # gives up while it holds something looks for another way first and keeps the item.
+    "VVFP Keep Carried.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
