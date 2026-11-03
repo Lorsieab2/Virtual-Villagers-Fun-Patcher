@@ -10859,11 +10859,9 @@ def unicode_font_face() -> str:
 
 
 def _font_file_name_for_companion(path: Path) -> str:
-    """The name the font file is copied under: its own when plain Latin-1 and short, else a neutral one."""
+    """The name the font file is copied under: its own when plain ASCII and short, else a neutral one."""
     name = path.name
-    try:
-        name.encode("latin-1")
-    except UnicodeEncodeError:
+    if not name.isascii():
         name = "font" + path.suffix.lower()
     if any(ch in name for ch in "\\/:*?\"<>|") or len(name) > 100:
         name = "font" + path.suffix.lower()
