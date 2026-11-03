@@ -27,6 +27,8 @@ from __future__ import annotations
 
 import codecs
 
+import vv_unicode18
+
 GAME_TEXT = "vv-game-text"
 
 
@@ -182,15 +184,14 @@ def game_char(ch: str) -> int | None:
 
 def printable(ch: str) -> bool:
     """A character the games draw and accept typed with "Render Unicode with In-Game Fonts" or "Use Unicode
-    Font": any character but a control, a lone surrogate, a private-use or unassigned code point and the
-    five bytes Windows-1252 leaves undefined (format characters such as the zero-width joiner of emoji
-    sequences are taken)."""
-    import unicodedata
+    Font": any character Unicode 18.0 assigns (src/vv_unicode18.py, not Python's older unicodedata) but a
+    control, a lone surrogate, a private-use code point and the five bytes Windows-1252 leaves undefined
+    (format characters such as the zero-width joiner of emoji sequences are taken)."""
     if len(ch) != 1:
         return False
-    if ch in "":
+    if ch in "\x81\x8d\x8f\x90\x9d":
         return False
-    return unicodedata.category(ch) not in ("Cc", "Cs", "Co", "Cn")
+    return vv_unicode18.category(ch) not in ("Cc", "Cs", "Co", "Cn")
 
 
 def byte_length(text: str) -> int:
@@ -201,31 +202,12 @@ def byte_length(text: str) -> int:
 ZERO_WIDTH_JOINER = chr(0x200D)
 
 
-def _extends(ch: str) -> bool:
-    import unicodedata
-    cp = ord(ch)
-    return (unicodedata.combining(ch) != 0 or unicodedata.category(ch) in ("Mn", "Me")
-            or cp in (0x200C, 0x200D) or 0xFE00 <= cp <= 0xFE0F or 0xE0100 <= cp <= 0xE01EF
-            or 0x1F3FB <= cp <= 0x1F3FF or 0xE0020 <= cp <= 0xE007F)
-
-
 def clusters(text: str) -> list[str]:
-    """`text` cut into the units the games' companion draws and erases whole (native text_utf8.h): a
-    character with its combining marks, variation selectors, emoji modifiers, tags and zero-width-joined
-    parts; a regional-indicator pair (a flag)."""
-    out: list[str] = []
-    i, n = 0, len(text)
-    while i < n:
-        j = i + 1
-        if 0x1F1E6 <= ord(text[i]) <= 0x1F1FF and j < n and 0x1F1E6 <= ord(text[j]) <= 0x1F1FF:
-            j += 1
-        while j < n and _extends(text[j]):
-            j += 1
-            if text[j - 1] == ZERO_WIDTH_JOINER and j < n and text[j] not in " \n":
-                j += 1
-        out.append(text[i:j])
-        i = j
-    return out
+    """`text` cut into the units the games' companion draws, cuts and erases whole (native text_utf8.h):
+    extended grapheme clusters by UAX #29 as of Unicode 18.0 (src/vv_unicode18.py) -- a character with its
+    combining marks, variation selectors, emoji modifiers and tags, an emoji ZWJ sequence, a flag, a Hangul
+    syllable of jamo, an Indic conjunct."""
+    return vv_unicode18.graphemes(text)
 
 
 def fit_bytes(text: str, limit: int) -> str:

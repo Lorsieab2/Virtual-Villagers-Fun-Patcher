@@ -377,6 +377,20 @@ character. For the best-matching letters in the big Burweed font, install
 the Burweed ICG font (the patcher never ships it); other characters are drawn
 from the fonts Windows has, in the font's own size.
 
+Every character of Unicode 18.0 draws, even ones no Windows font has: after
+the game's own letters and Windows' fonts, four open fonts the patcher
+bundles are the last steps -- Noto Sans Cuneiform and Noto Serif Tangut,
+GNU Unifont 18.0.01 (with Unifont Upper), and last Last Resort, a block that
+names the Unicode block of a character with no shape. Their glyphs are scaled
+to the game font's capital height, set on its baseline, thickened and
+shaded to its own levels, and take the game's text colour, so they look like
+the game's lettering. The fonts are about 14 MB, copied once into the game's
+"Virtual Villagers Fun Patcher Files\Unicode Fonts" folder with their licence
+texts (SIL OFL 1.1; GPL-2.0-or-later with the font exception or OFL 1.1 for
+Unifont) and SOURCES.json, and not copied again when the folder already has
+identical files. The game loads them privately for itself only; nothing is
+installed in Windows, and a missing font file only leaves its step out.
+
 Use Unicode Font (overrides in-game fonts) draws ALL the game's text in a
 Windows typeface instead (Segoe UI unless you pick another in the Unicode
 Font box under the patch list). The two cannot be used together: ticking one
@@ -409,6 +423,10 @@ THE PATCHER'S OWN FILES (Unicode)
                       whole name. Lines are only added; Start Over clears it.
   VVFP Unicode Font.txt (beside the game, with Use Unicode Font)
                       the typeface the game draws its text in.
+  Virtual Villagers Fun Patcher Files\Unicode Fonts\ (about 14 MB)
+                      the bundled open fonts (Noto Sans Cuneiform, Noto Serif
+                      Tangut, GNU Unifont, Unifont Upper, Last Resort), their
+                      licence texts and SOURCES.json.
 
 COPY AND PASTE IN TEXT BOXES
 

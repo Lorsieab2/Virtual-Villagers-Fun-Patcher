@@ -655,6 +655,7 @@ typedef struct vg_font {
     vg_metrics m;
     int burweed;                    /* 1: ldwBurweed27, 0: ldwarialbold */
     vg_mask sheet_h;
+    unsigned char alpha_seen[256];  /* every distinct alpha value the font's picture holds (its own grey levels) */
     vg_face faces[VG_MAX_FACES];
     int face_count;
     vg_mask glyph[256];
@@ -877,6 +878,12 @@ static int vg_font_open(vg_font *f, vg_gdi *gdi, const vg_sheet *sheet, int spac
     f->burweed = burweed;
     if (!vg_measure(&f->m, sheet, spacing) || !vg_box(&f->sheet_h, sheet, 'H')) {
         return 0;
+    }
+    {
+        int i, n = sheet->sw * sheet->sh;
+        for (i = 0; i < n; ++i) {
+            f->alpha_seen[sheet->alpha[i]] = 1;
+        }
     }
     return 1;
 }

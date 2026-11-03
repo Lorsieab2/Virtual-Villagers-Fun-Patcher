@@ -644,10 +644,34 @@ static int vt_text_key(const unsigned char *s) {
     return (int)(VT_MARK | ((unsigned int)g_ring_next << 8));
 }
 
-/* The focused box takes a typed text: each character whole, as long as it fits the box's limit. */
+/* The bytes appending the characters s[0..end) to text[0..len) takes (each as ut_append writes it). */
+static int vt_append_size(const unsigned char *text, int len, const unsigned char *s, const unsigned char *end) {
+    unsigned char scratch[3 + 4 * 64];
+    int keep = len > 3 ? 3 : len, at, need = 0;
+    CopyMemory(scratch, text + len - keep, (size_t)keep);
+    at = keep;
+    while (s < end) {
+        unsigned int cp;
+        int k = ut_seq(s, end, &cp), n;
+        if (k == 0 || at + 4 > (int)sizeof scratch) {
+            return 0x7FFFFFFF;
+        }
+        s += k;
+        if (cp < 0x20 || cp == 0x7F || (cp >= 0x80 && cp < 0xA0)) {
+            continue;
+        }
+        n = ut_append(scratch, at, cp, scratch + at);
+        at += n;
+        need += n;
+    }
+    return need;
+}
+
+/* The focused box takes a typed text: each grapheme cluster whole (Unicode 18.0, text_utf8.h), as long as
+   all of it fits the box's limit -- an emoji sequence or an accented letter is never stored in part. */
 static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
     __try {
-        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p;
+        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p, *cluster_end = s;
         for (p = s; p < end;) {
             unsigned int cp;
             unsigned char bytes[4];
@@ -656,11 +680,19 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
             if (k == 0 || text == NULL) {
                 break;
             }
+            len = ln_len(text);
+            if (p >= cluster_end) {
+                unsigned int last;
+                int g = ut_grapheme(p, end, &last);
+                cluster_end = p + (g > 0 ? g : k);
+                if (len + vt_append_size(text, len, p, cluster_end) > limit) {
+                    break;
+                }
+            }
             p += k;
             if (cp < 0x20 || cp == 0x7F || (cp >= 0x80 && cp < 0xA0)) {
                 continue;
             }
-            len = ln_len(text);
             n = ut_append(text, len, cp, bytes);
             if (len + n > limit || box[0x2D] != 0 || box[0x2F] != 0) {
                 break;
@@ -731,7 +763,7 @@ __declspec(naked) static void backspace_hook(void) {
 }
 
 /* For "VVFP Copy and Paste.dll": put UTF-8 text into a text box (the box object, the one at its
-   wrapper's +0x10) exactly as typing does -- each character whole, a Windows-1252 character as its one
+   wrapper's +0x10) exactly as typing does -- each grapheme cluster whole, a Windows-1252 character as its one
    byte, stopping before the first one that does not fit the box's byte limit ([box+0x28]).  Returns the
    number of bytes the box's text grew by; 0 for malformed or empty text. */
 int __stdcall VvfpBoxInsertUtf8(unsigned char *box, const char *utf8) {
@@ -748,12 +780,19 @@ int __stdcall VvfpBoxInsertUtf8(unsigned char *box, const char *utf8) {
             const unsigned char *s = (const unsigned char *)utf8, *end = ut_end(s);
             int n = 0;
             while (s + n < end) {
-                unsigned int cp;
-                int k = ut_seq(s + n, end, &cp);
-                if (k == 0) {
-                    k = 1;                  /* a stray byte: read by the rule (Windows-1252) */
-                }
-                if (n + k > 32) {
+                unsigned int last;
+                /* Whole grapheme clusters (Unicode 18.0), so the box's limit never splits one between two
+                   chunks; a cluster longer than a chunk goes in character by character. */
+                int k = ut_grapheme(s + n, end, &last);
+                if (k <= 0 || n + k > 32) {
+                    if (n > 0) {
+                        break;
+                    }
+                    k = ut_seq(s, end, &last);
+                    if (k == 0) {
+                        k = 1;              /* a stray byte: read by the rule (Windows-1252) */
+                    }
+                    n = k;
                     break;
                 }
                 n += k;
