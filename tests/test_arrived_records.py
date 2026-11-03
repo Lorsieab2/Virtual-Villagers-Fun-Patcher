@@ -44,6 +44,9 @@ CHECKS = 34 * 5 + 1 + 2 + 2 + 3 + 16 * 4 + 9 * 5   # + 9 per game: the quit-time
 CHECKS += 2
 # + 2 per game with Birth records (The Lost Children on): a born villager's record is never his
 # arrived look-alike's (Codex, #536)
+# + 4 per game: the look change the game made itself is logged once (Appearance changed, "Changed by: the game"),
+# not again at the next save, and the Change Appearance tool's own record is not doubled
+CHECKS += 4 * 5
 CHECKS += 2 * 4
 # + 2 per game: the marker names its village, and does not count for another village copied into
 # the slot (Codex, #531)
