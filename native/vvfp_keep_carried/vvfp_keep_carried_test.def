@@ -1,0 +1,7 @@
+LIBRARY "VVFP Keep Carried.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpKeepCarriedInstalled=_VvfpKeepCarriedInstalled@0
+    VvfpKeepCarriedProbeSite=_VvfpKeepCarriedProbeSite@16
+    VvfpKeepCarriedProbeReset=_VvfpKeepCarriedProbeReset@0
+    VvfpKeepCarriedStats DATA

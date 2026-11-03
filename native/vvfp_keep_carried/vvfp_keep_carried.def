@@ -1,0 +1,4 @@
+LIBRARY "VVFP Keep Carried"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpKeepCarriedInstalled=_VvfpKeepCarriedInstalled@0
