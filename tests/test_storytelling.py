@@ -423,7 +423,9 @@ def _builds():
 
 @functools.lru_cache(maxsize=None)
 def _render(game: str, mode: str) -> bytes:
-    ids = [p.id for p in patcher.load_public_fun_patches() if p.game_id == game]
+    # every public patch but the alternatives (Use Unicode Font excludes Render Unicode with In-Game Fonts)
+    ids = [p.id for p in patcher.load_public_fun_patches()
+           if p.game_id == game and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     data, _ = patcher.render_patched_bytes(STOCK[game], _builds()[game], mode, ids)
     return bytes(data)
 
