@@ -593,7 +593,7 @@
         "Nothing to click: tick the patch and patch the game again.",
         "Type any character in names, the tribe name and every text box: accents, Greek, Cyrillic, Chinese,",
         "Japanese, Arabic, cuneiform, emoji (Windows key + .). Backspace erases a whole character.",
-        "Boxes take 1,200 English letters (fewer in other scripts); a longer name is saved short (ending in …), kept whole.",
+        "Name boxes take up to 1,200 bytes (1,200 plain letters; fewer in other scripts); a longer name is saved short, kept whole.",
         "The game draws them in its own fonts, emoji in colour; Chinese and Japanese lines break between characters.",
         "For Burweed text, install the Burweed ICG font (never shipped); other letters come from Windows' fonts.",
         "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen.",
@@ -1125,6 +1125,25 @@
         "Everything: every picture the game has, drawn the game's way and sorted by kind (animals, buildings, the Tech screen, meters, buttons, screens). Unused art is marked (unused).",
         "Save at the game's size, 2x, 4x or your own size; save one picture, a group or the whole village into a folder.",
         "The pictures come from your own game folder (click Find game... the first time if asked). Saves are only read, never changed."
+      ]
+    },
+    "unicode_font_tool": {
+      "title": "Unicode Font",
+      "guide": [
+        "Chooses the typeface Use Unicode Font (overrides in-game fonts) draws all of a game's text with. The default is Segoe UI.",
+        "Pick any font installed in Windows (type in the search box to narrow the list) or choose a .ttf, .otf or .ttc font file.",
+        "The preview draws both of the game's fonts as the game will, fitted so a line is as wide as the game's own. A character the font lacks comes from the fallback fonts.",
+        "Save remembers the choice; patch the game again to use it. A font file is copied into the game's patcher folder and loaded for the game only, never installed in Windows.",
+        "The Unicode Font box beside the setting, and --unicode-font on the command line, write the same choice."
+      ]
+    },
+    "game_text": {
+      "title": "Game Text",
+      "guide": [
+        "Opens Picture Studio's Text tab: type anything and see it drawn in a game's own fonts, in colour or see-through, and save it as a PNG.",
+        "Pick the font, size, colour and zoom. Tick \"As the stock game shows it\" to see the unpatched game, or \"As Use Unicode Font draws it\" to see the typeface you chose in Unicode Font.",
+        "Insert character... searches by name or code point and labels each character (game), (patcher-made), (drawn by Windows: the font) or (missing).",
+        "Nothing in a game or a save is changed."
       ]
     },
     "translations": {

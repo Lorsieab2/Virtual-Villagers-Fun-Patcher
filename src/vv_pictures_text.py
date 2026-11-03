@@ -754,6 +754,22 @@ def game_render(font: GameFont, sheet: pi.Image, data: bytes, colour: int = DEFA
     return canvas
 
 
+# ------------------------------------------------------------------------------- where a character comes from
+
+def char_label(renderer: "TextRenderer", cluster: str) -> str:
+    """Where a font gets a character, as the Text tab's picker shows it (UNICODE_SPEC section 10): "(game)" for the
+    game's own glyph, "(patcher-made)" for one built in the font's style from its own letters, "(drawn by Windows:
+    <face>)" for one a Windows font draws, "(missing)" when nothing can."""
+    piece = renderer.piece(cluster)
+    if piece is None:
+        return "(missing)"
+    if piece.source == SOURCE_GAME:
+        return "(game)"
+    if piece.source == SOURCE_PATCHER or piece.detail.startswith("made of") or "accents generated" in piece.detail:
+        return "(patcher-made)"
+    return f"(drawn by Windows: {piece.detail})" if piece.detail else "(drawn by Windows)"
+
+
 # ------------------------------------------------------------------------------- the name counter
 
 def name_bytes(text: str) -> int:

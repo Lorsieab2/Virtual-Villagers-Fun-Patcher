@@ -383,5 +383,344 @@ class ColourFonts(unittest.TestCase):
         self.assertIn("bitmap=0", run_colour_harness("Segoe UI", "tables", "0", "0"))
 
 
+class UnicodeFontArithmetic(unittest.TestCase):
+    """The preview's em fitting is the companion's (runtime_glyphs.inc rg_fit_em)."""
+
+    def test_the_em_that_makes_the_sentence_as_wide_is_kept_within_60_and_130_percent(self):
+        import vv_unicode_font as uf
+        self.assertEqual(uf.fit_em(20, 500, 500), 20 * 13 // 10)          # 200 px/em would be needed: 130% is the most
+        self.assertEqual(uf.fit_em(20, 600, 60000), 20 * 6 // 10)         # 2 px/em would do: 60% is the least
+        self.assertEqual(uf.fit_em(20, 600, 1000), 20 * 13 // 10)         # 200 * 600 / 1000 = 120 ... clamped to 130%
+        self.assertEqual(uf.fit_em(20, 0, 1000), 20)                      # the game's width is unknown: its own em
+        self.assertEqual(uf.fit_em(20, 600, 0), 20)
+
+    def test_a_face_that_fits_is_rounded_to_the_nearest_pixel(self):
+        import vv_unicode_font as uf
+        # the face is 10 px wide at 200 px/em for 1 px of game width: em 20 exactly
+        self.assertEqual(uf.fit_em(30, 100, 1000), 20)
+        self.assertEqual(uf.fit_em(30, 110, 1000), 22)
+
+    def test_the_game_fonts_own_em_is_the_one_arials_capitals_have(self):
+        import vv_unicode_font as uf
+        self.assertEqual(uf.own_em(14), 20)       # 14 px of capital: Arial's 716/1000 gives a 20 px em
+        self.assertEqual(uf.own_em(0), 0)
+
+    def test_the_python_chain_is_the_companions(self):
+        import vv_unicode_font as uf
+        self.assertEqual(list(uf.FALLBACK_CHAIN), native_chain())
+
+    def test_the_c_arithmetic_is_the_same(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "runtime_glyphs.inc").read_text(encoding="utf-8")
+        self.assertIn("(cap * 1000 + 358) / 716", source)                      # own_em
+        self.assertIn("(int)(((__int64)200 * game * 2 + adv) / (2 * (__int64)adv))", source)   # fit_em
+
+
+class UnicodeFontChoice(unittest.TestCase):
+    """The choice the Unicode Font window and the patch-selection box both write."""
+
+    def setUp(self):
+        import vv_fun_patcher as vfp
+        self.vfp = vfp
+        self.saved = (vfp._unicode_font_face, vfp._unicode_font_file)
+
+    def tearDown(self):
+        self.vfp._unicode_font_face, self.vfp._unicode_font_file = self.saved
+
+    def a_font(self) -> Path:
+        for name in ("arial.ttf", "segoeui.ttf", "tahoma.ttf"):
+            path = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / name
+            if path.is_file():
+                return path
+        self.skipTest("no system font file to use")
+
+    def test_a_font_file_gives_its_own_family_and_a_bad_one_is_refused(self):
+        import vv_unicode_font as uf
+        file, family = uf.check_font_file(self.a_font())
+        self.assertTrue(family)
+        with tempfile.TemporaryDirectory() as tmp:
+            bad = Path(tmp) / "not a font.ttf"
+            bad.write_bytes(b"this is not a font")
+            with self.assertRaises(uf.FontChoiceError):
+                uf.check_font_file(bad)
+            with self.assertRaises(uf.FontChoiceError):
+                uf.check_font_file(Path(tmp) / "x.txt")
+            with self.assertRaises(self.vfp.PatcherError):
+                self.vfp.set_unicode_font_file(bad)
+
+    def test_the_patch_writes_the_face_and_copies_the_file_beside_the_companion(self):
+        font = self.a_font()
+        family = self.vfp.set_unicode_font_file(font) and self.vfp.unicode_font_face()
+        self.assertTrue(family)
+        feature = mock.Mock()
+        feature.id = "vv3_unicode_font"
+        feature.raw = {"companion_files": [{"destination": "Virtual Villagers Fun Patcher Files/VVFP Unicode Font.dll"}]}
+        with tempfile.TemporaryDirectory() as out:
+            with mock.patch.object(self.vfp, "_safe_companion_destination", side_effect=lambda d: Path(d)):
+                self.vfp._write_unicode_font_choice(Path(out), [feature])
+            folder = Path(out) / "Virtual Villagers Fun Patcher Files"
+            lines = (folder / "VVFP Unicode Font.txt").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(lines, [family, font.name])
+            self.assertEqual((folder / "Unicode Font" / font.name).read_bytes(), font.read_bytes())
+
+    def test_with_no_file_only_the_face_is_written(self):
+        self.vfp.set_unicode_font_file(None)
+        self.vfp.set_unicode_font_face("Yu Gothic")
+        feature = mock.Mock()
+        feature.id = "vv1_unicode_font"
+        feature.raw = {"companion_files": [{"destination": "Files/VVFP Unicode Font.dll"}]}
+        with tempfile.TemporaryDirectory() as out:
+            with mock.patch.object(self.vfp, "_safe_companion_destination", side_effect=lambda d: Path(d)):
+                self.vfp._write_unicode_font_choice(Path(out), [feature])
+            self.assertEqual((Path(out) / "Files" / "VVFP Unicode Font.txt").read_text(encoding="utf-8"), "Yu Gothic\n")
+            self.assertFalse((Path(out) / "Files" / "Unicode Font").exists())
+
+    def test_the_command_line_takes_the_font_file(self):
+        source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
+        self.assertIn('"--unicode-font-file"', source)
+        self.assertIn('"--unicode-font"', source)
+
+    def test_the_companion_loads_the_file_for_the_game_only(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "vvfp_unicode_text.c").read_text(encoding="utf-8")
+        self.assertIn("AddFontResourceExW(dir, FR_PRIVATE, NULL)", source)
+        self.assertIn('L"Unicode Font\\\\"', source)
+        self.assertIn("a name with a path in it", source)
+
+
+class UnicodeFontWindowTool(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import tkinter as tk
+        try:
+            cls.root = tk.Tk()
+        except tk.TclError as exc:
+            raise unittest.SkipTest(f"no Tk display: {exc}")
+        cls.root.withdraw()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.root.destroy()
+
+    def test_the_window_lists_installed_fonts_searches_and_saves_the_choice(self):
+        import vv_unicode_font as uf
+        saved = []
+        window = uf.open_window(self.root, images_dirs={}, get_choice=lambda: ("Segoe UI", None),
+                                set_choice=lambda face, file: saved.append((face, file)))
+        window.quiet = True
+        try:
+            self.root.update()
+            self.assertTrue(window.faces)
+            window.search_var.set("segoe")
+            self.assertTrue(window.shown_faces and all("segoe" in f.casefold() for f in window.shown_faces))
+            window.face_list.selection_set(0)
+            window.face_picked()
+            self.assertEqual(window.face, window.shown_faces[0])
+            window.save()
+            self.assertEqual(saved, [(window.shown_faces[0], None)])
+            self.assertIs(uf.open_window(self.root), window)             # one window
+        finally:
+            window.close()
+
+    def test_a_font_file_is_chosen_and_saved_with_its_family(self):
+        import vv_unicode_font as uf
+        font = None
+        for name in ("arial.ttf", "segoeui.ttf", "tahoma.ttf"):
+            path = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / name
+            if path.is_file():
+                font = path
+                break
+        if font is None:
+            self.skipTest("no system font file")
+        saved = []
+        window = uf.open_window(self.root, images_dirs={}, set_choice=lambda face, file: saved.append((face, file)))
+        window.quiet = True
+        try:
+            window.choose_file(str(font))
+            window.save()
+            self.assertEqual(saved[0][1], font)
+            self.assertEqual(saved[0][0], uf.font_file_family(font.read_bytes()))
+            window.choose_file(str(font.with_suffix(".txt")))
+            self.assertIn(".ttf", window.last_message)
+        finally:
+            window.close()
+
+    def test_the_patcher_window_has_both_tools_on_both_tabs(self):
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertEqual(source.count('"Unicode Font..."'), 2)
+        self.assertEqual(source.count('"Game Text..."'), 2)
+        self.assertIn("vv_unicode_font.open_window(", source)
+        self.assertIn("vv_picture_studio.open_picture_studio(self, build)", source)
+        import json
+        guides = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
+        self.assertIn("unicode_font_tool", guides["controls"])
+        self.assertIn("game_text", guides["controls"])
+
+
+def have_game_images(number: int) -> bool:
+    names = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
+    return (ROOT / "research" / "game-images" / f"Virtual Villagers - {names[number]}" / "Images" /
+            "ldwarialbold.png").is_file()
+
+
+@unittest.skipUnless(sys.platform == "win32" and have_game_images(3), "needs Windows and the game pictures")
+class UnicodeFontPreview(unittest.TestCase):
+    def test_the_preview_is_as_wide_as_the_game_font_and_as_tall_as_its_line(self):
+        import vv_font_glyphs as vfg
+        import vv_unicode_font as uf
+        folder = ROOT / "research" / "game-images" / "Virtual Villagers - The Secret City" / "Images"
+        for font in uf.GAME_FONTS:
+            with self.subTest(font=font):
+                game = vfg.text_width("vv3", font, uf.FIT_REFERENCE, folder)
+                picture = uf.render("vv3", font, "Segoe UI", uf.FIT_REFERENCE, folder)
+                self.assertEqual(picture.height, vfg.metrics("vv3", font, folder).line)
+                self.assertLess(abs(picture.width - game), game * 0.15, (picture.width, game))
+
+    def test_a_character_the_face_lacks_comes_from_the_fallback_chain(self):
+        import vv_unicode_font as uf
+        folder = ROOT / "research" / "game-images" / "Virtual Villagers - The Secret City" / "Images"
+        plain = uf.render("vv3", "ldwarialbold", "Segoe UI", "\u65e5", folder)       # a CJK character
+        self.assertTrue(plain.bbox())                                                # drawn, not blank
+
+
+@unittest.skipUnless(have_game_images(5), "needs the game pictures")
+class GameTextTool(unittest.TestCase):
+    """UNICODE_SPEC section 10: the Text tab shows the stock game, Use Unicode Font, and labels each character."""
+
+    @classmethod
+    def setUpClass(cls):
+        import tkinter as tk
+        try:
+            cls.root = tk.Tk()
+        except tk.TclError as exc:
+            raise unittest.SkipTest(f"no Tk display: {exc}")
+        cls.root.withdraw()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.root.destroy()
+
+    def setUp(self):
+        import shutil
+        import vv_picture_image as pi
+        import vv_picture_studio as ps
+        import vv_pictures_common as common
+        from test_picture_studio import FakeModule
+        self.ps, self.common, self.pi, self.shutil = ps, common, pi, shutil
+        self.tmp = Path(tempfile.mkdtemp(prefix="vvgametext"))
+        self.saved = (ps.load_renderer_module, common.save_folders, common.slots, pi.CACHE_ROOT)
+        ps.load_renderer_module = lambda game: FakeModule
+        common.save_folders = lambda game, documents=None: []
+        common.slots = lambda folder, game: []
+        pi.CACHE_ROOT = self.tmp / "cache"
+        images = ROOT / "research" / "game-images" / "Virtual Villagers - New Believers" / "Images"
+        self.window = ps.open_window(self.root, 5, game_folders=[images.parent])
+        self.window.quiet = True
+        self.root.update()
+        self.tab = self.window.text_tab
+
+    def tearDown(self):
+        self.window.close()
+        self.ps.load_renderer_module, self.common.save_folders, self.common.slots, self.pi.CACHE_ROOT = self.saved
+        self.shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_the_two_views_exclude_each_other(self):
+        tab = self.tab
+        tab.stock_var.set(True)
+        tab.unicode_var.set(True)
+        tab._exclusive(tab.unicode_var, tab.stock_var)
+        self.assertFalse(tab.stock_var.get())
+        tab.stock_var.set(True)
+        tab._exclusive(tab.stock_var, tab.unicode_var)
+        self.assertFalse(tab.unicode_var.get())
+
+    def test_use_unicode_font_draws_every_character_in_the_chosen_face(self):
+        import vv_fun_patcher
+        saved = vv_fun_patcher._unicode_font_face
+        vv_fun_patcher.set_unicode_font_face("Segoe UI")
+        try:
+            tab = self.tab
+            tab.set_text("Hello\n\u65e5\u672c")
+            tab.stock_var.set(False)
+            tab.unicode_var.set(True)
+            tab.refresh()
+            self.assertEqual(sum(tab.rendered.counts.values()), 7)
+            image = tab.rendered.image
+            self.assertEqual(image.height, 2 * tab.renderer().line_height)
+            self.assertTrue(image.bbox())
+            tab.stock_var.set(True)
+            tab.unicode_var.set(False)
+            tab.refresh()
+            self.assertNotEqual(tab.rendered.image, image)            # the stock game's own letters differ
+        finally:
+            vv_fun_patcher._unicode_font_face = saved
+
+    def test_the_picker_labels_where_a_character_comes_from(self):
+        import vv_pictures_text as text
+        renderer = self.tab.renderer()
+        self.assertEqual(text.char_label(renderer, "A"), "(game)")
+        self.assertIn(text.char_label(renderer, "\u00e9"), ("(game)", "(patcher-made)"))
+        self.assertIn(text.char_label(renderer, "\u20ac"), ("(game)", "(patcher-made)"))
+        label = text.char_label(renderer, "\u65e5")
+        self.assertTrue(label.startswith("(drawn by Windows") or label == "(missing)", label)
+        picker = self.tab.open_picker()
+        picker.query.set("latin capital letter a")
+        picker.search()
+        self.assertIn("(game)", picker.results.get(0))
+        picker.window.destroy()
+
+    def test_the_stock_view_is_worded_as_the_spec_says(self):
+        source = (ROOT / "src" / "vv_pictures_text_tab.py").read_text(encoding="utf-8")
+        self.assertIn('"As the stock game shows it"', source)
+        self.assertIn('"As Use Unicode Font draws it"', source)
+
+
+class DocsWording(unittest.TestCase):
+    """UNICODE_SPEC section 9: the shared release-note paragraph and the same fallback-chain wording."""
+
+    def test_the_manifests_use_the_shared_paragraph_in_every_game(self):
+        import json
+        for game in range(1, 6):
+            for kind in ("text", "font"):
+                with self.subTest(game=game, kind=kind):
+                    data = json.loads((ROOT / "data" / f"vv{game}_unicode_{kind}_feature.json").read_text(encoding="utf-8"))
+                    text = json.dumps(data, ensure_ascii=False)
+                    self.assertIn("Long names, everywhere: every name box takes names up to 1,200 bytes", text)
+                    self.assertIn("(up to 1,200 plain letters; fewer when letters need more bytes)", text)
+                    self.assertIn("It is one limit, shared with the other Fun Patchers.", text)
+                    self.assertIn("Characters are counted as you see them", text)
+                    self.assertIn("Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed", text)
+                    self.assertNotIn("Every box takes the same limit", text)
+
+    def test_readme_how_to_use_and_the_guide_say_the_same(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        howto = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
+        guide = (ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8")
+        self.assertGreaterEqual(readme.count("Long names, everywhere: every name box takes names up to 1,200 bytes"), 10)
+        self.assertNotIn("Every box takes the same limit", readme)
+        self.assertNotIn("Segoe UI Emoji in colour, Yu Gothic", readme)
+        self.assertIn("Long names, everywhere. Every name box takes names up to 1,200 bytes", howto)
+        self.assertIn("1,200 plain letters", howto)
+        self.assertIn("Name boxes take up to 1,200 bytes (1,200 plain letters", guide)
+
+    def test_the_setting_descriptions_say_characters_and_colour_emoji(self):
+        import json
+        text = json.dumps(json.loads((ROOT / "data" / "vv2_unicode_font_feature.json").read_text(encoding="utf-8")),
+                          ensure_ascii=False)
+        self.assertIn("any installed family, or a .ttf, .otf or .ttc file", text)
+        self.assertIn("fitted so a line is as wide as the game's own", text)
+        self.assertIn("Not yet seen in a running game", text)
+
+
+class HooksAreInstalledBeforeTheContractAnswers(unittest.TestCase):
+    """UNICODE_SPEC section 8: VvfpGlyphsUtf8 answers 1 only once the hooks are installed."""
+
+    def test_g_installed_is_set_only_after_the_sites_were_installed(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "vvfp_unicode_text.c").read_text(encoding="utf-8")
+        self.assertEqual(source.count("g_installed = 1;"), 1)
+        before = source[:source.index("g_installed = 1;")]
+        self.assertTrue(before.rstrip().endswith("}"))                       # the failure branch returns first
+        self.assertIn("if (!vvfp_install_sites(sites, n)) {", before[-400:])
+        self.assertIn("return g_installed ? 1 : 0;", source)
+
+
 if __name__ == "__main__":
     unittest.main()

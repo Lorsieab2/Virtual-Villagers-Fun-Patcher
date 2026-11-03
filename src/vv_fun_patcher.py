@@ -10818,6 +10818,58 @@ def set_unicode_font_face(face: str | None) -> str:
     return _unicode_font_face
 
 
+# A font FILE (.ttf / .otf / .ttc) chosen in the Tools tab's Unicode Font window: copied into a "Unicode Font" folder
+# beside the companion and named on the second line of "VVFP Unicode Font.txt"; the companion loads it for the game
+# only (AddFontResourceExW with FR_PRIVATE), never installing it in Windows.
+UNICODE_FONT_FILE_FOLDER = "Unicode Font"
+UNICODE_FONT_FILE_SUFFIXES = (".ttf", ".otf", ".ttc")
+_unicode_font_file: Path | None = None
+
+
+def set_unicode_font_file(path: str | Path | None) -> Path | None:
+    """Choose a font file for Use Unicode Font (None or blank: an installed face only).  The face name is the
+    file's own family (set_unicode_font_face is told it too)."""
+    global _unicode_font_file
+    if path is None or str(path).strip() == "":
+        _unicode_font_file = None
+        return None
+    candidate = Path(str(path).strip())
+    if candidate.suffix.lower() not in UNICODE_FONT_FILE_SUFFIXES:
+        raise PatcherError(f"Not a .ttf, .otf or .ttc font file: {candidate.name}")
+    try:
+        data = candidate.read_bytes()
+    except OSError as exc:
+        raise PatcherError(f"The font file cannot be read: {exc}") from exc
+    from vv_font_glyphs import ttf_family
+    family = ttf_family(data)
+    if not family:
+        raise PatcherError(f"{candidate.name} is not a font file Windows can use.")
+    set_unicode_font_face(family)
+    _unicode_font_file = candidate
+    return candidate
+
+
+def unicode_font_file() -> Path | None:
+    return _unicode_font_file
+
+
+def unicode_font_face() -> str:
+    """The typeface Use Unicode Font draws with now (set_unicode_font_face)."""
+    return _unicode_font_face
+
+
+def _font_file_name_for_companion(path: Path) -> str:
+    """The name the font file is copied under: its own when plain Latin-1 and short, else a neutral one."""
+    name = path.name
+    try:
+        name.encode("latin-1")
+    except UnicodeEncodeError:
+        name = "font" + path.suffix.lower()
+    if any(ch in name for ch in "\\/:*?\"<>|") or len(name) > 100:
+        name = "font" + path.suffix.lower()
+    return name
+
+
 def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch]) -> None:
     for feature in fun_patches:
         if not feature.id.endswith("_unicode_font"):
@@ -10825,7 +10877,18 @@ def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch])
         for item in feature.raw.get("companion_files", []):
             dll = output_folder / _safe_companion_destination(item["destination"])
             dll.parent.mkdir(parents=True, exist_ok=True)
-            (dll.parent / UNICODE_FONT_CHOICE_FILE).write_text(_unicode_font_face + "\n", encoding="utf-8")
+            lines = _unicode_font_face + "\n"
+            if _unicode_font_file is not None and _unicode_font_file.is_file():
+                name = _font_file_name_for_companion(_unicode_font_file)
+                folder = dll.parent / UNICODE_FONT_FILE_FOLDER
+                folder.mkdir(parents=True, exist_ok=True)
+                target = folder / name
+                if not target.exists() or target.read_bytes() != _unicode_font_file.read_bytes():
+                    temporary = target.with_name(target.name + ".tmp")
+                    temporary.write_bytes(_unicode_font_file.read_bytes())
+                    os.replace(temporary, target)
+                lines += name + "\n"
+            (dll.parent / UNICODE_FONT_CHOICE_FILE).write_text(lines, encoding="utf-8")
 
 
 def _remove_unselected_companions(
@@ -13629,6 +13692,12 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
         default=None,
         help="the typeface Use Unicode Font (overrides in-game fonts) draws with (default: Segoe UI)",
     )
+    parser.add_argument(
+        "--unicode-font-file",
+        default=None,
+        help="a .ttf, .otf or .ttc font file Use Unicode Font draws with (copied beside the companion and loaded "
+             "for the game only; its own family name is used, so --unicode-font is not needed with it)",
+    )
 
 
 def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
@@ -13783,6 +13852,8 @@ def main() -> int:
         args = _parser().parse_args()
         if getattr(args, "unicode_font", None) is not None:
             set_unicode_font_face(args.unicode_font)
+        if getattr(args, "unicode_font_file", None) is not None:
+            set_unicode_font_file(args.unicode_font_file)
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":
