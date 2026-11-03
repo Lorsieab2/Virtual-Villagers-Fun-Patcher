@@ -74,18 +74,19 @@ def decode_bytes(data: bytes) -> str:
 # ---- escapes ---------------------------------------------------------------------------------------------
 
 def escape(text: str) -> str:
-    """A cell's spelling of `text`: backslash, tab and line breaks escaped."""
-    return text.replace("\\", "\\\\").replace("\t", "\\t").replace("\r\n", "\n").replace("\n", "\\n")
+    """A cell's spelling of `text`: backslash, tab, carriage return and line feed escaped, each kept exactly (a
+    game line with CR LF keeps both, so its key's hash still matches the English it was made from)."""
+    return text.replace("\\", "\\\\").replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
 
 
 def unescape(cell: str) -> str:
-    """The text a cell stands for: \\n, \\t and \\\\ decoded; any other backslash kept as written."""
+    """The text a cell stands for: \\n, \\r, \\t and \\\\ decoded; any other backslash kept as written."""
     out = []
     i = 0
     while i < len(cell):
         ch = cell[i]
-        if ch == "\\" and i + 1 < len(cell) and cell[i + 1] in "nt\\":
-            out.append({"n": "\n", "t": "\t", "\\": "\\"}[cell[i + 1]])
+        if ch == "\\" and i + 1 < len(cell) and cell[i + 1] in "nrt\\":
+            out.append({"n": "\n", "r": "\r", "t": "\t", "\\": "\\"}[cell[i + 1]])
             i += 2
             continue
         out.append(ch)
@@ -863,7 +864,7 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
     if english.count("\n") and not translation.count("\n"):
         warn("the English has line breaks (\\n) and the translation has none")
     for ch in translation:
-        if unicodedata.category(ch) in ("Cc",) and ch not in "\n\t":
+        if unicodedata.category(ch) in ("Cc",) and ch not in "\n\r\t":
             err(f"a control character U+{ord(ch):04X} is not allowed")
             break
     return issues

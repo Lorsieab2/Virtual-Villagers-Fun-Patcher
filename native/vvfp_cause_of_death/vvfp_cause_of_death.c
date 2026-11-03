@@ -80,6 +80,7 @@
    birth (VvfpCauseNoteArrival).  Every other villager who joins the village
    gets an "Arrived" record (cod_arrivals.inc). */
 #include <windows.h>
+#include "../shared/vvfp_translate.h"   /* the words it draws, in the player's language */
 #include <string.h>
 #include <stdint.h>
 #include "sidecar_io.h"

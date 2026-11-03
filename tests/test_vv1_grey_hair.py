@@ -464,7 +464,7 @@ def _catalog() -> dict:
 
 def _public_vv1() -> list[str]:
     return [p.id for p in patcher.load_fun_patches()
-            if p.game_id == "vv1" and not p.raw.get("catalog_hidden") and p.raw.get("catalog_enabled", True)
+            if p.game_id == "vv1" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and not p.raw.get("catalog_hidden") and p.raw.get("catalog_enabled", True)
             and p.raw.get("enabled", True) and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
 
 

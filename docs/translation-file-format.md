@@ -7,13 +7,15 @@ finds the chosen file.
 ## One file per game per language
 
 - A translation is **one plain text file** for **one game** in **one language**.
-- File name: `<Game title> - <Language name>.txt`, where the language name is the language's own name
-  for itself. Examples: `Virtual Villagers - The Secret City - Français.txt`,
-  `Virtual Villagers - New Believers - 日本語.txt`.
-- Installed translations live in the program's `Translations` folder (beside the program, one flat
-  folder). The **Export translation...** action writes a copy with the same name for sharing.
-- The program never ships translations. It ships only the English template, which it generates on
-  demand.
+- File name: `<language code>.tsv` in the game's folder (`vv1` .. `vv5`), for example `vv3/fr.tsv`; when
+  that language is already there from another translator, `<code>-<credit slug>.tsv` (the credit in lowercase
+  ASCII letters, digits and hyphens, then `-2`, `-3` ...), so nobody's file is overwritten. The repository's
+  public folder `translations/vv<N>/` and the player's `Installed translations\vv<N>\` beside the program
+  use the same names. Files named the older way, `<Game title> - <Language name>.txt` (in
+  `translations\<Game title>\`), are still read. **Export...** and **Share on GitHub...** save a copy named
+  `<Game title> - <Language name>.txt` (an issue attachment must end in `.txt`).
+- The program ships the translations accepted on GitHub, never a `(TEST)` one (a file whose language or credit
+  starts with `(TEST)`), and the English template, which it generates on demand.
 
 ## Encoding
 
@@ -72,7 +74,8 @@ Tabs and line breaks cannot appear literally in a cell, so a field uses:
 
 | Write | Means |
 |---|---|
-| `\n` | line break |
+| `\n` | line break (line feed) |
+| `\r` | carriage return (a Windows line break in the game's text is `\r\n`) |
 | `\t` | tab |
 | `\\` | one backslash |
 
@@ -86,7 +89,10 @@ validator warns when the translation's leading or trailing spaces differ from th
 ```
 
 - `<source>`: where the text comes from, a short lowercase name chosen by the program (for example
-  `exe`, `menu`, `events`, `tips`, `ui`). Letters, digits, `_`, `-` and `.` only.
+  `exe`, `menu`, `events`, `tips`, `ui`). Letters, digits, `_`, `-` and `.` only. The Virtual Villagers
+  patcher uses `table` / `sm` / `exe` for the games' own text, `vvfp.<part>` for its patches' own text
+  (windows, messages, the words its companions draw), and `patch` (`patch/0x<address>`) for text an exe patch
+  writes into the game.
 - `<id>`: a stable position inside that source that never changes between program versions: an offset,
   a resource number, an element path or a name. Letters, digits, `_`, `-`, `.` and `/` only.
 - `<hash>`: the first 8 hex digits (lowercase) of the SHA-256 of the English text in UTF-8, after

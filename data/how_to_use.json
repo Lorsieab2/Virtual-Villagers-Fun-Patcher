@@ -590,14 +590,14 @@
     {
       "ids": ["vv1_unicode_text", "vv2_unicode_text", "vv3_unicode_text", "vv4_unicode_text", "vv5_unicode_text"],
       "guide": [
-        "Nothing to click: tick the patch and patch the game again.",
         "Type any character in names, the tribe name and every text box: accents, Greek, Cyrillic, Chinese,",
         "Japanese, Arabic, cuneiform, emoji (Windows key + .). Backspace erases a whole character.",
         "Boxes take 1,200 English letters (fewer in other scripts); a longer name is saved short (ending in …), kept whole.",
         "The game draws them in its own fonts, emoji in colour; Chinese and Japanese lines break between characters.",
         "For Burweed text, install the Burweed ICG font (never shipped); other letters come from Windows' fonts.",
+        "Every Unicode 18.0 character draws: letters Windows lacks come from bundled open fonts (about 14 MB, with licences), styled like the game's.",
         "Cannot be used with Use Unicode Font (ticking one unticks the other). Needs Full Names on the Details Screen.",
-        "On by default and in Owner's Defaults. Not yet seen in a running game."
+        "On by default and in Owner's Defaults; tick it and patch again. Not yet seen in a running game."
       ]
     },
     {
@@ -605,10 +605,23 @@
       "guide": [
         "Tick it to draw ALL of the game's text in a Windows typeface instead of its own fonts; patch again.",
         "Pick the typeface in the Unicode Font box under the patch list (Segoe UI unless you choose another).",
-        "Every character works, as with Render Unicode with In-Game Fonts.",
+        "Every Unicode 18.0 character works, as with Render Unicode with In-Game Fonts: what Windows lacks comes from bundled open fonts (about 14 MB).",
         "Cannot be used with Render Unicode with In-Game Fonts (ticking one unticks the other).",
         "Needs Full Names on the Details Screen. Off by default; Select All does not tick it.",
         "Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv1_copy_paste", "vv2_copy_paste", "vv3_copy_paste", "vv4_copy_paste", "vv5_copy_paste"],
+      "guide": [
+        "Nothing to click: tick the patch and patch the game again.",
+        "In the game, click in a text box (a new village's tribe name, a villager's name on the Details screen, ...).",
+        "Ctrl+V or Shift+Insert pastes; Ctrl+C or Ctrl+Insert copies the whole text; Ctrl+X cuts it.",
+        "Pasted text goes at the end (no movable caret) and stops before the first character that does not fit.",
+        "Line breaks and tabs become spaces; characters the game cannot show are left out.",
+        "With Render Unicode with In-Game Fonts or Use Unicode Font, accented letters and the rest paste too; with neither, plain English only.",
+        "Ctrl+A does nothing: the game's boxes cannot select.",
+        "On by default. Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font. Not yet seen in a running game."
       ]
     },
     {
@@ -898,7 +911,7 @@
       "guide": [
         "The typeface Use Unicode Font (overrides in-game fonts) draws all of the game's text in: pick one of the fonts Windows has, or leave Segoe UI.",
         "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
-        "Characters the chosen typeface lacks come from Windows' other fonts (Segoe UI, Segoe UI Historic, Segoe UI Emoji in colour, Yu Gothic, Microsoft YaHei, ...).",
+        "Characters the typeface lacks come from Windows' other fonts, then the bundled open fonts (Noto, Unifont, Last Resort).",
         "It does nothing while Render Unicode with In-Game Fonts is used instead."
       ]
     },
@@ -1130,12 +1143,12 @@
     "translations": {
       "title": "Translations",
       "guide": [
-        "Plays a patched game in another language. Pick the game, then a Language: the game uses it from its next start, with no re-patching.",
-        "The game must be patched with the Translations row (on by default). English (original) brings back the game's own words.",
-        "Make a translation: pick your language; the editor opens with every English line of your game. Type on the right; it saves by itself.",
-        "Keep %d, %s and {name} exactly. The preview shows the line in the game's letters and warns when it may not fit its box.",
-        "Add translation file... (or drop a file on the window) checks a file and adds it; lines with mistakes stay English. Export translation... saves a copy.",
-        "Share on GitHub...: answer Yes, type the name to be credited as, then drag the file Explorer shows into the page that opens and press Submit.",
+        "Pick the game, then a Language: the patched game uses it from its next start. English (original) is the game's own words.",
+        "Needs the Translations row (on by default). Make a translation: the editor lists every English line, patches' text too.",
+        "Add translation file... (or drop one here) checks and adds a file. Download from GitHub... gets shared ones.",
+        "Ctrl+click, Shift+click, Ctrl+A or Select All pick several files. Export... copies them (several into one folder).",
+        "Delete... moves them to the Recycle Bin after one Yes/No (No is the default). English can't be deleted; a deleted language in use goes back to English.",
+        "Share on GitHub...: answer Yes, type a credit name, then drag the file into the page that opens.",
         "Email addresses are never saved and are rejected from translation files."
       ]
     },

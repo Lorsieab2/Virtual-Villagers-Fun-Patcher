@@ -131,8 +131,11 @@ class TheRows(unittest.TestCase):
                 self.assertEqual(row["patches"], [])
                 self.assertEqual(row["dependencies"], [f"{game}_details_full_names"])
                 self.assertEqual(row["conflicts"], [f"{game}_unicode_font"])
-                self.assertEqual(row["companion_files"], [{"source": f"assets/unicode_text/{DLL_NAME}",
-                                                           "destination": DLL_NAME, "sha256": sha}])
+                # The DLL first, then the bundled open fonts, their licences and SOURCES.json (tests/test_unicode18.py).
+                self.assertEqual(row["companion_files"][0], {"source": f"assets/unicode_text/{DLL_NAME}",
+                                                             "destination": DLL_NAME, "sha256": sha})
+                self.assertEqual({c["destination"].split("/")[0] for c in row["companion_files"][1:]},
+                                 {"Unicode Fonts"})
                 d = row["description"]
                 for words in ("**On by default and in Owner's Defaults.**", "**Needs \"Full Names on the Details Screen\"",
                               "**Not yet seen in a running game**", "**Cannot be used with",
@@ -153,7 +156,8 @@ class TheRows(unittest.TestCase):
         names = list(patcher.STARTUP_LOADER_COMPANIONS_2)
         self.assertEqual(names[names.index("VVFP Original Look.dll") + 1], DLL_NAME)
         self.assertLess(names.index(DLL_NAME), names.index("VVFP Translations.dll"))
-        self.assertEqual(names[-1], "VVFP Unicode Font.dll")
+        # Use Unicode Font next; Copy and Paste in Text Boxes (v1.35.89) is appended after it
+        self.assertEqual(names[-2:], ["VVFP Unicode Font.dll", "VVFP Copy and Paste.dll"])
         header = (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
         self.assertIn('    "VVFP Original Look.dll",\n    "VVFP Unicode Text.dll",\n', header)
         self.assertIn(DLL_NAME.encode(), (ROOT / "assets" / "startup" / "VVFP Startup.dll").read_bytes())

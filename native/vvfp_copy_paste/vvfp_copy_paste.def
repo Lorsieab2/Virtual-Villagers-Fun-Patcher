@@ -1,0 +1,5 @@
+LIBRARY "VVFP Copy and Paste"
+EXPORTS
+    VvfpStartup
+    VvfpCopyPasteKey
+    VvfpCopyPasteHandled

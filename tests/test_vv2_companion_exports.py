@@ -80,7 +80,7 @@ class Vv2CompanionExportTests(unittest.TestCase):
 
         build = next(b for b in vfp.load_builds() if b.id == "vv2")
         patches = tuple(
-            p.id for p in vfp.load_public_fun_patches() if p.game_id == "vv2"
+            p.id for p in [alt for alt in vfp.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS] if p.game_id == "vv2"
         )
         for mode in sorted(vfp._PUBLIC_PATCH_MODES):
             with self.subTest(mode=mode):

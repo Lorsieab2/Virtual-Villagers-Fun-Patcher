@@ -95,6 +95,9 @@ FILES = [
     # Use Unicode Font (overrides in-game fonts) (all five games): the same code, every letter from a Windows
     # typeface; shipped by each game's row, started by VVFP Startup.dll.
     "assets/unicode_font/VVFP Unicode Font.dll",
+    # Copy and Paste in Text Boxes (all five games): copy, cut and paste in the game's text boxes; shipped by
+    # each game's row, started by VVFP Startup.dll.
+    "assets/copy_paste/VVFP Copy and Paste.dll",
     "assets/both_factions/VVFP VV3 Both Factions.dll",
     "assets/fruit_trees/VVFP VV3 Trees Refill Together.dll",
     "assets/fruit_trees/VVFP VV3 Trees Take Turns.dll",
@@ -211,8 +214,33 @@ FILES = [
     "data/vv3_unicode_font_feature.json",
     "data/vv4_unicode_font_feature.json",
     "data/vv5_unicode_font_feature.json",
+    "data/vv1_copy_paste_feature.json",
+    "data/vv2_copy_paste_feature.json",
+    "data/vv3_copy_paste_feature.json",
+    "data/vv4_copy_paste_feature.json",
+    "data/vv5_copy_paste_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
+    # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
+    # names for the Text tab's search, their sources and the Unicode License.
+    "data/unicode18/ucd18.json.gz",
+    "data/unicode18/names18.txt.gz",
+    "data/unicode18/SOURCES.json",
+    "data/unicode18/LICENSE-Unicode.txt",
+    # The open fonts the Unicode companions load privately as the last steps of their glyph chain, with their
+    # licence texts and sources (OFL / GPL-with-font-exception notices travel with the fonts). Nothing else of any
+    # game or font ships (never Burweed ICG).
+    "assets/unicode_fonts/NotoSansCuneiform-Regular.otf",
+    "assets/unicode_fonts/NotoSerifTangut-Regular.otf",
+    "assets/unicode_fonts/unifont-18.0.01.otf",
+    "assets/unicode_fonts/unifont_upper-18.0.01.otf",
+    "assets/unicode_fonts/LastResortHE-Regular.ttf",
+    "assets/unicode_fonts/NotoSansCuneiform-OFL-1.1.txt",
+    "assets/unicode_fonts/NotoSerifTangut-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-GPL-2.0-COPYING.txt",
+    "assets/unicode_fonts/LastResort-OFL-1.1.txt",
+    "assets/unicode_fonts/SOURCES.json",
     "data/vv1_translations_feature.json",
     "data/vv2_translations_feature.json",
     "data/vv3_translations_feature.json",
@@ -223,12 +251,15 @@ FILES = [
     "src/vv_translation_format.py",
     "src/vv_translations.py",
     "src/vv_translations_window.py",
+    "src/vv_translations_github.py",
     "data/translations/vv1_strings.json",
     "data/translations/vv2_strings.json",
     "data/translations/vv3_strings.json",
     "data/translations/vv4_strings.json",
     "data/translations/vv5_strings.json",
     "data/translations/patcher_strings.json",
+    "data/translations/exe_patch_strings.json",
+    "data/translations/patch_text_exclusions.json",
     "docs/translation-file-format.md",
     "docs/translating-the-games.md",
     "data/vv3_both_factions_feature.json",
@@ -348,6 +379,7 @@ FILES = [
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",
     "src/vv_game_text.py",
+    "src/vv_unicode18.py",
     "src/vv_long_names.py",
     "src/vv_legacy_names.py",
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
@@ -558,30 +590,56 @@ FILES = [
     "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
     "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
-# The community translations accepted on GitHub (translations/<Game title>/<Game title> - <Language>.txt; the
-# owner's "accept-translation" workflow adds them): every one ships and appears in the Translations window.
-TRANSLATION_FILES = sorted(
-    path.relative_to(ROOT).as_posix()
-    for path in (ROOT / "translations").glob("*/*.txt")
-    if path.is_file()
-)
+# The community translations accepted on GitHub, in the public folder translations/vv<N>/<name>.tsv (the
+# accept workflows add them): every one ships and appears in the Translations window -- EXCEPT test files.
+# The owner, 2026-11-02: "Only exclude TEST files": a file whose language name or credit starts with "(TEST)"
+# stays in the repository (Download from GitHub... can fetch it) and is kept out of every release and payload.
+
+
+def _public_translation_files() -> tuple[list[str], list[str]]:
+    """(shipped, test files) of the public translations/ folder."""
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "src"))
+    import vv_translations as _vt
+    shipped, tests = [], []
+    for path in sorted((ROOT / "translations").glob("vv[1-5]/*.tsv")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(ROOT).as_posix()
+        (tests if _vt.is_test_translation(path) else shipped).append(relative)
+    return shipped, tests
+
+
+TRANSLATION_FILES, TEST_TRANSLATION_FILES = _public_translation_files()
 FILES += TRANSLATION_FILES
 
 
 def _assert_translations_valid(files: list[str]) -> None:
-    """Every shipped translation reads, names its game and language, and holds no email address."""
+    """Every shipped translation reads, is for the game its folder names, holds no email address and is not a
+    test file."""
     import sys as _sys
     _sys.path.insert(0, str(ROOT / "src"))
     import vv_translation_format as _fmt
+    import vv_translations as _vt
     for relative in files:
         path = ROOT / relative
         tf = _fmt.read_file(path)
-        game = Path(relative).parent.name
+        game = _vt.TITLES[int(Path(relative).parent.name[2:])]
         problems = _fmt.check_info(tf, game)
         report = _fmt.validate(tf, game_title=game)
         problems += report.file_errors
+        if _vt.is_test_translation(path):
+            problems.append("a (TEST) file never ships")
         if problems:
             raise RuntimeError(f"{relative}: " + "; ".join(problems))
+
+
+def _assert_no_test_translations(members: list[str]) -> None:
+    """No (TEST) translation is in a release archive."""
+    tests = {m.casefold() for m in TEST_TRANSLATION_FILES}
+    shipped = [m for m in members if m.replace("\\", "/").casefold() in tests]
+    if shipped:
+        raise RuntimeError("a (TEST) translation must never ship: " + ", ".join(shipped))
 
 
 def _assert_no_executable_members(members: list[str]) -> None:
@@ -671,7 +729,8 @@ def _build_source_archive() -> dict | None:
         subprocess.run(
             ["git", "archive", "--format=zip",
              f"--prefix=Virtual-Villagers-Fun-Patcher-{VERSION}-source/",
-             "-o", str(temp), "HEAD"],
+             "-o", str(temp), "HEAD", "--", ".",
+             *(f":(exclude){relative}" for relative in TEST_TRANSLATION_FILES)],
             cwd=ROOT, check=True, capture_output=True,
         )
     except (OSError, subprocess.CalledProcessError):
@@ -691,6 +750,8 @@ def _build_source_archive() -> dict | None:
             # contain them -- but assert it rather than trusting the ignore
             # rule to stay correct.
             _assert_no_executable_members(members)
+            _assert_no_test_translations(
+                [m.split("/", 1)[1] if "/" in m else m for m in members])
             bad = archive.testzip()
             if bad:
                 raise RuntimeError(f"source archive CRC failure: {bad}")
@@ -715,6 +776,7 @@ def _build_source_archive() -> dict | None:
 def main() -> int:
     _assert_no_executable_members(FILES)
     _assert_translations_valid(TRANSLATION_FILES)
+    _assert_no_test_translations(FILES)
     # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
     _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)
@@ -735,6 +797,7 @@ def main() -> int:
         with zipfile.ZipFile(temp) as archive:
             members = archive.namelist()
             _assert_no_executable_members(members)
+            _assert_no_test_translations(members)
             if sorted(members) != sorted(FILES):
                 raise RuntimeError("release archive manifest mismatch")
             bad = archive.testzip()

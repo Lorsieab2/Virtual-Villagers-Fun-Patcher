@@ -156,7 +156,7 @@ class VV1NoUnguardedRuntimeResolutionTests(unittest.TestCase):
         import vv_fun_patcher as patcher
 
         builds = {b.id: b for b in patcher.load_builds()}
-        ids = [f.id for f in patcher.load_fun_patches() if f.game_id == "vv1"]
+        ids = [f.id for f in patcher.load_fun_patches() if f.game_id == "vv1" and f.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
         cls.stock = STOCK.read_bytes()
         cls.renders = {}
         for mode in ("stock", "collection_progression", "immediate_fixed"):

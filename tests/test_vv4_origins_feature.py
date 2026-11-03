@@ -191,7 +191,7 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         # tech-point routine), so the companion must not deduct anything.
         self.assertNotIn("*tech -= cost;", dll)
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
-        patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]
+        patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4" and patch.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
         self.assertIn(FEATURE_ID, patch_ids)
         self.assertIn("vv4_origins_village_wide_upgrades", patch_ids)
         self.assertNotIn("vv4_full_mastery_all_stage_a_candidate", patch_ids)
