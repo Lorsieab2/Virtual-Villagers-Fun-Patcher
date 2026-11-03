@@ -1,0 +1,11 @@
+﻿# Virtual Villagers - The Secret City - translation file (format 1). See docs/translation-file-format.md.
+# Fill the Translation column only. Keep every placeholder (%d, %s, {name}); never edit Key or English.
+# Save as UTF-8 text. Email addresses are never saved and are rejected from translation files.
+Key	English	Translation	Notes
+@format	1	1
+@game	Virtual Villagers - The Secret City	
+@language	English	(TEST) Esperanto
+@code	en	eo
+@translator		(TEST) - workflow check
+sm/eE2eHello~185f8db3	Hello	Saluton
+sm/eE2eQuit~b3eb37ac	Quit	Eliri
