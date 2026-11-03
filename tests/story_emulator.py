@@ -406,6 +406,11 @@ class Process:
     def _api_GetModuleHandleA(self):
         return 0, 4                     # no optional companion is loaded
 
+    def _api_GetModuleHandleW(self):
+        # The game itself for NULL; no optional companion (e.g. "VVFP Translations.dll", which
+        # native/shared/vvfp_translate.h looks for: absent, every text stays English).
+        return (0x400000 if self.arg(0) == 0 else 0), 4
+
     loaded: list = []
 
     def wstring(self, va: int, limit: int = 2048) -> str:

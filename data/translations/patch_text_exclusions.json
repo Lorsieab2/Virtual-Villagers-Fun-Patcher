@@ -1,0 +1,104 @@
+{
+ "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
+ "rules": [
+  {
+   "reason": "Log and export writers: the Births, Deaths, History, Arrived, Unaccounted and Statistics logs and the Family Tree / Statistics data the patcher's own tools read back. Logs and files stay in the game's English (src/vv_translations.py: never for logs or files the patcher writes) so the patcher can parse them and every language's logs match.",
+   "files": ["native/parentage_export/*", "native/population_export/*", "native/statistics_export/*", "native/save_reset_export/*"]
+  },
+  {
+   "reason": "Log lines, sidecar file formats and save-folder names shared by the companions (logs and files stay English; the patcher reads them back).",
+   "files": ["native/shared/appearance_log.h", "native/shared/arrival_backfill.h", "native/shared/data_subfolder.h",
+             "native/shared/former_heathens.h", "native/shared/former_heathens_read.h", "native/shared/special_title.h",
+             "native/shared/island_timer_keep.h", "native/shared/log_words.h", "native/shared/orphan_masks.h",
+             "native/shared/paid_purchases.h", "native/shared/patcher_files.h", "native/shared/per_save.h",
+             "native/shared/per_save_data.h", "native/shared/repairs_log.h", "native/shared/save_layout.h",
+             "native/shared/save_reset.c", "native/shared/save_reset.h", "native/shared/village_identity.c",
+             "native/shared/village_identity.h", "native/shared/village_rename.h", "native/shared/grave_backfill.h",
+             "native/shared/birth_heading.h", "native/shared/log_slot.h", "native/shared/sidecar_io.h",
+             "native/shared/save_folder.c", "native/shared/save_folder.h", "native/shared/game_save_slot.h",
+             "native/shared/mask_identity.c", "native/shared/mask_line.h", "native/shared/identity_in_place.h",
+             "native/shared/foreign_sidecar.h", "native/shared/cause_bridge.h", "native/shared/startup_companions*.h",
+             "native/shared/custom_titles.h", "native/shared/appearance_extras.h", "native/shared/head_look.h",
+             "native/shared/original_look.h", "native/shared/skill_repair.h", "native/shared/equal_division.h",
+             "native/shared/mask_follow.h", "native/shared/orphan_masks.h", "native/shared/vv1_grey_hair.h",
+             "native/shared/villager_lookalike.h", "native/shared/long_name.h"]
+  },
+  {
+   "reason": "The quit-time Repair / last-names check's sidecar lines and answers (a file the patcher reads back), never shown.",
+   "files": ["native/shared/crosscheck_bridge.h"],
+   "functions": ["vvfp_crosscheck_quit", "vvfp_xc_*"]
+  },
+  {
+   "reason": "Windows class names, the Roman numeral digits and a label fragment searched for in a window's text: code, never shown.",
+   "files": ["native/shared/vvfp_dialog_kit.h", "native/shared/story_bridge.h"],
+   "match": "^(BUTTON|Button|Edit|Static|IVXLCDM|tech point)$"
+  },
+  {
+   "reason": "A game's title: the name of its folder under Documents\\LDW (and of the patcher's save folders), never shown.",
+   "files": ["native/*"],
+   "match": "^Virtual Villagers( - [A-Za-z ]+)?$"
+  },
+  {
+   "reason": "Cause of Death's logs (Deaths, Graves Logged, Arrived, Gone, Unaccounted, Custom Island Event Deaths) and the grave-title words it writes into them. The words it DRAWS in the game (the cause words, the epitaphs) are in the template and looked up by key.",
+   "files": ["native/vvfp_cause_of_death/cod_*.inc"]
+  },
+  {
+   "reason": "Cause of Death's log-only words: the not-recorded and unknown-code causes are written to the Deaths log only (the grave popup draws a cause only when one was recorded), and the no-grave notes.",
+   "files": ["native/vvfp_cause_of_death/vvfp_cause_of_death.c"],
+   "functions": ["cod_cause_words", "cod_log_death", "NO_GRAVE_*"]
+  },
+  {
+   "reason": "Island Events writes the island events' log (each event, its choice and every changed field); logs stay English.",
+   "files": ["native/vvfp_island_events/*"]
+  },
+  {
+   "reason": "The translation file format's own words (plural rule names, header names, game titles to check the @game row): compared with the file, never shown.",
+   "files": ["native/vvfp_translations/*"]
+  },
+  {
+   "reason": "Font face names, Windows folder and registry names the Unicode companions load letters from, and the long-names file: names, never shown.",
+   "files": ["native/vvfp_unicode_text/*"]
+  },
+  {
+   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
+   "files": ["native/vvfp_last_names/*", "native/vvfp_number_names/*", "native/vvfp_original_look/*",
+             "native/vvfp_head_look/*", "native/vvfp_vv2_totems/*", "native/vvfp_game_log/*"]
+  },
+  {
+   "reason": "Builders Fix Huts' log values (what a builder found: nothing / started).",
+   "files": ["native/vvfp_fix_huts/*"],
+   "match": "^(nothing|started)$"
+  },
+  {
+   "reason": "Parentage's cross-check log and its file notes, the name-change log line, a set-aside file's note, and the VV1_PROBE debug line (compiled only into a debug build, never shipped).",
+   "files": ["native/vv1_parentage/vv1_crosscheck.inc", "native/vv1_parentage/vv1_parentage.c"],
+   "functions": ["vv1_xc_*", "vv1_log_name_change", "vv1_set_aside", "Vv1ParentageCrossCheckApply", "vv1_parents_*"]
+  },
+  {
+   "reason": "Origins' file names and file-format magic (the atlas, the mask sidecar).",
+   "files": ["native/vv*_origins_icons/*", "native/vv5_task9_origins/*"],
+   "match": "^(Images|IHDR|VVMK|Village Masks - Save )$"
+  },
+  {
+   "reason": "Story / Cheat Upgrades' save-folder names and the log block of a custom event's parents (logs stay English).",
+   "files": ["native/vvfp_story_upgrades/story_queue.inc", "native/vvfp_story_upgrades/story_custom.inc"],
+   "functions": ["SQ_SAVE_STEMS", "sq_*", "ce_parents_block"]
+  },
+  {
+   "reason": "A dialog resource's FONT (a Windows typeface name) and Story Upgrades' Custom Titles folder name: names, never shown.",
+   "files": ["native/*"],
+   "match": "^(Segoe UI|MS Shell Dlg|MS Shell Dlg 2|Tahoma|Custom Titles)$"
+  },
+  {
+   "reason": "Names written into a villager's record (the default father Joey / Joey Joerson, an unknown father's \"Unknown\"): a name is save data, never a translated word (the logs, the Family Tree and Matchmaker compare it), so it stays as written.",
+   "files": ["native/vvfp_story_upgrades/story_custom.*", "native/vvfp_story_upgrades/story_c*.inc"],
+   "functions": ["CE_JOEY_NAME", "CE_JOEY_FULL_NAME", "c*_conceive"],
+   "match": "^(Joey|Joey Joerson|Unknown)$"
+  },
+  {
+   "reason": "An exe patch's name for a companion DLL or one of its exports: code, never shown.",
+   "patch_files": ["data/*"],
+   "match": "^[A-Za-z_][A-Za-z0-9_]*$"
+  }
+ ]
+}

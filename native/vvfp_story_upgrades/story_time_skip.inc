@@ -111,11 +111,14 @@ static int time_skip_notice_arm(int game, int years) {
         return 0;
     }
     memset(e, 0, sizeof *e);
-    lstrcpynA(e->title, "Time Skip", sizeof e->title);
+    lstrcpynA(e->title, vvfp_tr("vvfp.story/story_time_skip.time_skip_notice_arm.s0", "Time Skip",
+                                sizeof e->title), sizeof e->title);
     if (years == 1) {
-        lstrcpynA(e->text, "1 year has passed on the island.", sizeof e->text);
+        lstrcpynA(e->text, vvfp_tr("vvfp.story/story_time_skip.time_skip_notice_arm.s1",
+                                   "1 year has passed on the island.", sizeof e->text), sizeof e->text);
     } else {
-        wsprintfA(e->text, "%d years have passed on the island.", years);
+        ce_tr_printf(e->text, sizeof e->text, "vvfp.story/story_time_skip.time_skip_notice_arm.s2",
+                     "%d years have passed on the island.", years);
     }
     if (!ce_arm_with(game, e, NULL, 1)) {
         return 0;

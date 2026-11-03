@@ -789,7 +789,9 @@ class StaticTimeSkipPopupTests(unittest.TestCase):
         popup = inc[inc.index("static int time_skip_notice_arm("):inc.index("/* One step of the skip")]
         for writer in ("WriteVillageRecord", "WriteVillageEventRecord", "story_log", "fopen", "CreateFile"):
             self.assertNotIn(writer, popup)
-        self.assertIn('lstrcpynA(e->title, "Time Skip", sizeof e->title);', popup)
+        # The title in the player's language (its template row), English without a translation.
+        self.assertIn('lstrcpynA(e->title, vvfp_tr("vvfp.story/story_time_skip.time_skip_notice_arm.s0", "Time Skip",',
+                      popup)
 
 
 if __name__ == "__main__":
