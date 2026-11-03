@@ -208,8 +208,20 @@ def clusters(text: str) -> list[str]:
     """`text` cut into the units the games' companion draws, cuts and erases whole (native text_utf8.h):
     extended grapheme clusters by UAX #29 as of Unicode 18.0 (src/vv_unicode18.py) -- a character with its
     combining marks, variation selectors, emoji modifiers and tags, an emoji ZWJ sequence, a flag, a Hangul
-    syllable of jamo, an Indic conjunct."""
-    return vv_unicode18.graphemes(text)
+    syllable of jamo, an Indic conjunct, CR LF -- with every spacing mark (Mc) joined to the character before
+    it, as the shared cluster rule says (docs/UNICODE_SPEC.md row 2; UAX #29 leaves a few out of GB9a, such as
+    Myanmar U+102B), except after a control, CR or LF."""
+    out: list[str] = []
+    for unit in vv_unicode18.graphemes(text):
+        if (out and vv_unicode18.category(unit[0]) == "Mc"
+                and vv_unicode18.grapheme_break_property(out[-1][-1]) not in _NEVER_JOINED):
+            out[-1] += unit
+        else:
+            out.append(unit)
+    return out
+
+
+_NEVER_JOINED = (1, 2, 3)           # vv_unicode18's Grapheme_Cluster_Break CR, LF and Control (GB4)
 
 
 def fit_bytes(text: str, limit: int) -> str:

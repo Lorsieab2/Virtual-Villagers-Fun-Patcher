@@ -203,10 +203,17 @@ static unsigned int ut_gcb(unsigned int cp) {
     return u18_lookup(u18_gcb, U18_GCB_COUNT, cp);
 }
 
-/* Joins the character before it into one cluster (Grapheme_Cluster_Break Extend, ZWJ or SpacingMark). */
+/* A spacing mark (Mc) UAX #29 leaves out of GB9a (Myanmar U+102B, ...): the shared cluster rule
+   (docs/UNICODE_SPEC.md row 2: every Mn, Mc and Me extends the character before it) joins it too. */
+static int ut_mark_joins(unsigned int cp) {
+    return u18_lookup(u18_markjoin, U18_MARKJOIN_COUNT, cp) != 0;
+}
+
+/* Joins the character before it into one cluster (Grapheme_Cluster_Break Extend, ZWJ or SpacingMark, or any
+   other spacing mark). */
 static int ut_extends(unsigned int cp) {
     unsigned int p = ut_gcb(cp);
-    return p == U18_GCB_EXTEND || p == U18_GCB_ZWJ || p == U18_GCB_SPACINGMARK;
+    return p == U18_GCB_EXTEND || p == U18_GCB_ZWJ || p == U18_GCB_SPACINGMARK || ut_mark_joins(cp);
 }
 
 static int ut_regional(unsigned int cp) {
@@ -262,8 +269,9 @@ typedef struct ut_unit_t {
     unsigned int first, last;   /* the first and last characters (for line breaking) */
 } ut_unit_t;
 
-/* The byte length of the extended grapheme cluster at s (UAX #29 as of Unicode 18.0: GB3-GB13, GB9c's
-   Indic conjuncts, GB11's emoji ZWJ sequences, GB12/13's flags).  The same rule as src/vv_unicode18.py. */
+/* The byte length of the extended grapheme cluster at s (UAX #29 as of Unicode 18.0: GB3-GB13 -- CR LF is one
+   cluster -- GB9c's Indic conjuncts, GB11's emoji ZWJ sequences, GB12/13's flags), with every spacing mark
+   (Mc) joined as the shared cluster rule says.  The same rule as src/vv_game_text.py clusters(). */
 static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigned int *last) {
     const unsigned char *p = s;
     unsigned int cp, prev, incb;
@@ -294,6 +302,7 @@ static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigne
         else if ((prev == U18_GCB_LV || prev == U18_GCB_V) && (q == U18_GCB_V || q == U18_GCB_T)) join = 1;  /* GB7 */
         else if ((prev == U18_GCB_LVT || prev == U18_GCB_T) && q == U18_GCB_T) join = 1;           /* GB8 */
         else if (q == U18_GCB_EXTEND || q == U18_GCB_ZWJ || q == U18_GCB_SPACINGMARK) join = 1;    /* GB9, GB9a */
+        else if (ut_mark_joins(next)) join = 1;                     /* every Mc (the shared cluster rule) */
         else if (prev == U18_GCB_PREPEND) join = 1;                                                  /* GB9b */
         else if (conj == 2 && ib == U18_INCB_CONSONANT) join = 1;                                    /* GB9c */
         else if (emoji == 2 && pict) join = 1;                                                       /* GB11 */
