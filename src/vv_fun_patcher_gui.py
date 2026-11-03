@@ -38,6 +38,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
+import vv_translations
 import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
@@ -3698,11 +3699,7 @@ class App(tk.Tk):
                     problem = "That is already this tribe's name."
             problem_var.set(problem or "")
             if problem is None and name and stored >= vv_tribe_rename.name_room(saves):
-                note_var.set(
-                    "Allowed. The save keeps this name as its short form (its start and \"...\") and the whole "
-                    "name beside the save, in the Long Names file. With Render Unicode with In-Game Fonts or "
-                    "Use Unicode Font on, the game shows the whole name; with both off it shows the short form."
-                )
+                note_var.set(vv_translations.display_text(saves.number, vv_tribe_rename.LONG_NAME_NOTE))
             else:
                 note_var.set(
                     "Allowed. The game's Change Tribe screen will show this name cut "

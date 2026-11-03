@@ -310,6 +310,33 @@ class RenameTribeLongName(unittest.TestCase):
         self.assertEqual(rename.effective_header(text, 0), "Village: %s (Save 1)" % short)
 
 
+class RenameTribeNote(unittest.TestCase):
+    """The owner's decision (2026-11-03): long and Unicode names stay allowed; a plain note says what the game shows."""
+
+    def test_the_note_says_when_the_whole_name_shows_and_what_otherwise(self):
+        note = rename.LONG_NAME_NOTE
+        for needed in ('"Render Unicode with In-Game Fonts"', '"Use Unicode Font"', "short form", "Alexandria Montg..."):
+            self.assertIn(needed, note)
+
+    def test_the_window_shows_it_for_a_name_the_save_will_shorten_and_through_the_translation(self):
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn("vv_translations.display_text(saves.number, vv_tribe_rename.LONG_NAME_NOTE)", source)
+        self.assertIn("stored >= vv_tribe_rename.name_room(saves)", source)
+
+    def test_a_translation_of_the_note_is_used(self):
+        import vv_translations as tr
+        import vv_translation_format as fmt
+        with tempfile.TemporaryDirectory() as tmp:
+            title = tr.TITLES[3]
+            row = fmt.Row(fmt.make_key("vvfp.ui", "note", rename.LONG_NAME_NOTE), rename.LONG_NAME_NOTE)
+            tf = fmt.template_file([row], title, "Français", "fr")
+            tf.rows[0].translation = "Autorisé. Le nom entier ne s'affiche qu'avec Render Unicode ou Use Unicode Font."
+            path = Path(tmp) / "fr.txt"
+            fmt.write_file(path, tf)
+            self.assertEqual(tr.display_text(3, rename.LONG_NAME_NOTE, path), tf.rows[0].translation)
+            self.assertEqual(tr.display_text(3, rename.LONG_NAME_NOTE), rename.LONG_NAME_NOTE)
+
+
 class CopyPlayerSlotCarriesTheLongNames(unittest.TestCase):
     """UNICODE_SPEC section 2, Re-keying: Copy Player Slot copies the source's Long Names file with its slot
     renamed."""

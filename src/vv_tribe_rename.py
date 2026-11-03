@@ -311,6 +311,14 @@ def name_problem(game: GameSaves, name: str, long_names: bool = False) -> str | 
     return None
 
 
+# The note under the name box when the save will keep a short form (the owner, 2026-11-03: long and Unicode names stay
+# allowed; this says in plain words what the game shows).  Shown through vv_translations.display_text, so a translation
+# of this exact line is used in the game's chosen language.
+LONG_NAME_NOTE = ('Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. '
+                  'The game shows the whole name only with "Render Unicode with In-Game Fonts" or "Use Unicode Font" '
+                  'patched in; otherwise it shows the short form (for example "Alexandria Montg...").')
+
+
 def name_room(game: GameSaves) -> int:
     """The bytes of the field a tribe name is kept in, with its NUL: the room of its Long Names record."""
     return game.max_length + 1
