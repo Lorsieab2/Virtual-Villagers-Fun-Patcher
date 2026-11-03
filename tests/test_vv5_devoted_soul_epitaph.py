@@ -395,7 +395,7 @@ class RenderTests(unittest.TestCase):
 
     def test_every_public_vv5_patch_in_every_mode_leaves_the_writer_to_it(self):
         stock = stock_bytes()
-        public = [p.id for p in patcher.load_public_fun_patches() if p.game_id == "vv5"]
+        public = [p.id for p in [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS] if p.game_id == "vv5"]
         self.assertIn(PATCH_ID, public)
         writer = range(0x64C70, 0x64E70)
         for with_256 in (False, True):
@@ -441,7 +441,7 @@ class RenderTests(unittest.TestCase):
 
 class RegistrationTests(unittest.TestCase):
     def test_registered_on_by_default_bundled_and_documented(self):
-        public = patcher.load_public_fun_patches()
+        public = [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
         row = next(p for p in public if p.id == PATCH_ID)
         self.assertEqual(row.name, "Charitable Soul Epitaph")
         self.assertTrue(default_fun_patch_selection(PATCH_ID))

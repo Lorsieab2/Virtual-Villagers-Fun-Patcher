@@ -233,7 +233,7 @@ def _other_public_vv3_ids() -> list[str]:
     # writer and loader these rows fix (its own tests cover the two together,
     # tests/test_vv3_population_256.py FixVanillaBugsTests).
     return [p.id for p in load_public_fun_patches()
-            if p.game_id == "vv3" and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS
+            if p.game_id == "vv3" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and p.id != FEATURE_ID and p.id not in EXPERIMENTAL_FUN_PATCH_IDS
             and p.id not in ALTERNATIVE_FUN_PATCH_IDS]
 
 

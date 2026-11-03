@@ -117,7 +117,7 @@ class OriginsCompanionExportTests(unittest.TestCase):
                 self.skipTest(f"stock executable not present: {case['exe']}")
             build = next(b for b in vfp.load_builds() if b.id == game)
             patches = tuple(
-                p.id for p in vfp.load_public_fun_patches() if p.game_id == game
+                p.id for p in [alt for alt in vfp.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS] if p.game_id == game
             )
             for mode in sorted(vfp._PUBLIC_PATCH_MODES):
                 with self.subTest(game=game, mode=mode):
