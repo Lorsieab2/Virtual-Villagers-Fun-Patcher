@@ -2651,7 +2651,7 @@
         {
           "source": "assets/stuck_walks/VVFP Stuck Walks.dll",
           "destination": "VVFP Stuck Walks.dll",
-          "sha256": "833BC63CAD5C264CF5A53B46F573BA27B0276F7A4DEC4C45FBD27EA955833947"
+          "sha256": "0E8653302642B2D3A48B5F93197BC359EC0B961692DC1648D98ACD39B0E06A77"
         }
       ],
       "runtime_detours": [

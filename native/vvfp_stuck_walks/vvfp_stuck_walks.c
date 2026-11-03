@@ -60,6 +60,7 @@
 #define VV2_CELL_READ    0x4181D0u          /* thiscall(map, x, y), ret 8 */
 #define VV2_QUEUE_PUSH   0x449B70u          /* thiscall(village, idx, type, x, y, a, mode, speed), ret 0x1C */
 #define VV2_STEP_START   0x44FBB0u          /* thiscall(village, idx), ret 4 */
+#define VV2_CLOCK        0x403200u          /* cdecl(), whole real seconds (time() minus the save's base) */
 #define VV2_MAP_PTR      0xE574D8u          /* village + this: the map object */
 #define VV2_RECORD       0xE48Cu            /* village + idx * this: the villager record */
 #define VV2_X            0x4
@@ -92,11 +93,13 @@ typedef int (__fastcall *vv2_start_t)(void *village, void *edx, int idx);
 #define APPROACHES    4
 #define MAX_TRIED     16
 #define NEAR_PIXELS   8
+#define WALK_GAP_SECONDS 40                  /* a walk silent this long is over; the next is a new one */
 #define RINGS         6
 #define DIRECTIONS    16
 
 typedef struct walk_state {
     int active;
+    int last_clock;                          /* the game clock at the last band call of this walk */
     int target_x, target_y;
     int approaches;                          /* how many are remembered (a ring of APPROACHES) */
     int next;
@@ -212,11 +215,12 @@ static int was_tried(const walk_state *s, int x, int y) {
     return 0;
 }
 
-static void forget(walk_state *s, int target_x, int target_y) {
+static void forget(walk_state *s, int target_x, int target_y, int now) {
     memset(s, 0, sizeof *s);
     s->active = 1;
     s->target_x = target_x;
     s->target_y = target_y;
+    s->last_clock = now;
 }
 
 /* The nearest untried alternate standing point round the feet (ties: smaller x, then smaller y). */
@@ -280,7 +284,7 @@ static void redirect(void *village, int idx, unsigned char *rec, walk_state *s, 
 static int __stdcall vv2_band(void *village, int idx, int cell) {
     unsigned char *rec;
     walk_state *s;
-    int fx, fy, tx, ty, close_by, i;
+    int fx, fy, tx, ty, close_by, i, now;
     COUNT(band_calls);
     if (cell < 76 || cell > 79 || idx < 0 || idx >= MAX_VILLAGERS || village == NULL) {
         return 0;
@@ -291,18 +295,25 @@ static int __stdcall vv2_band(void *village, int idx, int cell) {
     }
     tx = *(int *)(rec + VV2_QUEUE + 4);
     ty = *(int *)(rec + VV2_QUEUE + 8);
+    now = ((int (__cdecl *)(void))(UINT_PTR)VV2_CLOCK)();
+    s = &g_walks[idx];
+    if (s->active && now - s->last_clock > WALK_GAP_SECONDS) {
+        memset(s, 0, sizeof *s);             /* the earlier walk finished (or was replaced): its history is void */
+    }
+    if (s->active) {
+        s->last_clock = now;                 /* also by the stock waypoints' hits: the episode is still going */
+    }
     if (is_stock_waypoint(tx, ty)) {
         return 0;                            /* the stock handler's own chain */
     }
     fx = *(int *)(rec + VV2_X) + VV2_FEET_DX;
     fy = *(int *)(rec + VV2_Y) + VV2_FEET_DY;
-    s = &g_walks[idx];
     if (s->active && s->looping && s->has_point && tx == s->point_x && ty == s->point_y) {
         redirect(village, idx, rec, s, fx, fy);      /* the walk to an alternate point met the band */
         return 1;
     }
     if (!s->active || tx != s->target_x || ty != s->target_y) {
-        forget(s, tx, ty);
+        forget(s, tx, ty, now);
     }
     if (s->looping) {
         redirect(village, idx, rec, s, fx, fy);

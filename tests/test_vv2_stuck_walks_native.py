@@ -81,6 +81,28 @@ def test_no_alternate_gives_up_and_keeps_what_the_villager_holds():
     assert not [w for w in writers if 0x10000000 <= w < 0x10100000 or 0x4492A0 <= w < 0x4492E9]
 
 
+def test_a_finished_rescue_leaves_no_history_for_the_next_trip_to_the_same_herb():
+    """Rescued, the study done, the villager is sent to the same herb again from a stalled start (twice more):
+    each trip is a new walk and is rescued on its own, with no give-up (the first rescue's tried points and
+    looping flag do not carry over)."""
+    from vv2_stuck_villager_emulation import HERB6_JOB
+    run = NativeRun(STALLED[0], carried=0x1A)
+    assert run.go(5000) is not None
+    assert math.dist(run.v.feet(), HERB6) <= 30
+    v = run.v
+    for start in (STALLED[1], STALLED[2]):
+        before = run.stats()
+        v.t += 120.0                                     # the study and the time before the next trip
+        v.villager(skills={"healing": 30}, preference=0, health=100, feet=start)   # a fresh record, as at the start
+        run.ai.clear()
+        v.call(HERB6_JOB, fe.MGR, 0)
+        assert run.go(5000) is not None
+        assert math.dist(v.feet(), HERB6) <= 30
+        after = run.stats()
+        assert after["loops"] == before["loops"] + 1 and after["give_ups"] == 0
+        assert after["alternates"] > before["alternates"]
+
+
 def test_the_site_is_the_handlers_entry_and_jumps_to_the_companion():
     run = NativeRun(ORDINARY[0])
     site = bytes(run.v.uc.mem_read(0x44FCB0, 5))

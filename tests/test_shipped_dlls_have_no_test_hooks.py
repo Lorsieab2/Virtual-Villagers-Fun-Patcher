@@ -50,6 +50,7 @@ TEST_BUILDS = {
     "assets/lesson_cap/VVFP Lesson Cap.dll": ("VVFP Lesson Cap.test.dll", "vvfp_lesson_cap"),
     "assets/work_first/VVFP Work First.dll": ("VVFP Work First.test.dll", "vvfp_work_first"),
     "assets/pathfinding/VVFP Improved Pathfinding.dll": ("VVFP Improved Pathfinding.test.dll", "vvfp_pathfinding"),
+    "assets/stuck_walks/VVFP Stuck Walks.dll": ("VVFP Stuck Walks.test.dll", "vvfp_stuck_walks"),
     "assets/watering/VVFP VV1 Watering Builds.dll": ("VVFP VV1 Watering Builds.test.dll", "vv1_watering_builds"),
     "assets/storytelling/VVFP Storytelling.dll": ("VVFP Storytelling.test.dll", "vvfp_storytelling"),
     "assets/game_log/VVFP Game Log.dll": ("VVFP Game Log.test.dll", "vvfp_game_log"),
