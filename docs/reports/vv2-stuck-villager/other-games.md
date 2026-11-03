@@ -81,3 +81,39 @@ carried field does not keep the item -- the villager's next job's pick-up overwr
   c. put the item back on the ground where the villager stands.
 Which is wanted, per game, is the owner's call.  Whether the real games' mushroom and collectible spots ever fall in
 blocked or child-closed cells (the trigger for these give-ups in VV3-VV5) is UNCONFIRMED.
+
+## Keep Carried (owner decision 2026-11-03: do not drop the item; alternate routes first)
+
+### A New Home (VV1): built, "VVFP Keep Carried.dll" (native/vvfp_keep_carried), row vv1_fix_vanilla_bugs
+* The three calls of the clear 0x439470 that end a walk (0x43DFEE the nudge cap; 0x445F3B / 0x445F71 the map edge)
+  go to the companion. The map-edge clears are the same mechanism: the stock nudge pushes waypoints such as
+  (1685, 725), off the map, and the walk then clears at the edge (emulated: nine of the blocked starts below were
+  lost that way, not by the cap).
+* Held item (+0x3C not 0x13, not 3) with other steps behind the walks: the nudges' stale waypoints (the leading run
+  of type-3 steps; the run's last is the real target) are dropped and a breadth-first route over the game's own map
+  read 0x414200 (cells 1..14 and 0x2A block; 4 neighbours, cut to corners with free straight lines) is queued as
+  walks in front, then 0x43DEF0 starts it (+0x40 = 0, +0x54 = 99). Up to four routes per walk (a state silent for
+  40 s of the game clock is a new walk); no route: the stock clear.
+* Emulation (tests/test_keep_carried_vv1.py, 22 tests): villager carrying fish (8) with the fish job's tail queued
+  behind the walk: stock drops it (give-up frame 816, no reward); with the companion the fish is paid (food +55,
+  reward 17); nine more blocked starts all lost in stock, all paid with the companion; ordinary walks identical frame
+  for frame with and without Improved Pathfinding; Improved Pathfinding alone already routes the main scenario (the
+  companion is then not called); nothing held, the baby, and no route are the stock behaviour.
+* Not covered: the fishing trip cut at the east edge BEFORE the fish is caught (nothing is held then; the sea spots
+  reach x 1635 and the walk clears at x >= 1540) -- a different bug (a trip cut short, nothing lost); the 0x2A
+  give-ups inside 0x43DFC0 (0x43E08C ...) when the villager is next to that special cell. Unseen live.
+
+### The Secret City, The Tree of Life, New Believers: NOT built, and why
+* Their walk is a router (flood from the goal + follower): it fails only when the game's own grid has no route
+  from the villager to the goal (goal cell blocked, or the villager walled in), or when a waypoint cell turns
+  blocked mid-walk. A route search of our own over the same grid cannot find a way the router did not: the only
+  possible alternate is a different STANDING POINT near the goal, which the listeners accept only inside the item's
+  delivery area (VV3 area 0xE / 0x19, VV4 field 8, VV5 per item) -- not provable without the real maps.
+* The maps are not available in this environment: tests/farmers_emulation_vv3/4/5.py need research/game-data/vvN
+  (cmap.dat, lcmap.dat), which are not in the repository, the worktree, the main checkout or the installs found
+  (Documents\LDW holds saves only; Program Files has an uninstaller only). Without them no emulation of a router
+  give-up with a carried item can run, so nothing was written for these three games (no guessing).
+* The design that fits their code, for when the data is in place: hook the router call (VV3 0x4237C0 at 0x458A80;
+  the VV4 and VV5 twins) -- on failure with an item held and a step behind, call the same router for candidate goals
+  on rings round the original goal (nearest first), and on the first success set the walk step's target to that
+  point; the router's state is then exactly what a normal route leaves, and the job's release step follows.
