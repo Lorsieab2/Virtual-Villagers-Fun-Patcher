@@ -14,7 +14,7 @@ band loop)?  (2) does a walk that gives up lose what the villager carries?
 | Game | (1) never-ending loop | (2) give-up drops the carried item |
 |---|---|---|
 | A New Home | NOT FOUND | FOUND |
-| The Lost Children | FOUND, fixed (VVFP Stuck Walks.dll) | the stock give-up 0x4492A0 resets +0x44; the new give-up keeps it |
+| The Lost Children | FOUND, fixed (VVFP Stuck Walks.dll) | the stock give-up 0x4492A0 resets +0x44; the new give-up calls it (stock way) |
 | The Secret City | NOT FOUND (the band code is there but dead) | FOUND |
 | The Tree of Life | NOT FOUND (the band code is there but dead) | FOUND |
 | New Believers | NOT FOUND (the band code is there but dead) | FOUND |
