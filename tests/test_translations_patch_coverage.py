@@ -128,7 +128,7 @@ class ExePatchTextTests(unittest.TestCase):
 class KeyLookupTests(unittest.TestCase):
     """Every vvfp_tr / vvfp_trf / ce_tr_printf call names a template row and passes that row's English."""
 
-    CALL = re.compile(r'(?:vvfp_tr|ce_tr_printf\([^;]*?|vvfp_trf)\(?\s*"((?:vvfp|patch)[\w.\-]*/[\w.\-%]+)",\s*'
+    CALL = re.compile(r'(?:vvfp_tr|ce_tr_printf\([^;]*?|ce_tr_done\([^;]*?|vvfp_trf)\(?\s*"((?:vvfp|patch)[\w.\-]*/[\w.\-%]+)",\s*'
                       r'"((?:[^"\\]|\\.)*)"', re.S)
 
     def test_every_key_a_companion_asks_for_exists(self) -> None:

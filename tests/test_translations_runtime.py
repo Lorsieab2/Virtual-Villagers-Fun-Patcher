@@ -566,25 +566,53 @@ class TranslationsRuntimeTests(unittest.TestCase):
         g.start()
         self.assertEqual(self.key(g, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1", b"Disease", 64), b"Disease")
 
+    # A place an exe patch writes visible text at (the trusted list, native/vvfp_translations/tr_patch_sites.inc).
+    PATCH_VA = 0x481240
+    PATCH_EN = "You can zip around the island with your numeric keys."
+
+    def exe_with_patch_text(self, game: int, va: int, text: str) -> bytes:
+        """The stock executable with the patch's text written at `va` (a file offset of va - 0x400000)."""
+        data = bytearray(self.exes[game])
+        raw = text.encode("cp1252") + b"\0"
+        data[va - 0x400000:va - 0x400000 + len(raw)] = raw
+        return bytes(data)
+
     def test_exe_patch_text_in_place_when_it_fits(self):
-        game = 1
-        p = self.probe(game)
-        base, rows, stride = TABLE[game]
-        at = next(r for r in range(rows) if p.u32(base + r * stride) == 1)
-        va = p.u32(base + at * stride + 4)
-        en = self.table_en(game, 1)
-        short = en[: max(1, len(en) // 2)].strip() or "x"
+        game, va, en = 1, self.PATCH_VA, self.PATCH_EN
+        exe = self.exe_with_patch_text(game, va, en)
+        short = en[: len(en) // 2].strip()
         tf = template(game, [row("patch", f"0x{va:x}", en, short)])
-        g = Game(game, self.exes[game], file_bytes(tf))
+        g = Game(game, exe, file_bytes(tf))
         g.start()
         self.assertTrue(g.active())
         self.assertEqual(g.raw(va), short.encode("cp1252"))
         # Too long for the English's own bytes: the bytes stay, the content map still has it.
         tf = template(game, [row("patch", f"0x{va:x}", en, en + " and much more text")])
-        g = Game(game, self.exes[game], file_bytes(tf))
+        g = Game(game, exe, file_bytes(tf))
         g.start()
         self.assertEqual(g.raw(va), en.encode("cp1252"))
         self.assertEqual(g.translate(en.encode("cp1252")), (en + " and much more text").encode("cp1252"))
+
+    def test_a_crafted_patch_row_cannot_overwrite_code(self):
+        # A row names the address and the hash of its English itself. VV1's _output prologue at 0x44D9AD
+        # (558BEC81EC540200..) read as Windows-1252 is a valid "English" for it: without the trusted list the
+        # DLL would write the translation over those instructions.
+        game, va = 1, 0x44D9AD
+        stock = self.exes[game]
+        code = stock[va - 0x400000:va - 0x400000 + 7]
+        from vv_game_text import GAME_TEXT      # cp1252 with its five undefined bytes kept (0x81 is one)
+        english = code.decode(GAME_TEXT)
+        tf = template(game, [row("patch", f"0x{va:x}", english, "A")])
+        g = Game(game, stock, file_bytes(tf))
+        g.start()
+        self.assertEqual(g.raw(va)[:7], code)
+        # An unlisted address is refused even when its live text matches the row's English.
+        other = 0x481300
+        exe = self.exe_with_patch_text(game, other, "Some text no patch writes")
+        tf = template(game, [row("patch", f"0x{other:x}", "Some text no patch writes", "Autre")])
+        g = Game(game, exe, file_bytes(tf))
+        g.start()
+        self.assertEqual(g.raw(other), b"Some text no patch writes")
 
     def test_a_text_built_from_several_rows_is_translated_line_by_line(self):
         game = 1

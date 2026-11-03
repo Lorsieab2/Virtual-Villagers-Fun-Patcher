@@ -88,6 +88,16 @@ typedef struct {
 #include "tr_sites_placeholder.inc"
 #endif
 
+/* The trusted places where an exe patch writes visible text ("patch/0x<va>" rows), with the hash of that
+   English: a translation row writes there only when its (address, hash) is listed, so a translation file
+   cannot aim a row at code (the file supplies the address and the hash itself). */
+typedef struct {
+    unsigned int va;
+    unsigned int hash;
+} tr_patch_site;
+
+#include "tr_patch_sites.inc"
+
 /* ---- each game ------------------------------------------------------------------------------------ */
 
 typedef struct {
@@ -110,6 +120,7 @@ typedef struct {
     const tr_expander *expanders;
     int expander_count;
     const tr_site *sites;
+    const tr_patch_site *patch_sites;
 } tr_game;
 
 static const tr_expander VV1_EXPANDERS[] = {
@@ -126,16 +137,16 @@ static const tr_game GAMES[6] = {
     { 0 },
     { "Virtual Villagers - A New Home", 0x487208u, 0x275u, 0x14u, 0x280u, 0, 0, 0, 0, 0,
       0x44D9ADu, 0, 0x48B614u, 0x3D8u, 0x28u, 0x370u, 0x1Cu, 0x350u, 1, 0x74u, 0x2783u,
-      VV1_EXPANDERS, 3, TR_SITES_VV1 },
+      VV1_EXPANDERS, 3, TR_SITES_VV1, TR_PATCH_SITES_VV1 },
     { "Virtual Villagers - The Lost Children", 0x496300u, 0x36Cu, 12u, 0x383u, 0, 0, 0, 0, 0,
       0x46AA2Du, 0, 0x499F24u, 0xE48Cu, 0x30u, 0x564u, 0x18u, 0x538u, 1, 0x7Cu, 0x278Bu,
-      VV2_EXPANDERS, 2, TR_SITES_VV2 },
+      VV2_EXPANDERS, 2, TR_SITES_VV2, TR_PATCH_SITES_VV2 },
     { "Virtual Villagers - The Secret City", 0, 0, 0, 0, 0x4AB990u, 0x4BAu, 0x42F4F0u, 0x42F6E5u, 0x593A74u,
-      0x471CFDu, 0, 0, 0x1F8Cu, 0xF10u, 0xDD4u, 0x19u, 0xDC8u, 0, 0, 0, NULL, 0, TR_SITES_VV3 },
+      0x471CFDu, 0, 0, 0x1F8Cu, 0xF10u, 0xDD4u, 0x19u, 0xDC8u, 0, 0, 0, NULL, 0, TR_SITES_VV3, TR_PATCH_SITES_VV3 },
     { "Virtual Villagers - The Tree of Life", 0, 0, 0, 0, 0x4C41F8u, 1338u, 0x44D750u, 0x44D98Au, 0x4DFF28u,
-      0x477CEDu, 1, 0, 0x2E3Cu, 0x1CC4u, 0x1B9Cu, 0x19u, 0x1B90u, 0, 0, 0, NULL, 0, TR_SITES_VV4 },
+      0x477CEDu, 1, 0, 0x2E3Cu, 0x1CC4u, 0x1B9Cu, 0x19u, 0x1B90u, 0, 0, 0, NULL, 0, TR_SITES_VV4, TR_PATCH_SITES_VV4 },
     { "Virtual Villagers - New Believers", 0, 0, 0, 0, 0x4D31F0u, 1409u, 0x450A60u, 0x450C9Du, 0x525704u,
-      0x4820FEu, 1, 0, 0x2F44u, 0x1CD4u, 0x1B9Cu, 0x19u, 0x1B90u, 0, 0, 0, NULL, 0, TR_SITES_VV5 },
+      0x4820FEu, 1, 0, 0x2F44u, 0x1CD4u, 0x1B9Cu, 0x19u, 0x1B90u, 0, 0, 0, NULL, 0, TR_SITES_VV5, TR_PATCH_SITES_VV5 },
 };
 
 static const unsigned char OUTPUT_STOCK_A[9] = { 0x55, 0x8B, 0xEC, 0x81, 0xEC, 0x54, 0x02, 0x00, 0x00 };
@@ -2971,6 +2982,19 @@ static void tr_start(int game) {
                 /* only the game's own image: never another module's memory */
                 if (value < 0x401000u || value >= 0x01000000u) {
                     continue;
+                }
+                /* ... and only an address (with that English's hash) an exe patch is known to write text at:
+                   a translation file names both itself, so it must not be able to aim a row at code */
+                {
+                    const tr_patch_site *ps;
+                    for (ps = g->patch_sites; ps->va != 0; ++ps) {
+                        if (ps->va == value && ps->hash == row->hash) {
+                            break;
+                        }
+                    }
+                    if (ps->va == 0) {
+                        continue;
+                    }
                 }
                 at = value;
                 live = tr_live_text(value);
