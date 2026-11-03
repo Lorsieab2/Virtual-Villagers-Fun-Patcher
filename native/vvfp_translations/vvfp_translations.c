@@ -893,7 +893,7 @@ static int tr_check_row(const tr_row *row) {
         }
     }
     for (i = 0; i < row->tr_n; ++i) {
-        if (tr_control(row->tr[i]) && row->tr[i] != '\n' && row->tr[i] != '\t') {
+        if (tr_control(row->tr[i]) && row->tr[i] != '\n' && row->tr[i] != '\r' && row->tr[i] != '\t') {
             return 0;
         }
     }

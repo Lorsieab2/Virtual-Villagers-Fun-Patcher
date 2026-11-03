@@ -656,6 +656,7 @@ class RowCheckParityTests(unittest.TestCase):
             "good-select": "{%1: m=x | o=y}",                  # no %1 here: error (no conversion)
             "bad-escape-ok": "ligne\\ndeux",                   # fine
             "control-char": "bad\x07char",
+            "crlf": "ligne\r\ndeux",                       # CR LF is a line break the games use, so it is allowed
             "email": "write to a@b.com",
         }
         for label, tr in cases.items():
