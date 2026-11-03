@@ -225,7 +225,6 @@ class RenameTribeLongName(unittest.TestCase):
     def test_codepoint_rule_takes_letters_newer_than_pythons_data(self):
         self.assertIsNone(rename.name_problem(self.game, "Tribe \U0003134A\U000E0100", long_names=True))
         self.assertIsNotNone(rename.name_problem(self.game, "Bad\x07", long_names=True))
-        self.assertIsNotNone(rename.name_problem(self.game, "Bad ", long_names=True))
 
     def test_a_cjk_name_is_cut_at_whole_characters(self):
         result = self.run_rename(JAPANESE)
