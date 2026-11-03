@@ -279,27 +279,60 @@ class TemplateRows(list):
     key of the row that stays for the same English."""
 
     shadows: dict
+    english: dict
 
 
-def migrate_shadowed(tf: fmt.TranslationFile, shadows: dict) -> list[str]:
+def adapt_conversions(translation: str, from_english: str, to_english: str) -> str | None:
+    """`translation` (of `from_english`) rewritten for `to_english`, which differs from it only in %d / %i / %u
+    (content_key treats those as one text): each conversion is replaced by the one at the same place in
+    `to_english`.  None when it cannot be done safely (the translation's conversions are not exactly the
+    English's, or the two Englishes differ in anything but those)."""
+    have = fmt.printf_conversions(translation)
+    if have != fmt.printf_conversions(from_english):
+        return None
+    if content_key(from_english) != content_key(to_english):
+        return None
+    want = iter(fmt.printf_conversions(to_english))
+
+    def swap(match):
+        if match.group(0) == "%%":
+            return "%%"
+        return next(want)
+
+    out = fmt._PRINTF_RE.sub(swap, translation)
+    return out
+
+
+def migrate_shadowed(tf: fmt.TranslationFile, shadows: dict, english: dict | None = None) -> list[str]:
     """Before a file is brought up to the template: a translation written on a row the template now leaves out
     moves to the row that stays when that one is blank (a row left blank used to be skipped by the DLL, which then
-    used the translated duplicate).  A translated surviving row is never overwritten; when both are translated and
-    differ, the survivor is kept.  Returns a warning for each such difference."""
+    used the translated duplicate).  Its %d / %i / %u become the survivor's (the DLL and the row checks need the
+    survivor's own conversions); one that cannot be adapted safely is not moved, with a warning.  A translated
+    surviving row is never overwritten; when both are translated and differ, the survivor is kept.  `english` maps
+    a row key to its English.  Returns the warnings."""
+    english = english or {}
     by_key = tf.by_key()
     warnings = []
     for removed, survivor in shadows.items():
         gone, kept = by_key.get(removed), by_key.get(survivor)
         if gone is None or not gone.translation:
             continue
+        survivor_english = kept.english if kept is not None else english.get(survivor)
+        if survivor_english is None:
+            continue
+        if kept is not None and kept.translation:
+            if kept.translation != gone.translation:
+                warnings.append(f"{removed} was translated differently from {survivor}; {survivor} is kept")
+            continue
+        adapted = adapt_conversions(gone.translation, gone.english, survivor_english)
+        if adapted is None:
+            warnings.append(f"the translation of {removed} could not be moved to {survivor}; translate {survivor}")
+            continue
         if kept is None:
-            kept = fmt.Row(survivor, gone.english, "", "")
+            kept = fmt.Row(survivor, survivor_english, "", "")
             tf.rows.append(kept)
             by_key[survivor] = kept
-        if not kept.translation:
-            kept.translation = gone.translation
-        elif kept.translation != gone.translation:
-            warnings.append(f"{removed} was translated differently from {survivor}; {survivor} is kept")
+        kept.translation = adapted
     return warnings
 
 
@@ -320,6 +353,7 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
     inv = load_inventory(number)
     rows: list[TemplateRow] = TemplateRows()
     rows.shadows = {}
+    rows.english = {}
     for entry in inv["rows"]:
         stem = entry["stem"]
         if stem not in english:
@@ -353,6 +387,7 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
             rules.byte_limit = len(entry["english"].encode("cp1252", errors="replace"))
         rows.append(TemplateRow(fmt.Row(key, entry["english"], "", entry.get("notes", "")),
                                 rules, entry.get("context", "")))
+    rows.english = {r.row.key: r.row.english for r in rows}
     return rows
 
 

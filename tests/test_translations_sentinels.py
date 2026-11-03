@@ -367,6 +367,31 @@ class MigrateShadowedTests(unittest.TestCase):
             new, _status = self.fmt.update(tf, [self.rows[0]])
             self.assertEqual(new.rows[0].translation, survivor)
 
+    def test_integer_conversions_become_the_survivors(self) -> None:
+        fmt = self.fmt
+        for survivor_en, removed_en, tr, want in (
+                ("Set %d %s Job Preferences.", "Set %u %s Job Preferences.", "Defini %u %s", "Defini %d %s"),
+                ("Set %u %s Job Preferences.", "Set %d %s Job Preferences.", "Defini %d %s 100%%", "Defini %u %s 100%%")):
+            rows = [fmt.Row(fmt.make_key("vvfp", "s", survivor_en), survivor_en, ""),
+                    fmt.Row(fmt.make_key("vvfp", "r", removed_en), removed_en, tr)]
+            tf = fmt.template_file(rows, "T", "L", "zz")
+            tf.rows[1].translation = tr
+            self.assertEqual(vt.migrate_shadowed(tf, {rows[1].key: rows[0].key}), [])
+            new, _status = fmt.update(tf, [rows[0]])
+            self.assertEqual(new.rows[0].translation, want)
+            self.assertEqual([i for i in fmt.check_row(survivor_en, want) if i.severity == "error"], [])
+
+    def test_a_translation_that_cannot_be_adapted_is_left_and_warned(self) -> None:
+        fmt = self.fmt
+        s_en, r_en = "Set %d %s Job Preferences.", "Set %u %s Job Preferences."
+        rows = [fmt.Row(fmt.make_key("vvfp", "s", s_en), s_en, ""), fmt.Row(fmt.make_key("vvfp", "r", r_en), r_en, "")]
+        tf = fmt.template_file(rows, "T", "L", "zz")
+        tf.rows[1].translation = "Defini %u"            # one conversion short
+        warnings = vt.migrate_shadowed(tf, {rows[1].key: rows[0].key})
+        self.assertEqual(len(warnings), 1)
+        new, _status = fmt.update(tf, [rows[0]])
+        self.assertEqual(new.rows[0].translation, "")
+
     @unittest.skipUnless(HAVE, SKIP)
     def test_the_template_names_the_survivor_of_every_left_out_row(self) -> None:
         exe = stock_exe(1)
