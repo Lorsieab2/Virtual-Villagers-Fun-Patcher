@@ -72,6 +72,10 @@ class _RealGdi:
 
 
 GDI: _RealGdi | None = None
+ONLY_BUNDLED_FONTS = False   # a test hides every Windows face from the companion, so only the bundled fonts can draw
+BUNDLED_FACE_NAMES = ("Noto Sans Cuneiform", "Noto Serif Tangut", "Unifont", "Unifont Upper",
+                      "Last Resort High-Efficiency")
+ADD_FONTS = True             # False: the bundled files are "missing" (the companion must fail open)
 _ADDED_FONTS: set = set()   # bundled font files added to this process (private, never installed)
 
 
@@ -129,6 +133,8 @@ def _register(machine_ref: dict) -> None:
         g = _gdi()
         values = [struct.unpack("<i", struct.pack("<I", arg(i)))[0] for i in range(5)] + [arg(i) for i in range(5, 13)]
         face = _wstr(mc.mu, arg(13), 64)
+        if ONLY_BUNDLED_FONTS and face not in BUNDLED_FACE_NAMES:
+            face = "VVFP no such typeface"       # the player's own Windows fonts are hidden: only the bundled ones draw
         real = g.g.CreateFontW(*values, face)
         fake = g.next
         g.next += 4
@@ -233,6 +239,8 @@ def _register(machine_ref: dict) -> None:
         name = path.replace("/", "\\").split("\\")[-1]
         real = ROOT / "assets" / "unicode_fonts" / name
         mc.__dict__.setdefault("added_fonts", []).append(path)
+        if not ADD_FONTS:
+            return 0
         if not path.endswith("\\Unicode Fonts\\" + name) or not real.is_file():
             return 0
         if str(real) not in _ADDED_FONTS:

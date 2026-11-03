@@ -222,6 +222,63 @@ class TheRelease(unittest.TestCase):
         self.assertEqual([f for f in files if re.search(r"ldw(Burweed|arialbold)", f, re.I)], [])
 
 
+@unittest.skipUnless(os.name == "nt" and HAVE_FONTS, "needs Windows and the bundled fonts")
+class TheTextToolStyling(unittest.TestCase):
+    """Picture Studio's Text tool styles the bundled fonts' glyphs like the Windows fonts' (v1.35.90)."""
+
+    LEVELS = (0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 255)
+    STYLE = dict(line_height=27, baseline=22, cap_height=16, x_height=11, fill=(255, 255, 255), outline=None,
+                 outline_width=0, alpha_levels=LEVELS, bold=True)
+
+    def _style(self, face):
+        import vv_glyph_maker as maker
+        return maker.GlyphStyle(face=face, **self.STYLE)
+
+    def test_the_pixel_font_is_scaled_by_whole_steps_the_games_rule(self):
+        import vv_glyph_maker as maker
+        # The rule is the game's (rg_ppem): the nearest multiple of 16 when within a third, never past the line.
+        for em, want in ((12, 16), (16, 16), (20, 16), (24, 32), (26, 32), (33, 32), (10, 10), (7, 7)):
+            with self.subTest(em=em):
+                self.assertEqual(maker.pixel_em(em), want)
+        self.assertEqual(maker.pixel_em(26, 27), 26)        # 32 would be taller than a 27 px line
+
+    def test_bundled_glyphs_have_the_fonts_alpha_levels_baseline_and_cap_height(self):
+        import vv_glyph_maker as maker
+        if not maker.available():
+            self.skipTest("no GDI")
+        for face, probe in (("Unifont", "H\u4e16"), ("Unifont Upper", "\U00020000"),
+                            ("Noto Sans Cuneiform", "\U00012000")):
+            style = self._style(face)
+            for char in probe:
+                with self.subTest(face=face, char=hex(ord(char))):
+                    glyph = maker.render_cluster(char, style)
+                    self.assertIsNotNone(glyph)
+                    self.assertEqual(glyph.face.casefold(), face.casefold())
+                    img = glyph.image
+                    alphas = {img.data[4 * k + 3] for k in range(img.width * img.height)}
+                    self.assertTrue(alphas <= set(self.LEVELS), sorted(alphas - set(self.LEVELS)))
+                    self.assertGreater(len(alphas), 2)                       # anti-aliased, not blocky
+                    colours = {tuple(img.data[4 * k:4 * k + 3]) for k in range(img.width * img.height)
+                               if img.data[4 * k + 3]}
+                    self.assertEqual(colours, {(255, 255, 255)})             # white: the game tints it
+                    self.assertLessEqual(img.height, style.line_height + 2)
+                    if char == "H":
+                        # Capital H: the font's cap height (+/- 2 px), standing on the baseline (+/- 1 px).
+                        self.assertLessEqual(abs(img.height - style.cap_height), 2)
+                        self.assertLessEqual(abs(glyph.top + img.height - style.baseline), 1)
+
+    def test_every_chain_ends_with_the_bundled_faces(self):
+        import vv_glyph_maker as maker
+        calls = []
+        real = maker._pick_face
+        maker._pick_face = lambda faces, bold, cluster: (calls.append(faces), real(faces, bold, cluster))[1]
+        try:
+            maker._text_coverage("\U00020000", "Arial", maker.DEFAULT_FALLBACKS, True, 16)
+        finally:
+            maker._pick_face = real
+        self.assertEqual(tuple(calls[0][-5:]), maker.BUNDLED_FACES)
+
+
 def _hex(cps) -> str:
     return " ".join(chr(c).encode("utf-8").hex() for c in cps)
 
@@ -245,6 +302,11 @@ class TheGraphemeTest(unittest.TestCase):
                 bad.append(cps)
         self.assertEqual(bad[:5], [])
 
+    @staticmethod
+    def _text_ok(cps) -> bool:
+        """A game's text is a C string (no NUL) of well-formed UTF-8 (no surrogates)."""
+        return all(c != 0 and not 0xD800 <= c <= 0xDFFF for c in cps)
+
     @unittest.skipUnless(HAVE_COMPILER, "the MSVC toolchain is not available")
     def test_the_dlls_own_cutting_passes_the_conformance_file(self):
         tests = u18.grapheme_break_tests()
@@ -252,11 +314,7 @@ class TheGraphemeTest(unittest.TestCase):
             src, out = Path(tmp, "in.txt"), Path(tmp, "out.txt")
             lines = []
             for cps, _marks in tests:
-                try:
-                    chr_ok = all(not 0xD800 <= c <= 0xDFFF for c in cps)
-                except TypeError:
-                    chr_ok = True
-                if chr_ok:
+                if self._text_ok(cps):
                     lines.append(_hex(cps))
             src.write_text("\n".join(lines) + "\n", encoding="ascii")
             done = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
@@ -264,7 +322,7 @@ class TheGraphemeTest(unittest.TestCase):
                                   capture_output=True, text=True, timeout=600)
             self.assertEqual(done.returncode, 0, done.stdout[-2000:] + done.stderr[-2000:])
             got = out.read_text(encoding="ascii").splitlines()
-        kept = [(cps, marks) for cps, marks in tests if all(not 0xD800 <= c <= 0xDFFF for c in cps)]
+        kept = [(cps, marks) for cps, marks in tests if self._text_ok(cps)]
         self.assertEqual(len(got), len(kept))
         bad = []
         for (cps, marks), line in zip(kept, got):
@@ -341,6 +399,60 @@ class InTheGame(unittest.TestCase):
                     with self.subTest(game=game, block=block, cp=hex(cp)):
                         self.assertGreater(run.width_of("ldwarialbold", chr(cp).encode("utf-8")), 0)
                         self.assertGreater(self._ink(run, chr(cp)), 0)
+
+    def _alphas_and_rows(self, run, text):
+        blits = run.draw_text("ldwarialbold", text.encode("utf-8"), 100, 50)
+        alphas, rows = set(), set()
+        for src, rect, _dst, _to in blits:
+            sw, sh, pitch, pixels, amask, ashift = run.surface(src)
+            x1, y1, rw, rh = rect
+            for y in range(rh):
+                for x in range(rw):
+                    a = (struct.unpack_from("<I", pixels, (y1 + y) * pitch + (x1 + x) * 4)[0] & amask) >> ashift
+                    if a:
+                        alphas.add(a)
+                        rows.add(y)
+        return alphas, rows
+
+    def test_bundled_glyphs_are_styled_like_the_game_font_with_only_the_bundled_fonts_present(self):
+        """The Windows fonts are hidden from the companion, so a bundled font draws each sample: the glyph has the
+        game font's own alpha levels, stands on its baseline and is as tall as its capitals (+/- 2 px)."""
+        import unicode_text_emulation as ute
+        from PIL import Image
+        ute.ONLY_BUNDLED_FONTS = True
+        try:
+            for game in ("vv1", "vv3"):
+                run = self.ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), self.tables)
+                sheet = Image.open(IMAGES / f"Virtual Villagers - {NAMES[game]}" / "Images" / "ldwarialbold.png")
+                levels = {v for v in sheet.convert("RGBA").getchannel("A").tobytes() if v}
+                # The game's own H, drawn by the game's own routine: its inked rows are the cap height.
+                _a, h_rows = self._alphas_and_rows(run, "H")
+                cap = max(h_rows) - min(h_rows) + 1
+                for char in ("\u0141", "\u4e16", "\U00012000", "\U00020000", "\U00017000", "\U00013000"):
+                    with self.subTest(game=game, char=hex(ord(char))):
+                        alphas, rows = self._alphas_and_rows(run, char)
+                        self.assertTrue(alphas, "nothing drawn")
+                        self.assertTrue(alphas <= levels, sorted(alphas - levels))
+                        self.assertGreater(len(alphas), 2)
+                        self.assertLessEqual(max(rows) - min(rows) + 1, cap + 8)       # a CJK glyph is a full em
+                        if char == "\u0141":
+                            self.assertLessEqual(abs((max(rows) - min(rows) + 1) - cap), 2)
+                            self.assertLessEqual(abs(max(rows) - max(h_rows)), 1)       # on the same baseline
+        finally:
+            ute.ONLY_BUNDLED_FONTS = False
+
+    def test_a_missing_font_file_leaves_the_game_as_it_was(self):
+        import unicode_text_emulation as ute
+        ute.ADD_FONTS = False
+        try:
+            run = self.ue.TextRun("vv3", ("vv3_unicode_text", "vv3_details_full_names"), self.tables)
+            self.assertEqual(run.export("VvfpGlyphsUtf8"), 1)
+            self.assertGreater(self._ink(run, "\u4e16"), 0)             # still drawn from the Windows fonts
+            self.assertTrue(run.m.__dict__.get("added_fonts"), "the companion did not look for the fonts")
+            blits = run.draw_text("ldwBurweed27", b"Hello World")
+            self.assertEqual(len(blits), 11)
+        finally:
+            ute.ADD_FONTS = True
 
     def test_the_new_unicode_18_characters_draw(self):
         import unicodedata

@@ -68,6 +68,7 @@ BUNDLED_FONT_FILES = (("Noto Sans Cuneiform", "NotoSansCuneiform-Regular.otf"),
                       ("Unifont Upper", "unifont_upper-18.0.01.otf"),
                       ("Last Resort High-Efficiency", "LastResortHE-Regular.ttf"))
 BUNDLED_FACES = tuple(face for face, _ in BUNDLED_FONT_FILES)
+PIXEL_FACES = ("Unifont", "Unifont Upper")        # pixel fonts: whole-number sizes, smoothed and thickened
 BUNDLED_FOLDER = Path(__file__).resolve().parents[1] / "assets" / "unicode_fonts"
 
 
@@ -857,6 +858,7 @@ def _bind() -> _Api:
     fn("SetBkMode", i, vp, i)
     fn("SetTextAlign", u, vp, u)
     fn("TextOutW", W.BOOL, vp, i, i, W.LPCWSTR, i)
+    fn("ExtTextOutW", W.BOOL, vp, i, i, u, vp, W.LPCWSTR, u, vp)
     fn("GdiFlush", W.BOOL)
     fn("GetTextMetricsW", W.BOOL, vp, ctypes.POINTER(TEXTMETRICW))
     fn("GetTextExtentPoint32W", W.BOOL, vp, W.LPCWSTR, i, ctypes.POINTER(W.SIZE))
@@ -1050,15 +1052,28 @@ def _raster(text: str, face: str, em_ss: int, bold: bool, ss: int):
     (coverage bytearray, w, h, left, top, advance): left/top place the coverage's top-left corner
     relative to the pen and the baseline (1x pixels), advance is the 1x pen advance."""
     a = _api()
+    by_index = False
     with _Font(face, em_ss, bold):
         tm = _metrics(a)
         size = a.W.SIZE()
-        a.GetTextExtentPoint32W(a.dc, text, _utf16_len(text), ctypes.byref(size))
+        if face == BUNDLED_FACES[-1] and text and ord(text[0]) > 0xFFFF:
+            # Last Resort's placeholder for a character past U+FFFF: GDI reads only its BMP cmap, so the glyph
+            # is looked up in the font's own format 13 cmap and drawn by index (one block for the whole unit,
+            # as the game's companion does).
+            info = _face_info(face, bold)
+            gid = info[1].glyph(ord(text[0])) if info and info[1] else 0
+            if gid:
+                gm = a.GLYPHMETRICS()
+                if a.GetGlyphOutlineW(a.dc, gid, GGO_METRICS | GGO_GLYPH_INDEX, ctypes.byref(gm), 0, None,
+                                      ctypes.byref(a.IDENTITY)) != GDI_ERROR:
+                    text, by_index, size.cx = chr(gid), True, gm.gmCellIncX
+        if not by_index:
+            a.GetTextExtentPoint32W(a.dc, text, _utf16_len(text), ctypes.byref(size))
         pad = _round_up(max(em_ss, 4), ss)
         width = _round_up(size.cx + 2 * pad, ss)
         base = _round_up(pad + tm.tmAscent, ss)
         height = _round_up(base + tm.tmDescent + pad, ss)
-        bits = _dib_text(a, text, width, height, pad, base)
+        bits = _dib_text(a, text, width, height, pad, base, by_index)
     if bits is None:
         return None
     cov = bits[1::4]                       # BGRA: the green channel (grey antialiasing, R = G = B)
@@ -1075,7 +1090,7 @@ def _raster(text: str, face: str, em_ss: int, bold: bool, ss: int):
     return out, w, h, (x0 - pad) // ss, (y0 - base) // ss, adv
 
 
-def _dib_text(a, text: str, width: int, height: int, x: int, y: int) -> bytes | None:
+def _dib_text(a, text: str, width: int, height: int, x: int, y: int, glyph_index: bool = False) -> bytes | None:
     bmi = a.BITMAPINFOHEADER()
     bmi.biSize = ctypes.sizeof(bmi)
     bmi.biWidth, bmi.biHeight, bmi.biPlanes, bmi.biBitCount = width, -height, 1, 32
@@ -1090,7 +1105,10 @@ def _dib_text(a, text: str, width: int, height: int, x: int, y: int) -> bytes | 
             a.SetBkMode(a.dc, 1)                        # TRANSPARENT
             a.SetTextColor(a.dc, 0xFFFFFF)
             a.SetTextAlign(a.dc, TA_BASELINE)
-            a.TextOutW(a.dc, x, y, text, _utf16_len(text))
+            if glyph_index:
+                a.ExtTextOutW(a.dc, x, y, 0x10, None, text, len(text), None)      # ETO_GLYPH_INDEX
+            else:
+                a.TextOutW(a.dc, x, y, text, _utf16_len(text))
             a.GdiFlush()
             return ctypes.string_at(bits, width * height * 4)
         finally:
@@ -1186,7 +1204,8 @@ def _sized(face: str, info, bold: bool, cap: int, em_px: int | None):
     return em * ss, ss
 
 
-def _text_coverage(cluster: str, face: str, fallbacks, bold: bool, cap: int, em_px: int | None = None):
+def _text_coverage(cluster: str, face: str, fallbacks, bold: bool, cap: int, em_px: int | None = None,
+                   line: int | None = None):
     """(coverage, w, h, left, top_rel_baseline, advance, face used) or None."""
     faces = (face,) + tuple(f for f in fallbacks if f != face)
     faces += tuple(f for f in BUNDLED_FACES if f not in faces)          # the last steps (as in the game)
@@ -1200,10 +1219,26 @@ def _text_coverage(cluster: str, face: str, fallbacks, bold: bool, cap: int, em_
         cap = round(primary[2] * em_px) if primary and primary[2] else round(em_px * 0.716)
         em_px = None
     em_ss, ss = _sized(used, info, bold, cap, em_px)
+    pixel = used in PIXEL_FACES
+    if pixel:
+        em_ss = pixel_em(em_ss // ss, line) * ss    # whole-number multiples of the pixel font's own 16 px
     r = _raster(cluster, used, em_ss, bold, ss)
     if r is None:
         return None
+    if pixel and r[1] and r[2]:
+        # Smoothed by the supersampled box filter above, then thickened by a quarter (as the game does).
+        r = (bytearray(min(255, v * 5 // 4) for v in r[0]),) + tuple(r[1:])
     return r + (info[0],)
+
+
+def pixel_em(em: int, line: int | None = None) -> int:
+    """A pixel font's size in px for the wanted em: the nearest multiple of 16 when it is within a third of it
+    (the same rule as rg_ppem in native/vvfp_unicode_text/runtime_glyphs.inc), else em itself."""
+    if em >= 8:
+        snapped = (em + 8) // 16 * 16
+        if snapped >= 16 and snapped * 3 <= em * 4 and snapped * 3 >= em * 2 and (line is None or snapped <= line):
+            return snapped
+    return em
 
 
 # ------------------------------------------------------------------ making it look like the game font
@@ -1514,7 +1549,8 @@ def _render_cluster_cached(cluster: str, style: GlyphStyle):
         got = _render_emoji(cluster, style.line_height, style.fill)
         if got is not None:
             return got
-    r = _text_coverage(cluster, style.face, style.fallback_faces, style.bold, style.cap_height)
+    r = _text_coverage(cluster, style.face, style.fallback_faces, style.bold, style.cap_height, None,
+                       style.line_height)
     if r is None:
         return None
     cov, w, h, left, top, adv, face = r
