@@ -361,8 +361,9 @@ CASES = [
     Case("Stuck Walks", "assets/stuck_walks/VVFP Stuck Walks.dll", (2,),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpStuckWalksInstalled"))[1]),
-    # Fix Vanilla Bugs (A New Home): the three calls of the walk give-up clear.
-    Case("Keep Carried", "assets/keep_carried/VVFP Keep Carried.dll", (1,),
+    # Fix Vanilla Bugs (A New Home: the three calls of the walk give-up clear; The Secret City, The Tree of Life,
+    # New Believers: the walk step's call of the route finder).
+    Case("Keep Carried", "assets/keep_carried/VVFP Keep Carried.dll", (1, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpKeepCarriedInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),

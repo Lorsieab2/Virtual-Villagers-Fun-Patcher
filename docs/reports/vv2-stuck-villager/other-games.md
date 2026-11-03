@@ -103,17 +103,33 @@ blocked or child-closed cells (the trigger for these give-ups in VV3-VV5) is UNC
   reach x 1635 and the walk clears at x >= 1540) -- a different bug (a trip cut short, nothing lost); the 0x2A
   give-ups inside 0x43DFC0 (0x43E08C ...) when the villager is next to that special cell. Unseen live.
 
-### The Secret City, The Tree of Life, New Believers: NOT built, and why
-* Their walk is a router (flood from the goal + follower): it fails only when the game's own grid has no route
-  from the villager to the goal (goal cell blocked, or the villager walled in), or when a waypoint cell turns
-  blocked mid-walk. A route search of our own over the same grid cannot find a way the router did not: the only
-  possible alternate is a different STANDING POINT near the goal, which the listeners accept only inside the item's
-  delivery area (VV3 area 0xE / 0x19, VV4 field 8, VV5 per item) -- not provable without the real maps.
-* The maps are not available in this environment: tests/farmers_emulation_vv3/4/5.py need research/game-data/vvN
-  (cmap.dat, lcmap.dat), which are not in the repository, the worktree, the main checkout or the installs found
-  (Documents\LDW holds saves only; Program Files has an uninstaller only). Without them no emulation of a router
-  give-up with a carried item can run, so nothing was written for these three games (no guessing).
-* The design that fits their code, for when the data is in place: hook the router call (VV3 0x4237C0 at 0x458A80;
-  the VV4 and VV5 twins) -- on failure with an item held and a step behind, call the same router for candidate goals
-  on rings round the original goal (nearest first), and on the first success set the walk step's target to that
-  point; the router's state is then exactly what a normal route leaves, and the job's release step follows.
+### The Secret City, The Tree of Life, New Believers: built (same DLL), router call hooked
+
+(The first version of this note said these three could not be built because the maps were missing; the maps were
+found: the games' Assets\cmap.dat / lcmap.dat, copied into research/game-data/vvN, never committed.)
+
+* Their walk asks a router (a flood from the goal over the game's own grid) when it starts; "no route" -- the goal
+  cell blocked, or the villager walled in -- gives the walk up through the clear (VV3 0x460F70, VV4 0x468C60, VV5
+  0x473440), which empties the queue and releases the carried item with -1. A route search of our own over the same
+  grid cannot beat the router, so the alternate is a different STANDING POINT near the goal, chosen with the game's
+  own router: the router CALL inside the walk step (VV3 0x458A80 -> 0x4237C0, VV4 0x4612F8 -> 0x4706B0, VV5
+  0x46948F -> 0x47B640; five bytes `call`, one site per game) goes to the companion, which asks the router first.
+  Only on "no route", with an item held (not -1, not 3), the front step the walk (type 3; VV5 type 4) and another
+  step behind it, it asks the router about points on rings of 8 to 64 px round the goal (16 directions, nearest
+  first) and writes the first routable point into the walk step's goal (step params +4/+8). The router's own state
+  is then what a normal route leaves; the release step follows.
+* Entry layout found: a step queue entry is [type, speed, x, y, ...] (VV3 0x2C bytes x 80, VV4 and VV5 0x58 x 80);
+  the walk function receives the entry + 4. VV3 walk = type 3, release = type 0xF with the item (pusher 0x461730);
+  VV4 walk = 3, item step = type 17 (0x46A646, item at entry +4); VV5 walk = 4, item steps 0x13 (-1) / 0x14.
+* Emulation on the real maps (tests/test_keep_carried_routers.py, 17 tests): VV3 a mushroom (0x64) from (1300,1300)
+  to the blocked point (1120,1248) next to the food area: stock gives up and releases it at (1172,1264), nothing
+  credited; with the companion it is released at (1120,1264) in the food area (region 14) and 6 food is credited. VV4
+  a mushroom (0x76) to the blocked point (1124,1248) of the food bin: stock releases at (1296,1299); with the
+  companion at (1124,1256), inside the bin (field 8). VV5 a brown mushroom (0x80) to the blocked (1110,1170): stock
+  releases at (1404,1174), the companion at (1096,1129) (43 px away: the nearest point the router reached). A goal the
+  router reaches, nothing held, the baby and a walk with no step behind it are identical to stock frame for frame.
+* Not emulated: VV4 and VV5 credit (the harnesses do not run the games' item-listener registrations, so the release
+  runs the dispatcher with nothing registered); the VV5 delivery place of a mushroom or relic was not located, so its
+  proof is "released at the alternate point, step queue intact". Not covered: the follower's own give-ups (next
+  waypoint -1) and the map-edge give-ups, which are different routines. Improved Pathfinding exists only for VV1 and
+  VV2 and does not touch these call sites. Unseen live.

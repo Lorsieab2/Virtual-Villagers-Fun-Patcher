@@ -121,3 +121,130 @@ class Vv1Run:
             if v.queue_type() == 0:
                 return v.frame
         return None
+
+
+class RouterRun:
+    """The router games (3, 4, 5): villager 0 holds `item`, walks from `start` to `goal` (a point the router
+    cannot route to, or any), the release step queued behind the walk.  Subclasses name the game's harness."""
+
+    GAME = 0
+    WATCH = 0
+    BASE = KEEP_BASE
+    SITE = 0
+    STOCK = ""
+    ITEM_OFF = 0
+    ROUTER_OBJ = 0
+
+    def __init__(self, harness, start, goal, *, keep: bool = True, item: int = 0x64, adult: bool = True,
+                 block_alternates: bool = False, tail: bool = True, **village):
+        self.fe = harness
+        self.v = v = harness.Village(seed=1)
+        v.uc.mem_map(SCRATCH, 0x1000)
+        self.ex = None
+        if keep:
+            self.ex = ex = map_dll(v, KEEP_DLL, self.BASE)
+            n = v.call(ex["VvfpKeepCarriedProbeSite"], 0, self.GAME, 0, SCRATCH, SCRATCH + 0x10)
+            va = struct.unpack("<I", bytes(v.uc.mem_read(SCRATCH, 4)))[0]
+            assert va == self.SITE and n == 5
+            assert bytes(v.uc.mem_read(va, 5)) == bytes.fromhex(self.STOCK)
+            v.uc.mem_write(va, bytes(v.uc.mem_read(SCRATCH + 0x10, n)))
+            v.call(ex["VvfpKeepCarriedProbeReset"], 0)
+        self.setup(start, goal, item, adult, tail, **village)
+        self.trace: list = []
+        self.released: list = []       # (frame, feet) each time the item-release listeners are run
+        if self.WATCH:
+            from unicorn import UC_HOOK_CODE
+            v.uc.hook_add(UC_HOOK_CODE, lambda *_: self.released.append((v.frame, self.trace[-1][1] if self.trace else None)),
+                          begin=self.WATCH, end=self.WATCH)
+
+    def item(self) -> int:
+        return self.v.r32((self.v.rec(0) if hasattr(self.v, 'rec') else self.fe.V0) + self.ITEM_OFF)
+
+    def frame(self) -> None:
+        raise NotImplementedError
+
+    def go(self, frames: int = 4000):
+        v = self.v
+        for _ in range(frames):
+            self.frame()
+            self.trace.append((v.frame, self.feet(), self.qtype(), self.item()))
+            if self.qtype() == 0:
+                return v.frame
+        return None
+
+    def qtype(self):
+        return self.v.queue_type() if hasattr(self.v, 'queue_type') else self.v.step_type()
+
+    def feet(self):
+        return self.v.feet() if hasattr(self.v, 'feet') else self.v.pos()
+
+    def rec_of_zero(self):
+        return self.v.rec(0)
+
+
+class Vv3Run(RouterRun):
+    WATCH = 0x42CE50
+    GAME, SITE, STOCK, ITEM_OFF = 3, 0x458A80, "E83BADFCFF", 0xF20
+
+    def __init__(self, start, goal, **kw):
+        import farmers_emulation_vv3 as fe3
+        super().__init__(fe3, start, goal, **kw)
+
+    def setup(self, start, goal, item, adult, tail):
+        v = self.v
+        v.villager(feet=start, age=500 if adult else 100)
+        rec = v.rec(0)
+        v.call(0x455F30, rec, item)                      # pick it up (the game's own acquire)
+        v.call(0x4611B0, rec, goal[0], goal[1], 100, 0)  # the walk
+        if tail:
+            v.call(0x461730, rec, -1)                    # the release step
+
+    def frame(self) -> None:
+        v = self.v
+        v.call(self.fe.UPDATE, v.rec(0), count=100_000_000)
+        v.frame += 1
+        v.t += self.fe.FRAME_MS / 1000.0
+
+
+class Vv4Run(RouterRun):
+    BASE = 0x20000000
+    WATCH = 0x413310
+    GAME, SITE, STOCK, ITEM_OFF = 4, 0x4612F8, "E8B3F30000", 0x1CDC
+
+    def __init__(self, start, goal, **kw):
+        import farmers_emulation_vv4 as fe4
+        super().__init__(fe4, start, goal, **kw)
+
+    def setup(self, start, goal, item, adult, tail):
+        v = self.v
+        rec = v.villager(at=start, age=500 if adult else 100)
+        v.call(0x45ED50, rec, item)                      # pick it up (the game's own acquire)
+        v.call(0x469050, rec, goal[0], goal[1], 100, 0)  # the walk
+        if tail:
+            v.call(0x468B20, rec, 0x11, -1, *([0] * 20), 0)  # the release step: type 17 = item step (0x46A646), item -1
+
+    def frame(self) -> None:
+        self.v.step_frame()
+
+
+class Vv5Run(RouterRun):
+    BASE = 0x60000000
+    WATCH = 0x4137C0
+    GAME, SITE, STOCK, ITEM_OFF = 5, 0x46948F, "E8AC210100", 0x1D0C
+
+    def __init__(self, start, goal, **kw):
+        import farmers_emulation_vv5 as fe5
+        super().__init__(fe5, start, goal, **kw)
+
+    def setup(self, start, goal, item, adult, tail):
+        v = self.v
+        rec = v.villager(age=600 if adult else 100)
+        v.w32(rec + self.fe.X, start[0])
+        v.w32(rec + self.fe.Y, start[1])
+        v.call(0x466420, rec, item)
+        v.call(0x473380, rec, 4, 100, goal[0], goal[1], -1, *([0] * 17), 0)   # the walk: type 4, speed, x, y
+        if tail:
+            v.call(0x473380, rec, 0x13, -1, *([0] * 20), 0)                       # the release step: type 0x13, item -1
+
+    def frame(self) -> None:
+        self.v.step_frame()

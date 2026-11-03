@@ -1,4 +1,4 @@
-/* VVFP Keep Carried -- part of "Fix Vanilla Bugs" (A New Home first; the other games are added game by game).
+/* VVFP Keep Carried -- part of "Fix Vanilla Bugs" (A New Home, The Secret City, The Tree of Life, New Believers).
 
    The owner (2026-11-03): "please don't drop mushrooms and collectibles and stuff if you run into things if at
    all possible!!" and "The villager should try to find alternate paths to objects before giving up!"
@@ -26,6 +26,21 @@
    Pathfinding installed the stock handler is not reached for a routable goal (the pathfinding companion routes
    round the obstacle), and its own "no route at all" give-up calls 0x439470 directly: an alternate point with a
    free line to the target cannot exist then, and the item is lost as before -- there is no way to deliver it.
+
+   THE ROUTER GAMES (The Secret City, The Tree of Life, New Believers).  Their walk asks a router (a flood from the
+   goal over the game's own walk grid) for a path when it starts; when the router answers "no route" -- the goal
+   cell is blocked (a hut or a tree where a collectible or a mushroom lies), or the villager is walled in -- the
+   walk is given up through the clear (VV3 0x460F70, VV4 0x468C60, VV5 0x473440), which zeroes the step queue and
+   releases the carried item with -1 (VV3 0x455F30, VV4 0x45ED50, VV5 0x466420): the item is dropped and never
+   credited.  A search of our own over the same grid cannot find a way the router did not; the only alternate is a
+   different STANDING POINT near the goal.  The router CALL inside the walk step (VV3 0x458A80, VV4 0x4612F8, VV5
+   0x46948F) is retargeted to this companion: it asks the game's router first, exactly as before; only when the
+   answer is "no route", the villager holds something (not -1, not 3 the baby), the front step is a walk and
+   another step is queued behind it (the release and the reward), the game's router is asked for points on rings
+   of 8, 16, 24, 32, 48 and 64 pixels round the goal (16 directions, nearest first); the first it can route to
+   becomes the walk's target (step +4, +8) and the walk goes on with the router's answer for that point.  The
+   release step then credits the item if the villager stands in its delivery area, as for any delivery.  No point
+   reachable: the answer stays "no route" and the stock give-up runs.
 
    INSTALLING.  VvfpStartup(game, shipped), called once by VVFP Startup.dll at game start (second word), outside
    DllMain.  The site's five stock bytes are checked and replaced by the shared all-or-none writer
@@ -351,17 +366,145 @@ static void vv1_sites(vvfp_site_write *w) {
                      (const void *)vv1_keep_stub);
 }
 
+/* ---- The router games ------------------------------------------------------------------------------------- */
+#define GAME_VV3 3
+#define GAME_VV4 4
+#define GAME_VV5 5
+
+typedef struct rg_game {
+    unsigned int router;                     /* thiscall(obj, args...), callee-cleaned */
+    int args;                                /* 5: x, y, goal x, goal y, adult; 6 (VV5): ... map, adult */
+    int obj_off;                             /* the router object is village + this */
+    int item_off;                            /* the carried item */
+    int entry;                               /* a step queue entry's size */
+    int walk;                                /* the walk step's type */
+    unsigned int site;
+    unsigned char stock[5];
+} rg_game;
+
+static const rg_game RG_VV3 = { 0x4237C0u, 5, 0xFCC, 0xF20, 0x2C, 3, 0x458A80u, { 0xE8, 0x3B, 0xAD, 0xFC, 0xFF } };
+static const rg_game RG_VV4 = { 0x4706B0u, 5, 0x1E78, 0x1CDC, 0x58, 3, 0x4612F8u, { 0xE8, 0xB3, 0xF3, 0x00, 0x00 } };
+static const rg_game RG_VV5 = { 0x47B640u, 6, 0x1F74, 0x1D0C, 0x58, 4, 0x46948Fu, { 0xE8, 0xAC, 0x21, 0x01, 0x00 } };
+
+typedef int (__fastcall *router5_t)(void *obj, void *edx, int a, int b, int c, int d, int e);
+typedef int (__fastcall *router6_t)(void *obj, void *edx, int a, int b, int c, int d, int e, int f);
+
+static int rg_ask(const rg_game *g, void *obj, const int *a) {
+    if (g->args == 6) {
+        return ((router6_t)(UINT_PTR)g->router)(obj, NULL, a[0], a[1], a[2], a[3], a[4], a[5]) & 0xFF;
+    }
+    return ((router5_t)(UINT_PTR)g->router)(obj, NULL, a[0], a[1], a[2], a[3], a[4]) & 0xFF;
+}
+
+#define RG_RINGS 6
+static const int RG_RING_PIXELS[RG_RINGS] = { 8, 16, 24, 32, 48, 64 };
+static const int RG_DIR_X[16] = { 1000, 924, 707, 383, 0, -383, -707, -924, -1000, -924, -707, -383, 0, 383, 707, 924 };
+static const int RG_DIR_Y[16] = { 0, 383, 707, 924, 1000, 924, 707, 383, 0, -383, -707, -924, -1000, -924, -707, -383 };
+
+/* The router call, as the game made it, plus the alternate standing point.  args: the stock arguments (read from
+   the caller's stack); step: the walk step the caller is working on. */
+static int rg_route(const rg_game *g, void *obj, int *args, unsigned char *step) {
+    unsigned char *village = (unsigned char *)obj - g->obj_off;
+    int work[6];
+    int item, r, k, i;
+    COUNT(calls);
+    if (rg_ask(g, obj, args)) {
+        return 1;                            /* a route: the stock answer */
+    }
+    item = *(int *)(village + g->item_off);
+    if (item == -1 || item == 3 || *(int *)(step - 4) != g->walk || *(int *)(step - 4 + g->entry) == 0) {
+        return 0;                            /* nothing held, the baby, not a walk, or no step behind it */
+    }
+    for (i = 0; i < g->args; ++i) {
+        work[i] = args[i];
+    }
+    for (r = 0; r < RG_RINGS; ++r) {
+        for (k = 0; k < 16; ++k) {
+            int cx = args[2] + RG_RING_PIXELS[r] * RG_DIR_X[k] / 1000;
+            int cy = args[3] + RG_RING_PIXELS[r] * RG_DIR_Y[k] / 1000;
+            if (cx < 0 || cy < 0) {
+                continue;
+            }
+            work[2] = cx;
+            work[3] = cy;
+            if (rg_ask(g, obj, work)) {
+                *(int *)(step + 4) = cx;     /* the walk now ends at the point the router can reach */
+                *(int *)(step + 8) = cy;
+                COUNT(kept);
+                COUNT(alternates);
+                return 1;
+            }
+        }
+    }
+    COUNT(give_ups);
+    return 0;
+}
+
+static int __stdcall vv3_route(void *obj, int *args, unsigned char *step) { return rg_route(&RG_VV3, obj, args, step); }
+static int __stdcall vv4_route(void *obj, int *args, unsigned char *step) { return rg_route(&RG_VV4, obj, args, step); }
+static int __stdcall vv5_route(void *obj, int *args, unsigned char *step) { return rg_route(&RG_VV5, obj, args, step); }
+
+/* Entry, as the router: ecx = router object, the arguments on the stack; the step is in ebp (VV3, VV5) or edi (VV4). */
+static __declspec(naked) void vv3_stub(void) {
+    __asm {
+        push ebp
+        lea eax, [esp + 8]
+        push eax
+        push ecx
+        call vv3_route
+        ret 0x14
+    }
+}
+
+static __declspec(naked) void vv4_stub(void) {
+    __asm {
+        push edi
+        lea eax, [esp + 8]
+        push eax
+        push ecx
+        call vv4_route
+        ret 0x14
+    }
+}
+
+static __declspec(naked) void vv5_stub(void) {
+    __asm {
+        push ebp
+        lea eax, [esp + 8]
+        push eax
+        push ecx
+        call vv5_route
+        ret 0x18
+    }
+}
+
+static void rg_site(vvfp_site_write *w, int game) {
+    const rg_game *g = game == GAME_VV3 ? &RG_VV3 : (game == GAME_VV4 ? &RG_VV4 : &RG_VV5);
+    const void *stub = game == GAME_VV3 ? (const void *)vv3_stub : (game == GAME_VV4 ? (const void *)vv4_stub
+                                                                                   : (const void *)vv5_stub);
+    vvfp_site_branch(w, g->site, 5, g->stock, 0xE8, stub);
+}
+
 static int installed;
 
 /* Called once by VVFP Startup.dll at game start, outside DllMain. */
 __declspec(dllexport) void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write w[VV1_SITES];
+    int count;
     (void)shipped;
-    if (installed || game != GAME_VV1) {
+    if (installed) {
         return;
     }
-    vv1_sites(w);
-    if (vvfp_install_sites(w, VV1_SITES)) {
+    if (game == GAME_VV1) {
+        vv1_sites(w);
+        count = VV1_SITES;
+    } else if (game == GAME_VV3 || game == GAME_VV4 || game == GAME_VV5) {
+        rg_site(&w[0], game);
+        count = 1;
+    } else {
+        return;
+    }
+    if (vvfp_install_sites(w, count)) {
         installed = 1;
     }
 }
@@ -376,10 +519,16 @@ __declspec(dllexport) int __stdcall VvfpKeepCarriedInstalled(void) {
 __declspec(dllexport) int __stdcall VvfpKeepCarriedProbeSite(int game, int which, unsigned int *va,
                                                               unsigned char *bytes) {
     vvfp_site_write w[VV1_SITES];
-    if (game != GAME_VV1 || which < 0 || which >= VV1_SITES) {
+    if (game == GAME_VV1) {
+        vv1_sites(w);
+        if (which < 0 || which >= VV1_SITES) {
+            return 0;
+        }
+    } else if ((game == GAME_VV3 || game == GAME_VV4 || game == GAME_VV5) && which == 0) {
+        rg_site(&w[0], game);
+    } else {
         return 0;
     }
-    vv1_sites(w);
     *va = w[which].va;
     memcpy(bytes, w[which].bytes, (size_t)w[which].length);
     return w[which].length;
