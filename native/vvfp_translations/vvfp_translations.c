@@ -340,13 +340,15 @@ static tr_span tr_unquote_span(tr_span cell, tr_cp *buffer, int *quoted) {
     return cell;
 }
 
-/* unescape(): \n, \t and \\ decoded, any other backslash kept. */
+/* unescape(): \n, \r, \t and \\ decoded, any other backslash kept. */
 static int tr_unescape(tr_span cell, tr_cp *out) {
     int i = 0, k = 0;
     while (i < cell.n) {
         if (cell.p[i] == '\\' && i + 1 < cell.n
-            && (cell.p[i + 1] == 'n' || cell.p[i + 1] == 't' || cell.p[i + 1] == '\\')) {
-            out[k++] = cell.p[i + 1] == 'n' ? '\n' : (cell.p[i + 1] == 't' ? '\t' : '\\');
+            && (cell.p[i + 1] == 'n' || cell.p[i + 1] == 'r' || cell.p[i + 1] == 't' || cell.p[i + 1] == '\\')) {
+            out[k++] = cell.p[i + 1] == 'n' ? '\n'
+                     : cell.p[i + 1] == 'r' ? '\r'
+                     : cell.p[i + 1] == 't' ? '\t' : '\\';
             i += 2;
             continue;
         }

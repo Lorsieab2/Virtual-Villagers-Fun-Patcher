@@ -74,7 +74,8 @@ Tabs and line breaks cannot appear literally in a cell, so a field uses:
 
 | Write | Means |
 |---|---|
-| `\n` | line break |
+| `\n` | line break (line feed) |
+| `\r` | carriage return (a Windows line break in the game's text is `\r\n`) |
 | `\t` | tab |
 | `\\` | one backslash |
 
