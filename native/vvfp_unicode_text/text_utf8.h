@@ -273,6 +273,7 @@ static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigne
         else if ((prev == U18_GCB_LVT || prev == U18_GCB_T) && q == U18_GCB_T) join = 1;           /* GB8 */
         else if (q == U18_GCB_EXTEND || q == U18_GCB_ZWJ || q == U18_GCB_SPACINGMARK) join = 1;    /* GB9, GB9a */
         else if (ut_mark_joins(next)) join = 1;                     /* every Mc (the shared cluster rule) */
+        else if (prev == U18_GCB_ZWJ) join = 1;      /* a ZWJ joins the next character (the shared rule, beyond GB11) */
         else if (prev == U18_GCB_PREPEND) join = 1;                                                  /* GB9b */
         else if (conj == 2 && ib == U18_INCB_CONSONANT) join = 1;                                    /* GB9c */
         else if (emoji == 2 && pict) join = 1;                                                       /* GB11 */

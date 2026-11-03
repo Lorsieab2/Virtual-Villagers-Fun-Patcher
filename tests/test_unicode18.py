@@ -289,8 +289,18 @@ def _mark_join(cp: int) -> bool:
 
 
 def _conformance():
-    """GraphemeBreakTest 18.0's cases, but those with a spacing mark the shared rule joins (its own tests below)."""
-    return [(cps, marks) for cps, marks in u18.grapheme_break_tests() if not any(_mark_join(c) for c in cps)]
+    """GraphemeBreakTest 18.0's cases, but those with a spacing mark the shared rule joins (its own tests below), and
+    with the shared rule's ZWJ: the shared spec (docs/UNICODE_SPEC.md row 2) overrides GB11 so that every Fun
+    Patcher cuts alike -- a ZWJ joins the character after it, not only between emoji, unless that is a control,
+    CR or LF -- so the file's break after such a ZWJ is not expected."""
+    out = []
+    for cps, marks in u18.grapheme_break_tests():
+        if any(_mark_join(c) for c in cps):
+            continue
+        marks = [brk and not (cps[i] == 0x200D and u18.grapheme_break_property(chr(cps[i + 1])) not in (1, 2, 3))
+                 for i, brk in enumerate(marks)]
+        out.append((cps, marks))
+    return out
 
 
 # The shared cluster rule beyond UAX #29: (text, its clusters).  Myanmar U+102B / U+1038, Tai Tham U+1A61 and
@@ -303,6 +313,9 @@ SPEC_CLUSTERS = (
     ("aा", ["aा"]),
     ("a\r\nb", ["a", "\r\n", "b"]),
     ("\nါ", ["\n", "ါ"]),
+    ("a‍b", ["a‍b"]),                       # a ZWJ joins the next character, emoji or not
+    ("क्‍ष", ["क्‍ष"]),
+    ("a‍\n", ["a‍", "\n"]),                 # but never a newline
 )
 
 

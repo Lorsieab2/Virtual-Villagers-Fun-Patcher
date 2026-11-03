@@ -210,11 +210,13 @@ def clusters(text: str) -> list[str]:
     combining marks, variation selectors, emoji modifiers and tags, an emoji ZWJ sequence, a flag, a Hangul
     syllable of jamo, an Indic conjunct, CR LF -- with every spacing mark (Mc) joined to the character before
     it, as the shared cluster rule says (docs/UNICODE_SPEC.md row 2; UAX #29 leaves a few out of GB9a, such as
-    Myanmar U+102B), except after a control, CR or LF."""
+    Myanmar U+102B), except after a control, CR or LF; and a zero width joiner joins the character after it
+    (the shared rule, not only between emoji as UAX #29 GB11 says), unless that is a control, CR or LF."""
     out: list[str] = []
+    gcb = vv_unicode18.grapheme_break_property
     for unit in vv_unicode18.graphemes(text):
-        if (out and vv_unicode18.category(unit[0]) == "Mc"
-                and vv_unicode18.grapheme_break_property(out[-1][-1]) not in _NEVER_JOINED):
+        if out and ((vv_unicode18.category(unit[0]) == "Mc" and gcb(out[-1][-1]) not in _NEVER_JOINED)
+                    or (out[-1][-1] == ZERO_WIDTH_JOINER and gcb(unit[0]) not in _NEVER_JOINED)):
             out[-1] += unit
         else:
             out.append(unit)
