@@ -21,9 +21,13 @@ What it does:
    https://github.com/user-attachments/files/... and downloaded with curl (https only, no automatic
    redirects: each redirect is checked against the host allow-list, objects.githubusercontent.com),
    at most 4 MB (curl --max-filesize, then the size on disk);
-4. validates the file with scripts/validate_translation.py (the patcher's own validator), with the form's
+4. sends the file to VirusTotal (scripts/virustotal_scan.py; the owner, 2026-11-02: "PLEASE RUN EVERY SINGLE
+   USER-SUBMITTED FILE THROUGH VIRUSTOTAL AND REJECT ANYTHING THAT IS FLAGGED"): flagged, or not scanned for
+   any reason (no VT_API_KEY, unreachable, timed out), refuses it before anything else reads it;
+5. validates the file with scripts/validate_translation.py (the patcher's own validator), with the form's
    game and the credit as @translator, and checks the form's language and code match the file's;
-5. writes translations/<Game title>/<Game title> - <Language>.txt into the checkout and, in WORK, the
+6. writes translations/vv<N>/<code>.tsv into the checkout (<code>-<credit slug>.tsv when another
+   translator's file of that language is there: nobody's file is overwritten; vv_translations.public_name) and, in WORK, the
    commit message, PR title and PR body; on a refusal, WORK/comment.md with the reasons (emails masked).
 
 The downloaded file is data only: it is decoded as text and parsed, never executed, sourced or evaluated.
@@ -46,7 +50,9 @@ for _path in (SCRIPTS, ROOT / "src"):
         sys.path.insert(0, str(_path))
 
 import validate_translation as vt  # noqa: E402
+import virustotal_scan as vt_scan  # noqa: E402
 import vv_translation_format as fmt  # noqa: E402
+import vv_translations as vtr  # noqa: E402
 
 # The five games, exactly as src/vv_translations.py TITLES spells them (tests/test_translation_sharing.py
 # keeps the two lists equal).  The folder name under translations/ is the title.
@@ -72,6 +78,7 @@ FORM_LABELS = {
 NO_RESPONSE = "_No response_"
 
 MAX_BYTES = fmt.MAX_FILE_BYTES                      # 4 MB, the same limit the patcher applies
+SCAN_MAX_BYTES = 2 * 1024 * 1024                    # the public folder's limit (translation_submissions.py)
 MAX_LANGUAGE_CHARS = 60
 ATTACHMENT_RE = re.compile(r"^https://github\.com/user-attachments/files/\d+/[^\s/?#]+\.txt$", re.IGNORECASE)
 REDIRECT_HOSTS = frozenset({"objects.githubusercontent.com"})
@@ -211,7 +218,8 @@ class Outcome:
     relative_path: str = ""
 
 
-def prepare(body: str, number: int, work: Path, repo_root: Path = ROOT, fetch=download) -> Outcome:
+def prepare(body: str, number: int, work: Path, repo_root: Path = ROOT, fetch=download,
+            scan=vt_scan.scan_bytes) -> Outcome:
     outcome = Outcome()
     work = Path(work)
     work.mkdir(parents=True, exist_ok=True)
@@ -231,6 +239,13 @@ def prepare(body: str, number: int, work: Path, repo_root: Path = ROOT, fetch=do
         url = find_attachment(fields["file"])
         submitted = work / "download" / "submitted.txt"
         fetch(url, submitted)
+        data = submitted.read_bytes()
+        if len(data) > SCAN_MAX_BYTES:
+            raise Refused(f"the file is larger than {SCAN_MAX_BYTES // (1024 * 1024)} MB")
+        verdict = scan(data, "translation.tsv")
+        (work / "scan.md").write_text(vt_scan.markdown([("Translation file", verdict)]), encoding="utf-8")
+        if not verdict.clean:
+            raise Refused(f"VirusTotal: {verdict.status}. {verdict.detail} " + "; ".join(verdict.engines))
         result = vt.check_file(submitted, game=game, credit=credit, set_translator=credit)
         outcome.result = result
         tf = result.tf
@@ -246,8 +261,12 @@ def prepare(body: str, number: int, work: Path, repo_root: Path = ROOT, fetch=do
             outcome.reasons = list(result.reasons)
             _write_refusal(work, outcome)
             return outcome
-        folder = (repo_root / "translations" / game).resolve()
-        target = (folder / fmt.file_name(game, tf.language)).resolve()
+        folder = (repo_root / "translations" / f"vv{GAME_TITLES.index(game) + 1}").resolve()
+        try:
+            name = vtr.public_name(tf.code, credit, vtr.folder_names(folder))
+        except fmt.FormatError as error:
+            raise Refused(str(error)) from None
+        target = (folder / name).resolve()
         if target.parent != folder:
             raise Refused("the file name could not be made safely from the @language row")
         replaces = target.exists()

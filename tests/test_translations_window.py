@@ -61,9 +61,11 @@ def write_translation(path: Path, language="Français", code="fr", translator=""
 class TempTranslations(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = Path(tempfile.mkdtemp(prefix="vvfp-tr-window-"))
-        patcher = mock.patch.object(tr, "TRANSLATIONS_DIR", self.temp / "translations")
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        for name, value in (("TRANSLATIONS_DIR", self.temp / "Installed translations"),
+                            ("LEGACY_DIR", self.temp / "translations")):
+            patcher = mock.patch.object(tr, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
         self.addCleanup(tr._display_choice.clear)
         self.addCleanup(tr._display_cache.clear)
 
@@ -251,7 +253,7 @@ class FilesTests(TempTranslations):
         path = write_translation(self.temp / "good.txt", translator="Kalani",
                                  translations=("Nourriture : %d", "Bonjour %", ""))
         installed, checked = w.add_translation(GAME, path, tr.template_map(template_rows()))
-        self.assertEqual(installed, tr.game_dir(GAME) / f"{TITLE} - Français.txt")
+        self.assertEqual(installed, tr.game_dir(GAME) / "fr.tsv")
         self.assertTrue(checked.ok)
         text = w.report_text(checked)
         self.assertIn("33%", text)
@@ -398,7 +400,7 @@ class WindowTests(TkCase):
         done = window.choose(1)
         self.assertEqual(done, [self.patched])
         self.assertEqual(runtime.read_bytes(), added[0].read_bytes())
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], f"{TITLE} - Français.txt")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "fr.tsv")
         self.assertGreaterEqual(self.app.saved, 1)
         settings = repr(self.app.translation_choices)
         self.assertNotIn("Kalani", settings)                     # the credit is never in the settings
@@ -435,7 +437,7 @@ class WindowTests(TkCase):
         rows = template_rows()
         editor = window.open_editor("Français", "fr", rows=rows)
         self.pump()
-        target = tr.game_dir(GAME) / f"{TITLE} - Français.txt"
+        target = tr.game_dir(GAME) / "fr.tsv"
         self.assertTrue(target.is_file())
         self.assertEqual(fmt.read_file(target).translator, "")       # nothing personal pre-filled
         self.assertEqual(window.language_labels(), [tr.ENGLISH, "Français"])
@@ -501,7 +503,7 @@ class ManageFilesTests(WindowTests):
         self.assertEqual(window.file_labels(), [tr.ENGLISH, "Deutsch", "Español", "Français"])
         self.assertEqual(str(window.file_list.cget("selectmode")), "extended")   # click, Ctrl+, Shift+click
         window.select(["Deutsch", "Français"])
-        self.assertEqual([p.name for p in window.selected_files()], [f"{TITLE} - Deutsch.txt", f"{TITLE} - Français.txt"])
+        self.assertEqual([p.name for p in window.selected_files()], ["de.tsv", "fr.tsv"])
         window.select_all()
         self.assertEqual(window.selected_entries()[0], None)
         self.assertEqual(len(window.selected_files()), 3)
@@ -548,12 +550,12 @@ class ManageFilesTests(WindowTests):
         deleted, problems = window.delete(ask=ask, shell=fake_recycle_bin(calls))
         self.assertEqual(problems, [])
         self.assertEqual(len(calls), 1)                                         # one Recycle Bin call
-        self.assertEqual(sorted(p.name for p in calls[0]), [f"{TITLE} - Deutsch.txt", f"{TITLE} - Español.txt"])
+        self.assertEqual(sorted(p.name for p in calls[0]), ["de.tsv", "es.tsv"])
         self.assertEqual(sorted(p.name for p in deleted), sorted(p.name for p in calls[0]))
         message = asked[0]
         self.assertIn("Recycle Bin", message)
-        self.assertIn(f"{TITLE} - Deutsch.txt", message)
-        self.assertIn(f"{TITLE} - Español.txt", message)
+        self.assertIn("de.tsv", message)
+        self.assertIn("es.tsv", message)
         self.assertIn(w.ENGLISH_KEPT, message)                                  # English named, skipped
         self.assertNotIn("Français", message)
         self.assertEqual(window.file_labels(), [tr.ENGLISH, "Français"])
@@ -576,12 +578,12 @@ class ManageFilesTests(WindowTests):
         window.choose(window.language_labels().index("Deutsch"))
         runtime = tr.runtime_path(self.patched)
         self.assertTrue(runtime.is_file())
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], f"{TITLE} - Deutsch.txt")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "de.tsv")
         window.select(["Deutsch"])
         asked: list = []
         deleted, problems = window.delete(ask=lambda p, t, m: asked.append(m) or True, shell=fake_recycle_bin([]))
         self.assertEqual(problems, [])
-        self.assertEqual([p.name for p in deleted], [f"{TITLE} - Deutsch.txt"])
+        self.assertEqual([p.name for p in deleted], ["de.tsv"])
         self.assertIn("goes back to English from its next start", asked[0])
         self.assertFalse(runtime.exists())                                      # removed, as English does
         self.assertEqual(self.app.translation_choices["vv3"]["file"], "")
@@ -604,7 +606,7 @@ class ManageFilesTests(WindowTests):
         self.assertIn("Nothing was deleted", problems[-1])
         self.assertIn("no Recycle Bin", problems[-1])
         self.assertTrue(tr.runtime_path(self.patched).is_file())                # the choice is kept
-        self.assertEqual(self.app.translation_choices["vv3"]["file"], f"{TITLE} - Français.txt")
+        self.assertEqual(self.app.translation_choices["vv3"]["file"], "fr.tsv")
         w.messagebox.showerror.assert_called()
         window.close()
 
@@ -618,7 +620,7 @@ class ManageFilesTests(WindowTests):
         window.delete(ask=lambda *a: True, shell=fake_recycle_bin([]))
         self.pump(AUTOSAVE_WAIT)
         self.assertFalse(editor.top.winfo_exists())
-        self.assertFalse((tr.game_dir(GAME) / f"{TITLE} - Français.txt").exists())   # never saved back
+        self.assertFalse((tr.game_dir(GAME) / "fr.tsv").exists())   # never saved back
         window.close()
 
     def test_export_writes_each_selected_file_into_the_chosen_folder(self) -> None:

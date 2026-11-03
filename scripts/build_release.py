@@ -223,6 +223,7 @@ FILES = [
     "src/vv_translation_format.py",
     "src/vv_translations.py",
     "src/vv_translations_window.py",
+    "src/vv_translations_github.py",
     "data/translations/vv1_strings.json",
     "data/translations/vv2_strings.json",
     "data/translations/vv3_strings.json",
@@ -558,30 +559,56 @@ FILES = [
     "data/vv1_visual_mods/new/Images/MapX2Y1.jpg",
     "data/vv1_visual_mods/base/Images/MapX2Y1.jpg",
 ]
-# The community translations accepted on GitHub (translations/<Game title>/<Game title> - <Language>.txt; the
-# owner's "accept-translation" workflow adds them): every one ships and appears in the Translations window.
-TRANSLATION_FILES = sorted(
-    path.relative_to(ROOT).as_posix()
-    for path in (ROOT / "translations").glob("*/*.txt")
-    if path.is_file()
-)
+# The community translations accepted on GitHub, in the public folder translations/vv<N>/<name>.tsv (the
+# accept workflows add them): every one ships and appears in the Translations window -- EXCEPT test files.
+# The owner, 2026-11-02: "Only exclude TEST files": a file whose language name or credit starts with "(TEST)"
+# stays in the repository (Download from GitHub... can fetch it) and is kept out of every release and payload.
+
+
+def _public_translation_files() -> tuple[list[str], list[str]]:
+    """(shipped, test files) of the public translations/ folder."""
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "src"))
+    import vv_translations as _vt
+    shipped, tests = [], []
+    for path in sorted((ROOT / "translations").glob("vv[1-5]/*.tsv")):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(ROOT).as_posix()
+        (tests if _vt.is_test_translation(path) else shipped).append(relative)
+    return shipped, tests
+
+
+TRANSLATION_FILES, TEST_TRANSLATION_FILES = _public_translation_files()
 FILES += TRANSLATION_FILES
 
 
 def _assert_translations_valid(files: list[str]) -> None:
-    """Every shipped translation reads, names its game and language, and holds no email address."""
+    """Every shipped translation reads, is for the game its folder names, holds no email address and is not a
+    test file."""
     import sys as _sys
     _sys.path.insert(0, str(ROOT / "src"))
     import vv_translation_format as _fmt
+    import vv_translations as _vt
     for relative in files:
         path = ROOT / relative
         tf = _fmt.read_file(path)
-        game = Path(relative).parent.name
+        game = _vt.TITLES[int(Path(relative).parent.name[2:])]
         problems = _fmt.check_info(tf, game)
         report = _fmt.validate(tf, game_title=game)
         problems += report.file_errors
+        if _vt.is_test_translation(path):
+            problems.append("a (TEST) file never ships")
         if problems:
             raise RuntimeError(f"{relative}: " + "; ".join(problems))
+
+
+def _assert_no_test_translations(members: list[str]) -> None:
+    """No (TEST) translation is in a release archive."""
+    tests = {m.casefold() for m in TEST_TRANSLATION_FILES}
+    shipped = [m for m in members if m.replace("\\", "/").casefold() in tests]
+    if shipped:
+        raise RuntimeError("a (TEST) translation must never ship: " + ", ".join(shipped))
 
 
 def _assert_no_executable_members(members: list[str]) -> None:
@@ -671,7 +698,8 @@ def _build_source_archive() -> dict | None:
         subprocess.run(
             ["git", "archive", "--format=zip",
              f"--prefix=Virtual-Villagers-Fun-Patcher-{VERSION}-source/",
-             "-o", str(temp), "HEAD"],
+             "-o", str(temp), "HEAD", "--", ".",
+             *(f":(exclude){relative}" for relative in TEST_TRANSLATION_FILES)],
             cwd=ROOT, check=True, capture_output=True,
         )
     except (OSError, subprocess.CalledProcessError):
@@ -691,6 +719,8 @@ def _build_source_archive() -> dict | None:
             # contain them -- but assert it rather than trusting the ignore
             # rule to stay correct.
             _assert_no_executable_members(members)
+            _assert_no_test_translations(
+                [m.split("/", 1)[1] if "/" in m else m for m in members])
             bad = archive.testzip()
             if bad:
                 raise RuntimeError(f"source archive CRC failure: {bad}")
@@ -715,6 +745,7 @@ def _build_source_archive() -> dict | None:
 def main() -> int:
     _assert_no_executable_members(FILES)
     _assert_translations_valid(TRANSLATION_FILES)
+    _assert_no_test_translations(FILES)
     # Refuse a dirty tree before anything is written: see _refuse_dirty_tree.
     _refuse_dirty_tree()
     OUTPUTS.mkdir(exist_ok=True)
@@ -735,6 +766,7 @@ def main() -> int:
         with zipfile.ZipFile(temp) as archive:
             members = archive.namelist()
             _assert_no_executable_members(members)
+            _assert_no_test_translations(members)
             if sorted(members) != sorted(FILES):
                 raise RuntimeError("release archive manifest mismatch")
             bad = archive.testzip()

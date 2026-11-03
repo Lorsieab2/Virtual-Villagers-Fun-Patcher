@@ -2,4 +2,6 @@ LIBRARY "VVFP Translations"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpTranslateText=_VvfpTranslateText@4
+    VvfpTranslateKey=_VvfpTranslateKey@12
+    VvfpTranslateKeyText=_VvfpTranslateKeyText@20
     VvfpTranslationsActive=_VvfpTranslationsActive@0
