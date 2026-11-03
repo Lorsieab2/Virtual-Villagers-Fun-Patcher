@@ -30,7 +30,7 @@
     {
       "source": "assets/unicode_font/VVFP Unicode Font.dll",
       "destination": "VVFP Unicode Font.dll",
-      "sha256": "BE8DA2251F74956019641D525840BA54E17887E35D0E4F9DF1C70A397FF1F11B"
+      "sha256": "51921C02332EFF3494A12F3DDFE21002DD4E0FB60469DDB3E3AAA3797A32FDBF"
     }
   ],
   "patches": [],

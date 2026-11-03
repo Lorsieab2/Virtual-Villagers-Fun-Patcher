@@ -24,6 +24,8 @@
    than the line is made smaller until it fits.  Nothing is shipped: only the player's own Windows fonts
    are used, and the game's pictures are never changed. */
 
+#include "colour_fonts.inc"           /* Direct2D / DirectWrite: CBDT, sbix and SVG colour fonts */
+
 #define RG_PAGE_W 1024
 #define RG_PAGE_ROWS 6
 #define RG_SLOTS 254
@@ -72,6 +74,7 @@ typedef struct rg_face {
     int present;                    /* -1 unknown */
     int bold;                       /* thickening steps */
     int cap_em;                     /* capital height per 1000 em, 0 unknown */
+    int bitmap_colour;              /* CBDT / sbix / SVG colour table (drawn by Direct2D); -1 unknown */
 } rg_face;
 
 typedef struct rg_hfont {
@@ -131,6 +134,7 @@ static int rg_face_index(const WCHAR *face, int weight) {
     g_faces[g_face_count].weight = weight;
     g_faces[g_face_count].present = -1;
     g_faces[g_face_count].bold = -1;
+    g_faces[g_face_count].bitmap_colour = -1;
     return g_face_count++;
 }
 
@@ -430,12 +434,33 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
     GOFFSET offsets[RG_MAX_UNIT];
     rg_hfont *h = rg_font_at(face, ppem);
     rg_colr *colr;
+    int d2d_done = 0;
     if (h == NULL || n <= 0 || n > RG_MAX_UNIT
         || ScriptItemize(text, n, RG_MAX_UNIT, NULL, NULL, items, &nitems) != S_OK || nitems <= 0 || nitems > RG_MAX_UNIT) {
         return 0;
     }
     colr = rg_colr_of(face);
     SelectObject(g_dc, h->font);
+    if (cv != NULL && colr == NULL) {
+        /* CBDT (Noto Color Emoji), sbix and SVG colour fonts: Direct2D draws the text in its own colours; a text
+           with no colour in it, or no Direct2D, is drawn by GDI below, as before. */
+        if (g_faces[face].bitmap_colour < 0) {
+            g_faces[face].bitmap_colour = cf_has_bitmap_colour(g_dc);
+        }
+        if (g_faces[face].bitmap_colour) {
+            int coloured = 0;
+            if (cf_draw(g_faces[face].face, g_faces[face].weight, ppem, text, n, cv->w, cv->h, cv->ox, cv->base,
+                        cv->px, &coloured)) {
+                if (coloured) {
+                    cv->colour = 1;
+                    d2d_done = 1;
+                } else {
+                    ZeroMemory(cv->px, (size_t)cv->w * (size_t)cv->h * 4);
+                }
+            }
+            SelectObject(g_dc, h->font);
+        }
+    }
     for (i = 0; i < nitems; ++i) {
         levels[i] = (BYTE)items[i].a.s.uBidiLevel;
     }
@@ -473,7 +498,9 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
             for (j = 0; j < count; ++j) {
                 DWORD at = 0;
                 int layers = colr != NULL ? rg_layers(colr, glyphs[j], &at) : 0;
-                if (layers > 0) {
+                if (d2d_done) {
+                    /* already drawn, in colour, by Direct2D */
+                } else if (layers > 0) {
                     int k;
                     for (k = 0; k < layers; ++k) {
                         const unsigned char *rec = colr->colr + at + k * 4;

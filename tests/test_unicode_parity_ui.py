@@ -304,5 +304,84 @@ class CopyPlayerSlotCarriesTheLongNames(unittest.TestCase):
         self.assertEqual(vv_copy_slot._rename_slot_in_name(ln.file_name(5, 1), 1, 5), ln.file_name(5, 5))
 
 
+CF_HARNESS = ROOT / "scripts" / "build_colour_harness.ps1"
+CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x86\cl.exe")
+
+
+def run_colour_harness(*args: str) -> str:
+    import subprocess
+    result = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(CF_HARNESS), *args],
+                            capture_output=True, text=True, timeout=600)
+    return (result.stdout + result.stderr).strip()
+
+
+class ColourFonts(unittest.TestCase):
+    """UNICODE_SPEC section 3, "Colour emoji": colour fonts in every format (COLR/CPAL, CBDT, sbix, SVG)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.source = (ROOT / "native" / "vvfp_unicode_text" / "colour_fonts.inc").read_text(encoding="utf-8")
+        cls.runtime = (ROOT / "native" / "vvfp_unicode_text" / "runtime_glyphs.inc").read_text(encoding="utf-8")
+
+    def test_the_three_bitmap_and_svg_tables_are_looked_for(self):
+        for tag in ("'CBDT'", "'sbix'", "'SVG '"):
+            self.assertIn(tag, self.source)
+        self.assertIn("CF_ENABLE_COLOR_FONT 4", self.source)           # D2D1_DRAW_TEXT_OPTIONS_ENABLE_COLOR_FONT
+
+    def test_direct2d_is_loaded_from_system32_only(self):
+        self.assertIn("LoadLibraryExW(L\"d2d1.dll\", NULL, CF_SEARCH_SYSTEM32)", self.source)
+        self.assertIn("LoadLibraryExW(L\"dwrite.dll\", NULL, CF_SEARCH_SYSTEM32)", self.source)
+        self.assertNotRegex(self.source, r"LoadLibrary[AW]\(")
+        self.assertIn("0x00000800", self.source)                      # LOAD_LIBRARY_SEARCH_SYSTEM32
+
+    def test_vvs_own_colr_renderer_is_kept_and_the_bitmap_path_never_replaces_it(self):
+        self.assertIn("rg_layers(colr, glyphs[j], &at)", self.runtime)
+        self.assertIn("if (cv != NULL && colr == NULL) {", self.runtime)
+        self.assertIn("answers 0 and the letter is drawn", self.source.replace("\n   ", " ").replace("  ", " "))
+
+    def test_the_dll_does_not_import_loadlibrary_a_or_w(self):
+        import pefile
+        for dll in (ROOT / "assets" / "unicode_text" / "VVFP Unicode Text.dll",
+                    ROOT / "assets" / "unicode_font" / "VVFP Unicode Font.dll"):
+            pe = pefile.PE(str(dll))
+            imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
+            self.assertFalse(imports & {"LoadLibraryA", "LoadLibraryW"}, dll.name)
+            self.assertIn("LoadLibraryExW", imports, dll.name)
+
+    @unittest.skipUnless(sys.platform == "win32" and CL.is_file(), "needs Windows and the MSVC build tools")
+    def test_direct2d_draws_a_colour_emoji_in_its_own_colours(self):
+        out = run_colour_harness("Segoe UI Emoji", "400", "48", "1F600")
+        if "unavailable" in out:
+            self.skipTest("this Windows has no Direct2D")
+        self.assertRegex(out, r"colour=1 ink=\d+")
+        ink = int(re.search(r"ink=(\d+)", out).group(1))
+        kinds = int(re.search(r"rgb=(\d+)", out).group(1))
+        self.assertGreater(ink, 500)
+        self.assertGreater(kinds, 8)                                  # several colours, not one tinted
+
+    @unittest.skipUnless(sys.platform == "win32" and CL.is_file(), "needs Windows and the MSVC build tools")
+    def test_a_skin_tone_sequence_is_one_coloured_glyph(self):
+        out = run_colour_harness("Segoe UI Emoji", "400", "48", "1F44D", "1F3FD")
+        if "unavailable" in out:
+            self.skipTest("this Windows has no Direct2D")
+        self.assertIn("colour=1", out)
+
+    @unittest.skipUnless(sys.platform == "win32" and CL.is_file(), "needs Windows and the MSVC build tools")
+    def test_a_letter_in_a_plain_face_has_no_colour_so_gdi_draws_it(self):
+        out = run_colour_harness("Segoe UI", "400", "48", "41")
+        if "unavailable" in out:
+            self.skipTest("this Windows has no Direct2D")
+        self.assertIn("colour=0", out)
+
+    @unittest.skipUnless(sys.platform == "win32" and CL.is_file(), "needs Windows and the MSVC build tools")
+    def test_the_table_check_tells_colr_from_bitmap_colour_fonts(self):
+        out = run_colour_harness("Segoe UI Emoji", "tables", "0", "0")
+        self.assertRegex(out, r"installed=1 bitmap=\d")
+        bitmap = run_colour_harness("Noto Color Emoji", "tables", "0", "0")
+        if "installed=1" in bitmap:                                   # Noto Color Emoji is CBDT
+            self.assertIn("bitmap=1", bitmap)
+        self.assertIn("bitmap=0", run_colour_harness("Segoe UI", "tables", "0", "0"))
+
+
 if __name__ == "__main__":
     unittest.main()
