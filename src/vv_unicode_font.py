@@ -140,11 +140,77 @@ class _Drawer:
         self.ems: dict[str, int] = {}
         self.bold: dict[str, int] = {}
         self.target = glyphs.sheet.box(ord("H")).total()
+        self.caches: dict = {}
 
     def chain(self, ch: str):
         for name in (self.face,) + FALLBACK_CHAIN:
-            if self.gdi.has_face(name, 700) and self.gdi.has_char(name, 700, ch):
+            if not self.gdi.has_face(name, 700):
+                continue
+            if ord(ch) > 0xFFFF:
+                if self.glyph_index(name, 20, ch) is not None:
+                    yield name
+            elif self.gdi.has_char(name, 700, ch):
                 yield name
+
+    def glyph_index(self, name: str, ppem: int, ch: str):
+        """The glyph a face has for a character outside the BMP.  GDI's GetGlyphIndicesW sees only the halves of a
+        surrogate pair, so Windows' Uniscribe shapes the whole UTF-16 unit (ScriptItemize + ScriptShape), as the
+        companion does; None when the face lacks it (its default glyph comes back)."""
+        import ctypes
+        self.gdi._select(name, 700, ppem)
+        usp = ctypes.WinDLL("usp10")
+        units = ch.encode("utf-16-le")
+        count = len(units) // 2
+        items = (ctypes.c_int * 8)()
+        n_items = ctypes.c_int(0)
+        usp.ScriptItemize.argtypes = [ctypes.c_wchar_p, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p,
+                                      ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
+        if usp.ScriptItemize(ch, count, 3, None, None, items, ctypes.byref(n_items)) != 0 or n_items.value < 1:
+            return None
+        cache = self.caches.setdefault((name, ppem), ctypes.c_void_p())
+        glyphs = (ctypes.c_ushort * 8)()
+        clusters = (ctypes.c_ushort * 8)()
+        attrs = (ctypes.c_ushort * 8)()
+        total = ctypes.c_int(0)
+        usp.ScriptShape.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_wchar_p, ctypes.c_int,
+                                    ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
+                                    ctypes.POINTER(ctypes.c_int)]
+        analysis = ctypes.cast(ctypes.byref(items, 4), ctypes.c_void_p)       # SCRIPT_ITEM: iCharPos, then the analysis
+        if usp.ScriptShape(self.gdi.dc, ctypes.byref(cache), ch, count, 8, analysis, glyphs, clusters, attrs,
+                           ctypes.byref(total)) != 0 or total.value != 1:
+            return None
+        props = (ctypes.c_ubyte * 16)()
+        ctypes.cast(props, ctypes.POINTER(ctypes.c_int))[0] = 16
+        usp.ScriptGetFontProperties.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_void_p]
+        default = None
+        if usp.ScriptGetFontProperties(self.gdi.dc, ctypes.byref(cache), props) == 0:
+            default = ctypes.cast(ctypes.byref(props, 6), ctypes.POINTER(ctypes.c_ushort))[0]   # wgDefault
+        if glyphs[0] == 0 or glyphs[0] == default:
+            return None
+        return glyphs[0]
+
+    def indexed(self, name: str, ppem: int, glyph: int):
+        """(mask, rows above the baseline, advance) of a glyph by index (GGO_GLYPH_INDEX)."""
+        gdi = self.gdi
+        gm = gdi.GLYPHMETRICS()
+        one, zero = gdi.FIXED(0, 1), gdi.FIXED(0, 0)
+        mat = gdi.MAT2(one, zero, zero, one)
+        gdi._select(name, 700, ppem)
+        size = gdi.gdi.GetGlyphOutlineW(gdi.dc, glyph, 0x80 | 6, gdi.ct.byref(gm), 0, None, gdi.ct.byref(mat))
+        if size == 0xFFFFFFFF:
+            return None, 0, 0
+        if size == 0:
+            return None, 0, gm.gmCellIncX
+        buf = (gdi.ct.c_ubyte * size)()
+        gdi.gdi.GetGlyphOutlineW(gdi.dc, glyph, 0x80 | 6, gdi.ct.byref(gm), size, buf, gdi.ct.byref(mat))
+        w, h = gm.gmBlackBoxX, gm.gmBlackBoxY
+        pitch = (w + 3) & ~3
+        mask = vfg.Mask.blank(w, h)
+        for y in range(h):
+            for x in range(w):
+                v = buf[y * pitch + x]
+                mask.px[y * w + x] = (v * 255 + 32) // 64 if v < 64 else 255
+        return mask, gm.gmptGlyphOrigin.y, gm.gmCellIncX
 
     def em(self, name: str) -> int:
         if name not in self.ems:
@@ -190,8 +256,13 @@ class _Drawer:
         m = self.metrics
         for name in self.chain(ch):
             ppem = self.em(name)
-            r = self.gdi.raster(name, 700, ppem, ch)
-            adv = self.advance(name, ppem, ch)
+            if ord(ch) > 0xFFFF:
+                glyph = self.glyph_index(name, ppem, ch)
+                mask, above, adv = self.indexed(name, ppem, glyph) if glyph else (None, 0, 0)
+                r = (mask, above) if mask is not None else None
+            else:
+                r = self.gdi.raster(name, 700, ppem, ch)
+                adv = self.advance(name, ppem, ch)
             if r is None:
                 return adv, None
             ink, above = r

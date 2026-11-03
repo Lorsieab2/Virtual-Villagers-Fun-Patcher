@@ -145,6 +145,16 @@ class RowTests(unittest.TestCase):
         self.assertEqual(self.errors("%d left", "%3d restants"), [])          # width may change
         self.assertTrue(self.errors("%d left", "% d restants"))               # never by the space flag alone
 
+    def test_a_changed_width_or_precision_stays_small(self):
+        # the game prints into fixed-size buffers: nothing may widen a conversion past 64
+        self.assertEqual(self.errors("%d left", "%64d restants"), [])
+        self.assertEqual(self.errors("%s left", "%.20s restants"), [])
+        for tr in ("%100000d restants", "%65d restants", "%*d restants", "%.99999d restants"):
+            with self.subTest(tr=tr):
+                self.assertTrue(self.errors("%d left", tr))
+        self.assertTrue(self.errors("%s left", "%.99999s restants"))
+        self.assertEqual(fmt.translation_tokens("%100000d", "%d left"), [])
+
     def test_runtime_text_writes_double_percent_in_a_format_line(self):
         self.assertEqual(fmt.runtime_text("%d restants, 50 %", "%d left"), "%d restants, 50 %%")
         self.assertEqual(fmt.runtime_text("%d restants, 50 %%", "%d left"), "%d restants, 50 %%")   # old way kept

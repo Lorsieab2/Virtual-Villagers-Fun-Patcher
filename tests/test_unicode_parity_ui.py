@@ -60,6 +60,15 @@ JAPANESE = "山田太郎・アレクサンドラ・モンゴメリー・スミ�
 ELLIPSIS = chr(0x2026)
 
 
+class WidthIsBounded(unittest.TestCase):
+    def test_the_dll_check_bounds_a_changed_width_like_the_validator(self):
+        source = (ROOT / "native" / "vvfp_translations" / "tr_text.h").read_text(encoding="utf-8")
+        self.assertIn("if (value > 64)", source)
+        self.assertIn("tr_small_field(masked, c)", source)
+        import vv_translation_format as fmt
+        self.assertEqual(fmt.MAX_FIELD, 64)
+
+
 class SidecarV3(unittest.TestCase):
     """UNICODE_SPEC section 2, "The full-name sidecar": short, room, whole, CRC; v1 and v2 still read."""
 
@@ -285,10 +294,20 @@ class RenameTribeLongName(unittest.TestCase):
                 self.run_rename("Alexandria Montgomery-Smith the Third of Kalahuna")
         self.assertEqual(file.read_bytes(), original)
 
-    def test_logs_get_no_rename_note_for_a_name_past_the_63_character_line(self):
-        result = self.run_rename("N" * 100)
-        self.assertEqual(result.notes, [])
-        self.assertIn("63", result.notes_skipped)
+    def test_the_log_note_and_header_use_the_short_form_the_save_holds(self):
+        whole = "Alexandria Montgomery-Smith"
+        base = rename.save_name(self.game, self.game.save_path(self.folder, 1).read_bytes())
+        logs = self.folder / "Virtual Villagers Fun Patcher" / "Save 1" / "Logs" / "Deaths"
+        logs.mkdir(parents=True)
+        log = logs / "Virtual Villagers 3 Deaths Log 1.txt"
+        log.write_bytes(("Village: %s (Save 1)\r\n" % base).encode())
+        result = self.run_rename(whole)
+        short = result.stored_name
+        self.assertEqual(short, "Alexandria Montg...")
+        text = log.read_text(encoding="utf-8")
+        self.assertIn("Tribe renamed from %s to %s on" % (base, short), text)
+        self.assertNotIn(whole, text)
+        self.assertEqual(rename.effective_header(text, 0), "Village: %s (Save 1)" % short)
 
 
 class CopyPlayerSlotCarriesTheLongNames(unittest.TestCase):
@@ -572,6 +591,16 @@ class UnicodeFontPreview(unittest.TestCase):
                 picture = uf.render("vv3", font, "Segoe UI", uf.FIT_REFERENCE, folder)
                 self.assertEqual(picture.height, vfg.metrics("vv3", font, folder).line)
                 self.assertLess(abs(picture.width - game), game * 0.15, (picture.width, game))
+
+    def test_a_character_outside_the_bmp_is_drawn_from_its_whole_surrogate_pair(self):
+        import vv_unicode_font as uf
+        folder = ROOT / "research" / "game-images" / "Virtual Villagers - The Secret City" / "Images"
+        for text in ("👍", "𒀀"):                       # thumbs up, a cuneiform sign
+            with self.subTest(text=text):
+                picture = uf.render("vv3", "ldwarialbold", "Segoe UI", text, folder)
+                self.assertTrue(picture.bbox(), "blank")
+        sample = uf.render("vv3", "ldwarialbold", "Segoe UI", uf.SAMPLE, folder)
+        self.assertTrue(sample.bbox())
 
     def test_a_character_the_face_lacks_comes_from_the_fallback_chain(self):
         import vv_unicode_font as uf

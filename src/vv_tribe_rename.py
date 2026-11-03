@@ -895,15 +895,11 @@ def rename_tribe(
     old_whole = vv_long_names.whole_name(old.encode(GAME_TEXT), pairs)
     if old_whole == new_name:
         raise RenameError(f"Save {slot} is already called {new_name}.")
-    # The exporters follow a rename line only for a name of at most 63 characters (village_rename.h).
+    # The logs' village header is the name as the save holds it (the native publishers write vv_village_name(), the
+    # short form of a long name), so the rename line and the data files use that one form: `old` and `stored`.
     notes_skipped = ""
-    if len(new_name) > 63:
-        notes = []
-        notes_skipped = ("the new name is longer than 63 characters, which the logs' rename line cannot hold; the "
-                         "logs keep the previous name")
-    else:
-        notes = plan_log_notes(game, folder, slot, old_whole, new_name, when)
-    data_changes = plan_data_changes(game, folder, slot, old_whole, new_name)
+    notes = plan_log_notes(game, folder, slot, old, stored, when)
+    data_changes = plan_data_changes(game, folder, slot, old, stored)
     long_file = vv_long_names.path(folder, game.number, slot)
     try:
         long_before = long_file.read_bytes()

@@ -317,6 +317,19 @@ def _signature(match) -> tuple:
     return (kind, match.group("length") or "", stars)
 
 
+MAX_FIELD = 64        # the most a translation may widen a conversion's width or precision to (the game's buffers are fixed)
+
+
+def _small_field(match) -> bool:
+    """A changed width or precision stays small (at most MAX_FIELD): the game prints into fixed-size buffers, so
+    "%100000d" or "%.99999s" could overflow one.  A "*" takes its number at run time and is the English's own."""
+    for name in ("width", "precision"):
+        value = match.group(name)
+        if value and value != "*" and int(value) > MAX_FIELD:
+            return False
+    return True
+
+
 @dataclass(frozen=True)
 class Source:
     """The placeholders a line's own English has.  A "%" in a translation is a placeholder only when it is one of
@@ -337,7 +350,7 @@ class Source:
         if found in self.conversions:
             return found
         # the same kind of value with another width or precision (%d -> %3d), never by the space flag alone
-        if " " not in match.group("flags"):
+        if " " not in match.group("flags") and _small_field(match):
             mine = _signature(match)
             for known in self.conversions:
                 other = _CONV_RE.fullmatch(known)
