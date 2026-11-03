@@ -110,7 +110,7 @@ class TheLongNamesFile(unittest.TestCase):
         native = (ROOT / "native" / "vvfp_unicode_text" / "long_names.inc").read_text(encoding="utf-8")
         self.assertIn('L"Virtual Villagers %d Long Names - Save %d.dat"', native)
         self.assertIn('L"Long Names"', native)
-        self.assertIn('#define LN_HEADER "VVFP Long Names v2\\n"', native)
+        self.assertIn('#define LN_HEADER "VVFP Long Names v3\\n"', native)
         self.assertEqual(ln.file_name(3, 2), "Virtual Villagers 3 Long Names - Save 2.dat")
         self.assertIn("#define VV_SHARED_NAME_BYTES 1200", native)
         self.assertEqual(ln.SHARED_NAME_BYTES, 1200)
@@ -435,6 +435,55 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(pairs.get(first), _bytes_of(JAPANESE + "一"))
                 self.assertEqual(len({first, failed, cut}), 3)
                 self.assertTrue(the_file().endswith(b"\n"))
+
+    def test_the_long_names_file_is_v3_made_whole_and_moved_over_the_old_one(self):
+        """UNICODE_SPEC section 2: records carry their room; the whole file is made in "<file>.tmp" and moved over the
+        old one (MoveFileEx REPLACE_EXISTING | WRITE_THROUGH); a refused move writes in place; v1/v2 files are
+        read and rewritten as v3 with nothing lost."""
+        import vv_long_names as ln
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                files = run.use_files(1)
+                n = int(game[2])
+
+                def leave(name):
+                    wrapper, box = run.new_box(23)
+                    run.set_text(box, _bytes_of(name))
+                    return run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
+
+                leave(JAPANESE + "甲")                      # makes the file; then it is replaced by an older one
+                found = next(p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}"))
+                old_short, old_whole = ("Old name" + ELLIPSIS).encode(GAME_TEXT), b"Old name that is whole"
+                files[found] = b"VVFP Long Names v2\n" + ln.record_v2(old_short, old_whole)      # v2: no room
+                run.moves.clear()
+
+                short = leave(JAPANESE + "乙")
+                data = files[found]
+                self.assertTrue(data.startswith(b"VVFP Long Names v3\n"))
+                self.assertEqual([r[0] for r in ln.records(data)], [old_short, short])      # nothing lost
+                self.assertEqual(ln.parse(data)[old_short], old_whole)
+                room = {r[0]: r[1] for r in ln.records(data)}
+                self.assertEqual(room[old_short], 0)                                          # v2 has no room
+                self.assertEqual(room[short], FIELD[game])                                    # the field's bytes
+                self.assertLess(len(short), room[short])
+                # made in the .tmp, moved over the file with the two flags, the .tmp is gone
+                self.assertTrue(run.moves)
+                self.assertEqual(run.moves[-1], (found + ".tmp", found, 0x1 | 0x8))
+                self.assertNotIn(found + ".tmp", files)
+                # the move is refused: the file is written in place and still holds every record
+                run.move_fault = True
+                second = leave(JAPANESE + "丙")
+                run.move_fault = False
+                self.assertNotIn(found + ".tmp", files)
+                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second])
+                # the disk refuses the copy: the old file is untouched and the pair is written again later
+                run.write_fault = "fail"
+                third = leave(JAPANESE + "丁")
+                run.write_fault = None
+                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second])
+                run.tick += 5000
+                run.draw_text("ldwarialbold", _bytes_of(POO))
+                self.assertEqual([r[0] for r in ln.records(files[found])], [old_short, short, second, third])
 
     def test_line_fitting_breaks_japanese_between_characters(self):
         for game, run in self.runs.items():

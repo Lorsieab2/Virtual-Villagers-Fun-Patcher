@@ -8,14 +8,19 @@
    another long name already has that short form.  Every stock path therefore only ever holds a short
    form, never more bytes than it was written for.
 
-   The pair (short form, whole name) is appended at once to
+   The pair (short form, room, whole name) is kept at once in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Long Names\
            Virtual Villagers <N> Long Names - Save <S>.dat
-   (one "short<TAB>whole<TAB>CRC-32" line each, the game's own bytes; the file starts "VVFP Long Names
-   v2").  Lines are only ever added, each in one write, and a pair counts as kept only when the whole
-   line was written (else it is written again two seconds later, at the next draw); a line cut short is
-   skipped by its checksum.  A name set and never saved (the game saves only on a clean quit) leaves a
-   line nothing uses, which harms nothing.  The patcher reads the same files (src/vv_long_names.py).
+   (one "short<TAB>room<TAB>whole<TAB>CRC-32" record each, the game's own bytes, room = the field's bytes with
+   its NUL; the file starts "VVFP Long Names v3"; v1 "short<TAB>whole" and v2 "short<TAB>whole<TAB>CRC-32" files
+   are still read, and rewritten as v3 with room 0 = unknown).  Every write makes the whole file in
+   "<file>.tmp" and moves it over the old one with MoveFileEx(REPLACE_EXISTING | WRITE_THROUGH); when the move is
+   refused the file is written in place.  Records are never removed; the first record of a short form wins; a
+   record with no mark, longer than its room, holding a control character, or whole over the shared limit is
+   skipped, as is one that fails its checksum.  A pair counts as kept only when the file was written whole (else
+   it is written again two seconds later, at the next draw).  A name set and never saved (the game saves only on
+   a clean quit) leaves a record nothing uses, which harms nothing.  The patcher reads the same files
+   (src/vv_long_names.py).
 
    Wherever the game draws or measures text, each short form in it is drawn as its whole name; a text
    box given a short form (the Details screen opening a villager, Change Tribe) holds the whole name.
@@ -23,11 +28,11 @@
 
 #define VV_SHARED_NAME_BYTES 1200       /* the engine's own text-box ceiling (SetEditable caps at 1200) */
 #define LN_MAX 4096
-#define LN_HEADER "VVFP Long Names v2\n"
-#define LN_HEADER_LEN 19
+#define LN_HEADER "VVFP Long Names v3\n"
+#define LN_HEADER_LEN 19      /* "VVFP Long Names v" + digit + LF, every version */
 #define LN_ARENA (2 * 1024 * 1024)
 
-typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, pending; } ln_pair;
+typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, room, pending; } ln_pair;
 
 static ln_pair g_ln[LN_MAX];
 static int g_ln_count;
@@ -61,7 +66,7 @@ static int ln_path(int slot, WCHAR *out) {
     return vv_ps_data_file_w(out, L"Long Names", name, VV_PS_RESERVE);
 }
 
-static void ln_add(const unsigned char *shrt, int sl, const unsigned char *full, int fl) {
+static void ln_add(const unsigned char *shrt, int sl, const unsigned char *full, int fl, int room) {
     int i;
     if (g_ln_count >= LN_MAX || sl <= 0 || fl <= 0) {
         return;
@@ -74,6 +79,7 @@ static void ln_add(const unsigned char *shrt, int sl, const unsigned char *full,
     g_ln[g_ln_count].shrt = ln_dup(shrt, sl);
     g_ln[g_ln_count].full = ln_dup(full, fl);
     g_ln[g_ln_count].shrt_len = sl;
+    g_ln[g_ln_count].room = room;
     g_ln[g_ln_count].pending = 0;
     if (g_ln[g_ln_count].shrt != NULL && g_ln[g_ln_count].full != NULL) {
         ++g_ln_count;
@@ -107,50 +113,154 @@ static int ln_hex8(const unsigned char *p, unsigned int *v) {
     return 1;
 }
 
-/* Every whole, intact record of a file: "short<TAB>whole<TAB>CRC32 (8 hex)\n".  A record cut short (a full
-   disk, a crash) or merged with the next fails its checksum and is skipped; nothing else is lost. */
+/* ---- the file: v1 / v2 / v3 records ---------------------------------------------------------------- */
+
+/* A short form carries a mark: the ellipsis (0x85 or its UTF-8) or "...". */
+static int ln_has_mark(const unsigned char *s, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (s[i] == 0x85) {
+            return 1;
+        }
+        if (s[i] == '.' && i + 2 < n && s[i + 1] == '.' && s[i + 2] == '.') {
+            return 1;
+        }
+        if (s[i] == 0xE2 && i + 2 < n && s[i + 1] == 0x80 && s[i + 2] == 0xA6) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int ln_has_control(const unsigned char *s, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        if (s[i] < 0x20 || s[i] == 0x7F) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A record is kept when it has a mark, fits its room (0 = unknown), holds no control character and the
+   whole name is within the shared limit. */
+static int ln_valid(const unsigned char *sh, int sl, int room, const unsigned char *wh, int wl) {
+    return sl > 0 && wl > 0 && wl <= VV_SHARED_NAME_BYTES && (room <= 0 || sl < room) && ln_has_mark(sh, sl)
+        && !ln_has_control(sh, sl) && !ln_has_control(wh, wl);
+}
+
+typedef struct ln_rec { const unsigned char *sh, *wh; int sl, wl, room; } ln_rec;
+
+/* One line (no LF) of a file of `version` 1..3, or 0 when it is not an intact, valid record. */
+static int ln_parse_line(int version, const unsigned char *line, int len, ln_rec *r) {
+    const unsigned char *tab[4];
+    int ntab = 0, i;
+    unsigned int want;
+    for (i = 0; i < len; ++i) {
+        if (line[i] == '\t') {
+            if (ntab >= 4) {
+                return 0;
+            }
+            tab[ntab++] = line + i;
+        }
+    }
+    r->room = 0;
+    if (version == 1 && ntab == 1) {
+        r->sh = line;
+        r->sl = (int)(tab[0] - line);
+        r->wh = tab[0] + 1;
+        r->wl = len - r->sl - 1;
+    } else if (version == 2 && ntab == 2 && line + len - tab[1] == 9) {
+        r->sh = line;
+        r->sl = (int)(tab[0] - line);
+        r->wh = tab[0] + 1;
+        r->wl = (int)(tab[1] - tab[0]) - 1;
+        if (!ln_hex8(tab[1] + 1, &want) || ln_crc32(line, (int)(tab[1] - line)) != want) {
+            return 0;
+        }
+    } else if (version == 3 && ntab == 3 && line + len - tab[2] == 9) {
+        int k;
+        r->sh = line;
+        r->sl = (int)(tab[0] - line);
+        r->wh = tab[1] + 1;
+        r->wl = (int)(tab[2] - tab[1]) - 1;
+        if (tab[1] - tab[0] < 2 || tab[1] - tab[0] > 6) {
+            return 0;
+        }
+        for (k = 1; k < tab[1] - tab[0]; ++k) {
+            if (tab[0][k] < '0' || tab[0][k] > '9') {
+                return 0;
+            }
+            r->room = r->room * 10 + (tab[0][k] - '0');
+        }
+        if (!ln_hex8(tab[2] + 1, &want) || ln_crc32(line, (int)(tab[2] - line)) != want) {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+    return ln_valid(r->sh, r->sl, r->room, r->wh, r->wl);
+}
+
+/* The version of a file's header ("VVFP Long Names v<1..3>\n"), or 0. */
+static int ln_version(const unsigned char *data, DWORD size) {
+    if (size < LN_HEADER_LEN || memcmp(data, LN_HEADER, 17) != 0 || data[18] != '\n'
+        || data[17] < '1' || data[17] > '3') {
+        return 0;
+    }
+    return data[17] - '0';
+}
+
+/* Read a whole file (at most 16 MB).  NULL when absent or unreadable; *size is its length. */
+static unsigned char *ln_read_file(const WCHAR *path, DWORD *size) {
+    HANDLE f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    DWORD got = 0;
+    unsigned char *data;
+    if (f == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
+    *size = GetFileSize(f, NULL);
+    if (*size == INVALID_FILE_SIZE || *size > 16 * 1024 * 1024) {
+        CloseHandle(f);
+        return NULL;
+    }
+    data = (unsigned char *)vg_alloc(*size + 1);
+    if (data == NULL || !ReadFile(f, data, *size, &got, NULL) || got != *size) {
+        vg_free(data);
+        CloseHandle(f);
+        return NULL;
+    }
+    CloseHandle(f);
+    data[*size] = 0;
+    return data;
+}
+
+/* Every whole, intact, valid record of each version's file.  A record cut short (a full disk, a crash) or merged
+   with the next fails its checksum and is skipped; nothing else is lost. */
 static void ln_load_slot(int slot) {
     WCHAR path[MAX_PATH];
-    HANDLE f;
-    DWORD size, got = 0;
+    DWORD size = 0;
     unsigned char *data, *p, *end;
+    int version;
     if (!ln_path(slot, path)) {
         return;
     }
-    f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-    if (f == INVALID_HANDLE_VALUE) {
-        return;
-    }
-    size = GetFileSize(f, NULL);
-    if (size == INVALID_FILE_SIZE || size > 16 * 1024 * 1024 || size < LN_HEADER_LEN) {
-        CloseHandle(f);
-        return;
-    }
-    data = (unsigned char *)vg_alloc(size + 1);
-    if (data == NULL || !ReadFile(f, data, size, &got, NULL) || got != size
-        || memcmp(data, LN_HEADER, LN_HEADER_LEN) != 0) {
+    data = ln_read_file(path, &size);
+    version = data != NULL ? ln_version(data, size) : 0;
+    if (version == 0) {
         vg_free(data);
-        CloseHandle(f);
         return;
     }
-    CloseHandle(f);
-    data[size] = 0;
     p = data + LN_HEADER_LEN;
     end = data + size;
     while (p < end) {
-        unsigned char *line = p, *tab1 = NULL, *tab2 = NULL;
+        unsigned char *line = p;
+        ln_rec r;
         while (p < end && *p != '\n') {
-            if (*p == '\t') {
-                if (tab1 == NULL) tab1 = p; else if (tab2 == NULL) tab2 = p; else tab2 = (unsigned char *)1;
-            }
             ++p;
         }
-        if (p < end && tab1 != NULL && tab2 != NULL && tab2 != (unsigned char *)1 && p - tab2 == 9) {
-            unsigned int want;
-            int sl = (int)(tab1 - line), fl = (int)(tab2 - tab1 - 1);
-            if (sl > 0 && fl > 0 && ln_hex8(tab2 + 1, &want) && ln_crc32(line, (int)(tab2 - line)) == want) {
-                ln_add(line, sl, tab1 + 1, fl);
-            }
+        if (p < end && ln_parse_line(version, line, (int)(p - line), &r)) {
+            ln_add(r.sh, r.sl, r.wh, r.wl, r.room);
         }
         ++p;                          /* past the '\n' (or the end) */
     }
@@ -168,9 +278,90 @@ static void ln_load(void) {
     }
 }
 
-/* Append one pair to the save's file: the header (a new file), a '\n' when the file does not end with one
-   (a record cut short before stays alone and fails its checksum), then the whole record -- in ONE write.
-   The pair stays pending, to be written again later, unless every byte was written. */
+/* ---- writing: the whole file, atomically ------------------------------------------------------------- */
+
+typedef struct ln_buf { unsigned char *p; int n, cap; } ln_buf;
+
+static int ln_buf_put(ln_buf *b, const void *src, int n) {
+    if (b->n + n > b->cap) {
+        int cap = b->cap * 2 > b->n + n ? b->cap * 2 : b->n + n + 4096;
+        unsigned char *q = (unsigned char *)vg_alloc((size_t)cap);
+        if (q == NULL) {
+            return 0;
+        }
+        CopyMemory(q, b->p, (size_t)b->n);
+        vg_free(b->p);
+        b->p = q;
+        b->cap = cap;
+    }
+    CopyMemory(b->p + b->n, src, (size_t)n);
+    b->n += n;
+    return 1;
+}
+
+/* "short<TAB>room<TAB>whole<TAB>CRC-32<LF>" */
+static int ln_buf_record(ln_buf *b, const unsigned char *sh, int sl, int room, const unsigned char *wh, int wl) {
+    static const char HEX[] = "0123456789ABCDEF";
+    char digits[12], tail[12];
+    int nd = 0, start = b->n, k;
+    unsigned int crc;
+    if (room <= 0) {
+        digits[nd++] = '0';
+    } else {
+        char rev[12];
+        int v = room, j = 0;
+        while (v > 0 && j < 10) {
+            rev[j++] = (char)('0' + v % 10);
+            v /= 10;
+        }
+        while (j > 0) {
+            digits[nd++] = rev[--j];
+        }
+    }
+    if (!ln_buf_put(b, sh, sl) || !ln_buf_put(b, "\t", 1) || !ln_buf_put(b, digits, nd)
+        || !ln_buf_put(b, "\t", 1) || !ln_buf_put(b, wh, wl)) {
+        return 0;
+    }
+    crc = ln_crc32(b->p + start, b->n - start);
+    tail[0] = '\t';
+    for (k = 0; k < 8; ++k) {
+        tail[1 + k] = HEX[(crc >> (4 * (7 - k))) & 0xF];
+    }
+    tail[9] = '\n';
+    return ln_buf_put(b, tail, 10);
+}
+
+/* Write `n` bytes as the whole file at `path`; 1 when every byte was written. */
+static int ln_put_file(const WCHAR *path, const unsigned char *bytes, int n) {
+    HANDLE f = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD put = 0;
+    int ok;
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = WriteFile(f, bytes, (DWORD)n, &put, NULL) && put == (DWORD)n && FlushFileBuffers(f);
+    CloseHandle(f);
+    return ok;
+}
+
+/* The move was refused (the file is held open by something else): write the same bytes over the file, from
+   its start, then cut it there -- never emptied first, so a refused write leaves the old records. */
+static int ln_put_inplace(const WCHAR *path, const unsigned char *bytes, int n) {
+    HANDLE f = CreateFileW(path, GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    DWORD put = 0;
+    int ok;
+    if (f == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = WriteFile(f, bytes, (DWORD)n, &put, NULL) && put == (DWORD)n && SetEndOfFile(f) && FlushFileBuffers(f);
+    CloseHandle(f);
+    return ok;
+}
+
+/* Keep one pair in the save's file: the file's valid records (v1/v2 turned into v3), then the pair, all made
+   in "<file>.tmp" and moved over the old file (MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH); the file
+   is written in place when the move is refused.  The pair stays pending, to be written again later, unless the
+   file was written whole. */
 static void ln_write_once(ln_pair *pair);
 
 static void ln_write(ln_pair *pair) {
@@ -182,63 +373,78 @@ static void ln_write(ln_pair *pair) {
 }
 
 static void ln_write_once(ln_pair *pair) {
-    WCHAR path[MAX_PATH];
-    HANDLE f;
-    DWORD put = 0, size;
-    unsigned char *rec;
-    int slot = vv_current_save_slot(g_game_number, 0), fl = ln_len(pair->full), n = 0, body;
-    unsigned int crc;
-    static const char HEX[] = "0123456789ABCDEF";
-    if (!ln_path(slot, path)) {
+    WCHAR path[MAX_PATH], tmp[MAX_PATH + 8];
+    DWORD size = 0;
+    unsigned char *old;
+    ln_buf b;
+    int slot = vv_current_save_slot(g_game_number, 0), fl = ln_len(pair->full), present = 0, version, ok = 0;
+    if (!ln_path(slot, path) || lstrlenW(path) + 5 >= MAX_PATH) {
         return;
     }
-    rec = (unsigned char *)vg_alloc((size_t)(LN_HEADER_LEN + 1 + pair->shrt_len + 1 + fl + 1 + 8 + 1));
-    if (rec == NULL) {
+    if (!ln_valid(pair->shrt, pair->shrt_len, pair->room, pair->full, fl)) {
+        pair->pending = 0;              /* never valid: nothing to keep */
         return;
     }
-    f = CreateFileW(path, GENERIC_READ | FILE_APPEND_DATA, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (f == INVALID_HANDLE_VALUE) {
-        vg_free(rec);
+    b.p = NULL;
+    b.n = b.cap = 0;
+    old = ln_read_file(path, &size);
+    version = old != NULL ? ln_version(old, size) : 0;
+    if (!ln_buf_put(&b, LN_HEADER, LN_HEADER_LEN)) {
+        vg_free(old);
         return;
     }
-    size = GetFileSize(f, NULL);
-    if (size == INVALID_FILE_SIZE) {
-        CloseHandle(f);
-        vg_free(rec);
-        return;
-    }
-    if (size == 0) {
-        CopyMemory(rec, LN_HEADER, LN_HEADER_LEN);
-        n = LN_HEADER_LEN;
-    } else {
-        unsigned char last = 0;
-        DWORD got = 0;
-        LARGE_INTEGER at;
-        at.QuadPart = (LONGLONG)size - 1;
-        if (SetFilePointerEx(f, at, NULL, FILE_BEGIN) && ReadFile(f, &last, 1, &got, NULL) && got == 1 && last != '\n') {
-            rec[n++] = '\n';
+    if (version != 0) {
+        unsigned char *p = old + LN_HEADER_LEN, *end = old + size;
+        while (p < end) {
+            unsigned char *line = p;
+            ln_rec r;
+            while (p < end && *p != '\n') {
+                ++p;
+            }
+            if (p < end && ln_parse_line(version, line, (int)(p - line), &r)) {
+                if (r.sl == pair->shrt_len && memcmp(r.sh, pair->shrt, (size_t)r.sl) == 0) {
+                    present = 1;
+                }
+                if (!ln_buf_record(&b, r.sh, r.sl, r.room, r.wh, r.wl)) {
+                    vg_free(old);
+                    vg_free(b.p);
+                    return;
+                }
+            }
+            ++p;
         }
     }
-    body = n;
-    CopyMemory(rec + n, pair->shrt, (size_t)pair->shrt_len);
-    n += pair->shrt_len;
-    rec[n++] = '\t';
-    CopyMemory(rec + n, pair->full, (size_t)fl);
-    n += fl;
-    crc = ln_crc32(rec + body, n - body);
-    rec[n++] = '\t';
+    vg_free(old);
+    if (present && version == 3) {
+        pair->pending = 0;                         /* already kept in a v3 file */
+        vg_free(b.p);
+        return;
+    }
+    if (!present && !ln_buf_record(&b, pair->shrt, pair->shrt_len, pair->room, pair->full, fl)) {
+        vg_free(b.p);
+        return;
+    }
     {
-        int k;
-        for (k = 7; k >= 0; --k) {
-            rec[n++] = (unsigned char)HEX[(crc >> (4 * k)) & 0xF];
+        int k = 0;
+        static const WCHAR SUFFIX[] = L".tmp";
+        for (; path[k]; ++k) {
+            tmp[k] = path[k];
         }
+        CopyMemory(tmp + k, SUFFIX, sizeof SUFFIX);
     }
-    rec[n++] = '\n';
-    if (WriteFile(f, rec, (DWORD)n, &put, NULL) && put == (DWORD)n) {
+    if (ln_put_file(tmp, b.p, b.n)) {
+        ok = MoveFileExW(tmp, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != 0;
+        if (!ok) {
+            DeleteFileW(tmp);
+            ok = ln_put_inplace(path, b.p, b.n);   /* the move was refused: the file in place */
+        }
+    } else {
+        DeleteFileW(tmp);                          /* the disk refused the copy: the old file is untouched */
+    }
+    if (ok) {
         pair->pending = 0;
     }
-    CloseHandle(f);
-    vg_free(rec);
+    vg_free(b.p);
 }
 
 /* The whole name of a short form, or NULL. */
@@ -308,7 +514,7 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
             }
         }
         if (!clash) {
-            ln_add(cand, n, text, len);
+            ln_add(cand, n, text, len, cap);
             if (g_ln_count > 0 && g_ln[g_ln_count - 1].shrt_len == n
                 && memcmp(g_ln[g_ln_count - 1].shrt, cand, (size_t)n) == 0) {
                 ln_write(&g_ln[g_ln_count - 1]);

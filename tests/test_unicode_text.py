@@ -191,9 +191,21 @@ class TheRows(unittest.TestCase):
                                  "VvfpUnicodeTextUnits"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA", "OutputDebugStringW",
-                                    "MessageBoxA", "MessageBoxW", "DeleteFileW", "RegSetValueExW",
-                                    "CreateFileA", "MoveFileW", "MoveFileExW"},
+                                    "MessageBoxA", "MessageBoxW", "RegSetValueExW",
+                                    "CreateFileA", "MoveFileW"},
                          set())
+        # The Long Names file is made in "<file>.tmp" and moved over the old one (UNICODE_SPEC section 2): the
+        # only MoveFileExW / DeleteFileW calls are on that temporary file, in long_names.inc.
+        import re
+        native = ROOT / "native" / "vvfp_unicode_text"
+        for source in native.iterdir():
+            if source.suffix in (".c", ".inc", ".h"):
+                calls = re.findall(r"(MoveFileExW|DeleteFileW)\(([^,)]*)", source.read_text(encoding="utf-8"))
+                if source.name != "long_names.inc":
+                    self.assertEqual(calls, [], source.name)
+                else:
+                    self.assertTrue(calls)
+                    self.assertTrue(all(arg.strip() == "tmp" for _name, arg in calls), calls)
         self.assertIn("GetGlyphOutlineW", imports)
         self.assertIn("AddFontResourceExW", imports)
         # nothing writable and executable
