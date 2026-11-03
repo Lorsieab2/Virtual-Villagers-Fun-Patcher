@@ -41,15 +41,50 @@ Proof (10 tests): stalled starts (1500,1000), (1350,1050), (1540,1280), (1420,12
 are identical to stock step for step (frame, feet, queue front); with every alternate blocked the villager gives up
 at the third loop, the queue is empty, +0x44 keeps its value, and the scheduler runs in the next frames.
 
-## Not determined
-* Other games (VV1, VV3, VV4, VV5): the equivalent band handler was NOT located. Byte scans for the 76..79 test
-  found only a cell classifier in VV3 (0x42D660) and unrelated compares in VV1/VV4/VV5. UNCONFIRMED either way.
-* The scratch fix is a Python hook; a native version (code cave in the exe or DLL) is not written, and its
-  composition with vv2_improved_pathfinding is not tested.
-* Whether the in-game carried item is +0x44 (the stock clear 0x4492A0 sets +0x40 = 0 and +0x44 = 0x1A, or 0x0B when
-  nursing): not proven live.
+## The native fix: VVFP Stuck Walks.dll (Fix Vanilla Bugs, The Lost Children)
+Built as a companion DLL detour, so the exe needs no room (native/vvfp_stuck_walks/vvfp_stuck_walks.c, build
+scripts/build_vvfp_stuck_walks.ps1, started by VVFP Startup.dll from its second word, shipped and pinned by the
+vv2_fix_vanilla_bugs row in data/builds.json).
+* Site: the band handler's entry 0x44FCB0 (8B 44 24 08 56: mov eax,[esp+8]; push esi), a jmp to the companion; the
+  stub re-runs the two displaced instructions and jumps back to 0x44FCB5 for the stock path (no trampoline page).
+* Detection: an approach is a band hit (cell 76..79) while the queue front is a walk (type 3) to a point that is
+  NOT one of the handler's twelve waypoints. Per villager index (up to 256, kept in the DLL only), the target and
+  the last four approach feet positions are remembered; a third approach to the same target within 8 px of two
+  earlier ones is the loop. Hits while walking to a stock waypoint (the slides) are never counted.
+* Alternate route: the nearest untried point on rings of 12, 24, 36, 48, 60, 80 px round the feet (16 directions)
+  that the game's own map read 0x4181D0 calls walkable (cell 0 or above 23; 24 only for an adult, the walk's rule
+  at 0x45E9E5; never 75..80) with walkable straight lines (every 3 px) feet -> point and point -> target. Queued
+  with the stock push 0x449B70 (3, x, y, 0, mode 2 front, 100) and started with 0x44FBB0, exactly as the stock
+  handler queues its waypoint; if the walk to the point meets the band, the next point replaces it in the front
+  entry. At most 16 points.
+* Give up: none left -> the 50 queue entries are zeroed (what 0x4492A0 does) WITHOUT its +0x40 / +0x44 writes, and
+  the handler returns without starting a step; the scheduler gives the villager a new job.
+* Composition: Improved Pathfinding detours 0x41A700 / 0x41A9B0 (the router), a different routine; the alternate
+  point is walked by the stock walk, which uses the (detoured) router on a blocked cell as always.
 
-## Native implementation: what I found (not built; needs a decision)
+Emulation proof (tests/test_vv2_stuck_walks_native.py, 23 tests; the companion's TEST build mapped into the stock exe
+in unicorn, its site written where VvfpStartup writes it; everything is machine code):
+* without the companion, start (1500,1000) never ends the study (40+ band hits, the queue front stays the walk);
+* with it, the five stalled starts (1500,1000) (1350,1050) (1540,1280) (1420,1280) (1480,1280) reach the herb and
+  the scheduler runs again (1,668 to 2,123 frames), with and without Improved Pathfinding installed;
+* five ordinary starts are identical to stock frame for frame (frame, feet, queue front), with and without
+  Improved Pathfinding; the companion counts no loop for them;
+* every alternate refused (the map read answers blocked to the companion's own calls): one give-up, the queue
+  empties, the scheduler runs, +0x44 keeps the value written before the walk, and no write to +0x40..+0x47 comes
+  from the companion or 0x4492A0 (+0x40 is rewritten by the walk's own step starter 0x44D833 every step: it is
+  walk state, not the carried item);
+* tests/test_companion_installs_all_or_none.py: the site goes in all or none, beside the whole VV2 catalog.
+
+## Not determined
+* Live: the fix is NOT seen in a running game. To test live: The Lost Children, row vv2_fix_vanilla_bugs (Fix
+  Vanilla Bugs), a village with the south-east sand open; drop a villager on the herb in the south-east sand
+  (from the north of the island, or from near (1350,1050) / (1500,1000)): stock, the villager walks back and forth
+  near the shore for ever; fixed, after two turn-backs it walks round and studies the herb.
+* Which record field holds the carried item in VV2 is still not proven live (+0x44 by analogy with VV1's +0x3C:
+  0x1A nothing, 0x0B the baby). The give-up writes neither +0x40 nor +0x44, so whatever it is, it is kept.
+* The other four games: docs/reports/vv2-stuck-villager/other-games.md.
+
+## Earlier notes on an in-exe fix (superseded by the companion DLL above)
 * Patch mechanism: vv2_fix_vanilla_bugs is plain file-offset byte patches (offset = VA - 0x400000), rendered by
   render_patched_bytes; no compiler is installed (keystone 0.9.2 is, for assembling bytes). The rain fix used 11 bytes
   of padding. There is no padding run of 24 bytes or more in the VV2 .text; the zero slack at the end of .text
