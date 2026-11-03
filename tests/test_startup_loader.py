@@ -197,6 +197,11 @@ def loaded_at_winmain(shipped) -> set[str]:
                     if name in shipped and loader in first}
 
 
+# Rows whose companion arms its sites only when the player has chosen a language (VVFP Translations.dll
+# reads Translation.txt at start and, without one, returns at once and writes nothing).
+ARMED_ONLY_WITH_A_LANGUAGE = frozenset(f"vv{n}_translations" for n in range(1, 6))
+
+
 def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
     out = []
     features = set(feature_ids)
@@ -455,6 +460,12 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
                          {n.lower() for n in loaded_at_winmain(shipped)})
         armed = 0
         for va, stock, what in declared_detours(features):
+            if what.split(" ", 1)[0] in ARMED_ONLY_WITH_A_LANGUAGE:
+                # Translations write nothing until a language is chosen (no Translation.txt here): its
+                # sites must still be the game's own bytes when WinMain is entered.
+                self.assertEqual(machine.code(va, len(stock)), stock,
+                                 f"{what}: 0x{va:X} written with no language chosen")
+                continue
             if before[va] != stock:
                 # Another selected row owns these bytes in the executable and
                 # the companion composes with them (e.g. A New Home's 400-food
@@ -463,7 +474,7 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
             armed += 1
             self.assertNotEqual(machine.code(va, len(stock)), stock,
                                 f"{what}: 0x{va:X} not armed when WinMain is entered")
-        if declared_detours(features):
+        if any(what.split(" ", 1)[0] not in ARMED_ONLY_WITH_A_LANGUAGE for _, _, what in declared_detours(features)):
             self.assertGreater(armed, 0)
         audit = machine.audit(stock_path(game).read_bytes(), vfp.STARTUP_LOADER_WINMAIN_CALL[game][1])
         call_va = vfp.STARTUP_LOADER_WINMAIN_CALL[game][0]
@@ -895,7 +906,9 @@ class AUnicodeGameFolder(unittest.TestCase):
                     for module in machine.modules.values():
                         self.assertEqual(module.path, UNICODE_FOLDER + FILES + "\\" + module.name)
                     for va, stock, what in declared_detours(features):
-                        if before[va] == stock:
+                        if what.split(" ", 1)[0] in ARMED_ONLY_WITH_A_LANGUAGE:
+                            self.assertEqual(machine.code(va, len(stock)), stock, what)   # no language chosen
+                        elif before[va] == stock:
                             self.assertNotEqual(machine.code(va, len(stock)), stock, what)
 
     def test_the_ansi_path_would_load_nothing_there(self):
