@@ -30,7 +30,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 import startup_emulation as se  # noqa: E402
 
-ARENA = 0x34000000
+ARENA = 0x48000000          # clear of unicode_text_emulation's heap (0x30000000, 256 MB)
 ARENA_SIZE = 0x00400000
 CF_UNICODETEXT = 13
 
@@ -181,8 +181,22 @@ class PasteRun:
 
     def __init__(self, game: str, selection, mode: str = "collection_progression") -> None:
         from test_startup_loader import run
+        ref: dict = {}
+        unicode = any("unicode" in feature for feature in selection)
+        if unicode:
+            # the Unicode companions' own imports, answered as their own tests answer them
+            import unicode_text_emulation as ute
+            import unicode_utf8_emulation as uue
+            uue._register_uniscribe()
+            ute._register(ref)
+            uue._register_uniscribe()
         _register()
         self.machine, _result, self.features, _before, self.shipped = run(game, mode, tuple(selection))
+        ref["machine"] = self.machine
+        if unicode:
+            import unicode_text_emulation as ute
+            self.machine.font_heap = ute.Heap(self.machine.mu)
+            self.machine.gdi_log, self.machine.freed, self.machine.blits = [], [], []
         RUNS[id(self.machine)] = self
         self.game = game
         self.mu = self.machine.mu

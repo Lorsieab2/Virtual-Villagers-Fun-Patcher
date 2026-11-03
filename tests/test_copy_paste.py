@@ -53,6 +53,18 @@ ZOE = "Zoë Ñúñez"
 LONG = "Bartholomew-Alexandrina Zoë Ñúñez de la Montaña Wolfeschlegelsteinhausen"
 
 
+def _stored(text: str) -> bytes:
+    """`text` as the merged Unicode companions store it: a Windows-1252 character as its one byte, anything
+    else as UTF-8."""
+    out = b""
+    for ch in text:
+        try:
+            out += ch.encode("cp1252")
+        except UnicodeEncodeError:
+            out += ch.encode("utf-8")
+    return out
+
+
 def _manifest(game: str) -> dict:
     return json.loads((ROOT / "data" / f"{game}_copy_paste_feature.json").read_text(encoding="utf-8"))
 
@@ -263,7 +275,9 @@ class TheGame(unittest.TestCase):
         cls.emu = emu
         cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.alone = {g: emu.PasteRun(g, (f"{g}_copy_paste",)) for g in GAMES}
-        cls.both = {g: emu.PasteRun(g, (f"{g}_copy_paste", f"{g}_unicode_text")) for g in GAMES}
+        from test_startup_loader import closure      # each row with its prerequisites, first
+        cls.both = {g: emu.PasteRun(g, tuple(closure(f"{g}_unicode_text")) + (f"{g}_copy_paste",)) for g in GAMES}
+        cls.font = {g: emu.PasteRun(g, tuple(closure(f"{g}_unicode_font")) + (f"{g}_copy_paste",)) for g in GAMES}
 
     @classmethod
     def tearDownClass(cls):
@@ -272,10 +286,12 @@ class TheGame(unittest.TestCase):
         startup_emulation.EXTRA_IMPORTS.update(cls.saved_imports)
 
     def setUp(self):
-        for run in list(self.alone.values()) + list(self.both.values()):
+        for run in list(self.alone.values()) + list(self.both.values()) + list(self.font.values()):
             run.clear_listeners()
             run.clip.text, run.clip.busy = None, False
-        for run in self.both.values():
+        # "both" stands for the Windows-1252 stage (its VvfpGlyphsUtf8 answered 0) unless a test puts the
+        # merged companion's own answer back (set_glyphs_utf8(None): 1, and VvfpBoxInsertUtf8 inserts)
+        for run in list(self.both.values()) + list(self.font.values()):
             run.set_glyphs_utf8(0)
 
     def _paste(self, run, clip, **box):
@@ -303,30 +319,31 @@ class TheGame(unittest.TestCase):
                 self.assertEqual(self._paste(self.alone[game], ZOE), b"Zo ez")
             with self.subTest(game=game, mode="Windows-1252"):
                 self.assertEqual(self._paste(self.both[game], ZOE), ZOE.encode("cp1252"))
-            with self.subTest(game=game, mode="UTF-8"):
-                self.both[game].set_glyphs_utf8(1)
-                self.assertEqual(self._paste(self.both[game], ZOE + " 日本"), (ZOE + " 日本").encode("utf-8"))
+            for kind, runs in (("Unicode Text", self.both), ("Unicode Font", self.font)):
+                with self.subTest(game=game, mode=f"UTF-8 ({kind}'s own answer)"):
+                    runs[game].set_glyphs_utf8(None)
+                    self.assertEqual(self._paste(runs[game], ZOE + " 日本"), _stored(ZOE + " 日本"))
 
     def test_utf8_paste_goes_through_the_unicode_companions_insert(self):
-        """With VvfpGlyphsUtf8() == 1 and a VvfpBoxInsertUtf8 export (PR #676), the cleaned, whole-character text
-        is handed to it once; with 0 it is never called and the bytes are typed in."""
+        """The merged Unicode companions (PR #676) answer VvfpGlyphsUtf8() == 1 once installed: the cleaned,
+        whole-character text is handed to their own VvfpBoxInsertUtf8 once, and the box holds it as they store
+        it (a Windows-1252 character as its one byte, anything else as UTF-8).  With 0 it is never called."""
         for game in GAMES:
-            run = self.both[game]
-            calls = run.give_insert()
-            try:
-                run.set_glyphs_utf8(1)
-                b = run.box(text=b"Zo", limit=8)
-                run.clip.text = "ë Ñúñez\r\n日"
-                self.assertEqual(run.paste(), {"to": "next event"})
-                self.assertEqual(calls, [(b, "ë Ñ".encode())], game)          # 6 bytes of room: cut before 'ú'
-                self.assertEqual(run.text(b), "Zoë Ñ".encode())
-                run.set_glyphs_utf8(0)
-                run.clear_listeners()
-                self.assertEqual(self._paste(run, "é€"), "é€".encode("cp1252"))
-                self.assertEqual(len(calls), 1)
-            finally:
-                run.take_insert()
-                run.set_glyphs_utf8(0)
+            for kind, runs in (("Unicode Text", self.both), ("Unicode Font", self.font)):
+                run = runs[game]
+                with self.subTest(game=game, kind=kind):
+                    run.set_glyphs_utf8(None)
+                    calls = run.watch_insert()
+                    b = run.box(text=b"Zo", limit=8)
+                    run.clip.text = "ë Ñúñez\r\n日"
+                    self.assertEqual(run.paste(), {"to": "next event"})
+                    self.assertEqual(calls, [(b, "ë Ñúñe".encode())])      # 6 bytes of room: cut before 'z'
+                    self.assertEqual(run.text(b), b"Zo" + _stored("ë Ñúñe"))
+                    run.set_glyphs_utf8(0)
+                    run.clear_listeners()
+                    self.assertEqual(self._paste(run, "é€"), "é€".encode("cp1252"))
+                    self.assertEqual(len(calls), 1)
+                    run.set_glyphs_utf8(0)
 
     def test_paste_goes_at_the_end_after_the_typed_text(self):
         for game in GAMES:
@@ -340,17 +357,19 @@ class TheGame(unittest.TestCase):
                 self.assertEqual(self._paste(run, LONG, text=b"Ab", limit=10), b"Ab" + LONG.encode("cp1252")[:8])
                 self.assertEqual(self._paste(run, "xyz", text=b"0123456789", limit=10), b"0123456789")
             with self.subTest(game=game, mode="UTF-8"):
-                run.set_glyphs_utf8(1)
-                # 'Zoë' is 4 bytes; a 3-byte room takes 'Zo' and stops before the 2-byte 'ë'
-                self.assertEqual(self._paste(run, "Zoë", limit=3), b"Zo")
-                self.assertEqual(self._paste(run, "aé日", limit=5), "aé".encode())
+                run.set_glyphs_utf8(None)
+                # stored as the Unicode companion stores it: 'ë' one byte, '日' three
+                self.assertEqual(self._paste(run, "Zoë", limit=3), b"Zo\xeb")
+                self.assertEqual(self._paste(run, "aé日", limit=5), b"a\xe9" + "日".encode())
+                self.assertEqual(self._paste(run, "aé日", limit=4), b"a\xe9")
+                self.assertEqual(self._paste(run, "日", text=b"abcd", limit=6), b"abcd")
                 self.assertEqual(self._paste(run, "﻿a​b\r\nc\x85d\ud800e"), b"ab cde")
-                self.assertEqual(self._paste(run, "é", text=b"abcd", limit=5), b"abcd")
+                self.assertEqual(self._paste(run, "é", text=b"abcd", limit=5), b"abcd\xe9")
                 # a letter with its accent, a skin tone, a family joined by ZWJ and a flag stay whole
                 for whole in ("ẹ́", "👍🏽", "👩‍👩‍👧", "🇫🇷"):
-                    size = len(("a" + whole).encode())
+                    size = len(_stored("a" + whole))
                     self.assertEqual(self._paste(run, "a" + whole + "b", limit=size - 1), b"a", whole)
-                    self.assertEqual(self._paste(run, "a" + whole + "b", limit=size), ("a" + whole).encode(), whole)
+                    self.assertEqual(self._paste(run, "a" + whole + "b", limit=size), _stored("a" + whole), whole)
                 run.set_glyphs_utf8(0)
             with self.subTest(game=game, mode="every limit"):
                 for limit in range(1, 16):
@@ -397,11 +416,12 @@ class TheGame(unittest.TestCase):
     def test_copy_and_round_trip(self):
         cases = {"alone": [(b"Kalahuna Tribe", "Kalahuna Tribe")],
                  "1252": [(ZOE.encode("cp1252"), ZOE), (b"\x80\x81\x9f", "€\x81Ÿ")],
-                 "utf8": [((ZOE + " 日本👍🏽").encode(), ZOE + " 日本👍🏽"), (b"Zo\xeb", "Zoë")]}
+                 "utf8": [(_stored(ZOE + " 日本👍🏽"), ZOE + " 日本👍🏽"), ((ZOE + " 日本").encode(), ZOE + " 日本"),
+                          (b"Zo\xeb", "Zoë")]}
         for game in GAMES:
             for kind, pairs in cases.items():
                 run = self.alone[game] if kind == "alone" else self.both[game]
-                run.set_glyphs_utf8(1) if kind == "utf8" else None
+                run.set_glyphs_utf8(None) if kind == "utf8" else None
                 for stored, text in pairs:
                     with self.subTest(game=game, kind=kind, text=text):
                         b = run.box(text=stored, limit=40)
@@ -410,9 +430,9 @@ class TheGame(unittest.TestCase):
                         self.assertEqual(run.raw(b, len(stored) + 2), stored + b"\0\0")    # untouched
                         self.assertEqual(run.press(self.emu.SDLK_INSERT, self.emu.KMOD_LCTRL), {"to": "next event"})
                         self.assertEqual(run.clip.text, text)
-                        # bytes the game would not store this way (an undefined Windows-1252 byte, a
-                        # Windows-1252 letter in a UTF-8 game) copy as text but paste back as that text
-                        if stored not in (b"\x80\x81\x9f", b"Zo\xeb"):
+                        # bytes the game would not store this way (an undefined Windows-1252 byte; a
+                        # Windows-1252 letter stored as UTF-8) copy as text but paste back as the game stores it
+                        if stored not in (b"\x80\x81\x9f", (ZOE + " 日本").encode()):
                             run.clear_listeners()
                             self.assertEqual(self._paste(run, run.clip.text, limit=40), stored)
                 if kind == "utf8":
@@ -497,7 +517,9 @@ class TheGame(unittest.TestCase):
             with self.subTest(game=game):
                 self.assertEqual(code[0], 0xE9)
                 self.assertTrue(ut.base <= site + 5 + struct.unpack("<i", code[1:5])[0] < ut.base + 0x200000)
-                self.assertEqual(run.type_text("é".encode(), site, post, skip, t["text_offset"]), ("post", 0xE9))
+                # its own typing path is untouched: a typed 'é' is posted (as its key for the companion's
+                # insert, since #676), never skipped
+                self.assertEqual(run.type_text("é".encode(), site, post, skip, t["text_offset"])[0], "post")
                 self.assertEqual(run.type_text(b"v", site, post, skip, t["text_offset"]), ("post", ord("v")))
                 self.assertEqual(self._paste(run, "é€"), "é€".encode("cp1252"))
             alone = self.alone[game]
