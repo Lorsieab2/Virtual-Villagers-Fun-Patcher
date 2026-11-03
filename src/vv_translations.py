@@ -634,13 +634,20 @@ def export_copy(source: Path, destination: Path) -> None:
 
 
 def export_many(sources, folder: Path) -> tuple[list[Path], list[str]]:
-    """Export... with several files selected: each file as it is, under its own name, into `folder`.
-    (exported, problems)."""
+    """Export... with several files selected: each file as it is, under its own name, into `folder`; two files
+    with the same name (an installed fr.tsv and a shipped one by another translator) get "name (2).ext",
+    "name (3).ext"... so none overwrites another. (exported, problems)."""
     folder = Path(folder)
     done, problems = [], []
+    taken: set[str] = set()
     for source in sources:
         source = Path(source)
         target = folder / source.name
+        n = 1
+        while target.name.casefold() in taken:
+            n += 1
+            target = folder / f"{source.stem} ({n}){source.suffix}"
+        taken.add(target.name.casefold())
         try:
             if source.resolve() == target.resolve():
                 done.append(target)

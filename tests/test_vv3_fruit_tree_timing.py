@@ -71,7 +71,7 @@ def render(mode: str, expanded: bool = False) -> bytes:
     """The public catalog of The Secret City (the two schedules ship no executable bytes, so
     the image is the same with either; the companion is mapped beside it)."""
     build = {b.id: b for b in patcher.load_builds()}["vv3"]
-    ids = [p.id for p in patcher.load_public_fun_patches()
+    ids = [p.id for p in [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
            if p.game_id == "vv3" and p.id not in (TOGETHER, TURNS)
            and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)]
     data, _ = patcher.render_patched_bytes(both_factions.stock_exe(), build, mode, ids)

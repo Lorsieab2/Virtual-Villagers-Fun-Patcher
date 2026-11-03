@@ -82,7 +82,7 @@ def _render(mode: str, every_public_patch: bool) -> bytes:
 
     builds = {build.id: build for build in patcher.load_builds()}
     if every_public_patch:
-        ids = [item.id for item in patcher.load_fun_patches() if item.game_id == "vv1"]
+        ids = [item.id for item in patcher.load_fun_patches() if item.game_id == "vv1" and item.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
     else:
         ids = [ORIGINS]
     rendered, _ = patcher.render_patched_bytes(_stock(), builds["vv1"], mode, ids)

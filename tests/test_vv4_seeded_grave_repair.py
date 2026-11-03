@@ -94,7 +94,7 @@ def _stock() -> bytes:
 @lru_cache(maxsize=None)
 def _render(mode: str, with_features: bool) -> tuple[bytes, tuple]:
     build = next(b for b in vfp.load_builds() if b.id == "vv4")
-    rows = [f.id for f in vfp.load_public_fun_patches() if f.game_id == "vv4"] if with_features else []
+    rows = [f.id for f in [alt for alt in vfp.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS] if f.game_id == "vv4"] if with_features else []
     rendered, applied = vfp.render_patched_bytes(EXE, build, mode, rows)
     return bytes(rendered), tuple((r["offset"], r["owner"]) for r in applied)
 

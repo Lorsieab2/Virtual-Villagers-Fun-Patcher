@@ -101,7 +101,7 @@ def _render() -> bytes:
     import vv_fun_patcher as patcher
 
     builds = {build.id: build for build in patcher.load_builds()}
-    ids = [item.id for item in patcher.load_fun_patches() if item.game_id == "vv1"]
+    ids = [item.id for item in patcher.load_fun_patches() if item.game_id == "vv1" and item.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
     rendered, _ = patcher.render_patched_bytes(STOCK, builds["vv1"], "stock", ids)
     return bytes(rendered)
 

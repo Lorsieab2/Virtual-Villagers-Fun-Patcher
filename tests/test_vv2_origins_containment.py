@@ -38,6 +38,8 @@ REMAINING = {
     # companion only: writes the string table and its sites at run time, only while a language is chosen;
     # owns no executable bytes and no Origins bytes
     "vv2_translations",
+    # companion only: detours the SDL_KEYDOWN case at run time, owns no bytes
+    "vv2_copy_paste",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

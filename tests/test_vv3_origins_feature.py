@@ -386,7 +386,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         patch_ids = [
             patch.id
             for patch in load_fun_patches()
-            if patch.game_id == "vv3"
+            if patch.game_id == "vv3" and patch.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS
             and patch.id != "vv3_full_heal_cure_all_candidate"
             # the 256-slot build is composed in tests/test_vv3_population_256.py
             and patch.id != "vv3_population_256"

@@ -92,6 +92,7 @@ STRINGS = 0x21200000
 STACK = 0x30000000
 STACK_SIZE = 0x100000
 SENTINEL = 0x3F000000
+NO_MODULE_STUB = SENTINEL + 0x100         # GetModuleHandleW answering "not loaded" (inside the SENTINEL page)
 
 LISTEN = {0: b"Listening to a story", 1: b"H\xf6rt eine Geschichte zu",
           2: b"Escucha un cuento", 3: b"\xc9coute une histoire"}
@@ -250,6 +251,13 @@ def drop(game: str, image: bytes, teller: Villager, child: Villager, *, companio
         dll_base, dll_end = base, base + ((len(dll_image) + 0xFFFF) & ~0xFFFF)
         mu.mem_map(dll_base, dll_end - dll_base)
         mu.mem_write(dll_base, dll_image)
+        # The companion asks GetModuleHandleW for the optional "VVFP Translations.dll"
+        # (native/shared/vvfp_translate.h): answer "not loaded" so every text stays English.
+        for entry in pefile.PE(str(TEST_DLL)).DIRECTORY_ENTRY_IMPORT:
+            for imp in entry.imports:
+                if imp.name == b"GetModuleHandleW":
+                    mu.mem_write(imp.address, struct.pack("<I", NO_MODULE_STUB))
+        mu.mem_write(NO_MODULE_STUB, b"\x31\xC0\xC2\x04\x00")            # xor eax, eax / ret 4
         site, stock, patched, _ = _probe(game)
         assert bytes(mu.mem_read(site, len(stock))) == stock
         mu.mem_write(site, patched)
@@ -330,7 +338,7 @@ def drop(game: str, image: bytes, teller: Villager, child: Villager, *, companio
                 value = 5 if address in (0x425860, 0x41CF90) else 0       # population
                 stub_return(uc, address, value)
                 return
-            if not in_game and not (dll_base <= address < dll_end):
+            if not in_game and not (dll_base <= address < dll_end) and address != NO_MODULE_STUB:
                 faults.append(f"call to {address:#x}")
                 uc.emu_stop()
                 return
@@ -415,7 +423,9 @@ def _builds():
 
 @functools.lru_cache(maxsize=None)
 def _render(game: str, mode: str) -> bytes:
-    ids = [p.id for p in patcher.load_public_fun_patches() if p.game_id == game]
+    # every public patch but the alternatives (Use Unicode Font excludes Render Unicode with In-Game Fonts)
+    ids = [p.id for p in patcher.load_public_fun_patches()
+           if p.game_id == game and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     data, _ = patcher.render_patched_bytes(STOCK[game], _builds()[game], mode, ids)
     return bytes(data)
 

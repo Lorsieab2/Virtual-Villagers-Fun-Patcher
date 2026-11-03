@@ -525,7 +525,7 @@ class VV4OriginsBarrel(unittest.TestCase):
 
     def render(self, extra):
         build = next(b for b in vfp.load_builds() if b.id == "vv4")
-        feats = [f.id for f in vfp.load_public_fun_patches()
+        feats = [f.id for f in [alt for alt in vfp.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
                  if f.raw.get("game_id") == "vv4" and f.id != "vv4_population_256"] + extra
         data, _ = vfp.render_patched_bytes(STOCK / "Virtual Villagers - The Tree of Life.exe", build,
                                            "immediate_fixed", feats)
@@ -700,7 +700,7 @@ def render345(game, mode, slots):
     key = (game, mode, slots)
     if key not in _RENDERS:
         build = next(b for b in vfp.load_builds() if b.id == game)
-        feats = [f.id for f in vfp.load_public_fun_patches()
+        feats = [f.id for f in [alt for alt in vfp.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
                  if f.raw.get("game_id") == game and not f.id.endswith("population_256")
                  and f.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS]
         if slots == 256:

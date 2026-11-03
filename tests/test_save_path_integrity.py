@@ -85,7 +85,7 @@ class SavePathIntegrityTests(unittest.TestCase):
         build = next(item for item in patcher.load_builds() if item.id == "vv1")
         selected = [
             p.id
-            for p in patcher.load_public_fun_patches()
+            for p in [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
             if p.raw.get("game_id") == "vv1"
             and "collection_progression"
             in (p.raw.get("supported_modes") or ["collection_progression"])
