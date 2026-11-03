@@ -1464,6 +1464,34 @@ static void identity_cases(void) {
     save_done(1, buffer);
     CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
           "identity: looks AND likes changed together (a new chief's robe): no Left, no Arrived");
+    {
+        /* ...and the look change the game made itself is logged, once, as Change Appearance's own
+           record reads (the owner, 2026-11-03: an island event changed a child's head, no record). */
+        char births[MAX_PATH], want[200];
+        typedef int (__stdcall *write_fn)(int, int, const void *, int, const char *, const char *, int);
+        write_fn write_village = (write_fn)GetProcAddress(parentage, "WriteVillageRecord");
+        births_path(1, births);
+        wsprintfA(want, "Appearance changed\r\n  Name: Cira\r\n  Old head: 2\r\n  Old body: 12\r\n"
+                  "  New head: 21\r\n  New body: 29\r\n  Changed by: the game\r\n");
+        CHECK(read_into(births) >= 0 && count_of(text, want) == 1,
+              "identity: a look change the game made itself is logged once as Appearance changed");
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Cira\r\n") == 1,
+              "identity: ...and the next save, the look unchanged since, writes no second");
+        /* Change Appearance's own record (written in this session) is never doubled by the roster. */
+        i = unacc_find("Eli");
+        CHECK(write_village != NULL, "identity: WriteVillageRecord is exported");
+        write_village(game, 7, rec(i), 1,
+                      "  Old head: 0\n  Old body: 14\n  New head: 22\n  New body: 23\n", NULL, 0);
+        *(int *)(rec(i) + g->head) = 22;
+        *(int *)(rec(i) + g->body) = 23;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Eli\r\n") == 1
+              && strstr(text, "  Name: Eli\r\n  Old head: 0\r\n  Old body: 14\r\n  New head: 22\r\n  New body: 23\r\n  Changed by") == NULL,
+              "identity: a look change the Change Appearance tool already logged is not logged again");
+    }
 
     /* g. Her looks changed, then she was buried before the next save: her Death record, with the new looks,
        accounts for her -- never "Left the village" beside it. */

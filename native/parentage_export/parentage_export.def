@@ -17,3 +17,5 @@ EXPORTS
     VillageCustomTitle=_VillageCustomTitle@16
     WriteVillageEventRecord=_WriteVillageEventRecord@8
     VillagePreferenceListText=_VillagePreferenceListText@20
+    AppearanceAlreadyLogged=_AppearanceAlreadyLogged@16
+    AppearanceChangedAtSave=_AppearanceChangedAtSave@12
