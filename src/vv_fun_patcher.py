@@ -12483,7 +12483,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "7BBED581454658F4651864A7C379B4D7E03673EBA85C47DCEF127668ED7133EF",
+    "sha256": "334990F4151CB45ADAC0B41B5F06BEF38B5534C68C6E4E5B0B00719C429D6E4F",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12554,6 +12554,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Unicode Font.dll",
     # Copy and Paste in Text Boxes (all five games): copy, cut and paste in the game's text boxes.
     "VVFP Copy and Paste.dll",
+    # Fix Vanilla Bugs (The Lost Children): a walk that loops on the shoreline band's waypoint tries alternate
+    # standing points, then gives up keeping what the villager holds.
+    "VVFP Stuck Walks.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

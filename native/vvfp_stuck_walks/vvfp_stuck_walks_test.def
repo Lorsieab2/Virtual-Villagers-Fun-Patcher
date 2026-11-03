@@ -1,0 +1,7 @@
+LIBRARY "VVFP Stuck Walks.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpStuckWalksInstalled=_VvfpStuckWalksInstalled@0
+    VvfpStuckWalksProbeSite=_VvfpStuckWalksProbeSite@12
+    VvfpStuckWalksProbeReset=_VvfpStuckWalksProbeReset@0
+    VvfpStuckWalksStats DATA
