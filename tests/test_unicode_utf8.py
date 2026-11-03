@@ -218,6 +218,14 @@ class TheRows(unittest.TestCase):
         self.assertLess(names.index("VVFP Unicode Text.dll"), names.index("VVFP Unicode Font.dll"))
 
 
+def _restore_imports(saved: dict) -> None:
+    """The emulation's import answers as they were before a class's machines (other tests' machines share them:
+    test_skip_intro's expects its own SDL answers)."""
+    import startup_emulation
+    startup_emulation.EXTRA_IMPORTS.clear()
+    startup_emulation.EXTRA_IMPORTS.update(saved)
+
+
 def _bytes_of(name: str) -> bytes:
     return name.encode(GAME_TEXT)
 
@@ -231,11 +239,18 @@ class InTheGame(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        import startup_emulation
         import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.ue = ue
         cls.tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
         for game in GAMES:
             cls.runs[game] = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), cls.tables)
+
+    @classmethod
+    def tearDownClass(cls):
+        _restore_imports(cls.saved_imports)
+        cls.runs.clear()
 
     def test_installed_and_says_it_reads_utf8(self):
         for game, run in self.runs.items():
@@ -552,6 +567,15 @@ class InTheGame(unittest.TestCase):
 @unittest.skipUnless(ON_WINDOWS and HAVE_STOCK and HAVE_IMAGES and HAVE_EMULATOR,
                      "needs Windows, the stock executables, the game images and unicorn")
 class UseUnicodeFont(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import startup_emulation
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
+
+    @classmethod
+    def tearDownClass(cls):
+        _restore_imports(cls.saved_imports)
+
     def test_every_letter_is_drawn_from_a_windows_typeface(self):
         import unicode_utf8_emulation as ue
         tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))

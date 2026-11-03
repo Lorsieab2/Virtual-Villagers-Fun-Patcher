@@ -271,10 +271,20 @@ class InTheGame(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        import startup_emulation
         import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
         for game in ("vv2", "vv3", "vv4", "vv5"):
             cls.runs[game] = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), tables)
+
+    @classmethod
+    def tearDownClass(cls):
+        # the emulation's import answers are left as they were (other tests' machines share them)
+        import startup_emulation
+        startup_emulation.EXTRA_IMPORTS.clear()
+        startup_emulation.EXTRA_IMPORTS.update(cls.saved_imports)
+        cls.runs.clear()
 
     def _lines(self, run, text: str, width: int) -> list[bytes]:
         raw = _bytes_of(text)

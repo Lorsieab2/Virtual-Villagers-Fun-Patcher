@@ -160,7 +160,9 @@ class DrawPathTests(unittest.TestCase):
             with self.subTest(hook=hook):
                 start = source.index(f" {hook}(")
                 end = source.index("\n}\n", start)
-                self.assertIn(f"vt_source({argument})", source[start:end])
+                # vt_source(text, font, scale): the game's own text goes first (the font and scale fit whole
+                # long names to their room, docs/UNICODE_SPEC.md row 3)
+                self.assertRegex(source[start:end], rf"\bvt_source\({argument}(, [^)]*)?\)")
 
     def test_the_dialog_hook_translates_windows_as_they_open_and_when_their_text_is_set(self) -> None:
         source = (ROOT / "native" / "vvfp_translations" / "vvfp_translations.c").read_text(encoding="utf-8")
