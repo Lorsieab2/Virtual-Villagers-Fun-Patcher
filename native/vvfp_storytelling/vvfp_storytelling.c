@@ -47,6 +47,7 @@
    the game opens; it verifies the site and every routine it calls first and
    installs nothing on any other build.  Missing DLL: the stock game. */
 #include <windows.h>
+#include "../shared/vvfp_translate.h"   /* the label in the player's language */
 #include <string.h>
 #include "../shared/install_sites.h"
 
@@ -194,7 +195,10 @@ static const char *v1_listening(unsigned char *array) {
     case 1: return LISTEN_DE;
     case 2: return LISTEN_ES;
     case 3: return LISTEN_FR;
-    default: return LISTEN_EN;
+    default:
+        /* The English game: a chosen translation's own words (its row vvfp_storytelling.x.s0), within the
+           label's bytes. */
+        return vvfp_tr("vvfp.storytelling/vvfp_storytelling.x.s0", LISTEN_EN, V1_LABEL_SIZE);
     }
 }
 

@@ -123,13 +123,24 @@ def chosen_name(app, number: int) -> str:
 
 def chosen_path(app, number: int) -> Path | None:
     name = chosen_name(app, number)
-    if not name or Path(name).name != name:
-        return None
-    return tr.find_installed(number, name)
+    path = tr.find_installed(number, name) if name else None
+    if path is not None and "/" not in name:
+        # Settings saved before choices named their folder: stored again as "<where>/<name>" (Codex, #682).
+        _entry(app, number)["file"] = tr.choice_id(number, path)
+    return path
+
+
+def _same_file(a: Path | None, b: Path | None) -> bool:
+    if a is None or b is None:
+        return False
+    try:
+        return os.path.normcase(str(Path(a).resolve())) == os.path.normcase(str(Path(b).resolve()))
+    except OSError:
+        return False
 
 
 def remember_choice(app, number: int, path: Path | None) -> None:
-    _entry(app, number)["file"] = Path(path).name if path else ""
+    _entry(app, number)["file"] = tr.choice_id(number, path) if path else ""
     tr.set_display_choice(number, path)
     _save_settings(app)
 
@@ -362,13 +373,14 @@ def delete_translations(app, number: int, paths, *, ask=None, shell=None, parent
     files = list(dict.fromkeys(Path(p) for p in paths if p is not None))
     if not files:
         return None
-    active_name = chosen_name(app, number)
-    active = next((p.name for p in files if p.name == active_name), "")
+    chosen = chosen_path(app, number)
+    active = next((p.name for p in files if _same_file(p, chosen)), "")
+    active_path = next((p for p in files if _same_file(p, chosen)), None)
     ask = ask or vv_copy_slot_window.ask_yes_no
     if not ask(parent, DELETE_TITLE, delete_question(number, files, english, active)):
         return None
     deleted, problems = tr.delete_installed(number, files, shell=shell)
-    if active and any(p.name == active for p in deleted):
+    if active_path is not None and any(_same_file(p, active_path) for p in deleted):
         remember_choice(app, number, None)
         _done, failed = apply_to_games(number, None, patched_folders(app, number))
         problems += failed
@@ -1566,7 +1578,7 @@ class TranslationsWindow:
         chosen = chosen_path(self.app, number)
         index = 0
         for n, (_label, path) in enumerate(self.entries):
-            if path is not None and chosen is not None and path.name == chosen.name:
+            if _same_file(path, chosen):
                 index = n
         self.language_box.current(index)
         # The file list: English (original) first (never a file: Delete... and Export... skip it), then every
@@ -1575,7 +1587,7 @@ class TranslationsWindow:
         for label, _path in self.entries:
             self.file_list.insert("end", label)
         keep = next((n + 1 for n, item in enumerate(installed) if chosen is not None
-                     and item.path.name == chosen.name), 1 if installed else 0)
+                     and _same_file(item.path, chosen)), 1 if installed else 0)
         self.file_list.selection_set(keep)
         self.file_list.activate(keep)
         self.file_list.see(keep)
@@ -1677,7 +1689,7 @@ class TranslationsWindow:
         """The editor saved `path`: a game that uses it gets the new text from its next start."""
         number = self.number
         chosen = chosen_path(self.app, number)
-        if chosen is not None and Path(path).name == chosen.name:
+        if _same_file(path, chosen):
             apply_to_games(number, chosen, patched_folders(self.app, number))
             tr.set_display_choice(number, chosen)
 

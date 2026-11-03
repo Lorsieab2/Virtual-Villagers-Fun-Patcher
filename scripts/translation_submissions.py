@@ -50,7 +50,9 @@ import vv_translations as vtr  # noqa: E402
 MAX_BYTES = 2 * 1024 * 1024
 FOLDER = "translations"
 MANIFEST = f"{FOLDER}/manifest.json"
-NAME_RE = re.compile(r"^translations/vv([1-5])/([a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*(?:-[a-z0-9-]+)?)\.tsv$")
+# Every path is checked against this before its contents are fetched or used (translation-pr.yml rule 3):
+# lowercase ASCII letters, digits and hyphens only ("pt-br.tsv", "fr-zoe-b.tsv").
+NAME_RE = re.compile(r"^translations/vv([1-5])/([a-z0-9-]+)\.tsv$")
 MAINTAINER_FILES = {f"{FOLDER}/README.md", MANIFEST}
 
 
@@ -93,9 +95,24 @@ def _api(path: str, token: str) -> bytes:
         return response.read()
 
 
+class HeadMoved(Exception):
+    """The pull request got a new commit while its files were being read."""
+
+
+def head_sha(repo: str, number: int, token: str, api=_api) -> str:
+    sha = str(json.loads(api(f"/repos/{repo}/pulls/{number}", token)).get("head", {}).get("sha", ""))
+    if not re.fullmatch(r"[0-9a-f]{40}", sha):
+        raise HeadMoved("the pull request's head commit could not be read")
+    return sha
+
+
 def fetch_pr(repo: str, number: int, token: str, work: Path, api=_api) -> list[dict]:
     """Every file the pull request adds or changes under translations/, written to work/files/<n>.bin (never
-    under its own name: the name is data too), listed in work/files.json."""
+    under its own name: the name is data too), listed in work/files.json.  The head commit is read before and
+    after; when it moved in between, HeadMoved (nothing is checked: the new commit's own run checks it).  The
+    head the files belong to is written to work/head.txt: the accept step merges only that commit (Codex,
+    #682)."""
+    before = head_sha(repo, number, token, api)
     files = []
     page = 1
     while True:
@@ -112,9 +129,17 @@ def fetch_pr(repo: str, number: int, token: str, work: Path, api=_api) -> list[d
     for n, item in enumerate(files):
         name = str(item.get("filename", ""))
         if not name.startswith(FOLDER + "/"):
+            # A translation pull request changes translations/ only: accepting it (the label merges it) must never
+            # bring code or workflow changes along.
+            listed.append({"path": "(outside translations/)", "status": "refused", "local": "",
+                           "error": "this pull request also changes files outside translations/; a translation "
+                                    "pull request may change only translation files"})
             continue
         entry = {"path": name, "status": str(item.get("status", "")), "local": ""}
-        if entry["status"] != "removed":
+        if entry["status"] != "removed" and not NAME_RE.match(name):
+            entry["error"] = (f"{name}: only translations/vv1/ .. translations/vv5/<language code>.tsv files are "
+                              "accepted (lowercase letters, digits and hyphens; for example translations/vv3/fr.tsv)")
+        elif entry["status"] != "removed":
             sha = str(item.get("sha", ""))
             if not re.fullmatch(r"[0-9a-f]{40}", sha):
                 entry["error"] = "the file's contents could not be identified"
@@ -129,7 +154,11 @@ def fetch_pr(repo: str, number: int, token: str, work: Path, api=_api) -> list[d
                     local.write_bytes(data)
                     entry["local"] = str(local)
         listed.append(entry)
+    if head_sha(repo, number, token, api) != before:
+        raise HeadMoved("the pull request got a new commit while its files were being read; that commit's own "
+                        "run checks it")
     (Path(work) / "files.json").write_text(json.dumps(listed, indent=1), encoding="utf-8")
+    (Path(work) / "head.txt").write_text(before, encoding="utf-8")
     return listed
 
 
@@ -187,7 +216,8 @@ def validate(entries: list[dict], work: Path) -> tuple[bool, str]:
         result = validator.check_file(Path(entry["local"]), game=vtr.TITLES[number])
         if result.tf is not None and not vtr.CODE_RE.match(result.tf.code or ""):
             result.refuse("the @code row must be a language code such as fr or pt-BR")
-        if result.tf is not None and result.tf.code and not Path(entry["path"]).stem.startswith(result.tf.code):
+        if result.tf is not None and result.tf.code and \
+                not Path(entry["path"]).stem.startswith(result.tf.code.lower()):
             result.refuse(f"the file name must start with its @code ({result.tf.code})")
         result.accepted = not result.reasons
         ok = ok and result.accepted
@@ -279,8 +309,18 @@ def main(argv: list[str] | None = None) -> int:
             print("PR_NUMBER, REPO and GH_TOKEN must be set", file=sys.stderr)
             return 2
         work.mkdir(parents=True, exist_ok=True)
-        listed = fetch_pr(repo, int(number), token, work)
-        print(f"{len(listed)} file(s) under translations/")
+        try:
+            listed = fetch_pr(repo, int(number), token, work)
+        except HeadMoved as moved:
+            print(f"refused: {moved}")
+            return 1
+        head = (work / "head.txt").read_text(encoding="utf-8")
+        expected = os.environ.get("EXPECTED_HEAD", "")
+        if expected and expected != head:
+            print("refused: the pull request's head is not the commit the scan checked")
+            return 1
+        _output("head", head)
+        print(f"{len(listed)} file(s) under translations/ at {head}")
         return 0
     if command == "scan":
         ok, text, verdicts = scan(_listed(work))

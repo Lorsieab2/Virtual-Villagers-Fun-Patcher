@@ -281,8 +281,13 @@ def template_rows(game, folder: Path | None = None, exe: Path | None = None) -> 
             continue
         source, _slash, ident = entry["stem"].partition("/")
         key = fmt.make_key(source, ident, entry["english"])
+        rules = _rules_for(entry)
+        if source == "patch":
+            # An exe patch's own text is replaced in place: within the English's own bytes (a longer one is
+            # shown only where the Unicode Text companion draws it).
+            rules.byte_limit = len(entry["english"].encode("cp1252", errors="replace"))
         rows.append(TemplateRow(fmt.Row(key, entry["english"], "", entry.get("notes", "")),
-                                _rules_for(entry), entry.get("context", "")))
+                                rules, entry.get("context", "")))
     return rows
 
 
@@ -313,12 +318,12 @@ CODE_RE = re.compile(r"^[a-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 
 
 def installed_name(code: str) -> str:
-    """The name an installed translation gets: "<code>.tsv" (the shared spec); refused for a code that is not
-    one (it would not be a safe file name)."""
+    """The name a translation gets: "<code>.tsv" in lowercase (the shared spec: "pt-br.tsv"); refused for a code
+    that is not one (it would not be a safe file name)."""
     code = (code or "").strip()
     if not CODE_RE.match(code):
         raise fmt.FormatError(f"the @code row must be a language code such as fr or pt-BR, not {code!r}")
-    return f"{code}.tsv"
+    return f"{code.lower()}.tsv"
 
 
 def credit_slug(credit: str) -> str:
@@ -397,9 +402,44 @@ def is_test_translation(path: Path) -> bool:
         return False
 
 
+# Where an installed translation is: the player's own ("installed"), shipped with the patcher ("shipped") or the
+# older layout ("legacy").  A remembered choice is "<where>/<file name>", never a bare name: a player's fr.tsv
+# and a shipped fr.tsv are different files (Codex, #682).
+CHOICE_KINDS = ("installed", "shipped", "legacy")
+
+
+def _kind_dirs(game) -> dict[str, Path]:
+    return {"installed": game_dir(game), "shipped": shipped_dir(game), "legacy": legacy_dir(game)}
+
+
+def choice_id(game, path: Path | None) -> str:
+    """The unambiguous identity a remembered choice stores for `path` ("" for English)."""
+    if path is None:
+        return ""
+    path = Path(path)
+    for kind, folder in _kind_dirs(game).items():
+        try:
+            if path.resolve().parent == folder.resolve():
+                return f"{kind}/{path.name}"
+        except OSError:
+            continue
+    return path.name
+
+
 def find_installed(game, name: str) -> Path | None:
-    """An installed file of `game` by its file name, in the new folder first, then the old one."""
-    if not name or Path(name).name != name:
+    """An installed file of `game` by its choice identity ("<where>/<name>").  A bare name (settings saved before
+    the identity was stored) is looked up in the player's folder first, then the shipped one, then the old
+    layout's, as it was then."""
+    if not name:
+        return None
+    kind, slash, leaf = name.partition("/")
+    if slash:
+        folder = _kind_dirs(game).get(kind)
+        if folder is None or not leaf or Path(leaf).name != leaf:
+            return None
+        path = folder / leaf
+        return path if path.is_file() else None
+    if Path(name).name != name:
         return None
     for folder in translation_dirs(game):
         path = folder / name
@@ -457,13 +497,21 @@ def install_target(game, tf: fmt.TranslationFile) -> Path:
     """Where a translation is installed: Installed translations/vv<N>/<public_name> -- the same file of the
     same translator is updated, another translator's of the same language is never replaced."""
     folder = game_dir(game)
-    return folder / public_name(tf.code, tf.translator, folder_names(folder))
+    taken = dict(folder_names(shipped_dir(game)))
+    own = folder_names(folder)
+    # A shipped file's name is taken unless the player's folder already holds that translator's own copy of it:
+    # an added file never takes a shipped file's name for another translation (Codex, #682).
+    for name, translator in own.items():
+        taken[name] = translator
+    return folder / public_name(tf.code, tf.translator, taken)
 
 
-def install_file(game, source: Path) -> Path:
+def install_file(game, source: Path, *, shell=None) -> Path:
     """Copy a checked translation into the translations folder as <code>.tsv (atomically, never over an
-    unreadable file of the same name: that one is moved aside first).  An older-layout file of the same
-    language and code is replaced by it (removed after the copy).  Returns the installed path."""
+    unreadable file of the same name: that one is moved aside first).  An older-layout file is replaced only when
+    it is the same translation -- the same code AND the same @translator -- and then only through the Recycle Bin
+    (never a hard delete; kept when the Recycle Bin refuses).  Another translator's file stays, as a variant.
+    Returns the installed path."""
     number = game_number(game)
     tf = fmt.read_file(source)
     problems = fmt.check_info(tf, TITLES[number])
@@ -476,10 +524,16 @@ def install_file(game, source: Path) -> Path:
     old = legacy_dir(number) / fmt.file_name(TITLES[number], tf.language)
     if old.is_file() and old.resolve() != Path(source).resolve():
         try:
-            if fmt.read_file(old).code.casefold() == tf.code.casefold():
-                old.unlink()
+            previous = fmt.read_file(old)
+            same = (previous.code.casefold() == tf.code.casefold()
+                    and previous.translator.strip().casefold() == tf.translator.strip().casefold())
         except (OSError, fmt.FormatError):
-            pass
+            same = False
+        if same:
+            try:
+                recycle([old], shell=shell)
+            except OSError:
+                pass                            # no Recycle Bin: both stay (the newer one is listed first)
     return target
 
 

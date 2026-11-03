@@ -13,7 +13,7 @@ One folder per game, one file per language:
 | `vv4/` | Virtual Villagers - The Tree of Life |
 | `vv5/` | Virtual Villagers - New Believers |
 
-Each file is named `<language code>.tsv` (for example `vv3/fr.tsv` or `vv1/pt-BR.tsv`). When a language is
+Each file is named `<language code>.tsv` (for example `vv3/fr.tsv` or `vv1/pt-br.tsv`; names are lowercase). When a language is
 already here from someone else, a new one is named `<code>-<credit>.tsv` (for example `vv3/fr-ana.tsv`; the
 credit in lowercase letters, digits and hyphens, then `-2`, `-3` ...), so nobody's file is ever overwritten.
 The format is described in [docs/translation-file-format.md](../docs/translation-file-format.md): a plain

@@ -691,6 +691,28 @@ static const char *cod_entry_epitaph(const struct cod_entry *entry) {
         ? EPITAPHS[entry->epitaph] : NULL;
 }
 
+/* The epitaph the grave shows: this companion's own epitaph in the player's language (its row
+   vvfp_cause_of_death.EPITAPHS.<n>, within the grave's EPITAPH_TEXT bytes), a typed one as typed.  The log
+   keeps the English (cod_entry_epitaph). */
+static const char *cod_entry_epitaph_shown(const struct cod_entry *entry) {
+    char stem[64];
+    if (entry->custom || entry->epitaph <= EPITAPH_NONE || entry->epitaph >= EPITAPH_COUNT) {
+        return cod_entry_epitaph(entry);
+    }
+    wsprintfA(stem, "vvfp.cod/vvfp_cause_of_death.EPITAPHS.%d", (int)entry->epitaph);
+    return vvfp_tr(stem, EPITAPHS[entry->epitaph], EPITAPH_TEXT);
+}
+
+/* The cause words the grave shows, in the player's language (rows vvfp_cause_of_death.CAUSE_WORDS.<n>). */
+static const char *cod_cause_shown(int cause) {
+    char stem[64];
+    if (cause < -1 || cause > CAUSE_CUSTOM_EVENT) {
+        return cod_cause_words(cause);
+    }
+    wsprintfA(stem, "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.%d", cause + 1);
+    return vvfp_tr(stem, CAUSE_WORDS[cause + 1], 0);
+}
+
 static void cod_grave_lines(int slot, const unsigned char *grave, const unsigned char *popup,
                             void *renderer, int x, unsigned int draw, unsigned int font_global) {
     const struct cod_entry *entry = cod_grave_entry(slot, grave);
@@ -706,7 +728,7 @@ static void cod_grave_lines(int slot, const unsigned char *grave, const unsigned
         ((text_fn)(uintptr_t)draw)(renderer, 0, "\"", right - 0x1C, top + 0x46, font, 0);
     }
     if (entry->cause != CAUSE_NONE) {
-        ((text_fn)(uintptr_t)draw)(renderer, 0, cod_cause_words(entry->cause), x, top + 0xD7, font, 0);
+        ((text_fn)(uintptr_t)draw)(renderer, 0, cod_cause_shown(entry->cause), x, top + 0xD7, font, 0);
         COD_COUNT(draws);
     }
 }
