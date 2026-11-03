@@ -104,7 +104,16 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Change Appearance mask preview, drawn by the Origins
     # companion through GDI+ (vv4_origins_icons.c).
     "Images/vvfp_mask_preview.png",
-})
+}) | frozenset(
+    # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
+    # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.
+    f"Unicode Fonts/{name}" for name in (
+        "NotoSansCuneiform-Regular.otf", "NotoSerifTangut-Regular.otf", "unifont-18.0.01.otf",
+        "unifont_upper-18.0.01.otf", "LastResortHE-Regular.ttf", "NotoSansCuneiform-OFL-1.1.txt",
+        "NotoSerifTangut-OFL-1.1.txt", "Unifont-OFL-1.1.txt", "Unifont-GPL-2.0-COPYING.txt",
+        "LastResort-OFL-1.1.txt", "SOURCES.json",
+    )
+)
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
 _PATCHER_READS = {key.casefold() for key in PATCHER_READS}

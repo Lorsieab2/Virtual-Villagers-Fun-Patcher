@@ -864,7 +864,7 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
     if english.count("\n") and not translation.count("\n"):
         warn("the English has line breaks (\\n) and the translation has none")
     for ch in translation:
-        if unicodedata.category(ch) in ("Cc",) and ch not in "\n\t":
+        if unicodedata.category(ch) in ("Cc",) and ch not in "\n\r\t":
             err(f"a control character U+{ord(ch):04X} is not allowed")
             break
     return issues

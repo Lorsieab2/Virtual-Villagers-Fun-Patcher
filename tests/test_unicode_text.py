@@ -131,8 +131,11 @@ class TheRows(unittest.TestCase):
                 self.assertEqual(row["patches"], [])
                 self.assertEqual(row["dependencies"], [f"{game}_details_full_names"])
                 self.assertEqual(row["conflicts"], [f"{game}_unicode_font"])
-                self.assertEqual(row["companion_files"], [{"source": f"assets/unicode_text/{DLL_NAME}",
-                                                           "destination": DLL_NAME, "sha256": sha}])
+                # The DLL first, then the bundled open fonts, their licences and SOURCES.json (tests/test_unicode18.py).
+                self.assertEqual(row["companion_files"][0], {"source": f"assets/unicode_text/{DLL_NAME}",
+                                                             "destination": DLL_NAME, "sha256": sha})
+                self.assertEqual({c["destination"].split("/")[0] for c in row["companion_files"][1:]},
+                                 {"Unicode Fonts"})
                 d = row["description"]
                 for words in ("**On by default and in Owner's Defaults.**", "**Needs \"Full Names on the Details Screen\"",
                               "**Not yet seen in a running game**", "**Cannot be used with",

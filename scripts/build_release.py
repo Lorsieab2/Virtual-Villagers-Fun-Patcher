@@ -221,6 +221,26 @@ FILES = [
     "data/vv5_copy_paste_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
+    # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
+    # names for the Text tab's search, their sources and the Unicode License.
+    "data/unicode18/ucd18.json.gz",
+    "data/unicode18/names18.txt.gz",
+    "data/unicode18/SOURCES.json",
+    "data/unicode18/LICENSE-Unicode.txt",
+    # The open fonts the Unicode companions load privately as the last steps of their glyph chain, with their
+    # licence texts and sources (OFL / GPL-with-font-exception notices travel with the fonts). Nothing else of any
+    # game or font ships (never Burweed ICG).
+    "assets/unicode_fonts/NotoSansCuneiform-Regular.otf",
+    "assets/unicode_fonts/NotoSerifTangut-Regular.otf",
+    "assets/unicode_fonts/unifont-18.0.01.otf",
+    "assets/unicode_fonts/unifont_upper-18.0.01.otf",
+    "assets/unicode_fonts/LastResortHE-Regular.ttf",
+    "assets/unicode_fonts/NotoSansCuneiform-OFL-1.1.txt",
+    "assets/unicode_fonts/NotoSerifTangut-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-OFL-1.1.txt",
+    "assets/unicode_fonts/Unifont-GPL-2.0-COPYING.txt",
+    "assets/unicode_fonts/LastResort-OFL-1.1.txt",
+    "assets/unicode_fonts/SOURCES.json",
     "data/vv1_translations_feature.json",
     "data/vv2_translations_feature.json",
     "data/vv3_translations_feature.json",
@@ -359,6 +379,7 @@ FILES = [
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",
     "src/vv_game_text.py",
+    "src/vv_unicode18.py",
     "src/vv_long_names.py",
     "src/vv_legacy_names.py",
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
