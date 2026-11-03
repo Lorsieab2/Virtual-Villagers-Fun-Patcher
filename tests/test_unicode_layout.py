@@ -213,6 +213,30 @@ class TheFitToWidth(unittest.TestCase):
         self.assertEqual(len(bytes.fromhex(fitted)), len(whole))
         self.assertNotEqual(fitted, "-")
 
+    def test_the_mark_never_joins_the_last_bytes_into_another_character(self):
+        """Codex (#692): a one-byte text cut after a byte such as 0xC3 (A tilde) with the one-byte mark 0x85
+        after it would read as one other character (C3 85 is A ring) and lose the ellipsis.  The mark is
+        written as the games' write rule says: the one byte where it stays itself, else U+2026 in UTF-8."""
+        def width(text: str) -> int:
+            return sum({"W": 10, "i": 2, "‰": 12, "\u2026": 5}.get(c, 4) for c in text)
+
+        prefixes = [b"iiii" + bytes([lead]) for lead in range(0xC2, 0xF5)]      # a lead byte last
+        prefixes += [b"ii" + bytes([0xE2, 0x80]), b"ii" + bytes([0xF0, 0x90, 0x80]), b"ii" + bytes([0xC3, 0x83]),
+                     b"ii" + bytes([0xE2, 0x80, 0x93]), b"iiii"]                 # more bytes that could join it
+        for prefix in prefixes:
+            with self.subTest(prefix=prefix.hex()):
+                text = prefix.decode(GAME_TEXT)
+                room = width(text) + 5                                           # the prefix and the mark fit
+                fitted = bytes.fromhex(self.fit(room, prefix + b"WW"))
+                self.assertEqual(fitted.decode(GAME_TEXT), text + "\u2026")       # nothing joined, nothing lost
+                self.assertTrue(fitted.startswith(prefix))
+                tail = fitted[len(prefix):]
+                self.assertIn(tail, (b"\x85", "\u2026".encode("utf-8")))
+                if prefix.endswith((b"\xc3", b"\xe2\x80", bytes([0xF0, 0x90, 0x80]))):
+                    self.assertEqual(tail, "\u2026".encode("utf-8"))            # the one byte would have joined
+                if prefix == b"iiii":
+                    self.assertEqual(tail, b"\x85")                              # nothing to join: one byte
+
     def test_utf8_text_gets_the_ellipsis_in_utf8(self):
         raw = "WWiWW\u65e5".encode("utf-8")
         self.assertEqual(self.fit(30, raw), (b"WWi" + "\u2026".encode("utf-8")).hex().upper())

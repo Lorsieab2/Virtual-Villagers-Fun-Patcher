@@ -329,6 +329,14 @@ static int tl_compose(const unsigned char *u, int len, unsigned char *out, int c
 
 typedef int (*tl_width_fn)(void *state, const unsigned char *s, int len);
 
+/* The ellipsis written after out[0..keep) (appended in place), as ut_append writes it; its byte length. */
+static int tl_mark(unsigned char *out, int keep, int utf8) {
+    unsigned char mark[4];
+    int nm = utf8 ? ut_encode(0x2026, mark) : ut_append(out, keep, 0x2026, mark);
+    CopyMemory(out + keep, mark, (size_t)nm);
+    return nm;
+}
+
 /* text[0..len) fitted to `room` pixels (measured by width): -1 when it fits as it is (out untouched; never
    inferred from the byte length, since "…" can be one byte, so a narrower fitted text can be as long as the
    original), else its longest start of whole units (a shaped run: of whole clusters) whose width with "…" is at
@@ -336,18 +344,16 @@ typedef int (*tl_width_fn)(void *state, const unsigned char *s, int len);
    returns the bytes written.  The starts are measured by halving, so a long text is measured only a few times. */
 static int tl_fit_ellipsis(const unsigned char *text, int len, int room, tl_width_fn width, void *state,
                            unsigned char *out, int cap) {
-    unsigned char mark[4];
-    int nm, best = 0, at = 0, n = 0, lo, hi, *ends;
+    int nm = 3, best = 0, at = 0, n = 0, lo, hi, *ends, utf8;
     const unsigned char *s = text, *end = text + len;
     if (width(state, text, len) <= room) {
         return -1;
     }
-    if (!ut_has_utf8(text, end)) {
-        mark[0] = 0x85;
-        nm = 1;
-    } else {
-        nm = ut_encode(0x2026, mark);
-    }
+    /* The mark is written after each start as ut_append writes it (the games' write rule): U+2026 as byte 0x85
+       in a text of one byte per character, so it stays one byte in a stored name -- unless that byte would
+       join the bytes before it into a different UTF-8 character (0xC3 then 0x85 reads as one "Å"), when it
+       is written as UTF-8; in a UTF-8 text always UTF-8.  Rooms are counted with the longest mark (3). */
+    utf8 = ut_has_utf8(text, end);
     ends = (int *)tl_alloc(sizeof(int) * (size_t)(len + 1));
     if (ends != NULL) {
         /* every start that ends between whole units (inside a shaped run, between whole clusters) */
@@ -388,7 +394,7 @@ static int tl_fit_ellipsis(const unsigned char *text, int len, int room, tl_widt
             int mid = (lo + hi) / 2, keep = ends[mid];
             while (keep > 0 && text[keep - 1] == ' ') --keep;
             CopyMemory(out, text, (size_t)keep);
-            CopyMemory(out + keep, mark, (size_t)nm);
+            nm = tl_mark(out, keep, utf8);
             if (width(state, out, keep + nm) <= room) {
                 best = keep;
                 lo = mid + 1;
@@ -399,7 +405,7 @@ static int tl_fit_ellipsis(const unsigned char *text, int len, int room, tl_widt
         tl_free(ends);
     }
     CopyMemory(out, text, (size_t)best);
-    CopyMemory(out + best, mark, (size_t)nm);
+    nm = tl_mark(out, best, utf8);
     out[best + nm] = 0;
     return best + nm;
 }
