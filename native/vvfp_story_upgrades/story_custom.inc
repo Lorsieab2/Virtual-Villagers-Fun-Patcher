@@ -242,18 +242,20 @@ static int ce_compose_reasons = 1;
 /* A line the island event popup shows, in the player's language (native/shared/vvfp_translate.h): the row's
    English filled in, then its translation with the same values when "VVFP Translations.dll" has one that fits
    `cap` bytes; else the English line. */
-static void ce_tr_printf(char *out, int cap, const char *stem, const char *english, ...) {
-    char filled[1024];
-    const char *shown;
-    va_list args;
-    va_start(args, english);
-    wvsprintfA(filled, english, args);
-    va_end(args);
-    shown = vvfp_trf(stem, english, filled, out, (unsigned int)cap);
+static void ce_tr_done(char *out, int cap, const char *stem, const char *english, const char *filled) {
+    const char *shown = vvfp_trf(stem, english, filled, out, (unsigned int)cap);
     if (shown != out) {
         lstrcpynA(out, filled, cap);
     }
 }
+
+/* ce_tr_printf(out, cap, stem, english, values...): the English filled in by wsprintfA, then translated. */
+#define ce_tr_printf(out, cap, stem, english, ...)                                                          \
+    do {                                                                                                     \
+        char ce_filled_[1024];                                                                               \
+        wsprintfA(ce_filled_, english, __VA_ARGS__);                                                         \
+        ce_tr_done((out), (int)(cap), (stem), (english), ce_filled_);                                        \
+    } while (0)
 
 /* One of the reasons below in the player's language (its row: story_custom.CE_WHY_WORDS.<k>). */
 static const char *ce_why_word(int k) {
@@ -1169,8 +1171,8 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             char reasons[CE_WHY_COUNT * 72 + 48];
             if (!ce_compose_reasons || !ce_why_line(r, reasons)) {
                 if (r->refused == 1) {
-                    ce_tr_printf(reasons, sizeof reasons, "vvfp.story/story_custom.ce_compose_in_once.s3",
-                                 "1 change could not be made.");
+                    ce_tr_done(reasons, sizeof reasons, "vvfp.story/story_custom.ce_compose_in_once.s3",
+                               "1 change could not be made.", "1 change could not be made.");
                 } else {
                     ce_tr_printf(reasons, sizeof reasons, "vvfp.story/story_custom.ce_compose_in_once.s4",
                                  "%d changes could not be made.", r->refused);
