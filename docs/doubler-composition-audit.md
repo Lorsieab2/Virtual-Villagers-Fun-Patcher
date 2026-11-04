@@ -88,6 +88,14 @@ they do not match an eligible positive writer source.
 
 ## Required follow-up before GO
 
+Status (checked 2026-11-03, issue #589): this section governs rows that are still pending or STOP. There are
+none: VV1 to VV5 are all marked GO above, on static exact-build proof. For each of them the table and the
+inventories record the exact build, the writer callsites, the excluded return addresses and the hook point, and
+tests/test_doubler_audit.py checks those against the stock executables and the shipped manifests (16 pass).
+What is not recorded is the dynamic matrix below (no source, source only, doubler only, source plus doubler,
+each exclusion in both ownership states) or any run in a live game, so the descriptions may state which sources
+are not doubled (that is what the guards do) but must not claim the behaviour has been seen at runtime.
+
 For each future pending/STOP row, the evidence record must include the exact stock executable
 SHA-256, positive writer callsites, collection adjustment functions and
 rounding/field representation, every Island Event producer/caller, final

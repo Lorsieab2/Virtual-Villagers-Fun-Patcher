@@ -89,6 +89,7 @@ jobs:
           name: scan-report
           path: ${{ runner.temp }}/submission/scan.md
           if-no-files-found: ignore
+          overwrite: true   # a re-run's report replaces the earlier attempt's, never shows it
 
   validate:
     needs: scan
@@ -129,6 +130,7 @@ jobs:
           name: validate-report
           path: ${{ runner.temp }}/submission/validate.md
           if-no-files-found: ignore
+          overwrite: true   # a re-run's report replaces the earlier attempt's, never shows it
 
   report:
     needs: [scan, validate]

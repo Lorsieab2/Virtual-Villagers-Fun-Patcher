@@ -17,6 +17,7 @@
 #define VV_DETAILS_MASK_X_NUDGE_PX 4
 #define VV_STORY_GAME 2   /* Story / Cheat Upgrades: this is The Lost Children */
 #include "../vv1_origins_icons/vv1_origins_icons.c"
+#include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
@@ -1347,7 +1348,7 @@ static void vv2_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) 
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_draw.s0","(None)",0), &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -1407,11 +1408,11 @@ static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
     SetBkMode(item->hDC, TRANSPARENT);
     /* DT_VCENTER only works with single-line text, so center manually: measure
        the wrapped height, then offset the draw rect to the vertical middle. */
-    DrawTextA(item->hDC, text, -1, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
+    vvfp_draw_text(item->hDC, text, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
     th = calc.bottom - calc.top;
     top = rc.top + ((rc.bottom - rc.top) - th) / 2;
     if (top > rc.top) rc.top = top;
-    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_WORDBREAK);
+    vvfp_draw_text(item->hDC, text, &rc, DT_CENTER | DT_WORDBREAK);
 }
 
 /* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the
@@ -1472,7 +1473,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
         }
         if (item->CtlID == IDC_MASK_PREVIEW) {
             if (vv2_appearance_mask == 0) {
-                vv2_draw_label(item, "(none)");
+                vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s0","(none)",0));
             } else {
                 vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
             }
@@ -2889,12 +2890,12 @@ static void caf_plan_looks(const unsigned char *base, vvfp_ax_look_plan *plan) {
 /* Draw one selector preview: sex-appropriate strip, or "No change" when idx<0. */
 static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int idx) {
     if (idx < 0) {
-        vv2_draw_label(item, "No change");
+        vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.caf_draw.s0","No change",0));
         return;
     }
     if (kind == 2) {
         if (idx == 0) {
-            vv2_draw_label(item, "(none)");
+            vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.caf_draw.s1","(none)",0));
         } else {
             vv2_appearance_draw(item, IDB_MASK, idx);
         }
