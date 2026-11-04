@@ -938,6 +938,19 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
         else:
             err("the printf placeholders must be exactly %s, in that order (found %s)"
                 % (" ".join(en_conv) or "none", " ".join(tr_conv) or "none"))
+    if exact and en_conv:
+        # tr_fill_pattern reads "%i" in "50%increase" as a conversion: a literal percent sign is written "%%" here
+        masked = _mask_subjects(translation)
+        at = 0
+        while at < len(masked):
+            if masked[at] == "%":
+                token = source.token_at(masked, at)
+                if token is None:
+                    err("a '%' that is no placeholder of the English must be written %% in this line")
+                    break
+                at += len(token)
+            else:
+                at += 1
     if "%%" in _mask_subjects(translation) and not line_is_format(english, rules.is_format):
         warn("'%%' shows as two percent signs here; write a single % for a percent sign")
     en_vars = set(named_variables(english))

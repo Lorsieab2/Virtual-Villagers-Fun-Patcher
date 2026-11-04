@@ -520,7 +520,7 @@ class TranslationsRuntimeTests(unittest.TestCase):
         tf = template(game, [
             row("table", "1", self.table_en(game, 1), "x"),
             row("vvfp.ui", "sale", "Sale", "50 % de remise"),
-            row("vvfp.ui", "cured", "%s cured %d villagers", "%s a guéri %d villageois (100 %)"),
+            row("vvfp.ui", "cured", "%s cured %d villagers", "%s a guéri %d villageois (100 %%)"),
         ])
         g = Game(game, self.exes[game], file_bytes(tf))
         g.start()
@@ -539,6 +539,18 @@ class TranslationsRuntimeTests(unittest.TestCase):
         g.start()
         self.assertEqual(g.translate(b"Reset 2 coins"), b"Reset 2 coins")
         self.assertEqual(g.translate(b"Kept 2 coins"), "Gardé 2 coins".encode("cp1252"))
+
+    def test_a_literal_percent_in_a_pattern_row_is_written_double(self):
+        game = 1
+        tf = template(game, [
+            row("table", "1", self.table_en(game, 1), "x"),
+            row("vvfp.ui", "bad", "Advanced %d years.", "50%increase: Advanced %d years."),     # refused: English
+            row("vvfp.ui", "good", "Moved %d years.", "50%%increase: Moved %d years."),         # %% is one percent
+        ])
+        g = Game(game, self.exes[game], file_bytes(tf))
+        g.start()
+        self.assertEqual(g.translate(b"Advanced 2 years."), b"Advanced 2 years.")
+        self.assertEqual(g.translate(b"Moved 2 years."), b"50%increase: Moved 2 years.")
 
     def test_translate_text_stable_pointer(self):
         game = 1

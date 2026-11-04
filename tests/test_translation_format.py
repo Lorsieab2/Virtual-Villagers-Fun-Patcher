@@ -165,6 +165,14 @@ class RowTests(unittest.TestCase):
         self.assertEqual(errors("table/12~00000000", "Reset %3d %s"), [])
         self.assertEqual(fmt.translation_tokens("Reset %3d %s", "Reset %d %s", exact=True), ["%s"])
 
+    def test_a_literal_percent_in_a_companion_filled_row_is_written_double(self):
+        def errors(key, tr):
+            return [i for i in fmt.check_row("Advanced %d years.", tr, fmt.RowRules(), 1, key) if i.severity == "error"]
+        self.assertTrue(errors("vvfp.ui/adv~00000000", "50%increase: Advanced %d years."))
+        self.assertEqual(errors("vvfp.ui/adv~00000000", "50%%increase: Advanced %d years."), [])
+        self.assertEqual(errors("sm/eAdv~00000000", "50 % de: Advanced %d years."), [])               # a sprintf row
+        self.assertEqual(fmt.check_row("Sale", "50%increase", fmt.RowRules(), 1, "vvfp.ui/sale~00000000"), [])   # no pattern
+
     def test_runtime_text_writes_double_percent_in_a_format_line(self):
         self.assertEqual(fmt.runtime_text("%d restants, 50 %", "%d left"), "%d restants, 50 %%")
         self.assertEqual(fmt.runtime_text("%d restants, 50 %%", "%d left"), "%d restants, 50 %%")   # old way kept

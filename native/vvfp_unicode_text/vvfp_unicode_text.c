@@ -376,13 +376,16 @@ static void read_override_face(void) {
     DWORD got = 0;
     int i, start, second = 0;
     lstrcpyW(g_override_face, L"Segoe UI");
-    if (n == 0 || n >= MAX_PATH - 64) {
+    if (n == 0 || n >= MAX_PATH) {
         return;
     }
     while (n > 0 && path[n - 1] != L'\\') {
         --n;
     }
     path[n] = 0;
+    if ((int)n + 22 > MAX_PATH) {
+        return;                         /* the folder and "VVFP Unicode Font.txt" do not fit a path */
+    }
     CopyMemory(dir, path, ((size_t)n + 1) * sizeof(WCHAR));
     lstrcatW(path, L"VVFP Unicode Font.txt");
     f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);

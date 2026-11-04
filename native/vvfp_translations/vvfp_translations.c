@@ -810,6 +810,26 @@ static int tr_check_row(const tr_row *row) {
     if (!tr_parse_selects(row->tr, row->tr_n, &g_ptr)) {
         return 0;
     }
+    if (g_exact_conversions && g_en_nconv > 0) {
+        /* tr_fill_pattern reads "%i" in "50%increase" as a conversion: a literal percent sign is written "%%" here */
+        tr_cp *masked = (tr_cp *)tr_scratch((unsigned int)row->tr_n * 4u + 8u);
+        tr_conv c;
+        int at = 0;
+        if (masked == NULL) {
+            return 0;
+        }
+        tr_mask_subjects(row->tr, row->tr_n, masked);
+        while (at < row->tr_n) {
+            if (masked[at] == '%') {
+                if (tr_token_at(masked, row->tr_n, at, row->en, g_en_conv, g_en_nconv, &c) == 0) {
+                    return 0;
+                }
+                at = c.end;
+            } else {
+                ++at;
+            }
+        }
+    }
     if (tr_nconv < 0 || tr_nconv != g_en_nconv) {
         return 0;
     }

@@ -562,6 +562,14 @@ class UnicodeFontChoice(unittest.TestCase):
         cls = next(c for c in vars(gui).values() if isinstance(c, type) and "_unicode_font_changed" in vars(c))
         cls._unicode_font_changed(stub)
 
+    def test_the_font_choice_is_read_from_a_long_folder(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "vvfp_unicode_text.c").read_text(encoding="utf-8")
+        self.assertNotIn("MAX_PATH - 64", source)
+        self.assertIn("(int)n + 22 > MAX_PATH", source)
+        folder = 180                                           # "VVFP Unicode Font.txt" (21 + NUL) and the font file fit
+        self.assertLessEqual(folder + 22, 260)
+        self.assertLessEqual(folder + 13 + len("font.ttf") + 1, 260)
+
     def test_the_companion_checks_the_actual_file_name_length(self):
         source = (ROOT / "native" / "vvfp_unicode_text" / "vvfp_unicode_text.c").read_text(encoding="utf-8")
         self.assertIn("(int)n + 13 + name_len <= MAX_PATH", source)
