@@ -55,6 +55,8 @@ class Clipboard:
         self.opens = 0
         self.closes = 0
         self.handles: dict[int, tuple[int, int]] = {}
+        # When set: the text's memory block holds only this many UTF-16 units and no NUL (GlobalSize says so).
+        self.size_units: int | None = None
 
 
 RUNS: dict = {}          # each machine's run: the imports answer the machine that calls them
@@ -109,7 +111,7 @@ def _register() -> None:
         raw = c.text.encode("utf-16-le", "surrogatepass") + b"\0\0"
         at = alloc(len(raw))
         m().mu.mem_write(at, raw)
-        c.handles[at] = (at, len(raw))
+        c.handles[at] = (at, len(raw) if c.size_units is None else 2 * c.size_units)
         ret(at)
 
     def global_alloc(mc, arg, ret):

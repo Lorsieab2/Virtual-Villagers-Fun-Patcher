@@ -399,6 +399,22 @@ class TheGame(unittest.TestCase):
             self.assertEqual(run.paste(repeat=1), {"to": "next event"})
             self.assertEqual(run.text(b), b"ab")
 
+    def test_the_clipboard_read_is_bounded_by_8192_units_and_global_size(self):
+        """docs/UNICODE_SPEC.md row 5: at most 8,192 UTF-16 units are read, never past GlobalSize or the first
+        NUL.  Dropped control characters fill the read, so what lies past the cap never arrives."""
+        for game in GAMES:
+            run = self.both[game]
+            with self.subTest(game=game, read="8,000 units, then the letters"):
+                self.assertEqual(self._paste(run, "\x01" * 8000 + "Hi"), b"Hi")
+            with self.subTest(game=game, read="past 8,192 units"):
+                self.assertEqual(self._paste(run, "\x01" * 8192 + "Hi"), b"")
+            with self.subTest(game=game, read="GlobalSize"):
+                run.clip.size_units = 3
+                try:
+                    self.assertEqual(self._paste(run, "Kalahuna"), b"Kal")
+                finally:
+                    run.clip.size_units = None
+
     def test_busy_or_empty_clipboard_does_nothing(self):
         for game in GAMES:
             run = self.both[game]
