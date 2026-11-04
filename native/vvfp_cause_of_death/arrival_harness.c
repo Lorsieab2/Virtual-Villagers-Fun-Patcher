@@ -1586,6 +1586,27 @@ static void identity_cases(void) {
             CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Twin\r\n") == 2,
                   "identity: two namesakes changed by the game to the same look: a record each");
         }
+        /* (5) The tool changes A -> B and B -> A, then the game changes A -> C: the chain A -> B -> A never
+           reaches C, so the game's change is logged (one more record beside the tool's two). */
+        {
+            typedef int (__stdcall *write_fn2)(int, int, const void *, int, const char *, const char *, int);
+            write_fn2 write_village2 = (write_fn2)GetProcAddress(parentage, "WriteVillageRecord");
+            int c;
+            for (c = 39; c >= 0 && rec(c)[g->active]; --c) {
+            }
+            villager(c, "Cyc", 500, 3, 33, 0);
+            unacc_age_all(1);
+            save_done(1, buffer);
+            write_village2(game, 7, rec(c), 1, "  Old head: 3\n  Old body: 33\n  New head: 4\n  New body: 34\n", NULL, 0);
+            write_village2(game, 7, rec(c), 1, "  Old head: 4\n  Old body: 34\n  New head: 3\n  New body: 33\n", NULL, 0);
+            *(int *)(rec(c) + g->head) = 60;
+            *(int *)(rec(c) + g->body) = 61;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Cyc\r\n") == 3
+                  && strstr(text, "  New head: 60\r\n  New body: 61\r\n  Changed by: the game") != NULL,
+                  "identity: tool A->B and B->A, then the game A->C: the game's change is logged");
+        }
     }
     for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
     free(buffer);

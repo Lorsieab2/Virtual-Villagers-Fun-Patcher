@@ -46,7 +46,7 @@ CHECKS += 2
 # arrived look-alike's (Codex, #536)
 # + 6 per game: the look change the game made itself is logged once (Appearance changed, "Changed by: the game"),
 # not again at the next save, and the Change Appearance tool's own record is not doubled
-CHECKS += 7 * 5
+CHECKS += 8 * 5
 CHECKS += 2 * 4
 # + 2 per game: the marker names its village, and does not count for another village copied into
 # the slot (Codex, #531)

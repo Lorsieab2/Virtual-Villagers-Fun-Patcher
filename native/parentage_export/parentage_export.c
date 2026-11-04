@@ -4486,19 +4486,25 @@ __declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const v
     copy_villager_name(g, (const unsigned char *)record, name, sizeof name);
     sex = *(const int *)((const unsigned char *)record + g->sex);
     for (step = 0; step < LOOK_NOTES && (head != new_head || body != new_body); ++step) {
+        int next = -1;
         for (i = 0; i < LOOK_NOTES; ++i) {
             if (look_notes[i].game == game_id && look_notes[i].sex == sex && look_notes[i].oh == head
                 && look_notes[i].ob == body && strcmp(look_notes[i].name, name) == 0) {
-                head = look_notes[i].nh;
-                body = look_notes[i].nb;
-                break;
+                if (look_notes[i].nh == new_head && look_notes[i].nb == new_body) {
+                    return 1;             /* a note straight to the look wanted */
+                }
+                if (next < 0) {
+                    next = i;
+                }
             }
         }
-        if (i == LOOK_NOTES) {
+        if (next < 0) {
             return 0;
         }
+        head = look_notes[next].nh;
+        body = look_notes[next].nb;
     }
-    return step > 0;
+    return head == new_head && body == new_body && step > 0;   /* a cycle or a dead end is a miss */
 }
 
 /* VVFP Cause of Death, right after a save: an "Appearance changed" record for a look the game itself
