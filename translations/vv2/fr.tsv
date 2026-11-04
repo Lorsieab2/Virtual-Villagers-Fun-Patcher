@@ -2944,3 +2944,5 @@ vvfp.gui/rename_tribe.long_name_note~ea1d5dd1	Allowed. This name is longer than 
 vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s0~3640ef31	0 tech points	0 point de technologie	a patcher window
 vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s1~b684356a	OK deducts 0 tech points. Cancel changes nothing.	OK déduit 0 point de technologie. Annuler ne change rien.	a patcher window
 vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s2~3185922f	OK deducts 0 tech points, for the head look too. Cancel changes nothing.	OK déduit 0 point de technologie, aspect de la tête compris. Annuler ne change rien.	a patcher window
+vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s12~0512a421	Full Heal / Cure All	Soin complet / Tout guérir	a patcher window
+vvfp.origins/vv2_origins_icons.vv2_action_name.s19~0512a421	Full Heal / Cure All	Soin complet / Tout guérir	a patcher window
