@@ -184,6 +184,14 @@ class _Emulator:
                 return bytes(out + chunk[:end])
             out += chunk
 
+    def wstr(self, va: int) -> str:
+        out = bytearray()
+        while True:
+            pair = bytes(self.mu.mem_read(va + len(out), 2))
+            if pair == b"\0\0":
+                return out.decode("utf-16-le")
+            out += pair
+
     def _arg(self, n: int) -> int:
         from unicorn.x86_const import UC_X86_REG_ESP
         return self.u32(self.mu.reg_read(UC_X86_REG_ESP) + 4 + 4 * n)
@@ -232,6 +240,30 @@ class _Emulator:
         if name == "MessageBoxA":
             self.messages.append(self.cstr(self._arg(1)).decode("latin-1"))
             self._return(1, 4)
+        elif name == "MessageBoxW":
+            # every box is shown as UTF-16 (native/shared/vvfp_translate.h vvfp_message_box)
+            self.messages.append(self.wstr(self._arg(1)))
+            self._return(1, 4)
+        elif name == "MultiByteToWideChar":
+            # (code page, flags, source, source bytes, out, out chars), as Windows: CP_UTF8 (65001) with
+            # MB_ERR_INVALID_CHARS (8) fails on invalid UTF-8; any other page here is Windows-1252; -1 bytes means
+            # up to and including the NUL; out chars 0 asks for the size; too small an out buffer fails (0)
+            page, flags, source, count, out, room = (self._arg(i) for i in range(6))
+            raw = self.cstr(source) + b"\0" if count == 0xFFFFFFFF else bytes(mu.mem_read(source, count))
+            try:
+                text = raw.decode("utf-8", "strict" if flags & 8 else "replace") if page == 65001 \
+                    else raw.decode("cp1252", "replace")
+            except UnicodeDecodeError:
+                self._return(0, 6)
+                return
+            wide = text.encode("utf-16-le")
+            chars = len(wide) // 2
+            if room and chars > room:
+                self._return(0, 6)
+                return
+            if room:
+                mu.mem_write(out, wide)
+            self._return(chars, 6)
         elif name == "GetForegroundWindow":
             self._return(0x1234, 0)
         elif name == "wsprintfA":

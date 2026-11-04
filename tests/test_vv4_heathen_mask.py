@@ -678,7 +678,9 @@ class ChangeAppearanceForAllTests(unittest.TestCase):
             entry,
         )
         self.assertNotIn("MessageBoxA(NULL", entry)
-        self.assertEqual(entry.count("MessageBoxA(owner"), 7)
+        # the buy prompt is its own keyed box (vv4_buy_prompt), with the same captured owner
+        self.assertEqual(entry.count("MessageBoxA(owner"), 6)
+        self.assertIn("vv4_buy_prompt(owner, vv4_row_name(0, 16),", entry)
 
     def test_successful_cure_result_is_foreground_information_popup(self) -> None:
         cure = self.c.split(
