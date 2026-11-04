@@ -15,6 +15,7 @@
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 #include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
+#include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -1517,7 +1518,7 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
            box there reads as a broken preview rather than a choice. Name it
            in the cell too. */
         SetBkMode(hdc, TRANSPARENT);
-        DrawTextA(hdc, "(None)", -1, &rc,
+        DrawTextA(hdc, vvfp_tr("vvfp.origins/vv4_origins_icons.appearance_draw_mask_cell.s0","(None)",0), -1, &rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -2715,7 +2716,7 @@ static void fa_draw_cell(const DRAWITEMSTRUCT *dis, int value, int is_head,
                          int is_mask, int sex_female) {
     if (value == FA_NOCHANGE) {
         FillRect(dis->hDC, &dis->rcItem, (HBRUSH)(COLOR_BTNFACE + 1));
-        DrawTextA(dis->hDC, "No change", -1, (RECT *)&dis->rcItem,
+        DrawTextA(dis->hDC, vvfp_tr("vvfp.origins/vv4_origins_icons.fa_draw_cell.s0","No change",0), -1, (RECT *)&dis->rcItem,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }

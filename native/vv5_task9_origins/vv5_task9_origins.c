@@ -18,6 +18,7 @@
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
 #include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
+#include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
@@ -1111,7 +1112,7 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.appearance_draw.s0","(None)",0), -1, &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -1998,7 +1999,7 @@ static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int value) {
     DeleteObject(bg);
     if (value < 0) {
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, "No change", -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.caf_draw.s0","No change",0), -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
     if (kind == 0) { bmp_id = sex ? IDB_BODY_F : IDB_BODY_M; cell_w = APPEARANCE_CELL_W; cell_h = APPEARANCE_CELL_H; }

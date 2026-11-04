@@ -17,6 +17,7 @@
 #define VV_DETAILS_MASK_X_NUDGE_PX 4
 #define VV_STORY_GAME 2   /* Story / Cheat Upgrades: this is The Lost Children */
 #include "../vv1_origins_icons/vv1_origins_icons.c"
+#include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 #include "../shared/mask_follow.h" /* masks follow their villagers through a reload */
 #include <shlobj.h>   /* SHGetFolderPathA for the sidecar path (link shell32) */
 #include <wincrypt.h> /* exact SHA-256 identity for the legacy mask atlas (link advapi32) */
@@ -1347,7 +1348,7 @@ static void vv2_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) 
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, "(None)", -1, &none_rc,
+        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_draw.s0","(None)",0), -1, &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -1472,7 +1473,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
         }
         if (item->CtlID == IDC_MASK_PREVIEW) {
             if (vv2_appearance_mask == 0) {
-                vv2_draw_label(item, "(none)");
+                vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s0","(none)",0));
             } else {
                 vv2_appearance_draw(item, IDB_MASK, vv2_appearance_mask);
             }
@@ -2889,12 +2890,12 @@ static void caf_plan_looks(const unsigned char *base, vvfp_ax_look_plan *plan) {
 /* Draw one selector preview: sex-appropriate strip, or "No change" when idx<0. */
 static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int idx) {
     if (idx < 0) {
-        vv2_draw_label(item, "No change");
+        vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.caf_draw.s0","No change",0));
         return;
     }
     if (kind == 2) {
         if (idx == 0) {
-            vv2_draw_label(item, "(none)");
+            vv2_draw_label(item, vvfp_tr("vvfp.origins/vv2_origins_icons.caf_draw.s1","(none)",0));
         } else {
             vv2_appearance_draw(item, IDB_MASK, idx);
         }

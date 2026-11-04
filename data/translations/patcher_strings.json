@@ -1175,7 +1175,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_confirm_head_genetics_warning.s0",
@@ -1241,7 +1242,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.forall_dialog.s0",
@@ -2458,7 +2460,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s0",
@@ -2468,7 +2471,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s1",
@@ -2528,7 +2532,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.caf_draw.s1",
@@ -2538,7 +2543,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.caf_dialog.s0",
@@ -3878,7 +3884,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.upgrade_dialog.s0",
@@ -4148,7 +4155,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.forall_dialog.s0",
@@ -5148,7 +5156,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.appearance_dialog.s0",
@@ -5248,7 +5257,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.caf_dialog.s0",
