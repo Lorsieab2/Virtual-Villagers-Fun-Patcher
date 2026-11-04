@@ -316,6 +316,8 @@ SPEC_CLUSTERS = (
     ("a‍b", ["a‍b"]),                       # a ZWJ joins the next character, emoji or not
     ("क्‍ष", ["क्‍ष"]),
     ("a‍\n", ["a‍", "\n"]),                 # but never a newline
+    ("क‍a", ["क‍a"]),          # a shaped letter, ZWJ, a letter: one cluster, one unit
+    ("कख‍aग", ["क", "ख‍a", "ग"]),
 )
 
 
@@ -343,6 +345,14 @@ class TheGraphemeTest(unittest.TestCase):
                 self.assertEqual([int(x) for x in line.split("|")[0].split()], [len(w.encode("utf-8")) for w in want])
                 # Backspace erases the last whole cluster.
                 self.assertEqual(int(line.split("|")[2]), len("".join(want[:-1]).encode("utf-8")))
+                # Units (a shaped run) never end inside a cluster, and the cut a short form is made by (ut_fit)
+                # keeps whole clusters only, at every byte cap.
+                ends = {len("".join(want[:k]).encode("utf-8")) for k in range(len(want) + 1)}
+                at = 0
+                for unit in line.split("|")[1].split():
+                    at += int(unit.split(":")[1])
+                    self.assertIn(at, ends)
+                self.assertTrue(set(int(x) for x in line.split("|")[3].split()) <= ends)
 
     def test_the_games_text_rule_cuts_as_unicode_18_says(self):
         tests = _conformance()

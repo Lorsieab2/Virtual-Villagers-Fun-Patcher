@@ -344,6 +344,22 @@ static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t 
             }
             break;
         }
+        {
+            /* never end the run inside a grapheme cluster (a ZWJ joins whatever follows it) */
+            const unsigned char *q = s;
+            unsigned int lastcp = u->last;
+            while (q < p) {
+                int k = ut_grapheme(q, end, &lastcp);
+                if (k <= 0) {
+                    break;
+                }
+                q += k;
+            }
+            if (q > p) {
+                p = q;
+                u->last = lastcp;
+            }
+        }
         u->len = (int)(p - s);
         return;
     }
