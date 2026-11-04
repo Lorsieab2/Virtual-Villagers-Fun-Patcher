@@ -245,24 +245,11 @@ static const char *vvfp_story_text(int game, const char *text) {
     return buffer;
 }
 
-/* A patcher text (the game's encoding: UTF-8 when valid, else Windows-1252,
-   as vvfp_draw_text reads it) as UTF-16, so a translation is never read in
-   the ANSI code page.  Its length in characters. */
-static int vvfp_story_widen(const char *text, WCHAR *wide, int cap) {
-    int n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, -1, wide, cap);
-    if (n <= 0) {
-        n = MultiByteToWideChar(1252, 0, text, -1, wide, cap);
-    }
-    if (n <= 0) {
-        n = 1;
-    }
-    wide[n - 1] = 0;
-    return n - 1;
-}
-
+/* A patcher text set on a window as UTF-16 (vvfp_to_wide), so a translation
+   is never read in the ANSI code page. */
 static void vvfp_story_set_text(HWND window, const char *text) {
     WCHAR wide[512];
-    vvfp_story_widen(text, wide, 512);
+    vvfp_to_wide(text, wide, 512);
     SetWindowTextW(window, wide);
 }
 
@@ -272,7 +259,7 @@ static void vvfp_story_set_text(HWND window, const char *text) {
 static int vvfp_story_fit_width(HWND dialog, const char *label, int width, int margin) {
     WCHAR wide[512];
     SIZE size = { 0, 0 };
-    int n = vvfp_story_widen(label, wide, 512);
+    int n = vvfp_to_wide(label, wide, 512);
     HFONT font = (HFONT)SendMessageA(dialog, WM_GETFONT, 0, 0);
     HDC dc = GetDC(dialog);
     if (dc != NULL) {

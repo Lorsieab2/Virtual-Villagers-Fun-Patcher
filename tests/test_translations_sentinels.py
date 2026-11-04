@@ -473,6 +473,10 @@ __declspec(dllexport) int Run(int price, int free_now, char *out, int cap) {
     DestroyWindow(dialog);
     return n;
 }
+
+__declspec(dllexport) int Wide(const char *text, wchar_t *out, int cap) {
+    return vvfp_to_wide(text, out, cap);
+}
 '''
 
 
@@ -547,6 +551,24 @@ class StoryButtonTests(unittest.TestCase):
             "ZP Choisir un événement de l'île, lui aussi bien plus long (ZW 30 000 points de technologie)...\tF",
             "ZT Choisir la durée du saut dans le temps, encore plus long (ZW 30 000 points de technologie)...\tF"])
         self.assertEqual(charged[3:], ["50,000 tech points", "OK deducts 5,000 tech points. Cancel changes nothing."])
+
+    def test_a_translated_message_is_shown_as_utf16(self) -> None:
+        """vvfp_message_box (native/shared/vvfp_translate.h) reads a text the patcher's way -- valid UTF-8, else
+        Windows-1252 -- into UTF-16 for MessageBoxW, so a translated event name is never shown in the ANSI code page
+        (Codex, PR 703: "La Fête d'Isola" read as "La FÃªte d'Isola").  Every Pick Island Event box that shows a
+        label_of name uses it."""
+        out = self.ctypes.create_unicode_buffer(64)
+        self.dll.Wide.argtypes = [self.ctypes.c_char_p, self.ctypes.c_wchar_p, self.ctypes.c_int]
+        for raw in ("La Fête d'Isola".encode("utf-8"), "La Fête d'Isola".encode("cp1252")):
+            self.dll.Wide(raw, out, 64)
+            self.assertEqual(out.value, "La Fête d'Isola")
+        header = (SHARED / "vvfp_translate.h").read_text(encoding="utf-8")
+        self.assertIn("return MessageBoxW(owner, wide_text, wide_caption, type);", header)
+        story = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.c").read_text(encoding="utf-8")
+        body = story[story.index("story_pick_island_event("):]
+        body = body[:body.index("\n}\n")]
+        self.assertNotRegex(body, r"MessageBoxA\(owner, message,")
+        self.assertEqual(body.count("vvfp_message_box(owner, message,"), 3)
 
     def test_every_part_is_asked_for_by_its_own_stem_and_english(self) -> None:
         rows = rows_by_stem()

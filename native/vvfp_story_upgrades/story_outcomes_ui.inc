@@ -970,12 +970,7 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
         for (i = 0; i < chooser.game->event_count; ++i) {
             int row;
             chooser_list_label(i, label);
-            /* UTF-16, so a translation is never read in the ANSI code page (vvfp_draw_text's rule) */
-            if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, label, -1, wide, CHOOSER_LABEL) <= 0
-                && MultiByteToWideChar(1252, 0, label, -1, wide, CHOOSER_LABEL) <= 0) {
-                wide[0] = 0;
-            }
-            wide[CHOOSER_LABEL - 1] = 0;
+            vvfp_to_wide(label, wide, CHOOSER_LABEL);   /* never read in the ANSI code page */
             row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
             SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
         }

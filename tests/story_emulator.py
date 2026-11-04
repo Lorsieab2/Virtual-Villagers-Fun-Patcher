@@ -230,6 +230,11 @@ class Process:
         self.messages.append(self.cstring(self.arg(1)))
         return self.message_answer, 16
 
+    # A box whose text may hold a translation (native/shared/vvfp_translate.h vvfp_message_box).
+    def _api_MessageBoxW(self):
+        self.messages.append(self.wstring(self.arg(1)))
+        return self.message_answer, 16
+
     # The companion resolves the game's own folder and the optional
     # companions beside it; by default nothing else is shipped.
     def _api_GetModuleFileNameA(self):

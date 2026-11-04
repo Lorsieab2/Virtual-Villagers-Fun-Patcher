@@ -1058,8 +1058,8 @@ static int story_pick_island_event(int game, HWND owner) {
                       "happened instead.",
                       label, last_failed_event->requires);
         }
-        MessageBoxA(owner, message, "Pick Island Event",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        vvfp_message_box(owner, message, "Pick Island Event",
+                         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         last_failed_event = NULL;
     }
     chosen = chooser_run(game, g, owner);
@@ -1074,8 +1074,8 @@ static int story_pick_island_event(int game, HWND owner) {
               "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\n"
               "Press OK to confirm, or Cancel.", label, story_price_text(game),
               summary[0] ? "\r\n" : "", summary);
-    if (MessageBoxA(owner, message, "Origins Upgrades",
-                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+    if (vvfp_message_box(owner, message, "Origins Upgrades",
+                         MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
     }
     warning = chooser_warning(chosen);
@@ -1094,8 +1094,8 @@ static int story_pick_island_event(int game, HWND owner) {
     }
     oc_arm(game, event->slot, settings);
     wsprintfA(message, "%s is on its way.", label);
-    MessageBoxA(owner, message, "Origins Upgrades",
-                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    vvfp_message_box(owner, message, "Origins Upgrades",
+                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
 
