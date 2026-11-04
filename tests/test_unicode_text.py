@@ -135,7 +135,7 @@ class TheRows(unittest.TestCase):
                 self.assertEqual(row["companion_files"][0], {"source": f"assets/unicode_text/{DLL_NAME}",
                                                              "destination": DLL_NAME, "sha256": sha})
                 self.assertEqual({c["destination"].split("/")[0] for c in row["companion_files"][1:]},
-                                 {"Unicode Fonts"})
+                                 {"Unicode Fonts", "Word Lists"})
                 d = row["description"]
                 for words in ("**On by default and in Owner's Defaults.**", "**Needs \"Full Names on the Details Screen\"",
                               "**Not yet seen in a running game**", "**Cannot be used with",

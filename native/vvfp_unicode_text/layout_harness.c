@@ -2,7 +2,9 @@
    outside the game, on the real Windows icu.dll, so tests/test_unicode_layout.py can hold the DLL's own C to the
    spec (docs/UNICODE_SPEC.md row 3).
 
-   layout_harness.exe <in> <out>
+   layout_harness.exe <in> <out> [<word lists folder>]
+     with the folder, the built-in table (F) breaks Thai, Lao, Myanmar and Khmer between the words of the lists
+     there (assets/word_lists), as the companions do without ICU.
      in:  one case per line: a command letter, a space, then the text as hex UTF-8 bytes ("E381AE E381AF").
           B  where a line may break (ICU when Windows has it)      -> "icu=<0|1> <byte offsets>"
           F  where a line may break by the built-in table alone    -> "<byte offsets>"
@@ -41,8 +43,11 @@ int main(int argc, char **argv) {
     FILE *in, *out;
     static char line[65536];
     static unsigned char text[32768], marks[32769];
-    if (argc != 3 || fopen_s(&in, argv[1], "rb") != 0 || fopen_s(&out, argv[2], "wb") != 0) {
+    if ((argc != 3 && argc != 4) || fopen_s(&in, argv[1], "rb") != 0 || fopen_s(&out, argv[2], "wb") != 0) {
         return 2;
+    }
+    if (argc == 4 && MultiByteToWideChar(CP_ACP, 0, argv[3], -1, g_tl_words_dir, MAX_PATH - 2) > 0) {
+        lstrcatW(g_tl_words_dir, L"\\");
     }
     while (fgets(line, sizeof line, in) != NULL) {
         int n = 0, i, hi = -1, b;

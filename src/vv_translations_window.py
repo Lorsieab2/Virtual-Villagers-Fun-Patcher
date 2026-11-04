@@ -73,6 +73,10 @@ PATCH_ROW_NOTE = ("The game must be patched with the \"Translations\" row (it is
                   "is used from the game's next start, with no re-patching.")
 GAME_FONT_NOTE = "game-font preview needs Render Unicode with In-Game Fonts"
 TOO_WIDE = "may not fit its box"
+# The game's window is 800 pixels wide in all five games: a line wider than that runs past the screen's edge
+# wherever it is drawn, and the Unicode rows cut it there with "…" (native/vvfp_unicode_text vt_screen_fit).
+SCREEN_WIDTH = 800
+OFF_SCREEN = "wider than the game's screen"
 AUTOSAVE_MS = 1500
 WIDE_RATIO = 1.25           # wider than the English by this much (and WIDE_MARGIN pixels) warns
 WIDE_MARGIN = 12
@@ -1260,7 +1264,16 @@ class Editor:
             if width > english_width * WIDE_RATIO and width > english_width + WIDE_MARGIN:
                 warning = (f"Much wider than the English ({width} px against {english_width} px): it "
                            f"{TOO_WIDE}.")
+            warning = " ".join(part for part in (warning, screen_warning(width)) if part)
         self.width_var.set(warning)
+
+
+def screen_warning(width: int) -> str:
+    """A warning (never an error: the row is still used) for a line wider than the game's screen."""
+    if width <= SCREEN_WIDTH:
+        return ""
+    return (f"A line is {OFF_SCREEN} ({width} px against {SCREEN_WIDTH} px): the game cuts it with \"…\" at "
+            "the screen's edge.")
 
 
 # ---- choosing a language to make -----------------------------------------------------------------------------
