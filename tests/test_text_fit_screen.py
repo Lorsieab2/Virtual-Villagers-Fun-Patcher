@@ -35,6 +35,11 @@ from test_unicode_layout import (HAVE_COMPILER, HAVE_EMULATOR, HAVE_IMAGES, HAVE
 WORDS = ROOT / "assets" / "word_lists"
 LISTS = ("thaidict.txt", "laodict.txt", "khmerdict.txt", "burmesedict.txt", "cjdict.txt", "ICU-LICENSE.txt")
 SCREEN = 800
+SCREENS = {5: 1024, "vv5": 1024}       # New Believers' window is 1024 x 768
+
+
+def _screen(game):
+    return SCREENS.get(game, SCREEN)
 
 THAI_LONG = "ภาษาไทยเป็นภาษาที่ไม่มีการเว้นวรรคระหว่างคำ" * 4      # one line, no space at all
 SENTENCES = (
@@ -192,16 +197,30 @@ class InTheGame(unittest.TestCase):
                         self.assertTrue(blits)
                         left, right = _span(blits)
                         self.assertGreaterEqual(left, 0)
-                        self.assertLessEqual(right, SCREEN)
+                        self.assertLessEqual(right, _screen(game))
                         if x >= 0:
                             self.assertGreaterEqual(left, x)            # drawn where the game put it
+
+    def test_new_believers_uses_its_1024_pixel_screen(self):
+        # Live check 2026-11-04: New Believers cut its title's copyright line at 800 px; its window is 1024 wide.
+        for game, run in self.runs.items():
+            if _screen(game) != 1024:
+                continue
+            raw = b"W" * 1
+            while run.width_of("ldwarialbold", raw + b"W") < 300:
+                raw += b"W"
+            with self.subTest(game=game):
+                blits = run.draw_text("ldwarialbold", raw, 650, 100)
+                left, right = _span(blits)
+                self.assertGreater(right, 800)                 # not cut at 800: it fits the 1024-px screen
+                self.assertLessEqual(right, 1024)
 
     def test_the_big_font_too(self):
         for game, run in self.runs.items():
             with self.subTest(game=game):
                 left, right = _span(run.draw_text("ldwBurweed27", WORST["cjk"].encode("utf-8"), 500, 100))
                 self.assertGreaterEqual(left, 500)
-                self.assertLessEqual(right, SCREEN)
+                self.assertLessEqual(right, _screen(game))
 
     def test_a_text_that_fits_is_drawn_exactly_as_before(self):
         raw = "Zoé 日本 \U0001F44D".encode("utf-8")
@@ -209,9 +228,9 @@ class InTheGame(unittest.TestCase):
             with self.subTest(game=game):
                 width = run.width_of("ldwarialbold", raw)
                 at_10 = run.draw_text("ldwarialbold", raw, 10, 100)
-                at_edge = run.draw_text("ldwarialbold", raw, SCREEN - width - 1, 100)
+                at_edge = run.draw_text("ldwarialbold", raw, _screen(game) - width - 1, 100)
                 self.assertEqual([(s, r, to[0] - 10) for s, r, _d, to in at_10],
-                                 [(s, r, to[0] - (SCREEN - width - 1)) for s, r, _d, to in at_edge])
+                                 [(s, r, to[0] - (_screen(game) - width - 1)) for s, r, _d, to in at_edge])
 
     def test_the_games_own_english_is_never_touched(self):
         raw = b"The quick brown fox jumps over the lazy dog, again and again"
@@ -219,7 +238,7 @@ class InTheGame(unittest.TestCase):
             with self.subTest(game=game):
                 left, right = _span(run.draw_text("ldwarialbold", raw, 700, 100))
                 self.assertEqual(left, 700)
-                self.assertGreater(right, SCREEN)          # the stock game's own layout, exactly
+                self.assertGreater(right, _screen(game))          # the stock game's own layout, exactly
 
     def test_a_text_wholly_off_the_window_is_left_alone(self):
         raw = WORST["cjk"].encode("utf-8")
@@ -232,7 +251,7 @@ class InTheGame(unittest.TestCase):
         for game, run in self.runs.items():
             with self.subTest(game=game):
                 blits = run.draw_text("ldwarialbold", raw, 600, 100)
-                self.assertLessEqual(_span(blits)[1], SCREEN)
+                self.assertLessEqual(_span(blits)[1], _screen(game))
                 self.assertEqual(len({to[1] for _s, _r, _d, to in blits}) >= 3, True)   # three lines drawn
 
     def test_thai_breaks_between_words_in_the_games_line_fitting_without_icu(self):
@@ -261,7 +280,7 @@ class InTheGame(unittest.TestCase):
                     self.assertTrue(blits)
                     left, right = _span(blits)
                     self.assertGreaterEqual(left, 500)
-                    self.assertLessEqual(right, SCREEN)
+                    self.assertLessEqual(right, _screen(game))
 
     @staticmethod
     def justify(run, raw: bytes, x: int, width: int, count: int = 400_000_000) -> list:
@@ -317,15 +336,15 @@ class WithATranslation(unittest.TestCase):
             with self.subTest(game=game):
                 left, right = _span(run.draw_text("ldwarialbold", raw, 600, 100))
                 self.assertEqual(left, 600)
-                self.assertLessEqual(right, SCREEN)
+                self.assertLessEqual(right, _screen(game))
 
     def test_one_pixel_of_room_draws_nothing_past_the_edge(self):
         """Codex (#697): at x=799 not even the ellipsis fits; nothing is drawn past the edge."""
         for game, run in self.runs.items():
             for raw in (b"Bonjour tout le monde", "日本語の文章".encode("utf-8")):
                 with self.subTest(game=game, text=raw):
-                    blits = run.draw_text("ldwarialbold", raw, SCREEN - 1, 100)
-                    self.assertTrue(all(to[0] + rect[2] <= SCREEN for _s, rect, _d, to in blits))
+                    blits = run.draw_text("ldwarialbold", raw, _screen(game) - 1, 100)
+                    self.assertTrue(all(to[0] + rect[2] <= _screen(game) for _s, rect, _d, to in blits))
 
     def test_a_narrowed_plain_paragraph_with_a_wide_word_finishes(self):
         """Codex (#697): a stock paragraph narrowed to the screen's edge, with a word wider than the narrowed
@@ -335,12 +354,12 @@ class WithATranslation(unittest.TestCase):
             if game == "vv1":
                 continue                               # no justified paragraph routine
             with self.subTest(game=game):
-                self.assertGreater(run.width_of("ldwarialbold", b"W" * 60), SCREEN - 500)
+                self.assertGreater(run.width_of("ldwarialbold", b"W" * 60), _screen(game) - 500)
                 blits = InTheGame.justify(run, raw, 500, 600, count=50_000_000)
                 self.assertTrue(blits)
                 left, right = _span(blits)
                 self.assertGreaterEqual(left, 500)
-                self.assertLessEqual(right, SCREEN)
+                self.assertLessEqual(right, _screen(game))
 
 
 class TheRows(unittest.TestCase):

@@ -334,9 +334,10 @@ class InTheGame(unittest.TestCase):
                 raw = _bytes_of(name.strip())
                 w = run.width_of("ldwBurweed27", raw)
                 self.assertGreater(w, 1100)
-                # drawn at the window's right edge: wholly off the 800-pixel window, it is left whole (on screen it
-                # would be cut there, tests/test_text_fit_screen.py), so the whole run's page is made
-                blits = run.draw_text("ldwBurweed27", raw, 800, 10)
+                # drawn at the window's right edge: wholly off the window (800 px wide, 1024 in New Believers), it is
+                # left whole (on screen it would be cut there, tests/test_text_fit_screen.py), so the whole run's
+                # page is made
+                blits = run.draw_text("ldwBurweed27", raw, 1024 if game in ("vv5", 5) else 800, 10)
                 self.assertEqual(len(blits), 1)                      # one shaped run, one letter
                 src, rect, _dst, to = blits[0]
                 self.assertEqual(rect[2], w)

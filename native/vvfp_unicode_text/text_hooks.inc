@@ -333,7 +333,8 @@ static int vt_own_draw(void *ctx, const unsigned char *s, int x, int y, unsigned
 
 /* ---- The screen edge ------------------------------------------------------------------------------ */
 
-#define VT_SCREEN_WIDTH 800           /* the game window's client area is 800 x 600 in all five games */
+/* The game window's client area: 800 x 600 in A New Home to The Tree of Life, 1024 x 768 in New Believers. */
+#define VT_SCREEN_WIDTH (g_game_number == 5 ? 1024 : 800)
 
 /* Text the patcher or a translation puts on screen: a text the companion translated or expanded (t is not the
    game's s), any UTF-8 text (every text with Use Unicode Font), and every text while a translation is in use. */
