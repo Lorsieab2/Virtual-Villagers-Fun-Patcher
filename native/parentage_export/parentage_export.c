@@ -4442,7 +4442,7 @@ static void relook_last_name(const struct game_layout *g, const unsigned char *r
    logs a look change the game made on its own, so Change Appearance's and the Island Events log's
    own records are never written twice. */
 #define LOOK_NOTES 1024    /* 256 villagers, each changed a few times between two saves */
-static struct { int game; char name[MAX_NAME_BYTES]; int head, body; } look_notes[LOOK_NOTES];
+static struct { int game; char name[MAX_NAME_BYTES]; int sex, oh, ob, nh, nb; } look_notes[LOOK_NOTES];
 static int look_note_next;
 
 /* The save has caught up with every look noted for this game: start the next save's notes empty, so a
@@ -4465,27 +4465,40 @@ static void note_appearance_logged(const struct game_layout *g, const unsigned c
     }
     look_notes[look_note_next].game = game_of_layout(g);
     copy_villager_name(g, record, look_notes[look_note_next].name, sizeof look_notes[0].name);
-    look_notes[look_note_next].head = nh;
-    look_notes[look_note_next].body = nb;
+    look_notes[look_note_next].sex = *(const int *)(record + g->sex);
+    look_notes[look_note_next].oh = oh;
+    look_notes[look_note_next].ob = ob;
+    look_notes[look_note_next].nh = nh;
+    look_notes[look_note_next].nb = nb;
     look_note_next = (look_note_next + 1) % LOOK_NOTES;
 }
 
-/* 1 when an "Appearance changed" record to these looks was written for this villager (by name). */
-__declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const void *record, int head, int body) {
+/* 1 when "Appearance changed" records written for this villager (name and sex) lead from the old
+   looks to the new ones, a change or a chain of them (A -> B, B -> C). */
+__declspec(dllexport) int __stdcall AppearanceAlreadyLogged(int game_id, const void *record, int old_head,
+                                                            int old_body, int new_head, int new_body) {
     char name[MAX_NAME_BYTES];
     const struct game_layout *g = game_id >= GAME_VV1 && game_id <= GAME_VV5 ? layout_of(game_id) : NULL;
-    int i;
+    int i, step, sex, head = old_head, body = old_body;
     if (g == NULL || record == NULL || !layout_is_usable(g)) {
         return 0;
     }
     copy_villager_name(g, (const unsigned char *)record, name, sizeof name);
-    for (i = 0; i < LOOK_NOTES; ++i) {
-        if (look_notes[i].game == game_id && look_notes[i].head == head && look_notes[i].body == body
-            && strcmp(look_notes[i].name, name) == 0) {
-            return 1;
+    sex = *(const int *)((const unsigned char *)record + g->sex);
+    for (step = 0; step < LOOK_NOTES && (head != new_head || body != new_body); ++step) {
+        for (i = 0; i < LOOK_NOTES; ++i) {
+            if (look_notes[i].game == game_id && look_notes[i].sex == sex && look_notes[i].oh == head
+                && look_notes[i].ob == body && strcmp(look_notes[i].name, name) == 0) {
+                head = look_notes[i].nh;
+                body = look_notes[i].nb;
+                break;
+            }
+        }
+        if (i == LOOK_NOTES) {
+            return 0;
         }
     }
-    return 0;
+    return step > 0;
 }
 
 /* VVFP Cause of Death, right after a save: an "Appearance changed" record for a look the game itself

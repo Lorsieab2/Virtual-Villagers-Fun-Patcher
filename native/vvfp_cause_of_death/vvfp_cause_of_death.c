@@ -376,7 +376,7 @@ static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailabl
 static write_record_fn write_record;
 static publish_village_fn publish_village;
 static release_held_fn release_held;
-typedef int (__stdcall *look_logged_fn)(int game, const void *record, int head, int body);
+typedef int (__stdcall *look_logged_fn)(int game, const void *record, int oh, int ob, int nh, int nb);
 static look_logged_fn look_logged;       /* AppearanceAlreadyLogged (cod_roster.inc) */
 typedef int (__stdcall *look_at_save_fn)(int game, const void *record, const char *before);
 static look_at_save_fn look_at_save;     /* AppearanceChangedAtSave */

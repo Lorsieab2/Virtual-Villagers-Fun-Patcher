@@ -1560,6 +1560,33 @@ static void identity_cases(void) {
     save_done(1, buffer);
     CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
           "identity: a reported newcomer robed in the same session keeps her arrival (no Unaccounted Arrived)");
+    {
+        char births[MAX_PATH];
+        births_path(1, births);
+        /* (4) Two namesakes (told apart by their likes) with different old looks, changed by the game to the
+           same new look: one record each. */
+        {
+            int a, b;
+            for (a = 39; a >= 0 && rec(a)[g->active]; --a) {
+            }
+            villager(a, "Twin", 500, 1, 31, 0);
+            for (b = 39; b >= 0 && rec(b)[g->active]; --b) {
+            }
+            villager(b, "Twin", 500, 2, 32, 0);
+            *(int *)(rec(a) + g->likes) = 1;
+            *(int *)(rec(b) + g->likes) = 2;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            *(int *)(rec(a) + g->head) = 50;
+            *(int *)(rec(a) + g->body) = 51;
+            *(int *)(rec(b) + g->head) = 50;
+            *(int *)(rec(b) + g->body) = 51;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Twin\r\n") == 2,
+                  "identity: two namesakes changed by the game to the same look: a record each");
+        }
+    }
     for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
     free(buffer);
     reset(game, 1);

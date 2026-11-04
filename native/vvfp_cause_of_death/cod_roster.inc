@@ -912,7 +912,7 @@ static void roster_reconcile(int slot) {
                 ob = id_int(kept[i], 1, r->body);
                 nh = *(const int *)(now_record + r->head);
                 nb = *(const int *)(now_record + r->body);
-                if ((oh == nh && ob == nb) || look_logged(g_game, now_record, nh, nb)) {
+                if ((oh == nh && ob == nb) || look_logged(g_game, now_record, oh, ob, nh, nb)) {
                     continue;
                 }
                 wsprintfA(look, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n"
