@@ -2527,7 +2527,9 @@ class DialogResourceTests(unittest.TestCase):
         bridge = (ROOT / "native" / "shared" / "story_bridge.h").read_text(encoding="utf-8")
         # The label carries the price the Story DLL charges now (0, or 30,000
         # with Story / Cheat Upgrades cost Tech Points).
-        self.assertIn('vvfp_story_label(game, "Custom Island Event"', bridge)
+        # The name is its own row's translation (tests/test_translations_sentinels.py StoryButtonTests).
+        self.assertRegex(bridge, r'vvfp_story_label\(game,\s*vvfp_tr\("vvfp\.storybridge/story_bridge\.'
+                                 r'vvfp_story_add_event_buttons\.s0",\s*"Custom Island Event", 128\)')
         self.assertIn('"%s (%d,%03d tech points)..."', bridge)
         self.assertIn("#define VVFP_STORY_CUSTOM_ID 4091", bridge)
         for game, path in {

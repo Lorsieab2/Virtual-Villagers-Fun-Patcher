@@ -225,9 +225,37 @@ static int chooser_gong_still_random(void) {
     return 0;
 }
 
+/* A (possibly translated) text set on control `id`, or added to list `id` (at `at`, -1: the end), as UTF-16:
+   never read in the ANSI code page (vvfp_to_wide). */
+static void chooser_set_text(HWND window, int id, const char *text) {
+    WCHAR wide[1200];
+    vvfp_to_wide(text, wide, 1200);
+    SetDlgItemTextW(window, id, wide);
+}
+
+static void chooser_add_row(HWND window, int id, int at, const char *text) {
+    WCHAR wide[1200];
+    vvfp_to_wide(text, wide, 1200);
+    SendDlgItemMessageW(window, id, at < 0 ? LB_ADDSTRING : LB_INSERTSTRING, (WPARAM)(at < 0 ? 0 : at), (LPARAM)wide);
+}
+
+/* A table text in the player's language, by its own row: story_tables.VV<game>_<table>.<index>.<field>. */
+static const char *oc_table_text(const char *table, int index, const char *field, const char *english, unsigned int cap) {
+    char stem[96];
+    if (english == NULL || english[0] == '\0') {
+        return english;
+    }
+    wsprintfA(stem, "vvfp.story/story_tables.VV%d_%s.%d.%s", chooser.gid, table, index, field);
+    return vvfp_tr(stem, english, cap);
+}
+
+static const char *oc_gong_warning(void) {
+    return vvfp_tr("vvfp.story/story_outcomes_ui.OC_GONG_WARNING", OC_GONG_WARNING, 400);
+}
+
 static void chooser_show_warning(HWND window) {
     int on = chooser_gong_still_random();
-    SetDlgItemTextA(window, IDC_PICK_WARN, on ? OC_GONG_WARNING : "");
+    chooser_set_text(window, IDC_PICK_WARN, on ? oc_gong_warning() : "");
     ShowWindow(GetDlgItem(window, IDC_PICK_WARN), on ? SW_SHOW : SW_HIDE);
 }
 
@@ -386,10 +414,11 @@ static int oc_who_count(const unsigned char *who) {
 
 static void oc_strength_text(const oc_event *e, int value, char *out) {
     if (value == 0) {
-        lstrcpyA(out, "Normal (from the population)");
+        lstrcpyA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_strength_text.s0", "Normal (from the population)", 200));
     } else if (e->strength == 2) {
-        wsprintfA(out, "%s", value >= 8 ? "8-10 (three babies)" : value >= 5 ? "5-7 (two babies)"
-                                                                         : "1-4 (one baby)");
+        wsprintfA(out, "%s", value >= 8 ? vvfp_tr("vvfp.story/story_outcomes_ui.oc_strength_text.s1", "8-10 (three babies)", 200)
+                             : value >= 5 ? vvfp_tr("vvfp.story/story_outcomes_ui.oc_strength_text.s2", "5-7 (two babies)", 200)
+                                          : vvfp_tr("vvfp.story/story_outcomes_ui.oc_strength_text.s3", "1-4 (one baby)", 200));
     } else {
         wsprintfA(out, "%d", value);
     }
@@ -400,27 +429,29 @@ static void oc_value_text(const oc_control *c, int ci, const oc_settings *s, cha
     int choice = s->choice[ci];
     const oc_game *g = &OC_GAMES[chooser.gid];
     if (choice == OC_RANDOM) {
-        lstrcpynA(out, "Random (original game)", size);
+        lstrcpynA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_value_text.s0", "Random (original game)", 200), size);
         return;
     }
     switch (c->kind) {
     case OC_ENUM:
-        lstrcpynA(out, g->options[c->option_first + choice].label, size);
+        lstrcpynA(out, oc_table_text("OC_OPTIONS", c->option_first + choice, "label",
+                                     g->options[c->option_first + choice].label, 400), size);
         return;
     case OC_AMOUNT:
         if (choice < 0) {
-            lstrcpynA(out, "(type a number)", size);
+            lstrcpynA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_value_text.s1", "(type a number)", 200), size);
         } else {
-            wsprintfA(out, "%d %s", c->base + c->step * choice, c->text != NULL ? c->text : "");
+            wsprintfA(out, "%d %s", c->base + c->step * choice,
+                      c->text != NULL ? oc_table_text("OC_CONTROLS", (int)(c - g->controls), "text", c->text, 400) : "");
         }
         return;
     case OC_LOOP:
         if (choice == OC_LOOP_NOBODY) {
-            lstrcpynA(out, "Nobody", size);
+            lstrcpynA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_value_text.s2", "Nobody", 200), size);
         } else if (choice == OC_LOOP_EVERYONE) {
-            lstrcpynA(out, "Everyone", size);
+            lstrcpynA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_value_text.s3", "Everyone", 200), size);
         } else {
-            wsprintfA(out, "The chosen villagers (%d)", oc_who_count(s->who[ci]));
+            wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.oc_value_text.s4", "The chosen villagers (%d)", 200), oc_who_count(s->who[ci]));
         }
         return;
     case OC_VICTIM:
@@ -437,11 +468,13 @@ static void chooser_row_text(const oc_event *e, int row, char *out) {
     const oc_settings *s = &chooser.settings[chooser.current];
     if (chooser_is_strength_row(e, row)) {
         oc_strength_text(e, s->strength, value);
-        wsprintfA(out, "Strength: %s", value);
+        wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_row_text.s0", "Strength: %s", 200), value);
         return;
     }
     oc_value_text(chooser_control(e, row), row, s, value, sizeof value);
-    wsprintfA(out, "%s: %s", chooser_control(e, row)->label, value);
+    wsprintfA(out, "%s: %s",
+              oc_table_text("OC_CONTROLS", (int)(chooser_control(e, row) - OC_GAMES[chooser.gid].controls), "label",
+                            chooser_control(e, row)->label, 300), value);
 }
 
 static void chooser_combo_add(HWND window, const char *text, int data) {
@@ -535,20 +568,26 @@ static void chooser_note(const oc_event *e, int row, char *out, int size) {
 /* The description of event `index` as the picker shows it. */
 static void chooser_description(int index, char *out, int size) {
     const story_event *ev = &chooser.game->events[index];
+    /* the Gong's "events" are the OC_GONG_GAME table's own, not a game's island events */
+    const char *description = chooser.gong ? ev->description
+                                           : event_text(ev, EVENT_DESCRIPTION, ev->description, 500);
     if (chooser.gong) {
-        lstrcpynA(out, ev->description, size);
+        lstrcpynA(out, description, size);
     } else if (chooser.possible[index] == OC_POSSIBLE_YES) {
-        lstrcpynA(out, ev->description, size);
+        lstrcpynA(out, description, size);
     } else if (chooser.possible[index] == OC_POSSIBLE_UNLOCK) {
         const oc_event *e = chooser_oc(index);
         if (size >= 1100) {
-            wsprintfA(out, "%s\r\n\r\n%s", ev->description,
+            wsprintfA(out, "%s\r\n\r\n%s", description,
                       e != NULL && e->dead_note != NULL
-                          ? e->dead_note
-                          : "Normally not possible right now; picking it makes it happen anyway.");
+                          ? oc_table_text("OC_EVENTS", (int)(e - OC_GAMES[chooser.gid].events), "dead_note",
+                                          e->dead_note, 500)
+                          : vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s0",
+                                    "Normally not possible right now; picking it makes it happen anyway.", 300));
         }
     } else if (size >= 1100) {
-        wsprintfA(out, "%s\r\n\r\nNot possible right now: %s", ev->description, ev->requires);
+        wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1", "%s\r\n\r\nNot possible right now: %s", 200),
+                  description, event_text(ev, EVENT_REQUIRES, ev->requires, 300));
     }
 }
 
@@ -678,7 +717,7 @@ static void chooser_fill_rows(HWND window) {
     chooser_list_rows(e);
     for (i = 0; i < chooser.shown_count; ++i) {
         chooser_row_text(e, chooser.shown[i], text);
-        SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_ADDSTRING, 0, (LPARAM)text);
+        chooser_add_row(window, IDC_PICK_SETTINGS, -1, text);
     }
     if (chooser.shown_count == 0) {
         SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_ADDSTRING, 0,
@@ -704,7 +743,7 @@ static void chooser_refresh_row(HWND window) {
     }
     chooser_row_text(e, chooser.row, text);
     SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_DELETESTRING, (WPARAM)at, 0);
-    SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_INSERTSTRING, (WPARAM)at, (LPARAM)text);
+    chooser_add_row(window, IDC_PICK_SETTINGS, at, text);
     SendDlgItemMessageA(window, IDC_PICK_SETTINGS, LB_SETCURSEL, (WPARAM)at, 0);
     chooser_show_warning(window);
 }
@@ -813,7 +852,7 @@ static void chooser_show_gong(HWND window) {
         chooser.current = 0;
         chooser.row = -1;
     }
-    SetDlgItemTextA(window, IDC_PICK_DESC, chooser.game->events[0].description);
+    chooser_set_text(window, IDC_PICK_DESC, chooser.game->events[0].description);
     EnableWindow(GetDlgItem(window, IDOK), TRUE);
     chooser_fill_rows(window);
 }
@@ -839,7 +878,7 @@ static void chooser_show(HWND window) {
         chooser.row = 0;
     }
     chooser_description(index, text, sizeof text);
-    SetDlgItemTextA(window, IDC_PICK_DESC, text);
+    chooser_set_text(window, IDC_PICK_DESC, text);
     EnableWindow(GetDlgItem(window, IDOK), chooser.possible[index] != OC_POSSIBLE_NO);
     chooser_fill_rows(window);
 }
@@ -1243,10 +1282,17 @@ static int story_pick_gong_outcome(int game, HWND owner) {
         return 0;
     }
     chooser_summary(0, summary, sizeof summary);
-    wsprintfA(message,
-              "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", story_price_text(game), summary,
-              settings->choice[0] == OC_RANDOM ? "\r\n\r\n" OC_GONG_WARNING : "");
+    {
+        char warn[600] = "";
+        if (settings->choice[0] == OC_RANDOM) {
+            lstrcpyA(warn, "\r\n\r\n");
+            lstrcatA(warn, oc_gong_warning());
+        }
+        wsprintfA(message,
+                  vvfp_tr("vvfp.story/story_outcomes_ui.story_pick_gong_outcome.s6",
+                          "Do you want to buy Pick Gong of Wonder Outcome for %s tech points?\r\n%s%s\r\n\r\nPress OK to confirm, or Cancel.",
+                          400), story_price_text(game), summary, warn);
+    }
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;

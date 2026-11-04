@@ -17,6 +17,10 @@
 #include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 
+/* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h). */
+#define MessageBoxA vvfp_message_box
+
 static HINSTANCE module_instance;
 
 enum {
@@ -900,7 +904,13 @@ static INT_PTR CALLBACK upgrade_dialog(
                             MB_OK | MB_ICONINFORMATION);
                 return TRUE;
             }
-            name = s_villager_menu ? detail_names[row] : tech_names[row];
+            {
+                /* the row's own name row (tech_names.<row> / detail_names.<row>) */
+                char stem[96];
+                wsprintfA(stem, s_villager_menu ? "vvfp.origins/vv3_full_mastery_candidate.detail_names.%d"
+                                                : "vvfp.origins/vv3_full_mastery_candidate.tech_names.%d", row);
+                name = vvfp_tr(stem, s_villager_menu ? detail_names[row] : tech_names[row], 0);
+            }
             const char *cost = vvfp_story_price_text(
                 3, s_villager_menu ? detail_costs[row] : tech_costs[row]);
             /* Owned Tech/Food Doublers (rows 3/4) show an explicit "Remove"
@@ -909,18 +919,18 @@ static INT_PTR CALLBACK upgrade_dialog(
                after the action-specific removal path completes. */
             int is_remove = !s_villager_menu && (row == 3 || row == 4)
                 && (s_dialog_state & (1 << row)) != 0;
-            char prompt[512];
+            char prompt[1100];
             if (is_remove) {
                 EndDialog(window, (INT_PTR)row);
                 return TRUE;
             }
             wsprintfA(
                 prompt,
-                "Do you want to buy %s for %s tech points?\r\n"
-                "Press OK to confirm, or Cancel.%s",
+                vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.upgrade_dialog.s4",
+                        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s", 400),
                 name, cost,
                 (!s_villager_menu && row == VV3_PENDING_ROW_BARREL)
-                    ? BARREL_CAPACITY_NOTE : "");
+                    ? vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.BARREL_CAPACITY_NOTE", BARREL_CAPACITY_NOTE, 500) : "");
             if (MessageBoxA(
                     window,
                     prompt,
@@ -3570,10 +3580,10 @@ static int vv3_time_warp_years(int speed) {
 
 static const char *vv3_speed_name(int speed) {
     switch (speed) {
-    case VV3_TW_SPEED_SLOW:   return "slow";
-    case VV3_TW_SPEED_NORMAL: return "normal";
-    case VV3_TW_SPEED_FAST:   return "fast";
-    default:                  return "unknown";
+    case VV3_TW_SPEED_SLOW:   return vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.vv3_speed_name.s0", "slow", 0);
+    case VV3_TW_SPEED_NORMAL: return vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.vv3_speed_name.s1", "normal", 0);
+    case VV3_TW_SPEED_FAST:   return vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.vv3_speed_name.s2", "fast", 0);
+    default:                  return vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.vv3_speed_name.s3", "unknown", 0);
     }
 }
 
@@ -3747,7 +3757,7 @@ static void vv3_format_cost(int value, char *out) {
    alongside it, which would grow the export table by two. */
 int __stdcall ShowVV3TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
-    char message[448];
+    char message[1100];
     HWND owner = GetForegroundWindow();
     int *speed_field = vv3_speed_field();
     int *tech = (int *)(UINT_PTR)VV3_TW_TECH_POINTS_VA;
@@ -3776,9 +3786,8 @@ int __stdcall ShowVV3TimeWarp(int cost) {
     }
     vv3_format_cost(cost, cost_text);
     wsprintfA(message,
-              "Do you want to buy Time Warp for %s tech points?\r\n"
-              "On %s game speed, this will advance %d villager years.\r\n"
-              "Press OK to confirm, or Cancel.",
+              vvfp_tr("vvfp.origins/vv3_full_mastery_candidate.ShowVV3TimeWarp.s4",
+                      "Do you want to buy Time Warp for %s tech points?\r\nOn %s game speed, this will advance %d villager years.\r\nPress OK to confirm, or Cancel.", 700),
               cost_text, vv3_speed_name(speed), years);
     if (MessageBoxA(owner, message, TITLE,
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)

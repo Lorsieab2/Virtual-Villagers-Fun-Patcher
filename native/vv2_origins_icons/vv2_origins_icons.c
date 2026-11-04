@@ -714,28 +714,28 @@ int __stdcall ApplyVV2EqualDivision(
    action codes: tech rows 0..10, detail rows 100..104. ---- */
 static const char *vv2_action_name(int action) {
     switch (action) {
-    case VV2_ACT_TIME_WARP: return "Time Warp";
-    case VV2_ACT_ISLAND: return "Island Event";
-    case VV2_ACT_BARREL: return "Barrel of Babies";
-    case VV2_ACT_TECH_DOUBLER: return "Tech Point Doubler";
-    case VV2_ACT_FOOD_DOUBLER: return "Food Point Doubler";
-    case VV2_ACT_CURE: return "Full Heal / Cure All";
-    case VV2_ACT_RUNNING_ALL: return "Grant Running to All Villagers";
-    case VV2_ACT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case VV2_ACT_AGE_ALL: return "All Villagers are Exactly 18";
-    case VV2_ACT_COLLECT_COMPLETE: return "Complete All Collections";
-    case VV2_ACT_COLLECT_RESET: return "Reset All Collections";
+    case VV2_ACT_TIME_WARP: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s0", "Time Warp", 0);
+    case VV2_ACT_ISLAND: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s1", "Island Event", 0);
+    case VV2_ACT_BARREL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s2", "Barrel of Babies", 0);
+    case VV2_ACT_TECH_DOUBLER: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s3", "Tech Point Doubler", 0);
+    case VV2_ACT_FOOD_DOUBLER: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s4", "Food Point Doubler", 0);
+    case VV2_ACT_CURE: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s19", "Full Heal / Cure All", 0);
+    case VV2_ACT_RUNNING_ALL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s5", "Grant Running to All Villagers", 0);
+    case VV2_ACT_MASTERY_ALL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s6", "Grant Full Mastery to All Villagers", 0);
+    case VV2_ACT_AGE_ALL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s7", "All Villagers are Exactly 18", 0);
+    case VV2_ACT_COLLECT_COMPLETE: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s8", "Complete All Collections", 0);
+    case VV2_ACT_COLLECT_RESET: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s9", "Reset All Collections", 0);
     case VV2_ACT_DIVIDE_PARENTING:
-        return "Equal Division of Labor (Includes Parenting)";
+        return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s10", "Equal Division of Labor (Includes Parenting)", 0);
     case VV2_ACT_DIVIDE_NO_PARENTING:
-        return "Equal Division of Labor (No Parenting)";
-    case VV2_ACT_APPEARANCE_ALL: return "Change Appearance for All";
-    case VV2_ACT_DETAIL_YOUTH: return "Grant Youth";
-    case VV2_ACT_DETAIL_MASTERY: return "Grant Full Mastery";
-    case VV2_ACT_DETAIL_RUNNING: return "Grant Running";
-    case VV2_ACT_DETAIL_AGE18: return "Set Age to 18";
-    case VV2_ACT_DETAIL_APPEARANCE: return "Change Appearance";
-    default: return "Origins upgrade";
+        return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s11", "Equal Division of Labor (No Parenting)", 0);
+    case VV2_ACT_APPEARANCE_ALL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s12", "Change Appearance for All", 0);
+    case VV2_ACT_DETAIL_YOUTH: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s13", "Grant Youth", 0);
+    case VV2_ACT_DETAIL_MASTERY: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s14", "Grant Full Mastery", 0);
+    case VV2_ACT_DETAIL_RUNNING: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s15", "Grant Running", 0);
+    case VV2_ACT_DETAIL_AGE18: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s16", "Set Age to 18", 0);
+    case VV2_ACT_DETAIL_APPEARANCE: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s17", "Change Appearance", 0);
+    default: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_action_name.s18", "Origins upgrade", 0);
     }
 }
 
@@ -771,13 +771,13 @@ static const char *vv2_action_cost(int action) {
    cost.  Returns 1 on OK, 0 on Cancel.  The payload passes only the action id;
    the price table above mirrors the payload's tech_costs / detail_costs. */
 int __stdcall ConfirmVV2Upgrade(int action) {
-    char message[448];
+    char message[1100];
     wsprintfA(
         message,
-        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, "
-        "or Cancel.%s",
+        vvfp_tr("vvfp.origins/vv2_origins_icons.ConfirmVV2Upgrade.s0",
+                "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s", 400),
         vv2_action_name(action), vv2_action_cost(action),
-        (action == VV2_ACT_BARREL) ? BARREL_CAPACITY_NOTE : ""
+        (action == VV2_ACT_BARREL) ? vvfp_tr("vvfp.origins/vv1_origins_icons.BARREL_CAPACITY_NOTE", BARREL_CAPACITY_NOTE, 500) : ""
     );
     return MessageBoxA(
         GetForegroundWindow(), message, vv2_result_title(action),
@@ -1079,10 +1079,10 @@ static int vv2_time_warp_years(int speed) {
 
 static const char *vv2_speed_name(int speed) {
     switch (speed) {
-    case VV2_TW_SPEED_SLOW:   return "slow";
-    case VV2_TW_SPEED_NORMAL: return "normal";
-    case VV2_TW_SPEED_FAST:   return "fast";
-    default:              return "unknown";
+    case VV2_TW_SPEED_SLOW:   return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_speed_name.s0", "slow", 0);
+    case VV2_TW_SPEED_NORMAL: return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_speed_name.s1", "normal", 0);
+    case VV2_TW_SPEED_FAST:   return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_speed_name.s2", "fast", 0);
+    default:              return vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_speed_name.s3", "unknown", 0);
     }
 }
 
@@ -1156,7 +1156,7 @@ static int vv2_time_warp_apply(unsigned char *base, int speed, int years) {
 int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
     const char *title = vv2_result_title(VV2_ACT_TIME_WARP);
-    char message[448];
+    char message[1100];
     HWND owner = GetForegroundWindow();
     unsigned char *base;
     int *tech;
@@ -1183,9 +1183,8 @@ int __stdcall ShowVV2TimeWarp(int gamectx_ptr, int cost) {
     }
     wsprintfA(
         message,
-        "Do you want to buy Time Warp for %s tech points?\r\n"
-        "On %s game speed, this will advance %d villager years.\r\n"
-        "Press OK to confirm, or Cancel.",
+                vvfp_tr("vvfp.origins/vv2_origins_icons.ShowVV2TimeWarp.s2",
+                "Do you want to buy Time Warp for %s tech points?\r\nOn %s game speed, this will advance %d villager years.\r\nPress OK to confirm, or Cancel.", 700),
         vv2_action_cost(VV2_ACT_TIME_WARP),
         vv2_speed_name(speed),
         years

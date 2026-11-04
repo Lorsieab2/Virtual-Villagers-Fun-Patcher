@@ -623,7 +623,7 @@ static const char *story_price_text(int game);
 static int story_charged(int game, HWND owner, int (*command)(int game, HWND owner));
 
 static int story_recharge_chief_powers(int game, HWND owner) {
-    char message[400];
+    char message[1100];
     int why;
     if (game != 3 || !story_installed(3)) {
         return 0;
@@ -635,9 +635,9 @@ static int story_recharge_chief_powers(int game, HWND owner) {
         return 0;
     }
     wsprintfA(message,
-              "Do you want to buy Recharge Chief Powers for %s tech points?\r\n"
-              "Your chief's powers become ready to use now.\r\n\r\n"
-              "Press OK to confirm, or Cancel.", story_price_text(game));
+              vvfp_tr("vvfp.story/story_c3.story_recharge_chief_powers.s1",
+                      "Do you want to buy Recharge Chief Powers for %s tech points?\r\nYour chief's powers become ready to use now.\r\n\r\nPress OK to confirm, or Cancel.",
+                      400), story_price_text(game));
     if (MessageBoxA(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;

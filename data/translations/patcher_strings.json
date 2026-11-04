@@ -782,7 +782,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv_prefs_purchase.s6",
@@ -1378,7 +1379,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.ShowOriginsPermanentChangeConfirm.s1",
@@ -1697,7 +1699,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.ShowOriginsTimeWarp.s2.2",
@@ -1807,7 +1810,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.ShowOriginsRowMessage.s3",
@@ -1851,7 +1855,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.ShowOriginsRowMessage.s7",
@@ -2073,7 +2078,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.ShowVV2UpgradeResult.s0",
@@ -2423,7 +2429,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.ShowVV2TimeWarp.s3",
@@ -4058,7 +4065,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.upgrade_dialog.s6.3",
@@ -4649,7 +4657,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.ShowVv4TimeWarp.s5",
@@ -5321,7 +5330,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.ShowVv5TimeWarp.s5",
@@ -5711,7 +5721,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.ShowVV5Task9GeneticsWarning.s0",
@@ -6321,7 +6332,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_c3.story_recharge_chief_powers.s2",
@@ -8635,7 +8647,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s4",
@@ -9198,7 +9211,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.story_pick_gong_outcome.s7",
@@ -9352,7 +9366,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = a number (number); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name); %4 = a number (number); %5 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = a number (number); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name); %4 = a number (number); %5 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_time_skip.VvfpStoryChooseTimeSkip.s5",
@@ -9506,7 +9521,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s4",
@@ -9520,7 +9536,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s5",
@@ -9548,7 +9565,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name); %4 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name); %4 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s7",
@@ -9618,7 +9636,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/vvfp_story_upgrades.story_pick_island_event.s7.3",
@@ -10119,7 +10138,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv_prefs_name.s1",
@@ -10130,7 +10150,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv_prefs_name.s2",
@@ -10141,7 +10162,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s0",
@@ -10152,7 +10174,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s1",
@@ -10163,7 +10186,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s2",
@@ -10174,7 +10198,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s3",
@@ -10185,7 +10210,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s4",
@@ -10196,7 +10222,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s5",
@@ -10207,7 +10234,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s6",
@@ -10218,7 +10246,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s7",
@@ -10229,7 +10258,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s8",
@@ -10240,7 +10270,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s9",
@@ -10251,7 +10282,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s10",
@@ -10262,7 +10294,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s11",
@@ -10273,7 +10306,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_vpl.s0",
@@ -10306,7 +10340,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s1",
@@ -10317,7 +10352,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s2",
@@ -10328,7 +10364,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s3",
@@ -10339,7 +10376,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s4",
@@ -10350,7 +10388,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s5",
@@ -10361,7 +10400,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.BARREL_CAPACITY_NOTE",
@@ -10372,7 +10412,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv_villagers_word.s0",
@@ -10559,7 +10600,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_speed_name.s1",
@@ -10570,7 +10612,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_speed_name.s2",
@@ -10581,7 +10624,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv1_origins_icons.vv1_speed_name.s3",
@@ -10592,7 +10636,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.VV_ALREADY_LIKES_TEXT",
@@ -10612,7 +10657,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s1",
@@ -10622,7 +10668,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s2",
@@ -10632,7 +10679,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s3",
@@ -10642,7 +10690,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s4",
@@ -10652,7 +10701,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s5",
@@ -10662,7 +10712,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s6",
@@ -10672,7 +10723,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s7",
@@ -10682,7 +10734,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s8",
@@ -10692,7 +10745,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s9",
@@ -10702,7 +10756,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s10",
@@ -10712,7 +10767,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s11",
@@ -10722,7 +10778,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s12",
@@ -10732,7 +10789,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s13",
@@ -10742,7 +10800,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s14",
@@ -10752,7 +10811,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s15",
@@ -10762,7 +10822,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s16",
@@ -10772,7 +10833,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s17",
@@ -10782,7 +10844,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s18",
@@ -10792,7 +10855,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_villager_word.s0",
@@ -10842,7 +10906,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_speed_name.s1",
@@ -10852,7 +10917,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_speed_name.s2",
@@ -10862,7 +10928,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv2_origins_icons.vv2_speed_name.s3",
@@ -10872,7 +10939,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV2 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv3_full_mastery_candidate.tech_names.0",
@@ -11682,7 +11750,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.vv_villagers_word.s0",
@@ -11742,7 +11811,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.vv4_speed_name.s1",
@@ -11752,7 +11822,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.vv4_speed_name.s2",
@@ -11762,7 +11833,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.vv4_speed_name.s3",
@@ -11772,7 +11844,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP VV4 Origins Icons.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv4_origins_icons.vv4_sp_line.s0",
@@ -11892,7 +11965,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.vv5_speed_name.s1",
@@ -11902,7 +11976,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.vv5_speed_name.s2",
@@ -11912,7 +11987,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.vv5_speed_name.s3",
@@ -11922,7 +11998,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s0",
@@ -11932,7 +12009,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s1",
@@ -11942,7 +12020,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s2",
@@ -11952,7 +12031,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s3",
@@ -11962,7 +12042,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s4",
@@ -11972,7 +12053,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s5",
@@ -11982,7 +12064,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s6",
@@ -11992,7 +12075,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s7",
@@ -12002,7 +12086,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s8",
@@ -12012,7 +12097,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s9",
@@ -12022,7 +12108,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s10",
@@ -12032,7 +12119,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s11",
@@ -12042,7 +12130,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s12",
@@ -12052,7 +12141,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s13",
@@ -12062,7 +12152,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s14",
@@ -12072,7 +12163,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s15",
@@ -12082,7 +12174,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s16",
@@ -12092,7 +12185,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s17",
@@ -12102,7 +12196,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.action_name.s18",
@@ -12112,7 +12207,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.origins/vv5_task9_origins.vpl.s0",
@@ -29253,7 +29349,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.chooser_gong_entry.s0",
@@ -29295,7 +29392,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_strength_text.s1",
@@ -29309,7 +29407,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_strength_text.s2",
@@ -29323,7 +29422,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_strength_text.s3",
@@ -29337,7 +29437,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_value_text.s0",
@@ -29351,7 +29452,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_value_text.s1",
@@ -29365,7 +29467,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_value_text.s2",
@@ -29379,7 +29482,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_value_text.s3",
@@ -29393,7 +29497,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.oc_value_text.s4",
@@ -29407,7 +29512,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = a number (number)"
+   "notes": "a patcher window; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.chooser_row_text.s0",
@@ -29421,7 +29527,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.chooser_note.s0",
@@ -29491,7 +29598,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.chooser_description.s1",
@@ -29505,7 +29613,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_outcomes_ui.chooser_refusal.s0",
@@ -63710,6 +63819,93 @@
    ],
    "mechanism": "b",
    "context": "shared/story_bridge.h (in the five Origins DLLs): the Story buttons added to the Origins menus",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s12",
+   "english": "Full Heal / Cure All",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV1 Origins Icons.dll (code also compiled into VVFP VV2 Origins Icons.dll via #include; VV1-only blocks are #if VV_STORY_GAME == 1)",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv2_origins_icons.vv2_action_name.s19",
+   "english": "Full Heal / Cure All",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV2 Origins Icons.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv3_full_mastery_candidate.tech_names.5",
+   "english": "Full Heal / Cure All",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Origins Icons.dll (VV3; shipped as data/candidates/VVFP VV3 Safe Upgrades.dll)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.origins/vv4_origins_icons.g_tech_names.5",
+   "english": "Full Heal / Cure All",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Origins Icons.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s10",
+   "english": "Grant Running to All Villagers",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Origins Icons.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s11",
+   "english": "Grant Full Mastery to All Villagers",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Origins Icons.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s12",
+   "english": "All Villagers are Exactly 18",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Origins Icons.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.origins/vv5_task9_origins.action_name.s19",
+   "english": "Full Heal / Cure All",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Origins Icons.dll (VV5; shipped as data/candidates/VVFP VV5 Task9 Origins Icons.dll)",
    "notes": "a patcher window",
    "route": "key"
   },

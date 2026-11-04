@@ -605,10 +605,11 @@ except ImportError:                                                 # pragma: no
 
 @story_emulated
 class PickListTests(unittest.TestCase):
-    """Pick Island Event's list (story_outcomes_ui.inc chooser_list_label): each event's name and variant and the
-    mark beside it are their own rows' translations, in every game."""
+    """Pick Island Event (story_outcomes_ui.inc): each list row's name, variant and mark, the description pane and
+    every settings row are their own rows' translations, in every game -- nothing English copied around them."""
 
-    def test_every_list_row_is_its_rows_translations(self) -> None:
+    def test_every_list_row_description_and_setting_is_its_rows_translations(self) -> None:
+        import vv_translation_format as fmt                          # noqa: PLC0415
         rows = rows_by_stem()
         ran = 0
         for n in GAMES:
@@ -622,16 +623,16 @@ class PickListTests(unittest.TestCase):
                 sentinels: dict[str, int] = {}
 
                 def sentinel(stem: str) -> str:
-                    tail = stem.rsplit("/", 1)[1]
-                    return "Z" + tail.replace("story_tables.", "").replace("story_outcomes_ui.chooser_dialog.", "")
+                    """Z<id>, with the row's own conversions, so a format still takes its values."""
+                    return " ".join(["Z" + stem.rsplit("/", 1)[1]] + fmt.printf_conversions(rows[stem]["english"]))
 
                 def translate_key(q):
-                    stem, english, cap = q.cstring(q.arg(0)), q.arg(1), q.arg(2)
+                    stem, english = q.cstring(q.arg(0)), q.arg(1)
                     row = rows.get(stem)
                     if row is None or row["english"].encode("cp1252") != q.cstring(english).encode("latin-1"):
                         return english, 12
                     if stem not in sentinels:
-                        sentinels[stem] = p.alloc(64)
+                        sentinels[stem] = p.alloc(256)
                         p.write(sentinels[stem], sentinel(stem).encode() + b"\0")
                     return sentinels[stem], 12
 
@@ -649,19 +650,95 @@ class PickListTests(unittest.TestCase):
                         p.stub(event.code + 1, lambda q: (1, 0))
                 count = p.export("VvfpStoryProbeChooserOpen", n, 0)
                 self.assertGreater(count, 30)
+                out = STORY_SCRATCH + 0x3000
+                t = f"story_tables.VV{n}_EVENTS"
+                ui = "story_outcomes_ui"
                 for index in range(count):
-                    possible = p.export("VvfpStoryProbeChooserText", index, 0, STORY_SCRATCH + 0x3000, 1200)
-                    p.export("VvfpStoryProbeChooserText", index, 0xFFFFFFFF, STORY_SCRATCH + 0x3000, 1200)
-                    shown = p.cstring(STORY_SCRATCH + 0x3000)
-                    want = f"ZVV{n}_EVENTS.{index}.title"
-                    if f"vvfp.story/story_tables.VV{n}_EVENTS.{index}.variant" in rows:
-                        want += f" (ZVV{n}_EVENTS.{index}.variant)"
-                    # not possible: s5; possible: no mark; possible only by unlocking it: s3 or s4
-                    marks = {0: ["Zs5"], 1: [""], 2: ["Zs3", "Zs4"]}[possible]
-                    self.assertIn(shown, [want + m for m in marks], f"event {index}")
+                    possible = p.export("VvfpStoryProbeChooserText", index, 0, out, 1200)
+                    # the list row
+                    p.export("VvfpStoryProbeChooserText", index, 0xFFFFFFFF, out, 1200)
+                    want = f"Z{t}.{index}.title"
+                    if f"vvfp.story/{t}.{index}.variant" in rows:
+                        want += f" (Z{t}.{index}.variant)"
+                    marks = {0: [f"Z{ui}.chooser_dialog.s5"], 1: [""],
+                             2: [f"Z{ui}.chooser_dialog.s3", f"Z{ui}.chooser_dialog.s4"]}[possible]
+                    self.assertIn(p.cstring(out), [want + m for m in marks], f"list row {index}")
+                    # the description pane
+                    p.export("VvfpStoryProbeChooserWords", index, 0, 0, out, 1200)
+                    description = f"Z{t}.{index}.description"
+                    if possible == 1:
+                        wants = [description]
+                    elif possible == 2:
+                        wants = [f"{description}\r\n\r\nZ{ui}.chooser_description.s0"] + [
+                            f"{description}\r\n\r\nZ{s.rsplit('/', 1)[1]}" for s in rows
+                            if s.startswith(f"vvfp.story/story_tables.VV{n}_OC_EVENTS.") and s.endswith(".dead_note")]
+                    else:
+                        wants = [f"Z{ui}.chooser_description.s1 {description} Z{t}.{index}.requires"]
+                    self.assertIn(p.cstring(out), wants, f"description {index}")
+                    # every settings row (all Random): only sentinels, the separators and numbers
+                    for row in range(24):
+                        if not p.export("VvfpStoryProbeChooserText", index, 4 + row, out, 1200):
+                            break
+                        shown = p.cstring(out)
+                        self.assertRegex(shown, r"^(?:Z[\w.\-]+|[\s:%()\d\-,]+)+$", f"event {index} row {row}")
         if not ran:
             self.skipTest("needs the stock executables (inputs/vvN-stock-copy)")
 
+
+class BuyPromptTests(unittest.TestCase):
+    """Every "Do you want to buy ..." prompt of the five Origins companions and the Story companion is asked for by
+    its own key, the names it shows too, and every box is shown as UTF-16 (vvfp_message_box)."""
+
+    SOURCES = ("native/vv1_origins_icons/vv1_origins_icons.c", "native/vv2_origins_icons/vv2_origins_icons.c",
+               "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
+               "native/vv4_origins_icons/vv4_origins_icons.c", "native/vv5_task9_origins/vv5_task9_origins.c",
+               "native/vvfp_story_upgrades/vvfp_story_upgrades.c")
+
+    def test_every_buy_prompt_is_asked_for_by_key(self) -> None:
+        rows = rows_by_stem()
+        story = ROOT / "native" / "vvfp_story_upgrades"
+        for path in [ROOT / s for s in self.SOURCES] + sorted(story.glob("*.inc")):
+            source = scan._strip_comments(path.read_text(encoding="utf-8"))
+            for m in re.finditer(r'"Do you want to buy', source):
+                with self.subTest(source=path.name, at=source.count("\n", 0, m.start()) + 1):
+                    before = source[max(0, m.start() - 200):m.start()]
+                    call = re.search(r'vvfp_tr\("([^"]+)",\s*$', before)
+                    self.assertIsNotNone(call, "a buy prompt passed around its translation")
+                    line_end = source.index('",', m.start())
+                    english = scan._decode(source[m.start() + 1:line_end], False)
+                    self.assertEqual(rows[call.group(1)]["english"], english)
+
+    def test_the_names_the_prompts_show_are_asked_for_by_key(self) -> None:
+        for relative, function in (("vv1_origins_icons/vv1_origins_icons.c", "vv1_tech_row_name"),
+                                   ("vv1_origins_icons/vv1_origins_icons.c", "vv1_detail_row_name"),
+                                   ("vv1_origins_icons/vv1_origins_icons.c", "vv_prefs_name"),
+                                   ("vv1_origins_icons/vv1_origins_icons.c", "vv1_speed_name"),
+                                   ("vv2_origins_icons/vv2_origins_icons.c", "vv2_action_name"),
+                                   ("vv2_origins_icons/vv2_origins_icons.c", "vv2_speed_name"),
+                                   ("vv3_full_mastery_candidate/vv3_full_mastery_candidate.c", "vv3_speed_name"),
+                                   ("vv4_origins_icons/vv4_origins_icons.c", "vv4_speed_name"),
+                                   ("vv5_task9_origins/vv5_task9_origins.c", "action_name"),
+                                   ("vv5_task9_origins/vv5_task9_origins.c", "vv5_speed_name")):
+            with self.subTest(function=function):
+                source = (ROOT / "native" / relative).read_text(encoding="utf-8")
+                body = source[source.index(f"static const char *{function}("):]
+                body = body[:body.index("\n}\n")]
+                self.assertNotRegex(body, r'return "', "a name returned in English")
+                self.assertGreaterEqual(body.count("return vvfp_tr("), 3)
+        vv3 = (ROOT / "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
+        self.assertIn("name = vvfp_tr(stem, s_villager_menu ? detail_names[row] : tech_names[row], 0);", vv3)
+        vv4 = (ROOT / "native/vv4_origins_icons/vv4_origins_icons.c").read_text(encoding="utf-8")
+        self.assertIn("return vvfp_tr(stem, g_tech_names[row], 0);", vv4)
+        self.assertNotIn("vvfp_story_text(4,", vv4, "a zeroed English prompt")
+
+    def test_every_box_is_shown_as_utf16(self) -> None:
+        for relative in self.SOURCES:
+            with self.subTest(source=relative):
+                source = (ROOT / relative).read_text(encoding="utf-8")
+                if "vv2_origins_icons" in relative:   # it compiles The Lost Children's code in first
+                    self.assertIn('#include "../vv1_origins_icons/vv1_origins_icons.c"', source)
+                    continue
+                self.assertIn("#define MessageBoxA vvfp_message_box", source)
 
 class MigrateShadowedTests(unittest.TestCase):
     """A translation on a row the template now leaves out is not lost (Codex, PR 693)."""
