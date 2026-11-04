@@ -3,8 +3,10 @@ Fonts" and "Use Unicode Font", all five games).
 
 Every text box in the games takes VV_SHARED_NAME_BYTES (1200) bytes.  A text that leaves a box for a shorter
 field (a villager's name: 27 bytes in A New Home, 23 in the others; the tribe name 31 / 19; an epitaph) is
-saved there as its SHORT FORM -- the longest start of whole characters that fits, then the ellipsis (and a
-number when another long name already has that short form) -- and the companion appends one record,
+saved there as its SHORT FORM -- the longest start of whole characters that fits, trailing spaces dropped,
+then "..." ("2...", "3...", the number first, when another long name already has that short form; the short
+forms of v1.35.89 end in the ellipsis "…" and a number, and are read forever) -- and the companion appends
+one record,
 "<short form><TAB><whole text><TAB><CRC-32 of the two and the tab, 8 upper-case hex><LF>" in the game's own
 bytes, in one write, to
 
@@ -26,7 +28,8 @@ from vv_game_text import GAME_TEXT
 SHARED_NAME_BYTES = 1200
 HEADER = b"VVFP Long Names v2" + b"\n"
 FOLDER = Path("Virtual Villagers Fun Patcher")
-ELLIPSIS = chr(0x2026)
+MARK = "..."                    # the end of a short form (native/vvfp_unicode_text/long_names.inc LN_MARK)
+ELLIPSIS = chr(0x2026)          # the end of a v1.35.89 short form
 _TAB, _LF = b"\t", b"\n"
 
 
@@ -172,7 +175,7 @@ def whole_name(raw: bytes, pairs: dict[bytes, bytes]) -> str:
 
 def expand(text: str, pairs: dict[bytes, bytes]) -> str:
     """`text` with each short form in it replaced by its whole text, the longest first (as the game draws)."""
-    if not pairs or ELLIPSIS not in text:
+    if not pairs or (MARK not in text and ELLIPSIS not in text):
         return text
     import vv_game_text
     by_text = sorted(((vv_game_text._decode(s), vv_game_text._decode(w)) for s, w in pairs.items()),

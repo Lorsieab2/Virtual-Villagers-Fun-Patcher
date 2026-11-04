@@ -28,6 +28,7 @@ static const char *const TR_KEY_STEMS[] = {
     "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s0",
     "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s1",
     "vvfp.parentage/vv1_parentage.Vv1ParentageDrawPortrait.s2",
+    "vvfp.skip_intro/vvfp_skip_intro.label_text.s0",
     "vvfp.story/story_c1.C1_ADAPTER.43",
     "vvfp.story/story_c1.C1_ADAPTER.44",
     "vvfp.story/story_c1.C1_ADAPTER.45",

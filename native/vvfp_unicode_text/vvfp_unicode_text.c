@@ -54,6 +54,7 @@
 #include "unicode_text_tables.h"
 #include "text_routines.h"
 #include "text_utf8.h"
+#include "text_layout.h"
 #include "glyphs.inc"
 
 #define VT_FONT_PICTURE 0x0C        /* ldwImage*: +0 SDL_Surface* */

@@ -63331,7 +63331,8 @@
    ],
    "mechanism": "a",
    "context": "VVFP Skip Intro.dll",
-   "notes": "drawn by the game's text routine; the label of the Skip All button on the intro story's pages (a button about 129 pixels wide)"
+   "notes": "drawn by the game's text routine; the label of the Skip All button on the intro story's pages (a button about 129 pixels wide)",
+   "route": "key"
   }
  ]
 }
