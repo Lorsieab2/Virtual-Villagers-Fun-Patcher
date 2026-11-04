@@ -423,11 +423,12 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # Equal Division of Labor branch. Larger again when the skill
         # upgrades learned to reset corrupted skill values (v1.35.70). Larger
         # again when bought island events learned to keep the game's own
-        # island-event timer (native/shared/island_timer_keep.h).
-        self.assertEqual(vv5_companion["size"], 1881600)
+        # island-event timer (native/shared/island_timer_keep.h). Larger again when the
+        # drawn (None) / No change labels were translated (audit R1).
+        self.assertEqual(vv5_companion["size"], 1882624)
         self.assertEqual(
             vv5_companion["sha256"],
-            "0F201E921A08DD308C98FB33DA5244168B217B78C1E7F12B42D1CCDA5489BB30",
+            "F68C781ABC1D05FB2699ED7F7DA7190C2EC0D855EF441994CAE0F7EF4CCC0A87",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:
