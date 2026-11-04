@@ -942,10 +942,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "DEAFB7DA3B99CA6E63BD0183BFBD255ECFA9B238A968715CA69024EB8470CAAA",
-    "map": "F49764FBB44D2D06DDDBE3EB55B3DCBFCC349B4A98EDA0914764FC85774E3B2E",
+    "manifest": "129EAD1F0957E6E62AEAB3D323B127DF2E78964D9375C739B51CD85E12F5C89E",
+    "map": "D078DFF7764A90F990890E8C554CAD6814A938184E4E18A93F1DCBE4D7376CB5",
 }
-VV5_TASK9_DLL_SHA256 = "F68C781ABC1D05FB2699ED7F7DA7190C2EC0D855EF441994CAE0F7EF4CCC0A87"
+VV5_TASK9_DLL_SHA256 = "9B966C16F91CF4723A45FB58AF67DAE6E1D4AB7F165EEFB95189F51DE6D646EA"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -2017,8 +2017,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "7F328265931B79863F370C6FDF86C6EB33D8E9A1B595DF4AA5CFE274B6E3A468",
-        "map": "D7E82A0841D2B8520F9CC9B80194070224849EE90D857202FA1A2F27123A2D54",
+        "manifest": "14CEF08FDAE8F63CEDC1B05E8BBC7713905CA6E3B04748B9F6F6509F43FFAE66",
+        "map": "76E53B71BE3C7EB17C1A73B0B1BDA91393560B5A0761EE09CB8579ED63D76741",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3440,7 +3440,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1882624,
+        "size": 1883648,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3806,7 +3806,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1882624,
+        "size": 1883648,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",

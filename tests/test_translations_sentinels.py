@@ -333,6 +333,314 @@ class ContentMapTests(unittest.TestCase):
             del g
 
 
+# ---- the Story buttons, price lines and Pick Island Event list (live, French TEST, 2026-11-04) ----------------
+#
+# The Tech menu's three story buttons showed "Custom Island Event (0 points de technologie)...": the price
+# wrapper was translated by the dialog hook by content, but the name it carried was copied in English; every
+# zeroed price line ("0 tech points") and the Pick Island Event list rows ("Day of Honor (normally not possible
+# right now)") stayed English the same way.  Each part is now asked for by its own key, and these tests put a
+# sentinel in each row and read the button, the price line and the list row back.
+
+SHARED = ROOT / "native" / "shared"
+
+# The stand-in "VVFP Translations.dll": a row's sentinel, only for its own stem AND its own English (the real
+# DLL checks the English's hash).  UTF-8, as the real one answers with a Unicode companion in.
+STAND_IN = r'''
+#include <windows.h>
+#include <string.h>
+static const char *const ROWS[][3] = {
+    { "vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s0", "Custom Island Event",
+      "ZC \xc3\x89v\xc3\xa9nement de l'\xc3\xaele personnalis\xc3\xa9, un nom bien plus long que l'anglais" },
+    { "vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s1", "Pick Island Event",
+      "ZP Choisir un \xc3\xa9v\xc3\xa9nement de l'\xc3\xaele, lui aussi bien plus long" },
+    { "vvfp.storybridge/story_bridge.vvfp_story_add_time_skip_button.s0", "Choose Time Skip Amount",
+      "ZT Choisir la dur\xc3\xa9" "e du saut dans le temps, encore plus long" },
+    { "vvfp.storybridge/story_bridge.vvfp_story_label_priced.s0", "%s (%d,%03d tech points)...",
+      "%s (ZW %d %03d points de technologie)..." },
+    { "vvfp.storybridge/story_bridge.vvfp_story_label_priced.s1", "%s (%d tech points)...",
+      "%s (ZW %d points de technologie)..." },
+    { "vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s0", "0 tech points", "Z0 0 point de technologie" },
+    { "vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s1",
+      "OK deducts 0 tech points. Cancel changes nothing.", "Z1 OK d\xc3\xa9" "duit 0 point." },
+    { "vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s2",
+      "OK deducts 0 tech points, for the head look too. Cancel changes nothing.", "Z2 OK, la t\xc3\xaate aussi." },
+};
+__declspec(dllexport) const char *__stdcall VvfpTranslateKey(const char *stem, const char *english,
+                                                             unsigned int cap) {
+    int i;
+    for (i = 0; i < (int)(sizeof ROWS / sizeof ROWS[0]); ++i) {
+        if (strcmp(stem, ROWS[i][0]) == 0 && strcmp(english, ROWS[i][1]) == 0
+            && (cap == 0 || strlen(ROWS[i][2]) + 1 <= cap)) {
+            return ROWS[i][2];
+        }
+    }
+    return english;
+}
+__declspec(dllexport) int __stdcall VvfpTranslateKeyText(const char *stem, const char *english, const char *text,
+                                                         char *out, unsigned int cap) {
+    (void)stem; (void)english; (void)text; (void)out; (void)cap;
+    return 0;
+}
+'''
+
+# native/shared/story_bridge.h in a real dialog (the Origins menu's Cancel and two of its price lines), the Story
+# DLL stood in for: free (0) or charged at `price`.  Run() returns each control's text (UTF-8), and for a button
+# whether its text fits inside it.
+UNDER_TEST = r'''
+#include "story_bridge.h"
+static int t_price, t_free;
+static int __stdcall t_slot(void) { return 1; }
+static int __stdcall t_step(int years) { return years; }
+static int __stdcall t_one(void) { return 1; }
+static const vvfp_story_host *vvfp_story_host_table(void) {
+    static const vvfp_story_host host = { sizeof(vvfp_story_host), t_slot, NULL, NULL, NULL, t_step, t_one, t_one,
+                                          NULL };
+    return &host;
+}
+static int __stdcall t_offered(int game) { (void)game; return 1; }
+static int __stdcall t_active(int game) { (void)game; return t_free; }
+static int __stdcall t_price_of(int game) { (void)game; return t_price; }
+static int __stdcall t_command(int game, HWND owner) { (void)game; (void)owner; return 0; }
+
+static WORD *t_text(WORD *p, const wchar_t *s) {
+    do { *p++ = (WORD)*s; } while (*s++);
+    return p;
+}
+static WORD *t_item(WORD *p, DWORD style, short x, short y, short cx, short cy, WORD id, WORD cls,
+                    const wchar_t *text) {
+    DLGITEMTEMPLATE *item = (DLGITEMTEMPLATE *)(((ULONG_PTR)p + 3) & ~(ULONG_PTR)3);
+    item->style = style | WS_CHILD | WS_VISIBLE;
+    item->x = x; item->y = y; item->cx = cx; item->cy = cy; item->id = id;
+    p = (WORD *)(item + 1);
+    *p++ = 0xFFFF; *p++ = cls;
+    p = t_text(p, text);
+    *p++ = 0;
+    return p;
+}
+static INT_PTR CALLBACK t_proc(HWND w, UINT m, WPARAM wp, LPARAM lp) {
+    (void)w; (void)m; (void)wp; (void)lp;
+    return FALSE;
+}
+
+__declspec(dllexport) int Run(int price, int free_now, char *out, int cap) {
+    static DWORD buffer[1024];
+    static const int ids[] = { VVFP_STORY_CUSTOM_ID, VVFP_STORY_PICK_ID, VVFP_STORY_TIME_SKIP_ID, 100, 101 };
+    DLGTEMPLATE *t = (DLGTEMPLATE *)buffer;
+    WORD *p;
+    HWND dialog;
+    int i, n = 0;
+    t_price = price; t_free = free_now;
+    vvfp_story_state = 1;
+    vvfp_story_active = t_active; vvfp_story_installed = t_offered;
+    vvfp_story_event_price = t_price_of; vvfp_story_time_skip_price = t_price_of;
+    vvfp_story_time_skip = t_command; vvfp_story_pick = t_command; vvfp_story_custom = t_command;
+    memset(buffer, 0, sizeof buffer);
+    t->style = WS_POPUP | WS_CAPTION | DS_SETFONT; t->cdit = 3; t->cx = 560; t->cy = 220;
+    p = (WORD *)(t + 1);
+    *p++ = 0; *p++ = 0;
+    p = t_text(p, L"Origins Upgrades");
+    *p++ = 8;
+    p = t_text(p, L"MS Shell Dlg");
+    p = t_item(p, BS_PUSHBUTTON, 500, 200, 50, 14, IDCANCEL, 0x0080, L"Cancel");
+    p = t_item(p, SS_LEFT, 40, 19, 195, 9, 100, 0x0082, L"50,000 tech points");
+    p = t_item(p, SS_CENTER, 16, 40, 332, 9, 101, 0x0082, L"OK deducts 5,000 tech points. Cancel changes nothing.");
+    dialog = CreateDialogIndirectParamW(GetModuleHandleW(NULL), t, NULL, t_proc, 0);
+    if (dialog == NULL) {
+        return -1;
+    }
+    vvfp_story_relabel(5, dialog);
+    vvfp_story_add_pick_button(5, dialog);
+    for (i = 0; i < (int)(sizeof ids / sizeof ids[0]); ++i) {
+        HWND child = GetDlgItem(dialog, ids[i]);
+        WCHAR wide[512];
+        int k = child != NULL ? GetWindowTextW(child, wide, 512) : 0;
+        n += WideCharToMultiByte(CP_UTF8, 0, wide, k, out + n, cap - n - 8, NULL, NULL);
+        if (ids[i] >= VVFP_STORY_PICK_ID && child != NULL) {
+            RECT rc;
+            SIZE size = { 0, 0 };
+            HDC dc = GetDC(child);
+            HGDIOBJ old = SelectObject(dc, (HGDIOBJ)SendMessageW(child, WM_GETFONT, 0, 0));
+            GetTextExtentPoint32W(dc, wide, k, &size);
+            SelectObject(dc, old);
+            ReleaseDC(child, dc);
+            GetClientRect(child, &rc);
+            out[n++] = '\t';
+            out[n++] = size.cx < rc.right - rc.left ? 'F' : 'C';
+        }
+        out[n++] = '\n';
+    }
+    out[n] = 0;
+    DestroyWindow(dialog);
+    return n;
+}
+'''
+
+
+def _vcvars() -> Path | None:
+    import struct as _struct                                        # noqa: PLC0415
+    name = "vcvars32.bat" if _struct.calcsize("P") == 4 else "vcvars64.bat"
+    found = None
+    for base in (r"C:\Program Files\Microsoft Visual Studio", r"C:\Program Files (x86)\Microsoft Visual Studio"):
+        for candidate in sorted(Path(base).glob(f"*/*/VC/Auxiliary/Build/{name}")):
+            found = candidate
+    return found
+
+
+def _cl(folder: Path, source: str, name: str, out: str) -> Path | None:
+    import subprocess                                               # noqa: PLC0415
+    vcvars = _vcvars()
+    if vcvars is None:
+        return None
+    (folder / name).write_text(source, encoding="utf-8")
+    command = (f'call "{vcvars}" >nul && cl /nologo /LD /O2 /W3 /I "{SHARED}" "{name}" /Fe:"{out}" '
+               f'/link /NOLOGO user32.lib gdi32.lib shell32.lib')
+    result = subprocess.run(command, shell=True, cwd=folder, capture_output=True, text=True)
+    if result.returncode != 0 or not (folder / out).is_file():
+        raise AssertionError(f"{name} did not build:\n{result.stdout[-3000:]}{result.stderr[-2000:]}")
+    return folder / out
+
+
+class StoryButtonTests(unittest.TestCase):
+    """The three story buttons and the zeroed price lines of an Origins menu show their own rows' translations
+    (native/shared/story_bridge.h, in all five Origins companions), and a longer label still fits its button."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import ctypes                                               # noqa: PLC0415
+        import shutil                                               # noqa: PLC0415
+        import tempfile                                             # noqa: PLC0415
+        cls._tmp = tempfile.mkdtemp()
+        cls.addClassCleanup(shutil.rmtree, cls._tmp, ignore_errors=True)
+        folder = Path(cls._tmp)
+        dll = _cl(folder, UNDER_TEST, "t.c", "t.dll")
+        stand_in = _cl(folder, STAND_IN, "s.c", "VVFP Translations.dll")
+        if dll is None or stand_in is None:
+            raise unittest.SkipTest("needs the Visual C++ tools")
+        cls.ctypes = ctypes
+        cls.dll = ctypes.CDLL(str(dll))
+        cls.dll.Run.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
+        cls.stand_in = stand_in
+
+    def run_menu(self, price: int, free_now: int) -> list[str]:
+        out = self.ctypes.create_string_buffer(8192)
+        self.assertGreater(self.dll.Run(price, free_now, out, 8192), 0)
+        return out.value.decode("utf-8").split("\n")[:5]
+
+    def test_each_part_shows_its_own_translation_and_fits(self) -> None:
+        # Without the translations companion: the English, as before, and it fits.
+        english = self.run_menu(0, 1)
+        self.assertEqual(english, ["Custom Island Event (0 tech points)...\tF", "Pick Island Event (0 tech points)...\tF",
+                                   "Choose Time Skip Amount (0 tech points)...\tF", "0 tech points",
+                                   "OK deducts 0 tech points. Cancel changes nothing."])
+        self.ctypes.CDLL(str(self.stand_in))        # loaded, as the game loads "VVFP Translations.dll"
+        free = self.run_menu(0, 1)
+        self.assertEqual(free, [
+            "ZC Événement de l'île personnalisé, un nom bien plus long que l'anglais (ZW 0 points de technologie)...\tF",
+            "ZP Choisir un événement de l'île, lui aussi bien plus long (ZW 0 points de technologie)...\tF",
+            "ZT Choisir la durée du saut dans le temps, encore plus long (ZW 0 points de technologie)...\tF",
+            "Z0 0 point de technologie",
+            "Z1 OK déduit 0 point."])
+        # Charged ("cost Tech Points"): the price row with the thousands, and the dialog's own real prices kept.
+        charged = self.run_menu(30000, 0)
+        self.assertEqual(charged[:3], [
+            "ZC Événement de l'île personnalisé, un nom bien plus long que l'anglais (ZW 30 000 points de technologie)...\tF",
+            "ZP Choisir un événement de l'île, lui aussi bien plus long (ZW 30 000 points de technologie)...\tF",
+            "ZT Choisir la durée du saut dans le temps, encore plus long (ZW 30 000 points de technologie)...\tF"])
+        self.assertEqual(charged[3:], ["50,000 tech points", "OK deducts 5,000 tech points. Cancel changes nothing."])
+
+    def test_every_part_is_asked_for_by_its_own_stem_and_english(self) -> None:
+        rows = rows_by_stem()
+        keys = scan.key_call_stems()
+        for stem, english in (
+                ("vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s0", "Custom Island Event"),
+                ("vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s1", "Pick Island Event"),
+                ("vvfp.storybridge/story_bridge.vvfp_story_add_time_skip_button.s0", "Choose Time Skip Amount"),
+                ("vvfp.storybridge/story_bridge.vvfp_story_label_priced.s0", "%s (%d,%03d tech points)..."),
+                ("vvfp.storybridge/story_bridge.vvfp_story_label_priced.s1", "%s (%d tech points)..."),
+                ("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s0", "0 tech points"),
+                ("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s1",
+                 "OK deducts 0 tech points. Cancel changes nothing."),
+                ("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s2",
+                 "OK deducts 0 tech points, for the head look too. Cancel changes nothing."),
+                ("vvfp.story/story_outcomes_ui.chooser_dialog.s3", " (never happens in the original game)"),
+                ("vvfp.story/story_outcomes_ui.chooser_dialog.s4", " (normally not possible right now)"),
+                ("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now")):
+            with self.subTest(stem=stem):
+                self.assertIn(stem, keys)
+                self.assertEqual(rows[stem]["english"], english)
+                self.assertEqual(rows[stem].get("route"), "key")
+        for stem, row in rows.items():
+            if re.match(r"vvfp\.story/story_tables\.VV[1-5]_EVENTS\.\d+\.(title|variant)$", stem):
+                self.assertEqual(row.get("route"), "key", stem)
+
+
+try:
+    from test_story_outcomes import SCRATCH as STORY_SCRATCH, TABLES as STORY_TABLES, Game as StoryGame, \
+        _Event as StoryEvent, emulated as story_emulated, have_stock
+except ImportError:                                                 # pragma: no cover - environment dependent
+    story_emulated = unittest.skip("the Story emulator is not importable")
+
+
+@story_emulated
+class PickListTests(unittest.TestCase):
+    """Pick Island Event's list (story_outcomes_ui.inc chooser_list_label): each event's name and variant and the
+    mark beside it are their own rows' translations, in every game."""
+
+    def test_every_list_row_is_its_rows_translations(self) -> None:
+        rows = rows_by_stem()
+        ran = 0
+        for n in GAMES:
+            game = f"vv{n}"
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                ran += 1
+                g = StoryGame(game)
+                p = g.proc
+                sentinels: dict[str, int] = {}
+
+                def sentinel(stem: str) -> str:
+                    tail = stem.rsplit("/", 1)[1]
+                    return "Z" + tail.replace("story_tables.", "").replace("story_outcomes_ui.chooser_dialog.", "")
+
+                def translate_key(q):
+                    stem, english, cap = q.cstring(q.arg(0)), q.arg(1), q.arg(2)
+                    row = rows.get(stem)
+                    if row is None or row["english"].encode("cp1252") != q.cstring(english).encode("latin-1"):
+                        return english, 12
+                    if stem not in sentinels:
+                        sentinels[stem] = p.alloc(64)
+                        p.write(sentinels[stem], sentinel(stem).encode() + b"\0")
+                    return sentinels[stem], 12
+
+                key_fn, text_fn = p.alloc(16), p.alloc(16)
+                p.stub(key_fn, translate_key)
+                p.stub(text_fn, lambda q: (0, 20))
+                p.api_handlers["GetModuleHandleW"] = lambda q: (
+                    0x72000000 if q.arg(0) and q.wstring(q.arg(0)) == "VVFP Translations.dll"
+                    else (0x400000 if q.arg(0) == 0 else 0), 4)
+                p.api_handlers["GetProcAddress"] = lambda q: (
+                    {"VvfpTranslateKey": key_fn, "VvfpTranslateKeyText": text_fn}.get(q.cstring(q.arg(1)), 0), 8)
+                if game in STORY_TABLES:
+                    for slot in range(1, 58):
+                        event = StoryEvent(g, slot)
+                        p.stub(event.code + 1, lambda q: (1, 0))
+                count = p.export("VvfpStoryProbeChooserOpen", n, 0)
+                self.assertGreater(count, 30)
+                for index in range(count):
+                    possible = p.export("VvfpStoryProbeChooserText", index, 0, STORY_SCRATCH + 0x3000, 1200)
+                    p.export("VvfpStoryProbeChooserText", index, 0xFFFFFFFF, STORY_SCRATCH + 0x3000, 1200)
+                    shown = p.cstring(STORY_SCRATCH + 0x3000)
+                    want = f"ZVV{n}_EVENTS.{index}.title"
+                    if f"vvfp.story/story_tables.VV{n}_EVENTS.{index}.variant" in rows:
+                        want += f" (ZVV{n}_EVENTS.{index}.variant)"
+                    # not possible: s5; possible: no mark; possible only by unlocking it: s3 or s4
+                    marks = {0: ["Zs5"], 1: [""], 2: ["Zs3", "Zs4"]}[possible]
+                    self.assertIn(shown, [want + m for m in marks], f"event {index}")
+        if not ran:
+            self.skipTest("needs the stock executables (inputs/vvN-stock-copy)")
+
+
 class MigrateShadowedTests(unittest.TestCase):
     """A translation on a row the template now leaves out is not lost (Codex, PR 693)."""
 

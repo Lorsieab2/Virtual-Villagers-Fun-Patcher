@@ -944,18 +944,38 @@ static int story_charged(int game, HWND owner, story_command_fn command) {
 
 /* ---- The chooser ----------------------------------------------------------- */
 
+/* An event's title or variant in the player's language: its own row,
+   story_tables.VV<game>_EVENTS.<index>.<field>, found from where `e` sits in
+   its game's table (the English when there is no translation); `variant`:
+   the variant's row, else the title's. */
+static const char *event_text(const story_event *e, int variant, const char *english, unsigned int cap) {
+    char stem[64];
+    int game;
+    for (game = 1; game <= 5; ++game) {
+        if (e >= GAMES[game].events && e < GAMES[game].events + GAMES[game].event_count) {
+            wsprintfA(stem, variant ? "vvfp.story/story_tables.VV%d_EVENTS.%d.variant"
+                                    : "vvfp.story/story_tables.VV%d_EVENTS.%d.title",
+                      game, (int)(e - GAMES[game].events));
+            return vvfp_tr(stem, english, cap);
+        }
+    }
+    return english;
+}
+
 /* "Title (variant)"; a title the game itself ends with a space (The Tree
-   of Life's "The Abandoned Infants ") keeps one space before the bracket. */
+   of Life's "The Abandoned Infants ") keeps one space before the bracket.
+   Each part is its own row's translation. */
 static void label_of(const story_event *e, char *out, size_t size) {
     int n;
-    lstrcpynA(out, e->title, (int)size);
+    lstrcpynA(out, event_text(e, 0, e->title, 200), (int)size);
     if (e->variant != NULL && e->variant[0] != '\0') {
+        const char *variant = event_text(e, 1, e->variant, 100);
         n = lstrlenA(out);
         while (n > 0 && out[n - 1] == ' ') {
             out[--n] = '\0';
         }
-        if ((size_t)n + (size_t)lstrlenA(e->variant) + 4 <= size) {
-            wsprintfA(out + n, " (%s)", e->variant);
+        if ((size_t)n + (size_t)lstrlenA(variant) + 4 <= size) {
+            wsprintfA(out + n, " (%s)", variant);
         }
     }
 }

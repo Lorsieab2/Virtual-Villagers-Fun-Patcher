@@ -927,6 +927,24 @@ static void chooser_summary(int index, char *out, int size) {
     chooser.current = saved;
 }
 
+/* Event `index`'s row in the list: its name and variant (label_of, at most
+   300 bytes with the brackets), then why it is marked (at most 100); each
+   part its own row's translation.  `label` holds CHOOSER_LABEL bytes. */
+#define CHOOSER_LABEL 400
+static void chooser_list_label(int index, char *label) {
+    const oc_event *e = chooser_oc(index);
+    label_of(&chooser.game->events[index], label, 300);
+    if (chooser.possible[index] == OC_POSSIBLE_UNLOCK) {
+        lstrcatA(label, e != NULL && e->dead_note != NULL
+                            ? vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s3",
+                                      " (never happens in the original game)", 100)
+                            : vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s4",
+                                      " (normally not possible right now)", 100));
+    } else if (!chooser.possible[index]) {
+        lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now", 100));
+    }
+}
+
 static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam) {
     INT_PTR handled;
     if (vk_dialog_hook(window, message, wparam, lparam, &handled)) {
@@ -947,18 +965,18 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
     }
     if (message == WM_INITDIALOG) {
         int i;
-        char label[200];
+        char label[CHOOSER_LABEL];
+        WCHAR wide[CHOOSER_LABEL];
         for (i = 0; i < chooser.game->event_count; ++i) {
             int row;
-            const oc_event *e = chooser_oc(i);
-            label_of(&chooser.game->events[i], label, sizeof label);
-            if (chooser.possible[i] == OC_POSSIBLE_UNLOCK) {
-                lstrcatA(label, e != NULL && e->dead_note != NULL ? " (never happens in the original game)"
-                                                                   : " (normally not possible right now)");
-            } else if (!chooser.possible[i]) {
-                lstrcatA(label, " - not possible right now");
+            chooser_list_label(i, label);
+            /* UTF-16, so a translation is never read in the ANSI code page (vvfp_draw_text's rule) */
+            if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, label, -1, wide, CHOOSER_LABEL) <= 0
+                && MultiByteToWideChar(1252, 0, label, -1, wide, CHOOSER_LABEL) <= 0) {
+                wide[0] = 0;
             }
-            row = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)label);
+            wide[CHOOSER_LABEL - 1] = 0;
+            row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
             SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
         }
         SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
@@ -1311,6 +1329,9 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChooserText(int index, int wha
         text = chooser_refusal(index, buffer);
     } else if (what == 3) {
         text = chooser_warning(index);
+    } else if (what == -1) {
+        chooser_list_label(index, buffer);     /* the row the list shows */
+        text = buffer;
     } else {
         const oc_event *e = chooser_oc(index);
         if (e == NULL || what - 4 >= chooser_rows(e)) {
