@@ -12564,7 +12564,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Skip All on the intro story (A New Home, The Lost Children): the story pages' Skip All button.
     "VVFP Skip Intro.dll",
     # Fix Vanilla Bugs (The Lost Children): a walk that loops on the shoreline band's waypoint tries alternate
-    # standing points, then gives up keeping what the villager holds.
+    # standing points, then gives up the normal stock way.
     "VVFP Stuck Walks.dll",
     # Fix Vanilla Bugs (A New Home, The Secret City, The Tree of Life, New Believers): a villager whose walk
     # gives up while it holds something looks for another way first and keeps the item.

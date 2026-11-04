@@ -8,8 +8,8 @@ the companion's handler and the scheduler is machine code.
   * with the companion: the same starts reach the herb, through an alternate standing point;
   * ordinary walks (starts the stock redirect gets past): identical to stock, frame for frame;
   * with Improved Pathfinding installed too (its flood and descent detours): the same, so the two compose;
-  * no alternate left: the villager gives up -- the step queue is emptied and the scheduler runs again --
-    and neither the companion nor the stock clear writes the record's +0x40 / +0x44 (+0x44 keeps its value).
+  * no alternate left: the villager gives up the normal stock way -- the game's own queue clear 0x4492A0
+    runs (queue emptied, +0x40 / +0x44 written by it, what is carried dropped) and the scheduler runs again.
 """
 import math
 import struct
@@ -63,22 +63,23 @@ def test_ordinary_walks_unchanged_frame_for_frame(start, pathfinding):
     assert fixed.stats()["loops"] == 0 and fixed.stats()["alternates"] == 0
 
 
-def test_no_alternate_gives_up_and_keeps_what_the_villager_holds():
+def test_no_alternate_gives_up_exactly_like_the_stock_give_up():
     from unicorn import UC_HOOK_MEM_WRITE
     from unicorn.x86_const import UC_X86_REG_EIP
     run = NativeRun(STALLED[0], block_alternates=True)
     rec = run.v.rec(0)
     run.v.w32(rec + 0x44, 7)
     writers = []
-    run.v.uc.hook_add(UC_HOOK_MEM_WRITE, lambda uc, *_: writers.append(uc.reg_read(UC_X86_REG_EIP)),
-                      begin=rec + 0x40, end=rec + 0x47)
+    run.v.uc.hook_add(UC_HOOK_MEM_WRITE, lambda uc, access, address, size, val, *_: writers.append((uc.reg_read(UC_X86_REG_EIP), val)),
+                      begin=rec + 0x44, end=rec + 0x47)
     assert run.go(6000) is not None                      # the scheduler picks a new job
     stats = run.stats()
     assert stats["give_ups"] == 1 and stats["alternates"] == 0
-    assert run.v.r32(rec + 0x44) == 7
-    # +0x40 is written by the walk's own step starter (0x44D833) as always; never by the give-up: neither
-    # the companion nor the stock clear 0x4492A0 writes +0x40 / +0x44.
-    assert not [w for w in writers if 0x10000000 <= w < 0x10100000 or 0x4492A0 <= w < 0x4492E9]
+    # +0x44 was written by the stock clear 0x4492A0 (0x1A, not nursing), never by the companion.
+    assert 0x4492A0 <= writers[0][0] < 0x4492E9
+    assert writers[0][1] == 0x1A
+    assert not [w for w, _ in writers if 0x10000000 <= w < 0x10100000]
+    assert run.v.r32(rec + 0x44) != 7
 
 
 def test_a_finished_rescue_leaves_no_history_for_the_next_trip_to_the_same_herb():

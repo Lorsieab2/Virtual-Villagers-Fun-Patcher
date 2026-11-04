@@ -34,12 +34,12 @@ Scripts: tests/vv2_stuck_villager_emulation.py (harness and scratch fix), tests/
 Detect the loop: a new band episode (no hit for 60 frames) within 8 px of two earlier episodes. Then, instead of
 the stock waypoint, queue the nearest candidate standing point (rings of 12..80 px, 16 directions) that is free by
 the game's own cell read (0x4181D0: cell 0 or above 23, not 76..80) with a free straight line to it and from it to the
-walk target; each candidate is tried once. When none is left: clear the step queue (like 0x4492A0 but keeping
-the villager's +0x40/+0x44) so the scheduler picks a new job.
+walk target; each candidate is tried once. When none is left: clear the step queue (the scratch version kept
+the villager's +0x40/+0x44; the shipped fix calls the stock clear 0x4492A0 instead, see below).
 Proof (10 tests): stalled starts (1500,1000), (1350,1050), (1540,1280), (1420,1280), (1480,1280) reach the herb
 (feet within 30 px) in 1,759 to 2,123 frames; the alternate chosen is (1391,1288). Five to fifteen ordinary starts
 are identical to stock step for step (frame, feet, queue front); with every alternate blocked the villager gives up
-at the third loop, the queue is empty, +0x44 keeps its value, and the scheduler runs in the next frames.
+at the third loop, the queue is empty and the scheduler runs in the next frames.
 
 ## The native fix: VVFP Stuck Walks.dll (Fix Vanilla Bugs, The Lost Children)
 Built as a companion DLL detour, so the exe needs no room (native/vvfp_stuck_walks/vvfp_stuck_walks.c, build
@@ -57,8 +57,10 @@ vv2_fix_vanilla_bugs row in data/builds.json).
   with the stock push 0x449B70 (3, x, y, 0, mode 2 front, 100) and started with 0x44FBB0, exactly as the stock
   handler queues its waypoint; if the walk to the point meets the band, the next point replaces it in the front
   entry. At most 16 points.
-* Give up: none left -> the 50 queue entries are zeroed (what 0x4492A0 does) WITHOUT its +0x40 / +0x44 writes, and
-  the handler returns without starting a step; the scheduler gives the villager a new job.
+* Give up: none left -> the game's own queue clear 0x4492A0 is called (thiscall, ecx = the village, [esp+4] = the
+  villager index, ret 4: the stock give-up's convention), so the give-up is the normal stock one: the queue is emptied,
+  +0x40 / +0x44 are written as stock writes them (what is carried is dropped), the handler returns without starting a
+  step and the scheduler gives the villager a new job. (Owner, 2026-11-03: "drop it normal stock.")
 * Composition: Improved Pathfinding detours 0x41A700 / 0x41A9B0 (the router), a different routine; the alternate
   point is walked by the stock walk, which uses the (detoured) router on a blocked cell as always.
 
@@ -69,10 +71,8 @@ in unicorn, its site written where VvfpStartup writes it; everything is machine 
   the scheduler runs again (1,668 to 2,123 frames), with and without Improved Pathfinding installed;
 * five ordinary starts are identical to stock frame for frame (frame, feet, queue front), with and without
   Improved Pathfinding; the companion counts no loop for them;
-* every alternate refused (the map read answers blocked to the companion's own calls): one give-up, the queue
-  empties, the scheduler runs, +0x44 keeps the value written before the walk, and no write to +0x40..+0x47 comes
-  from the companion or 0x4492A0 (+0x40 is rewritten by the walk's own step starter 0x44D833 every step: it is
-  walk state, not the carried item);
+* every alternate refused (the map read answers blocked to the companion's own calls): one give-up, the scheduler
+  runs, and the write to +0x44 (0x1A) comes from 0x4492A0 itself, none from the companion;
 * tests/test_companion_installs_all_or_none.py: the site goes in all or none, beside the whole VV2 catalog.
 
 ## Not determined
@@ -81,7 +81,7 @@ in unicorn, its site written where VvfpStartup writes it; everything is machine 
   (from the north of the island, or from near (1350,1050) / (1500,1000)): stock, the villager walks back and forth
   near the shore for ever; fixed, after two turn-backs it walks round and studies the herb.
 * Which record field holds the carried item in VV2 is still not proven live (+0x44 by analogy with VV1's +0x3C:
-  0x1A nothing, 0x0B the baby). The give-up writes neither +0x40 nor +0x44, so whatever it is, it is kept.
+  0x1A nothing, 0x0B the baby). The give-up is the stock clear, so whatever it is, it is dropped as stock drops it.
 * The other four games: docs/reports/vv2-stuck-villager/other-games.md.
 
 ## Earlier notes on an in-exe fix (superseded by the companion DLL above)

@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 # Builds "VVFP Stuck Walks.dll" (native\vvfp_stuck_walks), part of Fix Vanilla Bugs in The Lost
 # Children: a villager whose walk loops on the shoreline band's waypoint tries alternate standing
-# points, then gives up keeping what it holds.  32-bit, static CRT, like every other companion.  The
+# points, then gives up the stock way (the game's own queue clear 0x4492A0).  32-bit, static CRT, like every other companion.  The
 # Fix Vanilla Bugs row in data\builds.json pins the DLL by SHA-256: re-pin it after a rebuild.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot

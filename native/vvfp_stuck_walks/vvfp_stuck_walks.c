@@ -29,10 +29,11 @@
        walkable straight line to it and from it to the target.  It is queued exactly as the stock
        handler queues a waypoint (3, x, y, 0, front, 100) and the front step restarted.  Each point is
        tried once; if the walk to it meets the band too, the next is tried in its place.
-     * with no point left (16 tried, or none walkable): the villager gives up like the stock game does
-       when a route fails -- the step queue is emptied, so the scheduler picks a new job -- but unlike
-       the stock clear 0x4492A0 the record's +0x40 and +0x44 (0x4492A0 writes 0 and 0x1A, or 0x0B
-       when nursing) are left as they are: whatever the villager holds stays with it.
+     * with no point left (16 tried, or none walkable): the villager gives up the NORMAL STOCK way (the
+       owner, 2026-11-03: "drop it normal stock") -- the game's own queue clear 0x4492A0, called as the
+       stock give-up calls it (thiscall: ecx = the village, [esp+4] = villager index, ret 4) -- so the
+       step queue is emptied, +0x40 and +0x44 are written as the stock clear writes them (0 and 0x1A, or
+       0x0B when nursing: what the villager carries is dropped) and the scheduler picks a new job.
    An ordinary walk -- one the stock redirect gets past -- never has a third approach from the same
    spot, so it runs exactly as before, step for step (tests/test_vv2_stuck_walks_native.py).
 
@@ -59,6 +60,7 @@
 #define VV2_BAND_BACK    0x44FCB5u          /* after the displaced mov eax,[esp+8]; push esi */
 #define VV2_CELL_READ    0x4181D0u          /* thiscall(map, x, y), ret 8 */
 #define VV2_QUEUE_PUSH   0x449B70u          /* thiscall(village, idx, type, x, y, a, mode, speed), ret 0x1C */
+#define VV2_QUEUE_CLEAR  0x4492A0u          /* thiscall(village, idx), ret 4: the stock give-up */
 #define VV2_STEP_START   0x44FBB0u          /* thiscall(village, idx), ret 4 */
 #define VV2_CLOCK        0x403200u          /* cdecl(), whole real seconds (time() minus the save's base) */
 #define VV2_MAP_PTR      0xE574D8u          /* village + this: the map object */
@@ -66,7 +68,6 @@
 #define VV2_X            0x4
 #define VV2_Y            0x8
 #define VV2_QUEUE        0x4C                /* 50 entries of 24 bytes: type, x, y, a, mode, speed */
-#define VV2_QUEUE_BYTES  (50 * 24)
 #define VV2_AGE          0x530
 #define VV2_ADULT_AGE    0x118
 #define VV2_FEET_DX      20
@@ -249,7 +250,7 @@ static int alternate_point(void *village, int adult, const walk_state *s, int fx
     return best >= 0;
 }
 
-/* Send the looping villager to its next alternate point, or give up keeping what it holds.  The stock
+/* Send the looping villager to its next alternate point, or give up the stock way.  The stock
    handler is not run (the caller returns as the handler does, ret 8). */
 static void redirect(void *village, int idx, unsigned char *rec, walk_state *s, int fx, int fy) {
     int adult = *(int *)(rec + VV2_AGE) >= VV2_ADULT_AGE;
@@ -274,9 +275,9 @@ static void redirect(void *village, int idx, unsigned char *rec, walk_state *s, 
         ((vv2_start_t)(UINT_PTR)VV2_STEP_START)(village, NULL, idx);
         return;
     }
-    /* No way round: the queue emptied (the stock clear 0x4492A0 without its +0x40 / +0x44 writes). */
+    /* No way round: the stock give-up, the game's own queue clear (it also drops what is carried). */
     COUNT(give_ups);
-    memset(rec + VV2_QUEUE, 0, VV2_QUEUE_BYTES);
+    ((vv2_start_t)(UINT_PTR)VV2_QUEUE_CLEAR)(village, NULL, idx);
     memset(s, 0, sizeof *s);
 }
 
