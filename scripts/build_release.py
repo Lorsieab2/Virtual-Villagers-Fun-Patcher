@@ -444,6 +444,7 @@ FILES = [
     # Picture Studio (Tools tab): its window, the pure-Python image and PNG code, the save reading, and each
     # game's renderer (found by name).  No game art ships: the pictures come from the player's own game.
     "src/vv_picture_studio.py",
+    "src/vv_unicode_font.py",
     "src/vv_picture_image.py",
     "src/vv_pictures_common.py",
     "src/vv_pictures_carried.py",

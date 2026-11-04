@@ -219,6 +219,10 @@ def _register_uniscribe() -> None:
         # Without use_files(): no Documents folder is found, nothing is read or written.
         "GetFileAttributesExW": (12, none(0)),
         "SetFilePointerEx": (20, none(0)),
+        "MoveFileExW": (12, none(0)),
+        "DeleteFileW": (4, none(0)),
+        "FlushFileBuffers": (4, none(1)),
+        "SetEndOfFile": (4, none(1)),
         "CompareStringW": (24, compare_w),
         "SDL_MapRGBA": (0, map_rgba),
         "wsprintfA": (0, none(0)),
@@ -254,6 +258,11 @@ class TextRun(ute.FontRun):
         if not self._files_installed:
             self._files_installed = True
             self.write_fault = None
+            self.move_fault = False
+            self.read_fault = False
+            self.moves: list = []
+            self.deleted: list = []
+            self.opened: list = []
             self.tick = 1000
             self.pos: dict[str, int] = {}
             original = m._import
@@ -301,14 +310,39 @@ class TextRun(ute.FontRun):
                         ret(0xFFFFFFFF, 28)
                         return
                     m._open_path = path
+                    if arg(4) == 2:                       # CREATE_ALWAYS empties it
+                        m.files[path] = b""
                     m.files.setdefault(path, b"")
                     run.pos[path] = 0
+                    run.opened.append((path, arg(4)))
                     ret(se.FILE_HANDLE, 28)
+                elif name == "MoveFileExW":
+                    src, dst = ute._wstr(mu, arg(0), 300), ute._wstr(mu, arg(1), 300)
+                    run.moves.append((src, dst, arg(2)))
+                    if run.move_fault or src not in m.files:
+                        run.last_error = 5
+                        ret(0, 12)
+                    else:
+                        m.files[dst] = m.files.pop(src)
+                        ret(1, 12)
+                elif name == "DeleteFileW":
+                    run.deleted.append(ute._wstr(mu, arg(0), 300))
+                    m.files.pop(run.deleted[-1], None)
+                    ret(1, 4)
+                elif name == "FlushFileBuffers":
+                    ret(1, 4)
+                elif name == "SetEndOfFile":
+                    path = m._open_path
+                    m.files[path] = m.files.get(path, b"")[:run.pos.get(path, 0)]
+                    ret(1, 4)
                 elif name == "GetFileSize":
                     ret(len(m.files.get(m._open_path or "", b"")), 8)
                 elif name == "SetFilePointerEx":
                     run.pos[m._open_path] = arg(1)
                     ret(1, 20)
+                elif name == "ReadFile" and run.read_fault:
+                    run.last_error = 5
+                    ret(0, 20)
                 elif name == "ReadFile":
                     data = m.files.get(m._open_path, b"")
                     at = run.pos.get(m._open_path, 0)
@@ -318,10 +352,16 @@ class TextRun(ute.FontRun):
                     if arg(3):
                         mu.mem_write(arg(3), struct.pack("<I", len(chunk)))
                     ret(1, 20)
-                elif name == "WriteFile" and run.write_fault:
+                elif name == "WriteFile":
                     data = bytes(mu.mem_read(arg(1), arg(2)))
-                    kept = b"" if run.write_fault == "fail" else data[:len(data) // 2]
-                    m.files[m._open_path] += kept
+                    kept = data
+                    if run.write_fault:
+                        kept = b"" if run.write_fault == "fail" else data[:len(data) // 2]
+                    path = m._open_path
+                    at = run.pos.get(path, 0)
+                    old = m.files.get(path, b"")
+                    m.files[path] = old[:at].ljust(at, bytes(1)) + kept + old[at + len(kept):]
+                    run.pos[path] = at + len(kept)
                     if arg(3):
                         mu.mem_write(arg(3), struct.pack("<I", len(kept)))
                     ret(0 if run.write_fault == "fail" else 1, 20)

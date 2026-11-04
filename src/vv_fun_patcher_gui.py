@@ -38,6 +38,7 @@ import vv_reconcile_view
 import vv_save_backup
 import vv_startup_questions
 import vv_tribe_rename
+import vv_translations
 import vv_translations_window
 import vv_vv2_totem_store
 import vv_vv2_totems
@@ -45,6 +46,7 @@ import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
 import vv_picture_studio
+import vv_unicode_font
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
 
@@ -57,6 +59,8 @@ from vv_fun_patcher import (
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_unicode_font_face,
+    set_unicode_font_file,
+    unicode_font_file,
     patch_requirement_text,
     unmet_needs_on_text,
     DEFAULT_PATCH_MODE,
@@ -1796,6 +1800,16 @@ class App(tk.Tk):
             slot_links, "Translations...", self._translations_single
         ).pack(side="left", padx=(18, 0))
         self._help_button(slot_links, "translations").pack(side="left", padx=(3, 0))
+        # Unicode Font (UNICODE_SPEC section 1) and Game Text (section 10): the font Use Unicode Font draws with, and
+        # the text tool (Picture Studio's Text tab).
+        self._folder_link(
+            slot_links, "Unicode Font...", self._unicode_font_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(slot_links, "unicode_font_tool").pack(side="left", padx=(3, 0))
+        self._folder_link(
+            slot_links, "Game Text...", self._game_text_single
+        ).pack(side="left", padx=(18, 0))
+        self._help_button(slot_links, "game_text").pack(side="left", padx=(3, 0))
         box = ttk.LabelFrame(tab, text="Each of the five games (their folders on the All 5 Games tab)", padding=10)
         box.pack(fill="x", pady=(10, 0))
         # The save and log links get a grid of their own below: in one row
@@ -1936,6 +1950,88 @@ class App(tk.Tk):
             command=lambda: vv_translations_window.open_translations(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(slot_tools, "translations").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            slot_tools,
+            text="Unicode Font...",
+            command=lambda: self._unicode_font_tool(None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(slot_tools, "unicode_font_tool").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            slot_tools,
+            text="Game Text...",
+            command=lambda: self._game_text_tool(None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(slot_tools, "game_text").pack(side="left", padx=(2, 0))
+
+    def _unicode_font_single(self) -> None:
+        """Unicode Font for the game chosen on the One Game tab."""
+        self._unicode_font_tool(self._single_build())
+
+    def _game_text_single(self) -> None:
+        """Game Text for the game chosen on the One Game tab."""
+        build = self._single_build()
+        if build is not None:
+            self._game_text_tool(build)
+
+    def _game_text_tool(self, build) -> None:
+        """Game Text...: Picture Studio, opened on its Text tab (the tool that draws any text in a game's own fonts,
+        as the stock game shows it and as Use Unicode Font draws it)."""
+        studio = vv_picture_studio.open_picture_studio(self, build)
+        tab = getattr(studio, "text_tab", None)
+        notebook = getattr(studio, "notebook", None)
+        if tab is not None and notebook is not None:
+            try:
+                notebook.select(tab.frame)
+            except tk.TclError:
+                pass
+
+    def _unicode_font_picture_folders(self) -> dict[str, Path]:
+        """{"vv1": folder holding the game's two font pictures, ...} for the Unicode Font preview, from the game
+        folders the patcher knows and Picture Studio's own copies."""
+        import vv_pictures_text
+        found: dict[str, Path] = {}
+        for build in self.builds:
+            number = next((n for n, t in vv_picture_studio.GAMES.items() if build.title.endswith(t)), None)
+            if number is None:
+                continue
+            folders = []
+            variable = (getattr(self, "all_folder_vars", None) or {}).get(build.id)
+            if variable is not None:
+                text = variable.get().strip()
+                if text:
+                    folders.append(Path(text))
+            exe = getattr(self, "exe_var", None)
+            if exe is not None and exe.get().strip():
+                path = Path(exe.get().strip())
+                folders.append(path.parent if path.suffix.lower() == ".exe" else path)
+            try:
+                source = vv_pictures_text.font_source(number, folders)
+                folder = vv_pictures_text.sheet_folder(source)
+            except Exception:                  # noqa: BLE001 -- no pictures for this game: no preview of it
+                continue
+            if folder is not None:
+                found[f"vv{number}"] = folder
+        return found
+
+    def _unicode_font_tool(self, build) -> None:
+        """Unicode Font...: choose the typeface Use Unicode Font draws with (an installed family or a font file)."""
+
+        def get_choice():
+            file = unicode_font_file()
+            return self.unicode_font_var.get() or UNICODE_FONT_DEFAULT_FACE, (str(file) if file else None)
+
+        def set_choice(face, file):
+            if file is not None:
+                set_unicode_font_file(file)                 # its own family becomes the face
+            else:
+                set_unicode_font_file(None)
+                set_unicode_font_face(face)
+            self.unicode_font_var.set(face)
+            self._save_settings()
+
+        vv_unicode_font.open_window(
+            self, images_dirs=self._unicode_font_picture_folders(), get_choice=get_choice, set_choice=set_choice,
+            show_help=lambda: self._show_how_to_use("unicode_font_tool"))
 
     def _copy_single_slot(self) -> None:
         """Copy Player Slot for the game chosen on the One Game tab."""
@@ -2211,6 +2307,12 @@ class App(tk.Tk):
                 self.unicode_font_var.set(set_unicode_font_face(saved_font if isinstance(saved_font, str) else None))
             except Exception:  # noqa: BLE001 -- an unreadable saved name: Segoe UI
                 self.unicode_font_var.set(set_unicode_font_face(None))
+        saved_file = data.get("unicode_font_file", "")
+        if isinstance(saved_file, str) and saved_file and Path(saved_file).is_file():
+            try:
+                set_unicode_font_file(saved_file)
+            except Exception:  # noqa: BLE001 -- a font file that went away or is not one: the face alone
+                set_unicode_font_file(None)
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
@@ -2267,12 +2369,25 @@ class App(tk.Tk):
             face = set_unicode_font_face(None)
         if self.unicode_font_var.get() != face:
             self.unicode_font_var.set(face)
+        chosen_file = unicode_font_file()
+        if chosen_file is not None:
+            # A family picked here that is not the chosen file's own drops the file: the box and what patches use
+            # must stay the same font (the file would otherwise win again on the next launch).
+            from vv_font_glyphs import ttf_family
+            try:
+                family = ttf_family(chosen_file.read_bytes())
+            except OSError:
+                family = None
+            if family != face:
+                set_unicode_font_file(None)
+                set_unicode_font_face(face)
         self._save_settings()
 
     def _save_settings(self) -> None:
         data = {
             "unicode_font": (self.unicode_font_var.get() if hasattr(self, "unicode_font_var")
                              else UNICODE_FONT_DEFAULT_FACE),
+            "unicode_font_file": str(unicode_font_file() or ""),
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
             "output_root": self.output_root_var.get().strip(),
@@ -3559,9 +3674,10 @@ class App(tk.Tk):
         def refresh_check(*_args) -> None:
             saves = game()
             name = name_var.get()
-            counter_var.set(f"{len(name)} / {saves.max_length} characters")
+            stored = vv_tribe_rename.byte_length(name)
+            counter_var.set(f"{stored} / {vv_tribe_rename.vv_long_names.SHARED_NAME_BYTES} bytes ({len(name)} characters)")
             counter.configure(
-                foreground="#a01010" if len(name) > saves.max_length else ""
+                foreground="#a01010" if stored > vv_tribe_rename.vv_long_names.SHARED_NAME_BYTES else ""
             )
             problem = None
             info = chosen_slot()
@@ -3578,17 +3694,20 @@ class App(tk.Tk):
             elif info.problem:
                 problem = info.problem
             elif name:
-                problem = vv_tribe_rename.name_problem(saves, name)
+                problem = vv_tribe_rename.name_problem(saves, name, long_names=True)
                 if problem is None and name == info.name:
                     problem = "That is already this tribe's name."
             problem_var.set(problem or "")
-            note_var.set(
-                "Allowed. The game's Change Tribe screen will show this name cut "
-                "short, as it does long names the game itself makes; the game "
-                "keeps and shows the whole name everywhere else."
-                if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
-                else ""
-            )
+            if problem is None and name and stored > vv_tribe_rename.name_room(saves):
+                note_var.set(vv_translations.display_text(saves.number, vv_tribe_rename.LONG_NAME_NOTE))
+            else:
+                note_var.set(
+                    "Allowed. The game's Change Tribe screen will show this name cut "
+                    "short, as it does long names the game itself makes; the game "
+                    "keeps and shows the whole name everywhere else."
+                    if problem is None and name and vv_tribe_rename.shown_shortened(saves, name)
+                    else ""
+                )
             ok = problem is None and bool(name)
             rename_button.configure(state="normal" if ok else "disabled")
 
@@ -3623,7 +3742,7 @@ class App(tk.Tk):
             folder = state["folders"][folder_box.current()]
             saves = game()
             new_name = name_var.get()
-            problem = vv_tribe_rename.name_problem(saves, new_name)
+            problem = vv_tribe_rename.name_problem(saves, new_name, long_names=True)
             if problem is not None:
                 messagebox.showerror("Rename Tribe", problem, parent=dialog)
                 return

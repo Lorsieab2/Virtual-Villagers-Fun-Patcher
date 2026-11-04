@@ -123,9 +123,75 @@ class RowTests(unittest.TestCase):
         self.assertTrue(self.errors("%s found %d apples.", "%s a trouvé des pommes."))
 
     def test_percent_rules(self):
-        self.assertTrue(self.errors("Hello", "Bonjour 100%"))
+        # Only the tokens of the line's own English are placeholders (UNICODE_SPEC section 7): any other '%' is text.
+        self.assertEqual(self.errors("Hello", "Bonjour 100%"), [])
         self.assertEqual(self.errors("%d%% done", "%d%% fait"), [])
-        self.assertTrue(self.errors("%d done", "%d fait %"))
+        self.assertEqual(self.errors("%d done", "%d fait %"), [])
+
+    def test_french_percent_with_a_space(self):
+        for tr in ("50 % de réduction", "2 %", "2 %", "2 %"):
+            with self.subTest(tr=tr):
+                self.assertEqual(self.errors("Sale", tr), [])
+                self.assertEqual(self.errors("%d left", "%d restants, " + tr), [])
+
+    def test_a_conversion_the_english_lacks_is_text(self):
+        # "% d" here is French "50 %" + "d...": not a printf placeholder, because the English has none
+        self.assertEqual(fmt.translation_tokens("50 % de réduction", "Sale"), [])
+        self.assertEqual(fmt.translation_tokens("%d sur 50 % de", "%d left"), ["%d"])
+
+    def test_the_placeholders_of_the_english_are_still_required(self):
+        self.assertTrue(self.errors("%d left", "restants"))
+        self.assertTrue(self.errors("%d left", "%s restants"))
+        self.assertEqual(self.errors("%d left", "%3d restants"), [])          # width may change
+        self.assertTrue(self.errors("%d left", "% d restants"))               # never by the space flag alone
+
+    def test_a_changed_width_or_precision_stays_small(self):
+        # the game prints into fixed-size buffers: nothing may widen a conversion past 64
+        self.assertEqual(self.errors("%d left", "%64d restants"), [])
+        self.assertEqual(self.errors("%s left", "%.20s restants"), [])
+        for tr in ("%100000d restants", "%65d restants", "%*d restants", "%.99999d restants"):
+            with self.subTest(tr=tr):
+                self.assertTrue(self.errors("%d left", tr))
+        self.assertTrue(self.errors("%s left", "%.99999s restants"))
+        self.assertEqual(fmt.translation_tokens("%100000d", "%d left"), [])
+
+    def test_a_row_the_companion_fills_itself_keeps_its_conversions_exactly(self):
+        # vvfp.* pattern rows go through tr_fill_pattern, which only knows a literal %s %d %i %u
+        def errors(key, tr):
+            return [i for i in fmt.check_row("Reset %d %s", tr, fmt.RowRules(), 1, key) if i.severity == "error"]
+        self.assertTrue(errors("vvfp.ui/reset~00000000", "Reset %3d %s"))
+        self.assertEqual(errors("vvfp.ui/reset~00000000", "Reset %d %s"), [])
+        self.assertEqual(errors("sm/eReset~00000000", "Reset %3d %s"), [])           # a sprintf row: allowed
+        self.assertEqual(errors("table/12~00000000", "Reset %3d %s"), [])
+        self.assertEqual(fmt.translation_tokens("Reset %3d %s", "Reset %d %s", exact=True), ["%s"])
+
+    def test_a_literal_percent_in_a_companion_filled_row_is_written_double(self):
+        def errors(key, tr):
+            return [i for i in fmt.check_row("Advanced %d years.", tr, fmt.RowRules(), 1, key) if i.severity == "error"]
+        self.assertTrue(errors("vvfp.ui/adv~00000000", "50%increase: Advanced %d years."))
+        self.assertEqual(errors("vvfp.ui/adv~00000000", "50%%increase: Advanced %d years."), [])
+        self.assertEqual(errors("sm/eAdv~00000000", "50 % de: Advanced %d years."), [])               # a sprintf row
+        self.assertEqual(fmt.check_row("Sale", "50%increase", fmt.RowRules(), 1, "vvfp.ui/sale~00000000"), [])   # no pattern
+
+    def test_runtime_text_writes_double_percent_in_a_format_line(self):
+        self.assertEqual(fmt.runtime_text("%d restants, 50 %", "%d left"), "%d restants, 50 %%")
+        self.assertEqual(fmt.runtime_text("%d restants, 50 %%", "%d left"), "%d restants, 50 %%")   # old way kept
+        self.assertEqual(fmt.runtime_text("%3d sur 50 %", "%d left"), "%3d sur 50 %%")
+        # a line the program does not use as a format is handed on as it is
+        self.assertEqual(fmt.runtime_text("50 % de réduction", "Sale"), "50 % de réduction")
+        self.assertEqual(fmt.runtime_text("50 %", "Sale", is_format=True), "50 %%")
+        # a select head's % is not a percent sign
+        self.assertEqual(fmt.runtime_text("{%1: m=il | f=elle} a 50 %", "%s has 5 %%"), "{%1: m=il | f=elle} a 50 %%")
+
+    def test_the_extra_percent_bytes_count_toward_the_room(self):
+        rules = fmt.RowRules(byte_limit=len("%d ok, 50 %".encode()))
+        self.assertTrue([i for i in fmt.check_row("%d ok", "%d ok, 50 %", rules) if i.severity == "error"])
+        rules = fmt.RowRules(byte_limit=len("%d ok, 50 %%".encode()))
+        self.assertFalse([i for i in fmt.check_row("%d ok", "%d ok, 50 %", rules) if i.severity == "error"])
+
+    def test_double_percent_in_a_plain_line_is_warned(self):
+        issues = fmt.check_row("Sale", "50 %% off")
+        self.assertEqual([i.severity for i in issues], ["warning"])
 
     def test_named_variables(self):
         self.assertEqual(self.errors("{name} is happy.", "{name} est content."), [])

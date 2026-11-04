@@ -6,6 +6,7 @@
 #include "village_identity.h"
 #include "save_folder.h"
 #include "save_layout.h"
+#include "long_name.h"            /* vv_long_names_flush at the save call */
 #include "log_slot.h"             /* one folder of logs per save slot */
 #include "per_save_data.h"        /* one folder per save */
 #include "patcher_files.h"
@@ -1627,6 +1628,7 @@ __declspec(dllexport) int __stdcall SaveVillageStatistics(
     int changed = 0;
     int flushed = 0;
     if (primary) {
+        vv_long_names_flush();     /* any long name not yet kept goes to its file before the save */
         bind_store(game_id, manager, save_id);
         /* Decided before the save, committed only after it succeeds. When
            the slot holds a new village this save does not flush: its pending

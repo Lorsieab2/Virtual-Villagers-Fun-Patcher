@@ -305,6 +305,125 @@ def printf_conversions(text: str) -> list[str]:
     return [m.group(0) for m in _PRINTF_RE.finditer(text) if m.group(0) != "%%"]
 
 
+_CONV_RE = re.compile(r"%(?P<flags>[-+ #0]*)(?P<width>\d+|\*)?(?:\.(?P<precision>\d+|\*))?"
+                      r"(?P<length>hh|h|ll|l|L|I64|I32|I)?(?P<type>[diouxXeEfgGcsp])")
+
+
+def _signature(match) -> tuple:
+    """What must match between the English's conversion and the translation's: the kind of value, its size and the
+    arguments it takes.  The width and precision may change (%d -> %3d); so may the flags other than the space."""
+    kind = "d" if match.group("type") == "i" else match.group("type")
+    stars = (match.group("width") == "*") + (match.group("precision") == "*")
+    return (kind, match.group("length") or "", stars)
+
+
+MAX_FIELD = 64        # the most a translation may widen a conversion's width or precision to (the game's buffers are fixed)
+
+
+def _small_field(match) -> bool:
+    """A changed width or precision stays small (at most MAX_FIELD): the game prints into fixed-size buffers, so
+    "%100000d" or "%.99999s" could overflow one.  A "*" takes its number at run time and is the English's own."""
+    for name in ("width", "precision"):
+        value = match.group(name)
+        if value and value != "*" and int(value) > MAX_FIELD:
+            return False
+    return True
+
+
+@dataclass(frozen=True)
+class Source:
+    """The placeholders a line's own English has.  A "%" in a translation is a placeholder only when it is one of
+    these (UNICODE_SPEC section 7, from VF1 PERCENT SIGNS): the English's printf conversions, and "%%".  Any other
+    "%" is plain text, so French "2 %" and "50 % de réduction" are fine."""
+    conversions: tuple = ()
+    format_line: bool = False
+    exact: bool = False        # a row the companion fills itself (vvfp.* pattern rows): the English's own tokens only
+
+    def token_at(self, text: str, i: int):
+        """The placeholder at text[i] (a '%'): its text, or None (a plain '%').  "%%" is always the escape of a
+        percent sign (the way VV translations have always written one)."""
+        if text.startswith("%%", i):
+            return "%%"
+        match = _CONV_RE.match(text, i)
+        if not match:
+            return None
+        found = match.group(0)
+        if found in self.conversions:
+            return found
+        # the same kind of value with another width or precision (%d -> %3d), never by the space flag alone
+        if not self.exact and " " not in match.group("flags") and _small_field(match):
+            mine = _signature(match)
+            for known in self.conversions:
+                other = _CONV_RE.fullmatch(known)
+                if other and _signature(other) == mine:
+                    return found
+        return None
+
+
+def english_source(english: str, is_format: bool | None = None, exact: bool = False) -> Source:
+    """The placeholders of a line's English.  A line the program is known not to use as a printf format
+    (is_format False) has none: every '%' in it is plain text.  Unknown (None): its conversions without the space
+    flag (a "95% of" is a "% o" only to printf), and its "%%"."""
+    if is_format is False:
+        return Source(exact=exact)
+    masked = _mask_subjects(english)
+    convs = [m.group(0) for m in _CONV_RE.finditer(masked)]
+    if not is_format:
+        convs = [c for c in convs if " " not in _CONV_RE.match(c).group("flags")]
+    return Source(tuple(convs), bool(convs) or "%%" in masked, exact)
+
+
+def line_is_format(english: str, is_format: bool | None = None) -> bool:
+    """Whether the program passes the line through printf: as declared, else when its English has a placeholder."""
+    return is_format if is_format is not None else english_source(english).format_line
+
+
+def translation_tokens(translation: str, english: str, is_format: bool | None = None,
+                       exact: bool = False) -> list[str]:
+    """The placeholders of a translation, in order, "%%" left out.  Only tokens its English has count."""
+    source = english_source(english, is_format, exact)
+    text = _mask_subjects(translation)
+    out: list[str] = []
+    i = 0
+    while i < len(text):
+        if text[i] != "%":
+            i += 1
+            continue
+        token = source.token_at(text, i)
+        if token is None:
+            i += 1
+        else:
+            if token != "%%":
+                out.append(token)
+            i += len(token)
+    return out
+
+
+def runtime_text(translation: str, english: str, is_format: bool | None = None) -> str:
+    """The text handed to the program: when the line is a printf FORMAT, every '%' that is no placeholder of the
+    English is written "%%" (so it shows one '%'); any other line is handed on unchanged.  The extra bytes count
+    toward the line's room.  native/vvfp_translations does the same (tr_escape_percent)."""
+    if "%" not in translation or not line_is_format(english, is_format):
+        return translation
+    source = english_source(english, is_format)
+    masked = _mask_subjects(translation)
+    out: list[str] = []
+    i = 0
+    while i < len(translation):
+        if masked[i] != "%":
+            out.append(translation[i])
+            i += 1
+            continue
+        token = source.token_at(masked, i)
+        if token is None:
+            out.append("%%")
+            i += 1
+        else:
+            out.append(token)
+            i += len(token)
+    return "".join(out)
+
+
 def _mask_subjects(text: str) -> str:
     """`{%1: ...}` select heads hidden, so their % is not read as a percent sign."""
     return re.sub(r"\{(\s*)%([1-9][0-9]?)(\s*):", r"{\1#\2\3:", text)
@@ -465,8 +584,8 @@ def _parse_one(piece: str, start: int) -> Select:
         if key in branches:
             raise SelectError(f"the branch {key!r} is written twice in {{{subject}: ...}}")
         value = value.strip()
-        if printf_conversions(value) or bare_percents(value):
-            raise SelectError(f"a printf placeholder or '%' inside {{{subject}: ...}}; put it outside the select")
+        if [c for c in printf_conversions(value) if " " not in c]:
+            raise SelectError(f"a printf placeholder inside {{{subject}: ...}}; put it outside the select")
         branches[key] = value
         order.append(key)
     keys = set(branches)
@@ -734,6 +853,8 @@ class RowRules:
     forbid_chars: str = ""                                       # characters the game would misread here
     selects_allowed: bool = True
     byte_limit: int = 0                                          # the longest translation (UTF-8 bytes); 0: none
+    exact_conversions: bool = False                              # the companion fills the line itself: no changed width, flags or precision
+    is_format: bool | None = None                                # the program uses the line as a printf format; None: unknown
 
 
 def find_emails(text: str) -> list[str]:
@@ -804,20 +925,34 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
         err(f"malformed select: {error}")
         selects = []
     plain_tr = render(translation) if not any(i.severity == "error" for i in issues) else translation
-    en_conv = printf_conversions(english)
-    tr_conv = printf_conversions(translation)
-    if en_conv != tr_conv:
-        if sorted(en_conv) == sorted(tr_conv):
+    exact = rules.exact_conversions or key.startswith("vvfp")
+    source = english_source(english, rules.is_format, exact)
+    en_conv = list(source.conversions)
+    tr_conv = translation_tokens(translation, english, rules.is_format, exact)
+    en_sig = [_signature(_CONV_RE.fullmatch(c)) for c in en_conv]
+    tr_sig = [_signature(_CONV_RE.fullmatch(c)) for c in tr_conv]
+    if en_sig != tr_sig:
+        if sorted(en_sig) == sorted(tr_sig):
             err("the printf placeholders are in a different order than in the English (%s); the program "
                 "cannot reorder them" % " ".join(en_conv))
         else:
             err("the printf placeholders must be exactly %s, in that order (found %s)"
                 % (" ".join(en_conv) or "none", " ".join(tr_conv) or "none"))
-    if not en_conv and "%" not in _mask_subjects(english) and "%" in _mask_subjects(translation):
-        err("a '%' sign is not allowed in this line (the English has none, and the program may use the line "
-            "as a format); write the word for percent instead")
-    elif bare_percents(translation):
-        err("a lone '%' sign; write %% for a percent sign in this line")
+    if exact and en_conv:
+        # tr_fill_pattern reads "%i" in "50%increase" as a conversion: a literal percent sign is written "%%" here
+        masked = _mask_subjects(translation)
+        at = 0
+        while at < len(masked):
+            if masked[at] == "%":
+                token = source.token_at(masked, at)
+                if token is None:
+                    err("a '%' that is no placeholder of the English must be written %% in this line")
+                    break
+                at += len(token)
+            else:
+                at += 1
+    if "%%" in _mask_subjects(translation) and not line_is_format(english, rules.is_format):
+        warn("'%%' shows as two percent signs here; write a single % for a percent sign")
     en_vars = set(named_variables(english))
     tr_vars = set(named_variables(translation))
     for missing in sorted(en_vars - tr_vars):
@@ -858,7 +993,7 @@ def check_row(english: str, translation: str, rules: RowRules | None = None, lin
             err(f"the character {ch!r} has a meaning to the game in this line; it cannot be added")
     if english[:1].isspace() != translation[:1].isspace() or english[-1:].isspace() != translation[-1:].isspace():
         warn("the spaces at the start or end differ from the English")
-    if rules.byte_limit and len(plain_tr.encode("utf-8")) > rules.byte_limit:
+    if rules.byte_limit and len(runtime_text(plain_tr, english, rules.is_format).encode("utf-8")) > rules.byte_limit:
         err(f"too long for the game: at most {rules.byte_limit} bytes here (a letter outside A-Z can take 2 to "
             "4 bytes); the line would stay English")
     if english.count("\n") and not translation.count("\n"):

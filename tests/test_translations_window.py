@@ -251,7 +251,7 @@ class FilesTests(TempTranslations):
 
     def test_add_installs_a_good_file_and_reports_its_bad_lines(self) -> None:
         path = write_translation(self.temp / "good.txt", translator="Kalani",
-                                 translations=("Nourriture : %d", "Bonjour %", ""))
+                                 translations=("Nourriture : %d", "Bonjour {nom}", ""))
         installed, checked = w.add_translation(GAME, path, tr.template_map(template_rows()))
         self.assertEqual(installed, tr.game_dir(GAME) / "fr.tsv")
         self.assertTrue(checked.ok)
@@ -776,7 +776,7 @@ class EditorTests(TkCase):
         editor = self.editor()
         self.assertEqual(editor.model.coverage, 0)
         editor.set_translation(self.rows[0].row.key, "Nourriture : %d")
-        editor.set_translation(self.rows[1].row.key, "Bonjour %")           # an error: stays English
+        editor.set_translation(self.rows[1].row.key, "Bonjour {nom}")           # an error: stays English
         template = tr.template_map(self.rows)
         self.assertAlmostEqual(editor.model.coverage, fmt.validate(editor.model.tf, template, TITLE).coverage)
         self.assertEqual(round(editor.progress["value"]), 33)
@@ -859,7 +859,7 @@ class PreviewTests(unittest.TestCase):
 
 class DisplayTextTests(TempTranslations):
     def test_the_patchers_windows_show_the_chosen_language(self) -> None:
-        path = write_translation(self.temp / "fr.txt", translations=("Nourriture : %d", "Bonjour %", ""))
+        path = write_translation(self.temp / "fr.txt", translations=("Nourriture : %d", "Bonjour {nom}", ""))
         self.assertEqual(tr.display_text(GAME, "Food: %d"), "Food: %d")
         tr.set_display_choice(GAME, path)
         self.assertEqual(tr.display_text(GAME, "Food: %d"), "Nourriture : %d")

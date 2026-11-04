@@ -8,3 +8,4 @@ EXPORTS
     VvfpGlyphsUtf8
     VvfpBoxInsertUtf8
     VvfpLongName
+    VvfpLongNamesFlush

@@ -69,4 +69,19 @@ static void vv_long_name_into(char *out, size_t size) {
     }
 }
 
+/* At the game's own save call: have the Unicode companion write any Long Names record not yet kept (a slot unknown
+   when the name was set, or a write that failed), so a long name set just before a quit is never lost.  Fails open. */
+static void vv_long_names_flush(void) {
+    typedef int (__stdcall *flush_fn)(void);
+    HMODULE m = GetModuleHandleW(L"VVFP Unicode Text.dll");
+    flush_fn fn;
+    if (m == NULL) {
+        m = GetModuleHandleW(L"VVFP Unicode Font.dll");
+    }
+    fn = m != NULL ? (flush_fn)GetProcAddress(m, "VvfpLongNamesFlush") : NULL;
+    if (fn != NULL) {
+        fn();
+    }
+}
+
 #endif /* VVFP_LONG_NAME_H */

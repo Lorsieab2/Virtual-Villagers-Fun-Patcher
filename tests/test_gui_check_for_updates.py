@@ -193,7 +193,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
-               "vv_picture_studio", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
+               "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
                "vv_pictures_vv3", "vv_pictures_vv4", "vv_pictures_vv5",
                # Its Text tab (the owner, 2026-11-01).
                "vv_pictures_text_tab", "vv_pictures_text", "vv_glyph_maker",
@@ -227,7 +227,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_tree_editor_tools"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
-            ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store"}),
+            ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store", "vv_long_names"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
                               "vv_log_contradictions",
@@ -371,7 +371,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # files as the log checker reads them (function-level), and each game's renderer.
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common", "vv_pictures_text_tab",
                                    "vv_picture_studio_everything"}),
-            ("vv_pictures_text_tab", {"vv_picture_image", "vv_pictures_text"}),
+            ("vv_pictures_text_tab", {"vv_picture_image", "vv_pictures_text", "vv_unicode_font", "vv_fun_patcher"}),  # the last two: function-level
+            ("vv_unicode_font", {"vv_font_glyphs", "vv_picture_image"}),
             ("vv_pictures_text", {"vv_picture_image", "vv_glyph_maker", "vv_font_glyphs"}),
             ("vv_glyph_maker", {"vv_picture_image"}),
             ("vv_picture_image", set()),

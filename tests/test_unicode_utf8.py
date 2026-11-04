@@ -111,7 +111,7 @@ class TheLongNamesFile(unittest.TestCase):
         native = (ROOT / "native" / "vvfp_unicode_text" / "long_names.inc").read_text(encoding="utf-8")
         self.assertIn('L"Virtual Villagers %d Long Names - Save %d.dat"', native)
         self.assertIn('L"Long Names"', native)
-        self.assertIn('#define LN_HEADER "VVFP Long Names v2\\n"', native)
+        self.assertIn('#define LN_HEADER "VVFP Long Names v3\\n"', native)
         self.assertEqual(ln.file_name(3, 2), "Virtual Villagers 3 Long Names - Save 2.dat")
         self.assertIn("#define VV_SHARED_NAME_BYTES 1200", native)
         self.assertEqual(ln.SHARED_NAME_BYTES, 1200)
@@ -537,6 +537,123 @@ class InTheGame(unittest.TestCase):
                     self.assertLessEqual(len(short), FIELD[game] - 1)
                 self.assertTrue(the_file().endswith(b"\n"))
 
+    def test_the_long_names_file_is_v3_made_whole_and_moved_over_the_old_one(self):
+        """UNICODE_SPEC section 2: records carry their room; the whole file is made in "<file>.tmp" and moved over the
+        old one (MoveFileEx REPLACE_EXISTING | WRITE_THROUGH); a refused move writes in place; v1/v2 files are
+        read and rewritten as v3 with nothing lost."""
+        import vv_long_names as ln
+        def mine(data, *wanted):
+            """This test's own records, in file order (other tests may have left pending pairs of their own)."""
+            return [r[0] for r in ln.records(data) if r[0] in wanted]
+
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                files = run.use_files(1)
+                n = int(game[2])
+
+                def leave(name):
+                    wrapper, box = run.new_box(23)
+                    run.set_text(box, _bytes_of(name))
+                    return run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
+
+                leave(JAPANESE + "甲")                      # makes the file; then it is replaced by an older one
+                found = next(p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}"))
+                old_short, old_whole = ("Old name" + ELLIPSIS).encode(GAME_TEXT), b"Old name that is whole"
+                files[found] = b"VVFP Long Names v2\n" + ln.record_v2(old_short, old_whole)      # v2: no room
+                run.moves.clear()
+
+                short = leave(JAPANESE + "乙")
+                data = files[found]
+                self.assertTrue(data.startswith(b"VVFP Long Names v3\n"))
+                self.assertEqual(mine(data, old_short, short), [old_short, short])      # nothing lost
+                self.assertEqual(ln.parse(data)[old_short], old_whole)
+                room = {r[0]: r[1] for r in ln.records(data)}
+                self.assertEqual(room[old_short], 0)                                          # v2 has no room
+                self.assertEqual(room[short], FIELD[game] - 1)                                # the field's bytes, without its NUL
+                self.assertLessEqual(len(short), room[short])
+                # made in the .tmp, moved over the file with the two flags, the .tmp is gone
+                self.assertTrue(run.moves)
+                self.assertEqual(run.moves[-1], (found + ".tmp", found, 0x1 | 0x8))
+                self.assertNotIn(found + ".tmp", files)
+                # the move is refused: the file is written in place and still holds every record
+                run.move_fault = True
+                second = leave(JAPANESE + "丙")
+                run.move_fault = False
+                self.assertNotIn(found + ".tmp", files)
+                self.assertEqual(mine(files[found], old_short, short, second), [old_short, short, second])
+                # the disk refuses the copy: the old file is untouched and the pair is written again later
+                run.write_fault = "fail"
+                third = leave(JAPANESE + "丁")
+                run.write_fault = None
+                self.assertEqual(mine(files[found], old_short, short, second), [old_short, short, second])
+                run.tick += 5000
+                run.draw_text("ldwarialbold", _bytes_of(POO))
+                self.assertEqual(mine(files[found], old_short, short, second, third), [old_short, short, second, third])
+
+    def test_a_long_name_is_in_its_file_at_once_and_a_pending_one_is_flushed_by_the_save_call(self):
+        """A long name must never be lost when the game quits right after it is set: the record is written the moment
+        the name leaves its box; one that could not be (no slot yet) is written by VvfpLongNamesFlush, which the
+        statistics companion calls at the game's own save call, before the writer runs."""
+        import vv_long_names as ln
+        FLUSHED = JAPANESE[::-1]               # its own start, so no other test's short form gets a number
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                n = int(game[2])
+                files = run.use_files(1)
+
+                def the_file():
+                    found = [p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}")]
+                    return files[found[0]] if found else b""
+
+                # 1. at once: set, and the save/quit path runs immediately (the export is the save call's flush)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of(FLUSHED + "金"))
+                short = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                self.assertEqual(ln.parse(the_file()).get(short), _bytes_of(FLUSHED + "金"))
+                # 2. no slot yet: pending, nothing in any file; the slot appears and the save call flushes it
+                before = dict(files)
+                run.use_files(0)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of(FLUSHED + "銀"))
+                pending = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                self.assertEqual(files, before)
+                run.use_files(1)
+                self.assertNotIn(pending, ln.parse(the_file()))              # no draw has happened: still pending
+                self.assertEqual(run.export("VvfpLongNamesFlush"), 1)      # the save call's flush
+                self.assertEqual(ln.parse(the_file()).get(pending), _bytes_of(FLUSHED + "銀"))
+
+    def test_a_failed_read_of_the_long_names_file_never_replaces_it(self):
+        """A file that is there but cannot be read is not a missing file: nothing is written over it, the record stays
+        pending, and the next write keeps every old record."""
+        import vv_long_names as ln
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                n = int(game[2])
+                files = run.use_files(1)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of("玉座" * 14 + "一"))
+                first = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                found = next(p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}"))
+                kept = files[found]
+                self.assertIn(first, ln.parse(kept))
+                run.read_fault = True
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of("金座" * 14 + "一"))
+                second = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                run.read_fault = False
+                self.assertEqual(files[found], kept)                              # the old file is intact
+                self.assertNotIn(second, ln.parse(files[found]))                  # the record is still pending
+                self.assertEqual(run.export("VvfpLongNamesFlush"), 1)
+                pairs = ln.parse(files[found])
+                self.assertIn(first, pairs)                                       # the old records are kept
+                self.assertIn(second, pairs)
+
+    def test_the_statistics_save_call_flushes_the_long_names_before_the_writer(self):
+        source = (ROOT / "native" / "statistics_export" / "statistics_export.c").read_text(encoding="utf-8")
+        flush = source.index("vv_long_names_flush();")
+        self.assertLess(flush, source.index("result = ((save_writer)writer)("))
+        self.assertGreater(flush, source.index("SaveVillageStatistics("))
+
     def test_line_fitting_breaks_japanese_between_characters(self):
         for game, run in self.runs.items():
             if game == "vv1":
@@ -592,6 +709,30 @@ class UseUnicodeFont(unittest.TestCase):
                 # None of the letters comes from the game's own font picture.
                 pictures = set(run.pictures.values())
                 self.assertFalse({b[0] for b in blits} & pictures)
+
+    def test_the_chosen_face_is_fitted_so_the_reference_sentence_is_as_wide_as_the_game_font(self):
+        """UNICODE_SPEC section 1 (VF1 FitChosenFont): each game font keeps its line, its em is fitted so that
+        "The quick brown fox ..." is as wide as the game font draws it."""
+        import unicode_utf8_emulation as ue
+        tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
+        reference = b"The quick brown fox jumps over the lazy dog 0123456789"
+        for game in GAMES:
+            stock = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), tables)
+            chosen = ue.TextRun(game, (f"{game}_unicode_font", f"{game}_details_full_names"), tables)
+            for font in ("ldwBurweed27", "ldwarialbold"):
+                with self.subTest(game=game, font=font):
+                    own = stock.width_of(font, reference)
+                    fitted = chosen.width_of(font, reference)
+                    self.assertGreater(own, 0)
+                    self.assertLess(abs(fitted - own), own * 0.15, (own, fitted))
+
+    def test_the_fit_is_kept_within_60_to_130_percent_of_the_fonts_own_em(self):
+        source = (ROOT / "native" / "vvfp_unicode_text" / "runtime_glyphs.inc").read_text(encoding="utf-8")
+        self.assertIn("lo = own * 6 / 10;", source)
+        self.assertIn("hi = own * 13 / 10;", source)
+        self.assertIn('L"The quick brown fox jumps over the lazy dog 0123456789"', source)
+        hooks = (ROOT / "native" / "vvfp_unicode_text" / "text_hooks.inc").read_text(encoding="utf-8")
+        self.assertIn('"The quick brown fox jumps over the lazy dog 0123456789"', hooks)
 
 
 if __name__ == "__main__":

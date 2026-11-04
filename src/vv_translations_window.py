@@ -725,8 +725,10 @@ def missing_placeholders(english: str, translation: str, tokens=()) -> list[str]
     if not translation:
         return []
     out = []
-    for conv in fmt.printf_conversions(english):
-        if fmt.printf_conversions(translation).count(conv) < fmt.printf_conversions(english).count(conv):
+    wanted = list(fmt.english_source(english).conversions)
+    have = fmt.translation_tokens(translation, english)
+    for conv in wanted:
+        if have.count(conv) < wanted.count(conv):
             if conv not in out:
                 out.append(conv)
     for name in fmt.named_variables(english):

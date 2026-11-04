@@ -199,9 +199,21 @@ def add_patch_rows(strings: list[dict]) -> tuple[int, list[dict]]:
     return added, listed
 
 
+def add_gui_rows(strings: list[dict]) -> None:
+    """The patcher window's own lines that are shown through vv_translations.display_text, listed so translators see
+    them (not in the games: the DLL never asks for them).  Rewritten on every run."""
+    sys.path.insert(0, str(ROOT / "src"))
+    import vv_tribe_rename
+    strings[:] = [r for r in strings if not r["stem"].startswith("vvfp.gui/")]
+    strings.append({"stem": "vvfp.gui/rename_tribe.long_name_note", "english": vv_tribe_rename.LONG_NAME_NOTE,
+                    "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
+                    "context": "Rename Tribe window (the note under the name box)", "notes": "a patcher window"})
+
+
 def main() -> None:
     data = json.loads(PATCHER.read_text(encoding="utf-8"))
     strings = data["strings"]
+    add_gui_rows(strings)
     c_added = add_c_rows(strings)
     p_added, listed = add_patch_rows(strings)
     keys = scan.key_call_stems()

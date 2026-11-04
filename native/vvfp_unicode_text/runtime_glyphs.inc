@@ -24,13 +24,15 @@
    than the line is made smaller until it fits.  Nothing is shipped: only the player's own Windows fonts
    are used, and the game's pictures are never changed. */
 
+#include "colour_fonts.inc"           /* Direct2D / DirectWrite: CBDT, sbix and SVG colour fonts */
+
 #define RG_PAGE_W 1024
 #define RG_PAGE_ROWS 6
 #define RG_SLOTS 254
 #define RG_MAX_FONTS 16
 #define RG_CACHE 8192
 #define RG_MAX_UNIT 1024
-#define RG_FACES 32
+#define RG_FACES 64
 
 typedef struct rg_page {
     unsigned char impl[0x420];      /* a font object of the game's own class */
@@ -74,6 +76,7 @@ typedef struct rg_face {
     int present;                    /* -1 unknown */
     int bold;                       /* thickening steps */
     int cap_em;                     /* capital height per 1000 em, 0 unknown */
+    int bitmap_colour;              /* CBDT / sbix / SVG colour table (drawn by Direct2D); -1 unknown */
     int bundled;                    /* one of the bundled open fonts: its glyphs are styled to the game's font */
     int pixel;                      /* a pixel font (Unifont): whole-number sizes, smoothed, thickened */
     int placeholder;                /* Last Resort: one block per unit, found in its own cmap (GDI reads only its BMP) */
@@ -112,10 +115,18 @@ static WCHAR g_override_face[64];   /* "Use Unicode Font": the chosen face ("" =
 static int g_override;
 static volatile LONG g_units_made;  /* for the tests */
 
+/* The fallback chain, in the shared Unicode spec's order (UNICODE_SPEC section 3): Historic, Symbol and Emoji
+   before the CJK fonts; a face that is not installed is skipped (rg_present) and a face is used for a unit only
+   when it has every code point of it (rg_shape).  "Yu Gothic" / "Microsoft YaHei" (without UI) stay after
+   their UI faces, so nothing this build drew before is lost. */
 static const WCHAR *const RG_CHAIN[] = {
-    L"Segoe UI", L"Segoe UI Historic", L"Segoe UI Symbol", L"Segoe UI Emoji", L"Yu Gothic", L"Microsoft YaHei",
-    L"Malgun Gothic", L"Nirmala UI", L"Ebrima", L"Noto Sans", L"Noto Sans CJK JP", L"Noto Sans Symbols 2",
-    L"Noto Sans Cuneiform", L"Noto Color Emoji", NULL
+    L"Segoe UI", L"Segoe UI Historic", L"Segoe UI Symbol", L"Segoe UI Emoji",
+    L"Yu Gothic UI", L"Yu Gothic", L"Meiryo", L"Microsoft YaHei UI", L"Microsoft YaHei",
+    L"Microsoft JhengHei UI", L"Malgun Gothic", L"SimSun-ExtB", L"Nirmala UI", L"Ebrima", L"Gadugi",
+    L"Leelawadee UI", L"Myanmar Text", L"Javanese Text", L"Mongolian Baiti", L"Microsoft Himalaya",
+    L"Microsoft Yi Baiti", L"Microsoft New Tai Lue", L"Microsoft Tai Le", L"Microsoft PhagsPa", L"Sylfaen",
+    L"Cambria Math", L"Noto Sans", L"Noto Sans Symbols", L"Noto Sans Symbols 2", L"Noto Sans CJK JP",
+    L"Noto Sans CJK SC", L"Noto Sans Math", L"Noto Sans Cuneiform", L"Noto Color Emoji", NULL
 };
 
 /* The last steps: the open fonts the patcher bundles (assets/unicode_fonts, installed beside this companion in
@@ -175,6 +186,7 @@ static int rg_face_index(const WCHAR *face, int weight) {
     g_faces[g_face_count].weight = weight;
     g_faces[g_face_count].present = -1;
     g_faces[g_face_count].bold = -1;
+    g_faces[g_face_count].bitmap_colour = -1;
     return g_face_count++;
 }
 
@@ -316,10 +328,26 @@ static void rg_face_fit(int face, const rg_font *f) {
     }
 }
 
+/* Use Unicode Font: the chosen face's em is fitted so that RG_FIT_REFERENCE is as wide as the game font draws it
+   (UNICODE_SPEC section 1, VF1's FitChosenFont), kept within 60% to 130% of the game font's own em.  The game
+   font's own width comes from the game's width routine (g_ref_width, set once the hooks are installed). */
+static int (*g_ref_width)(unsigned char *impl);
+static const WCHAR RG_FIT_REFERENCE[] = L"The quick brown fox jumps over the lazy dog 0123456789";
+static int rg_fit_em(int face, const rg_font *f, int own);
+
+static int rg_is_override_face(int face) {
+    return g_override && g_faces[face].weight == 700
+           && lstrcmpiW(g_faces[face].face, g_override_face[0] ? g_override_face : L"Segoe UI") == 0;
+}
+
 static int rg_ppem(int face, const rg_font *f) {
     int cap = f->m.baseline - f->m.cap_top, ppem;
     rg_face_fit(face, f);
     ppem = g_faces[face].cap_em > 0 ? (cap * 1000 + g_faces[face].cap_em / 2) / g_faces[face].cap_em : cap;
+    if (rg_is_override_face(face)) {
+        /* the game font's own em: the one a face with Arial's capitals (716 per 1000 em) has at this cap height */
+        ppem = rg_fit_em(face, f, (cap * 1000 + 358) / 716);
+    }
     if (g_faces[face].pixel && ppem >= 8) {
         /* A pixel font (16 px em) is drawn at a whole-number multiple of its own size when that is near. */
         int snapped = ((ppem + 8) / 16) * 16;
@@ -664,6 +692,7 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
     GOFFSET offsets[RG_MAX_UNIT];
     rg_hfont *h;
     rg_colr *colr;
+    int d2d_done = 0;
     if (g_faces[face].placeholder) {
         return rg_shape_placeholder(face, ppem, text, n, cv, advance);
     }
@@ -677,6 +706,26 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
     }
     colr = rg_colr_of(face);
     SelectObject(g_dc, h->font);
+    if (cv != NULL && colr == NULL) {
+        /* CBDT (Noto Color Emoji), sbix and SVG colour fonts: Direct2D draws the text in its own colours; a text
+           with no colour in it, or no Direct2D, is drawn by GDI below, as before. */
+        if (g_faces[face].bitmap_colour < 0) {
+            g_faces[face].bitmap_colour = cf_has_bitmap_colour(g_dc);
+        }
+        if (g_faces[face].bitmap_colour) {
+            int coloured = 0;
+            if (cf_draw(g_faces[face].face, g_faces[face].weight, ppem, text, n, cv->w, cv->h, cv->ox, cv->base,
+                        cv->px, &coloured)) {
+                if (coloured) {
+                    cv->colour = 1;
+                    d2d_done = 1;
+                } else {
+                    ZeroMemory(cv->px, (size_t)cv->w * (size_t)cv->h * 4);
+                }
+            }
+            SelectObject(g_dc, h->font);
+        }
+    }
     for (i = 0; i < nitems; ++i) {
         levels[i] = (BYTE)items[i].a.s.uBidiLevel;
     }
@@ -723,7 +772,9 @@ static int rg_shape(int face, int ppem, const WCHAR *text, int n, rg_canvas *cv,
             for (j = 0; j < count; ++j) {
                 DWORD at = 0;
                 int layers = colr != NULL ? rg_layers(colr, glyphs[j], &at) : 0;
-                if (layers > 0) {
+                if (d2d_done) {
+                    /* already drawn, in colour, by Direct2D */
+                } else if (layers > 0) {
                     int k;
                     for (k = 0; k < layers; ++k) {
                         const unsigned char *rec = colr->colr + at + k * 4;
@@ -764,6 +815,34 @@ static int rg_utf16(const unsigned char *s, int len, WCHAR *out, int cap) {
         }
     }
     return n;
+}
+
+/* The em at which RG_FIT_REFERENCE is as wide in `face` as the game font draws it, within 60%..130% of `own`; `own`
+   when the game's width is not known or the face lacks a letter of the sentence.  Worked out once per face and font. */
+static int rg_fit_em(int face, const rg_font *f, int own) {
+    static struct { int face; const rg_font *font; int em; } cache[32];
+    static int used;
+    int i, game, adv = 0, em, lo, hi;
+    for (i = 0; i < used; ++i) {
+        if (cache[i].face == face && cache[i].font == f) {
+            return cache[i].em;
+        }
+    }
+    em = own;
+    game = g_ref_width != NULL ? g_ref_width(f->impl) : 0;
+    if (game > 0 && rg_shape(face, 200, RG_FIT_REFERENCE, lstrlenW(RG_FIT_REFERENCE), NULL, &adv) && adv > 0) {
+        em = (int)(((__int64)200 * game * 2 + adv) / (2 * (__int64)adv));
+        lo = own * 6 / 10;
+        hi = own * 13 / 10;
+        em = em < lo ? lo : em > hi ? hi : em;
+    }
+    if (used < 32 && g_ref_width != NULL) {
+        cache[used].face = face;
+        cache[used].font = f;
+        cache[used].em = em;
+        ++used;
+    }
+    return em;
 }
 
 /* An emoji (Extended_Pictographic, keycaps, emoji presentation): Segoe UI Emoji is tried before the

@@ -336,6 +336,19 @@ const char *__stdcall VvfpLongName(const char *name) {
     return name;
 }
 
+/* For the save call of the statistics companion (native/shared/long_name.h vv_long_names_flush): every Long Names
+   record not yet kept is written now, before the game saves, so a long name set just before a quit is in its file. */
+int __stdcall VvfpLongNamesFlush(void) {
+    __try {
+        if (g_game != NULL) {
+            ln_flush_pending(1);
+            return 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 0;
+}
+
 /* Number of fonts given letters so far (for the tests' emulation). */
 int __stdcall VvfpUnicodeTextFonts(void) {
     return (int)g_fonts_extended;
@@ -350,23 +363,30 @@ int __stdcall VvfpUnicodeTextOwnDraws(void) {
     return (int)g_own_draws;
 }
 
-/* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in
-   the patcher's files folder; UTF-8, first line; the patcher writes it).  Segoe UI when there is none. */
+/* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in the
+   patcher's files folder; UTF-8; the patcher writes it).  First line: the face (Segoe UI when there is none).
+   Second line, when the player chose a font FILE in the Unicode Font window: its name inside the "Unicode Font"
+   folder beside this companion; the file is loaded for this game only (AddFontResourceExW with FR_PRIVATE), never
+   installed in Windows.  A name with a path in it is ignored. */
 static void read_override_face(void) {
-    WCHAR path[MAX_PATH];
+    WCHAR path[MAX_PATH], dir[MAX_PATH];
     DWORD n = GetModuleFileNameW(g_self, path, MAX_PATH);
     HANDLE f;
-    char raw[256];
+    char raw[512];
     DWORD got = 0;
-    int i, start;
+    int i, start, second = 0;
     lstrcpyW(g_override_face, L"Segoe UI");
-    if (n == 0 || n >= MAX_PATH - 32) {
+    if (n == 0 || n >= MAX_PATH) {
         return;
     }
     while (n > 0 && path[n - 1] != L'\\') {
         --n;
     }
     path[n] = 0;
+    if ((int)n + 22 > MAX_PATH) {
+        return;                         /* the folder and "VVFP Unicode Font.txt" do not fit a path */
+    }
+    CopyMemory(dir, path, ((size_t)n + 1) * sizeof(WCHAR));
     lstrcatW(path, L"VVFP Unicode Font.txt");
     f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     if (f == INVALID_HANDLE_VALUE) {
@@ -378,11 +398,34 @@ static void read_override_face(void) {
         for (i = start; raw[i]; ++i) {
             if (raw[i] == '\r' || raw[i] == '\n') {
                 raw[i] = 0;
+                second = i + 1;
                 break;
             }
         }
         if (raw[start] && MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw + start, -1, g_override_face, 64) <= 0) {
             lstrcpyW(g_override_face, L"Segoe UI");
+        }
+        if (second > 0) {
+            WCHAR file[104];
+            while (raw[second] == '\r' || raw[second] == '\n') {
+                ++second;
+            }
+            for (i = second; raw[i] && raw[i] != '\r' && raw[i] != '\n'; ++i) {
+                if (raw[i] == '\\' || raw[i] == '/' || raw[i] == ':') {
+                    raw[second] = 0;                    /* a name with a path in it: ignored */
+                    break;
+                }
+            }
+            if (raw[i] == '\r' || raw[i] == '\n') {
+                raw[i] = 0;
+            }
+            /* the room needed is the folder, "Unicode Font\\" and the name's own length (with its NUL), not the buffer's */
+            int name_len = raw[second] ? MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, raw + second, -1, file, 104) : 0;
+            if (name_len > 0 && (int)n + 13 + name_len <= MAX_PATH) {
+                lstrcatW(dir, L"Unicode Font\\");
+                lstrcatW(dir, file);
+                AddFontResourceExW(dir, FR_PRIVATE, NULL);
+            }
         }
     }
     CloseHandle(f);
@@ -451,6 +494,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_text_skip = g->text_skip;
     g_text_post = g->text_post;
     g_width = (vt_width_fn)t_width;
+    g_ref_width = vt_reference_width;
     g_draw = (vt_draw_fn)t_draw;
     g_linefit = (vt_linefit_fn)t_linefit;
     g_nbyte = (vt_nbyte_fn)t_nbyte;

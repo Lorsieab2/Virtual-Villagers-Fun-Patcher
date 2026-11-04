@@ -12,6 +12,7 @@ import vv_picture_image as pi
 import vv_pictures_text as text
 
 PREVIEW_W, PREVIEW_H = 560, 300
+LABELLED = 80          # the first search results are labelled (game) / (patcher-made) / (drawn by Windows: ...)
 SAMPLE = "Welcome to the island!\nCafé à la crème, Łódź, Ångström"
 MARK_COLOURS = {text.SOURCE_PATCHER: "#2a6fdb", text.SOURCE_MADE: "#e07800", text.SOURCE_EMOJI: "#a040d0",
                 "missing": "#d02020"}
@@ -133,8 +134,12 @@ class TextTab:
         ttk.Checkbutton(row4, text="Outline the letters that are not the game's own (preview only)",
                         variable=self.mark_var, command=self.schedule).pack(side="left")
         self.stock_var = tk.BooleanVar(master=self.window, value=False)
-        ttk.Checkbutton(row4, text="As the unpatched game draws it", variable=self.stock_var,
-                        command=self.schedule).pack(side="left", padx=(12, 0))
+        ttk.Checkbutton(row4, text="As the stock game shows it", variable=self.stock_var,
+                        command=lambda: self._exclusive(self.stock_var, self.unicode_var)).pack(side="left", padx=(12, 0))
+        # Use Unicode Font (overrides in-game fonts): every character in the typeface chosen in the Unicode Font tool.
+        self.unicode_var = tk.BooleanVar(master=self.window, value=False)
+        ttk.Checkbutton(row4, text="As Use Unicode Font draws it", variable=self.unicode_var,
+                        command=lambda: self._exclusive(self.unicode_var, self.stock_var)).pack(side="left", padx=(12, 0))
 
         box = ttk.Frame(left)
         box.pack(fill="both", expand=True, pady=(8, 0))
@@ -226,6 +231,12 @@ class TextTab:
         if refresh:
             self.schedule()
 
+    def _exclusive(self, ticked: tk.BooleanVar, other: tk.BooleanVar) -> None:
+        """The two "as the game draws it" views exclude each other."""
+        if ticked.get():
+            other.set(False)
+        self.schedule()
+
     def get_text(self) -> str:
         return self.text_box.get("1.0", "end-1c")
 
@@ -274,12 +285,50 @@ class TextTab:
         if renderer is None:
             return None
         value = self.get_text()
+        if self.unicode_var.get() and renderer.font is not None:
+            return self.render_unicode_font(value, renderer)
         if self.stock_var.get() and renderer.font is not None:
             image = text.game_render(renderer.font, renderer.sheet, text.game_bytes(value), self.colour())
             return text.Rendered(image, counts={text.SOURCE_GAME: len(value)})
         align = self.align_keys[max(0, self.align_box.current())]
         effect = text.EFFECT_OUTLINED if self.outlined_var.get() else text.EFFECT_NONE
         return renderer.render(value, self.colour(), align, effect)
+
+    def unicode_face(self) -> str:
+        """The typeface the Unicode Font tool (and the patch-selection box) chose; Segoe UI unless chosen."""
+        try:
+            import vv_fun_patcher
+            return vv_fun_patcher.unicode_font_face()
+        except Exception:                     # noqa: BLE001 -- the default
+            return "Segoe UI"
+
+    def render_unicode_font(self, value: str, renderer: text.TextRenderer) -> text.Rendered:
+        """The text as Use Unicode Font draws it: every character in the chosen typeface, fitted to the game font's
+        line height and width (src/vv_unicode_font.py), tinted and faded like the game's text."""
+        import vv_unicode_font
+        font_name = text.PATCHER_FONT_NAMES[renderer.key]
+        face = self.unicode_face()
+        folder = self.images_dir
+        if folder is None:
+            raise text.TextError("The game's font pictures are needed for this view.")
+        rows = [vv_unicode_font.render(f"vv{self.game}", font_name, face, line, folder) for line in value.split("\n")]
+        if any(r is None for r in rows):
+            raise text.TextError("This view needs Windows' GDI.")
+        width = max((r.width for r in rows), default=1)
+        canvas = pi.Image(max(1, width), max(1, renderer.line_height * len(rows)))
+        for index, row in enumerate(rows):
+            canvas.draw(row, 0, index * renderer.line_height)
+        colour = self.colour()
+        if (colour >> 24) & 0xFF == 0:
+            colour = text.DEFAULT_COLOUR
+        tint = (colour & 0xFF, (colour >> 8) & 0xFF, (colour >> 16) & 0xFF)
+        canvas = text._and_tint(canvas, tint)
+        fade = (colour >> 24) & 0xFF
+        if fade != 255:
+            faded = pi.Image(canvas.width, canvas.height)
+            faded.draw(canvas, 0, 0, pi.surface_alpha(fade / 255.0))
+            canvas = faded
+        return text.Rendered(canvas, counts={text.SOURCE_MADE: len(value.replace("\n", ""))})
 
     def refresh(self) -> None:
         self._after = None
@@ -422,10 +471,12 @@ class CharacterPicker:
     def search(self) -> None:
         self.found = text.search_characters(self.query.get())
         self.results.delete(0, "end")
-        for ch in self.found:
+        renderer = self.tab.renderer()
+        for position, ch in enumerate(self.found):
             cat = unicodedata.category(ch)
             shown = ("◌" + ch) if cat.startswith("M") else ch
-            self.results.insert("end", f"{shown}    U+{ord(ch):04X}    {text.char_name(ch).title()}")
+            label = text.char_label(renderer, ch) if renderer is not None and position < LABELLED else ""
+            self.results.insert("end", f"{shown}    U+{ord(ch):04X}    {text.char_name(ch).title()}    {label}".rstrip())
         if self.found:
             self.results.selection_set(0)
 
