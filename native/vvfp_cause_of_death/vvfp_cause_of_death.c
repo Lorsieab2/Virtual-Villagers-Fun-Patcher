@@ -376,6 +376,12 @@ static int log_state;            /* 0 = not tried, 1 = resolved, -1 = unavailabl
 static write_record_fn write_record;
 static publish_village_fn publish_village;
 static release_held_fn release_held;
+typedef int (__stdcall *look_logged_fn)(int game, const void *record, int oh, int ob, int nh, int nb);
+static look_logged_fn look_logged;       /* AppearanceAlreadyLogged (cod_roster.inc) */
+typedef int (__stdcall *look_at_save_fn)(int game, const void *record, const char *before);
+static look_at_save_fn look_at_save;     /* AppearanceChangedAtSave */
+typedef int (__stdcall *look_spent_fn)(int game);
+static look_spent_fn look_spent;         /* AppearanceNotesSpent */
 /* RecordGravesMissingFromLog (cod_backfill.inc). */
 static vv_record_graves_fn record_graves;
 /* RecordArrivalsMissingFromLog (cod_arrivals.inc). */
@@ -396,6 +402,9 @@ static int cod_log_ready(void) {
             write_record = (write_record_fn)GetProcAddress(module, "WriteVillageRecord");
             publish_village = (publish_village_fn)GetProcAddress(module, "PublishVillageAtSave");
             release_held = (release_held_fn)GetProcAddress(module, "ReleaseHeldRecords");
+            look_logged = (look_logged_fn)GetProcAddress(module, "AppearanceAlreadyLogged");
+            look_at_save = (look_at_save_fn)GetProcAddress(module, "AppearanceChangedAtSave");
+            look_spent = (look_spent_fn)GetProcAddress(module, "AppearanceNotesSpent");
             record_graves = (vv_record_graves_fn)GetProcAddress(module, "RecordGravesMissingFromLog");
             record_arrivals = (vv_record_arrivals_fn)GetProcAddress(module,
                                                                     "RecordArrivalsMissingFromLog");

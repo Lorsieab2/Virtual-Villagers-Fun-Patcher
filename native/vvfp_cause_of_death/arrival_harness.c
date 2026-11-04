@@ -1464,6 +1464,70 @@ static void identity_cases(void) {
     save_done(1, buffer);
     CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
           "identity: looks AND likes changed together (a new chief's robe): no Left, no Arrived");
+    {
+        /* ...and the look change the game made itself is logged, once, as Change Appearance's own
+           record reads (the owner, 2026-11-03: an island event changed a child's head, no record). */
+        char births[MAX_PATH], want[200];
+        typedef int (__stdcall *write_fn)(int, int, const void *, int, const char *, const char *, int);
+        write_fn write_village = (write_fn)GetProcAddress(parentage, "WriteVillageRecord");
+        births_path(1, births);
+        wsprintfA(want, "Appearance changed\r\n  Name: Cira\r\n  Old head: 2\r\n  Old body: 12\r\n"
+                  "  New head: 21\r\n  New body: 29\r\n  Changed by: the game\r\n");
+        CHECK(read_into(births) >= 0 && count_of(text, want) == 1,
+              "identity: a look change the game made itself is logged once as Appearance changed");
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Cira\r\n") == 1,
+              "identity: ...and the next save, the look unchanged since, writes no second");
+        /* Change Appearance's own record (written in this session) is never doubled by the roster. */
+        i = unacc_find("Eli");
+        CHECK(write_village != NULL, "identity: WriteVillageRecord is exported");
+        write_village(game, 7, rec(i), 1,
+                      "  Old head: 0\n  Old body: 14\n  New head: 22\n  New body: 23\n", NULL, 0);
+        *(int *)(rec(i) + g->head) = 22;
+        *(int *)(rec(i) + g->body) = 23;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Eli\r\n") == 1
+              && strstr(text, "  Name: Eli\r\n  Old head: 0\r\n  Old body: 14\r\n  New head: 22\r\n  New body: 23\r\n  Changed by") == NULL,
+              "identity: a look change the Change Appearance tool already logged is not logged again");
+        /* (2) A -> B by the tool, then B -> A by the tool, then A -> B by the game itself: the first
+           two notes are spent by their saves, so the third change is logged. */
+        write_village(game, 7, rec(i), 1, "  Old head: 22\n  Old body: 23\n  New head: 0\n  New body: 14\n", NULL, 0);
+        *(int *)(rec(i) + g->head) = 0;
+        *(int *)(rec(i) + g->body) = 14;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        *(int *)(rec(i) + g->head) = 22;
+        *(int *)(rec(i) + g->body) = 23;
+        unacc_age_all(1);
+        save_done(1, buffer);
+        CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Eli\r\n") == 3
+              && strstr(text, "  New head: 22\r\n  New body: 23\r\n  Changed by: the game") != NULL,
+              "identity: a look changed back and forth across saves: the later game-made change is logged");
+        /* (3) More than 64 notes between two saves (Change Appearance for All) lose none: Ivo's tool record
+           is followed by 70 others, and the roster still sees his look as logged. */
+        {
+            int k, ivo = unacc_find("Ivo"), before_n;
+            char line[160];
+            read_into(births);
+            before_n = count_of(text, "Appearance changed\r\n  Name: Ivo\r\n");
+            wsprintfA(line, "  Old head: %d\n  Old body: %d\n  New head: 40\n  New body: 41\n",
+                      *(int *)(rec(ivo) + g->head), *(int *)(rec(ivo) + g->body));
+            write_village(game, 7, rec(ivo), 1, line, NULL, 0);
+            *(int *)(rec(ivo) + g->head) = 40;
+            *(int *)(rec(ivo) + g->body) = 41;
+            for (k = 0; k < 70; ++k) {
+                wsprintfA(line, "  Old head: 0\n  Old body: 14\n  New head: %d\n  New body: 9\n", 100 + k);
+                write_village(game, 7, rec(i), 1, line, NULL, 0);
+            }
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Ivo\r\n") == before_n + 1
+                  && strstr(text, "  Name: Ivo\r\n  Old head: ") != NULL,
+                  "identity: 70 other look records between two saves: the tool's record for Ivo is not doubled");
+        }
+    }
 
     /* g. Her looks changed, then she was buried before the next save: her Death record, with the new looks,
        accounts for her -- never "Left the village" beside it. */
@@ -1496,6 +1560,54 @@ static void identity_cases(void) {
     save_done(1, buffer);
     CHECK(unacc_count(UNACC_LEFT) == left && unacc_count(UNACC_ARRIVED) == arrived_n,
           "identity: a reported newcomer robed in the same session keeps her arrival (no Unaccounted Arrived)");
+    {
+        char births[MAX_PATH];
+        births_path(1, births);
+        /* (4) Two namesakes (told apart by their likes) with different old looks, changed by the game to the
+           same new look: one record each. */
+        {
+            int a, b;
+            for (a = 39; a >= 0 && rec(a)[g->active]; --a) {
+            }
+            villager(a, "Twin", 500, 1, 31, 0);
+            for (b = 39; b >= 0 && rec(b)[g->active]; --b) {
+            }
+            villager(b, "Twin", 500, 2, 32, 0);
+            *(int *)(rec(a) + g->likes) = 1;
+            *(int *)(rec(b) + g->likes) = 2;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            *(int *)(rec(a) + g->head) = 50;
+            *(int *)(rec(a) + g->body) = 51;
+            *(int *)(rec(b) + g->head) = 50;
+            *(int *)(rec(b) + g->body) = 51;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Twin\r\n") == 2,
+                  "identity: two namesakes changed by the game to the same look: a record each");
+        }
+        /* (5) The tool changes A -> B and B -> A, then the game changes A -> C: the chain A -> B -> A never
+           reaches C, so the game's change is logged (one more record beside the tool's two). */
+        {
+            typedef int (__stdcall *write_fn2)(int, int, const void *, int, const char *, const char *, int);
+            write_fn2 write_village2 = (write_fn2)GetProcAddress(parentage, "WriteVillageRecord");
+            int c;
+            for (c = 39; c >= 0 && rec(c)[g->active]; --c) {
+            }
+            villager(c, "Cyc", 500, 3, 33, 0);
+            unacc_age_all(1);
+            save_done(1, buffer);
+            write_village2(game, 7, rec(c), 1, "  Old head: 3\n  Old body: 33\n  New head: 4\n  New body: 34\n", NULL, 0);
+            write_village2(game, 7, rec(c), 1, "  Old head: 4\n  Old body: 34\n  New head: 3\n  New body: 33\n", NULL, 0);
+            *(int *)(rec(c) + g->head) = 60;
+            *(int *)(rec(c) + g->body) = 61;
+            unacc_age_all(1);
+            save_done(1, buffer);
+            CHECK(read_into(births) >= 0 && count_of(text, "Appearance changed\r\n  Name: Cyc\r\n") == 3
+                  && strstr(text, "  New head: 60\r\n  New body: 61\r\n  Changed by: the game") != NULL,
+                  "identity: tool A->B and B->A, then the game A->C: the game's change is logged");
+        }
+    }
     for (i = 0; i < 40; ++i) memset(rec(i), 0, g->stride);
     free(buffer);
     reset(game, 1);

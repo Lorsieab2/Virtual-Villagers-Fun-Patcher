@@ -895,6 +895,32 @@ static void roster_reconcile(int slot) {
            sure, so nobody is written as having left (unsure, never guessed). */
         int unsure = gone_overflow[slot + 1] || gone_overflow[early_tag + 1];
         int pass;
+        /* A villager kept at the last save who is in the village now with another head or body, and no
+           "Appearance changed" record of it (Change Appearance's, the Island Events log's): the game
+           changed the look itself (an island event; the owner: log those).  The same villager, matched
+           by identity above, never a newcomer (live_reported). */
+        if (cod_log_ready() && look_logged != NULL && look_at_save != NULL) {
+            for (i = 0; i < kept_count; ++i) {
+                const unsigned char *now_record;
+                int oh, ob, nh, nb;
+                char look[200];
+                if (kept_match[i] < 0 || live_reported[kept_match[i]]) {
+                    continue;
+                }
+                now_record = records + (size_t)live[kept_match[i]] * r->stride;
+                oh = id_int(kept[i], 1, r->head);
+                ob = id_int(kept[i], 1, r->body);
+                nh = *(const int *)(now_record + r->head);
+                nb = *(const int *)(now_record + r->body);
+                if ((oh == nh && ob == nb) || look_logged(g_game, now_record, oh, ob, nh, nb)) {
+                    continue;
+                }
+                wsprintfA(look, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n"
+                          "  Changed by: the game\n", oh, ob, nh, nb);
+                COD_COUNT(logged);
+                (void)look_at_save(g_game, now_record, look);
+            }
+        }
         /* A grave just recorded from (a burial no hook saw: the load-time catch-up; cod_backfill.inc):
            first by the name, head and body for everyone, then -- the looks changed since the save (the
            owner, v1.35.80 update) -- by the name alone, for a name no other kept villager still
@@ -1009,6 +1035,9 @@ static void roster_reconcile(int slot) {
         parts[0] = head;
         sizes[0] = ROSTER_HEADER + count * roster_entry_size();
         if (vv_sidecar_publish(&roster.gate, roster.path, parts, sizes, 1)) {
+            if (look_spent != NULL) {
+                (void)look_spent(g_game);     /* the roster holds the looks now: the next save's notes start empty */
+            }
             for (i = 0; i < r->slots; ++i) {
                 if (report_counts(departed[i], slot)) {
                     departed[i] = REPORT_NONE;

@@ -234,7 +234,10 @@ def logs_text(n: str, game: str) -> str:
         "ever grow, and start a new numbered file after every 256 records. The village as it was at "
         f"each save is kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Unaccounted Villagers\\Virtual "
         f"Villagers {n} Villagers at Last Save - Save <n>.dat' ('... Village Roster ...' in a save an older version made); "
-        "Start Over deletes it."
+        "Start Over deletes it. A villager who is in the village at both saves with another head or body "
+        "(an island event the Island Events log did not see, or any other change the game made) is written "
+        "to the Births and Conceptions log as an 'Appearance changed' record, 'Changed by: the game', "
+        "unless Change Appearance or the Island Events log already wrote one for that look; a newcomer never is."
     )
 
 
