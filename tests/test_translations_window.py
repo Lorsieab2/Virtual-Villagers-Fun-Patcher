@@ -839,6 +839,32 @@ class EditorTests(TkCase):
         editor.close()
 
 
+    def test_a_line_wider_than_the_screen_is_a_warning(self) -> None:
+        """The owner: text and translations must not run off the screen.  A line wider than the game's 800-pixel
+        window is said in the Translations window as a warning (the row is still used; the game cuts it)."""
+        with mock.patch.object(w, "_font_glyphs", return_value=None):
+            editor = self.editor()
+            key = self.rows[1].row.key
+            editor.show(key)
+            editor.set_translation(key, "Bonjour à toutes et à tous, chers villageois et villageoises " * 8)
+            editor.update_preview()
+        self.assertIn(w.OFF_SCREEN, editor.width_var.get())
+        self.assertNotIn("Stays English", editor.problem_var.get())
+        editor.set_translation(key, "Bonjour")
+        editor.update_preview()
+        self.assertNotIn(w.OFF_SCREEN, editor.width_var.get())
+        editor.close()
+
+
+class ScreenWarningTests(unittest.TestCase):
+    def test_only_a_line_wider_than_the_screen_warns(self) -> None:
+        self.assertEqual(w.screen_warning(w.SCREEN_WIDTH), "")
+        self.assertEqual(w.screen_warning(120), "")
+        warning = w.screen_warning(w.SCREEN_WIDTH + 1)
+        self.assertIn(w.OFF_SCREEN, warning)
+        self.assertIn("801 px", warning)
+
+
 class PreviewTests(unittest.TestCase):
     def test_every_gender_and_every_plural_category_is_shown(self) -> None:
         english = "%s found %d coins"

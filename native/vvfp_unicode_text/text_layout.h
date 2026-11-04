@@ -175,6 +175,181 @@ static void tl_free(void *p) {
     }
 }
 
+/* ---- Word lists, only when Windows has no ICU ------------------------------------------------------------------
+
+   Thai, Lao, Myanmar and Khmer are written without spaces; ICU breaks them between dictionary words.  Without ICU
+   the same ICU word lists (assets/word_lists, ICU release-77-1, unchanged; installed in "Word Lists\" beside this
+   DLL) are read -- each the first time a line of its script is broken, never otherwise -- and a line of one of
+   these scripts breaks only where the longest-match words of the list meet.  A missing or unreadable list leaves
+   the built-in table's breaks (between any two clusters).  Chinese and Japanese need no list: ICU's line breaking
+   itself breaks them between characters (cjdict.txt is for word selection), as the built-in table does. */
+
+typedef struct tl_words { unsigned char *data; int *slot; unsigned int mask; int longest, state; } tl_words;
+
+static tl_words g_tl_words[4];
+static HMODULE g_tl_module;              /* the companion (its DllMain): the lists are in "Word Lists\" beside it */
+static WCHAR g_tl_words_dir[MAX_PATH];   /* the layout harness: "<folder>\" holding the lists */
+static const WCHAR *const TL_WORD_FILES[4] = {L"thaidict.txt", L"laodict.txt", L"burmesedict.txt", L"khmerdict.txt"};
+
+/* The word list of the script cp belongs to (0 Thai, 1 Lao, 2 Myanmar, 3 Khmer), or -1. */
+static int tl_word_script(unsigned int cp) {
+    if (cp >= 0x0E00 && cp <= 0x0E7F) return 0;
+    if (cp >= 0x0E80 && cp <= 0x0EFF) return 1;
+    if ((cp >= 0x1000 && cp <= 0x109F) || (cp >= 0xA9E0 && cp <= 0xA9FF) || (cp >= 0xAA60 && cp <= 0xAA7F)) return 2;
+    if ((cp >= 0x1780 && cp <= 0x17FF) || (cp >= 0x19E0 && cp <= 0x19FF)) return 3;
+    return -1;
+}
+
+static unsigned int tl_word_hash(const unsigned char *p, int n) {
+    unsigned int h = 2166136261u;
+    while (n-- > 0) {
+        h = (h ^ *p++) * 16777619u;
+    }
+    return h;
+}
+
+/* The list of a script, read once (NULL when it cannot be read). */
+static tl_words *tl_words_of(int script) {
+    tl_words *w = &g_tl_words[script];
+    WCHAR path[MAX_PATH + 32];
+    HANDLE file;
+    DWORD size, got = 0;
+    unsigned char *p, *end;
+    int count = 0;
+    unsigned int cap;
+    if (w->state != 0) {
+        return w->state > 0 ? w : NULL;
+    }
+    w->state = -1;
+    if (g_tl_words_dir[0] != 0) {
+        lstrcpynW(path, g_tl_words_dir, MAX_PATH);
+    } else {
+        DWORD n;
+        WCHAR *slash;
+        n = GetModuleFileNameW(g_tl_module, path, MAX_PATH);
+        if (n == 0 || n >= MAX_PATH - 40 || (slash = wcsrchr(path, L'\\')) == NULL) {
+            return NULL;
+        }
+        slash[1] = 0;
+        lstrcatW(path, L"Word Lists\\");
+    }
+    if (lstrlenW(path) + lstrlenW(TL_WORD_FILES[script]) >= MAX_PATH) {
+        return NULL;
+    }
+    lstrcatW(path, TL_WORD_FILES[script]);
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return NULL;
+    }
+    size = GetFileSize(file, NULL);
+    w->data = size > 0 && size < 16u * 1024u * 1024u ? (unsigned char *)tl_alloc((size_t)size + 1) : NULL;
+    if (w->data == NULL || !ReadFile(file, w->data, size, &got, NULL) || got != size) {
+        CloseHandle(file);
+        tl_free(w->data);
+        w->data = NULL;
+        return NULL;
+    }
+    CloseHandle(file);
+    /* one word a line (up to a tab or the line's end), '#' lines and the byte order mark left out; each word is
+       ended with a NUL in place */
+    w->data[size] = 0;
+    end = w->data + size;
+    for (p = w->data; p < end; ++p) {
+        if (*p == '\n' || *p == '\r' || *p == '\t') {
+            *p = 0;
+        }
+    }
+    for (p = w->data; p < end; p += lstrlenA((const char *)p) + 1) {
+        if (*p != 0) ++count;
+    }
+    for (cap = 1024; cap < (unsigned int)count * 2u; cap <<= 1) {
+    }
+    w->slot = (int *)tl_alloc(sizeof(int) * cap);
+    if (w->slot == NULL) {
+        tl_free(w->data);
+        w->data = NULL;
+        return NULL;
+    }
+    FillMemory(w->slot, sizeof(int) * cap, 0xFF);
+    w->mask = cap - 1;
+    for (p = w->data; p < end;) {
+        unsigned char *word = p;
+        int n = lstrlenA((const char *)p);
+        p += n + 1;
+        if (word == w->data && n >= 3 && word[0] == 0xEF && word[1] == 0xBB && word[2] == 0xBF) {
+            word += 3;
+            n -= 3;
+        }
+        while (n > 0 && *word == ' ') {
+            ++word;
+            --n;
+        }
+        while (n > 0 && word[n - 1] == ' ') {
+            word[--n] = 0;
+        }
+        if (n <= 0 || *word == '#') {
+            continue;
+        }
+        {
+            unsigned int h = tl_word_hash(word, n) & w->mask;
+            while (w->slot[h] >= 0) {
+                h = (h + 1) & w->mask;
+            }
+            w->slot[h] = (int)(word - w->data);
+            if (n > w->longest) w->longest = n;
+        }
+    }
+    w->state = 1;
+    return w;
+}
+
+/* Is s[0..n) a word of the list? */
+static int tl_is_word(const tl_words *w, const unsigned char *s, int n) {
+    unsigned int h = tl_word_hash(s, n) & w->mask;
+    while (w->slot[h] >= 0) {
+        const unsigned char *word = w->data + w->slot[h];
+        if (memcmp(word, s, (size_t)n) == 0 && word[n] == 0) {
+            return 1;
+        }
+        h = (h + 1) & w->mask;
+    }
+    return 0;
+}
+
+/* Without ICU: ws[k] = 1 for each code point index k (of a cluster start) where a word of a Thai, Lao, Myanmar or
+   Khmer run starts, by the longest words of its list (a cluster no word starts with is a word of its own; a run
+   whose list cannot be read: every cluster).  cl[0..clusters) are the clusters' first code points, cl[clusters] =
+   count. */
+static void tl_word_starts(const unsigned char *text, const int *at, const unsigned int *cps, const int *cl,
+                           int clusters, unsigned char *ws) {
+    int c = 0;
+    while (c < clusters) {
+        int script = tl_word_script(cps[cl[c]]), e = c + 1, i;
+        tl_words *w;
+        if (script < 0) {
+            ++c;
+            continue;
+        }
+        while (e < clusters && tl_word_script(cps[cl[e]]) == script) {
+            ++e;
+        }
+        w = tl_words_of(script);
+        for (i = c; i < e;) {
+            int best = i + 1, j;
+            ws[cl[i]] = 1;
+            if (w != NULL) {
+                for (j = i + 1; j <= e && at[cl[j]] - at[cl[i]] <= w->longest; ++j) {
+                    if (tl_is_word(w, text + at[cl[i]], at[cl[j]] - at[cl[i]])) {
+                        best = j;           /* the longest word found so far */
+                    }
+                }
+            }
+            i = best;
+        }
+        c = e;
+    }
+}
+
 /* Where text[0..n) may break: out[b] = 1 for 0 < b < n when a line may start at byte b (out holds n + 1 bytes).
    Only between whole grapheme clusters; next to a letter of a script written without spaces (or after a zero
    width space), where UAX #14 allows it; and after a run of spaces.  Returns 0 when the text has no such letter
@@ -182,9 +357,9 @@ static void tl_free(void *p) {
 static int tl_breaks(const unsigned char *text, int n, unsigned char *out) {
     const unsigned char *end = text + n;
     int count = 0, i, b, any, units = 0, use_icu = 0;
-    int *at = NULL, *unit_cp = NULL;
+    int *at = NULL, *unit_cp = NULL, *cl = NULL;
     unsigned int *cps = NULL;
-    unsigned char *icu = NULL;
+    unsigned char *icu = NULL, *ws = NULL;
     WCHAR *u16 = NULL;
     for (b = 0; b <= n; ++b) {
         out[b] = 0;
@@ -245,6 +420,34 @@ static int tl_breaks(const unsigned char *text, int n, unsigned char *out) {
             g_tl_close(it);
         }
     }
+    /* without ICU: the words of the Thai, Lao, Myanmar and Khmer runs, by their lists */
+    if (!use_icu) {
+        int clusters = 0;
+        cl = (int *)tl_alloc(sizeof(int) * (size_t)(count + 1));
+        ws = (unsigned char *)tl_alloc((size_t)count + 1);
+        if (cl != NULL && ws != NULL) {
+            i = 0;
+            while (i < count) {
+                unsigned int lastcp;
+                int k = ut_grapheme(text + at[i], end, &lastcp);
+                if (k <= 0) {
+                    break;
+                }
+                cl[clusters++] = i;
+                while (i < count && at[i] < at[cl[clusters - 1]] + k) {
+                    ++i;
+                }
+            }
+            cl[clusters] = i;
+            for (b = 0; b <= count; ++b) {
+                ws[b] = 0;
+            }
+            tl_word_starts(text, at, cps, cl, clusters, ws);
+        } else {
+            tl_free(ws);
+            ws = NULL;
+        }
+    }
     /* between whole clusters only */
     {
         int prev = -1;
@@ -265,6 +468,9 @@ static int tl_breaks(const unsigned char *text, int n, unsigned char *out) {
                 if (ok) {
                     ok = use_icu ? icu[i] != 0 : (last == 0x200B || tl_fallback_may_break(before, after));
                 }
+                if (ok && ws != NULL && tl_word_script(before) >= 0 && tl_word_script(before) == tl_word_script(after)) {
+                    ok = ws[i] != 0;            /* inside a Thai, Lao, Myanmar or Khmer run: between its words */
+                }
                 if (ok) {
                     out[at[i]] = 1;
                 }
@@ -273,7 +479,7 @@ static int tl_breaks(const unsigned char *text, int n, unsigned char *out) {
             i = j;
         }
     }
-    tl_free(at); tl_free(cps); tl_free(icu); tl_free(u16); tl_free(unit_cp);
+    tl_free(at); tl_free(cps); tl_free(icu); tl_free(u16); tl_free(unit_cp); tl_free(cl); tl_free(ws);
     return any;
 }
 

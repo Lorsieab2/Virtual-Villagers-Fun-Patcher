@@ -13,7 +13,10 @@
    spacing and widths are exactly the game's.  Text boxes: a typed character is stored whole or not at
    all, Backspace erases a whole unit, a box never cuts its text by pixels (which could cut inside a
    character), its byte limit is VV_SHARED_NAME_BYTES, and text leaving a box longer than the field it
-   goes to leaves as a short form (long_names.inc). */
+   goes to leaves as a short form (long_names.inc).
+
+   SCREEN EDGE (vt_screen_fit).  Text the patcher or a translation puts on screen never runs past the game
+   window's edges; it may still overflow its own box. */
 
 typedef int (__fastcall *vt_width_fn)(void *font, void *edx, const unsigned char *s, float scale);
 typedef int (__fastcall *vt_draw_fn)(void *ctx, void *edx, const unsigned char *s, int x, int y,
@@ -32,6 +35,7 @@ typedef int (__fastcall *vt_gettext_fn)(unsigned char *wrapper, void *edx, unsig
 typedef int (__fastcall *vt_handler_fn)(unsigned char *box, void *edx, int message, int p1, int p2);
 typedef int (__fastcall *vt_line_height_fn)(void *font, void *edx, const unsigned char *text);
 typedef const char *(__stdcall *vt_translate_fn)(const char *);
+typedef int (__stdcall *vt_active_fn)(void);
 
 #define VT_MARK 0x56000000u          /* a typed text the box takes from the ring: MARK | slot << 8 */
 #define VT_RING 16
@@ -52,6 +56,7 @@ static void *g_chartype_tramp, *g_backspace_back;
 static unsigned char g_ring[VT_RING][40];
 static int g_ring_next;
 static vt_translate_fn g_translate;
+static vt_active_fn g_translations_active;   /* VvfpTranslationsActive: a language is in use */
 static int g_translate_tries;
 static volatile LONG g_own_draws;    /* for the tests: texts drawn or measured by the companion */
 
@@ -66,13 +71,18 @@ typedef struct vt_fit { void *font; float scale; } vt_fit;
    Unicode Font), the game's own width routine for any other text. */
 static int vt_fit_width(void *state, const unsigned char *s, int len) {
     vt_fit *f = (vt_fit *)state;
-    unsigned char buf[VV_SHARED_NAME_BYTES + 8];
-    if (len < 0 || len >= (int)sizeof buf) {
+    unsigned char onstack[VV_SHARED_NAME_BYTES + 8], *buf = onstack;
+    int w;
+    if (len < 0 || (len >= (int)sizeof onstack && (buf = (unsigned char *)tl_alloc((size_t)len + 1)) == NULL)) {
         return 0x7FFFFFFF;
     }
     CopyMemory(buf, s, (size_t)len);
     buf[len] = 0;
-    return vt_needs_own(buf, buf + len) ? vt_own_width(f->font, buf, f->scale) : g_width(f->font, NULL, buf, f->scale);
+    w = vt_needs_own(buf, buf + len) ? vt_own_width(f->font, buf, f->scale) : g_width(f->font, NULL, buf, f->scale);
+    if (buf != onstack) {
+        tl_free(buf);
+    }
+    return w;
 }
 
 /* A whole name fitted to the room the game leaves for its field (docs/UNICODE_SPEC.md row 3, "Fit-to-width"):
@@ -105,6 +115,7 @@ static const unsigned char *vt_source(const unsigned char *s, void *font, float 
         m = GetModuleHandleW(L"VVFP Translations.dll");
         if (m != NULL) {
             g_translate = (vt_translate_fn)GetProcAddress(m, "VvfpTranslateText");
+            g_translations_active = (vt_active_fn)GetProcAddress(m, "VvfpTranslationsActive");
             if (g_translate == NULL) {
                 g_translate_tries = 2000;
             }
@@ -320,6 +331,113 @@ static int vt_own_draw(void *ctx, const unsigned char *s, int x, int y, unsigned
     return 1;
 }
 
+/* ---- The screen edge ------------------------------------------------------------------------------ */
+
+#define VT_SCREEN_WIDTH 800           /* the game window's client area is 800 x 600 in all five games */
+
+/* Text the patcher or a translation puts on screen: a text the companion translated or expanded (t is not the
+   game's s), any UTF-8 text (every text with Use Unicode Font), and every text while a translation is in use. */
+static int vt_ours(const unsigned char *s, const unsigned char *t) {
+    return t != s || vt_needs_own(t, ut_end(t)) || (g_translations_active != NULL && g_translations_active());
+}
+
+/* The right edge text drawn on ctx stays inside: the window's width, or its surface's when that is narrower. */
+static int vt_screen_width(void *ctx) {
+    sdl_surface *target = ctx != NULL ? *(sdl_surface **)((unsigned char *)ctx + 0x30) : NULL;
+    return target != NULL && target->w > 0 && target->w < VT_SCREEN_WIDTH ? target->w : VT_SCREEN_WIDTH;
+}
+
+/* SCREEN EDGE (docs/UNICODE_SPEC.md row 3).  A text drawn at x spans [x, x + its width) -- its callers have
+   applied their alignment already, so x is where its left edge goes.  A text partly left of the window is drawn
+   from the window's left edge; each line that would cross the right edge is cut to the room left, by whole
+   units, with an ellipsis (tl_fit_ellipsis, measured with the glyphs drawn).  A text that fits, or is wholly off
+   the window, is drawn as it is.  Returns the text to draw (t, or a fitted copy in *heap for the caller to free)
+   with *x moved when needed; NULL when a line cannot keep even one unit and the game's English is there to draw
+   instead (`english`). */
+static const unsigned char *vt_screen_fit(void *ctx, const unsigned char *t, int *x, void *font, unsigned char **heap,
+                                          int english) {
+    const unsigned char *end = ut_end(t), *line, *p;
+    vt_fit fit;
+    int nx = *x, edge = vt_screen_width(ctx), widest = 0, lines = 1, o = 0;
+    unsigned char *out;
+    *heap = NULL;
+    if (nx >= edge) {
+        return t;
+    }
+    fit.font = font;
+    fit.scale = 1.0f;
+    for (line = p = t; ; ++p) {
+        if (p == end || *p == '\n') {
+            int w = vt_fit_width(&fit, line, (int)(p - line));
+            if (w > widest) widest = w;
+            if (p == end) break;
+            ++lines;
+            line = p + 1;
+        }
+    }
+    if (nx < 0) {
+        if (nx + widest <= 0) {
+            return t;                 /* wholly left of the window */
+        }
+        nx = 0;
+    }
+    *x = nx;
+    if (nx + widest <= edge) {
+        return t;
+    }
+    out = (unsigned char *)tl_alloc((size_t)(end - t) + 4u * (size_t)lines + 1u);
+    if (out == NULL) {
+        return t;
+    }
+    for (line = p = t; ; ++p) {
+        if (p == end || *p == '\n') {
+            int n = (int)(p - line);
+            int k = vt_fit_width(&fit, line, n) <= edge - nx ? -1
+                  : tl_fit_ellipsis(line, n, edge - nx, vt_fit_width, &fit, out + o, n + 4);
+            if (k < 0) {
+                CopyMemory(out + o, line, (size_t)n);
+                k = n;
+            } else if (english && ((k == 1 && out[o] == 0x85)
+                                   || (k == 3 && out[o] == 0xE2 && out[o + 1] == 0x80 && out[o + 2] == 0xA6))) {
+                tl_free(out);         /* not even one unit fits: the English */
+                return NULL;
+            }
+            o += k;
+            if (p == end) break;
+            out[o++] = '\n';
+            line = p + 1;
+        }
+    }
+    out[o] = 0;
+    *heap = out;
+    return out;
+}
+
+/* Draws t (the game's s, translated or expanded) at x, y, kept on the screen when it is the patcher's or a
+   translation's: the companion's own draw for UTF-8, the game's own draw otherwise (what it returns). */
+static int vt_screen_draw(void *ctx, const unsigned char *s, const unsigned char *t, int x, int y, unsigned int colour,
+                          void *font, void *f) {
+    unsigned char *heap = NULL;
+    int r = 0;
+    if (vt_ours(s, t)) {
+        int fx = x;
+        const unsigned char *k = vt_screen_fit(ctx, t, &fx, f, &heap, t != s);
+        if (k != NULL) {
+            t = k;
+            x = fx;
+        } else {
+            t = s;
+        }
+    }
+    if (vt_needs_own(t, ut_end(t))) {
+        vt_own_draw(ctx, t, x, y, colour, f);
+    } else {
+        r = g_draw(ctx, NULL, t, x, y, colour, font);
+    }
+    tl_free(heap);
+    return r;
+}
+
 /* ---- Width and draw ---------------------------------------------------------------------------- */
 
 static int __fastcall width_hook(void *font, void *edx, const unsigned char *s, float scale) {
@@ -344,9 +462,8 @@ static int __fastcall draw_hook(void *ctx, void *edx, const unsigned char *s, in
         if (g_ln_slot_pending) {
             ln_flush_pending(0);
         }
-        if (t != NULL && f != NULL && vt_needs_own(t, ut_end(t))) {
-            vt_own_draw(ctx, t, x, y, colour, f);
-            return 0;
+        if (t != NULL && f != NULL && s != NULL) {
+            return vt_screen_draw(ctx, s, t, x, y, colour, font, f);
         }
         return g_draw(ctx, NULL, t, x, y, colour, font);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -617,9 +734,22 @@ static int __fastcall nbyte_hook(void *ctx, void *edx, const unsigned char *s, i
                 int advance = vt_line_advance(f, span, span + n, 1.0f);
                 InterlockedIncrement(&g_own_draws);
                 if (!measure_only) {
-                    vt_own_draw(ctx, span, x, y, colour, f);
+                    vt_screen_draw(ctx, span, span, x, y, colour, font, f);
                 }
                 return advance;
+            }
+            if (n < VT_RUN_MAX && !measure_only && vt_ours(span, span)) {
+                /* while a translation is in use: measured as it is, drawn kept on the screen by the game's own
+                   counted draw */
+                unsigned char *heap = NULL;
+                int fx = x;
+                const unsigned char *k = vt_screen_fit(ctx, span, &fx, f, &heap, 0);
+                if (k != NULL && (k != span || fx != x)) {
+                    int advance = g_nbyte(ctx, NULL, s, max_bytes, x, y, 1, colour, font);
+                    g_nbyte(ctx, NULL, k, (int)(ut_end(k) - k), fx, y, 0, colour, font);
+                    tl_free(heap);
+                    return advance;
+                }
             }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -659,6 +789,10 @@ static int __fastcall justify_hook(void *holder, void *edx, const unsigned char 
         void *ctx = holder != NULL ? *(void **)holder : NULL;
         void *f = font != NULL ? font : (ctx != NULL ? *(void **)((unsigned char *)ctx + 0x5C) : NULL);
         const unsigned char *t = vt_source(text, f, 1.0f);
+        if (t != NULL && f != NULL && x >= 0 && x < vt_screen_width(ctx) && x + width > vt_screen_width(ctx)
+            && vt_ours(text, t)) {
+            width = vt_screen_width(ctx) - x;      /* the paragraph wraps at the screen's edge */
+        }
         if (t != NULL && f != NULL && width > 0 && vt_needs_own_paragraph(f, t, width)) {
             /* Lines broken by units, drawn from the left. */
             unsigned char line[4096];
@@ -669,7 +803,7 @@ static int __fastcall justify_hook(void *holder, void *edx, const unsigned char 
                 unsigned char para = 0;
                 const unsigned char *next = vt_own_linefit(f, p, line, sizeof line, width, &para, 0, 1.0f);
                 if (line[0] && !measure_only) {
-                    vt_own_draw(ctx, line, x, y + lines * lh, colour, f);
+                    vt_screen_draw(ctx, line, line, x, y + lines * lh, colour, font, f);
                 }
                 ++lines;
                 if (next == p) {

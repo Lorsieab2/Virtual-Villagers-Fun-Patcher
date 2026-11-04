@@ -44,6 +44,25 @@ BUNDLED_SUMMARY = (
     "folder, in \"Unicode Fonts\", with their licence texts and sources), copied once per game folder, "
     "and not again when the folder already has identical files.**"
 )
+# The shared ICU word lists (assets/word_lists, ICU release-77-1, unchanged): read only where Windows has no icu.dll,
+# to break Thai, Lao, Khmer and Myanmar between words.  Chinese and Japanese break between characters (cjdict.txt,
+# for word selection, stays in the repository's copy of the shared folder and is not installed).
+WORD_FOLDER = ROOT / "assets" / "word_lists"
+WORD_DESTINATION = "Word Lists"
+WORD_LISTS = ("thaidict.txt", "laodict.txt", "khmerdict.txt", "burmesedict.txt", "ICU-LICENSE.txt")
+SCREEN_EDGE = (
+    "**Text and translations never run off the screen:** a line this patch, a long name or a translation draws "
+    "that would cross the edge of the game's 800-pixel-wide window is cut there with \"\u2026\" (whole letters "
+    "only; a justified paragraph wraps at the edge instead), and one that would start left of the window starts "
+    "at its edge; it may still run past its own box. Without a translation, the game's own English is drawn "
+    "exactly as before. This needs this row: with Translations alone (no Unicode row) the game draws by itself "
+    "and nothing is fitted. "
+)
+WORD_SUMMARY = (
+    "Where Windows has no icu.dll (before Windows 10 1903), Thai, Lao, Khmer and Myanmar break between words by "
+    "ICU's own word lists (ICU 77.1, Unicode License; about 4.4 MB in \"Word Lists\", read only when such a line "
+    "is broken). "
+)
 TABLES = ROOT / "data" / "font_glyph_tables.json"
 ROUTINES = ROOT / "native" / "vvfp_unicode_text" / "text_routines.h"
 GAMES = (1, 2, 3, 4, 5)
@@ -106,7 +125,7 @@ def text_description(game: int) -> str:
         "Unifont Upper, and last Last Resort, so every one of Unicode 18.0's assigned characters draws, even "
         "ones no Windows font has). Names, the Details screen, popups, dialogs and every other text use them with their "
         "real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. "
-        + NAMES_AND_TYPING.format(fields=FIELDS[game])
+        + SCREEN_EDGE + WORD_SUMMARY + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**On by default and in Owner's Defaults.** **Cannot be used with \"" + FONT_NAME + "\" (ticking one "
         "unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + TEXT_DLL + "\", started by VVFP "
@@ -125,7 +144,7 @@ def font_description(game: int) -> str:
         "Upper and last Last Resort). Each of the game's two fonts keeps its line height, baseline and weight, and "
         "its size is fitted so a line is as wide as the game's own, so every screen keeps its layout; every "
         "character works, as with \"" + TEXT_NAME + "\". "
-        + NAMES_AND_TYPING.format(fields=FIELDS[game])
+        + SCREEN_EDGE + WORD_SUMMARY + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**Off by default and in Owner's Defaults.** **Cannot be used with \"" + TEXT_NAME + "\" (ticking "
         "one unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
         "emulation of each stock executable). The companion is \"" + FONT_DLL + "\" (the same code as \""
@@ -210,7 +229,15 @@ def behaviour(game: int, tables: dict, override: bool) -> list:
         "Windows has none): a text with Chinese, Japanese, Korean, Thai, Lao, Khmer, Myanmar or emoji breaks between "
         "whole characters where the rules allow (never before a closing mark or small kana, never after an opening "
         "one; Thai and the others at their words, inside a shaped run too), other text at spaces, and a word wider "
-        "than the line after its longest start of whole characters that fits.",
+        "than the line after its longest start of whole characters that fits. Without icu.dll, Thai, Lao, Khmer "
+        "and Myanmar break between the words of ICU's own word lists (\"Word Lists\" beside the companion, read the "
+        "first time a line of that script is broken; a missing list leaves the built-in table).",
+        "The screen edge: a text drawn by the companion, expanded from a long name's short form, or drawn while a "
+        "translation is in use is measured where the game draws it (x is its left edge after the game's own "
+        "alignment); a line that would cross the right edge of the 800-pixel window (or of a narrower surface) is "
+        "drawn as its longest start of whole units that fits with \"\u2026\" after it, a text partly left of the "
+        "window is drawn from its left edge, a justified paragraph is laid out no wider than the room to the edge, "
+        "and when not even one unit fits the game's English is drawn. The widths the game is told are unchanged.",
         f"The SDL_TEXTINPUT case ({g['text_input']['site']}) posts a typed ASCII character exactly as before; any "
         "other well-formed text is handed whole to the focused text box, which stores each character whole (a "
         "Windows-1252 character as its one byte, any other as UTF-8) while it fits the box's limit. Backspace erases "
@@ -227,6 +254,14 @@ def bundled_files() -> list:
     return [
         {"source": f"assets/unicode_fonts/{name}", "destination": f"{FONT_DESTINATION}/{name}", "sha256": sha(FONT_FOLDER / name)}
         for name in BUNDLED_FONTS + BUNDLED_NOTICES
+    ]
+
+
+def word_files() -> list:
+    """The word lists and ICU's licence, installed beside the companion in "Word Lists"."""
+    return [
+        {"source": f"assets/word_lists/{name}", "destination": f"{WORD_DESTINATION}/{name}", "sha256": sha(WORD_FOLDER / name)}
+        for name in WORD_LISTS
     ]
 
 
@@ -261,6 +296,7 @@ def row(game: int, override: bool, dll_sha: str, tables: dict, found: dict) -> d
         "companion_files": [
             {"source": f"assets/{folder}/{dll}", "destination": dll, "sha256": dll_sha},
             *bundled_files(),
+            *word_files(),
         ],
         "patches": [],
         "runtime_detours": detours(game, dll, tables, found),
