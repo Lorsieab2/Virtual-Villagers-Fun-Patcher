@@ -165,6 +165,18 @@ class SidecarV3(unittest.TestCase):
                     ln.write(file, [(b"New...", 24, b"New whole")])
             self.assertEqual(file.read_bytes(), before)
 
+    def test_a_file_that_cannot_be_read_is_never_replaced(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            file = Path(tmp) / ln.file_name(3, 1)
+            before = ln.HEADER + ln.record(b"Old...", b"Old whole", 23)
+            file.write_bytes(before)
+            with mock.patch.object(Path, "read_bytes", side_effect=PermissionError("denied")):
+                with self.assertRaises(PermissionError):
+                    ln.write(file, [(b"New...", 23, b"New whole")])
+            self.assertEqual(file.read_bytes(), before)
+            ln.write(file, [(b"New...", 23, b"New whole")])                  # readable again: old records kept
+            self.assertEqual([r[0] for r in ln.records(file.read_bytes())], [b"Old...", b"New..."])
+
     def test_write_refuses_an_invalid_record(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(ValueError):
@@ -667,6 +679,34 @@ class UnicodeFontPreview(unittest.TestCase):
                 self.assertTrue(picture.bbox(), "blank")
         sample = uf.render("vv3", "ldwarialbold", "Segoe UI", uf.SAMPLE, folder)
         self.assertTrue(sample.bbox())
+
+    def test_whole_runs_are_shaped_arabic_joins_and_a_zwj_family_is_one_glyph(self):
+        import vv_font_glyphs as vfg
+        import vv_unicode_font as uf
+        folder = ROOT / "research" / "game-images" / "Virtual Villagers - The Secret City" / "Images"
+        glyphs = vfg._font("vv3", "ldwarialbold", folder)
+        drawer = uf._Drawer(glyphs.gdi, glyphs, "Segoe UI", 14)
+
+        def shaped(text, face):
+            run = uf.items(text)
+            self.assertEqual(len(run), 1)
+            _start, _end, analysis, _level = run[0]
+            return uf.shape_run(glyphs.gdi, drawer.caches, face, 20, text, analysis)
+
+        word = "سلام"                      # salam
+        joined = shaped(word, "Segoe UI")
+        isolated = [shaped(ch, "Segoe UI").glyphs[0] for ch in word]
+        self.assertEqual(len(joined.glyphs), 4)
+        self.assertNotEqual(joined.glyphs, isolated)                    # the letters take their joined forms
+        family = "👨‍👩‍👧"
+        # Uniscribe keeps the joiners in the run; a font with a family ligature in its GSUB gives one glyph, Segoe UI
+        # Emoji gives its three people (and the zero-width joiners), drawn together as one run
+        self.assertLessEqual(len(shaped(family, "Segoe UI Emoji").glyphs), 5)
+        # drawn as one cell: much narrower than three separate people
+        cells = drawer.cells(family)
+        self.assertEqual(len(cells), 1)
+        # an accent stays on its letter: one cell for e + combining acute
+        self.assertEqual(len(drawer.cells("é")), 1)
 
     def test_a_character_the_face_lacks_comes_from_the_fallback_chain(self):
         import vv_unicode_font as uf

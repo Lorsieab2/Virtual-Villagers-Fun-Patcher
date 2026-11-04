@@ -109,17 +109,17 @@ def add_private_font(path: Path) -> bool:
 
 def render(game: str, font: str, face: str, text: str, images_dir):
     """`text` on one line in `face`, as "Use Unicode Font" draws it in `font` of `game` (vv_picture_image.Image), or
-    None where this machine cannot draw (no Windows GDI) .  Each character comes from the first face of the chain
-    that has it (the chosen face first); the game's own letters are never used."""
+    None where this machine cannot draw (no Windows GDI).  Windows shapes each run of one script as a whole
+    (Uniscribe: joined Arabic, combining marks, ZWJ emoji), in the first face of the chain that has every glyph of it
+    (the chosen face first); the game's own letters are never used."""
     from vv_picture_image import Image
     glyphs = vfg._font(game, font, images_dir)
     gdi = glyphs.gdi
     if gdi is None:
         return None
     m = glyphs.metrics
-    cap = m.baseline - m.cap_top
-    drawer = _Drawer(gdi, glyphs, face, cap)
-    cells = [drawer.cell(ch) for ch in text]
+    drawer = _Drawer(gdi, glyphs, face, m.baseline - m.cap_top)
+    cells = drawer.cells(text)
     width = max(1, sum(w for w, _mask in cells) + m.spacing * len(cells))
     out = Image.new(width, m.line)
     x = 0
@@ -129,6 +129,86 @@ def render(game: str, font: str, face: str, text: str, images_dir):
             out.draw(tile, x, 0)
         x += w + m.spacing
     return out
+
+
+class _Run:
+    """Glyphs of a run of text shaped in one face: glyph ids, advances, offsets (Uniscribe's, in visual order)."""
+
+    def __init__(self, glyphs: list[int], advances: list[int], offsets: list[tuple[int, int]]) -> None:
+        self.glyphs, self.advances, self.offsets = glyphs, advances, offsets
+
+
+def _usp():
+    import ctypes
+    usp = ctypes.WinDLL("usp10")
+    c = ctypes
+    usp.ScriptItemize.argtypes = [c.c_wchar_p, c.c_int, c.c_int, c.c_void_p, c.c_void_p, c.c_void_p,
+                                  c.POINTER(c.c_int)]
+    usp.ScriptShape.argtypes = [c.c_void_p, c.POINTER(c.c_void_p), c.c_wchar_p, c.c_int, c.c_int, c.c_void_p,
+                                c.c_void_p, c.c_void_p, c.c_void_p, c.POINTER(c.c_int)]
+    usp.ScriptPlace.argtypes = [c.c_void_p, c.POINTER(c.c_void_p), c.c_void_p, c.c_int, c.c_void_p, c.c_void_p,
+                                c.c_void_p, c.c_void_p, c.c_void_p]
+    usp.ScriptLayout.argtypes = [c.c_int, c.c_void_p, c.c_void_p, c.c_void_p]
+    usp.ScriptGetFontProperties.argtypes = [c.c_void_p, c.POINTER(c.c_void_p), c.c_void_p]
+    return usp
+
+
+def items(text: str) -> list[tuple[int, int, bytes, int]]:
+    """Windows' runs of `text` (ScriptItemize): (start, end) in UTF-16 units, the run's analysis (4 bytes) and its bidi
+    level, in logical order."""
+    import ctypes
+    n = len(text.encode("utf-16-le")) // 2
+    if n == 0:
+        return []
+    cap = n + 2
+    buf = (ctypes.c_ubyte * (8 * (cap + 1)))()
+    count = ctypes.c_int(0)
+    if _usp().ScriptItemize(text, n, cap, None, None, buf, ctypes.byref(count)) != 0:
+        return []
+    out = []
+    raw = bytes(buf)
+    for i in range(count.value):
+        pos = int.from_bytes(raw[8 * i:8 * i + 4], "little")
+        end = int.from_bytes(raw[8 * (i + 1):8 * (i + 1) + 4], "little")
+        analysis = raw[8 * i + 4:8 * i + 8]
+        level = int.from_bytes(analysis[2:4], "little") & 0x1F
+        out.append((pos, end, analysis, level))
+    return out
+
+
+def shape_run(gdi, cache: dict, name: str, ppem: int, text: str, analysis: bytes):
+    """`text` (one run) shaped and placed in the face selected at `ppem` (Uniscribe ScriptShape + ScriptPlace); None
+    when the face lacks a glyph of it."""
+    import ctypes
+    c = ctypes
+    usp = _usp()
+    gdi._select(name, 700, ppem)
+    n = len(text.encode("utf-16-le")) // 2
+    cap = 3 * n + 16
+    sc = cache.setdefault((name, ppem), c.c_void_p())
+    analysis_buf = (c.c_ubyte * 4)(*analysis)
+    glyphs = (c.c_ushort * cap)()
+    clusters = (c.c_ushort * cap)()
+    attrs = (c.c_ushort * cap)()
+    total = c.c_int(0)
+    if usp.ScriptShape(gdi.dc, c.byref(sc), text, n, cap, analysis_buf, glyphs, clusters, attrs, c.byref(total)) != 0:
+        return None
+    count = total.value
+    props = (c.c_ubyte * 16)()
+    c.cast(props, c.POINTER(c.c_int))[0] = 16
+    default = None
+    if usp.ScriptGetFontProperties(gdi.dc, c.byref(sc), props) == 0:
+        default = c.cast(c.byref(props, 6), c.POINTER(c.c_ushort))[0]            # wgDefault
+    for i in range(count):
+        if (glyphs[i] == default or glyphs[i] == 0) and not attrs[i] & 0x40:        # a zero-width joiner is no gap
+            return None
+    advances = (c.c_int * count)()
+    offsets = (c.c_int * (2 * count))()
+    abc = (c.c_int * 3)()
+    if usp.ScriptPlace(gdi.dc, c.byref(sc), glyphs, count, attrs, analysis_buf, advances, offsets, abc) != 0:
+        return None
+    return _Run([glyphs[i] for i in range(count)], [advances[i] for i in range(count)],
+                [(offsets[2 * i], offsets[2 * i + 1]) for i in range(count)])
 
 
 class _Drawer:
@@ -142,55 +222,13 @@ class _Drawer:
         self.target = glyphs.sheet.box(ord("H")).total()
         self.caches: dict = {}
 
-    def chain(self, ch: str):
+    def faces(self):
         for name in (self.face,) + FALLBACK_CHAIN:
-            if not self.gdi.has_face(name, 700):
-                continue
-            if ord(ch) > 0xFFFF:
-                if self.glyph_index(name, 20, ch) is not None:
-                    yield name
-            elif self.gdi.has_char(name, 700, ch):
+            if self.gdi.has_face(name, 700):
                 yield name
 
-    def glyph_index(self, name: str, ppem: int, ch: str):
-        """The glyph a face has for a character outside the BMP.  GDI's GetGlyphIndicesW sees only the halves of a
-        surrogate pair, so Windows' Uniscribe shapes the whole UTF-16 unit (ScriptItemize + ScriptShape), as the
-        companion does; None when the face lacks it (its default glyph comes back)."""
-        import ctypes
-        self.gdi._select(name, 700, ppem)
-        usp = ctypes.WinDLL("usp10")
-        units = ch.encode("utf-16-le")
-        count = len(units) // 2
-        items = (ctypes.c_int * 8)()
-        n_items = ctypes.c_int(0)
-        usp.ScriptItemize.argtypes = [ctypes.c_wchar_p, ctypes.c_int, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p,
-                                      ctypes.c_void_p, ctypes.POINTER(ctypes.c_int)]
-        if usp.ScriptItemize(ch, count, 3, None, None, items, ctypes.byref(n_items)) != 0 or n_items.value < 1:
-            return None
-        cache = self.caches.setdefault((name, ppem), ctypes.c_void_p())
-        glyphs = (ctypes.c_ushort * 8)()
-        clusters = (ctypes.c_ushort * 8)()
-        attrs = (ctypes.c_ushort * 8)()
-        total = ctypes.c_int(0)
-        usp.ScriptShape.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_wchar_p, ctypes.c_int,
-                                    ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p,
-                                    ctypes.POINTER(ctypes.c_int)]
-        analysis = ctypes.cast(ctypes.byref(items, 4), ctypes.c_void_p)       # SCRIPT_ITEM: iCharPos, then the analysis
-        if usp.ScriptShape(self.gdi.dc, ctypes.byref(cache), ch, count, 8, analysis, glyphs, clusters, attrs,
-                           ctypes.byref(total)) != 0 or total.value != 1:
-            return None
-        props = (ctypes.c_ubyte * 16)()
-        ctypes.cast(props, ctypes.POINTER(ctypes.c_int))[0] = 16
-        usp.ScriptGetFontProperties.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_void_p]
-        default = None
-        if usp.ScriptGetFontProperties(self.gdi.dc, ctypes.byref(cache), props) == 0:
-            default = ctypes.cast(ctypes.byref(props, 6), ctypes.POINTER(ctypes.c_ushort))[0]   # wgDefault
-        if glyphs[0] == 0 or glyphs[0] == default:
-            return None
-        return glyphs[0]
-
     def indexed(self, name: str, ppem: int, glyph: int):
-        """(mask, rows above the baseline, advance) of a glyph by index (GGO_GLYPH_INDEX)."""
+        """(mask, rows above the baseline, columns from the pen, advance) of a glyph by index (GGO_GLYPH_INDEX)."""
         gdi = self.gdi
         gm = gdi.GLYPHMETRICS()
         one, zero = gdi.FIXED(0, 1), gdi.FIXED(0, 0)
@@ -198,9 +236,9 @@ class _Drawer:
         gdi._select(name, 700, ppem)
         size = gdi.gdi.GetGlyphOutlineW(gdi.dc, glyph, 0x80 | 6, gdi.ct.byref(gm), 0, None, gdi.ct.byref(mat))
         if size == 0xFFFFFFFF:
-            return None, 0, 0
+            return None, 0, 0, 0
         if size == 0:
-            return None, 0, gm.gmCellIncX
+            return None, 0, 0, gm.gmCellIncX
         buf = (gdi.ct.c_ubyte * size)()
         gdi.gdi.GetGlyphOutlineW(gdi.dc, glyph, 0x80 | 6, gdi.ct.byref(gm), size, buf, gdi.ct.byref(mat))
         w, h = gm.gmBlackBoxX, gm.gmBlackBoxY
@@ -210,7 +248,7 @@ class _Drawer:
             for x in range(w):
                 v = buf[y * pitch + x]
                 mask.px[y * w + x] = (v * 255 + 32) // 64 if v < 64 else 255
-        return mask, gm.gmptGlyphOrigin.y, gm.gmCellIncX
+        return mask, gm.gmptGlyphOrigin.y, gm.gmptGlyphOrigin.x, gm.gmCellIncX
 
     def em(self, name: str) -> int:
         if name not in self.ems:
@@ -251,25 +289,70 @@ class _Drawer:
             self.bold[name] = steps
         return self.bold[name]
 
-    def cell(self, ch: str):
-        """(the advance of the cell, its mask as tall as the line or None for a blank)"""
-        m = self.metrics
-        for name in self.chain(ch):
+    def shaped(self, text: str, analysis: bytes):
+        """(face, ppem, _Run) for the first face that has every glyph of the run, or None."""
+        for name in self.faces():
             ppem = self.em(name)
-            if ord(ch) > 0xFFFF:
-                glyph = self.glyph_index(name, ppem, ch)
-                mask, above, adv = self.indexed(name, ppem, glyph) if glyph else (None, 0, 0)
-                r = (mask, above) if mask is not None else None
-            else:
-                r = self.gdi.raster(name, 700, ppem, ch)
-                adv = self.advance(name, ppem, ch)
-            if r is None:
-                return adv, None
-            ink, above = r
-            for _ in range(self.thickness(name, ppem)):
-                ink = vfg._embolden(ink)
-            return adv, vfg._place(ink, m.baseline - above, m) if ink.w else None
-        return m.left + m.right + 4, None            # no face has it: the game draws Segoe UI's missing box; blank here
+            run = shape_run(self.gdi, self.caches, name, ppem, text, analysis)
+            if run is not None:
+                return name, ppem, run
+        return None
+
+    def cells(self, text: str):
+        """[(advance, mask)] one per run of `text`, in visual order: the run's glyphs drawn side by side at their placed
+        offsets on the font's baseline."""
+        import ctypes
+        m = self.metrics
+        pieces = items(text)
+        if not pieces:
+            return []
+        units = text.encode("utf-16-le")
+        order = list(range(len(pieces)))
+        levels = (ctypes.c_ubyte * len(pieces))(*[p[3] for p in pieces])
+        visual = (ctypes.c_int * len(pieces))()
+        if _usp().ScriptLayout(len(pieces), levels, visual, None) == 0:
+            order = [visual[i] for i in range(len(pieces))]          # visual position -> logical run
+        out = []
+        for index in order:
+            start, end, analysis, _level = pieces[index]
+            run_text = units[2 * start:2 * end].decode("utf-16-le")
+            found = self.shaped(run_text, analysis)
+            if found is None:
+                out.append((m.left + m.right + 4, None))       # no face has it: the game draws Segoe UI's missing box
+                continue
+            name, ppem, run = found
+            out.append(self.draw(name, ppem, run))
+        return out
+
+    def draw(self, name: str, ppem: int, run: _Run):
+        m = self.metrics
+        pad = 4
+        total = sum(run.advances)
+        canvas = vfg.Mask.blank(total + 2 * pad + ppem, m.line)
+        pen = 0
+        steps = self.thickness(name, ppem)
+        for glyph, advance, (du, dv) in zip(run.glyphs, run.advances, run.offsets):
+            mask, above, left, _cell = self.indexed(name, ppem, glyph)
+            if mask is not None and mask.w:
+                for _ in range(steps):
+                    mask = vfg._embolden(mask)
+                x0 = pad + pen + du + left
+                y0 = m.baseline - above - dv
+                for y in range(mask.h):
+                    for x in range(mask.w):
+                        cx, cy = x0 + x, y0 + y
+                        if 0 <= cx < canvas.w and 0 <= cy < canvas.h:
+                            i = cy * canvas.w + cx
+                            canvas.px[i] = max(canvas.px[i], mask.px[y * mask.w + x])
+            pen += advance
+        return total, _crop(canvas, pad, total)
+
+
+def _crop(canvas, pad: int, total: int):
+    """The cell of a run: from its pen start (`pad` columns in) to the end of its advance or its ink."""
+    ink = canvas.ink()
+    right = max(pad + total, ink[2] + 1) if ink else pad + total
+    return canvas.crop(pad, 0, right, canvas.h) if right > pad else None
 
 
 # ---------------------------------------------------------------------------------------------------

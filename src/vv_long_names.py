@@ -113,7 +113,7 @@ def write(file: Path, new: list[tuple[bytes, int, bytes]]) -> None:
     """Keep `new` records (short form, room, whole text) in a Long Names file, as the companion does: the file's
     own valid records first (v1/v2 turned into v3), then the new ones whose short form is not there yet; the
     whole file is made in "<file>.tmp" and moved over the old one, and written in place only when the move is
-    refused.  Raises ValueError for a record that is not valid, OSError when nothing could be written."""
+    refused.  Raises ValueError for a record that is not valid, OSError when nothing could be written or an existing file could not be read (it is then left as it is)."""
     import os
     file = Path(file)
     for short, room, whole in new:
@@ -121,8 +121,9 @@ def write(file: Path, new: list[tuple[bytes, int, bytes]]) -> None:
             raise ValueError(f"not a valid long-name record: {short!r}")
     try:
         old = records(file.read_bytes())
-    except OSError:
-        old = []
+    except FileNotFoundError:
+        old = []                       # no file yet
+    # any other failure to read a file that is there (access denied...) raises: it is never replaced by one record
     have = {short for short, _room, _whole in old}
     out = [HEADER]
     for short, room, whole in old:

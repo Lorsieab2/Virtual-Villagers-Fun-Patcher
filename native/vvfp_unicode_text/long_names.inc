@@ -220,20 +220,30 @@ static int ln_version(const unsigned char *data, DWORD size) {
 }
 
 /* Read a whole file (at most 16 MB).  NULL when absent or unreadable; *size is its length. */
+/* g_ln_read_failed: the last ln_read_file could not read a file that IS there (access denied, no memory, a failed
+   read).  An absent file is not a failure.  A writer never replaces a file it failed to read: that would drop
+   every record in it. */
+static int g_ln_read_failed;
+
 static unsigned char *ln_read_file(const WCHAR *path, DWORD *size) {
     HANDLE f = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
     DWORD got = 0;
     unsigned char *data;
+    g_ln_read_failed = 0;
     if (f == INVALID_HANDLE_VALUE) {
+        DWORD why = GetLastError();
+        g_ln_read_failed = why != ERROR_FILE_NOT_FOUND && why != ERROR_PATH_NOT_FOUND;
         return NULL;
     }
     *size = GetFileSize(f, NULL);
     if (*size == INVALID_FILE_SIZE || *size > 16 * 1024 * 1024) {
+        g_ln_read_failed = 1;
         CloseHandle(f);
         return NULL;
     }
     data = (unsigned char *)vg_alloc(*size + 1);
     if (data == NULL || !ReadFile(f, data, *size, &got, NULL) || got != *size) {
+        g_ln_read_failed = 1;
         vg_free(data);
         CloseHandle(f);
         return NULL;
@@ -396,6 +406,9 @@ static void ln_write_once(ln_pair *pair) {
     b.p = NULL;
     b.n = b.cap = 0;
     old = ln_read_file(path, &size);
+    if (g_ln_read_failed) {
+        return;                         /* the file is there but unreadable: never replace it; the pair stays pending */
+    }
     version = old != NULL ? ln_version(old, size) : 0;
     if (!ln_buf_put(&b, LN_HEADER, LN_HEADER_LEN)) {
         vg_free(old);

@@ -259,6 +259,7 @@ class TextRun(ute.FontRun):
             self._files_installed = True
             self.write_fault = None
             self.move_fault = False
+            self.read_fault = False
             self.moves: list = []
             self.deleted: list = []
             self.opened: list = []
@@ -339,6 +340,9 @@ class TextRun(ute.FontRun):
                 elif name == "SetFilePointerEx":
                     run.pos[m._open_path] = arg(1)
                     ret(1, 20)
+                elif name == "ReadFile" and run.read_fault:
+                    run.last_error = 5
+                    ret(0, 20)
                 elif name == "ReadFile":
                     data = m.files.get(m._open_path, b"")
                     at = run.pos.get(m._open_path, 0)

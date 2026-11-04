@@ -622,6 +622,32 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(run.export("VvfpLongNamesFlush"), 1)      # the save call's flush
                 self.assertEqual(ln.parse(the_file()).get(pending), _bytes_of(FLUSHED + "銀"))
 
+    def test_a_failed_read_of_the_long_names_file_never_replaces_it(self):
+        """A file that is there but cannot be read is not a missing file: nothing is written over it, the record stays
+        pending, and the next write keeps every old record."""
+        import vv_long_names as ln
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                n = int(game[2])
+                files = run.use_files(1)
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of("玉座" * 14 + "一"))
+                first = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                found = next(p for p in files if p.endswith(f"Long Names\\{ln.file_name(n, 1)}"))
+                kept = files[found]
+                self.assertIn(first, ln.parse(kept))
+                run.read_fault = True
+                wrapper, box = run.new_box(23)
+                run.set_text(box, _bytes_of("金座" * 14 + "一"))
+                second = run.get_text(wrapper, FIELD[game]).split(bytes(1))[0]
+                run.read_fault = False
+                self.assertEqual(files[found], kept)                              # the old file is intact
+                self.assertNotIn(second, ln.parse(files[found]))                  # the record is still pending
+                self.assertEqual(run.export("VvfpLongNamesFlush"), 1)
+                pairs = ln.parse(files[found])
+                self.assertIn(first, pairs)                                       # the old records are kept
+                self.assertIn(second, pairs)
+
     def test_the_statistics_save_call_flushes_the_long_names_before_the_writer(self):
         source = (ROOT / "native" / "statistics_export" / "statistics_export.c").read_text(encoding="utf-8")
         flush = source.index("vv_long_names_flush();")
