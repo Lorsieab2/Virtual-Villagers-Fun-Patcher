@@ -57,7 +57,45 @@ static volatile LONG g_own_draws;    /* for the tests: texts drawn or measured b
 
 /* ---- 2. Translations and long names ----------------------------------------------------------- */
 
-static const unsigned char *vt_source(const unsigned char *s) {
+static int vt_own_width(void *font, const unsigned char *s, float scale);
+static int vt_needs_own(const unsigned char *s, const unsigned char *end);
+
+typedef struct vt_fit { void *font; float scale; } vt_fit;
+
+/* The width of s[0..len) with the glyphs the game will draw: the companion's own units for UTF-8 (or with Use
+   Unicode Font), the game's own width routine for any other text. */
+static int vt_fit_width(void *state, const unsigned char *s, int len) {
+    vt_fit *f = (vt_fit *)state;
+    unsigned char buf[VV_SHARED_NAME_BYTES + 8];
+    if (len < 0 || len >= (int)sizeof buf) {
+        return 0x7FFFFFFF;
+    }
+    CopyMemory(buf, s, (size_t)len);
+    buf[len] = 0;
+    return vt_needs_own(buf, buf + len) ? vt_own_width(f->font, buf, f->scale) : g_width(f->font, NULL, buf, f->scale);
+}
+
+/* A whole name fitted to the room the game leaves for its field (docs/UNICODE_SPEC.md row 3, "Fit-to-width"):
+   the width of as many "W" as the field holds bytes -- the stock layout's own measure (its name boxes are sized
+   by a string of W) -- measured in the font it is drawn in.  -1: it fits as it is. */
+static int vt_fit_name(void *state, const unsigned char *whole, int len, int room_bytes, unsigned char *out, int cap) {
+    vt_fit *f = (vt_fit *)state;
+    unsigned char ws[VV_SHARED_NAME_BYTES + 1];
+    int room;
+    if (f == NULL || f->font == NULL || room_bytes <= 0 || room_bytes > VV_SHARED_NAME_BYTES) {
+        return -1;
+    }
+    FillMemory(ws, (size_t)room_bytes, 'W');
+    ws[room_bytes] = 0;
+    room = g_width(f->font, NULL, ws, f->scale);
+    if (cap > VV_SHARED_NAME_BYTES + 4) {
+        cap = VV_SHARED_NAME_BYTES + 4;
+    }
+    return tl_fit_ellipsis(whole, len, room, vt_fit_width, f, out, cap);
+}
+
+static const unsigned char *vt_source(const unsigned char *s, void *font, float scale) {
+    vt_fit fit;
     if (s == NULL) {
         return s;
     }
@@ -78,7 +116,13 @@ static const unsigned char *vt_source(const unsigned char *s) {
             s = t;
         }
     }
-    return ln_expand(s);
+    if (font == NULL) {
+        return ln_expand(s, NULL, NULL, NULL);
+    }
+    fit.font = font;
+    fit.scale = scale;
+    /* the cache key: the font and the scale (whole steps in the games) */
+    return ln_expand(s, vt_fit_name, &fit, (const void *)((UINT_PTR)font ^ ((UINT_PTR)(scale * 16.0f) << 24)));
 }
 
 static int vt_needs_own(const unsigned char *s, const unsigned char *end) {
@@ -136,18 +180,29 @@ static int vt_runs(void *font, const unsigned char *s, const unsigned char *end,
     }
     while (s < end) {
         void *target;
-        int colour_page = 0, b;
-        unsigned char byte;
+        int colour_page = 0, b, ul;
+        unsigned char byte, composed[64];
+        const unsigned char *us = s;
         ut_unit(s, end, &u);
         if (u.len <= 0) {
             break;
         }
-        b = (u.kind == UT_SPACE && !g_override) ? ' ' : vt_font_byte(impl, s, u.len);
+        ul = u.len;
+        if (u.kind == UT_CLUSTER && u.len > 1) {
+            /* a base letter and its marks as their precomposed letter where one exists (NFC: the font's own é
+               for e + U+0301); otherwise the whole cluster */
+            int c = tl_compose(s, u.len, composed, (int)sizeof composed);
+            if (c > 0) {
+                us = composed;
+                ul = c;
+            }
+        }
+        b = (u.kind == UT_SPACE && !g_override) ? ' ' : vt_font_byte(impl, us, ul);
         if (b >= 0) {
             target = font;
             byte = (unsigned char)b;
         } else {
-            rg_entry *e = rf != NULL ? rg_unit(rf, s, u.len) : NULL;
+            rg_entry *e = rf != NULL ? rg_unit(rf, us, ul) : NULL;
             if (e != NULL) {
                 target = e->page->outer;
                 colour_page = e->page->colour;
@@ -270,7 +325,7 @@ static int vt_own_draw(void *ctx, const unsigned char *s, int x, int y, unsigned
 static int __fastcall width_hook(void *font, void *edx, const unsigned char *s, float scale) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(s);
+        const unsigned char *t = vt_source(s, font, scale);
         if (t != NULL && font != NULL && vt_needs_own(t, ut_end(t))) {
             return vt_own_width(font, t, scale);
         }
@@ -284,8 +339,8 @@ static int __fastcall draw_hook(void *ctx, void *edx, const unsigned char *s, in
                                 unsigned int colour, void *font) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(s);
         void *f = font != NULL ? font : *(void **)((unsigned char *)ctx + 0x5C);
+        const unsigned char *t = vt_source(s, f, 1.0f);
         if (g_ln_slot_pending) {
             ln_flush_pending(0);
         }
@@ -305,16 +360,77 @@ static int vt_unit_advance(void *font, const unsigned char *s, int len, float sc
     return vt_line_advance(font, s, s + len, scale);
 }
 
-/* The game's line fitting, by units: breaks at spaces as the game does, between Chinese and Japanese
-   characters (not before closing marks or small kana), and inside a word only when the word alone is
-   wider than the line -- at a unit, never inside one.  Never writes more than max_count bytes. */
-static const unsigned char *vt_own_linefit(void *font, const unsigned char *src, unsigned char *out, int max_count,
-                                           int max_width, unsigned char *paragraph, int nl_as_space, float scale) {
+#define VT_BREAK_SPAN 8192            /* the bytes of a text looked at for one line's breaks */
+
+typedef struct vt_breaks { const unsigned char *base; int span; unsigned char *at; } vt_breaks;
+
+/* May a line start at q (text_layout.h tl_breaks: UAX #14 by ICU, or the built-in table)? */
+static int vt_may_break(const vt_breaks *b, const unsigned char *q) {
+    int i = (int)(q - b->base);
+    return b->at != NULL && i > 0 && i < b->span && b->at[i] != 0;
+}
+
+/* The width of s[0..len) less its trailing spaces. */
+static int vt_trimmed_advance(void *font, const unsigned char *s, int len, float scale) {
+    while (len > 0 && s[len - 1] == ' ') {
+        --len;
+    }
+    return len > 0 ? vt_unit_advance(font, s, len, scale) : 0;
+}
+
+/* The longest start of the shaped run s[0..len), ending between whole clusters (and, with `need`, where a line
+   may break), whose bytes fit `bytes` and whose width, its trailing spaces left out, fits `room`; 0 when none.
+   The candidates are measured by halving (a start is never narrower than a shorter one), so a long run is
+   shaped only a few times. */
+static int vt_run_fit(void *font, const unsigned char *s, int len, int room, int bytes, float scale,
+                      const vt_breaks *b, int need) {
+    const unsigned char *p = s, *q = s + len;
+    int *ends, n = 0, lo, hi, best = 0;
+    ends = (int *)tl_alloc(sizeof(int) * (size_t)(len + 1));
+    if (ends == NULL) {
+        return 0;
+    }
+    while (p < q) {
+        unsigned int lastcp;
+        int k = ut_grapheme(p, q, &lastcp);
+        if (k <= 0) {
+            break;
+        }
+        p += k;
+        if ((int)(p - s) > bytes) {
+            break;
+        }
+        if (!need || vt_may_break(b, p)) {
+            ends[n++] = (int)(p - s);
+        }
+    }
+    lo = 0;
+    hi = n - 1;
+    while (lo <= hi) {
+        int mid = (lo + hi) / 2;
+        if (vt_trimmed_advance(font, s, ends[mid], scale) <= room) {
+            best = ends[mid];
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    tl_free(ends);
+    return best;
+}
+
+/* The game's line fitting, by units (docs/UNICODE_SPEC.md row 3, "Line breaking"): breaks at spaces as the game
+   does; between whole clusters next to a letter of a script written without spaces (Chinese, Japanese, Korean,
+   Thai, Lao, Khmer, Myanmar, emoji) where UAX #14 allows it -- Windows' ICU, which knows the Thai, Lao, Khmer and
+   Myanmar words and the kinsoku rules, or the built-in table (text_layout.h) -- inside a shaped run as well; and
+   inside a word only when the word alone is wider than the line: after its longest start of whole clusters that
+   fits (at least one).  Never writes more than max_count bytes. */
+static const unsigned char *vt_linefit_units(void *font, const unsigned char *src, unsigned char *out, int max_count,
+                                             int max_width, unsigned char *paragraph, int nl_as_space, float scale,
+                                             const vt_breaks *brk) {
     const unsigned char *p = src, *end = ut_end(src), *break_src = NULL;
     int o = 0, w = 0, break_o = -1, prev_nl = 0;
-    unsigned int prev_last = 0;
     ut_unit_t u;
-    InterlockedIncrement(&g_own_draws);
     out[0] = 0;
     if (paragraph != NULL) {
         *paragraph = 0;
@@ -369,11 +485,24 @@ static const unsigned char *vt_own_linefit(void *font, const unsigned char *src,
         }
         {
             int uw = vt_unit_advance(font, p, u.len, scale);
-            if (o > 0 && out[o - 1] != ' ' && ut_break_between(prev_last, u.first)) {
+            if (o > 0 && out[o - 1] != ' ' && vt_may_break(brk, p)) {
                 break_o = o;
                 break_src = p;
             }
             if (o + u.len >= max_count || w + uw > max_width) {
+                if (u.kind == UT_RUN) {
+                    /* a shaped run breaks inside where a line may break (a Thai word, a space in it) */
+                    int b = vt_run_fit(font, p, u.len, max_width - w, max_count - 1 - o, scale, brk, 1);
+                    if (b > 0) {
+                        CopyMemory(out + o, p, (size_t)b);
+                        o += b;
+                        while (o > 0 && out[o - 1] == ' ') {
+                            --o;
+                        }
+                        out[o] = 0;
+                        return p + b;
+                    }
+                }
                 if (break_o > 0) {
                     o = break_o;
                     while (o > 0 && out[o - 1] == ' ') {
@@ -386,10 +515,21 @@ static const unsigned char *vt_own_linefit(void *font, const unsigned char *src,
                     out[o] = 0;
                     return p;
                 }
-                /* One unit wider than the line: it goes alone (cut between characters when it is
-                   longer than the buffer itself). */
+                /* One unit wider than the line: a shaped run is cut after its longest start of whole clusters
+                   that fits (at least one); any other unit goes alone (cut between characters when it is longer
+                   than the buffer itself). */
                 {
-                    int n = u.len < max_count - 1 ? u.len : ut_fit(p, u.len, max_count - 1);
+                    int n = 0;
+                    if (u.kind == UT_RUN) {
+                        n = vt_run_fit(font, p, u.len, max_width, max_count - 1, scale, brk, 0);
+                        if (n <= 0) {
+                            unsigned int lastcp;
+                            n = ut_grapheme(p, p + u.len, &lastcp);
+                        }
+                    }
+                    if (n <= 0 || n > max_count - 1) {
+                        n = u.len < max_count - 1 ? u.len : ut_fit(p, u.len, max_count - 1);
+                    }
                     if (n <= 0) {
                         unsigned int cp;
                         n = ut_next(p, end, &cp);
@@ -403,12 +543,44 @@ static const unsigned char *vt_own_linefit(void *font, const unsigned char *src,
                 }
             }
             CopyMemory(out + o, p, (size_t)u.len);
+            if (u.kind == UT_RUN) {
+                /* the run's own last place to break, for a unit after it that does not fit */
+                const unsigned char *q;
+                for (q = p + u.len - 1; q > p; --q) {
+                    if (vt_may_break(brk, q)) {
+                        break_o = o + (int)(q - p);
+                        break_src = q;
+                        break;
+                    }
+                }
+            }
             o += u.len;
             w += uw;
-            prev_last = u.last;
             p += u.len;
         }
     }
+}
+
+static const unsigned char *vt_own_linefit(void *font, const unsigned char *src, unsigned char *out, int max_count,
+                                           int max_width, unsigned char *paragraph, int nl_as_space, float scale) {
+    const unsigned char *next;
+    vt_breaks brk;
+    InterlockedIncrement(&g_own_draws);
+    brk.base = src;
+    brk.span = (int)(ut_end(src) - src);
+    if (brk.span > max_count + 64) {
+        brk.span = max_count + 64;
+    }
+    if (brk.span > VT_BREAK_SPAN) {
+        brk.span = VT_BREAK_SPAN;
+    }
+    brk.at = (unsigned char *)tl_alloc((size_t)brk.span + 1);
+    if (brk.at != NULL) {
+        tl_breaks(src, brk.span, brk.at);
+    }
+    next = vt_linefit_units(font, src, out, max_count, max_width, paragraph, nl_as_space, scale, &brk);
+    tl_free(brk.at);
+    return next;
 }
 
 static const unsigned char *__fastcall linefit_hook(void *font, void *edx, const unsigned char *src, unsigned char *out,
@@ -416,7 +588,7 @@ static const unsigned char *__fastcall linefit_hook(void *font, void *edx, const
                                                     int nl_as_space, float scale) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(src);
+        const unsigned char *t = vt_source(src, font, scale);
         if (t != NULL && out != NULL && font != NULL && vt_needs_own(t, ut_end(t))) {
             return vt_own_linefit(font, t, out, max_count, max_width, paragraph, nl_as_space, scale);
         }
@@ -455,8 +627,9 @@ static int __fastcall nbyte_hook(void *ctx, void *edx, const unsigned char *s, i
     return g_nbyte(ctx, NULL, s, max_bytes, x, y, measure_only, colour, font);
 }
 
-/* Text the game's justification cannot lay out: a Chinese or Japanese text (no spaces), or a word wider
-   than the paragraph (the stock routine would never finish such a line). */
+/* Text the game's justification cannot lay out: a text with a letter of a script written without spaces
+   (text_layout.h tl_no_space_letter: Chinese, Japanese, Korean, Thai, ...) or a zero width space, or a word
+   wider than the paragraph (the stock routine would never finish such a line). */
 static int vt_needs_own_paragraph(void *font, const unsigned char *t, int width) {
     const unsigned char *end = ut_end(t), *p = t, *word = t;
     if (!vt_needs_own(t, end)) {
@@ -465,7 +638,7 @@ static int vt_needs_own_paragraph(void *font, const unsigned char *t, int width)
     while (p < end) {
         unsigned int cp;
         int k = ut_next(p, end, &cp);
-        if (ut_cjk(cp)) {
+        if (cp >= 0x80 && (cp == 0x200B || tl_no_space_letter(cp))) {
             return 1;
         }
         if (cp == ' ' || cp == '\n') {
@@ -483,9 +656,9 @@ static int __fastcall justify_hook(void *holder, void *edx, const unsigned char 
                                    unsigned int colour, void *font, int measure_only) {
     (void)edx;
     __try {
-        const unsigned char *t = vt_source(text);
         void *ctx = holder != NULL ? *(void **)holder : NULL;
         void *f = font != NULL ? font : (ctx != NULL ? *(void **)((unsigned char *)ctx + 0x5C) : NULL);
+        const unsigned char *t = vt_source(text, f, 1.0f);
         if (t != NULL && f != NULL && width > 0 && vt_needs_own_paragraph(f, t, width)) {
             /* Lines broken by units, drawn from the left. */
             unsigned char line[4096];
@@ -677,12 +850,46 @@ static int vt_append_size(const unsigned char *text, int len, const unsigned cha
     return need;
 }
 
+/* The box whose last typed character it refused (its limit), and a checksum of the text it held then
+   (docs/UNICODE_SPEC.md row 4, from VF2): a mark typed right after belongs to the refused character, so it is
+   refused too and never lands on the box's last character.  Any change to the text -- a character the box
+   takes, Backspace, a paste -- ends it. */
+static unsigned char *g_refused_box;
+static unsigned int g_refused_text;
+
+static unsigned int vt_text_sum(const unsigned char *text) {
+    unsigned int h = 2166136261u;
+    while (*text) {
+        h = (h ^ *text++) * 16777619u;
+    }
+    return h;
+}
+
+static void vt_refused(unsigned char *box) {
+    const unsigned char *text = *(const unsigned char **)(box + 0x30);
+    g_refused_box = text != NULL ? box : NULL;
+    g_refused_text = text != NULL ? vt_text_sum(text) : 0;
+}
+
 /* The focused box takes a typed text: each grapheme cluster whole (Unicode 18.0, text_utf8.h), as long as
    all of it fits the box's limit -- an emoji sequence or an accented letter is never stored in part. */
 static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
     __try {
-        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p, *cluster_end = s;
-        for (p = s; p < end;) {
+        const unsigned char *s = g_ring[(p2 >> 8) & (VT_RING - 1)], *end = ut_end(s), *p = s, *cluster_end = s;
+        const unsigned char *now = *(const unsigned char **)(box + 0x30);
+        if (g_refused_box == box && now != NULL && vt_text_sum(now) == g_refused_text) {
+            /* the marks and joiners that would join the character the box refused are refused with it */
+            while (p < end) {
+                unsigned int cp;
+                int k = ut_seq(p, end, &cp);
+                if (k == 0 || !ut_extends(cp)) {
+                    break;
+                }
+                p += k;
+            }
+            cluster_end = p;
+        }
+        for (; p < end;) {
             unsigned int cp;
             unsigned char bytes[4];
             unsigned char *text = *(unsigned char **)(box + 0x30);
@@ -696,6 +903,7 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
                 int g = ut_grapheme(p, end, &last);
                 cluster_end = p + (g > 0 ? g : k);
                 if (len + vt_append_size(text, len, p, cluster_end) > limit) {
+                    vt_refused(box);
                     break;
                 }
             }
@@ -704,7 +912,11 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
                 continue;
             }
             n = ut_append(text, len, cp, bytes);
-            if (len + n > limit || box[0x2D] != 0 || box[0x2F] != 0) {
+            if (len + n > limit) {
+                vt_refused(box);
+                break;
+            }
+            if (box[0x2D] != 0 || box[0x2F] != 0) {
                 break;
             }
             /* All but the last byte straight in; the last through the game's own handler, which checks
@@ -714,6 +926,7 @@ static int __cdecl vt_box_insert(unsigned char *box, unsigned int p2) {
             }
             text[len + n - 1] = 0;
             g_handler(box, NULL, 5, 0, bytes[n - 1]);
+            g_refused_box = NULL;
             text = *(unsigned char **)(box + 0x30);
             if (text == NULL || ln_len(text) != len + n) {
                 if (text != NULL && ln_len(text) >= len) {

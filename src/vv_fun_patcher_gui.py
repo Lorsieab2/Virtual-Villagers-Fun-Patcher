@@ -3698,7 +3698,7 @@ class App(tk.Tk):
                 if problem is None and name == info.name:
                     problem = "That is already this tribe's name."
             problem_var.set(problem or "")
-            if problem is None and name and stored >= vv_tribe_rename.name_room(saves):
+            if problem is None and name and stored > vv_tribe_rename.name_room(saves):
                 note_var.set(vv_translations.display_text(saves.number, vv_tribe_rename.LONG_NAME_NOTE))
             else:
                 note_var.set(

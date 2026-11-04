@@ -54,6 +54,7 @@
 #include "unicode_text_tables.h"
 #include "text_routines.h"
 #include "text_utf8.h"
+#include "text_layout.h"
 #include "glyphs.inc"
 
 #define VT_FONT_PICTURE 0x0C        /* ldwImage*: +0 SDL_Surface* */
@@ -361,7 +362,6 @@ int __stdcall VvfpUnicodeTextUnits(void) {
 int __stdcall VvfpUnicodeTextOwnDraws(void) {
     return (int)g_own_draws;
 }
-
 
 /* "Use Unicode Font": the face the player chose, from "VVFP Unicode Font.txt" beside this companion (in the
    patcher's files folder; UTF-8; the patcher writes it).  First line: the face (Segoe UI when there is none).

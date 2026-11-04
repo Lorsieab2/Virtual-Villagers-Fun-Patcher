@@ -102,10 +102,9 @@ def text_description(game: int) -> str:
         "Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans "
         "MS stands in), and every other character is made the first time it is shown, in the font's size, "
         "baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe "
-        "UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed, then the bundled open fonts: "
-        "Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont and Unifont Upper, and last Last Resort, so every "
-        "one of Unicode 18.0's assigned characters draws, even ones no Windows font has). Names, the Details "
-        "screen, popups, dialogs and every other text use them with their "
+        "UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed, then the bundled open fonts: Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont and "
+        "Unifont Upper, and last Last Resort, so every one of Unicode 18.0's assigned characters draws, even "
+        "ones no Windows font has). Names, the Details screen, popups, dialogs and every other text use them with their "
         "real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**On by default and in Owner's Defaults.** **Cannot be used with \"" + FONT_NAME + "\" (ticking one "
@@ -123,9 +122,9 @@ def font_description(game: int) -> str:
         "Unicode Font.txt\"), with Windows' fallback chain for every character it lacks (Segoe UI, Segoe UI "
         "Historic, Segoe UI Symbol, Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if "
         "installed, then the bundled open fonts: Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont, Unifont "
-        "Upper and last Last Resort). Each of the game's two fonts keeps its line height, baseline and weight, and its size is "
-        "fitted so a line is as wide as the game's own, so every screen keeps its layout; every character works, "
-        "as with \"" + TEXT_NAME + "\". "
+        "Upper and last Last Resort). Each of the game's two fonts keeps its line height, baseline and weight, and "
+        "its size is fitted so a line is as wide as the game's own, so every screen keeps its layout; every "
+        "character works, as with \"" + TEXT_NAME + "\". "
         + NAMES_AND_TYPING.format(fields=FIELDS[game])
         + "**Off by default and in Owner's Defaults.** **Cannot be used with \"" + TEXT_NAME + "\" (ticking "
         "one unticks the other).** " + NEEDS + " **Not yet seen in a running game** (checked by "
@@ -207,14 +206,18 @@ def behaviour(game: int, tables: dict, override: bool) -> list:
         "shaping, GDI glyphs, COLR colour layers for emoji) in the font's size and baseline.",
         "Each detoured text routine first offers the text to VvfpTranslateText of \"VVFP Translations.dll\" when "
         "that companion is loaded (fails open), and shows a long name's short form as the whole name.",
-        "Line breaking breaks Chinese and Japanese between characters (never before a closing mark or small kana) "
-        "and other text at spaces, and breaks a word wider than the line between whole units only.",
+        "Line breaking follows UAX #14 by Windows' own icu.dll (loaded from System32 only; a built-in table where "
+        "Windows has none): a text with Chinese, Japanese, Korean, Thai, Lao, Khmer, Myanmar or emoji breaks between "
+        "whole characters where the rules allow (never before a closing mark or small kana, never after an opening "
+        "one; Thai and the others at their words, inside a shaped run too), other text at spaces, and a word wider "
+        "than the line after its longest start of whole characters that fits.",
         f"The SDL_TEXTINPUT case ({g['text_input']['site']}) posts a typed ASCII character exactly as before; any "
         "other well-formed text is handed whole to the focused text box, which stores each character whole (a "
         "Windows-1252 character as its one byte, any other as UTF-8) while it fits the box's limit. Backspace erases "
         "a whole unit. A box never cuts its text by pixels. Every box's limit is " + str(SHARED_NAME_BYTES) + " bytes; "
-        "a text longer than the field GetText copies it to leaves as a short form ending in … (… and a number "
-        "when another long name has it), whose whole text is appended to the save's Long Names file and given back "
+        "a text longer than the field GetText copies it to leaves as a short form: its longest "
+        "start of whole characters, then \"...\" (\"2...\", \"3...\", the number first, when another long name has it; the older short forms ending in … "
+        "stay readable), whose whole text is appended to the save's Long Names file and given back "
         "when the game puts the short form into a box.",
     ]
 

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import struct
 import sys
 import unittest
@@ -217,6 +218,14 @@ class TheRows(unittest.TestCase):
         self.assertLess(names.index("VVFP Unicode Text.dll"), names.index("VVFP Unicode Font.dll"))
 
 
+def _restore_imports(saved: dict) -> None:
+    """The emulation's import answers as they were before a class's machines (other tests' machines share them:
+    test_skip_intro's expects its own SDL answers)."""
+    import startup_emulation
+    startup_emulation.EXTRA_IMPORTS.clear()
+    startup_emulation.EXTRA_IMPORTS.update(saved)
+
+
 def _bytes_of(name: str) -> bytes:
     return name.encode(GAME_TEXT)
 
@@ -230,11 +239,18 @@ class InTheGame(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        import startup_emulation
         import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.ue = ue
         cls.tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
         for game in GAMES:
             cls.runs[game] = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), cls.tables)
+
+    @classmethod
+    def tearDownClass(cls):
+        _restore_imports(cls.saved_imports)
+        cls.runs.clear()
 
     def test_installed_and_says_it_reads_utf8(self):
         for game, run in self.runs.items():
@@ -367,6 +383,38 @@ class InTheGame(unittest.TestCase):
                 run.type_into(box, CUNEIFORM.encode("utf-8"))
                 self.assertEqual(run.box_text(box), _bytes_of(CUNEIFORM[:1]))
 
+    def test_a_mark_typed_after_a_refused_character_is_refused_too(self):
+        """docs/UNICODE_SPEC.md row 4: a combining mark typed right after a character the box refused (its limit)
+        belongs to that character, so it is refused too and never lands on the box's last character.  After a
+        character the box took, or after Backspace, a mark joins the last character as before."""
+        acute = "́"                                                   # two bytes: it would fit
+        for game, run in self.runs.items():
+            with self.subTest(game=game, refused="a character the box cannot hold"):
+                _w, box = run.new_box(23)
+                run.m.mu.mem_write(box + 0x28, struct.pack("<i", 8))
+                for ch in "かきく":
+                    run.type_into(box, ch.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))     # く is 9 bytes of 8
+                run.type_into(box, acute.encode("utf-8"))                  # く's mark: not on the き
+                run.type_into(box, acute.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+                run.backspace(box)
+                run.type_into(box, acute.encode("utf-8"))                  # after Backspace: on the か
+                self.assertEqual(run.box_text(box), _bytes_of("か" + acute))
+            with self.subTest(game=game, refused="a text with its own mark"):
+                _w, box = run.new_box(23)
+                run.m.mu.mem_write(box + 0x28, struct.pack("<i", 8))
+                run.type_into(box, "かき".encode("utf-8"))
+                run.type_into(box, ("e" + acute).encode("utf-8"))           # e fits, its mark does not: neither
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+                run.type_into(box, acute.encode("utf-8"))
+                self.assertEqual(run.box_text(box), _bytes_of("かき"))
+            with self.subTest(game=game, refused="nothing"):
+                _w, box = run.new_box(23)
+                run.type_into(box, "か".encode("utf-8"))
+                run.type_into(box, acute.encode("utf-8"))                  # joins the か the box took
+                self.assertEqual(run.box_text(box), _bytes_of("か" + acute))
+
     def test_details_round_trip_leaves_every_name_identical(self):
         for game, run in self.runs.items():
             for name in (POO, CUNEIFORM, ZOE, JAPANESE[:7]):
@@ -385,17 +433,60 @@ class InTheGame(unittest.TestCase):
                 run.set_text(box, raw)
                 short = run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
                 self.assertLess(len(short), FIELD[game])
-                self.assertTrue(short.endswith(b"\x85") or short.endswith("…".encode("utf-8")))
+                # The spec's short form: the longest start of whole characters, then "..." (ASCII dots draw
+                # in every stock font), never the v1.35.89 ellipsis.
+                self.assertTrue(short.endswith(b"...") and b"\x85" not in short, short)
                 text = short.decode(GAME_TEXT)
-                self.assertTrue(text.endswith("…") and JAPANESE.startswith(text[:-1]), text)
+                self.assertTrue(JAPANESE.startswith(text[:-3]), text)
+                self.assertGreater(len(_bytes_of(text[:-3] + JAPANESE[len(text) - 3])) + 3, FIELD[game] - 1)
                 # The game puts the short form back into a box: the box holds the whole name ...
                 wrapper2, box2 = run.new_box(23)
                 run.set_text(box2, short)
                 self.assertEqual(run.box_text(box2), raw)
                 # ... and gives back the very same short form (the record's bytes never change).
                 self.assertEqual(run.get_text(wrapper2, FIELD[game]).split(b"\0")[0], short)
-                # Drawn and measured as the whole name.
-                self.assertEqual(run.width_of("ldwarialbold", short), run.width_of("ldwarialbold", raw))
+                # Drawn and measured as the whole name, fitted with "…" to the room its field leaves.
+                for font in ("ldwarialbold", "ldwBurweed27"):
+                    want = self._fitted_width(run, font, JAPANESE, FIELD[game] - 1)
+                    self.assertEqual(run.width_of(font, short), want)
+
+    def _fitted_width(self, run, font, whole, room_bytes):
+        """The spec's fit-to-width: the whole name when it is no wider than as many W as the field holds bytes,
+        else its longest start of whole characters whose width with "…" is that, then "…"."""
+        room = run.width_of(font, b"W" * room_bytes)
+        if run.width_of(font, _bytes_of(whole)) <= room:
+            return run.width_of(font, _bytes_of(whole))
+        best = ELLIPSIS
+        for k in range(1, len(whole)):
+            candidate = whole[:k].rstrip(" ") + ELLIPSIS
+            if run.width_of(font, _bytes_of(candidate)) > room:
+                break
+            best = candidate
+        self.assertLess(len(best), len(whole))
+        return run.width_of(font, _bytes_of(best))
+
+    def test_a_whole_name_is_fitted_to_its_field_with_an_ellipsis(self):
+        """docs/UNICODE_SPEC.md row 3: a whole name wider than the room the game leaves for its field (as many W
+        as the field holds bytes) is drawn as its longest start of whole characters, then "…"; one that fits is
+        drawn whole, exactly as before (a name of one byte per character stays the game's own drawing)."""
+        wide = "\U0001208D\U00012000\U0001223E\U00012362\U00012155" * 2 + "ab"
+        narrow = "Alexandria Montgomery-Smithson"
+        for game, run in self.runs.items():
+            for whole in (wide, narrow):
+                with self.subTest(game=game, whole=whole):
+                    wrapper, box = run.new_box(23)
+                    run.set_text(box, _bytes_of(whole))
+                    short = run.get_text(wrapper, FIELD[game]).split(b"\0")[0]
+                    self.assertTrue(short.endswith(b"..."), short)
+                    for font in ("ldwarialbold", "ldwBurweed27"):
+                        got = run.width_of(font, short)
+                        self.assertEqual(got, self._fitted_width(run, font, whole, FIELD[game] - 1))
+                        if whole == narrow:
+                            self.assertEqual(got, run.width_of(font, _bytes_of(whole)))
+                        else:
+                            self.assertLessEqual(got, run.width_of(font, b"W" * (FIELD[game] - 1)))
+                    blits = run.draw_text("ldwarialbold", short, 10, 10)
+                    self.assertTrue(blits)
 
     def test_the_long_names_file_is_written_whole_or_written_again(self):
         """The pair is appended to the save's Long Names file in one write; a failed or short write leaves it
@@ -434,6 +525,16 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(pairs.get(cut), _bytes_of(JAPANESE + "三"))
                 self.assertEqual(pairs.get(first), _bytes_of(JAPANESE + "一"))
                 self.assertEqual(len({first, failed, cut}), 3)
+                # Names that start alike: "...", then the number first, "2...", "3...", ... (the class's
+                # earlier tests may already hold one of these starts, so only the order is fixed).
+                def number(short):
+                    self.assertTrue(short.endswith(b"..."), short)
+                    digits = re.search(rb"(\d*)\.\.\.$", short).group(1)
+                    return int(digits) if digits else 1
+                self.assertLess(number(first), number(failed))
+                self.assertEqual(number(failed) + 1, number(cut))
+                for short in (first, failed, cut):
+                    self.assertLessEqual(len(short), FIELD[game] - 1)
                 self.assertTrue(the_file().endswith(b"\n"))
 
     def test_the_long_names_file_is_v3_made_whole_and_moved_over_the_old_one(self):
@@ -468,8 +569,8 @@ class InTheGame(unittest.TestCase):
                 self.assertEqual(ln.parse(data)[old_short], old_whole)
                 room = {r[0]: r[1] for r in ln.records(data)}
                 self.assertEqual(room[old_short], 0)                                          # v2 has no room
-                self.assertEqual(room[short], FIELD[game])                                    # the field's bytes
-                self.assertLess(len(short), room[short])
+                self.assertEqual(room[short], FIELD[game] - 1)                                # the field's bytes, without its NUL
+                self.assertLessEqual(len(short), room[short])
                 # made in the .tmp, moved over the file with the two flags, the .tmp is gone
                 self.assertTrue(run.moves)
                 self.assertEqual(run.moves[-1], (found + ".tmp", found, 0x1 | 0x8))
@@ -557,6 +658,15 @@ class InTheGame(unittest.TestCase):
 @unittest.skipUnless(ON_WINDOWS and HAVE_STOCK and HAVE_IMAGES and HAVE_EMULATOR,
                      "needs Windows, the stock executables, the game images and unicorn")
 class UseUnicodeFont(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import startup_emulation
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
+
+    @classmethod
+    def tearDownClass(cls):
+        _restore_imports(cls.saved_imports)
+
     def test_every_letter_is_drawn_from_a_windows_typeface(self):
         import unicode_utf8_emulation as ue
         tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))

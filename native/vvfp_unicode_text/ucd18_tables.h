@@ -2055,6 +2055,24 @@ static const u18_range u18_extpict[U18_EXTPICT_COUNT] = {
     {0x1FC00u, 0x1FFFDu, 1}
 };
 
+/* Spacing marks (Mc) with Grapheme_Cluster_Break Other: joined by the shared cluster rule */
+#define U18_MARKJOIN_COUNT 13
+static const u18_range u18_markjoin[U18_MARKJOIN_COUNT] = {
+    {0x102Bu, 0x102Cu, 1},
+    {0x1038u, 0x1038u, 1},
+    {0x1062u, 0x1064u, 1},
+    {0x1067u, 0x106Du, 1},
+    {0x1083u, 0x1083u, 1},
+    {0x1087u, 0x108Cu, 1},
+    {0x108Fu, 0x108Fu, 1},
+    {0x109Au, 0x109Cu, 1},
+    {0x1A61u, 0x1A61u, 1},
+    {0x1A63u, 0x1A64u, 1},
+    {0xAA7Bu, 0xAA7Bu, 1},
+    {0xAA7Du, 0xAA7Du, 1},
+    {0x11720u, 0x11721u, 1}
+};
+
 
 /* The value of cp in a range table (0 when no range holds it). */
 static unsigned int u18_lookup(const u18_range *t, int n, unsigned int cp) {

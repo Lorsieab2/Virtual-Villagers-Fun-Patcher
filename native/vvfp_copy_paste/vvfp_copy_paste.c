@@ -55,7 +55,7 @@
 #include "../shared/install_sites.h"
 #include "copy_paste_tables.h"
 
-#define CP_MAX_UNITS 4096           /* clipboard text read, in UTF-16 units */
+#define CP_MAX_UNITS 8192           /* clipboard text read, in UTF-16 units (docs/UNICODE_SPEC.md row 5) */
 #define CP_MAX_TEXT  0x10000        /* longest box text looked at */
 
 #define SDLK_INSERT  0x40000049u

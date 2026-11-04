@@ -4,35 +4,43 @@
    own fields are shorter (a villager's name 27/23 bytes, the tribe name 31/19, an epitaph 64/31), and
    its code copies them through fixed buffers sized for them, so a box's text leaves the box through
    GetText(buffer, size) -- the only way out -- cut to the field: the SHORT FORM, the longest start of
-   whole characters that fits with "\x85" (the Windows-1252 ellipsis) after it, "\x85" plus a number when
-   another long name already has that short form.  Every stock path therefore only ever holds a short
-   form, never more bytes than it was written for.
+   whole characters that fits, trailing spaces dropped, then "..." -- or "2...", "3..." (the number
+   first) when another long name already has that short form (docs/UNICODE_SPEC.md: ASCII dots draw in
+   every stock font).  The short forms of v1.35.89 end in the ellipsis "…" (0x85, or E2 80 A6) and a
+   number; they and their records are read forever, and a name that has one keeps it.  Every stock path
+   therefore only ever holds a short form, never more bytes than it was written for.
 
    The pair (short form, room, whole name) is kept at once in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Long Names\
            Virtual Villagers <N> Long Names - Save <S>.dat
-   (one "short<TAB>room<TAB>whole<TAB>CRC-32" record each, the game's own bytes, room = the field's bytes with
+   (one "short<TAB>room<TAB>whole<TAB>CRC-32" record each, the game's own bytes, room = the field's bytes without
    its NUL; the file starts "VVFP Long Names v3"; v1 "short<TAB>whole" and v2 "short<TAB>whole<TAB>CRC-32" files
    are still read, and rewritten as v3 with room 0 = unknown).  Every write makes the whole file in
    "<file>.tmp" and moves it over the old one with MoveFileEx(REPLACE_EXISTING | WRITE_THROUGH); when the move is
    refused the file is written in place.  Records are never removed; the first record of a short form wins; a
    record with no mark, longer than its room, holding a control character, or whole over the shared limit is
    skipped, as is one that fails its checksum.  A pair counts as kept only when the file was written whole (else
-   it is written again two seconds later, at the next draw).  A name set and never saved (the game saves only on
-   a clean quit) leaves a record nothing uses, which harms nothing.  The patcher reads the same files
-   (src/vv_long_names.py).
+   it is written again two seconds later, at the next draw, and at once at the game's save call:
+   VvfpLongNamesFlush).  A name set and never saved (the game saves only on a clean quit) leaves a record nothing
+   uses, which harms nothing.  The patcher reads the same files (src/vv_long_names.py).
 
-   Wherever the game draws or measures text, each short form in it is drawn as its whole name; a text
-   box given a short form (the Details screen opening a villager, Change Tribe) holds the whole name.
+   Wherever the game draws or measures text, each short form in it is drawn as its whole name -- fitted with
+   "…" when it is wider than the room the game leaves for its field, as many "W" as the field holds bytes
+   (text_hooks.inc vt_fit_name; docs/UNICODE_SPEC.md row 3) -- and a text box given a short form (the Details
+   screen opening a villager, Change Tribe) holds the whole name.
    Without this companion the game shows the short form -- "Alexandria Montgo..." -- so nothing breaks. */
 
 #define VV_SHARED_NAME_BYTES 1200       /* the engine's own text-box ceiling (SetEditable caps at 1200) */
 #define LN_MAX 4096
-#define LN_HEADER "VVFP Long Names v3\n"
-#define LN_HEADER_LEN 19      /* "VVFP Long Names v" + digit + LF, every version */
+#define LN_HEADER "VVFP Long Names v3\n"      /* v1 and v2 files are still read */
+#define LN_HEADER_LEN 19
 #define LN_ARENA (2 * 1024 * 1024)
+#define LN_MARK "..."                   /* the end of a new short form (the number, if any, goes first) */
+#define LN_MARK_LEN 3
 
-typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, room, pending; } ln_pair;
+/* room: the bytes of the field the short form was made for (without its NUL); 0 when the record does not say
+   (ln_room). */
+typedef struct ln_pair { unsigned char *shrt, *full; int shrt_len, pending, room; } ln_pair;
 
 static ln_pair g_ln[LN_MAX];
 static int g_ln_count;
@@ -41,7 +49,7 @@ static int g_ln_slot_pending;           /* pairs made while no slot was known: w
 static unsigned char *g_ln_arena;
 static int g_ln_arena_used;
 
-typedef struct ln_seen { unsigned int hash; const unsigned char *in, *out; } ln_seen;
+typedef struct ln_seen { unsigned int hash; const void *key; const unsigned char *in, *out; } ln_seen;
 static ln_seen g_ln_seen[1024];
 
 static int ln_len(const unsigned char *s) {
@@ -79,8 +87,8 @@ static void ln_add(const unsigned char *shrt, int sl, const unsigned char *full,
     g_ln[g_ln_count].shrt = ln_dup(shrt, sl);
     g_ln[g_ln_count].full = ln_dup(full, fl);
     g_ln[g_ln_count].shrt_len = sl;
-    g_ln[g_ln_count].room = room;
     g_ln[g_ln_count].pending = 0;
+    g_ln[g_ln_count].room = room;
     if (g_ln[g_ln_count].shrt != NULL && g_ln[g_ln_count].full != NULL) {
         ++g_ln_count;
         ZeroMemory(g_ln_seen, sizeof g_ln_seen);
@@ -145,7 +153,7 @@ static int ln_has_control(const unsigned char *s, int n) {
 /* A record is kept when it has a mark, fits its room (0 = unknown), holds no control character and the
    whole name is within the shared limit. */
 static int ln_valid(const unsigned char *sh, int sl, int room, const unsigned char *wh, int wl) {
-    return sl > 0 && wl > 0 && wl <= VV_SHARED_NAME_BYTES && (room <= 0 || sl < room) && ln_has_mark(sh, sl)
+    return sl > 0 && wl > 0 && wl <= VV_SHARED_NAME_BYTES && (room <= 0 || sl <= room) && ln_has_mark(sh, sl)
         && !ln_has_control(sh, sl) && !ln_has_control(wh, wl);
 }
 
@@ -479,33 +487,36 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
         }
     }
     for (k = 1; k < 1000; ++k) {
-        char digits[8];
-        unsigned char mark[4];
-        int nd = 0, base, nm, n, clash = 0;
+        char tail[8 + LN_MARK_LEN];
+        int tl = 0, base, n, clash = 0;
         if (k > 1) {
             int v = k, j;
             char rev[8];
-            while (v > 0 && nd < 7) {
-                rev[nd++] = (char)('0' + v % 10);
+            while (v > 0 && tl < 7) {
+                rev[tl++] = (char)('0' + v % 10);
                 v /= 10;
             }
-            for (j = 0; j < nd; ++j) {
-                digits[j] = rev[nd - 1 - j];
+            for (j = 0; j < tl; ++j) {
+                tail[j] = rev[tl - 1 - j];
             }
         }
-        /* Room for the ellipsis (1 or 3 bytes) and the number. */
-        base = ut_fit(text, len, cap - 1 - 3 - nd);
+        CopyMemory(tail + tl, LN_MARK, LN_MARK_LEN);
+        tl += LN_MARK_LEN;
+        if (tl > cap - 1) {
+            break;
+        }
+        /* The longest start of whole characters that fits with the number and the mark, trailing spaces
+           dropped. */
+        base = ut_fit(text, len, cap - 1 - tl);
+        while (base > 0 && text[base - 1] == ' ') {
+            --base;
+        }
         if (base <= 0 && len > 0) {
             break;
         }
         CopyMemory(cand, text, (size_t)base);
-        nm = ut_append(cand, base, 0x2026, mark);
-        CopyMemory(cand + base, mark, (size_t)nm);
-        n = base + nm;
-        if (nd) {
-            CopyMemory(cand + n, digits, (size_t)nd);
-            n += nd;
-        }
+        CopyMemory(cand + base, tail, (size_t)tl);
+        n = base + tl;
         cand[n] = 0;
         for (i = 0; i < g_ln_count; ++i) {
             if (g_ln[i].shrt_len == n && memcmp(g_ln[i].shrt, cand, (size_t)n) == 0) {
@@ -514,9 +525,10 @@ static void ln_shorten(const unsigned char *text, unsigned char *out, int cap) {
             }
         }
         if (!clash) {
-            ln_add(cand, n, text, len, cap);
+            ln_add(cand, n, text, len, cap - 1);
             if (g_ln_count > 0 && g_ln[g_ln_count - 1].shrt_len == n
                 && memcmp(g_ln[g_ln_count - 1].shrt, cand, (size_t)n) == 0) {
+                g_ln[g_ln_count - 1].room = cap - 1;
                 ln_write(&g_ln[g_ln_count - 1]);
             }
             CopyMemory(out, cand, (size_t)n + 1);
@@ -547,9 +559,35 @@ static void ln_flush_pending(int force) {
     }
 }
 
-/* `s` with each short form in it replaced by its whole name; `s` itself when it holds none.  The
-   answer stays valid for the rest of the game (the game's line breaking keeps pointers into it). */
-static const unsigned char *ln_expand(const unsigned char *s) {
+/* The bytes of the field a pair's short form stands in (without its NUL): the one it was made for, else the
+   smallest of the game's name fields that holds it -- a villager's name 27 (A New Home) / 23, the tribe name
+   31 / 19, an epitaph 63 / 30 (the GetText sizes less the NUL). */
+static int ln_room(const ln_pair *pair) {
+    static const int FIELDS[6][4] = {{0}, {27, 31, 0}, {23, 31, 63, 0}, {19, 23, 30, 0}, {19, 23, 30, 0},
+                                     {19, 23, 30, 0}};
+    int i;
+    if (pair->room > 0) {
+        return pair->room;
+    }
+    if (g_game_number >= 1 && g_game_number <= 5) {
+        for (i = 0; FIELDS[g_game_number][i]; ++i) {
+            if (FIELDS[g_game_number][i] >= pair->shrt_len) {
+                return FIELDS[g_game_number][i];
+            }
+        }
+    }
+    return pair->shrt_len;
+}
+
+/* Fits a whole name into the room its field leaves where it is drawn (text_hooks.inc vt_fit_name): writes the
+   fitted bytes to out (cap) and returns their length, or returns -1 when the whole name fits as it is. */
+typedef int (*ln_fit_fn)(void *state, const unsigned char *whole, int len, int room_bytes, unsigned char *out,
+                         int cap);
+
+/* `s` with each short form in it replaced by its whole name -- fitted by `fit` (with `state`; NULL: whole) --
+   `s` itself when it holds none.  The answer stays valid for the rest of the game (the game's line breaking
+   keeps pointers into it). */
+static const unsigned char *ln_expand(const unsigned char *s, ln_fit_fn fit, void *state, const void *key) {
     const unsigned char *end, *p;
     unsigned int h = 2166136261u;
     int i, n, has = 0, slot_i;
@@ -559,7 +597,9 @@ static const unsigned char *ln_expand(const unsigned char *s) {
     }
     end = ut_end(s);
     for (p = s; p < end; ++p) {
-        if (*p == 0x85 || (*p == 0xE2 && p + 2 < end && p[1] == 0x80 && p[2] == 0xA6)) {
+        /* "..." (every new short form) or "…" (0x85 / E2 80 A6: the short forms of v1.35.89, read forever). */
+        if (*p == 0x85 || (*p == 0xE2 && p + 2 < end && p[1] == 0x80 && p[2] == 0xA6)
+            || (*p == '.' && p + 2 < end && p[1] == '.' && p[2] == '.')) {
             has = 1;
         }
         h = (h ^ *p) * 16777619u;
@@ -572,9 +612,11 @@ static const unsigned char *ln_expand(const unsigned char *s) {
         return s;
     }
     n = (int)(end - s);
+    h = (h ^ (unsigned int)(UINT_PTR)key) * 16777619u;   /* a fitted answer is the font's own */
     slot_i = (int)(h & 1023);
     seen = &g_ln_seen[slot_i];
-    if (seen->hash == h && seen->in != NULL && lstrcmpA((const char *)seen->in, (const char *)s) == 0) {
+    if (seen->hash == h && seen->key == key && seen->in != NULL
+        && lstrcmpA((const char *)seen->in, (const char *)s) == 0) {
         return seen->out;
     }
     {
@@ -601,10 +643,16 @@ static const unsigned char *ln_expand(const unsigned char *s) {
                     best = i;
                 }
             }
-            if (best >= 0 && o - out + ln_len(g_ln[best].full) < room - 1) {
-                int fl = ln_len(g_ln[best].full);
-                CopyMemory(o, g_ln[best].full, (size_t)fl);
-                o += fl;
+            if (best >= 0 && o - out + ln_len(g_ln[best].full) + 4 < room - 1) {
+                int fl = ln_len(g_ln[best].full), fitted = -1;
+                if (fit != NULL) {
+                    fitted = fit(state, g_ln[best].full, fl, ln_room(&g_ln[best]), o, (int)(room - 1 - (o - out)));
+                }
+                if (fitted < 0) {
+                    CopyMemory(o, g_ln[best].full, (size_t)fl);
+                    fitted = fl;
+                }
+                o += fitted;
                 q += g_ln[best].shrt_len;
                 changed = 1;
             } else {
@@ -625,6 +673,7 @@ static const unsigned char *ln_expand(const unsigned char *s) {
             CopyMemory(in, s, (size_t)n + 1);
             g_ln_arena_used += n + 1;
             seen->hash = h;
+            seen->key = key;
             seen->in = in;
             seen->out = out;
         }

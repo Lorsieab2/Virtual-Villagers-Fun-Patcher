@@ -212,7 +212,7 @@ class RenameTribeLongName(unittest.TestCase):
         self.assertEqual(rename.save_name(self.game, self.game.save_path(self.folder, 1).read_bytes()), "Alexandria Montg...")
         self.assertEqual(rename.index_name(self.game, self.game.index_path(self.folder).read_bytes(), 1), "Alexandria Montg...")
         data = ln.path(self.folder, 3, 1).read_bytes()
-        self.assertEqual(ln.records(data), [(b"Alexandria Montg...", self.game.max_length + 1, whole.encode())])
+        self.assertEqual(ln.records(data), [(b"Alexandria Montg...", self.game.max_length, whole.encode())])
         self.assertEqual(result.long_names, ln.path(self.folder, 3, 1))
         # the tool lists it whole
         self.assertEqual(rename.read_slots(self.game, self.folder)[0].name, whole)
@@ -240,7 +240,7 @@ class RenameTribeLongName(unittest.TestCase):
         short = result.stored_name
         self.assertTrue(short.endswith("..."))
         self.assertTrue(JAPANESE.startswith(short[:-3]))
-        self.assertLess(byte_length(short), self.game.max_length + 1)
+        self.assertLessEqual(byte_length(short), self.game.max_length)
 
     def test_two_names_starting_alike_get_a_number_before_the_dots(self):
         first = self.run_rename("Alexandria Montgomery-Smith one")
@@ -321,7 +321,7 @@ class RenameTribeNote(unittest.TestCase):
     def test_the_window_shows_it_for_a_name_the_save_will_shorten_and_through_the_translation(self):
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("vv_translations.display_text(saves.number, vv_tribe_rename.LONG_NAME_NOTE)", source)
-        self.assertIn("stored >= vv_tribe_rename.name_room(saves)", source)
+        self.assertIn("stored > vv_tribe_rename.name_room(saves)", source)
 
     def test_a_translation_of_the_note_is_used(self):
         import vv_translations as tr

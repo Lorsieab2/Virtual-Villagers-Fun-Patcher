@@ -184,14 +184,16 @@ def game_char(ch: str) -> int | None:
 
 def printable(ch: str) -> bool:
     """A character the games draw and accept typed with "Render Unicode with In-Game Fonts" or "Use Unicode
-    Font": any character Unicode 18.0 assigns (src/vv_unicode18.py, not Python's older unicodedata) but a
-    control, a lone surrogate, a private-use code point and the five bytes Windows-1252 leaves undefined
-    (format characters such as the zero-width joiner of emoji sequences are taken)."""
+    Font": decided by code point (docs/UNICODE_SPEC.md), never by a Unicode version's data, so a letter newer
+    than any table is still taken. Refused: NUL and the C0 controls, DEL, the C1 controls (which hold
+    the five bytes Windows-1252 leaves undefined), lone surrogates, the line and paragraph separators
+    (U+2028, U+2029) and the byte order mark (U+FEFF). Private-use and not-yet-assigned code points are
+    taken, as in the other Fun Patchers; format characters such as the zero-width joiner of emoji too."""
     if len(ch) != 1:
         return False
-    if ch in "\x81\x8d\x8f\x90\x9d":
-        return False
-    return vv_unicode18.category(ch) not in ("Cc", "Cs", "Co", "Cn")
+    cp = ord(ch)
+    return not (cp < 0x20 or 0x7F <= cp <= 0x9F or 0xD800 <= cp <= 0xDFFF
+                or cp in (0x2028, 0x2029, 0xFEFF))
 
 
 def byte_length(text: str) -> int:
@@ -206,8 +208,22 @@ def clusters(text: str) -> list[str]:
     """`text` cut into the units the games' companion draws, cuts and erases whole (native text_utf8.h):
     extended grapheme clusters by UAX #29 as of Unicode 18.0 (src/vv_unicode18.py) -- a character with its
     combining marks, variation selectors, emoji modifiers and tags, an emoji ZWJ sequence, a flag, a Hangul
-    syllable of jamo, an Indic conjunct."""
-    return vv_unicode18.graphemes(text)
+    syllable of jamo, an Indic conjunct, CR LF -- with every spacing mark (Mc) joined to the character before
+    it, as the shared cluster rule says (docs/UNICODE_SPEC.md row 2; UAX #29 leaves a few out of GB9a, such as
+    Myanmar U+102B), except after a control, CR or LF; and a zero width joiner joins the character after it
+    (the shared rule, not only between emoji as UAX #29 GB11 says), unless that is a control, CR or LF."""
+    out: list[str] = []
+    gcb = vv_unicode18.grapheme_break_property
+    for unit in vv_unicode18.graphemes(text):
+        if out and ((vv_unicode18.category(unit[0]) == "Mc" and gcb(out[-1][-1]) not in _NEVER_JOINED)
+                    or (out[-1][-1] == ZERO_WIDTH_JOINER and gcb(unit[0]) not in _NEVER_JOINED)):
+            out[-1] += unit
+        else:
+            out.append(unit)
+    return out
+
+
+_NEVER_JOINED = (1, 2, 3)           # vv_unicode18's Grapheme_Cluster_Break CR, LF and Control (GB4)
 
 
 def fit_bytes(text: str, limit: int) -> str:

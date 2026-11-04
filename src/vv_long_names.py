@@ -3,21 +3,21 @@ Fonts" and "Use Unicode Font", all five games).
 
 Every text box in the games takes VV_SHARED_NAME_BYTES (1200) bytes.  A text that leaves a box for a shorter
 field (a villager's name: 27 bytes in A New Home, 23 in the others; the tribe name 31 / 19; an epitaph) is
-saved there as its SHORT FORM -- the longest start of whole characters that fits, then the ellipsis (and a
-number when another long name already has that short form) -- and the companion keeps one record,
+saved there as its SHORT FORM -- the longest start of whole characters that fits, trailing spaces dropped,
+then "..." ("2...", "3...", the number first, when another long name already has that short form; the short
+forms of v1.35.89 end in the ellipsis "…" and a number, and are read forever) -- and the companion appends
+one record,
 "<short form><TAB><room><TAB><whole text><TAB><CRC-32 of everything before the last tab, 8 upper-case hex><LF>"
-in the game's own bytes, in
+(room: the field's bytes without its NUL, 0 when unknown) in the game's own bytes, the whole file made in "<file>.tmp"
+and moved over the old one (write()), to
 
     <save folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Long Names\\
         Virtual Villagers <N> Long Names - Save <S>.dat
 
-(first line "VVFP Long Names v3"; room is the field's bytes with its NUL, 0 when unknown).  Every write makes the
-whole file in "<file>.tmp" and moves it over the old one (MoveFileEx REPLACE_EXISTING | WRITE_THROUGH): see
-write().  v1 ("short<TAB>whole") and v2 ("short<TAB>whole<TAB>CRC") files are still read.  Records are only
-ever added, and the first record for a short form wins; a record that is cut short, fails its checksum, has no
-mark, is longer than its room, holds a control character or is over 1,200 bytes is skipped.
-native/vvfp_unicode_text/long_names.inc writes it; this module reads it, so the patcher's windows, logs and
-family trees show the whole name: whole_name(raw) for one name read from a save, expand(text) for a log line.
+(first line "VVFP Long Names v3"; v1 and v2 files are still read; records are only ever added, and the first record for a short form wins;
+a record cut short by a failed write fails its checksum and is skipped).  native/vvfp_unicode_text/
+long_names.inc writes it; this module reads it, so the patcher's windows, logs and family trees show the
+whole name: whole_name(raw) for one name read from a save, expand(text) for a log line.
 """
 from __future__ import annotations
 
@@ -30,7 +30,8 @@ SHARED_NAME_BYTES = 1200
 HEADER = b"VVFP Long Names v3" + b"\n"
 HEADERS = {b"VVFP Long Names v1\n": 1, b"VVFP Long Names v2\n": 2, HEADER: 3}
 FOLDER = Path("Virtual Villagers Fun Patcher")
-ELLIPSIS = chr(0x2026)
+MARK = "..."                    # the end of a short form (native/vvfp_unicode_text/long_names.inc LN_MARK)
+ELLIPSIS = chr(0x2026)          # the end of a v1.35.89 short form
 _TAB, _LF = b"\t", b"\n"
 
 
@@ -60,11 +61,11 @@ def has_mark(short: bytes) -> bool:
 
 
 def valid(short: bytes, whole: bytes, room: int = 0) -> bool:
-    """Whether a record is kept: a mark, a short form that fits its room (0: unknown), no control character
+    """Whether a record is kept: a mark, a short form that fits its room (the field's bytes without its NUL; 0: unknown), no control character
     (C0 or DEL), and a whole text within the shared limit."""
     if not short or not whole or len(whole) > SHARED_NAME_BYTES or not has_mark(short):
         return False
-    if room > 0 and len(short) >= room:
+    if room > 0 and len(short) > room:
         return False
     return not any(c < 0x20 or c == 0x7F for c in short + whole)
 
@@ -268,7 +269,7 @@ def whole_name(raw: bytes, pairs: dict[bytes, bytes]) -> str:
 
 def expand(text: str, pairs: dict[bytes, bytes]) -> str:
     """`text` with each short form in it replaced by its whole text, the longest first (as the game draws)."""
-    if not pairs or ELLIPSIS not in text:
+    if not pairs or (MARK not in text and ELLIPSIS not in text):
         return text
     import vv_game_text
     by_text = sorted(((vv_game_text._decode(s), vv_game_text._decode(w)) for s, w in pairs.items()),

@@ -195,6 +195,16 @@ def _register_uniscribe() -> None:
         ute._wput(mc.mu, arg(0), text)
         ret(len(text))
 
+    def normalize(mc, arg, ret):
+        """NormalizeString(form, src, n, dst, room), answered by Windows' own (normaliz)."""
+        form, n, room = arg(0), arg(2), arg(4)
+        src = (ctypes.c_wchar * max(n, 1)).from_buffer_copy(bytes(mc.mu.mem_read(arg(1), 2 * max(n, 1))))
+        dst = (ctypes.c_wchar * max(room, 1))()
+        k = ctypes.WinDLL("normaliz").NormalizeString(form, src, n, dst, room)
+        if k > 0:
+            mc.mu.mem_write(arg(3), bytes(dst)[:2 * k])
+        ret(k)
+
     se.EXTRA_IMPORTS.update({
         "ScriptItemize": (28, itemize),
         "ScriptLayout": (16, layout),
@@ -216,6 +226,7 @@ def _register_uniscribe() -> None:
         "CompareStringW": (24, compare_w),
         "SDL_MapRGBA": (0, map_rgba),
         "wsprintfA": (0, none(0)),
+        "NormalizeString": (20, normalize),
     })
 
 

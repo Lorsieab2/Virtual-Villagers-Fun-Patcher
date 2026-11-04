@@ -320,8 +320,8 @@ LONG_NAME_NOTE = ('Allowed. This name is longer than the game keeps in its save,
 
 
 def name_room(game: GameSaves) -> int:
-    """The bytes of the field a tribe name is kept in, with its NUL: the room of its Long Names record."""
-    return game.max_length + 1
+    """The bytes of the field a tribe name is kept in, without its NUL: the room of its Long Names record."""
+    return game.max_length
 
 
 def short_form(whole: str, room: int, pairs: dict[bytes, bytes]) -> bytes:
@@ -331,11 +331,11 @@ def short_form(whole: str, room: int, pairs: dict[bytes, bytes]) -> bytes:
     A short form already made for this very name is used again."""
     raw = encode_game_text(whole)
     for short, kept in pairs.items():
-        if kept == raw and len(short) < room:
+        if kept == raw and len(short) <= room:
             return short
     for number in range(1, 10000):
         mark = (str(number) if number > 1 else "") + "..."
-        base = fit_bytes(whole, room - 1 - len(mark)).rstrip(" ")
+        base = fit_bytes(whole, room - len(mark)).rstrip(" ")
         if not base:
             break
         candidate = encode_game_text(base) + mark.encode("ascii")
@@ -351,7 +351,7 @@ def storage_form(game: GameSaves, name: str,
     the record (short form, room, whole name) that gives the whole name back."""
     room = name_room(game)
     raw = encode_game_text(name)
-    if len(raw) < room:
+    if len(raw) <= room:
         return name, None
     short = short_form(name, room, pairs)
     return short.decode(GAME_TEXT), (short, room, raw)

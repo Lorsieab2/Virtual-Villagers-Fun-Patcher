@@ -283,11 +283,79 @@ def _hex(cps) -> str:
     return " ".join(chr(c).encode("utf-8").hex() for c in cps)
 
 
+def _mark_join(cp: int) -> bool:
+    """A spacing mark UAX #29 leaves out of GB9a, which the shared cluster rule joins (docs/UNICODE_SPEC.md row 2)."""
+    return u18.category(chr(cp)) == "Mc" and u18.grapheme_break_property(chr(cp)) not in (4, 5, 8)
+
+
+def _conformance():
+    """GraphemeBreakTest 18.0's cases, but those with a spacing mark the shared rule joins (its own tests below), and
+    with the shared rule's ZWJ: the shared spec (docs/UNICODE_SPEC.md row 2) overrides GB11 so that every Fun
+    Patcher cuts alike -- a ZWJ joins the character after it, not only between emoji, unless that is a control,
+    CR or LF -- so the file's break after such a ZWJ is not expected."""
+    out = []
+    for cps, marks in u18.grapheme_break_tests():
+        if any(_mark_join(c) for c in cps):
+            continue
+        marks = [brk and not (cps[i] == 0x200D and u18.grapheme_break_property(chr(cps[i + 1])) not in (1, 2, 3))
+                 for i, brk in enumerate(marks)]
+        out.append((cps, marks))
+    return out
+
+
+# The shared cluster rule beyond UAX #29: (text, its clusters).  Myanmar U+102B / U+1038, Tai Tham U+1A61 and
+# Ahom U+11720 are spacing marks (Mc) GB9a leaves alone; CR LF is one cluster, a mark after LF is not joined.
+SPEC_CLUSTERS = (
+    ("ကါ", ["ကါ"]),
+    ("ကားခ", ["ကား", "ခ"]),
+    ("ᨠᩡ", ["ᨠᩡ"]),
+    ("\U00011700\U00011720", ["\U00011700\U00011720"]),
+    ("aा", ["aा"]),
+    ("a\r\nb", ["a", "\r\n", "b"]),
+    ("\nါ", ["\n", "ါ"]),
+    ("a‍b", ["a‍b"]),                       # a ZWJ joins the next character, emoji or not
+    ("क्‍ष", ["क्‍ष"]),
+    ("a‍\n", ["a‍", "\n"]),                 # but never a newline
+    ("क‍a", ["क‍a"]),          # a shaped letter, ZWJ, a letter: one cluster, one unit
+    ("कख‍aग", ["क", "ख‍a", "ग"]),
+)
+
+
 class TheGraphemeTest(unittest.TestCase):
-    """GraphemeBreakTest.txt 18.0."""
+    """GraphemeBreakTest.txt 18.0, and the shared cluster rule's every-Mc and CR LF."""
+
+    def test_every_spacing_mark_joins_and_cr_lf_is_one_cluster(self):
+        self.assertEqual(sum(1 for cps, _m in u18.grapheme_break_tests() if any(_mark_join(c) for c in cps)), 1)
+        for text, want in SPEC_CLUSTERS:
+            with self.subTest(text=text):
+                self.assertEqual(clusters(text), want)
+
+    @unittest.skipUnless(HAVE_COMPILER, "the MSVC toolchain is not available")
+    def test_the_dlls_own_cutting_joins_every_spacing_mark(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, out = Path(tmp, "in.txt"), Path(tmp, "out.txt")
+            src.write_text("\n".join(_hex([ord(c) for c in t]) for t, _w in SPEC_CLUSTERS) + "\n", encoding="ascii")
+            done = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
+                                   str(ROOT / "scripts" / "build_grapheme_harness.ps1"), str(src), str(out)],
+                                  capture_output=True, text=True, timeout=600)
+            self.assertEqual(done.returncode, 0, done.stdout[-2000:] + done.stderr[-2000:])
+            got = out.read_text(encoding="ascii").splitlines()
+        for (text, want), line in zip(SPEC_CLUSTERS, got):
+            with self.subTest(text=text):
+                self.assertEqual([int(x) for x in line.split("|")[0].split()], [len(w.encode("utf-8")) for w in want])
+                # Backspace erases the last whole cluster.
+                self.assertEqual(int(line.split("|")[2]), len("".join(want[:-1]).encode("utf-8")))
+                # Units (a shaped run) never end inside a cluster, and the cut a short form is made by (ut_fit)
+                # keeps whole clusters only, at every byte cap.
+                ends = {len("".join(want[:k]).encode("utf-8")) for k in range(len(want) + 1)}
+                at = 0
+                for unit in line.split("|")[1].split():
+                    at += int(unit.split(":")[1])
+                    self.assertIn(at, ends)
+                self.assertTrue(set(int(x) for x in line.split("|")[3].split()) <= ends)
 
     def test_the_games_text_rule_cuts_as_unicode_18_says(self):
-        tests = u18.grapheme_break_tests()
+        tests = _conformance()
         self.assertGreater(len(tests), 800)
         bad = []
         for cps, marks in tests:
@@ -309,7 +377,7 @@ class TheGraphemeTest(unittest.TestCase):
 
     @unittest.skipUnless(HAVE_COMPILER, "the MSVC toolchain is not available")
     def test_the_dlls_own_cutting_passes_the_conformance_file(self):
-        tests = u18.grapheme_break_tests()
+        tests = _conformance()
         with tempfile.TemporaryDirectory() as tmp:
             src, out = Path(tmp, "in.txt"), Path(tmp, "out.txt")
             lines = []
@@ -363,8 +431,18 @@ class InTheGame(unittest.TestCase):
     runs: dict = {}
 
     @classmethod
+    def tearDownClass(cls):
+        # the emulation's import answers as they were (test_skip_intro's machines expect their own SDL answers)
+        import startup_emulation
+        startup_emulation.EXTRA_IMPORTS.clear()
+        startup_emulation.EXTRA_IMPORTS.update(cls.saved_imports)
+        cls.runs.clear()
+
+    @classmethod
     def setUpClass(cls):
+        import startup_emulation
         import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(startup_emulation.EXTRA_IMPORTS)
         cls.ue = ue
         cls.tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
         for game in GAMES:
