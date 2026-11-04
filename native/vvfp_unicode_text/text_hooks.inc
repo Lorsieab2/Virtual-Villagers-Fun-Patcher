@@ -401,6 +401,8 @@ static const unsigned char *vt_screen_fit(void *ctx, const unsigned char *t, int
                                    || (k == 3 && out[o] == 0xE2 && out[o + 1] == 0x80 && out[o + 2] == 0xA6))) {
                 tl_free(out);         /* not even one unit fits: the English */
                 return NULL;
+            } else if (vt_fit_width(&fit, out + o, k) > edge - nx) {
+                k = 0;                /* not even the mark fits: nothing past the edge */
             }
             o += k;
             if (p == end) break;
@@ -422,12 +424,13 @@ static int vt_screen_draw(void *ctx, const unsigned char *s, const unsigned char
     if (vt_ours(s, t)) {
         int fx = x;
         const unsigned char *k = vt_screen_fit(ctx, t, &fx, f, &heap, t != s);
-        if (k != NULL) {
-            t = k;
-            x = fx;
-        } else {
-            t = s;
+        if (k == NULL) {
+            /* the English, kept on the screen the same way */
+            fx = x;
+            k = vt_screen_fit(ctx, s, &fx, f, &heap, 0);
         }
+        t = k;
+        x = fx;
     }
     if (vt_needs_own(t, ut_end(t))) {
         vt_own_draw(ctx, t, x, y, colour, f);
@@ -759,10 +762,11 @@ static int __fastcall nbyte_hook(void *ctx, void *edx, const unsigned char *s, i
 
 /* Text the game's justification cannot lay out: a text with a letter of a script written without spaces
    (text_layout.h tl_no_space_letter: Chinese, Japanese, Korean, Thai, ...) or a zero width space, or a word
-   wider than the paragraph (the stock routine would never finish such a line). */
-static int vt_needs_own_paragraph(void *font, const unsigned char *t, int width) {
+   wider than the paragraph (the stock routine would never finish such a line) -- checked for any text when the
+   paragraph was narrowed to the screen's edge (`narrowed`), for UTF-8 text otherwise. */
+static int vt_needs_own_paragraph(void *font, const unsigned char *t, int width, int narrowed) {
     const unsigned char *end = ut_end(t), *p = t, *word = t;
-    if (!vt_needs_own(t, end)) {
+    if (!narrowed && !vt_needs_own(t, end)) {
         return 0;
     }
     while (p < end) {
@@ -789,11 +793,13 @@ static int __fastcall justify_hook(void *holder, void *edx, const unsigned char 
         void *ctx = holder != NULL ? *(void **)holder : NULL;
         void *f = font != NULL ? font : (ctx != NULL ? *(void **)((unsigned char *)ctx + 0x5C) : NULL);
         const unsigned char *t = vt_source(text, f, 1.0f);
+        int narrowed = 0;
         if (t != NULL && f != NULL && x >= 0 && x < vt_screen_width(ctx) && x + width > vt_screen_width(ctx)
             && vt_ours(text, t)) {
             width = vt_screen_width(ctx) - x;      /* the paragraph wraps at the screen's edge */
+            narrowed = 1;
         }
-        if (t != NULL && f != NULL && width > 0 && vt_needs_own_paragraph(f, t, width)) {
+        if (t != NULL && f != NULL && width > 0 && vt_needs_own_paragraph(f, t, width, narrowed)) {
             /* Lines broken by units, drawn from the left. */
             unsigned char line[4096];
             const unsigned char *p = t;

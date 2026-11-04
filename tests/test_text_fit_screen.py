@@ -264,7 +264,7 @@ class InTheGame(unittest.TestCase):
                     self.assertLessEqual(right, SCREEN)
 
     @staticmethod
-    def justify(run, raw: bytes, x: int, width: int) -> list:
+    def justify(run, raw: bytes, x: int, width: int, count: int = 400_000_000) -> list:
         mu = run.m.mu
         run.draw_text("ldwarialbold", b"", 0, 0)               # the one screen surface
         ctx = run.m.font_heap.alloc(0x400)
@@ -275,8 +275,72 @@ class InTheGame(unittest.TestCase):
         mu.mem_write(holder, struct.pack("<I", ctx))
         run.m.blits = []
         run._call(run.addr["justify"], holder, run.cstring(raw), x, 100, width, 0xFFFFFFFF,
-                  run.fonts["ldwarialbold"], 0)
+                  run.fonts["ldwarialbold"], 0, count=count)
         return list(run.m.blits)
+
+
+@unittest.skipUnless(os.name == "nt" and HAVE_STOCK and HAVE_IMAGES and HAVE_EMULATOR,
+                     "needs Windows, the stock executables, the game images and unicorn")
+class WithATranslation(unittest.TestCase):
+    """While a translation is in use (a stand-in "VVFP Translations.dll" whose VvfpTranslationsActive answers 1
+    and whose VvfpTranslateText gives the text back), plain one-byte text is the patcher's too."""
+
+    runs: dict = {}
+
+    @classmethod
+    def setUpClass(cls):
+        import startup_emulation as se
+        import unicode_utf8_emulation as ue
+        cls.saved_imports = dict(se.EXTRA_IMPORTS)
+        tables = json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
+        for game in ("vv1", "vv3", "vv4", "vv5"):
+            run = ue.TextRun(game, (f"{game}_unicode_text", f"{game}_details_full_names"), tables)
+            base = 0x7E000000
+            run.m.mu.mem_map(base, 0x1000)
+            run.m.mu.mem_write(base, bytes.fromhex("B801000000C3"))              # mov eax, 1; ret
+            run.m.mu.mem_write(base + 0x10, bytes.fromhex("8B442404C20400"))     # mov eax, [esp+4]; ret 4
+            run.m.modules["vvfp translations.dll"] = se.Module(
+                "VVFP Translations.dll", base, 0x1000,
+                {"VvfpTranslationsActive": base, "VvfpTranslateText": base + 0x10}, {}, "")
+            cls.runs[game] = run
+
+    @classmethod
+    def tearDownClass(cls):
+        import startup_emulation
+        startup_emulation.EXTRA_IMPORTS.clear()
+        startup_emulation.EXTRA_IMPORTS.update(cls.saved_imports)
+        cls.runs.clear()
+
+    def test_a_translated_line_is_cut_at_the_edge(self):
+        raw = b"Ceci est une tres longue phrase traduite qui depasse le bord de la fenetre du jeu"
+        for game, run in self.runs.items():
+            with self.subTest(game=game):
+                left, right = _span(run.draw_text("ldwarialbold", raw, 600, 100))
+                self.assertEqual(left, 600)
+                self.assertLessEqual(right, SCREEN)
+
+    def test_one_pixel_of_room_draws_nothing_past_the_edge(self):
+        """Codex (#697): at x=799 not even the ellipsis fits; nothing is drawn past the edge."""
+        for game, run in self.runs.items():
+            for raw in (b"Bonjour tout le monde", "日本語の文章".encode("utf-8")):
+                with self.subTest(game=game, text=raw):
+                    blits = run.draw_text("ldwarialbold", raw, SCREEN - 1, 100)
+                    self.assertTrue(all(to[0] + rect[2] <= SCREEN for _s, rect, _d, to in blits))
+
+    def test_a_narrowed_plain_paragraph_with_a_wide_word_finishes(self):
+        """Codex (#697): a stock paragraph narrowed to the screen's edge, with a word wider than the narrowed
+        width, would never finish in the game's own justification; it is laid out by the companion instead."""
+        raw = b"Un mot " + b"W" * 60 + b" puis la suite du paragraphe traduit"
+        for game, run in self.runs.items():
+            if game == "vv1":
+                continue                               # no justified paragraph routine
+            with self.subTest(game=game):
+                self.assertGreater(run.width_of("ldwarialbold", b"W" * 60), SCREEN - 500)
+                blits = InTheGame.justify(run, raw, 500, 600, count=50_000_000)
+                self.assertTrue(blits)
+                left, right = _span(blits)
+                self.assertGreaterEqual(left, 500)
+                self.assertLessEqual(right, SCREEN)
 
 
 class TheRows(unittest.TestCase):
