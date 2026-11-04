@@ -203,10 +203,17 @@ static unsigned int ut_gcb(unsigned int cp) {
     return u18_lookup(u18_gcb, U18_GCB_COUNT, cp);
 }
 
-/* Joins the character before it into one cluster (Grapheme_Cluster_Break Extend, ZWJ or SpacingMark). */
+/* A spacing mark (Mc) UAX #29 leaves out of GB9a (Myanmar U+102B, ...): the shared cluster rule
+   (docs/UNICODE_SPEC.md row 2: every Mn, Mc and Me extends the character before it) joins it too. */
+static int ut_mark_joins(unsigned int cp) {
+    return u18_lookup(u18_markjoin, U18_MARKJOIN_COUNT, cp) != 0;
+}
+
+/* Joins the character before it into one cluster (Grapheme_Cluster_Break Extend, ZWJ or SpacingMark, or any
+   other spacing mark). */
 static int ut_extends(unsigned int cp) {
     unsigned int p = ut_gcb(cp);
-    return p == U18_GCB_EXTEND || p == U18_GCB_ZWJ || p == U18_GCB_SPACINGMARK;
+    return p == U18_GCB_EXTEND || p == U18_GCB_ZWJ || p == U18_GCB_SPACINGMARK || ut_mark_joins(cp);
 }
 
 static int ut_regional(unsigned int cp) {
@@ -222,36 +229,6 @@ static int ut_complex(unsigned int cp) {
         || (cp >= 0x10800 && cp <= 0x10FFF) || (cp >= 0x1E800 && cp <= 0x1EFFF);
 }
 
-/* Ideographs, kana and their punctuation: a line may break between any two (Chinese, Japanese). */
-static int ut_cjk(unsigned int cp) {
-    return (cp >= 0x2E80 && cp <= 0x2FDF) || (cp >= 0x3000 && cp <= 0x30FF) || (cp >= 0x3190 && cp <= 0x31FF)
-        || (cp >= 0x3400 && cp <= 0x4DBF) || (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF)
-        || (cp >= 0xFF00 && cp <= 0xFF60) || (cp >= 0x20000 && cp <= 0x3FFFF);
-}
-
-/* Never at the start of a line (Japanese kinsoku: closing marks, small kana, the long-vowel mark). */
-static int ut_no_break_before(unsigned int cp) {
-    static const unsigned short CLOSE[] = {
-        0x3001, 0x3002, 0xFF0C, 0xFF0E, 0x300D, 0x300F, 0xFF09, 0x3009, 0x300B, 0x3011, 0x3015, 0x30FC,
-        0x3005, 0x3041, 0x3043, 0x3045, 0x3047, 0x3049, 0x3063, 0x3083, 0x3085, 0x3087, 0x308E, 0x30A1,
-        0x30A3, 0x30A5, 0x30A7, 0x30A9, 0x30C3, 0x30E3, 0x30E5, 0x30E7, 0x30EE, 0x30F5, 0x30F6, 0xFF01,
-        0xFF1F, 0xFF1A, 0xFF1B, 0x30FB, 0x2019, 0x201D, '.', ',', '!', '?', ':', ';', ')', ']', '}', 0
-    };
-    int i;
-    for (i = 0; CLOSE[i]; ++i) {
-        if (CLOSE[i] == cp) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/* Never at the end of a line (opening brackets and quotes). */
-static int ut_no_break_after(unsigned int cp) {
-    return cp == 0x300C || cp == 0x300E || cp == 0xFF08 || cp == 0x3008 || cp == 0x300A || cp == 0x3010
-        || cp == 0x3014 || cp == 0x2018 || cp == 0x201C || cp == '(' || cp == '[' || cp == '{';
-}
-
 /* ---- Units ------------------------------------------------------------------------------------ */
 
 enum { UT_END = 0, UT_NEWLINE, UT_SPACE, UT_CLUSTER, UT_RUN };
@@ -262,8 +239,9 @@ typedef struct ut_unit_t {
     unsigned int first, last;   /* the first and last characters (for line breaking) */
 } ut_unit_t;
 
-/* The byte length of the extended grapheme cluster at s (UAX #29 as of Unicode 18.0: GB3-GB13, GB9c's
-   Indic conjuncts, GB11's emoji ZWJ sequences, GB12/13's flags).  The same rule as src/vv_unicode18.py. */
+/* The byte length of the extended grapheme cluster at s (UAX #29 as of Unicode 18.0: GB3-GB13 -- CR LF is one
+   cluster -- GB9c's Indic conjuncts, GB11's emoji ZWJ sequences, GB12/13's flags), with every spacing mark
+   (Mc) joined as the shared cluster rule says.  The same rule as src/vv_game_text.py clusters(). */
 static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigned int *last) {
     const unsigned char *p = s;
     unsigned int cp, prev, incb;
@@ -294,6 +272,8 @@ static int ut_grapheme(const unsigned char *s, const unsigned char *end, unsigne
         else if ((prev == U18_GCB_LV || prev == U18_GCB_V) && (q == U18_GCB_V || q == U18_GCB_T)) join = 1;  /* GB7 */
         else if ((prev == U18_GCB_LVT || prev == U18_GCB_T) && q == U18_GCB_T) join = 1;           /* GB8 */
         else if (q == U18_GCB_EXTEND || q == U18_GCB_ZWJ || q == U18_GCB_SPACINGMARK) join = 1;    /* GB9, GB9a */
+        else if (ut_mark_joins(next)) join = 1;                     /* every Mc (the shared cluster rule) */
+        else if (prev == U18_GCB_ZWJ) join = 1;      /* a ZWJ joins the next character (the shared rule, beyond GB11) */
         else if (prev == U18_GCB_PREPEND) join = 1;                                                  /* GB9b */
         else if (conj == 2 && ib == U18_INCB_CONSONANT) join = 1;                                    /* GB9c */
         else if (emoji == 2 && pict) join = 1;                                                       /* GB11 */
@@ -364,19 +344,27 @@ static void ut_unit(const unsigned char *s, const unsigned char *end, ut_unit_t 
             }
             break;
         }
+        {
+            /* never end the run inside a grapheme cluster (a ZWJ joins whatever follows it) */
+            const unsigned char *q = s;
+            unsigned int lastcp = u->last;
+            while (q < p) {
+                int k = ut_grapheme(q, end, &lastcp);
+                if (k <= 0) {
+                    break;
+                }
+                q += k;
+            }
+            if (q > p) {
+                p = q;
+                u->last = lastcp;
+            }
+        }
         u->len = (int)(p - s);
         return;
     }
     u->kind = UT_CLUSTER;
     u->len = ut_grapheme(s, end, &u->last);
-}
-
-/* May a line break between a unit ending with `a` and one starting with `b` (neither a space)? */
-static int ut_break_between(unsigned int a, unsigned int b) {
-    if (ut_no_break_before(b) || ut_no_break_after(a)) {
-        return 0;
-    }
-    return ut_cjk(a) || ut_cjk(b);
 }
 
 /* The length text[0..len) keeps when its last unit is erased (Backspace): the last grapheme cluster

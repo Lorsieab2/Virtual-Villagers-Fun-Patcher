@@ -46,7 +46,8 @@ function Build-Companion([string]$dllName, [string]$defName, [string]$outFolder,
             gdi32.lib `
             advapi32.lib `
             shell32.lib `
-            usp10.lib
+            usp10.lib `
+            normaliz.lib
         $built = $LASTEXITCODE
         if ($built -eq 0) {
             Copy-Item -LiteralPath (Join-Path $work $dllName) -Destination (Join-Path $outputRoot $dllName) -Force

@@ -4,7 +4,8 @@
    grapheme_harness.exe <in> <out>
      in:  one text per line, as hex UTF-8 bytes ("F09F9180 CC88" -- spaces ignored).
      out: one line per text: the byte length of each grapheme cluster ut_grapheme finds, then "|", each
-          unit's kind and length (ut_unit), then "|" the length Backspace keeps (ut_erase_last). */
+          unit's kind and length (ut_unit), then "|" the length Backspace keeps (ut_erase_last), then
+          "|" ut_fit's answer for each byte cap 0..n. */
 #include <windows.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +56,11 @@ int main(int argc, char **argv) {
             fprintf(out, " %d:%d", u.kind, u.len);
             s += u.len;
         }
-        fprintf(out, " | %d\n", ut_erase_last(text, n));
+        fprintf(out, " | %d |", ut_erase_last(text, n));
+        for (i = 0; i <= n; ++i) {
+            fprintf(out, " %d", ut_fit(text, n, i));       /* the longest start that fits i bytes */
+        }
+        fprintf(out, "\n");
     }
     fclose(in);
     fclose(out);
