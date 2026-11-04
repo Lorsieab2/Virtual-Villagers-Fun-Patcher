@@ -183,7 +183,7 @@ static int vk_is_wrap_list(HWND list) {
 }
 
 /* The height entry `text` needs in `list`: every word shown, wrapped. */
-static int vk_wrap_height(HWND list, const char *text) {
+static int vk_wrap_height(HWND list, const WCHAR *text) {
     HDC dc = GetDC(list);
     HFONT font = (HFONT)SendMessageA(list, WM_GETFONT, 0, 0);
     HGDIOBJ old = NULL;
@@ -209,7 +209,7 @@ static int vk_wrap_height(HWND list, const char *text) {
         r.right = 40;
     }
     r.bottom = 0;
-    DrawTextA(dc, text != NULL && text[0] ? text : " ", -1, &r,
+    DrawTextW(dc, text != NULL && text[0] ? text : L" ", -1, &r,
               DT_CALCRECT | DT_WORDBREAK | DT_NOPREFIX | DT_EDITCONTROL);
     if (old != NULL) {
         SelectObject(dc, old);
@@ -223,13 +223,13 @@ static int vk_wrap_height(HWND list, const char *text) {
 static void vk_wrap_remeasure(HWND list) {
     int n = (int)SendMessageA(list, LB_GETCOUNT, 0, 0);
     int i;
-    char text[1200];
+    WCHAR text[1200];
     for (i = 0; i < n; ++i) {
-        int length = (int)SendMessageA(list, LB_GETTEXTLEN, (WPARAM)i, 0);
-        if (length < 0 || length >= (int)sizeof text) {
+        int length = (int)SendMessageW(list, LB_GETTEXTLEN, (WPARAM)i, 0);
+        if (length < 0 || length >= (int)(sizeof text / sizeof text[0])) {
             continue;
         }
-        SendMessageA(list, LB_GETTEXT, (WPARAM)i, (LPARAM)text);
+        SendMessageW(list, LB_GETTEXT, (WPARAM)i, (LPARAM)text);
         SendMessageA(list, LB_SETITEMHEIGHT, (WPARAM)i, (LPARAM)vk_wrap_height(list, text));
     }
     InvalidateRect(list, NULL, TRUE);
@@ -237,7 +237,7 @@ static void vk_wrap_remeasure(HWND list) {
 
 static int vk_wrap_measure(HWND dialog, MEASUREITEMSTRUCT *m) {
     HWND list;
-    char text[1200];
+    WCHAR text[1200];
     int length;
     if (m->CtlType != ODT_LISTBOX) {
         return 0;
@@ -248,16 +248,17 @@ static int vk_wrap_measure(HWND dialog, MEASUREITEMSTRUCT *m) {
     }
     /* the entry is in the list already when it is measured */
     text[0] = '\0';
-    length = (int)SendMessageA(list, LB_GETTEXTLEN, (WPARAM)m->itemID, 0);
-    if (length > 0 && length < (int)sizeof text) {
-        SendMessageA(list, LB_GETTEXT, (WPARAM)m->itemID, (LPARAM)text);
+    length = (int)SendMessageW(list, LB_GETTEXTLEN, (WPARAM)m->itemID, 0);
+    if (length > 0 && length < (int)(sizeof text / sizeof text[0])) {
+        SendMessageW(list, LB_GETTEXT, (WPARAM)m->itemID, (LPARAM)text);
     }
     m->itemHeight = (UINT)vk_wrap_height(list, text);
     return 1;
 }
 
+/* Read, measured and drawn as UTF-16: an entry may be a translation the ANSI code page cannot hold. */
 static int vk_wrap_draw(DRAWITEMSTRUCT *d) {
-    char text[1200];
+    WCHAR text[1200];
     int length;
     int header;
     int selected;
@@ -274,9 +275,9 @@ static int vk_wrap_draw(DRAWITEMSTRUCT *d) {
         return 1;
     }
     text[0] = '\0';
-    length = (int)SendMessageA(d->hwndItem, LB_GETTEXTLEN, d->itemID, 0);
-    if (length >= 0 && length < (int)sizeof text) {
-        SendMessageA(d->hwndItem, LB_GETTEXT, d->itemID, (LPARAM)text);
+    length = (int)SendMessageW(d->hwndItem, LB_GETTEXTLEN, d->itemID, 0);
+    if (length >= 0 && length < (int)(sizeof text / sizeof text[0])) {
+        SendMessageW(d->hwndItem, LB_GETTEXT, d->itemID, (LPARAM)text);
     }
     header = (int)d->itemData == VK_LB_HEADER;
     selected = (d->itemState & ODS_SELECTED) && !header;
@@ -298,7 +299,7 @@ static int vk_wrap_draw(DRAWITEMSTRUCT *d) {
     r.left += VK_PAD_X;
     r.right -= VK_PAD_X;
     r.top += VK_PAD_Y;
-    DrawTextA(d->hDC, text, -1, &r, DT_WORDBREAK | DT_NOPREFIX | DT_EDITCONTROL);
+    DrawTextW(d->hDC, text, -1, &r, DT_WORDBREAK | DT_NOPREFIX | DT_EDITCONTROL);
     if ((d->itemState & ODS_FOCUS) && !header) {
         DrawFocusRect(d->hDC, &d->rcItem);
     }
@@ -605,7 +606,7 @@ typedef int (*vk_villager_fn)(void *context, LPARAM data, vk_villager *out);
 #define VK_SORT_MAX 400
 
 typedef struct {
-    char text[160];
+    WCHAR text[160];
     LPARAM data;
     int selected;
     int villager;
@@ -640,10 +641,10 @@ static void vk_sort_control(HWND control, int combo, int mode, vk_villager_fn ab
     slot = (int *)(v + n);
     order = slot + n;
     for (i = 0; i < n; ++i) {
-        int length = (int)SendMessageA(control, combo ? CB_GETLBTEXTLEN : LB_GETTEXTLEN, (WPARAM)i, 0);
+        int length = (int)SendMessageW(control, combo ? CB_GETLBTEXTLEN : LB_GETTEXTLEN, (WPARAM)i, 0);
         vk_villager who;
-        if (length >= 0 && length < (int)sizeof e[i].text) {
-            SendMessageA(control, combo ? CB_GETLBTEXT : LB_GETTEXT, (WPARAM)i, (LPARAM)e[i].text);
+        if (length >= 0 && length < (int)(sizeof e[i].text / sizeof e[i].text[0])) {
+            SendMessageW(control, combo ? CB_GETLBTEXT : LB_GETTEXT, (WPARAM)i, (LPARAM)e[i].text);
         }
         e[i].data = (LPARAM)SendMessageA(control, combo ? CB_GETITEMDATA : LB_GETITEMDATA, (WPARAM)i, 0);
         e[i].selected = multi ? SendMessageA(control, LB_GETSEL, (WPARAM)i, 0) > 0 : i == current;
@@ -668,7 +669,7 @@ static void vk_sort_control(HWND control, int combo, int mode, vk_villager_fn ab
             SendMessageA(control, WM_SETREDRAW, FALSE, 0);
             SendMessageA(control, combo ? CB_RESETCONTENT : LB_RESETCONTENT, 0, 0);
             for (i = 0; i < n; ++i) {
-                k = (int)SendMessageA(control, combo ? CB_ADDSTRING : LB_ADDSTRING, 0, (LPARAM)e[i].text);
+                k = (int)SendMessageW(control, combo ? CB_ADDSTRING : LB_ADDSTRING, 0, (LPARAM)e[i].text);
                 SendMessageA(control, combo ? CB_SETITEMDATA : LB_SETITEMDATA, (WPARAM)k, e[i].data);
             }
             for (i = 0; i < n; ++i) {
