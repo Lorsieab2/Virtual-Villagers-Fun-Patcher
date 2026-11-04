@@ -565,7 +565,7 @@ class StoryButtonTests(unittest.TestCase):
         header = (SHARED / "vvfp_translate.h").read_text(encoding="utf-8")
         self.assertIn("return MessageBoxW(owner, wide_text, wide_caption, type);", header)
         story = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.c").read_text(encoding="utf-8")
-        body = story[story.index("story_pick_island_event("):]
+        body = story[story.index("static int story_pick_island_event(int game, HWND owner) {"):]
         body = body[:body.index("\n}\n")]
         self.assertNotRegex(body, r"MessageBoxA\(owner, message,")
         self.assertEqual(body.count("vvfp_message_box(owner, message,"), 3)
