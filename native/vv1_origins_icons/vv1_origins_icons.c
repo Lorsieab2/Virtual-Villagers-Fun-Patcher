@@ -24,8 +24,11 @@
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
-   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h). */
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
+#endif
 
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2.

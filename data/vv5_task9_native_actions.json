@@ -527,7 +527,7 @@
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "F860BD86FE10CFEFF535A1C20039F40F54A33B35DBD12E6AC9DB7D7E78A09876"
+      "source_text_sha256": "21DA9EC6C7FC23A59492E237C9C4E43FB9740D421BC2D93652B02D6CA05DBA6C"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",

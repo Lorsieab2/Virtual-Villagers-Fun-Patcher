@@ -21,8 +21,11 @@
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
-   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h). */
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
+#endif
 
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
