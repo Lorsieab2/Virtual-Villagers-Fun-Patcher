@@ -1348,7 +1348,7 @@ static void vv2_appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) 
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_draw.s0","(None)",0), -1, &none_rc,
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_draw.s0","(None)",0), &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -1408,11 +1408,11 @@ static void vv2_draw_label(DRAWITEMSTRUCT *item, const char *text) {
     SetBkMode(item->hDC, TRANSPARENT);
     /* DT_VCENTER only works with single-line text, so center manually: measure
        the wrapped height, then offset the draw rect to the vertical middle. */
-    DrawTextA(item->hDC, text, -1, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
+    vvfp_draw_text(item->hDC, text, &calc, DT_CENTER | DT_WORDBREAK | DT_CALCRECT);
     th = calc.bottom - calc.top;
     top = rc.top + ((rc.bottom - rc.top) - th) / 2;
     if (top > rc.top) rc.top = top;
-    DrawTextA(item->hDC, text, -1, &rc, DT_CENTER | DT_WORDBREAK);
+    vvfp_draw_text(item->hDC, text, &rc, DT_CENTER | DT_WORDBREAK);
 }
 
 /* THE HEAD LOOK (native/shared/head_look.h): Auto, Young or Old, kept by "VVFP Head Look.dll" for the

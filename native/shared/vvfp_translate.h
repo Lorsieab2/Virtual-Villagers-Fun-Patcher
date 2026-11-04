@@ -70,4 +70,24 @@ static const char *vvfp_trf(const char *stem, const char *english, const char *t
     return vvfp_tr_text_p(stem, english, text, out, cap) ? out : text;
 }
 
+/* Draws a (possibly translated) label with GDI.  A translation may be UTF-8 (when a Unicode companion is in)
+   or Windows-1252, so the text is read the patcher's way -- valid UTF-8, else Windows-1252 -- and drawn with
+   DrawTextW: never the ANSI code page, which would turn a translation into mojibake. */
+static int vvfp_draw_text(HDC dc, const char *text, RECT *rc, UINT flags) {
+    WCHAR wide[256];
+    int n;
+    if (text == NULL) {
+        return 0;
+    }
+    n = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, -1, wide, 256);
+    if (n <= 0) {
+        n = MultiByteToWideChar(1252, 0, text, -1, wide, 256);
+    }
+    if (n <= 0) {
+        wide[0] = 0;
+    }
+    wide[255] = 0;
+    return DrawTextW(dc, wide, -1, rc, flags);
+}
+
 #endif

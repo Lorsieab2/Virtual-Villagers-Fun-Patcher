@@ -2729,7 +2729,7 @@ static void appearance_draw_from(DRAWITEMSTRUCT *item, HINSTANCE module, int bit
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv1_origins_icons.appearance_draw_from.s0","(None)",0), -1, &none_rc,
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv1_origins_icons.appearance_draw_from.s0","(None)",0), &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -3327,7 +3327,7 @@ static void forall_draw_one(DRAWITEMSTRUCT *item, int bitmap, int sel) {
         FillRect(item->hDC, &rc, bg);
         DeleteObject(bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv1_origins_icons.forall_draw_one.s0","No change",0), -1, &rc,
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv1_origins_icons.forall_draw_one.s0","No change",0), &rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
     } else {
         appearance_draw(item, bitmap, sel);

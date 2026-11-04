@@ -1518,7 +1518,7 @@ static void appearance_draw_mask_cell(HDC hdc, RECT rc, int mask) {
            box there reads as a broken preview rather than a choice. Name it
            in the cell too. */
         SetBkMode(hdc, TRANSPARENT);
-        DrawTextA(hdc, vvfp_tr("vvfp.origins/vv4_origins_icons.appearance_draw_mask_cell.s0","(None)",0), -1, &rc,
+        vvfp_draw_text(hdc, vvfp_tr("vvfp.origins/vv4_origins_icons.appearance_draw_mask_cell.s0","(None)",0), &rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -2716,7 +2716,7 @@ static void fa_draw_cell(const DRAWITEMSTRUCT *dis, int value, int is_head,
                          int is_mask, int sex_female) {
     if (value == FA_NOCHANGE) {
         FillRect(dis->hDC, &dis->rcItem, (HBRUSH)(COLOR_BTNFACE + 1));
-        DrawTextA(dis->hDC, vvfp_tr("vvfp.origins/vv4_origins_icons.fa_draw_cell.s0","No change",0), -1, (RECT *)&dis->rcItem,
+        vvfp_draw_text(dis->hDC, vvfp_tr("vvfp.origins/vv4_origins_icons.fa_draw_cell.s0","No change",0), (RECT *)&dis->rcItem,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }

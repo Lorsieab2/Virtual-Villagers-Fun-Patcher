@@ -1112,7 +1112,7 @@ static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
         FillRect(item->hDC, &none_rc, none_bg);
         DeleteObject(none_bg);
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.appearance_draw.s0","(None)",0), -1, &none_rc,
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.appearance_draw.s0","(None)",0), &none_rc,
                   DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
@@ -1999,7 +1999,7 @@ static void caf_draw(DRAWITEMSTRUCT *item, int sex, int kind, int value) {
     DeleteObject(bg);
     if (value < 0) {
         SetBkMode(item->hDC, TRANSPARENT);
-        DrawTextA(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.caf_draw.s0","No change",0), -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+        vvfp_draw_text(item->hDC, vvfp_tr("vvfp.origins/vv5_task9_origins.caf_draw.s0","No change",0), &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
         return;
     }
     if (kind == 0) { bmp_id = sex ? IDB_BODY_F : IDB_BODY_M; cell_w = APPEARANCE_CELL_W; cell_h = APPEARANCE_CELL_H; }
