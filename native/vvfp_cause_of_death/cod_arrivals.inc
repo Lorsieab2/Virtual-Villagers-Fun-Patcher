@@ -196,6 +196,16 @@ static int arrival_parented(const unsigned char *record) {
         && (record[PARENTS[g_game][0]] != 0 || record[PARENTS[g_game][1]] != 0);
 }
 
+/* Born in the village, by what the patcher keeps: the parents on the record
+   (The Lost Children on), or A New Home's in Show Parents in Details
+   Screen's Parentage Records (vv1_parent_names, cod_roster.inc): never an
+   arrival (the owner, 2026-11-03). */
+static int arrival_born_here(int index, const unsigned char *record) {
+    char father[ROSTER_PARENT_NAME], mother[ROSTER_PARENT_NAME];
+    return g_game == 1 ? vv1_parent_names(index, father, mother, (int)sizeof father)
+                       : arrival_parented(record);
+}
+
 /* Decide a made record: a birth, a Heathen or gone -> nothing; otherwise an
    arrival, aged as it is now.  A "founder" whose record keeps parents was
    born in a village a load put there (the seeding ran ahead of it): never
@@ -546,8 +556,9 @@ static int arrival_gather(int births) {
         f = &arrival_facts[n];
         memset(f, 0, sizeof *f);
         f->record = record;
-        /* Born here: the record keeps their parents (never in A New Home). */
-        if (arrival_parented(record) != births) {
+        /* Born here: their parents are kept (on the record, or in A New
+           Home's Parentage Records). */
+        if (arrival_born_here((int)i, record) != births) {
             f->outcome = VV_ARRIVAL_CONTEXT;
         }
         /* Made by a creator this session, its own record not written yet:
