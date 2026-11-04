@@ -4,7 +4,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "0C592678C834109D8D2F5BA8203CD4FDF7A61444A8DA85400090060F9B37223B"
+      "source_text_sha256": "753C7165A841B8295CD6E6521D9A5DC4307A9512698CED849FAE792CF395B579"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
