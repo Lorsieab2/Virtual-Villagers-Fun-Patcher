@@ -187,7 +187,9 @@ class TheRows(unittest.TestCase):
                         # Classified: a companion reads it from the patcher's folder.
                         self.assertEqual(str(patcher_files.installed_relative_path(item["destination"])),
                                          f"Virtual Villagers Fun Patcher Files/Unicode Fonts/{name}")
-                    self.assertEqual(len(files), len(FONT_FILES + NOTICES) + 1)          # and the one DLL
+                    # and the one DLL and the word lists (tests/test_text_fit_screen.py)
+                    self.assertEqual(len([d for d in files if not d.startswith("Word Lists/")]),
+                                     len(FONT_FILES + NOTICES) + 1)
                     self.assertIn("**Bundles four open fonts", row["description"])
                     for word in ("GNU Unifont 18.0.01", "Noto Sans Cuneiform", "Noto Serif Tangut", "Last Resort",
                                  "OFL-1.1", "about 14 MB"):

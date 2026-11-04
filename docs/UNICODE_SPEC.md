@@ -213,6 +213,10 @@ are invalid UTF-8 as a whole but contain a valid sequence. For example, a VF2 si
   whole characters, trailing spaces dropped, then "…" (U+2026, or byte 0x85 in a one-byte string). It is measured
   with the glyphs actually drawn. A name that fits is drawn exactly as before. (VF1 `DrawSpots` / `LabelSpots`.
   FP and VF2 use an estimate: a placeholder width or as many "W" as the field holds.)
+- **Screen edge:** text the patcher or a translation draws never runs past the game window's edges (it may run past
+  its own box). A line that would cross the right edge is cut there by the fit-to-width rule; one that would start
+  left of the window starts at its edge; a justified paragraph wraps at the edge; when not one character fits, the
+  English is drawn. The game's own English is untouched. (VV: the draw hooks, `vt_screen_fit`.)
 - **Wide characters in non-name boxes:** a typed text is never wider than the widest text the stock game allows in
   that box (its byte limit times the font's widest plain letter). A wider character is refused. Name boxes scroll
   instead. (VF2)
@@ -222,7 +226,9 @@ are invalid UTF-8 as a whole but contain a valid sequence. For example, a VF2 si
     `icu.dll` allows it. The DLL loads it with `LOAD_LIBRARY_SEARCH_SYSTEM32`; ICU also knows the
     Thai/Lao/Khmer/Myanmar dictionary words.
   - Without ICU, a built-in table is used: kinsoku closing marks never start a line (。、」）, small kana, ー, ゝ), and
-    opening marks never end one.
+    opening marks never end one. Thai, Lao, Khmer and Myanmar then break between the longest words of the shared
+    ICU word lists (`word-lists/`, ICU 77.1, read only when such a line is broken), as ICU does; Chinese and
+    Japanese break between characters, as ICU's line breaking does (cjdict is for word selection).
   - Text with no such letter, where every word fits, runs the game's own wrapper untouched, so ASCII is
     pixel-identical.
   - A word wider than the whole line is cut after its longest start of whole characters (at least one) instead of

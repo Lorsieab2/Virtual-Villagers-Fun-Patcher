@@ -113,6 +113,12 @@ PATCHER_READS: frozenset[str] = frozenset({
         "NotoSerifTangut-OFL-1.1.txt", "Unifont-OFL-1.1.txt", "Unifont-GPL-2.0-COPYING.txt",
         "LastResort-OFL-1.1.txt", "SOURCES.json",
     )
+) | frozenset(
+    # The shared ICU word lists (assets/word_lists) and ICU's licence: read by the same companions from
+    # "Word Lists\\" beside them where Windows has no icu.dll.
+    f"Word Lists/{name}" for name in (
+        "thaidict.txt", "laodict.txt", "khmerdict.txt", "burmesedict.txt", "ICU-LICENSE.txt",
+    )
 )
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}

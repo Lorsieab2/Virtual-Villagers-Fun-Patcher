@@ -116,3 +116,4 @@ data/unicode18/*.gz -text
 # never rewritten by core.autocrlf (a Windows CI checkout turned the LF licence files into CRLF).
 assets/unicode_fonts/** -text
 assets/unicode_fonts/SOURCES.json text eol=lf
+assets/word_lists/** -text

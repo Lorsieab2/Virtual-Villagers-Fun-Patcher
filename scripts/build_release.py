@@ -250,6 +250,15 @@ FILES = [
     "assets/unicode_fonts/Unifont-GPL-2.0-COPYING.txt",
     "assets/unicode_fonts/LastResort-OFL-1.1.txt",
     "assets/unicode_fonts/SOURCES.json",
+    # The shared ICU word lists (ICU 77.1, unchanged) and ICU's licence, which must travel with them: the Unicode
+    # companions break Thai, Lao, Khmer and Myanmar by them where Windows has no icu.dll.  cjdict.txt is not
+    # shipped (Chinese and Japanese line breaking does not use it).
+    "assets/word_lists/thaidict.txt",
+    "assets/word_lists/laodict.txt",
+    "assets/word_lists/khmerdict.txt",
+    "assets/word_lists/burmesedict.txt",
+    "assets/word_lists/ICU-LICENSE.txt",
+    "assets/word_lists/README.md",
     "data/vv1_translations_feature.json",
     "data/vv2_translations_feature.json",
     "data/vv3_translations_feature.json",

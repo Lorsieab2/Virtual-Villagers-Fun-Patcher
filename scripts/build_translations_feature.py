@@ -63,6 +63,8 @@ DESCRIPTION = (
     "is exactly as without this patch.** **Letters beyond plain English (accents, Turkish ğ ş ı, Greek, Cyrillic, "
     "Chinese, Japanese, Cuneiform, emoji) need \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\"; "
     "without either, the game's own font draws only plain English letters and the rest show as \"?\".** "
+    "**With one of those two rows a translated line never runs off the screen (it is cut with \"…\" at the "
+    "window's edge, though it may run past its own box); without them the game draws it as it is.** "
     "**Words painted into pictures (buttons, the title screen, help pages) stay English.** "
     "**Every patch's own text is translated too: its windows and messages, Custom Island Event popups, Cause of "
     "Death words and epitaphs, Son/Daughter, and the text the exe patches write; log files stay English.** "
