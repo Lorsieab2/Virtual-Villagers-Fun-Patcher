@@ -1318,6 +1318,52 @@ static void renamed_cases(void) {
     free(buffer);
 }
 
+/* 10: A New Home keeps no parents on the record: a villager whose parents Show Parents in Details
+   Screen's Parentage Records keep was born in the village and is never backfilled as an arrival (the
+   owner, 2026-11-03).  The stand-in companion (native/population_export/vv1_parentage_stub.c) gives
+   record 1, Keiki, father Goro and mother Aisha; record 0, Orphan, has none and is still offered. */
+static void vv1_parented_cases(void) {
+    char path[MAX_PATH], stub[MAX_PATH];
+    unsigned char *buffer;
+    int i;
+    HMODULE loaded;
+    if (game != 1) {
+        return;
+    }
+    reset(game, 1);
+    clean();
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    _snprintf(stub, MAX_PATH, "%s\\VVFP VV1 Parentage.dll", files_dir);
+    if (vv1_stub_path == NULL || !CopyFileA(vv1_stub_path, stub, FALSE)) {
+        CHECK(0, "vv1 parented: the stand-in Show Parents companion is in place");
+        return;
+    }
+    villager(0, "Orphan", 600, 3, 3, 0);
+    villager(1, "Keiki", 400, 7, 2, 0);
+    births_path(1, path);
+    write_text(path, "Village: Parent Tribe (Save 1)\n");
+    write_save_named("Parent Tribe");
+    vv_village_publish("");
+    buffer = save_buffer("Parent Tribe");
+    CHECK(scan_arrivals(game, 1) == 1,
+          "vv1 parented: the scan counts Orphan only (Keiki's parents are in the Parentage Records)");
+    repair_arrivals(game, 1, 1);
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(count_of(text, "  Name: Orphan\r\n") == 1,
+          "vv1 parented: a villager with no recorded parents still gets an Arrived record");
+    CHECK(strstr(text, "  Name: Keiki\r\n") == NULL,
+          "vv1 parented: a villager with Parentage Records parents gets no Arrived record");
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, "Village: Parent Tribe (Save 1)\n");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    free(buffer);
+    loaded = GetModuleHandleA("VVFP VV1 Parentage.dll");
+    while (loaded != NULL && FreeLibrary(loaded) && GetModuleHandleA("VVFP VV1 Parentage.dll") != NULL) {
+    }
+    DeleteFileA(stub);
+}
+
 /* 9: the Unaccounted Villagers log follows villagers by who they are, never by their record (the
    owner, 2026-10-20: the first load with The Lost Children's Elder Totems companion moved the totems
    out of the table, every later villager loaded into another record, and 112 "Arrived" and 108 "Left"
@@ -2158,6 +2204,7 @@ int main(int argc, char **argv) {
         stale_slot_cases();
         creation_save_cases();
         renamed_cases();
+        vv1_parented_cases();
         parents_cases();
         identity_cases();
         reload_cases();
