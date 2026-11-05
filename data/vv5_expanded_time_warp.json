@@ -97,7 +97,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "AC132239EBC549C1A6684BD731228A5A70A35812AFCCB3F19D65A15BE0842690"
+      "source_text_sha256": "70DD75FC6CE1ACC8A9820757AD9985992826C28AAE48023636F7264D4C642A66"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
