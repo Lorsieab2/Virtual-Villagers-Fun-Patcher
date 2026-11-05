@@ -364,7 +364,8 @@ typedef struct {
 static BOOL CALLBACK vvfp_story_hit_one(HWND child, LPARAM param) {
     vvfp_story_hit *h = (vvfp_story_hit *)param;
     RECT rc, overlap;
-    if (GetParent(child) != h->dialog || !IsWindowVisible(child)) {
+    /* the control's own WS_VISIBLE: at WM_INITDIALOG the dialog itself is not shown yet */
+    if (GetParent(child) != h->dialog || !(GetWindowLongA(child, GWL_STYLE) & WS_VISIBLE)) {
         return TRUE;
     }
     GetWindowRect(child, &rc);
