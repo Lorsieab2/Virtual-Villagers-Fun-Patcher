@@ -942,10 +942,10 @@ VV5_TASK9_PATHS = {
 # villager's own colour flags. The believer draw at 0x47279C is stock again,
 # and the flip is closed at both render-function epilogues.
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "246FEC88BBED64E841773A812E245DDE660BF7EB249AABC7B41800FA8DAC9988",
-    "map": "CDB85EEE1631C609411448FC28A848F107D6C4A227B64DC079FE713034243C2D",
+    "manifest": "AE83F7BCB23599009CA68234C95AE102B68AC01FD462761A71D18E0362F97EA5",
+    "map": "87F4C20D1B93E93360219BA4E9BEFE9C0A739718700C51877324477A068188B0",
 }
-VV5_TASK9_DLL_SHA256 = "686E3A68361CFDE98921C46FFDDE16BC3728D65CC762F62D35C02355227F9AA2"
+VV5_TASK9_DLL_SHA256 = "57ABDD14B33D020684190E8BB53EE2D4A1F1726F49399A7BF75CE428E5C3C142"
 # Dedicated Details-portrait bighead mask atlas shipped to Images/bigheads_masks.png.
 VV5_TASK9_BIGHEAD_ATLAS_SHA256 = "8E10BE75CBED771DA9F63E8C7DF7A1CA91658A9A4069862D9E4EE53D04FDCB47"
 VV5_TASK9_BIGHEAD_ATLAS_SIZE = 44493
@@ -2004,7 +2004,7 @@ EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
     # the deeper frozen artifacts; the removed experimental patch modes prevent
     # end-to-end regeneration in the current tree.
     "vv3_builder": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60",
-    "builder": "176DE3CC27CD907B83B4255F06B767C8C4DE7EA8E1733270FA98D6811039587D",
+    "builder": "AC132239EBC549C1A6684BD731228A5A70A35812AFCCB3F19D65A15BE0842690",
     "task9_builder": "CA063A772F66F4954D2F5F76BB331A826F811A23100A00BD28D489989F36F957",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
@@ -2017,8 +2017,8 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
     # mechanism restored: these artifacts embed the builder's source identity,
     # which changed with it.
     "vv5": {
-        "manifest": "E95EC94DE2658AC50BF72F43A63F1007AAB79EE49F79E1874355A18ACE7ABFF6",
-        "map": "1EEB87D0520C7B8C96E6F5294639EFDB37A70FF4A80AD205AD6849774C57B49D",
+        "manifest": "96DC5C8C931C0E09C159F381644D06C0C704BAA6E87E8DD01E5BAC052F8F4597",
+        "map": "4C4AA3DD04707FDBBAE31345649B861C3180DEABD2382F5E4D4E3BC4D3D2B400",
     },
 }
 VV5_TASK9_EXPANDED_HOOK = {
@@ -3440,7 +3440,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1886208,
+        "size": 1886720,
     }
     expected_bighead_atlas = {
         "source": "assets/vv5_bighead_masks/bigheads_masks.png",
@@ -3806,7 +3806,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
         "destination": "VVFP Origins Icons.dll",
         "sha256": VV5_TASK9_DLL_SHA256,
-        "size": 1886208,
+        "size": 1886720,
     }
     shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",

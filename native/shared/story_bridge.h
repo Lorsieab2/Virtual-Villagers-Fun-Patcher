@@ -353,6 +353,43 @@ static int vvfp_story_button_overlaps(HWND dialog, const RECT *want) {
     return 0;
 }
 
+/* Whether `want` covers any visible control of the dialog (the menu's own text included): a widened
+   translated button is moved instead of hiding a line of the dialog. */
+typedef struct {
+    HWND dialog;
+    const RECT *want;
+    int hit;
+} vvfp_story_hit;
+
+static BOOL CALLBACK vvfp_story_hit_one(HWND child, LPARAM param) {
+    vvfp_story_hit *h = (vvfp_story_hit *)param;
+    RECT rc, overlap;
+    if (GetParent(child) != h->dialog || !IsWindowVisible(child)) {
+        return TRUE;
+    }
+    GetWindowRect(child, &rc);
+    MapWindowPoints(NULL, h->dialog, (POINT *)&rc, 2);
+    /* a frame or group box around the spot is not a line the button would hide */
+    if (rc.left <= h->want->left && rc.top <= h->want->top && rc.right >= h->want->right
+        && rc.bottom >= h->want->bottom) {
+        return TRUE;
+    }
+    if (IntersectRect(&overlap, &rc, h->want)) {
+        h->hit = 1;
+        return FALSE;
+    }
+    return TRUE;
+}
+
+static int vvfp_story_covers_any(HWND dialog, const RECT *want) {
+    vvfp_story_hit h;
+    h.dialog = dialog;
+    h.want = want;
+    h.hit = 0;
+    EnumChildWindows(dialog, vvfp_story_hit_one, (LPARAM)&h);
+    return h.hit;
+}
+
 /* The Choose Time Skip Amount button: right of Cancel when that is free and
    inside the dialog, otherwise above the Custom Island Event button. */
 static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
@@ -387,7 +424,8 @@ static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
         MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     }
     SetRect(&want, rc.left, rc.top - height - unit.bottom, rc.left + width, rc.top - unit.bottom);
-    while (want.top >= 0 && vvfp_story_button_overlaps(dialog, &want)) {
+    while (want.top - height - unit.bottom >= 0
+           && (vvfp_story_button_overlaps(dialog, &want) || vvfp_story_covers_any(dialog, &want))) {
         OffsetRect(&want, 0, -(height + unit.bottom));
     }
     vvfp_story_button(dialog, label, VVFP_STORY_TIME_SKIP_ID, want.left, want.top, width, height);
@@ -445,8 +483,15 @@ static void vvfp_story_add_event_buttons(int game, HWND dialog) {
         }
     }
     vvfp_story_button(dialog, pick_label, VVFP_STORY_PICK_ID, x, rc.top, width, height);
-    vvfp_story_button(dialog, custom_label, VVFP_STORY_CUSTOM_ID,
-                      x, rc.top - height - unit.bottom, width, height);
+    {
+        /* above it, moved up past any line of the dialog a wider (translated) button would hide */
+        RECT want;
+        SetRect(&want, x, rc.top - height - unit.bottom, x + width, rc.top - unit.bottom);
+        while (want.top - height - unit.bottom >= 0 && vvfp_story_covers_any(dialog, &want)) {
+            OffsetRect(&want, 0, -(height + unit.bottom));
+        }
+        vvfp_story_button(dialog, custom_label, VVFP_STORY_CUSTOM_ID, want.left, want.top, width, height);
+    }
 }
 
 
