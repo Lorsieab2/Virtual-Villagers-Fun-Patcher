@@ -333,7 +333,7 @@ static INT_PTR CALLBACK time_skip_dialog(HWND window, UINT message, WPARAM wpara
 __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner) {
     static const char *const TITLE = "Origins Upgrades";
     const ce_adapter *a = ce_adapter_for(game);
-    char message[512];
+    char message[1100];
     char price_text[16];
     int price, years, first;
     if (!story_installed(game) || story_time_skip_host(game) == NULL || a == NULL) {
@@ -362,9 +362,9 @@ __declspec(dllexport) int __stdcall VvfpStoryChooseTimeSkip(int game, HWND owner
         wsprintfA(price_text, "%d", price);
     }
     wsprintfA(message,
-              "Do you want to buy Choose Time Skip Amount (%d year%s) for %s tech points?\r\n"
-              "The village advances %d villager year%s, one Time Warp at a time.\r\n"
-              "Press OK to confirm, or Cancel.",
+              vvfp_tr("vvfp.story/story_time_skip.VvfpStoryChooseTimeSkip.s4",
+                      "Do you want to buy Choose Time Skip Amount (%d year%s) for %s tech points?\r\nThe village advances %d villager year%s, one Time Warp at a time.\r\nPress OK to confirm, or Cancel.",
+                      600),
               years, years == 1 ? "" : "s", price_text, years, years == 1 ? "" : "s");
     if (MessageBoxA(owner, message, TITLE, MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
         != IDOK) {

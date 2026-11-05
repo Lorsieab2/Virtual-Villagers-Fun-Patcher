@@ -264,8 +264,10 @@ class Patcher(unittest.TestCase):
         self.assertIn("for value in (50000, 30000, 75000, 500000, 500000, 30000):", source)
         self.assertIn("for value in (50000, 100000, 40000, 50000, 5000):", source)
         icons = (ROOT / "native" / "vv4_origins_icons" / "vv4_origins_icons.c").read_text(encoding="utf-8")
-        self.assertIn("Change Appearance for All for 450,000 tech", icons)
-        self.assertIn("All Villagers are Exactly 18 for 1,000,000 tech", icons)
+        # the buy prompts: one keyed prompt, the name and the price as its values (vv4_buy_prompt)
+        self.assertIn('vv4_buy_prompt(owner, vv4_row_name(0, 16), "450,000",', icons)
+        self.assertRegex(icons, r'vv4_buy_prompt\(GetForegroundWindow\(\),\s*vvfp_tr\("[^"]+", "All Villagers are '
+                                r'Exactly 18", 0\),\s*"1,000,000",')
         by_name = {e.name: e.text for e in items.entries() if e.kind == items.PATCHER}
         for name, price in (("Time Warp", 50_000), ("Island Event", 30_000), ("Barrel of Babies", 75_000),
                             ("Tech Point Doubler", 500_000), ("Food Point Doubler", 500_000),

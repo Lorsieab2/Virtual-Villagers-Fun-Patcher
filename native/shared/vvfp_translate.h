@@ -90,4 +90,26 @@ static int vvfp_draw_text(HDC dc, const char *text, RECT *rc, UINT flags) {
     return DrawTextW(dc, wide, -1, rc, flags);
 }
 
+/* A (possibly translated) patcher text as UTF-16, read the same way (valid UTF-8, else Windows-1252); its
+   length in characters. */
+static int vvfp_to_wide(const char *text, WCHAR *wide, int cap) {
+    int n = text != NULL ? MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, text, -1, wide, cap) : 0;
+    if (n <= 0 && text != NULL) {
+        n = MultiByteToWideChar(1252, 0, text, -1, wide, cap);
+    }
+    if (n <= 0) {
+        n = 1;
+    }
+    wide[n - 1] = 0;
+    return n - 1;
+}
+
+/* MessageBoxA for a text that may hold a translation: shown as UTF-16, never in the ANSI code page. */
+static int vvfp_message_box(HWND owner, const char *text, const char *caption, UINT type) {
+    WCHAR wide_text[2048], wide_caption[256];
+    vvfp_to_wide(text, wide_text, 2048);
+    vvfp_to_wide(caption, wide_caption, 256);
+    return MessageBoxW(owner, wide_text, wide_caption, type);
+}
+
 #endif

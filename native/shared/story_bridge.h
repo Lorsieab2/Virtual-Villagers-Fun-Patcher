@@ -17,6 +17,7 @@
 #include <string.h>
 #include "startup_companions.h" /* only the companions this build ships */
 #include "patcher_files.h"       /* the patcher's folder; full-path, wide loads */
+#include "vvfp_translate.h"      /* the buttons' and price lines' text in the player's language, by key */
 
 #define VVFP_STORY_DLL "VVFP Story Upgrades.dll"
 /* The Pick Island Event button the Tech menu gains while the row is active.
@@ -170,14 +171,20 @@ static int vvfp_story_offered(int game) {
 }
 
 /* A story button's label: "<what> (<price> tech points)...", the price
-   what the Story DLL charges for it now (0, or the Island Event's). */
+   what the Story DLL charges for it now (0, or the Island Event's).  `what`
+   is already the name's own translation; the rest is its own row, asked for
+   by key and filled with the same values.  `out` holds VVFP_STORY_LABEL
+   bytes: the name (at most 128) and the format (at most 200) always fit. */
+#define VVFP_STORY_LABEL 512
 static const char *vvfp_story_label_priced(int game, const char *what, char *out, int size,
                                            vvfp_story_active_fn price_of) {
     int price = price_of != NULL ? price_of(game) : 0;
     if (price >= 1000) {
-        wsprintfA(out, "%s (%d,%03d tech points)...", what, price / 1000, price % 1000);
+        wsprintfA(out, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_label_priced.s0",
+                               "%s (%d,%03d tech points)...", 200), what, price / 1000, price % 1000);
     } else {
-        wsprintfA(out, "%s (%d tech points)...", what, price);
+        wsprintfA(out, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_label_priced.s1",
+                               "%s (%d tech points)...", 200), what, price);
     }
     (void)size;
     return out;
@@ -238,6 +245,50 @@ static const char *vvfp_story_text(int game, const char *text) {
     return buffer;
 }
 
+/* A patcher text set on a window as UTF-16 (vvfp_to_wide), so a translation
+   is never read in the ANSI code page. */
+static void vvfp_story_set_text(HWND window, const char *text) {
+    WCHAR wide[512];
+    vvfp_to_wide(text, wide, 512);
+    SetWindowTextW(window, wide);
+}
+
+/* The width a story button needs for `label` in the dialog's own font (the
+   text and `margin` on each side), never less than `width`: a longer
+   translation widens its button instead of being cut at both ends. */
+static int vvfp_story_fit_width(HWND dialog, const char *label, int width, int margin) {
+    WCHAR wide[512];
+    SIZE size = { 0, 0 };
+    int n = vvfp_to_wide(label, wide, 512);
+    HFONT font = (HFONT)SendMessageA(dialog, WM_GETFONT, 0, 0);
+    HDC dc = GetDC(dialog);
+    if (dc != NULL) {
+        HGDIOBJ old = font != NULL ? SelectObject(dc, font) : NULL;
+        GetTextExtentPoint32W(dc, wide, n, &size);
+        if (old != NULL) {
+            SelectObject(dc, old);
+        }
+        ReleaseDC(dialog, dc);
+    }
+    return size.cx + 2 * margin > width ? size.cx + 2 * margin : width;
+}
+
+/* A price line the Origins dialogs show once its price is 0, in the player's
+   language: each line its own row (the dialog's own row is for the real
+   price); a line without one stays as it is. */
+static const char *vvfp_story_zeroed_text(const char *text) {
+    if (lstrcmpA(text, "0 tech points") == 0) {
+        return vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s0", text, 200);
+    }
+    if (lstrcmpA(text, "OK deducts 0 tech points. Cancel changes nothing.") == 0) {
+        return vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s1", text, 400);
+    }
+    if (lstrcmpA(text, "OK deducts 0 tech points, for the head look too. Cancel changes nothing.") == 0) {
+        return vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_zeroed_text.s2", text, 400);
+    }
+    return text;
+}
+
 static BOOL CALLBACK vvfp_story_relabel_child(HWND child, LPARAM unused) {
     char cls[16];
     char text[512];
@@ -248,7 +299,7 @@ static BOOL CALLBACK vvfp_story_relabel_child(HWND child, LPARAM unused) {
         lstrcpynA(before, text, sizeof before);
         vvfp_story_zero_prices(text);
         if (lstrcmpA(before, text) != 0) {
-            SetWindowTextA(child, text);
+            vvfp_story_set_text(child, vvfp_story_zeroed_text(text));
         }
     }
     return TRUE;
@@ -266,10 +317,11 @@ static void vvfp_story_relabel(int game, HWND dialog) {
    active. */
 static HWND vvfp_story_button(HWND dialog, const char *text, int id, int x, int y, int width,
                               int height) {
-    HWND button = CreateWindowExA(0, "BUTTON", text, WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
+    HWND button = CreateWindowExW(0, L"BUTTON", L"", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON,
                                   x, y, width, height, dialog, (HMENU)(INT_PTR)id, NULL, NULL);
     if (button != NULL) {
         SendMessageA(button, WM_SETFONT, SendMessageA(dialog, WM_GETFONT, 0, 0), TRUE);
+        vvfp_story_set_text(button, text);
     }
     return button;
 }
@@ -308,18 +360,21 @@ static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
     HWND custom = GetDlgItem(dialog, VVFP_STORY_CUSTOM_ID);
     RECT rc, unit = { 0, 0, 120, 4 }, client, want;
     int width, gap, height;
-    char label[96];
+    char label[VVFP_STORY_LABEL];
     if (!vvfp_story_time_skip_offered(game) || cancel == NULL
         || GetDlgItem(dialog, VVFP_STORY_TIME_SKIP_ID) != NULL) {
         return;
     }
     /* The Time Warp's price, which is what it charges (story_time_skip.inc time_skip_price). */
-    vvfp_story_label_priced(game, "Choose Time Skip Amount", label, sizeof label, vvfp_story_time_skip_price);
+    vvfp_story_label_priced(game,
+                            vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_time_skip_button.s0",
+                                    "Choose Time Skip Amount", 128),
+                            label, sizeof label, vvfp_story_time_skip_price);
     GetWindowRect(cancel, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
     GetClientRect(dialog, &client);
-    width = unit.right;
+    width = vvfp_story_fit_width(dialog, label, unit.right, unit.bottom);
     gap = unit.bottom * 2;
     height = rc.bottom - rc.top;
     SetRect(&want, rc.right + gap, rc.top, rc.right + gap + width, rc.bottom);
@@ -354,18 +409,24 @@ static void vvfp_story_add_event_buttons(int game, HWND dialog) {
     int gap;
     int x;
     int height;
-    char custom_label[96];
-    char pick_label[96];
+    char custom_label[VVFP_STORY_LABEL];
+    char pick_label[VVFP_STORY_LABEL];
     if (!vvfp_story_offered(game) || cancel == NULL || GetDlgItem(dialog, VVFP_STORY_PICK_ID) != NULL) {
         return;
     }
-    vvfp_story_label(game, "Custom Island Event", custom_label, sizeof custom_label);
-    vvfp_story_label(game, "Pick Island Event", pick_label, sizeof pick_label);
+    vvfp_story_label(game, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s0",
+                                   "Custom Island Event", 128),
+                     custom_label, sizeof custom_label);
+    vvfp_story_label(game, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_event_buttons.s1",
+                                   "Pick Island Event", 128),
+                     pick_label, sizeof pick_label);
     GetWindowRect(cancel, &rc);
     MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
     MapDialogRect(dialog, &unit);
     GetClientRect(dialog, &client);
-    width = unit.right;
+    /* Both as wide as the longer label needs (at least 120 dialog units). */
+    width = vvfp_story_fit_width(dialog, pick_label,
+                                 vvfp_story_fit_width(dialog, custom_label, unit.right, unit.bottom), unit.bottom);
     gap = unit.bottom * 2;
     height = rc.bottom - rc.top;
     /* Left of Cancel, side by side; in a dialog with no room for both there,

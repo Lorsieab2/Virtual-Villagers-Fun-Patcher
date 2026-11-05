@@ -121,8 +121,11 @@ FOUNDATION_OUTPUT = (
 # "VVFP Speed Change Timers.dll", which the Story bridge compiles in): nothing else changed.
 # Recertified for Difficulty Settings (native/shared/startup_companions.h gains "VVFP
 # Difficulty.dll" after "VVFP Speed Change Timers.dll"; the Story bridge compiles that list in).
-SOURCE_SHA256 = "2BF0684593FD6EA38E81ED8147374B035C6436A1BAFA4B9DF470ABFF1C7F77AA"
-SOURCE_SIZE = 2007040
+# Recertified for the Story buttons in the player's language (native/shared/story_bridge.h, live French
+# TEST, 2026-11-04): each button's name, its price wrapper and the zeroed price lines are their own rows,
+# asked for by key, set as UTF-16, and a longer label widens its button (vvfp_to_wide, native/shared/vvfp_translate.h); its buy prompts and the names and speeds they show are their own rows too, and every message box is shown as UTF-16 (vvfp_message_box).
+SOURCE_SHA256 = "5D014EC0488848DB55644B359B4C2316404492E7D85400D1F11E3E88257A8089"
+SOURCE_SIZE = 2010112
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 

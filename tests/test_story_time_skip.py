@@ -313,9 +313,10 @@ class TimeSkipLabelPriceTests(unittest.TestCase):
         inc = SOURCE.read_text(encoding="utf-8")
         # the label is built from the Story DLL's own time skip price, not the event price
         self.assertIn('"VvfpStoryTimeSkipPrice"', bridge)
-        self.assertRegex(bridge, r'vvfp_story_label_priced\(game, "Choose Time Skip Amount", label, sizeof label,\s*'
-                                 r'vvfp_story_time_skip_price\)')
-        self.assertNotRegex(bridge, r'vvfp_story_label\(game, "Choose Time Skip Amount"')
+        # (the name is its own row's translation: tests/test_translations_sentinels.py StoryButtonTests)
+        self.assertRegex(bridge, r'vvfp_story_label_priced\(game,\s*vvfp_tr\("[^"]+",\s*"Choose Time Skip Amount", 128\),'
+                                 r'\s*label, sizeof label, vvfp_story_time_skip_price\)')
+        self.assertNotRegex(bridge, r'vvfp_story_label\(game,\s*(vvfp_tr\("[^"]+",\s*)?"Choose Time Skip Amount"')
         # ...the export is the charge: purchase prompt, charge and label share time_skip_price
         self.assertIn("VvfpStoryTimeSkipPrice(int game) {\n    return time_skip_price(game);", inc)
         self.assertEqual(inc.count("time_skip_price(game)"), 4)

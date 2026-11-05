@@ -23,6 +23,13 @@
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
+/* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
+#define MessageBoxA vvfp_message_box
+#endif
+
 /* Which game this file is compiled for, for the Story / Cheat Upgrades
    companion.  The Lost Children's companion includes this file and sets 2.
    Every export below is A New Home's own and sits under VV_STORY_GAME == 1:
@@ -2297,9 +2304,9 @@ static void vv1_format_cost(int value, char *out);
 
 static const char *vv_prefs_name(int kind) {
     switch (kind) {
-    case VV_PREFS_CLEAR: return "Clear All Skill Preferences";
-    case VV_PREFS_HIGHEST_PARENTING: return "Check Highest Skill (Includes Parenting)";
-    default: return "Check Highest Skill (No Parenting)";
+    case VV_PREFS_CLEAR: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv_prefs_name.s0", "Clear All Skill Preferences", 0);
+    case VV_PREFS_HIGHEST_PARENTING: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv_prefs_name.s1", "Check Highest Skill (Includes Parenting)", 0);
+    default: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv_prefs_name.s2", "Check Highest Skill (No Parenting)", 0);
     }
 }
 
@@ -2360,9 +2367,10 @@ static int vv_prefs_purchase(HWND owner, int kind) {
 #endif
     vv1_format_cost(price, cost_text);
     wsprintfA(message,
-              "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+              vvfp_tr("vvfp.origins/vv1_origins_icons.vv_prefs_purchase.s5",
+                      "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.", 400),
               vv_prefs_name(kind), cost_text);
-    if (MessageBoxA(owner, message, "Origins Upgrades",
+    if (vvfp_message_box(owner, message, "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
     }
@@ -3658,19 +3666,19 @@ int __stdcall ShowOriginsUpgradeMenu(
    there's no reason to spend .shr bytes on them at all. */
 static const char *vv1_tech_row_name(int row) {
     switch (row) {
-    case 0: return "Time Warp";
-    case 1: return "Island Event";
-    case 2: return "Barrel of Babies";
-    case 3: return "Tech Point Doubler";
-    case 4: return "Food Point Doubler";
-    case 5: return "Full Heal / Cure All";
-    case 6: return "Grant Running to All Villagers";
-    case 7: return "Grant Full Mastery to All Villagers";
-    case 8: return "All Villagers are Exactly 18";
-    case 9: return "Equal Division of Labor (Includes Parenting)";
-    case 10: return "Equal Division of Labor (No Parenting)";
-    case 11: return "Change Appearance for All";
-    default: return "Origins upgrade";
+    case 0: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s0", "Time Warp", 0);
+    case 1: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s1", "Island Event", 0);
+    case 2: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s2", "Barrel of Babies", 0);
+    case 3: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s3", "Tech Point Doubler", 0);
+    case 4: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s4", "Food Point Doubler", 0);
+    case 5: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s12", "Full Heal / Cure All", 0);
+    case 6: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s5", "Grant Running to All Villagers", 0);
+    case 7: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s6", "Grant Full Mastery to All Villagers", 0);
+    case 8: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s7", "All Villagers are Exactly 18", 0);
+    case 9: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s8", "Equal Division of Labor (Includes Parenting)", 0);
+    case 10: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s9", "Equal Division of Labor (No Parenting)", 0);
+    case 11: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s10", "Change Appearance for All", 0);
+    default: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_tech_row_name.s11", "Origins upgrade", 0);
     }
 }
 
@@ -3707,12 +3715,12 @@ static void vv1_format_cost(int value, char *out) {
 
 static const char *vv1_detail_row_name(int row) {
     switch (row) {
-    case 0: return "Grant Youth";
-    case 1: return "Grant Full Mastery";
-    case 2: return "Grant Running";
-    case 3: return "Set Age to 18";
-    case 4: return "Change Appearance";
-    default: return "Origins upgrade";
+    case 0: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s0", "Grant Youth", 0);
+    case 1: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s1", "Grant Full Mastery", 0);
+    case 2: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s2", "Grant Running", 0);
+    case 3: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s3", "Set Age to 18", 0);
+    case 4: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s4", "Change Appearance", 0);
+    default: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_detail_row_name.s5", "Origins upgrade", 0);
     }
 }
 
@@ -3749,18 +3757,19 @@ int __stdcall ShowOriginsPermanentChangeConfirm(
     int row,
     int cost
 ) {
-    char message[448];
+    char message[1100];
     char cost_text[16];
     const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
     vv1_format_cost(cost, cost_text);
     wsprintfA(
         message,
-        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s",
+        vvfp_tr("vvfp.origins/vv1_origins_icons.ShowOriginsPermanentChangeConfirm.s0",
+                "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s", 400),
         name,
         cost_text,
-        (!is_detail && row == BARREL_ROW) ? BARREL_CAPACITY_NOTE : ""
+        (!is_detail && row == BARREL_ROW) ? vvfp_tr("vvfp.origins/vv1_origins_icons.BARREL_CAPACITY_NOTE", BARREL_CAPACITY_NOTE, 500) : ""
     );
-    return MessageBoxA(
+    return vvfp_message_box(
         GetForegroundWindow(),
         message,
         is_detail ? "Villager Upgrades" : "Origins Upgrades",
@@ -4221,10 +4230,10 @@ static int vv1_time_warp_years(int speed) {
 
 static const char *vv1_speed_name(int speed) {
     switch (speed) {
-    case VV1_TW_SPEED_SLOW:   return "slow";
-    case VV1_TW_SPEED_NORMAL: return "normal";
-    case VV1_TW_SPEED_FAST:   return "fast";
-    default:              return "unknown";
+    case VV1_TW_SPEED_SLOW:   return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s0", "slow", 0);
+    case VV1_TW_SPEED_NORMAL: return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s1", "normal", 0);
+    case VV1_TW_SPEED_FAST:   return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s2", "fast", 0);
+    default:              return vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 0);
     }
 }
 
@@ -4313,7 +4322,7 @@ int __stdcall ShowOriginsTimeWarp(
     int cost
 ) {
     unsigned char *ctx = (unsigned char *)(UINT_PTR)(unsigned int)gamectx_ptr;
-    char message[320];
+    char message[1100];
     char cost_text[16];
     HWND owner = GetForegroundWindow();
     int *tech;
@@ -4341,14 +4350,14 @@ int __stdcall ShowOriginsTimeWarp(
     vv1_format_cost(cost, cost_text);
     wsprintfA(
         message,
-        "Do you want to buy Time Warp for %s tech points?\r\n"
-        "On %s game speed, this will advance %d villager years.\r\n"
-        "Press OK to confirm, or Cancel.",
+        vvfp_tr("vvfp.origins/vv1_origins_icons.ShowOriginsTimeWarp.s3",
+                "Do you want to buy Time Warp for %s tech points?\r\nOn %s game speed, this will advance %d villager years.\r\nPress OK to confirm, or Cancel.",
+                700),
         cost_text,
         vv1_speed_name(speed),
         years
     );
-    if (MessageBoxA(
+    if (vvfp_message_box(
             owner,
             message,
             "Origins Upgrades",
@@ -4453,7 +4462,7 @@ int __stdcall ShowOriginsRowMessage(
     int row,
     int status
 ) {
-    char message[192];
+    char message[1100];
     const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
     switch (status) {
     case VV1_ROWMSG_NO_CHANGE:
@@ -4473,7 +4482,7 @@ int __stdcall ShowOriginsRowMessage(
         );
         break;
     case VV1_ROWMSG_REMOVED:
-        wsprintfA(message, "%s was removed. No refund was issued.", name);
+        wsprintfA(message, vvfp_tr("vvfp.origins/vv1_origins_icons.ShowOriginsRowMessage.s2", "%s was removed. No refund was issued.", 400), name);
         break;
     case VV1_ROWMSG_POPULATION_FULL:
         lstrcpyA(message, "Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.");
@@ -4486,10 +4495,10 @@ int __stdcall ShowOriginsRowMessage(
         lstrcpyA(message, "No valid living villager is selected. No tech points have been deducted.");
         break;
     default:
-        wsprintfA(message, "%s completed.", name);
+        wsprintfA(message, vvfp_tr("vvfp.origins/vv1_origins_icons.ShowOriginsRowMessage.s6", "%s completed.", 400), name);
         break;
     }
-    MessageBoxA(
+    vvfp_message_box(
         GetForegroundWindow(),
         message,
         is_detail ? "Villager Upgrades" : "Origins Upgrades",

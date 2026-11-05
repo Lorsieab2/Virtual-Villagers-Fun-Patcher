@@ -17,6 +17,13 @@
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
+/* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
+#define MessageBoxA vvfp_message_box
+#endif
+
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
    which is exactly where the live .ldw saves are, so declare just the one
@@ -1623,10 +1630,32 @@ static const char *vv4_row_name(int villager_menu, int row) {
     if (row < 0) {
         return "";
     }
-    if (villager_menu) {
-        return row < VV4_ARRAY_LEN(g_villager_names) ? g_villager_names[row] : "";
+    {
+        /* the row's own name row (g_villager_names.<row> / g_tech_names.<row>) */
+        char stem[96];
+        if (villager_menu) {
+            if (row >= VV4_ARRAY_LEN(g_villager_names)) {
+                return "";
+            }
+            wsprintfA(stem, "vvfp.origins/vv4_origins_icons.g_villager_names.%d", row);
+            return vvfp_tr(stem, g_villager_names[row], 0);
+        }
+        if (row >= VV4_ARRAY_LEN(g_tech_names)) {
+            return "";
+        }
+        wsprintfA(stem, "vvfp.origins/vv4_origins_icons.g_tech_names.%d", row);
+        return vvfp_tr(stem, g_tech_names[row], 0);
     }
-    return row < VV4_ARRAY_LEN(g_tech_names) ? g_tech_names[row] : "";
+}
+
+/* A buy prompt for `name` (already its own row's translation) at `price` (shown as 0 while Story / Cheat Upgrades are free): the name and the
+   prompt each their own row's translation. */
+static int vv4_buy_prompt(HWND owner, const char *name, const char *price, const char *caption) {
+    char msg[1100];
+    wsprintfA(msg, vvfp_tr("vvfp.origins/vv4_origins_icons.upgrade_dialog.s12",
+                           "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s", 400),
+              name, vvfp_story_price_text(4, price), "");
+    return vvfp_message_box(owner, msg, caption, MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT);
 }
 
 static const char *vv4_row_cost(int villager_menu, int row) {
@@ -2107,12 +2136,12 @@ static INT_PTR CALLBACK upgrade_dialog(
                 && !(!g_villager_menu && row >= 6 && row <= 8)) {
                 const char *name = vv4_row_name(g_villager_menu, row);
                 const char *cost = vv4_row_cost(g_villager_menu, row);
-                char msg[512];
+                char msg[1100];
                 wsprintfA(msg,
-                    "Do you want to buy %s for %s tech points?\r\n"
-                    "Press OK to confirm, or Cancel.%s", name, cost,
+                    vvfp_tr("vvfp.origins/vv4_origins_icons.upgrade_dialog.s12",
+                            "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.%s", 400), name, cost,
                     (!g_villager_menu && row == BARREL_ROW)
-                        ? BARREL_CAPACITY_NOTE : "");
+                        ? vvfp_tr("vvfp.origins/vv4_origins_icons.BARREL_CAPACITY_NOTE", BARREL_CAPACITY_NOTE, 500) : "");
                 if (MessageBoxA(window, msg,
                         g_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
                         MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
@@ -2870,12 +2899,7 @@ static int __stdcall ShowVv4AppearanceForAll(void) {
     fa_look_offered = vvfp_head_look_find(4, &fa_look_api);
     vv4_prep_fullscreen();
     /* Buy-confirm before the dialog (parity wording across all 5 games). */
-    if (MessageBoxA(owner,
-            vvfp_story_text(4,
-                "Do you want to buy Change Appearance for All for 450,000 tech "
-                "points?\r\nPress OK to confirm, or Cancel."),
-            "Change Appearance for All",
-            MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
+    if (vv4_buy_prompt(owner, vv4_row_name(0, 16), "450,000", "Change Appearance for All") != IDOK) {
         return 0;
     }
     if ((int)DialogBoxParamA(module_instance, MAKEINTRESOURCEA(214), owner,
@@ -3443,10 +3467,10 @@ static int vv4_time_warp_years(int speed) {
 
 static const char *vv4_speed_name(int speed) {
     switch (speed) {
-    case VV4_TW_SPEED_SLOW:   return "slow";
-    case VV4_TW_SPEED_NORMAL: return "normal";
-    case VV4_TW_SPEED_FAST:   return "fast";
-    default:                  return "unknown";
+    case VV4_TW_SPEED_SLOW:   return vvfp_tr("vvfp.origins/vv4_origins_icons.vv4_speed_name.s0", "slow", 0);
+    case VV4_TW_SPEED_NORMAL: return vvfp_tr("vvfp.origins/vv4_origins_icons.vv4_speed_name.s1", "normal", 0);
+    case VV4_TW_SPEED_FAST:   return vvfp_tr("vvfp.origins/vv4_origins_icons.vv4_speed_name.s2", "fast", 0);
+    default:                  return vvfp_tr("vvfp.origins/vv4_origins_icons.vv4_speed_name.s3", "unknown", 0);
     }
 }
 
@@ -3603,7 +3627,7 @@ static void vv4_format_cost(int value, char *out) {
         closes the menu, which is what every other refusal here does. */
 int __stdcall ShowVv4TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
-    char message[448];
+    char message[1100];
     HWND owner = GetForegroundWindow();
     vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
     unsigned char *world = get_world();
@@ -3632,9 +3656,8 @@ int __stdcall ShowVv4TimeWarp(int cost) {
     }
     vv4_format_cost(cost, cost_text);
     wsprintfA(message,
-              "Do you want to buy Time Warp for %s tech points?\r\n"
-              "On %s game speed, this will advance %d villager years.\r\n"
-              "Press OK to confirm, or Cancel.",
+              vvfp_tr("vvfp.origins/vv4_origins_icons.ShowVv4TimeWarp.s4",
+                      "Do you want to buy Time Warp for %s tech points?\r\nOn %s game speed, this will advance %d villager years.\r\nPress OK to confirm, or Cancel.", 700),
               cost_text, vv4_speed_name(speed), years);
     if (MessageBoxA(owner, message, TITLE,
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
@@ -3951,11 +3974,9 @@ int __stdcall ConfirmOriginsVillageWide(int command) {
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
-        return MessageBoxA(GetForegroundWindow(),
-            vvfp_story_text(4,
-                "Do you want to buy Grant Running to All Villagers for 1,000,000 "
-                "tech points?\r\nPress OK to confirm, or Cancel."),
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
+        return vv4_buy_prompt(GetForegroundWindow(),
+            vvfp_tr("vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s10", "Grant Running to All Villagers", 0),
+            "1,000,000", "Origins Upgrades") == IDOK;
     }
     if (command == 7) {
         vv_scan_mastery(0);
@@ -3971,12 +3992,9 @@ int __stdcall ConfirmOriginsVillageWide(int command) {
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
-        if (MessageBoxA(GetForegroundWindow(),
-                vvfp_story_text(4,
-                    "Do you want to buy Grant Full Mastery to All Villagers for "
-                    "1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
-                "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT)
-            != IDOK) {
+        if (vv4_buy_prompt(GetForegroundWindow(),
+                vvfp_tr("vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s11", "Grant Full Mastery to All Villagers", 0),
+                "1,000,000", "Origins Upgrades") != IDOK) {
             return 0;
         }
         /* Confirmed: repair before the payload's native writer masters (it
@@ -3997,11 +4015,9 @@ int __stdcall ConfirmOriginsVillageWide(int command) {
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
-        return MessageBoxA(GetForegroundWindow(),
-            vvfp_story_text(4,
-                "Do you want to buy All Villagers are Exactly 18 for 1,000,000 tech "
-                "points?\r\nPress OK to confirm, or Cancel."),
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
+        return vv4_buy_prompt(GetForegroundWindow(),
+            vvfp_tr("vvfp.origins/vv4_origins_icons.ConfirmOriginsVillageWide.s12", "All Villagers are Exactly 18", 0),
+            "1,000,000", "Origins Upgrades") == IDOK;
     }
     return 1;
 }

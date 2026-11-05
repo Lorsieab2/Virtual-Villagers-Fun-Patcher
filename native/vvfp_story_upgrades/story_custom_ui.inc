@@ -3023,9 +3023,10 @@ static int story_custom_island_event(int game, HWND owner) {
                         UI_MODE_EVENT) != IDOK) {
         return 0;
     }
-    char prompt[128];
-    wsprintfA(prompt, "Do you want to buy Custom Island Event for %s tech points?\r\n"
-                      "Press OK to confirm, or Cancel.", story_price_text(game));
+    char prompt[600];
+    wsprintfA(prompt, vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s3",
+                              "Do you want to buy Custom Island Event for %s tech points?\r\nPress OK to confirm, or Cancel.",
+                              400), story_price_text(game));
     if (MessageBoxA(owner, prompt,
                     "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {

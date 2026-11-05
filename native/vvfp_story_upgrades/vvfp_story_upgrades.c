@@ -70,6 +70,13 @@
 #include "../shared/patcher_files.h"
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
+
+/* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
+#define MessageBoxA vvfp_message_box
+#endif
 #include "story_targets.h"
 #include "story_custom.h"
 
@@ -944,18 +951,41 @@ static int story_charged(int game, HWND owner, story_command_fn command) {
 
 /* ---- The chooser ----------------------------------------------------------- */
 
+/* An event's title, variant, description or what it needs in the player's
+   language: its own row, story_tables.VV<game>_EVENTS.<index>.<field>, found
+   from where `e` sits in its game's table (the English when there is no
+   translation).  `field`: EVENT_TITLE .. EVENT_REQUIRES. */
+enum { EVENT_TITLE, EVENT_VARIANT, EVENT_DESCRIPTION, EVENT_REQUIRES };
+static const char *event_text(const story_event *e, int field, const char *english, unsigned int cap) {
+    char stem[80];
+    int game;
+    for (game = 1; game <= 5; ++game) {
+        if (e >= GAMES[game].events && e < GAMES[game].events + GAMES[game].event_count) {
+            wsprintfA(stem, field == EVENT_VARIANT ? "vvfp.story/story_tables.VV%d_EVENTS.%d.variant"
+                            : field == EVENT_DESCRIPTION ? "vvfp.story/story_tables.VV%d_EVENTS.%d.description"
+                            : field == EVENT_REQUIRES ? "vvfp.story/story_tables.VV%d_EVENTS.%d.requires"
+                                                      : "vvfp.story/story_tables.VV%d_EVENTS.%d.title",
+                      game, (int)(e - GAMES[game].events));
+            return vvfp_tr(stem, english, cap);
+        }
+    }
+    return english;
+}
+
 /* "Title (variant)"; a title the game itself ends with a space (The Tree
-   of Life's "The Abandoned Infants ") keeps one space before the bracket. */
+   of Life's "The Abandoned Infants ") keeps one space before the bracket.
+   Each part is its own row's translation. */
 static void label_of(const story_event *e, char *out, size_t size) {
     int n;
-    lstrcpynA(out, e->title, (int)size);
+    lstrcpynA(out, event_text(e, EVENT_TITLE, e->title, 200), (int)size);
     if (e->variant != NULL && e->variant[0] != '\0') {
+        const char *variant = event_text(e, EVENT_VARIANT, e->variant, 100);
         n = lstrlenA(out);
         while (n > 0 && out[n - 1] == ' ') {
             out[--n] = '\0';
         }
-        if ((size_t)n + (size_t)lstrlenA(e->variant) + 4 <= size) {
-            wsprintfA(out + n, " (%s)", e->variant);
+        if ((size_t)n + (size_t)lstrlenA(variant) + 4 <= size) {
+            wsprintfA(out + n, " (%s)", variant);
         }
     }
 }
@@ -1029,17 +1059,18 @@ static int story_pick_island_event(int game, HWND owner) {
         label_of(last_failed_event, label, sizeof label);
         if (last_failed_lapsed) {
             wsprintfA(message,
-                      "The last island event you picked, %s, did not happen within "
-                      "ten minutes, so it was cancelled.", label);
+                      vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s3",
+                              "The last island event you picked, %s, did not happen within ten minutes, so it was cancelled.",
+                              600), label);
         } else {
             wsprintfA(message,
-                      "The last island event you picked, %s, could not happen when it "
-                      "was due (it needs %s), so the island event the game chose "
-                      "happened instead.",
-                      label, last_failed_event->requires);
+                      vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s4",
+                              "The last island event you picked, %s, could not happen when it was due (it needs %s), so the island event the game chose happened instead.",
+                              600),
+                      label, event_text(last_failed_event, EVENT_REQUIRES, last_failed_event->requires, 300));
         }
-        MessageBoxA(owner, message, "Pick Island Event",
-                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        vvfp_message_box(owner, message, "Pick Island Event",
+                         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         last_failed_event = NULL;
     }
     chosen = chooser_run(game, g, owner);
@@ -1051,11 +1082,12 @@ static int story_pick_island_event(int game, HWND owner) {
     label_of(event, label, sizeof label);
     chooser_summary(chosen, summary, sizeof summary);
     wsprintfA(message,
-              "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\n"
-              "Press OK to confirm, or Cancel.", label, story_price_text(game),
+              vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s6",
+                      "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\nPress OK to confirm, or Cancel.",
+                      400), label, story_price_text(game),
               summary[0] ? "\r\n" : "", summary);
-    if (MessageBoxA(owner, message, "Origins Upgrades",
-                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
+    if (vvfp_message_box(owner, message, "Origins Upgrades",
+                         MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
         return 0;
     }
     warning = chooser_warning(chosen);
@@ -1073,9 +1105,9 @@ static int story_pick_island_event(int game, HWND owner) {
         return 0;
     }
     oc_arm(game, event->slot, settings);
-    wsprintfA(message, "%s is on its way.", label);
-    MessageBoxA(owner, message, "Origins Upgrades",
-                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    wsprintfA(message, vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s9", "%s is on its way.", 200), label);
+    vvfp_message_box(owner, message, "Origins Upgrades",
+                     MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 1;
 }
 

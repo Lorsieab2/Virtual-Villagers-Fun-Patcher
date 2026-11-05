@@ -20,6 +20,13 @@
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
 
+/* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
+   UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
+   MessageBoxA in keeps it. */
+#ifndef MessageBoxA
+#define MessageBoxA vvfp_message_box
+#endif
+
 /* Heathen-mask persistence: the per-villager mask side-table (nibble-packed,
    150 villagers x 4 bits = 75 bytes) lives in exe .data BSS at 0x7B1D20 (with
    256 Villagers (Experimental), 256 x 4 bits = 128 bytes at 0x7F1400). The
@@ -2208,10 +2215,10 @@ static int vv5_time_warp_years(int speed) {
 
 static const char *vv5_speed_name(int speed) {
     switch (speed) {
-    case VV5_TW_SPEED_SLOW:   return "slow";
-    case VV5_TW_SPEED_NORMAL: return "normal";
-    case VV5_TW_SPEED_FAST:   return "fast";
-    default:                  return "unknown";
+    case VV5_TW_SPEED_SLOW:   return vvfp_tr("vvfp.origins/vv5_task9_origins.vv5_speed_name.s0", "slow", 0);
+    case VV5_TW_SPEED_NORMAL: return vvfp_tr("vvfp.origins/vv5_task9_origins.vv5_speed_name.s1", "normal", 0);
+    case VV5_TW_SPEED_FAST:   return vvfp_tr("vvfp.origins/vv5_task9_origins.vv5_speed_name.s2", "fast", 0);
+    default:                  return vvfp_tr("vvfp.origins/vv5_task9_origins.vv5_speed_name.s3", "unknown", 0);
     }
 }
 
@@ -2456,7 +2463,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
 
 __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
-    char message[448];
+    char message[1100];
     /* GetOriginsOwner, not GetForegroundWindow: this file deliberately has
        no owner fallback -- the owner is captured once by BeginOriginsOwner
        and validated as belonging to this process. */
@@ -2488,9 +2495,8 @@ __declspec(dllexport) int __stdcall ShowVv5TimeWarp(int cost) {
     }
     vv5_format_cost(cost, cost_text);
     wsprintfA(message,
-              "Do you want to buy Time Warp for %s tech points?\r\n"
-              "On %s game speed, this will advance %d villager years.\r\n"
-              "Press OK to confirm, or Cancel.",
+              vvfp_tr("vvfp.origins/vv5_task9_origins.ShowVv5TimeWarp.s4",
+                      "Do you want to buy Time Warp for %s tech points?\r\nOn %s game speed, this will advance %d villager years.\r\nPress OK to confirm, or Cancel.", 700),
               cost_text, vv5_speed_name(speed), years);
     if (MessageBoxA(owner, message, TITLE,
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND)
@@ -2785,26 +2791,26 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
 
 static const char *action_name(unsigned int action) {
     switch (action) {
-    case ACTION_YOUTH: return "Grant Youth";
-    case ACTION_MASTERY: return "Grant Full Mastery";
-    case ACTION_RUNNING: return "Grant Running";
-    case ACTION_AGE18: return "Set Age to 18";
-    case ACTION_HEAL: return "Full Heal / Cure All";
-    case ACTION_APPEARANCE: return "Change Appearance";
-    case ACTION_COMPLETE_COLLECTIONS: return "Complete All Collections";
-    case ACTION_RESET_COLLECTIONS: return "Reset All Collections";
-    case ACTION_TECH_DOUBLER: return "Tech Point Doubler";
-    case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
-    case ACTION_GRANT_RUNNING_ALL: return "Grant Running to All Villagers";
-    case ACTION_GRANT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case ACTION_SET_AGE_18_ALL: return "All Villagers are Exactly 18";
-    case ACTION_EQUAL_DIVISION_PARENTING: return "Equal Division of Labor (Includes Parenting)";
-    case ACTION_EQUAL_DIVISION_NO_PARENTING: return "Equal Division of Labor (No Parenting)";
-    case ACTION_CHANGE_APPEARANCE_ALL: return "Change Appearance for All";
-    case ACTION_CLEAR_SKILL_PREFERENCES: return "Clear All Skill Preferences";
-    case ACTION_HIGHEST_SKILL_PARENTING: return "Check Highest Skill (Includes Parenting)";
-    case ACTION_HIGHEST_SKILL_NO_PARENTING: return "Check Highest Skill (No Parenting)";
-    default: return "Origins upgrade";
+    case ACTION_YOUTH: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s0", "Grant Youth", 0);
+    case ACTION_MASTERY: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s1", "Grant Full Mastery", 0);
+    case ACTION_RUNNING: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s2", "Grant Running", 0);
+    case ACTION_AGE18: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s3", "Set Age to 18", 0);
+    case ACTION_HEAL: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s19", "Full Heal / Cure All", 0);
+    case ACTION_APPEARANCE: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s4", "Change Appearance", 0);
+    case ACTION_COMPLETE_COLLECTIONS: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s5", "Complete All Collections", 0);
+    case ACTION_RESET_COLLECTIONS: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s6", "Reset All Collections", 0);
+    case ACTION_TECH_DOUBLER: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s7", "Tech Point Doubler", 0);
+    case ACTION_FOOD_DOUBLER: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s8", "Food Point Doubler", 0);
+    case ACTION_GRANT_RUNNING_ALL: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s9", "Grant Running to All Villagers", 0);
+    case ACTION_GRANT_MASTERY_ALL: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s10", "Grant Full Mastery to All Villagers", 0);
+    case ACTION_SET_AGE_18_ALL: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s11", "All Villagers are Exactly 18", 0);
+    case ACTION_EQUAL_DIVISION_PARENTING: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s12", "Equal Division of Labor (Includes Parenting)", 0);
+    case ACTION_EQUAL_DIVISION_NO_PARENTING: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s13", "Equal Division of Labor (No Parenting)", 0);
+    case ACTION_CHANGE_APPEARANCE_ALL: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s14", "Change Appearance for All", 0);
+    case ACTION_CLEAR_SKILL_PREFERENCES: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s15", "Clear All Skill Preferences", 0);
+    case ACTION_HIGHEST_SKILL_PARENTING: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s16", "Check Highest Skill (Includes Parenting)", 0);
+    case ACTION_HIGHEST_SKILL_NO_PARENTING: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s17", "Check Highest Skill (No Parenting)", 0);
+    default: return vvfp_tr("vvfp.origins/vv5_task9_origins.action_name.s18", "Origins upgrade", 0);
     }
 }
 
@@ -3065,7 +3071,7 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int amount_b
 ) {
     HWND owner = GetOriginsOwner();
-    char message[512];
+    char message[1100];
     const char *title = (action == ACTION_HEAL || action >= ACTION_TECH_BASE)
         ? "Origins Upgrades"
         : "Villager Upgrades";
@@ -3077,7 +3083,8 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     /* One OK/Cancel purchase box naming the upgrade and its cost. */
     wsprintfA(
         message,
-        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+        vvfp_tr("vvfp.origins/vv5_task9_origins.ConfirmVV5Task9Action.s2",
+                "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.", 400),
         action_name(action),
         action_cost(action)
     );

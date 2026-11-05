@@ -68,9 +68,11 @@ class SourceAndRoutingTests(unittest.TestCase):
         native = NATIVE.read_text(encoding="utf-8")
         self.assertIn("ID_BUY_LAST = 1016", native)
         self.assertIn("int row_count = villager_menu ? 5 : 17;", native)
-        self.assertIn('case ACTION_CLEAR_SKILL_PREFERENCES: return "Clear All Skill Preferences";', native)
-        self.assertIn('case ACTION_HIGHEST_SKILL_PARENTING: return "Check Highest Skill (Includes Parenting)";', native)
-        self.assertIn('case ACTION_HIGHEST_SKILL_NO_PARENTING: return "Check Highest Skill (No Parenting)";', native)
+        # each name is its own row's translation (tests/test_translations_sentinels.py BuyPromptTests)
+        for case, name in (("ACTION_CLEAR_SKILL_PREFERENCES", "Clear All Skill Preferences"),
+                           ("ACTION_HIGHEST_SKILL_PARENTING", "Check Highest Skill (Includes Parenting)"),
+                           ("ACTION_HIGHEST_SKILL_NO_PARENTING", "Check Highest Skill (No Parenting)")):
+            self.assertRegex(native, rf'case {case}: return vvfp_tr\("[^"]+", "{re.escape(name)}", 0\);')
         self.assertIn('case ACTION_CLEAR_SKILL_PREFERENCES: return "500,000";', native)
         # The price shown and the price charged both go through the Story /
         # Cheat Upgrades row: action_cost answers "0" first, and the charge is
