@@ -151,6 +151,10 @@
     {
       "path": "data/vv5_task9_native_actions.json",
       "sha256": "09A8C39EB360770599957BCB43C6FD172EFB173FF680B506CB1E4FB31E845CDE"
+    },
+    {
+      "path": "assets/unicode_fonts/SOURCES.json",
+      "sha256": "F53A5CD11CDB0317392B9792FE0BDFD0A8183DF0DF3522F904D764754A24D8D5"
     }
   ]
 }
