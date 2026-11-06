@@ -1,0 +1,26 @@
+{
+  "id": "vv3_disable_overview_clouds",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Disable Clouds on the Overview Map",
+  "description": "Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so Push Clouds Away on the Overview Map has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).",
+  "output_tag": "No Overview Clouds",
+  "behavior_changes": [
+    "The overview screen's draw slot 0x46C2F0 draws its five clouds (map_cloud01.png (sprite 0x27), alpha always 1.0) in the loop 0x46C3BD..0x46C3E3; the loop is skipped: lea edi, [esi+8] becomes jmp 0x46C3E3; the code after the loop reads only the screen's own fields. No cloud is drawn on the overview map."
+  ],
+  "explicit_non_changes": [
+    "Only the overview screen's own draw routine changes; the sprite draw routine, the cloud pictures and every other screen (the village view, its fog and weather, the title screen) are the game's own.",
+    "The clouds' positions, drift and wrap are still updated every frame as before; nothing is written to a save, a villager record or a file. Push Clouds Away on the Overview Map (its companion) still moves and fades the clouds; with nothing drawn it cannot be seen."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x6C3BD",
+      "before": "8D7E08",
+      "after": "EB2490",
+      "purpose": "the overview map's cloud loop 0x46C3BD: lea edi, [esi+8] becomes jmp 0x46C3E3; the code after the loop reads only the screen's own fields"
+    }
+  ]
+}

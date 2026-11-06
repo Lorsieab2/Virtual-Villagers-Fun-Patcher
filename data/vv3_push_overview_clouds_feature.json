@@ -1,0 +1,55 @@
+{
+  "id": "vv3_push_overview_clouds",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Push Clouds Away on the Overview Map",
+  "description": "The clouds that drift over the island on the overview map (the Map button) move away from the mouse, exactly as in The Tree of Life: bring the cursor within about 80 pixels of a cloud's middle and it is pushed away from the cursor, sideways and up or down, faster the closer the cursor is (up to 5 pixels a frame, 10 when it is pushed the way the clouds drift), and it fades a little each time the mouse moves near it. It keeps going until the mouse moves again, and every cloud is back at full strength the next time the map is opened. The drift, and where a cloud comes back after leaving the map, are the game's own. **On by default.** **Needs no other patch.** **While Disable Clouds on the Overview Map is ticked the clouds are hidden, so this has no visible effect until Disable Clouds on the Overview Map is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Push Clouds.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Push Overview Clouds",
+  "behavior_changes": [
+    "Every mouse move (message 1 to the overview screen's event slot), for each of the five clouds at (x, y) (screen +8 + 12*i): dx = x - mouse x + 90, dy = y - mouse y + 50, distance = the float square root of dx*dx + dy*dy truncated, push = (100 - distance) / 20; push above 0: fade -= 0.01, vertical = push (dy >= 0) or -push, horizontal = -push (dx >= 0) or 2*push; otherwise both 0 -- The Tree of Life's event slot 0x444B70, number for number.",
+    "Every frame the stock update moves the clouds (unless that frame ends the screen's leave, 0x46C0BC..0x46C0FB): x -= horizontal and y += vertical first, then the stock drift and wrap -- The Tree of Life's x -= horizontal + drift, y += vertical (0x444AE0).",
+    "Each cloud is drawn at its fade instead of the stock 1.0 (the call 0x46C3D8 of the sprite draw 0x42EB90), as The Tree of Life draws each at its own alpha (0x4454B0); showing the screen (the activate slot) sets every fade back to 1.0, as The Tree of Life's activate 0x4447A0 does."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces three vtable slots of the overview screen and one call in its cloud loop at run time, only after verifying every stock value, all or none.",
+    "The stock event slot runs for every message (it ignores mouse moves), and the stock update and activate run as before: the clouds' drift (1 or 2 a frame), their wrap at the left edge and where they come back are The Secret City's own; clicks, buttons and the map's markers are unchanged.",
+    "Nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/push_clouds/VVFP Push Clouds.dll",
+      "destination": "VVFP Push Clouds.dll",
+      "sha256": "7BEA8E2F7806D40E5B44C9F5EDCE96882ABF08BC977002A2E181298925FB97CC"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x49EA08",
+      "stock_bytes": "80B94600",
+      "routine": "the overview screen's vtable 0x49EA04, slot 1 (event slot (mouse moves and clicks), stock 0x46B980)",
+      "installed_by": "VVFP Push Clouds.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x49EA24",
+      "stock_bytes": "70C04600",
+      "routine": "the overview screen's vtable 0x49EA04, slot 8 (update, stock 0x46C070)",
+      "installed_by": "VVFP Push Clouds.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x49EA28",
+      "stock_bytes": "30B94600",
+      "routine": "the overview screen's vtable 0x49EA04, slot 9 (activate (the screen is shown), stock 0x46B930)",
+      "installed_by": "VVFP Push Clouds.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x46C3D8",
+      "stock_bytes": "E8B327FCFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the overview map's cloud loop: the call of the sprite draw 0x42EB90 goes to the companion, which puts the cloud's fade in the alpha argument and runs the stock draw",
+      "installed_by": "VVFP Push Clouds.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

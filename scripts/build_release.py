@@ -114,6 +114,8 @@ FILES = [
     "assets/stuck_walks/VVFP Stuck Walks.dll",
     # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
     "assets/keep_carried/VVFP Keep Carried.dll",
+    # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
+    "assets/push_clouds/VVFP Push Clouds.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -228,6 +230,12 @@ FILES = [
     "data/vv5_copy_paste_feature.json",
     "data/vv1_skip_all_intro_feature.json",
     "data/vv2_skip_all_intro_feature.json",
+    # The overview map's clouds: Disable Clouds (The Secret City, The Tree of Life, New Believers) and Push
+    # Clouds Away (The Secret City).
+    "data/vv3_disable_overview_clouds_feature.json",
+    "data/vv4_disable_overview_clouds_feature.json",
+    "data/vv5_disable_overview_clouds_feature.json",
+    "data/vv3_push_overview_clouds_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
