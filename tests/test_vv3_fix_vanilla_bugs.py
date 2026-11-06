@@ -189,6 +189,10 @@ FIXES = FIXES + ((HOSPITAL_NAME_OFFSET, HOSPITAL_STOCK_NAME, HOSPITAL_FIXED_NAME
 from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
 
 FIXES = FIXES + zero_length_line_fixes("vv3")
+# The Overview Map's water lines up with its riverbeds (tests/test_overview_map_water.py).
+from test_overview_map_water import overview_map_water_fixes  # noqa: E402
+
+FIXES = FIXES + overview_map_water_fixes("vv3")
 TECH_REWARD = 100
 
 # Game addresses.
@@ -353,6 +357,7 @@ class ManifestTests(unittest.TestCase):
         vas += (0x453B73,)                                                      # catch-up hut walk
         vas += (0x482EE8,)                                                      # the hospital sheet's name
         vas += (0x403EB9, 0x4045A4)                                             # the line drawer (no divide by 0)
+        vas += (0x42E285, 0x428F01)                                             # the Overview Map's percent
         self.assertEqual(len(vas), len(FIXES))
         for va, (offset, before, _after) in zip(vas, FIXES):
             self.assertEqual(pe.get_offset_from_rva(va - 0x400000), offset)

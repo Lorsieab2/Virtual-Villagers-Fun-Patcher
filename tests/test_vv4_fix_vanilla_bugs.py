@@ -99,6 +99,10 @@ FIXES = FIXES + PERCENT_FIXES + LIKES_FIXES + name_identity_fixes("vv4")
 from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
 
 FIXES = FIXES + zero_length_line_fixes("vv4")
+# The Overview Map's water lines up with its riverbeds (tests/test_overview_map_water.py).
+from test_overview_map_water import overview_map_water_fixes  # noqa: E402
+
+FIXES = FIXES + overview_map_water_fixes("vv4")
 
 
 def _vv4():
