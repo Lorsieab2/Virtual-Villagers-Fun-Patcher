@@ -635,6 +635,25 @@
       ]
     },
     {
+      "ids": ["vv3_disable_overview_clouds", "vv4_disable_overview_clouds", "vv5_disable_overview_clouds"],
+      "guide": [
+        "Nothing to click in the patcher: tick the patch and patch the game again.",
+        "In the game, click the Map button: the clouds that drift over the island are not drawn, so the whole island shows.",
+        "Only the overview map changes; the village and every other screen look as before.",
+        "With this on the clouds are hidden, so their push away from the cursor cannot be seen until this is unticked.",
+        "On by default. Needs no other patch. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv3_push_overview_clouds"],
+      "guide": [
+        "Nothing to click in the patcher: tick the patch and patch the game again.",
+        "In the game, click the Map button and move the mouse near a cloud: it is pushed away from the cursor and fades a little, as in The Tree of Life.",
+        "While Disable Clouds on the Overview Map is ticked the clouds are hidden, so this has no visible effect until Disable Clouds is unticked.",
+        "On by default. Needs no other patch. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv4_difficulty_settings", "vv5_difficulty_settings"],
       "guide": [
         "Open Options (in the game's menu) and choose Easy, Normal or Hard on the Difficulty row, above Game Speed.",

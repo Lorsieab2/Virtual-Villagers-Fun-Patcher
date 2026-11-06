@@ -1045,6 +1045,18 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 
 - Patch ID: `vv3_copy_paste`
 
+**Disable Clouds on the Overview Map**
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so Push Clouds Away on the Overview Map has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+- Patch ID: `vv3_disable_overview_clouds`
+
+**Push Clouds Away on the Overview Map**
+
+The clouds that drift over the island on the overview map (the Map button) move away from the mouse, exactly as in The Tree of Life: bring the cursor within about 80 pixels of a cloud's middle and it is pushed away from the cursor, sideways and up or down, faster the closer the cursor is (up to 5 pixels a frame, 10 when it is pushed the way the clouds drift), and it fades a little each time the mouse moves near it. It keeps going until the mouse moves again, and every cloud is back at full strength the next time the map is opened. The drift, and where a cloud comes back after leaving the map, are the game's own. **On by default.** **Needs no other patch.** **While Disable Clouds on the Overview Map is ticked the clouds are hidden, so this has no visible effect until Disable Clouds on the Overview Map is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Push Clouds.dll", started by VVFP Startup.dll; saves are never written by it.
+
+- Patch ID: `vv3_push_overview_clouds`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Secret City's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -1270,6 +1282,12 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 
 - Patch ID: `vv4_copy_paste`
 
+**Disable Clouds on the Overview Map**
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+- Patch ID: `vv4_disable_overview_clouds`
+
 **Optional Text changes**
 
 Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
@@ -1441,6 +1459,12 @@ Draws ALL of the game's text in a Windows typeface instead of the game's own bit
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
 
 - Patch ID: `vv5_copy_paste`
+
+**Disable Clouds on the Overview Map**
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+- Patch ID: `vv5_disable_overview_clouds`
 
 **Move the "Playing in the dirt" Spot**
 

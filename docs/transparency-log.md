@@ -1197,6 +1197,18 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Disable Clouds on the Overview Map (`vv3_disable_overview_clouds`)
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so Push Clouds Away on the Overview Map has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The overview screen's draw slot 0x46C2F0 draws its five clouds (map_cloud01.png (sprite 0x27), alpha always 1.0) in the loop 0x46C3BD..0x46C3E3; the loop is skipped: lea edi, [esi+8] becomes jmp 0x46C3E3; the code after the loop reads only the screen's own fields. No cloud is drawn on the overview map.
+- Explicit non-changes/exclusions: Only the overview screen's own draw routine changes; the sprite draw routine, the cloud pictures and every other screen (the village view, its fog and weather, the title screen) are the game's own. The clouds' positions, drift and wrap are still updated every frame as before; nothing is written to a save, a villager record or a file. Push Clouds Away on the Overview Map (its companion) still moves and fades the clouds; with nothing drawn it cannot be seen.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Food and Tech Point Doublers, Complete all Collections, Reset all Collections, Equal Division of Labor with and without Parenting, Clear All Skill Preferences, and Check Highest Skill with and without Parenting, all supplied by the base Origins feature rather than this optional payload. The point doublers do not double Island Event or Duplicate Collectible tech gains. Bought island events don't change when the game's own island events come.
@@ -1383,6 +1395,18 @@ When the Tribal Chief completes Pointing out a rare collectible and the stock ga
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Push Clouds Away on the Overview Map (`vv3_push_overview_clouds`)
+
+The clouds that drift over the island on the overview map (the Map button) move away from the mouse, exactly as in The Tree of Life: bring the cursor within about 80 pixels of a cloud's middle and it is pushed away from the cursor, sideways and up or down, faster the closer the cursor is (up to 5 pixels a frame, 10 when it is pushed the way the clouds drift), and it fades a little each time the mouse moves near it. It keeps going until the mouse moves again, and every cloud is back at full strength the next time the map is opened. The drift, and where a cloud comes back after leaving the map, are the game's own. **On by default.** **Needs no other patch.** **While Disable Clouds on the Overview Map is ticked the clouds are hidden, so this has no visible effect until Disable Clouds on the Overview Map is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Push Clouds.dll", started by VVFP Startup.dll; saves are never written by it.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every mouse move (message 1 to the overview screen's event slot), for each of the five clouds at (x, y) (screen +8 + 12*i): dx = x - mouse x + 90, dy = y - mouse y + 50, distance = the float square root of dx*dx + dy*dy truncated, push = (100 - distance) / 20; push above 0: fade -= 0.01, vertical = push (dy >= 0) or -push, horizontal = -push (dx >= 0) or 2*push; otherwise both 0 -- The Tree of Life's event slot 0x444B70, number for number. Every frame the stock update moves the clouds (unless that frame ends the screen's leave, 0x46C0BC..0x46C0FB): x -= horizontal and y += vertical first, then the stock drift and wrap -- The Tree of Life's x -= horizontal + drift, y += vertical (0x444AE0). Each cloud is drawn at its fade instead of the stock 1.0 (the call 0x46C3D8 of the sprite draw 0x42EB90), as The Tree of Life draws each at its own alpha (0x4454B0); showing the screen (the activate slot) sets every fade back to 1.0, as The Tree of Life's activate 0x4447A0 does.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion replaces three vtable slots of the overview screen and one call in its cloud loop at run time, only after verifying every stock value, all or none. The stock event slot runs for every message (it ignores mouse moves), and the stock update and activate run as before: the clouds' drift (1 or 2 a frame), their wrap at the left edge and where they come back are The Secret City's own; clicks, buttons and the map's markers are unchanged. Nothing is written to a save, a villager record or a file; no text is shown.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Render Unicode with In-Game Fonts (`vv3_unicode_text`)
 
@@ -1628,6 +1652,18 @@ Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Disable Clouds on the Overview Map (`vv4_disable_overview_clouds`)
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The overview screen's draw slot 0x4453C0 draws its five clouds (map_cloud01.png and cloud variations1-3.png (sprites 0xAE..0xB1), alpha each cloud's own) in the loop 0x4454A1..0x4454D9; the loop is skipped: lea ebx, [esi+0xAC] becomes jmp 0x4454D9 (four nops after it, never reached); the code after the loop compares with an immediate 0. No cloud is drawn on the overview map.
+- Explicit non-changes/exclusions: Only the overview screen's own draw routine changes; the sprite draw routine, the cloud pictures and every other screen (the village view, its fog and weather, the title screen) are the game's own. The clouds' positions, drift and wrap are still updated every frame as before; nothing is written to a save, a villager record or a file. The game's own push of the clouds away from the cursor (0x444B70) still moves them; with nothing drawn it cannot be seen.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
 
@@ -1983,6 +2019,18 @@ Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Disable Clouds on the Overview Map (`vv5_disable_overview_clouds`)
+
+Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The overview screen's draw slot 0x448510 draws its five clouds (map_cloud01.png and cloud variations1-3.png (sprites 0x99..0x9C), alpha each cloud's own) in the loop 0x448623..0x44865B; the loop is skipped: lea ebp, [esi+0xAC] becomes xor ebx, ebx / jmp 0x44865B (two nops after it, never reached): the code after the loop compares the screen's two leaving bytes with bl, which the stock loop leaves at 0. No cloud is drawn on the overview map.
+- Explicit non-changes/exclusions: Only the overview screen's own draw routine changes; the sprite draw routine, the cloud pictures and every other screen (the village view, its fog and weather, the title screen) are the game's own. The clouds' positions, drift and wrap are still updated every frame as before; nothing is written to a save, a villager record or a file. The game's own push of the clouds away from the cursor (0x447CC0) still moves them; with nothing drawn it cannot be seen.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 

@@ -454,6 +454,18 @@ at the bottom right, as in The Secret City. Click it to go straight to the
 help question; its Yes and No do exactly what they do at the end of the
 story. A click anywhere else still turns the page.
 
+CLOUDS ON THE OVERVIEW MAP
+
+With Disable Clouds on the Overview Map (on by default, The Secret City, The
+Tree of Life and New Believers), the clouds that drift over the island on the
+overview map (the Map button) are not drawn, so the whole island shows. The
+village and every other screen are unchanged.
+
+With Push Clouds Away on the Overview Map (on by default, The Secret City),
+those clouds move away from the mouse as they do in The Tree of Life and New
+Believers. While Disable Clouds is ticked the clouds are hidden, so the push
+cannot be seen: untick Disable Clouds to see it.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the
