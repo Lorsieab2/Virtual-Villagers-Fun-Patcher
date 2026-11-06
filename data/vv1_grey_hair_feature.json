@@ -26,12 +26,12 @@
     {
       "source": "assets/vv1_grey_hair/VVFP VV1 Grey Hair.dll",
       "destination": "VVFP VV1 Grey Hair.dll",
-      "sha256": "54B6208EB2E9D8DD52B4D8F90EBA975A811F8755647605499FA9D048809FDAA5"
+      "sha256": "12F87EE1AD129A7FAD57D98BC3CE4F170C576F7D0FA73E6004D16023DA195BA1"
     },
     {
       "source": "assets/vv1_grey_hair/vvfp_grey_male_heads.png",
       "destination": "Images/vvfp_grey_male_heads.png",
-      "sha256": "AE01D62CBC59110164766A1F0017BCE102F816C5730DAC4CFAD7D94A7E2F8E63"
+      "sha256": "13D39E40FC0ADEF8357845126AAD37BE7AE2C4FE41282DA082EE194B2C81B075"
     },
     {
       "source": "assets/vv1_grey_hair/vvfp_grey_female_heads.png",
