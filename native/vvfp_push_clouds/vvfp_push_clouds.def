@@ -1,0 +1,4 @@
+LIBRARY "VVFP Push Clouds"
+EXPORTS
+    VvfpStartup
+    VvfpPushCloudsInstalled

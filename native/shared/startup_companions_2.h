@@ -36,6 +36,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Fix Vanilla Bugs (A New Home, The Secret City, The Tree of Life, New Believers): a villager whose walk
        gives up while it holds something looks for another way first and keeps the item. */
     "VVFP Keep Carried.dll",
+    /* Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse. */
+    "VVFP Push Clouds.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

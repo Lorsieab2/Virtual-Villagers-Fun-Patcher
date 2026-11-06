@@ -1,0 +1,26 @@
+{
+  "id": "vv4_disable_overview_clouds",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Disable Clouds on the Overview Map",
+  "description": "Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).",
+  "output_tag": "No Overview Clouds",
+  "behavior_changes": [
+    "The overview screen's draw slot 0x4453C0 draws its five clouds (map_cloud01.png and cloud variations1-3.png (sprites 0xAE..0xB1), alpha each cloud's own) in the loop 0x4454A1..0x4454D9; the loop is skipped: lea ebx, [esi+0xAC] becomes jmp 0x4454D9 (four nops after it, never reached); the code after the loop compares with an immediate 0. No cloud is drawn on the overview map."
+  ],
+  "explicit_non_changes": [
+    "Only the overview screen's own draw routine changes; the sprite draw routine, the cloud pictures and every other screen (the village view, its fog and weather, the title screen) are the game's own.",
+    "The clouds' positions, drift and wrap are still updated every frame as before; nothing is written to a save, a villager record or a file. The game's own push of the clouds away from the cursor (0x444B70) still moves them; with nothing drawn it cannot be seen."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x454A1",
+      "before": "8D9EAC000000",
+      "after": "EB3690909090",
+      "purpose": "the overview map's cloud loop 0x4454A1: lea ebx, [esi+0xAC] becomes jmp 0x4454D9 (four nops after it, never reached); the code after the loop compares with an immediate 0"
+    }
+  ]
+}
