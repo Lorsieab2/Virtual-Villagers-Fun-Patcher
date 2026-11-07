@@ -26,7 +26,7 @@ import vv_tribe_rename  # noqa: E402
 
 FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
 NOW = 1_790_000_000 + 3_000_000
-HEADER = "Farmers needed to supply the village with food"
+HEADER = "Farmers needed, each with Farming"
 
 
 def page(name: str) -> list[gm.Fact]:
@@ -68,6 +68,23 @@ class Arithmetic(unittest.TestCase):
         self.assertEqual((fruit.catch_up_unit, fruit.catch_up_needed), (0.0, None))
         self.assertIsNotNone(fruit.live_needed)
 
+    def test_food_mastery_rounds_as_the_game(self) -> None:
+        # The Tree of Life 0x41D920 / New Believers 0x41EB40: level 2 adds half rounded down, level 3 doubles.
+        self.assertEqual([farmers.boosted(a, 1.5) for a in (3, 4, 35, 55)], [4, 6, 52, 82])
+        self.assertEqual([farmers.boosted(a, 2.0) for a in (3, 35)], [6, 70])
+        self.assertEqual(farmers.boosted(7, 1.0), 7)
+
+    def test_all_sources_together_take_the_best_per_farmer_first(self) -> None:
+        import vv_game_mechanics_life as life
+        # A bush that regrows 5 (10 a farmer), the sea without limit (8 a farmer), eating 21: 0.5 on the bush, 2 at sea.
+        used, short = life._shared([("Sea", 8.0, float("inf")), ("Bush", 10.0, 5.0)], 21.0)
+        self.assertEqual([name for name, _ in used], ["Bush", "Sea"])
+        self.assertAlmostEqual(used[0][1], 0.5)
+        self.assertAlmostEqual(used[1][1], 2.0)
+        self.assertEqual(short, 0.0)
+        _, short = life._shared([("Bush", 10.0, 5.0)], 21.0)
+        self.assertAlmostEqual(short, 16.0)
+
     def test_food_mastery_and_speed(self) -> None:
         # The Lost Children's coconuts: live 8, 4 or 2 by speed; 4 while catching up; Food Mastery on both.
         for speed, food in ((gm.FAST, 8), (gm.NORMAL, 4), (gm.SLOW, 2)):
@@ -100,11 +117,19 @@ class ThePage(unittest.TestCase):
                 header = [f for f in vitals if f.text.startswith(HEADER)]
                 self.assertEqual(len(header), 1)
                 self.assertEqual(header[0].verified, gm.RUNNING)
-                lines = [f.text for f in vitals if ": while catching up" in f.text]
+                lines = [f.text for f in vitals if " alone: while catching up" in f.text]
                 self.assertTrue(lines)
                 for text in lines:
-                    self.assertRegex(text, r"while catching up, (farmers needed: [\d,]+ \(one brings|no farmer can)")
+                    self.assertRegex(text, r" alone: while catching up, [\d,]+ farmers? \(one brings")
+                    # Each source says whether it can feed the village on its own, by its regrowth.
+                    self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone|cannot feed "
+                                           r"the village alone)")
+                self.assertEqual(sum(f.text.startswith("All food sources together: while catching up")
+                                     for f in vitals), 1)
+                self.assertEqual(sum(f.text.startswith("Difficulty: it changes what each villager eats")
+                                     for f in vitals), 1)
                 self.assertTrue(any(f.text.startswith("How it is worked out: farmers needed") for f in vitals))
+                self.assertIn("Mushrooms are left out", header[0].text)
 
     def test_the_numbers_follow_the_formula(self) -> None:
         # A New Home's fixture: the eating line's figure and each source's line agree with supplies().
@@ -113,7 +138,8 @@ class ThePage(unittest.TestCase):
         eaten = float(re.search(r"eats ([\d,.]+) food each counted age unit", header).group(1).replace(",", ""))
         checked = 0
         for f in facts:
-            found = re.search(r"farmers needed: ([\d,]+) \(one brings ([\d,.]+) food each counted age unit", f.text)
+            found = re.search(r"alone: while catching up, ([\d,]+) farmers? \(one brings ([\d,.]+) food each "
+                              r"counted age unit", f.text)
             if found:
                 need, brought = int(found.group(1).replace(",", "")), float(found.group(2).replace(",", ""))
                 # Both figures are shown rounded to 0.1: the count lies between the two roundings' answers.
