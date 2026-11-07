@@ -123,7 +123,7 @@ class CheckResult:
         return f"Save {self.slot}: {verdict} ({parts})."
 
 
-def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
+def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | None = None) -> CheckResult:
     """Run the read-only checker on one slot.  Nothing is written."""
     checker = load_checker()
     if game not in checker.SAVE_STEMS or slot not in (1, 2, 3, 4, 5):
@@ -144,7 +144,7 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
     # itself reports the Sex lines).
     import vv_log_additions as additions
     try:
-        kinds = additions.plan(Path(folder), game, slot)
+        kinds = additions.plan(Path(folder), game, slot, game_folders)
     except OSError as exc:
         kinds = []
         report.add(f"{LOGS} (older records)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
@@ -247,6 +247,16 @@ def check_logs(folder: Path, slot: int, game: int) -> CheckResult:
                            "takes them out (it lists each with why, and asks first)")
             for note in kind.notes:
                 report.add(f"{LOGS} (false Unaccounted records)", "NOTE", note)
+            continue
+        if kind.id == "apprentice":
+            # Children's Grave lines that still name a rank (src/vv_log_additions.py plan_apprentice).
+            if kind.replaces:
+                report.add(f"{LOGS} ({kind.label})", "NOTE",
+                           f"{len(kind.replaces)} record(s) of children's graves name the rank in their Grave (Job) "
+                           "line though the game draws \"Apprentice <job>\" on those graves: Repair Saves & Logs "
+                           "rewrites them")
+            for note in kind.notes:
+                report.add(f"{LOGS} ({kind.label})", "NOTE", note)
             continue
         # "sex" and "born_arrived" the checker itself reports (the latter as WRONG); the reconciliation's
         # questions are listed above.
