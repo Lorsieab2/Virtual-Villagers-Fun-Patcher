@@ -11,7 +11,9 @@ and float-to-int (0x47C9B0 / 0x471630).  The villager table is the exe's own sta
 0x2F44 bytes; VV4 0x50E568, records at +0x44, 0x2E3C bytes), zeroed, with only the villagers a test makes.
 
 Replaced: the game's RNG(n) (VV5 0x403660, VV4 0x4036D0, rand() % n): each call takes the next forced value from a
-list, so a test chooses every roll (the 50% roll, the teacher pick, the random skill).
+list, so a test chooses every roll (the 50% roll, the teacher pick, the random skill), or (rolls_from) draws it from a
+seeded random.Random.  `patched` writes (file offset, stock, fixed) edits into the image first (a .text file offset
+is its RVA in both exes), so the same run shows a Fix Vanilla Bugs edit.
 """
 from __future__ import annotations
 
@@ -59,7 +61,7 @@ def available(game: Game) -> bool:
 
 
 class Nursery:
-    def __init__(self, game: Game, *, speed: int = 6) -> None:
+    def __init__(self, game: Game, *, speed: int = 6, patched=()) -> None:
         self.g = game
         pe = pefile.PE(str(STOCK / game.exe), fast_load=True)
         image = pe.get_memory_mapped_image()
@@ -67,6 +69,9 @@ class Nursery:
         size = (len(image) + 0xFFFF) & ~0xFFFF
         uc.mem_map(0x400000, size)
         uc.mem_write(0x400000, image)
+        for offset, before, after in patched:     # (file offset, stock, fixed); file offset == RVA in .text
+            assert bytes(image[offset:offset + len(before)]) == before, hex(offset)
+            uc.mem_write(0x400000 + offset, after)
         table = game.first + 150 * game.stride
         uc.mem_write(game.manager, b"\0" * table)
         uc.mem_map(0x00100000, 0x00100000)       # the stack
@@ -75,6 +80,7 @@ class Nursery:
         uc.mem_write(HOLDER, struct.pack("<I", GAME_PTR))
         uc.mem_write(GAME_PTR + game.speed, struct.pack("<i", speed))
         self.rolls: list[int] = []
+        self.rng = None
         self.asked: list[int] = []
         uc.hook_add(UC_HOOK_CODE, self._rand, begin=game.rand, end=game.rand)
 
@@ -82,7 +88,7 @@ class Nursery:
         esp = uc.reg_read(UC_X86_REG_ESP)
         ret, n = struct.unpack("<II", bytes(uc.mem_read(esp, 8)))
         self.asked.append(n)
-        value = self.rolls.pop(0) if self.rolls else 0
+        value = self.rolls.pop(0) if self.rolls else (self.rng.randrange(n) if self.rng else 0)
         assert 0 <= value < n, (value, n)
         uc.reg_write(UC_X86_REG_EAX, value)
         uc.reg_write(UC_X86_REG_ESP, esp + 4)          # cdecl: the caller pops the argument
@@ -122,3 +128,11 @@ class Nursery:
         uc.emu_start(self.g.start, self.g.end, count=2_000_000)
         assert not self.rolls, f"unused rolls {self.rolls}"
         return self.asked
+
+    def rolls_from(self, rng) -> list[int]:
+        """One tick with every roll drawn from `rng` as the game asks for it."""
+        self.rng = rng
+        try:
+            return self.lesson([])
+        finally:
+            self.rng = None

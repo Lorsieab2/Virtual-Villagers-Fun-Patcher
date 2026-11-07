@@ -154,6 +154,13 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
         f"of the one taken so far, so among skills with the same whole number the last one that has any fraction "
         f"wins ({names[-1]} over all the others); while every skill is 0 a skill is drawn for that child, each 1 in "
         f"{n} ({a['draw']}).")
+    fix = f"vv{game}_fix_vanilla_bugs"
+    tie = ("0x42602F -> the tie-breaker at 0x4264C3, chained through the padding to 0x4295F2" if vv5 else
+           "0x4204A8 -> the tie-breaker at 0x420313, chained through the padding to 0x423972")
+    add(gm.patch_words(village, fix, f"skills with the same whole number tie and the tie is broken at random, each "
+                                     f"tied skill equally likely ({tie}; the routine's other callers are unchanged); "
+                                     f"the 50 test, the 50-in-100 roll, the spread and the amounts stay as above"),
+        gm.CODE, True)
     add(f"Skills keep their fractions (32-bit floats, nothing is rounded away) and stay 0 to 100 ({a['add']}); the 50 "
         f"test is on the whole number before the lesson is added, so a skill can end a little above 50 (49.9 + "
         f"{_n(lesson(100 * n, gm.SLOW))} = {_n(49.9 + lesson(100 * n, gm.SLOW))} on Slow with a {100 * n:,} teacher).")
@@ -187,6 +194,9 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
             "first. Emulated with the game's own code (400 children from 0, a 600 teacher): Devotion became the "
             "trained skill for 394, 371 and 341 of them on Fast, Normal and Slow. The same happens to a believer "
             "child whose skills are all below 1.", gm.CODE, True)
+        add(gm.patch_words(village, fix, "a tie goes to any of the tied skills, each equally likely, so a child from 0 "
+                                         "is trained in each skill about 1 in 6 times (emulated, 400 children: "
+                                         "Devotion 85, 62 and 57 of them on Fast, Normal and Slow)"), gm.CODE, True)
         add("Village children gain in all six skills at once: on the spread age units (half of them, one roll for "
             "every child together) each child gets a fifth of the lesson in every skill whose whole number is below "
             "50 (0x42606A-0x426095).", gm.CODE, True)
@@ -198,7 +208,8 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
             "Chief is made with all six skills at 100 (0x424D87-0x424DAF, from the new village's set-up 0x4259D0 at "
             "0x425DBB) and keeps them; as a believer he can be picked up (the pick-up refuses only Heathens, "
             "0x445F32), so dropped on the finished Nursery School he is a teacher with the highest total, 600, "
-            "and every child's lessons are the largest the game gives (2.5 a real-life hour, at every speed).", gm.CODE, True)
+            "and every child's lessons are the largest the game gives (2.5 a real-life hour, at every speed).",
+            gm.CODE, True)
         add("The Earthquake gives no skill: it adds 2 to 8 Faith (rand(7) + 2, 0x41F78F) to every villager but the "
             "six special roles; a Heathen whose Faith rises above 0 joins the tribe through the same join, which "
             "changes no skill, however many times it is cast. A Heathen child who joins keeps the skills the Nursery "
@@ -215,6 +226,9 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
             "unless the skill drawn at the child's first lesson reaches a whole 1 first. Emulated with the game's "
             f"own code (400 children from 0, a 500 teacher): {last} became the trained skill for 398, 385 and 357 of "
             "them on Fast, Normal and Slow.", gm.CODE, True)
+        add(gm.patch_words(village, fix, "a tie goes to any of the tied skills, each equally likely, so a child from 0 "
+                                         "is trained in each skill about 1 in 5 times (emulated, 400 children: "
+                                         "Building 90, 80 and 87 of them on Fast, Normal and Slow)"), gm.CODE, True)
         add("Children gain in all five skills at once: on the spread age units (half of them, one roll for every "
             "child together) each child gets a fifth of the lesson in every skill whose whole number is below 50 "
             "(0x4204E3-0x42050C).", gm.CODE, True)

@@ -103,6 +103,10 @@ FIXES = FIXES + zero_length_line_fixes("vv4")
 from test_overview_map_water import overview_map_water_fixes  # noqa: E402
 
 FIXES = FIXES + overview_map_water_fixes("vv4")
+# A Nursery School lesson's tie on the top skill is broken at random (tests/test_nursery_tie_random.py).
+from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
+
+FIXES = FIXES + nursery_tie_fixes("vv4")
 
 
 def _vv4():
