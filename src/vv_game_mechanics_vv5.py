@@ -100,19 +100,23 @@ FIRE_LINES = (
     (gm.FIRE_OUT + " The Cold Snap island event (it needs the fire burning) puts it out. How it burns down while "
      "the game is closed is under Time away (catch-up).", gm.OWNER),
 )
-# Puddle play (scripts/build_apprentice_faith_puddles_features.py has the trace): behaviour 0xEB 0x454200, its
-# choosers 0x469E4B (the child-activity pick 0x469DC0, case 4) and 0x46EFB2, the rain level [0x718EB8], the lake's
-# water 0x43C5D0 (project 10's progress above 0), the lake bed area 0x69 and its picker 0x4744C0 / 0x477B90.
+# Puddle play (scripts/build_apprentice_faith_puddles_features.py has the trace): "Playing in puddles" is behaviour
+# 0x5E (0x45FFF0, string 0x229), started only by 0x46E4F7: rain level [0x718EB8] 50 or more, rand(100) < 75, raining
+# (0x477040), the lake's water 0x43C5D0 (project 10's progress above 0) absent; five walks to lake-bed area 0x6A
+# (0x4744C0 at 0x46003B) and its picker 0x477B90.  "Excited about the puddles" (0xEB, 0x454200) is another action:
+# its choosers 0x469E4B (the child-activity pick 0x469DC0, case 4) and 0x46EFB2, three walks to area 0x69.
 PUDDLES = "vv5_puddles_by_the_lake"
 PUDDLE_LINES = (
-    ("Children play in puddles in the dry lake bed when it rains; once the lake bed is full of water they no longer "
-     "do, because they cannot swim.", gm.OWNER),
-    ("In the code: a child's pastime (0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts the puddle play "
-     "(\"Excited about the puddles\", 0x454200) when the rain level is 50 or more and The Lake holds no water "
-     "(0x43C5D0); the child walks three times to a random point of the lake bed (area 0x69, 0x4744C0) and "
-     "plays there. With water in the lake, or without rain, it chases fish instead (\"Chasing fish\" once The Lake "
-     "is solved, else \"Looking for bits of fish\", 0x454130). The game's own point picker 0x477B90 only ever "
-     "takes the first 1,024 cells of an area, so the spots are all in the lake bed's northern part.", gm.CODE),
+    ("Children go \"Playing in puddles\" in the dry lake bed when it rains; once the lake bed is full of water they "
+     "no longer do, because they cannot swim.", gm.OWNER),
+    ("In the code: \"Playing in puddles\" (0x45FFF0) starts (0x46E4F7) 75 times in 100 when the rain level is 50 "
+     "or more, it is raining and The Lake holds no water (0x43C5D0); the child walks five times to a random point "
+     "of the lake bed's puddles (area 0x6A, 1,479 spots, 0x4744C0) and plays there. The game's own point picker "
+     "0x477B90 only ever takes the first 1,024 spots of an area.", gm.CODE),
+    ("\"Excited about the puddles\" is a different action with the same rain and water rule: a child's pastime "
+     "(0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts it (0x454200), three walks to the lake bed "
+     "(area 0x69); with water in the lake, or without rain, those choosers pick \"Chasing fish\" instead "
+     "(\"Looking for bits of fish\" before The Lake is solved, 0x454130).", gm.CODE),
 )
 # The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
 # contradicted the exact one under Faith and Heathens (0x46D2A8: +30 to one listener, not "a random heathen"), and
@@ -305,12 +309,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in PUDDLE_LINES:
         add("Other", line, ok)
     if village.has("vv5_fix_vanilla_bugs") is True:
-        add("Other", "With Fix Vanilla Game Bugs: the puddle play's spots come from the whole lake bed, each of its "
-                     "cells equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every other "
-                     "walk to an area, fishing at the lake included, picks as stock.", gm.CODE)
+        add("Other", "With Fix Vanilla Game Bugs: \"Playing in puddles\" spots come from all 1,479 of its "
+                     "spots, each equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every "
+                     "other walk to an area, fishing and \"Excited about the puddles\" included, picks as stock.",
+            gm.CODE)
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
-        add("Other", "Normally puddle play stops once The Lake holds water. " + gm.patch_words(
-            village, PUDDLES, "with water in the lake the rain still brings it, and each of the three walks goes to a "
+        add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
+            village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
                               "lake's west tip and the rocks with the red flower (0x494E00); before The Lake has "
                               "water, nothing changes"), gm.CODE)
