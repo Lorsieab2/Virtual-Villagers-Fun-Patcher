@@ -222,3 +222,20 @@ class DefaultPatchSelectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ManuallyOnSentenceTests(unittest.TestCase):
+    """The owner (2026-11-07): "put a "Needs to be manually turned on." for any patch that is unchecked in normal
+    defaults"."""
+
+    def test_every_default_off_row_says_it_and_no_other_does(self) -> None:
+        import vv_fun_patcher as patcher
+        import vv_fun_patcher_gui as gui
+        for patch in patcher.load_fun_patches():
+            with self.subTest(patch.id):
+                text = gui.row_description(patch)
+                if gui.default_fun_patch_selection(patch.id):
+                    self.assertEqual(text, patch.description)
+                else:
+                    self.assertTrue(text.endswith(gui.MANUALLY_ON))
+                    self.assertEqual(text.count(gui.MANUALLY_ON), 1)

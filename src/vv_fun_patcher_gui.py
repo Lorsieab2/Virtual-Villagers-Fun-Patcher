@@ -234,6 +234,18 @@ def default_fun_patch_selection(patch_id: str) -> bool:
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
 
 
+MANUALLY_ON = "**Needs to be manually turned on.**"
+
+
+def row_description(patch) -> str:
+    """A patch row's description; a patch the Default Patches leave unticked ends with MANUALLY_ON (the owner,
+    2026-11-07: "put a "Needs to be manually turned on." for any patch that is unchecked in normal defaults")."""
+    text = patch.description
+    if default_fun_patch_selection(patch.id) or MANUALLY_ON in text:
+        return text
+    return f"{text.rstrip()} {MANUALLY_ON}"
+
+
 def auto_number_tick(auto: bool, misnumbered: bool, ticked: bool, forced: bool) -> tuple[bool, bool]:
     """Repair Saves & Logs' "Number duplicate names" row under "Number villagers who share a name
     automatically": (ticked, forced) after the setting or the names change.  With the setting on and
@@ -1527,7 +1539,7 @@ class App(tk.Tk):
         )
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
-        RichDescription(frame, patch.description, 620, requirement_font,
+        RichDescription(frame, row_description(patch), 620, requirement_font,
                         description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
         ttk.Label(
             frame,
