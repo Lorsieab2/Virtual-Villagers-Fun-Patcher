@@ -109,6 +109,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Faith Loss is Doubled/Gains Halved (New Believers): a difficulty
                   # change, off by default (the owner, 2026-11-06).
                   or p == "vv5_faith_loss_doubled_gains_halved"
+                  # Food Gains are Flat, like VV1-3 (Harder Games): off by default.
+                  or p in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games")
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
                   # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves
@@ -237,6 +239,23 @@ class NewBelieversAndGravesRowsTests(unittest.TestCase):
             self.assertTrue(owners_default_fun_patch_selection(patch_id), patch_id)
             self.assertEqual(default_fun_patch_selection(patch_id),
                              patch_id != "vv5_faith_loss_doubled_gains_halved", patch_id)
+
+
+class ManuallyOnSentenceTests(unittest.TestCase):
+    """The owner (2026-11-07): "put a "Needs to be manually turned on." for any patch that is unchecked in normal
+    defaults"."""
+
+    def test_every_default_off_row_says_it_and_no_other_does(self) -> None:
+        import vv_fun_patcher as patcher
+        import vv_fun_patcher_gui as gui
+        for patch in patcher.load_fun_patches():
+            with self.subTest(patch.id):
+                text = gui.row_description(patch)
+                if gui.default_fun_patch_selection(patch.id):
+                    self.assertEqual(text, patch.description)
+                else:
+                    self.assertTrue(text.endswith(gui.MANUALLY_ON))
+                    self.assertEqual(text.count(gui.MANUALLY_ON), 1)
 
 
 if __name__ == "__main__":
