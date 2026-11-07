@@ -20,6 +20,7 @@ import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
+import vv_game_mechanics_nursery as nursery
 import vv_save_backup
 
 GAME = 4
@@ -354,9 +355,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                        "brings 3 times the tech points.", gm.RUNNING)
     if village.has(LEARNING) is not False:
         add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
-    add("Tech points and effects", "Nursery School: each child gains the teacher's five skills added up ÷ 240 per "
-                                   "real-life hour at any speed, in skills under 50 (the exact rule is under Time "
-                                   "away).", gm.RUNNING)
+    out.extend(nursery.lines(village, 4))       # the Nursery School and why children gain skills
 
     # -- Food earned: the eating odds are under Chances ------------------------------------
     # The snack, job event 68 (0x46438D): below 100 health with food in storage, rand(100) < 50 gives +1 health;

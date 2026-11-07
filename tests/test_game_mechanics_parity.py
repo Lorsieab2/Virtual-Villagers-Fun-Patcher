@@ -122,7 +122,8 @@ class AgainstTheExes(unittest.TestCase):
                 match = re.search(r"still holds (.+?), text the game's code", checked)
                 if not match:
                     continue
-                self.assertIs(label, False, (topic.name, game))
+                # Unconfirmed, or confirmed absent by the owner (New Believers, 2026-11-07); the quoted text is still the exe's.
+                self.assertIn(label, (False, gm.OWNER), (topic.name, game))
                 texts = _texts(game)
                 for word in re.findall(r'"([^"]+)"', match.group(1)):
                     self.assertTrue(any(word in t for t in texts), (topic.name, game, word))

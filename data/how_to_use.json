@@ -304,7 +304,7 @@
         "Every name in the game's own male and female lists can now be given to a new villager.",
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
-        "Unpausing at a different speed now gives the Fire Pit the new speed's length (the original game kept the old one).",
+        "Unpausing at another speed gives the Fire Pit that speed's length. Nursery School lessons no longer always pick Building on a tie.",
         "Rain can no longer crash the game, and the Overview Map's water (rivers, waterfalls and their animations) lines up with its riverbeds.",
         "The 150-villager fix only matters with a bigger population mode or 256 Villagers. On by default."
       ]
@@ -834,6 +834,7 @@
         "A \"%\" in a villager's name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot.",
+        "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
         "Nothing to click. On by default."
       ]

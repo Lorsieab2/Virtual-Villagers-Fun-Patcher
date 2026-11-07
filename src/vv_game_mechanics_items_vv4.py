@@ -272,8 +272,10 @@ def _buildings() -> list[Entry]:
             "the game is played (\"The love shack has not been completed!\"); time away does not check it."),
             VERIFIED_C),
         Entry(BUILDING, "The Nursery School (the building)", (
-            f"{steps(50)}. Finished, each child gains the teacher's five skills added up ÷ 240 per real-life hour at "
-            "any speed, in skills under 50 (Time away)."), VERIFIED_E,
+            f"{steps(50)}. Finished, a villager dropped on it with at least 3 of the five skills at 50 or more becomes "
+            "the teacher (0x437620, 0x4376B4), and each child's lessons are worth the teacher's five skills added up "
+            "÷ 240 per real-life hour at any speed, in skills below 50 (the rule is under Tech points and "
+            "effects)."), VERIFIED_E,
             (("It appears as a site at Learning level 3.", UNCONFIRMED),)),
         Entry(BUILDING, "The Hospital", (
             f"{steps(50)}. Finished, a healer with nobody sick studies medicine there (Healing practice), and a "

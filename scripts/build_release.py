@@ -156,6 +156,8 @@ FILES = [
     "assets/vv5_bighead_masks/bigheads_masks.png",
     # The Secret City's Fix Vanilla Bugs: the hospital sheet with the tables' legs fixed.
     "assets/vv3_hospital/vvfp_hospitalFixed.png",
+    # New Believers' Fix Vanilla Bugs: the owner's redrawn hovel cover.
+    "assets/vv5_fix_vanilla_bugs/vvfp_hovel.png",
     "data/vv1_origins_village_wide_upgrades.json",
     "data/vv2_origins_village_wide_upgrades.json",
     "data/vv3_origins_village_wide_upgrades.json",
@@ -422,6 +424,7 @@ FILES = [
     "src/vv_game_mechanics_vv5.py",
     "src/vv_game_mechanics_powers_vv5.py",
     "src/vv_game_mechanics_life.py",
+    "src/vv_game_mechanics_nursery.py",
     "src/vv_game_mechanics_tech_time.py",
     # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
     "src/vv_game_mechanics_farmers.py",

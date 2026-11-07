@@ -191,6 +191,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5", "vv_game_mechanics_parity",
                "vv_game_mechanics_hidden","vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
+               "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
@@ -396,12 +397,15 @@ class ReleasesLinkTests(unittest.TestCase):
                                             "vv_game_mechanics_death", "vv_game_mechanics_events",
                                             "vv_game_mechanics_events_vv2",
                                             # The Secret City's audit cites the chance helpers (at_most, chance).
-                                            "vv_game_mechanics_chances"})
+                                            "vv_game_mechanics_chances",
+                                            # The Nursery School lines (The Tree of Life).
+                                            "vv_game_mechanics_nursery"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
-                                       "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5"}),
+                                       "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
+                                       "vv_game_mechanics_nursery"}),
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
