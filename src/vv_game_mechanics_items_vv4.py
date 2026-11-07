@@ -62,12 +62,13 @@ CLOTHES_PRICE = 5_000
 DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like_vv1",
                          "vv4_super_secret_golden_mushroom", "vv4_manual_drop_breeding_overrides_birth_control",
                          "vv4_population_256", "vv4_unicode_font", "vv4_tech_cost_multiplier",
-                         "vv4_food_pays_like_earlier_games"})
+                         "vv4_food_pays_like_earlier_games", "vv4_no_fishing_at_science_2"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"
 STORY = "vv4_story_cheat_upgrades"
 STORY_COST = "vv4_story_cheat_upgrades_cost_tech_points"
+NO_FISHING = "vv4_no_fishing_at_science_2"
 
 
 @dataclass(frozen=True)
@@ -135,9 +136,19 @@ def _techs() -> list[Entry]:
             "and nothing is taken. Some island events also give a level (Island events). Each level below is what "
             "that level gives."), VERIFIED_C),
         _level("Science", 1, research.format(d=11, c=7), VERIFIED_E),
+        # The site (2026-11-07, tests/test_vv4_no_fishing_at_science_2.py): every building's update 0x4300E0 asks its
+        # reveal predicate (vtable +0x64); the Clothing Hut's (object 0x4D82D8, project 22) is 0x430CF0: state 4 (an
+        # unrevealed site) and Science > 1 -> the reveal 0x430810 places it and SetState(3); and 0x430156 sets an
+        # object-22 site in state 4 to state 3 at Science 3.  Emulated from the game's own object and map.
         _level("Science", 2, research.format(d=9, c=7), VERIFIED_E,
-               (("Level 2 makes the Clothing Hut appear as a building site.", UNCONFIRMED),)),
-        _level("Science", 3, research.format(d=7, c=5), VERIFIED_E),
+               (("Level 2 makes the Clothing Hut appear as a building site (its reveal 0x430CF0, asked by every "
+                 "building's update 0x4300E0).", VERIFIED_E),
+                (patch(NO_FISHING) + ": level 2 no longer makes the Clothing Hut appear; it waits for level 3. A site "
+                 "already showing below level 3 is hidden and nobody builds it until then; it keeps the building it "
+                 "already had. A finished Clothing Hut is not affected.", VERIFIED_E))),
+        _level("Science", 3, research.format(d=7, c=5), VERIFIED_E,
+               ((patch(NO_FISHING) + ": level 3 makes the Clothing Hut appear as a building site; a site hidden "
+                 "below level 3 comes back in the same place with its building kept.", VERIFIED_E),)),
         _level("Medicine", 1, sick.format(odds="4 in 1,440", old=50, death=55, p=1), VERIFIED_C),
         _level("Medicine", 2, sick.format(odds="4 in 2,460", old=58, death=63, p=51), VERIFIED_C),
         _level("Medicine", 3, sick.format(odds="3 in 5,400", old=66, death=71, p=101) + " Twins and triplets "
@@ -209,7 +220,13 @@ def _puzzles() -> list[Entry]:
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "
             "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each adult "
             "assigned to the fruit, or (Farming - 25)% of the others, adds 5 food per age unit."), VERIFIED_C),
-        Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", UNCONFIRMED),
+        Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", UNCONFIRMED,
+              (("It needs the Clothing Hut finished: before that a villager dropped on the tough vines says \"Don't "
+                "know what to do with these tough vines!\" and does nothing (0x436D74); after it they start on the "
+                "cloth (cutting the pulpy vines).", VERIFIED_C),
+               ("The cloth bolts are kept at the Clothing Hut: pointing at the finished hut shows \"Cloth bolts "
+                "available:\" and their number (0x46F62F).", VERIFIED_C),
+               ("The cloth bolts are stored at the Clothing Hut.", gm.OWNER))),
         Entry(PUZZLE, "The Nursery School", "solved in 1 step.", UNCONFIRMED),
         Entry(PUZZLE, "The Mossy Rocks", (
             "solved after 5 steps; a crab caught there (\"Catching a crab\") brings 35 food before Food Mastery."),
@@ -222,7 +239,14 @@ def _puzzles() -> list[Entry]:
             "Fish, which comes (2 x fish scales found + 1)% of the time -- 3% with 1 scale, 25% with all 12, never "
             "with none."), VERIFIED_E,
             ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish comes only with all 12 scales (25% of the "
-              "time).", UNCONFIRMED),)),
+              "time).", UNCONFIRMED),
+             ("Mending the nets needs the Clothing Hut finished: once the piers are fixed, a villager dropped on the "
+              "nets mends them (\"Attempting to fix fishing nets\") only with the Clothing Hut built, and otherwise "
+              "says \"They need cloth for this!\" (0x4334FC). So the Clothing Hut, which appears at Science level 2, "
+              "is what brings fishing early.", VERIFIED_C),
+             ("The nets depend on the Clothing Hut.", gm.OWNER),
+             (patch(NO_FISHING) + ": the Clothing Hut, and so the cloth and the nets, waits for Science level 3.",
+              VERIFIED_E))),
         Entry(PUZZLE, "Pruning the Tree", f"solved in 1 step (binding the branch); {tree}.", VERIFIED_E,
               (("Binding the branch needs Dendrology level 2.", UNCONFIRMED),)),
         Entry(PUZZLE, "Honoring the Tree", f"solved in 1 step (the sweet x3 stew honours the tree); {tree}.",
@@ -267,7 +291,13 @@ def _buildings() -> list[Entry]:
         Entry(BUILDING, "The Clothing Hut", (
             f"{steps(12)}. It never counts toward the room for babies; finished, it is where villagers get new "
             "clothes (Technologies, items and buildings)."), VERIFIED_E,
-            (("It appears as a site at Science level 2.", UNCONFIRMED),)),
+            (("It appears as a site at Science level 2 (Science level 2).", VERIFIED_E),
+             ("Until it is finished there is no cloth and the fishing nets cannot be mended (Cloth Invented, Fishing "
+              "Nets).", VERIFIED_C),
+             (patch(NO_FISHING) + ": it appears as a site at Science level 3. A site already showing below level 3, "
+              "built on or not, disappears and nobody builds it -- no builder is offered it and one who was building "
+              "it stops -- until Science is 3; then it is back in the same place with all its building. Its building "
+              "progress is never changed, and a finished Clothing Hut is never affected.", VERIFIED_E))),
         Entry(BUILDING, "The Love Shack", (
             f"{steps(200)}. Until it is finished no villager can conceive while "
             "the game is played (\"The love shack has not been completed!\"); time away does not check it."),
@@ -288,7 +318,11 @@ def _buildings() -> list[Entry]:
             "it " + _ch(70) + " of the time, otherwise says \"This hut is still in good repair.\" Fixing trains "
             "Building and adds nothing to the hut."), VERIFIED_C,
             ((patch("vv4_builders_fix_huts") + ": builders build first and fix huts when no building can be worked "
-              "on.", UNCONFIRMED),)),
+              "on.", UNCONFIRMED),
+             ("The test is the Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all "
+              "finished.", VERIFIED_C),
+             (patch(NO_FISHING) + ": the Clothing Hut waits for Science level 3, so the game's own hut fixing does "
+              "too (Builders Fix Huts When Idle does not wait for it).", VERIFIED_C))),
         Entry(BUILDING, "The Fire Pit", (
             "lit, it burns 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
             "the pit again while it burns starts that time over. While it burns each research session gives 1 more "
@@ -401,7 +435,9 @@ def _items() -> list[Entry]:
             "a villager dropped on the finished Clothing Hut, with at least 5,000 tech points in store, gets new "
             "clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."), VERIFIED_C,
             (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),)),
+              "the deduction itself was not traced.", UNCONFIRMED),
+             (patch(NO_FISHING) + ": the Clothing Hut, and so new clothes (0x46F75B: only a finished Clothing Hut "
+              "gives them), waits for Science level 3.", VERIFIED_C))),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below full health, with food in storage, eats 1 food and regains 1 health 50.05% of the "
             "time."), VERIFIED_E),

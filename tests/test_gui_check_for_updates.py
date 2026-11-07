@@ -366,6 +366,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_save_layout", set()),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
             ("vv_game_mechanics", {"vv_tribe_rename",
+                                   "vv_game_mechanics_tech_time",  # 2-10x Tech Cost: the multiplier read from the exe (function-level)
                                    "vv_last_names",    # the villagers, as Last Names reads them (function-level)
                                    "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
