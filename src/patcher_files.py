@@ -69,6 +69,10 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # tables' legs fixed; the game's own sprite table names it (the row
     # renames the stock name "map_hospitalStates.png" in place).
     "Images/vvfp_hospitalFixed.png": _GAME_IMAGE,
+    # New Believers' Fix Vanilla Bugs: the owner's redrawn Last Heathen hovel
+    # cover; the game's own image table names it (the row renames the stock
+    # name "hovel_cover.png" in place).
+    "Images/vvfp_hovel.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.

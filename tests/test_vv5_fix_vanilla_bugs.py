@@ -67,6 +67,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from test_details_name_identity import name_identity_fixes  # noqa: E402
 from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
 from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
+from test_vv5_hovel_cover import hovel_fixes  # noqa: E402
 SOUND_ENTRY = 0x4CE508          # {0x98, name, file, 0}
 TEXT_ENTRY = 0x4D7530           # {0x302, name, built-in text, 0}
 TEXT_TABLE = (0x4D31F0, 1409)   # 16-byte entries, as the loader 0x450A60 walks them (0x581)
@@ -108,6 +109,9 @@ class RowTests(unittest.TestCase):
         tie = list(nursery_tie_fixes("vv5"))           # tests/test_nursery_tie_random.py
         self.assertEqual(pinned[-len(tie):], tie)
         pinned = pinned[:-len(tie)]
+        hovel = list(hovel_fixes())                     # tests/test_vv5_hovel_cover.py
+        self.assertEqual(pinned[-len(hovel):], hovel)
+        pinned = pinned[:-len(hovel)]
         line = list(zero_length_line_fixes("vv5"))     # tests/test_no_divide_by_zero_crashes.py
         self.assertEqual(pinned[-len(line):], line)
         pinned = pinned[:-len(line)]
