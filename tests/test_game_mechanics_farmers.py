@@ -85,6 +85,19 @@ class Arithmetic(unittest.TestCase):
         _, short = life._shared([("Bush", 10.0, 5.0)], 21.0)
         self.assertAlmostEqual(short, 16.0)
 
+    def test_food_mastery_counts_the_food_a_unit_is_worth(self) -> None:
+        # Codex on #712: a New Believers harvest takes 7 crops and credits 10 food at Food Mastery 2 (not 10.5), so
+        # 20 crops regrown an age unit are 20 x 10 / 7 food, not 20 x 1.5.
+        import vv_game_mechanics_life as life
+        ctx = life.Context(village=None, speed_value=6, last=0.0, food=1000, low_food=500, extra_from=8000,
+                           sources=[life.Source("Hydroponic Farm crops", 800, 800, 20.0)], mastery=1.5,
+                           trips=[("crop harvests", 7, "Hydroponic Farm crops")])
+        group, endless, units, units_on = life._farmed(ctx, "Hydroponic Farm crops")
+        self.assertEqual((len(group), endless, units, units_on), (1, False, 20.0, 800))
+        _, (crops,) = farmers.supplies(5, {"crop harvests": 7}, gm.NORMAL, 360.0, 1.5, 1000, 20.0)
+        self.assertEqual(crops.catch_up_food, 10)
+        self.assertAlmostEqual(units * crops.catch_up_food / 7, 20 * 10 / 7)
+
     def test_food_mastery_and_speed(self) -> None:
         # The Lost Children's coconuts: live 8, 4 or 2 by speed; 4 while catching up; Food Mastery on both.
         for speed, food in ((gm.FAST, 8), (gm.NORMAL, 4), (gm.SLOW, 2)):

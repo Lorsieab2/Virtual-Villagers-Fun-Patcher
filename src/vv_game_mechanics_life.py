@@ -817,10 +817,11 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
 
 def _farmed(ctx: Context, prefix: str) -> tuple[list[Source], bool, float, float]:
     """The sources a farming trip draws on (their names start with `prefix`): (them, never runs out, what they
-    regrow an age unit, the food on them now), in food after Food Mastery."""
+    regrow an age unit, what is on them now), in the source's own units (a berry, a noni, a crop: a trip takes as
+    many as the food it brings before Food Mastery)."""
     group = [s for s in ctx.sources if prefix and s.name.startswith(prefix)]
-    regrow = sum(s.per_unit for s in group) * ctx.mastery
-    return group, any(s.unlimited for s in group), regrow, sum(max(0, s.amount or 0) for s in group) * ctx.mastery
+    return (group, any(s.unlimited for s in group), sum(s.per_unit for s in group),
+            sum(max(0, s.amount or 0) for s in group))
 
 
 def _shared(rows: list[tuple[str, float, float]], eaten: float) -> tuple[list[tuple[str, float]], float]:
@@ -873,7 +874,15 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float) -> list[gm.Fact]:
     catch_rows, live_rows = [], []
     for s in supply:
         prefix = prefixes.get(s.trip.key, "")
-        group, endless, regrow, on_it = _farmed(ctx, prefix)
+        group, endless, units, units_on = _farmed(ctx, prefix)
+        # Food Mastery boosts the food a trip credits, rounded as the game does, not what it takes from the source:
+        # each unit taken is worth the boosted food ÷ the food before it (New Believers' 7-crop harvest: 10 food at
+        # level 2), while catching up and live each with their own trip size.
+        raw = s.trip.catch_up_food if s.trip.catch_up_food is not None else trips[s.trip.key]
+        worth = s.catch_up_food / raw if raw else 1.0
+        live_raw = float((s.trip.live_food or {}).get(ctx.speed, trips[s.trip.key]))
+        live_worth = s.live_food / live_raw if live_raw else 1.0
+        regrow, on_it = units * worth, units_on * worth
         # The source's own name without its notes ("Fish: no limit, ...", "Fishing (Farming level 3, ...)").
         name = (group[0].name.split(":")[0].split(" (")[0] if len(group) == 1 else
                 f"{prefix.strip()}s ({len(group)})" if group else s.trip.key[0].upper() + s.trip.key[1:])
@@ -905,7 +914,7 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float) -> list[gm.Fact]:
         add(words + ".")
         catch_rows.append((name, s.catch_up_unit, most))
         if s.live_hour:
-            live_rows.append((name, s.live_hour, most * hour))
+            live_rows.append((name, s.live_hour, most if endless or not group else units * live_worth * hour))
     used, short = _shared(catch_rows, eaten_unit)
     words = (f"All food sources together: while catching up, {_plural(math.ceil(sum(n for _, n in used) - 1e-9))} "
              f"({_spread(used)})")
