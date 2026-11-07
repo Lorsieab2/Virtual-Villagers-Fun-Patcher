@@ -38,6 +38,7 @@ SCALES = "vv4_complete_scales_golden_fish"
 # patched step 0x46446B reads the catch-up flag game+0x171A4 and the speed game+0x17110 (any other value: 3).
 FLAT = "vv4_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
+NO_FISHING = "vv4_no_fishing_at_science_2"
 STORY = "vv4_story_cheat_upgrades"
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
@@ -284,6 +285,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
     if village.has(SCALES) is not False:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
+    # The fishing nets need the Clothing Hut built (0x4334FC); its site appears at Science 2 (0x430CF0), or at Science 3
+    # with this patch (tests/test_vv4_no_fishing_at_science_2.py).
+    if village.has(NO_FISHING) is not False:
+        add("Food sources", gm.patch_words(village, NO_FISHING, "the Clothing Hut, which the fishing nets need, "
+                                           "appears at Science level 3 instead of 2, so fish come later"))
 
     # -- Refills -------------------------------------------------------------------------
     if paused:

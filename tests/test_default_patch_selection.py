@@ -121,7 +121,23 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv3_fruit_trees_take_turns"
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
-                  or p.endswith("_unicode_font")})
+                  or p.endswith("_unicode_font")
+                  # No Fishing at Science Level 2 (The Tree of Life): a difficulty
+                  # change, off by default, on in Owner's Defaults.
+                  or p == "vv4_no_fishing_at_science_2"})
+
+    def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
+        """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in
+        the normal defaults, as a change that only makes the game harder."""
+        from vv_fun_patcher_gui import (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS,
+                                        owners_default_fun_patch_selection)
+
+        patch_id = "vv4_no_fishing_at_science_2"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertNotIn(patch_id, OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
