@@ -61,7 +61,7 @@ CLOTHES_PRICE = 5_000
 
 DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like_vv1",
                          "vv4_super_secret_golden_mushroom", "vv4_manual_drop_breeding_overrides_birth_control",
-                         "vv4_population_256", "vv4_unicode_font"})
+                         "vv4_population_256", "vv4_unicode_font", "vv4_triple_tech_cost"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"

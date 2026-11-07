@@ -1,0 +1,92 @@
+{
+  "id": "vv5_triple_tech_cost",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Triple Tech Cost",
+  "description": "Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 8,000 -> 24,000, level 3 70,000 -> 210,000; Medicine level 2 5,000 -> 15,000, level 3 50,000 -> 150,000; Learning level 2 4,000 -> 12,000, level 3 35,000 -> 105,000; Construction level 2 5,000 -> 15,000, level 3 65,000 -> 195,000; Food Mastery level 2 3,000 -> 9,000, level 3 40,000 -> 120,000; Spirituality level 2 8,000 -> 24,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.",
+  "output_tag": "Triple Tech Cost",
+  "behavior_changes": [
+    "Every non-zero entry of the technology price table 0x4CA3B4, x 3. Its only reader is the getter 0x4236D0, called by the Tech screen's hover label, information box and purchase (0x440DCA, 0x4412A0, 0x441676): the shown price, the purchase's refusal threshold and the amount it takes are the same tripled number."
+  ],
+  "explicit_non_changes": [
+    "Each price is changed in place, same length; no code is added and no executable space is claimed.",
+    "Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0xCA3BC",
+      "before": "401F0000",
+      "after": "C05D0000",
+      "purpose": "price table 0x4CA3B4: Science level 2 8,000 -> 24,000"
+    },
+    {
+      "offset": "0xCA3C0",
+      "before": "70110100",
+      "after": "50340300",
+      "purpose": "price table 0x4CA3B4: Science level 3 70,000 -> 210,000"
+    },
+    {
+      "offset": "0xCA3C8",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "price table 0x4CA3B4: Medicine level 2 5,000 -> 15,000"
+    },
+    {
+      "offset": "0xCA3CC",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "price table 0x4CA3B4: Medicine level 3 50,000 -> 150,000"
+    },
+    {
+      "offset": "0xCA3D4",
+      "before": "A00F0000",
+      "after": "E02E0000",
+      "purpose": "price table 0x4CA3B4: Learning level 2 4,000 -> 12,000"
+    },
+    {
+      "offset": "0xCA3D8",
+      "before": "B8880000",
+      "after": "289A0100",
+      "purpose": "price table 0x4CA3B4: Learning level 3 35,000 -> 105,000"
+    },
+    {
+      "offset": "0xCA3E0",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "price table 0x4CA3B4: Construction level 2 5,000 -> 15,000"
+    },
+    {
+      "offset": "0xCA3E4",
+      "before": "E8FD0000",
+      "after": "B8F90200",
+      "purpose": "price table 0x4CA3B4: Construction level 3 65,000 -> 195,000"
+    },
+    {
+      "offset": "0xCA3EC",
+      "before": "B80B0000",
+      "after": "28230000",
+      "purpose": "price table 0x4CA3B4: Food Mastery level 2 3,000 -> 9,000"
+    },
+    {
+      "offset": "0xCA3F0",
+      "before": "409C0000",
+      "after": "C0D40100",
+      "purpose": "price table 0x4CA3B4: Food Mastery level 3 40,000 -> 120,000"
+    },
+    {
+      "offset": "0xCA3F8",
+      "before": "401F0000",
+      "after": "C05D0000",
+      "purpose": "price table 0x4CA3B4: Spirituality level 2 8,000 -> 24,000"
+    },
+    {
+      "offset": "0xCA3FC",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "price table 0x4CA3B4: Spirituality level 3 80,000 -> 240,000"
+    }
+  ]
+}

@@ -1191,8 +1191,9 @@ class ManifestTests(unittest.TestCase):
         # 36 with Copy and Paste in Text Boxes (vv2_copy_paste), no executable byte -- its
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
-        # vtable slots at run time.
-        self.assertEqual(len(feature_ids), 37)
+        # vtable slots at run time; 38 with Triple Tech Cost (vv2_triple_tech_cost), its 35
+        # price immediates only.
+        self.assertEqual(len(feature_ids), 38)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4149,6 +4150,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
+            # Triple Tech Cost: the Tech screen's price immediates, x 3.
+            "vv2_triple_tech_cost",
             },
         )
         for mode in ALL_MODES:

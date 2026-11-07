@@ -841,6 +841,16 @@
       ]
     },
     {
+      "ids": ["vv1_triple_tech_cost", "vv2_triple_tech_cost", "vv3_triple_tech_cost", "vv4_triple_tech_cost", "vv5_triple_tech_cost"],
+      "guide": [
+        "Every technology level on the Tech screen costs 3 times its normal tech points: 6,000 becomes 18,000.",
+        "The Tech screen shows the tripled price, and a level cannot be bought with fewer points. Nothing else costs more.",
+        "In The Secret City choosing a faction (Nature or Magic) costs 3 times too.",
+        "Off by default. Default Patches and Owner's Defaults leave it off, and Select All does not tick it: tick it yourself.",
+        "Makes the game super hard."
+      ]
+    },
+    {
       "ids": ["vv1_write_village_statistics"],
       "guide": [
         "Each time the game saves your village (save slots 1 to 5), it writes \"Village Statistics v2 - Save N.txt\".",
@@ -905,6 +915,7 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
+        "Triple Tech Cost (all five games) is not ticked either: only its own box ticks it.",
         "It does not change the population mode."
       ]
     },
@@ -916,6 +927,7 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
+        "Triple Tech Cost (all five games) is off: it makes the game super hard.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
@@ -927,6 +939,7 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
+        "Triple Tech Cost (all five games) stays off here too: only its own box ticks it.",
         "It does not change the population mode."
       ]
     },

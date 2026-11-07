@@ -466,6 +466,19 @@ those clouds move away from the mouse as they do in The Tree of Life and New
 Believers. While Disable Clouds is ticked the clouds are hidden, so the push
 cannot be seen: untick Disable Clouds to see it.
 
+TRIPLE TECH COST (ALL FIVE GAMES)
+
+Off by default. With Triple Tech Cost, every technology level on the Tech
+screen costs 3 times its normal price in tech points: in A New Home,
+Farming level 2 costs 18,000 instead of 6,000 and Medicine level 3 750,000
+instead of 250,000. The Tech screen shows the tripled price, a level cannot
+be bought with fewer tech points (nothing is spent), and buying takes the
+tripled price. In The Secret City choosing a faction (Nature or Magic) costs
+3 times too. Research, tech points from anywhere else, other tech-point
+costs (such as clothes) and the patcher's own upgrades are unchanged. Default
+Patches, Owner's Defaults and Select All never tick it: only its own box does.
+Makes the game super hard.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the

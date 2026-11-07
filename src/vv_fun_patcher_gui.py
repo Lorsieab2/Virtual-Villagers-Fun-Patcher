@@ -121,6 +121,11 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 #
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
+# Triple Tech Cost, one row per game: only ever ticked by the player's own
+# click on it (the owner, 2026-11-06: "7 should be default off for
+# everything. players who want it must explicitly choose it.").
+TRIPLE_TECH_COST_FUN_PATCH_IDS = ["vv%d_triple_tech_cost" % game for game in range(1, 6)]
+
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
@@ -140,6 +145,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+    # Triple Tech Cost (all five games) makes the game super hard: the owner
+    # (2026-11-06): "Default OFF", and "players who want it must explicitly
+    # choose it" -- so Owner's Defaults and Select All leave it off too
+    # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
+    + TRIPLE_TECH_COST_FUN_PATCH_IDS
     + sorted(ALTERNATIVE_OFF_FUN_PATCH_IDS)
 )
 
@@ -164,6 +174,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
+    # The owner (2026-11-06): Triple Tech Cost stays off here too.
+    + TRIPLE_TECH_COST_FUN_PATCH_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -171,6 +183,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+    # The owner (2026-11-06): Triple Tech Cost is ticked only by its own row.
+    + TRIPLE_TECH_COST_FUN_PATCH_IDS
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 

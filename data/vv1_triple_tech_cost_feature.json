@@ -1,0 +1,230 @@
+{
+  "id": "vv1_triple_tech_cost",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Triple Tech Cost",
+  "description": "Every technology level on the Tech screen costs 3 times its normal price, in tech points: Farming level 2 6,000 -> 18,000, level 3 50,000 -> 150,000; Fertility level 2 11,000 -> 33,000, level 3 240,000 -> 720,000; Science level 2 12,000 -> 36,000, level 3 150,000 -> 450,000; Medicine level 2 15,000 -> 45,000, level 3 250,000 -> 750,000; Construction level 2 2,500 -> 7,500, level 3 80,000 -> 240,000; Spirituality level 2 5,000 -> 15,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.",
+  "output_tag": "Triple Tech Cost",
+  "behavior_changes": [
+    "Every technology price immediate in the Tech screen's hover label (0x434070), information box (0x4345E0) and buy handler (0x435AEF), each a price immediate, x 3: the shown price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and spends nothing) and the amount it takes (sub) are the same tripled number."
+  ],
+  "explicit_non_changes": [
+    "Each price is changed in place, same length; no code is added and no executable space is claimed.",
+    "Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x34196",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "the hover label's price 50,000 -> 150,000 (a Farming 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x341A8",
+      "before": "70170000",
+      "after": "50460000",
+      "purpose": "the hover label's price 6,000 -> 18,000 (a Farming 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34254",
+      "before": "90D00300",
+      "after": "B0710B00",
+      "purpose": "the hover label's price 250,000 -> 750,000 (a Medicine 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34266",
+      "before": "983A0000",
+      "after": "C8AF0000",
+      "purpose": "the hover label's price 15,000 -> 45,000 (a Medicine 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3431B",
+      "before": "80A90300",
+      "after": "80FC0A00",
+      "purpose": "the hover label's price 240,000 -> 720,000 (a Fertility 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3432D",
+      "before": "F82A0000",
+      "after": "E8800000",
+      "purpose": "the hover label's price 11,000 -> 33,000 (a Fertility 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x343CA",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "the hover label's price 80,000 -> 240,000 (a Construction 3 or Spirituality 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x343DC",
+      "before": "C4090000",
+      "after": "4C1D0000",
+      "purpose": "the hover label's price 2,500 -> 7,500 (a Construction 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34479",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "the hover label's price 150,000 -> 450,000 (a Science 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3448B",
+      "before": "E02E0000",
+      "after": "A08C0000",
+      "purpose": "the hover label's price 12,000 -> 36,000 (a Science 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34528",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "the hover label's price 80,000 -> 240,000 (a Construction 3 or Spirituality 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3453A",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "the hover label's price 5,000 -> 15,000 (a Spirituality 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34631",
+      "before": "C4090000",
+      "after": "4C1D0000",
+      "purpose": "the information box's price 2,500 -> 7,500 (a Construction 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34650",
+      "before": "80A90300",
+      "after": "80FC0A00",
+      "purpose": "the information box's price 240,000 -> 720,000 (a Fertility 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3465A",
+      "before": "F82A0000",
+      "after": "E8800000",
+      "purpose": "the information box's price 11,000 -> 33,000 (a Fertility 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34675",
+      "before": "90D00300",
+      "after": "B0710B00",
+      "purpose": "the information box's price 250,000 -> 750,000 (a Medicine 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3467C",
+      "before": "983A0000",
+      "after": "C8AF0000",
+      "purpose": "the information box's price 15,000 -> 45,000 (a Medicine 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x34694",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "the information box's price 80,000 -> 240,000 (a Construction 3 or Spirituality 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x3469B",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "the information box's price 5,000 -> 15,000 (a Spirituality 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x346B3",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "the information box's price 150,000 -> 450,000 (a Science 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x346BA",
+      "before": "E02E0000",
+      "after": "A08C0000",
+      "purpose": "the information box's price 12,000 -> 36,000 (a Science 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x346D2",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "the information box's price 50,000 -> 150,000 (a Farming 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x346D9",
+      "before": "70170000",
+      "after": "50460000",
+      "purpose": "the information box's price 6,000 -> 18,000 (a Farming 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35B12",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "the buy's price 50,000 -> 150,000 (a Farming 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35B19",
+      "before": "70170000",
+      "after": "50460000",
+      "purpose": "the buy's price 6,000 -> 18,000 (a Farming 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35BB6",
+      "before": "80A90300",
+      "after": "80FC0A00",
+      "purpose": "the buy's price 240,000 -> 720,000 (a Fertility 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35BBD",
+      "before": "F82A0000",
+      "after": "E8800000",
+      "purpose": "the buy's price 11,000 -> 33,000 (a Fertility 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35C0E",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "the buy's price 150,000 -> 450,000 (a Science 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35C15",
+      "before": "E02E0000",
+      "after": "A08C0000",
+      "purpose": "the buy's price 12,000 -> 36,000 (a Science 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35C66",
+      "before": "90D00300",
+      "after": "B0710B00",
+      "purpose": "the buy's price 250,000 -> 750,000 (a Medicine 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35C6D",
+      "before": "983A0000",
+      "after": "C8AF0000",
+      "purpose": "the buy's price 15,000 -> 45,000 (a Medicine 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35CBA",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "the buy's price 80,000 -> 240,000 (a Construction 3 or Spirituality 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35CC1",
+      "before": "C4090000",
+      "after": "4C1D0000",
+      "purpose": "the buy's price 2,500 -> 7,500 (a Construction 2 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35D23",
+      "before": "80380100",
+      "after": "80A90300",
+      "purpose": "the buy's price 80,000 -> 240,000 (a Construction 3 or Spirituality 3 price immediate; the site is picked by the technology and its level)"
+    },
+    {
+      "offset": "0x35D2A",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "the buy's price 5,000 -> 15,000 (a Spirituality 2 price immediate; the site is picked by the technology and its level)"
+    }
+  ]
+}

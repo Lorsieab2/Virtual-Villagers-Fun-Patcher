@@ -38,6 +38,9 @@ matching docs/hidden-gates-all-five-games.md (Research sections) and src/vv_game
     +0x17D54 appear nowhere in the chooser, the skill test, the payout or the tech adders VV1 0x41D120, VV2
     0x426290, VV3 0x427130, VV4 0x41E300, VV5 0x4237B0), and the prices are fixed tables (VV1 0x435AF8, VV2
     0x44380A, VV3 0x427020, VV4 0x41E220, VV5 0x4236D0).
+  * The patcher's Triple Tech Cost (vv<N>_triple_tech_cost, off by default; scripts/build_triple_tech_cost_features.py)
+    triples every price in those places, so the Tech screen, its refusal and its charge all use 3 x the table here:
+    with it in the game every price and time below is worked out from the tripled price, the stock one named first.
 """
 from __future__ import annotations
 
@@ -51,6 +54,11 @@ RESEARCH_SHOWN = 50            # the Research skill the page's figures are for (
 TOP = 3                        # every technology's top level
 FIRE = 0.1                     # the fire's +1 on rand(100) < 10
 WORK_AGE = 280                 # age units (14 years): who gets job turns
+TRIPLE_FACTOR = 3              # Triple Tech Cost: every technology level costs 3 x its stock price
+
+
+def triple_feature(game: int) -> str:
+    return f"vv{game}_triple_tech_cost"
 
 
 @dataclass(frozen=True)
@@ -148,8 +156,8 @@ def techs(game: int, data: bytes) -> dict[str, int] | None:
     return None
 
 
-def price(game: int, name: str, level: int) -> int:
-    """The tech points level `level` of `name` costs (each game's items module holds the table)."""
+def stock_price(game: int, name: str, level: int) -> int:
+    """The tech points level `level` of `name` costs in the stock game (each game's items module holds the table)."""
     if game in (1, 2):
         items = __import__(f"vv_game_mechanics_items_vv{game}")
         return items.TECH_COSTS[name][level - 2]
@@ -161,6 +169,55 @@ def price(game: int, name: str, level: int) -> int:
         return items.TECH_PRICES[name][level - 2]
     import vv_game_mechanics_items_vv5 as items
     return next(two if level == 2 else three for _, n, two, three in items.TECHS if n == name)
+
+
+def price(game: int, name: str, level: int, tripled: bool = False) -> int:
+    """The tech points level `level` of `name` costs: 3 x the stock price with Triple Tech Cost in the game."""
+    return stock_price(game, name, level) * (TRIPLE_FACTOR if tripled else 1)
+
+
+def every_level(game: int) -> list[tuple[str, int]]:
+    """Every (technology, level) the Tech screen sells, in the game's own order."""
+    items = __import__(f"vv_game_mechanics_items_vv{game}")
+    if game in (1, 2):
+        names = list(items.TECH_COSTS)
+    elif game == 3:
+        names = list(items.TECHS)
+    elif game == 4:
+        names = list(items.TECH_PRICES)
+    else:
+        names = [n for _, n, *_ in items.TECHS]
+    lowest = {"Nature": 1, "Magic": 1} if game == 3 else {}
+    return [(name, level) for name in names for level in range(lowest.get(name, 2), TOP + 1)]
+
+
+def cost_words(game: int, points: int, stock: int, tripled: bool) -> str:
+    """A price as the page says it: with Triple Tech Cost in the game, the stock price first, then the tripled one."""
+    if not tripled:
+        return f"{points:,} tech points"
+    return f"{stock:,} tech points normally, {points:,} with \"{gm.feature_name(triple_feature(game))}\""
+
+
+def triple_item_facts(village, facts: list) -> list:
+    """The Technologies entries with Triple Tech Cost in the game: each level's price is the stock one, then the
+    tripled one.  Every game's entry bullet starts "<technology> level <n>" and names its price "<price> tech
+    points" (tests/test_triple_tech_cost.py checks that every level is found)."""
+    game = village.game
+    if game not in GAMES or village.has(triple_feature(game)) is not True:
+        return facts
+    import dataclasses
+    out = list(facts)
+    for tech, level in every_level(game):
+        stock = stock_price(game, tech, level)
+        for k, fact in enumerate(out):
+            if fact.sub or not fact.text.startswith(f"{tech} level {level}"):
+                continue
+            if f"{stock:,} tech points" not in fact.text:
+                continue
+            out[k] = dataclasses.replace(fact, text=fact.text.replace(
+                f"{stock:,} tech points", cost_words(game, TRIPLE_FACTOR * stock, stock, True), 1))
+            break
+    return out
 
 
 def buyable(game: int, levels: dict[str, int], both_factions: bool = False) -> list[str]:
@@ -222,14 +279,14 @@ class Goal:
 
 
 def goals(game: int, levels: dict[str, int], tech: int, rate, every_level: bool,
-          both_factions: bool = False) -> list[Goal]:
+          both_factions: bool = False, tripled: bool = False) -> list[Goal]:
     """Each buyable technology's next level (or every remaining level), cheapest first.  `rate(levels)` gives the
     tech points an age unit at those levels: a level bought on the way (Science, Magic, Learning) changes it."""
     out = []
     for name in buyable(game, levels, both_factions):
         have, spent, units, owned = tech, 0, 0.0, dict(levels)
         for level in range(levels[name] + 1, TOP + 1 if every_level else levels[name] + 2):
-            cost = price(game, name, level)
+            cost = price(game, name, level, tripled)
             if have < cost:
                 speed = rate(owned)
                 units = math.inf if speed <= 0 else units + (cost - have) / speed
@@ -238,12 +295,12 @@ def goals(game: int, levels: dict[str, int], tech: int, rate, every_level: bool,
             have -= cost
             owned[name] = level
             out.append(Goal(name, level, cost, spent, units))
-    return sorted(out, key=lambda g: (sum_cost(g, levels, game), g.name, g.level))
+    return sorted(out, key=lambda g: (sum_cost(g, levels, game, tripled), g.name, g.level))
 
 
-def sum_cost(goal: Goal, levels: dict[str, int], game: int) -> int:
+def sum_cost(goal: Goal, levels: dict[str, int], game: int, tripled: bool = False) -> int:
     """The prices of the unbought levels up to `goal`, added up."""
-    return sum(price(game, goal.name, lvl) for lvl in range(levels[goal.name] + 1, goal.level + 1))
+    return sum(price(game, goal.name, lvl, tripled) for lvl in range(levels[goal.name] + 1, goal.level + 1))
 
 
 def closed_words(ctx, units: float) -> str:
@@ -293,6 +350,7 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never)  # noqa: E731
     adults = workers(everyone or [])
     both = game == 3 and village.has("vv3_both_factions") is True
+    tripled = village.has(triple_feature(game)) is True
     if game == 5:
         import vv_game_mechanics_vv5 as vv5
         if _i32(village.data, vv5.PROJECTS + 8 * 4) < vv5.PUZZLE_THRESHOLDS[4]:
@@ -316,9 +374,10 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     add(f"Time needed for next technology (estimates, cheapest first), while catching up, for researchers with "
         f"Research {RESEARCH_SHOWN} set to Research: {earns} (an age unit is {gm.duration(ctx.unit)} of time away "
         f"on {gm.speed_name(ctx.speed)} speed).", True, False)
-    nexts = goals(game, levels, ctx.tech, rate, False, both)
+    nexts = goals(game, levels, ctx.tech, rate, False, both, tripled)
     for g in nexts:
-        goal_lines(f"{g.name} level {g.level}: {g.cost:,} tech points", g)
+        goal_lines(f"{g.name} level {g.level}: "
+                   f"{cost_words(game, g.cost, stock_price(game, g.name, g.level), tripled)}", g)
     if not nexts:
         add("Every technology is at its top level.", gm.SAVE)
         return out
@@ -326,14 +385,18 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         "later level needs the points of the unbought levels below it as well as its own; a "
         + {3: "Science or Magic", 4: "Science or Learning", 5: "Science or Learning"}.get(game, "Science")
         + " level bought on the way raises the rate for the levels after it.", True, False)
-    for g in goals(game, levels, ctx.tech, rate, True, both):
-        goal_lines(f"{g.name} level {g.level}: {sum_cost(g, levels, game):,} tech points from level "
-                   f"{levels[g.name]}", g)
+    for g in goals(game, levels, ctx.tech, rate, True, both, tripled):
+        total = cost_words(game, sum_cost(g, levels, game, tripled), sum_cost(g, levels, game), tripled)
+        goal_lines(f"{g.name} level {g.level}: {total} from level {levels[g.name]}", g)
     if game == 3 and not both and levels.get("Nature", 0) == 0 and levels.get("Magic", 0) == 0:
         add("Nature and Magic are the two factions: buying level 1 of one shuts the other out.", gm.CODE)
 
     # How it is worked out.
     add(rule.rule, gm.CODE)
+    if tripled:
+        add(gm.patch_words(village, triple_feature(game), "every technology level costs 3 times its stock price (the "
+                           "Tech screen shows it, refuses a purchase with fewer points and takes it), so the points "
+                           "still needed and every time above are worked out from the tripled prices"), gm.CODE)
     if rule.fire:
         fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) if now else 0.0
         if fired:

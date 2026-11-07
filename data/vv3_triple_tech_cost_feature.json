@@ -1,0 +1,116 @@
+{
+  "id": "vv3_triple_tech_cost",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Triple Tech Cost",
+  "description": "Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 11,000 -> 33,000, level 3 150,000 -> 450,000; Medicine level 2 8,000 -> 24,000, level 3 75,000 -> 225,000; Alchemy level 2 5,000 -> 15,000, level 3 55,000 -> 165,000; Restoration level 2 7,000 -> 21,000, level 3 85,000 -> 255,000; Leadership level 2 7,000 -> 21,000, level 3 125,000 -> 375,000; Nature level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000; Magic level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs 3 times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.",
+  "output_tag": "Triple Tech Cost",
+  "behavior_changes": [
+    "Every non-zero entry of the technology price table 0x4A818C, x 3. Its only reader is the getter 0x427020, called by the Tech screen's hover label, information box and purchase (0x464C84, 0x464E47, 0x465706): the shown price, the purchase's refusal threshold and the amount it takes are the same tripled number."
+  ],
+  "explicit_non_changes": [
+    "Each price is changed in place, same length; no code is added and no executable space is claimed.",
+    "Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0xA8194",
+      "before": "F82A0000",
+      "after": "E8800000",
+      "purpose": "price table 0x4A818C: Science level 2 11,000 -> 33,000"
+    },
+    {
+      "offset": "0xA8198",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "price table 0x4A818C: Science level 3 150,000 -> 450,000"
+    },
+    {
+      "offset": "0xA81A0",
+      "before": "401F0000",
+      "after": "C05D0000",
+      "purpose": "price table 0x4A818C: Medicine level 2 8,000 -> 24,000"
+    },
+    {
+      "offset": "0xA81A4",
+      "before": "F8240100",
+      "after": "E86E0300",
+      "purpose": "price table 0x4A818C: Medicine level 3 75,000 -> 225,000"
+    },
+    {
+      "offset": "0xA81AC",
+      "before": "88130000",
+      "after": "983A0000",
+      "purpose": "price table 0x4A818C: Alchemy level 2 5,000 -> 15,000"
+    },
+    {
+      "offset": "0xA81B0",
+      "before": "D8D60000",
+      "after": "88840200",
+      "purpose": "price table 0x4A818C: Alchemy level 3 55,000 -> 165,000"
+    },
+    {
+      "offset": "0xA81B8",
+      "before": "581B0000",
+      "after": "08520000",
+      "purpose": "price table 0x4A818C: Restoration level 2 7,000 -> 21,000"
+    },
+    {
+      "offset": "0xA81BC",
+      "before": "084C0100",
+      "after": "18E40300",
+      "purpose": "price table 0x4A818C: Restoration level 3 85,000 -> 255,000"
+    },
+    {
+      "offset": "0xA81C4",
+      "before": "581B0000",
+      "after": "08520000",
+      "purpose": "price table 0x4A818C: Leadership level 2 7,000 -> 21,000"
+    },
+    {
+      "offset": "0xA81C8",
+      "before": "48E80100",
+      "after": "D8B80500",
+      "purpose": "price table 0x4A818C: Leadership level 3 125,000 -> 375,000"
+    },
+    {
+      "offset": "0xA81CC",
+      "before": "94110000",
+      "after": "BC340000",
+      "purpose": "price table 0x4A818C: Nature level 1 4,500 -> 13,500"
+    },
+    {
+      "offset": "0xA81D0",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "price table 0x4A818C: Nature level 2 50,000 -> 150,000"
+    },
+    {
+      "offset": "0xA81D4",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "price table 0x4A818C: Nature level 3 150,000 -> 450,000"
+    },
+    {
+      "offset": "0xA81D8",
+      "before": "94110000",
+      "after": "BC340000",
+      "purpose": "price table 0x4A818C: Magic level 1 4,500 -> 13,500"
+    },
+    {
+      "offset": "0xA81DC",
+      "before": "50C30000",
+      "after": "F0490200",
+      "purpose": "price table 0x4A818C: Magic level 2 50,000 -> 150,000"
+    },
+    {
+      "offset": "0xA81E0",
+      "before": "F0490200",
+      "after": "D0DD0600",
+      "purpose": "price table 0x4A818C: Magic level 3 150,000 -> 450,000"
+    }
+  ]
+}

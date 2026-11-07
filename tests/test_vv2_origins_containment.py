@@ -42,6 +42,8 @@ REMAINING = {
     "vv2_copy_paste",
     # companion only: replaces the story pages' vtable slots at run time, owns no bytes
     "vv2_skip_all_intro",
+    # Triple Tech Cost: its price immediates only, nothing of Origins.
+    "vv2_triple_tech_cost",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

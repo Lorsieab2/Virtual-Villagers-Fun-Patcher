@@ -26,6 +26,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **New Believers: The Hungry Totem's time on the Puzzles screen** (Fix Vanilla Bugs). The owner, 2026-11-06: the Hungry Totem's completion time was "permanently set to 0 regardless of when you solved it". The game keeps the right time for it (as for every puzzle), but the Puzzles screen's code for that one puzzle skipped the step that reads the time, so it always said "Completed in 0 hours". Now it shows the kept hours; a village that already solved it shows its real time too, since its save always held it. The other 15 puzzles, and the puzzle screens of the other four games, were checked and show their own times. Patch again to get it.
 - **Villagers who get stuck** (Fix Vanilla Bugs). The Lost Children: a villager no longer shuttles forever at the south-east shore on the way to the herb; it tries other spots around it first, then gives up the game's normal way. A New Home, The Secret City, The Tree of Life and New Believers: a villager carrying food or a collectible whose walk gives up looks for another way and still delivers it ("VVFP Stuck Walks.dll", "VVFP Keep Carried.dll"). Proven by running each game's own code; not yet seen in a running game.
+- **Triple Tech Cost** (all five games, off by default; Owner's Defaults and Select All leave it off too): every technology level on the Tech screen costs 3 times its normal tech points, shown, checked and charged alike. Makes the game super hard.
 - **Skip All on the intro story** (A New Home, The Lost Children): a button on the story pages that goes straight to the game's own help question, as in The Secret City ("VVFP Skip Intro.dll").
 - **Unicode, the same in all five games**: names cut with "…" to fit, never splitting a letter; line breaking by the Unicode rules (Windows' own, or the bundled ICU word lists for Thai, Lao, Khmer and Burmese, Unicode License, in "Word Lists"); joined and combining characters kept whole; colour emoji in more font formats; a longer fallback font list; long names written at once and never lost at a quit; the **Unicode Font...** and **Game Text...** tools; Rename Tribe keeps long names.
 - **No text runs off the screen** when patched or translated: a line too wide for the screen is cut at its edge with "…" (New Believers' 1024-pixel screen included); the Translations window warns about such lines.
@@ -596,6 +597,12 @@ Adds a "Skip All" button to the story shown when a new village starts, as The Se
 
 - Patch ID: `vv1_skip_all_intro`
 
+**Triple Tech Cost**
+
+Every technology level on the Tech screen costs 3 times its normal price, in tech points: Farming level 2 6,000 -> 18,000, level 3 50,000 -> 150,000; Fertility level 2 11,000 -> 33,000, level 3 240,000 -> 720,000; Science level 2 12,000 -> 36,000, level 3 150,000 -> 450,000; Medicine level 2 15,000 -> 45,000, level 3 250,000 -> 750,000; Construction level 2 2,500 -> 7,500, level 3 80,000 -> 240,000; Spirituality level 2 5,000 -> 15,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+
+- Patch ID: `vv1_triple_tech_cost`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **In A New Home this only changes anything when Birth Control is also ticked: A New Home itself never refuses a woman aged 50 or older on a manual drop. Birth Control adds that refusal, and with both ticked this patch takes it back out for manual drops only; the rest of Birth Control is unchanged.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -845,6 +852,12 @@ Adds a "Skip All" button to the story shown when a new village starts, as The Se
 
 - Patch ID: `vv2_skip_all_intro`
 
+**Triple Tech Cost**
+
+Every technology level on the Tech screen costs 3 times its normal price, in tech points: Farming level 2 1,500 -> 4,500, level 3 90,000 -> 270,000; Exploration level 2 10,000 -> 30,000, level 3 160,000 -> 480,000; Science level 2 16,000 -> 48,000, level 3 150,000 -> 450,000; Medicine level 2 20,000 -> 60,000, level 3 65,000 -> 195,000; Engineering level 2 5,000 -> 15,000, level 3 75,000 -> 225,000; Culture level 2 20,000 -> 60,000, level 3 85,000 -> 255,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+
+- Patch ID: `vv2_triple_tech_cost`
+
 **Manual Drop-Breeding overrides Birth Control**
 
 **Works the same with or without Birth Control: the 50-and-over refusal it lifts is The Lost Children's own, which Birth Control does not change.** When you drop an adult villager onto an adult of the opposite sex, a woman aged 50 or older is no longer refused. It is not a guarantee: the game's usual chances still decide whether the pair gets along and whether a baby is conceived, exactly as for any other couple, so a drop can still fail. Every other rule of the drop is unchanged: a man and a woman, both adults, both alive and well, the woman not already expecting or nursing, and the game's own food and population checks. The game never looks at the Parenting preference on a manual drop, and Parenting skill (the dropped villager's) only changes the chances without ever blocking a drop, so an unchecked preference or no skill never stopped one, with or without this patch. Only the manual drop is changed: villagers pairing up on their own, catch-up, events and Birth Control's own rules stay as they are. Off by default.
@@ -1057,6 +1070,12 @@ Hides the clouds that drift over the island on the overview map (the Map button)
 The clouds that drift over the island on the overview map (the Map button) move away from the mouse, exactly as in The Tree of Life: bring the cursor within about 80 pixels of a cloud's middle and it is pushed away from the cursor, sideways and up or down, faster the closer the cursor is (up to 5 pixels a frame, 10 when it is pushed the way the clouds drift), and it fades a little each time the mouse moves near it. It keeps going until the mouse moves again, and every cloud is back at full strength the next time the map is opened. The drift, and where a cloud comes back after leaving the map, are the game's own. **On by default.** **Needs no other patch.** **While Disable Clouds on the Overview Map is ticked the clouds are hidden, so this has no visible effect until Disable Clouds on the Overview Map is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Push Clouds.dll", started by VVFP Startup.dll; saves are never written by it.
 
 - Patch ID: `vv3_push_overview_clouds`
+
+**Triple Tech Cost**
+
+Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 11,000 -> 33,000, level 3 150,000 -> 450,000; Medicine level 2 8,000 -> 24,000, level 3 75,000 -> 225,000; Alchemy level 2 5,000 -> 15,000, level 3 55,000 -> 165,000; Restoration level 2 7,000 -> 21,000, level 3 85,000 -> 255,000; Leadership level 2 7,000 -> 21,000, level 3 125,000 -> 375,000; Nature level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000; Magic level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs 3 times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+
+- Patch ID: `vv3_triple_tech_cost`
 
 **Manual Drop-Breeding overrides Birth Control**
 
@@ -1289,6 +1308,12 @@ Hides the clouds that drift over the island on the overview map (the Map button)
 
 - Patch ID: `vv4_disable_overview_clouds`
 
+**Triple Tech Cost**
+
+Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 8,000 -> 24,000, level 3 70,000 -> 210,000; Medicine level 2 5,000 -> 15,000, level 3 50,000 -> 150,000; Learning level 2 4,000 -> 12,000, level 3 35,000 -> 105,000; Construction level 2 5,000 -> 15,000, level 3 65,000 -> 195,000; Food Mastery level 2 3,000 -> 9,000, level 3 40,000 -> 120,000; Dendrology level 2 3,000 -> 9,000, level 3 60,000 -> 180,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+
+- Patch ID: `vv4_triple_tech_cost`
+
 **Optional Text changes**
 
 Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
@@ -1466,6 +1491,12 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
 
 - Patch ID: `vv5_disable_overview_clouds`
+
+**Triple Tech Cost**
+
+Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 8,000 -> 24,000, level 3 70,000 -> 210,000; Medicine level 2 5,000 -> 15,000, level 3 50,000 -> 150,000; Learning level 2 4,000 -> 12,000, level 3 35,000 -> 105,000; Construction level 2 5,000 -> 15,000, level 3 65,000 -> 195,000; Food Mastery level 2 3,000 -> 9,000, level 3 40,000 -> 120,000; Spirituality level 2 8,000 -> 24,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+
+- Patch ID: `vv5_triple_tech_cost`
 
 **Move the "Playing in the dirt" Spot**
 

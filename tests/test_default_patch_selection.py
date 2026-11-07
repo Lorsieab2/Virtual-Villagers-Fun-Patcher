@@ -115,7 +115,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv3_fruit_trees_take_turns"
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
-                  or p.endswith("_unicode_font")})
+                  or p.endswith("_unicode_font")
+                  # Triple Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
+                  or p.endswith("_triple_tech_cost")})
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
@@ -212,12 +214,31 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
+        # ...and Triple Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
+        held_back |= {f"vv{n}_triple_tech_cost" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
         for patch_id in sorted(ids):
             self.assertEqual(select_all_fun_patch_selection(patch_id),
                              patch_id not in held_back, patch_id)
+
+    def test_triple_tech_cost_is_ticked_only_by_its_own_box(self) -> None:
+        """The owner (2026-11-06): "7 should be default off for everything.
+        players who want it must explicitly choose it." -- the fresh-install
+        default, Default Patches, Owner's Defaults and Select All all leave
+        every game's Triple Tech Cost unticked."""
+        from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection
+
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = "vv%d_triple_tech_cost" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertFalse(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
+                self.assertNotIn(patch_id, COTICKED_FUN_PATCH_IDS.values())
 
 
 if __name__ == "__main__":
