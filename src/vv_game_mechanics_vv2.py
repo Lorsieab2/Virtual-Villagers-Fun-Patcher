@@ -482,8 +482,9 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
                    "time; never more on Easy.",
         farmer_words=("The birds: the field's crops count for nothing here, as the birds eat each regrowth's crops."
                         if dam and not crops_grow else ""),
-        trips=[("coconut trips", (8, 4, 2)[pick]), ("crop trips", (10, 7, 4)[pick] if crops_grow or _i32(data, CROPS) else 0),
-               ("fishing trips", (11, 8, 5)[pick] if fish > 0 or fishing_unlimited else 0)])
+        trips=[("coconut trips", (8, 4, 2)[pick], "Coconuts"),
+               ("crop trips", (10, 7, 4)[pick] if crops_grow or _i32(data, CROPS) else 0, "Crops"),
+               ("fishing trips", (11, 8, 5)[pick] if fish > 0 or fishing_unlimited else 0, "Fish")])
     return ctx
 
 

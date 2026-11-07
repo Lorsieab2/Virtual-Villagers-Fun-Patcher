@@ -191,6 +191,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_items_vv4", "vv_game_mechanics_items_vv5", "vv_game_mechanics_parity",
                "vv_game_mechanics_hidden","vv_game_mechanics_hidden_vv1", "vv_game_mechanics_hidden_vv2",
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
+               "vv_game_mechanics_tech_time",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
@@ -412,7 +413,9 @@ class ReleasesLinkTests(unittest.TestCase):
               for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
-                                        "vv_game_mechanics_farmers"}),
+                                        "vv_game_mechanics_farmers",
+                                        # The technology times under the tech points (function-level).
+                                        "vv_game_mechanics_tech_time"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

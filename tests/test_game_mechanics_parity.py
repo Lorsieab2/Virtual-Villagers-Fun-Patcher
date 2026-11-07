@@ -32,16 +32,16 @@ PINNED = {
     "A snack at the food store": "EEEEE",
     "Fishing": "EEEEE",
     "New clothes": "EEEEE",
-    "Herbs": "EEEEU",
-    "Stews": "NEUEU",
-    "Potions": "NNEUU",
+    "Herbs": "EEEEN",
+    "Stews": "NEUEN",
+    "Potions": "NNEUN",
     "Totems": "NEUUE",
     "Statues": "NUEUE",
     "God powers": "NNNNE",
     "Faith and Heathens": "NNNNE",
-    "Golden Child": "EUNNU",
-    "The Tribal Chief's powers": "NNEUU",
-    "Factions": "NNEUU",
+    "Golden Child": "EUNNN",
+    "The Tribal Chief's powers": "NNEUN",
+    "Factions": "NNEUN",
     "The Gong of Wonder": "NENNN",
     "Origins upgrades": "EEEEE",
 }
@@ -76,7 +76,7 @@ class Parity(unittest.TestCase):
             for fact in mine:
                 self.assertEqual(fact.group, gm.ITEMS)                    # no new group (the window's links)
                 self.assertIn(f"Not in {parity.GAME_NAMES[game]}. Checked: ", fact.text)
-                self.assertIn(fact.verified, (gm.CODE, False))
+                self.assertIn(fact.verified, (gm.CODE, gm.OWNER, False))
                 self.assertIn(fact, facts)
                 rendered = gm.render([fact], NOW)
                 self.assertEqual(gm.UNCONFIRMED in rendered, not fact.confirmed)

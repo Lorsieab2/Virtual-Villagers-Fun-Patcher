@@ -26,6 +26,10 @@ import vv_game_mechanics as gm
 GAME_NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
               5: "New Believers"}
 C, U = gm.CODE, False
+# The owner, 2026-11-07, of New Believers' herbs, stews, potions, Golden Child, Tribal Chief's powers and
+# factions: "confirmed by me in vv5: none of these exist".
+OWNER_VV5 = "; the owner confirms it is not in the game"
+O = gm.OWNER
 
 
 @dataclass(frozen=True)
@@ -76,15 +80,15 @@ TOPICS: tuple[Topic, ...] = (
         1: r"Clothing \(F6\): ", 2: r"The Sewing Hut: ", 3: r"New clothes: ", 4: r"New clothes: ",
         5: r"A change of clothes \("}),
     Topic("Herbs", entry={1: r"Herb Mastery: ", 2: r"Herb Mastery: ", 3: r"The herbs: ", 4: r"The herbs: "},
-          not_in={5: (_inherited("\"Showing baby the herbs\" and \"The herbs are ready to make a stew.\""), U)}),
+          not_in={5: (_inherited("\"Showing baby the herbs\" and \"The herbs are ready to make a stew.\"") + OWNER_VV5, O)}),
     Topic("Stews", entry={2: r"Stews: ", 4: r"Spicy stew: "},
           not_in={1: (_none("\"stew\""), C),
                   3: (_inherited("\"A hot stew is ready!\" and an island event's \"stews\""), U),
-                  5: (_inherited("\"Eating some stew\" and \"This stew needs something nutritious!\""), U)}),
+                  5: (_inherited("\"Eating some stew\" and \"This stew needs something nutritious!\"") + OWNER_VV5, O)}),
     Topic("Potions", entry={3: r"Potion 0 "},
           not_in={1: (_none("\"potion\""), C), 2: (_none("\"potion\""), C),
                   4: (_inherited("\"Potion Made\" (eTipPuzzlePotionsMade) and \"eSayUsePotion\""), U),
-                  5: (_inherited("\"eSayUsePotion\" and island events' potions"), U)}),
+                  5: (_inherited("\"eSayUsePotion\" and island events' potions") + OWNER_VV5, O)}),
     Topic("Totems", entry={2: r"The Elder Totem: ", 5: r"The Hungry Totem \("},
           not_in={1: (_none("\"totem\""), C),
                   3: (_inherited("\"Honoring totem\", the villager's \"'s totem\" and the Elder title"), U),
@@ -105,15 +109,16 @@ TOPICS: tuple[Topic, ...] = (
           not_in={2: ("no Golden Child is among its 16 puzzles (Puzzles) and no birth makes one; the name is only in a "
                       "story line", U),
                   3: (_none("\"Golden Child\""), C), 4: (_none("\"Golden Child\""), C),
-                  5: ("no Golden Child is among its puzzles; the name is only in an island event's story", U)}),
+                  5: ("no Golden Child is among its puzzles; the name is only in an island event's story" + OWNER_VV5,
+                      O)}),
     Topic("The Tribal Chief's powers", entry={3: r"Grant Food \(the chief's power\): "},
           not_in={1: (_none("\"tribal chief\""), C), 2: (_none("\"tribal chief\""), C),
                   4: (_inherited("a \"Tribal Chief\" label and a story line"), U),
-                  5: (_inherited("a \"Tribal Chief\" label"), U)}),
+                  5: (_inherited("a \"Tribal Chief\" label") + OWNER_VV5, O)}),
     Topic("Factions", entry={3: r"Choosing a faction: "},
           not_in={1: (_none("\"faction\""), C), 2: (_none("\"faction\""), C),
                   4: (_inherited("The Secret City's \"You have already chosen your faction!\""), U),
-                  5: (_inherited("The Secret City's \"You have already chosen your faction!\""), U)}),
+                  5: (_inherited("The Secret City's \"You have already chosen your faction!\"") + OWNER_VV5, O)}),
     Topic("The Gong of Wonder", entry={2: r"The Gong of Wonder: "},
           not_in={1: (_none("\"Gong of Wonder\"") + " (only a gong sound file)", C),
                   3: (_none("\"Gong of Wonder\"") + " (only gong sound files)", C),

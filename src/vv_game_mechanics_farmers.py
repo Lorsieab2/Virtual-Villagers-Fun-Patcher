@@ -95,6 +95,14 @@ def catch_up_food_unit(trip: Trip, food: float, turns: int, farming: int) -> flo
     return turns * trip.catch_up_trips_per_turn * pays(trip, farming) * food
 
 
+def boosted(amount: float, mastery: float) -> float:
+    """A food gain after Food Mastery, as the game rounds it (The Tree of Life 0x41D920, New Believers 0x41EB40):
+    level 2 adds half, rounded down; level 3 doubles."""
+    if mastery == 1.5 and float(amount).is_integer():
+        return amount + int(amount) // 2
+    return amount * mastery
+
+
 def needed(eaten: float, brought: float | None) -> int | None:
     """Whole farmers to bring `eaten` when one brings `brought` (the same time span)."""
     if not brought or brought <= 0:
@@ -134,10 +142,10 @@ def supplies(game: int, trips_food: dict[str, float], speed: int, unit: float, m
         base = trips_food.get(trip.key)
         if not base or base <= 0:
             continue
-        live = float((trip.live_food or {}).get(speed, base)) * mastery
+        live = boosted(float((trip.live_food or {}).get(speed, base)), mastery)
         cycle = live_cycle(game, trip, farming)
         hour = 3600.0 / cycle * live if cycle else None
-        caught = float(trip.catch_up_food if trip.catch_up_food is not None else base) * mastery
+        caught = boosted(float(trip.catch_up_food if trip.catch_up_food is not None else base), mastery)
         per_turn = turn_trips(game, trip, farming, food_store)
         share = delivered(game, trip)
         paying = pays(trip, farming)

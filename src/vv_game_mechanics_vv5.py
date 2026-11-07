@@ -180,7 +180,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                             "Food Mastery.", gm.RUNNING)
         add("Refills", f"Noni: +2 every age unit ({life.every_real(UNIT, speed_value)}), up to {NONI_CAP:,} (empty to "
                        f"full in {gm.duration(NONI_CAP // 2 * 60 * speed)} of real-life time).", gm.RUNNING)
-    add("Food sources", "Food Mastery raises every food gain by half (level 2) or doubles it (level 3).", gm.RUNNING)
+    # The food-gain multiplier 0x41EB40: level 2 adds half (rounded down, 0x41EB66), level 3 doubles (0x41EB62).
+    def levels(amount: int) -> str:
+        return f"{amount} -> {amount + amount // 2} -> {amount * 2}"
+    mastery = max(1, [_i32(data, LEVELS + 4 * k) for k in range(5)][FOOD_MASTERY])
+    add("Food sources", "Food Mastery (a technology) boosts the food every source brings into storage, at the moment "
+                        "it is credited (0x41EB40): level 2 adds half (rounded down), level 3 doubles it. The "
+                        "sources' own regrowth (the noni on the bushes, the crops) is not boosted. Each gain at Food "
+                        f"Mastery level 1 -> 2 -> 3" + ("" if village.general else f" (this village is at level {mastery})")
+                        + ": a noni pick " + ("" if village.general else f"now {levels(max(2, noni // 100))}, ")
+                        + f"{levels(2)} at the least; a Hydroponic Farm harvest {levels(10)} on Fast, {levels(7)} on "
+                        f"Normal and while catching up, {levels(4)} on Slow; a fish {levels(4)}; a brown mushroom "
+                        f"{levels(6)}, a red one {levels(35)}.", gm.RUNNING)
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
@@ -344,7 +355,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         puzzles=puzzles,
         food_words="2 food a believer every age unit (Heathens skip it), less at 500 or less and 2 more 76% of the "
                    "time on Medium at 8,000 or more and on Hard (the exact odds: Chances).",
-        trips=[("noni picks", max(2, noni // 100)), ("crop harvests", harvest if farm else 0), ("fish", 4)])
+        trips=[("noni picks", max(2, noni // 100), "Noni bushes"),
+               ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4, "Fishing at the lake")])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))

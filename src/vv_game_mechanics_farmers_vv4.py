@@ -6,12 +6,12 @@ Every number below was measured by running the stock executable's own code in un
 WHO FARMS, AND WHERE.  Dropping a villager on the blackberry bush starts "Harvesting blackberries" (action 99,
 0x451C30) and gives it the task 3 (record +0x1C54, 0x46F8DC); dropping one on the fishing nets (once Fishing Nets is
 solved) starts "Retrieving a fish" (action 129, 0x4331D0) with the task 0x1C (0x433553); dropping one on the fruit
-(once the Fruitwells are restored, puzzle 6) starts "Attempting to retrieve fruit" (action 100, 0x4343A0 -> 101..104,
+(once the Cooking Pit is restored, puzzle 6) starts "Attempting to retrieve fruit" (action 100, 0x4343A0 -> 101..104,
 0x435970) and sets no task.  Nothing in the stock game sets the task 2 (the fruit task the player-task code 0x46364E
-and the Fruitwells bonus test); it can only be written into a save.  A villager with a task asks for it again each
+and the Cooking Pit bonus test); it can only be written into a save.  A villager with a task asks for it again each
 time it is idle, through the player-task gate 0x4634D0 (see TASK_GATE); a villager whose own choice is Farming
 (the chooser 0x461CC0) goes to the dispatcher 0x4639B0, which offers the bush (more than 3 berries), the fruit
-(the Fruitwells restored, and never while catching up, 0x463A30) and the nets (Fishing Nets) equally (rand(n),
+(the Cooking Pit restored, and never while catching up, 0x463A30) and the nets (Fishing Nets) equally (rand(n),
 0x463A62).  When the dispatcher sends a villager who dislikes berries, fruit, or fish / the ocean / swimming to
 that source it runs away 60 times in 100 (0x463BA8, 0x463B3D, 0x463ACF) and loses its task; the task path
 (0x4634D0) has no such check.
@@ -55,7 +55,7 @@ turn (health 20 or more, 0x46577B) asks the chooser 0x461CC0, then a player task
 (at 250 food or less, Farming 20 or more) farming, else the chooser's job through the dispatcher 0x4639B0; the
 step resolver 0x464FA0 runs the queue at once: walks become instant moves (step 3 -> 0x45ECB0), the skill check
 (step 9) and the carry and reward steps (17, 18, 19 -> 0x46A4D0) run as live, every wait and pose is skipped.  So a
-farming turn is one trip and pays what a live trip pays.  Then the Fruitwells bonus (FRUITWELLS).
+farming turn is one trip and pays what a live trip pays.  Then the Cooking Pit bonus (FRUITWELLS).
 """
 from __future__ import annotations
 
@@ -95,7 +95,7 @@ def task_trips_per_turn(farming: int, *, nets: bool = True, food: int = 1000, wo
     return gate + (1 - gate) * farming_chosen(farming) * (0.5 if nets else 1.0)
 
 
-# The Fruitwells bonus, catch-up only (0x468A7A..0x468AC5): once the Fruitwells are restored (puzzle 6, 0x468A81),
+# The Cooking Pit bonus, catch-up only (0x468A7A..0x468AC5): once the Cooking Pit is restored (puzzle 6, 0x468A81),
 # after a counted unit's 4 job turns each villager who had them (aged 14 or more, not sick, not pregnant, all units
 # but the last 2; its health is not checked here) adds 5 food x Food Mastery (0x468AB2) if its task is 2 (never set
 # by the stock game), else on rand(100) < Farming - 25 (0x468A90..0x468AA9: (Farming - 25) times in 100, never at 25
@@ -107,13 +107,13 @@ FRUITWELLS = {"food": {1: 5, 2: 7, 3: 10},          # by Food Mastery level (0x4
 
 
 def fruitwells_food_unit(farming: int, mastery: int = 1) -> float:
-    """Food the Fruitwells bonus adds for one villager each counted age unit (no task 2)."""
+    """Food the Cooking Pit bonus adds for one villager each counted age unit (no task 2)."""
     return FRUITWELLS["food"][mastery] * max(0, min(100, farming - 25)) / 100.0
 
 
 # The dispatcher 0x4639B0, job 0 (Farming), as emulated:
 SOURCE_RULES = (
-    "Live: the bush while it holds more than 3 berries, the fruit once the Fruitwells are restored, the nets once "
+    "Live: the bush while it holds more than 3 berries, the fruit once the Cooking Pit is restored, the nets once "
     "Fishing Nets is solved, each equally likely (0x4639F0..0x463A68).",
     "Catch-up: the same without the fruit (0x463A30): the bush and the nets, 1 in 2 each.",
     "A farmer dropped on the bush (task 3) or the nets (task 0x1C) asks for that source each time it is idle, "
@@ -122,7 +122,7 @@ SOURCE_RULES = (
 )
 
 # Trip lengths measured (real-life seconds; trips that paid, starting at the food bin), over the game's map with
-# the Fruitwells restored and Fishing Nets solved: 400 back-to-back trips of an adult with Farming 89 (no failed
+# the Cooking Pit restored and Fishing Nets solved: 400 back-to-back trips of an adult with Farming 89 (no failed
 # check) for each source, seed 11 (the bush kept at 1,000; no fish scale found, so no Golden Fish).
 TRIP_SAMPLES = {"blackberry picks": (400, 94.76, 91.87, 97.91), "fish in the net": (400, 66.49, 52.90, 79.93),
                 "fruit stomps": (400, 162.24, 157.94, 167.97)}
@@ -133,7 +133,7 @@ SPEEDS = (3, 6, 10)
 # each, preference Farming, all other skills 10, food kept at 1,000: real-life seconds per trip that brought food
 # from that source, by Farming skill.  It includes the failed checks, the refused tasks and the other sources and
 # jobs the chooser and dispatcher pick.  Blackberries: dropped on the bush (task 3), the bush kept at 1,000, the
-# Fruitwells and Fishing Nets done; fish: dropped on the nets (task 0x1C), the same village; fruit: no task (the
+# the Cooking Pit and Fishing Nets done; fish: dropped on the nets (task 0x1C), the same village; fruit: no task (the
 # fruit drop sets none), the bush empty and Fishing Nets unsolved, so the fruit is the only farming offered.
 CYCLE_SETUP = {"blackberry picks": (3, 1000, (6, 0xB)), "fish in the net": (0x1C, 1000, (6, 0xB)),
                "fruit stomps": (0, 0, (6,))}
@@ -225,18 +225,18 @@ TRIPS: tuple[Trip, ...] = (
     ),
     Trip(
         key="fruit stomps",
-        job="dropped on the fruit (the Fruitwells restored; no task is set), or a Farming choice sent to the fruit",
+        job="dropped on the fruit (the Cooking Pit restored; no task is set), or a Farming choice sent to the fruit",
         live_seconds=_live(162.24),
         live_span=_span(157.94, 167.97),
         catch_up_trips_per_turn=0.0,
         success_offset=34,
         live_words=("From the food bin: one of the four fruit spots not in use (actions 101-104, 0x4343A0), walk "
                     "to the fruit tree (map area 0x26, x 64-159 y 1880-1919), shake it down (short steps and 1 s "
-                    "poses), the Farming check, take the fruit, walk to the cooking pit (area 0x22, x 368-383 "
+                    "poses), the Farming check, take the fruit, walk to the Cooking Pit (area 0x22, x 368-383 "
                     "y 1848-1863), a 5 s wait, stomp it (hops), take the stomped fruit, walk to a random point of "
                     "the food bin, a 1 s wait, then 3 food is credited (job event 15, 0x464567). " + _CLOCK),
         catch_up_words=("None: the dispatcher never offers the fruit while catching up (0x463A30) and no stock drop "
-                        "sets the fruit task 2 (0x46364E); the Fruitwells bonus adds 5 food x Food "
+                        "sets the fruit task 2 (0x46364E); the Cooking Pit bonus adds 5 food x Food "
                         "Mastery per villager and counted unit on rand(100) < Farming - 25 instead."),
         verified="code",
         extra=("When the stew pot waits for ingredients as the trip is queued (0x4349A3: 0x42DDA0 on the pot "
@@ -246,7 +246,7 @@ TRIPS: tuple[Trip, ...] = (
                "(42 of 200 trips at Farming 0).",
                "A task 2 written into a save would bring the fruit even while catching up (the gate path skips "
                "the catch-up refusal): 3 food a turn the gate passes.",
-               "The Fruitwells bonus (catch-up only, 0x468A7A-0x468AC5): after each counted unit's job turns, 5 food "
+               "The Cooking Pit bonus (catch-up only, 0x468A7A-0x468AC5): after each counted unit's job turns, 5 food "
                "x Food Mastery (7 at level 2, 10 at 3) for each villager who had them, on rand(100) < Farming - 25: "
                "3.75 food a unit at Farming 100, 1.75 at 60, none at 25 or less; its health "
                "is not checked.",
