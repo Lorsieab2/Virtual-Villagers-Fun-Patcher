@@ -745,7 +745,8 @@
         "Click a child's gravestone: a villager who died before age 14 with a skill of 20 or more shows \"Apprentice\" plus their job.",
         "For example \"Apprentice Farmer\" instead of Trainee, Adept or Master.",
         "Below 20 it still says \"Untrained\". Adults' graves are unchanged.",
-        "Old graves change too: the line is made each time a grave is shown."
+        "Old graves change too: the line is made each time a grave is shown.",
+        "A New Home, with Show Cause of Death and Age at Death on Graves ticked too: the Golden Child's grave says \"Golden Child\" under Job."
       ]
     },
     {
@@ -835,6 +836,7 @@
         "Click a gravestone: it shows the cause of death under the age and an epitaph under the name.",
         "You can type your own epitaph in its box (up to 31 letters); Done keeps it.",
         "With Children's Graves Say Apprentice ticked, a villager who died before age 14 is shown as \"Apprentice\" plus their job on the grave and in the Deaths log.",
+        "The Golden Child's grave always gets a child's epitaph, and with Children's Graves Say Apprentice ticked it says \"Golden Child\" under Job.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves get an epitaph but no cause: how they died was never recorded.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."

@@ -93,11 +93,21 @@ static unsigned int cod_grave_fingerprint(const unsigned char *grave) {
    Grave line (cod_grave_title, v345_title) and this companion's popup hook
    all follow it, so one game never has two rules.  The Tree of Life does it
    in the stock game. */
+#ifdef VVFP_TEST
+/* The test build's stand-in for the row's bytes (-1: read the exe, as shipped). */
+__declspec(dllexport) int VvfpCauseApprenticeTest = -1;
+#endif
+
 static int cod_apprentice_patched(void) {
     static const unsigned char vv1[] = { 0x83, 0xB8, 0x38, 0xA3, 0x00, 0x00, 0x14 };   /* 0x436516 */
     static const unsigned char vv2[] = { 0x83, 0xB8, 0x78, 0xEB, 0x02, 0x00, 0x14 };   /* 0x44456A */
     static const unsigned char vv3[] = { 0xBA, 0x92, 0x00, 0x00, 0x00 };              /* 0x41E946 */
     static const unsigned char vv5[] = { 0xBA, 0xC6, 0x00, 0x00, 0x00 };              /* 0x41C685 */
+#ifdef VVFP_TEST
+    if (VvfpCauseApprenticeTest >= 0) {
+        return VvfpCauseApprenticeTest;
+    }
+#endif
     switch (g_game) {
     case 1: return cod_bytes_are(0x436516u, vv1, (int)sizeof vv1);
     case 2: return cod_bytes_are(0x44456Au, vv2, (int)sizeof vv2);
@@ -119,14 +129,36 @@ static int cod_grave_apprentice(const unsigned char *grave) {
         && *(const int *)(grave + g->age) < CHILD_AGE && cod_apprentice_patched();
 }
 
+/* A New Home's Golden Child (the owner: "his job should be "Golden Child""):
+   the villager whose family number is 199 (record +0x36C; the Villager
+   Detail panel's own test, 0x41FBDC, which shows the game's string 0x5F
+   "Golden Child" in place of the rank).  The grave keeps no family number
+   (the burial 0x448F8D..0x448FF1 copies only the name, the age, the best
+   skill and its job), so the burial's hook marks his grave's entry in the
+   Graves file (cod_buried); the grave's Job line is "Golden Child" while
+   that entry is the grave's and "Children's Graves Say Apprentice" is in
+   the exe -- one VV1 grave Job rule, that row's. */
+#define GOLDEN_FAMILY 199
+#define VV1_FAMILY 0x36C
+
+static int cod_grave_is_golden(const unsigned char *grave);
+
+static int cod_record_golden(const unsigned char *record) {
+    return g_game == 1 && record != NULL && *(const int *)(record + VV1_FAMILY) == GOLDEN_FAMILY;
+}
+
 /* The skill line the grave shows under "Job", as the popup builds it:
    "Untrained" below 20 (or with no job), otherwise the rank and the job --
    "Apprentice" for a child (cod_grave_apprentice), else "Trainee", "Adept",
-   "Master" (VV1 from 90, VV2 from 88). */
+   "Master" (VV1 from 90, VV2 from 88); "Golden Child" for his grave. */
 static void cod_grave_title(const unsigned char *grave, char *out) {
     const struct grave_geometry *g = &GRV[g_game];
     int value = *(const int *)(grave + g->value);
     int job = *(const int *)(grave + g->job);
+    if (cod_grave_is_golden(grave) && cod_apprentice_patched()) {
+        lstrcpyA(out, "Golden Child");
+        return;
+    }
     if (job < 1 || job > 5 || value < 20) {
         lstrcpyA(out, "Untrained");
         return;
@@ -145,6 +177,8 @@ static void cod_grave_title(const unsigned char *grave, char *out) {
    "Loving and Special"; otherwise the line pair for the skill the grave
    shows; no skill at all, "Respected Citizen".  The later games' Chief,
    Esteemed Elder and Scholar lines have no counterpart in A New Home.  The
+   Golden Child's grave always gets the child pair (the owner: "his epitaph
+   should be either of the default child ones"), whatever its age.  The
    two-way choice uses this companion's own random numbers, never the
    game's. */
 static unsigned int roll_state;
@@ -164,11 +198,11 @@ static int cod_roll_half(void) {
     return (int)(roll_state >> 31);
 }
 
-static int cod_epitaph_for(const unsigned char *grave) {
+static int cod_epitaph_for(const unsigned char *grave, int golden) {
     const struct grave_geometry *g = &GRV[g_game];
     int value = *(const int *)(grave + g->value);
     int job = *(const int *)(grave + g->job);
-    if (*(const int *)(grave + g->age) < 360) {
+    if (golden || *(const int *)(grave + g->age) < 360) {
         return cod_roll_half() ? EPITAPH_CHILD2 : EPITAPH_CHILD1;
     }
     if (job >= 1 && job <= 5 && value > 0) {
@@ -185,12 +219,33 @@ struct cod_entry {
     unsigned char epitaph;        /* EPITAPH_*; graves only */
     unsigned char valid;
     unsigned char custom;         /* text holds the player's own epitaph */
+    unsigned char golden;         /* the Golden Child's grave (A New Home); graves only */
     char text[EPITAPH_TEXT];
 };
 
 /* A body lying in record i, and grave k. */
 static struct cod_entry bodies[RECORDS_MAX];
 static struct cod_entry graves[GRAVES];
+
+/* Is grave `slot` (the game's `grave` there now) the Golden Child's: its
+   entry marked at his burial, and still the grave the game holds there. */
+static int cod_slot_golden(int slot, const unsigned char *grave) {
+    return g_game == 1 && grave != NULL && slot >= 0 && slot < GRAVES && graves[slot].valid
+        && graves[slot].golden && graves[slot].fingerprint == cod_grave_fingerprint(grave);
+}
+
+static int cod_grave_is_golden(const unsigned char *grave) {
+    const unsigned char *owner = cod_grave_owner();
+    const unsigned char *first;
+    if (g_game != 1 || owner == NULL || grave == NULL) {
+        return 0;
+    }
+    first = owner + GRV[1].graves;
+    if (grave < first || (size_t)(grave - first) % GRV[1].stride != 0) {
+        return 0;
+    }
+    return cod_slot_golden((int)((size_t)(grave - first) / GRV[1].stride), grave);
+}
 
 /* What the hooks did since the last tick.  Applied to the tables at once --
    bound by then to the village being played whenever the game knows its slot
@@ -221,7 +276,8 @@ static struct {
                  record 0..255), u32 fingerprint, i8 cause (-1..4, 5 "Died in
                  a custom island event" in version 2 only, or 0x7F
                  none), u8 epitaph (0..13), u8 flags (1 = the text is the
-                 player's own epitaph), u8 0, char text[32] (bytes 0x20-0xFF,
+                 player's own epitaph; 2 = the Golden Child's grave, in version
+                 3 only), u8 0, char text[32] (bytes 0x20-0xFF,
                  as the game's text box takes them, NUL-terminated and
                  NUL-filled, at most 31; empty when the player cleared it;
                  all 0 without flag 1) }
@@ -234,10 +290,17 @@ static struct {
    VERSION 2 is version 1 with cause 5 allowed, and is written only when an
    entry holds it: a file with none stays version 1, readable by every build.
    A build from before cause 5 sets a version 2 file aside unread
-   (sidecar_io.h) -- never misreads it, never overwrites it. */
+   (sidecar_io.h) -- never misreads it, never overwrites it.
+
+   VERSION 3 is version 2 with flag 2 allowed on a grave (A New Home's Golden
+   Child), written only when an entry holds it; a build from before it sets
+   a version 3 file aside the same way. */
 #define COD_MAGIC 0x31444356u
 #define COD_VERSION 1u
 #define COD_VERSION_CUSTOM 2u
+#define COD_VERSION_GOLDEN 3u
+#define COD_FLAG_CUSTOM 1u
+#define COD_FLAG_GOLDEN 2u
 #define COD_HEADER 16u
 #define COD_ENTRY 44u
 #define COD_MAX_ENTRIES (RECORDS_MAX + GRAVES)
@@ -266,13 +329,14 @@ static int cod_entry_ok(const unsigned char *e, unsigned int version) {
         return 0;
     }
     if (!((cause >= -1 && cause <= 4) || cause == CAUSE_NONE
-          || (cause == CAUSE_CUSTOM_EVENT && version == COD_VERSION_CUSTOM))) {
+          || (cause == CAUSE_CUSTOM_EVENT && version >= COD_VERSION_CUSTOM))) {
         return 0;
     }
-    if (e[9] >= EPITAPH_COUNT || e[10] > 1u || e[11] != 0 || (kind == 1u && (e[9] != 0 || e[10] != 0))) {
+    if (e[9] >= EPITAPH_COUNT || e[11] != 0 || (kind == 1u && (e[9] != 0 || e[10] != 0))
+        || e[10] > (version == COD_VERSION_GOLDEN ? (COD_FLAG_CUSTOM | COD_FLAG_GOLDEN) : COD_FLAG_CUSTOM)) {
         return 0;
     }
-    return *(const unsigned int *)(e + 4) != 0u && cod_text_ok(e + 12, e[10]);
+    return *(const unsigned int *)(e + 4) != 0u && cod_text_ok(e + 12, e[10] & COD_FLAG_CUSTOM);
 }
 
 static int cod_validate(const unsigned char *data, DWORD length, void *context) {
@@ -286,7 +350,7 @@ static int cod_validate(const unsigned char *data, DWORD length, void *context) 
     count = *(const unsigned int *)(data + 12);
     version = *(const unsigned int *)(data + 4);
     if (*(const unsigned int *)data != COD_MAGIC
-        || (version != COD_VERSION && version != COD_VERSION_CUSTOM)
+        || (version != COD_VERSION && version != COD_VERSION_CUSTOM && version != COD_VERSION_GOLDEN)
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game
         || count > COD_MAX_ENTRIES
         || length != COD_HEADER + count * COD_ENTRY) {
@@ -311,7 +375,8 @@ static void cod_parse(const unsigned char *data) {
         to->fingerprint = *(const unsigned int *)(e + 4);
         to->cause = (signed char)e[8];
         to->epitaph = e[9];
-        to->custom = e[10];
+        to->custom = (unsigned char)(e[10] & COD_FLAG_CUSTOM);
+        to->golden = (unsigned char)((e[10] & COD_FLAG_GOLDEN) != 0);
         memcpy(to->text, e + 12, EPITAPH_TEXT);
         to->valid = 1;
     }
@@ -337,11 +402,15 @@ static DWORD cod_serialise(void) {
             e[3] = (unsigned char)(i >> 8);
             *(unsigned int *)(e + 4) = table[i].fingerprint;
             e[8] = (unsigned char)table[i].cause;
-            if (table[i].cause == CAUSE_CUSTOM_EVENT) {
+            if (table[i].cause == CAUSE_CUSTOM_EVENT && version < COD_VERSION_CUSTOM) {
                 version = COD_VERSION_CUSTOM;
             }
+            if (pass == 0 && table[i].golden) {
+                version = COD_VERSION_GOLDEN;
+            }
             e[9] = pass == 0 ? table[i].epitaph : 0;
-            e[10] = pass == 0 ? table[i].custom : 0;
+            e[10] = pass == 0 ? (unsigned char)((table[i].custom ? COD_FLAG_CUSTOM : 0u)
+                                                | (table[i].golden ? COD_FLAG_GOLDEN : 0u)) : 0;
             e[11] = 0;
             memset(e + 12, 0, EPITAPH_TEXT);
             if (pass == 0 && table[i].custom) {
@@ -601,7 +670,8 @@ static void cod_buried(int index, int found, int slot) {
     e.index = slot;
     e.entry.fingerprint = cod_grave_fingerprint(grave);
     e.entry.cause = (signed char)cause;
-    e.entry.epitaph = (unsigned char)(g_game == 1 ? cod_epitaph_for(grave) : EPITAPH_NONE);
+    e.entry.golden = (unsigned char)cod_record_golden(record);
+    e.entry.epitaph = (unsigned char)(g_game == 1 ? cod_epitaph_for(grave, e.entry.golden) : EPITAPH_NONE);
     e.entry.valid = 1;
     cod_event(&e);
     if (cause != CAUSE_NONE) {
@@ -702,7 +772,7 @@ static const struct cod_entry *cod_grave_entry(int slot, const unsigned char *gr
     e.index = slot;
     e.entry.fingerprint = cod_grave_fingerprint(grave);
     e.entry.cause = CAUSE_NONE;
-    e.entry.epitaph = (unsigned char)cod_epitaph_for(grave);
+    e.entry.epitaph = (unsigned char)cod_epitaph_for(grave, 0);
     e.entry.valid = 1;
     cod_event(&e);
     return &graves[slot];
@@ -822,6 +892,32 @@ static void vv1_rank(int site, const unsigned int *regs) {
                         regs, *(void *const *)(popup + 0x7C), 0x433970u, 0x56);
 }
 
+/* The Golden Child's grave (cod_slot_golden), with "Children's Graves Say
+   Apprentice" in the exe: the whole skill line is the game's own string 0x5F
+   "Golden Child" (the Villager Detail panel's, 0x41FBEB; in the game's
+   language), with no job word after it.
+
+     VV1 0x43667C  the skill line's draw, where every path of its build
+                   meets (the rank print 0x436560, the job word 0x43666C,
+                   the no-job and Untrained skips 0x43657B / 0x436588 /
+                   0x436592); the line is in the buffer at [esp+0x14] (the
+                   draw's own `lea ecx, [esp+0x24]` after four pushes);
+                   ebx = popup ([+0x60] slot, [+0x74] manager, [+0x7C] the
+                   string table) */
+static void vv1_job_line(int site, const unsigned int *regs) {
+    const unsigned char *popup = (const unsigned char *)(uintptr_t)regs[R_EBX];
+    const unsigned char *manager = *(const unsigned char *const *)(popup + 0x74);
+    int slot = *(const int *)(popup + 0x60);
+    (void)site;
+    if (manager == NULL || slot < 0 || slot >= GRAVES) {
+        return;
+    }
+    if (cod_slot_golden(slot, manager + GRV[1].graves + (size_t)slot * GRV[1].stride) && cod_apprentice_patched()) {
+        lstrcpyA((char *)(uintptr_t)(regs[R_ESP] + 0x14u),
+                 ((string_fn)(uintptr_t)0x433970u)(*(void *const *)(popup + 0x7C), 0, 0x5F));
+    }
+}
+
 static void vv2_rank(int site, const unsigned int *regs) {
     const unsigned char *panel = (const unsigned char *)(uintptr_t)regs[R_EBP];
     const unsigned char *world = *(const unsigned char *const *)(panel + 0x78);
@@ -853,6 +949,7 @@ static void vv12_sites(void) {
         cod_add(0x42E9C3u, "C644072800", vv1_decayed);
         cod_add(0x436700u, "5F5E5D5B81C4CC000000", vv1_draw);
         cod_add(0x436565u, "8B4360" "8B4B74", vv1_rank);
+        cod_add(0x43667Cu, "8B1508B64800", vv1_job_line);
     } else {
         add_death(0x43BDEEu, "C7832C050000" "00000000", CAUSE_OLD_AGE, K_STORE0, R_EBX, 0);
         add_death(0x43BAEBu, "8D84382C050000", CAUSE_STARVATION, K_DEC1, R_EAX, R_EDI);  /* food <= 150 */

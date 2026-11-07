@@ -164,8 +164,13 @@ class Harnesses(unittest.TestCase):
         # that name, loose or in its folder, never moved or renamed; and 11 for section 11, the Custom
         # Island Event's "Dies" (v1.35.68: "Died in a custom island event"); and 6 for one folder per save
         # (native/shared/per_save.h): the bad file set up in the save's own folder (1), and a graves file
-        # still in the older layout's Graves\ read and written there, Start Over clearing both places (5).
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6, result.stdout)
+        # still in the older layout's Graves\ read and written there, Start Over clearing both places (5); and 10
+        # for section 12, A New Home's Golden Child: his grave marked at the burial (flag 2, version 3), "Golden
+        # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session.
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10, result.stdout)
+        self.assertIn("  ok   his grave's Job line: Golden Child", result.stdout)
+        self.assertIn("  ok   version 3: the child's grave flags 0, epitaph 12; the Golden Child's flag 2, epitaph 13",
+                      result.stdout)
         self.assertIn("  ok   a new grave is written there too, nothing in the save's own folder", result.stdout)
         self.assertIn("  ok   Start Over deletes the graves file in the older layout's Graves\\ and in the save's own",
                       result.stdout)

@@ -264,6 +264,11 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
                            "Skill Preferences are listed as Jobs on Graves): Repair Saves & Logs rewrites those "
                            f"graves in the save (and their epitaph where it follows the job) and "
                            f"{counts.get('preferred_lines', 0)} line(s) of their records")
+            if kind.context.get("golden_marks"):
+                report.add(f"{LOGS} ({kind.label})", "NOTE",
+                           "the Golden Child's grave is not marked as his in the patcher's Graves file, so it shows "
+                           "a skill line under Job: Repair Saves & Logs marks it (\"Golden Child\" with Children's "
+                           "Graves Say Apprentice)")
             for note in kind.notes:
                 report.add(f"{LOGS} ({kind.label})", "NOTE", note)
             continue

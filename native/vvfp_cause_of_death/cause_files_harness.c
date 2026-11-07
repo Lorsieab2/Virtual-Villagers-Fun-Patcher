@@ -919,6 +919,79 @@ int main(int argc, char **argv) {
     }
 cie_done:
 
+    printf("12. the Golden Child's grave: \"Golden Child\" and a child's epitaph (version 3)\n");
+    {
+        typedef int (__stdcall *title_t)(int, char *);
+        typedef void (__stdcall *writer_t)(void *);
+        title_t title_of;
+        writer_t set_writer;
+        int *apprentice;
+        char title[64];
+        int r;
+        memset(array, 0, 256 * STRIDE);
+        memset(manager + GRAVES, 0, 50 * GRAVE_STRIDE);
+        current_slot = 2;
+        file_of(2, path);
+        DeleteFileA(path);
+        load();
+        title_of = (title_t)GetProcAddress(dll, "VvfpCauseTestGraveTitle");
+        set_writer = (writer_t)GetProcAddress(dll, "VvfpCauseTestWriter");
+        apprentice = (int *)GetProcAddress(dll, "VvfpCauseApprenticeTest");
+        CHECK(title_of != NULL && set_writer != NULL && apprentice != NULL, "the test exports are there");
+        if (title_of == NULL || set_writer == NULL || apprentice == NULL) {
+            unload();
+            goto golden_done;
+        }
+        *apprentice = 1;                    /* Children's Graves Say Apprentice in the exe */
+        set_writer((void *)cie_writer);
+        tick(1);
+        /* A child of 5 with Building 100 (Apprentice Builder), and the Golden Child: family 199, 5,
+           Building 100 -- the same grave but for the name. */
+        villager(3, "Kiddo", 100, 30, 100);
+        villager(4, "Lulu", 100, 30, 100);
+        *(int *)(rec(4) + 0x36C) = 199;
+        for (r = 0; r < 2; ++r) {
+            *roll = r;
+            cie_last[0] = 0;
+            died(3 + r, 3);
+            game_bury(3 + r, 1 + r);
+            buried(3 + r, 1 + r);
+            CHECK(strstr(cie_last, r ? "  Grave: Golden Child\n" : "  Grave: Apprentice Builder\n") != NULL
+                  && strstr(cie_last, r ? "  Epitaph: Loving and Special\n" : "  Epitaph: Curious and Playful\n")
+                  != NULL, "%s's Death record: Grave and a child's epitaph", r ? "the Golden Child" : "the child");
+        }
+        tick(1);
+        n = read_file(path, buf, sizeof buf);
+        CHECK(n == 16 + 2 * ENTRY && *(unsigned int *)(buf + 4) == 3u
+              && buf[16] == 0 && buf[18] == 1 && buf[25] == 12 && buf[26] == 0
+              && buf[16 + ENTRY] == 0 && buf[18 + ENTRY] == 2 && buf[25 + ENTRY] == 13 && buf[26 + ENTRY] == 2,
+              "version 3: the child's grave flags 0, epitaph 12; the Golden Child's flag 2, epitaph 13");
+        CHECK(title_of(2, title) == 1 && strcmp(title, "Golden Child") == 0, "his grave's Job line: Golden Child");
+        CHECK(title_of(1, title) == 0 && strcmp(title, "Apprentice Builder") == 0, "the child's: Apprentice Builder");
+        *apprentice = 0;
+        CHECK(title_of(2, title) == 1 && strcmp(title, "Master Builder") == 0,
+              "without Children's Graves Say Apprentice his grave keeps the game's own line");
+        unload();
+        load();                             /* a new session reads the flag back */
+        tick(1);
+        title_of = (title_t)GetProcAddress(dll, "VvfpCauseTestGraveTitle");
+        apprentice = (int *)GetProcAddress(dll, "VvfpCauseApprenticeTest");
+        *apprentice = 1;
+        CHECK(title_of(2, title) == 1 && strcmp(title, "Golden Child") == 0
+              && grave_of(2, &cause, &epitaph) && cause == 3 && epitaph == 13, "read back: Golden Child, his epitaph");
+        edit_epitaph(2, "Our golden boy");
+        tick(1);
+        n = read_file(path, buf, sizeof buf);
+        CHECK(n == 16 + 2 * ENTRY && *(unsigned int *)(buf + 4) == 3u && buf[26 + ENTRY] == 3
+              && title_of(2, title) == 1, "the player's own epitaph keeps the flag (flags 3)");
+        grave(2)[0] = 'X';
+        CHECK(title_of(2, title) == 0, "a grave that is no longer his is not the Golden Child's");
+        grave(2)[0] = 'L';
+        unload();
+        vv_reset_slot_state(1, 2, NULL);
+    }
+golden_done:
+
     wipe();
     printf("%s: %d failure(s)\n", failures ? "FAILED" : "PASSED", failures);
     return failures ? 1 : 0;

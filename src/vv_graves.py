@@ -266,10 +266,15 @@ def graves_file(folder: Path, game: int, slot: int) -> Path | None:
     return routed
 
 
+# The flags byte (+10): 1 the player's own epitaph; 2 A New Home's Golden Child's grave (version 3 only).
+FLAG_CUSTOM, FLAG_GOLDEN = 1, 2
+GOLDEN_LINE = "Golden Child"
+
+
 def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
-    """The entries of a Graves file: version 1, or version 2 (cause 5, the Custom Island Event's
-    "Dies", allowed), as cod_vv12.inc reads them."""
-    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) not in (1, 2) or _i32(data, 8) != game:
+    """The entries of a Graves file: version 1, version 2 (cause 5, the Custom Island Event's
+    "Dies", allowed), or version 3 (also the Golden Child's flag), as cod_vv12.inc reads them."""
+    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) not in (1, 2, 3) or _i32(data, 8) != game:
         return None
     count = struct.unpack_from("<I", data, 12)[0]
     if len(data) != 16 + 44 * count:
@@ -277,14 +282,16 @@ def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
     entries = [bytearray(data[16 + 44 * k:16 + 44 * (k + 1)]) for k in range(count)]
     if _i32(data, 4) == 1 and any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries):
         return None                         # the companion sets such a file aside
+    if _i32(data, 4) != 3 and any(e[10] & FLAG_GOLDEN for e in entries):
+        return None
     return entries
 
 
 def _vcd1_bytes(game: int, entries: list[bytearray]) -> bytes:
-    """Version 2 only when an entry holds cause 5, as the companion writes it: a file without one stays
-    readable by every build."""
+    """Version 3 only when an entry holds the Golden Child's flag, else 2 only when one holds cause 5, as
+    the companion writes it: a file without either stays readable by every build."""
     entries = sorted(entries, key=lambda e: (struct.unpack_from("<H", e, 0)[0], struct.unpack_from("<H", e, 2)[0]))
-    version = 2 if any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries) else 1
+    version = 3 if any(e[10] & FLAG_GOLDEN for e in entries) else         2 if any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries) else 1
     return struct.pack("<4sIII", b"VCD1", version, game, len(entries)) + b"".join(bytes(e) for e in entries)
 
 
@@ -294,7 +301,7 @@ def _sidecar_values(game: int, entry: bytes) -> dict:
     if -1 <= cause <= CAUSE_CUSTOM_EVENT:
         out["cause"] = CAUSE_WORDS[cause]
     if game == 1:
-        if entry[10]:
+        if entry[10] & FLAG_CUSTOM:
             out["epitaph"] = _text(entry, 12, 32)
         elif 0 < entry[9] < len(EPITAPHS):
             out["epitaph"] = EPITAPHS[entry[9]]
@@ -313,6 +320,10 @@ def _load_sidecar(folder: Path, game: int, slot: int, graves: list[Grave]) -> No
         for g in graves:
             if g.place == index and g.fingerprint == fp:
                 g.sidecar = _sidecar_values(game, e)
+                if game == 1 and e[10] & FLAG_GOLDEN:
+                    # The Golden Child's grave: its Job line with Children's Graves Say Apprentice
+                    # (cod_vv12.inc cod_grave_title, vv1_job_line).
+                    g.values["grave"] = GOLDEN_LINE
 
 
 # ---------------------------------------------------------------------------
@@ -571,6 +582,8 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                 continue
             elif key == "grave" and g.age < CHILD_AGE and _grave_lines_agree(game, gv, r):
                 continue                        # a child's grave with or without "Children's Graves Say Apprentice"
+            elif key == "grave" and game == 1 and GOLDEN_LINE in (gv, r) and rv.get("title") == GOLDEN_LINE:
+                continue                        # the Golden Child's, with or without that row or his grave's mark
             elif key == "cause" and isinstance(r, str) and r.startswith(NOT_RECORDED):
                 continue                        # the record says the death was not seen: nothing to choose
             elif key == "cause" and game >= 3 and gv == CAUSE_WORDS[-1] and r == CUSTOM_EVENT_WORDS:
@@ -828,10 +841,10 @@ def _plan_sidecar(folder: Path, game: int, slot: int, by_place: dict, rekey: dic
             text = values.get("epitaph", values.get(NEW_ENTRY_EPITAPH) if fresh else None)
             if text is not None and game == 1:
                 if text in EPITAPHS[1:]:
-                    e[9], e[10] = EPITAPHS.index(text), 0
+                    e[9], e[10] = EPITAPHS.index(text), e[10] & FLAG_GOLDEN
                     e[12:44] = bytes(32)
                 else:
-                    e[9], e[10] = 0, 1
+                    e[9], e[10] = 0, (e[10] & FLAG_GOLDEN) | FLAG_CUSTOM
                     e[12:44] = text.encode(GAME_TEXT) + bytes(32 - len(text))
             touched = True
         for place, (old_fp, new_fp) in rekey.items():

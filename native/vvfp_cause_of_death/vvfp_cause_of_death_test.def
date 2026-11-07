@@ -30,6 +30,8 @@ EXPORTS
     VvfpCauseTestArm=_VvfpCauseTestArm@4
     VvfpCauseTestEpitaph=_VvfpCauseTestEpitaph@8
     VvfpCauseTestGrave=_VvfpCauseTestGrave@12
+    VvfpCauseTestGraveTitle=_VvfpCauseTestGraveTitle@8
+    VvfpCauseApprenticeTest DATA
     VvfpCauseTestRoster=_VvfpCauseTestRoster@8
     VvfpCauseTestCreated=_VvfpCauseTestCreated@8
     VvfpCauseTestCreatedScoped=_VvfpCauseTestCreatedScoped@12
