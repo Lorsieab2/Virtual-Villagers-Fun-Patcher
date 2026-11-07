@@ -163,6 +163,7 @@ def pokes(game: int, data: bytes) -> list[bytes]:
         base = struct.unpack_from("<4i", data, m.CLOCK)[3]
         out += _puzzle_pokes(data, [m.PROJECTS + 8 * pid for pid in list(m.PUZZLE_NAMES) + [17]], base)
         out.append(_put(data, m.STATS, 0))
+    out += _tech_pokes(game, m, data)
     if game in (1, 2):
         s = 4                                   # file offset = state offset + 4
         buf = data
@@ -174,6 +175,36 @@ def pokes(game: int, data: bytes) -> list[bytes]:
             for _name, flag, at in m.PUZZLES:
                 buf = _put(buf[:flag + s] + b"\1" + buf[flag + s + 1:], at + s, hours)
             out.append(buf)
+    return out
+
+
+def _tech_pokes(game: int, m, data: bytes) -> list[bytes]:
+    """The technologies at their start, all at 1 and all at 2, with no tech points and with plenty, so each level's
+    time-needed line (src/vv_game_mechanics_tech_time.py) is rendered both still to earn and affordable; New
+    Believers also with The Knowing Totem solved (catch-up research starts with it)."""
+    if game == 1:
+        points, at, step, count = m.TECH, m.LEVELS, 8, 6
+    elif game == 2:
+        points, at, step, count = m.TECH + m.S, m.LEVELS + m.S, 8, 6
+    elif game == 3:
+        points, at, step, count = m.HEADER + m.POINTS, m.HEADER + m.TECHS, 4, 7
+    else:
+        points, at, step, count = m.TECH, m.LEVELS, 4, 6
+    start = (1, 1, 1, 1, 1, 0, 0) if game == 3 else (1,) * count
+    bases = [data]
+    if game == 5:
+        bases.append(_put(data, m.PROJECTS + 8 * 4, m.PUZZLE_THRESHOLDS[4]))
+    out = []
+    for base in bases:
+        for levels in (start, (1,) * count, (2,) * count):
+            buf = base
+            for k, level in enumerate(levels):
+                buf = _put(buf, at + step * k, level)
+            out += [_put(buf, points, 0), _put(buf, points, 2_000_000_000)]
+        top = base
+        for k in range(count):
+            top = _put(top, at + step * k, 3)
+        out.append(top)
     return out
 
 

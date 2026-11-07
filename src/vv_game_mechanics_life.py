@@ -663,6 +663,8 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     # 3. Tech points and collectibles.
     if ctx.tech is not None:
         add(f"Tech points: {ctx.tech:,}." + (f" {ctx.tech_words}" if ctx.tech_words else ""), gm.SAVE)
+        import vv_game_mechanics_tech_time as tech_time
+        out.extend(tech_time.lines(ctx, everyone))
     for text, ok in ctx.collectibles:
         add(text, ok)
 
