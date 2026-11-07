@@ -290,7 +290,12 @@ def _puzzle_entries() -> list[Entry]:
         Entry(PUZZLE, "The Hungry Totem", "villagers dismantle it (\"Dismantling the Hungry Totem\")", (
             "while the game catches up time away, noni is picked only once this totem is down (0x46C5B5); in play "
             "noni is picked once the food bin is built."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),)),
+              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),
+               ("The game keeps the time it was solved at, as for every puzzle (Advance 0x43AF80), but in the base "
+                "game the Puzzles screen always says \"Completed in 0 hours\" for it: its branch jumps past the step "
+                "that keeps the time it reads (0x44917C to 0x449075, past 0x449073). "
+                f"{_feature('vv5_fix_vanilla_bugs')}: the screen shows the kept hours, for a village that solved it "
+                "before the patch too.", VERIFIED_C))),
         Entry(PUZZLE, "The Knowing Totem", "villagers dismantle it (\"Dismantling the Knowing Totem\")", (
             "opens the lab: while catching up, research is done only once it is down (0x46C75E); the second "
             "collectible set (the lab gear) can appear only from then on; The Pesky Critter island event becomes "
