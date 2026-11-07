@@ -841,6 +841,11 @@ def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
             edits = feature.raw.get("patches") or []
             if edits and fp._patches_present(data, edits):
                 found.add(feature.id)
+        # 2-10x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
+        # bytes: it is in the exe when every price site holds one multiplier from 2 to 10.
+        import vv_game_mechanics_tech_time as tech_time
+        if tech_time.multiplier_in_bytes(game, data):
+            found.add(tech_time.multiplier_feature(game))
         return frozenset(found)
     except Exception:  # noqa: BLE001 -- a catalog or exe that cannot be read tells nothing
         return None

@@ -117,7 +117,8 @@ DIFFICULTY_CHECKED = {1: ("0x439AE0, 0x43D440, 0x43B2AB, 0x41D120", "0x435AF8"),
 def difficulty_line(game: int) -> str:
     code, prices = DIFFICULTY_CHECKED[game]
     return ("Difficulty (Easy, Medium or Hard) changes none of these times: the job choice, the Research test, the "
-            f"payout and the tech-point adder never read it ({code}), and the prices are a fixed table ({prices}). "
+            f"payout and the tech-point adder never read it ({code}), and the prices are a fixed table ({prices}; x N "
+            "with \"2-10x Tech Cost\"). "
             "It changes how much the villagers eat (Food estimates).")
 
 
@@ -178,29 +179,59 @@ def price(game: int, name: str, level: int, factor: int = 1) -> int:
     return stock_price(game, name, level) * factor
 
 
-def read_multiplier(village) -> int | None:
-    """2-10x Tech Cost's multiplier in the game's executable: its first price site divided by the stock price there
-    (data/vv<N>_tech_cost_multiplier_feature.json).  None when the row is not known to be in the game, the
-    executable is not found or cannot be read, or the price there is not a whole multiple from 2 to 10."""
+def multiplier_in_bytes(game: int, data: bytes) -> int | None:
+    """The 2-10x Tech Cost multiplier an executable's bytes hold: k when every one of the row's price sites
+    (data/vv<N>_tech_cost_multiplier_feature.json) holds its stock value x k, for one whole k from 2 to 10;
+    otherwise None (the row is not in these bytes, or they are not one consistent build)."""
     import json
     from pathlib import Path
+    try:
+        manifest = json.loads((Path(__file__).resolve().parents[1] / "data"
+                               / f"vv{game}_tech_cost_multiplier_feature.json").read_text(encoding="utf-8"))
+        sites = [(int(site["offset"], 16), struct.unpack("<i", bytes.fromhex(site["before"]))[0])
+                 for site in manifest["patches"]]
+        values = [(struct.unpack_from("<i", data, offset)[0], stock) for offset, stock in sites]
+    except (OSError, ValueError, KeyError, IndexError, TypeError, struct.error):
+        return None
+    if not values or any(stock <= 0 for _, stock in values):
+        return None
+    factors = {value // stock if value % stock == 0 else 0 for value, stock in values}
+    if len(factors) != 1 or next(iter(factors)) not in MULTIPLIERS:
+        return None
+    return next(iter(factors))
+
+
+def read_multiplier(village) -> int | None:
+    """2-10x Tech Cost's multiplier in the game's executable (multiplier_in_bytes).  None when the row is not known
+    to be in the game, or the executable is not found or cannot be read or holds no consistent multiplier."""
     game = village.game
     exe = getattr(village, "exe", None)
     if game not in GAMES or village.has(multiplier_feature(game)) is not True or exe is None:
         return None
     try:
-        manifest = json.loads((Path(__file__).resolve().parents[1] / "data"
-                               / f"vv{game}_tech_cost_multiplier_feature.json").read_text(encoding="utf-8"))
-        site = manifest["patches"][0]
-        stock = struct.unpack("<i", bytes.fromhex(site["before"]))[0]
-        with open(exe, "rb") as handle:
-            handle.seek(int(site["offset"], 16))
-            value = struct.unpack("<i", handle.read(4))[0]
-    except (OSError, ValueError, KeyError, IndexError, struct.error):
+        data = open(exe, "rb").read()
+    except OSError:
         return None
-    if stock <= 0 or value % stock or value // stock not in MULTIPLIERS:
-        return None
-    return value // stock
+    return multiplier_in_bytes(game, data)
+
+
+def patcher_line(village) -> str:
+    """The Tech screen entry's line on the patch, in every state: in the game (and at what multiplier), not in it,
+    or not known."""
+    game = village.game
+    name = gm.feature_name(multiplier_feature(game))
+    head = (f"With the patcher (\"{name}\", off by default): every technology level costs 2 to 10 times its normal "
+            "price, the whole number the player picks on the patcher window's slider (3 unless moved); the Tech "
+            "screen shows the multiplied price, refuses a purchase with fewer points and takes exactly that many.")
+    has = village.has(multiplier_feature(game))
+    if has is None:
+        return head + " Whether the game has it could not be told."
+    if has is False:
+        return head + " It is not in this game."
+    factor = read_multiplier(village)
+    if factor is None:
+        return head + " It is in this game, but its multiplier could not be read from the game's executable."
+    return head + f" It is in this game at x{factor}."
 
 
 def every_level(game: int) -> list[tuple[str, int]]:
@@ -239,11 +270,17 @@ def multiplied_item_facts(village, facts: list) -> list:
     multiplied one.  Every game's entry bullet starts "<technology> level <n>" and names its price "<price> tech
     points" (tests/test_tech_cost_multiplier.py checks that every level is found)."""
     game = village.game
-    if game not in GAMES or village.has(multiplier_feature(game)) is not True:
+    if game not in GAMES:
         return facts
     import dataclasses
-    factor = read_multiplier(village)
     out = list(facts)
+    # The Tech screen entry (each page's first) gets the patch's line, in every state, after its own sub-lines.
+    if out:
+        at = next((k for k in range(1, len(out)) if not out[k].sub), len(out))
+        out.insert(at, gm.Fact(out[0].group, patcher_line(village), gm.CODE, sub=True))
+    if village.has(multiplier_feature(game)) is not True:
+        return out
+    factor = read_multiplier(village)
     for tech, level in every_level(game):
         stock = stock_price(game, tech, level)
         for k, fact in enumerate(out):
@@ -390,6 +427,7 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     both = game == 3 and village.has("vv3_both_factions") is True
     multiplied = village.has(multiplier_feature(game)) is True
     factor = (read_multiplier(village) or 1) if multiplied else 1
+    unknown = village.has(multiplier_feature(game)) is None
     if game == 5:
         import vv_game_mechanics_vv5 as vv5
         if _i32(village.data, vv5.PROJECTS + 8 * 4) < vv5.PUZZLE_THRESHOLDS[4]:
@@ -442,6 +480,10 @@ def lines(ctx, everyone) -> list[gm.Fact]:
                            "price, but the multiplier could not be read from the game's executable, so the points "
                            "still needed and the times above are for the normal prices: with the patch each is "
                            "larger"), gm.CODE)
+    elif unknown:
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its stock "
+                           "price, so the points still needed and the times above, worked out from the normal "
+                           "prices, would each be larger"), gm.CODE)
     if rule.fire:
         fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) if now else 0.0
         if fired:

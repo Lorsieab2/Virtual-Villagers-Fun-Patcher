@@ -10447,6 +10447,9 @@ def _result(
             applied, result_sha256
         ),
         "result_sha256": result_sha256,
+        # 2-10x Tech Cost's multiplier, its own value (only when the row is in the build).
+        **({"tech_cost_multiplier": tech_cost_multiplier_applied(applied)}
+           if tech_cost_multiplier_applied(applied) else {}),
     }
 
 
@@ -10722,6 +10725,9 @@ def _log_data(
             applied, output_hash
         ),
         "patches": applied,
+        # 2-10x Tech Cost's multiplier, its own value (only when the row is in the build).
+        **({"tech_cost_multiplier": tech_cost_multiplier_applied(applied)}
+           if tech_cost_multiplier_applied(applied) else {}),
     }
 
 
@@ -13285,6 +13291,18 @@ def _require_patcher_files_path_fits(
             f"{patcher_files.MAX_PATH - 1}. Nothing was written. Choose an output "
             "folder with a shorter path."
         )
+
+
+def tech_cost_multiplier_applied(applied: list[dict[str, str]]) -> int | None:
+    """The 2-10x Tech Cost multiplier a build's applied records give (each price site's after / before), or None
+    when the row is not in the build."""
+    for record in applied:
+        if str(record.get("owner", "")).endswith("_tech_cost_multiplier") and record.get("before"):
+            stock = struct.unpack("<i", bytes.fromhex(record["before"]))[0]
+            value = struct.unpack("<i", bytes.fromhex(record["after"]))[0]
+            if stock > 0 and value % stock == 0:
+                return value // stock
+    return None
 
 
 def validate_tech_cost_multiplier(multiplier: int) -> int:

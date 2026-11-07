@@ -685,7 +685,7 @@
     {
       "ids": ["vv3_both_factions"],
       "guide": [
-        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its normal price.",
+        "Buy a faction on the Tech screen and say Yes to the new message, then do the same for the other one, at its Tech screen price (times the multiplier with 2-10x Tech Cost).",
         "Both then work together, every level of each: food refills, longer lives, the research point and the population bonus, and both herbs grow on the island.",
         "Seven new potions need a Pitcher Plant and a Berry Plant in the pot together.",
         "The latest shark potion decides how the sharks look; nothing else changes.",

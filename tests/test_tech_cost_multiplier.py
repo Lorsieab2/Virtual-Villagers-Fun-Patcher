@@ -636,6 +636,159 @@ class PublishTests(unittest.TestCase):
                 parser.parse_args(["--tech-cost-multiplier", bad])
 
 
+class WrittenLogTests(unittest.TestCase):
+    """A real build at x 5: the patch log keeps the multiplier as its own value, the transparency report says it, and
+    every price site's record gives its real bytes."""
+
+    def test_the_patch_log_and_the_transparency_report_name_the_multiplier(self):
+        import shutil
+        import tempfile
+        stock_bytes(4)
+        build = BUILDS[4]
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / build.title
+            folder.mkdir()
+            source = folder / build.input_name
+            shutil.copy2(stock_path(4), source)
+            output, log_path = patcher.apply_patch(
+                source, patcher.DEFAULT_PATCH_MODE, fun_patch_ids=[IDS[4]], output_root=Path(temp) / "out",
+                tech_cost_multiplier=5)
+            log = json.loads(Path(log_path).read_text(encoding="utf-8"))
+            self.assertEqual(log["tech_cost_multiplier"], 5)
+            records = [r for r in log["patches"] if r["owner"] == f"feature:{IDS[4]}"]
+            self.assertEqual(len(records), 12)
+            for r in records:
+                old = struct.unpack("<i", bytes.fromhex(r["before"]))[0]
+                self.assertEqual(struct.unpack("<i", bytes.fromhex(r["after"]))[0], 5 * old)
+                self.assertIn(f" -> {5 * old:,} at x 5", r["purpose"])
+            report = next(Path(output).parent.rglob("VVFP Transparency Log.txt")).read_text(encoding="utf-8")
+            self.assertIn("  Multiplier: x5 (the 2-10x Tech Cost slider): every technology price is its normal "
+                          "price times this.", report)
+            self.assertNotIn("at x 3", report)
+            exe = Path(output).read_bytes()
+            for r in records:
+                o = int(r["offset"], 16)
+                self.assertEqual(exe[o:o + 4].hex().upper(), r["after"])
+
+    def test_a_build_without_the_row_logs_no_multiplier(self):
+        self.assertIsNone(patcher.tech_cost_multiplier_applied([]))
+        stock_bytes(2)
+        result = patcher.dry_run(stock_path(2), patcher.DEFAULT_PATCH_MODE, [], tech_cost_multiplier=9)
+        self.assertNotIn("tech_cost_multiplier", result)
+        result = patcher.dry_run(stock_path(2), patcher.DEFAULT_PATCH_MODE, [IDS[2]], tech_cost_multiplier=9)
+        self.assertEqual(result["tech_cost_multiplier"], 9)
+
+
+class ExeWithoutLogTests(unittest.TestCase):
+    """With no patch log beside it, the Game Mechanics page reads the patch list from the exe's bytes: a build at
+    any multiplier is recognised (every price site the stock value x one k from 2 to 10)."""
+
+    def test_every_multiplier_is_seen_in_the_bytes(self):
+        import vv_game_mechanics as gm
+        import vv_game_mechanics_tech_time as tt
+        import tempfile
+        for game in GAMES:
+            stock_bytes(game)
+            for n in (2, 5, 10):
+                with self.subTest(game=game, n=n):
+                    data = rendered(game, (IDS[game],), n)
+                    self.assertEqual(tt.multiplier_in_bytes(game, data), n)
+                    with tempfile.TemporaryDirectory() as temp:
+                        exe = Path(temp) / "game.exe"
+                        exe.write_bytes(data)
+                        self.assertIn(IDS[game], gm._from_exe(exe, game))
+            with self.subTest(game=game, n="stock"):
+                self.assertIsNone(tt.multiplier_in_bytes(game, stock_bytes(game)))
+            with self.subTest(game=game, n="mixed"):
+                mixed = bytearray(rendered(game, (IDS[game],), 5))
+                site = manifest(game)["patches"][-1]
+                o = int(site["offset"], 16)
+                struct.pack_into("<i", mixed, o, 4 * struct.unpack("<i", bytes.fromhex(site["before"]))[0])
+                self.assertIsNone(tt.multiplier_in_bytes(game, bytes(mixed)))
+
+
+class RenderedPageTests(unittest.TestCase):
+    """The whole Game Mechanics page for a real save: the Tech screen entry's patch line, each level's price and
+    the catch-up rows (tech_time.lines), with the row at x 5 and no log, without it, and when nothing can be told."""
+
+    FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
+    NOW = 1_793_000_000
+
+    def page(self, game: int, exe_bytes: bytes | None, logged: list[str] | None = None):
+        import gzip
+        import shutil
+        import tempfile
+        import vv_game_mechanics as gm
+        import vv_tribe_rename
+        base = next(item.base for item in vv_tribe_rename.GAMES if item.number == game)
+        root = Path(tempfile.mkdtemp(prefix="tcmp"))
+        self.addCleanup(shutil.rmtree, root, True)
+        (root / base).mkdir()
+        (root / base / f"{base}1.ldw").write_bytes(
+            gzip.decompress((self.FIXTURES / f"vv{game}-huttest-1.ldw.gz").read_bytes()))
+        games = []
+        if exe_bytes is not None:
+            folder = root / "g" / base
+            folder.mkdir(parents=True)
+            (folder / f"{base}.exe").write_bytes(exe_bytes)
+            if logged is not None:     # the patcher's report of the run that made this exe: the list is certain
+                import hashlib
+                (folder / "Virtual Villagers Fun Patcher Files").mkdir()
+                (folder / "Virtual Villagers Fun Patcher Files" / "VVFP Transparency Log.txt").write_text(
+                    f"Modified EXE: {base}.exe | size {len(exe_bytes)} | SHA-256 "
+                    f"{hashlib.sha256(exe_bytes).hexdigest()}\n"
+                    + "".join(f"- Optional feature: x [{fid}]\n" for fid in logged), encoding="utf-8")
+            games = [folder]
+        return [f.text for f in gm.read(root / base, game, 1, games, now=self.NOW)]
+
+    def test_at_x5_with_no_log(self):
+        for game in GAMES:
+            stock_bytes(game)
+            texts = self.page(game, rendered(game, (IDS[game],), 5))
+            with self.subTest(game=game):
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\", off by default)")
+                                    and t.endswith("It is in this game at x5.") for t in texts))
+                for (name, level), price in stock_table(game).items():
+                    want = f"{price:,} tech points normally, {5 * price:,} with \"2-10x Tech Cost\" (x5)"
+                    self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in texts),
+                                    (name, level))
+                self.assertTrue(any("costs 5 times its stock price, the multiplier read from the game's executable"
+                                    in t for t in texts))
+                catch_up = [t for t in texts if " tech points normally, " in t and "still needed" in t
+                            or (" tech points normally, " in t and "can be bought now" in t)]
+                self.assertTrue(catch_up)
+                self.assertTrue(all("(x5)" in t for t in catch_up))
+
+    def test_not_in_the_game(self):
+        for game in GAMES:
+            texts = self.page(game, stock_bytes(game), logged=[])
+            with self.subTest(game=game):
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("It is not in this game.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+
+    def test_when_nothing_can_be_told(self):
+        import vv_game_mechanics as gm
+        for game in GAMES:
+            with self.subTest(game=game, page="save, no game found"):
+                texts = self.page(game, None)
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+                self.assertTrue(any("2-10x Tech Cost" in t and "could not be told" in t
+                                    and "would each be larger" in t for t in texts))
+            with self.subTest(game=game, page="general"):
+                texts = [f.text for f in gm.general(game, now=self.NOW)]
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+
+    def test_the_difficulty_line_names_the_multiplier(self):
+        import vv_game_mechanics_tech_time as tt
+        for game in GAMES:
+            self.assertIn("; x N with \"2-10x Tech Cost\")", tt.difficulty_line(game))
+
+
 class SliderTests(unittest.TestCase):
     """The patcher window's 2-10x Tech Cost slider: whole numbers 2 to 10, 3 unless moved, saved and restored with
     the settings, and handed to every dry run and build."""
@@ -725,11 +878,14 @@ class GameMechanicsTests(unittest.TestCase):
         import vv_game_mechanics_tech_time as tt
         for game in GAMES:
             facts = self.facts(game)
+            line = lambda fact: fact.text.startswith('With the patcher ("2-10x Tech Cost"')  # noqa: E731
             for has in (False, None):
-                self.assertEqual(tt.multiplied_item_facts(self.Village(game, has, self.exe(game, 4)), facts), facts)
+                out = tt.multiplied_item_facts(self.Village(game, has, self.exe(game, 4)), facts)
+                self.assertEqual([f for f in out if not line(f)], facts)       # only the Tech screen's patch line
+                self.assertEqual(sum(1 for f in out if line(f)), 1)
             for n in (2, 3, 10, None):
                 exe = self.exe(game, n)
-                out = tt.multiplied_item_facts(self.Village(game, True, exe), facts)
+                out = [f for f in tt.multiplied_item_facts(self.Village(game, True, exe), facts) if not line(f)]
                 changed = [b.text for a, b in zip(facts, out) if a.text != b.text]
                 with self.subTest(game=game, n=n):
                     self.assertEqual(len(changed), len(stock_table(game)))
