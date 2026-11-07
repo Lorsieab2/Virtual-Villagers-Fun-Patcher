@@ -751,6 +751,17 @@ def patch_words(village: "Village", feature: str, effect: str) -> str:
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
+def flat_pick_mastery(village: "Village", feature: str, has: bool | None, levels) -> str:
+    """The Food Mastery line's patched pick (The Tree of Life's blackberries, New Believers' noni) with "Food Gains
+    are Flat, like VV1-3 (Harder Games)": 7, 3 or 2 on Fast, Normal or Slow and 4 while catching up, each at Food
+    Mastery level 1 -> 2 -> 3 (`levels`); the stock pick comes first in the line.  "" when it is not in the game."""
+    if has is False:
+        return ""
+    where = "" if has else " (whether the game has it could not be told)"
+    return (f" With \"{feature_name(feature)}\"{where}: a pick {levels(7)} on Fast, {levels(3)} on Normal, "
+            f"{levels(2)} on Slow and {levels(4)} while catching up.")
+
+
 @dataclass
 class PatchSource:
     """Which of the patcher's patches are in the game, and where that was read (the owner, 2026-10-23: from the

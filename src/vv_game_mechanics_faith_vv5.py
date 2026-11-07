@@ -68,10 +68,13 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             f"rise and Faith is above 75, the rise is skipped {_p(70)} of the time (0x4681A7). Each roll's exact odds "
             "are a hair above the round percentage, as the game's random numbers fall."):
         add(text, sub=True)
-    if village.has(FAITH_LOSS) is True:
-        # Stock first, then the patch (scripts/build_apprentice_faith_puddles_features.py, FAITH_EDITS).
+    faith_loss = village.has(FAITH_LOSS)
+    if faith_loss is not False:
+        # Stock first, then the patch (scripts/build_apprentice_faith_puddles_features.py, FAITH_EDITS).  Shown
+        # too when whether the game has it cannot be told (no exe or patch log found), as every other patch is.
         doubled = 1 - (1 - below(100, 60) / DRAWS) * (1 - below(100, 20) / DRAWS)
-        add(f"With \"{gm.feature_name(FAITH_LOSS)}\" (in this game) every loss roll's chance is doubled and every "
+        where = "in this game" if faith_loss else "whether the game has it could not be told"
+        add(f"With \"{gm.feature_name(FAITH_LOSS)}\" ({where}) every loss roll's chance is doubled and every "
             "gain roll's halved, each roll stock then patched:")
         for text in (
                 f"Food under 10: -1 {pct(round(starving * DRAWS))} -> {pct(round(doubled * DRAWS))} ({_p(30)} -> "
