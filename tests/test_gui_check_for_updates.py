@@ -413,7 +413,9 @@ class ReleasesLinkTests(unittest.TestCase):
               for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
-                                        "vv_game_mechanics_farmers"}),
+                                        "vv_game_mechanics_farmers",
+                                        # The technology times under the tech points (function-level).
+                                        "vv_game_mechanics_tech_time"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
