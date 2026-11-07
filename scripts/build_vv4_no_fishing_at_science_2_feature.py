@@ -217,7 +217,9 @@ DESCRIPTION = (
     "below 3 gets the site locked again: it disappears and nobody builds it until Science reaches 3; then it comes "
     "back in the same place with all the building it already had. Nothing is reset or lost. (A site with no "
     "building done yet has no points to keep: at Science 3 the game places it itself, as it places any new site, "
-    "so it may appear in a different spot.) A Clothing Hut that is already finished is never affected."
+    "so it may appear in a different spot.) A Clothing Hut that is already finished is never affected. If you "
+    "remove this patch while a partly built Clothing Hut is hidden below Science 3, the normal game restarts a site "
+    "with under 400 points from 0."
 )
 
 
