@@ -423,6 +423,8 @@ FIX_PERCENT |= {0x5D79C, 0x5D23C}
 # stays with 256 Villagers too.
 from test_details_name_identity import name_identity_fixes  # noqa: E402
 FIX_PERCENT |= {off for off, _, _ in name_identity_fixes("vv4")}
+# ... and the Overview Map water rounding (#709): two call sites in the map's draw code, kept with 256 Villagers.
+FIX_PERCENT |= {0x4C411, 0x1C5CB}
 # The line drawer's zero-length fix (tests/test_no_divide_by_zero_crashes.py) stays with 256 Villagers too.
 from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
 FIX_PERCENT |= {off for off, _, _ in zero_length_line_fixes("vv4")}
