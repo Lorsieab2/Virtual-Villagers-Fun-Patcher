@@ -66,6 +66,9 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when Children's Graves Say Apprentice (vv3_apprentice_graves) joined the catalog: rendering the full
+    # catalog without that row gives exactly the previous pins in every mode; with it, 77-78 bytes differ, every one
+    # inside its own grave-dialog edits (0x1E939..0x1E995) or the PE CheckSum (0x160..0x163); the length is unchanged.
     # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and
     # without the two new cloud rows -- in every mode only the PE CheckSum (0x160..0x162) and the Disable Clouds
     # jump (0x6C3BD..0x6C3BF) differ; the Overview Map water fix adds its two bytes sites inside Fix Vanilla Bugs.
@@ -241,16 +244,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "B0917BC87BA6E191DE1DFF97841AE42E7CDAAF16AEB812A788094DFAEB883BDB",
-        "01EB0C00",
+        "55CCD8772FFC5A71139494F936B23964BB62C59CB7D4FC891E25786637CAEDF3",
+        "E34F0D00",
     ),
     "collection_progression": (
-        "05C81B81C0A4562938B439133C4D93B85F57DB8097B22A71CF1DBE19A657BC37",
-        "01040D00",
+        "7DD0D7B0B459424B3F919B09B684972F92B3561C5E0031ABC2A65BDFDC98E0F5",
+        "E3680D00",
     ),
     "immediate_fixed": (
-        "F01435A349744238521176B5150F841173CBA1CCA7F60168BB248B86D918C687",
-        "FF450D00",
+        "EEA03CAFDAD73CD1F5731CE0AB8939FE4F43556D7E81F39A743E51A912D98DAA",
+        "E1AA0D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at

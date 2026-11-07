@@ -720,6 +720,31 @@
       ]
     },
     {
+      "ids": ["vv1_apprentice_graves", "vv2_apprentice_graves", "vv3_apprentice_graves", "vv5_apprentice_graves"],
+      "guide": [
+        "Click a child's gravestone: a villager who died before age 14 with a skill of 20 or more shows \"Apprentice\" plus their job.",
+        "For example \"Apprentice Farmer\" instead of Trainee, Adept or Master.",
+        "Below 20 it still says \"Untrained\". Adults' graves are unchanged.",
+        "Old graves change too: the line is made each time a grave is shown."
+      ]
+    },
+    {
+      "ids": ["vv5_faith_loss_doubled_gains_halved"],
+      "guide": [
+        "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
+        "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
+        "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
+      ]
+    },
+    {
+      "ids": ["vv5_puddles_by_the_lake"],
+      "guide": [
+        "After The Lake is filled, children still go and play in puddles when it rains, on the lake's north-west sandy shore.",
+        "Before The Lake is filled nothing changes: they play in the dry lake bed.",
+        "Nothing to click."
+      ]
+    },
+    {
       "ids": ["vv5_playing_in_the_dirt_spot"],
       "guide": [
         "Children who play in the dirt now play in the flower patch east of the dirt path, instead of wandering through the river.",
@@ -780,7 +805,7 @@
       "guide": [
         "Click a gravestone: it shows the cause of death under the age and an epitaph under the name.",
         "You can type your own epitaph in its box (up to 31 letters); Done keeps it.",
-        "A villager who died before age 14 is shown as \"Apprentice\" plus their job (for example \"Apprentice Farmer\") instead of Trainee, Adept or Master, on the grave and in the Deaths log.",
+        "With Children's Graves Say Apprentice ticked, a villager who died before age 14 is shown as \"Apprentice\" plus their job on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves get an epitaph but no cause: how they died was never recorded.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
@@ -790,7 +815,7 @@
       "ids": ["vv2_cause_of_death"],
       "guide": [
         "Click a gravestone: it shows the cause of death under the age.",
-        "A villager who died before age 14 is shown as \"Apprentice\" plus their job (for example \"Apprentice Farmer\") instead of Trainee, Adept or Master, on the grave and in the Deaths log.",
+        "With Children's Graves Say Apprentice ticked, a villager who died before age 14 is shown as \"Apprentice\" plus their job on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves show no cause: how they died was never recorded.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
@@ -915,6 +940,7 @@
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with.",
+        "Faith Loss is Doubled/Gains Halved (New Believers) is off: it makes the game harder.",
         "It does not change the population mode."
       ]
     },

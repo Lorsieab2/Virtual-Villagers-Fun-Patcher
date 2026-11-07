@@ -136,8 +136,11 @@ class VV5OriginsCarriesNoUnreachableCode(unittest.TestCase):
                 # extension, not Origins'.  test_every_origins_byte_is_reached
                 # still requires every byte there to be reached.)
                 public_ids = {p.id for p in vfp.load_public_fun_patches()}
+                # (And Puddle Play Moves to the Lake Shore's cave at 0x494E00 and Fix
+                # Vanilla Bugs' lake-bed picker cave at 0x494E80, also all live code.)
                 table = [t for t in ("vv5_population_256", "vv5_easier_devotee_training",
-                                     "vv5_statue_polishing_or_honoring")
+                                     "vv5_statue_polishing_or_honoring", "vv5_puddles_by_the_lake",
+                                     "vv5_fix_vanilla_bugs")
                          if scope == "full" and t in public_ids]
                 stock, _ = vfp.render_patched_bytes(STOCK, build, mode, table)
                 for lo, hi, what in (

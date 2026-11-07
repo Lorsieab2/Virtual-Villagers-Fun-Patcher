@@ -1154,6 +1154,35 @@ The epitaph is kept in the grave like any other, so it is saved, you can
 still edit it, and the Deaths log records it. Graves that earlier versions
 of this patch wrote as "Devoted Soul" keep that epitaph.
 
+CHILDREN'S GRAVES SAY APPRENTICE (A NEW HOME, THE LOST CHILDREN, THE SECRET CITY, NEW BELIEVERS)
+
+A villager who died under 14 years old with a skill of 20 or more is named
+an apprentice on the grave, as The Tree of Life does: "Apprentice Farmer",
+"Apprentice Scientist", "Apprentice Parent" and so on, instead of Trainee,
+Adept or Master. Below 20 it is still "Untrained", and adults' graves are
+unchanged. The word is the game's own, so it follows the game's language. On
+by default. With Show Cause of Death on Graves, the Deaths log writes the
+same line.
+
+FAITH LOSS IS DOUBLED/GAINS HALVED (NEW BELIEVERS)
+
+Off by default. Each age unit a believer's Faith moves by a few small rolls.
+With this patch every roll that takes Faith away is twice as likely (little
+food, sickness, fewer than 12 believers) and every roll that gives Faith is
+half as likely (plenty of food, the Tribute Statue, Spirituality, a big
+tribe). A falling believer near 0 is no longer protected, so Faith can reach
+0 and the believer becomes a Heathen, as in the normal game. Preaching and
+everything else that changes Faith are unchanged. Adds a real chance of your
+villagers becoming heathens. Makes the game that much harder. Good Luck!
+
+PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
+
+When it rains, children play in the puddles of the dry lake bed. Once The
+Lake holds water the normal game stops this, because they cannot swim. With
+this patch they keep playing when it rains, on the lake's north-west sandy
+shore (between the lake's west tip and the rocks with the red flower), never
+in the water. Before The Lake is filled nothing changes. On by default.
+
 SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
 
 The Lost Children and the later games let you sort the villagers you step

@@ -105,6 +105,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
+                  # Faith Loss is Doubled/Gains Halved (New Believers): a difficulty
+                  # change, off by default (the owner, 2026-11-06).
+                  or p == "vv5_faith_loss_doubled_gains_halved"
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
                   # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves

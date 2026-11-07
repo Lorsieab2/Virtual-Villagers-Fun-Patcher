@@ -1,0 +1,33 @@
+{
+  "id": "vv2_apprentice_graves",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Children's Graves Say Apprentice",
+  "description": "A child's grave names the child's job as an \"Apprentice\", the way The Tree of Life does: a villager who died under 14 years old whose best skill was 20 or more (Trainee or better) shows \"Apprentice Farmer\", \"Apprentice Scientist\", \"Apprentice Parent\" and so on, instead of \"Trainee\", \"Adept\" or \"Master\"; below 20 it is \"Untrained\" as before. Adults' graves are unchanged. The word is the game's own \"Apprentice\" text, so it follows the game's language. Graves are read when shown, so graves made before you ticked this change too. With Show Cause of Death and Age at Death on Graves, the Deaths log writes the same line.",
+  "output_tag": "Apprentice Graves",
+  "behavior_changes": [
+    "The Lost Children's grave skill line (0x44456A..0x4445CB): a grave whose age at death is under 280 age units (14 years) and whose best skill is 20 or more prints the game's own string 0x83 (\"Apprentice \") before the job's word. Was \"Trainee\" under 50, \"Adept\" under 88, \"Master\" from 88, at any age.",
+    "The Cause of Death companion writes the same line into the Deaths log only while these bytes are in the executable (cod_apprentice_patched), so the grave and its Death record agree."
+  ],
+  "explicit_non_changes": [
+    "The block is recoded in place, same length; the copy call at 0x4445C6 and everything after it are unchanged, and no executable space is claimed.",
+    "A best skill under 20 (or no job) is still \"Untrained\"; adults keep Trainee / Adept / Master at the game's own values; the job's word, the cause, the age and the epitaph are untouched. Nothing is written to the save: the line is built each time the grave is shown."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x44568",
+      "before": "7446",
+      "after": "7430",
+      "purpose": "the grave dialog's no-job branch: je 0x44459A (the recoded Untrained)"
+    },
+    {
+      "offset": "0x4456A",
+      "before": "8B8078EB020083F8147C3B83F8327D076884000000EB3483F8588B8D800000007D126885000000E8EAD0FFFF508D54241852EB286886000000E8D8D0FFFF508D44241850EB1668810000008B8D80000000E8C0D0FFFF8D4C24145051E8F23C0200",
+      "after": "83B878EB0200147C27BA8300000081B880EB0200180100007C1B8B8078EB0200B28483F8327C0E4283F8587C0842EB05BA810000008B8D8000000052E8D5D0FFFF8D4C24145051909090909090909090909090909090909090909090E8F23C0200",
+      "purpose": "the rank pick: best skill < 20 -> 0x81 Untrained; age < 0x118 -> 0x83 Apprentice; < 50 -> 0x84 Trainee; < 88 -> 0x85 Adept; else 0x86 Master; then the stock string fetch and copy"
+    }
+  ]
+}

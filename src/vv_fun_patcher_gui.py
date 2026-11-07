@@ -130,6 +130,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
+    # Faith Loss is Doubled/Gains Halved (New Believers) makes the game harder:
+    # a difficulty change, not content, so it is off by default (the owner,
+    # 2026-11-06: "Default OFF"). Owner's Defaults ticks it, as it ticks every
+    # default-off patch it does not name.
+    + ["vv5_faith_loss_doubled_gains_halved"]
     # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
     # five games) are NOT here: they are on by default (owner, 2026-11-01:
     # "Anything that costs (money tech points food etc) and anything that adds

@@ -84,14 +84,37 @@ static unsigned int cod_grave_fingerprint(const unsigned char *grave) {
    Tree of Life's grave dialog uses (0x41BE43). */
 #define CHILD_AGE 280
 
+/* Is "Children's Graves Say Apprentice" in this executable?  That row
+   recodes the grave dialog's rank pick (scripts/
+   build_apprentice_faith_puddles_features.py); its first bytes say so.  The
+   row decides the rule: the popup (that row's own bytes), the Deaths log's
+   Grave line (cod_grave_title, v345_title) and this companion's popup hook
+   all follow it, so one game never has two rules.  The Tree of Life does it
+   in the stock game. */
+static int cod_apprentice_patched(void) {
+    static const unsigned char vv1[] = { 0x83, 0xB8, 0x38, 0xA3, 0x00, 0x00, 0x14 };   /* 0x436516 */
+    static const unsigned char vv2[] = { 0x83, 0xB8, 0x78, 0xEB, 0x02, 0x00, 0x14 };   /* 0x44456A */
+    static const unsigned char vv3[] = { 0xBA, 0x92, 0x00, 0x00, 0x00 };              /* 0x41E946 */
+    static const unsigned char vv5[] = { 0xBA, 0xC6, 0x00, 0x00, 0x00 };              /* 0x41C685 */
+    switch (g_game) {
+    case 1: return cod_bytes_are(0x436516u, vv1, (int)sizeof vv1);
+    case 2: return cod_bytes_are(0x44456Au, vv2, (int)sizeof vv2);
+    case 3: return cod_bytes_are(0x41E946u, vv3, (int)sizeof vv3);
+    case 4: return 1;
+    case 5: return cod_bytes_are(0x41C685u, vv5, (int)sizeof vv5);
+    default: return 0;
+    }
+}
+
 /* Does the grave's skill line name a job (a best skill of 20 or more, a job
-   the popup words), and is that grave a child's?  Then the line is
-   "Apprentice <job>", as The Tree of Life words a child's grave. */
+   the popup words), and is that grave a child's, with "Children's Graves Say
+   Apprentice" in the exe?  Then the line is "Apprentice <job>", as The Tree
+   of Life words a child's grave. */
 static int cod_grave_apprentice(const unsigned char *grave) {
     const struct grave_geometry *g = &GRV[g_game];
     int job = *(const int *)(grave + g->job);
     return job >= 1 && job <= 5 && *(const int *)(grave + g->value) >= 20
-        && *(const int *)(grave + g->age) < CHILD_AGE;
+        && *(const int *)(grave + g->age) < CHILD_AGE && cod_apprentice_patched();
 }
 
 /* The skill line the grave shows under "Job", as the popup builds it:

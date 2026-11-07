@@ -309,6 +309,20 @@ LATER = {
 }
 
 
+APPRENTICE_ROW = "vv{}_apprentice_graves"
+
+
+def apprentice_line(village: gm.Village, master: int) -> str:
+    """A New Home, The Lost Children, The Secret City and New Believers: "Children's Graves Say Apprentice" (the
+    owner, 2026-11-06: "Apprentice on graves SHOULD BE FOR ALL GAMES THAT DON'T ALREADY HAVE THEM")."""
+    return ("A child's grave: normally the game has no \"Apprentice\": a child's grave shows the rank as an adult's "
+            f"(\"Trainee\", \"Adept\" or \"Master\", from {master}). "
+            + gm.patch_words(village, APPRENTICE_ROW.format(village.game),
+                             "a villager who died under 14 years (280 age units) whose best skill was 20 or more shows "
+                             "\"Apprentice <job>\", as in The Tree of Life (below 20 still \"Untrained\"), and the "
+                             "Deaths log's Grave line says the same"))
+
+
 def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int,
            nature: int = 0) -> list[gm.Fact]:
     """The Secret City's, The Tree of Life's and New Believers' lines (the addresses above); `nature`: The Secret
@@ -401,6 +415,8 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     add(f"Job: the villager's highest skill (on a tie the first of {c['skills']}), shown \"Untrained\" below 20 or "
         "with every skill at 0, else \"Trainee\" below 50, \"Adept\" below 88, \"Master\" from 88"
         f"{c['apprentice']}, with {c['jobs']}.")
+    if game in (3, 5):
+        add(apprentice_line(village, 88))
     add("Epitaph, chosen once at the burial: under 18 years, \"Curious and Playful\" or \"Loving and Special\" (50% "
         f"each); {c['elder']}; otherwise by the Job, 50% each: Farmer \"{c['farmer']}\" or \"Nature's Friend\", "
         "Parent \"Parent, Teacher, Friend\" or \"Dedicated to Children\", Doctor \"Guardian of Health\" or "
@@ -583,6 +599,7 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
     jobs = "Farmer, Parent, Scientist, Builder or Doctor" if game == 1 else "Farmer, Parent, Doctor, Scientist or Builder"
     add(f"Job: the villager's best skill, shown \"Untrained\" below 20, else \"Trainee\" below 50, \"Adept\" below "
         f"{master}, \"Master\" from {master}, with {jobs}.")
+    add(apprentice_line(village, master))
     if game == 1:
         add("Epitaph: the game has none.")
     else:
@@ -598,8 +615,7 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
         extra = ("; it also gives each new grave an epitaph by New Believers' rule (under 18 years \"Curious and "
                  "Playful\" or \"Loving and Special\", otherwise the pair for the grave's job, \"Respected Citizen\" "
                  "with no skill; each pair 50% either way), which the player can retype (31 characters at most)") if game == 1 else ""
-        add(gm.patch_words(village, cod, "the grave shows the recorded cause, a child's grave (under 14 years) says "
-                                         "\"Apprentice\" instead of the rank, and every death goes into the Deaths "
+        add(gm.patch_words(village, cod, "the grave shows the recorded cause, and every death goes into the Deaths "
                                          "log" + extra))
     if game == 2:
         fix = "vv2_fix_vanilla_bugs"

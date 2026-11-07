@@ -21,6 +21,7 @@ import vv_game_mechanics as gm
 
 FAITH = "Faith and Heathens"
 HEATHEN_MOMMY = "vv5_heathen_mommy_puzzle"
+FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
 DRAWS = 32768
 
 
@@ -67,6 +68,27 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             f"rise and Faith is above 75, the rise is skipped {_p(70)} of the time (0x4681A7). Each roll's exact odds "
             "are a hair above the round percentage, as the game's random numbers fall."):
         add(text, sub=True)
+    if village.has(FAITH_LOSS) is True:
+        # Stock first, then the patch (scripts/build_apprentice_faith_puddles_features.py, FAITH_EDITS).
+        doubled = 1 - (1 - below(100, 60) / DRAWS) * (1 - below(100, 20) / DRAWS)
+        add(f"With \"{gm.feature_name(FAITH_LOSS)}\" (in this game) every loss roll's chance is doubled and every "
+            "gain roll's halved, each roll stock then patched:")
+        for text in (
+                f"Food under 10: -1 {pct(round(starving * DRAWS))} -> {pct(round(doubled * DRAWS))} ({_p(30)} -> "
+                f"{_p(60)}, or else {_p(10)} -> {_p(20)}); 10 to 250: -1 {_p(10)} -> {_p(20)}; 8,000 or more: +1 "
+                f"{_p(20)} -> {_p(10)}.",
+                f"A sick believer loses 1 more {_p(15)} -> {_p(30)} of the time.",
+                f"The Tribute Statue solved: +1 {_p(30)} -> {_p(15)}; its first stage {_p(10)} -> {_p(5)}, its second "
+                f"{_p(20)} -> {_p(10)}.",
+                f"Spirituality level 1, 2 or 3: +1 {_p(10)}, {_p(20)} or {_p(30)} -> {_p(5)}, {_p(10)} or {_p(15)}.",
+                f"Fewer than 12 believers: -1 with a chance of (12 - believers) in 100 -> 2 x (12 - believers) in 100 "
+                f"(11 believers {_p(1)} -> {_p(2)}; 1 believer {_p(11)} -> {_p(22)}); 12 or more: +1 with a chance of "
+                f"(believers / 5) in 100 -> (believers / 10) in 100, rounded down (50 believers {_p(10)} -> {_p(5)}).",
+                f"A fall with Faith below 5: skipped {_p(50)} of the time -> never skipped, so a falling believer can "
+                f"reach 0 and become a Heathen; a rise above 75 is still skipped {_p(70)} of the time.",
+                "A thriving village (8,000 food or more, Spirituality, the Tribute Statue, 12 or more believers, "
+                "nobody sick) still rises towards 100: only the chances change, and no loss roll fires there."):
+            add(text, sub=True)
     add("Other things that change Faith, exactly:")
     for text in (
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
