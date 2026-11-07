@@ -66,6 +66,9 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and
+    # without the two new cloud rows -- in every mode only the PE CheckSum (0x160..0x162) and the Disable Clouds
+    # jump (0x6C3BD..0x6C3BF) differ; the Overview Map water fix adds its two bytes sites inside Fix Vanilla Bugs.
     # Re-pinned when the fix-huts page gained the catch-up worker's decision
     # stub (one roll per catch-up decision, Codex on #494). Justified BEFORE
     # re-pinning by rendering the full catalog at the preceding commit and on
@@ -238,16 +241,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "7B38B2054F8A63E4AA3C3286BA99F71A18D3D7024DB5F92CBAEA1F3B537ED2E1",
-        "84B80D00",
+        "B0917BC87BA6E191DE1DFF97841AE42E7CDAAF16AEB812A788094DFAEB883BDB",
+        "01EB0C00",
     ),
     "collection_progression": (
-        "1B63CF9218F5EBD0BE340E0AA821A6AD8020644AC9E8B7ADB040CB6023E229EC",
-        "85D10C00",
+        "05C81B81C0A4562938B439133C4D93B85F57DB8097B22A71CF1DBE19A657BC37",
+        "01040D00",
     ),
     "immediate_fixed": (
-        "E009F9F9F9C7FB3EBDE2DA1F26B5D07AA2BDC3D256C04BBEAE0F1F47E27658CD",
-        "83130D00",
+        "F01435A349744238521176B5150F841173CBA1CCA7F60168BB248B86D918C687",
+        "FF450D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
