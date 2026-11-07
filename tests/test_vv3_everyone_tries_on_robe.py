@@ -66,6 +66,10 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
+    # Re-pinned when Checked Skill Preferences are listed as Jobs on Graves (vv3_preferred_job_graves) joined the
+    # catalog: rendering the full catalog without that row gives exactly the previous pins in every mode; with it,
+    # 80-81 bytes differ, every one inside its Roster writer block (0x5504E..0x550AB) or the PE CheckSum
+    # (0x160..0x163); the length is unchanged.
     # Re-pinned when Children's Graves Say Apprentice (vv3_apprentice_graves) joined the catalog: rendering the full
     # catalog without that row gives exactly the previous pins in every mode; with it, 77-78 bytes differ, every one
     # inside its own grave-dialog edits (0x1E939..0x1E995) or the PE CheckSum (0x160..0x163); the length is unchanged.
@@ -244,16 +248,16 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     "stock": (
-        "55CCD8772FFC5A71139494F936B23964BB62C59CB7D4FC891E25786637CAEDF3",
-        "E34F0D00",
+        "4AFF180E0BDC3F82DD1138484022D40269743F2B69B9388D34A884F2C8F2D092",
+        "67C50D00",
     ),
     "collection_progression": (
-        "7DD0D7B0B459424B3F919B09B684972F92B3561C5E0031ABC2A65BDFDC98E0F5",
-        "E3680D00",
+        "92F85666552879C99223A75B8EAB298FBA6EF1E7CDA70FFF0221B57A0863EB94",
+        "68DE0C00",
     ),
     "immediate_fixed": (
-        "EEA03CAFDAD73CD1F5731CE0AB8939FE4F43556D7E81F39A743E51A912D98DAA",
-        "E1AA0D00",
+        "5B05E6D8B6A25153CFEABD05A593F34738D4079866A396376153816818A27B4D",
+        "66200D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
