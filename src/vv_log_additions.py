@@ -158,7 +158,8 @@ class Kind:
 
     @property
     def decided(self) -> int:
-        return sum(1 for i in self.inserts if i.line) + sum(1 for r in self.replaces if len(r) == 3)
+        return (sum(1 for i in self.inserts if i.line) + sum(1 for r in self.replaces if len(r) == 3)
+                + len(self.context.get("golden_marks") or ()))
 
     @property
     def asked(self) -> int:
@@ -1448,15 +1449,26 @@ def apprentice_in_game(folder: Path, game: int, game_folders: list[Path] | None)
 # (cod_vv12.inc cod_grave_title), so an older Death or Epitaph changed record of his grave -- his Death record names
 # him "Special villager: Golden Child"; the others are his by name and age at death -- gets that Grave line.  A
 # Death record with no epitaph ("(none)") under a real grave gets the child epitaph his grave holds in the Graves
-# file, when it holds one (never a new pick: the grave and its record agree).
+# file, when it holds one (never a new pick: the grave and its record agree).  His grave itself: one buried before
+# the companion marked his grave at the burial has no mark in the Graves file, so its popup shows the skill line;
+# when his Death record's name and age at death match exactly one grave in the save, that grave's entry is given
+# the mark (flag 2, version 3; an entry made for it carries his record's child epitaph, else "Curious and
+# Playful"); otherwise nothing is marked and Check Saves & Logs says why.
 GOLDEN_GRAVE = "Golden Child"
 CHILD_EPITAPHS = ("Curious and Playful", "Loving and Special")
 
 
 def _golden_child_graves(folder: Path, game: int, slot: int, villages) -> tuple[list, list]:
     """(the Grave lines to rewrite as "Golden Child", the Epitaph lines to fill in).  Reads only."""
+    graves, epitaphs, _marks, _notes = _golden_child_plan(folder, game, slot, villages)
+    return graves, epitaphs
+
+
+def _golden_child_plan(folder: Path, game: int, slot: int, villages) -> tuple[list, list, list, list]:
+    """_golden_child_graves, and (the Graves file to mark his grave in: [(path, original or None, updated)], the
+    notes for a grave that could not be marked).  Reads only."""
     if game != 1:
-        return [], []
+        return [], [], [], []
     import vv_graves
     import vv_last_names as ln
     every = [(path, b) for path in tools.load_checker().log_files(Path(folder)) for b in blocks(path)
@@ -1465,13 +1477,52 @@ def _golden_child_graves(folder: Path, game: int, slot: int, villages) -> tuple[
     who = {(b.value("Name"), b.int_value("Age at death")) for _, b in deaths
            if b.value("Special villager") == GOLDEN_GRAVE}
     if not who:
-        return [], []
+        return [], [], [], []
     held: dict[int, str] = {}
     path = vv_graves.graves_file(folder, game, slot)
-    if path is not None and path.is_file():
-        for e in vv_graves._vcd1_entries(path.read_bytes(), game) or ():
-            if e[0] == 0 and 0 < e[9] < len(vv_graves.EPITAPHS) and vv_graves.EPITAPHS[e[9]] in CHILD_EPITAPHS:
-                held[struct.unpack_from("<I", e, 4)[0]] = vv_graves.EPITAPHS[e[9]]
+    original = path.read_bytes() if path is not None and path.is_file() else None
+    entries = vv_graves._vcd1_entries(original, game) if original is not None else []
+    marks, notes = [], []
+    for e in entries or ():
+        if e[0] == 0 and 0 < e[9] < len(vv_graves.EPITAPHS) and vv_graves.EPITAPHS[e[9]] in CHILD_EPITAPHS:
+            held[struct.unpack_from("<I", e, 4)[0]] = vv_graves.EPITAPHS[e[9]]
+    # His grave's mark in the Graves file: by his name and age at death, exactly one grave in the save.
+    try:
+        in_save = vv_graves.read_graves(game, ln.save_path(folder, game, slot).read_bytes())
+    except (OSError, vv_graves.GraveError):
+        in_save = None
+    touched = False
+    for name, age in sorted(who, key=str):
+        label = f"{name}, the Golden Child (age at death {age})"
+        if path is None or in_save is None:
+            notes.append(f"{label}: the save's graves could not be read, so his grave was not marked as his.")
+            continue
+        match = [g for g in in_save if g.name == name and g.age == age]
+        if len(match) != 1:
+            notes.append(f"{label}: {'no grave' if not match else f'{len(match)} graves'} in the save match his "
+                         "name and age at death, so no grave was marked as his; its Job line stays the skill line.")
+            continue
+        if entries is None:
+            notes.append(f"{label}: {path.name} could not be read, so his grave was not marked as his.")
+            continue
+        g = match[0]
+        mine = [e for e in entries if struct.unpack_from("<HHI", e, 0) == (0, g.place, g.fingerprint)]
+        if mine and mine[0][10] & vv_graves.FLAG_GOLDEN:
+            continue
+        if not mine:
+            text = next((b.value("Epitaph") for _p, b in deaths
+                         if (b.value("Name"), b.int_value("Age at death")) == (name, age)
+                         and b.value("Epitaph") in CHILD_EPITAPHS), CHILD_EPITAPHS[0])
+            e = bytearray(44)
+            struct.pack_into("<HHIbB", e, 0, 0, g.place, g.fingerprint, vv_graves.CAUSE_NONE,
+                             vv_graves.EPITAPHS.index(text))
+            entries.append(e)
+            held[g.fingerprint] = text
+            mine = [e]
+        mine[0][10] |= vv_graves.FLAG_GOLDEN
+        touched = True
+    if touched:
+        marks.append((path, original, vv_graves._vcd1_bytes(game, entries)))
     graves, epitaphs = [], []
     for path, b in every:
         if not (re.match(r"^Death( \d+)?$", b.heading) or b.heading.startswith("Epitaph changed")):
@@ -1490,7 +1541,7 @@ def _golden_child_graves(folder: Path, game: int, slot: int, villages) -> tuple[
             text = held.get(ln.grave_fingerprint(name.encode(GAME_TEXT, "replace"), 0x1C, age))
             if text is not None:
                 epitaphs.append((path, at, f"  Epitaph: {text}"))
-    return graves, epitaphs
+    return graves, epitaphs, marks, notes
 
 
 def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> Kind:
@@ -1513,8 +1564,11 @@ def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path]
             m = GRAVE_RANK.match(b.lines[at - b.start])
             if m and m.group(3) in jobs:
                 found.append((path, at, f"{m.group(1)}Apprentice {m.group(3)}"))
-    golden, epitaphs = _golden_child_graves(folder, game, slot, villages)
+    golden, epitaphs, marks, golden_notes = _golden_child_plan(folder, game, slot, villages)
     kind.replaces.extend(epitaphs)
+    if marks:
+        kind.context["golden_marks"] = marks
+    kind.notes.extend(golden_notes)
     found = [f for f in found if (f[0], f[1]) not in {(g[0], g[1]) for g in golden}] + golden
     if not found:
         return kind
@@ -1826,6 +1880,26 @@ def _move_boundaries(folder: Path, doc: _Doc) -> None:
         tools.move_word_boundary(folder, doc.path, int(named.group(1)), doc.moved)
 
 
+def _replace_file(path: Path, data: bytes, backup: Path | None) -> None:
+    """Every file a repair here writes: the file copied to `backup` first (None: a new file, its folder made),
+    `data` written through a temporary file, which is removed on a failure."""
+    temporary = path.with_name(path.name + ".tmp")
+    try:
+        if backup is None:
+            path.parent.mkdir(parents=True, exist_ok=True)
+        else:
+            with open(path, "rb") as source, open(backup, "xb") as copy:
+                copy.write(source.read())
+        temporary.write_bytes(data)
+        os.replace(temporary, path)
+    except OSError:
+        try:
+            temporary.unlink()
+        except OSError:
+            pass
+        raise
+
+
 def apply(folder: Path, kinds: list[Kind], chosen: set[str],
           answers: dict[str, str]) -> dict[str, list[tools.WordFix]]:
     """Add the chosen kinds' lines, every file in one pass (the plan's line numbers are the
@@ -1914,24 +1988,13 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             continue
         text = doc.render()
         backup = None if doc.new else tools._word_backup(folder, path)
-        temporary = path.with_name(path.name + ".tmp")
         try:
-            if backup is None:
-                path.parent.mkdir(parents=True, exist_ok=True)
-            else:
-                with open(path, "rb") as source, open(backup, "xb") as copy:
-                    copy.write(source.read())
-            temporary.write_bytes(text.encode(GAME_TEXT))
-            os.replace(temporary, path)
+            _replace_file(path, text.encode(GAME_TEXT), backup)
             if backup is None:
                 tools.new_log_words(folder, path)
             else:
                 _move_boundaries(folder, doc)
         except OSError as exc:
-            try:
-                temporary.unlink()
-            except OSError:
-                pass
             raise tools.LogToolError(f"{path.name} could not be given its added lines ({exc}). "
                                      f"{written} log file(s) were given them before it.") from exc
         written += 1
@@ -1941,5 +2004,22 @@ def apply(folder: Path, kinds: list[Kind], chosen: set[str],
             counts = {kind_id: 0 for kind_id in sorted(set(removed_by.values()))}
         for kind_id, count in sorted(counts.items()):
             done.setdefault(kind_id, []).append(tools.WordFix(str(path.relative_to(folder)), count,
+                                                              backup.name if backup else "(a new file)"))
+    # The Golden Child's grave marked as his in the Graves file (plan_apprentice, _golden_child_plan): copied
+    # first like every repaired file, written through a temporary file, only while it is as it was planned.
+    for kind in kinds:
+        if kind.id not in chosen:
+            continue
+        for path, original, updated in kind.context.get("golden_marks") or ():
+            now = path.read_bytes() if path.is_file() else None
+            if now != original:
+                raise tools.LogToolError(f"{path.name} changed since it was checked, so the Golden Child's grave "
+                                         f"was not marked; {written} log file(s) were repaired before it.")
+            backup = None if original is None else tools._word_backup(folder, path)
+            try:
+                _replace_file(path, updated, backup)
+            except OSError as exc:
+                raise tools.LogToolError(f"{path.name} could not be given the Golden Child's mark ({exc}).") from exc
+            done.setdefault(kind.id, []).append(tools.WordFix(str(path.relative_to(folder)), 1,
                                                               backup.name if backup else "(a new file)"))
     return done

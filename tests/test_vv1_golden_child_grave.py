@@ -267,5 +267,103 @@ class GoldenChildRepair(unittest.TestCase):
             f.close()
 
 
+def write_graves(f, graves) -> None:
+    """A New Home's grave table in the fixture's save (file offset 0xA320, 50 x 0x2C: name +0, best skill +0x1C,
+    job +0x20, age +0x24)."""
+    save = ln.save_path(f.folder, 1, 1)
+    data = bytearray(save.read_bytes())
+    for place, name, age in graves:
+        at = 0xA320 + place * 0x2C
+        data[at:at + 0x1C] = name.encode("cp1252").ljust(0x1C, b"\0")
+        struct.pack_into("<iii", data, at + 0x1C, 100, PARENT, age)
+    save.write_bytes(bytes(data))
+
+
+class GoldenChildGraveMark(unittest.TestCase):
+    """His grave buried before the companion marked it: Repair marks its Graves file entry (flag 2, version 3)
+    when his Death record's name and age match exactly one grave; otherwise it is left and the check says why."""
+
+    def fixture(self, graves, entries: bytes | None, version: int = 2):
+        f = rep.Fixture(1, ["vv1_apprentice_graves", "vv1_cause_of_death"])
+        f.log.write_bytes(GOLDEN_LOG.encode("cp1252"))
+        write_graves(f, graves)
+        self.dat = vv_graves.graves_file(f.folder, 1, 1)
+        if entries is not None:
+            self.dat.parent.mkdir(parents=True, exist_ok=True)
+            self.dat.write_bytes(struct.pack("<4sIII", b"VCD1", version, 1, len(entries) // 44) + entries)
+        return f
+
+    def plan(self, f):
+        return next(k for k in additions.plan(f.folder, 1, 1, f.game_folders) if k.id == "apprentice")
+
+    def shown(self, f, place):
+        """What the popup path reads for grave `place`: the companion's mark, as src/vv_graves.py reads it."""
+        data = ln.save_path(f.folder, 1, 1).read_bytes()
+        graves = vv_graves.read_graves(1, data)
+        vv_graves._load_sidecar(f.folder, 1, 1, graves)
+        return next(g for g in graves if g.place == place).values["grave"]
+
+    def test_an_old_unmarked_grave_is_marked_and_the_file_copied_first(self):
+        fp = ln.grave_fingerprint(b"Lulu Chuchip", 0x1C, 100)
+        kiki = ln.grave_fingerprint(b"Kiki", 0x1C, 100)
+        old = vcd1_entry(3, fp, 13, 0) + vcd1_entry(4, kiki, 12, 0)
+        f = self.fixture([(3, "Lulu Chuchip", 100), (4, "Kiki", 100)], old, version=2)
+        try:
+            before = self.dat.read_bytes()
+            self.assertEqual(self.shown(f, 3), "Apprentice Parent")
+            kind = self.plan(f)
+            self.assertEqual(len(kind.context["golden_marks"]), 1)
+            checked = additions.tools.check_logs(f.folder, 1, 1, f.game_folders)
+            self.assertIn("the Golden Child's grave is not marked as his", checked.text)
+            done = additions.apply(f.folder, [kind], {"apprentice"}, {})
+            after = self.dat.read_bytes()
+            self.assertEqual(struct.unpack_from("<I", after, 4)[0], 3, "version 3")
+            self.assertEqual(after[16 + 10], 2, "his entry: flag 2, epitaph kept")
+            self.assertEqual(after[16 + 9], 13)
+            self.assertEqual(after[16 + 44 + 10], 0, "the other child's entry is untouched")
+            self.assertEqual(after[16:], before[16:16 + 10] + b"\x02" + before[16 + 11:])
+            self.assertEqual(self.shown(f, 3), "Golden Child")
+            self.assertEqual(self.shown(f, 4), "Apprentice Parent")
+            copies = [p for p in f.folder.rglob("*") if p.is_file() and p != self.dat and p.read_bytes() == before]
+            self.assertTrue(copies, "the Graves file is copied before it is changed")
+            self.assertTrue(any(fix.name.endswith(self.dat.name) for fix in done["apprentice"]))
+            self.assertNotIn("golden_marks", self.plan(f).context, "planned again: nothing left")
+        finally:
+            f.close()
+
+    def test_a_grave_with_no_entry_gets_one_with_his_child_epitaph(self):
+        f = self.fixture([(0, "Lulu Chuchip", 100)], None)
+        try:
+            kind = self.plan(f)
+            additions.apply(f.folder, [kind], {"apprentice"}, {})
+            data = self.dat.read_bytes()
+            entries = vv_graves._vcd1_entries(data, 1)
+            self.assertEqual(len(entries), 1)
+            fp = ln.grave_fingerprint(b"Lulu Chuchip", 0x1C, 100)
+            self.assertEqual(struct.unpack_from("<HHIb", entries[0], 0), (0, 0, fp, vv_graves.CAUSE_NONE))
+            self.assertEqual((entries[0][9], entries[0][10]), (12, 2), "Curious and Playful, marked")
+            self.assertEqual(self.shown(f, 0), "Golden Child")
+            # His record had no epitaph: it gets the one the new entry holds (the grave and record agree).
+            self.assertIn("  Epitaph: Curious and Playful\n", f.log.read_text(encoding="cp1252").split("Death 2")[0])
+        finally:
+            f.close()
+
+    def test_an_ambiguous_match_is_left_and_reported(self):
+        fp = ln.grave_fingerprint(b"Lulu Chuchip", 0x1C, 100)
+        old = vcd1_entry(3, fp, 13, 0) + vcd1_entry(5, fp, 12, 0)
+        f = self.fixture([(3, "Lulu Chuchip", 100), (5, "Lulu Chuchip", 100)], old)
+        try:
+            before = self.dat.read_bytes()
+            kind = self.plan(f)
+            self.assertNotIn("golden_marks", kind.context)
+            self.assertTrue(any("2 graves in the save match his name and age at death" in n for n in kind.notes))
+            checked = additions.tools.check_logs(f.folder, 1, 1, f.game_folders)
+            self.assertIn("2 graves in the save match his name and age at death", checked.text)
+            additions.apply(f.folder, [kind], {"apprentice"}, {})
+            self.assertEqual(self.dat.read_bytes(), before, "untouched")
+        finally:
+            f.close()
+
+
 if __name__ == "__main__":
     unittest.main()

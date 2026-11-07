@@ -255,6 +255,11 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
                            f"{len(kind.replaces)} record(s) of children's graves name the rank in their Grave (Job) "
                            "line though the game draws \"Apprentice <job>\" on those graves: Repair Saves & Logs "
                            "rewrites them")
+            if kind.context.get("golden_marks"):
+                report.add(f"{LOGS} ({kind.label})", "NOTE",
+                           "the Golden Child's grave is not marked as his in the patcher's Graves file, so it shows "
+                           "a skill line under Job: Repair Saves & Logs marks it (\"Golden Child\" with Children's "
+                           "Graves Say Apprentice)")
             for note in kind.notes:
                 report.add(f"{LOGS} ({kind.label})", "NOTE", note)
             continue

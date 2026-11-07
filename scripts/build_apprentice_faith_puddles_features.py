@@ -170,8 +170,9 @@ GOLDEN_DESCRIPTION = (
     " **With Show Cause of Death and Age at Death on Graves ticked too,** the Golden Child's grave says \"Golden "
     "Child\" under Job (the game's own words, as his villager panel shows them) instead of a skill, and his "
     "Deaths log record says the same; that patch also gives him a child's epitaph. It knows his grave from his "
-    "burial, so a Golden Child buried before both patches were installed keeps the skill line on his grave; "
-    "Repair Saves & Logs puts \"Golden Child\" in his Deaths log record.")
+    "burial; for a Golden Child buried before both patches were installed, Repair Saves & Logs marks his "
+    "grave from his Deaths log record (when its name and age at death match exactly one grave) and puts "
+    "\"Golden Child\" in that record.")
 GOLDEN_CHANGE = (
     "With the Cause of Death companion installed, the Golden Child's grave (family 199 at the burial, marked in that "
     "companion's Graves file) shows the game's own string 0x5F (\"Golden Child\") as its whole skill line, put in the "
