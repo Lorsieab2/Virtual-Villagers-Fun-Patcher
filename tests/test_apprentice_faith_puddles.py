@@ -418,7 +418,7 @@ class PuddlesByTheLake(unittest.TestCase):
                      "<ii", bytes(uc.mem_read(uc.reg_read(UC_X86_REG_ESP) + 4, 8)))), begin=0x4745A0, end=0x4745A0),
                  v.uc.hook_add(UC_HOOK_CODE, lambda uc, a, s, d: areas.append(struct.unpack(
                      "<i", bytes(uc.mem_read(uc.reg_read(UC_X86_REG_ESP) + 4, 4)))[0]), begin=0x4744C0, end=0x4744C0)]
-        v.start(0xEB)
+        v.start(0x5E)                          # "Playing in puddles"
         for h in hooks:
             v.uc.hook_del(h)
         frames, ends = 0, []
@@ -439,7 +439,7 @@ class PuddlesByTheLake(unittest.TestCase):
             v = lake_village(fe, lake=True, patches=feature["patches"], seed=seed)
             targets, areas, ends = self.run_action(v, fe)
             self.assertEqual(areas, [])
-            self.assertEqual(len(targets), 3)
+            self.assertEqual(len(targets), 5)
             shore = {gen.shore_point(r) for r in range(gen.SHORE_SPAN)}
             for t in targets:
                 self.assertIn(t, shore)
@@ -453,12 +453,13 @@ class PuddlesByTheLake(unittest.TestCase):
         feature = gen.puddles_feature()
         v = lake_village(fe, lake=False, patches=feature["patches"])
         targets, areas, _ = self.run_action(v, fe)
-        self.assertEqual((areas, targets), ([0x69, 0x69, 0x69], []))
+        self.assertEqual((areas, targets), ([0x6A] * 5, []))
 
     def chooser(self, fe, patches, lake: bool, rain: int) -> int:
+        """\"Excited about the puddles\"' child-activity pick 0x469DC0 (rand(6) = 4, the lake case)."""
         v = lake_village(fe, lake=lake, patches=patches)
         v.w32(0x718EB8, rain)
-        v.by_caller[0x469DCD] = 4                 # the child-activity pick 0x469DC0: rand(6) = 4, the lake case
+        v.by_caller[0x469DCD] = 4
         v.call(0x469DC0, fe.V0)
         return v.r32(fe.V0 + fe.BEHAVIOUR)
 
@@ -475,15 +476,59 @@ class PuddlesByTheLake(unittest.TestCase):
         v.uc.emu_start(0x46EFB2, fe.RET, count=5_000_000)
         return v.r32(fe.V0 + fe.BEHAVIOUR)
 
-    def test_the_choosers_keep_the_rain_and_drop_the_water_test(self):
+    def playing_chooser(self, fe, patches, lake: bool, rain: int, raining: bool = True) -> int | None:
+        """\"Playing in puddles\"' chooser 0x46E4F7 (its function's own frame, esi the villager): the behaviour it
+        starts, or None when it passes on (0x46E549)."""
+        v = lake_village(fe, lake=lake, patches=patches)
+        v.w32(0x718EB8, rain)
+        v.by_caller[0x46E507] = 0                 # rand(100) < 75
+        started = []
+
+        def weather(uc, *_):                      # 0x477040, is it raining: al
+            sp = uc.reg_read(UC_X86_REG_ESP)
+            uc.reg_write(UC_X86_REG_EAX, int(raining))
+            uc.reg_write(UC_X86_REG_EIP, struct.unpack("<I", bytes(uc.mem_read(sp, 4)))[0])
+            uc.reg_write(UC_X86_REG_ESP, sp + 4)
+
+        def start(uc, *_):
+            started.append(struct.unpack("<I", bytes(uc.mem_read(uc.reg_read(UC_X86_REG_ESP) + 4, 4)))[0])
+            uc.emu_stop()
+
+        hooks = [v.uc.hook_add(UC_HOOK_CODE, weather, begin=0x477040, end=0x477040),
+                 v.uc.hook_add(UC_HOOK_CODE, start, begin=0x465580, end=0x465580),
+                 v.uc.hook_add(UC_HOOK_CODE, lambda uc, *_: uc.emu_stop(), begin=0x46E549, end=0x46E549)]
+        sp = fe.STACK + 0x1F0000
+        v.uc.mem_write(sp, b"\0" * 0x40)
+        v.uc.reg_write(UC_X86_REG_ESP, sp)
+        v.uc.reg_write(UC_X86_REG_ESI, fe.V0)
+        v.uc.reg_write(UC_X86_REG_EBX, 0)
+        v.uc.emu_start(0x46E4F7, fe.RET, count=5_000_000)
+        for h in hooks:
+            v.uc.hook_del(h)
+        return started[0] if started else None
+
+    def test_playing_in_puddles_keeps_the_rain_and_drops_the_water_test(self):
         fe = emulation()
         patches = gen.puddles_feature()["patches"]
+        run = self.playing_chooser
+        self.assertIsNone(run(fe, [], lake=True, rain=60))                  # stock: disabled once there is water
+        self.assertEqual(run(fe, patches, lake=True, rain=60), 0x5E)        # patched: Playing in puddles
+        self.assertIsNone(run(fe, patches, lake=True, rain=40))             # the rain level still counts
+        self.assertIsNone(run(fe, patches, lake=True, rain=60, raining=False))
+        self.assertEqual(run(fe, [], lake=False, rain=60), 0x5E)
+        self.assertEqual(run(fe, patches, lake=False, rain=60), 0x5E)
+
+    def test_excited_about_the_puddles_and_chasing_fish_are_stock(self):
+        """The owner (2026-11-07): "Playing in puddles" only; "Excited about the puddles" stays as the game has it."""
+        fe = emulation()
+        patches = gen.puddles_feature()["patches"] + picker_fix()
+        offsets = {int(p["offset"], 16) + 0x400000 for p in patches}
+        for site in (0x469E5E, 0x46EFC5, 0x45423B, 0x454200):
+            self.assertNotIn(site, offsets)
         for run in (self.chooser, self.scheduler_case):
-            self.assertEqual(run(fe, [], lake=True, rain=60), 0xEA, run.__name__)        # stock: disabled
-            self.assertEqual(run(fe, patches, lake=True, rain=60), 0xEB, run.__name__)   # patched: puddles
-            self.assertEqual(run(fe, patches, lake=True, rain=40), 0xEA, run.__name__)   # no rain: as stock
-            self.assertEqual(run(fe, [], lake=False, rain=60), 0xEB, run.__name__)
-            self.assertEqual(run(fe, patches, lake=False, rain=60), 0xEB, run.__name__)
+            for lake, rain in ((True, 60), (True, 40), (False, 60)):
+                self.assertEqual(run(fe, patches, lake=lake, rain=rain), run(fe, [], lake=lake, rain=rain),
+                                 (run.__name__, lake, rain))
 
     def picks(self, fe, patches, start: int, stop: int, n: int):
         v = lake_village(fe, lake=False, patches=patches, seed=11)
@@ -499,23 +544,29 @@ class PuddlesByTheLake(unittest.TestCase):
         return out
 
     def test_fix_vanilla_bugs_spreads_the_puddle_spots_over_the_whole_lake_bed(self):
-        """Stock: only the lake bed's first 1,024 cells.  Fixed: every cell, each equally likely (about 1,973 of
-        2,997 cells lie past the first 1,024).  Fishing (0x463B48) picks as stock either way."""
+        """Stock: only the first 1,024 of the puddles' 1,479 cells (area 0x6A).  Fixed: every cell, each equally
+        likely (455 of 1,479, about 31%, lie past the first 1,024).  "Excited about the puddles" (area 0x69) and
+        fishing (0x463B48) pick as stock either way."""
         fe = emulation()
         cells = lake_cells(fe)
-        bed = [(i % 320, i // 320) for i, c in enumerate(cells) if (c >> 4) & 0x7FF == 0x69 and not c & 1]
-        first = set(bed[:1024])
+
+        def area(n):
+            return [(i % 320, i // 320) for i, c in enumerate(cells) if (c >> 4) & 0x7FF == n and not c & 1]
+        puddles_area, bed = area(0x6A), area(0x69)
+        self.assertEqual(len(puddles_area), 1479)
+        first, bed_first = set(puddles_area[:1024]), set(bed[:1024])
         fix = picker_fix()
         self.assertEqual(len(fix), 4)
-        for patches, puddle_beyond in (([], (0.0, 0.0)), (fix, (0.60, 0.72))):
-            puddles = self.picks(fe, patches, 0x454230, 0x454240, 1200)
+        for patches, beyond in (([], (0.0, 0.0)), (fix, (0.25, 0.37))):
+            puddles = self.picks(fe, patches, 0x460030, 0x460040, 1200)
+            excited = self.picks(fe, patches, 0x454230, 0x454240, 300)
             fishing = self.picks(fe, patches, 0x463B48, 0x463B55, 300)
-            for x, y in puddles + fishing:
-                self.assertIn((x // 8, y // 8), set(bed))
+            for x, y in puddles:
+                self.assertIn((x // 8, y // 8), set(puddles_area))
             share = sum((x // 8, y // 8) not in first for x, y in puddles) / len(puddles)
-            self.assertGreaterEqual(share, puddle_beyond[0], bool(patches))
-            self.assertLessEqual(share, puddle_beyond[1], bool(patches))
-            self.assertTrue(all((x // 8, y // 8) in first for x, y in fishing), "fishing is unchanged")
+            self.assertGreaterEqual(share, beyond[0], bool(patches))
+            self.assertLessEqual(share, beyond[1], bool(patches))
+            self.assertTrue(all((x // 8, y // 8) in bed_first for x, y in excited + fishing), "unchanged")
 
     def test_registered_and_documented(self):
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")

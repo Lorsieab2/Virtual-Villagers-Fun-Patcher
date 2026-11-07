@@ -52,7 +52,7 @@ class FaithLoss(unittest.TestCase):
 
 
 class Puddles(unittest.TestCase):
-    WORDS = "Normally puddle play stops once The Lake holds water."
+    WORDS = "Normally \"Playing in puddles\" stops once The Lake holds water."
 
     def other(self, installed, certain=True):
         return [t for t in texts(vv5.facts(village(5, installed, certain))) if self.WORDS in t]

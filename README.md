@@ -1561,7 +1561,7 @@ Moves where children go to play in the dirt. In the stock game the spot is a str
 
 **Puddle Play Moves to the Lake Shore**
 
-When it rains, children in New Believers can go and play in the puddles of the dry lake bed ("Excited about the puddles"). Once The Lake holds water the game never sends them there again, because they cannot swim. With this patch, after The Lake is filled, children still go and play when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's three walks goes to a random point along that shore. Before The Lake is filled nothing changes. The action, its text and its length are the game's own. On by default. **Needs no other patch.**
+When it rains, children in New Believers go "Playing in puddles" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go "Playing in puddles" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. The action, its text and its length are the game's own; "Excited about the puddles" and "Chasing fish" are not changed. On by default. **Needs no other patch.**
 
 - Patch ID: `vv5_puddles_by_the_lake`
 

@@ -52,20 +52,20 @@ chance, halve every gain roll's chance, drop the "below 5 a fall is skipped half
 
 A believer at 0 or less becomes a Heathen in the setter 0x467F90, as in the stock game.
 
-PUDDLE PLAY MOVES TO THE LAKE SHORE.  The owner: children play in puddles in the dry lake bed, "once the lake
-bed is full of water that action is disabled (because they can't swim)", and asked for them to play "at this
-edge of the lake" (the north-west sandy shore, marked on a screenshot).  The puddle play is behaviour 0xEB
-(routine 0x454200, "Excited about the puddles", string 0x238): three walks to a random point of the lake bed
-(area 0x69, 0x4744C0).  Its two choosers -- the child-activity case 0x469E4B and the scheduler's 0x46EFB2 --
-start it only when the rain level [0x718EB8] is 50 or more and the lake holds no water (0x43C5D0: project 10's
-progress above 0, when the full lake is drawn); otherwise they start 0xEA (chasing fish / looking for bits of
-fish).  The patch drops "the lake holds no water" from both choosers (the rain is still needed; al is cleared
-so the start flag stays 0, as stock), and 0xEB's walk (0x45423B) calls a cave at 0x494E00: with water in the
-lake, a walk to a random point of the shore line (SHORE_* below); without, the stock walk into the lake bed.  The spots
-are lcmap.dat cells (8 x 8 world pixels) on that sandy strip: walkable, not lake (areas 0x69 / 0x6A), every
-neighbour walkable, connected to the village; the owner's screenshot matched the map art at 1.5x, top-left
-world (1345, 1870).  Behaviour 0x5F "Playing in puddles" (0x4600D0, two boxes by the waterfall) is only
-started by The Missing Kids island event (0x4161AA) and is unchanged.
+PUDDLE PLAY MOVES TO THE LAKE SHORE.  The owner: children "Playing in puddles" in the dry lake bed; "once the
+lake bed is full of water that action is disabled (because they can't swim)", and asked for them to play "at this
+edge of the lake" (the north-west sandy shore, marked on a screenshot).  The owner (2026-11-07): "PLAYING IN
+PUDDLES IS PLAYING IN PUDDLES NOT ANYTHING ELSE" -- not "Excited about the puddles" (0xEB) nor "Chasing fish"
+(0xEA), which stay exactly as stock.  "Playing in puddles" is behaviour 0x5E (routine 0x45FFF0, string 0x229,
+registered at 0x4643A6): five walks to a random point of lake-bed area 0x6A (0x4744C0 at 0x46003B), each with
+gestures.  Its one chooser, 0x46E4F7, starts it when the rain level [0x718EB8] is 50 or more, rand(100) < 75, it is
+raining (0x477040) and the lake holds no water (0x43C5D0: project 10's progress above 0, when the full lake is
+drawn).  The patch drops "the lake holds no water" (test al,al / jne at 0x46E527 -> nops; the start flag is bl,
+untouched), and 0x5E's walk (0x46003B) calls a cave at 0x494E00: with water in the lake, a walk to a random point
+of the shore line (SHORE_* below); without, the stock walk into the lake bed.  The spots are lcmap.dat cells (8 x
+8 world pixels) on that sandy strip: walkable, not lake (areas 0x69 / 0x6A), every neighbour walkable, connected
+to the village; the owner's screenshot matched the map art at 1.5x, top-left world (1345, 1870).  Behaviour 0x5F
+(0x4600D0, the waterfall pool; started only by The Missing Kids island event, 0x4161AA) is unchanged.
 """
 from __future__ import annotations
 
@@ -294,8 +294,8 @@ def faith_feature() -> dict:
 # ---- Puddle Play Moves to the Lake Shore -----------------------------------------------------------------------
 
 CAVE = 0x494E00
-WALK_SITE = 0x45423B
-GATES = ((0x469E5E, "84C0751E"), (0x46EFC5, "84C0751F"))
+WALK_SITE = 0x46003B                     # 0x5E "Playing in puddles": call 0x4744C0 (area 0x6A)
+GATE = (0x46E527, "84C0751E")            # its chooser 0x46E4F7: test al,al / jne (the lake holds water)
 # The north-west sandy shore the owner marked: a random point on the line from world (1348, 2116) to (1599, 2050),
 # the feet's point -- x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252).  Every one of the 252 points is an
 # lcmap.dat cell that is walkable, not lake (areas 0x69 / 0x6A), with every neighbour walkable, connected to the
@@ -341,14 +341,13 @@ def puddle_cave() -> bytes:
 def puddles_feature() -> dict:
     cave = puddle_cave()
     description = (
-        "When it rains, children in New Believers can go and play in the puddles of the dry lake bed (\"Excited about "
-        "the puddles\"). Once The Lake holds water the game never sends them there again, because they cannot swim. "
-        "With this patch, after The Lake is filled, children still go and play when it rains, on the north-west "
-        "sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the "
-        "water: each of the action's three walks goes to a random point along that shore. Before "
-        "The Lake is filled nothing changes. The action, its text and its length are the game's own.")
-    gate_purpose = ("the lake-holds-water test no longer sends the child to 0xEA (chasing fish) when it rains: "
-                    "test al,al / jne -> xor al,al / nop / nop (al = 0 keeps the start flag as stock)")
+        "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds "
+        "water the game never starts that action again, because they cannot swim. With this patch, after The Lake "
+        "has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the "
+        "lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the "
+        "action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. "
+        "The action, its text and its length are the game's own; \"Excited about the puddles\" and \"Chasing "
+        "fish\" are not changed.")
     return {
         "id": PUDDLES_ID,
         "enabled": True,
@@ -359,28 +358,28 @@ def puddles_feature() -> dict:
         "description": description,
         "output_tag": "Puddles By The Lake",
         "behavior_changes": [
-            "Both choosers of the puddle play (behaviour 0xEB, \"Excited about the puddles\"), the child-activity case "
-            "0x469E4B and the scheduler's 0x46EFB2, start it whenever the rain level [0x718EB8] is 50 or more; stock "
-            "also needed the lake to hold no water (0x43C5D0) and otherwise started 0xEA.",
-            "0xEB's walk (0x45423B, three times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point "
+            "The chooser of \"Playing in puddles\" (behaviour 0x5E, routine 0x45FFF0), 0x46E4F7, starts it when the "
+            "rain level [0x718EB8] is 50 or more, rand(100) < 75 and it is raining (0x477040), as stock; stock also "
+            "needed the lake to hold no water (0x43C5D0).",
+            "0x5E's walk (0x46003B, five times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point "
             "of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the "
             "feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed "
-            "(area 0x69, 0x4744C0).",
+            "(area 0x6A, 0x4744C0).",
         ],
         "explicit_non_changes": [
-            "Before the lake holds water everything is as stock. The action's text (string 0x238), its gestures, speed "
-            "and length are unchanged; 0xEA is still chosen when it is not raining.",
-            "Behaviour 0x5F \"Playing in puddles\" (0x4600D0, the waterfall pool), started only by The Missing Kids "
-            "island event (0x4161AA), is unchanged. No save or villager-record byte is written.",
+            "Before the lake holds water everything is as stock. The action's text (string 0x229), its gestures, speed "
+            "and length are unchanged.",
+            "\"Excited about the puddles\" (0xEB, 0x454200) and \"Chasing fish\" (0xEA) and their choosers "
+            "(0x469E4B, 0x46EFB2) are exactly as stock. Behaviour 0x5F (0x4600D0, the waterfall pool), started only "
+            "by The Missing Kids island event (0x4161AA), is unchanged. No save or villager-record byte is written.",
         ],
         "companion_files": [],
         "patches": [
-            patch(5, GATES[0][0], bytes.fromhex("32C09090"), "child-activity chooser 0x469E4B: " + gate_purpose,
-                  bytes.fromhex(GATES[0][1])),
-            patch(5, GATES[1][0], bytes.fromhex("32C09090"), "scheduler 0x46EFB2: " + gate_purpose,
-                  bytes.fromhex(GATES[1][1])),
+            patch(5, GATE[0], bytes.fromhex("90909090"),
+                  "\"Playing in puddles\" chooser 0x46E4F7: the lake-holds-water test no longer skips it: "
+                  "test al,al / jne -> nops (the start flag is bl, unchanged)", bytes.fromhex(GATE[1])),
             patch(5, WALK_SITE, asm(f"call {CAVE:#x}", WALK_SITE),
-                  "0xEB's walk: call 0x4744C0 (area 0x69) -> call the shore cave 0x494E00"),
+                  "0x5E's walk: call 0x4744C0 (area 0x6A) -> call the shore cave 0x494E00"),
             patch(5, CAVE, cave,
                   "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - "
                   "(17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
@@ -394,20 +393,22 @@ def puddles_feature() -> dict:
 # The area-point picker 0x477B90 (called by the walk-to-area 0x4744C0 and 67 other places) collects the cells of
 # the area it is asked for -- walkable, in row order -- into two 1,024-entry arrays and picks one with
 # rand(count).  Past 1,024 cells it stops collecting (`cmp ebp, 0x400 / jge` at 0x477C63), so an area larger than
-# that only ever gives points in its first 1,024 cells: the lake bed (area 0x69, 2,997 walkable cells) only in its
-# northern third.  The owner approved fixing it for the dry lake bed's puddle play.  Only two areas of lcmap.dat
+# that only ever gives points in its first 1,024 cells.  "Playing in puddles" (0x5E) walks to area 0x6A (1,479
+# walkable cells), so it only ever used the first 1,024 of them.  The owner approved fixing it for the dry lake
+# bed's puddle play, "Playing in puddles" (2026-11-07: not "Excited about the puddles", which stays stock).  Only two areas of lcmap.dat
 # have more than 1,024 cells: 0x69 (the lake) and 0x6A (its deep middle, 1,479).  Spreading every caller would
 # also send fishers (0x463B50, area 0x69) and the children chasing fish (0x454198, area 0x6A) to points in the
 # middle of a filled lake, where the stock game never puts anyone, so the fix is for the puddle play's walk only:
-# the picker's caller is 0x4744C0 (return 0x4744EB at [esp+0x2028] at the collecting step) and its caller the
-# puddle play's walk (return 0x454240 at [esp+0x20AC]).  For that walk the picker keeps a uniform sample of every
+# the picker's caller is 0x4744C0 (return 0x4744EB at [esp+0x2028] at the collecting step) and its caller
+# "Playing in puddles"' walk (return 0x460040 at [esp+0x20AC]; with the shore patch its cave tail-jumps to
+# 0x4744C0, so the return address is the same).  For that walk the picker keeps a uniform sample of every
 # cell (reservoir sampling: the first 1,024 stored, then cell k replaces a random entry with chance 1024 / (k + 1),
 # rand(k + 1) < 1024), counts every cell, and draws from min(count, 1024) -- so each cell of the area is equally
 # likely.  Every other caller collects exactly as before (the cap moves after the cell checks, which have no side
 # effect), and draws as before (its count never passes 1,024).
 
 PICKER_CAVE = 0x494E80
-PICKER_FROM_WALK, PICKER_FROM_PUDDLES = 0x4744EB, 0x454240
+PICKER_FROM_WALK, PICKER_FROM_PUDDLES = 0x4744EB, 0x460040
 
 
 def picker_fix_patches() -> list[dict]:
@@ -463,24 +464,25 @@ def picker_fix_patches() -> list[dict]:
               f"Lake bed puddle spots (0x477CDF): the draw `push ebp / call rand` -> call 0x{draw:X}: "
               "rand(min(count, 1024)) with the same stack"),
         patch(5, PICKER_CAVE, cave,
-              "Lake bed puddle spots, the picker cave 0x494E80: for the puddle play's walk (0x4744C0 called from "
-              "0x45423B) a uniform sample of every cell of the area (reservoir: cell k replaces entry rand(k + 1) "
+              "Lake bed puddle spots, the picker cave 0x494E80: for \"Playing in puddles\"' walk (0x4744C0 called "
+              "from 0x46003B) a uniform sample of every cell of the area (reservoir: cell k replaces entry rand(k + 1) "
               "when that is under 1,024) and a count of every cell; every other caller stores the first 1,024 as "
               "stock; then the draw helper", bytes(len(cave))),
     ]
 
 
 PICKER_DESCRIPTION = (
-    " Children playing in the puddles of the dry lake bed use the whole lake bed: the game picks a spot of an area "
-    "from its first 1,024 map cells only, so the lake bed's puddles (about 3,000 cells) were always in its northern "
-    "third; now every spot of the lake bed is equally likely for that action. Every other walk to an area, fishing "
-    "included, picks exactly as before.")
+    " Children \"Playing in puddles\" in the dry lake bed use all of their part of it: the game picks a spot of an "
+    "area from its first 1,024 map cells only, so of the puddles' 1,479 cells only the first 1,024 were ever used; "
+    "now every spot is equally likely for that action. Every other walk to an area, fishing and \"Excited about "
+    "the puddles\" included, picks exactly as before.")
 PICKER_CHANGE = (
-    "The area-point picker 0x477B90, for the puddle play's walk only (0x4744C0 called from 0x45423B, behaviour 0xEB "
-    "\"Excited about the puddles\", area 0x69): every cell of the area is collected into a uniform 1,024-entry sample "
+    "The area-point picker 0x477B90, for \"Playing in puddles\"' walk only (0x4744C0 called from 0x46003B, "
+    "behaviour 0x5E, area 0x6A): every cell of the area is collected into a uniform 1,024-entry sample "
     "(reservoir sampling) and counted, and the draw is rand(min(count, 1024)), so each cell is equally likely; stock "
-    "kept the first 1,024 cells (the lake bed's northern third). Every other caller is unchanged (fishing at the lake "
-    "0x463B50 and chasing fish 0x454198 would otherwise stand in the middle of a filled lake).")
+    "kept the first 1,024 of its 1,479 cells. Every other caller is unchanged, \"Excited about the puddles\" "
+    "(0x45423B) included (fishing at the lake 0x463B50 and chasing fish 0x454198 would otherwise stand in the middle "
+    "of a filled lake).")
 
 
 def add_picker_fix() -> None:
@@ -490,15 +492,19 @@ def add_picker_fix() -> None:
     mine = {p["offset"]: p for p in picker_fix_patches()}
     # First in the row's list: the other sub-fixes' tests read theirs from the end.
     row["patches"] = list(mine.values()) + [p for p in row["patches"] if p["offset"] not in mine]
-    marker = " Children playing in the puddles of the dry lake bed"
     desc = row["description"]
-    if marker not in desc:
+    for old in (" Children playing in the puddles of the dry lake bed", " Children \"Playing in puddles\" in the dry"):
+        if old in desc:
+            at = desc.index(old)
+            stop = desc.index("picks exactly as before.", at) + len("picks exactly as before.")
+            desc = desc[:at] + desc[stop:]
+    if PICKER_DESCRIPTION not in desc:
         tail = " **Needs no other patch.**"
         assert desc.endswith(tail)
         desc = desc[:-len(tail)] + PICKER_DESCRIPTION + tail
     row["description"] = desc
-    if PICKER_CHANGE not in row["behavior_changes"]:
-        row["behavior_changes"].append(PICKER_CHANGE)
+    row["behavior_changes"] = [c for c in row["behavior_changes"]
+                               if not c.startswith("The area-point picker 0x477B90, for ")] + [PICKER_CHANGE]
     path.write_text(json.dumps(builds, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     print("updated data/builds.json (vv5_fix_vanilla_bugs)")
 
