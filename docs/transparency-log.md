@@ -93,6 +93,18 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv1_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 6,000, level 3 50,000; Fertility level 2 11,000, level 3 240,000; Science level 2 12,000, level 3 150,000; Medicine level 2 15,000, level 3 250,000; Construction level 2 2,500, level 3 80,000; Spirituality level 2 5,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every technology price immediate in the Tech screen's hover label (0x434070), information box (0x4345E0) and buy handler (0x435AEF), each a price immediate, x N (the slider, 2 to 10; 3 by default): the shown price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and spends nothing) and the amount it takes (sub) are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 35; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv1_birth_control`)
 
 Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
@@ -650,6 +662,18 @@ Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv2_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 1,500, level 3 90,000; Exploration level 2 10,000, level 3 160,000; Science level 2 16,000, level 3 150,000; Medicine level 2 20,000, level 3 65,000; Engineering level 2 5,000, level 3 75,000; Culture level 2 20,000, level 3 85,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every technology price immediate in the Tech screen's hover label (0x441D80), information box (0x4422F0) and buy handler (0x4437FF), each a price immediate, x N (the slider, 2 to 10; 3 by default): the shown price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and spends nothing) and the amount it takes (sub) are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 35; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv2_birth_control`)
 
 Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
@@ -1131,6 +1155,18 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv3_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 11,000, level 3 150,000; Medicine level 2 8,000, level 3 75,000; Alchemy level 2 5,000, level 3 55,000; Restoration level 2 7,000, level 3 85,000; Leadership level 2 7,000, level 3 125,000; Nature level 1 4,500, level 2 50,000, level 3 150,000; Magic level 1 4,500, level 2 50,000, level 3 150,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs that many times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4A818C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x427020, called by the Tech screen's hover label, information box and purchase (0x464C84, 0x464E47, 0x465706): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 16; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv3_population_256`)
 
 EXPERIMENTAL. Gives The Secret City 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
@@ -1173,7 +1209,7 @@ Requires BOTH parenting skill and the checked preference before a villager will 
 
 #### Both Factions: Nature and Magic (`vv3_both_factions`)
 
-Lets a tribe own BOTH the Faction of Nature and the Faction of Magic. Buy one faction on the Tech screen as usual, then click the other: instead of "You have already chosen your faction!" it is bought at its normal price in tech points. Buying level 1 of either faction asks Yes/No: "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this gift wisely." (No buys nothing); levels 2 and 3 are bought without a question, as before, and both Buy buttons stay as they always are. With both: every level of each works at the same time -- Nature's faster food refills (with the patcher's Nature Level 1 honey and fruit refill row), the Pitcher Plant and longer lives (with the patcher's Nature Level 3 row), and Magic's extra tech point from research, the Berry Plant and the population bonus (+10; the maximum stays 150, or 256 with 256 Villagers, and Immediate Fixed keeps its fixed maximum). Both herbs grow on the island and can be gathered and brewed. Both faction columns are lit on the Tech screen with their own floating petals and sparkles. Seven new potions need a Pitcher Plant and a Berry Plant together, with a Tiger Lily (a fun potion), Cactus (a trance), Lotus (crazy talk), Black Orchid (paralysis), Rose (lonely), a second Pitcher Plant (whoa!, the drinker moves) or a second Berry Plant (something smells yummy: free children under 14 run to the pot); they count toward "Alchemy R Us" and Stews Found. The sharks: the latest shark potion decides how they look -- Nature's stink bomb makes them go, Magic's Shark Charmer Vial brings them back charmed and sparkling -- and nothing else changes (the puzzle, its message and reward stay once). Save safety: the faction bought first stays in the save exactly as the unpatched game keeps it; the second, and which new potions were brewed, are kept in the save's own file (Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat), so every save loads in the unpatched game (with the first faction only; putting the patch back brings the second back). Start Over deletes the file. **Unverified in play: the effect has not been tested live.** **Needs no other patch.** It is on by default for The Secret City; untick it to keep the stock game. The companion is "VVFP VV3 Both Factions.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.
+Lets a tribe own BOTH the Faction of Nature and the Faction of Magic. Buy one faction on the Tech screen as usual, then click the other: instead of "You have already chosen your faction!" it is bought at its Tech screen price in tech points (its normal price, times the multiplier with the patcher's 2-10x Tech Cost). Buying level 1 of either faction asks Yes/No: "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this gift wisely." (No buys nothing); levels 2 and 3 are bought without a question, as before, and both Buy buttons stay as they always are. With both: every level of each works at the same time -- Nature's faster food refills (with the patcher's Nature Level 1 honey and fruit refill row), the Pitcher Plant and longer lives (with the patcher's Nature Level 3 row), and Magic's extra tech point from research, the Berry Plant and the population bonus (+10; the maximum stays 150, or 256 with 256 Villagers, and Immediate Fixed keeps its fixed maximum). Both herbs grow on the island and can be gathered and brewed. Both faction columns are lit on the Tech screen with their own floating petals and sparkles. Seven new potions need a Pitcher Plant and a Berry Plant together, with a Tiger Lily (a fun potion), Cactus (a trance), Lotus (crazy talk), Black Orchid (paralysis), Rose (lonely), a second Pitcher Plant (whoa!, the drinker moves) or a second Berry Plant (something smells yummy: free children under 14 run to the pot); they count toward "Alchemy R Us" and Stews Found. The sharks: the latest shark potion decides how they look -- Nature's stink bomb makes them go, Magic's Shark Charmer Vial brings them back charmed and sparkling -- and nothing else changes (the puzzle, its message and reward stay once). Save safety: the faction bought first stays in the save exactly as the unpatched game keeps it; the second, and which new potions were brewed, are kept in the save's own file (Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat), so every save loads in the unpatched game (with the first faction only; putting the patch back brings the second back). Start Over deletes the file. **Unverified in play: the effect has not been tested live.** **Needs no other patch.** It is on by default for The Secret City; untick it to keep the stock game. The companion is "VVFP VV3 Both Factions.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.
 
 **Requires no other patch to be ticked.**
 
@@ -1612,6 +1648,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv4_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Dendrology level 2 3,000, level 3 60,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4BC18C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x41E220, called by the Tech screen's hover label, information box and purchase (0x43E57D, 0x43E900, 0x43EA76): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv4_population_256`)
 
 EXPERIMENTAL. Gives The Tree of Life 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
@@ -1990,6 +2038,18 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 21 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### 2-10x Tech Cost (`vv5_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Spirituality level 2 8,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4CA3B4, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x4236D0, called by the Tech screen's hover label, information box and purchase (0x440DCA, 0x4412A0, 0x441676): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
 
 #### 256 Villagers (Experimental) (`vv5_population_256`)
 

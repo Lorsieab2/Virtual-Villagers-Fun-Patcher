@@ -1192,8 +1192,9 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place.
-        self.assertEqual(len(feature_ids), 38)
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-10x Tech Cost
+        # (vv2_tech_cost_multiplier), its 35 price immediates only.
+        self.assertEqual(len(feature_ids), 39)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4150,6 +4151,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
+            # 2-10x Tech Cost: the Tech screen's price immediates, x 3.
+            "vv2_tech_cost_multiplier",
             # Children's Graves Say Apprentice: the grave rank pick re-encoded in place.
             "vv2_apprentice_graves",
             },
