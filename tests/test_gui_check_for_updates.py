@@ -399,7 +399,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                             # The Secret City's audit cites the chance helpers (at_most, chance).
                                             "vv_game_mechanics_chances",
                                             # The Nursery School lines (The Tree of Life).
-                                            "vv_game_mechanics_nursery"})
+                                            "vv_game_mechanics_nursery",
+                                            # The Tree of Life: Food Mastery's rounding for the net's average.
+                                            "vv_game_mechanics_farmers"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
