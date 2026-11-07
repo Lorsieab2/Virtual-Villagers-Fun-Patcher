@@ -1187,10 +1187,12 @@ class PreferredGrave:
     old_line: str
     new_line: str
     epitaph: tuple[str, str] | None = None      # (old, new) when it follows the job
+    in_save: bool = True            # False: the grave already holds the preference; only its records follow
 
 
-def _pref_of(game: int, data: bytes, g: Grave) -> tuple[str, tuple | None]:
-    """("known", (job, value) with the row) / ("none", None) for no preference / ("unknown", None)."""
+def _pref_of(game: int, data: bytes, g: Grave) -> tuple[str, tuple | None, tuple | None]:
+    """("known", (job, value) with the row, (job, value) the stock burial gives) / ("none", None, None) for no
+    preference / ("unknown", None, None)."""
     lay = LAYOUTS[game]
     checker = tools.load_checker()
     health = _HEALTH_VV1 if game == 1 else checker.HEALTH[game]
@@ -1207,10 +1209,10 @@ def _pref_of(game: int, data: bytes, g: Grave) -> tuple[str, tuple | None]:
         mine = preferred_job(game, skills, pref)
         if have != stock_job(game, skills) and have != mine:
             continue                            # not this villager as they were at death
-        found.add(("known", mine) if mine is not None else ("none", None))
+        found.add(("known", mine, stock_job(game, skills)) if mine is not None else ("none", None, None))
     if len(found) == 1:
         return next(iter(found))
-    return "unknown", None
+    return "unknown", None, None
 
 
 # The adult epitaph pairs by job word (the games' own texts: The Lost Children's in title case, The Secret City's
@@ -1263,6 +1265,35 @@ def _followed_epitaph(game: int, g: Grave, old: tuple, new: tuple) -> tuple[str,
     return None if text == current else (current, text)
 
 
+def _logged_epitaph(game: int, g: Grave, stock: tuple, mine: tuple) -> tuple[str, str] | None:
+    """A grave already holding the preference: the epitaph its records name when they were written from the stock
+    job (the same half of that job's pair), and the one the grave has (its preferred job's)."""
+    current = g.values.get("epitaph", g.sidecar.get("epitaph")) if game == 1 else g.values.get("epitaph")
+    if current is None or g.age < 360:
+        return None
+    before, after = _pair_for(game, *stock), _pair_for(game, *mine)
+    if before is None or after is None or current not in after:
+        return None
+    return before[after.index(current)], current
+
+
+_KNOWN_EPITAPHS = {text.lower() for pair in _PAIRS.values() for text in pair} | {
+    "child of the earth", CITIZEN.lower(), "curious and playful", "loving and special", "esteemed elder",
+    "wise and beloved chief", "scholar", "retired chief", "charitable soul", "devoted soul"}
+
+
+def foreign_epitaphs(game: int, plan) -> int:
+    """The plan's graves (in the save) whose epitaph is none of the game's English ones: a translated game wrote
+    it, so it is left as it is (the follow matches English only)."""
+    out = 0
+    for p in plan.in_save:
+        text = (p.grave.values.get("epitaph", p.grave.sidecar.get("epitaph")) if game == 1
+                else p.grave.values.get("epitaph"))
+        if p.epitaph is None and text and text.strip().lower() not in _KNOWN_EPITAPHS:
+            out += 1
+    return out
+
+
 def grave_text(game: int, job: int, value: int, age: int, apprentice: bool) -> str:
     """The Job line the grave dialog draws, with or without "Apprentice" for a child."""
     line = grave_line(game, job, value, age)
@@ -1278,6 +1309,11 @@ class PreferredPlan:
     graves: list[PreferredGrave]
     unknown: int                    # graves whose villager's preference at death the save no longer holds
     save_bytes: bytes               # the save as read (the write refuses if it changed)
+    every_grave: list = field(default_factory=list)     # all the save's graves, to pair with their records
+
+    @property
+    def in_save(self) -> list:
+        return [p for p in self.graves if p.in_save]
 
 
 def plan_preferred(folder: Path, game: int, slot: int, apprentice: bool) -> PreferredPlan:
@@ -1286,19 +1322,30 @@ def plan_preferred(folder: Path, game: int, slot: int, apprentice: bool) -> Pref
     graves = read_graves(game, data)
     _load_sidecar(folder, game, slot, graves)
     lay = LAYOUTS[game]
+    # A grave whose epitaph the player changed (an Epitaph changed record) keeps it (the audit, #725).
+    retyped = {(b.value("Name"), b.int_value("Age at death")) for b in _all_blocks(folder, game, slot)
+               if b.heading.startswith("Epitaph changed")}
     out, unknown = [], 0
     for g in graves:
-        state, mine = _pref_of(game, data, g)
+        state, mine, stock = _pref_of(game, data, g)
         if state == "unknown":
             unknown += 1
             continue
         old = (_i32(data, g.at + lay.job), _i32(data, g.at + lay.value))
-        if state == "none" or mine == old:
+        if state == "none" or mine == stock:
+            continue
+        if mine == old:
+            # Already the preference (this row made it, or a repair wrote the save but not every log): its records
+            # may still say what the stock burial gave, so they follow; the save is left as it is.
+            out.append(PreferredGrave(g, stock, mine, grave_text(game, *stock, g.age, apprentice),
+                                      grave_text(game, *mine, g.age, apprentice),
+                                      None if (g.name, g.age) in retyped else _logged_epitaph(game, g, stock, mine),
+                                      in_save=False))
             continue
         out.append(PreferredGrave(g, old, mine, grave_text(game, *old, g.age, apprentice),
                                   grave_text(game, *mine, g.age, apprentice),
-                                  _followed_epitaph(game, g, old, mine)))
-    return PreferredPlan(out, unknown, data)
+                                  None if (g.name, g.age) in retyped else _followed_epitaph(game, g, old, mine)))
+    return PreferredPlan(out, unknown, data, graves)
 
 
 def record_lines(folder: Path, game: int, slot: int, plan: PreferredPlan) -> list[tuple]:
@@ -1308,11 +1355,19 @@ def record_lines(folder: Path, game: int, slot: int, plan: PreferredPlan) -> lis
     if not plan.graves:
         return []
     blocks = _all_blocks(folder, game, slot)
-    paired, _g, _r = _pair([p.grave for p in plan.graves], [b for b in blocks if _is_death(b)])
+    # Every grave is paired with its Death record first (burial order), then the plan's pairs are taken: two
+    # graves of one name and age keep their own records (Codex, #725).
+    every = plan.every_grave or [p.grave for p in plan.graves]
+    paired, _g, _r = _pair(every, [b for b in blocks if _is_death(b)])
+    twins = {}
+    for grave in every:
+        twins[(grave.name, grave.age)] = twins.get((grave.name, grave.age), 0) + 1
     out = []
     for p in plan.graves:
         targets = [paired[p.grave.place]] if p.grave.place in paired else []
-        targets += _epitaph_blocks(folder, game, slot, p.grave)
+        # An Epitaph changed record names only the name and age: only a grave no other grave shares them with.
+        if twins.get((p.grave.name, p.grave.age)) == 1:
+            targets += _epitaph_blocks(folder, game, slot, p.grave)
         for b in targets:
             at = b.index_of("Grave")
             if at is not None and b.value("Grave") in (p.old_line, grave_text(game, *p.old, p.grave.age, False)):
@@ -1329,7 +1384,7 @@ def write_preferred(folder: Path, game: int, slot: int, plan: PreferredPlan, now
     it follows) and A New Home's Graves file (its epitaph).  The caller has refused a running game and backed the
     save folder up (vv_log_tools.approve_repair); each file is copied into Copies Made Before Repairs first and
     put back on a failure; refused when the save changed since the plan.  Returns the graves rewritten."""
-    if not plan.graves:
+    if not plan.in_save:
         return 0
     save = ln.save_path(folder, game, slot)
     lay = LAYOUTS[game]
@@ -1338,7 +1393,7 @@ def write_preferred(folder: Path, game: int, slot: int, plan: PreferredPlan, now
         raise GraveError(f"{save.name} changed since it was checked; its graves were not rewritten.")
     buf = bytearray(original)
     by_place: dict[int, tuple] = {}
-    for p in plan.graves:
+    for p in plan.in_save:
         g = p.grave
         struct.pack_into("<ii", buf, g.at + min(lay.job, lay.value),
                          *((p.new[0], p.new[1]) if lay.job < lay.value else (p.new[1], p.new[0])))
@@ -1386,7 +1441,7 @@ def write_preferred(folder: Path, game: int, slot: int, plan: PreferredPlan, now
     village = vv_corrupt_skills._village(folder, game, slot, original)
     entries = [tools.WordFix(f"{p.grave.label()}: {p.old_line} -> {p.new_line}"
                              + (f"; epitaph \"{p.epitaph[0]}\" -> \"{p.epitaph[1]}\"" if p.epitaph else ""), -1,
-                             f"{save.name} (copy in Copies Made Before Repairs)") for p in plan.graves]
+                             f"{save.name} (copy in Copies Made Before Repairs)") for p in plan.in_save]
     try:
         tools.note_word_repair(folder, game, village, entries, now,
                                checked="each grave against its villager's record still in the save, for the skill "
@@ -1395,7 +1450,7 @@ def write_preferred(folder: Path, game: int, slot: int, plan: PreferredPlan, now
                                corrected="Grave job rewritten", unit="grave(s)", slot=slot)
     except OSError:
         pass                                    # the graves stand; the save shows them
-    return len(plan.graves)
+    return len(plan.in_save)
 
 
 PREFERRED_COPY_SUFFIX = ".before-grave-job-repair"

@@ -434,6 +434,7 @@ def approve_repair(
     kinds: list | None = None,
     rearm: bool = True,
     answered_changes: dict | None = None,
+    game_folders: list[Path] | None = None,
 ) -> ApprovalResult:
     """Repair Saves & Logs with the game closed: what the player ticked.
 
@@ -441,7 +442,8 @@ def approve_repair(
     backed up first.  With `rearm` (the checklist's "the game repairs what is
     confirmed wrong"), only the markers in REARM_MARKERS are removed and the
     approval file is written (atomically: a temporary file moved into place).
-    `chosen` names what is added to older records now (src/vv_log_additions.py
+    `game_folders`: where the game's exe may be (what depends on its patches, when `kinds` is planned
+    here).  `chosen` names what is added to older records now (src/vv_log_additions.py
     kinds, and "words": the like / dislike words an older patcher wrote with
     the wrong list), with the player's `answers` to its questions; `kinds` is
     the plan the player saw (planned again when not given).  By default: the
@@ -520,7 +522,7 @@ def approve_repair(
         words = fix_log_words(folder, game)
         note_word_repair(folder, game, village, words, now, slot=slot)
     if kinds is None:
-        kinds = additions.plan(folder, game, slot)
+        kinds = additions.plan(folder, game, slot, game_folders)
     # The questions answered before (src/vv_answered_questions.py hold_back) are not asked: their kept
     # answers are applied as given, unless the player gave another one now.
     import vv_answered_questions
@@ -535,14 +537,17 @@ def approve_repair(
         except OSError as exc:
             raise LogToolError(f"Your changed answers were not kept ({exc}); the backup is in "
                                f"{backup.backup_folder}.") from exc
+    added = additions.apply(folder, kinds, chosen, answers or {})
     # The graves given their villager's skill preference (Checked Skill Preferences are listed as Jobs on Graves):
-    # the save first, so a refused or failed write leaves every log as it was.
+    # the save LAST, after its records' lines are in (Codex, #725).  A log that could not be written stops the
+    # repair above with the save as it was; a save that could not be written leaves records that already say
+    # the preference, and the next Repair plans the grave again from the save and writes only it.
     if "apprentice" in chosen:
         try:
             additions.write_preferred_graves(folder, game, slot, kinds, chosen, now)
         except LogToolError as exc:
-            raise LogToolError(f"{exc} Nothing else was repaired; the backup is in {backup.backup_folder}.") from exc
-    added = additions.apply(folder, kinds, chosen, answers or {})
+            raise LogToolError(f"{exc} The logs were repaired; repair again to rewrite the graves. The backup "
+                               f"is in {backup.backup_folder}.") from exc
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
     kept = additions.resolve_decisions(kinds, chosen, answers or {})

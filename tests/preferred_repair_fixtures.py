@@ -24,6 +24,7 @@ SKILLS = {1: [10, 95, 60, 5, 30], 2: [10, 95, 60, 5, 30], 3: [60, 10, 5, 30, 95]
 FARMING = {1: 1, 2: 1, 3: 0, 4: 0, 5: 0}
 BUILDER = {1: 4, 2: 5, 3: 4, 4: 4, 5: 4}
 NONE = {1: 0, 2: 0, 3: -1, 4: -1, 5: -1}
+BUILDING = {1: 1, 2: 1, 3: 4, 4: 4, 5: 4}            # the Building skill's place in SKILLS
 
 # Table entry fields, from the name: stride, age, health, head, body, skills, preference, present (offset, width).
 ENTRY = {2: (0x2E0, -0x34, -0x38, -0x1C, -0x18, 0x280, 0x294, (0x29C, 1)),
@@ -47,25 +48,26 @@ def entry_at(game: int, k: int) -> int:
 
 
 def write_entry(buf: bytearray, game: int, k: int, name: str, age: int, health: int, pref: int,
-                present: bool) -> None:
+                present: bool, skills: list | None = None) -> None:
     at = entry_at(game, k)
+    skills = SKILLS[game] if skills is None else skills
     buf[at:at + len(name) + 1] = name.encode() + b"\0"
     if game == 1:
         put(buf, at - 0x28, age)
         put(buf, at - 0x2C, health)
         put(buf, at - 0x20, 1)
-        for i, s in enumerate(SKILLS[1]):
+        for i, s in enumerate(skills):
             put(buf, at + 0x4C + 4 * i, s)
         put(buf, at + 0x60, pref)
         buf[at + 0x64] = 1 if present else 0
         return
-    _stride, age_at, health_at, head, body, skills, pref_at, (flag, width) = ENTRY[game]
+    _stride, age_at, health_at, head, body, skills_at, pref_at, (flag, width) = ENTRY[game]
     put(buf, at + age_at, age)
     put(buf, at + health_at, health)
     put(buf, at + head, 1)
     put(buf, at + body, 1)
-    for i, s in enumerate(SKILLS[game]):
-        put(buf, at + skills + 4 * i, s)
+    for i, s in enumerate(skills):
+        put(buf, at + skills_at + 4 * i, s)
     put(buf, at + pref_at, pref)
     buf[at + flag:at + flag + width] = (1 if present else 0).to_bytes(width, "little")
 

@@ -352,7 +352,9 @@ def preferred_line(village: gm.Village) -> str:
         "a villager who dies with a skill preference checked on the Villager Details screen gets the grave Job of "
         "that skill, with that skill's value for the rank (Untrained below 20, Apprentice for a child where the "
         f"game draws it); with none, the highest skill as above; {epitaph}; titles still win: "
-        f"{PREFERRED_TITLES[game]}. Graves made before keep what they were given")
+        f"{PREFERRED_TITLES[game]}. Graves made before keep what they were given; Repair Saves & Logs rewrites "
+        "them (and their Deaths log lines) where the save still holds the villager's preference at death. Epitaphs "
+        "are matched in English, so a grave whose epitaph a translated game wrote keeps it")
 
 
 def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int,

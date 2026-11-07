@@ -1502,10 +1502,16 @@ def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path]
                                   "so the Grave lines of children's graves rewritten for their preference say the "
                                   "rank.")
             if planned.graves:
-                kind.context["graves"] = planned
                 for rpath, at, text in vv_graves.record_lines(folder, game, slot, planned):
                     lines[(rpath, at)] = text
-            counts["preferred"] = len(planned.graves)
+            if planned.in_save:
+                kind.context["graves"] = planned
+            foreign = vv_graves.foreign_epitaphs(game, planned)
+            if foreign:
+                kind.notes.append(f"{foreign} grave(s) given their villager's preference keep their epitaph: it is "
+                                  "not one of the game's English epitaphs (a translated game wrote it), and the "
+                                  "epitaph is matched in English only.")
+            counts["preferred"] = len(planned.in_save)
             counts["preferred_lines"] = len(lines)
             counts["unknown"] = planned.unknown
             if planned.unknown:

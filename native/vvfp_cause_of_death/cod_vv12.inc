@@ -6,10 +6,12 @@
 
 /* ---- The graves ------------------------------------------------------------
 
-   A grave keeps only a name, a best skill and the age (VV1 manager+0xA31C,
-   50 x 0x2C: name char[0x1C], best value +0x1C, job +0x20, age +0x24;
-   VV2 world+0x2EB0C, 50 x 0x7C: name char[0x19], epitaph char[0x41] +0x19,
-   best value +0x6C, job +0x70, age +0x74).  The games' own code calls a
+   A grave keeps only a name, a job and its skill value, and the age (VV1
+   manager+0xA31C, 50 x 0x2C: name char[0x1C], value +0x1C, job +0x20, age
+   +0x24; VV2 world+0x2EB0C, 50 x 0x7C: name char[0x19], epitaph char[0x41]
+   +0x19, value +0x6C, job +0x70, age +0x74).  The job is the best skill, or
+   the checked skill preference with Checked Skill Preferences are listed as
+   Jobs on Graves; this companion reads whichever the burial wrote.  The games' own code calls a
    grave with age 0 free (VV1's recount 0x41CF10 and its popup 0x436D62, which
    closes itself; VV2's allocator 0x464CD0), so the popup and the epitaph box
    follow that (cod_grave_entry).  Everything else here never reads a 0 age
