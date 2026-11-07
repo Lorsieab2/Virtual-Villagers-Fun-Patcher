@@ -80,7 +80,7 @@ PINS = (
     ("item", "Soap", "E", ""),
     ("item", "Soapy herbs in salt water", "U", ""),
     ("item", "A failed stew", "E", ""),
-    ("item", "Blackberries", "E", ""),
+    ("item", "Blackberries", "E", "E"),
     ("item", "Fruit", "E", ""),
     ("item", "Fish and the Golden Fish", "E", ""),
     ("item", "Crabs", "E", "O"),

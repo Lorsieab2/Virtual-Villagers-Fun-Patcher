@@ -130,6 +130,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
+    # The owner: Food Gains are Flat, like VV1-3 (Harder Games) (The Tree of
+    # Life, New Believers) is off by default and on in Owner's Defaults.
+    + ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"]
     # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
     # five games) are NOT here: they are on by default (owner, 2026-11-01:
     # "Anything that costs (money tech points food etc) and anything that adds
