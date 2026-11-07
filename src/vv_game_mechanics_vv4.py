@@ -400,6 +400,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         progress = _i32(data, PUZZLE_ENTRIES + 8 * pid)
         if 0 < progress < PUZZLE_THRESHOLDS[pid]:
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    # The net's catch on average: a fish (4) or, with s fish scales found, a Golden Fish (8) on rand(100) < 2s + 1
+    # (0x433360: 0x413B90 counts the scale kinds found, ids 0x46..0x51, the save's counts 0 to 11); with the
+    # patcher's "Complete Fish Scales = Golden Fish in Nets" only once all 12 are found (25%).
+    counts = life.collectible_counts(village) or [0] * 48
+    scales = sum(1 for c in counts[0:12] if c > 0)
+    golden_share = 0.0 if scales == 0 or (village.has(SCALES) is True and scales < 12) else (2 * scales + 1) / 100
+    net_food = 4 * (1 - golden_share) + 8 * golden_share
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
@@ -432,7 +439,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         # Farmers needed lists only the sources a farmer is sent to: the bush, and the nets once Fishing Nets is
         # solved.  The fruit is left out: no job turn is sent to it while catching up and no task holds a farmer on it.
         trips=[("blackberry picks", max(2, berries // 100), "Blackberries"),
-               ("fish in the net", 4 if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
+               ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
                 "The fishing net")])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))

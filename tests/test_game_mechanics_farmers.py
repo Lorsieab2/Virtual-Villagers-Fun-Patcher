@@ -98,6 +98,15 @@ class Arithmetic(unittest.TestCase):
         self.assertEqual(crops.catch_up_food, 10)
         self.assertAlmostEqual(units * crops.catch_up_food / 7, 20 * 10 / 7)
 
+    def test_the_tree_of_lifes_net_counts_the_golden_fish(self) -> None:
+        # Owner, 2026-11-07: the food figures account for the Golden Fish.  With s scale kinds found the net brings
+        # 8 instead of 4 on (2s + 1)% of catches (0x433360), so a catch is worth 4 + 4 x (2s + 1) / 100 on average.
+        src = (ROOT / "src" / "vv_game_mechanics_vv4.py").read_text(encoding="utf-8")
+        self.assertIn("golden_share = 0.0 if scales == 0", src)
+        self.assertIn("net_food = 4 * (1 - golden_share) + 8 * golden_share", src)
+        _, (fish,) = farmers.supplies(4, {"fish in the net": 4 + 4 * 0.25}, gm.NORMAL, 360.0, 1.0, 1000, 20.0)
+        self.assertAlmostEqual(fish.catch_up_food, 5.0)
+
     def test_food_mastery_and_speed(self) -> None:
         # The Lost Children's coconuts: live 8, 4 or 2 by speed; 4 while catching up; Food Mastery on both.
         for speed, food in ((gm.FAST, 8), (gm.NORMAL, 4), (gm.SLOW, 2)):
