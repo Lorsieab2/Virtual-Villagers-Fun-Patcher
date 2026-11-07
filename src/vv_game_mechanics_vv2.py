@@ -380,6 +380,16 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # (0x42ECDB), the pause and speed shifts (0x43B60C, 0x43B712) and lighting or fuelling it (0x462516..0x4625E5).
     add("Other", "No island event in this game puts the fire out.", gm.RUNNING)
     add("Other", gm.FIRE_CLOSED, gm.OWNER)
+    # The Overview Map's fire: the map objects routine 0x41BAD0 draws firestrip frame 0 at (0x13B, 0xCD), 25%,
+    # centred (flag 1: the shrunk frame is centred in the full frame's box, on screen (363, 253)), once per map
+    # object (0x41C143..0x41C18B); Fix Vanilla Bugs draws it once, as the village fire's 7 frames at its speed,
+    # in the same place (tests/test_vv2_overview_map_fire.py).
+    add("Other", "While the fire burns, the Overview Map shows it in the stone fire pit as the first picture of the "
+                 "fire only, never moving, drawn once for every object on the map, so its soft glow piles up into "
+                 "a solid yellow blob (0x41C143).", gm.CODE)
+    out.append(gm.Fact("Other", gm.patch_words(
+        village, "vv2_fix_vanilla_bugs", "it is drawn once, in the same place and size, flickering through the "
+        "village fire's own 7 pictures, a new one every 231 milliseconds as in the village view"), gm.CODE, True))
     add("Other", STEW_POT_LINE, gm.RUNNING)
     add("Other", STEW_EFFECT_LINE, gm.RUNNING)
     # An unburied body's removal is under Death and graves (it stood here too).
