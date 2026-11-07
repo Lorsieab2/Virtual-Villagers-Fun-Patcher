@@ -104,6 +104,15 @@ def boosted(amount: float, mastery: float) -> float:
     return amount * mastery
 
 
+def trip_food(value) -> tuple[float, float | None]:
+    """A Context.trips food: (live, catch-up or None for as live).  A pair is a patched source that pays its own
+    catch-up amount (Food Gains are Flat: The Secret City's 7 / 3 / 2 live, 4 while catching up)."""
+    # The type is kept: an int is one gain (Food Mastery rounds it), a float an average (boosted()).
+    if isinstance(value, tuple):
+        return value[0], value[1]
+    return (value, None) if value else (0, None)
+
+
 def needed(eaten: float, brought: float | None) -> int | None:
     """Whole farmers to bring `eaten` when one brings `brought` (the same time span)."""
     if not brought or brought <= 0:
@@ -140,13 +149,14 @@ def supplies(game: int, trips_food: dict[str, float], speed: int, unit: float, m
     out = []
     eaten_hour = eaten_unit * 3600.0 / unit
     for trip in trips:
-        base = trips_food.get(trip.key)
+        base, base_caught = trip_food(trips_food.get(trip.key))
         if not base or base <= 0:
             continue
         live = float(boosted((trip.live_food or {}).get(speed, base), mastery))
         cycle = live_cycle(game, trip, farming)
         hour = 3600.0 / cycle * live if cycle else None
-        caught = float(boosted(trip.catch_up_food if trip.catch_up_food is not None else base, mastery))
+        caught = float(boosted(base_caught if base_caught is not None else
+                               trip.catch_up_food if trip.catch_up_food is not None else base, mastery))
         per_turn = turn_trips(game, trip, farming, food_store)
         share = delivered(game, trip)
         paying = pays(trip, farming)

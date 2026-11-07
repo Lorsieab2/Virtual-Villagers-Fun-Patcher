@@ -111,6 +111,12 @@ class Arithmetic(unittest.TestCase):
         _, (fish,) = farmers.supplies(4, {"fish in the net": avg}, gm.NORMAL, 360.0, 1.5, 1000, 20.0)
         self.assertAlmostEqual(fish.catch_up_food, 7.5)
         self.assertEqual(farmers.boosted(5, 1.5), 7)          # one gain of 5 is still rounded down
+        # Through supplies(): a whole pick of 3 at Food Mastery 2 is 4 (rounded down); The Secret City pays 4 while
+        # catching up, which is 6.
+        _, (fruit,) = farmers.supplies(3, {"fruit picks": 3}, gm.NORMAL, 360.0, 1.5, 1000, 20.0)
+        self.assertEqual((fruit.live_food, fruit.catch_up_food), (4.0, 6.0))
+        _, (pick,) = farmers.supplies(4, {"blackberry picks": (3, 4)}, gm.NORMAL, 360.0, 1.5, 1000, 20.0)
+        self.assertEqual((pick.live_food, pick.catch_up_food), (4.0, 6.0))
 
     def test_food_mastery_and_speed(self) -> None:
         # The Lost Children's coconuts: live 8, 4 or 2 by speed; 4 while catching up; Food Mastery on both.
