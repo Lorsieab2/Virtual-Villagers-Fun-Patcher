@@ -76,7 +76,9 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
    and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins Tech,
+   "Complete Fish Scales = Golden Fish in Nets" and/or "No Fishing at Science
+   Level 2" (off by default: the Clothing Hut, and so cloth and the fishing
+   nets, waits for Science level 3) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
    (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
    reference unless you check "Manual Drop-Breeding overrides Birth Control"

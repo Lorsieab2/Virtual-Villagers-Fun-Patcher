@@ -205,6 +205,16 @@
       ]
     },
     {
+      "ids": ["vv4_no_fishing_at_science_2"],
+      "guide": [
+        "Off by default. The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
+        "Without the Clothing Hut there is no cloth, and without cloth the fishing nets cannot be mended, so fish come later.",
+        "A site already showing in your village hides until Science 3, then comes back with all its building kept.",
+        "A finished Clothing Hut stays as it is.",
+        "New clothes, and builders fixing huts on their own, wait for the Clothing Hut too (unless Builders Fix Huts When Idle is ticked)."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
@@ -961,7 +971,7 @@
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with. Checked Skill Preferences are listed as Jobs on Graves is off.",
-        "Faith Loss is Doubled/Gains Halved (New Believers) and Food Gains are Flat, like VV1-3 (Harder Games) are off: they make the game harder.",
+        "Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games) and No Fishing at Science Level 2 are off: they make the game harder.",
         "It does not change the population mode."
       ]
     },

@@ -152,6 +152,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
     + sorted(ALTERNATIVE_OFF_FUN_PATCH_IDS)
+    # No Fishing at Science Level 2 (The Tree of Life) makes the game harder:
+    # a difficulty change, not content, so it is off by default. The owner
+    # (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- Owner's Defaults ticks
+    # it, as it ticks every default-off patch it does not name.
+    + ["vv4_no_fishing_at_science_2"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its

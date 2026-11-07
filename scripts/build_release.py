@@ -249,6 +249,7 @@ FILES = [
     "data/vv4_disable_overview_clouds_feature.json",
     "data/vv5_disable_overview_clouds_feature.json",
     "data/vv3_push_overview_clouds_feature.json",
+    "data/vv4_no_fishing_at_science_2_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
