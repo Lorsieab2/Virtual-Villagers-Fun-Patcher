@@ -402,8 +402,10 @@ def _building_entries() -> list[Entry]:
             "does not need it (see Time away (catch-up))."), VERIFIED_C),
         Entry(BUILDING, "The Nursery School", f"{nursery[2]:,} points, {nursery[3]} a successful build action "
                                               f"({_actions(nursery[2], nursery[3])} actions)", (
-            "its site appears at Learning 3 (0x4358BC). Built, a teacher's lessons raise the children's skills: a "
-            "lesson spread over all six skills gives each a fifth of the lesson, six fifths in all (0x425FDF)."),
+            "its site appears at Learning 3 (0x4358BC). Built, a villager dropped on it with at least 3 of the six "
+            "skills at 50 or more becomes the teacher (0x43A990, 0x43AA06), and every age unit the teacher's lesson "
+            "raises every child's skills, Heathen children included: a lesson spread over all six skills gives each "
+            "a fifth of the lesson, six fifths in all (0x425FDF); the rule is under Tech points and effects."),
          VERIFIED_C,
               ((f"{_feature('vv5_vv4_nursery_divisor_parity')}: a spread lesson gives each of the six skills a sixth, "
                 "exactly one lesson in all; lessons on the strongest skill are unchanged.", VERIFIED_C),)),

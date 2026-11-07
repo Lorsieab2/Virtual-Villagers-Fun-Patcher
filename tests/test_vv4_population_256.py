@@ -428,6 +428,10 @@ FIX_PERCENT |= {0x4C411, 0x1C5CB}
 # The line drawer's zero-length fix (tests/test_no_divide_by_zero_crashes.py) stays with 256 Villagers too.
 from test_no_divide_by_zero_crashes import zero_length_line_fixes  # noqa: E402
 FIX_PERCENT |= {off for off, _, _ in zero_length_line_fixes("vv4")}
+# ... and the Nursery School's random tie (tests/test_nursery_tie_random.py), kept with 256 Villagers.
+from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
+
+FIX_PERCENT |= {off for off, _, _ in nursery_tie_fixes("vv4")}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 
