@@ -1,0 +1,918 @@
+"""2-10x Tech Cost (all five games; ids vv1_tech_cost_multiplier .. vv5_tech_cost_multiplier), off by default.
+
+The owner (2026-11-06): "Default OFF: "Triple Tech Cost" = triples all technologies so they have 3x the normal cost.
+makes the game super hard." and "7 should be default off for everything. players who want it must explicitly choose
+it": Default Patches, Owner's Defaults and Select All leave it unticked.  Then (2026-11-07): "instead of a flat
+"Triple Tech Cost", how about a slider? 2-10x Tech Cost": the patcher window's slider picks a whole multiplier 2..10
+(3 unless moved), which vv_fun_patcher.apply_tech_cost_multiplier writes when a build is published.
+
+Where each game keeps its prices, and the change, are in scripts/build_tech_cost_multiplier_features.py.  These tests
+check the manifests against the generator and the stock bytes, and run each game's own Tech screen code from the
+stock and the rendered executable in unicorn, for every technology at every level it can be bought from:
+
+  * the hover label and the information box are given the price the game would print (the sprintf argument in A New
+    Home and The Lost Children; the price getter's answer at its call in the later games);
+  * the purchase is run with exactly the price, and with one point less: with the price it is bought and exactly
+    the price is taken, with one less it is refused (the game's own message) and nothing is taken.
+
+Stock gives the stock table; patched at x 2, x 3 and x 10 exactly that many times it, all three readers agreeing.  Tests that need the stock
+executables or unicorn skip when they are absent (GitHub CI has no stock executables).
+"""
+from __future__ import annotations
+
+import importlib.util
+import json
+import re
+import struct
+import sys
+import unittest
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+import vv_fun_patcher as patcher  # noqa: E402
+import vv_fun_patcher_gui as gui  # noqa: E402
+
+try:
+    import capstone
+    import pefile
+    from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
+    from unicorn.x86_const import (
+        UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP,
+        UC_X86_REG_ESI, UC_X86_REG_ESP,
+    )
+    HAVE_EMULATOR = True
+except ImportError:  # pragma: no cover - environment dependent
+    HAVE_EMULATOR = False
+    # Placeholders so the module-level tables still load; every test using them is skipped (Codex, #722).
+    UC_X86_REG_EAX = UC_X86_REG_EBP = UC_X86_REG_EBX = UC_X86_REG_ECX = UC_X86_REG_EDI = None
+    UC_X86_REG_EIP = UC_X86_REG_ESI = UC_X86_REG_ESP = None
+
+_spec = importlib.util.spec_from_file_location(
+    "build_tech_cost_multiplier_features", ROOT / "scripts" / "build_tech_cost_multiplier_features.py")
+gen = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(gen)
+
+GAMES = range(1, 6)
+IDS = {game: f"vv{game}_tech_cost_multiplier" for game in GAMES}
+BASE = gen.IMAGE_BASE
+BUILDS = {game: next(b for b in patcher.load_builds() if b.id == f"vv{game}") for game in GAMES}
+MODES = ("stock", "collection_progression", "immediate_fixed")
+
+
+def stock_path(game: int) -> Path:
+    return ROOT / "research" / "stock-executables" / BUILDS[game].input_name
+
+
+def stock_bytes(game: int) -> bytes:
+    path = stock_path(game)
+    if not path.is_file():
+        raise unittest.SkipTest(f"stock vv{game} exe not present in this checkout")
+    return path.read_bytes()
+
+
+def manifest(game: int) -> dict:
+    return json.loads(gen.out_path(game).read_text(encoding="utf-8"))
+
+
+def stock_table(game: int) -> dict[tuple[str, int], int]:
+    """(technology, level bought) -> stock price, from the page's own tables (src/vv_game_mechanics_items_vv<N>)."""
+    import vv_game_mechanics_tech_time as tt
+    return {(name, level): tt.stock_price(game, name, level) for name, level in tt.every_level(game)}
+
+
+_RENDERED: dict[tuple[int, str, int], bytes] = {}
+
+
+def rendered(game: int, ids: tuple[str, ...], multiplier: int = 3) -> bytes:
+    """The patcher's render of `ids`, with 2-10x Tech Cost's multiplier written as a published build has it."""
+    key = (game, ",".join(ids), multiplier)
+    if key not in _RENDERED:
+        data, applied = patcher.render_patched_bytes(
+            stock_path(game), BUILDS[game], patcher.DEFAULT_PATCH_MODE, list(ids))
+        patcher.apply_tech_cost_multiplier(data, f"vv{game}", multiplier, applied)
+        _RENDERED[key] = bytes(data)
+    return _RENDERED[key]
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# A small emulator: the image at its base, a stack, a heap for the screen object and the village state, and stubs
+# for the routines the Tech screen calls that are not about prices (strings, labels, sounds, messages).
+# ---------------------------------------------------------------------------------------------------------------
+HEAP, HEAP_SIZE = 0x10000000, 0x100000
+STACK, STACK_SIZE = 0x30000000, 0x100000
+SENTINEL = 0x50000000
+STRING_TAG = 0x20000000          # a stubbed string getter returns STRING_TAG | id (never dereferenced)
+
+
+class Emu:
+    def __init__(self, exe: bytes):
+        pe = pefile.PE(data=exe, fast_load=True)
+        image = pe.get_memory_mapped_image()
+        size = (len(image) + 0xFFFF) & ~0xFFFF
+        self.uc = Uc(UC_ARCH_X86, UC_MODE_32)
+        self.uc.mem_map(BASE, size)
+        self.uc.mem_write(BASE, image)
+        self.uc.mem_map(HEAP, HEAP_SIZE)
+        self.uc.mem_map(STACK, STACK_SIZE)
+        self.uc.mem_map(SENTINEL, 0x1000)
+        self.uc.mem_map(0, 0x1000)                 # fs:[0] (the routines' exception frames; fs base 0)
+        self.uc.mem_write(SENTINEL, b"\xC3")
+        self.stubs: dict[int, tuple[int, object]] = {}
+        self.stops: set[int] = {SENTINEL}
+        self.calls: list[tuple[int, list[int]]] = []
+        self.stopped_at = None
+        self.uc.hook_add(UC_HOOK_CODE, self._hook)
+
+    def reset(self) -> "Emu":
+        """Ready for the next run: no stubs, calls or stops, an empty heap (the image keeps the run's writes to the
+        levels and points, which every run sets again)."""
+        self.stubs, self.stops, self.calls, self.stopped_at = {}, {SENTINEL}, [], None
+        self.uc.mem_write(HEAP, bytes(HEAP_SIZE))
+        return self
+
+    def stub(self, address: int, args: int, result=0, stop: bool = False) -> None:
+        """A callee-clean routine of `args` dword arguments returning `result` (or result(args))."""
+        self.stubs[address] = (args, result, stop)
+
+    def dword(self, address: int) -> int:
+        return struct.unpack("<i", self.uc.mem_read(address, 4))[0]
+
+    def put(self, address: int, value: int) -> None:
+        self.uc.mem_write(address, struct.pack("<i", value))
+
+    def _hook(self, uc, address, size, user):
+        if address in self.stops:
+            self.stopped_at = address
+            uc.emu_stop()
+            return
+        if address in self.stubs:
+            args, result, stop = self.stubs[address]
+            esp = uc.reg_read(UC_X86_REG_ESP)
+            ret = struct.unpack("<I", uc.mem_read(esp, 4))[0]
+            values = list(struct.unpack(f"<{max(args, 8)}I", uc.mem_read(esp + 4, 4 * max(args, 8))))
+            self.calls.append((address, values))
+            if stop:
+                self.stopped_at = address
+                uc.emu_stop()
+                return
+            uc.reg_write(UC_X86_REG_EAX, result(values) if callable(result) else result)
+            uc.reg_write(UC_X86_REG_ESP, esp + 4 + 4 * args)
+            uc.reg_write(UC_X86_REG_EIP, ret)
+
+    def run(self, start: int, regs: dict, stack: list[int]) -> None:
+        esp = STACK + STACK_SIZE - 0x1000 - 4 * len(stack)
+        self.uc.mem_write(esp, b"".join(struct.pack("<I", v & 0xFFFFFFFF) for v in stack))
+        self.uc.reg_write(UC_X86_REG_ESP, esp)
+        for reg, value in regs.items():
+            self.uc.reg_write(reg, value & 0xFFFFFFFF)
+        self.uc.emu_start(start, 0, count=20_000)
+        if self.stopped_at is None:
+            raise AssertionError(f"emulation from {start:#x} ran away")
+
+
+_EMUS: dict[int, "Emu"] = {}
+
+
+def fresh(exe: bytes) -> "Emu":
+    """One emulator per executable (each new one maps the whole image), reset for each run."""
+    if id(exe) not in _EMUS:
+        _EMUS[id(exe)] = Emu(exe)
+    return _EMUS[id(exe)].reset()
+
+
+def string_result(values: list[int]) -> int:
+    return STRING_TAG | (values[0] & 0xFFFF)
+
+
+def printed_price(values: list[int], count: int) -> int:
+    """The price among a sprintf's `count` arguments after the buffer and the format: the one number that is not a
+    string or the level (the hover label: string, price, string; the information box: name, string, level, string,
+    price, string)."""
+    numbers = [v for v in values[2:2 + count] if not v & STRING_TAG]
+    return numbers[-1]
+
+
+# A New Home and The Lost Children: the screen object (esi) and the village state ([esi + 0xC]).
+SCREEN = HEAP
+STATE = HEAP + 0x1000
+IMMEDIATE = {
+    1: dict(levels={"Farming": 0xA2E4, "Fertility": 0xA2DC, "Science": 0xA2C4, "Medicine": 0xA2D4,
+                    "Construction": 0xA2CC, "Spirituality": 0xA2BC}, points=0xA2FC,
+            string=0x433970, label=0x40BB30, rect=0x417BF0, sprintf=0x44B23D, sound=0x431470, message=0x434570,
+            clock=0x402F70, bought=0x435DCD, info_first=0x1FB, refused=0x25, buy_order=(
+                "Farming", "Fertility", "Science", "Medicine", "Construction", "Spirituality")),
+    2: dict(levels={"Culture": 0x2EA74, "Science": 0x2EA7C, "Engineering": 0x2EA84, "Medicine": 0x2EA8C,
+                    "Exploration": 0x2EA94, "Farming": 0x2EA9C}, points=0x2EADC,
+            string=0x441680, label=0x40C510, rect=0x413590, sprintf=0x4682BD, sound=0x43F010, message=0x442280,
+            clock=None, bought=0x443A8D, info_first=0x2DA, refused=0x3F, buy_order=(
+                "Farming", "Exploration", "Science", "Medicine", "Engineering", "Culture")),
+}
+RECT_FIELDS = (0x5C, 0x6C, 0x7C)          # the hover label's first three buttons: x1, y1, x2, y2 inline
+RECT_OBJECTS = (0x8C, 0x9C, 0xAC)         # its last three: rect objects tested by the rect routine
+
+
+def _immediate_emu(game: int, exe: bytes, level: int, points: int = 0) -> "Emu":
+    c = IMMEDIATE[game]
+    emu = fresh(exe)
+    emu.put(SCREEN + 0xC, STATE)
+    for offset in c["levels"].values():
+        emu.put(STATE + offset, level)
+    emu.put(STATE + c["points"], points)
+    emu.stub(c["string"], 1, string_result)
+    emu.stub(c["label"], 1)
+    emu.stub(c["sound"], 1)
+    if c["clock"]:
+        emu.stub(c["clock"], 0)
+    return emu
+
+
+def hover_prices(game: int, exe: bytes, level: int) -> list[int]:
+    """The price the hover label prints for each of the six buttons, every technology at `level`."""
+    c = IMMEDIATE[game]
+    start = gen.ROUTINES[game]["hover label"][0]
+    out = []
+    for button in range(6):
+        emu = _immediate_emu(game, exe, level)
+        for k, field in enumerate(RECT_FIELDS):        # the mouse at (5, 5): inside this button's box only
+            box = (0, 0, 10, 10) if k == button else (100, 100, 90, 90)
+            for j, v in enumerate(box):
+                emu.put(SCREEN + field + 4 * j, v)
+        target = SCREEN + RECT_OBJECTS[button - 3] if button >= 3 else None
+        emu.stubs[c["rect"]] = (2, lambda values, t=target, e=emu: 1 if e.uc.reg_read(UC_X86_REG_ECX) == t else 0,
+                                False)
+        emu.stub(c["sprintf"], 0, stop=True)
+        emu.run(start, {UC_X86_REG_ECX: SCREEN}, [SENTINEL, 1, 5, 5])
+        address, values = emu.calls[-1]
+        assert address == c["sprintf"], hex(address)
+        out.append(printed_price(values, 3))
+    return out
+
+
+def info_prices(game: int, exe: bytes, level: int) -> list[int]:
+    """The price the information box prints for each technology (its six "?" ids), every technology at `level`."""
+    c = IMMEDIATE[game]
+    start = gen.ROUTINES[game]["information box"][0]
+    out = []
+    for k in range(6):
+        emu = _immediate_emu(game, exe, level)
+        emu.stub(c["sprintf"], 0, stop=True)
+        emu.run(start, {UC_X86_REG_ECX: SCREEN}, [SENTINEL, c["info_first"] + k])
+        address, values = emu.calls[-1]
+        assert address == c["sprintf"], hex(address)
+        out.append(printed_price(values, 6))
+    return out
+
+
+def buy(game: int, exe: bytes, tech: str, level: int, points: int) -> tuple[bool, int, int, list[int]]:
+    """Click tech's buy button with every technology at `level` and `points` tech points: (bought, points after,
+    tech's level after, the messages shown)."""
+    c = IMMEDIATE[game]
+    start = gen.ROUTINES[game]["buy"][0]
+    emu = _immediate_emu(game, exe, level, points)
+    button = c["buy_order"].index(tech)
+    for k in range(6):
+        emu.put(SCREEN + 0xC0 + 4 * k, 0x100 + k)
+    emu.stub(c["message"], 1)
+    emu.stops.add(c["bought"])
+    # The buy code runs inside the click handler: esi pushed, then the handler's return and its two arguments.
+    emu.run(start, {UC_X86_REG_EAX: 0x100 + button, UC_X86_REG_ESI: SCREEN}, [SCREEN, SENTINEL, 0, 0])
+    messages = [values[0] for address, values in emu.calls if address == c["message"]]
+    return (emu.stopped_at == c["bought"], emu.dword(STATE + c["points"]), emu.dword(STATE + c["levels"][tech]),
+            messages)
+
+
+# The Secret City, The Tree of Life and New Believers: the getter's callers, each run from the push of its argument
+# to the instruction after the call (the price in eax), and the purchase from the same push to after the charge.
+TABLE_GAMES = {
+    3: dict(levels=0x582618, points=0x582644, label=(0x464E41, UC_X86_REG_EBX, 0x464E4C),
+            info=(0x464C7E, UC_X86_REG_EDI, 0x464C89), buy=(0x465700, UC_X86_REG_ESI), bought=0x4657D5,
+            message=0x42E0F0, refused=0x34),
+    4: dict(levels=0x4D6F5C, points=0x4D6F88, label=(0x43E575, UC_X86_REG_EBP, 0x43E582),
+            info=(0x43E8FA, UC_X86_REG_EDI, 0x43E905), buy=(0x43EA70, UC_X86_REG_EDI), bought=0x43EAF8,
+            message=0x44C290, refused=0x97),
+    5: dict(levels=0x51D5CC, points=0x51D5F8, label=(0x440DC2, UC_X86_REG_EBP, 0x440DCF),
+            info=(0x44129A, UC_X86_REG_EDI, 0x4412A5), buy=(0x441670, UC_X86_REG_ESI), bought=0x4416AC,
+            message=0x44EF60, refused=0x88),
+}
+
+
+def _table_emu(game: int, exe: bytes, tech_id: int, level: int, points: int = 0) -> "Emu":
+    c = TABLE_GAMES[game]
+    emu = fresh(exe)
+    for k in range(len(gen.TABLES[game][2])):
+        emu.put(c["levels"] + 4 * k, 0 if game == 3 and k >= 5 else 1)
+    emu.put(c["levels"] + 4 * tech_id, level)
+    emu.put(c["points"], points)
+    return emu
+
+
+def getter_price(game: int, exe: bytes, caller: str, tech_id: int, level: int) -> int:
+    start, reg, after = TABLE_GAMES[game][caller]
+    emu = _table_emu(game, exe, tech_id, level)
+    emu.stops.add(after)
+    emu.run(start, {reg: tech_id}, [SENTINEL])
+    assert emu.stopped_at == after
+    return emu.uc.reg_read(UC_X86_REG_EAX)
+
+
+def table_buy(game: int, exe: bytes, tech_id: int, level: int, points: int) -> tuple[bool, int, list[int]]:
+    c = TABLE_GAMES[game]
+    start, reg = c["buy"]
+    emu = _table_emu(game, exe, tech_id, level, points)
+    emu.stub(c["message"], 2, stop=True)
+    emu.stops.add(c["bought"])
+    if game == 4:
+        emu.stub(0x412F90, 2)                      # the purchase's sound
+    if game == 3:                                  # a faction's confirmation box: answered "yes"
+        screen = HEAP
+        emu.stub(0x42F190, 1, string_result)
+        emu.stub(0x41C7A0, 3)
+        emu.stub(0x401AF0, 2, 0)
+        emu.stub(0x41C2F0, 0)
+        emu.uc.reg_write(UC_X86_REG_EBX, screen)
+        emu.uc.reg_write(UC_X86_REG_EBP, screen)
+    emu.run(start, {reg: tech_id}, [SENTINEL, 0, 0, 0])
+    messages = [values[0] for address, values in emu.calls if address == c["message"]]
+    return emu.stopped_at == c["bought"], emu.dword(c["points"]), messages
+
+
+# ---------------------------------------------------------------------------------------------------------------
+class ManifestTests(unittest.TestCase):
+    def test_each_manifest_is_what_the_generator_writes(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.assertEqual(manifest(game), gen.feature(game, stock_bytes(game)))
+
+    def test_one_row_per_game_named_as_the_owner_said(self):
+        for game in GAMES:
+            with self.subTest(game=game):
+                m = manifest(game)
+                self.assertEqual((m["id"], m["game_id"], m["name"]), (IDS[game], f"vv{game}", "2-10x Tech Cost"))
+                self.assertTrue(m["description"].endswith(
+                    "The higher you set it, the harder the game. **Needs no other patch.**"))
+                self.assertIn("2 to 10 times its normal price", m["description"])
+                self.assertEqual(m["tech_cost_multiplier"], {"default": 3, "minimum": 2, "maximum": 10})
+                self.assertEqual(m["companion_files"], [])
+
+    def test_every_edit_is_a_price_times_three_in_place(self):
+        for game in GAMES:
+            stock = stock_bytes(game)
+            for p in manifest(game)["patches"]:
+                with self.subTest(game=game, offset=p["offset"]):
+                    offset = int(p["offset"], 16)
+                    before, after = bytes.fromhex(p["before"]), bytes.fromhex(p["after"])
+                    self.assertEqual((len(before), len(after)), (4, 4))
+                    self.assertEqual(stock[offset:offset + 4], before)
+                    old, new = struct.unpack("<i", before)[0], struct.unpack("<i", after)[0]
+                    self.assertGreater(old, 0)
+                    self.assertEqual(new, 3 * old)
+
+    def test_the_sites_are_every_technology_level(self):
+        """The immediates' prices are the page's table (each routine has each price once per technology level;
+        the information box shares one site between two levels of the same price); the tables' entries are the
+        page's table, every level."""
+        for game in (1, 2):
+            stock = stock_bytes(game)
+            want = Counter(stock_table(game).values())
+            sites = gen.immediate_sites(game, stock)
+            for routine in gen.ROUTINES[game]:
+                got = Counter(value for r, _, value in sites if r == routine)
+                with self.subTest(game=game, routine=routine):
+                    if routine == "information box":
+                        shared = +(want - got)
+                        self.assertEqual(sum(shared.values()), 1)
+                        self.assertEqual(set(got), set(want))
+                    else:
+                        self.assertEqual(got, want)
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                got = {(name, level): value for name, level, _, value in gen.table_sites(game, stock_bytes(game))}
+                self.assertEqual(got, stock_table(game))
+
+    def test_every_multiplied_price_fits_a_signed_int(self):
+        top = max(p for game in GAMES for p in stock_table(game).values())
+        self.assertEqual(10 * top, 2_500_000)                          # VV1 Medicine level 3 at x 10
+        self.assertLess(10 * top, 2 ** 31)
+
+    @unittest.skipUnless(HAVE_EMULATOR, "requires capstone and pefile")
+    def test_the_tables_have_one_reader_and_it_has_three_callers(self):
+        for game in (3, 4, 5):
+            stock = stock_bytes(game)
+            getter, table, _ = gen.TABLES[game]
+            pe = pefile.PE(data=stock, fast_load=True)
+            text = pe.sections[0]
+            lo, hi = text.PointerToRawData, text.PointerToRawData + text.SizeOfRawData
+            with self.subTest(game=game):
+                refs = [m.start() for m in re.finditer(re.escape(struct.pack("<I", table)), stock)]
+                self.assertEqual(len(refs), 1)
+                self.assertTrue(getter < pe.get_rva_from_offset(refs[0]) + BASE < getter + 0x20)   # its mov eax
+                for va in range(table + 4, table + 4 * (3 * len(gen.TABLES[game][2]) + 1), 4):
+                    self.assertNotIn(struct.pack("<I", va), stock[lo:hi], hex(va))
+                callers = [pe.get_rva_from_offset(o) + BASE for o in range(lo, hi - 5)
+                           if stock[o] in (0xE8, 0xE9)
+                           and pe.get_rva_from_offset(o) + BASE + 5 + struct.unpack_from("<i", stock, o + 1)[0]
+                           == getter]
+                self.assertEqual(tuple(callers), gen.GETTER_CALLERS[game])
+
+    def test_no_other_manifest_claims_the_bytes(self):
+        for game in GAMES:
+            mine = set()
+            for p in manifest(game)["patches"]:
+                mine |= set(range(int(p["offset"], 16), int(p["offset"], 16) + 4))
+            for path in sorted((ROOT / "data").glob("*.json")):
+                if path.name == gen.out_path(game).name:
+                    continue
+                try:
+                    data = json.loads(path.read_text(encoding="utf-8"))
+                except ValueError:
+                    continue
+                items = data if isinstance(data, list) else [data] + list(
+                    data.get("features", []) if isinstance(data, dict) else [])
+                if isinstance(data, dict):
+                    items += list(data.get("fun_patches", []))
+                for item in items:
+                    if not isinstance(item, dict) or item.get("game_id") not in (None, f"vv{game}"):
+                        continue
+                    for p in item.get("patches", []) or []:
+                        try:
+                            off = int(str(p.get("offset")), 16)
+                            n = len(p.get("before", "")) // 2
+                        except (TypeError, ValueError):
+                            continue
+                        with self.subTest(game=game, other=path.name):
+                            self.assertFalse(mine & set(range(off, off + n)), (item.get("id"), p.get("offset")))
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "requires unicorn, capstone and pefile")
+class EmulatedTechScreenTests(unittest.TestCase):
+    """Every reader of the prices, from the stock exe and from the patcher's render with the row ticked."""
+
+    def exes(self, game: int):
+        stock_bytes(game)
+        return (("stock", rendered(game, ()), 1),) + tuple(
+            (f"x{n}", rendered(game, (IDS[game],), n), n) for n in (2, 3, 10))
+
+    def test_immediate_games_label_box_and_purchase(self):
+        for game in (1, 2):
+            c = IMMEDIATE[game]
+            table = stock_table(game)
+            for kind, exe, factor in self.exes(game):
+                for level in (1, 2):
+                    want = Counter(factor * p for (name, lvl), p in table.items() if lvl == level + 1)
+                    with self.subTest(game=game, exe=kind, level=level):
+                        self.assertEqual(Counter(hover_prices(game, exe, level)), want)
+                        self.assertTrue(set(info_prices(game, exe, level)) <= set(want))
+                        self.assertEqual(sorted(info_prices(game, exe, level)), sorted(
+                            factor * table[(name, level + 1)] for name in self.info_order(game)))
+                    for name in c["levels"]:
+                        price = factor * table[(name, level + 1)]
+                        with self.subTest(game=game, exe=kind, tech=name, level=level):
+                            self.assertEqual(buy(game, exe, name, level, price), (True, 0, level + 1, []))
+                            self.assertEqual(buy(game, exe, name, level, price + 7), (True, 7, level + 1, []))
+                            self.assertEqual(buy(game, exe, name, level, price - 1),
+                                             (False, price - 1, level, [c["refused"]]))
+
+    def info_order(self, game: int) -> list[str]:
+        return list(IMMEDIATE[game]["levels"])
+
+    def test_table_games_label_box_and_purchase(self):
+        for game in (3, 4, 5):
+            c = TABLE_GAMES[game]
+            names = gen.TABLES[game][2]
+            table = stock_table(game)
+            for kind, exe, factor in self.exes(game):
+                for (name, bought), stock_price in table.items():
+                    tech_id, level, price = names.index(name), bought - 1, factor * stock_price
+                    with self.subTest(game=game, exe=kind, tech=name, level=level):
+                        self.assertEqual(getter_price(game, exe, "label", tech_id, level), price)
+                        self.assertEqual(getter_price(game, exe, "info", tech_id, level), price)
+                        self.assertEqual(table_buy(game, exe, tech_id, level, price), (True, 0, []))
+                        self.assertEqual(table_buy(game, exe, tech_id, level, price + 7), (True, 7, []))
+                        self.assertEqual(table_buy(game, exe, tech_id, level, price - 1),
+                                         (False, price - 1, [c["refused"]]))
+                for tech_id in range(len(names)):          # the top level: no price, nothing to buy
+                    self.assertEqual(getter_price(game, exe, "label", tech_id, 3), 0)
+
+    def test_every_public_patch_in_every_mode_keeps_the_multiplied_prices(self):
+        public = [p for p in patcher.load_public_fun_patches() if p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
+        for game in GAMES:
+            stock = stock_bytes(game)
+            ids = [p.id for p in public if p.game_id == f"vv{game}"]
+            self.assertIn(IDS[game], ids)
+            sites = manifest(game)["patches"]
+            for mode in MODES:
+                with self.subTest(game=game, mode=mode):
+                    exe = bytes(patcher.render_patched_bytes(stock_path(game), BUILDS[game], mode, ids)[0])
+                    without = bytes(patcher.render_patched_bytes(
+                        stock_path(game), BUILDS[game], mode, [i for i in ids if i != IDS[game]])[0])
+                    checksum = struct.unpack_from("<I", stock, 0x3C)[0] + 0x58
+                    mine = {o for p in sites for o in range(int(p["offset"], 16), int(p["offset"], 16) + 4)}
+                    diff = {i for i in range(len(exe)) if exe[i] != without[i]}
+                    self.assertTrue(diff - mine <= set(range(checksum, checksum + 4)), sorted(diff - mine)[:5])
+                    for p in sites:
+                        o = int(p["offset"], 16)
+                        self.assertEqual(exe[o:o + 4].hex().upper(), p["after"])
+                        self.assertEqual(without[o:o + 4].hex().upper(), p["before"])
+
+
+class RegistrationTests(unittest.TestCase):
+    def test_registered_off_everywhere_bundled_and_documented(self):
+        public = {p.id: p for p in patcher.load_public_fun_patches()}
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        howto = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        doc = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        self.assertIn("2-10X TECH COST (ALL FIVE GAMES)", howto)
+        for game in GAMES:
+            with self.subTest(game=game):
+                row = public[IDS[game]]
+                self.assertEqual(row.name, "2-10x Tech Cost")
+                self.assertEqual(patcher.patch_requirement_text(row, list(public.values())),
+                                 "Requires no other patch to be ticked.")
+                self.assertIn(f'"data/vv{game}_tech_cost_multiplier_feature.json"', release)
+                self.assertIn(f"- Patch ID: `{IDS[game]}`", readme)
+                self.assertIn(f"#### 2-10x Tech Cost (`{IDS[game]}`)", doc)
+
+    def test_only_its_own_row_ticks_it(self):
+        """The owner: "7 should be default off for everything. players who want it must explicitly choose it."
+        Default Patches (and a fresh install), Owner's Defaults and Select All all leave every game's row off."""
+        for game in GAMES:
+            with self.subTest(game=game):
+                self.assertFalse(gui.default_fun_patch_selection(IDS[game]))
+                self.assertFalse(gui.owners_default_fun_patch_selection(IDS[game]))
+                self.assertFalse(gui.select_all_fun_patch_selection(IDS[game]))
+                self.assertNotIn(IDS[game], gui.COTICKED_FUN_PATCH_IDS.values())
+        # Nothing else in those sets moved: every other patch keeps its own answer.
+        self.assertTrue(gui.select_all_fun_patch_selection("vv5_fix_vanilla_bugs"))
+        self.assertTrue(gui.owners_default_fun_patch_selection("vv3_population_256"))
+
+    def test_no_patch_needs_it(self):
+        for p in patcher.load_public_fun_patches():
+            deps = set(p.raw.get("dependencies") or ()) | {n["id"] for n in p.raw.get("needs_on") or ()}
+            with self.subTest(patch=p.id):
+                self.assertFalse(deps & set(IDS.values()))
+
+
+class PublishTests(unittest.TestCase):
+    """The multiplier as a published build gets it: vv_fun_patcher.apply_tech_cost_multiplier, from
+    _finalize_published_bytes (dry runs, single and all-five builds, the command line)."""
+
+    def test_every_site_becomes_stock_times_n_and_its_record_says_so(self):
+        for game in GAMES:
+            stock_bytes(game)
+            for n in (2, 3, 10):
+                data, applied = patcher.render_patched_bytes(
+                    stock_path(game), BUILDS[game], patcher.DEFAULT_PATCH_MODE, [IDS[game]])
+                patcher.apply_tech_cost_multiplier(data, f"vv{game}", n, applied)
+                records = [r for r in applied if r["owner"] == f"feature:{IDS[game]}"]
+                with self.subTest(game=game, n=n):
+                    self.assertEqual(len(records), len(manifest(game)["patches"]))
+                    for r in records:
+                        o = int(r["offset"], 16)
+                        old = struct.unpack("<i", bytes.fromhex(r["before"]))[0]
+                        self.assertEqual(struct.unpack_from("<i", data, o)[0], n * old)
+                        self.assertEqual(r["after"], struct.pack("<i", n * old).hex().upper())
+                        self.assertIn(f" -> {n * old:,} at x {n}", r["purpose"])
+                    checksum = patcher._pe_checksum_layout(data)[0]
+                    copy = bytearray(data)
+                    struct.pack_into("<I", copy, checksum, 0)
+                    self.assertEqual(struct.unpack_from("<I", data, checksum)[0], patcher.pe_checksum(copy))
+
+    def test_nothing_changes_without_the_row(self):
+        stock_bytes(4)
+        data, applied = patcher.render_patched_bytes(stock_path(4), BUILDS[4], patcher.DEFAULT_PATCH_MODE, [])
+        before = bytes(data)
+        patcher.apply_tech_cost_multiplier(data, "vv4", 10, applied)
+        self.assertEqual(bytes(data), before)
+
+    def test_only_whole_numbers_2_to_10(self):
+        for bad in (1, 11, 0, -3, 2.5, "3", True, None):
+            with self.subTest(value=bad):
+                with self.assertRaises(patcher.PatcherError):
+                    patcher.validate_tech_cost_multiplier(bad)
+        for good in range(2, 11):
+            self.assertEqual(patcher.validate_tech_cost_multiplier(good), good)
+        self.assertEqual(patcher.TECH_COST_MULTIPLIER_DEFAULT, 3)
+
+    def test_a_site_that_is_not_the_rendered_price_is_refused(self):
+        stock_bytes(5)
+        data, applied = patcher.render_patched_bytes(
+            stock_path(5), BUILDS[5], patcher.DEFAULT_PATCH_MODE, [IDS[5]])
+        o = int(manifest(5)["patches"][0]["offset"], 16)
+        data[o] ^= 1
+        with self.assertRaises(patcher.PatcherError):
+            patcher.apply_tech_cost_multiplier(data, "vv5", 4, applied)
+
+    def test_every_publishing_path_passes_the_multiplier(self):
+        import inspect
+        for function in (patcher.dry_run, patcher.dry_run_all, patcher.apply_patch, patcher.apply_all,
+                         patcher._finalize_published_bytes):
+            with self.subTest(function=function.__name__):
+                default = inspect.signature(function).parameters["tech_cost_multiplier"].default
+                self.assertEqual(default, 3)
+        source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
+        self.assertEqual(source.count("tech_cost_multiplier=tech_cost_multiplier"), 4)
+        self.assertEqual(source.count("tech_cost_multiplier=args.tech_cost_multiplier"), 4)
+        self.assertIn("apply_tech_cost_multiplier(data, build.id, tech_cost_multiplier, applied)", source)
+
+    def test_a_dry_run_reports_the_multiplied_bytes(self):
+        stock_bytes(3)
+        result = patcher.dry_run(stock_path(3), patcher.DEFAULT_PATCH_MODE, [IDS[3]], tech_cost_multiplier=7)
+        text = json.dumps(result)
+        self.assertIn("at x 7", text)
+        self.assertNotIn("at x 3", text)
+
+    def test_the_command_line_takes_2_to_10(self):
+        import argparse
+        parser = argparse.ArgumentParser()
+        patcher._add_check_logs_arg(parser)
+        self.assertEqual(parser.parse_args([]).tech_cost_multiplier, 3)
+        self.assertEqual(parser.parse_args(["--tech-cost-multiplier", "10"]).tech_cost_multiplier, 10)
+        for bad in ("1", "11"):
+            with self.subTest(value=bad), self.assertRaises(SystemExit):
+                parser.parse_args(["--tech-cost-multiplier", bad])
+
+
+class WrittenLogTests(unittest.TestCase):
+    """A real build at x 5: the patch log keeps the multiplier as its own value, the transparency report says it, and
+    every price site's record gives its real bytes."""
+
+    def test_the_patch_log_and_the_transparency_report_name_the_multiplier(self):
+        import shutil
+        import tempfile
+        stock_bytes(4)
+        build = BUILDS[4]
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / build.title
+            folder.mkdir()
+            source = folder / build.input_name
+            shutil.copy2(stock_path(4), source)
+            output, log_path = patcher.apply_patch(
+                source, patcher.DEFAULT_PATCH_MODE, fun_patch_ids=[IDS[4]], output_root=Path(temp) / "out",
+                tech_cost_multiplier=5)
+            log = json.loads(Path(log_path).read_text(encoding="utf-8"))
+            self.assertEqual(log["tech_cost_multiplier"], 5)
+            records = [r for r in log["patches"] if r["owner"] == f"feature:{IDS[4]}"]
+            self.assertEqual(len(records), 12)
+            for r in records:
+                old = struct.unpack("<i", bytes.fromhex(r["before"]))[0]
+                self.assertEqual(struct.unpack("<i", bytes.fromhex(r["after"]))[0], 5 * old)
+                self.assertIn(f" -> {5 * old:,} at x 5", r["purpose"])
+            report = next(Path(output).parent.rglob("VVFP Transparency Log.txt")).read_text(encoding="utf-8")
+            self.assertIn("  Multiplier: x5 (the 2-10x Tech Cost slider): every technology price is its normal "
+                          "price times this.", report)
+            self.assertNotIn("at x 3", report)
+            exe = Path(output).read_bytes()
+            for r in records:
+                o = int(r["offset"], 16)
+                self.assertEqual(exe[o:o + 4].hex().upper(), r["after"])
+
+    def test_a_build_without_the_row_logs_no_multiplier(self):
+        self.assertIsNone(patcher.tech_cost_multiplier_applied([]))
+        stock_bytes(2)
+        result = patcher.dry_run(stock_path(2), patcher.DEFAULT_PATCH_MODE, [], tech_cost_multiplier=9)
+        self.assertNotIn("tech_cost_multiplier", result)
+        result = patcher.dry_run(stock_path(2), patcher.DEFAULT_PATCH_MODE, [IDS[2]], tech_cost_multiplier=9)
+        self.assertEqual(result["tech_cost_multiplier"], 9)
+
+
+class ExeWithoutLogTests(unittest.TestCase):
+    """With no patch log beside it, the Game Mechanics page reads the patch list from the exe's bytes: a build at
+    any multiplier is recognised (every price site the stock value x one k from 2 to 10)."""
+
+    def test_every_multiplier_is_seen_in_the_bytes(self):
+        import vv_game_mechanics as gm
+        import vv_game_mechanics_tech_time as tt
+        import tempfile
+        for game in GAMES:
+            stock_bytes(game)
+            for n in (2, 5, 10):
+                with self.subTest(game=game, n=n):
+                    data = rendered(game, (IDS[game],), n)
+                    self.assertEqual(tt.multiplier_in_bytes(game, data), n)
+                    with tempfile.TemporaryDirectory() as temp:
+                        exe = Path(temp) / "game.exe"
+                        exe.write_bytes(data)
+                        self.assertIn(IDS[game], gm._from_exe(exe, game))
+            with self.subTest(game=game, n="stock"):
+                self.assertIsNone(tt.multiplier_in_bytes(game, stock_bytes(game)))
+            with self.subTest(game=game, n="mixed"):
+                mixed = bytearray(rendered(game, (IDS[game],), 5))
+                site = manifest(game)["patches"][-1]
+                o = int(site["offset"], 16)
+                struct.pack_into("<i", mixed, o, 4 * struct.unpack("<i", bytes.fromhex(site["before"]))[0])
+                self.assertIsNone(tt.multiplier_in_bytes(game, bytes(mixed)))
+
+
+class RenderedPageTests(unittest.TestCase):
+    """The whole Game Mechanics page for a real save: the Tech screen entry's patch line, each level's price and
+    the catch-up rows (tech_time.lines), with the row at x 5 and no log, without it, and when nothing can be told."""
+
+    FIXTURES = ROOT / "tests" / "fixtures" / "rename_tribe"
+    NOW = 1_793_000_000
+
+    def page(self, game: int, exe_bytes: bytes | None, logged: list[str] | None = None):
+        import gzip
+        import shutil
+        import tempfile
+        import vv_game_mechanics as gm
+        import vv_tribe_rename
+        base = next(item.base for item in vv_tribe_rename.GAMES if item.number == game)
+        root = Path(tempfile.mkdtemp(prefix="tcmp"))
+        self.addCleanup(shutil.rmtree, root, True)
+        (root / base).mkdir()
+        (root / base / f"{base}1.ldw").write_bytes(
+            gzip.decompress((self.FIXTURES / f"vv{game}-huttest-1.ldw.gz").read_bytes()))
+        games = []
+        if exe_bytes is not None:
+            folder = root / "g" / base
+            folder.mkdir(parents=True)
+            (folder / f"{base}.exe").write_bytes(exe_bytes)
+            if logged is not None:     # the patcher's report of the run that made this exe: the list is certain
+                import hashlib
+                (folder / "Virtual Villagers Fun Patcher Files").mkdir()
+                (folder / "Virtual Villagers Fun Patcher Files" / "VVFP Transparency Log.txt").write_text(
+                    f"Modified EXE: {base}.exe | size {len(exe_bytes)} | SHA-256 "
+                    f"{hashlib.sha256(exe_bytes).hexdigest()}\n"
+                    + "".join(f"- Optional feature: x [{fid}]\n" for fid in logged), encoding="utf-8")
+            games = [folder]
+        return [f.text for f in gm.read(root / base, game, 1, games, now=self.NOW)]
+
+    def test_at_x5_with_no_log(self):
+        for game in GAMES:
+            stock_bytes(game)
+            texts = self.page(game, rendered(game, (IDS[game],), 5))
+            with self.subTest(game=game):
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\", off by default)")
+                                    and t.endswith("It is in this game at x5.") for t in texts))
+                for (name, level), price in stock_table(game).items():
+                    want = f"{price:,} tech points normally, {5 * price:,} with \"2-10x Tech Cost\" (x5)"
+                    self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in texts),
+                                    (name, level))
+                self.assertTrue(any("costs 5 times its stock price, the multiplier read from the game's executable"
+                                    in t for t in texts))
+                catch_up = [t for t in texts if " tech points normally, " in t and "still needed" in t
+                            or (" tech points normally, " in t and "can be bought now" in t)]
+                self.assertTrue(catch_up)
+                self.assertTrue(all("(x5)" in t for t in catch_up))
+
+    def test_not_in_the_game(self):
+        for game in GAMES:
+            texts = self.page(game, stock_bytes(game), logged=[])
+            with self.subTest(game=game):
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("It is not in this game.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+
+    def test_when_nothing_can_be_told(self):
+        import vv_game_mechanics as gm
+        for game in GAMES:
+            with self.subTest(game=game, page="save, no game found"):
+                texts = self.page(game, None)
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+                self.assertTrue(any("2-10x Tech Cost" in t and "could not be told" in t
+                                    and "would each be larger" in t for t in texts))
+            with self.subTest(game=game, page="general"):
+                texts = [f.text for f in gm.general(game, now=self.NOW)]
+                self.assertTrue(any(t.startswith("With the patcher (\"2-10x Tech Cost\"")
+                                    and t.endswith("Whether the game has it could not be told.") for t in texts))
+                self.assertFalse(any(" tech points normally, " in t for t in texts))
+
+    def test_the_difficulty_line_names_the_multiplier(self):
+        import vv_game_mechanics_tech_time as tt
+        for game in GAMES:
+            self.assertIn("; x N with \"2-10x Tech Cost\")", tt.difficulty_line(game))
+
+
+class SliderTests(unittest.TestCase):
+    """The patcher window's 2-10x Tech Cost slider: whole numbers 2 to 10, 3 unless moved, saved and restored with
+    the settings, and handed to every dry run and build."""
+
+    def gui_source(self) -> str:
+        return (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+
+    def test_the_slider_is_2_to_10_whole_numbers(self):
+        source = self.gui_source()
+        body = source[source.index("self.tech_cost_scale = tk.Scale("):]
+        body = body[:body.index(")\n")]
+        self.assertIn("variable=self.tech_cost_var", body)
+        self.assertIn("from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1", body)
+        self.assertEqual((patcher.TECH_COST_MULTIPLIER_RANGE[0], patcher.TECH_COST_MULTIPLIER_RANGE[-1]), (2, 10))
+        self.assertIn("self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)", source)
+        self.assertIn('self._help_button(fun_settings, "tech_cost_multiplier")', source)
+
+    def test_it_is_saved_and_restored(self):
+        source = self.gui_source()
+        self.assertIn('"tech_cost_multiplier": (App._tech_cost_multiplier(self) if hasattr(self, "tech_cost_var")',
+                      source)
+        self.assertIn("            self.tech_cost_var.set(saved_tech_cost_multiplier(data))", source)
+        for saved, restored in ((2, 2), (10, 10), (7, 7), (1, 3), (11, 3), ("5", 3), (5.0, 3), (True, 3), (None, 3)):
+            with self.subTest(saved=saved):
+                self.assertEqual(gui.saved_tech_cost_multiplier({"tech_cost_multiplier": saved}), restored)
+        self.assertEqual(gui.saved_tech_cost_multiplier({}), 3)
+
+    def test_every_dry_run_and_build_gets_it(self):
+        source = self.gui_source()
+        self.assertEqual(source.count("tech_cost_multiplier=tech_cost,"),
+                         source.count("check_logs_automatically=check_logs,"))
+        self.assertEqual(source.count("tech_cost_multiplier=tech_cost,"), 6)
+
+    def test_the_slider_works_in_tk(self):
+        import tkinter as tk
+        try:
+            root = tk.Tk()
+        except tk.TclError as exc:  # pragma: no cover - no display
+            raise unittest.SkipTest(f"no Tk display ({exc})")
+        try:
+            var = tk.IntVar(value=patcher.TECH_COST_MULTIPLIER_DEFAULT)
+            scale = tk.Scale(root, variable=var, orient="horizontal", from_=2, to=10, resolution=1)
+            for wanted, shown in ((0, 2), (5, 5), (99, 10)):
+                scale.set(wanted)
+                self.assertEqual(var.get(), shown)
+        finally:
+            root.destroy()
+
+
+class GameMechanicsTests(unittest.TestCase):
+    class Village:
+        def __init__(self, game: int, has: bool | None, exe: Path | None = None):
+            self.game, self._has, self.exe = game, has, exe
+
+        def has(self, feature: str):
+            return self._has if feature.endswith("_tech_cost_multiplier") else False
+
+    def facts(self, game: int):
+        import importlib
+        module = importlib.import_module(f"vv_game_mechanics_items_vv{game}")
+        try:
+            return list(module.item_facts(None))
+        except TypeError:
+            return list(module.item_facts())
+
+    def exe(self, game: int, n: int | None) -> Path:
+        """A file holding the published build's bytes at x n (None: the stock exe)."""
+        import tempfile
+        folder = Path(tempfile.mkdtemp(prefix="tcm"))
+        self.addCleanup(__import__("shutil").rmtree, folder, True)
+        path = folder / "game.exe"
+        path.write_bytes(stock_bytes(game) if n is None else rendered(game, (IDS[game],), n))
+        return path
+
+    def test_the_multiplier_is_read_back_from_the_exe(self):
+        import vv_game_mechanics_tech_time as tt
+        for game in GAMES:
+            for n in (2, 3, 10):
+                with self.subTest(game=game, n=n):
+                    self.assertEqual(tt.read_multiplier(self.Village(game, True, self.exe(game, n))), n)
+            with self.subTest(game=game, case="unreadable"):
+                self.assertIsNone(tt.read_multiplier(self.Village(game, True, self.exe(game, None))))
+                self.assertIsNone(tt.read_multiplier(self.Village(game, True, None)))
+                self.assertIsNone(tt.read_multiplier(self.Village(game, False, self.exe(game, 4))))
+
+    def test_every_technology_level_shows_stock_then_multiplied_only_with_the_patch(self):
+        import vv_game_mechanics_tech_time as tt
+        for game in GAMES:
+            facts = self.facts(game)
+            line = lambda fact: fact.text.startswith('With the patcher ("2-10x Tech Cost"')  # noqa: E731
+            for has in (False, None):
+                out = tt.multiplied_item_facts(self.Village(game, has, self.exe(game, 4)), facts)
+                self.assertEqual([f for f in out if not line(f)], facts)       # only the Tech screen's patch line
+                self.assertEqual(sum(1 for f in out if line(f)), 1)
+            for n in (2, 3, 10, None):
+                exe = self.exe(game, n)
+                out = [f for f in tt.multiplied_item_facts(self.Village(game, True, exe), facts) if not line(f)]
+                changed = [b.text for a, b in zip(facts, out) if a.text != b.text]
+                with self.subTest(game=game, n=n):
+                    self.assertEqual(len(changed), len(stock_table(game)))
+                    for (name, level), price in stock_table(game).items():
+                        want = (f"{price:,} tech points normally, {n * price:,} with \"2-10x Tech Cost\" (x{n})"
+                                if n else f"{price:,} tech points normally, {2 * price:,} to {10 * price:,} with "
+                                          "\"2-10x Tech Cost\" (its multiplier could not be read")
+                        self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in changed),
+                                        (name, level))
+
+    def test_the_catch_up_times_use_the_multiplied_prices(self):
+        import vv_game_mechanics_tech_time as tt
+        for game in GAMES:
+            levels = {name: (0 if game == 3 and name in ("Nature", "Magic") else 1)
+                      for name, _ in tt.every_level(game)}
+            rate = lambda owned: 10.0  # noqa: E731
+            stock = tt.goals(game, levels, 0, rate, True)
+            for n in (2, 3, 10):
+                multiplied = tt.goals(game, levels, 0, rate, True, factor=n)
+                with self.subTest(game=game, n=n):
+                    self.assertEqual([(g.name, g.level) for g in stock], [(g.name, g.level) for g in multiplied])
+                    for a, b in zip(stock, multiplied):
+                        self.assertEqual(b.cost, n * a.cost)
+                        self.assertEqual(b.needed, n * a.needed)
+                        self.assertAlmostEqual(b.units, n * a.units)
+                        self.assertEqual(tt.sum_cost(b, levels, game, n), n * tt.sum_cost(a, levels, game))
+
+
+if __name__ == "__main__":
+    unittest.main()

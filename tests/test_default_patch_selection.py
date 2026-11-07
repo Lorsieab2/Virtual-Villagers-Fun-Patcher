@@ -124,6 +124,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
                   or p.endswith("_unicode_font")
+                  # 2-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
+                  or p.endswith("_tech_cost_multiplier")
                   # No Fishing at Science Level 2 (The Tree of Life): a difficulty
                   # change, off by default, on in Owner's Defaults.
                   or p == "vv4_no_fishing_at_science_2"})
@@ -236,12 +238,36 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
+        # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
+        held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
         for patch_id in sorted(ids):
             self.assertEqual(select_all_fun_patch_selection(patch_id),
                              patch_id not in held_back, patch_id)
+
+
+    def test_tech_cost_multiplier_is_ticked_only_by_its_own_box(self) -> None:
+        """The owner (2026-11-06): "7 should be default off for everything.
+        players who want it must explicitly choose it." -- the fresh-install
+        default, Default Patches, Owner's Defaults and Select All all leave
+        every game's 2-10x Tech Cost unticked."""
+        from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection
+
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = "vv%d_tech_cost_multiplier" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertFalse(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
+                self.assertNotIn(patch_id, COTICKED_FUN_PATCH_IDS.values())
+
+
+if __name__ == "__main__":
+    unittest.main()
 
 
 class NewBelieversAndGravesRowsTests(unittest.TestCase):

@@ -73,6 +73,8 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned when Children's Graves Say Apprentice (vv3_apprentice_graves) joined the catalog: rendering the full
     # catalog without that row gives exactly the previous pins in every mode; with it, 77-78 bytes differ, every one
     # inside its own grave-dialog edits (0x1E939..0x1E995) or the PE CheckSum (0x160..0x163); the length is unchanged.
+    # Re-pinned again when 2-10x Tech Cost (vv3_tech_cost_multiplier) joined the catalog too: its only bytes are the
+    # 16 price-table dwords (0xA8194..0xA81E3) and the PE CheckSum (0x160..0x163); the length is unchanged.
     # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and
     # without the two new cloud rows -- in every mode only the PE CheckSum (0x160..0x162) and the Disable Clouds
     # jump (0x6C3BD..0x6C3BF) differ; the Overview Map water fix adds its two bytes sites inside Fix Vanilla Bugs.
@@ -247,17 +249,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # main (648bef29) the full catalog now differs in 128-129 bytes per mode, every one inside the
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
+    # Re-pinned once more for Checked Skill Preferences are listed as Jobs on Graves (vv3_preferred_job_graves): without
+    # it the render equals the 2-10x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
+    # (0x5504E..0x550AC) or the PE CheckSum.
     "stock": (
-        "4AFF180E0BDC3F82DD1138484022D40269743F2B69B9388D34A884F2C8F2D092",
-        "67C50D00",
+        "E96BB2CD714BACCCD0BB23C8D45EFEC75F693AE29AABD357D8F2E0D25CB17DC5",
+        "D45D0D00",
     ),
     "collection_progression": (
-        "92F85666552879C99223A75B8EAB298FBA6EF1E7CDA70FFF0221B57A0863EB94",
-        "68DE0C00",
+        "BF1B244AD9856D453CF5B98E17D533858A3B3E3BBC1C7E1AA9884322B704A0A5",
+        "D4760D00",
     ),
     "immediate_fixed": (
-        "5B05E6D8B6A25153CFEABD05A593F34738D4079866A396376153816818A27B4D",
-        "66200D00",
+        "3AA1613BE9F0B66B85A73B9073FEED276DA360745563788F1902275B930ADBB2",
+        "D2B80D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
