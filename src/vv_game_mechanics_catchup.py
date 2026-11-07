@@ -259,11 +259,13 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "Faith falls to 0 during the catch-up becomes a Heathen then and stops ageing.", CODE)
     # The owner's "Heathens never age, while catching up or otherwise" stood here too, word for word the line above.
     add("Nursery School: for every missed noni regrowth (one per age unit of the WHOLE time closed, with no limit) "
-        "each child under 14 learns from the Nursery School teacher: the teacher's six skills added together x the "
-        "speed value (3, 6 or 10) ÷ 14,400, half the time all to the child's highest skill (a random one while "
-        "every skill is 0) if it is below 50, otherwise a fifth of that to every skill below 50. This is the live "
-        "rule, run for the whole time closed; it runs before the time away is added to the ages, so a child who "
-        "turns 14 during it learns for all of it.")
+        "each child under 14, Heathen children included, learns from the Nursery School teacher: the teacher's six "
+        "skills, each cut to its whole number, added together x the speed value (3, 6 or 10) ÷ 14,400 (the "
+        "teacher's total ÷ 240 per real-life hour closed, at any speed); one 50-in-100 roll for every child together: either "
+        "all of it to the child's top skill if that skill's whole number is below 50 (a skill drawn 1 in 6 while "
+        "every skill is 0; at 50 or more, nothing), or a fifth of it to every skill whose whole number is below 50. "
+        "This is the live rule (see Tech points and effects), run for the whole time closed; it runs before the "
+        "time away is added to the ages, so a child who turns 14 during it learns for all of it.")
     # New Believers: a patch's value only when the current exe has it (the audit brief, 2026-10-25); unknown or out,
     # the stock rule above is the whole story.
     def _patch_vv5(village: gm.Village, feature: str, normal: str, patched: str) -> gm.Fact | None:
@@ -401,11 +403,13 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     add("Building while catching up: the build steps run, with the walk to the site turned into an instant move, "
         "so huts and the other buildings advance as in live play.")
     add("Nursery School: for every missed world tick (one per age unit of the WHOLE time closed, with no limit) "
-        "each child under 14 learns from the Nursery School teacher: the teacher's five skills added together x the "
-        "speed value (3, 6 or 10) ÷ 14,400 (the teacher's total ÷ 240 per real-life hour at any speed), half the "
-        "time all to the child's highest skill (a random one while every skill is 0) if it is below 50, otherwise "
-        "a fifth of that to every skill below 50. This is the live rule, run for the whole time closed; it runs "
-        "before the time away is added to the ages, so a child who turns 14 during it learns for all of it.")
+        "each child under 14 who is not a ghost learns from the Nursery School teacher: the teacher's five skills, "
+        "each cut to its whole number, added together x the speed value (3, 6 or 10) ÷ 14,400 (the teacher's total "
+        "÷ 240 per real-life hour closed, at any speed); one 50-in-100 roll for every child together: either all of it to the "
+        "child's top skill if that skill's whole number is below 50 (a skill drawn 1 in 5 while every skill is 0; "
+        "at 50 or more, nothing), or a fifth of it to every skill whose whole number is below 50. This is the live "
+        "rule (see Tech points and effects), run for the whole time closed; it runs before the time away is added "
+        "to the ages, so a child who turns 14 during it learns for all of it.")
     add("Blackberries and the stream: every missed world tick of the WHOLE time closed is added when it is next "
         "played, with no limit: +2 blackberries each (up to 1,000) and 2% more of the stream's debris.")
     add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "

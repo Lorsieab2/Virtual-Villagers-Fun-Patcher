@@ -21,6 +21,7 @@ import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_faith_vv5 as faith
 import vv_game_mechanics_life as life
+import vv_game_mechanics_nursery as nursery
 import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
 
@@ -241,6 +242,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "Statue is solved, +50 at Spirituality 2 and +50 more at 3, and +3 for each piece of the first collectible "
         "set owned while it is incomplete (69 with 23 pieces), then a flat +90 once all 24 are owned (the 24th "
         "piece adds 21), at most 1,000."), gm.RUNNING)
+    out.extend(nursery.lines(village, 5))       # the Nursery School and why children or Heathens gain skills
     out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
@@ -281,6 +283,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(gm.later_puzzle_lines(names, lambda pid: struct.unpack_from("<ii", data, PROJECTS + 8 * pid),
                                      PUZZLE_THRESHOLDS, clock))
     out.extend(f for f in [gm.warp_dates_note(village, gm.PUZZLES, "the puzzle dates are")] if f)
+    # The Last Heathen's hovel cover: 0x4370E0 draws image 0x1B once project 25 is done, top-left (0x6A9, 0x5B3);
+    # Fix Vanilla Bugs moves it to (0x6A6, 0x5B9) and names the owner's picture (tests/test_vv5_hovel_cover.py).
+    add(gm.PUZZLES, "The Last Heathen: once it is solved, the game covers the old Heathen camp on the island map with "
+                    "the picture hovel_cover.png, its top-left corner at (1705, 1459) (0x4370E0).", gm.CODE)
+    out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
+        village, "vv5_fix_vanilla_bugs", "the cover is drawn at (1702, 1465), 3 pixels left and 6 lower, where it "
+        "meets the map's own tiles, in the owner's redrawn picture vvfp_hovel.png (art by Lorsieab2); the game's own "
+        "hovel_cover.png is not changed"), gm.CODE, True))
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     noni_at = None if paused else real(NONI_NEXT)
