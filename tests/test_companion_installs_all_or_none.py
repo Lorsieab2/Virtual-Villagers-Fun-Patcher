@@ -366,6 +366,10 @@ CASES = [
     Case("Keep Carried", "assets/keep_carried/VVFP Keep Carried.dll", (1, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpKeepCarriedInstalled"))[1]),
+    # Push Clouds Away on the Overview Map (The Secret City): three overview vtable slots and the cloud draw call.
+    Case("Push Clouds", "assets/push_clouds/VVFP Push Clouds.dll", (3,),
+         lambda g: [f"vv{g}_push_overview_clouds"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpPushCloudsInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),
