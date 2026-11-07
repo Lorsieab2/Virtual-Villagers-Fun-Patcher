@@ -358,11 +358,11 @@ def _items() -> list[Entry]:
     out += [
         Entry(ITEM, "Blackberries", (
             "the bushes hold up to 1,000 and grow 2 every 6 minutes of real-life play on Normal speed. "
-            "Picking brings the berries ÷ 100 (at least 2) food, a harvest the berries up to 30, before Food "
+            "Picking brings the berries ÷ 100 (at least 2) food, a harvest with a cutting tool the berries up to 30, before Food "
             "Mastery; picking is offered only above 3 berries."), VERIFIED_E,
             ((patch("vv4_food_pays_like_earlier_games") + ": a pick brings 7, 3 or 2 food on Fast, Normal or Slow "
               "and 4 while catching up, as The Secret City's fruit and honey, before Food Mastery, and takes as many "
-              "berries; the harvest, the fruit (3), the fish from the net (4) and the Golden Fish (8) already pay a "
+              "berries; the harvest with a cutting tool, the fruit (3), the fish from the net (4) and the Golden Fish (8) already pay a "
               "fixed amount and are unchanged.", VERIFIED_E),)),
         Entry(ITEM, "Fruit", "stomping or shaking down fruit brings 3 food before Food Mastery (after The Cooking "
                              "Pit).", VERIFIED_E),

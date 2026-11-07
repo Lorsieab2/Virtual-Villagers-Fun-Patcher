@@ -243,13 +243,21 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; picking brings {food(max(2, berries // 100))} food "
                         f"now (the berries ÷ 100, at least 2; picking stops below 3), a harvest {food(min(30, berries))} "
                         f"(the berries, at most 30, before Food Mastery){mastery_words}.", gm.RUNNING)
+    # The harvest (action 0xBE, 0x451CE0, ending in job event 14) is started by the drop handler 0x46E7E0 (map area
+    # 0x31, registered at 0x46FB00): with no cutting tool on hand (The Cutting Tool's object 0x4D8614, puzzle 0,
+    # registered by 0x431690 -> 0x4386A0; its count +4 = 0x4D8618) the villager refuses (0x46E810); otherwise the
+    # harvest starts and one cutting tool is used (0x4369F0(1) at 0x46E872).  The owner, 2026-11-07: the harvest
+    # is done with cutting tools, not cloth; the code agrees.
+    add("Food sources", "A blackberry harvest is done with a cutting tool (The Cutting Tool): it uses one of the "
+                        "tribe's cutting tools and brings the berries, at most 30, before Food Mastery; with no "
+                        "cutting tool on hand the villager refuses (0x46E7E0).", gm.OWNER)
     flat = village.has(FLAT)
     if flat is not False:
         add("Food sources", gm.patch_words(
             village, FLAT, f"a blackberry pick brings {food(FLAT_PICK.get(speed, 3))} food on {on} speed instead "
                            f"(7, 3 or 2 on Fast, Normal or Slow and {FLAT_CATCH_UP} while catching up, as The Secret "
                            "City's fruit and honey, before Food Mastery) and takes as many berries off the bush; the "
-                           "harvest, Cooking Pit fruit (3), fish from the net (4) and the Golden Fish (8) already pay a "
+                           "harvest with a cutting tool, Cooking Pit fruit (3), fish from the net (4) and the Golden Fish (8) already pay a "
                            "fixed amount and are unchanged"), gm.RUNNING)
     add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
                         "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."

@@ -1327,7 +1327,7 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 
 **Food Gains are Flat, like VV1-3 (Harder Games)**
 
-Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more. Off by default; Owner's Defaults ticks it.
+Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest with a cutting tool (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more. Off by default; Owner's Defaults ticks it.
 
 - Patch ID: `vv4_food_pays_like_earlier_games`
 

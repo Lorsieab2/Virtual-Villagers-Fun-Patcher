@@ -195,6 +195,11 @@ class FlatFoodPicksTests(unittest.TestCase):
                 self.assertTrue(owners_default_fun_patch_selection(row.id))
                 self.assertTrue(select_all_fun_patch_selection(row.id))
         self.assertNotIn("vv3_food_pays_like_earlier_games", rows)
+        # The owner (2026-11-07): the blackberry harvest is done with cutting tools, not cloth.
+        self.assertIn("the blackberry harvest with a cutting tool",
+                      rows["vv4_food_pays_like_earlier_games"].raw["description"])
+        for row in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"):
+            self.assertNotIn("cloth", str(rows[row].raw).lower())
 
 
 class GameMechanicsPageTests(unittest.TestCase):
@@ -209,7 +214,7 @@ class GameMechanicsPageTests(unittest.TestCase):
 
     def test_the_page_says_stock_then_patched_and_farmers_use_the_flat_amount(self):
         for game, name, unchanged in (
-                (4, "Blackberries alone", "the harvest, Cooking Pit fruit (3), fish from the net (4) and the Golden "
+                (4, "Blackberries alone", "the harvest with a cutting tool, Cooking Pit fruit (3), fish from the net (4) and the Golden "
                                           "Fish (8) already pay a fixed amount and are unchanged"),
                 (5, "Noni bushes alone", "the Hydroponic Farm crops (10, 7 or 4 by speed) and the lake fish (4) "
                                          "already pay a fixed amount and are unchanged")):
@@ -225,6 +230,9 @@ class GameMechanicsPageTests(unittest.TestCase):
                 self.assertIn("3 food on Normal speed instead (7, 3 or 2 on Fast, Normal or Slow and 4 while "
                               "catching up", lines[at])
                 self.assertIn(unchanged, lines[at])
+                if game == 4:
+                    self.assertTrue(any("A blackberry harvest is done with a cutting tool" in t for t in food))
+                    self.assertFalse(any("cloth" in t.lower() for t in lines if "harvest" in t))
                 farm = lambda facts: next(f.text for f in facts if f.text.startswith(name))  # noqa: E731
                 self.assertIn("x 10 food)", farm(stock))
                 self.assertIn("10 each)", farm(stock))

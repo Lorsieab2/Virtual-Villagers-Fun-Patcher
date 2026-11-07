@@ -1708,12 +1708,12 @@ Fixes bugs in the base game. A village with exactly 150 villagers can be saved a
 
 #### Food Gains are Flat, like VV1-3 (Harder Games) (`vv4_food_pays_like_earlier_games`)
 
-Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more.
+Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest with a cutting tool (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more.
 
 **Requires no other patch to be ticked.**
 
 - Behavior changes: The blackberry pick (job event 13, 0x464464) pays 7 food on Fast, 3 on Normal and 2 on Slow (the speed value game+0x17110: 3, 6 or 10), and 4 while the game catches up time away (the catch-up flag game+0x171A4), instead of the berries ÷ 100 (at least 2). The bush loses what the pick paid, as before; the stock clamp at 0 and the end of the bush task below 3 berries are unchanged.
-- Explicit non-changes/exclusions: Food Mastery (0x41D920) still boosts the amount; the Farming check, the trips, the regrowth, the blackberry harvest (job event 14), the fruit, the fish (4) and the Golden Fish (8, job event 17, on its stock (2 x fish scales + 1)% chance), the crabs and the mushrooms are stock. Tech points are unchanged. No save data is written.
+- Explicit non-changes/exclusions: Food Mastery (0x41D920) still boosts the amount; the Farming check, the trips, the regrowth, the blackberry harvest with a cutting tool (job event 14), the fruit, the fish (4) and the Golden Fish (8, job event 17, on its stock (2 x fish scales + 1)% chance), the crabs and the mushrooms are stock. Tech points are unchanged. No save data is written.
 - Dependencies: none
 - Evidence status: static exact-build evidence; the pick step emulated on the stock and rendered executables; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
