@@ -248,6 +248,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         gm.RUNNING)
     add("Food sources", f"A crab a villager finds (\"This villager found a crab!\") brings {food(55)}." + mastery_words,
         gm.OWNER)
+    # Every food gain goes through 0x41D920: level 2 adds half (rounded down), level 3 doubles.
+    def levels(amount: int) -> str:
+        return f"{amount} -> {amount + amount // 2} -> {amount * 2}"
+    add("Food sources", "Food Mastery (a technology) boosts the food every source brings into storage, at the moment "
+                        "it is credited (0x41D920): level 2 adds half (rounded down), level 3 doubles it. The "
+                        "sources' own regrowth (the berries on the bush) is not boosted. Each gain at Food Mastery "
+                        "level 1 -> 2 -> 3" + ("" if village.general else f" (this village is at level {max(1, mastery)})")
+                        + ": a blackberry pick " + ("" if village.general else f"now {levels(max(2, berries // 100))}, ")
+                        + f"{levels(2)} at the least, a harvest at most "
+                        f"{levels(30)}; a fish from the net {levels(4)}, a Golden Fish {levels(8)}; stomped or shaken-down "
+                        f"fruit {levels(3)}; a crab at the Mossy Rocks {levels(35)}, a crab a villager finds "
+                        f"{levels(55)}; a brown mushroom {levels(6)}, a red one {levels(35)}.", gm.RUNNING)
     if village.has(SCALES) is not False:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
 
@@ -392,7 +404,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
-                 life.Source("The fishing net and the fruit", None, unlimited=True,
+                 life.Source("The fishing net", None, unlimited=True,
                              refill_words="no store of theirs is read here: they bring what the farmers fetch",
                              verified=False)],
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
@@ -416,7 +428,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
                    "eaten, 0x46848B); on Medium at 8,000 or more, or "
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
-        trips=[("blackberry picks", max(2, berries // 100)), ("fish in the net", 4), ("fruit stomps", 3)])
+        # Farmers needed lists only the sources a farmer is sent to: the bush, and the nets once Fishing Nets is
+        # solved.  The fruit is left out: no job turn is sent to it while catching up and no task holds a farmer on it.
+        trips=[("blackberry picks", max(2, berries // 100), "Blackberries"),
+               ("fish in the net", 4 if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
+                "The fishing net")])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out

@@ -75,7 +75,9 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Spreading the Word (the Retired Chief's): +30 to one villager picked at random among those listening to "
             "the sermon (behaviour 0xE4), who then cannot be preached to for 2 real-life hours (real time) either (0x46D2A8, "
             "0x46D2D8).",
-            "The Earthquake God Power: +2 to +8 to every villager but the six special roles (see God powers).",
+            "The Earthquake God Power: +2 to +8 to every villager but the six special roles: the Heathen Doctor, "
+            "Heathen Chief, Heathen Master Scientist, Heathen Master Builder, Heathen Master Farmer and Heathen "
+            "Mommy, and the Retired Chief, who keeps the Heathen Chief's role (0x41F78F; see God powers).",
             "Curing the Heathen Doctor: Faith set to 25 to 59, each equally likely (0x468CFB). Solving The Heathen "
             "Chief: the Chief's Faith set to 100 (0x4360EE). Solving the Hydroponic Farm: the Heathen Master Farmer "
             "+80 (0x439E35).",

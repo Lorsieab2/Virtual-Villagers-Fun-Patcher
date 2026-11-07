@@ -243,18 +243,25 @@ POWER_WORDS = {
     "Tempest": "a full-strength storm (weather 5) for one weather spell; while it rains every random spawn is a "
                "mushroom; with The Lake not started and the weather level above 50, The Lake gets 1 of its 2 points "
                "120 real-life seconds later (real time).",
-    "Fog of Doom": "fog for 2 real-life minutes (real time, at every speed, paused or not); mushrooms and collectibles appear twice as often (36 in 32,768 each "
-                   "update instead of 18).",
-    "Time Warp": "the target villager ages 20 times as fast for 5 real-life minutes (real time, paused or not; about 30, 15 or 10 age units on "
-                 "Fast, Normal or Slow) and walks and works 10 times as fast; not saved, ended by quitting.",
+    "Fog of Doom": "thick fog for 2 real-life minutes (real time, at every speed, paused or not); while it lasts Heathens "
+                   "do not see believers, so none is chased away or scared off (0x476260), and the tribe's villagers "
+                   "are drawn faded; mushrooms and collectibles appear twice as often (36 in 32,768 each update "
+                   "instead of 18).",
+    "Time Warp": "for 5 real-life minutes (real time, paused or not) the target gains 6, 3 or 2 age units each "
+                 "real-life minute on Fast, Normal or Slow (20 ÷ the speed value, 0x470051), 18, 18 or 20 times "
+                 "as fast: 24 to 43, 12 to 31 or 8 to 28 age units in all; each timed action lasts a tenth as long "
+                 "and each update moves the target 10 steps (0x4735AB, 0x471EF9); not saved, ended by quitting.",
     "Revive": "a dead villager still lying on the island comes back with 100 health after 4 real-life seconds (real time); cast "
               "on the dry lake bed with The Lake not started, The Lake gets 1 of its 2 points.",
     "Grant Youth": "a living believer of 14 or more is brought back to 5 years old (100 age units), 3 age units each "
                    "update; skills, likes and Faith are kept. A pregnant villager stays pregnant, but the time she had "
                    "already carried is counted backwards, so the birth comes that much later (0x41FEB0).",
-    "Earthquake": "every living villager but the six special roles gains 2 to 8 Faith (a Heathen above 0 joins the "
-                  "tribe); 10 real-life seconds (real time) later one collectible drops (72% uncommon, 28% rare) and each "
-                  "unfinished project with progress loses some (each started hut 100 of its 2,000).",
+    "Earthquake": "every living villager but the six special roles (the Heathen Doctor, Heathen Chief, Heathen "
+                  "Master Scientist, Heathen Master Builder, Heathen Master Farmer and Heathen Mommy, and the Retired "
+                  "Chief, who keeps the Heathen Chief's role; see God powers) gains 2 to 8 Faith (a Heathen above 0 "
+                  "joins the tribe); 10 real-life seconds (real time) later one collectible drops (72% uncommon, 28% "
+                  "rare) and each unfinished project with progress loses part of it (each started hut 100 of its "
+                  "2,000).",
 }
 
 
@@ -290,7 +297,12 @@ def _puzzle_entries() -> list[Entry]:
         Entry(PUZZLE, "The Hungry Totem", "villagers dismantle it (\"Dismantling the Hungry Totem\")", (
             "while the game catches up time away, noni is picked only once this totem is down (0x46C5B5); in play "
             "noni is picked once the food bin is built."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),)),
+              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),
+               ("The game keeps the time it was solved at, as for every puzzle (Advance 0x43AF80), but in the base "
+                "game the Puzzles screen always says \"Completed in 0 hours\" for it: its branch jumps past the step "
+                "that keeps the time it reads (0x44917C to 0x449075, past 0x449073). "
+                f"{_feature('vv5_fix_vanilla_bugs')}: the screen shows the kept hours, for a village that solved it "
+                "before the patch too.", VERIFIED_C))),
         Entry(PUZZLE, "The Knowing Totem", "villagers dismantle it (\"Dismantling the Knowing Totem\")", (
             "opens the lab: while catching up, research is done only once it is down (0x46C75E); the second "
             "collectible set (the lab gear) can appear only from then on; The Pesky Critter island event becomes "

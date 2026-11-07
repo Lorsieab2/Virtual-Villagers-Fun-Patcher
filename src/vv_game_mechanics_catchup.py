@@ -340,7 +340,7 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     """The Tree of Life (stock exe SHA-256 6d27a429...b220): the same design as New Believers at its own addresses
     -- the clamp and ageing 0x466450 (0x466538-0x4665FD; the ghost flag +0x1CC7 skipped at 0x46646E), from
     0x420556; the life tick 0x468430 (from 0x420560), repeated until no one is behind (0x468B09 -> 0x468440);
-    job turns 0x465750 x 4 (0x468A24-0x468A75, flag game+0x171A4); the Fruitwells bonus 0x468A7A-0x468AC5; the
+    job turns 0x465750 x 4 (0x468A24-0x468A75, flag game+0x171A4); the Cooking Pit bonus 0x468A7A-0x468AC5; the
     step resolver 0x464FA0 (table 0x4651B0/0x4651C4: 3 walk -> move 0x45ECB0, 9 skill check, 15 conception
     0x464FF8, 24 cure 0x465122-0x465182, the rest of 17-19 and 29-32 through 0x46A4D0); research 0x464C08 /
     0x464C3E (÷7/÷7/÷5; the flag skips the 10% lab accident but not the 2% injury at 0x464BB0); the world tick
@@ -380,7 +380,7 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         "instant moves, and the skill checks, the work's food and tech points and the building steps all run, "
         "while every other step (animations, waits, talk, play, rest) is skipped. Live play has no job turns of "
         "this kind: villagers walk and work in real time.")
-    add("Fruitwells while catching up: once the Fruitwells are restored, after its 4 job turns each such villager "
+    add("The Cooking Pit while catching up: once the Cooking Pit is restored, after its 4 job turns each such villager "
         "also gets 5 food (times Food Mastery) and a Farming skill check, if its player-given task is the game's farming task 2 "
         "(one of its seven farming tasks), or else with a chance of (Farming - 25) in 100. In live play fruit comes only from villagers shaking it "
         "down, 3 food a load, and that is never chosen while catching up.")

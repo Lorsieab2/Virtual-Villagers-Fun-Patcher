@@ -159,6 +159,22 @@ def _clicks() -> list[Entry]:
     ]
 
 
+# The owner, 2026-11-07, of the pop-ups whose asking code is not traced: "pretty much all of these can appear as
+# part of the Tutorial (when you click yes on Do you need help?)" (669 to 719), the population milestones "appear
+# when you reach that amount of people", and the hut, Clothing Hut and collection tips "appear too".
+TUTORIAL = "shown in the Tutorial (after \"Yes\" to \"Do you need help?\")"
+OWNER_SEEN = ({tip: TUTORIAL for tip in range(669, 720)}
+              | {739: "shown when the village reaches 25 people", 740: "shown when the village reaches 50 people",
+                 741: "shown when the village reaches its population limit",
+                 761: "shown when a broken hut is restored", 762: "shown when the Clothing Hut is built",
+                 767: "shown when the relic collection is complete",
+                 768: "shown when the lab equipment collection is complete"})
+
+
+def _seen(tip) -> str:
+    return f"{OWNER_SEEN[tip[0]]} (the owner)" if tip[0] in OWNER_SEEN else ""
+
+
 def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
@@ -170,7 +186,10 @@ def _tips() -> list[Entry]:
                  "the loading screen's tip differs from run to run.", C),
                 ("Random tips 31 to 50: no stock code was found asking for them; the patcher's \"Clickable Tips\" "
                  "shows all 50.", U),
-                ("Whether each pop-up shows once a village is not traced.", U))),
+                ("Whether each pop-up shows once a village is not traced.", U),
+                ("The owner has seen the tutorial pop-ups (eTTip) appear in the Tutorial, after \"Yes\" to \"Do you "
+                 "need help?\"; the population milestones when the village reaches 25 people, 50 people and its "
+                 "population limit; and the hut, Clothing Hut and collection pop-ups when they are done.", gm.OWNER))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (eRandomTip1 to 50; the loading screen draws from the first "
                    f"{LOADING_COUNT})", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C if tip[0] < RANDOM_BASE + LOADING_COUNT else U,
@@ -179,8 +198,10 @@ def _tips() -> list[Entry]:
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (eTTip tutorial, eTip milestones)", (
             "every one, as the game words it, with its name and the places that ask for it by number (a tip with none "
             "is asked for by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
-                                    lambda tip: tip[1] + ("; " + hidden.sites_note(tip[2]) if tip[2] else ""))),
+              subs=hidden.tip_lines(POPUP_TIPS,
+                                    lambda tip: C if tip[2] else (gm.OWNER if tip[0] in OWNER_SEEN else U),
+                                    lambda tip: "; ".join(w for w in (tip[1], hidden.sites_note(tip[2]), _seen(tip))
+                                                          if w))),
     ]
 
 
