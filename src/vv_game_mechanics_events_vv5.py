@@ -40,7 +40,9 @@ RULES = (
     Line(f"Which event: every one of the {SLOTS} slots whose condition holds is listed and one is drawn, each "
          "equally likely (1 in the number listed); with none, nothing happens. No event is limited to once per "
          "village. Every event's villager is drawn from those it allows, each equally likely; villagers in the six "
-         "special roles (role 12 to 17) are never drawn."),
+         "special roles (role 12 to 17: the Heathen Doctor, Heathen Chief, Heathen Master Scientist, Heathen Master "
+         "Builder, Heathen Master Farmer and Heathen Mommy, and the Retired Chief, who keeps role 13; see God powers) "
+         "are never drawn (0x47199A)."),
     Line("Rescue: when the sexes are out of balance (2 or fewer women and more men, or 2 or fewer men and no more men "
          "than women; Heathens counted) or there are fewer than 3 believers, 6% of events (a 15% roll, then a 40% "
          "one) become Chutes Without Ladders, even without room (0x418913)."),

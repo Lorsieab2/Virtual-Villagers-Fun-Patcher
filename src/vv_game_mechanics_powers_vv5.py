@@ -100,24 +100,66 @@ EFFECTS = (
       "pixels, as the ground allows (0x420C18). While 10 to 12 mushroom places are left, each plant is a mushroom "
       "half the time (a brown or a red one, equally likely), otherwise a flower; a grown mushroom is a normal one "
       "(brown 6 food, red 35, counted in Mushrooms Found when it reaches the food bin) (0x420D10, 0x420EC6). "
-      "Believers within 104 pixels dance; Heathens within about 400 pixels go to the plants (0x420AC1).")),
+      "Believers within 104 pixels dance; Heathens within 402 pixels (the distance squared below 15 x 104 squared, 0x420A40) go to the plants (0x420AC1).")),
     (5, f"starts a storm at full strength (weather 5, rain) (0x4230C7); it {WEATHER}. While it rains every random "
         "spawn is a mushroom (0x477040).",
      ("The Lake: when The Lake has no progress yet and the weather level is above 50 when Tempest is cast, The Lake "
       "gets 1 of its 2 points 120 real-life seconds (real time) later (0x43C7E0, 0x43C460); once it has progress, a Tempest there "
       "gives none.",)),
-    (6, "covers the island in fog (weather 4) for 2 real-life minutes (real time), paused or not (0x41FBA0); then the weather "
-        "goes back to the season's own 15, 30 or 50 real-life seconds later on Fast, Normal or Slow. In the fog the chance of a mushroom or "
-        "collectible appearing doubles: 36 in 32,768 each update of the village instead of 18 in 32,768 "
-        "(0x414633).", ()),
-    (7, "makes the target age 20 times as fast for 5 real-life minutes (real time), paused or not (0x41FC4E, 0x41FC9B; the age "
-        "credit 0x470040 doubles the warp's 10). In practice the target gains 6, 3 or 2 age units each real-life "
-        "minute on Fast, Normal or Slow (instead of 1 unit every 3, 6 or 10 minutes): about 30, 15 or 10 units in "
-        "all (1.5, 0.75 or 0.5 years).",
-     ("While warped, the target's movement and actions also run 10 steps for every update of the village "
-      "(0x471EF9), so they walk and work 10 times as fast.",
-      "While the game is paused nobody ages, so the warp's paused minutes are lost; Heathens and the dead never age "
-      "(0x470077, 0x46FF63). The warp is not saved: quitting ends it (0x465207).",)),
+    (6, "covers the island in thick fog (weather 4, 0x41FB1D) for 2 real-life minutes (real time), paused or not "
+        "(0x41FBAB); then the weather goes back to the season's own 30 seconds on the game's clock later (15, 30 or 50 "
+        "real-life seconds on Fast, Normal or Slow, 0x476F64). It replaces the weather at once, so rain and a Tempest "
+        "stop (only weather 2, 3 and 5 is rain, 0x477040). In the fog the chance of a mushroom or collectible "
+        "appearing doubles: 36 in 32,768 each update of the village instead of 18 in 32,768 (0x414633).",
+     ("Heathens, while the thick fog lasts: they do not see believers. The check every Heathen makes on the "
+      "believers near them at each update of the village (0x46E2E0, from 0x471FE6) stops at once while the fog is "
+      "drawn at 2 or more times its usual thickness (0x476260); the Fog of Doom draws it 4 times as thick "
+      "(0x41FB60), ordinary fog and a Tempest's storm at its usual thickness (0x475EDC). So Heathens in orange masks do not chase "
+      "believers away (\"Chasing the intruder\", the believer \"Running to safety\"), and believers do not run from "
+      "Heathens in red masks (\"Running from the scary heathen\"): believers walk among the Heathens unchased. The "
+      "code agrees with what the owner sees in play. Nothing else a Heathen does reads the fog: its thickness is "
+      "read only there and by the fog's own drawing.",
+      "The tribe's villagers: what they do is unchanged. For the 2 real-life minutes (real time) they are drawn faded, at 0.6 of their "
+      "drawing value (0x41FB74, read only by the villager drawing 0x472186, which gives Heathens 1; Revive raises "
+      "the same value from 0 to 1 as the dead rise).",
+      "How long the thick fog lasts: until the weather next changes (0x477073), 2 real-life minutes plus the 15, "
+      "30 or 50 real-life seconds above. The fog's own weather change comes 180 to 359 seconds on the game's clock "
+      "after the cast (0x4771B7): on Fast that is 90 to 179.5 real-life seconds, so 1 cast in 3 on Fast (rand(180) "
+      "below 60) ends it before the 2 minutes, with clear weather (0x47756D); on Normal and Slow it never comes "
+      "first. Sunshine or a Tempest cast during it ends it at once (each sets the weather). The 4 times thickness "
+      "is 256 fog clouds instead of 64 (0x475F7A).")),
+    (7, "sets the target's time factor (villager +0x1CC8) from 1 to 10 for 5 real-life minutes (300,000 milliseconds "
+        "of real time, the same at every speed, paused or not; 0x41FC4E, 0x41FC9B), then back to 1 (0x41FCB3). The "
+        "factor speeds up the target's age and the target's movement and actions; nothing else reads it:",
+     ("Age: the age credit (0x470040) doubles the factor to 20. A villager's age credit counts real-life seconds "
+      "toward the next age unit; while warped, each whole real-life minute in that count pays 20 ÷ the speed "
+      "value (3, 6 or 10) age units, rounded down, and empties the count (0x47006C, 0x4700E2). That is 6, 3 or 2 "
+      "age units each real-life minute on Fast, Normal or Slow, instead of 1 every 3, 6 or 10 real-life minutes: "
+      "18, 18 or 20 times as fast.",
+      "Over the 5 real-life minutes (real time) that is 4 or 5 such minutes (the fifth falls on the last second): 24 to 30, 12 to 15 or 8 "
+      "to 10 age units on Fast, Normal or Slow (1.2 to 1.5, 0.6 to 0.75 or 0.4 to 0.5 villager years of 20 age "
+      "units). Whole minutes the target had already counted toward its next unit when the warp began are paid at the "
+      "warp rate at once: up to 13, 16 or 18 more age units (2, 5 or 9 whole minutes at most). In all a warp gives "
+      "24 to 43, 12 to 31 or 8 to 28 age units (1.2 to 2.15, 0.6 to 1.55 or 0.4 to 1.4 villager years).",
+      "Every age unit paid goes through the target's own age-unit update, one unit at a time (the life tick "
+      "0x472C90): the Faith drift, the 2 food eaten, the Divine Energy added and the sickness roll each come once "
+      "per unit, and a pregnancy, counted in the mother's age units (0x44B123), comes that many units closer to the "
+      "birth. Working from 14 (280 age units), having children from 18 (360) and old age come by age, so they come sooner.",
+      "Movement and actions: each update of the village runs the target's step 10 times instead of once (0x471EF9), "
+      "so the target walks 10 times as far; each timed action started while warped lasts a tenth as long, in whole "
+      "real-life seconds (real time), at least 1 (0x4735AB: 30 seconds become 3, 5 seconds become 1). Work (research's tech "
+      "points, a hut's building points, a harvest's food, the skill checks that raise skills) gives the usual "
+      "amount each time; it comes as much more often as the walking and the shorter actions allow, up to 10 times.",
+      "The target can be any villager under the pointer: a Heathen moves and acts 10 times as fast but never ages "
+      "(0x470077); the dead never age (0x46FF63). Cast on a villager under 14 (280 age units) it earns the "
+      "\"Waaay Too Much Sugar\" achievement (\"You used time warp on a child\", 0x41FC44).",
+      "While the game is paused nobody ages and the age credit's count is emptied (0x470022), so the paused part of "
+      "the 5 real-life minutes (real time) gives no age. The warp is not saved: quitting ends it (0x465207), so time away (catch-up) is "
+      "never warped.",
+      ("Work event 54 (0x46D3F8) also sets the factor back to 1; which action queues that event was not traced.",
+       False),
+      ("While warped the target is drawn with a trail of its last positions (0x472101) and an effect beside it on "
+       "2 in 100 of its steps in four of its actions (0x467C70); how these look was not checked in play.", False))),
     (8, "brings a dead villager (0 health or less) back with 100 health; after 4 real-life seconds (real time) they rise "
         "(0x41FF93, 0x420080). The game checks only that the target is dead: \"This villager is still full of life.\" "
         "otherwise (0x423404).",
@@ -137,11 +179,22 @@ EFFECTS = (
       "comes that much later than from a fresh pregnancy (the stock game's own arithmetic, 0x41FEB0). Skills, likes "
       "and Faith are kept.",)),
     (10, "every living villager's Faith goes up by 2 to 8 (each amount equally likely, rand(7) + 2), except the six "
-         "special roles (the Heathen Doctor, Chief, Master Scientist, Master Builder, Master Farmer and Mommy: role "
-         "12 to 17) (0x41F78F). A Heathen whose Faith rises above 0 joins the tribe; every Heathen it reaches cannot "
-         "be preached to for 2 real-life hours (real time), paused or not (0x41F7B8).",
-      ("10 real-life seconds (real time) after the cast (0x41F832): one collectible drops, 72% uncommon, 28% rare (0x41F853).",
-       "At the same moment, each unfinished project with some progress loses some: the Hydroponic Farm 1 of its 30 "
+         "special roles below (role 12 to 17, 0x41F78F). A Heathen whose Faith rises above 0 joins the tribe; every "
+         "Heathen it reaches cannot be preached to for 2 real-life hours (real time), paused or not (0x41F7B8).",
+      ("The six special roles (the villager's role +0x1CFC; the name the game shows on a Heathen in one, "
+       "0x443102): 12 \"Heathen Doctor\", 13 \"Heathen Chief\", 14 \"Heathen Master Scientist\", 15 \"Heathen "
+       "Master Builder\", 16 \"Heathen Master Farmer\", 17 \"Heathen Mommy\". Each is the Heathen one puzzle is "
+       "about: The Sick Heathen (curing the Doctor), The Heathen Chief (four necklace pieces), The Heathen Scientist, "
+       "The Heathen Builder (a build-off), The Hydroponic Farm (+80 Faith to the Master Farmer) and The Heathen "
+       f"Parent (the Mommy; on the Puzzles screen only with the patcher's \"{gm.feature_name('vv5_heathen_mommy_puzzle')}\"); "
+       "see Puzzles. The Doctor and the three Masters wear the purple mask (0x4728C6).",
+       "No code in the game gives a villager one of these roles: the role is only ever read in from the villager's "
+       "saved record (0x466C0E), so only Heathens a village starts with hold them. Joining the tribe clears the role "
+       "(0x46696F) except the Chief's: the converted Heathen Chief keeps role 13 as the tribe's \"Retired Chief\" "
+       "(0x466966), so the Earthquake skips the Retired Chief too. Becoming a Heathen clears any role (0x4669F5). "
+       "Villagers in these roles cannot be preached to and are never drawn for island events (0x47199A).",
+       "10 real-life seconds (real time) after the cast (0x41F832): one collectible drops, 72% uncommon, 28% rare (0x41F853).",
+       "At the same moment, each unfinished project with progress loses part of it: the Hydroponic Farm 1 of its 30 "
        "points (0x439F00), each started hut 100 of its 2,000 (0x434790), the Tribute Statue 1 (5 at its last stage) "
        "(0x432C90); the Buried Mausoleum gains 50 of the 1,000 it needs (0x43C9C0).")),
 )
@@ -183,7 +236,8 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         name, cost, _ = TABLE[index]
         add(f"{name} ({cost}): {text}")
         for sub in subs:
-            add(sub, gm.OWNER if sub.startswith("Only a dead villager") else gm.RUNNING, True)
+            sub, ok = sub if isinstance(sub, tuple) else (sub, gm.OWNER if sub.startswith("Only a dead") else gm.RUNNING)
+            add(sub, ok, True)
     add(SPIRITUALITY[0])
     for text in SPIRITUALITY[1:]:
         add(text, sub=True)
