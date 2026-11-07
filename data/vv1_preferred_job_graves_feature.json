@@ -1,0 +1,28 @@
+{
+  "id": "vv1_preferred_job_graves",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Checked Skill Preferences are listed as Jobs on Graves",
+  "description": "A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: \"Untrained\" below 20, else \"Trainee\", \"Adept\" or \"Master\" by the game's own values (and \"Apprentice\" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. With Show Cause of Death and Age at Death on Graves, the epitaph it gives follows the same job. Titles still win: the game shows no title on a grave. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**",
+  "output_tag": "Preferred Job Graves",
+  "behavior_changes": [
+    "A New Home's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock.",
+    "The Cause of Death companion's epitaph and Deaths log Grave line read the grave, so they follow it."
+  ],
+  "explicit_non_changes": [
+    "The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed.",
+    "The age is read and the record found once, the grave's fields reached from the age's address (value -8, job -4, name -0x24). The name copy's call at 0x448FF1 (which Fix Vanilla Bugs aims at strcpy) and the loop's end are untouched.",
+    "Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known)."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x48F8D",
+      "before": "8B8E14FDFFFF69C9D80300008B94394803000089108B8710E003008B9614FDFFFF8D8C283CA3000051528BCFE86225FFFF8B8F10E0030089842938A300008B9614FDFFFF69D2D803000081C3B50300006BDB2C8D843A700300008B9710E003005003DA53",
+      "after": "8B9614FDFFFF69CAD8030000518B8C39480300008908508D48FC515289F9E87025FFFF595A01FA8941F88B82D00300008D58FF83FB04771C518D0C5BBB02330000D3EB83E307598B9C9ABC0300008959F88941FC8D82700300008D59DC50539090909090",
+      "purpose": "the burial loop's grave write: age, the best-skill call 0x43B520 (unchanged), then with a preference (+0x3D0 = 1..5) job = the preference and value = that skill; the name copy's arguments (its call at 0x448FF1 and what follows are left as they are)"
+    }
+  ]
+}

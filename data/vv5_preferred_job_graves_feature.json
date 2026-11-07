@@ -1,0 +1,28 @@
+{
+  "id": "vv5_preferred_job_graves",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Checked Skill Preferences are listed as Jobs on Graves",
+  "description": "A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: \"Untrained\" below 20, else \"Trainee\", \"Adept\" or \"Master\" by the game's own values (and \"Apprentice\" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: an Esteemed Elder still gets \"Esteemed Elder\", the Retired Chief \"Retired Chief\", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**",
+  "output_tag": "Preferred Job Graves",
+  "behavior_changes": [
+    "New Believers's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock.",
+    "The epitaph is picked from that job."
+  ],
+  "explicit_non_changes": [
+    "The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed.",
+    "The child byte is set from the age as soon as it is read, setl / sete write their bytes directly, the cause is read through ebx (the same address), the best-skill call's pointer is the strncpy argument slot about to be dropped, and the last age test reads the roster entry's age (the same value).",
+    "Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known)."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x64CC5",
+      "before": "8B8F8C1B0000894E1C8B97B81B000083C40C8D4E2C8956208B87BC1B00008D9F5C1C0000518BCB894624E8CC0801008BCB894628E81209010088463181BF8C1B0000180100000F9CC288563283BF901B0000000F94C1884E338B97441C000089563481BF8C1B000068010000",
+      "after": "8B8F8C1B0000894E1C81F9180100000F9C46328B97B81B00008956208B87BC1B00008946248D9F5C1C00005489D9E8C808010083C40C8B4B1883F905770691F30F2C148389562C89462889D9E8FA08010088463183BF901B0000000F9446338B53E8895634817E1C68010000",
+      "purpose": "the Roster writer: age (and the child byte), head, body, the best-skill call 0x4755C0 (unchanged), then with a preference (+0x1C74 = 0..5) job = the preference and value = that skill cut to a whole number; the elder, sex and cause; the age against 360, as stock"
+    }
+  ]
+}

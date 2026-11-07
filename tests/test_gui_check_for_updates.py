@@ -312,7 +312,9 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
             ("vv_graves", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
-                           "vv_log_decisions"}),
+                           "vv_log_decisions",
+                           # old graves' jobs: the save's skills where vv_corrupt_skills reads them
+                           "vv_corrupt_skills"}),
             # Restoring titles a likes / dislikes change took away (the owner, v1.35.68).
             ("vv_lost_titles", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
                                 "vv_log_additions", "vv_titles_file"}),

@@ -1188,6 +1188,18 @@ unchanged. The word is the game's own, so it follows the game's language. On
 by default. With Show Cause of Death on Graves, the Deaths log writes the
 same line.
 
+CHECKED SKILL PREFERENCES ARE LISTED AS JOBS ON GRAVES (ALL FIVE GAMES)
+
+Off by default. A villager who dies with a skill preference checked on the
+Villager Details screen gets that skill as the Job on their grave, with that
+skill's rank (Untrained below 20, Apprentice for a child where the game says
+it), just as the Details screen already shows it. With no preference the
+grave shows the highest skill, as before. The epitaph follows the same job.
+Titles still win: a Tribal Chief, Esteemed Elder, Scholar or Retired Chief
+keeps that epitaph, and children keep theirs. Only new graves change; Repair
+Saves & Logs rewrites older graves where the save still holds the villager's
+preference.
+
 FAITH LOSS IS DOUBLED/GAINS HALVED (NEW BELIEVERS)
 
 Off by default. Each age unit a believer's Faith moves by a few small rolls.

@@ -155,6 +155,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv1_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. With Show Cause of Death and Age at Death on Graves, the epitaph it gives follows the same job. Titles still win: the game shows no title on a grave. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A New Home's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The Cause of Death companion's epitaph and Deaths log Grave line read the grave, so they follow it.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The age is read and the record found once, the grave's fields reached from the age's address (value -8, job -4, name -0x24). The name copy's call at 0x448FF1 (which Fix Vanilla Bugs aims at strcpy) and the loop's end are untouched. Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Children's Graves Say Apprentice (`vv1_apprentice_graves`)
 
 A child's grave names the child's job as an "Apprentice", the way The Tree of Life does: a villager who died under 14 years old whose best skill was 20 or more (Trainee or better) shows "Apprentice Farmer", "Apprentice Scientist", "Apprentice Parent" and so on, instead of "Trainee", "Adept" or "Master"; below 20 it is "Untrained" as before. Adults' graves are unchanged. The word is the game's own "Apprentice" text, so it follows the game's language. Graves are read when shown, so graves made before you ticked this change too. With Show Cause of Death and Age at Death on Graves, the Deaths log writes the same line.
@@ -710,6 +722,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv2_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: a villager whose Esteemed Elder totem stands still gets "Esteemed Elder", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Lost Children's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The record is found once and kept in ebx (saved and put back) across the name copy, whose call at 0x4650BA (which Fix Vanilla Bugs aims at strcpy) is untouched; ecx and eax leave as stock (the record, the age). The preference fix-up lives in the bytes the recoded epitaph pick no longer needs. Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Children's Graves Say Apprentice (`vv2_apprentice_graves`)
 
 A child's grave names the child's job as an "Apprentice", the way The Tree of Life does: a villager who died under 14 years old whose best skill was 20 or more (Trainee or better) shows "Apprentice Farmer", "Apprentice Scientist", "Apprentice Parent" and so on, instead of "Trainee", "Adept" or "Master"; below 20 it is "Untrained" as before. Adults' graves are unchanged. The word is the game's own "Apprentice" text, so it follows the game's language. Graves are read when shown, so graves made before you ticked this change too. With Show Cause of Death and Age at Death on Graves, the Deaths log writes the same line.
@@ -1245,6 +1269,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Appends 4096 bytes as 1 new PE section -- `.vv3fh` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
 
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv3_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: the Tribal Chief still gets "Wise and Beloved Chief", an Esteemed Elder "Esteemed Elder", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Secret City's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The first best-skill call is given no pointer (the routine returns the value in edx too); the gravestone's value is copied from the roster entry instead of a second identical call; the chief and cause are read through ebx (the same addresses). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Children's Graves Say Apprentice (`vv3_apprentice_graves`)
 
 A child's grave names the child's job as an "Apprentice", the way The Tree of Life does: a villager who died under 14 years old whose best skill was 20 or more (Trainee or better) shows "Apprentice Farmer", "Apprentice Scientist", "Apprentice Parent" and so on, instead of "Trainee", "Adept" or "Master"; below 20 it is "Untrained" as before. Adults' graves are unchanged. The word is the game's own "Apprentice" text, so it follows the game's language. Graves are read when shown, so graves made before you ticked this change too. With Show Cause of Death and Age at Death on Graves, the Deaths log writes the same line.
@@ -1701,6 +1737,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv4_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: a Scholar still gets "Scholar", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Tree of Life's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The child byte is set from the age as soon as it is read, setl / sete write their bytes directly, the cause is read through ebx (the same address), the best-skill call's pointer is the strncpy argument slot about to be dropped, and the last age test reads the roster entry's age (the same value). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
 Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
@@ -2100,6 +2148,18 @@ When a Devotee dies and is buried, the epitaph New Believers writes on the grave
 
 - Behavior changes: The Roster of the Dead writer (0x464C70) picks a buried Devotee's epitaph (grave job 5, Devotion the highest skill; an adult not taking the child or Esteemed Elder branch) as rand(100) through the game's own rand (0x403660): under 50 the usual epitaph (string 0x305, eEulogyDefault: "Respected Citizen" in the stock Assets/sm.xml, "Respected Devotee" in Guardians of Isola Rewrite's), 50 or over "Charitable Soul" -- the same coin flip, on the same rand, that already gives every other job one of its two epitaphs. rand(100) is the C runtime's rand() % 100, seeded once at start-up from the clock (srand(time(NULL)) at 0x402F97), so each burial takes the next value of the game's one random stream. Was always the usual epitaph, string 0x305. "Charitable Soul" (15 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the writer's own strncpy at 0x464E28, exactly as a string-table epitaph is; the entry is saved, shown and editable like any other.
 - Explicit non-changes/exclusions: The writer's job dispatch and its five cases (0x464D86..0x464E19, 147 bytes) are recoded in place as one case driven by a table of each job's first string id; the table and the "Charitable Soul" text live in the same bytes and the rest is int3 filler. No code is added outside the routine and no executable space is claimed; the five-entry jump table at 0x464E5C is left as it was, no longer used. Farmer, Parent, Doctor, Scientist and Builder get the same string id for the same rand value as stock; an adult with no skill (job -1) still gets the usual epitaph without a rand call, as stock; children ("Curious and Playful" / "Loving and Special"), three-or-more-master villagers ("Esteemed Elder", "Retired Chief") and every other field of the entry are unchanged. The grave dialog's epitaph editing is unchanged: a typed epitaph replaces the pick as in the stock game. The game's string table (Assets/sm.xml) is not changed, so the usual epitaph is whatever string 0x305 says in the installed text, as in the stock game. Graves that v1.35.58 and v1.35.59 wrote as "Devoted Soul" are never rewritten, and the Deaths log records already written keep them; the patch id is unchanged (vv5_devoted_soul_epitaph), so selections and Owner's Defaults made before the rename still tick it.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv5_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: an Esteemed Elder still gets "Esteemed Elder", the Retired Chief "Retired Chief", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: New Believers's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The child byte is set from the age as soon as it is read, setl / sete write their bytes directly, the cause is read through ebx (the same address), the best-skill call's pointer is the strncpy argument slot about to be dropped, and the last age test reads the roster entry's age (the same value). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.

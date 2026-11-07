@@ -749,6 +749,15 @@
       ]
     },
     {
+      "ids": ["vv1_preferred_job_graves", "vv2_preferred_job_graves", "vv3_preferred_job_graves", "vv4_preferred_job_graves", "vv5_preferred_job_graves"],
+      "guide": [
+        "Off by default. Click a gravestone: a villager who died with a skill preference checked shows that job.",
+        "Its rank comes from that skill. With no preference the highest skill shows, as before.",
+        "The epitaph follows the job; titles and children's epitaphs still win.",
+        "Old graves: Repair Saves & Logs, where the save still holds the villager's preference."
+      ]
+    },
+    {
       "ids": ["vv5_faith_loss_doubled_gains_halved"],
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
@@ -973,7 +982,7 @@
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games) and No Fishing at Science Level 2 are off: they make the game harder.",
-        "This is what a fresh install starts with.",
+        "This is what a fresh install starts with. Checked Skill Preferences are listed as Jobs on Graves is off.",
         "It does not change the population mode."
       ]
     },

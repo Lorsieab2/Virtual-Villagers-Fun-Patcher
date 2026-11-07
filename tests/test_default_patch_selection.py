@@ -111,6 +111,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv5_faith_loss_doubled_gains_halved"
                   # Food Gains are Flat, like VV1-3 (Harder Games): off by default.
                   or p in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games")
+                  # Checked Skill Preferences are listed as Jobs on Graves (all five games): off by default.
+                  or p.endswith("_preferred_job_graves")
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
                   # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves
@@ -269,6 +271,16 @@ if __name__ == "__main__":
 
 
 class NewBelieversAndGravesRowsTests(unittest.TestCase):
+    def test_checked_skill_preferences_on_graves_is_off_and_on_in_owners_defaults(self) -> None:
+        """The owner: Checked Skill Preferences are listed as Jobs on Graves is off in the normal defaults and on in
+        Owner's Defaults (all five games)."""
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = f"vv{game}_preferred_job_graves"
+            self.assertIn(patch_id, ids)
+            self.assertFalse(default_fun_patch_selection(patch_id), patch_id)
+            self.assertTrue(owners_default_fun_patch_selection(patch_id), patch_id)
+
     def test_owners_defaults_tick_the_apprentice_puddle_and_faith_rows(self) -> None:
         """The owner (2026-11-06): Owner's Defaults keeps Children's Graves Say Apprentice (all four games), Puddle
         Play Moves to the Lake Shore and Faith Loss is Doubled/Gains Halved ON; the plain defaults leave only the
