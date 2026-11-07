@@ -42,25 +42,15 @@ Builders reach the site three ways:
     (task switch 0x463940[12] -> 0x463786, the finished test 0x438960 at 0x46378D);
   * catch-up runs the same dispatcher and task code with the walks made instant.
 
-THE RELOCK MARK.  A relocked site must not look like a site never placed (state 4, progress 0), or at Science 3
-the reveal would place it again, maybe elsewhere.  The mark is the byte +0x31 of the object: the padding after the
-byte +0x30 inside its saved record (+0x28..+0x43, copied as seven dwords by the save 0x42FE80 and the load
-0x42FE30), so it is saved with the site.  No stock code reads or writes +0x31..+0x33 of a building: in the
-building class's code (0x42FC00..0x432400) every operand +0x30..+0x33 is a byte access to +0x30 or a stack slot,
-and outside it the objects are reached only through their vtables and the drop handler's GetState (0x46F6BE,
-0x46F723).  The static object starts at 0, so stock saves hold 0 there, and a stock game ignores it.
-
 THE PATCH.  Locked = Science below 3 and project 22 unfinished.
-  1. The reveal predicate 0x430CF0 answers yes only at Science 3, and only for a site never placed (state 4,
-     progress 0, no relock mark) -- so SetState(3) never resets points and never moves a relocked site.  Stock:
-     Science 2.
+  1. The reveal predicate 0x430CF0 answers yes only at Science 3, and only for a site never built on (state 4,
+     progress 0) -- so SetState(3) never resets points a relocked site already has.  Stock: Science 2.
   2. The update's second path 0x430156 (every building passes it; only object 22 is acted on), rewritten:
-       Science 3:  state 4 -> state 3 and the mark cleared (the stock path, now for every progress): the site comes
-                   back where it was, with its points; the next update repaints it (its paint flag +0x61 is set).
-       Locked and the site showing (state not 4): relock -- state 4 and the mark, and the site's map area is
-       erased with the game's own erase 0x430490 (the routine that lifts a building off the map), then its drag
-       flag +0x54 is cleared and its paint flag +0x61 set (as the paint left them unset).  The progress table is
-       never written.
+       Science 3:  state 4 -> state 3 (the stock path, now for every progress): the site comes back where it was,
+                   with its points; the next update repaints it (its paint flag +0x61 is still set).
+       Locked and the site showing (state not 4): relock -- state 4, and the site's map area is erased with the
+       game's own erase 0x430490 (the routine that lifts a building off the map), then its drag flag +0x54 is
+       cleared and its paint flag +0x61 set (as the paint left them unset).  The progress table is never written.
   3. The Clothing Hut's percent helper (its vtable +0x34, read by 0x438980) answers threshold - 1 while locked, so
      project 22's percent is never 1 or more there: no builder, Fix Huts' list included, is sent to it.  A
      finished hut still reads 100 (0x438980 with nothing left).
@@ -69,10 +59,12 @@ THE PATCH.  Locked = Science below 3 and project 22 unfinished.
 A finished Clothing Hut is never relocked (2) and its percent is unchanged (3).  Uninstalled later, the stock game
 shows a relocked site again at Science 3 (its own 0x430156 path) with its points; below Science 3 it stays hidden
 when its points are 400 or more, and a site under 400 points is revealed by the stock predicate with its points
-reset (stock SetState(3)), the stock game's own behaviour for any state-4 site; stock ignores the mark.
-The mark is not cleared when a new tribe is started in the same session (the reset 0x430C30 / 0x42FCF0 leaves
-+0x31): a new site carrying it then appears at Science 3 at the game's own default place (0x4BDBF0, also the
-reveal's fallback) instead of a random one, with no points to keep.
+reset (stock SetState(3)), the stock game's own behaviour for any state-4 site.
+A relocked site with 0 points is, to the game, a site never placed (state 4, progress 0): at Science 3 the
+game's own reveal places it (0x430810, its own random pick or its fallback place) and SetState(3) keeps its 0
+points, so it may appear in a new spot but loses nothing.  Telling it apart would need a mark in a spare byte of
+the saved record, which the project forbids (data the game does not keep goes in a .dat file); a 0-point site
+has nothing to keep, so it needs none.
 """
 from __future__ import annotations
 
@@ -104,12 +96,10 @@ VTABLE_PERCENT = 0x48E54C + 0x34
 FINISHED = 0x438960         # project manager: finished(id)
 CONTINUATION_CALL = 0x46378D
 # int3 padding between the building class's small routines and after 0x432380 / 0x4323F3, claimed by nothing.
-GAPS = (0x430F92, 0x430FA6, 0x430FC2, 0x430FD4, 0x430FE4)
+GAPS = (0x430F92, 0x430FA6, 0x430FC2, 0x430FD4)
 FINISHED_GATE = 0x432381
 FINISHED_GATE_TAIL = 0x4323F6
-PERCENT_GATE = 0x430D10     # in the predicate's own space, after the rewritten predicate
-PERCENT_TAIL = 0x430D58     # int3 padding after 0x430D57
-MARK = 0x31                 # the relock mark: a padding byte of the saved record
+PERCENT_GATE = 0x430D0B     # in the predicate's own space, after the rewritten predicate
 
 
 def asm(src: str, va: int) -> bytes:
@@ -139,14 +129,12 @@ def fill(code: bytes, size: int) -> bytes:
     return code + b"\xCC" * (size - len(code))
 
 
-def predicate_and_percent() -> tuple[bytes, bytes]:
+def predicate_and_percent() -> bytes:
     predicate = asm(f"""
         xor eax,eax
         cmp byte ptr [ecx+0x34],4
         jne r
         cmp dword ptr [{PROGRESS:#x}],eax
-        jne r
-        cmp byte ptr [ecx+{MARK:#x}],al
         jne r
         cmp dword ptr [{SCIENCE:#x}],3
         setge al
@@ -157,10 +145,10 @@ def predicate_and_percent() -> tuple[bytes, bytes]:
     percent = asm(f"""
         cmp dword ptr [{SCIENCE:#x}],3
         jge {PERCENT_BASE:#x}
-        jmp {PERCENT_TAIL:#x}
+        mov eax,{BUILD_TOTAL - 1}
+        ret
         """, PERCENT_GATE)
-    tail = asm(f"mov eax,{BUILD_TOTAL - 1}; ret", PERCENT_TAIL)
-    return fill(predicate + percent, 0x30), fill(tail, 8)
+    return fill(predicate + percent, 0x30)
 
 
 def second_path() -> bytes:
@@ -177,24 +165,22 @@ def second_path() -> bytes:
         cmp byte ptr [esi+0x34],4
         jne {AFTER_PATH:#x}
         mov byte ptr [esi+0x34],3
-        mov byte ptr [esi+{MARK:#x}],0
+        jmp {AFTER_PATH:#x}
         """, SECOND_PATH)
-    size = AFTER_PATH - SECOND_PATH          # falls through to 0x430186
-    assert len(code) <= size, len(code)
-    return code + b"\x90" * (size - len(code))
+    return fill(code, AFTER_PATH - SECOND_PATH)
 
 
 def relock() -> list[bytes]:
-    mark, skip = GAPS[4], GAPS[4] + 4        # set the mark and go back / go back
+    back = GAPS[3] + 4                       # the jmp back in the last gap
     one = asm(f"""
         cmp byte ptr [esi+0x34],4
-        je {skip:#x}
+        je {back:#x}
         mov byte ptr [esi+0x34],4
         jmp {GAPS[1]:#x}
         """, GAPS[0])
     two = asm(f"""
         cmp byte ptr [esi+0x61],0
-        jne {mark:#x}
+        jne {back:#x}
         mov ecx,esi
         jmp {GAPS[2]:#x}
         """, GAPS[1])
@@ -205,15 +191,11 @@ def relock() -> list[bytes]:
         """, GAPS[2])
     four = asm(f"""
         mov byte ptr [esi+0x61],1
-        jmp {mark:#x}
-        """, GAPS[3])
-    five = asm(f"""
-        mov byte ptr [esi+{MARK:#x}],1
         jmp {AFTER_PATH:#x}
-        """, GAPS[4])
-    assert len(asm(f"mov byte ptr [esi+{MARK:#x}],1", GAPS[4])) == 4
-    sizes = (14, 10, 14, 12, 12)
-    return [fill(code, size) for code, size in zip((one, two, three, four, five), sizes)]
+        """, GAPS[3])
+    assert len(asm("mov byte ptr [esi+0x61],1", GAPS[3])) == 4
+    sizes = (14, 10, 14, 12)
+    return [fill(code, size) for code, size in zip((one, two, three, four), sizes)]
 
 
 def finished_gate() -> tuple[bytes, bytes]:
@@ -233,8 +215,9 @@ DESCRIPTION = (
     "fish come early. With this patch the Clothing Hut's site appears only at Science level 3 (70,000 tech points). "
     "A village whose Clothing Hut site is already showing, with or without some building done, while Science is "
     "below 3 gets the site locked again: it disappears and nobody builds it until Science reaches 3; then it comes "
-    "back in the same place with all the building it already had. Nothing is reset or lost. A Clothing Hut that is "
-    "already finished is never affected."
+    "back in the same place with all the building it already had. Nothing is reset or lost. (A site with no "
+    "building done yet has no points to keep: at Science 3 the game places it itself, as it places any new site, "
+    "so it may appear in a different spot.) A Clothing Hut that is already finished is never affected."
 )
 
 
@@ -245,27 +228,20 @@ def feature() -> dict:
         patch(SECOND_PATH, second_path(),
               "the update's object-22 path 0x430156 (every building passes it; only the Clothing Hut, project 22, is "
               "acted on): at Science 3 a hidden site (state 4) becomes state 3 with its progress and place kept, as "
-              "the stock path did, and its relock mark +0x31 is cleared; below Science 3 an unfinished site that is "
-              "showing is relocked (0x430F92)"),
-        patch(PREDICATE, predicate_and_percent()[0],
+              "the stock path did; below Science 3 an unfinished site that is showing is relocked (0x430F92)"),
+        patch(PREDICATE, predicate_and_percent(),
               "the Clothing Hut's reveal predicate 0x430CF0 (vtable +0x64): reveal at Science 3 (stock: 2), and only "
-              "a site never placed (state 4, progress 0, no relock mark +0x31), so the reveal's SetState(3) never "
-              "resets progress or moves a relocked site; then its percent helper 0x430D10: below Science 3 on to "
-              "0x430D58, else the shared 0x4303C0"),
-        patch(PERCENT_TAIL, predicate_and_percent()[1],
-              "the percent helper's answer below Science 3 (0x430D58): threshold - 1, so project 22's percent never "
-              "reaches 1 and no builder is offered the site"),
+              "a site never built on (state 4, progress 0), so the reveal's SetState(3) never resets progress; then "
+              "its percent helper 0x430D0B: threshold - 1 below Science 3 (project 22's percent never reaches 1, so "
+              "no builder is offered the site), else the shared 0x4303C0"),
         patch(VTABLE_PERCENT, (PERCENT_GATE).to_bytes(4, "little"),
-              "the Clothing Hut's vtable +0x34 (0x48E580): 0x4303C0 -> its own percent helper 0x430D10"),
-        patch(GAPS[0], gaps[0], "relock, 1 of 5 (0x430F92): a site already in state 4 is left alone; else state 4"),
-        patch(GAPS[1], gaps[1], "relock, 2 of 5 (0x430FA6): a site not painted (+0x61 set) needs no erase"),
+              "the Clothing Hut's vtable +0x34 (0x48E580): 0x4303C0 -> its own percent helper 0x430D0B"),
+        patch(GAPS[0], gaps[0], "relock, 1 of 4 (0x430F92): a site already in state 4 is left alone; else state 4"),
+        patch(GAPS[1], gaps[1], "relock, 2 of 4 (0x430FA6): a site not painted (+0x61 set) needs no erase"),
         patch(GAPS[2], gaps[2],
-              "relock, 3 of 5 (0x430FC2): erase the site's map area with the game's own 0x430490; clear the drag "
+              "relock, 3 of 4 (0x430FC2): erase the site's map area with the game's own 0x430490; clear the drag "
               "flag +0x54 it sets"),
-        patch(GAPS[3], gaps[3], "relock, 4 of 5 (0x430FD4): mark it unpainted (+0x61), so Science 3 repaints it"),
-        patch(GAPS[4], gaps[4],
-              "relock, 5 of 5 (0x430FE4): the relock mark +0x31 (a padding byte of the saved record that no stock "
-              "code uses), so the reveal never takes it for a new site; back"),
+        patch(GAPS[3], gaps[3], "relock, 4 of 4 (0x430FD4): mark it unpainted (+0x61), so Science 3 repaints it; back"),
         patch(FINISHED_GATE, a,
               "project 22's finished test for the task-15 continuation (0x432381): below Science 3 answer finished"),
         patch(FINISHED_GATE_TAIL, b, "...its answer (0x4323F6): al = 1, ret 4"),
@@ -284,18 +260,17 @@ def feature() -> dict:
         "output_tag": "No Fishing at Science 2",
         "behavior_changes": [
             "The Clothing Hut's site (project 22, object 0x4D82D8) is revealed by its predicate 0x430CF0 at Science 3 "
-            "(stock: Science 2, i.e. above 1), and only while it was never placed (no points, no relock mark).",
+            "(stock: Science 2, i.e. above 1), and only while it was never built on.",
             "Below Science 3 an unfinished Clothing Hut site that shows (state not 4) is relocked by the update "
-            "0x4300E0 (path 0x430156): state 4 and the relock mark +0x31 (saved with the site, ignored by stock), "
-            "its map area erased by the game's own 0x430490; at Science 3 it returns to state 3 in the same place, "
-            "whatever its progress, and is repainted. Its progress (0x4D8CA8) is never written.",
+            "0x4300E0 (path 0x430156): state 4, its map area erased by the game's own 0x430490; at Science 3 it "
+            "returns to state 3 in the same place and is repainted. Its progress (0x4D8CA8) is never written.",
             "Below Science 3 project 22's percent (0x438980) is below 1, so the Building dispatcher (0x463E49) and "
             "Builders Fix Huts When Idle never offer it, live or while catching up; a villager on task 15 (building "
             "it) drops the task (0x46378D).",
         ],
         "explicit_non_changes": [
             "A finished Clothing Hut, every other building, the tech prices, Cloth Invented and Fishing Nets "
-            "themselves are unchanged; no save data is written by the patch beyond the site's own state and its relock mark.",
+            "themselves are unchanged; no save data is written by the patch beyond the site's own state.",
             "Guarded edits in place: two rewritten stock routines (0x430156, 0x430CF0), one vtable entry, one call, "
             "and int3 padding between routines; no executable tail space is claimed.",
         ],
