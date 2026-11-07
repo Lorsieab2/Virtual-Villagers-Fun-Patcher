@@ -111,6 +111,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv5_faith_loss_doubled_gains_halved"
                   # Food Gains are Flat, like VV1-3 (Harder Games): off by default.
                   or p in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games")
+                  # Checked Skill Preferences are listed as Jobs on Graves (all five games): off by default.
+                  or p.endswith("_preferred_job_graves")
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
                   # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves
@@ -121,7 +123,25 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv3_fruit_trees_take_turns"
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
-                  or p.endswith("_unicode_font")})
+                  or p.endswith("_unicode_font")
+                  # 2-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
+                  or p.endswith("_tech_cost_multiplier")
+                  # No Fishing at Science Level 2 (The Tree of Life): a difficulty
+                  # change, off by default, on in Owner's Defaults.
+                  or p == "vv4_no_fishing_at_science_2"})
+
+    def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
+        """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in
+        the normal defaults, as a change that only makes the game harder."""
+        from vv_fun_patcher_gui import (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS,
+                                        owners_default_fun_patch_selection)
+
+        patch_id = "vv4_no_fishing_at_science_2"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertNotIn(patch_id, OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
@@ -218,6 +238,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
+        # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
+        held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
@@ -226,7 +248,39 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                              patch_id not in held_back, patch_id)
 
 
+    def test_tech_cost_multiplier_is_ticked_only_by_its_own_box(self) -> None:
+        """The owner (2026-11-06): "7 should be default off for everything.
+        players who want it must explicitly choose it." -- the fresh-install
+        default, Default Patches, Owner's Defaults and Select All all leave
+        every game's 2-10x Tech Cost unticked."""
+        from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection
+
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = "vv%d_tech_cost_multiplier" % game
+            with self.subTest(patch=patch_id):
+                self.assertIn(patch_id, ids)
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertFalse(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
+                self.assertNotIn(patch_id, COTICKED_FUN_PATCH_IDS.values())
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
 class NewBelieversAndGravesRowsTests(unittest.TestCase):
+    def test_checked_skill_preferences_on_graves_is_off_and_on_in_owners_defaults(self) -> None:
+        """The owner: Checked Skill Preferences are listed as Jobs on Graves is off in the normal defaults and on in
+        Owner's Defaults (all five games)."""
+        ids = fun_patch_ids()
+        for game in range(1, 6):
+            patch_id = f"vv{game}_preferred_job_graves"
+            self.assertIn(patch_id, ids)
+            self.assertFalse(default_fun_patch_selection(patch_id), patch_id)
+            self.assertTrue(owners_default_fun_patch_selection(patch_id), patch_id)
+
     def test_owners_defaults_tick_the_apprentice_puddle_and_faith_rows(self) -> None:
         """The owner (2026-11-06): Owner's Defaults keeps Children's Graves Say Apprentice (all four games), Puddle
         Play Moves to the Lake Shore and Faith Loss is Doubled/Gains Halved ON; the plain defaults leave only the

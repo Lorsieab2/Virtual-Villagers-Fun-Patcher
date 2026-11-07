@@ -56,6 +56,8 @@ LINK_HOVER_COLOR = "#c5350b"
 
 from vv_fun_patcher import (
     ALTERNATIVE_FUN_PATCH_IDS,
+    TECH_COST_MULTIPLIER_DEFAULT,
+    TECH_COST_MULTIPLIER_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_unicode_font_face,
@@ -121,6 +123,11 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 #
 # Matched by exact id rather than by substring or display name, so a future
 # patch whose name merely mentions learning is not excluded by accident.
+# 2-10x Tech Cost, one row per game: only ever ticked by the player's own
+# click on it (the owner, 2026-11-06: "7 should be default off for
+# everything. players who want it must explicitly choose it.").
+TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
+
 DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     ["vv%d_learning_never_fails" % game for game in range(1, 6)]
     # The owner: VV1 Mushroom/Collectible Duplication Cheat (VV2-VV5) is a default-off patch.
@@ -138,6 +145,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Food Gains are Flat, like VV1-3 (Harder Games) (The Tree of
     # Life, New Believers) is off by default and on in Owner's Defaults.
     + ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"]
+    # The owner: Checked Skill Preferences are listed as Jobs on Graves (all
+    # five games) is off by default and on in Owner's Defaults.
+    + ["vv%d_preferred_job_graves" % game for game in range(1, 6)]
     # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
     # five games) are NOT here: they are on by default (owner, 2026-11-01:
     # "Anything that costs (money tech points food etc) and anything that adds
@@ -148,7 +158,17 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # table and changes the save format. Owner's Defaults ticks it (owner,
     # 2026-10-03); Select All does not (SELECT_ALL_OFF_FUN_PATCH_IDS).
     + ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+    # 2-10x Tech Cost (all five games) makes the game super hard: the owner
+    # (2026-11-06): "Default OFF", and "players who want it must explicitly
+    # choose it" -- so Owner's Defaults and Select All leave it off too
+    # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
+    + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     + sorted(ALTERNATIVE_OFF_FUN_PATCH_IDS)
+    # No Fishing at Science Level 2 (The Tree of Life) makes the game harder:
+    # a difficulty change, not content, so it is off by default. The owner
+    # (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- Owner's Defaults ticks
+    # it, as it ticks every default-off patch it does not name.
+    + ["vv4_no_fishing_at_science_2"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
@@ -172,6 +192,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
+    # The owner (2026-11-06): 2-10x Tech Cost stays off here too.
+    + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -179,6 +201,8 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
 # separate "- Modded 256" game with its own save folder and save format.
 SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     ["vv3_population_256", "vv4_population_256", "vv5_population_256"]
+    # The owner (2026-11-06): 2-10x Tech Cost is ticked only by its own row.
+    + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
@@ -230,6 +254,14 @@ def refresh_conflict_rows(win) -> None:
                 reason.grid_remove()
         except tk.TclError:
             del rows[patch_id]
+
+
+def saved_tech_cost_multiplier(settings: dict) -> int:
+    """The 2-10x Tech Cost multiplier a settings file holds: a whole number 2 to 10, else the default 3."""
+    value = settings.get("tech_cost_multiplier", TECH_COST_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, int) or value not in TECH_COST_MULTIPLIER_RANGE:
+        return TECH_COST_MULTIPLIER_DEFAULT
+    return value
 
 
 def select_all_fun_patch_selection(patch_id: str) -> bool:
@@ -1173,6 +1205,10 @@ class App(tk.Tk):
             # "Can you make the check logs automatically default on?"); a
             # per-install choice, written into each game built from now on.
             self.check_logs_var = tk.BooleanVar(value=True)
+            # 2-10x Tech Cost's multiplier, the slider beside the patch settings (the owner, 2026-11-07: "how
+            # about a slider? 2-10x Tech Cost"): a whole number 2 to 10, 3 unless moved; written into each game
+            # built with that row ticked.
+            self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1426,6 +1462,14 @@ class App(tk.Tk):
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
         self._help_button(fun_settings, "unicode_font").pack(side="left", padx=(2, 0))
+        # 2-10x Tech Cost: the multiplier, a slider of whole numbers 2 to 10 (only used with that row ticked).
+        ttk.Label(fun_settings, text="2-10x Tech Cost:").pack(side="left", padx=(16, 4))
+        self.tech_cost_scale = tk.Scale(
+            fun_settings, variable=self.tech_cost_var, orient="horizontal",
+            from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1,
+            length=120, showvalue=True, command=lambda _value: self._save_settings())
+        self.tech_cost_scale.pack(side="left")
+        self._help_button(fun_settings, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -2371,6 +2415,8 @@ class App(tk.Tk):
         vv_translations_window.restore_display_choices(self)
         saved_check_logs = data.get("check_logs_automatically", True)
         self.check_logs_var.set(saved_check_logs is not False)
+        if hasattr(self, "tech_cost_var"):
+            self.tech_cost_var.set(saved_tech_cost_multiplier(data))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2412,6 +2458,8 @@ class App(tk.Tk):
             "original_exe": self.exe_var.get().strip(),
             "output_root": self.output_root_var.get().strip(),
             "check_logs_automatically": bool(self.check_logs_var.get()),
+            "tech_cost_multiplier": (App._tech_cost_multiplier(self) if hasattr(self, "tech_cost_var")
+                                     else TECH_COST_MULTIPLIER_DEFAULT),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -2424,6 +2472,14 @@ class App(tk.Tk):
             },
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+    def _tech_cost_multiplier(self) -> int:
+        """The 2-10x Tech Cost slider's whole number, kept within 2 to 10."""
+        try:
+            value = int(self.tech_cost_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = TECH_COST_MULTIPLIER_DEFAULT
+        return value if value in TECH_COST_MULTIPLIER_RANGE else TECH_COST_MULTIPLIER_DEFAULT
 
     def _browse_exe(self) -> None:
         current = Path(self.exe_var.get()).parent if self.exe_var.get() else Path.home()
@@ -2589,11 +2645,13 @@ class App(tk.Tk):
             fun_patch_ids = self._selected_fun_patch_ids(build.id)
             output_root = self._output_root()
             check_logs = bool(self.check_logs_var.get())
+            tech_cost = self._tech_cost_multiplier()
             result = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
                     source, mode, fun_patch_ids, output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             self.status_var.set(
@@ -2619,11 +2677,13 @@ class App(tk.Tk):
             fun_patch_ids = self._selected_fun_patch_ids()
             output_root = self._output_root()
             check_logs = bool(self.check_logs_var.get())
+            tech_cost = self._tech_cost_multiplier()
             results = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
                 lambda: dry_run_all(
                     sources, mode, fun_patch_ids, output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             self.status_var.set(
@@ -2681,11 +2741,13 @@ class App(tk.Tk):
                 return
             output_root = self._output_root()
             check_logs = bool(self.check_logs_var.get())
+            tech_cost = self._tech_cost_multiplier()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
                     source, mode, fun_patch_ids, output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             output_folder = Path(preview["output_folder"])
@@ -2709,6 +2771,7 @@ class App(tk.Tk):
                     fun_patch_ids=fun_patch_ids,
                     output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             self.last_output_dir = output.parent
@@ -2739,6 +2802,7 @@ class App(tk.Tk):
                 return
             output_root = self._output_root()
             check_logs = bool(self.check_logs_var.get())
+            tech_cost = self._tech_cost_multiplier()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
@@ -2748,6 +2812,7 @@ class App(tk.Tk):
                 lambda: dry_run_all(
                     sources, mode, fun_patch_ids, output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             existing = []
@@ -2778,6 +2843,7 @@ class App(tk.Tk):
                     fun_patch_ids=fun_patch_ids,
                     output_root=output_root,
                     check_logs_automatically=check_logs,
+                    tech_cost_multiplier=tech_cost,
                 ),
             )
             self.last_output_dir = results[0][0].parent
@@ -4486,7 +4552,8 @@ class App(tk.Tk):
                 "Repairing the logs…\n\nThe save folder is backed up first.",
                 lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,
                                                     answers=answers, kinds=kinds, rearm=rearm,
-                                                    answered_changes=answered_state),
+                                                    answered_changes=answered_state,
+                                                    game_folders=self._game_folders_for(folder)),
             )
         except (vv_log_tools.LogToolError, vv_save_backup.BackupError, OSError) as exc:
             # Markers may already be cleared when a later step fails; the
@@ -4976,8 +5043,10 @@ class App(tk.Tk):
             # Numbers a looks or title change gave (src/vv_number_names.py): asked villager by villager, each
             # left as it is unless the player answers "Take the number off".
             unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
+            preferred = kind.context.get("graves") if kind.id == "apprentice" else None
+            preferred = preferred if preferred is not None and preferred.in_save else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber:
+                    and not unnumber and not preferred:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
@@ -4987,7 +5056,8 @@ class App(tk.Tk):
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
-                    else f"Rewrite {kind.label[0].lower() + kind.label[1:]}: {len(kind.replaces)} found"
+                    else f"Rewrite {kind.label[0].lower() + kind.label[1:]}: {len(kind.replaces)} line(s)"
+                    + (f", {len(preferred.in_save)} grave(s) in the save" if preferred else "") + " found"
                     if kind.id == "apprentice"
                     else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"

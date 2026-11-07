@@ -93,6 +93,18 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv1_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 6,000, level 3 50,000; Fertility level 2 11,000, level 3 240,000; Science level 2 12,000, level 3 150,000; Medicine level 2 15,000, level 3 250,000; Construction level 2 2,500, level 3 80,000; Spirituality level 2 5,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every technology price immediate in the Tech screen's hover label (0x434070), information box (0x4345E0) and buy handler (0x435AEF), each a price immediate, x N (the slider, 2 to 10; 3 by default): the shown price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and spends nothing) and the amount it takes (sub) are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 35; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv1_birth_control`)
 
 Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.
@@ -142,6 +154,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Dependencies: vv1_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv1_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. With Show Cause of Death and Age at Death on Graves, the epitaph it gives follows the same job. Titles still win: the game shows no title on a grave. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: A New Home's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The Cause of Death companion's epitaph and Deaths log Grave line read the grave, so they follow it.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The age is read and the record found once, the grave's fields reached from the age's address (value -8, job -4, name -0x24). The name copy's call at 0x448FF1 (which Fix Vanilla Bugs aims at strcpy) and the loop's end are untouched. Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Children's Graves Say Apprentice (`vv1_apprentice_graves`)
 
@@ -650,6 +674,18 @@ Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv2_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 1,500, level 3 90,000; Exploration level 2 10,000, level 3 160,000; Science level 2 16,000, level 3 150,000; Medicine level 2 20,000, level 3 65,000; Engineering level 2 5,000, level 3 75,000; Culture level 2 20,000, level 3 85,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every technology price immediate in the Tech screen's hover label (0x441D80), information box (0x4422F0) and buy handler (0x4437FF), each a price immediate, x N (the slider, 2 to 10; 3 by default): the shown price, the buy handler's refusal threshold (cmp / jb: too few tech points shows the game's message and spends nothing) and the amount it takes (sub) are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 35; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Birth Control (`vv2_birth_control`)
 
 Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.
@@ -685,6 +721,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Dependencies: vv2_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv2_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: a villager whose Esteemed Elder totem stands still gets "Esteemed Elder", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Lost Children's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The record is found once and kept in ebx (saved and put back) across the name copy, whose call at 0x4650BA (which Fix Vanilla Bugs aims at strcpy) is untouched; ecx and eax leave as stock (the record, the age). The preference fix-up lives in the bytes the recoded epitaph pick no longer needs. Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Children's Graves Say Apprentice (`vv2_apprentice_graves`)
 
@@ -1131,6 +1179,18 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv3_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 11,000, level 3 150,000; Medicine level 2 8,000, level 3 75,000; Alchemy level 2 5,000, level 3 55,000; Restoration level 2 7,000, level 3 85,000; Leadership level 2 7,000, level 3 125,000; Nature level 1 4,500, level 2 50,000, level 3 150,000; Magic level 1 4,500, level 2 50,000, level 3 150,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs that many times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4A818C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x427020, called by the Tech screen's hover label, information box and purchase (0x464C84, 0x464E47, 0x465706): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 16; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv3_population_256`)
 
 EXPERIMENTAL. Gives The Secret City 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 221 plus the collection and Magic Level 3 bonuses (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 125 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Secret City - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
@@ -1173,7 +1233,7 @@ Requires BOTH parenting skill and the checked preference before a villager will 
 
 #### Both Factions: Nature and Magic (`vv3_both_factions`)
 
-Lets a tribe own BOTH the Faction of Nature and the Faction of Magic. Buy one faction on the Tech screen as usual, then click the other: instead of "You have already chosen your faction!" it is bought at its normal price in tech points. Buying level 1 of either faction asks Yes/No: "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this gift wisely." (No buys nothing); levels 2 and 3 are bought without a question, as before, and both Buy buttons stay as they always are. With both: every level of each works at the same time -- Nature's faster food refills (with the patcher's Nature Level 1 honey and fruit refill row), the Pitcher Plant and longer lives (with the patcher's Nature Level 3 row), and Magic's extra tech point from research, the Berry Plant and the population bonus (+10; the maximum stays 150, or 256 with 256 Villagers, and Immediate Fixed keeps its fixed maximum). Both herbs grow on the island and can be gathered and brewed. Both faction columns are lit on the Tech screen with their own floating petals and sparkles. Seven new potions need a Pitcher Plant and a Berry Plant together, with a Tiger Lily (a fun potion), Cactus (a trance), Lotus (crazy talk), Black Orchid (paralysis), Rose (lonely), a second Pitcher Plant (whoa!, the drinker moves) or a second Berry Plant (something smells yummy: free children under 14 run to the pot); they count toward "Alchemy R Us" and Stews Found. The sharks: the latest shark potion decides how they look -- Nature's stink bomb makes them go, Magic's Shark Charmer Vial brings them back charmed and sparkling -- and nothing else changes (the puzzle, its message and reward stay once). Save safety: the faction bought first stays in the save exactly as the unpatched game keeps it; the second, and which new potions were brewed, are kept in the save's own file (Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat), so every save loads in the unpatched game (with the first faction only; putting the patch back brings the second back). Start Over deletes the file. **Unverified in play: the effect has not been tested live.** **Needs no other patch.** It is on by default for The Secret City; untick it to keep the stock game. The companion is "VVFP VV3 Both Factions.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.
+Lets a tribe own BOTH the Faction of Nature and the Faction of Magic. Buy one faction on the Tech screen as usual, then click the other: instead of "You have already chosen your faction!" it is bought at its Tech screen price in tech points (its normal price, times the multiplier with the patcher's 2-10x Tech Cost). Buying level 1 of either faction asks Yes/No: "With the power of the Fun Patcher, you can now embrace both Nature and Magic Factions. Use this gift wisely." (No buys nothing); levels 2 and 3 are bought without a question, as before, and both Buy buttons stay as they always are. With both: every level of each works at the same time -- Nature's faster food refills (with the patcher's Nature Level 1 honey and fruit refill row), the Pitcher Plant and longer lives (with the patcher's Nature Level 3 row), and Magic's extra tech point from research, the Berry Plant and the population bonus (+10; the maximum stays 150, or 256 with 256 Villagers, and Immediate Fixed keeps its fixed maximum). Both herbs grow on the island and can be gathered and brewed. Both faction columns are lit on the Tech screen with their own floating petals and sparkles. Seven new potions need a Pitcher Plant and a Berry Plant together, with a Tiger Lily (a fun potion), Cactus (a trance), Lotus (crazy talk), Black Orchid (paralysis), Rose (lonely), a second Pitcher Plant (whoa!, the drinker moves) or a second Berry Plant (something smells yummy: free children under 14 run to the pot); they count toward "Alchemy R Us" and Stews Found. The sharks: the latest shark potion decides how they look -- Nature's stink bomb makes them go, Magic's Shark Charmer Vial brings them back charmed and sparkling -- and nothing else changes (the puzzle, its message and reward stay once). Save safety: the faction bought first stays in the save exactly as the unpatched game keeps it; the second, and which new potions were brewed, are kept in the save's own file (Virtual Villagers Fun Patcher\Save <S>\Data\Factions\Virtual Villagers 3 Second Faction - Save <S>.dat), so every save loads in the unpatched game (with the first faction only; putting the patch back brings the second back). Start Over deletes the file. **Unverified in play: the effect has not been tested live.** **Needs no other patch.** It is on by default for The Secret City; untick it to keep the stock game. The companion is "VVFP VV3 Both Factions.dll", started by VVFP Startup.dll; if the DLL cannot be loaded, the stock game runs.
 
 **Requires no other patch to be ticked.**
 
@@ -1208,6 +1268,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 4096 bytes as 1 new PE section -- `.vv3fh` (executable code) -- and rewrites 3 guarded header regions (46 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 - When vv3_enable_origins_exclusive_features is also selected it appends nothing, writing its payload into that feature's reserved zero range instead; the range is checked against a declared zero preimage before anything is written.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv3_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: the Tribal Chief still gets "Wise and Beloved Chief", an Esteemed Elder "Esteemed Elder", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Secret City's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The first best-skill call is given no pointer (the routine returns the value in edx too); the gravestone's value is copied from the roster entry instead of a second identical call; the chief and cause are read through ebx (the same addresses). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Children's Graves Say Apprentice (`vv3_apprentice_graves`)
 
@@ -1612,6 +1684,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv4_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Dendrology level 2 3,000, level 3 60,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4BC18C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x41E220, called by the Tech screen's hover label, information box and purchase (0x43E57D, 0x43E900, 0x43EA76): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv4_population_256`)
 
 EXPERIMENTAL. Gives The Tree of Life 256 villager slots (0 to 255) instead of 150. The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 231 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 115 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - The Tree of Life - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. **Needs Fix Vanilla Bugs on (it is on by default) to load a village that the base game's exactly-150-villager save bug has already damaged.** Off by default.
@@ -1652,6 +1736,18 @@ Builders fix huts when no building projects are present, and build first. This m
 - Dependencies: vv4_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv4_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: a Scholar still gets "Scholar", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Tree of Life's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The child byte is set from the age as soon as it is read, setl / sete write their bytes directly, the cause is read through ebx (the same address), the best-skill call's pointer is the strncpy argument slot about to be dropped, and the last age test reads the roster entry's age (the same value). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
@@ -1813,6 +1909,18 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 - Dependencies: none
 - Evidence status: implemented from exact-build disassembly; the player's drop and autonomous pairing are each emulated from their real call sites through the game's own action table, step queue and dispatcher into the handler in tests/test_manual_drop_breeding.py; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### No Fishing at Science Level 2 (`vv4_no_fishing_at_science_2`)
+
+**Needs no other patch.** Makes fishing come later, so the game is harder; off by default. In the base game buying Science level 2 (8,000 tech points) makes the Clothing Hut's building site appear, and the Clothing Hut is what lets your villagers make cloth (Cloth Invented) and mend the fishing nets with it (Fishing Nets) -- so fish come early. With this patch the Clothing Hut's site appears only at Science level 3 (70,000 tech points). A village whose Clothing Hut site is already showing, with or without some building done, while Science is below 3 gets the site locked again: it disappears and nobody builds it until Science reaches 3; then it comes back in the same place with all the building it already had. Nothing is reset or lost. (A site with no building done yet has no points to keep: at Science 3 the game places it itself, as it places any new site, so it may appear in a different spot.) A Clothing Hut that is already finished is never affected. Two more things wait for the Clothing Hut and so for Science 3: new clothes (only a finished Clothing Hut gives them), and builders fixing huts on their own (the game fixes huts only once Huts 1 to 3 and the Clothing Hut are all finished), unless Builders Fix Huts When Idle is ticked. If you remove this patch while a partly built Clothing Hut is hidden below Science 3, the normal game restarts a site with under 400 points from 0.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Clothing Hut's site (project 22, object 0x4D82D8) is revealed by its predicate 0x430CF0 at Science 3 (stock: Science 2, i.e. above 1), and only while it was never built on. Below Science 3 an unfinished Clothing Hut site that shows (state not 4) is relocked by the update 0x4300E0 (path 0x430156): state 4, its map area erased by the game's own 0x430490; at Science 3 it returns to state 3 in the same place and is repainted. Its progress (0x4D8CA8) is never written. Below Science 3 project 22's percent (0x438980) is below 1, so the Building dispatcher (0x463E49) and Builders Fix Huts When Idle never offer it, live or while catching up; a villager on task 15 (building it) drops the task (0x46378D).
+- Explicit non-changes/exclusions: A finished Clothing Hut, every other building, the tech prices, Cloth Invented and Fishing Nets themselves are unchanged; no save data is written by the patch beyond the site's own state. Guarded edits in place: two rewritten stock routines (0x430156, 0x430CF0), one vtable entry, one call, and int3 padding between routines; no executable tail space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the reveal at Science 1/2/3, the relock of a showing site (0 to 1,999 points) and its return at Science 3, a finished hut, project 22's percent and the task-15 continuation are emulated stock and patched on the game's own Clothing Hut object and map in tests/test_vv4_no_fishing_at_science_2.py; runtime/player confirmation pending
+- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Optional Text changes (`vv4_optional_text_changes`)
 
@@ -1979,6 +2087,18 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 ### Optional features
 
+#### 2-10x Tech Cost (`vv5_tech_cost_multiplier`)
+
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Spirituality level 2 8,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: Every non-zero entry of the technology price table 0x4CA3B4, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x4236D0, called by the Tech screen's hover label, information box and purchase (0x440DCA, 0x4412A0, 0x441676): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
+- Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 256 Villagers (Experimental) (`vv5_population_256`)
 
 EXPERIMENTAL. Gives New Believers 256 villager slots (0 to 255) instead of 150 (believers, Heathens and Reanimate stand-ins share them, as in the stock game). The game's villager table is moved to a new, larger place in memory and every part of the game that walks it -- births, Heathens, island events, the Villager Details screen, saving and loading -- is widened to match. With Collection Progression Max Pop the cap becomes 241 plus the collection bonus (256 with everything); with Immediate Fixed Max Pop it is 256 at once; with No Population Increase the stock cap of 105 is unchanged, only the table is larger. The patched game is named "... - Modded 256" and keeps its saves, and the patcher's logs, in their own "Virtual Villagers - New Believers - Modded 256" folder, so they never mix with 150-slot saves. The patcher does not copy saves into it: copy your save files from the "... - Modded" save folder yourself. An old save loads with all its villagers; the first time the game saves it, it is written in the longer 256 format, which only a 256 build can open, so keep the originals as a backup. Off by default.
@@ -2028,6 +2148,18 @@ When a Devotee dies and is buried, the epitaph New Believers writes on the grave
 
 - Behavior changes: The Roster of the Dead writer (0x464C70) picks a buried Devotee's epitaph (grave job 5, Devotion the highest skill; an adult not taking the child or Esteemed Elder branch) as rand(100) through the game's own rand (0x403660): under 50 the usual epitaph (string 0x305, eEulogyDefault: "Respected Citizen" in the stock Assets/sm.xml, "Respected Devotee" in Guardians of Isola Rewrite's), 50 or over "Charitable Soul" -- the same coin flip, on the same rand, that already gives every other job one of its two epitaphs. rand(100) is the C runtime's rand() % 100, seeded once at start-up from the clock (srand(time(NULL)) at 0x402F97), so each burial takes the next value of the game's one random stream. Was always the usual epitaph, string 0x305. "Charitable Soul" (15 characters) is copied into the grave entry's epitaph, char[0x20] at entry +0x38, by the writer's own strncpy at 0x464E28, exactly as a string-table epitaph is; the entry is saved, shown and editable like any other.
 - Explicit non-changes/exclusions: The writer's job dispatch and its five cases (0x464D86..0x464E19, 147 bytes) are recoded in place as one case driven by a table of each job's first string id; the table and the "Charitable Soul" text live in the same bytes and the rest is int3 filler. No code is added outside the routine and no executable space is claimed; the five-entry jump table at 0x464E5C is left as it was, no longer used. Farmer, Parent, Doctor, Scientist and Builder get the same string id for the same rand value as stock; an adult with no skill (job -1) still gets the usual epitaph without a rand call, as stock; children ("Curious and Playful" / "Loving and Special"), three-or-more-master villagers ("Esteemed Elder", "Retired Chief") and every other field of the entry are unchanged. The grave dialog's epitaph editing is unchanged: a typed epitaph replaces the pick as in the stock game. The game's string table (Assets/sm.xml) is not changed, so the usual epitaph is whatever string 0x305 says in the installed text, as in the stock game. Graves that v1.35.58 and v1.35.59 wrote as "Devoted Soul" are never rewritten, and the Deaths log records already written keep them; the patch id is unchanged (vv5_devoted_soul_epitaph), so selections and Owner's Defaults made before the rename still tick it.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Checked Skill Preferences are listed as Jobs on Graves (`vv5_preferred_job_graves`)
+
+A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: "Untrained" below 20, else "Trainee", "Adept" or "Master" by the game's own values (and "Apprentice" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: an Esteemed Elder still gets "Esteemed Elder", the Retired Chief "Retired Chief", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death. **Needs no other patch.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: New Believers's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock. The epitaph is picked from that job.
+- Explicit non-changes/exclusions: The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed. The child byte is set from the age as soon as it is read, setl / sete write their bytes directly, the cause is read through ebx (the same address), the best-skill call's pointer is the strncpy argument slot about to be dropped, and the last age test reads the roster entry's age (the same value). Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known).
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.

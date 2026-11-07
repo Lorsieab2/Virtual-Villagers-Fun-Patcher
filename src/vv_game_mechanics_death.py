@@ -328,6 +328,35 @@ def apprentice_line(village: gm.Village, jobs: str) -> str:
         "log's Grave line says the same"))
 
 
+PREFERRED_ROW = "vv{}_preferred_job_graves"
+# The titles each game picks as the epitaph before the job (a grave's Job line is never a title in any game).
+PREFERRED_TITLES = {
+    1: "A New Home shows no title on a grave",
+    2: "an Esteemed Elder (totem) still gets \"Esteemed Elder\" and a child under 18 a children's epitaph",
+    3: "the Tribal Chief still gets \"Wise and Beloved Chief\", an Esteemed Elder \"Esteemed Elder\" and a child under "
+       "18 a children's epitaph",
+    4: "a Scholar still gets \"Scholar\" and a child under 18 a children's epitaph",
+    5: "an Esteemed Elder still gets \"Esteemed Elder\", the Retired Chief \"Retired Chief\" and a child under 18 a "
+       "children's epitaph",
+}
+
+
+def preferred_line(village: gm.Village) -> str:
+    """Every game: "Checked Skill Preferences are listed as Jobs on Graves" (the owner: "self-explanatory, except
+    when a title overrides it")."""
+    game = village.game
+    epitaph = ("the Cause of Death companion's epitaph follows that job" if game == 1
+               else "the epitaph is picked by that job")
+    return "Job with a skill preference: " + gm.patch_words(
+        village, PREFERRED_ROW.format(game),
+        "a villager who dies with a skill preference checked on the Villager Details screen gets the grave Job of "
+        "that skill, with that skill's value for the rank (Untrained below 20, Apprentice for a child where the "
+        f"game draws it); with none, the highest skill as above; {epitaph}; titles still win: "
+        f"{PREFERRED_TITLES[game]}. Graves made before keep what they were given; Repair Saves & Logs rewrites "
+        "them (and their Deaths log lines) where the save still holds the villager's preference at death. Epitaphs "
+        "are matched in English, so a grave whose epitaph a translated game wrote keeps it")
+
+
 def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int,
            nature: int = 0) -> list[gm.Fact]:
     """The Secret City's, The Tree of Life's and New Believers' lines (the addresses above); `nature`: The Secret
@@ -428,6 +457,7 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         "\"Dedicated to Others\", Scientist \"Dedicated Student\" or \"Inspired Inventor\", Builder \"Inspired "
         f"Architect\" or \"Strong Arms, Big Heart\"; {c['default']}. The player can type a new one (31 characters "
         "at most) on the grave.")
+    add(preferred_line(village))
     if game == 4:
         add("The mausoleum's ghosts are not the dead coming back: each ghost visit makes a new ghost with no name and "
             "the sex, age at death, head and body of one grave picked at random from the Roster of the Dead (every "
@@ -632,6 +662,7 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
                 "\"Golden Child\" under Job (the game's own words, as his villager panel shows them) and so does "
                 "his Death record; that patch always gives him one of the two child epitaphs, \"Curious and "
                 "Playful\" or \"Loving and Special\" (50% each)"))
+    add(preferred_line(village))
     if game == 2:
         fix = "vv2_fix_vanilla_bugs"
         if village.has(fix) is not False:

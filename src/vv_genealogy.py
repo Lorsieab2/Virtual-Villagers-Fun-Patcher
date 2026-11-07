@@ -125,7 +125,8 @@ class Person:
     faction_seen: tuple | None = None
     left_heathen: bool = False
     # The jobs they are a Master of ("Farmer", "Doctor"...): the living by the save's skills now (save_masters),
-    # the dead by their grave's line (its best skill only).  Current, not ever held: the save keeps no history.
+    # the dead by their grave's line (its job: the best skill, or the checked preference with Checked Skill
+    # Preferences are listed as Jobs on Graves).  Current, not ever held: the save keeps no history.
     masters: list[str] = field(default_factory=list)
     # A parent "Hide unconverted Heathens" left off the tree: "Father" / "Mother" -> their name (without_heathens).
     hidden_parents: dict = field(default_factory=dict)

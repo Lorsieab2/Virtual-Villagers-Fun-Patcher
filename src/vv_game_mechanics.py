@@ -751,6 +751,17 @@ def patch_words(village: "Village", feature: str, effect: str) -> str:
     return f"The patcher's {name} is {'in' if has else 'not in'} the game" + (f": {effect}." if has else ".")
 
 
+def flat_pick_mastery(village: "Village", feature: str, has: bool | None, levels) -> str:
+    """The Food Mastery line's patched pick (The Tree of Life's blackberries, New Believers' noni) with "Food Gains
+    are Flat, like VV1-3 (Harder Games)": 7, 3 or 2 on Fast, Normal or Slow and 4 while catching up, each at Food
+    Mastery level 1 -> 2 -> 3 (`levels`); the stock pick comes first in the line.  "" when it is not in the game."""
+    if has is False:
+        return ""
+    where = "" if has else " (whether the game has it could not be told)"
+    return (f" With \"{feature_name(feature)}\"{where}: a pick {levels(7)} on Fast, {levels(3)} on Normal, "
+            f"{levels(2)} on Slow and {levels(4)} while catching up.")
+
+
 @dataclass
 class PatchSource:
     """Which of the patcher's patches are in the game, and where that was read (the owner, 2026-10-23: from the
@@ -841,6 +852,11 @@ def _from_exe(exe: Path, game: int) -> frozenset[str] | None:
             edits = feature.raw.get("patches") or []
             if edits and fp._patches_present(data, edits):
                 found.add(feature.id)
+        # 2-10x Tech Cost writes each price as its stock value x the player's multiplier, not the manifest's x 3
+        # bytes: it is in the exe when every price site holds one multiplier from 2 to 10.
+        import vv_game_mechanics_tech_time as tech_time
+        if tech_time.multiplier_in_bytes(game, data):
+            found.add(tech_time.multiplier_feature(game))
         return frozenset(found)
     except Exception:  # noqa: BLE001 -- a catalog or exe that cannot be read tells nothing
         return None
@@ -952,6 +968,8 @@ def items_facts(village: "Village") -> list[Fact]:
     # about it at all); each module gives it one line of its own.
     if village.has(f"vv{village.game}_super_secret_golden_mushroom") is not True:
         found = [fact for fact in found if "golden mushroom" not in fact.text.lower()]
+    # 2-10x Tech Cost: each technology level's price, stock then multiplied (src/vv_game_mechanics_tech_time.py).
+    found = importlib.import_module("vv_game_mechanics_tech_time").multiplied_item_facts(village, found)
     # The same topics on every tab (the owner, 2026-10-27: "Same between the virtual villagers games"): a topic another
     # game has and this one does not gets one "Not in" line (src/vv_game_mechanics_parity.py).
     found += importlib.import_module("vv_game_mechanics_parity").parity_facts(village)

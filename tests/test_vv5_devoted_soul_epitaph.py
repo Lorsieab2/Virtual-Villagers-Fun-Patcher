@@ -404,8 +404,17 @@ class RenderTests(unittest.TestCase):
                 with self.subTest(mode=mode, with_256=with_256):
                     rendered = bytes(patcher.render_patched_bytes(STOCK, BUILD, mode, ids)[0])
                     self.assertEqual(rendered[START - BASE: END - BASE], gen.build_block())
+                    # Checked Skill Preferences are listed as Jobs on Graves recodes the writer's grave-write
+                    # block (0x464CC5..0x464D31), before the epitaph block: its own bytes, checked by its test.
+                    preferred = set()
+                    for p in json.loads((ROOT / "data" / "vv5_preferred_job_graves_feature.json").read_text(
+                            encoding="utf-8"))["patches"]:
+                        off = int(p["offset"], 16)
+                        preferred.update(range(off, off + len(p["after"]) // 2))
+                        self.assertEqual(rendered[off:off + len(p["after"]) // 2].hex().upper(), p["after"])
+                    self.assertFalse(preferred & set(range(START - BASE, END - BASE)))
                     for o in writer:
-                        if not START - BASE <= o < END - BASE:
+                        if not START - BASE <= o < END - BASE and o not in preferred:
                             self.assertEqual(rendered[o], stock[o], hex(o))
                     if HAVE_EMULATOR:   # and it runs there: the full build's own rand and fetch
                         image = pefile.PE(data=rendered, fast_load=True).get_memory_mapped_image()

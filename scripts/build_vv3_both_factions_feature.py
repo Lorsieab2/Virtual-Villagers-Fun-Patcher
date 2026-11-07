@@ -38,7 +38,8 @@ def main() -> None:
         "description": (
             "Lets a tribe own BOTH the Faction of Nature and the Faction of Magic. Buy one faction on the "
             "Tech screen as usual, then click the other: instead of \"You have already chosen your "
-            "faction!\" it is bought at its normal price in tech points. Buying level 1 of either faction "
+            "faction!\" it is bought at its Tech screen price in tech points (its normal price, times the multiplier "
+            "with the patcher's 2-10x Tech Cost). Buying level 1 of either faction "
             "asks Yes/No: \"With the power of the Fun Patcher, you can now embrace both Nature and Magic "
             "Factions. Use this gift wisely.\" (No buys nothing); levels 2 and 3 are bought without a "
             "question, as before, and both Buy buttons stay as they always are. With both: every level of "

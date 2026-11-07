@@ -206,6 +206,11 @@ FILES = [
     "data/vv2_apprentice_graves_feature.json",
     "data/vv3_apprentice_graves_feature.json",
     "data/vv5_apprentice_graves_feature.json",
+    "data/vv1_preferred_job_graves_feature.json",
+    "data/vv2_preferred_job_graves_feature.json",
+    "data/vv3_preferred_job_graves_feature.json",
+    "data/vv4_preferred_job_graves_feature.json",
+    "data/vv5_preferred_job_graves_feature.json",
     "data/vv5_faith_loss_feature.json",
     "data/vv5_puddles_by_the_lake_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
@@ -244,6 +249,13 @@ FILES = [
     "data/vv4_disable_overview_clouds_feature.json",
     "data/vv5_disable_overview_clouds_feature.json",
     "data/vv3_push_overview_clouds_feature.json",
+    # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
+    "data/vv1_tech_cost_multiplier_feature.json",
+    "data/vv2_tech_cost_multiplier_feature.json",
+    "data/vv3_tech_cost_multiplier_feature.json",
+    "data/vv4_tech_cost_multiplier_feature.json",
+    "data/vv5_tech_cost_multiplier_feature.json",
+    "data/vv4_no_fishing_at_science_2_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
