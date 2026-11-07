@@ -577,8 +577,9 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
                                "the third"),
         food_words="2 food a villager every age unit; on Medium above 2,000 food, or on Hard, 2 more 76% of the "
                    "time; never more on Easy.",
-        trips=[("berry picks", max(2, bush // 130)), ("crop harvests", 7 if farming >= 2 else 0),
-               ("catches", 9 if farming >= 3 else 0)])
+        trips=[("berry picks", max(2, bush // 130), "Berry bush"),
+               ("crop harvests", 7 if farming >= 2 else 0, "Crop field"),
+               ("catches", 9 if farming >= 3 else 0, "Fishing")])
     return ctx
 
 

@@ -892,7 +892,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
                    "eaten, 0x460040); on Medium at 8,000 or more, and "
                    "on Hard at any amount, 2 more 76% of the time; never more on Easy.",
-        trips=[("fruit picks", pick_food), ("honey picks", pick_food), ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed])])
+        # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved; the sea always.
+        trips=[("fruit picks", pick_food if any(s.name.startswith("Tree ") for s in srcs) else 0, "Tree "),
+               ("honey picks", pick_food if _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1 else 0, "Honey"),
+               ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed], "Fishing")])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
                            nature=max(level[5], nature)))

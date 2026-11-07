@@ -258,7 +258,8 @@ LATER = {
         burial_needs="Nobody buries anyone before The Buried Mausoleum is solved. After that, when",
         buriers=" Heathens never bury.",
         skills="Farming, Parenting, Healing, Research, Building, Devotion",
-        jobs="Farmer, Parent, Doctor, Scientist, Builder or Devotee", apprentice="",
+        jobs="Farmer, Parent, Doctor, Scientist, Builder or Devotee",
+        apprentice=" (no \"Apprentice\": a child's grave (under 14 years) shows the same ranks as an adult's)",
         elder=("with three or more skills at 88 or more, \"Esteemed Elder\" (the Retired Chief gets \"Retired "
                "Chief\" once The Heathen Chief is solved)"),
         farmer="Child of the Earth", default="a Devotee or a villager with no skill, \"Respected Citizen\"",
@@ -283,7 +284,9 @@ LATER = {
         buriers="",
         skills="Farming, Parenting, Healing, Research, Building",
         jobs="Farmer, Parent, Doctor, Scientist or Builder",
-        apprentice=" (under 14 years, \"Apprentice\" instead of the rank)",
+        apprentice=(" (under 14 years, \"Apprentice\" instead of the rank, whatever the skill: \"Apprentice "
+                    "Farmer\", \"Apprentice Parent\", \"Apprentice Doctor\", \"Apprentice Scientist\" or "
+                    "\"Apprentice Builder\")"),
         elder="with all five skills at 88 or more, \"Scholar\"",
         farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
     ),
@@ -301,7 +304,8 @@ LATER = {
                       "one lies. When any other"),
         buriers="",
         skills="Farming, Parenting, Healing, Research, Building",
-        jobs="Farmer, Parent, Doctor, Scientist or Builder", apprentice="",
+        jobs="Farmer, Parent, Doctor, Scientist or Builder",
+        apprentice=" (no \"Apprentice\": a child's grave (under 14 years) shows the same ranks as an adult's)",
         elder=("the Tribal Chief, \"Wise and Beloved Chief\"; with three or more skills at 88 or more, \"Esteemed "
                "Elder\""),
         farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
@@ -582,7 +586,7 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
     master = 90 if game == 1 else 88
     jobs = "Farmer, Parent, Scientist, Builder or Doctor" if game == 1 else "Farmer, Parent, Doctor, Scientist or Builder"
     add(f"Job: the villager's best skill, shown \"Untrained\" below 20, else \"Trainee\" below 50, \"Adept\" below "
-        f"{master}, \"Master\" from {master}, with {jobs}.")
+        f"{master}, \"Master\" from {master}, with {jobs}; the normal game has no \"Apprentice\".")
     if game == 1:
         add("Epitaph: the game has none.")
     else:
@@ -598,9 +602,10 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
         extra = ("; it also gives each new grave an epitaph by New Believers' rule (under 18 years \"Curious and "
                  "Playful\" or \"Loving and Special\", otherwise the pair for the grave's job, \"Respected Citizen\" "
                  "with no skill; each pair 50% either way), which the player can retype (31 characters at most)") if game == 1 else ""
+        apprentices = ", ".join(f"\"Apprentice {job}\"" for job in jobs.replace(" or ", ", ").split(", "))
         add(gm.patch_words(village, cod, "the grave shows the recorded cause, a child's grave (under 14 years) says "
-                                         "\"Apprentice\" instead of the rank, and every death goes into the Deaths "
-                                         "log" + extra))
+                                         "\"Apprentice\" instead of the rank, whatever the skill (" + apprentices
+                                         + "), and every death goes into the Deaths log" + extra))
     if game == 2:
         fix = "vv2_fix_vanilla_bugs"
         if village.has(fix) is not False:

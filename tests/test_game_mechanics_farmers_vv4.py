@@ -65,8 +65,11 @@ class ModuleTests(unittest.TestCase):
         self.assertEqual(turns, 4)
         self.assertEqual([t.key for t in trips], ["blackberry picks", "fish in the net", "fruit stomps"])
         page = (ROOT / "src" / "vv_game_mechanics_vv4.py").read_text(encoding="utf-8")
+        # The fruit is measured (Food earned) but left out of Farmers needed: no farmer is sent to it while catching up.
+        self.assertNotIn('("fruit stomps", ', page)
         for trip in trips:
-            self.assertIn(f'("{trip.key}", ', page)
+            if trip.key != "fruit stomps":
+                self.assertIn(f'("{trip.key}", ', page)
             self.assertEqual(trip.success_offset, 34)
             self.assertIsNone(trip.live_food, "the page's own food a trip applies")
             self.assertIsNone(trip.catch_up_food)
@@ -284,7 +287,7 @@ class CatchUpTests(unittest.TestCase):
         self.assertEqual(share, Fraction(83096, 100000))
 
     def test_the_life_tick(self):
-        # 10 uncounted units: 4 job turns for each but the last 2, a meal of 2 each unit, the Fruitwells bonus
+        # 10 uncounted units: 4 job turns for each but the last 2, a meal of 2 each unit, the Cooking Pit bonus
         # (5 food) on rand(100) < Farming - 25 after each unit's turns.
         for kw, rolls, turns, eaten, bonus in (
                 ({}, {FRUITWELLS: 99}, 32, 20, 0),
