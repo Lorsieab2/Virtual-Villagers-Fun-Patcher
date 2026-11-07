@@ -44,6 +44,9 @@ try:
     HAVE_EMULATOR = True
 except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
+    # Placeholders so the module-level tables still load; every test using them is skipped (Codex, #722).
+    UC_X86_REG_EAX = UC_X86_REG_EBP = UC_X86_REG_EBX = UC_X86_REG_ECX = UC_X86_REG_EDI = None
+    UC_X86_REG_EIP = UC_X86_REG_ESI = UC_X86_REG_ESP = None
 
 _spec = importlib.util.spec_from_file_location(
     "build_triple_tech_cost_features", ROOT / "scripts" / "build_triple_tech_cost_features.py")
