@@ -44,6 +44,8 @@ HUT = 0x4D82D8              # the Clothing Hut's building object
 CTOR = 0x431190
 UPDATE = 0x4300E0           # vtable +0x24
 PAINT = 0x430A20            # vtable +0x70, what the load runs after restoring the record
+SAVE, LOAD = 0x42FE80, 0x42FE30  # vtable +0x10 / +0x0C: the 0x1C-byte saved record +0x28..+0x43
+MARK = 0x31                 # the relock mark, a padding byte of that record
 SCIENCE = 0x4D6F5C
 PROGRESS = 0x4D8CA8
 THRESHOLD = 0x4D8B78
@@ -184,8 +186,10 @@ class Hut:
         return self.m.s32(HUT + 0x28), self.m.s32(HUT + 0x2C)
 
     def record(self) -> bytes:
-        """The saved fields other than the state and the stage (+0x28..+0x33, +0x38)."""
-        return bytes(self.m.uc.mem_read(HUT + 0x28, 0xC)) + bytes(self.m.uc.mem_read(HUT + 0x38, 4))
+        """The saved fields other than the state, the stage and the relock mark (+0x28..+0x30, +0x32..+0x33,
+        +0x38)."""
+        return (bytes(self.m.uc.mem_read(HUT + 0x28, 9)) + bytes(self.m.uc.mem_read(HUT + 0x32, 2))
+                + bytes(self.m.uc.mem_read(HUT + 0x38, 4)))
 
     def percent(self) -> int:
         return struct.unpack("<i", struct.pack("<I", self.m.call(PERCENT, MANAGER, 22)))[0]
@@ -265,24 +269,59 @@ class SiteTests(unittest.TestCase):
                 self.assertEqual(hut.m.map_bytes(), blank, "its map area is gone, and only its own")
                 self.assertEqual(hut.progress, progress)
                 self.assertEqual(hut.record(), record, "place and saved fields untouched")
+                self.assertEqual(hut.m.r8(HUT + MARK), 1, "marked as relocked")
                 self.assertEqual(hut.m.r8(HUT + 0x54), 0, "not left dragging")
                 self.assertLess(hut.percent(), 1, "no builder is offered it")
-                # Science 3: back where it was, painted as before, with its points.
+                # Science 3: back where it was, painted as before, with its points -- 0 points included.
                 hut.science(3)
                 hut.update(3)
-                self.assertEqual(hut.state, 3)
-                self.assertEqual(hut.progress, progress)
-                if progress:
-                    self.assertEqual(hut.place, PLACE)
-                    self.assertEqual(hut.record(), record)
-                    self.assertEqual(hut.m.map_bytes(), painted)
-                    self.assertGreaterEqual(hut.stage, 0)
-                    expected = 100 - (2000 - progress) * 100 // 2000
-                    self.assertEqual(hut.percent(), expected - 1 if expected == 100 else expected)
-                else:
-                    # Never built on: the game's own reveal places it again (SetState(3) keeps 0 points).
-                    self.assertEqual(hut.stage, 0)
-                    self.assertNotEqual(hut.m.map_bytes(), blank)
+                self.back_in_place(hut, progress, record, painted)
+
+    def back_in_place(self, hut: Hut, progress: int, record: bytes, painted: bytes) -> None:
+        self.assertEqual(hut.state, 3)
+        self.assertEqual(hut.progress, progress)
+        self.assertEqual(hut.place, PLACE)
+        self.assertEqual(hut.record(), record)
+        self.assertEqual(hut.m.r8(HUT + MARK), 0, "the mark is cleared")
+        self.assertEqual(hut.m.map_bytes(), painted)
+        self.assertGreaterEqual(hut.stage, 0)
+        expected = 100 - (2000 - progress) * 100 // 2000
+        self.assertEqual(hut.percent(), expected - 1 if expected == 100 and progress < 2000 else expected)
+
+    def test_a_relocked_site_saved_and_loaded_comes_back_in_place(self) -> None:
+        """The mark is in the saved record (0x42FE80 / 0x42FE30): a relocked site saved below Science 3 and loaded
+        into a fresh game stays hidden, unpainted, and at Science 3 returns in place."""
+        for progress in (0, 150, 1200):
+            with self.subTest(progress=progress):
+                hut = Hut(True, 2)
+                hut.saved_showing(progress)
+                painted, record = hut.m.map_bytes(), hut.record()
+                hut.update(2)
+                buffer = Machine.SCRATCH + 0x4000
+                self.assertEqual(hut.m.call(SAVE, HUT, buffer, 0x1C), 0x1C)
+                saved = bytes(hut.m.uc.mem_read(buffer, 0x1C))
+                self.assertEqual(saved[MARK - 0x28], 1)
+                again = Hut(True, 2)
+                blank = again.m.map_bytes()
+                again.m.uc.mem_write(buffer, saved)
+                again.m.w32(PROGRESS, progress)
+                self.assertEqual(again.m.call(LOAD, HUT, buffer), 0x1C)
+                again.update(2)
+                self.assertEqual((again.state, again.stage, again.progress), (4, -1, progress))
+                self.assertEqual(again.m.map_bytes(), blank)
+                again.science(3)
+                again.update(3)
+                self.back_in_place(again, progress, record, painted)
+
+    def test_stock_saves_hold_no_mark(self) -> None:
+        """A stock game's record has 0 at +0x31 (the static object starts at 0 and no stock code writes it), so a
+        stock save's hidden site is a new site to the patched reveal."""
+        hut = Hut(False, 1)
+        hut.update(2)
+        hut.m.w32(SCIENCE, 2)
+        hut.update(2)
+        self.assertEqual(hut.state, 3)
+        self.assertEqual(bytes(hut.m.uc.mem_read(HUT + 0x31, 3)), b"\0\0\0")
 
     def test_the_stock_game_keeps_a_showing_site_at_science_2(self) -> None:
         hut = Hut(False, 2)
