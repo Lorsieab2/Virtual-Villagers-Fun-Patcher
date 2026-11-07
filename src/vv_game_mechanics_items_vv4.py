@@ -318,7 +318,11 @@ def _buildings() -> list[Entry]:
             "it " + _ch(70) + " of the time, otherwise says \"This hut is still in good repair.\" Fixing trains "
             "Building and adds nothing to the hut."), VERIFIED_C,
             ((patch("vv4_builders_fix_huts") + ": builders build first and fix huts when no building can be worked "
-              "on.", UNCONFIRMED),)),
+              "on.", UNCONFIRMED),
+             ("The test is the Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all "
+              "finished.", VERIFIED_C),
+             (patch(NO_FISHING) + ": the Clothing Hut waits for Science level 3, so the game's own hut fixing does "
+              "too (Builders Fix Huts When Idle does not wait for it).", VERIFIED_C))),
         Entry(BUILDING, "The Fire Pit", (
             "lit, it burns 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
             "the pit again while it burns starts that time over. While it burns each research session gives 1 more "
@@ -431,7 +435,9 @@ def _items() -> list[Entry]:
             "a villager dropped on the finished Clothing Hut, with at least 5,000 tech points in store, gets new "
             "clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."), VERIFIED_C,
             (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),)),
+              "the deduction itself was not traced.", UNCONFIRMED),
+             (patch(NO_FISHING) + ": the Clothing Hut, and so new clothes (0x46F75B: only a finished Clothing Hut "
+              "gives them), waits for Science level 3.", VERIFIED_C))),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below full health, with food in storage, eats 1 food and regains 1 health 50.05% of the "
             "time."), VERIFIED_E),

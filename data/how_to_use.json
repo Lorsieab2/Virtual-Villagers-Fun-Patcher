@@ -210,7 +210,8 @@
         "Off by default. The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
         "Without the Clothing Hut there is no cloth, and without cloth the fishing nets cannot be mended, so fish come later.",
         "A site already showing in your village hides until Science 3, then comes back with all its building kept.",
-        "A finished Clothing Hut stays as it is."
+        "A finished Clothing Hut stays as it is.",
+        "New clothes, and builders fixing huts on their own, wait for the Clothing Hut too (unless Builders Fix Huts When Idle is ticked)."
       ]
     },
     {

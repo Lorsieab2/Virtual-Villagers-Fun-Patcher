@@ -1273,7 +1273,7 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 **No Fishing at Science Level 2**
 
-The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. Off by default (it makes the game harder); Owner's Defaults ticks it.
+The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder); Owner's Defaults ticks it.
 
 - Patch ID: `vv4_no_fishing_at_science_2`
 

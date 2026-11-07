@@ -44,6 +44,7 @@ HUT = 0x4D82D8              # the Clothing Hut's building object
 CTOR = 0x431190
 UPDATE = 0x4300E0           # vtable +0x24
 PAINT = 0x430A20            # vtable +0x70, what the load runs after restoring the record
+SAVE, LOAD = 0x42FE80, 0x42FE30  # vtable +0x10 / +0x0C: the object's 0x1C-byte saved record +0x28..+0x43
 SCIENCE = 0x4D6F5C
 PROGRESS = 0x4D8CA8
 THRESHOLD = 0x4D8B78
@@ -288,6 +289,36 @@ class SiteTests(unittest.TestCase):
                     self.assertEqual(hut.percent(), 0)
                     self.assertEqual(hut.stage, 0)
                     self.assertNotEqual(hut.m.map_bytes(), blank, "painted where the game placed it")
+
+    def test_a_site_saved_while_relocked_stays_hidden_after_load_and_returns_at_science_3(self) -> None:
+        """Relocked (state 4) with points, saved with the game's own save 0x42FE80, loaded into a fresh game with
+        its own load 0x42FE30 (which paints a site unless it is in state 4): hidden and unpainted at Science 2,
+        back at Science 3 in the same place, painted as before, with its points."""
+        for progress in (1, 150, 399, 400, 1200, 1999):
+            with self.subTest(progress=progress):
+                hut = Hut(True, 2)
+                hut.saved_showing(progress)
+                painted, record = hut.m.map_bytes(), hut.record()
+                hut.update(2)
+                self.assertEqual(hut.state, 4)
+                buffer = Machine.SCRATCH + 0x4000
+                self.assertEqual(hut.m.call(SAVE, HUT, buffer, 0x1C), 0x1C)
+                saved = bytes(hut.m.uc.mem_read(buffer, 0x1C))
+                again = Hut(True, 2)
+                blank = again.m.map_bytes()
+                again.m.uc.mem_write(buffer, saved)
+                again.m.w32(PROGRESS, progress)
+                self.assertEqual(again.m.call(LOAD, HUT, buffer), 0x1C)
+                again.update(3)
+                self.assertEqual((again.state, again.stage, again.progress), (4, -1, progress))
+                self.assertEqual(again.m.map_bytes(), blank, "not painted by the load")
+                self.assertLess(again.percent(), 1)
+                again.science(3)
+                again.update(3)
+                self.assertEqual((again.state, again.progress, again.place), (3, progress, PLACE))
+                self.assertEqual(again.record(), record)
+                self.assertEqual(again.m.map_bytes(), painted)
+                self.assertGreaterEqual(again.stage, 0)
 
     def test_the_stock_game_keeps_a_showing_site_at_science_2(self) -> None:
         hut = Hut(False, 2)
