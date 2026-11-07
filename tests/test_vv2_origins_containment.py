@@ -76,6 +76,9 @@ REMAINING = {
     # Children's Graves Say Apprentice: the grave panel's rank pick re-encoded in
     # place; owns no Origins bytes
     "vv2_apprentice_graves",
+    # Checked Skill Preferences are listed as Jobs on Graves: the burial writer
+    # re-encoded in place; owns no Origins bytes
+    "vv2_preferred_job_graves",
 }
 
 

@@ -365,7 +365,7 @@ DESCRIPTION = (
     "where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the "
     "highest skill, as before. {epitaph}Titles still win: {titles}. Only graves made from now on change; for older "
     "graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the "
-    "villager's preference at death.")
+    "villager's preference at death. **Needs no other patch.**")
 EPITAPH = {1: "With Show Cause of Death and Age at Death on Graves, the epitaph it gives follows the same job. ",
            2: "The epitaph follows the same job. ", 3: "The epitaph follows the same job. ",
            4: "The epitaph follows the same job. ", 5: "The epitaph follows the same job. "}
@@ -416,7 +416,8 @@ def feature(game: int) -> dict:
 def main() -> int:
     for game in range(1, 6):
         path = ROOT / "data" / f"vv{game}_preferred_job_graves_feature.json"
-        path.write_text(json.dumps(feature(game), indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        path.write_text(json.dumps(feature(game), indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
+                        newline="\n")
         print(path.relative_to(ROOT))
     return 0
 

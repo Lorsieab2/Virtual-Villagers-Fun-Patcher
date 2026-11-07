@@ -538,10 +538,9 @@ def approve_repair(
     # The graves given their villager's skill preference (Checked Skill Preferences are listed as Jobs on Graves):
     # the save first, so a refused or failed write leaves every log as it was.
     if "apprentice" in chosen:
-        import vv_graves
         try:
             additions.write_preferred_graves(folder, game, slot, kinds, chosen, now)
-        except vv_graves.GraveError as exc:
+        except LogToolError as exc:
             raise LogToolError(f"{exc} Nothing else was repaired; the backup is in {backup.backup_folder}.") from exc
     added = additions.apply(folder, kinds, chosen, answers or {})
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the

@@ -1541,7 +1541,10 @@ def write_preferred_graves(folder: Path, game: int, slot: int, kinds: list[Kind]
     kind = next((k for k in kinds if k.id == "apprentice"), None)
     if kind is None or "apprentice" not in chosen or not kind.context.get("graves"):
         return 0
-    return vv_graves.write_preferred(Path(folder), game, slot, kind.context["graves"], now)
+    try:
+        return vv_graves.write_preferred(Path(folder), game, slot, kind.context["graves"], now)
+    except vv_graves.GraveError as exc:
+        raise tools.LogToolError(str(exc)) from exc
 
 
 def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> list[Kind]:

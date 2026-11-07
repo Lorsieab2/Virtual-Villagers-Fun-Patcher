@@ -1192,8 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place.
-        self.assertEqual(len(feature_ids), 38)
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with Checked Skill
+        # Preferences are listed as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in
+        # place.
+        self.assertEqual(len(feature_ids), 39)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4152,6 +4154,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_skip_all_intro",
             # Children's Graves Say Apprentice: the grave rank pick re-encoded in place.
             "vv2_apprentice_graves",
+            # Checked Skill Preferences are listed as Jobs on Graves: the burial writer re-encoded in place.
+            "vv2_preferred_job_graves",
             },
         )
         for mode in ALL_MODES:
