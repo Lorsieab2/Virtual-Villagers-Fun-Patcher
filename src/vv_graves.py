@@ -87,7 +87,7 @@ EPITAPHS = (None, "Respected Citizen", "Child of the Earth", "Nature's Friend", 
             "Dedicated to Children", "Guardian of Health", "Dedicated to Others", "Dedicated Student",
             "Inspired Inventor", "Inspired Architect", "Strong Arms, Big Heart", "Curious and Playful",
             "Loving and Special")
-CHILD_AGE = 280                     # under 14 years: "Apprentice" (A New Home, The Lost Children, VV4)
+CHILD_AGE = 280                     # under 14 years: "Apprentice" (VV4 stock; the others with the patcher's row)
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,7 @@ class Layout:
     elder: int | None = None
     chief: int | None = None
     child: int | None = None
-    apprentice: bool = False        # the patcher's / game's "Apprentice" for a child's grave
+    apprentice: bool = False        # the game's (VV4) or the patcher's "Apprentice" for a child's grave
 
 
 LAYOUTS = {
@@ -120,13 +120,14 @@ LAYOUTS = {
               (None, "Farmer", "Parent", "Doctor", "Scientist", "Builder"), 1, 88, epitaph=(0x19, 0x41),
               apprentice=True),
     3: Layout(0xF0C, 500, 0x30, 0x19, 0x1C, 0x20, 0x24,
-              ("Farmer", "Parent", "Doctor", "Scientist", "Builder"), 0, 88, cause=0x2C, chief=0x28, elder=0x29),
+              ("Farmer", "Parent", "Doctor", "Scientist", "Builder"), 0, 88, cause=0x2C, chief=0x28, elder=0x29,
+              apprentice=True),
     4: Layout(0x908, 500, 0x5C, 0x19, 0x1C, 0x28, 0x2C,
               ("Farmer", "Parent", "Doctor", "Scientist", "Builder"), 0, 88, epitaph=(0x38, 0x20), cause=0x34,
               head=0x20, body=0x24, male=0x33, elder=0x31, child=0x32, apprentice=True),
     5: Layout(0x86C, 500, 0x5C, 0x19, 0x1C, 0x28, 0x2C,
               ("Farmer", "Parent", "Doctor", "Scientist", "Builder", "Devotee"), 0, 88, epitaph=(0x38, 0x20),
-              cause=0x34, head=0x20, body=0x24, male=0x33, elder=0x31, child=0x32),
+              cause=0x34, head=0x20, body=0x24, male=0x33, elder=0x31, child=0x32, apprentice=True),
 }
 VV3_STONES = (0x598, 50, 0x2C, 8, 0x20)            # file offset, count, stride, epitaph, field bytes
 EPITAPH_ROOM = {1: 31, 2: 64, 3: 31, 4: 31, 5: 31}
@@ -186,7 +187,10 @@ def _text(data, at: int, cap: int) -> str:
 
 
 def grave_line(game: int, job: int, value: int, age: int) -> str:
-    """The skill line the grave shows under "Job" (cod_grave_title / v345_title)."""
+    """The skill line the grave shows under "Job" (cod_grave_title / v345_title).  A child's (under 280 age units,
+    best skill 20 or more) is "Apprentice <job>": The Tree of Life's own, and A New Home's, The Lost Children's, The
+    Secret City's and New Believers' with "Children's Graves Say Apprentice" (on by default); without that row
+    their grave shows the rank, which _grave_lines_agree accepts as the same grave."""
     lay = LAYOUTS[game]
     if not 0 <= job < len(lay.jobs) or lay.jobs[job] is None or value < 20:
         return "Untrained"
@@ -404,6 +408,20 @@ def _same_value(a, b) -> bool:
     return a == b
 
 
+RANKS = ("Trainee", "Adept", "Master")
+
+
+def _grave_lines_agree(game: int, a, b) -> bool:
+    """A child's grave line read here ("Apprentice <job>") and the Death record's, written by a game without
+    "Children's Graves Say Apprentice" ("Trainee <job>" ...), or the other way round: the same grave, as the exe
+    shows it with or without that row.  Nothing else agrees that is not the same text."""
+    if not (isinstance(a, str) and isinstance(b, str)) or game == 4:
+        return False
+    ra, _, ja = a.strip().partition(" ")
+    rb, _, jb = b.strip().partition(" ")
+    return bool(ja) and ja == jb and "Apprentice" in (ra, rb) and (ra in RANKS or rb in RANKS)
+
+
 def _show(value) -> str:
     if value == "" or value is None:
         return "(none)"
@@ -551,6 +569,8 @@ def survey(folder: Path, game: int, slot: int) -> Survey:
                 options = {"the Death record": r, "their last snapshot before they died": s}
             elif gv is None or r is None or _same_value(gv, r):
                 continue
+            elif key == "grave" and g.age < CHILD_AGE and _grave_lines_agree(game, gv, r):
+                continue                        # a child's grave with or without "Children's Graves Say Apprentice"
             elif key == "cause" and isinstance(r, str) and r.startswith(NOT_RECORDED):
                 continue                        # the record says the death was not seen: nothing to choose
             elif key == "cause" and game >= 3 and gv == CAUSE_WORDS[-1] and r == CUSTOM_EVENT_WORDS:

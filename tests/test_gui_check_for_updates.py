@@ -251,6 +251,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
+                                  # the Apprentice repair: the grave rule and which patches the exe has
+                                  "vv_graves", "vv_game_mechanics",
                                   "vv_long_names",             # whole long names (v1.35.89)
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)
@@ -399,7 +401,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                             # The Secret City's audit cites the chance helpers (at_most, chance).
                                             "vv_game_mechanics_chances",
                                             # The Nursery School lines (The Tree of Life).
-                                            "vv_game_mechanics_nursery"})
+                                            "vv_game_mechanics_nursery",
+                                            # The Tree of Life: Food Mastery's rounding for the net's average.
+                                            "vv_game_mechanics_farmers"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",

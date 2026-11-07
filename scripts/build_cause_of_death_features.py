@@ -61,7 +61,7 @@ SITES = {
         ("0x449008", "8B5C2410" "C7860CFDFFFF01000000", "after the burial's grave loop: the Death record, the grave's cause and epitaph"),
         ("0x42E9C3", "C644072800", "an unburied body's removal: the Death record (no grave)"),
         ("0x436700", "5F5E5D5B81C4CC000000", "the grave popup's Draw epilogue: the cause and the epitaph's quotes"),
-        ("0x436565", "8B4360" "8B4B74", "the grave popup's Draw, after it prints the rank: \"Apprentice \" for a child's grave"),
+        ("0x436565", "8B4360" "8B4B74", "the grave popup's Draw, after it prints the rank: \"Apprentice \" for a child's grave (with Children's Graves Say Apprentice)"),
         ("0x436E5C", "C7465C22010000", "the grave popup's constructor end: the editable epitaph box"),
         ("0x436407", "8B442408" "3B4164", "the grave popup's onEvent: Done keeps an edited epitaph"),
         ("0x41979D", "885C0228" "8B8EA4500000", "The Mysterious Face takes a villager: the Disappeared record"),
@@ -89,7 +89,7 @@ SITES = {
         ("0x465334", "C7475801000000", "after the burial's grave loop: the Death record, the grave's cause"),
         ("0x43B78D", "C644383000", "an unburied body's removal: the Death record (no grave)"),
         ("0x444790", "8B8D84000000", "the grave panel's Draw, after its Age line: the cause"),
-        ("0x4445CB", "8B5560" "8B4578", "the grave panel's Draw, after it prints the rank: \"Apprentice \" for a child's grave"),
+        ("0x4445CB", "8B5560" "8B4578", "the grave panel's Draw, after it prints the rank: \"Apprentice \" for a child's grave (with Children's Graves Say Apprentice)"),
         ("0x444433", "8B4E60" "8B5678", "the grave panel's Done, before it keeps the epitaph: the old text"),
         ("0x44445C", "B001" "5E" "C20800", "the grave panel's Done, after: the Epitaph changed record"),
         ("0x433E9B", "46" "C6403000", "A Dangerous Mission takes a villager: the Disappeared record"),
@@ -255,11 +255,13 @@ CAVEATS = (
 # The owner: "for vv1 graves: the job for children should say 'Apprentice
 # _______' instead of trainee/adept/master etc" -- "and vv2 graves";
 # "Children = less than 14 years old".
+# Since 2026-11-06 (the owner: "Apprentice on graves SHOULD BE FOR ALL GAMES THAT DON'T ALREADY HAVE THEM") the
+# rule is its own row, Children's Graves Say Apprentice (scripts/build_apprentice_faith_puddles_features.py), and
+# this companion follows it (cod_apprentice_patched).
 APPRENTICE = (
-    "A child's grave -- a villager who died before the age of 14 -- names their job the way The "
-    "Tree of Life words a child's grave, and the way the game's own villager panel names a working "
-    "child: \"Apprentice Farmer\" rather than Trainee, Adept or Master, on the grave and in the "
-    "Deaths log alike. A child with no skill of 20 or more is \"Untrained\", as before."
+    "With Children's Graves Say Apprentice ticked, a child's grave -- a villager who died before the "
+    "age of 14 -- names their job the way The Tree of Life words a child's grave: \"Apprentice "
+    "Farmer\" rather than Trainee, Adept or Master, and the Deaths log says the same."
 )
 
 
@@ -315,9 +317,9 @@ def manifest(game: str, sha: str) -> dict:
             "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, an edited save); the Custom Island Event's \"dies\" is reported by the Story / Cheat Upgrades companion and recorded as \"Died in a custom island event\".",
             "After the burial's grave loop, the cause recorded for that body is carried to the grave it was given" + (" with an epitaph chosen by the later games' rule" if game == "vv1" else "") + ", and the Death record is written.",
             "The grave popup draws the cause at the later games' height (+0xD7)" + ("; its constructor adds the game's own editable text box for the epitaph (as The Lost Children's panel and the Villager Detail name box are made), drawn between quotes, and Done keeps an edited epitaph in the .dat file." if game == "vv1" else "."),
-            "A child's grave (the age at death the grave keeps under 280 age units, 14 years) whose best skill is 20 or more shows \"Apprentice <job>\": right after the popup prints the rank into its skill line, the game's own \"Apprentice \" string ("
+            "With Children's Graves Say Apprentice in the exe (its recoded rank pick, checked by cod_apprentice_patched), a child's grave (the age at death the grave keeps under 280 age units, 14 years) whose best skill is 20 or more shows \"Apprentice <job>\" (that row draws it; right after the popup prints the rank this companion puts the game's own \"Apprentice \" string ("
             + ("0x56" if game == "vv1" else "0x83")
-            + ", the one its villager panel gives a working child) is put in the line instead, and the game appends the job as before. The Death, Epitaph changed and Recorded from the grave records' Grave line says \"Apprentice <job>\" for the same graves.",
+            + ") in the line too, the same words), and the Death, Epitaph changed and Recorded from the grave records' Grave line says \"Apprentice <job>\" for the same graves. Without that row the grave and the records show the rank.",
             f"Kept per save slot in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Graves\\Virtual Villagers {n} Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
         ]
     else:

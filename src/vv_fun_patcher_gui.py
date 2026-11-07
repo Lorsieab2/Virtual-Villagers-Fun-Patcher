@@ -137,6 +137,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
+    # Faith Loss is Doubled/Gains Halved (New Believers) makes the game harder:
+    # a difficulty change, not content, so it is off by default (the owner,
+    # 2026-11-06: "Default OFF"). Owner's Defaults ticks it, as it ticks every
+    # default-off patch it does not name.
+    + ["vv5_faith_loss_doubled_gains_halved"]
     # The owner: Food Gains are Flat, like VV1-3 (Harder Games) (The Tree of
     # Life, New Believers) is off by default and on in Owner's Defaults.
     + ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"]
@@ -4293,7 +4298,7 @@ class App(tk.Tk):
         try:
             result = self._run_with_wait(
                 "Checking the logs…\n\nNothing is changed.",
-                lambda: vv_log_tools.check_logs(folder, info.slot, number),
+                lambda: vv_log_tools.check_logs(folder, info.slot, number, self._game_folders_for(folder)),
             )
             numbering_lines = self._run_with_wait("Checking the names…\n\nNothing is changed.",
                                                   lambda: self._numbering_report(folder, number, info.slot))
@@ -4414,7 +4419,7 @@ class App(tk.Tk):
         numbers: dict = {"auto": True, "notes": [], "changed": False}
 
         def survey():
-            checked = vv_log_tools.check_logs(folder, info.slot, number)
+            checked = vv_log_tools.check_logs(folder, info.slot, number, self._game_folders_for(folder))
             try:
                 history["plan"] = vv_history_revision.plan(folder, number, info.slot)
             except (vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
@@ -4505,7 +4510,8 @@ class App(tk.Tk):
                         vv_log_tools.LogToolError, ValueError, OSError, struct.error) as exc:
                     totems["note"] = ((totems["note"] + " ") if totems["note"] else "") + (
                         f"{vv_vv2_totem_store.FILE_NAME} was not checked: a file could not be read ({exc}).")
-            return (checked, sum(len(f.fixes) for f in old), vv_log_additions.plan(folder, number, info.slot),
+            return (checked, sum(len(f.fixes) for f in old),
+                    vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder)),
                     cuts, unpaused, speed, misnumbered, graves, lost)
 
         try:
@@ -5039,6 +5045,8 @@ class App(tk.Tk):
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
+                    else f"Rewrite {kind.label[0].lower() + kind.label[1:]}: {len(kind.replaces)} found"
+                    if kind.id == "apprentice"
                     else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
