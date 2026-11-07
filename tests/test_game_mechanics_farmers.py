@@ -103,9 +103,14 @@ class Arithmetic(unittest.TestCase):
         # 8 instead of 4 on (2s + 1)% of catches (0x433360), so a catch is worth 4 + 4 x (2s + 1) / 100 on average.
         src = (ROOT / "src" / "vv_game_mechanics_vv4.py").read_text(encoding="utf-8")
         self.assertIn("golden_share = 0.0 if scales == 0", src)
-        self.assertIn("net_food = 4 * (1 - golden_share) + 8 * golden_share", src)
+        self.assertIn("farmers_mod.boosted(8, multiplier_now)", src)
         _, (fish,) = farmers.supplies(4, {"fish in the net": 4 + 4 * 0.25}, gm.NORMAL, 360.0, 1.0, 1000, 20.0)
         self.assertAlmostEqual(fish.catch_up_food, 5.0)
+        # Codex on #719: at Food Mastery 2 with all 12 scales a catch is 0.75 x 6 + 0.25 x 12 = 7.5, not 7.
+        avg = (0.75 * farmers.boosted(4, 1.5) + 0.25 * farmers.boosted(8, 1.5)) / 1.5
+        _, (fish,) = farmers.supplies(4, {"fish in the net": avg}, gm.NORMAL, 360.0, 1.5, 1000, 20.0)
+        self.assertAlmostEqual(fish.catch_up_food, 7.5)
+        self.assertEqual(farmers.boosted(5, 1.5), 7)          # one gain of 5 is still rounded down
 
     def test_food_mastery_and_speed(self) -> None:
         # The Lost Children's coconuts: live 8, 4 or 2 by speed; 4 while catching up; Food Mastery on both.

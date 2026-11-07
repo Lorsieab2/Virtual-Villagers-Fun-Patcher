@@ -406,7 +406,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     counts = life.collectible_counts(village) or [0] * 48
     scales = sum(1 for c in counts[0:12] if c > 0)
     golden_share = 0.0 if scales == 0 or (village.has(SCALES) is True and scales < 12) else (2 * scales + 1) / 100
-    net_food = 4 * (1 - golden_share) + 8 * golden_share
+    # Each outcome is one gain, rounded by Food Mastery on its own before averaging (Codex, #719); the net's trip
+    # food is then that average divided back by the multiplier, so supplies() (which multiplies a float) gives it.
+    import vv_game_mechanics_farmers as farmers_mod
+    multiplier_now = 2.0 if level[FOOD_MASTERY] >= 3 else (1.5 if level[FOOD_MASTERY] == 2 else 1.0)
+    net_food = ((1 - golden_share) * farmers_mod.boosted(4, multiplier_now)
+                + golden_share * farmers_mod.boosted(8, multiplier_now)) / multiplier_now
+    net_food = int(net_food) if golden_share == 0 else float(net_food)
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
