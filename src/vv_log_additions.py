@@ -72,6 +72,8 @@ CHECKED = {
     "misfiled": "the records written before a village was saved, against every save slot's village (its save, "
                 "the save's older generations, its Village History and Village Population), and the "
                 "player's answers",
+    "apprentice": "the Death and Epitaph changed records of villagers who died under 14 years whose Grave (Job) "
+                  "line names a rank, in a game whose exe draws \"Apprentice <job>\" on their graves",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -84,6 +86,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "false_unaccounted": "False Unaccounted record removed",
          "looks_numbers": "Number taken off",
          "misfiled": "Record moved to its own save's log",
+         "apprentice": "Grave line rewritten as Apprentice",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -1401,8 +1404,77 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
     return kind
 
 
-def plan(folder: Path, game: int, slot: int) -> list[Kind]:
-    """Everything older records of this slot's village lack, kind by kind.  Reads only."""
+# ---------------------------------------------------------------------------
+# "Apprentice <job>" in children's Grave lines
+# ---------------------------------------------------------------------------
+#
+# The owner (2026-11-07): "put the "apprentice" in graves as a new Repair Saves/Logs fix" -- in the "Job" part
+# of the grave, nothing else.  A grave in the save keeps the job, the best skill and the age, never the words,
+# so a game with Children's Graves Say Apprentice (or The Tree of Life, which does it itself) already draws
+# "Apprentice <job>" on every child's grave, old ones too.  What still says the rank is the patcher's own Deaths
+# log: the Grave line of a Death record (and of the Epitaph changed records of that grave) written before the
+# row was in the exe.  Those lines, and only those, are rewritten in place: the rank word becomes "Apprentice"
+# for a villager who died under 14 years (280 age units, the record's own "Age at death"); "Untrained" (a best
+# skill under 20), "no grave" and every other line are left as they are.
+
+APPRENTICE_ROWS = {1: "vv1_apprentice_graves", 2: "vv2_apprentice_graves", 3: "vv3_apprentice_graves",
+                   5: "vv5_apprentice_graves"}
+APPRENTICE_AGE = 280
+GRAVE_RANK = re.compile(r"^(  Grave: )(Trainee|Adept|Master) +(\S.*?)\s*$")
+
+
+def apprentice_in_game(folder: Path, game: int, game_folders: list[Path] | None) -> bool | None:
+    """Whether the game that saves into `folder` draws "Apprentice <job>" on a child's grave: The Tree of Life
+    always; the others with their Children's Graves Say Apprentice row in the exe (src/vv_game_mechanics.py
+    patch_source: the patcher's log of the run that made it, else the exe's own bytes).  None: not known."""
+    if game == 4:
+        return True
+    if game not in APPRENTICE_ROWS or not game_folders:
+        return None
+    import vv_game_mechanics as gm
+    found = gm.patch_source(Path(folder), list(game_folders), game)
+    if found.installed is None:
+        return None
+    if APPRENTICE_ROWS[game] in found.installed:
+        return True
+    return False if found.certain else None
+
+
+def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> Kind:
+    """The Grave lines to rewrite as "Apprentice <job>" (see above).  Reads only."""
+    import vv_graves
+    kind = Kind("apprentice", "Children's Grave (Job) lines as \"Apprentice <job>\"")
+    jobs = {job for job in vv_graves.LAYOUTS[game].jobs if job} if game in vv_graves.LAYOUTS else set()
+    villages = current_villages(folder, game, slot)
+    found = []
+    for path in tools.load_checker().log_files(Path(folder)):
+        for b in blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if not (re.match(r"^Death( \d+)?$", b.heading) or b.heading.startswith("Epitaph changed")):
+                continue
+            age = b.int_value("Age at death")
+            at = b.index_of("Grave")
+            if age is None or not 0 <= age < APPRENTICE_AGE or at is None:
+                continue
+            m = GRAVE_RANK.match(b.lines[at - b.start])
+            if m and m.group(3) in jobs:
+                found.append((path, at, f"{m.group(1)}Apprentice {m.group(3)}"))
+    if not found:
+        return kind
+    has = apprentice_in_game(folder, game, game_folders)
+    if has is True:
+        kind.replaces.extend(found)
+    elif has is None:
+        kind.notes.append(f"{len(found)} child's Grave line(s) name a rank; whether this game has Children's Graves "
+                          "Say Apprentice could not be told (no game folder holding its exe was found), so they "
+                          "are left as they are.")
+    return kind
+
+
+def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> list[Kind]:
+    """Everything older records of this slot's village lack, kind by kind.  Reads only.  `game_folders`:
+    where the game's exe may be (the repair window's), for what depends on its patches."""
     folder = Path(folder)
     people = person_blocks(folder, slot, game)
     page, current = population_page(folder, slot, game)
@@ -1422,6 +1494,7 @@ def plan(folder: Path, game: int, slot: int) -> list[Kind]:
         plan_left_tribe(folder, game, slot),
         plan_born_arrived(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
+        plan_apprentice(folder, game, slot, game_folders),
     ]
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))

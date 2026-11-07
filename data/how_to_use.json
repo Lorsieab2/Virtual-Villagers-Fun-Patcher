@@ -1144,7 +1144,7 @@
       "title": "Repair Saves & Logs",
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
-        "Tick what to do, then Repair (backed up first). Reset corrupted skill values. Rewrite old \"?\" names to the real ones.",
+        "Tick what to do, then Repair (backed up first): corrupted skills, old \"?\" names, \"Apprentice\" in children's grave Job lines.",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
         "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",

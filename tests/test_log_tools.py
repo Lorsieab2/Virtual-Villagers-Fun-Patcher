@@ -674,11 +674,11 @@ class GuiTests(unittest.TestCase):
 
     def test_both_run_off_the_main_thread_through_the_module(self) -> None:
         self.assertIn("import vv_log_tools", self.SOURCE)
-        self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
+        self.assertIn("lambda: vv_log_tools.check_logs(folder, info.slot, number, self._game_folders_for(folder))", self.SOURCE)
         # Repair Saves & Logs surveys (the check, the old words, the additions' plan) and repairs
         # through the module, both off the main thread.
-        self.assertIn("checked = vv_log_tools.check_logs(folder, info.slot, number)", self.SOURCE)
-        self.assertIn("vv_log_additions.plan(folder, number, info.slot)", self.SOURCE)
+        self.assertIn("checked = vv_log_tools.check_logs(folder, info.slot, number, self._game_folders_for(folder))", self.SOURCE)
+        self.assertIn("vv_log_additions.plan(folder, number, info.slot, self._game_folders_for(folder))", self.SOURCE)
         self.assertIn("lambda: vv_log_tools.approve_repair(folder, number, info.slot, chosen=chosen,", self.SOURCE)
         self.assertRegex(self.SOURCE, r'self\._run_with_wait\(\s*"Checking the logs')
 
