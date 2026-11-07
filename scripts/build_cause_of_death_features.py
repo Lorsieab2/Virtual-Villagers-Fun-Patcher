@@ -62,6 +62,7 @@ SITES = {
         ("0x42E9C3", "C644072800", "an unburied body's removal: the Death record (no grave)"),
         ("0x436700", "5F5E5D5B81C4CC000000", "the grave popup's Draw epilogue: the cause and the epitaph's quotes"),
         ("0x436565", "8B4360" "8B4B74", "the grave popup's Draw, after it prints the rank: \"Apprentice \" for a child's grave (with Children's Graves Say Apprentice)"),
+        ("0x43667C", "8B1508B64800", "the grave popup's Draw, before it draws the skill line: \"Golden Child\" for the Golden Child's grave (with Children's Graves Say Apprentice)"),
         ("0x436E5C", "C7465C22010000", "the grave popup's constructor end: the editable epitaph box"),
         ("0x436407", "8B442408" "3B4164", "the grave popup's onEvent: Done keeps an edited epitaph"),
         ("0x41979D", "885C0228" "8B8EA4500000", "The Mysterious Face takes a villager: the Disappeared record"),
@@ -265,6 +266,18 @@ APPRENTICE = (
 )
 
 
+# The owner (2026-11-07): "A New Home's Golden Child gets no grave title at all. In case he ever dies due to an
+# island event or something, his job should be "Golden Child" and his epitaph should be either of the default
+# child ones."  A grave keeps no family number (the burial 0x448F8D..0x448FF1 copies only the name, the age, the
+# best skill and its job), so the burial's hook marks his grave (family 199, the record's +0x36C) in the Graves
+# file (flag 2, VCD1 version 3); the Job line is that row's rule, so it needs Children's Graves Say Apprentice.
+GOLDEN = (
+    "**With Children's Graves Say Apprentice ticked too,** the Golden Child's grave says \"Golden Child\" "
+    "under Job (the game's own words, as his villager panel shows them) instead of a skill, and the Deaths "
+    "log says the same."
+)
+
+
 def description(game: str) -> str:
     n = game[-1]
     tail = (f"{CAVEATS} {ORIGINS_BASE_SENTENCE} That base's companion loads this patch's DLL; "
@@ -281,11 +294,12 @@ def description(game: str) -> str:
             "is chosen by the rule those games use at a burial: a child's is \"Curious and "
             "Playful\" or \"Loving and Special\"; an adult's comes from the skill the grave shows "
             "(for example \"Strong Arms, Big Heart\" or \"Inspired Architect\" for a builder); a "
-            "villager with no skill is a \"Respected Citizen\". Those games' Chief, Esteemed Elder "
+            "villager with no skill is a \"Respected Citizen\"; the Golden Child's is always one of the "
+            "two child epitaphs. Those games' Chief, Esteemed Elder "
             "and Scholar epitaphs have no counterpart here and are not used. A New Home keeps "
             "neither, so both are kept for each save slot in a file beside the saves ('Virtual "
             "Villagers Fun Patcher\\Save <n>\\Data\\Graves\\Virtual Villagers 1 Graves - Save <n>.dat'); Start Over "
-            f"deletes it. {APPRENTICE} **Graves dug before this patch was installed get an epitaph the first "
+            f"deletes it. {APPRENTICE} {GOLDEN} **Graves dug before this patch was installed get an epitaph the first "
             "time they are opened, but no cause: how they died was never recorded.** "
             f"{logs_text(n, game)} {tail}"
         )
@@ -315,11 +329,12 @@ def manifest(game: str, sha: str) -> dict:
         changes += [
             "At each site that can kill (the aging step's old-age store and its sickness, hunger and no-food drains; every work injury), a check made before the site's own instructions records the cause when that change takes a living villager's health to 0 or below; the site's instructions then run unchanged.",
             "Every frame, a villager seen alive on an earlier frame who is now a body, with no site having reported the death, is recorded with \"Unknown causes\" (island events, the Gong of Wonder, an edited save); the Custom Island Event's \"dies\" is reported by the Story / Cheat Upgrades companion and recorded as \"Died in a custom island event\".",
-            "After the burial's grave loop, the cause recorded for that body is carried to the grave it was given" + (" with an epitaph chosen by the later games' rule" if game == "vv1" else "") + ", and the Death record is written.",
+            "After the burial's grave loop, the cause recorded for that body is carried to the grave it was given" + (" with an epitaph chosen by the later games' rule (the Golden Child, family 199 at record +0x36C: always \"Curious and Playful\" or \"Loving and Special\", and his grave marked as his: flag 2 in the .dat file, version 3)" if game == "vv1" else "") + ", and the Death record is written.",
             "The grave popup draws the cause at the later games' height (+0xD7)" + ("; its constructor adds the game's own editable text box for the epitaph (as The Lost Children's panel and the Villager Detail name box are made), drawn between quotes, and Done keeps an edited epitaph in the .dat file." if game == "vv1" else "."),
             "With Children's Graves Say Apprentice in the exe (its recoded rank pick, checked by cod_apprentice_patched), a child's grave (the age at death the grave keeps under 280 age units, 14 years) whose best skill is 20 or more shows \"Apprentice <job>\" (that row draws it; right after the popup prints the rank this companion puts the game's own \"Apprentice \" string ("
             + ("0x56" if game == "vv1" else "0x83")
-            + ") in the line too, the same words), and the Death, Epitaph changed and Recorded from the grave records' Grave line says \"Apprentice <job>\" for the same graves. Without that row the grave and the records show the rank.",
+            + ") in the line too, the same words), and the Death, Epitaph changed and Recorded from the grave records' Grave line says \"Apprentice <job>\" for the same graves. Without that row the grave and the records show the rank."
+            + (" With that row, the Golden Child's grave (marked at his burial) shows the game's own string 0x5F \"Golden Child\" as its whole skill line: right before the popup draws the line (0x43667C) this companion puts it in the line's buffer, and his records' Grave line says \"Golden Child\"." if game == "vv1" else ""),
             f"Kept per save slot in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Graves\\Virtual Villagers {n} Graves - Save <n>.dat' (written atomically; an unreadable file is set aside, never overwritten; deleted by Start Over).",
         ]
     else:
@@ -342,7 +357,7 @@ def manifest(game: str, sha: str) -> dict:
         "No game value is changed: health, age, the graves, the Roster of the Dead and the save are only read; each detoured site's own instructions run unchanged after the check.",
     ]
     if game == "vv1":
-        non_changes.append("Nothing is written into the game's grave table or a villager record; the cause and epitaph live only in the patcher's .dat file. The epitaph's two-way choices use the companion's own random numbers, never the game's.")
+        non_changes.append("Nothing is written into the game's grave table or a villager record; the cause, the epitaph and the Golden Child's mark live only in the patcher's .dat file. The epitaph's two-way choices use the companion's own random numbers, never the game's.")
     elif game == "vv2":
         non_changes.append("Nothing is written into the game's grave table or a villager record; the cause lives only in the patcher's .dat file.")
     record = {

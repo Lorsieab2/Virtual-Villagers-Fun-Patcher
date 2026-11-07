@@ -622,6 +622,16 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
                  "with no skill; each pair 50% either way), which the player can retype (31 characters at most)") if game == 1 else ""
         add(gm.patch_words(village, cod, "the grave shows the recorded cause, and every death goes into the Deaths "
                                          "log" + extra))
+    if game == 1:
+        # The owner (2026-11-07): the Golden Child's grave says "Golden Child" with a child's epitaph.  The burial
+        # 0x448F8D..0x448FF1 keeps no family number on the grave; the best-skill pick 0x43B520 keeps the first of
+        # tied skills (Parenting); the Cause of Death companion marks his grave at the burial (cod_vv12.inc).
+        add("The Golden Child's grave: the normal game shows his best skill like anyone's; with every skill at 100 "
+            "that is \"Master Parent\" (Parenting comes first among tied skills). " + gm.patch_words(
+                village, APPRENTICE_ROW.format(1), "with \"" + gm.feature_name(cod) + "\" too, his grave says "
+                "\"Golden Child\" under Job (the game's own words, as his villager panel shows them) and so does "
+                "his Death record; that patch always gives him one of the two child epitaphs, \"Curious and "
+                "Playful\" or \"Loving and Special\" (50% each)"))
     if game == 2:
         fix = "vv2_fix_vanilla_bugs"
         if village.has(fix) is not False:

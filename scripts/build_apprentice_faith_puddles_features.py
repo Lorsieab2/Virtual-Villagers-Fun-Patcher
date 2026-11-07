@@ -159,6 +159,25 @@ def grave_block(game: int) -> tuple[bytes, bytes, int]:
     return code, asm(f"je {untr:#x}", je), untr
 
 
+# The owner (2026-11-07): "A New Home's Golden Child gets no grave title at all. In case he ever dies due to an
+# island event or something, his job should be "Golden Child" and his epitaph should be either of the default
+# child ones."  One VV1 grave Job rule, this row's: the Golden Child's grave says the game's own "Golden Child"
+# (string 0x5F, the Villager Detail panel's for family 199, 0x41FBDC).  The grave keeps no family number (the
+# burial 0x448F8D..0x448FF1 copies only the name, the age, the best skill and its job), so the Cause of Death
+# companion marks his grave at the burial and draws the line (cod_vv12.inc vv1_job_line, 0x43667C) -- only while
+# these bytes are in the exe.  This row's bytes are unchanged.
+GOLDEN_DESCRIPTION = (
+    " **With Show Cause of Death and Age at Death on Graves ticked too,** the Golden Child's grave says \"Golden "
+    "Child\" under Job (the game's own words, as his villager panel shows them) instead of a skill, and his "
+    "Deaths log record says the same; that patch also gives him a child's epitaph. It knows his grave from his "
+    "burial, so a Golden Child buried before both patches were installed keeps the skill line on his grave; "
+    "Repair Saves & Logs puts \"Golden Child\" in his Deaths log record.")
+GOLDEN_CHANGE = (
+    "With the Cause of Death companion installed, the Golden Child's grave (family 199 at the burial, marked in that "
+    "companion's Graves file) shows the game's own string 0x5F (\"Golden Child\") as its whole skill line, put in the "
+    "line's buffer right before the popup draws it (0x43667C); his Death record's Grave line says \"Golden Child\".")
+
+
 def apprentice_feature(game: int) -> dict:
     lo, hi, je, untrained, apprentice, trainee, master = GRAVES[game][:7]
     code, jump, untr = grave_block(game)
@@ -171,6 +190,8 @@ def apprentice_feature(game: int) -> dict:
         "own \"Apprentice\" text, so it follows the game's language. Graves are read when shown, so graves made "
         "before you ticked this change too. With Show Cause of Death and Age at Death on Graves, the Deaths log "
         "writes the same line.")
+    if game == 1:
+        description += GOLDEN_DESCRIPTION
     stock_line = f"\"Trainee\" under 50, \"Adept\" under {master}, \"Master\" from {master}, at any age"
     return {
         "id": apprentice_id(game),
@@ -187,7 +208,7 @@ def apprentice_feature(game: int) -> dict:
             f"(\"Apprentice \") before the job's word. Was {stock_line}.",
             "The Cause of Death companion writes the same line into the Deaths log only while these bytes are in the "
             "executable (cod_apprentice_patched), so the grave and its Death record agree.",
-        ],
+        ] + ([GOLDEN_CHANGE] if game == 1 else []),
         "explicit_non_changes": [
             f"The block is recoded in place, same length; the copy call at 0x{hi - 5:X} and everything after it are "
             "unchanged, and no executable space is claimed.",

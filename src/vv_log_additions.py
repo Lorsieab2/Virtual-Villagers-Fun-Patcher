@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 import re
+import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -73,7 +74,9 @@ CHECKED = {
                 "the save's older generations, its Village History and Village Population), and the "
                 "player's answers",
     "apprentice": "the Death and Epitaph changed records of villagers who died under 14 years whose Grave (Job) "
-                  "line names a rank, in a game whose exe draws \"Apprentice <job>\" on their graves",
+                  "line names a rank, in a game whose exe draws \"Apprentice <job>\" on their graves (A New "
+                  "Home's Golden Child: \"Golden Child\", and the child epitaph his grave holds where his record has "
+                  "none)",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -1440,6 +1443,56 @@ def apprentice_in_game(folder: Path, game: int, game_folders: list[Path] | None)
     return False if found.certain else None
 
 
+# A New Home's Golden Child (the owner, 2026-11-07: "his job should be "Golden Child" and his epitaph should be
+# either of the default child ones"): with Children's Graves Say Apprentice his grave's Job line is "Golden Child"
+# (cod_vv12.inc cod_grave_title), so an older Death or Epitaph changed record of his grave -- his Death record names
+# him "Special villager: Golden Child"; the others are his by name and age at death -- gets that Grave line.  A
+# Death record with no epitaph ("(none)") under a real grave gets the child epitaph his grave holds in the Graves
+# file, when it holds one (never a new pick: the grave and its record agree).
+GOLDEN_GRAVE = "Golden Child"
+CHILD_EPITAPHS = ("Curious and Playful", "Loving and Special")
+
+
+def _golden_child_graves(folder: Path, game: int, slot: int, villages) -> tuple[list, list]:
+    """(the Grave lines to rewrite as "Golden Child", the Epitaph lines to fill in).  Reads only."""
+    if game != 1:
+        return [], []
+    import vv_graves
+    import vv_last_names as ln
+    every = [(path, b) for path in tools.load_checker().log_files(Path(folder)) for b in blocks(path)
+             if b.of(slot, game, villages)]
+    deaths = [(path, b) for path, b in every if re.match(r"^Death( \d+)?$", b.heading)]
+    who = {(b.value("Name"), b.int_value("Age at death")) for _, b in deaths
+           if b.value("Special villager") == GOLDEN_GRAVE}
+    if not who:
+        return [], []
+    held: dict[int, str] = {}
+    path = vv_graves.graves_file(folder, game, slot)
+    if path is not None and path.is_file():
+        for e in vv_graves._vcd1_entries(path.read_bytes(), game) or ():
+            if e[0] == 0 and 0 < e[9] < len(vv_graves.EPITAPHS) and vv_graves.EPITAPHS[e[9]] in CHILD_EPITAPHS:
+                held[struct.unpack_from("<I", e, 4)[0]] = vv_graves.EPITAPHS[e[9]]
+    graves, epitaphs = [], []
+    for path, b in every:
+        if not (re.match(r"^Death( \d+)?$", b.heading) or b.heading.startswith("Epitaph changed")):
+            continue
+        name, age = b.value("Name"), b.int_value("Age at death")
+        at = b.index_of("Grave")
+        if (name, age) not in who or at is None:
+            continue
+        grave = b.value("Grave") or ""
+        if grave.startswith("no grave"):
+            continue
+        if grave != GOLDEN_GRAVE:
+            graves.append((path, at, f"  Grave: {GOLDEN_GRAVE}"))
+        at = b.index_of("Epitaph")
+        if at is not None and b.value("Epitaph") in ("", "(none)"):
+            text = held.get(ln.grave_fingerprint(name.encode(GAME_TEXT, "replace"), 0x1C, age))
+            if text is not None:
+                epitaphs.append((path, at, f"  Epitaph: {text}"))
+    return graves, epitaphs
+
+
 def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> Kind:
     """The Grave lines to rewrite as "Apprentice <job>" (see above).  Reads only."""
     import vv_graves
@@ -1460,6 +1513,9 @@ def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path]
             m = GRAVE_RANK.match(b.lines[at - b.start])
             if m and m.group(3) in jobs:
                 found.append((path, at, f"{m.group(1)}Apprentice {m.group(3)}"))
+    golden, epitaphs = _golden_child_graves(folder, game, slot, villages)
+    kind.replaces.extend(epitaphs)
+    found = [f for f in found if (f[0], f[1]) not in {(g[0], g[1]) for g in golden}] + golden
     if not found:
         return kind
     has = apprentice_in_game(folder, game, game_folders)

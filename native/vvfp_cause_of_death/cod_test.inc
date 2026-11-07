@@ -86,6 +86,19 @@ __declspec(dllexport) int __stdcall VvfpCauseTestGrave(int slot, int *cause, int
     return 1;
 }
 
+/* A New Home: grave `slot`'s Job line as the Deaths log and the popup give it
+   (cod_grave_title), into `out` (64 bytes); returns 1 when the grave is the
+   Golden Child's (cod_slot_golden: what the popup's 0x43667C hook tests). */
+__declspec(dllexport) int __stdcall VvfpCauseTestGraveTitle(int slot, char *out) {
+    const unsigned char *grave;
+    out[0] = '\0';
+    if (g_game != 1 || (grave = cod_grave(slot)) == NULL) {
+        return 0;
+    }
+    cod_grave_title(grave, out);
+    return cod_slot_golden(slot, grave);
+}
+
 /* The Secret City's, The Tree of Life's and New Believers' Roster of the
    Dead (and The Secret City's gravestones) at the harness's own addresses
    (cod_backfill.inc). */
