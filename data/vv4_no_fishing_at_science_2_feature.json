@@ -1,0 +1,83 @@
+{
+  "id": "vv4_no_fishing_at_science_2",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "No Fishing at Science Level 2",
+  "description": "**Needs no other patch.** Makes fishing come later, so the game is harder; off by default. In the base game buying Science level 2 (8,000 tech points) makes the Clothing Hut's building site appear, and the Clothing Hut is what lets your villagers make cloth (Cloth Invented) and mend the fishing nets with it (Fishing Nets) -- so fish come early. With this patch the Clothing Hut's site appears only at Science level 3 (70,000 tech points). A village whose Clothing Hut site is already showing, with or without some building done, while Science is below 3 gets the site locked again: it disappears and nobody builds it until Science reaches 3; then it comes back in the same place with all the building it already had. Nothing is reset or lost. A Clothing Hut that is already finished is never affected.",
+  "output_tag": "No Fishing at Science 2",
+  "behavior_changes": [
+    "The Clothing Hut's site (project 22, object 0x4D82D8) is revealed by its predicate 0x430CF0 at Science 3 (stock: Science 2, i.e. above 1), and only while it was never built on.",
+    "Below Science 3 an unfinished Clothing Hut site that shows (state not 4) is relocked by the update 0x4300E0 (path 0x430156): state 4, its map area erased by the game's own 0x430490; at Science 3 it returns to state 3 in the same place and is repainted. Its progress (0x4D8CA8) is never written.",
+    "Below Science 3 project 22's percent (0x438980) is below 1, so the Building dispatcher (0x463E49) and Builders Fix Huts When Idle never offer it, live or while catching up; a villager on task 15 (building it) drops the task (0x46378D)."
+  ],
+  "explicit_non_changes": [
+    "A finished Clothing Hut, every other building, the tech prices, Cloth Invented and Fishing Nets themselves are unchanged; no save data is written by the patch beyond the site's own state.",
+    "Guarded edits in place: two rewritten stock routines (0x430156, 0x430CF0), one vtable entry, one call, and int3 padding between routines; no executable tail space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the reveal at Science 1/2/3, the relock of a showing site (0 to 1,999 points) and its return at Science 3, a finished hut, project 22's percent and the task-15 continuation are emulated stock and patched on the game's own Clothing Hut object and map in tests/test_vv4_no_fishing_at_science_2.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x30156",
+      "before": "837E3404752A837E081675246A00B95C6F4D00E852E0FEFF83F803751350B95C6F4D00E842E0FEFF83F8037503894634",
+      "after": "837E0816752A833D5C6F4D00037D12A1A88C4D003B05788B4D007D14E91B0E0000807E34047509C6463403EB03CCCCCC",
+      "purpose": "the update's object-22 path 0x430156 (every building passes it; only the Clothing Hut, project 22, is acted on): at Science 3 a hidden site (state 4) becomes state 3 with its progress and place kept, as the stock path did; below Science 3 an unfinished site that is showing is relocked (0x430F92)"
+    },
+    {
+      "offset": "0x30CF0",
+      "before": "8B018B503CFFD283F80475176A00B95C6F4D00E8B8D4FEFF83F8017E06B801000000C333C0C3CCCCCCCCCCCCCCCCCCCC",
+      "after": "31C08079340475123905A88C4D00750A833D5C6F4D00030F9DC0C3833D5C6F4D00030F8DA8F6FFFFB8CF070000C3CCCC",
+      "purpose": "the Clothing Hut's reveal predicate 0x430CF0 (vtable +0x64): reveal at Science 3 (stock: 2), and only a site never built on (state 4, progress 0), so the reveal's SetState(3) never resets progress; then its percent helper 0x430D0B: threshold - 1 below Science 3 (project 22's percent never reaches 1, so no builder is offered the site), else the shared 0x4303C0"
+    },
+    {
+      "offset": "0x8E580",
+      "before": "C0034300",
+      "after": "0B0D4300",
+      "purpose": "the Clothing Hut's vtable +0x34 (0x48E580): 0x4303C0 -> its own percent helper 0x430D0B"
+    },
+    {
+      "offset": "0x30F92",
+      "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "after": "807E34047440C6463404EB08CCCC",
+      "purpose": "relock, 1 of 4 (0x430F92): a site already in state 4 is left alone; else state 4"
+    },
+    {
+      "offset": "0x30FA6",
+      "before": "CCCCCCCCCCCCCCCCCCCC",
+      "after": "807E6100752C89F1EB12",
+      "purpose": "relock, 2 of 4 (0x430FA6): a site not painted (+0x61 set) needs no erase"
+    },
+    {
+      "offset": "0x30FC2",
+      "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "after": "E8C9F4FFFFC6465400EB07CCCCCC",
+      "purpose": "relock, 3 of 4 (0x430FC2): erase the site's map area with the game's own 0x430490; clear the drag flag +0x54 it sets"
+    },
+    {
+      "offset": "0x30FD4",
+      "before": "CCCCCCCCCCCCCCCCCCCCCCCC",
+      "after": "C6466101E9A9F1FFFFCCCCCC",
+      "purpose": "relock, 4 of 4 (0x430FD4): mark it unpainted (+0x61), so Science 3 repaints it; back"
+    },
+    {
+      "offset": "0x32381",
+      "before": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "after": "833D5C6F4D00030F8DD2650000EB66",
+      "purpose": "project 22's finished test for the task-15 continuation (0x432381): below Science 3 answer finished"
+    },
+    {
+      "offset": "0x323F6",
+      "before": "CCCCCCCCCCCCCCCCCCCC",
+      "after": "B001C20400CCCCCCCCCC",
+      "purpose": "...its answer (0x4323F6): al = 1, ret 4"
+    },
+    {
+      "offset": "0x6378D",
+      "before": "E8CE51FDFF",
+      "after": "E8EFEBFCFF",
+      "purpose": "the task-15 continuation 0x463786 (a villager building the Clothing Hut): call 0x432381 instead of 0x438960, so below Science 3 the villager drops the task"
+    }
+  ]
+}
