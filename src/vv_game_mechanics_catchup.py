@@ -238,6 +238,10 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "or 4 on Fast, Normal or Slow). The game's own job choice sends a believer to the noni only once the "
         "granary is made and The Hungry Totem is solved (live: the granary alone); a believer the player dropped on "
         "the noni bushes keeps picking them without the totem (0x46BE86). Fishing gives 4 food, as live.")
+    if village.has("vv5_food_pays_like_earlier_games") is not False:
+        add(gm.patch_words(village, "vv5_food_pays_like_earlier_games",
+                           "a noni pick gives 4 food while catching up, at any speed (live: 7, 3 or 2 on Fast, "
+                           "Normal or Slow), as The Secret City's fruit and honey"))
     add("Research while catching up: nobody researches until The Knowing Totem is solved (live: any time). A "
         "success gives the skill ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, the same at every speed (live: ÷ 11, ÷ 9 or "
         "÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) is skipped, but the 2% chance "
@@ -385,6 +389,10 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
         "play, but nobody stops to be \"Worried about food\". Blackberry picking (the bush ÷ 100, at least 2) and "
         "fishing (4 food) give what they give live.")
+    if village.has("vv4_food_pays_like_earlier_games") is not False:
+        add(gm.patch_words(village, "vv4_food_pays_like_earlier_games",
+                           "a blackberry pick gives 4 food while catching up, at any speed (live: 7, 3 or 2 on Fast, "
+                           "Normal or Slow), as The Secret City's fruit and honey"))
     add("Research while catching up: a success gives the skill ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, the same at "
         "every speed (live: ÷ 11, ÷ 9 or ÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) "
         "is skipped, but the 2% chance of losing 0 to 9 health on each research success stays, as in live play.")

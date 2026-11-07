@@ -4103,6 +4103,54 @@
       ]
     },
     {
+      "id": "vv4_food_pays_like_earlier_games",
+      "game_id": "vv4",
+      "name": "Food Gains are Flat, like VV1-3 (Harder Games)",
+      "description": "Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more.",
+      "output_tag": "Flat Food Gains",
+      "behavior_changes": [
+        "The blackberry pick (job event 13, 0x464464) pays 7 food on Fast, 3 on Normal and 2 on Slow (the speed value game+0x17110: 3, 6 or 10), and 4 while the game catches up time away (the catch-up flag game+0x171A4), instead of the berries ÷ 100 (at least 2).",
+        "The bush loses what the pick paid, as before; the stock clamp at 0 and the end of the bush task below 3 berries are unchanged."
+      ],
+      "explicit_non_changes": [
+        "Food Mastery (0x41D920) still boosts the amount; the Farming check, the trips, the regrowth, the blackberry harvest (job event 14), the fruit, the fish (4) and the Golden Fish (8, job event 17, on its stock (2 x fish scales + 1)% chance), the crabs and the mushrooms are stock.",
+        "Tech points are unchanged. No save data is written."
+      ],
+      "evidence_status": "static exact-build evidence; the pick step emulated on the stock and rendered executables; runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x6446B",
+          "before": "8B8BF8700100B81F85EB51F7E9C1FA058BFAC1EF1F03FA83FF027D05BF02000000",
+          "after": "80BBA4710100006A045F75158B83107101006A075F3C0374086A035F3C0A75014F",
+          "purpose": "blackberry pick (job event 13, 0x464464): the food is 4 while catching up, else 7 / 3 / 2 by the speed value (3 Fast, 10 Slow, any other value 3) instead of max(2, berries / 100); the stock call to the food writer 0x41D920 and the bush subtraction follow"
+        }
+      ]
+    },
+    {
+      "id": "vv5_food_pays_like_earlier_games",
+      "game_id": "vv5",
+      "name": "Food Gains are Flat, like VV1-3 (Harder Games)",
+      "description": "Changes the food sources that scale to a flat gain. A noni pick (stock: the noni ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many noni from the bushes. Hydroponic Farm crops (10, 7 or 4 by speed) and lake fish (4) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: well-stocked bushes no longer pay more.",
+      "output_tag": "Flat Food Gains",
+      "behavior_changes": [
+        "The noni pick (job step 12, 0x46CFCD) pays 7 food on Fast, 3 on Normal and 2 on Slow (the speed value game+0x17D7C: 3, 6 or 10), and 4 while the game catches up time away (the catch-up flag game+0x17E10), instead of the noni ÷ 100 (at least 2).",
+        "The bushes lose what the pick paid, as before; the stock clamp at 0 and the end of the noni job below 3 noni are unchanged."
+      ],
+      "explicit_non_changes": [
+        "Food Mastery (0x41EB40) still boosts the amount; the Farming check, the trips, the regrowth, the crops, the fish and the mushrooms are stock.",
+        "Tech points are unchanged. No save data is written."
+      ],
+      "evidence_status": "static exact-build evidence; the pick step emulated on the stock and rendered executables; runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x6CFD4",
+          "before": "8B8B587D0100B81F85EB51F7E9C1FA058BF2C1EE1F03F283FE027D05BE02000000",
+          "after": "80BB107E0100006A045E75158B837C7D01006A075E3C0374086A035E3C0A75014E",
+          "purpose": "noni pick (job step 12, 0x46CFCD): the food is 4 while catching up, else 7 / 3 / 2 by the speed value (3 Fast, 10 Slow, any other value 3) instead of max(2, noni / 100); the stock call to the food writer 0x41EB40 and the noni subtraction follow"
+        }
+      ]
+    },
+    {
       "id": "vv1_super_secret_golden_mushroom",
       "game_id": "vv1",
       "name": "Super-Secret Golden Mushroom",

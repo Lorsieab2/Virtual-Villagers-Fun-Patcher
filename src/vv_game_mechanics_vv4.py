@@ -32,6 +32,11 @@ BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
+# Food Gains are Flat, like VV1-3 (Harder Games): a blackberry pick pays The Secret City's fruit and honey pick
+# (0x434ABB..0x434AE4: 7, 3 or 2 on Fast, Normal or Slow, 4 while catching up) instead of the berries / 100; the
+# patched step 0x46446B reads the catch-up flag game+0x171A4 and the speed game+0x17110 (any other value: 3).
+FLAT = "vv4_food_pays_like_earlier_games"
+FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
 STORY = "vv4_story_cheat_upgrades"
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
@@ -237,6 +242,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", f"Blackberries: {berries:,} of {BERRY_CAP:,}; picking brings {food(max(2, berries // 100))} food "
                         f"now (the berries ÷ 100, at least 2; picking stops below 3), a harvest {food(min(30, berries))} "
                         f"(the berries, at most 30, before Food Mastery){mastery_words}.", gm.RUNNING)
+    flat = village.has(FLAT)
+    if flat is not False:
+        add("Food sources", gm.patch_words(
+            village, FLAT, f"a blackberry pick brings {food(FLAT_PICK.get(speed, 3))} food on {on} speed instead "
+                           f"(7, 3 or 2 on Fast, Normal or Slow and {FLAT_CATCH_UP} while catching up, as The Secret "
+                           "City's fruit and honey, before Food Mastery) and takes as many berries off the bush; the "
+                           "harvest, Cooking Pit fruit (3), fish from the net (4) and the Golden Fish (8) already pay a "
+                           "fixed amount and are unchanged"), gm.RUNNING)
     add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
                         "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."
                         + mastery_words, gm.RUNNING)
@@ -431,7 +444,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                    "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
         # Farmers needed lists only the sources a farmer is sent to: the bush, and the nets once Fishing Nets is
         # solved.  The fruit is left out: no job turn is sent to it while catching up and no task holds a farmer on it.
-        trips=[("blackberry picks", max(2, berries // 100), "Blackberries"),
+        # With Food Gains are Flat the pick pays FLAT_PICK live and FLAT_CATCH_UP while catching up.
+        trips=[("blackberry picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
+                else max(2, berries // 100), "Blackberries"),
                ("fish in the net", 4 if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
                 "The fishing net")])
     out.extend(life.sections(ctx))

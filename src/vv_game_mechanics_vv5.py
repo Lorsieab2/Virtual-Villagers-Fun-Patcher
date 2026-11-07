@@ -36,6 +36,11 @@ NONI_CAP, CROPS_FULL, CROP_UNITS = 1000, 800, 40
 STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 LEARNING = "vv5_learning_never_fails"
+# Food Gains are Flat, like VV1-3 (Harder Games): a noni pick pays The Secret City's fruit and honey pick
+# (0x434ABB..0x434AE4: 7, 3 or 2 on Fast, Normal or Slow, 4 while catching up) instead of the noni / 100; the
+# patched step 0x46CFD4 reads the catch-up flag game+0x17E10 and the speed game+0x17D7C (any other value: 3).
+FLAT = "vv5_food_pays_like_earlier_games"
+FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
 
 # The audit of 2026-10-25 removed the Other group's sickness, health, conception and skill-check lines: each repeated
 # the exact one under Chances or Births and gender (and the sickness line had Medicine 2 as 0.16%, the code's
@@ -151,6 +156,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"÷ 100, at least 2, before Food Mastery), and takes as many noni. Noni can be picked once the "
                         "granary is built (while catching up, also only once The Hungry Totem is solved: see Time away "
                         "(catch-up)).", gm.RUNNING)
+    flat = village.has(FLAT)
+    if flat is not False:
+        add("Food sources", gm.patch_words(
+            village, FLAT, f"a noni pick gives {FLAT_PICK.get(speed, 3)} food on {on} speed instead (7, 3 or 2 on "
+                           f"Fast, Normal or Slow and {FLAT_CATCH_UP} while catching up, as The Secret City's fruit "
+                           "and honey, before Food Mastery) and takes as many noni; the Hydroponic Farm crops (10, 7 "
+                           "or 4 by speed) and the lake fish (4) already pay a fixed amount and are unchanged"),
+            gm.RUNNING)
     # Job step 13 (0x46D057, min(noni, 30) at once) is inherited code nothing in New Believers queues: never listed
     # (the owner: inherited unused things stay off the page).
     crops = _i32(data, CROPS)
@@ -329,7 +342,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         puzzles=puzzles,
         food_words="2 food a believer every age unit (Heathens skip it), less at 500 or less and 2 more 76% of the "
                    "time on Medium at 8,000 or more and on Hard (the exact odds: Chances).",
-        trips=[("noni picks", max(2, noni // 100), "Noni bushes"),
+        # With Food Gains are Flat the pick pays FLAT_PICK live and FLAT_CATCH_UP while catching up.
+        trips=[("noni picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
+                else max(2, noni // 100), "Noni bushes"),
                ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4, "Fishing at the lake")])
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))

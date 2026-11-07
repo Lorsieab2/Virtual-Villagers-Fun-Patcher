@@ -1325,6 +1325,12 @@ Multiple children can be dropped onto a single mushroom (and collectible) and it
 
 - Patch ID: `vv4_everyone_collects_like_vv1`
 
+**Food Gains are Flat, like VV1-3 (Harder Games)**
+
+Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more. Off by default; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_food_pays_like_earlier_games`
+
 **Super-Secret Golden Mushroom**
 
 Adds a super-secret golden spotted mushroom to the game. You'll have to pick it to see what it does! (Original art found in Virtual Villagers 2's files)
@@ -1520,6 +1526,12 @@ Builders and healers are more likely to do their own work first, at any food lev
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
 
 - Patch ID: `vv5_everyone_collects_like_vv1`
+
+**Food Gains are Flat, like VV1-3 (Harder Games)**
+
+Changes the food sources that scale to a flat gain. A noni pick (stock: the noni ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many noni from the bushes. Hydroponic Farm crops (10, 7 or 4 by speed) and lake fish (4) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: well-stocked bushes no longer pay more. Off by default; Owner's Defaults ticks it.
+
+- Patch ID: `vv5_food_pays_like_earlier_games`
 
 **Super-Secret Golden Mushroom**
 

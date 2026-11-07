@@ -105,6 +105,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
+                  # Food Gains are Flat, like VV1-3 (Harder Games): off by default.
+                  or p in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games")
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
                   # default since the owner's 2026-11-01 rule.
                   # 256 Villagers (Experimental): off by default -- it moves

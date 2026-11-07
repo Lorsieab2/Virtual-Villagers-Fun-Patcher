@@ -104,6 +104,15 @@
       ]
     },
     {
+      "ids": ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"],
+      "guide": [
+        "A harder setting: a blackberry pick (The Tree of Life) or a noni pick (New Believers) pays a flat amount, as The Secret City's fruit and honey do:",
+        "7, 3 or 2 food on Fast, Normal or Slow, and 4 while the game catches up time away (stock: the bush ÷ 100, at least 2, up to 10).",
+        "Food Mastery still multiplies it. The other food sources already pay a fixed amount and are unchanged.",
+        "Nothing to click. Off by default; Owner's Defaults ticks it."
+      ]
+    },
+    {
       "ids": ["vv2_manual_drop_breeding_overrides_birth_control", "vv3_manual_drop_breeding_overrides_birth_control", "vv4_manual_drop_breeding_overrides_birth_control", "vv5_manual_drop_breeding_overrides_birth_control"],
       "guide": [
         "Drop an adult villager on an adult of the opposite sex: a woman aged 50 or older is no longer refused.",
@@ -916,7 +925,8 @@
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
         "This is what a fresh install starts with.",
-        "It does not change the population mode."
+        "It does not change the population mode.",
+        "Food Gains are Flat, like VV1-3 (Harder Games) is off too."
       ]
     },
     "owners_defaults": {
