@@ -21,6 +21,7 @@ import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_faith_vv5 as faith
 import vv_game_mechanics_life as life
+import vv_game_mechanics_nursery as nursery
 import vv_game_mechanics_powers_vv5 as powers
 import vv_save_backup
 
@@ -230,6 +231,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "Statue is solved, +50 at Spirituality 2 and +50 more at 3, and +3 for each piece of the first collectible "
         "set owned while it is incomplete (69 with 23 pieces), then a flat +90 once all 24 are owned (the 24th "
         "piece adds 21), at most 1,000."), gm.RUNNING)
+    out.extend(nursery.lines(village, 5))       # the Nursery School and why children or Heathens gain skills
     out.extend(powers.lines(village))
 
     # -- Food earned ---------------------------------------------------------------------
