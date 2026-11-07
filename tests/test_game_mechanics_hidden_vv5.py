@@ -41,7 +41,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
         ('click', 'No tip spot in the stock game', C, ()),
         ('click', 'Clicking villagers in the tutorial (village)', C, ()),
         ('click', 'Places that show their state (village)', U, ()),
-        ('tip', 'Where the tips appear', C, (C, U, U)),
+        ('tip', 'Where the tips appear', C, (C, U, U, O)),
         ('patcher', 'The tip vine (village screen)', C, (C, C)),
         ('patcher', 'Difficulty (Options dialog)', C, ()),
         ('patcher', 'Upgrades buttons (Tech and Villager Detail screens)', C, (U,)),
@@ -50,7 +50,7 @@ class Hidden5(HiddenChecks, unittest.TestCase):
     )
     TIP_COUNTS = {
         'The 50 random tips (eRandomTip1 to 50; the loading screen draws from the first 30)': {C: 30, U: 20},
-        'The 98 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 63, U: 35},
+        'The 98 tip pop-ups (eTTip tutorial, eTip milestones)': {C: 63, O: 29, U: 6},
     }
     DEAD = (
         'C then D (village screen)',
