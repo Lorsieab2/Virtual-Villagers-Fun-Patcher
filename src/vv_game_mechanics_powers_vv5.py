@@ -119,7 +119,7 @@ EFFECTS = (
       "Heathens in red masks (\"Running from the scary heathen\"): believers walk among the Heathens unchased. The "
       "code agrees with what the owner sees in play. Nothing else a Heathen does reads the fog: its thickness is "
       "read only there and by the fog's own drawing.",
-      "The tribe's villagers: what they do is unchanged. For the 2 minutes they are drawn faded, at 0.6 of their "
+      "The tribe's villagers: what they do is unchanged. For the 2 real-life minutes (real time) they are drawn faded, at 0.6 of their "
       "drawing value (0x41FB74, read only by the villager drawing 0x472186, which gives Heathens 1; Revive raises "
       "the same value from 0 to 1 as the dead rise).",
       "How long the thick fog lasts: until the weather next changes (0x477073), 2 real-life minutes plus the 15, "
@@ -136,7 +136,7 @@ EFFECTS = (
       "value (3, 6 or 10) age units, rounded down, and empties the count (0x47006C, 0x4700E2). That is 6, 3 or 2 "
       "age units each real-life minute on Fast, Normal or Slow, instead of 1 every 3, 6 or 10 real-life minutes: "
       "18, 18 or 20 times as fast.",
-      "Over the 5 minutes that is 4 or 5 such minutes (the fifth falls on the last second): 24 to 30, 12 to 15 or 8 "
+      "Over the 5 real-life minutes (real time) that is 4 or 5 such minutes (the fifth falls on the last second): 24 to 30, 12 to 15 or 8 "
       "to 10 age units on Fast, Normal or Slow (1.2 to 1.5, 0.6 to 0.75 or 0.4 to 0.5 villager years of 20 age "
       "units). Whole minutes the target had already counted toward its next unit when the warp began are paid at the "
       "warp rate at once: up to 13, 16 or 18 more age units (2, 5 or 9 whole minutes at most). In all a warp gives "
@@ -147,14 +147,14 @@ EFFECTS = (
       "birth. Working from 14 (280 age units), having children from 18 (360) and old age come by age, so they come sooner.",
       "Movement and actions: each update of the village runs the target's step 10 times instead of once (0x471EF9), "
       "so the target walks 10 times as far; each timed action started while warped lasts a tenth as long, in whole "
-      "real-life seconds, at least 1 (0x4735AB: 30 seconds become 3, 5 seconds become 1). Work (research's tech "
+      "real-life seconds (real time), at least 1 (0x4735AB: 30 seconds become 3, 5 seconds become 1). Work (research's tech "
       "points, a hut's building points, a harvest's food, the skill checks that raise skills) gives the usual "
       "amount each time; it comes as much more often as the walking and the shorter actions allow, up to 10 times.",
       "The target can be any villager under the pointer: a Heathen moves and acts 10 times as fast but never ages "
       "(0x470077); the dead never age (0x46FF63). Cast on a villager under 14 (280 age units) it earns the "
       "\"Waaay Too Much Sugar\" achievement (\"You used time warp on a child\", 0x41FC44).",
       "While the game is paused nobody ages and the age credit's count is emptied (0x470022), so the paused part of "
-      "the 5 minutes gives no age. The warp is not saved: quitting ends it (0x465207), so time away (catch-up) is "
+      "the 5 real-life minutes (real time) gives no age. The warp is not saved: quitting ends it (0x465207), so time away (catch-up) is "
       "never warped.",
       ("Work event 54 (0x46D3F8) also sets the factor back to 1; which action queues that event was not traced.",
        False),
