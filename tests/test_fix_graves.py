@@ -139,9 +139,23 @@ class WhatEachGameKeeps(unittest.TestCase):
         self.assertEqual(vg.grave_line(1, 4, 95, 200), "Apprentice Builder")
         self.assertEqual(vg.grave_line(2, 3, 60, 1000), "Adept Doctor")
         self.assertEqual(vg.grave_line(3, 0, 10, 1000), "Untrained")
-        self.assertEqual(vg.grave_line(3, 0, 100, 200), "Master Farmer", "The Secret City has no apprentices")
+        # The Secret City and New Believers: "Children's Graves Say Apprentice" (on by default).
+        self.assertEqual(vg.grave_line(3, 0, 100, 200), "Apprentice Farmer")
         self.assertEqual(vg.grave_line(4, 1, 30, 200), "Apprentice Parent")
         self.assertEqual(vg.grave_line(5, 5, 100, 1000), "Master Devotee")
+        self.assertEqual(vg.grave_line(5, 5, 30, 279), "Apprentice Devotee")
+        self.assertEqual(vg.grave_line(5, 5, 19, 100), "Untrained")
+
+    def test_a_childs_rank_line_agrees_with_its_apprentice_line(self):
+        """A record written without "Children's Graves Say Apprentice" names the rank; the grave read here says
+        Apprentice: the same grave.  Only for the same job, and never in The Tree of Life (its own rule)."""
+        for game in (1, 2, 3, 5):
+            self.assertTrue(vg._grave_lines_agree(game, "Apprentice Farmer", "Trainee Farmer"))
+            self.assertTrue(vg._grave_lines_agree(game, "Master Farmer", "Apprentice Farmer"))
+            self.assertFalse(vg._grave_lines_agree(game, "Apprentice Farmer", "Trainee Builder"))
+            self.assertFalse(vg._grave_lines_agree(game, "Apprentice Farmer", "Untrained"))
+            self.assertFalse(vg._grave_lines_agree(game, "Adept Farmer", "Trainee Farmer"))
+        self.assertFalse(vg._grave_lines_agree(4, "Apprentice Farmer", "Trainee Farmer"))
         self.assertEqual(vg.grave_line(4, 5, 100, 1000), "Untrained", "no Devotee before New Believers")
 
     def test_values_the_game_cannot_keep_are_refused(self):

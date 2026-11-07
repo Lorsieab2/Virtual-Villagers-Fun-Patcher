@@ -25,6 +25,7 @@ from vv_fun_patcher_gui import (  # noqa: E402
     DEFAULT_OFF_FUN_PATCH_IDS,
     SELECT_ALL_OFF_FUN_PATCH_IDS,
     default_fun_patch_selection,
+    owners_default_fun_patch_selection,
     select_all_fun_patch_selection,
 )
 
@@ -105,6 +106,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_everyone_collects_like_vv1")
                   or p.endswith("_super_secret_golden_mushroom")
                   or p.endswith("_manual_drop_breeding_overrides_birth_control")
+                  # Faith Loss is Doubled/Gains Halved (New Believers): a difficulty
+                  # change, off by default (the owner, 2026-11-06).
+                  or p == "vv5_faith_loss_doubled_gains_halved"
                   # Food Gains are Flat, like VV1-3 (Harder Games): off by default.
                   or p in ("vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games")
                   # Story / Cheat Upgrades and its cost row are NOT here: on by
@@ -222,8 +226,19 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                              patch_id not in held_back, patch_id)
 
 
-if __name__ == "__main__":
-    unittest.main()
+class NewBelieversAndGravesRowsTests(unittest.TestCase):
+    def test_owners_defaults_tick_the_apprentice_puddle_and_faith_rows(self) -> None:
+        """The owner (2026-11-06): Owner's Defaults keeps Children's Graves Say Apprentice (all four games), Puddle
+        Play Moves to the Lake Shore and Faith Loss is Doubled/Gains Halved ON; the plain defaults leave only the
+        Faith row off (a difficulty change)."""
+        rows = ["vv1_apprentice_graves", "vv2_apprentice_graves", "vv3_apprentice_graves", "vv5_apprentice_graves",
+                "vv5_puddles_by_the_lake", "vv5_faith_loss_doubled_gains_halved"]
+        ids = fun_patch_ids()
+        for patch_id in rows:
+            self.assertIn(patch_id, ids)
+            self.assertTrue(owners_default_fun_patch_selection(patch_id), patch_id)
+            self.assertEqual(default_fun_patch_selection(patch_id),
+                             patch_id != "vv5_faith_loss_doubled_gains_halved", patch_id)
 
 
 class ManuallyOnSentenceTests(unittest.TestCase):
@@ -241,3 +256,7 @@ class ManuallyOnSentenceTests(unittest.TestCase):
                 else:
                     self.assertTrue(text.endswith(gui.MANUALLY_ON))
                     self.assertEqual(text.count(gui.MANUALLY_ON), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

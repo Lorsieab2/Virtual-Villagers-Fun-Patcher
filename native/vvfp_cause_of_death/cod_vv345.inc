@@ -68,7 +68,8 @@ static unsigned char *v345_entry(int slot) {
    "Untrained" with no profession or a best skill under 20; otherwise the
    rank -- "Trainee" under 50, "Adept" under 88, "Master" -- and the
    profession; The Tree of Life calls everyone under 280 age units with a
-   skill of 20 or more an "Apprentice". */
+   skill of 20 or more an "Apprentice", and so do The Secret City and New
+   Believers with "Children's Graves Say Apprentice" (cod_apprentice_patched). */
 static void v345_title(const unsigned char *entry, char *out) {
     const struct v345_layout *l = &V345[g_game];
     int job = *(const int *)(entry + l->e_job);
@@ -79,7 +80,7 @@ static void v345_title(const unsigned char *entry, char *out) {
         lstrcpyA(out, "Untrained");
         return;
     }
-    if (g_game == 4 && age < 0x118) {
+    if (age < 0x118 && cod_apprentice_patched()) {
         rank = "Apprentice";
     } else {
         rank = value < 50 ? "Trainee" : value < 88 ? "Adept" : "Master";

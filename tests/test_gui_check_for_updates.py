@@ -251,6 +251,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
             ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
+                                  # the Apprentice repair: the grave rule and which patches the exe has
+                                  "vv_graves", "vv_game_mechanics",
                                   "vv_long_names",             # whole long names (v1.35.89)
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)

@@ -1,0 +1,99 @@
+{
+  "id": "vv5_faith_loss_doubled_gains_halved",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Faith Loss is Doubled/Gains Halved",
+  "description": "Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck!",
+  "output_tag": "Faith Loss Doubled",
+  "behavior_changes": [
+    "The Faith drift 0x468040 (each believer, once per age unit, live and while catching up; Heathens skipped at 0x472CB7): every loss roll's rand(100) threshold doubled, every gain roll's halved, and the 50% skip of a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged.",
+    "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock game."
+  ],
+  "explicit_non_changes": [
+    "Thirteen immediates and branches inside the routine; no code is added and no executable space is claimed.",
+    "Starting Faith, preaching, Spreading the Word, the Heathen Doctor's cure, The Heathen Chief, the Hydroponic Farm, the Heathen Mommy's puzzle and island events are unchanged."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x6805B",
+      "before": "1E",
+      "after": "3C",
+      "purpose": "food under 10: -1 on rand(100) < 30 -> < 60"
+    },
+    {
+      "offset": "0x6807B",
+      "before": "0A",
+      "after": "14",
+      "purpose": "food 10..250 (and food under 10 when its first roll missed): -1 on rand(100) < 10 -> < 20"
+    },
+    {
+      "offset": "0x6809B",
+      "before": "14",
+      "after": "0A",
+      "purpose": "food 8,000 or more: +1 on rand(100) < 20 -> < 10"
+    },
+    {
+      "offset": "0x680B8",
+      "before": "0F",
+      "after": "1E",
+      "purpose": "a sick believer: -1 on rand(100) < 15 -> < 30"
+    },
+    {
+      "offset": "0x680DA",
+      "before": "1E",
+      "after": "0F",
+      "purpose": "the Tribute Statue solved: +1 on rand(100) < 30 -> < 15"
+    },
+    {
+      "offset": "0x680FD",
+      "before": "14",
+      "after": "0A",
+      "purpose": "the statue's second stage: +1 on rand(100) < 20 -> < 10"
+    },
+    {
+      "offset": "0x6810C",
+      "before": "0A",
+      "after": "05",
+      "purpose": "the statue's first stage: +1 on rand(100) < 10 -> < 5"
+    },
+    {
+      "offset": "0x68139",
+      "before": "1E",
+      "after": "0F",
+      "purpose": "Spirituality 3: +1 on rand(100) < 30 -> < 15"
+    },
+    {
+      "offset": "0x68148",
+      "before": "14",
+      "after": "0A",
+      "purpose": "Spirituality 2: +1 on rand(100) < 20 -> < 10"
+    },
+    {
+      "offset": "0x68157",
+      "before": "0A",
+      "after": "05",
+      "purpose": "Spirituality 1: +1 on rand(100) < 10 -> < 5"
+    },
+    {
+      "offset": "0x68179",
+      "before": "B90C0000002BCF3BC1",
+      "after": "6BCFFE83C1183BC190",
+      "purpose": "fewer than 12 believers: -1 on rand(100) < 12 - n -> imul ecx,edi,-2 / add ecx,24 / cmp eax,ecx: < 2 * (12 - n)"
+    },
+    {
+      "offset": "0x68192",
+      "before": "D1FA8BC2C1E81F03C2",
+      "after": "C1FA028BC290909090",
+      "purpose": "12 or more believers: +1 on rand(100) < n / 5 -> sar edx,2: < n / 10 (n is positive here, so the sign fix-up is not needed)"
+    },
+    {
+      "offset": "0x681AE",
+      "before": "7D",
+      "after": "EB",
+      "purpose": "a fall with Faith under 5 was skipped on rand(100) < 50: jge -> jmp, never skipped"
+    }
+  ]
+}

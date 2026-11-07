@@ -1,0 +1,45 @@
+{
+  "id": "vv5_puddles_by_the_lake",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Puddle Play Moves to the Lake Shore",
+  "description": "When it rains, children in New Believers can go and play in the puddles of the dry lake bed (\"Excited about the puddles\"). Once The Lake holds water the game never sends them there again, because they cannot swim. With this patch, after The Lake is filled, children still go and play when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's three walks goes to a random point along that shore. Before The Lake is filled nothing changes. The action, its text and its length are the game's own.",
+  "output_tag": "Puddles By The Lake",
+  "behavior_changes": [
+    "Both choosers of the puddle play (behaviour 0xEB, \"Excited about the puddles\"), the child-activity case 0x469E4B and the scheduler's 0x46EFB2, start it whenever the rain level [0x718EB8] is 50 or more; stock also needed the lake to hold no water (0x43C5D0) and otherwise started 0xEA.",
+    "0xEB's walk (0x45423B, three times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed (area 0x69, 0x4744C0)."
+  ],
+  "explicit_non_changes": [
+    "Before the lake holds water everything is as stock. The action's text (string 0x238), its gestures, speed and length are unchanged; 0xEA is still chosen when it is not raining.",
+    "Behaviour 0x5F \"Playing in puddles\" (0x4600D0, the waterfall pool), started only by The Missing Kids island event (0x4161AA), is unchanged. No save or villager-record byte is written."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x69E5E",
+      "before": "84C0751E",
+      "after": "32C09090",
+      "purpose": "child-activity chooser 0x469E4B: the lake-holds-water test no longer sends the child to 0xEA (chasing fish) when it rains: test al,al / jne -> xor al,al / nop / nop (al = 0 keeps the start flag as stock)"
+    },
+    {
+      "offset": "0x6EFC5",
+      "before": "84C0751F",
+      "after": "32C09090",
+      "purpose": "scheduler 0x46EFB2: the lake-holds-water test no longer sends the child to 0xEA (chasing fish) when it rains: test al,al / jne -> xor al,al / nop / nop (al = 0 keeps the start flag as stock)"
+    },
+    {
+      "offset": "0x5423B",
+      "before": "E880020200",
+      "after": "E8C00B0400",
+      "purpose": "0xEB's walk: call 0x4744C0 (area 0x69) -> call the shore cave 0x494E00"
+    },
+    {
+      "offset": "0x94E00",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "51E8CA77FAFF5984C074345168FC000000E84AE8F6FF5A59FF74240CFF74240C89C26BD211C1FA06F7DA81C24408000052054405000050E864F7FDFFC20C00E97CF6FDFF",
+      "purpose": "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - (17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)"
+    }
+  ]
+}

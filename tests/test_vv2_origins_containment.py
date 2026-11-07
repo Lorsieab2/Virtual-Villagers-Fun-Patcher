@@ -73,6 +73,9 @@ REMAINING = {
     # the Details name box's limit, width string and copy-back lengths, in place;
     # owns no Origins bytes
     "vv2_details_full_names",
+    # Children's Graves Say Apprentice: the grave panel's rank pick re-encoded in
+    # place; owns no Origins bytes
+    "vv2_apprentice_graves",
 }
 
 
