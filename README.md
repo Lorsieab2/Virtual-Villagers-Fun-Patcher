@@ -26,7 +26,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **New Believers: The Hungry Totem's time on the Puzzles screen** (Fix Vanilla Bugs). The owner, 2026-11-06: the Hungry Totem's completion time was "permanently set to 0 regardless of when you solved it". The game keeps the right time for it (as for every puzzle), but the Puzzles screen's code for that one puzzle skipped the step that reads the time, so it always said "Completed in 0 hours". Now it shows the kept hours; a village that already solved it shows its real time too, since its save always held it. The other 15 puzzles, and the puzzle screens of the other four games, were checked and show their own times. Patch again to get it.
 - **Villagers who get stuck** (Fix Vanilla Bugs). The Lost Children: a villager no longer shuttles forever at the south-east shore on the way to the herb; it tries other spots around it first, then gives up the game's normal way. A New Home, The Secret City, The Tree of Life and New Believers: a villager carrying food or a collectible whose walk gives up looks for another way and still delivers it ("VVFP Stuck Walks.dll", "VVFP Keep Carried.dll"). Proven by running each game's own code; not yet seen in a running game.
-- **Triple Tech Cost** (all five games, off by default; Owner's Defaults and Select All leave it off too): every technology level on the Tech screen costs 3 times its normal tech points, shown, checked and charged alike. Makes the game super hard.
+- **2-10x Tech Cost** (all five games, off by default; Owner's Defaults and Select All leave it off too): every technology level on the Tech screen costs 2 to 10 times its normal tech points, chosen with a slider in the patcher window (3 unless moved), shown, checked and charged alike. The higher you set it, the harder the game.
 - **Skip All on the intro story** (A New Home, The Lost Children): a button on the story pages that goes straight to the game's own help question, as in The Secret City ("VVFP Skip Intro.dll").
 - **Unicode, the same in all five games**: names cut with "…" to fit, never splitting a letter; line breaking by the Unicode rules (Windows' own, or the bundled ICU word lists for Thai, Lao, Khmer and Burmese, Unicode License, in "Word Lists"); joined and combining characters kept whole; colour emoji in more font formats; a longer fallback font list; long names written at once and never lost at a quit; the **Unicode Font...** and **Game Text...** tools; Rename Tribe keeps long names.
 - **No text runs off the screen** when patched or translated: a line too wide for the screen is cut at its edge with "…" (New Believers' 1024-pixel screen included); the Translations window warns about such lines.
@@ -597,11 +597,11 @@ Adds a "Skip All" button to the story shown when a new village starts, as The Se
 
 - Patch ID: `vv1_skip_all_intro`
 
-**Triple Tech Cost**
+**2-10x Tech Cost**
 
-Every technology level on the Tech screen costs 3 times its normal price, in tech points: Farming level 2 6,000 -> 18,000, level 3 50,000 -> 150,000; Fertility level 2 11,000 -> 33,000, level 3 240,000 -> 720,000; Science level 2 12,000 -> 36,000, level 3 150,000 -> 450,000; Medicine level 2 15,000 -> 45,000, level 3 250,000 -> 750,000; Construction level 2 2,500 -> 7,500, level 3 80,000 -> 240,000; Spirituality level 2 5,000 -> 15,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 6,000, level 3 50,000; Fertility level 2 11,000, level 3 240,000; Science level 2 12,000, level 3 150,000; Medicine level 2 15,000, level 3 250,000; Construction level 2 2,500, level 3 80,000; Spirituality level 2 5,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-- Patch ID: `vv1_triple_tech_cost`
+- Patch ID: `vv1_tech_cost_multiplier`
 
 **Manual Drop-Breeding overrides Birth Control**
 
@@ -852,11 +852,11 @@ Adds a "Skip All" button to the story shown when a new village starts, as The Se
 
 - Patch ID: `vv2_skip_all_intro`
 
-**Triple Tech Cost**
+**2-10x Tech Cost**
 
-Every technology level on the Tech screen costs 3 times its normal price, in tech points: Farming level 2 1,500 -> 4,500, level 3 90,000 -> 270,000; Exploration level 2 10,000 -> 30,000, level 3 160,000 -> 480,000; Science level 2 16,000 -> 48,000, level 3 150,000 -> 450,000; Medicine level 2 20,000 -> 60,000, level 3 65,000 -> 195,000; Engineering level 2 5,000 -> 15,000, level 3 75,000 -> 225,000; Culture level 2 20,000 -> 60,000, level 3 85,000 -> 255,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 1,500, level 3 90,000; Exploration level 2 10,000, level 3 160,000; Science level 2 16,000, level 3 150,000; Medicine level 2 20,000, level 3 65,000; Engineering level 2 5,000, level 3 75,000; Culture level 2 20,000, level 3 85,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-- Patch ID: `vv2_triple_tech_cost`
+- Patch ID: `vv2_tech_cost_multiplier`
 
 **Manual Drop-Breeding overrides Birth Control**
 
@@ -1071,11 +1071,11 @@ The clouds that drift over the island on the overview map (the Map button) move 
 
 - Patch ID: `vv3_push_overview_clouds`
 
-**Triple Tech Cost**
+**2-10x Tech Cost**
 
-Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 11,000 -> 33,000, level 3 150,000 -> 450,000; Medicine level 2 8,000 -> 24,000, level 3 75,000 -> 225,000; Alchemy level 2 5,000 -> 15,000, level 3 55,000 -> 165,000; Restoration level 2 7,000 -> 21,000, level 3 85,000 -> 255,000; Leadership level 2 7,000 -> 21,000, level 3 125,000 -> 375,000; Nature level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000; Magic level 1 4,500 -> 13,500, level 2 50,000 -> 150,000, level 3 150,000 -> 450,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs 3 times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 11,000, level 3 150,000; Medicine level 2 8,000, level 3 75,000; Alchemy level 2 5,000, level 3 55,000; Restoration level 2 7,000, level 3 85,000; Leadership level 2 7,000, level 3 125,000; Nature level 1 4,500, level 2 50,000, level 3 150,000; Magic level 1 4,500, level 2 50,000, level 3 150,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs that many times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-- Patch ID: `vv3_triple_tech_cost`
+- Patch ID: `vv3_tech_cost_multiplier`
 
 **Manual Drop-Breeding overrides Birth Control**
 
@@ -1308,11 +1308,11 @@ Hides the clouds that drift over the island on the overview map (the Map button)
 
 - Patch ID: `vv4_disable_overview_clouds`
 
-**Triple Tech Cost**
+**2-10x Tech Cost**
 
-Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 8,000 -> 24,000, level 3 70,000 -> 210,000; Medicine level 2 5,000 -> 15,000, level 3 50,000 -> 150,000; Learning level 2 4,000 -> 12,000, level 3 35,000 -> 105,000; Construction level 2 5,000 -> 15,000, level 3 65,000 -> 195,000; Food Mastery level 2 3,000 -> 9,000, level 3 40,000 -> 120,000; Dendrology level 2 3,000 -> 9,000, level 3 60,000 -> 180,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Dendrology level 2 3,000, level 3 60,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-- Patch ID: `vv4_triple_tech_cost`
+- Patch ID: `vv4_tech_cost_multiplier`
 
 **Optional Text changes**
 
@@ -1498,11 +1498,11 @@ Hides the clouds that drift over the island on the overview map (the Map button)
 
 - Patch ID: `vv5_disable_overview_clouds`
 
-**Triple Tech Cost**
+**2-10x Tech Cost**
 
-Every technology level on the Tech screen costs 3 times its normal price, in tech points: Science level 2 8,000 -> 24,000, level 3 70,000 -> 210,000; Medicine level 2 5,000 -> 15,000, level 3 50,000 -> 150,000; Learning level 2 4,000 -> 12,000, level 3 35,000 -> 105,000; Construction level 2 5,000 -> 15,000, level 3 65,000 -> 195,000; Food Mastery level 2 3,000 -> 9,000, level 3 40,000 -> 120,000; Spirituality level 2 8,000 -> 24,000, level 3 80,000 -> 240,000. The Tech screen shows the tripled price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. **Needs no other patch.** Makes the game super hard.
+Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Spirituality level 2 8,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-- Patch ID: `vv5_triple_tech_cost`
+- Patch ID: `vv5_tech_cost_multiplier`
 
 **Move the "Playing in the dirt" Spot**
 

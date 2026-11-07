@@ -66,7 +66,7 @@ EXPANDED_COMPOSITION_RESULTS = {
 # roundtrip asserted alongside them is the property that actually matters, and
 # it is unaffected by either.
 STOCK_CATALOG_COMPOSITION_RESULTS = {
-    # Re-pinned when Triple Tech Cost (vv3_triple_tech_cost) joined the catalog: rendering the full catalog without
+    # Re-pinned when 2-10x Tech Cost (vv3_tech_cost_multiplier) joined the catalog: rendering the full catalog without
     # that row gives exactly the previous pins in every mode; with it, 43-44 bytes differ, every one inside its 16
     # price-table dwords (0xA8194..0xA81E3) or the PE CheckSum (0x160..0x163); the length is unchanged.
     # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and

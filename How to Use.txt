@@ -472,18 +472,21 @@ those clouds move away from the mouse as they do in The Tree of Life and New
 Believers. While Disable Clouds is ticked the clouds are hidden, so the push
 cannot be seen: untick Disable Clouds to see it.
 
-TRIPLE TECH COST (ALL FIVE GAMES)
+2-10X TECH COST (ALL FIVE GAMES)
 
-Off by default. With Triple Tech Cost, every technology level on the Tech
-screen costs 3 times its normal price in tech points: in A New Home,
-Farming level 2 costs 18,000 instead of 6,000 and Medicine level 3 750,000
-instead of 250,000. The Tech screen shows the tripled price, a level cannot
-be bought with fewer tech points (nothing is spent), and buying takes the
-tripled price. In The Secret City choosing a faction (Nature or Magic) costs
-3 times too. Research, tech points from anywhere else, other tech-point
-costs (such as clothes) and the patcher's own upgrades are unchanged. Default
-Patches, Owner's Defaults and Select All never tick it: only its own box does.
-Makes the game super hard.
+Off by default. With 2-10x Tech Cost, every technology level on the Tech
+screen costs 2 to 10 times its normal price in tech points: you choose how
+many times with the 2-10x Tech Cost slider beside the patch settings (a whole
+number, 3 unless you move it), and it is written into the game when you
+patch. At 3, in A New Home, Farming level 2 costs 18,000 instead of 6,000; at
+10, Medicine level 3 costs 2,500,000 instead of 250,000. The Tech screen
+shows the multiplied price, a level cannot be bought with fewer tech points
+(nothing is spent), and buying takes the multiplied price. In The Secret City
+choosing a faction (Nature or Magic) costs that many times too. Research,
+tech points from anywhere else, other tech-point costs (such as clothes) and
+the patcher's own upgrades are unchanged. The higher you set it, the harder
+the game. Default Patches, Owner's Defaults and Select All never tick it: only
+its own box does. Patch again after moving the slider.
 
 PICTURE STUDIO
 

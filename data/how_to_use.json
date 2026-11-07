@@ -850,13 +850,13 @@
       ]
     },
     {
-      "ids": ["vv1_triple_tech_cost", "vv2_triple_tech_cost", "vv3_triple_tech_cost", "vv4_triple_tech_cost", "vv5_triple_tech_cost"],
+      "ids": ["vv1_tech_cost_multiplier", "vv2_tech_cost_multiplier", "vv3_tech_cost_multiplier", "vv4_tech_cost_multiplier", "vv5_tech_cost_multiplier"],
       "guide": [
-        "Every technology level on the Tech screen costs 3 times its normal tech points: 6,000 becomes 18,000.",
-        "The Tech screen shows the tripled price, and a level cannot be bought with fewer points. Nothing else costs more.",
-        "In The Secret City choosing a faction (Nature or Magic) costs 3 times too.",
-        "Off by default. Default Patches and Owner's Defaults leave it off, and Select All does not tick it: tick it yourself.",
-        "Makes the game super hard."
+        "Every technology level on the Tech screen costs 2 to 10 times its normal tech points: you choose how many with the 2-10x Tech Cost slider.",
+        "At 3, for example, 6,000 becomes 18,000. The higher you set it, the harder the game.",
+        "The Tech screen shows the multiplied price, and a level cannot be bought with fewer points. Nothing else costs more.",
+        "In The Secret City choosing a faction (Nature or Magic) costs that many times too. Patch again after moving the slider.",
+        "Off by default. Default Patches and Owner's Defaults leave it off, and Select All does not tick it: tick it yourself."
       ]
     },
     {
@@ -924,7 +924,7 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "Triple Tech Cost (all five games) is not ticked either: only its own box ticks it.",
+        "2-10x Tech Cost (all five games) is not ticked either: only its own box ticks it.",
         "It does not change the population mode."
       ]
     },
@@ -936,7 +936,7 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "Triple Tech Cost (all five games) and Food Gains are Flat, like VV1-3 (Harder Games) are off: they make the game harder.",
+        "2-10x Tech Cost (all five games) and Food Gains are Flat, like VV1-3 (Harder Games) are off: they make the game harder.",
         "This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
@@ -948,7 +948,7 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
-        "Triple Tech Cost (all five games) stays off here too: only its own box ticks it.",
+        "2-10x Tech Cost (all five games) stays off here too: only its own box ticks it.",
         "It does not change the population mode."
       ]
     },
@@ -966,6 +966,14 @@
         "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
         "Characters the typeface lacks come from Windows' other fonts, then the bundled open fonts (Noto, Unifont, Last Resort).",
         "It does nothing while Render Unicode with In-Game Fonts is used instead."
+      ]
+    },
+    "tech_cost_multiplier": {
+      "title": "2-10x Tech Cost",
+      "guide": [
+        "How many times its normal price every technology level costs with the 2-10x Tech Cost patch: a whole number from 2 to 10, 3 unless you move it.",
+        "It is written into each game the next time you patch with 2-10x Tech Cost ticked; patch again after changing it.",
+        "The higher you set it, the harder the game. It does nothing while 2-10x Tech Cost is not ticked."
       ]
     },
     "patch_selection_settings": {

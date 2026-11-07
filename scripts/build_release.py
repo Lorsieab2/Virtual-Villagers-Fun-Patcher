@@ -238,12 +238,12 @@ FILES = [
     "data/vv4_disable_overview_clouds_feature.json",
     "data/vv5_disable_overview_clouds_feature.json",
     "data/vv3_push_overview_clouds_feature.json",
-    # Triple Tech Cost (all five games; scripts/build_triple_tech_cost_features.py).
-    "data/vv1_triple_tech_cost_feature.json",
-    "data/vv2_triple_tech_cost_feature.json",
-    "data/vv3_triple_tech_cost_feature.json",
-    "data/vv4_triple_tech_cost_feature.json",
-    "data/vv5_triple_tech_cost_feature.json",
+    # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
+    "data/vv1_tech_cost_multiplier_feature.json",
+    "data/vv2_tech_cost_multiplier_feature.json",
+    "data/vv3_tech_cost_multiplier_feature.json",
+    "data/vv4_tech_cost_multiplier_feature.json",
+    "data/vv5_tech_cost_multiplier_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the
