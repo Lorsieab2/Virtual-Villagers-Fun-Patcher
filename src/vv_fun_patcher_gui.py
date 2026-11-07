@@ -135,6 +135,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Manual Drop-Breeding overrides Birth Control (all five games)
     # is "Default-OFF. Owner's-Defaults ON."
     + ["vv%d_manual_drop_breeding_overrides_birth_control" % game for game in range(1, 6)]
+    # The owner: Food Gains are Flat, like VV1-3 (Harder Games) (The Tree of
+    # Life, New Believers) is off by default and on in Owner's Defaults.
+    + ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"]
     # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
     # five games) are NOT here: they are on by default (owner, 2026-11-01:
     # "Anything that costs (money tech points food etc) and anything that adds
@@ -246,6 +249,18 @@ def select_all_fun_patch_selection(patch_id: str) -> bool:
 def default_fun_patch_selection(patch_id: str) -> bool:
     """Whether a fresh install, or the Default Patches button, ticks this."""
     return patch_id not in DEFAULT_OFF_FUN_PATCH_IDS
+
+
+MANUALLY_ON = "**Needs to be manually turned on.**"
+
+
+def row_description(patch) -> str:
+    """A patch row's description; a patch the Default Patches leave unticked ends with MANUALLY_ON (the owner,
+    2026-11-07: "put a "Needs to be manually turned on." for any patch that is unchecked in normal defaults")."""
+    text = patch.description
+    if default_fun_patch_selection(patch.id) or MANUALLY_ON in text:
+        return text
+    return f"{text.rstrip()} {MANUALLY_ON}"
 
 
 def auto_number_tick(auto: bool, misnumbered: bool, ticked: bool, forced: bool) -> tuple[bool, bool]:
@@ -1541,7 +1556,7 @@ class App(tk.Tk):
         )
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
-        RichDescription(frame, patch.description, 620, requirement_font,
+        RichDescription(frame, row_description(patch), 620, requirement_font,
                         description_font, background).grid(row=1, column=0, sticky="w", pady=(0, 3))
         ttk.Label(
             frame,

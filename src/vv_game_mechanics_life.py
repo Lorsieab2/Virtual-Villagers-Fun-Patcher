@@ -235,7 +235,7 @@ class Context:
     food_words: str = ""                     # how the game feeds its villagers, for the estimates
     farmer_words: str = ""
     # (a farming trip, the food it brings, the start of the names of the sources it draws on)
-    trips: list[tuple[str, float, str]] = field(default_factory=list)
+    trips: list[tuple[str, float | tuple[float, float], str]] = field(default_factory=list)  # (live, catch-up): patched
 
     @property
     def game(self) -> int:
@@ -880,9 +880,11 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float) -> list[gm.Fact]:
         # Food Mastery boosts the food a trip credits, rounded as the game does, not what it takes from the source:
         # each unit taken is worth the boosted food ÷ the food before it (New Believers' 7-crop harvest: 10 food at
         # level 2), while catching up and live each with their own trip size.
-        raw = s.trip.catch_up_food if s.trip.catch_up_food is not None else trips[s.trip.key]
+        base, base_caught = farmers.trip_food(trips[s.trip.key])
+        raw = (base_caught if base_caught is not None else
+               s.trip.catch_up_food if s.trip.catch_up_food is not None else base)
         worth = s.catch_up_food / raw if raw else 1.0
-        live_raw = float((s.trip.live_food or {}).get(ctx.speed, trips[s.trip.key]))
+        live_raw = float((s.trip.live_food or {}).get(ctx.speed, base))
         live_worth = s.live_food / live_raw if live_raw else 1.0
         regrow, on_it = units * worth, units_on * worth
         # The source's own name without its notes ("Fish: no limit, ...", "Fishing (Farming level 3, ...)").
