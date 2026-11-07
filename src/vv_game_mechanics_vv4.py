@@ -280,7 +280,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         + f"{levels(2)} at the least, a harvest at most "
                         f"{levels(30)}; a fish from the net {levels(4)}, a Golden Fish {levels(8)}; stomped or shaken-down "
                         f"fruit {levels(3)}; a crab at the Mossy Rocks {levels(35)}, a crab a villager finds "
-                        f"{levels(55)}; a brown mushroom {levels(6)}, a red one {levels(35)}.", gm.RUNNING)
+                        f"{levels(55)}; a brown mushroom {levels(6)}, a red one {levels(35)}."
+                        + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
     if village.has(SCALES) is not False:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
 

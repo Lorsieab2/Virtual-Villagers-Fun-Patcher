@@ -205,7 +205,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         + ": a noni pick " + ("" if village.general else f"now {levels(max(2, noni // 100))}, ")
                         + f"{levels(2)} at the least; a Hydroponic Farm harvest {levels(10)} on Fast, {levels(7)} on "
                         f"Normal and while catching up, {levels(4)} on Slow; a fish {levels(4)}; a brown mushroom "
-                        f"{levels(6)}, a red one {levels(35)}.", gm.RUNNING)
+                        f"{levels(6)}, a red one {levels(35)}."
+                        + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
@@ -307,7 +308,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Other", "With Fix Vanilla Game Bugs: the puddle play's spots come from the whole lake bed, each of its "
                      "cells equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every other "
                      "walk to an area, fishing at the lake included, picks as stock.", gm.CODE)
-    if village.has(PUDDLES) is True:
+    if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally puddle play stops once The Lake holds water. " + gm.patch_words(
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the three walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
