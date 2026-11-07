@@ -256,7 +256,12 @@ def closed_words(ctx, units: float) -> str:
     closings = max(1, math.ceil(whole / per_close))
     counted = whole + 2 * closings
     seconds = counted * ctx.unit
-    real = seconds if closings == 1 and seconds <= life.full_away(ctx) else closings * limits["band_end"]
+    # Every closing but the last is a full one (over the band's end); the last needs only what is left, by the
+    # same time-away limits (gm.counted_away): counted in full up to the full limit, the band once past it.
+    full = life.full_away(ctx)
+    last = (whole - per_close * (closings - 1) + 2) * ctx.unit
+    last_real = last if last <= full else full if last <= limits["band"] else limits["band_end"]
+    real = (closings - 1) * limits["band_end"] + last_real
     # One shape whatever the figures (the claims files key each line on its shape).
     return (f"{counted:,} counted age units ({gm.duration(seconds)} of time away on {on} speed), closed for at "
             f"least {gm.duration(real)} of real-life time in all (catch-ups needed: {closings:,})")
