@@ -138,6 +138,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner: Food Gains are Flat, like VV1-3 (Harder Games) (The Tree of
     # Life, New Believers) is off by default and on in Owner's Defaults.
     + ["vv4_food_pays_like_earlier_games", "vv5_food_pays_like_earlier_games"]
+    # The owner: Checked Skill Preferences are listed as Jobs on Graves (all
+    # five games) is off by default and on in Owner's Defaults.
+    + ["vv%d_preferred_job_graves" % game for game in range(1, 6)]
     # Story / Cheat Upgrades and Story / Cheat Upgrades cost Tech Points (all
     # five games) are NOT here: they are on by default (owner, 2026-11-01:
     # "Anything that costs (money tech points food etc) and anything that adds
@@ -4976,8 +4979,9 @@ class App(tk.Tk):
             # Numbers a looks or title change gave (src/vv_number_names.py): asked villager by villager, each
             # left as it is unless the player answers "Take the number off".
             unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
+            preferred = kind.context.get("graves") if kind.id == "apprentice" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber:
+                    and not unnumber and not preferred:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
@@ -4987,7 +4991,8 @@ class App(tk.Tk):
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
-                    else f"Rewrite {kind.label[0].lower() + kind.label[1:]}: {len(kind.replaces)} found"
+                    else f"Rewrite {kind.label[0].lower() + kind.label[1:]}: {len(kind.replaces)} line(s)"
+                    + (f", {len(preferred.graves)} grave(s) in the save" if preferred else "") + " found"
                     if kind.id == "apprentice"
                     else f"Put right {kind.label[0].lower() + kind.label[1:]}: "
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"

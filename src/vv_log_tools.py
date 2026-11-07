@@ -249,12 +249,21 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
                 report.add(f"{LOGS} (false Unaccounted records)", "NOTE", note)
             continue
         if kind.id == "apprentice":
-            # Children's Grave lines that still name a rank (src/vv_log_additions.py plan_apprentice).
-            if kind.replaces:
+            # Grave lines and graves the exe now draws otherwise (src/vv_log_additions.py plan_apprentice): the
+            # children's "Apprentice", and the skill preference a villager died with, counted kind by kind.
+            counts = kind.context.get("counts", {})
+            if counts.get("apprentice", len(kind.replaces)):
                 report.add(f"{LOGS} ({kind.label})", "NOTE",
-                           f"{len(kind.replaces)} record(s) of children's graves name the rank in their Grave (Job) "
-                           "line though the game draws \"Apprentice <job>\" on those graves: Repair Saves & Logs "
-                           "rewrites them")
+                           f"{counts.get('apprentice', len(kind.replaces))} record(s) of children's graves name the "
+                           "rank in their Grave (Job) line though the game draws \"Apprentice <job>\" on those "
+                           "graves: Repair Saves & Logs rewrites them")
+            if counts.get("preferred"):
+                report.add(f"{LOGS} ({kind.label})", "NOTE",
+                           f"{counts['preferred']} grave(s) show the villager's highest skill though they died with "
+                           "another skill preference checked, which the game now lists as the grave's job (Checked "
+                           "Skill Preferences are listed as Jobs on Graves): Repair Saves & Logs rewrites those "
+                           f"graves in the save (and their epitaph where it follows the job) and "
+                           f"{counts.get('preferred_lines', 0)} line(s) of their records")
             for note in kind.notes:
                 report.add(f"{LOGS} ({kind.label})", "NOTE", note)
             continue
@@ -526,6 +535,14 @@ def approve_repair(
         except OSError as exc:
             raise LogToolError(f"Your changed answers were not kept ({exc}); the backup is in "
                                f"{backup.backup_folder}.") from exc
+    # The graves given their villager's skill preference (Checked Skill Preferences are listed as Jobs on Graves):
+    # the save first, so a refused or failed write leaves every log as it was.
+    if "apprentice" in chosen:
+        import vv_graves
+        try:
+            additions.write_preferred_graves(folder, game, slot, kinds, chosen, now)
+        except vv_graves.GraveError as exc:
+            raise LogToolError(f"{exc} Nothing else was repaired; the backup is in {backup.backup_folder}.") from exc
     added = additions.apply(folder, kinds, chosen, answers or {})
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).

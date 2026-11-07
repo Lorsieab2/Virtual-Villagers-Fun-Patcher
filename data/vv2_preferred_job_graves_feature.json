@@ -1,0 +1,40 @@
+{
+  "id": "vv2_preferred_job_graves",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Checked Skill Preferences are listed as Jobs on Graves",
+  "description": "A grave's Job line names the skill the villager had checked as their skill preference on the Villager Details screen (the one the game itself shows as their job there), with that skill's rank: \"Untrained\" below 20, else \"Trainee\", \"Adept\" or \"Master\" by the game's own values (and \"Apprentice\" for a child under 14 where Children's Graves Say Apprentice or the game does it). With no preference checked the grave shows the highest skill, as before. The epitaph follows the same job. Titles still win: a villager whose Esteemed Elder totem stands still gets \"Esteemed Elder\", and a child the children's epitaphs. Only graves made from now on change; for older graves, Repair Saves & Logs rewrites the grave and its Deaths log lines where the save still holds the villager's preference at death.",
+  "output_tag": "Preferred Job Graves",
+  "behavior_changes": [
+    "The Lost Children's burial writer gives a villager with a skill preference checked the grave job of that preference and that skill's value (the grave dialog draws the rank, or Apprentice, from it as for any grave); without one the best-skill routine's job and value, as stock.",
+    "The epitaph is picked from that job."
+  ],
+  "explicit_non_changes": [
+    "The shared best-skill routine is not touched (its other callers, the Nursery lesson among them, are unchanged); only the burial writer's block is recoded in place, same length, no executable space claimed.",
+    "The record is found once and kept in ebx (saved and put back) across the name copy, whose call at 0x4650BA (which Fix Vanilla Bugs aims at strcpy) is untouched; ecx and eax leave as stock (the record, the age). The preference fix-up lives in the bytes the recoded epitaph pick no longer needs.",
+    "Titles and the children's epitaphs are chosen before the job as stock; a grave already made is never changed by the exe (Repair Saves & Logs does it where the preference at death is known)."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x65063",
+      "before": "8B4F6069C98CE400008B94313005000089108B86D474E5008B57608D8C287CEB020051528BCEE84264FEFF8B8ED474E50089842978EB02008B57608B8ED474E50069D28CE400008D843264050000508D94290CEB020052",
+      "after": "538B576069DA8CE4000001F38B8B300500008908508D48FC515289F1E84C64FEFF8B0C248941F8E8FB0000008D83640500005083E974519090909090909090909090909090909090909090909090909090909090909090",
+      "purpose": "the burial loop's grave write: age, the best-skill call 0x44B4D0 (unchanged), value, then the preference fix-up at 0x46518A; the name copy's arguments (its call at 0x4650BA is left as it is)"
+    },
+    {
+      "offset": "0x650BF",
+      "before": "8B476069C08CE400008D0C308B813005000083C4083D68010000",
+      "after": "83C4085989D95B8B81300500003D680100009090909090909090",
+      "purpose": "after the name copy: ecx = the record and the age against 360, as stock"
+    },
+    {
+      "offset": "0x65172",
+      "before": "8B81E40700008B99E80700003BD8BA020000007E078BC3BA050000008B99F00700003BD87E078BC3BA030000008B99EC0700003BD87E078BC3BA010000003981F40700007E05BA04000000",
+      "after": "8B96D474E5008B942A7CEB020085D27502B202EB369090908B83F80700008D50FF83FA04771C518D0C52BAC2180000D3EA83E207598B9493E40700008951F88941FCC39090909090909090",
+      "purpose": "the adult epitaph's job: the grave's job (0 -> Parenting's pair, as stock) instead of the highest skill worked out again; then the burial's preference fix-up: with +0x7F8 = 1..5, job = the preference and value = that skill"
+    }
+  ]
+}

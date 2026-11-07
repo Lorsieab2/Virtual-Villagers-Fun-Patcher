@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 import re
+import struct
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -72,8 +73,9 @@ CHECKED = {
     "misfiled": "the records written before a village was saved, against every save slot's village (its save, "
                 "the save's older generations, its Village History and Village Population), and the "
                 "player's answers",
-    "apprentice": "the Death and Epitaph changed records of villagers who died under 14 years whose Grave (Job) "
-                  "line names a rank, in a game whose exe draws \"Apprentice <job>\" on their graves",
+    "apprentice": "the Death and Epitaph changed records' Grave (Job) lines against what the game's exe draws: "
+                  "\"Apprentice <job>\" on a child's grave, and the skill preference a villager had checked when "
+                  "they died (Checked Skill Preferences are listed as Jobs on Graves), where the save still holds it",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -86,7 +88,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "false_unaccounted": "False Unaccounted record removed",
          "looks_numbers": "Number taken off",
          "misfiled": "Record moved to its own save's log",
-         "apprentice": "Grave line rewritten as Apprentice",
+         "apprentice": "Grave line rewritten as the game draws it",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -1423,27 +1425,48 @@ APPRENTICE_AGE = 280
 GRAVE_RANK = re.compile(r"^(  Grave: )(Trainee|Adept|Master) +(\S.*?)\s*$")
 
 
-def apprentice_in_game(folder: Path, game: int, game_folders: list[Path] | None) -> bool | None:
+def _row_in_game(found, game: int, row: str) -> bool | None:
+    if found is None or found.installed is None:
+        return None
+    if row in found.installed:
+        return True
+    return False if found.certain else None
+
+
+def _patch_source(folder: Path, game: int, game_folders: list[Path] | None):
+    if not game_folders:
+        return None
+    import vv_game_mechanics as gm
+    return gm.patch_source(Path(folder), list(game_folders), game)
+
+
+def apprentice_in_game(folder: Path, game: int, game_folders: list[Path] | None, found=None) -> bool | None:
     """Whether the game that saves into `folder` draws "Apprentice <job>" on a child's grave: The Tree of Life
     always; the others with their Children's Graves Say Apprentice row in the exe (src/vv_game_mechanics.py
     patch_source: the patcher's log of the run that made it, else the exe's own bytes).  None: not known."""
     if game == 4:
         return True
-    if game not in APPRENTICE_ROWS or not game_folders:
+    if game not in APPRENTICE_ROWS:
         return None
-    import vv_game_mechanics as gm
-    found = gm.patch_source(Path(folder), list(game_folders), game)
-    if found.installed is None:
-        return None
-    if APPRENTICE_ROWS[game] in found.installed:
-        return True
-    return False if found.certain else None
+    return _row_in_game(found if found is not None else _patch_source(folder, game, game_folders), game,
+                        APPRENTICE_ROWS[game])
+
+
+# Checked Skill Preferences are listed as Jobs on Graves (the owner: "repair logs/saves should account for the
+# "Checked Skill preferences" and "Apprentices" patches"): with that row in the exe, an old grave whose villager
+# died with a skill preference checked is given the job and value the row gives now -- in the save (the grave's
+# job and value, The Secret City's gravestone value, the epitaph where it follows the job) and in the Death and
+# Epitaph changed records' lines -- only where the save still holds that villager's preference at death
+# (src/vv_graves.py plan_preferred).  The same pass words every line as the exe draws it: "Apprentice <job>" for a
+# child where the game has that, else the rank.
+PREFERRED_LABEL = "Grave (Job) lines and graves as the game draws them now (Apprentice, Checked Skill Preferences)"
 
 
 def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> Kind:
-    """The Grave lines to rewrite as "Apprentice <job>" (see above).  Reads only."""
+    """The Grave lines to rewrite as "Apprentice <job>" and the old graves (and their lines) to give their
+    villager's checked skill preference (see above).  Reads only."""
     import vv_graves
-    kind = Kind("apprentice", "Children's Grave (Job) lines as \"Apprentice <job>\"")
+    kind = Kind("apprentice", PREFERRED_LABEL)
     jobs = {job for job in vv_graves.LAYOUTS[game].jobs if job} if game in vv_graves.LAYOUTS else set()
     villages = current_villages(folder, game, slot)
     found = []
@@ -1460,16 +1483,65 @@ def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path]
             m = GRAVE_RANK.match(b.lines[at - b.start])
             if m and m.group(3) in jobs:
                 found.append((path, at, f"{m.group(1)}Apprentice {m.group(3)}"))
-    if not found:
-        return kind
-    has = apprentice_in_game(folder, game, game_folders)
-    if has is True:
-        kind.replaces.extend(found)
-    elif has is None:
-        kind.notes.append(f"{len(found)} child's Grave line(s) name a rank; whether this game has Children's Graves "
-                          "Say Apprentice could not be told (no game folder holding its exe was found), so they "
-                          "are left as they are.")
+    source = _patch_source(folder, game, game_folders)
+    has = apprentice_in_game(folder, game, game_folders, source)
+    lines: dict[tuple, str] = {}
+    counts = {"apprentice": 0, "preferred": 0, "preferred_lines": 0, "unknown": 0}
+    # The graves: only with Checked Skill Preferences are listed as Jobs on Graves in the exe.
+    preferred = _row_in_game(source, game, vv_graves.PREFERRED_ROWS[game])
+    if preferred is True:
+        try:
+            planned = vv_graves.plan_preferred(folder, game, slot, has is True)
+        except (OSError, ValueError, struct.error, vv_graves.GraveError) as exc:
+            planned = None
+            kind.notes.append(f"The graves were not checked for skill preferences: the save could not be read "
+                              f"({exc}).")
+        if planned is not None:
+            if has is None and any(p.grave.age < APPRENTICE_AGE and p.new[1] >= 20 for p in planned.graves):
+                kind.notes.append("Whether this game draws \"Apprentice\" on children's graves could not be told, "
+                                  "so the Grave lines of children's graves rewritten for their preference say the "
+                                  "rank.")
+            if planned.graves:
+                kind.context["graves"] = planned
+                for rpath, at, text in vv_graves.record_lines(folder, game, slot, planned):
+                    lines[(rpath, at)] = text
+            counts["preferred"] = len(planned.graves)
+            counts["preferred_lines"] = len(lines)
+            counts["unknown"] = planned.unknown
+            if planned.unknown:
+                kind.notes.append(f"{planned.unknown} grave(s): the skill preference that villager had checked when "
+                                  "they died is no longer in the save (its record was reused or never kept), so "
+                                  "the grave and its records are left as they are.")
+    elif preferred is None and game_folders:
+        kind.notes.append("Whether this game has Checked Skill Preferences are listed as Jobs on Graves could not be "
+                          "told (no game folder holding its exe was found, or its patches could not be read), so no "
+                          "grave was given its villager's skill preference.")
+    if found:
+        if has is True:
+            for rpath, at, text in found:
+                if (rpath, at) not in lines:
+                    lines[(rpath, at)] = text
+                    counts["apprentice"] += 1
+        elif has is None:
+            kind.notes.append(f"{len(found)} child's Grave line(s) name a rank; whether this game has Children's Graves "
+                              "Say Apprentice could not be told (no game folder holding its exe was found), so they "
+                              "are left as they are.")
+    kind.replaces.extend((rpath, at, text) for (rpath, at), text
+                         in sorted(lines.items(), key=lambda item: (str(item[0][0]), item[0][1])))
+    kind.context["counts"] = counts
     return kind
+
+
+def write_preferred_graves(folder: Path, game: int, slot: int, kinds: list[Kind], chosen: set[str],
+                           now=None) -> int:
+    """The save's part of the "apprentice" kind, when it is ticked: the graves given their villager's skill
+    preference (src/vv_graves.py write_preferred).  Before the logs' lines are rewritten, so a refused or failed
+    write leaves every log as it was."""
+    import vv_graves
+    kind = next((k for k in kinds if k.id == "apprentice"), None)
+    if kind is None or "apprentice" not in chosen or not kind.context.get("graves"):
+        return 0
+    return vv_graves.write_preferred(Path(folder), game, slot, kind.context["graves"], now)
 
 
 def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None) -> list[Kind]:
