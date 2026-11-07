@@ -934,10 +934,9 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "No Fishing at Science Level 2 (The Tree of Life) is off: it makes the game harder.",
         "This is what a fresh install starts with.",
         "It does not change the population mode.",
-        "Food Gains are Flat, like VV1-3 (Harder Games) is off too."
+        "Food Gains are Flat, like VV1-3 (Harder Games) and No Fishing at Science Level 2 are off too."
       ]
     },
     "owners_defaults": {
