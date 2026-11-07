@@ -116,7 +116,10 @@ def render(mode: str, expanded: bool = False) -> bytes:
     build = {b.id: b for b in patcher.load_builds()}["vv3"]
     ids = [p.id for p in patcher.load_public_fun_patches()
            if p.game_id == "vv3" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
-           and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
+           and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
+           # 2-10x Tech Cost multiplies the factions' prices on purpose (tests/test_tech_cost_multiplier.py);
+           # these checks are of the stock prices.
+           and not p.id.endswith("_tech_cost_multiplier")]
     data, _ = patcher.render_patched_bytes(stock_exe(), build, mode, ids)
     return bytes(data)
 
