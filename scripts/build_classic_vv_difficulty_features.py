@@ -23,7 +23,7 @@ PIECES = {
             ("vv4_hungrier_villagers", "Hungrier Villagers (2-10x Meals)"),
             ("vv4_tech_cost_multiplier", "2-10x Tech Cost"),
             ("vv4_science_collectibles_complete", "Science Collectibles Only Count When Complete"),
-            ("vv4_clothmaking_at_science_3", "Clothmaking Unlocks at Science Level 3"),
+            ("vv4_harder_fishing_unlock", "Harder Fishing Unlock in VV4"),
             ("vv4_collectible_spawn_like_vv3", "Collectible Spawn Timing works like VV1-3"),
             ("vv4_sickness_like_vv3", "Sickness works like VV1-3"),
             ("vv4_yellow_fruit_trees_limited", "Yellow Fruit Trees are No Longer Unlimited"),

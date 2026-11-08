@@ -1308,18 +1308,11 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 - Patch ID: `vv4_complete_scales_golden_fish`
 
-**No Fishing at Science Level 2**
+**Harder Fishing Unlock in VV4**
 
-The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder).
+Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them; this patch makes both come later. The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3 (70,000 tech points): a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The piers cannot be fixed until Construction level 3 (65,000 tech points): a villager dropped on them says "Additional research may be necessary." (the game's own words on a hut that needs more Construction), builders do not go to them on their own, and a villager who was fixing them stops. Piers already fixed stay fixed, work already done on them is kept for Construction 3, and cloth the village already has stays usable. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
 
-- Patch ID: `vv4_no_fishing_at_science_2`
-- Off everywhere, Select All and Owner's Defaults included (the owner, 2026-11-08); ticking it unticks Clothmaking Unlocks at Science Level 3 and the other way round.
-
-**Clothmaking Unlocks at Science Level 3**
-
-The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3: a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The fishing nets need cloth, so fish come later; cloth the village already has stays usable. Cannot be ticked with No Fishing at Science Level 2 (ticking one unticks the other). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
-
-- Patch ID: `vv4_clothmaking_at_science_3`
+- Patch ID: `vv4_harder_fishing_unlock`
 
 **2-10x Sickness** (all five games)
 
@@ -1341,7 +1334,7 @@ Each Lab Equipment piece you find normally makes research bring more tech points
 
 **Classic VV Difficulty**
 
-Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3 and Yellow Fruit Trees are No Longer Unlimited (New Believers: Faith Loss is Doubled/Gains Halved instead of those three), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3 and Yellow Fruit Trees are No Longer Unlimited (New Believers: Faith Loss is Doubled/Gains Halved instead of those three), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
 

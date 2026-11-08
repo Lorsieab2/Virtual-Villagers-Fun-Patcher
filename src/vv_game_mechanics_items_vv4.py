@@ -62,8 +62,8 @@ CLOTHES_PRICE = 5_000
 DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like_vv1",
                          "vv4_super_secret_golden_mushroom", "vv4_manual_drop_breeding_overrides_birth_control",
                          "vv4_population_256", "vv4_unicode_font", "vv4_tech_cost_multiplier",
-                         "vv4_food_pays_like_earlier_games", "vv4_preferred_job_graves", "vv4_no_fishing_at_science_2",
-                         "vv4_collectible_spawn_like_vv3", "vv4_clothmaking_at_science_3",
+                         "vv4_food_pays_like_earlier_games", "vv4_preferred_job_graves", "vv4_harder_fishing_unlock",
+                         "vv4_collectible_spawn_like_vv3",
                          "vv4_sickness_multiplier", "vv4_sickness_like_vv3",
                          "vv4_yellow_fruit_trees_limited",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete"})
@@ -72,7 +72,7 @@ ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"
 STORY = "vv4_story_cheat_upgrades"
 STORY_COST = "vv4_story_cheat_upgrades_cost_tech_points"
-NO_FISHING = "vv4_no_fishing_at_science_2"
+HARDER_FISHING = "vv4_harder_fishing_unlock"
 
 
 @dataclass(frozen=True)
@@ -140,19 +140,16 @@ def _techs() -> list[Entry]:
             "and nothing is taken. Some island events also give a level (Island events). Each level below is what "
             "that level gives."), VERIFIED_C),
         _level("Science", 1, research.format(d=11, c=7), VERIFIED_E),
-        # The site (2026-11-07, tests/test_vv4_no_fishing_at_science_2.py): every building's update 0x4300E0 asks its
-        # reveal predicate (vtable +0x64); the Clothing Hut's (object 0x4D82D8, project 22) is 0x430CF0: state 4 (an
-        # unrevealed site) and Science > 1 -> the reveal 0x430810 places it and SetState(3); and 0x430156 sets an
-        # object-22 site in state 4 to state 3 at Science 3.  Emulated from the game's own object and map.
+        # The site (2026-11-07): every building's update 0x4300E0 asks its reveal predicate (vtable +0x64); the
+        # Clothing Hut's (object 0x4D82D8, project 22) is 0x430CF0: state 4 (an unrevealed site) and Science > 1 ->
+        # the reveal 0x430810 places it and SetState(3); and 0x430156 sets an object-22 site in state 4 to state 3 at
+        # Science 3.  Emulated from the game's own object and map.
         _level("Science", 2, research.format(d=9, c=7), VERIFIED_E,
                (("Level 2 makes the Clothing Hut appear as a building site (its reveal 0x430CF0, asked by every "
-                 "building's update 0x4300E0).", VERIFIED_E),
-                (patch(NO_FISHING) + ": level 2 no longer makes the Clothing Hut appear; it waits for level 3. A site "
-                 "already showing below level 3 is hidden and nobody builds it until then; it keeps the building it "
-                 "already had. A finished Clothing Hut is not affected.", VERIFIED_E))),
+                 "building's update 0x4300E0).", VERIFIED_E),)),
         _level("Science", 3, research.format(d=7, c=5), VERIFIED_E,
-               ((patch(NO_FISHING) + ": level 3 makes the Clothing Hut appear as a building site; a site hidden "
-                 "below level 3 comes back in the same place with its building kept.", VERIFIED_E),)),
+               ((patch(HARDER_FISHING) + ": level 3 lets villagers make cloth (Cloth Invented); below it a villager "
+                 "dropped on the vines says \"Don't know what to do with these tough vines!\".", VERIFIED_E),)),
         _level("Medicine", 1, sick.format(odds="4 in 1,440", old=50, death=55, p=1), VERIFIED_C),
         _level("Medicine", 2, sick.format(odds="4 in 2,460", old=58, death=63, p=51), VERIFIED_C),
         _level("Medicine", 3, sick.format(odds="3 in 5,400", old=66, death=71, p=101) + " Twins and triplets "
@@ -178,7 +175,10 @@ def _techs() -> list[Entry]:
                (("Level 2 makes Hut 2 appear as a building site.", UNCONFIRMED),
                 ("Villagers dropped on the rubble clear it.", UNCONFIRMED))),
         _level("Construction", 3, "Villagers dropped on Hut 3 build it (0x46F477).", VERIFIED_C,
-               (("Level 3 makes Hut 3 appear as a building site.", UNCONFIRMED),)),
+               (("Level 3 makes Hut 3 appear as a building site.", UNCONFIRMED),
+                (patch(HARDER_FISHING) + ": level 3 lets villagers fix the piers (Fishing Nets); below it a villager "
+                 "dropped on them says \"Additional research may be necessary.\", as on Hut 3, and builders leave "
+                 "them alone.", VERIFIED_E))),
         _level("Food Mastery", 1, food.format(how="counts as it is"), VERIFIED_E),
         _level("Food Mastery", 2, food.format(how="counts half as much again (+ the amount ÷ 2, rounded down)"),
                VERIFIED_E),
@@ -230,7 +230,9 @@ def _puzzles() -> list[Entry]:
                 "cloth (cutting the pulpy vines).", VERIFIED_C),
                ("The cloth bolts are kept at the Clothing Hut: pointing at the finished hut shows \"Cloth bolts "
                 "available:\" and their number (0x46F62F).", VERIFIED_C),
-               ("The cloth bolts are stored at the Clothing Hut.", gm.OWNER))),
+               ("The cloth bolts are stored at the Clothing Hut.", gm.OWNER),
+               (patch(HARDER_FISHING) + ": no cloth is made until Science level 3, even with the Clothing Hut "
+                "finished; cloth already made is still used.", VERIFIED_E))),
         Entry(PUZZLE, "The Nursery School", "solved in 1 step.", UNCONFIRMED),
         Entry(PUZZLE, "The Mossy Rocks", (
             "solved after 5 steps; a crab caught there (\"Catching a crab\") brings 35 food before Food Mastery."),
@@ -249,8 +251,13 @@ def _puzzles() -> list[Entry]:
               "says \"They need cloth for this!\" (0x4334FC). So the Clothing Hut, which appears at Science level 2, "
               "is what brings fishing early.", VERIFIED_C),
              ("The nets depend on the Clothing Hut.", gm.OWNER),
-             (patch(NO_FISHING) + ": the Clothing Hut, and so the cloth and the nets, waits for Science level 3.",
-              VERIFIED_E))),
+             ("The piers come first: a villager dropped there while they are broken starts fixing them "
+              "(\"Attempting to fix the piers\", 0x4334CC), and builders go back to them by themselves only once "
+              "that has begun (the Building dispatcher, 0x463DD8: piers not fixed and some work done).", VERIFIED_C),
+             (patch(HARDER_FISHING) + ": the piers cannot be fixed until Construction level 3 (a villager dropped "
+              "on them says \"Additional research may be necessary.\", builders leave them alone and one who was "
+              "fixing them stops), and the cloth for the nets waits for Science level 3. Piers already fixed stay "
+              "fixed and work already done on them is kept.", VERIFIED_E))),
         Entry(PUZZLE, "Pruning the Tree", f"solved in 1 step (binding the branch); {tree}.", VERIFIED_E,
               (("Binding the branch needs Dendrology level 2.", UNCONFIRMED),)),
         Entry(PUZZLE, "Honoring the Tree", f"solved in 1 step (the sweet x3 stew honours the tree); {tree}.",
@@ -297,11 +304,7 @@ def _buildings() -> list[Entry]:
             "clothes (Technologies, items and buildings)."), VERIFIED_E,
             (("It appears as a site at Science level 2 (Science level 2).", VERIFIED_E),
              ("Until it is finished there is no cloth and the fishing nets cannot be mended (Cloth Invented, Fishing "
-              "Nets).", VERIFIED_C),
-             (patch(NO_FISHING) + ": it appears as a site at Science level 3. A site already showing below level 3, "
-              "built on or not, disappears and nobody builds it -- no builder is offered it and one who was building "
-              "it stops -- until Science is 3; then it is back in the same place with all its building. Its building "
-              "progress is never changed, and a finished Clothing Hut is never affected.", VERIFIED_E))),
+              "Nets).", VERIFIED_C))),
         Entry(BUILDING, "The Love Shack", (
             f"{steps(200)}. Until it is finished no villager can conceive while "
             "the game is played (\"The love shack has not been completed!\"); time away does not check it."),
@@ -324,9 +327,7 @@ def _buildings() -> list[Entry]:
             ((patch("vv4_builders_fix_huts") + ": builders build first and fix huts when no building can be worked "
               "on.", UNCONFIRMED),
              ("The test is the Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all "
-              "finished.", VERIFIED_C),
-             (patch(NO_FISHING) + ": the Clothing Hut waits for Science level 3, so the game's own hut fixing does "
-              "too (Builders Fix Huts When Idle does not wait for it).", VERIFIED_C))),
+              "finished.", VERIFIED_C))),
         Entry(BUILDING, "The Fire Pit", (
             "lit, it burns 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "
             "the pit again while it burns starts that time over. While it burns each research session gives 1 more "
@@ -439,9 +440,7 @@ def _items() -> list[Entry]:
             "a villager dropped on the finished Clothing Hut, with at least 5,000 tech points in store, gets new "
             "clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."), VERIFIED_C,
             (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),
-             (patch(NO_FISHING) + ": the Clothing Hut, and so new clothes (0x46F75B: only a finished Clothing Hut "
-              "gives them), waits for Science level 3.", VERIFIED_C))),
+              "the deduction itself was not traced.", UNCONFIRMED),)),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below full health, with food in storage, eats 1 food and regains 1 health 50.05% of the "
             "time."), VERIFIED_E),
