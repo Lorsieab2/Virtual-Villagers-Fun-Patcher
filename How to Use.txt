@@ -519,10 +519,28 @@ patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
 Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
 plus Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like
 VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
-Life, Faith Loss is Doubled/Gains Halved in New Believers, and Sickness works
+Life (with Yellow Fruit Trees are No Longer Unlimited there), Faith
+Loss is Doubled/Gains Halved in New Believers, and Sickness works
 like VV1-3 in both (villagers fall sick as in The Secret City: more often
 while the fire is out and on Hard). Unticking any of them unticks Classic VV
 Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
+
+YELLOW FRUIT TREES ARE NO LONGER UNLIMITED (THE TREE OF LIFE)
+
+Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. The
+Cooking Pit's yellow fruit tree holds at most 1,000 fruit and is refilled to
+full every 40 age units (4 hours of play on Normal, 2 on Fast, 6 hours 40
+minutes on Slow; time away and Time Warp count as the game counts villagers'
+ages). Each fruit trip takes 3 fruit when its food goes in the food bin, and a
+stomped fruit that goes into the stew takes 3 when it goes in the pot; a
+failed Farming check or an interrupted trip takes nothing. Each catch-up
+Cooking Pit bonus takes 5 (none paid when fewer are left). With fewer than 3
+fruit, a villager dropped on the tree refuses ("There is not enough to
+harvest.") and farmers are not sent there. Click the tree to see "Fruit
+remaining: N". A new village and Start Over start full. The count is kept in
+Documents\LDW\(game)\Virtual Villagers Fun Patcher\Save N\Data\Fruit TreesVirtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
+saves; the save itself is never changed, so without the patch the tree is
+unlimited again. Not yet tested in a running game.
 
 PICTURE STUDIO
 

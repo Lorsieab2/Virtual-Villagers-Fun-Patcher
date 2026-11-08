@@ -237,8 +237,8 @@
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
-        "and Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
-        "and Sickness works like VV1-3.",
+        "and Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
+        "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
@@ -272,6 +272,15 @@
         "Off by default. Mushrooms and collectibles appear on their own as often as in The Secret City: about a quarter less often than normal.",
         "Fog with Wind Flute pieces, rain, island events and the ghost work as before.",
         "New Believers already works this way, so it has no such patch."
+      ]
+    },
+    {
+      "ids": ["vv4_yellow_fruit_trees_limited"],
+      "guide": [
+        "Off by default. The Cooking Pit's fruit tree holds at most 1,000 fruit, refilled to full every 40 age units (4 hours on Normal).",
+        "A fruit trip takes 3 fruit when its food reaches the food bin (or its fruit goes in the stew); a catch-up Cooking Pit bonus takes 5.",
+        "With fewer than 3 left villagers refuse it and farmers are not sent there. Click the tree to see how much fruit is left.",
+        "The count is kept beside the save (in Save N, Data, Fruit Trees); the save itself is never changed."
       ]
     },
     {
@@ -1042,7 +1051,7 @@
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
         "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), No Fishing at Science Level 2, Clothmaking Unlocks at Science Level 3, Sickness works like VV1-3,",
-        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3.",
+        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited.",
         "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
       ]
     },

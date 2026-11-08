@@ -63922,6 +63922,17 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.on_click.s0",
+   "english": "Fruit remaining: %d",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP VV4 Fruit Supply.dll (the yellow fruit tree clicked: the game's status line)",
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
   }
  ]
 }

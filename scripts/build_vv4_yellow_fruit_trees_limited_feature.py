@@ -75,7 +75,13 @@ def description() -> str:
         "\"There is not enough to harvest.\" when it is the selected villager), and villagers deciding to farm are "
         "not sent there. Click the tree to see "
         "how much fruit is left (\"Fruit remaining: N\" on the game's own status line, as the blackberry bush "
-        "shows its berries). A new village starts with a full tree. The count is kept beside the save, in "
+        "shows its berries). A new village starts with a full tree. Technologies and effects: Food Mastery "
+        "multiplies the food a trip or a bonus pays, never the fruit taken (3 and 5 are taken before it); "
+        "Construction (the pit's debris) and Dendrology gate other steps and puzzles, not the fruit; the "
+        "difficulty changes only meals; the stew takes fruit as above; the Purify Tree, the Tree of Life, the "
+        "Nursery's \"Showing baby the cooking area\" and the island event that needs the restored pit take no "
+        "fruit; Time Warp and Choose Time Skip Amount add age units, so the tree refills for them too. "
+        "The count is kept beside the save, in "
         f"{SIDECAR}, written when the game saves; the save itself is never changed, so without this patch the "
         "tree is simply unlimited again. **Needs no other patch.** **Off by default; Owner's Defaults ticks it, "
         "and it is part of Classic VV Difficulty.** **Unverified in play: the effect has not been tested live.** "
@@ -140,6 +146,15 @@ def row(dll_sha: str) -> dict:
             "aside.",
         ],
         "explicit_non_changes": [
+            "Technologies and effects, read from the code: Food Mastery (tech 4) multiplies inside the food writer "
+            "0x41D920, after the companion took the base 3 or 5 fruit; Construction (tech 3) gates the pit's debris "
+            "(0x433FAD) and Dendrology (tech 5) gates puzzles 12 and 14 (0x437B0B, 0x438477), none of them the "
+            "fruit; the difficulty (game+0x170F4) is read by the meals, not the fruit code; the other tests of the "
+            "restored pit (0x4168E4 an island event's condition that changes a villager's Farming or health, "
+            "0x461B56 the Nursery's \"Showing baby the cooking area\", 0x445FCC / 0x44631F the puzzle screen) take "
+            "no fruit; every food-bin credit of fruit, the four spot trips' and the resumed stomping actions' "
+            "(0x0F..0x12), is job event 15 and takes 3; Time Warp and Choose Time Skip Amount add age units that "
+            "the life tick processes, so they count toward the refill.",
             "No executable byte is patched: the companion writes its 8 jumps and 2 vtable slots at run time, only "
             "after verifying every stock value, all or none; a different build installs nothing.",
             "The save is never written, so removing the patch leaves the tree unlimited as in the stock game; the "

@@ -15,6 +15,7 @@ only guessed (a collection's name, what a flyer is) is shown at all (the owner: 
 from __future__ import annotations
 
 import struct
+from pathlib import Path
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_death as death
@@ -45,6 +46,15 @@ NO_FISHING = "vv4_no_fishing_at_science_2"
 CLOTHMAKING = "vv4_clothmaking_at_science_3"
 SCIENCE_SET = "vv4_science_collectibles_complete"
 STORY = "vv4_story_cheat_upgrades"
+# Yellow Fruit Trees are No Longer Unlimited ("VVFP VV4 Fruit Supply.dll", native/vvfp_vv4_fruit_supply): the tree holds
+# at most 1,000 fruit, refilled to full every 40 age units of a reference villager; 3 fruit a food-bin credit (job
+# event 15) or a stewed fruit (0x42EAE7), 5 a catch-up Cooking Pit bonus (0x468AAB), all before Food Mastery.  The
+# count is kept beside the save, never in it (FRUIT_FILE, read by fruit_supply).
+YELLOW_FRUIT = "vv4_yellow_fruit_trees_limited"
+FRUIT_FULL, FRUIT_TRIP, FRUIT_BONUS, FRUIT_REFILL_UNITS = 1000, 3, 5, 40
+FRUIT_SAVES = "Virtual Villagers Fun Patcher"
+FRUIT_FILE = "Data\\Fruit Trees\\Virtual Villagers 4 Yellow Fruit Tree - Save {slot}.dat"
+FRUIT_MAGIC = 0x46345656            # 'V' 'V' '4' 'F'
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
 # stew's effect switch 0x41DEE0 (CPotion, vtable 0x48D5C4): 5 sends the villager "Burping up soap bubbles"
@@ -323,6 +333,32 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                            "villager dropped on the vines says \"Don't know what to do with these "
                                            "tough vines!\" until then, so the fishing nets, which need cloth, wait "
                                            "for it unless the village already has cloth"))
+    fruit_patch = village.has(YELLOW_FRUIT)
+    supply = fruit_supply(village) if fruit_patch is not False else None
+    every_refill = life.every_real(FRUIT_REFILL_UNITS * 360, speed_value).removeprefix("every ")
+    if fruit_patch is not False:
+        add("Food sources", gm.patch_words(
+            village, YELLOW_FRUIT,
+            f"the yellow fruit tree holds at most {FRUIT_FULL:,} fruit, refilled to full every {FRUIT_REFILL_UNITS} "
+            f"age units ({every_refill} on {on} speed; time away as the game counts it and Time Warp count too); "
+            f"a fruit trip takes {FRUIT_TRIP} fruit when its food goes in the food bin (Food Mastery multiplies "
+            f"the food, not the fruit taken), a stomped fruit put in the stew takes {FRUIT_TRIP}, a catch-up "
+            f"Cooking Pit bonus takes {FRUIT_BONUS} and pays nothing with fewer left; with fewer than {FRUIT_TRIP} "
+            "left a villager dropped on the tree refuses and farmers are not sent there. Dendrology and "
+            "Construction gate other puzzles (and the pit's debris), not the fruit; the difficulty, the Purify "
+            "Tree, the Tree of Life, the Nursery's \"Showing baby the cooking area\" and the island event that "
+            "needs the restored pit take no fruit"))
+        if fruit_patch is True:
+            if supply is None:
+                add("Food sources", "The yellow fruit tree's supply: no file of the patch's for this village, so "
+                                    f"the tree is full ({FRUIT_FULL:,} fruit) when the village is next played.",
+                    gm.SAVE)
+            else:
+                left = FRUIT_REFILL_UNITS - supply[1]
+                add("Food sources", f"The yellow fruit tree's supply (the patch's file, as of the last save): "
+                                    f"{supply[0]:,} of {FRUIT_FULL:,} fruit left; refilled to full after {left} more "
+                                    f"age units ({gm.duration(gm.real_seconds(left * 360, speed_value))} of play on "
+                                    f"{on} speed).", gm.SAVE)
     if village.has(NO_FISHING) is not False:
         add("Food sources", gm.patch_words(village, NO_FISHING, "the Clothing Hut, which the fishing nets need, "
                                            "appears at Science level 3 instead of 2, so fish come later"))
@@ -333,6 +369,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Refills", f"Blackberries: +2 {gm.every(360, speed_value)}, up to {BERRY_CAP:,}; the stream gathers 2% more "
                    "debris at the same time, up to 100%.", gm.RUNNING)
     add("Refills", f"Next growth: {due(NEXT_TICK)}.", gm.SAVE)
+    if fruit_patch is not False:
+        add("Refills", gm.patch_words(village, YELLOW_FRUIT, f"the yellow fruit tree is refilled to {FRUIT_FULL:,} "
+                                      f"every {FRUIT_REFILL_UNITS} age units ({every_refill} on {on} speed), counted "
+                                      "as the game counts its villagers' ages, live, while catching up and with "
+                                      "Time Warp"))
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
@@ -515,6 +556,20 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         food_each = farmers_mod.game_module(4).FRUITWELLS["food"][pit_level]
         total = sum(farmers_mod.game_module(4).fruitwells_food_unit(int(f), pit_level) for f in known)
         paying = sum(1 for f in known if f > 25)
+        limited = ""
+        if fruit_patch is True:
+            # 1,000 fruit every 40 age units at 5 a bonus: at most 200 bonuses a refill, 5 a unit on average.
+            cap = FRUIT_FULL / FRUIT_BONUS / FRUIT_REFILL_UNITS * food_each
+            if total > cap:
+                limited = (f" With Yellow Fruit Trees are No Longer Unlimited each bonus takes {FRUIT_BONUS} fruit "
+                           f"and the tree gives {FRUIT_FULL:,} every {FRUIT_REFILL_UNITS} age units, so at most "
+                           f"{cap:,.1f} food a unit on average, not {total:,.1f}"
+                           + (f" (now {supply[0]:,} fruit left)" if supply is not None else "") + ".")
+                total = cap
+            else:
+                limited = (f" With Yellow Fruit Trees are No Longer Unlimited each bonus takes {FRUIT_BONUS} fruit; "
+                           f"this village's bonuses fit in the tree's {FRUIT_FULL:,} fruit every "
+                           f"{FRUIT_REFILL_UNITS} age units.")
         return total, (
             f"The Cooking Pit while catching up (it is restored): after each counted age unit's job turns, every "
             f"villager who had them (aged 14 or more, not sick or pregnant; all but the last 2 units) adds {food_each} "
@@ -523,7 +578,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"villagers, {paying} of them with Farming above 25, so about {total:,.1f} food each counted age unit, "
             f"against about {sum(1 for p in members if not p.golden) * life.eat_per_unit(ctx_ref[0]):,.1f} eaten. "
             "Farming 25 or less adds nothing and children add nothing, so a large tribe of low-Farming villagers "
-            "gets little from it.")
+            "gets little from it." + limited)
 
     ctx_ref = []
     ctx = life.Context(
@@ -535,6 +590,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              refill_words="no store of theirs is read here: they bring what the farmers fetch",
                              verified=False)]
                       if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else [])
+                + ([life.Source("The Cooking Pit fruit", supply[0] if supply is not None else FRUIT_FULL, FRUIT_FULL,
+                                FRUIT_FULL / FRUIT_REFILL_UNITS, None,
+                                f"refilled to {FRUIT_FULL:,} every {FRUIT_REFILL_UNITS} age units "
+                                f"({life.every_real(FRUIT_REFILL_UNITS * 360, speed_value)}); a fruit trip takes "
+                                f"{FRUIT_TRIP} for its {FRUIT_TRIP} food, and a trip can start only while one of the "
+                                "pit's 4 fruit spots is free",
+                                verified=gm.CODE, step=FRUIT_FULL,
+                                interval=gm.real_seconds(FRUIT_REFILL_UNITS * 360, speed_value),
+                                first_in=gm.real_seconds(
+                                    (FRUIT_REFILL_UNITS - (supply[1] if supply is not None else 0)) * 360,
+                                    speed_value),
+                                rule=gm.CODE)] if pit and fruit_patch is True else [])
                 + ([life.Source("The Cooking Pit fruit", None, unlimited=True,
                                 refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
@@ -544,7 +611,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, and while catching up only the Cooking Pit's own food comes "
-                                             "(below)")] if pit else []),
+                                             "(below)")] if pit and fruit_patch is not True else []),
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
@@ -579,6 +646,56 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out
+
+
+def fruit_supply_file(village: gm.Village) -> Path:
+    return village.folder / FRUIT_SAVES / f"Save {village.slot}" / FRUIT_FILE.format(slot=village.slot)
+
+
+def fruit_identity(sex: int, name: bytes, father: bytes, mother: bytes) -> int:
+    """The companion's identity of a villager (native/vvfp_vv4_fruit_supply identity(): FNV-1a of the gender dword,
+    the name and the parents' names, each up to 25 bytes and a terminator)."""
+    h = 2166136261
+    for b in struct.pack("<I", sex & 0xFFFFFFFF):
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    for text, end in ((name, 0xFF), (father, 0xFE), (mother, 0xFD)):
+        for b in bytes(text).split(b"\0", 1)[0][:25]:
+            h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+        h = ((h ^ end) * 16777619) & 0xFFFFFFFF
+    return h or 1
+
+
+def fruit_supply(village: gm.Village) -> tuple[int, int] | None:
+    """The yellow fruit tree's (fruit left, age units since its last refill) from the companion's file for this
+    save's slot, when the file is whole and at least one of the villagers it was written with is alive in this
+    save (the companion's own rule); None otherwise -- no file, another village's, unreadable -- and the companion
+    then starts the tree full."""
+    try:
+        raw = fruit_supply_file(village).read_bytes()
+    except (OSError, TypeError, AttributeError):
+        return None
+    if len(raw) != 32 + 1024:
+        return None
+    magic, version, game, slot, fruit, units, count, _ = struct.unpack_from("<8I", raw)
+    if (magic, version, game, slot) != (FRUIT_MAGIC, 1, GAME, village.slot) or fruit > FRUIT_FULL \
+            or units >= FRUIT_REFILL_UNITS or count > 256:
+        return None
+    roster = {v for v in struct.unpack_from("<256I", raw, 32) if v}
+    return (fruit, units) if roster & fruit_living(village) else None
+
+
+def fruit_living(village: gm.Village) -> set[int]:
+    """The companion's identities of the save's living villagers (empty when the table cannot be read)."""
+    try:
+        import vv_last_names as ln
+        entries = ln._entries(GAME, village.data)
+        f = ln.FIELDS[GAME]
+        data = village.data
+        return {fruit_identity(_i32(data, at + f.sex), data[at:at + f.name_cap],
+                               data[at + f.father:at + f.father + f.parent_cap],
+                               data[at + f.mother:at + f.mother + f.parent_cap]) for at in entries}
+    except Exception:  # noqa: BLE001 -- an unreadable villager table: the file cannot be tied to this village
+        return set()
 
 
 # The game clock 0x4D6F18, saved by 0x41DAC0 at manager+0x8E8 (0x41F0BF) and loaded by 0x41DAA0 (0x41FCAB); the

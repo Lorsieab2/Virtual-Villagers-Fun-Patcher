@@ -370,6 +370,10 @@ CASES = [
     Case("Push Clouds", "assets/push_clouds/VVFP Push Clouds.dll", (3,),
          lambda g: [f"vv{g}_push_overview_clouds"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpPushCloudsInstalled"))[1]),
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): eight jumps and two Cooking Pit vtable slots.
+    Case("VV4 Fruit Supply", "assets/fruit_supply/VVFP VV4 Fruit Supply.dll", (4,),
+         lambda g: [f"vv{g}_yellow_fruit_trees_limited"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpYellowFruitInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),
