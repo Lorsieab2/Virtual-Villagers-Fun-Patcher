@@ -138,7 +138,19 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_collectible_spawn_like_vv3"
                   or p == "vv4_clothmaking_at_science_3"
                   # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
-                  or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")})
+                  or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
+                  # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
+                  # DEFAULTS ONLY").
+                  or p == "vv5_heathens_keep_masks_when_converted"})
+
+    def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it
+        like every other Owner's Defaults-only row (Faith Loss, Food Gains are Flat)."""
+        patch_id = "vv5_heathens_keep_masks_when_converted"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
 
     def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
         """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in

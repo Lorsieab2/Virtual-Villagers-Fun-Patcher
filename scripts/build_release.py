@@ -116,6 +116,9 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
+    # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
+    # Appearance mask.
+    "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -249,6 +252,8 @@ FILES = [
     "data/vv4_disable_overview_clouds_feature.json",
     "data/vv5_disable_overview_clouds_feature.json",
     "data/vv3_push_overview_clouds_feature.json",
+    # Heathens Keep Their Masks When Converted (New Believers).
+    "data/vv5_heathens_keep_masks_feature.json",
     # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

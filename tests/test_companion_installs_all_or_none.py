@@ -370,6 +370,10 @@ CASES = [
     Case("Push Clouds", "assets/push_clouds/VVFP Push Clouds.dll", (3,),
          lambda g: [f"vv{g}_push_overview_clouds"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpPushCloudsInstalled"))[1]),
+    # Heathens Keep Their Masks When Converted (New Believers): the conversion's role test and The Defector's setter call.
+    Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
+         lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathensKeepMasksInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),

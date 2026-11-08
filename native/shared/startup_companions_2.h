@@ -38,6 +38,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Keep Carried.dll",
     /* Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse. */
     "VVFP Push Clouds.dll",
+    /* Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
+       Appearance mask (the Origins companion's mask table). */
+    "VVFP Heathens Keep Masks.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -203,6 +203,10 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (2026-11-08): off by default, Owner's Defaults ticks both.
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
     + ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"]
+    # Heathens Keep Their Masks When Converted (New Believers): the owner
+    # (2026-11-08): "default on in OWNERS DEFAULTS ONLY" -- off here; Owner's
+    # Defaults ticks it, as it ticks every default-off patch it does not name.
+    + ["vv5_heathens_keep_masks_when_converted"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
