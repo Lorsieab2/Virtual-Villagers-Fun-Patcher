@@ -76,9 +76,10 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
    and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets" and/or "No Fishing at Science
-   Level 2" (off by default: the Clothing Hut, and so cloth and the fishing
-   nets, waits for Science level 3) and/or "Science Collectibles Only Count
+   "Complete Fish Scales = Golden Fish in Nets" and/or "Harder Fishing Unlock
+   in VV4" (off by default: cloth waits for Science level 3 and fixing the
+   piers for Construction level 3, so the fishing nets come later; piers
+   already fixed and cloth already made are kept) and/or "Science Collectibles Only Count
    When Complete" (off by default, also in New Believers: the science
    collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
@@ -517,7 +518,7 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
 Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
-plus Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like
+plus Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like
 VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
 Life, Faith Loss is Doubled/Gains Halved in New Believers, and Sickness works
 like VV1-3 in both (villagers fall sick as in The Secret City: more often
