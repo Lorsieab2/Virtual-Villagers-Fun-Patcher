@@ -265,6 +265,30 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
                         "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."
                         + mastery_words, gm.RUNNING)
+    # The yellow fruit tree and the Cooking Pit (puzzle 6, CFruitwells vtable 0x48E890, constructor 0x436510): the drop
+    # 0x435970 (action 0x6A before the restore, 0x64 after), the trip 0x4343A0 -> 0x65..0x68 (0x4346F0), the spot
+    # locks 5..8 and holes 1..4 (table 0x704E38; timeouts 0x46D563 45 and 180 game seconds, freed by 0x46D7F0 from
+    # 0x43F984), the stew 0x4349A3, the credit job event 15 0x464567; catch-up 0x463A30 and the bonus 0x468A7A.
+    add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored; before that a villager dropped on it "
+                        "only finds the fruit needs cooking): a trip claims one of the pit's 4 fruit spots (all 4 taken: "
+                        "\"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit down, "
+                        "the Farming check ((Farming + 34) in 100; a failure ends it with nothing), carries the fruit to "
+                        "the pit, a 5 s wait, stomps it in its cooking hole, a 3 s wait, then walks it to the food bin: "
+                        "3 food. If the stew pot is waiting for an ingredient the fruit goes into the stew instead. "
+                        "About 162 real-life seconds a trip at every speed.", gm.CODE)
+    add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
+                        "a spot frees itself 45 seconds of game time after it is claimed (22.5, 45 or 75 real-life "
+                        "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
+                        "on fruit trips at once: about 14, 7 or 5 (an estimate). A villager dropped on the tree does "
+                        "one trip (no task is set); a farmer the game sends picks the bush, the fruit or the nets at "
+                        "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
+    add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
+                        "Cooking Pit is restored, after each counted age unit's job turns (all but the last 2) every "
+                        "villager who had them (aged 14 or more, not sick) adds 5 food x Food Mastery (5, 7 or 10) on "
+                        "a (Farming - 25) in 100 chance, whatever its job, with no walking and no spot limit: 3.75 "
+                        "food a unit at Farming 100, 1.75 at 60, nothing at 25 or less (Food Mastery 1); children add "
+                        "nothing. Each villager eats 2, so it carries a tribe of high-Farming adults but not a large "
+                        "one of children and low-Farming villagers.", gm.CODE)
     # The Mossy Rocks (CMossyRocks, vtable 0x48E944; its villager is "Catching a crab", 0x436F30) pay 35 on their
     # result 1 (0x436F0E); a villager's find of a crab pays 55 and says "This villager found a crab!" (the job
     # event 18, 0x464A3F..0x464A93).  The owner: the 55-food catch is a crab.
@@ -492,7 +516,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                 refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
                                              "trip can start only while one of its 4 fruit spots is free (0x4343A0; "
-                                             "each frees itself after 45 game-clock seconds, so about 14, 7 or 5 "
+                                             "each frees itself after 45 seconds of game time, so about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, an estimate)",
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
