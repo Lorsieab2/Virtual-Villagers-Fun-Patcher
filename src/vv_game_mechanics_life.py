@@ -986,7 +986,7 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
             words += (f"; live, {_plural(s.live_needed)} (one brings {s.live_hour:,.0f} food per real-life hour on "
                       f"{on} speed: food once every {s.cycle:g} real-life seconds, {s.live_food:g} each), but only about "
                       f"{workers:g} villagers can work it at once on {on} speed (an estimate: its 4 fruit spots each "
-                      f"free themselves after 45 seconds of game time), so it brings at most about {cap_hour:,.0f} food "
+                      f"free themselves after 45 seconds on the game's clock), so it brings at most about {cap_hour:,.0f} food "
                       f"per real-life hour, enough for about {cap_hour / (per_unit * hour):,.1f} villagers"
                       + (" (not enough for this village alone)" if cap_hour < eaten_hour else ""))
         elif s.live_hour:
