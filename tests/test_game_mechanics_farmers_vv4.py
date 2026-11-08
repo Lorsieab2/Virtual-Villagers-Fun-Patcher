@@ -65,11 +65,10 @@ class ModuleTests(unittest.TestCase):
         self.assertEqual(turns, 4)
         self.assertEqual([t.key for t in trips], ["blackberry picks", "fish in the net", "fruit stomps"])
         page = (ROOT / "src" / "vv_game_mechanics_vv4.py").read_text(encoding="utf-8")
-        # The fruit is measured (Food earned) but left out of Farmers needed: no farmer is sent to it while catching up.
-        self.assertNotIn('("fruit stomps", ', page)
+        # The fruit is in Farmers needed for live play once the Cooking Pit is restored (the owner, 2026-11-08: account
+        # for it everywhere); while catching up no farmer is sent to it and the Cooking Pit bonus stands in.
         for trip in trips:
-            if trip.key != "fruit stomps":
-                self.assertIn(f'("{trip.key}", ', page)
+            self.assertIn(f'("{trip.key}", ', page)
             self.assertEqual(trip.success_offset, 34)
             self.assertIsNone(trip.live_food, "the page's own food a trip applies")
             self.assertIsNone(trip.catch_up_food)
