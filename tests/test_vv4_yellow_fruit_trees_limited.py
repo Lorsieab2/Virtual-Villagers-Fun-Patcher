@@ -383,6 +383,25 @@ class CatchUp(unittest.TestCase):
         t.v.life_tick(count_turns=True)                   # one unit for two villagers: one unit for the tree
         self.assertEqual(t.left(), 0)
 
+    def test_an_unburied_reference_is_replaced_by_a_living_villager(self) -> None:
+        """A body keeps its record (occupied, the same identity) until it is buried, but no longer ages: the next
+        living villager's unit counts instead, so the refill clock never stops (Codex, PR #735)."""
+        t = Tree(files={side(): tree_file(0, units=38, roster=[identity("Ana"), identity("Bo")])})
+        ana = t.villager("Ana", index=0)
+        bo = t.villager("Bo", index=1)
+        for r in (ana, bo):
+            t.v.w32(r + fe.AGE, 501)
+            t.v.w32(r + fe.PROC_AGE, 500)
+        t.v.life_tick(count_turns=True)                   # Ana, the first processed, is the reference: 39
+        self.assertEqual(t.left(), 0)
+        t.v.w32(ana + fe.HEALTH, 0)                       # Ana dies; her body is not buried yet
+        t.v.w8(ana + 0x1CC7, 1)
+        self.assertEqual(t.v.uc.mem_read(ana + 0x1CC4, 1)[0], 1)     # still in her record
+        t.v.w32(bo + fe.AGE, 502)
+        t.v.w32(bo + fe.PROC_AGE, 501)
+        t.v.life_tick(count_turns=True)                   # Bo's unit counts: the 40th, the tree is refilled
+        self.assertEqual(t.left(), 1000)
+
 
 @unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
 class TheFile(unittest.TestCase):

@@ -114,6 +114,8 @@
 #define REC_MOTHER 0x1BD9u
 #define REC_PROC_AGE 0x1C3Cu         /* the life tick's esi */
 #define REC_OCCUPIED 0x1CC4u
+#define REC_DEAD 0x1CC7u             /* set at death; the record stays occupied until the body is buried */
+#define REC_HEALTH 0x1C40u
 #define ROSTER_MAX 256
 
 /* Sites. */
@@ -502,13 +504,24 @@ static int __cdecl on_bonus(void) {
     return pay;
 }
 
-/* The life tick is processing one age unit of the villager at `rec`: the reference's units are the village's. */
+/* A living villager, as the Story companion's c4_listed counts one: in a record, not dead, health above 0.  An
+   unburied body keeps its record (and its identity) but no longer ages. */
+static int alive(const unsigned char *rec) {
+    return rec[REC_OCCUPIED] != 0 && rec[REC_DEAD] == 0 && *(const int *)(rec + REC_HEALTH) > 0;
+}
+
+/* The life tick is processing one age unit of the villager at `rec`: the reference's units are the village's.  The
+   reference is replaced by the villager being processed once it is no longer alive (dead, buried or not) or its
+   record holds someone else; only a living villager becomes the reference. */
 static void __cdecl on_unit(const unsigned char *rec) {
     __try {
         if (!bind_village(0)) {
             return;
         }
-        if (g_reference == NULL || g_reference[REC_OCCUPIED] == 0 || identity(g_reference) != g_reference_id) {
+        if (g_reference == NULL || !alive(g_reference) || identity(g_reference) != g_reference_id) {
+            if (!alive(rec)) {
+                return;
+            }
             g_reference = rec;
             g_reference_id = identity(rec);
         }

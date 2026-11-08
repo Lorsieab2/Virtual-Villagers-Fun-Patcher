@@ -146,7 +146,8 @@ def row(dll_sha: str) -> dict:
             "farming dispatcher does not add the fruit to its options (so rand(n) picks among the others, or "
             "none); a task 2 takes the empty bush's way out of the task gate (task cleared).",
             "Refill: every age unit the life tick 0x468430 processes for one reference villager (the first "
-            "processed, re-chosen when it dies or its record changes) counts; at 40 the tree is set to 1,000 "
+            "processed, re-chosen when it is no longer alive -- health 0 or the death flag +0x1CC7, buried "
+            "or not -- or its record changes) counts; at 40 the tree is set to 1,000 "
             "and the count starts again. This is live and catch-up alike, so time away as the game's aging "
             "counts it (it clamps a long absence) and Time Warp both count.",
             "A Custom Island Event's \"Refill the food sources\" (VVFP Story Upgrades.dll, c4_refill) calls this "
