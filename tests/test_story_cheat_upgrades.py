@@ -887,6 +887,31 @@ class LockTests(unittest.TestCase):
                     self.assertEqual(picked.read(base_p + off, size), bought.read(base_b + off, size),
                                      hex(off))
 
+    def test_vv5_a_delivered_island_event_stops_counting_as_on_its_way(self):
+        """The owner (2026-11-08): "my bought upgrades such as custom island events ... never spawn" -- a
+        delivered bought island event's bits (0x10, 0x20 at 0x51D388) stayed set until two Tech screen visits, so
+        every purchase was refused "already queued" and the Time Skip's notice never came.  Retired once the timer
+        is past the village's last tick (manager+0x17D50); a due timer, or one a pause moved to a moment still
+        behind the last tick, still counts; the Barrel's bits (4, 8) are never touched."""
+        if not have_stock("vv5"):
+            self.skipTest("stock executable not present")
+        for bits, timer, last, pending, left in (
+                (0x10, 0, CLOCK, 1, 0x10),                 # bought, not yet delivered
+                (0x20, 600, CLOCK, 1, 0x20),               # a pause moved the due timer: still due
+                (0x10, CLOCK + 36000, CLOCK, 0, 0),        # delivered: the trigger rescheduled it
+                (0x30, CLOCK + 1, CLOCK, 0, 0),
+                (0x08, CLOCK + 36000, CLOCK, 1, 0x08),     # a barrel bought: its own bits stay
+                (0x24, CLOCK + 36000, CLOCK, 1, 0x04)):    # delivered island, barrel still due
+            with self.subTest(bits=hex(bits), timer=timer):
+                proc = process("vv5")
+                world = self._world(proc, "vv5")
+                proc.put32(0x51D388, bits)
+                proc.put32(world + 0x17D3C, timer)
+                proc.put32(world + 0x17D50, last)
+                proc.export("VvfpStoryInstall", 5)
+                self.assertEqual(proc.export("VvfpStoryProbePending", 5), pending)
+                self.assertEqual(proc.u32(0x51D388), left)
+
     def test_an_armed_pick_is_the_island_events_lock(self):
         for game in GAMES:
             if not have_stock(game):
