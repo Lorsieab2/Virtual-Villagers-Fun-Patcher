@@ -106,6 +106,18 @@ class HandOfBloom(unittest.TestCase):
         self.assertIn("On the noni bushes: +100 to +199 noni", page)
         self.assertIn("On open ground: 17 to 22 plants", page)
 
+    def test_hard_adds_one_each(self) -> None:
+        data = bytearray(vv5_save(False, 400, 500))
+        struct.pack_into("<i", data, life.DIFFICULTY_AT[5], 2)
+        page = render(5, bytes(data), self.TRIBE)
+        self.assertIn("make about 17 Divine Energy each age unit", page)      # 14 + 1 each (the reviewer's figure)
+        self.assertIn("One cast's worth comes every 8.8 age units", page)
+
+    def test_noni_near_full_keeps_part_of_the_cast(self) -> None:
+        data = bytearray(vv5_save(False, 400, 500))
+        struct.pack_into("<i", data, vv5.NONI, 900)
+        self.assertIn("now 900, so about 100 noni", render(5, bytes(data), self.TRIBE))
+
     def test_below_150_cap_it_cannot_be_cast(self) -> None:
         self.assertIn("The cap is below 150, so Hand of Bloom cannot be cast yet.",
                       render(5, vv5_save(False, 50, 100), self.TRIBE))

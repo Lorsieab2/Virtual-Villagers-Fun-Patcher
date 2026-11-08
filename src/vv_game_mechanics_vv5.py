@@ -374,11 +374,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         devotion = [p.skill("Devotion", 5) for p in believers]
         if not believers or any(d is None for d in devotion):
             return []
-        income = sum(9 if d >= 88 else 4 if d >= 50 else 1 for d in devotion)
+        # 1 more each on Hard, or on Medium at 8,000 food or more (the life tick; Tech points and effects).
+        level = c.difficulty
+        extra = 1 if level == 2 or (level == 1 and c.food >= 8000) else 0
+        income = sum(9 if d >= 88 else 4 if d >= 50 else 1 for d in devotion) + extra * len(believers)
         out = []
         head = (f"Hand of Bloom for food (cast by the player in live play; 150 Divine Energy a cast, no cooldown): this "
                 f"tribe's {len(believers)} believers make about {income:,} Divine Energy each age unit (1 each, 4 at "
-                f"Devotion 50 or more, 9 at 88 or more; Honoring adds more), now {energy_now:,} of a {energy_cap:,} cap. ")
+                f"Devotion 50 or more, 9 at 88 or more, 1 more on Hard or on Medium at 8,000 food or more"
+                + (", as now" if extra else "") + f"; Honoring adds more), now {energy_now:,} of a {energy_cap:,} cap. ")
         if energy_cap < 150:
             return [head + "The cap is below 150, so Hand of Bloom cannot be cast yet."]
         units = 150 / income
@@ -391,11 +395,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                  "Divine Energy.")
         out.append(head)
         noni_food = 149.5 * boost
-        out.append(f"On the noni bushes: +100 to +199 noni (about 150) over the next 100 to 199 updates, so about "
+        kept = max(0.0, min(149.5, 1000 - noni))
+        out.append(f"On the noni bushes: +100 to +199 noni (about 150) over the next 100 to 199 updates, about "
                    f"{noni_food:,.0f} food once picked (a pick takes as many noni as the food it brings, before Food "
-                   f"Mastery); above 1,000 the next growth cuts it back, so it helps only below about 850 noni"
-                   + (f" (now {noni:,}: a cast adds nothing until farmers pick the bushes down)." if noni >= 850
-                      else f" (now {noni:,})."))
+                   f"Mastery); the next +2 growth cuts anything above 1,000 back to 1,000, so unless farmers pick "
+                   f"during it a cast keeps at most 1,000 minus the noni there: now {noni:,}, so about {kept:,.0f} noni "
+                   f"({kept * boost:,.0f} food) kept" + (" (the whole cast)." if kept >= 149.5 else "."))
         if farm:
             room = max(0, CROPS_FULL - crops)
             out.append(f"On the field (the Hydroponic Farm built): the crops are filled to {CROPS_FULL} at once and their "
