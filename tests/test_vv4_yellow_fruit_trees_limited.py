@@ -442,6 +442,76 @@ class TheFile(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
+class CustomIslandEventRefill(unittest.TestCase):
+    """VvfpYellowFruitRefill: what a Custom Island Event's "Refill the food sources" calls (VVFP Story Upgrades.dll,
+    story_c4.inc c4_refill; its side is tests/test_story_custom_island_event.py)."""
+
+    def refill(self, t: Tree) -> int:
+        return t.v.process.export("VvfpYellowFruitRefill")
+
+    def test_a_low_tree_is_filled_and_its_refill_clock_runs_on(self) -> None:
+        t = Tree(files={side(): tree_file(120, units=17, roster=[identity("Ana")])})
+        t.villager()
+        before = dict(t.files.files)
+        self.assertEqual(self.refill(t), 1)
+        self.assertEqual(t.left(), 1000)
+        self.assertEqual(t.files.files, before)           # nothing written: the file follows the next save
+        t.save()
+        fruit, units = struct.unpack_from("<2I", t.files.files[side()], 16)
+        self.assertEqual((fruit, units), (1000, 17))
+
+    def test_a_full_tree_stays_full(self) -> None:
+        t = Tree()
+        t.villager()
+        self.assertEqual(self.refill(t), 1)
+        self.assertEqual(t.left(), 1000)
+
+    def test_after_trips_and_an_empty_tree(self) -> None:
+        t = Tree(files={side(): tree_file(0, roster=[identity("Ana")])})
+        t.villager()
+        self.assertEqual(t.drop()[0], 0x3F)               # empty: refused
+        self.assertEqual(self.refill(t), 1)
+        self.assertEqual(t.drop()[0], fe.FRUIT)           # filled: the stock trip
+        t.v.call(CLEAR_QUEUE, t.v.rec(0))
+        t.v.run_trip(fe.FRUIT)
+        self.assertEqual(t.left(), 997)
+
+    def test_no_file_yet_and_no_slot(self) -> None:
+        t = Tree()                                        # no file for the slot yet
+        t.villager()
+        self.assertEqual(self.refill(t), 1)
+        self.assertEqual(t.left(), 1000)
+        self.assertNotIn(side(), t.files.files)
+        t.save()
+        self.assertEqual(struct.unpack_from("<I", t.files.files[side()], 16)[0], 1000)
+        none = Tree(slot=0)                               # no save slot known: kept in memory only
+        none.villager()
+        self.assertEqual(self.refill(none), 1)
+        self.assertEqual(none.left(), 1000)
+        none.save()
+        self.assertEqual(none.files.files, {})
+
+    def test_right_after_a_load_the_file_is_read_first(self) -> None:
+        t = Tree()
+        t.villager()
+        t.files.files[side()] = tree_file(40, units=5, roster=[identity("Ana")])
+        t.load()
+        self.assertEqual(self.refill(t), 1)
+        self.assertEqual(t.left(), 1000)
+        t.save()
+        self.assertEqual(struct.unpack_from("<2I", t.files.files[side()], 16), (1000, 5))
+
+    def test_no_one_alive_or_not_installed_does_nothing(self) -> None:
+        t = Tree(files={side(): tree_file(7, roster=[identity("Ana")])})
+        self.assertEqual(self.refill(t), 0)               # no living villager: no village to fill
+        t.villager()
+        self.assertEqual(t.left(), 7)                     # the file's count, untouched
+        v = fe.Village(seed=3, berries=0, solved=(6,), dll=DLL)
+        both_factions.Files(v.process)
+        self.assertEqual(v.process.export("VvfpYellowFruitRefill"), 0)   # VvfpStartup never ran
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
 class EveryBuild(unittest.TestCase):
     def test_every_mode_installs_and_a_trip_takes_three(self) -> None:
         for mode in MODES:

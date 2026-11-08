@@ -25,6 +25,8 @@
        tick 0x468430 processes for one living villager (the reference, re-chosen when it dies), at 0x468AD6, which
        every processed unit reaches, live and while catching up (time away, as clamped by the game's own aging, and
        Time Warp alike) -- 4 hours of play on Normal, 2 on Fast, 6 h 40 min on Slow;
+     * a Custom Island Event's "Refill the food sources" fills the tree to 1,000 (VvfpYellowFruitRefill, called by
+       VVFP Story Upgrades.dll; no stock island event refills the tree);
      * clicking the tree (its area handler's message 2, which the stock game ignores for the tree) shows
        "Fruit remaining: N" on the game's own status line (0x4DB8E8 via 0x44C3A0), as the blackberry bush shows
        "Berries remaining: N" (0x46F82A, text 0x115).
@@ -673,6 +675,27 @@ static int holds(unsigned int va, const unsigned char *bytes, int length) {
 /* 1 when every site is installed (for the tests' emulation), else 0. */
 int __stdcall VvfpYellowFruitInstalled(void) {
     return g_installed;
+}
+
+/* "Refill the food sources" of a Custom Island Event (VVFP Story Upgrades.dll, story_c4.inc c4_refill, which finds
+   this by GetProcAddress and does nothing when this companion is not loaded): the tree is filled to its full 1,000
+   for the village on screen.  Its 40-unit refill clock runs on unchanged.  Nothing is written here: the file is
+   written when the game next saves, with the save (a refill the save never keeps is never kept).  1 when the tree
+   was filled, 0 when the sites are not installed or no villager is alive (no village to keep a count for). */
+int __stdcall VvfpYellowFruitRefill(void) {
+    int filled = 0;
+    if (!g_installed) {
+        return 0;
+    }
+    __try {
+        if (bind_village(0)) {
+            g_fruit = FS_FULL;
+            filled = 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        filled = 0;
+    }
+    return filled;
 }
 
 /* Called once by VVFP Startup.dll before WinMain. */

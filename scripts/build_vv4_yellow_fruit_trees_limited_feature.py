@@ -81,7 +81,8 @@ def description() -> str:
         "difficulty changes only meals; the stew takes fruit as above; the Purify Tree, the Tree of Life, the "
         "Nursery's \"Showing baby the cooking area\" and the island event that needs the restored pit take no "
         "fruit; Time Warp and Choose Time Skip Amount add age units, so the tree refills for them too. "
-        "The count is kept beside the save, in "
+        "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills the tree to 1,000 "
+        "too; no island event of the game's own refills it. The count is kept beside the save, in "
         f"{SIDECAR}, written when the game saves; the save itself is never changed, so without this patch the "
         "tree is simply unlimited again. **Needs no other patch.** **Off by default; Owner's Defaults ticks it, "
         "and it is part of Classic VV Difficulty.** **Unverified in play: the effect has not been tested live.** "
@@ -134,6 +135,10 @@ def row(dll_sha: str) -> dict:
             "processed, re-chosen when it dies or its record changes) counts; at 40 the tree is set to 1,000 "
             "and the count starts again. This is live and catch-up alike, so time away as the game's aging "
             "counts it (it clamps a long absence) and Time Warp both count.",
+            "A Custom Island Event's \"Refill the food sources\" (VVFP Story Upgrades.dll, c4_refill) calls this "
+            "companion's export VvfpYellowFruitRefill (found with GetProcAddress; nothing when this companion is "
+            "not loaded): the tree is set to 1,000 for the village on screen (read from its file first when the "
+            "village was just loaded); the 40-unit count runs on; the file is written at the next save, with it.",
             "Message 2 to the tree's area handler 0x435970 (the tree clicked; ignored by the stock game) shows "
             "\"Fruit remaining: N\" on the status line 0x4DB8E8 through 0x44C3A0, for 5 seconds, as the bush "
             "shows \"Berries remaining: \" (0x46F82A, text 0x115). The words go through VVFP Translations.dll "
@@ -154,7 +159,10 @@ def row(dll_sha: str) -> dict:
             "0x461B56 the Nursery's \"Showing baby the cooking area\", 0x445FCC / 0x44631F the puzzle screen) take "
             "no fruit; every food-bin credit of fruit, the four spot trips' and the resumed stomping actions' "
             "(0x0F..0x12), is job event 15 and takes 3; Time Warp and Choose Time Skip Amount add age units that "
-            "the life tick processes, so they count toward the refill.",
+            "the life tick processes, so they count toward the refill. No island event of the game's own "
+            "touches the tree: of the 49 event classes' results (vtable slots 11 and 12) and the routines they "
+            "call, only A Closer Look (0x414B38, the blackberries +350) refills a food source, and it stays "
+            "berries only (the owner, 2026-11-08).",
             "No executable byte is patched: the companion writes its 8 jumps and 2 vtable slots at run time, only "
             "after verifying every stock value, all or none; a different build installs nothing.",
             "The save is never written, so removing the patch leaves the tree unlimited as in the stock game; the "
