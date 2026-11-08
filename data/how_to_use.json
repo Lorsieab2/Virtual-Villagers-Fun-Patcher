@@ -281,6 +281,7 @@
         "A fruit trip takes 3 fruit when its food reaches the food bin (or its fruit goes in the stew); a catch-up Cooking Pit bonus takes 5.",
         "With fewer than 3 left villagers refuse it and farmers are not sent there. Click the tree to see how much fruit is left.",
         "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills it to 1,000 too.",
+        "Adds an island event, A Closer Look (Yellow Breadfruit): once the Cooking Pit is restored, the tree gains 350 fruit (up to 1,000).",
         "The count is kept beside the save (in Save N, Data, Fruit Trees); the save itself is never changed."
       ]
     },

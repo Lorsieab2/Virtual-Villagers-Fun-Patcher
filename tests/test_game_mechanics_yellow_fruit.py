@@ -119,3 +119,25 @@ class YellowFruitPage(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class YellowBreadfruitEvent(unittest.TestCase):
+    """The patch's own island event, A Closer Look (Yellow Breadfruit), under Island events: only with the patch."""
+
+    def events(self, installed: frozenset) -> str:
+        import vv_game_mechanics_events as events
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            village = gm.Village(folder, 4, 1, folder / "Virtual Villagers - The Tree of Life1.ldw",
+                                 vv4_save(True, False), installed, NOW)
+            return " ".join(f.text for f in events.facts(village))
+
+    def test_listed_with_its_conditions_and_effect_only_with_the_patch(self) -> None:
+        page = self.events(frozenset({vv4.YELLOW_FRUIT}))
+        self.assertIn("A Closer Look (Blackberries) -- needs a living villager of any age", page)
+        self.assertIn("A Closer Look (Yellow Breadfruit) -- needs the Cooking Pit restored and a living villager of "
+                      "any age; added by \"Yellow Fruit Trees are No Longer Unlimited\"", page)
+        self.assertIn("The Cooking Pit's yellow fruit tree gains 350 fruit, up to its 1,000.", page)
+        stock = self.events(frozenset())
+        self.assertIn("A Closer Look (Blackberries)", stock)
+        self.assertNotIn("Yellow Breadfruit", stock)
