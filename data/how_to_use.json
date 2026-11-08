@@ -234,9 +234,10 @@
     {
       "ids": ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"],
       "guide": [
-        "Off by default; its title is red. Ticking it ticks every harder-game patch of the game at once.",
-        "Set how hard with the two sliders, 2-10x Tech Cost and Hungrier Villagers. Owner's Defaults ticks it and sets both to 2.",
-        "Unticking any of its patches unticks it too."
+        "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
+        "and No Fishing at Science Level 2 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers).",
+        "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
     {
@@ -996,7 +997,7 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "2-10x Tech Cost (all five games) is not ticked either: only its own box ticks it.",
+        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either: tick them yourself.",
         "It does not change the population mode."
       ]
     },
@@ -1005,11 +1006,11 @@
       "guide": [
         "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
-        "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
-        "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
+        "and Fruit Trees Take Turns Refilling (All Fruit Trees Refill at the Same Time is ticked) and Use Unicode Font (overrides in-game fonts).",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games), No Fishing at Science Level 2, Science Collectibles Only Count When Complete, Hungrier Villagers (2-10x Meals) and Classic VV Difficulty are off: they make the game harder.",
-        "This is what a fresh install starts with. Checked Skill Preferences are listed as Jobs on Graves is off.",
+        "Off because they make the game harder: 2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games),",
+        "No Fishing at Science Level 2, Science Collectibles Only Count When Complete, Hungrier Villagers (2-10x Meals), Classic VV Difficulty.",
+        "Checked Skill Preferences are listed as Jobs on Graves is off. This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
     },
@@ -1020,7 +1021,7 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
-        "It ticks the harder-game patches too: 2-10x Tech Cost and Hungrier Villagers in all five games, and Classic VV Difficulty in The Tree of Life and New Believers, with both sliders set to 2.",
+        "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here: the Story / Cheat Upgrades are free.",
         "It does not change the population mode."
       ]

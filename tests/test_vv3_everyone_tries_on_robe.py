@@ -252,17 +252,19 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned once more for Checked Skill Preferences are listed as Jobs on Graves (vv3_preferred_job_graves): without
     # it the render equals the 2-10x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
     # (0x5504E..0x550AC) or the PE CheckSum.
+    # Re-pinned for Hungrier Villagers (vv3_hungrier_villagers): without it the render equals the pins above; with
+    # it exactly 3 bytes differ in every mode, the meal immediates 0x60081 and 0x600C5 and the PE CheckSum byte 0x161.
     "stock": (
-        "E96BB2CD714BACCCD0BB23C8D45EFEC75F693AE29AABD357D8F2E0D25CB17DC5",
-        "D45D0D00",
+        "D539EA47695DB8D031F68F9E8AB6C195A3B80C204624FF272B7A27C7F3BC9D4B",
+        "D4590D00",
     ),
     "collection_progression": (
-        "BF1B244AD9856D453CF5B98E17D533858A3B3E3BBC1C7E1AA9884322B704A0A5",
-        "D4760D00",
+        "3C4A5D426E5EBD2EFCE4677E96324F41CF1805F984D7F4CB3B2BFB262E4A69E7",
+        "D4720D00",
     ),
     "immediate_fixed": (
-        "3AA1613BE9F0B66B85A73B9073FEED276DA360745563788F1902275B930ADBB2",
-        "D2B80D00",
+        "68E8C59C5C3F5BFFCC45D55FD616100B34DC501BEC0C125A81F873E79A5966F4",
+        "D2B40D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at

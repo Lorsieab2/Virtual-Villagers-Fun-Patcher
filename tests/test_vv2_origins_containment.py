@@ -44,6 +44,8 @@ REMAINING = {
     "vv2_skip_all_intro",
     # 2-10x Tech Cost: its price immediates only, nothing of Origins.
     "vv2_tech_cost_multiplier",
+    # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
+    "vv2_hungrier_villagers",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",

@@ -35,10 +35,10 @@ def _owner_keeps_off(patch_id: str) -> bool:
     Refill at the Same Time stays off."""
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on" -- Use
     # Unicode Font, the alternative of Render Unicode with In-Game Fonts, stays off.
-    # The owner (2026-11-06) on 2-10x Tech Cost (all five games): "default off for everything. players who want
-    # it must explicitly choose it" -- Owner's Defaults leaves it off too.
+    # 2-10x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
+    # Upgrades cost Tech Points is not ("set "story upgrades cost tech points" default off in owner's defaults").
     return ("learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
-            or patch_id.endswith("_unicode_font") or patch_id.endswith("_tech_cost_multiplier"))
+            or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points"))
 
 
 class OwnersDefaultsTests(unittest.TestCase):
