@@ -587,8 +587,23 @@ static void c4_change_tech(int op, int amount) {
     *(int *)(uintptr_t)C4_TECH = after;
 }
 
+/* With "Yellow Fruit Trees are No Longer Unlimited" the Cooking Pit's
+   yellow fruit tree holds at most 1,000 fruit, kept by its own companion
+   ("VVFP VV4 Fruit Supply.dll", in its per-save file): the companion fills
+   it, through its own export.  Absent (its row off): the tree never runs
+   out, and nothing is done.  Kept apart from the berry store, so any other
+   refill can call it too.  1 when the tree was filled. */
+static int c4_refill_fruit_tree(void) {
+    typedef int (__stdcall *fruit_refill_fn)(void);
+    HMODULE module = GetModuleHandleA("VVFP VV4 Fruit Supply.dll");
+    fruit_refill_fn refill = module != NULL
+        ? (fruit_refill_fn)GetProcAddress(module, "VvfpYellowFruitRefill") : NULL;
+    return refill != NULL ? refill() : 0;
+}
+
 /* The berry bushes, [world+0x170F8], to their full 1000 (the game's own
-   ceiling, 0x4203CA; A Closer Look adds to them, 0x414B30). */
+   ceiling, 0x4203CA; A Closer Look adds to them, 0x414B30), and the yellow
+   fruit tree when its supply is limited (c4_refill_fruit_tree). */
 static int c4_refill(void) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV4_WORLD_GLOBAL;
     if (world == NULL) {
@@ -597,6 +612,7 @@ static int c4_refill(void) {
     if (*(int *)(world + 0x170F8) < 1000) {
         *(int *)(world + 0x170F8) = 1000;
     }
+    (void)c4_refill_fruit_tree();
     return 1;
 }
 
@@ -610,8 +626,9 @@ static int c4_refill(void) {
    frame. */
 static const ce_value_def C4_VALUES[] = {
     { "Blackberries", 0, 1000,
-      "One store for every bush; the game's own ceiling is 1000. The fruit trees and "
-      "fishing have no store: they never run out." },
+      "One store for every bush; the game's own ceiling is 1000. Fishing has no store, "
+      "and the fruit trees none unless Yellow Fruit Trees are No Longer Unlimited is on "
+      "(Refill fills its tree)." },
     { "Cutting tools", 0, 6,
       "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved "
       "was not seen in play." },
@@ -801,8 +818,9 @@ static const ce_adapter C4_ADAPTER = {
     C4_BEHAVIOURS, (int)(sizeof C4_BEHAVIOURS / sizeof C4_BEHAVIOURS[0]),
     C4_VILLAGE, 2,
     "Not in The Tree of Life:\r\n\r\n"
-    "- Refill and amounts: the fruit trees and fishing have no store (they never run "
-    "out).\r\n"
+    "- Refill and amounts: fishing has no store (it never runs out). The fruit trees "
+    "have none either unless Yellow Fruit Trees are No Longer Unlimited is on; then "
+    "Refill fills its tree to 1,000, but it cannot be set to an amount.\r\n"
     "- Special statuses: Scholar and Elderly are worked out from skills and age, and "
     "\"Tribal Chief\" is never shown, so there is none to give.\r\n"
     "- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire "
@@ -815,7 +833,8 @@ static const ce_adapter C4_ADAPTER = {
     "- Weather other than rain and clear: the other types are not identified.\r\n"
     "- Golden Child, faction, totems: The Tree of Life has none.",
     48, 14, 30, 1,
-    "Refills the berry bushes.",
+    "Refills the berry bushes and, with Yellow Fruit Trees are No Longer Unlimited, the "
+    "yellow fruit tree.",
     "Your village gains %d food.", "Your village has lost %d food.",
     "Your village has gained %d tech points.", "Your village has lost %d tech points.",
     c4_record, c4_listed, c4_arm_refusal, c4_room, c4_spawn, c4_kill, c4_vanish, c4_sicken,

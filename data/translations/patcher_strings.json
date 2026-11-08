@@ -23558,7 +23558,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_VALUES.0.3",
-   "english": "One store for every bush; the game's own ceiling is 1000. The fruit trees and fishing have no store: they never run out.",
+   "english": "One store for every bush; the game's own ceiling is 1000. Fishing has no store, and the fruit trees none unless Yellow Fruit Trees are No Longer Unlimited is on (Refill fills its tree).",
    "games": [
     "vv4"
    ],
@@ -23888,7 +23888,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.37",
-   "english": "Not in The Tree of Life:\r\n\r\n- Refill and amounts: the fruit trees and fishing have no store (they never run out).\r\n- Special statuses: Scholar and Elderly are worked out from skills and age, and \"Tribal Chief\" is never shown, so there is none to give.\r\n- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire and the huts as puzzles (they are not puzzles).\r\n- The unborn baby's starting skill: what the baby does with it at birth was not traced to the end, so only the father's name and looks are offered.\r\n- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and skeletons that have already crumbled away.\r\n- Weather other than rain and clear: the other types are not identified.\r\n- Golden Child, faction, totems: The Tree of Life has none.",
+   "english": "Not in The Tree of Life:\r\n\r\n- Refill and amounts: fishing has no store (it never runs out). The fruit trees have none either unless Yellow Fruit Trees are No Longer Unlimited is on; then Refill fills its tree to 1,000, but it cannot be set to an amount.\r\n- Special statuses: Scholar and Elderly are worked out from skills and age, and \"Tribal Chief\" is never shown, so there is none to give.\r\n- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire and the huts as puzzles (they are not puzzles).\r\n- The unborn baby's starting skill: what the baby does with it at birth was not traced to the end, so only the father's name and looks are offered.\r\n- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and skeletons that have already crumbled away.\r\n- Weather other than rain and clear: the other types are not identified.\r\n- Golden Child, faction, totems: The Tree of Life has none.",
    "games": [
     "vv4"
    ],
@@ -23898,7 +23898,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.42",
-   "english": "Refills the berry bushes.",
+   "english": "Refills the berry bushes and, with Yellow Fruit Trees are No Longer Unlimited, the yellow fruit tree.",
    "games": [
     "vv4"
    ],
@@ -63910,6 +63910,17 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.on_click.s0",
+   "english": "Fruit remaining: %d",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP VV4 Fruit Supply.dll (the yellow fruit tree clicked: the game's status line)",
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -63922,17 +63933,6 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.on_click.s0",
-   "english": "Fruit remaining: %d",
-   "games": [
-    "vv4"
-   ],
-   "mechanism": "d",
-   "context": "VVFP VV4 Fruit Supply.dll (the yellow fruit tree clicked: the game's status line)",
-   "notes": "a patcher message shown by the game; %1 = a number (number)",
-   "route": "key"
   }
  ]
 }
