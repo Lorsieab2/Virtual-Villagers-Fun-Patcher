@@ -32,6 +32,7 @@ SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
 HUNGRIER = "vv4_hungrier_villagers"
+CLASSIC = "vv4_classic_vv_difficulty"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 # Food Gains are Flat, like VV1-3 (Harder Games): a blackberry pick pays The Secret City's fruit and honey pick
@@ -413,6 +414,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
+    if village.has(CLASSIC) is not False:
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+                                         "Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2 "
+                                         "together; each one's own line on this page says what it changes"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

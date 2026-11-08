@@ -127,5 +127,34 @@ class HandOfBloom(unittest.TestCase):
         self.assertIn("fishing adds without limit", render(5, vv5_save(True, 0, 100), self.TRIBE))
 
 
+class HungrierVillagers(unittest.TestCase):
+    """The food estimates take Hungrier Villagers' multiplier from the game's own executable, in all five games."""
+    NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
+
+    def test_every_game_reads_k_from_the_exe_and_multiplies_the_meal(self) -> None:
+        import json
+        import tempfile
+        for game, name in self.NAMES.items():
+            stock = ROOT / "research" / "stock-executables" / f"Virtual Villagers - {name}.exe"
+            if not stock.is_file():
+                self.skipTest("stock executables not present")
+            manifest = json.loads((ROOT / "data" / f"vv{game}_hungrier_villagers_feature.json").read_text("utf-8"))
+            data = bytearray(stock.read_bytes())
+            for site in manifest["patches"]:
+                data[int(site["offset"], 16)] = (-2 * 7) & 0xFF
+            with tempfile.TemporaryDirectory() as folder:
+                exe = Path(folder) / "game.exe"
+                exe.write_bytes(bytes(data))
+                village = gm.Village(Path("."), game, 1, Path("x.ldw"), gm.blank_save(game, NOW),
+                                     frozenset({f"vv{game}_hungrier_villagers"}), NOW, exe=exe)
+                with self.subTest(game=game):
+                    self.assertEqual(life.meal_multiplier(village), 7)
+                    plain = gm.Village(Path("."), game, 1, Path("x.ldw"), gm.blank_save(game, NOW), frozenset(), NOW,
+                                       exe=exe)
+                    self.assertEqual(life.meal_multiplier(plain), 1)       # not known to be in the game
+                    ctx = life.Context(village, 6, NOW, 1000, low_food=500, extra_from=8000)
+                    self.assertEqual(life.eat_per_unit(ctx, level=0), 14.0)
+
+
 if __name__ == "__main__":
     unittest.main()

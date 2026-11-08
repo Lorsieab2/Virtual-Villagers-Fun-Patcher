@@ -276,6 +276,13 @@ class Context:
         return self.village.game
 
     @property
+    def meals(self) -> int:
+        """Hungrier Villagers' multiplier on every meal (1 without it), read once."""
+        if not hasattr(self, "_meals"):
+            self._meals = meal_multiplier(self.village)
+        return self._meals
+
+    @property
     def speed(self) -> int:
         return gm.speed_base(self.speed_value)
 
@@ -650,14 +657,40 @@ def _boost(amount: float, mastery: float) -> float:
     return farmers.boosted(amount, mastery)
 
 
+def meal_multiplier(village: gm.Village) -> int:
+    """Hungrier Villagers' (2-10x Meals) multiplier in the game's executable: k when both of the row's meal sites
+    (data/vv<N>_hungrier_villagers_feature.json) hold -2 x k; 1 when the row is not known to be in the game or its
+    executable is not found or holds no consistent multiplier."""
+    import json
+    from pathlib import Path
+    game = village.game
+    exe = getattr(village, "exe", None)
+    if village.has(f"vv{game}_hungrier_villagers") is not True or exe is None:
+        return 1
+    try:
+        manifest = json.loads((Path(__file__).resolve().parents[1] / "data"
+                               / f"vv{game}_hungrier_villagers_feature.json").read_text(encoding="utf-8"))
+        data = Path(exe).read_bytes()
+        values = {struct.unpack_from("<b", data, int(site["offset"], 16))[0] for site in manifest["patches"]}
+    except (OSError, ValueError, KeyError, TypeError, struct.error):
+        return 1
+    if len(values) != 1:
+        return 1
+    value = next(iter(values))
+    return -value // 2 if value < 0 and value % 2 == 0 and 2 <= -value // 2 <= 10 else 1
+
+
 def eat_per_unit(ctx: Context, food: int | None = None, level: int | None = -1) -> float:
-    """Food one villager eats an age unit on average at the save's difficulty (or `level`) and food store."""
+    """Food one villager eats an age unit on average at the save's difficulty (or `level`) and food store, times
+    Hungrier Villagers' multiplier when the game has it (both the meal and the difficulty's extra)."""
     food = ctx.food if food is None else food
     level = ctx.difficulty if level == -1 else level
     extra = 0.0
     if level == 2 or (level == 1 and food >= ctx.extra_from):
         extra = 0.76 * 2
-    return 2.0 + extra
+    return (2.0 + extra) * ctx.meals
+
+
 
 
 def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) -> list[gm.Fact]:
@@ -764,7 +797,10 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
         f"villagers ({len(mothers)} nursing mother{'s' if len(mothers) != 1 else ''}, each counted once)"
         + ("; the Golden Child never eats" if any(p.golden for p in members) else "")
         + ("; Heathens outside the tribe never eat" if ctx.game == 5 else "") + ".", True, gm.SAVE)
-    add(f"Eating: {ctx.food_words} That is {per_unit:g} food a villager each age unit now, "
+    add(f"Eating: {ctx.food_words}"
+        + (f" With the patcher's \"Hungrier Villagers (2-10x Meals)\" at x{ctx.meals} in this game, every meal and "
+           "extra takes that many times the food." if ctx.meals != 1 else "")
+        + f" That is {per_unit:g} food a villager each age unit now, "
         f"{per_unit * units_hour:g} per real-life hour on {on} speed.", True, gm.RUNNING)
     # The refills (the owner, 2026-10-24: "count the amount of food refilled from the food sources that refill"):
     # every source's refill an age unit, at the save's speed, Nature level, difficulty and patches as its game's
