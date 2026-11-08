@@ -537,8 +537,11 @@ failed Farming check or an interrupted trip takes nothing. Each catch-up
 Cooking Pit bonus takes 5 (none paid when fewer are left). With fewer than 3
 fruit, a villager dropped on the tree refuses ("There is not enough to
 harvest.") and farmers are not sent there. Click the tree to see "Fruit
-remaining: N". A new village and Start Over start full. The count is kept in
-Documents\LDW\(game)\Virtual Villagers Fun Patcher\Save N\Data\Fruit TreesVirtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
+remaining: N". A Custom Island Event (Story / Cheat Upgrades) that refills
+the food sources fills the tree to 1,000 too. A new village and Start Over
+start full. The count is kept in
+Documents\LDW\(game)\Virtual Villagers Fun Patcher\Save N\Data\Fruit Trees\
+Virtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
 saves; the save itself is never changed, so without the patch the tree is
 unlimited again. Not yet tested in a running game.
 

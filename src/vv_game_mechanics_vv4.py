@@ -347,7 +347,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "left a villager dropped on the tree refuses and farmers are not sent there. Dendrology and "
             "Construction gate other puzzles (and the pit's debris), not the fruit; the difficulty, the Purify "
             "Tree, the Tree of Life, the Nursery's \"Showing baby the cooking area\" and the island event that "
-            "needs the restored pit take no fruit"))
+            "needs the restored pit take no fruit; a Custom Island Event that refills the food sources fills the "
+            f"tree to {FRUIT_FULL:,}, and no island event of the game's own refills it"))
         if fruit_patch is True:
             if supply is None:
                 add("Food sources", "The yellow fruit tree's supply: no file of the patch's for this village, so "
@@ -373,7 +374,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Refills", gm.patch_words(village, YELLOW_FRUIT, f"the yellow fruit tree is refilled to {FRUIT_FULL:,} "
                                       f"every {FRUIT_REFILL_UNITS} age units ({every_refill} on {on} speed), counted "
                                       "as the game counts its villagers' ages, live, while catching up and with "
-                                      "Time Warp"))
+                                      "Time Warp; a Custom Island Event that refills the food sources also fills "
+                                      "it to full (the 40-unit count runs on)"))
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
