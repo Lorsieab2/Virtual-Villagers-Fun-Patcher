@@ -23,6 +23,7 @@ island events").
 """
 from __future__ import annotations
 
+import struct
 import unittest
 
 from test_story_custom_island_event import (  # noqa: E402
@@ -482,10 +483,15 @@ class HeldPurchaseTests(unittest.TestCase):
                 part1.LockTests._purchase(None, bought, game, bought_world)
                 self.assertEqual(self._state(proc, game, world), self._state(bought, game, bought_world),
                                  "exactly the Island Event purchase's own writes")
-                # Made due once: later frames write nothing more.
+                # Made due once: later frames write nothing more -- except that in New Believers the game's
+                # trigger, rescheduling the timer past the last tick, has delivered the event, so the
+                # purchase's "on its way" bits (0x10 bought, 0x20 handed over) are retired
+                # (vv5_retire_delivered_island).
                 proc.put32(world + {"vv1": 0xA300, "vv2": 0x2EAE0, "vv3": 0x12EF4, "vv4": 0x170E0,
                                     "vv5": 0x17D3C}[game], CLOCK + 36000)
                 after = self._state(proc, game, world)
+                if game == "vv5":
+                    after[-1] = struct.pack("<I", struct.unpack("<I", after[-1])[0] & ~0x30)
                 proc.export("VvfpStoryInstall", n)
                 self.assertEqual(self._state(proc, game, world), after)
                 self.assertEqual(proc.export("VvfpStoryProbeCustomPending", n), 1, "still queued")
