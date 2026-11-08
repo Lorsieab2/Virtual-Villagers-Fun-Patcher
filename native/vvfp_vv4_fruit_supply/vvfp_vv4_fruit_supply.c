@@ -574,10 +574,10 @@ static int __fastcall ev_text_id(void *self, void *unused) {
         sm_string **index = (sm_string **)(UINT_PTR)STRING_INDEX;
         g_event_text.id = EV_TEXT_ID;
         g_event_text.key = "eEventACloserLookYellowFruitDesc";
+        /* The owner's words, one literal (the template's row is matched against it). */
         g_event_text.text = vvfp_tr("vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0",
-                                    "While checking the breadfruit orchard, one of the farmers notices some leftover "
-                                    "fruits scattered around the trees. They must have overlooked them last harvest. "
-                                    "Turns out there were more growing up there than they had thought!", 2000);
+"While checking the breadfruit orchard, one of the farmers notices some leftover fruits scattered around the trees. They must have overlooked them last harvest. Turns out there were more growing up there than they had thought!",
+                                    2000);
         g_event_text.localized = NULL;
         if (index[EV_TEXT_ID] == NULL || index[EV_TEXT_ID] == &g_event_text) {
             index[EV_TEXT_ID] = &g_event_text;

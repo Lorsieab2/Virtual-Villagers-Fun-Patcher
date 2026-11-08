@@ -1089,8 +1089,10 @@ class DeadEventTests(unittest.TestCase):
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv3"]}, set(range(1, 58)))
         # The Canoe from the Other Side (6) works and is offered as never
         # happening in the original game.
+        # Slot 19 (no stock object) is A Closer Look (Yellow Breadfruit), which Yellow Fruit Trees are No Longer
+        # Unlimited puts there; the chooser lists it only then (event_listed).
         self.assertEqual({e["slot"] for e in story_island_events.EVENTS["vv4"]},
-                         set(range(1, 50)) - {1, 16, 19, 24})
+                         set(range(1, 50)) - {1, 16, 24})
         self.assertIn(6, outcomes.DEAD_NOTES["vv4"])
 
 
