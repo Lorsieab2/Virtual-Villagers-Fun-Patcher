@@ -46347,6 +46347,17 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.10.variant",
+   "english": "Blackberries",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_tables.VV4_EVENTS.10.description",
    "english": "A farmer finds many overlooked berries: more berries are left.",
    "games": [
@@ -47523,6 +47534,48 @@
   {
    "stem": "vvfp.story/story_tables.VV4_EVENTS.44.requires",
    "english": "a villager the event can be about",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.title",
+   "english": "A Closer Look",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.variant",
+   "english": "Yellow Breadfruit",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.description",
+   "english": "A farmer finds leftover breadfruit around the trees: the Cooking Pit's yellow fruit tree gains fruit.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.requires",
+   "english": "the Yellow Fruit Trees are No Longer Unlimited patch, which adds this event; the Cooking Pit restored and a villager the event can be about",
    "games": [
     "vv4"
    ],
@@ -63918,6 +63971,17 @@
    "mechanism": "d",
    "context": "VVFP VV4 Fruit Supply.dll (the yellow fruit tree clicked: the game's status line)",
    "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0",
+   "english": "While checking the breadfruit orchard, one of the farmers notices some leftover fruits scattered around the trees. They must have overlooked them last harvest. Turns out there were more growing up there than they had thought!",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Fruit Supply.dll (the island event A Closer Look (Yellow Breadfruit): its popup text, under the game's own title A Closer Look)",
+   "notes": "a patcher text shown by the game in its island-event popup",
    "route": "key"
   },
   {

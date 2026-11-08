@@ -32,6 +32,13 @@ VV1_RESTORED = ("stored food, with Restore Missing Island Events ticked (without
 # Events row ticked.
 RESTORE = "the Restore Missing Island Events patch, which adds this event"
 
+# The Tree of Life's second "A Closer Look" (the owner, 2026-11-08), which
+# "VVFP VV4 Fruit Supply.dll" puts in the event table's empty slot 19: only
+# with Yellow Fruit Trees are No Longer Unlimited (without it the slot holds
+# no event and the chooser does not list it).
+YELLOW_FRUIT = ("the Yellow Fruit Trees are No Longer Unlimited patch, which adds this event; the Cooking Pit "
+                "restored and a villager the event can be about")
+
 # A New Home families (story_vv1.inc).
 VV1_ISLAND, VV1_ENCOUNTER, VV1_CRATE = 0, 1, 2
 # The Lost Children families (story_vv2.inc).
@@ -449,7 +456,7 @@ EVENTS: dict[str, list[dict]] = {
            variant="tech lost"),
         _e(11, "Blessings Day Celebration", "The villagers give thanks with dancing, ceremonies and a feast."),
         _e(12, "A Closer Look", "A farmer finds many overlooked berries: more berries are left.",
-           requires="a villager the event can be about"),
+           variant="Blackberries", requires="a villager the event can be about"),
         _e(13, "The Arc of Brilliant Colors", "A villager sees a rainbow: look for its end near the mausoleum, or the cliff.",
            requires="a villager the event can be about"),
         _e(14, "The Robber Crab", "A villager spots a rare robber crab with healing properties.",
@@ -517,6 +524,9 @@ EVENTS: dict[str, list[dict]] = {
            requires="an adult the event can be about, and at least two adults"),
         _e(49, "The Legendary Stranger", "Biggles appears by the Tree of Life and answers one question.",
            requires="a villager the event can be about"),
+        # Listed last so every stock event keeps its row (and its translation rows' index).
+        _e(19, "A Closer Look", "A farmer finds leftover breadfruit around the trees: the Cooking Pit's yellow "
+           "fruit tree gains fruit.", variant="Yellow Breadfruit", requires=YELLOW_FRUIT),
     ],
     "vv5": [
         _e(1, "The Creeping Mold", "A toxic mold spreads in the food bin: some food is ruined."),
@@ -634,7 +644,8 @@ EXCLUDED: dict[str, list[dict]] = {
          "removes villagers, skipping the death a drowning takes)"},
         {"title": "The Medical Emergency", "reason": "slot 16: condition 0x4146E0 always returns false and "
          "never picks the villager the event is about, so no popup opens and its apply reads a null villager"},
-        {"title": "The Salty Air", "reason": "slot 19: strings only, no event object"},
+        {"title": "The Salty Air", "reason": "slot 19: strings only, no event object (with Yellow Fruit Trees "
+         "are No Longer Unlimited the slot holds the patch's own A Closer Look (Yellow Breadfruit) instead)"},
         {"title": "The Return of Biggles", "reason": "slot 24: condition 0x4146E0 always returns false and "
          "never picks the villager the event is about, so no popup opens and its apply reads a null villager"},
     ],

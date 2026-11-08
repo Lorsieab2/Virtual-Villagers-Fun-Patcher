@@ -79,6 +79,7 @@ static struct {
     const story_game *game;
     int gid;
     int possible[STORY_MAX_EVENTS];
+    int listed[STORY_MAX_EVENTS];       /* the event is offered (event_listed) */
     int chosen;
     int current;                        /* the event shown, or -1 */
     int row;                            /* the settings row being edited, or -1 */
@@ -1008,6 +1009,9 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
         WCHAR wide[CHOOSER_LABEL];
         for (i = 0; i < chooser.game->event_count; ++i) {
             int row;
+            if (i < STORY_MAX_EVENTS && !chooser.listed[i]) {
+                continue;                   /* its event is not in this game (event_listed) */
+            }
             chooser_list_label(i, label);
             vvfp_to_wide(label, wide, CHOOSER_LABEL);   /* never read in the ANSI code page */
             row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
@@ -1122,6 +1126,7 @@ static void chooser_prepare(int game, const story_game *g) {
     for (i = 0; i < g->event_count && i < STORY_MAX_EVENTS; ++i) {
         const oc_event *e = oc_find_event(game, g->events[i].slot);
         int possible = g->possible(&g->events[i]);
+        chooser.listed[i] = g != &GAMES[game] || event_listed(game, &g->events[i]);
         chooser.possible[i] = possible ? OC_POSSIBLE_YES
                               : (e != NULL && e->unlock
                                  && oc_unlock_possible(game, &g->events[i]))
@@ -1319,6 +1324,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeChooserOpen(int game, int gong
     chooser.gong = gong;
     chooser_prepare(game, gong ? &OC_GONG_GAME : &GAMES[game]);
     return chooser.game->event_count;
+}
+
+/* Whether the opened chooser lists event `index` (event_listed). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeChooserListed(int index) {
+    return index >= 0 && index < STORY_MAX_EVENTS && chooser.game != NULL && index < chooser.game->event_count
+           && chooser.listed[index];
 }
 
 /* The Gong of Wonder purchase once the player has confirmed it: `count`

@@ -571,6 +571,24 @@ static int vv4_possible(const story_event *e) {
     return table_event_possible(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, e->slot);
 }
 
+/* Whether the chooser lists `e`: an event whose slot of The Tree of Life's
+   event table holds no object is not offered.  That is A Closer Look
+   (Yellow Breadfruit), slot 19, which "VVFP VV4 Fruit Supply.dll" puts there
+   only with Yellow Fruit Trees are No Longer Unlimited (the stock slot is
+   empty).  Every other listed event has its object. */
+static int event_listed(int game, const story_event *e) {
+    void *object;
+    if (game != 4 || e->slot < 1 || e->slot > 49) {
+        return 1;
+    }
+    object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
+    if (object == NULL) {
+        ((getter_fn)(uintptr_t)VV4_EVENT_GETTER)();
+        object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
+    }
+    return object != NULL;
+}
+
 static int vv5_possible(const story_event *e) {
     return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, e->slot);
 }
