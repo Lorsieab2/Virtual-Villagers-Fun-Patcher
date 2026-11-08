@@ -1,0 +1,70 @@
+{
+  "id": "vv4_sickness_multiplier",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "2-10x Sickness",
+  "description": "**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches (with Sickness works like VV1-3 it multiplies that rule's chances). Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.",
+  "output_tag": "Sickness",
+  "behavior_changes": [
+    "The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large."
+  ],
+  "explicit_non_changes": [
+    "The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending",
+  "sickness_multiplier": {
+    "default": 2,
+    "minimum": 2,
+    "maximum": 10,
+    "sites": {
+      "stock": [
+        {
+          "offset": "0x5E9AB",
+          "modulus": 1440,
+          "push": "0x45E9AA"
+        },
+        {
+          "offset": "0x5E992",
+          "modulus": 2460,
+          "push": "0x45E991"
+        },
+        {
+          "offset": "0x5E979",
+          "modulus": 5400,
+          "push": "0x45E978"
+        },
+        {
+          "offset": "0x5E9CC",
+          "modulus": 1000,
+          "push": "0x45E9CB"
+        }
+      ],
+      "vv4_sickness_like_vv3": [
+        {
+          "offset": "0x5E99F",
+          "modulus": 1440,
+          "push": "0x45E99E"
+        },
+        {
+          "offset": "0x5E995",
+          "modulus": 2460,
+          "push": "0x45E994"
+        },
+        {
+          "offset": "0x5E98B",
+          "modulus": 5400,
+          "push": "0x45E98A"
+        },
+        {
+          "offset": "0x5E9BD",
+          "modulus": 1000,
+          "push": "0x45E9BC"
+        }
+      ]
+    }
+  },
+  "companion_files": [],
+  "patches": []
+}

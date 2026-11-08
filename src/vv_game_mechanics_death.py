@@ -682,5 +682,59 @@ def facts(village: gm.Village, **kw) -> list[gm.Fact]:
     """The Death and graves lines for `village`'s game: every game takes medicine, speed_value and base (the save's
     clock base, Unix seconds); The Secret City also nature, A New Home magic_fruit (the Magic Fruit of Life solved)."""
     if village.game in LATER:
-        return _later(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("nature", 0))
-    return _early(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("magic_fruit", False))
+        out = _later(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("nature", 0))
+    else:
+        out = _early(village, kw.get("medicine"), kw["speed_value"], kw["base"], kw.get("magic_fruit", False))
+    return out + sickness_patch_facts(village)
+
+
+def sickness_multiplier_in_game(village: gm.Village) -> int | None:
+    """2-10x Sickness's multiplier in the game's executable: N when each of the roll's moduli holds round(stock / N)
+    at the sites its build has (scripts/build_sickness_features.py); None when it cannot be read."""
+    import json
+    import struct
+    from pathlib import Path
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        record = json.loads((Path(__file__).resolve().parents[1] / "data"
+                             / f"vv{village.game}_sickness_multiplier_feature.json").read_text(encoding="utf-8"))
+        data = Path(exe).read_bytes()
+    except (OSError, ValueError):
+        return None
+    for rows in record["sickness_multiplier"]["sites"].values():
+        found = set()
+        for row in rows:
+            at, stock = int(row["offset"], 16), int(row["modulus"])
+            if data[at - 1:at] != b"h":
+                break
+            value = struct.unpack_from("<I", data, at)[0]
+            found.update(n for n in range(2, 11) if value == (2 * stock + n) // (2 * n))
+        else:
+            if len(found) == 1:
+                return found.pop()
+    return None
+
+
+def sickness_patch_facts(village: gm.Village) -> list[gm.Fact]:
+    """The two sickness patches (the owner, 2026-11-08), stock first (the rolls above), then patched."""
+    out = []
+    game = village.game
+    slider = f"vv{game}_sickness_multiplier"
+    if village.has(slider) is not False:
+        n = sickness_multiplier_in_game(village) if village.has(slider) is True else None
+        out.append(gm.Fact(DEATH, gm.patch_words(village, slider, (
+            f"every natural chance of falling sick is {f'{n} times' if n else '2 to 10 times (the slider)'} as large: "
+            "each Medicine level's roll and the old villagers' extra roll, at every difficulty, and Sickness works "
+            "like VV1-3's rolls when the game has it; Medicine, the fire, Easy's cures, healers and events are "
+            "unchanged")), gm.CODE))
+    like = f"vv{game}_sickness_like_vv3"
+    if game in (4, 5) and village.has(like) is not False:
+        fire = "the Fire Pit" if game == 4 else "the fire"
+        out.append(gm.Fact(DEATH, gm.patch_words(village, like, (
+            f"villagers fall sick as in The Secret City: the chance is doubled while {fire} is out, and on Hard one "
+            f"step more (twice with {fire} burning, three times with it out); by Medicine level 1, 2, 3 that is "
+            "3, 3, 2 x the step in 1,440, 2,460, 5,400; The Secret City's Aromatherapy, which cancels the fire's "
+            "part there, is not in this game")), gm.CODE))
+    return out

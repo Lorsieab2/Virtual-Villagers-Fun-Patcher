@@ -230,6 +230,13 @@ TRIPS: tuple[Trip, ...] = (
         live_span=_span(157.94, 167.97),
         catch_up_trips_per_turn=0.0,
         success_offset=34,
+        # The four fruit spots (locks 5-8, table 0x704E38) are checked only when a trip starts (0x4343A0: "There is
+        # no more room in the cooking pit!"), and each lock frees itself 45 game-clock seconds after it is taken
+        # (0x46D563, released by 0x46D7F0 from 0x43F984) even while its villager is still on the trip: a trip holds a
+        # spot about min(45 game s, ~70 s to the Farming check) + min(45 game s, ~60 s to the end of the stomping),
+        # so about 4 x 162 / that many villagers can be on fruit trips at once.  An estimate: the two phases are
+        # inferred from the measured trip, not measured on their own.
+        max_workers={3: 14, 6: 7, 10: 5},
         live_words=("From the food bin: one of the four fruit spots not in use (actions 101-104, 0x4343A0), walk "
                     "to the fruit tree (map area 0x26, x 64-159 y 1880-1919), shake it down (short steps and 1 s "
                     "poses), the Farming check, take the fruit, walk to the Cooking Pit (area 0x22, x 368-383 "

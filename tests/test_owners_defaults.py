@@ -38,7 +38,9 @@ def _owner_keeps_off(patch_id: str) -> bool:
     # 2-10x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
     # Upgrades cost Tech Points is not ("set "story upgrades cost tech points" default off in owner's defaults").
     return ("learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
-            or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points"))
+            or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points")
+            # No Fishing at Science Level 2: off everywhere (the owner, 2026-11-08).
+            or patch_id == "vv4_no_fishing_at_science_2")
 
 
 class OwnersDefaultsTests(unittest.TestCase):

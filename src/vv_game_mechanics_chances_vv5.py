@@ -57,7 +57,8 @@ ROLLS = (
           "regains 1 health {1} of the time.")),
     Roll("A sick believer's health: " + AGE_UNIT + ", a sick believer loses 1 health {0} of the time while above 20 "
          "health, and only " + chance(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less. "
-         "Sickness never ends by itself.",
+         "Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (the Easy roll 0x472F8A runs the "
+         "sickness roll half the time, and on Easy it answers \"not sick\" half the time, 0x465F61).",
          (Check(0x472EA8, 100, 0x3C, "jg", take=False), Check(0x472EBD, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a believer who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the fire burning on a second "

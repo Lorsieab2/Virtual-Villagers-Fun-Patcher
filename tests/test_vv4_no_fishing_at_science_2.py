@@ -210,10 +210,11 @@ class FeatureRecordTests(unittest.TestCase):
                       "Nothing is reset or lost", "already finished is never affected", "off by default"):
             self.assertIn(words, text)
 
-    def test_off_by_default_and_on_in_owners_defaults(self) -> None:
-        """The owner: "DEFAULT ON IN OWNER's DEFAULTS"; a difficulty change, so off in the normal defaults."""
+    def test_off_by_default_and_in_owners_defaults(self) -> None:
+        """Off everywhere (the owner, 2026-11-08: "The "Clothing hut at Science Level 3" patch should be DEFAULT OFF
+        everywhere"): Owner's Defaults ticks Clothmaking Unlocks at Science Level 3 instead."""
         self.assertFalse(default_fun_patch_selection(FEATURE_ID))
-        self.assertTrue(owners_default_fun_patch_selection(FEATURE_ID))
+        self.assertFalse(owners_default_fun_patch_selection(FEATURE_ID))
 
     def test_every_edit_is_guarded_by_the_stock_bytes(self) -> None:
         data = stock_path().read_bytes()

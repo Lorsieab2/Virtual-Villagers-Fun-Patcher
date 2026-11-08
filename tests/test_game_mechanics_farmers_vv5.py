@@ -73,7 +73,7 @@ class ModuleTests(unittest.TestCase):
         self.assertEqual(turns, 4)
         self.assertEqual([t.key for t in trips], ["noni picks", "crop harvests", "fish"])
         page = (ROOT / "src" / "vv_game_mechanics_vv5.py").read_text(encoding="utf-8")
-        listed = re.search(r"trips=\[(.*?)\]\)", page, re.S).group(1)
+        listed = re.search(r"trips=\[(.*?)\](?:\)|,)", page, re.S).group(1)
         self.assertEqual(re.findall(r'\("([a-z ]+)"', listed), [t.key for t in trips])
         for trip in trips:
             self.assertEqual(trip.success_offset, 34)

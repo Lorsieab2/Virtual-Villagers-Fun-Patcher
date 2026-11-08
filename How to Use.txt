@@ -493,6 +493,14 @@ the game. Default Patches and Select All never tick it; Owner's Defaults ticks
 it in all five games and sets the slider to 2. Patch again after moving the
 slider.
 
+2-10X SICKNESS (ALL FIVE GAMES)
+
+Off by default. Villagers fall sick 2 to 10 times as often: you choose how
+many times with the 2-10x Sickness slider beside the patch settings (2 unless
+you move it). Every Medicine level and difficulty keeps its own chance,
+multiplied, and so does Sickness works like VV1-3. Healers, the fire, Easy's
+cures and events work as before. Patch again after moving the slider.
+
 HUNGRIER VILLAGERS (2-10X MEALS) (ALL FIVE GAMES)
 
 Off by default. Every villager's meal takes 2 to 10 times the normal food: you
@@ -509,8 +517,11 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
 Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
-plus No Fishing at Science Level 2 in The Tree of Life and Faith Loss is
-Doubled/Gains Halved in New Believers. Unticking any of them unticks Classic VV
+plus Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like
+VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
+Life, Faith Loss is Doubled/Gains Halved in New Believers, and Sickness works
+like VV1-3 in both (villagers fall sick as in The Secret City: more often
+while the fire is out and on Hard). Unticking any of them unticks Classic VV
 Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
 PICTURE STUDIO
