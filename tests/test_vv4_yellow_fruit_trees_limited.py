@@ -112,8 +112,8 @@ class Tree:
     """A Tree of Life village, the Cooking Pit restored, no bush and no nets: the fruit is the only farming."""
 
     def __init__(self, patched: bool = True, *, exe: bytes | None = None, files: dict | None = None,
-                 seed: int = 3, slot: int = 1):
-        self.v = fe.Village(seed=seed, berries=0, solved=(6,), exe=exe, dll=DLL if patched else None)
+                 seed: int = 3, slot: int = 1, solved=(6,)):
+        self.v = fe.Village(seed=seed, berries=0, solved=solved, exe=exe, dll=DLL if patched else None)
         self.patched = patched
         self.files = None
         if patched:
@@ -511,6 +511,87 @@ class CustomIslandEventRefill(unittest.TestCase):
         self.assertEqual(v.process.export("VvfpYellowFruitRefill"), 0)   # VvfpStartup never ran
 
 
+EVENT_TABLE, EVENT_SLOT = 0x4CCA28, 19
+BERRY_EVENT_VTABLE = 0x48C84C       # CEventACloserLook
+STRING_LOOKUP, STRING_INDEX = 0x44D3D0, 0x4DEA20
+EVENT_TEXT = ("While checking the breadfruit orchard, one of the farmers notices some leftover fruits scattered around "
+              "the trees. They must have overlooked them last harvest. Turns out there were more growing up there than "
+              "they had thought!")
+EVENT_GAIN = 350
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
+class YellowBreadfruitEvent(unittest.TestCase):
+    """The second "A Closer Look": the companion's object in the event table's empty slot 19."""
+
+    def obj(self, t: Tree) -> int:
+        return t.v.r32(EVENT_TABLE + 4 * EVENT_SLOT) & 0xFFFFFFFF
+
+    def method(self, t: Tree, k: int) -> int:
+        return t.v.r32((t.v.r32(self.obj(t)) & 0xFFFFFFFF) + 4 * k) & 0xFFFFFFFF
+
+    def possible(self, t: Tree) -> int:
+        return t.v.call(self.method(t, 1), self.obj(t)) & 0xFF
+
+    def test_only_with_the_patch_and_in_the_empty_slot(self) -> None:
+        stock = Tree(patched=False)
+        self.assertEqual(self.obj(stock), 0)              # the stock game has no object in slot 19
+        t = Tree()
+        self.assertNotEqual(self.obj(t), 0)
+        vtable = t.v.r32(self.obj(t)) & 0xFFFFFFFF
+        # A copy of the berry event's, its RTTI locator and title kept; its own delete, condition, text, result.
+        self.assertEqual(t.v.r32(vtable - 4), t.v.r32(BERRY_EVENT_VTABLE - 4))
+        self.assertEqual(self.method(t, 2), t.v.r32(BERRY_EVENT_VTABLE + 8) & 0xFFFFFFFF)
+        self.assertEqual(t.v.call(self.method(t, 2), self.obj(t)), 0x342)      # "A Closer Look"
+        for k in (0, 1, 3, 12):
+            self.assertNotEqual(self.method(t, k), t.v.r32(BERRY_EVENT_VTABLE + 4 * k) & 0xFFFFFFFF, k)
+        # The selector's own loop is stock: slots 1..49, a NULL one skipped, every possible one collected.
+        stock_bytes = fe.STOCK.read_bytes()
+        pe = pefile.PE(data=stock_bytes, fast_load=True)
+        at = pe.get_offset_from_rva(0x418043 - 0x400000)
+        self.assertEqual(stock_bytes[at:at + 0x32].hex(),
+                         "be01000000eb068d9b000000008b0cb528ca4c0085c974128b018b5004ffd284c074078974bc1083c7"
+                         "0183c60183fe327cdb")
+
+    def test_the_condition_needs_the_cooking_pit_and_a_villager(self) -> None:
+        t = Tree()
+        self.assertEqual(self.possible(t), 0)             # no one alive
+        r = t.villager(skills={"farming": 0})
+        self.assertEqual(self.possible(t), 1)
+        self.assertEqual(t.v.r32(self.obj(t) + 4) & 0xFFFFFFFF, r)    # the villager shown, as the berry event's
+        closed = Tree(solved=())                          # the Cooking Pit not restored
+        closed.villager()
+        self.assertEqual(self.possible(closed), 0)
+        # The berry event's own condition, for the same village: the same answer.
+        berry = t.v.r32(EVENT_TABLE + 4 * 12) & 0xFFFFFFFF
+        if berry:
+            self.assertEqual(t.v.call(t.v.r32(t.v.r32(berry) + 4) & 0xFFFFFFFF, berry) & 0xFF, 1)
+
+    def test_the_text_goes_through_the_games_own_lookup(self) -> None:
+        t = Tree()
+        self.assertEqual(t.v.call(STRING_LOOKUP, 0, 0x2E7) & 0xFFFFFFFF,
+                         t.v.call(STRING_LOOKUP, 0, 0) & 0xFFFFFFFF)       # no entry: the lookup's ""
+        self.assertEqual(t.v.call(self.method(t, 3), self.obj(t)), 0x2E7)
+        text = t.v.call(STRING_LOOKUP, 0, 0x2E7) & 0xFFFFFFFF
+        self.assertEqual(bytes(t.v.uc.mem_read(text, len(EVENT_TEXT) + 1)), EVENT_TEXT.encode() + b"\0")
+        self.assertNotEqual(t.v.r32(STRING_INDEX + 4 * 0x2E7), 0)
+
+    def test_the_result_adds_350_up_to_1000(self) -> None:
+        for before, after in ((100, 450), (0, 350), (650, 1000), (900, 1000), (1000, 1000)):
+            t = Tree(files={side(): tree_file(before, units=9, roster=[identity("Ana")])})
+            t.villager()
+            self.assertEqual(self.possible(t), 1)
+            t.v.call(self.method(t, 12), self.obj(t))
+            self.assertEqual(t.left(), after, before)
+        t.save()
+        self.assertEqual(struct.unpack_from("<2I", t.files.files[side()], 16), (1000, 9))   # the clock runs on
+
+    def test_the_teardown_does_not_free_it(self) -> None:
+        t = Tree()
+        self.assertEqual(t.v.call(self.method(t, 0), self.obj(t), 1) & 0xFFFFFFFF, self.obj(t))
+        self.assertNotEqual(self.obj(t), 0)
+
+
 @unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
 class EveryBuild(unittest.TestCase):
     def test_every_mode_installs_and_a_trip_takes_three(self) -> None:
@@ -553,7 +634,7 @@ class Manifest(unittest.TestCase):
         import hashlib
         self.assertEqual(row["companion_files"][0]["sha256"], hashlib.sha256(DLL.read_bytes()).hexdigest().upper())
         self.assertEqual({int(d["va"], 16) for d in row["runtime_detours"]},
-                         set(SITES) | {VTABLE + 16, VTABLE + 12})
+                         set(SITES) | {VTABLE + 16, VTABLE + 12, 0x4CCA74})
         self.assertIn("VVFP VV4 Fruit Supply.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
 
     def test_off_by_default_owners_defaults_and_classic(self) -> None:

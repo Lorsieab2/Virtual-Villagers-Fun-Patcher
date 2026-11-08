@@ -27,6 +27,7 @@
        Time Warp alike) -- 4 hours of play on Normal, 2 on Fast, 6 h 40 min on Slow;
      * a Custom Island Event's "Refill the food sources" fills the tree to 1,000 (VvfpYellowFruitRefill, called by
        VVFP Story Upgrades.dll; no stock island event refills the tree);
+     * one more island event, "A Closer Look" about the breadfruit (THE EVENT below), adds FS_EVENT_GAIN fruit;
      * clicking the tree (its area handler's message 2, which the stock game ignores for the tree) shows
        "Fruit remaining: N" on the game's own status line (0x4DB8E8 via 0x44C3A0), as the blackberry bush shows
        "Berries remaining: N" (0x46F82A, text 0x115).
@@ -43,6 +44,28 @@
    0x433820) the file is read again.  Start Over also empties the save's folder (native/shared/save_reset.c).
    The save itself is never written: without this companion the game is exactly stock.
 
+   THE EVENT.  The owner (2026-11-08): a second "A Closer Look", for the yellow fruit tree.  The island-event
+   selector 0x418000 collects every slot 1..49 of the event table 0x4CCA28 that holds an object whose condition
+   (vtable +0x04) holds, and picks one of them uniformly (rand(n), 0x4180A6); a NULL slot is skipped
+   (0x418057).  Slot 19 is NULL in the stock game (the table builder 0x416FF0 never writes it: The Salty Air
+   has strings and no object), so this companion puts its own object there, once, at install: the event then
+   takes an equal share like any other slot whose condition holds, and nothing else changes -- the 8-15 h timer
+   and the Island Events Seen count are the scheduler's (before and after the selector), the rescue rule
+   (0x4180A5..0x4180F2) still forces slot 25, and the per-slot "shown" byte 0x4CC9F4+19 is never read.  The
+   object is a copy of A Closer Look's (vtable 0x48C84C, RTTI locator included) with:
+     +0x00  the teardown 0x417760 calls it with "delete" at exit: nothing (the object is this DLL's);
+     +0x04  the condition: the Cooking Pit restored (0x438960(6) on 0x4D8BF8, the fruit's own test) and then
+            the berry event's own condition 0x415E00 run on this object -- one living villager of any age
+            (0x4679B0(-1,-1,-1,1,1,-1,0,0,0) != 0), kept at +4 as the villager shown;
+     +0x0C  the text id EV_TEXT_ID (0x2E7): an id no string-table entry has and no code pushes, whose index slot
+            (0x4DEA20 + 4*id, what the lookup 0x44D3D0 reads) is pointed at this DLL's entry just before the id
+            is returned -- its text is the owner's, in the player's language when a translation has it;
+     +0x30  the result: the tree gains FS_EVENT_GAIN fruit, to at most 1,000.  The berry event's own result also
+            moves its farmer to the bushes (0x414B4A..0x414B65); no place at the tree was proven, so this one
+            leaves the villager as they are.
+   The title is the berry event's own (+0x08, id 0x342 "A Closer Look").  Without this companion slot 19 stays
+   NULL, so the event does not exist.
+
    Sites, all checked stock before anything is written, and written all or none (native/shared/install_sites.h):
      0x46456C  12  the credit's push 3 / food writer call
      0x463A38  11  the dispatcher's "offer the fruit"
@@ -54,6 +77,7 @@
      0x42EAE7   7  the stew's "stomped fruit is in" flag
      0x48E8A0   4  CFruitwells vtable slot 4 (save)
      0x48E89C   4  CFruitwells vtable slot 3 (load)
+     0x4CCA74   4  the island-event table's slot 19 (NULL): the event object
 
    SAFETY.  Our steps run under structured exception handling: a fault leaves the stock decision (the fruit
    offered, the food paid).  No debug output. */
@@ -119,7 +143,19 @@
 #define SLOT_SAVE 4
 #define STOCK_LOAD 0x433820u
 #define STOCK_SAVE 0x433CB0u
-#define SITES 10
+#define EVENT_SLOT_VA 0x4CCA74u      /* 0x4CCA28 + 4 * 19 */
+#define BERRY_VTABLE 0x48C84Cu       /* CEventACloserLook */
+#define BERRY_CONDITION 0x415E00u
+#define BERRY_TITLE_ID 0x414B10u     /* its +0x08: mov eax, 0x342 */
+#define BERRY_TEXT_ID 0x414B20u
+#define BERRY_RESULT 0x414B30u
+#define PUZZLES 0x4D8BF8u
+#define PUZZLE_SOLVED 0x438960u      /* thiscall(id): the puzzle solved */
+#define PUZZLE_COOKING_PIT 6
+#define STRING_INDEX 0x4DEA20u       /* the string lookup's pointer per id */
+#define EV_TEXT_ID 0x2E7
+#define FS_EVENT_GAIN 350            /* fruit the event adds (the berry event adds 350 berries, 0x414B38) */
+#define SITES 11
 
 static const unsigned char CREDIT_STOCK[12] = { 0x6A, 0x03, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0xA8, 0x93, 0xFB, 0xFF };
 static const unsigned char OFFER_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x83, 0xC7, 0x01 };
@@ -487,6 +523,102 @@ static void __cdecl on_unit(const unsigned char *rec) {
     }
 }
 
+/* ---- the island event ------------------------------------------------------------------------------------ */
+
+typedef struct {
+    int id;
+    const char *key;
+    const char *text;
+    const char *localized;
+} sm_string;
+
+typedef struct {
+    const void *vtable;
+    void *villager;
+    int amount;
+} event_object;
+
+static unsigned int g_event_vtable[17];    /* [0] the RTTI locator, then the 16 entries */
+static event_object g_event;
+static sm_string g_event_text;
+
+typedef char (__fastcall *condition_fn)(void *self, void *unused);
+typedef char (__fastcall *solved_fn)(void *self, void *unused, int id);
+
+/* The teardown's delete: the object is not the game's heap's. */
+static void *__fastcall ev_delete(void *self, void *unused, int flags) {
+    (void)unused;
+    (void)flags;
+    return self;
+}
+
+/* The condition: the Cooking Pit restored, then the berry event's own (it keeps the villager at +4). */
+static char __fastcall ev_condition(void *self, void *unused) {
+    char ok = 0;
+    (void)unused;
+    __try {
+        if (g_installed && ((solved_fn)(UINT_PTR)PUZZLE_SOLVED)((void *)(UINT_PTR)PUZZLES, NULL, PUZZLE_COOKING_PIT)) {
+            ok = ((condition_fn)(UINT_PTR)BERRY_CONDITION)(self, NULL);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 0;
+    }
+    return ok;
+}
+
+/* The text id: its index slot pointed at the owner's text first (an empty slot, or ours). */
+static int __fastcall ev_text_id(void *self, void *unused) {
+    (void)self;
+    (void)unused;
+    __try {
+        sm_string **index = (sm_string **)(UINT_PTR)STRING_INDEX;
+        g_event_text.id = EV_TEXT_ID;
+        g_event_text.key = "eEventACloserLookYellowFruitDesc";
+        g_event_text.text = vvfp_tr("vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0",
+                                    "While checking the breadfruit orchard, one of the farmers notices some leftover "
+                                    "fruits scattered around the trees. They must have overlooked them last harvest. "
+                                    "Turns out there were more growing up there than they had thought!", 2000);
+        g_event_text.localized = NULL;
+        if (index[EV_TEXT_ID] == NULL || index[EV_TEXT_ID] == &g_event_text) {
+            index[EV_TEXT_ID] = &g_event_text;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return EV_TEXT_ID;
+}
+
+/* The result (OK): FS_EVENT_GAIN fruit, to at most 1,000. */
+static void __fastcall ev_result(void *self, void *unused) {
+    (void)self;
+    (void)unused;
+    __try {
+        if (bind_village(0)) {
+            g_fruit = g_fruit + FS_EVENT_GAIN < FS_FULL ? g_fruit + FS_EVENT_GAIN : FS_FULL;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* The object, from the berry event's vtable (checked stock first). */
+static int ev_build(void) {
+    const unsigned int *stock = (const unsigned int *)(UINT_PTR)BERRY_VTABLE;
+    static const unsigned int expect[3] = { BERRY_CONDITION, BERRY_TITLE_ID, BERRY_TEXT_ID };
+    static const unsigned int result = BERRY_RESULT;
+    if (!vvfp_site_holds(BERRY_VTABLE + 4u, (const unsigned char *)expect, sizeof expect)
+        || !vvfp_site_holds(BERRY_VTABLE + 0x30u, (const unsigned char *)&result, sizeof result)
+        || !vvfp_site_holds(BERRY_VTABLE - 4u, (const unsigned char *)(stock - 1), (int)sizeof g_event_vtable)) {
+        return 0;
+    }
+    memcpy(g_event_vtable, stock - 1, sizeof g_event_vtable);
+    g_event_vtable[1 + 0] = (unsigned int)(UINT_PTR)ev_delete;
+    g_event_vtable[1 + 1] = (unsigned int)(UINT_PTR)ev_condition;
+    g_event_vtable[1 + 3] = (unsigned int)(UINT_PTR)ev_text_id;
+    g_event_vtable[1 + 12] = (unsigned int)(UINT_PTR)ev_result;
+    memset(&g_event, 0, sizeof g_event);
+    g_event.vtable = &g_event_vtable[1];
+    return 1;
+}
+
 /* ---- the save and the load -------------------------------------------------------------------------------- */
 
 typedef int (__fastcall *save_fn)(void *self, void *unused, void *out, unsigned int size);
@@ -665,8 +797,8 @@ __declspec(naked) static void stew_stub(void) {
 
 /* ---- installing ------------------------------------------------------------------------------------------- */
 
-static unsigned int g_expect[2];
-static unsigned int g_ours[2];
+static unsigned int g_expect[3];
+static unsigned int g_ours[3];
 
 static int holds(unsigned int va, const unsigned char *bytes, int length) {
     return vvfp_site_holds(va, bytes, length);
@@ -704,7 +836,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)shipped;
     if (g_installed || game != FS_GAME
         || !holds(TASK_EMPTY, TASK_EMPTY_STOCK, sizeof TASK_EMPTY_STOCK)
-        || !holds(DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK)) {
+        || !holds(DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK)
+        || !ev_build()) {
         return;
     }
     vvfp_site_branch(&w[0], CREDIT_SITE, sizeof CREDIT_STOCK, CREDIT_STOCK, 0xE9, (const void *)credit_stub);
@@ -723,6 +856,10 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_ours[1] = (unsigned int)(UINT_PTR)on_load;
     vvfp_site_bytes(&w[9], VTABLE + 4u * SLOT_LOAD, 4, (const unsigned char *)&g_expect[1],
                     (const unsigned char *)&g_ours[1]);
+    g_expect[2] = 0;                 /* slot 19 holds no event */
+    g_ours[2] = (unsigned int)(UINT_PTR)&g_event;
+    vvfp_site_bytes(&w[10], EVENT_SLOT_VA, 4, (const unsigned char *)&g_expect[2],
+                    (const unsigned char *)&g_ours[2]);
     if (vvfp_install_sites(w, SITES)) {
         g_installed = 1;
     }

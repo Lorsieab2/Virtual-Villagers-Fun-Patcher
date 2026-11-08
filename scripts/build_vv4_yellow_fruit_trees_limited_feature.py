@@ -58,6 +58,8 @@ SITES = (
      "0), then the stock flag"),
 )
 VTABLE = 0x48E890
+EVENT_SLOT_VA = 0x4CCA74       # the island-event table 0x4CCA28's slot 19, NULL in the stock game
+EVENT_GAIN = 350               # fruit the event adds (the berry event's +350, 0x414B38); the owner gave no amount
 SLOTS = ((4, 0x433CB0, "save: the companion writes the tree's file, then the stock save"),
          (3, 0x433820, "load: the stock load, then the file is read again at the next use"))
 
@@ -82,7 +84,12 @@ def description() -> str:
         "Nursery's \"Showing baby the cooking area\" and the island event that needs the restored pit take no "
         "fruit; Time Warp and Choose Time Skip Amount add age units, so the tree refills for them too. "
         "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills the tree to 1,000 "
-        "too; no island event of the game's own refills it. The count is kept beside the save, in "
+        "too; no island event of the game's own refills it. The patch also adds one island event, \"A Closer "
+        f"Look\" about the breadfruit: a farmer finds leftover fruit and the tree gains {EVENT_GAIN} fruit (to at "
+        "most 1,000). It can happen once the Cooking Pit is restored and someone lives in the village, with an "
+        "equal chance among the island events that can happen then; without this patch it does not exist. In "
+        "Pick Island Event the two are \"A Closer Look (Blackberries)\" and \"A Closer Look (Yellow "
+        "Breadfruit)\". The count is kept beside the save, in "
         f"{SIDECAR}, written when the game saves; the save itself is never changed, so without this patch the "
         "tree is simply unlimited again. **Needs no other patch.** **Off by default; Owner's Defaults ticks it, "
         "and it is part of Classic VV Difficulty.** **Unverified in play: the effect has not been tested live.** "
@@ -106,6 +113,13 @@ def row(dll_sha: str) -> dict:
                    "called by the puzzles' save 0x438810 and load 0x4387A0)",
         "installed_by": INSTALLED_BY,
     } for slot, stock, what in SLOTS]
+    detours.append({
+        "va": f"0x{EVENT_SLOT_VA:X}",
+        "stock_bytes": "00000000",
+        "routine": "the island-event table 0x4CCA28's slot 19 (empty in the stock game): the companion's "
+                   "A Closer Look (Yellow Breadfruit) event object",
+        "installed_by": INSTALLED_BY,
+    })
     return {
         "id": ID,
         "enabled": True,
@@ -139,6 +153,17 @@ def row(dll_sha: str) -> dict:
             "companion's export VvfpYellowFruitRefill (found with GetProcAddress; nothing when this companion is "
             "not loaded): the tree is set to 1,000 for the village on screen (read from its file first when the "
             "village was just loaded); the 40-unit count runs on; the file is written at the next save, with it.",
+            "One more island event, A Closer Look (Yellow Breadfruit): the companion's own object in the event "
+            "table's slot 19 (0x4CCA74, NULL in the stock game: the builder 0x416FF0 never writes it), which the "
+            "selector 0x418000 collects like any other slot (1..49, NULL skipped at 0x418057; one of the possible "
+            "ones by rand(n), 0x4180A6), so the 8-15 h timer, the Island Events Seen count and the rescue rule "
+            "(slot 25) are unchanged. The object copies A Closer Look's vtable 0x48C84C (title id 0x342) with its "
+            "own condition (the Cooking Pit restored, 0x438960(6), then the berry event's 0x415E00: a living "
+            "villager of any age, 0x4679B0(-1,-1,-1,1,1,-1,0,0,0)), text id 0x2E7 (an id with no string entry "
+            "that no code pushes; its index slot 0x4DEA20+4*id points at the companion's text, by key "
+            "vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0 in the player's language), result "
+            f"(+{EVENT_GAIN} fruit, at most 1,000; the villager is not moved, unlike the berry event's farmer) and "
+            "a delete that frees nothing (the exit teardown 0x417760 calls it).",
             "Message 2 to the tree's area handler 0x435970 (the tree clicked; ignored by the stock game) shows "
             "\"Fruit remaining: N\" on the status line 0x4DB8E8 through 0x44C3A0, for 5 seconds, as the bush "
             "shows \"Berries remaining: \" (0x46F82A, text 0x115). The words go through VVFP Translations.dll "
@@ -163,7 +188,8 @@ def row(dll_sha: str) -> dict:
             "touches the tree: of the 49 event classes' results (vtable slots 11 and 12) and the routines they "
             "call, only A Closer Look (0x414B38, the blackberries +350) refills a food source, and it stays "
             "berries only (the owner, 2026-11-08).",
-            "No executable byte is patched: the companion writes its 8 jumps and 2 vtable slots at run time, only "
+            "No executable byte is patched: the companion writes its 8 jumps, 2 vtable slots and the event "
+            "table's empty slot 19 at run time, only "
             "after verifying every stock value, all or none; a different build installs nothing.",
             "The save is never written, so removing the patch leaves the tree unlimited as in the stock game; the "
             "file stays beside the save, unused (Start Over empties the save's folder).",
