@@ -43,7 +43,8 @@ SITES = (
 def description() -> str:
     return (
         "**Needs Enable Origins-Exclusive Features (Change Appearance and its masks), which the patcher installs "
-        "automatically with it.** When a Heathen joins the tribe -- preached to, Spreading the Word, the "
+        "automatically with it.** \"Heathen\" masks are culturally important to them. Their choices must be "
+        "honored. When a Heathen joins the tribe -- preached to, Spreading the Word, the "
         "Earthquake, a puzzle solved, an island event, a Custom Island Event, any way at all -- the mask they wore "
         "stays on their head: blue, orange, red, purple (the Heathen Doctor and the Heathen Masters) or the Tribal "
         "Chief's (the Heathen Chief, who becomes the Retired Chief). It is kept exactly as if you had chosen it "

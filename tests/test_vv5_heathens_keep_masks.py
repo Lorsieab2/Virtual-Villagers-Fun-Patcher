@@ -200,6 +200,11 @@ class TheRow(unittest.TestCase):
         self.assertEqual(row["patches"], [])
         self.assertTrue(row["description"].startswith("**Needs Enable Origins-Exclusive Features"),
                         "the dependency comes first, in bold")
+        owner = '"Heathen" masks are culturally important to them. Their choices must be honored.'
+        self.assertIn("with it.** " + owner + " When a Heathen", row["description"],
+                      "the owner's sentence opens the description, right after the bold dependency")
+        guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
+        self.assertIn(owner, [line for e in guide["patches"] if ROW in e.get("ids", []) for line in e["guide"]])
         ids = {p.id for p in patcher.load_public_fun_patches()}
         self.assertIn(ROW, ids)
         self.assertEqual([c["destination"] for c in row["companion_files"]], ["VVFP Heathens Keep Masks.dll"])
