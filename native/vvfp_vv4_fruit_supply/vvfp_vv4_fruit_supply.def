@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV4 Fruit Supply"
+EXPORTS
+    VvfpStartup
+    VvfpYellowFruitInstalled

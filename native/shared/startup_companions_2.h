@@ -38,6 +38,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Keep Carried.dll",
     /* Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse. */
     "VVFP Push Clouds.dll",
+    /* Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply. */
+    "VVFP VV4 Fruit Supply.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

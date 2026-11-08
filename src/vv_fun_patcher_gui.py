@@ -203,6 +203,10 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (2026-11-08): off by default, Owner's Defaults ticks both.
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
     + ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"]
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): a
+    # difficulty change in Classic VV Difficulty, off by default (the owner,
+    # 2026-11-08); Owner's Defaults ticks it.
+    + ["vv4_yellow_fruit_trees_limited"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its

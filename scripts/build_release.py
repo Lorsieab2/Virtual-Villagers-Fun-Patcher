@@ -116,6 +116,8 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
+    "assets/fruit_supply/VVFP VV4 Fruit Supply.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -273,6 +275,7 @@ FILES = [
     "data/vv5_sickness_multiplier_feature.json",
     "data/vv4_sickness_like_vv3_feature.json",
     "data/vv5_sickness_like_vv3_feature.json",
+    "data/vv4_yellow_fruit_trees_limited_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",

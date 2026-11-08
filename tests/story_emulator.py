@@ -88,7 +88,8 @@ class Process:
         self.exports: dict[str, int] = {}
         if dll is not None:
             self._load_dll(dll)
-        self.mu.hook_add(UC_HOOK_CODE, self._on_code)
+        # Kept so a caller that runs long game code can swap it for ranged hooks (tests/farmers_emulation_vv4.py).
+        self.code_hook = self.mu.hook_add(UC_HOOK_CODE, self._on_code)
 
     # ---- mapping -------------------------------------------------------
     def _map_pe(self, pe: pefile.PE) -> None:
