@@ -44,6 +44,35 @@ SITES = {
     "vv5": (0x46F680, 0x4B8450, "the villager naming routine (thiscall villager, family)"),
 }
 ROOM = {"vv1": 27, "vv2": 23, "vv3": 23, "vv4": 23, "vv5": 23}
+# New Believers' Heathens (the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!! (they
+# can share last names but be unrelated if there's not enough default ones in the list, but try to make them all
+# unique)"); native/vvfp_last_names, HEATHENS.
+LOAD_VV5 = 0x46FA20
+HEATHENS_DESCRIPTION = (
+    " Heathens get a random last name of their own from the same list: a new Heathen as the game makes them, and "
+    "a Heathen with none the first time the patched game loads the village. Each Heathen's is one nobody in the "
+    "village has used (living or dead, tribe or Heathen) while the list has one; only when all 50 are taken do "
+    "Heathens share a last name, and a shared name never makes them family. A Heathen who converts keeps their "
+    "last name. While they are Heathens their last names are not counted among the village's existing names "
+    "(Random from the existing Village Names); once converted, theirs counts like any other."
+)
+HEATHENS_BEHAVIOR = [
+    "A Heathen (the Heathen allocator 0x46FB80, every Heathen the game makes: a new village's 28, Barrel O' Babies' "
+    "Heathen babies, the Story / Cheat Upgrades' and the Custom Island Event's Heathens) is called \"<first name> "
+    "<last name>\", the last name drawn at random from the game's list among the names no villager in the game, "
+    "no \"used\" line and no \"heathen\" line of the village's Last Names record has; only when every name that "
+    "fits is taken, one that gives no living villager's full name, else any that fits.",
+    "Right after the villager table's load (0x46FA20), each living Heathen whose name carries no last name gets one "
+    "the same way (a numeral is kept after it), and a \"Name changed\" record (Old name, Age) goes to the Births and "
+    "Conceptions log at the next save, so the logs, the Family Tree Maker and Check Saves & Logs follow them as one "
+    "villager.",
+    "Each name given is kept in the village's Last Names record as a \"heathen\" line (one named at a load with the "
+    "name, head and body they had, so a session that ends without a save gives them the same name again), only "
+    "ever added to; the record is made when the village has none, never for a slot that cannot be told.",
+    "\"Random from the existing Village Names\" never counts a current Heathen's last name (the villagers in the "
+    "game at a birth, and Repair's names of the village); a converted Heathen keeps their name and it counts from "
+    "then on.",
+]
 
 
 def names(image: bytes, va: int) -> list[str]:
@@ -59,6 +88,8 @@ def row(game: str, sha: str) -> dict:
     assert len(last) == 50, (game, len(last))
     stock = image[routine - 0x400000: routine - 0x400000 + 6]
     assert stock[:2] == b"\x81\xEC", (game, stock.hex())
+    load_stock = image[LOAD_VV5 - 0x400000: LOAD_VV5 - 0x400000 + 6]
+    assert game != "vv5" or load_stock == bytes.fromhex("5356578D7948"), load_stock.hex()
     examples = ", ".join(last[:3])
     description = (
         "Babies born in the village and the village's founders get a last name after their first name, from "
@@ -79,8 +110,10 @@ def row(game: str, sha: str) -> dict:
         "name is part of the name the game stores, so it shows wherever the name does and stays in the save "
         "even if this patch is later removed."
         + (" The Golden Child, whose family is not one of the 50, gets no last name." if game == "vv1" else "")
+        + (HEATHENS_DESCRIPTION if game == "vv5" else "")
         + " **Needs no other patch.**"
     )
+    heathens = game == "vv5"
     return {
         "id": f"{game}_last_names",
         "enabled": True,
@@ -112,13 +145,18 @@ def row(game: str, sha: str) -> dict:
             "for each child picks the father's or the mother's.",
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "
             "characters.",
+            *(HEATHENS_BEHAVIOR if heathens else []),
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion detours the naming routine's first instruction at "
-            "run time, after verifying it, the routine's push of the list and the creators' calls to it, and "
-            "changes nothing if any differs.",
-            "Villagers who already have names keep them; nothing is renamed when a village is loaded.",
+            "run time" + (" (and the villager table's load, 0x46FA20)" if heathens else "") + ", after verifying "
+            "it, the routine's push of the list and the creators' calls to it, and changes nothing if any differs.",
+            "Villagers who already have names keep them; " + (
+                "when a village is loaded, only a Heathen whose name carries no last name is given one."
+                if heathens else "nothing is renamed when a village is loaded."),
             "The first names, sexes, looks and families are the game's own; the save format is unchanged.",
+            *(["Heathens still never count in the statistics, and a Heathen's last name never makes them anyone's "
+               "relative: it is drawn, never inherited, and no parent is recorded for it."] if heathens else []),
         ],
         "evidence_status": ("static exact-build verification of the naming routines, their callers and the "
                             "unused list in each executable; runtime/player confirmation pending"),
@@ -131,7 +169,14 @@ def row(game: str, sha: str) -> dict:
                 "stock_bytes": stock.hex().upper(),
                 "routine": what,
                 "installed_by": "VVFP Last Names.dll, VvfpStartup",
-            }
+            },
+            *([{
+                "va": "0x46FA20",
+                "stock_bytes": load_stock.hex().upper(),
+                "routine": "the villager table's load (thiscall manager, saved table): Heathens with no last name "
+                           "get one right after it",
+                "installed_by": "VVFP Last Names.dll, VvfpStartup",
+            }] if heathens else []),
         ],
         "patches": [],
     }

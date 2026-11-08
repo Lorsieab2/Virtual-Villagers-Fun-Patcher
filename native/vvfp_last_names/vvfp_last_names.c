@@ -12,8 +12,9 @@
    (because otherwise everyone will have the wrong last name)".  So a baby
    born in the village (a child of one of its mothers' deliveries) and a new
    village's founders get one; a villager an island event brings, a cheat's
-   or the Origins page's villager, a Heathen, and every stand-in or ghost the
-   game makes and takes away again get none.
+   or the Origins page's villager, and every stand-in or ghost the game makes
+   and takes away again get none.  New Believers' Heathens (the owner,
+   2026-11-08) get a random last name of their own: see HEATHENS below.
 
    WHERE THE GAMES NAME A VILLAGER, read from the stock executables:
 
@@ -104,8 +105,10 @@
             the founders: 0x43E317 (the choose-your-founders screen) and
             0x425D48 (the village seeding's balancing replacements).  None:
             0x471E20 (0x471E50: Barrel O' Babies, Chutes Without Ladders,
-            News From Another Tribe, a founder candidate's stand-in father),
-            the Heathens (0x46FB80) and Reanimate's stand-in (0x46FDE0).
+            News From Another Tribe, a founder candidate's stand-in father)
+            and Reanimate's stand-in (0x46FDE0).  The Heathens (the allocator
+            0x46FB80: +0x15C 0x46FC28) get a random last name of their own
+            instead (HEATHENS below).
           copy init 0x4687F0 (from 0x4688F9 or 0x468937): +0x18 0x46FDCE
             (0x46FD70, the delivery's twins and triplets).
    The Abandoned Infants (VV4, VV5) makes women pregnant; its babies are
@@ -130,7 +133,11 @@
    the game opens.  The routine's first six bytes, the list push and every
    `from` call (E8 to the routine) are verified first and the list must hold
    exactly 50 names; otherwise nothing is installed and the game names
-   villagers as it always has.  Repeated calls do nothing more. */
+   villagers as it always has.  New Believers also detours the villager
+   table's load 0x46FA20 (its first six bytes, push ebx / push esi / push edi
+   / lea edi, [ecx+0x48]) and verifies the Heathen allocator's call
+   (0x46FC23, E8 to the fresh init): both sites are written, or neither
+   (HEATHENS).  Repeated calls do nothing more. */
 #define _CRT_SECURE_NO_WARNINGS
 #include <windows.h>
 #include <shlobj.h>
@@ -140,6 +147,8 @@
 #include "../shared/per_save.h"          /* one folder per save */
 #include "../shared/install_sites.h"     /* every site written, or none */
 #include "../shared/villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
+#include "../shared/vv5_villager_table.h"  /* New Believers' table, stock or 256 */
+#include "../shared/patcher_files.h"     /* the Parentage Export companion, by its full path */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -314,7 +323,8 @@ __declspec(dllexport) int __stdcall VvfpGiveLastName(char *name, unsigned int ro
    of the villagers in the game's villager table at the birth (VvfpRuleLastName3
    is handed the table, so a name that appeared since the last Repair counts;
    never the newborn's own record, which still holds its mother's family name,
-   nor a statue, ghost or stand-in), and the parents' own.  Only names whose
+   nor a statue, ghost or stand-in, nor -- New Believers -- a Heathen: theirs
+   is no village name until they convert), and the parents' own.  Only names whose
    "<first> <last>" fits the name field.  Each such birth adds to the record
    the names it saw that its "used" lines lack (persist_used), so a name stays
    ever used after its last bearer is gone, between Repairs too.  With none (a village whose record
@@ -698,9 +708,13 @@ static void used_of_record(void) {
    records of `stride` bytes, each with its active byte at `active` and its
    name of `capacity` bytes at `name_at`), never the newborn's (`child_name`)
    nor a statue, ghost or stand-in.  A table that does not read whole is
-   passed over. */
-static void used_of_table(const unsigned char *first, unsigned int stride, int slots, unsigned int active,
-                          unsigned int name_at, unsigned int capacity, const char *child_name) {
+   passed over.  New Believers' Heathens only with `heathens` (the owner,
+   2026-11-08: a Heathen's last name is no village name while they are a
+   Heathen; once converted it is one like any other). */
+#define NB_STRIDE 0x2F44u               /* New Believers' villager record */
+#define NB_FACTION 0x1CECu              /* u8, non-zero: a Heathen */
+static void table_lasts(const unsigned char *first, unsigned int stride, int slots, unsigned int active,
+                        unsigned int name_at, unsigned int capacity, const char *child_name, int heathens) {
     int i;
     if (first == NULL || stride == 0 || slots <= 0 || slots > 4096 || capacity == 0 || capacity >= TABLE_NAME_MAX
         || name_at + capacity > stride || active >= stride || !readable(first, (size_t)slots * stride)) {
@@ -709,7 +723,8 @@ static void used_of_table(const unsigned char *first, unsigned int stride, int s
     for (i = 0; i < slots; ++i) {
         const unsigned char *r = first + (size_t)i * stride;
         char whole[TABLE_NAME_MAX], last[LONGEST_LAST + 1];
-        if (r[active] != 1 || vv_lookalike(stride, r) || (const char *)(r + name_at) == child_name) {
+        if (r[active] != 1 || vv_lookalike(stride, r) || (const char *)(r + name_at) == child_name
+            || (!heathens && g_game == 5 && stride == NB_STRIDE && r[NB_FACTION] != 0)) {
             continue;
         }
         memcpy(whole, r + name_at, capacity);
@@ -717,6 +732,31 @@ static void used_of_table(const unsigned char *first, unsigned int stride, int s
         carried_last(whole, last);
         add_used(last);
     }
+}
+
+static void used_of_table(const unsigned char *first, unsigned int stride, int slots, unsigned int active,
+                          unsigned int name_at, unsigned int capacity, const char *child_name) {
+    table_lasts(first, stride, slots, active, name_at, capacity, child_name, 0);
+}
+
+/* New Believers: whether a living Heathen in the table is called `who` (a
+   parent's name at a birth -- the Heathen Mommy's: hers is no village name). */
+static int heathen_in_table(const unsigned char *first, unsigned int stride, int slots, unsigned int active,
+                            unsigned int name_at, unsigned int capacity, const char *who) {
+    size_t n;
+    int i;
+    if (g_game != 5 || stride != NB_STRIDE || who == NULL || first == NULL || slots <= 0 || slots > 4096
+        || capacity >= TABLE_NAME_MAX || name_at + capacity > stride || active >= stride
+        || (n = strlen(who)) == 0 || n + 1 > capacity || !readable(first, (size_t)slots * stride)) {
+        return 0;
+    }
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *r = first + (size_t)i * stride;
+        if (r[active] == 1 && r[NB_FACTION] != 0 && !vv_lookalike(stride, r) && memcmp(r + name_at, who, n + 1) == 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* The last names this birth saw that the record's "used" lines do not hold
@@ -1003,8 +1043,12 @@ static int rule_last_name(char *name, unsigned int room,
         used_of_record();
         recorded = g_used_count;
         used_of_table(table, stride, slots, active, name_at, capacity, name);
-        add_used(dad);
-        add_used(mum);
+        if (!heathen_in_table(table, stride, slots, active, name_at, capacity, father)) {
+            add_used(dad);
+        }
+        if (!heathen_in_table(table, stride, slots, active, name_at, capacity, mother)) {
+            add_used(mum);                  /* (the Heathen Mommy's: no village name) */
+        }
         last = drawn_village_name(n, room);
         if (last[0] != '\0' && n + 1 + strlen(last) + 1 <= room) {
             add_used(last);                 /* a draw from the game's list (none used fits) is used now too */
@@ -1137,6 +1181,526 @@ __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int mal
     return moved;
 }
 
+/* HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give
+   heathens random last names thanks!!!! (they can share last names but be
+   unrelated if there's not enough default ones in the list, but try to make
+   them all unique)").  Every Heathen gets a last name drawn at random from
+   the game's own list of 50 (g_last), every eligible name equally likely:
+
+     * a NEW Heathen as the game names it -- the Heathen allocator 0x46FB80
+       calls the fresh init 0x4681F0 at 0x46FC23 (return 0x46FC28, at +0x15C
+       from the naming routine's entry esp), for every Heathen the game makes:
+       the 28 of a new village (0x424AC0, from the start-game step 0x4259D0),
+       Barrel O' Babies' Heathen babies (0x4152E8 ...), the Story / Cheat
+       Upgrades' and the Custom Island Event's Heathens (0x46FD20), the Heathen
+       Mommy Puzzle Restoration's mother;
+     * an EXISTING Heathen with no last name the first time the patched game
+       loads the village: right after the villager table's load 0x46FA20
+       (thiscall manager, the saved table; ret 4; al 1 when it read) -- before
+       the load-time catch-up and before any companion's first look -- each
+       living Heathen whose name carries no last name (carried_last; a
+       trailing numeral is kept after it: "Tama Akikai II") is given one, and
+       a "Name changed" record (Parentage Export's WriteVillageRecord, held
+       until the next save) ties the old name to the new one, so the logs, the
+       Family Tree and Check Saves & Logs follow them as one villager.
+
+   UNIQUE WHILE THE LIST LASTS.  The draw is among the names nobody has used:
+   no villager in the game now (either faction, living), no "used" line (every
+   last name the tribe has ever had, Repair's and the births'), no "heathen"
+   line (every last name a Heathen was ever given, dead ones too).  Only when
+   every name that fits is taken may a Heathen share one -- then a name that
+   gives no living villager's exact full name, else any that fits.  A shared
+   name says nothing about family: a Heathen's last name is drawn, never
+   inherited, and no parent is recorded for it.
+
+   KEPT IN THE VILLAGE'S RECORD (Last Names - Save <slot>.dat) as lines
+       heathen<TAB><last name>                              (a new Heathen)
+       heathen<TAB><last name><TAB><name><TAB><head><TAB><body>  (named at a load)
+   (UTF-8), only ever added to; the record is made with its header when the
+   village has none.  A Heathen named at a load whose session ended without a
+   save is nameless again at the next load: the keyed line gives them the same
+   last name again, and no new line.  Never for a slot that cannot be told.
+   An earlier build's reader skips these lines.
+
+   NOT A VILLAGE NAME WHILE A HEATHEN (the owner): "Random from the existing
+   Village Names" never counts a Heathen's last name (table_lasts) nor a
+   "heathen" line; once converted (the faction byte cleared in place, the name
+   kept) it is a villager's name like any other.  Heathens still never count
+   in the statistics. */
+#define NB_RECORDS 0x48u                /* the first record in the manager */
+#define NB_ACTIVE 0x1CD4u               /* u8 */
+#define NB_HEALTH 0x1C40u               /* i32 */
+#define NB_AGE 0x1B8Cu                  /* i32, age units */
+#define NB_VILLAGER 0x1B8Cu             /* the naming routine's `this` */
+#define NB_NAME 0x1B9Cu
+#define NB_NAME_CAP 0x19u
+#define NB_ROOM 0x18u                   /* the most the name may take, its NUL included */
+#define NB_HEAD 0x1BB8u
+#define NB_BODY 0x1BBCu
+#define NB_NAMING_FROM 0x46863Du        /* the fresh init's call to the naming routine */
+#define NB_FRESH_INIT 0x4681F0u
+#define NB_HEATHEN_FROM 0x46FC28u       /* the Heathen allocator's call to the fresh init */
+#define NB_LOAD 0x46FA20u               /* the villager table's load */
+#define NB_SAVE_MANAGER 0x4DACE0u       /* native/shared/game_save_slot.h */
+#define NB_SAVE_SLOT 0x17D80u
+#define KIND_NAME_CHANGE 10             /* Parentage Export's "Name changed" */
+#define HEATHEN_LINES_MAX 256
+
+static const unsigned char NB_LOAD_PROLOGUE[6] = { 0x53, 0x56, 0x57, 0x8D, 0x79, 0x48 };
+static unsigned char *g_load_trampoline;    /* 0x46FA20's own first six bytes, then back */
+
+static int is_heathen_naming(const unsigned int *entry) {
+    return g_game == 5 && entry[0] == NB_NAMING_FROM && entry[0x15C / 4] == NB_HEATHEN_FROM;
+}
+
+/* The slot the game has loaded or is making a village in (the save manager's
+   own field, native/shared/game_save_slot.h); 0 when it cannot be told. */
+static int nb_current_slot(void) {
+    const unsigned char *const *at = (const unsigned char *const *)(uintptr_t)NB_SAVE_MANAGER;
+    const unsigned char *manager;
+    int slot;
+    if (!readable(at, 4)) {
+        return 0;
+    }
+    manager = *at;
+    if (manager == NULL || !readable(manager + NB_SAVE_SLOT, 4)) {
+        return 0;
+    }
+    slot = *(const int *)(manager + NB_SAVE_SLOT);
+    return slot >= 1 && slot <= 5 ? slot : 0;
+}
+
+/* The game's villager records and their count (150, or 256 with 256 Villagers). */
+static unsigned char *nb_records(int *slots) {
+    unsigned int rva = 0, count = 0;
+    unsigned char *module = (unsigned char *)GetModuleHandleA(NULL);
+    *slots = 0;
+    if (module == NULL) {
+        return NULL;
+    }
+    vv5_villager_table(module, &rva, &count);
+    *slots = (int)count;
+    return module + rva + NB_RECORDS;
+}
+
+/* One "heathen" line: its last name and, for one named at a load, the name,
+   head and body they had (`keyed`).  0 for any other line, or a malformed one. */
+struct heathen_line {
+    char last[LONGEST_LAST + 1];
+    char name[TABLE_NAME_MAX];
+    int head, body, keyed;
+};
+
+static int heathen_line_of(const char *line, struct heathen_line *h) {
+    const char *field[4];
+    size_t len[4], end = strcspn(line, "\r\n");
+    const char *p = line + 8, *stop = line + end;
+    int count = 0;
+    if (strncmp(line, "heathen\t", 8) != 0 || end <= 8) {
+        return 0;
+    }
+    while (count < 4) {
+        const char *tab = (const char *)memchr(p, '\t', (size_t)(stop - p));
+        field[count] = p;
+        len[count] = (size_t)((tab ? tab : stop) - p);
+        ++count;
+        if (tab == NULL) {
+            break;
+        }
+        p = tab + 1;
+        if (count == 4) {
+            return 0;                       /* a fifth field: not a line of this build */
+        }
+    }
+    if ((count != 1 && count != 4) || len[0] == 0 || memchr(field[0], ' ', len[0]) != NULL
+        || !latin1_of(field[0], len[0], h->last, sizeof h->last)) {
+        return 0;
+    }
+    h->keyed = count == 4;
+    h->name[0] = '\0';
+    h->head = h->body = -1;
+    if (h->keyed && (len[1] == 0 || !latin1_of(field[1], len[1], h->name, sizeof h->name)
+                     || !number_of(field[2], len[2], &h->head) || !number_of(field[3], len[3], &h->body))) {
+        return 0;
+    }
+    return 1;
+}
+
+/* Every "heathen" line's last name into the names taken (g_used). */
+static void heathens_of_record(void) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        struct heathen_line h;
+        if (heathen_line_of(line, &h)) {
+            add_used(h.last);
+        }
+    }
+}
+
+/* The keyed line a load wrote for this Heathen (the name, head and body they
+   have now), not one already given this load (`given`); NULL for none. */
+static const char *kept_heathen_line(const char *name, int head, int body, const char *const *given, int given_count,
+                                     char *last) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        struct heathen_line h;
+        int k;
+        if (!heathen_line_of(line, &h) || !h.keyed || strcmp(h.name, name) != 0 || h.head != head || h.body != body) {
+            continue;
+        }
+        for (k = 0; k < given_count && given[k] != line; ++k) {
+        }
+        if (k < given_count) {
+            continue;
+        }
+        memcpy(last, h.last, strlen(h.last) + 1);
+        return line;
+    }
+    return NULL;
+}
+
+static int is_used_name(const char *last) {
+    int i;
+    for (i = 0; i < g_used_count; ++i) {
+        if (strcmp(g_used[i], last) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The length of `name` without its trailing numerals (Number Duplicate
+   Names': "Tama II"), never its first word. */
+static size_t base_length(const char *name) {
+    size_t n = strlen(name);
+    for (;;) {
+        size_t i = n;
+        while (i > 0 && name[i - 1] != ' ') {
+            --i;
+        }
+        if (i == 0 || !is_numeral(name + i, n - i)) {
+            return n;
+        }
+        n = i - 1;
+    }
+}
+
+/* `name` with " <last>" after its own part (any numeral kept after it) into
+   `out` (TABLE_NAME_MAX); 0 when the whole would not fit `room` (NUL included). */
+static int with_heathen_last(const char *name, unsigned int room, const char *last, char *out) {
+    size_t have = strlen(name), add = strlen(last), base = base_length(name);
+    if (add == 0 || have == 0 || have + 1 + add + 1 > room || room > TABLE_NAME_MAX) {
+        return 0;
+    }
+    memcpy(out, name, base);
+    out[base] = ' ';
+    memcpy(out + base + 1, last, add);
+    memcpy(out + base + 1 + add, name + base, have - base + 1);
+    return 1;
+}
+
+/* Whether a living villager in the table other than `self` is called `full`. */
+static int full_name_held(const unsigned char *records, int slots, const char *full, const char *self) {
+    size_t n = strlen(full);
+    int i;
+    if (records == NULL || n + 1 > NB_NAME_CAP) {
+        return 0;
+    }
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *r = records + (size_t)i * NB_STRIDE;
+        if (r[NB_ACTIVE] == 1 && !vv_lookalike(NB_STRIDE, r) && (const char *)(r + NB_NAME) != self
+            && memcmp(r + NB_NAME, full, n + 1) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* A Heathen's last name: one of the game's list that fits after `name` and
+   nobody has used (g_used); with none, one that gives no living villager's
+   full name; with none, any that fits.  Every candidate equally likely; ""
+   when none fits. */
+static const char *heathen_draw(const char *name, unsigned int room, const unsigned char *records, int slots) {
+    int fits[FAMILIES], count = 0, i, pass;
+    char full[TABLE_NAME_MAX];
+    for (pass = 0; pass < 3 && count == 0; ++pass) {
+        for (i = 0; i < FAMILIES; ++i) {
+            if (!with_heathen_last(name, room, g_last[i], full)
+                || (pass == 0 && is_used_name(g_last[i]))
+                || (pass == 1 && full_name_held(records, slots, full, name))) {
+                continue;
+            }
+            fits[count++] = i;
+        }
+    }
+    return count == 0 ? "" : g_last[fits[random_below((unsigned int)count)]];
+}
+
+/* `text` (the game's Latin-1) as UTF-8 into out[size]: its length, or 0 for a
+   byte the record does not keep (a control byte, a tab, '%', 0x80-0x9F). */
+static size_t utf8_of(const char *text, char *out, size_t size) {
+    const unsigned char *p = (const unsigned char *)text;
+    size_t k = 0;
+    for (; *p != '\0'; ++p) {
+        if (*p < 0x20 || *p == 0x7F || *p == '%' || (*p >= 0x80 && *p < 0xA0) || k + 3 > size) {
+            return 0;
+        }
+        if (*p < 0x80) {
+            out[k++] = (char)*p;
+        } else {
+            out[k++] = (char)(0xC0 | (*p >> 6));
+            out[k++] = (char)(0x80 | (*p & 0x3F));
+        }
+    }
+    out[k] = '\0';
+    return k;
+}
+
+/* `add` (whole lines) after the slot's record, through a temporary file
+   swapped in whole; the record is made, with its header, when there is none.
+   Never a file that is not this game's record, nor past RULE_FILE_MAX.  1
+   when written. */
+static int append_record_lines(int slot, const char *add, size_t add_len) {
+    static char out[RULE_FILE_MAX + 1];
+    char path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16], header[48];
+    size_t used = 0, header_len;
+    HANDLE h;
+    DWORD got = 0, wrote = 0;
+    if (slot < 1 || add_len == 0 || !record_path(slot, path, sizeof path)) {
+        return 0;
+    }
+    _snprintf(header, sizeof header, "VVFP LAST NAMES v1 game=%d", g_game);
+    header[sizeof header - 1] = '\0';
+    header_len = strlen(header);
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h != INVALID_HANDLE_VALUE) {
+        if (!ReadFile(h, out, RULE_FILE_MAX, &got, NULL)) {
+            got = RULE_FILE_MAX;            /* unread: never written over */
+        }
+        CloseHandle(h);
+        if (got >= RULE_FILE_MAX) {
+            return 0;
+        }
+        out[got] = '\0';
+        if (strncmp(out, header, header_len) != 0 || (out[header_len] != '\n' && out[header_len] != '\r')) {
+            return 0;                       /* not this game's record: never replaced */
+        }
+        used = got;
+        if (out[used - 1] != '\n') {
+            out[used++] = '\n';
+        }
+    } else {
+        DWORD error = GetLastError();
+        if (error != ERROR_FILE_NOT_FOUND && error != ERROR_PATH_NOT_FOUND) {
+            return 0;
+        }
+        vv_ps_make_parents_a(path);
+        memcpy(out, header, header_len);
+        out[header_len] = '\n';
+        used = header_len + 1;
+    }
+    if (used + add_len >= RULE_FILE_MAX || _snprintf(temporary, sizeof temporary, "%s.heathen-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    memcpy(out + used, add, add_len);
+    used += add_len;
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return 1;
+}
+
+/* The "Name changed" record of a Heathen named at a load: "VVFP Parentage
+   Export.dll"'s WriteVillageRecord (kind 10, held until the next save, as A
+   New Home's parentage companion writes it).  Nothing when the logs are not
+   part of the game. */
+typedef int (__stdcall *write_village_record_fn)(int, int, const void *, int, const char *, const char *, int);
+static write_village_record_fn g_write_village_record;
+static int g_write_village_record_looked;
+
+static void log_name_change(const unsigned char *record, const char *old_name) {
+    char before[TABLE_NAME_MAX + 48];
+    if (!g_write_village_record_looked) {
+        HMODULE companion = vvfp_patcher_dll("VVFP Parentage Export.dll");
+        g_write_village_record_looked = 1;
+        if (companion != NULL) {
+            g_write_village_record = (write_village_record_fn)GetProcAddress(companion, "WriteVillageRecord");
+        }
+    }
+    if (g_write_village_record == NULL) {
+        return;
+    }
+    _snprintf(before, sizeof before, "  Old name: %s\n  Age: %d\n", old_name, *(const int *)(record + NB_AGE));
+    before[sizeof before - 1] = '\0';
+    (void)g_write_village_record(5, KIND_NAME_CHANGE, record, 1, before, NULL, 1);
+}
+
+/* The names taken for a Heathen's draw: the record's "used" and "heathen"
+   lines and everyone in the table now (both factions) but `self`. */
+static void heathen_taken(int slot, const unsigned char *records, int slots, const char *self) {
+    char rule[8];
+    if (!read_record(slot, rule, sizeof rule)) {
+        g_rule_file[0] = '\0';              /* no record of this village (yet): no lines of it */
+        g_rule_size = 0;
+    }
+    g_used_count = 0;
+    used_of_record();
+    heathens_of_record();
+    table_lasts(records, NB_STRIDE, slots, NB_ACTIVE, NB_NAME, NB_NAME_CAP, self, 1);
+}
+
+/* A new Heathen, as the naming routine has just named them (`villager`: the
+   routine's `this`, the record + NB_VILLAGER): a last name of their own.
+   Returns 1 when the name changed. */
+static int heathen_created(unsigned char *villager, const unsigned char *records, int slots, int slot) {
+    char *name = (char *)(villager + 0x10);
+    char full[TABLE_NAME_MAX], last[LONGEST_LAST + 1], line[16 + 2 * LONGEST_LAST];
+    const char *pick;
+    size_t n;
+    if (memchr(name, '\0', NB_ROOM) == NULL || name[0] == '\0') {
+        return 0;
+    }
+    heathen_taken(slot, records, slots, name);
+    carried_last(name, last);
+    if (last[0] != '\0') {
+        return 0;                           /* already one: kept */
+    }
+    pick = heathen_draw(name, NB_ROOM, records, slots);
+    if (pick[0] == '\0' || !with_heathen_last(name, NB_ROOM, pick, full)) {
+        return 0;
+    }
+    memcpy(name, full, strlen(full) + 1);
+    memcpy(line, "heathen\t", 8);
+    n = utf8_of(pick, line + 8, sizeof line - 10);
+    if (n > 0) {
+        line[8 + n] = '\n';
+        (void)append_record_lines(slot, line, 8 + n + 1);
+    }
+    return 1;
+}
+
+/* Right after a load: every living Heathen whose name carries no last name
+   gets one (a keyed line's, when this load's name, head and body have one).
+   Returns how many were named. */
+static int heathens_at_load(unsigned char *records, int slots, int slot) {
+    static char add[RULE_FILE_MAX];
+    const char *given[HEATHEN_LINES_MAX];
+    size_t used = 0;
+    int i, named = 0, given_count = 0;
+    if (records == NULL || slots <= 0 || slots > HEATHEN_LINES_MAX || !readable(records, (size_t)slots * NB_STRIDE)) {
+        return 0;
+    }
+    heathen_taken(slot, records, slots, NULL);
+    for (i = 0; i < slots; ++i) {
+        unsigned char *r = records + (size_t)i * NB_STRIDE;
+        char *name = (char *)(r + NB_NAME);
+        char old[TABLE_NAME_MAX], last[LONGEST_LAST + 1], full[TABLE_NAME_MAX], text[2 * TABLE_NAME_MAX];
+        const char *line;
+        int head, body;
+        if (r[NB_ACTIVE] != 1 || vv_lookalike(NB_STRIDE, r) || r[NB_FACTION] == 0 || *(const int *)(r + NB_HEALTH) <= 0
+            || memchr(name, '\0', NB_ROOM) == NULL || name[0] == '\0') {
+            continue;
+        }
+        memcpy(old, name, strlen(name) + 1);
+        carried_last(old, last);
+        if (last[0] != '\0') {
+            continue;
+        }
+        head = *(const int *)(r + NB_HEAD);
+        body = *(const int *)(r + NB_BODY);
+        line = kept_heathen_line(old, head, body, given, given_count, last);
+        if (line != NULL && with_heathen_last(old, NB_ROOM, last, full)) {
+            given[given_count++] = line;    /* the same name again: no new line */
+        } else {
+            const char *pick = heathen_draw(old, NB_ROOM, records, slots);
+            size_t a, b;
+            int k;
+            if (pick[0] == '\0' || !with_heathen_last(old, NB_ROOM, pick, full)) {
+                continue;
+            }
+            memcpy(last, pick, strlen(pick) + 1);
+            a = slot >= 1 ? utf8_of(last, text, sizeof text) : 0;     /* no slot: nothing is kept */
+            if (a > 0 && used + 8 + a + 1 < sizeof add) {
+                memcpy(add + used, "heathen\t", 8);
+                memcpy(add + used + 8, text, a);
+                used += 8 + a;
+                b = utf8_of(old, text, sizeof text);
+                k = b > 0 ? _snprintf(add + used, sizeof add - used, "\t%s\t%d\t%d", text, head, body) : 0;
+                if (k > 0 && (size_t)k < sizeof add - used - 1) {
+                    used += (size_t)k;
+                }
+                add[used++] = '\n';
+            }
+        }
+        memset(name, 0, NB_NAME_CAP);
+        memcpy(name, full, strlen(full) + 1);
+        add_used(last);
+        log_name_change(r, old);
+        ++named;
+    }
+    if (used > 0) {
+        (void)append_record_lines(slot, add, used);
+    }
+    return named;
+}
+
+/* From the naming wrapper: a new Heathen of the game's own table. */
+static void heathen_named(unsigned char *villager) {
+    int slots;
+    const unsigned char *records = nb_records(&slots);
+    (void)heathen_created(villager, records, slots, nb_current_slot());
+}
+
+/* From the load wrapper: the table 0x46FA20 just filled (`manager`: its
+   `this`), when it read (al 1). */
+static void __cdecl after_load(unsigned char *manager, unsigned int loaded) {
+    int slots;
+    unsigned char *records = nb_records(&slots);
+    if ((loaded & 0xFFu) == 0 || manager == NULL) {
+        return;
+    }
+    if (records != manager + NB_RECORDS) {
+        records = manager + NB_RECORDS;     /* not the table the executable names: the stock count */
+        slots = 150;
+    }
+    (void)heathens_at_load(records, slots, nb_current_slot());
+}
+
+/* thiscall (manager, table), ret 4: the load, then the Heathens. */
+static __declspec(naked) void wrap_load(void) {
+    __asm {
+        push ebp
+        mov ebp, esp
+        push ecx
+        push dword ptr [ebp + 8]
+        call dword ptr [g_load_trampoline]  /* ecx is still the manager */
+        pop ecx
+        pushad
+        push eax
+        push ecx
+        call after_load
+        add esp, 8
+        popad
+        pop ebp
+        ret 4
+    }
+}
+
 static int one_of(unsigned int value, const unsigned int *values) {
     int i;
     for (i = 0; i < SLOT_VALUES && values[i] != 0; ++i) {
@@ -1182,6 +1746,8 @@ static void __cdecl after_villager(const unsigned int *entry, unsigned char *vil
     const struct game_site *s = &SITES[g_game];
     if (gets_a_last_name(entry)) {
         give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
+    } else if (is_heathen_naming(entry)) {
+        heathen_named(villager);            /* New Believers: a random one of their own (HEATHENS) */
     }
 }
 
@@ -1317,12 +1883,25 @@ static void site_bytes(const struct game_site *s, void (*wrapper)(void), unsigne
     out[5] = 0x90;
 }
 
+/* New Believers: the Heathen allocator's call to the fresh init (the frame
+   HEATHENS reads), and the table load's first instruction. */
+static int heathen_sites_are_the_games(void) {
+    const unsigned char *call = (const unsigned char *)(uintptr_t)(NB_HEATHEN_FROM - 5);
+    unsigned int rel;
+    if (!readable(call, 5) || call[0] != 0xE8) {
+        return 0;
+    }
+    memcpy(&rel, call + 1, 4);
+    return NB_HEATHEN_FROM + rel == NB_FRESH_INIT;
+}
+
 static int install(int game) {
     const struct game_site *s;
-    unsigned char bytes[6];
+    unsigned char bytes[6], load_bytes[6];
     unsigned char *page;
     unsigned int back;
-    vvfp_site_write w[1];
+    vvfp_site_write w[2];
+    int sites = 1;
     if (game < 1 || game > GAMES) {
         return 0;
     }
@@ -1332,12 +1911,13 @@ static int install(int game) {
     install_state = -1;
     s = &SITES[game];
     if (!site_is_the_routine(s) || !calls_are_the_creators(game)
-        || !read_list((const char *)(uintptr_t)s->list)) {
+        || !read_list((const char *)(uintptr_t)s->list) || (game == 5 && !heathen_sites_are_the_games())) {
         return 0;
     }
-    /* The trampoline: the routine's own `sub esp, imm32`, then jmp back --
+    /* The trampolines: the routine's own `sub esp, imm32`, then jmp back
+       (and, New Believers, 0x46FA20's first six bytes, then jmp back) --
        built read/write, sealed read/execute (never both at once). */
-    page = vvfp_code_page_alloc(16);
+    page = vvfp_code_page_alloc(32);
     if (page == NULL) {
         return 0;
     }
@@ -1345,15 +1925,29 @@ static int install(int game) {
     page[6] = 0xE9;
     back = (unsigned int)((s->routine + 6) - ((unsigned int)(uintptr_t)page + 11));
     memcpy(page + 7, &back, 4);
-    if (!vvfp_code_page_seal(page, 16)) {
+    memcpy(page + 16, NB_LOAD_PROLOGUE, sizeof NB_LOAD_PROLOGUE);
+    page[22] = 0xE9;
+    back = (unsigned int)((NB_LOAD + 6) - ((unsigned int)(uintptr_t)page + 27));
+    memcpy(page + 23, &back, 4);
+    if (!vvfp_code_page_seal(page, 32)) {
         return 0;                          /* (the page is freed) */
     }
     g_trampoline = page;
     g_game = game;
     site_bytes(s, s->stride != 0 ? wrap_out : wrap_villager, bytes);
     vvfp_site_bytes(&w[0], s->routine, sizeof bytes, s->prologue, bytes);
-    if (!vvfp_install_sites(w, 1)) {       /* native/shared/install_sites.h */
+    if (game == 5) {
+        unsigned int rel = (unsigned int)((const unsigned char *)wrap_load - ((const unsigned char *)(uintptr_t)NB_LOAD + 5));
+        g_load_trampoline = page + 16;
+        load_bytes[0] = 0xE9;
+        memcpy(load_bytes + 1, &rel, 4);
+        load_bytes[5] = 0x90;
+        vvfp_site_bytes(&w[1], NB_LOAD, sizeof load_bytes, NB_LOAD_PROLOGUE, load_bytes);
+        sites = 2;
+    }
+    if (!vvfp_install_sites(w, sites)) {   /* native/shared/install_sites.h: both, or none */
         g_trampoline = NULL;
+        g_load_trampoline = NULL;
         g_game = 0;
         VirtualFree(page, 0, MEM_RELEASE);
         return 0;

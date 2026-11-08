@@ -24,7 +24,7 @@ from pathlib import Path
 import pefile
 from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
 from unicorn.x86_const import (UC_X86_REG_EAX, UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX,
-                               UC_X86_REG_EDI, UC_X86_REG_ESI, UC_X86_REG_ESP)
+                               UC_X86_REG_EDI, UC_X86_REG_EIP, UC_X86_REG_ESI, UC_X86_REG_ESP)
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -150,10 +150,12 @@ NO_LAST_NAME = {
     "vv5": {
         "Barrel O' Babies and the other events": (0x46863D, {0x15C: (0x46FB6F, 0x4681F0),
                                                              0x1A4: (0x471E50, 0x46FAD0)}),
-        "a Heathen": (0x46863D, {0x15C: (0x46FC28, 0x4681F0)}),
         "Reanimate's stand-in": (0x46863D, {0x15C: (0x46FE5C, 0x4681F0)}),
     },
 }
+# New Believers' Heathens (the owner, 2026-11-08): a random last name of their own from the game's list
+# (native/vvfp_last_names, HEATHENS) -- the Heathen allocator 0x46FB80's call to the fresh init.
+HEATHEN = (0x46863D, {0x15C: (0x46FC28, 0x4681F0)})
 
 
 def stack(path: tuple[int, dict[int, tuple[int, int]]]) -> tuple[int, dict[int, int]]:
@@ -175,6 +177,13 @@ STOCK_PRESENT = STOCK.is_dir()
 # stdcall argument bytes of the Windows calls VvfpStartup makes.
 ARGS = {b"VirtualQuery": 12, b"VirtualAlloc": 16, b"VirtualProtect": 16, b"VirtualFree": 12,
         b"FlushInstructionCache": 12, b"GetCurrentProcess": 0}
+# ...and the ones New Believers' Heathens make (HEATHENS): the executable's own module, the random draw's seed,
+# and the patcher folder's path (none here: no Parentage Export to log to).
+HEATHEN_ARGS = {b"GetModuleHandleA": 4, b"QueryPerformanceCounter": 4, b"GetTickCount": 0,
+                b"GetCurrentProcessId": 0, b"GetCurrentThreadId": 0, b"GetModuleFileNameW": 12}
+# New Believers' villager records (vv5_villager_table.h: the stock manager, records from +0x48).
+VV5_MANAGER, VV5_STRIDE = 0x554148, 0x2F44
+VV5_ACTIVE, VV5_HEALTH, VV5_NAME, VV5_FACTION = 0x1CD4, 0x1C40, 0x1B9C, 0x1CEC
 
 
 def names(image: bytes, va: int) -> list[str]:
@@ -208,7 +217,7 @@ class Game:
             for index, imp in enumerate(entry.imports):
                 stub = STUBS + 0x10 * len(self.stubs)
                 self.stubs[stub] = imp.name
-                n = ARGS.get(imp.name)
+                n = ARGS.get(imp.name, HEATHEN_ARGS.get(imp.name))
                 mu.mem_write(stub, b"\xCC" if n is None else (b"\xC2" + struct.pack("<H", n)))
                 mu.mem_write(imp.address, struct.pack("<I", stub))
         self.exports = {e.name.decode(): base + e.address for e in dll.DIRECTORY_ENTRY_EXPORT.symbols if e.name}
@@ -222,12 +231,20 @@ class Game:
         self.rolls: list[int] = []
         self.bounds: list[int] = []
         self.called: list[bytes] = []
+        # The game's own functions answered here: address -> (fn(game) -> eax, the bytes its ret pops).
+        self.game_stubs: dict[int, tuple] = {}
         mu.hook_add(UC_HOOK_CODE, self._hook)
 
     def _hook(self, mu, address, size, user_data):
         esp = mu.reg_read(UC_X86_REG_ESP)
         arg = lambda i: struct.unpack("<I", mu.mem_read(esp + 4 + 4 * i, 4))[0]  # noqa: E731
-        if address == self.rand_va:
+        if address in self.game_stubs:
+            fn, popped = self.game_stubs[address]
+            mu.reg_write(UC_X86_REG_EAX, fn(self) & 0xFFFFFFFF)
+            back = struct.unpack("<I", mu.mem_read(esp, 4))[0]
+            mu.reg_write(UC_X86_REG_ESP, esp + 4 + popped)
+            mu.reg_write(UC_X86_REG_EIP, back)
+        elif address == self.rand_va:
             bound = arg(0)
             value = self.rolls.pop(0)
             assert 0 <= value < bound, (value, bound)
@@ -258,6 +275,15 @@ class Game:
                 mu.reg_write(UC_X86_REG_EAX, 1)
             elif name == b"GetCurrentProcess":
                 mu.reg_write(UC_X86_REG_EAX, 0xFFFFFFFF)
+            elif name == b"GetModuleHandleA":
+                mu.reg_write(UC_X86_REG_EAX, 0x400000 if arg(0) == 0 else 0)
+            elif name == b"QueryPerformanceCounter":
+                mu.mem_write(arg(0), struct.pack("<Q", 0x123456789 + len(self.called)))
+                mu.reg_write(UC_X86_REG_EAX, 1)
+            elif name in (b"GetTickCount", b"GetCurrentProcessId", b"GetCurrentThreadId"):
+                mu.reg_write(UC_X86_REG_EAX, 0x1000 + len(self.called))
+            elif name == b"GetModuleFileNameW":
+                mu.reg_write(UC_X86_REG_EAX, 0)
             else:
                 raise AssertionError(f"VvfpStartup called {name!r}")
 
@@ -408,7 +434,9 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                     return None
                 return (back + struct.unpack_from("<i", image, at + 1)[0]) & 0xFFFFFFFF
 
-            for what, (back, slots) in [*BIRTHS[game].items(), *FOUNDERS[game].items(), *NO_LAST_NAME[game].items()]:
+            heathen = [("a Heathen", HEATHEN)] if game == "vv5" else []
+            for what, (back, slots) in [*BIRTHS[game].items(), *FOUNDERS[game].items(), *NO_LAST_NAME[game].items(),
+                                        *heathen]:
                 with self.subTest(game=game, path=what):
                     self.assertEqual(target(back), SITES[game][0])
                     for value, callee in slots.values():
@@ -455,6 +483,101 @@ class NewVillagersGetTheirFamilysLastName(unittest.TestCase):
                     g.startup()
                     self.assertEqual(bytes(g.mu.mem_read(routine, 6)), bytes(image[routine - 0x400000:][:6]))
                     self.assertNotIn(b"VirtualProtect", g.called)
+
+
+def vv5_villager(g: Game, index: int, name: str, heathen: bool, health: int = 50) -> int:
+    """A villager in New Believers' own table, in the running image."""
+    record = VV5_MANAGER + 0x48 + index * VV5_STRIDE
+    g.mu.mem_write(record + VV5_NAME, name.encode("ascii").ljust(0x19, b"\0"))
+    g.mu.mem_write(record + VV5_ACTIVE, b"\x01")
+    g.mu.mem_write(record + VV5_FACTION, b"\x01" if heathen else b"\x00")
+    g.mu.mem_write(record + VV5_HEALTH, struct.pack("<i", health))
+    return record
+
+
+def vv5_name(g: Game, record: int) -> str:
+    text = bytes(g.mu.mem_read(record + VV5_NAME, 0x19))
+    return text[:text.index(b"\0")].decode("ascii")
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class HeathensGetARandomLastNameOfTheirOwn(unittest.TestCase):
+    """New Believers (the owner, 2026-11-08): "in vv5, please give heathens random last names thanks!!!! (they
+    can share last names but be unrelated if there's not enough default ones in the list, but try to make them
+    all unique)".  The shipped DLL in the stock executable; native/vvfp_last_names/heathen_names_harness.c
+    (tests/test_vv5_heathen_last_names.py) checks the record and every rule in detail."""
+
+    def lists(self):
+        image = pefile.PE(str(STOCK / EXE["vv5"])).get_memory_mapped_image()
+        _, _, last, male, _ = SITES["vv5"]
+        return names(image, last), names(image, male)
+
+    def test_a_new_heathen_gets_one_nobody_has(self):
+        last, male = self.lists()
+        for free in (0, 17, 49):
+            with self.subTest(free=last[free]):
+                g = Game("vv5")
+                g.startup()
+                for i, other in enumerate(n for k, n in enumerate(last) if k != free):
+                    vv5_villager(g, i, f"Ago {other}", heathen=i % 2 == 0)
+                name, state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(HEATHEN))
+                self.assertEqual(name, f"{male[4]} {last[free]}", "the one name no villager has")
+                self.assertTrue(state["esp_ok"] and state["kept"])
+
+    def test_with_nobody_in_the_village_any_of_the_list(self):
+        last, male = self.lists()
+        g = Game("vv5")
+        g.startup()
+        seen = set()
+        for _ in range(40):
+            name, _state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(HEATHEN))
+            self.assertTrue(name.startswith(f"{male[4]} "))
+            seen.add(name.split(" ", 1)[1])
+        self.assertLessEqual(seen, set(last))
+        self.assertGreater(len(seen), 10, "a fresh random draw each time, not the family's")
+
+    def test_the_load_names_existing_heathens(self):
+        last, _male = self.lists()
+        g = Game("vv5")
+        g.startup()
+        self.assertEqual(bytes(g.mu.mem_read(0x46FA20, 6))[0], 0xE9, "the table's load is detoured")
+        state_at = DATA + 0x200000
+        entries = [("Ago " + last[0], 0), ("Tama", 1), ("Pua II", 1), ("Lupa", 0), ("Keo " + last[1], 1)]
+        for i, (name, faction) in enumerate(entries):
+            entry = state_at + 0xC90C + i * 0x118
+            g.mu.mem_write(entry, bytes([1, faction]))
+            g.mu.mem_write(entry + 0x20, name.encode("ascii").ljust(0x19, b"\0"))
+        g.mu.mem_write(state_at + 0xC90C + len(entries) * 0x118, b"\0")
+
+        def load_one(game: Game) -> int:          # 0x466B60, thiscall (record, entry), ret 4
+            mu = game.mu
+            esp = mu.reg_read(UC_X86_REG_ESP)
+            entry = struct.unpack("<I", mu.mem_read(esp + 4, 4))[0]
+            record = mu.reg_read(UC_X86_REG_ECX)
+            mu.mem_write(record + VV5_NAME, bytes(mu.mem_read(entry + 0x20, 0x19)))
+            mu.mem_write(record + VV5_FACTION, bytes(mu.mem_read(entry + 1, 1)))
+            mu.mem_write(record + VV5_HEALTH, struct.pack("<i", 50))
+            mu.mem_write(record + VV5_ACTIVE, b"\x01")
+            return 1
+
+        g.game_stubs[0x465100] = (lambda game: game.mu.mem_write(game.mu.reg_read(UC_X86_REG_ECX) + VV5_ACTIVE,
+                                                                 b"\0") or 0, 0)      # each record reset
+        g.game_stubs[0x425950] = (lambda game: state_at, 0)                        # the save manager's state
+        g.game_stubs[0x466B60] = (load_one, 4)
+        state = g.call(0x46FA20, [state_at + 0xC90C], ecx=VV5_MANAGER)
+        self.assertTrue(state["esp_ok"] and state["kept"])
+        self.assertEqual(g.mu.reg_read(UC_X86_REG_EAX) & 0xFF, 1, "the load's own answer is kept")
+        record = lambda i: VV5_MANAGER + 0x48 + i * VV5_STRIDE  # noqa: E731
+        got = [vv5_name(g, record(i)) for i in range(len(entries))]
+        self.assertEqual(got[0], "Ago " + last[0], "a believer is left alone")
+        self.assertEqual(got[3], "Lupa", "a believer with no last name is left alone")
+        self.assertEqual(got[4], "Keo " + last[1], "a Heathen who has one keeps it")
+        tama, pua = got[1].split(" "), got[2].split(" ")
+        self.assertEqual((tama[0], len(tama)), ("Tama", 2))
+        self.assertEqual((pua[0], pua[2], len(pua)), ("Pua", "II", 3), "the numeral stays after the last name")
+        self.assertIn(tama[1], last)
+        self.assertIn(pua[1], last)
+        self.assertEqual(len({tama[1], pua[1], last[0], last[1]}), 4, "each one nobody else has")
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
