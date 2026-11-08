@@ -60,6 +60,8 @@ from vv_fun_patcher import (
     TECH_COST_MULTIPLIER_RANGE,
     MEAL_MULTIPLIER_DEFAULT,
     MEAL_MULTIPLIER_RANGE,
+    SICKNESS_MULTIPLIER_DEFAULT,
+    SICKNESS_MULTIPLIER_RANGE,
     UNICODE_FONT_DEFAULT_FACE,
     conflict_ids,
     set_unicode_font_face,
@@ -190,6 +192,17 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (2-10x Tech
     # Cost included, there), and sets both sliders to 2.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
+    # difficulty change in Classic VV Difficulty; Owner's Defaults ticks it.
+    + ["vv4_collectible_spawn_like_vv3"]
+    # Clothmaking Unlocks at Science Level 3 (The Tree of Life, the owner
+    # 2026-11-08: "Default ON in Owner's Defaults"), in Classic VV Difficulty.
+    + ["vv4_clothmaking_at_science_3"]
+    # 2-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree
+    # of Life, New Believers; in Classic VV Difficulty): the owner
+    # (2026-11-08): off by default, Owner's Defaults ticks both.
+    + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
+    + ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
@@ -210,6 +223,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner's own pick of the fruit-tree pair is the other way round: Fruit
     # Trees Take Turns Refilling on, All Fruit Trees Refill at the Same Time off.
     + ["vv3_fruit_trees_refill_together"]
+    # No Fishing at Science Level 2 (the owner, 2026-11-08: "should be DEFAULT OFF everywhere"): its alternative
+    # Clothmaking Unlocks at Science Level 3 is ticked instead.
+    + ["vv4_no_fishing_at_science_2"]
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
@@ -232,6 +248,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # No Fishing at Science Level 2: off everywhere (the owner, 2026-11-08); its alternative is ticked.
+    + ["vv4_no_fishing_at_science_2"]
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
@@ -242,6 +260,10 @@ UNTICKING_CONFLICT_IDS = {}
 for _game in range(1, 6):
     UNTICKING_CONFLICT_IDS["vv%d_unicode_text" % _game] = "vv%d_unicode_font" % _game
     UNTICKING_CONFLICT_IDS["vv%d_unicode_font" % _game] = "vv%d_unicode_text" % _game
+# The owner (2026-11-08): Clothmaking Unlocks at Science Level 3 and No Fishing at Science Level 2 are "mutually
+# exclusive": ticking one unticks the other.
+UNTICKING_CONFLICT_IDS["vv4_clothmaking_at_science_3"] = "vv4_no_fishing_at_science_2"
+UNTICKING_CONFLICT_IDS["vv4_no_fishing_at_science_2"] = "vv4_clothmaking_at_science_3"
 del _game
 
 
@@ -298,6 +320,14 @@ def saved_meal_multiplier(settings: dict) -> int:
     value = settings.get("meal_multiplier", MEAL_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
     if isinstance(value, bool) or not isinstance(value, int) or value not in MEAL_MULTIPLIER_RANGE:
         return MEAL_MULTIPLIER_DEFAULT
+    return value
+
+
+def saved_sickness_multiplier(settings: dict) -> int:
+    """2-10x Sickness's multiplier a settings file holds: a whole number 2 to 10, else the default 2."""
+    value = settings.get("sickness_multiplier", SICKNESS_MULTIPLIER_DEFAULT) if isinstance(settings, dict) else None
+    if isinstance(value, bool) or not isinstance(value, int) or value not in SICKNESS_MULTIPLIER_RANGE:
+        return SICKNESS_MULTIPLIER_DEFAULT
     return value
 
 
@@ -1248,6 +1278,8 @@ class App(tk.Tk):
             self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)
             # Hungrier Villagers' multiplier, the second slider (the owner, 2026-11-07): 2 to 10, 2 unless moved.
             self.meal_var = tk.IntVar(value=MEAL_MULTIPLIER_DEFAULT)
+            # 2-10x Sickness's multiplier, the third slider (the owner, 2026-11-08): 2 to 10, 2 unless moved.
+            self.sickness_var = tk.IntVar(value=SICKNESS_MULTIPLIER_DEFAULT)
             self.pair_rules: dict = {}  # Village Matchmaker's ticks, remembered
             self.tree_window: dict = {}  # the Family Tree Maker window's size and panes
             self.tree_style: dict = {}   # the Family Tree Maker's look, for the next new tree
@@ -1517,6 +1549,14 @@ class App(tk.Tk):
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.meal_scale.pack(side="left")
         self._help_button(fun_settings, "meal_multiplier").pack(side="left", padx=(2, 0))
+        # 2-10x Sickness: whole numbers 2 to 10 (only used with that row ticked).
+        ttk.Label(fun_settings, text="2-10x Sickness:").pack(side="left", padx=(16, 4))
+        self.sickness_scale = tk.Scale(
+            fun_settings, variable=self.sickness_var, orient="horizontal",
+            from_=SICKNESS_MULTIPLIER_RANGE[0], to=SICKNESS_MULTIPLIER_RANGE[-1], resolution=1,
+            length=120, showvalue=True, command=lambda _value: self._save_settings())
+        self.sickness_scale.pack(side="left")
+        self._help_button(fun_settings, "sickness_multiplier").pack(side="left", padx=(2, 0))
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -2313,7 +2353,7 @@ class App(tk.Tk):
         for patch_id, variable in self.fun_patch_vars.items():
             variable.set(owners_default_fun_patch_selection(patch_id))
         # Classic VV Difficulty's sliders at 2 (the owner, 2026-11-07); saved by _fun_patch_changed.
-        for name in ("tech_cost_var", "meal_var"):
+        for name in ("tech_cost_var", "meal_var", "sickness_var"):
             if hasattr(self, name):
                 getattr(self, name).set(OWNERS_DEFAULT_SLIDER)
         # Prerequisites yes, co-ticks no: Story / Cheat Upgrades must not tick its cost row back on (the owner,
@@ -2477,6 +2517,8 @@ class App(tk.Tk):
             self.tech_cost_var.set(saved_tech_cost_multiplier(data))
         if hasattr(self, "meal_var"):
             self.meal_var.set(saved_meal_multiplier(data))
+        if hasattr(self, "sickness_var"):
+            self.sickness_var.set(saved_sickness_multiplier(data))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -2522,6 +2564,8 @@ class App(tk.Tk):
                                      else TECH_COST_MULTIPLIER_DEFAULT),
             "meal_multiplier": (App._meal_multiplier(self) if hasattr(self, "meal_var")
                                 else MEAL_MULTIPLIER_DEFAULT),
+            "sickness_multiplier": (App._sickness_multiplier(self) if hasattr(self, "sickness_var")
+                                    else SICKNESS_MULTIPLIER_DEFAULT),
             "fun_patches": self._selected_fun_patch_ids(),
             "pair_rules": self.pair_rules,
             "tree_window": self.tree_window,
@@ -2550,6 +2594,14 @@ class App(tk.Tk):
         except (tk.TclError, ValueError, AttributeError):
             value = MEAL_MULTIPLIER_DEFAULT
         return value if value in MEAL_MULTIPLIER_RANGE else MEAL_MULTIPLIER_DEFAULT
+
+    def _sickness_multiplier(self) -> int:
+        """The 2-10x Sickness slider's whole number, kept within 2 to 10."""
+        try:
+            value = int(self.sickness_var.get())
+        except (tk.TclError, ValueError, AttributeError):
+            value = SICKNESS_MULTIPLIER_DEFAULT
+        return value if value in SICKNESS_MULTIPLIER_RANGE else SICKNESS_MULTIPLIER_DEFAULT
 
     def _browse_exe(self) -> None:
         current = Path(self.exe_var.get()).parent if self.exe_var.get() else Path.home()
@@ -2717,6 +2769,7 @@ class App(tk.Tk):
             check_logs = bool(self.check_logs_var.get())
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
+            sickness = self._sickness_multiplier()
             result = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
@@ -2724,6 +2777,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             self.status_var.set(
@@ -2751,6 +2805,7 @@ class App(tk.Tk):
             check_logs = bool(self.check_logs_var.get())
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
+            sickness = self._sickness_multiplier()
             results = self._run_with_wait(
                 "Please wait\u2026\n\nPreparing the patches for all five games.",
                 lambda: dry_run_all(
@@ -2758,6 +2813,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             self.status_var.set(
@@ -2817,6 +2873,7 @@ class App(tk.Tk):
             check_logs = bool(self.check_logs_var.get())
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
+            sickness = self._sickness_multiplier()
             preview = self._run_with_wait(
                 f"Please wait\u2026\n\nChecking {build.title}\nand preparing its patches.",
                 lambda: dry_run(
@@ -2824,6 +2881,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             output_folder = Path(preview["output_folder"])
@@ -2849,6 +2907,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             self.last_output_dir = output.parent
@@ -2881,6 +2940,7 @@ class App(tk.Tk):
             check_logs = bool(self.check_logs_var.get())
             tech_cost = self._tech_cost_multiplier()
             meals = self._meal_multiplier()
+            sickness = self._sickness_multiplier()
             validated = self._run_with_wait(
                 "Please wait\u2026\n\nChecking all five original games.",
                 lambda: validate_all_sources(sources),
@@ -2892,6 +2952,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             existing = []
@@ -2924,6 +2985,7 @@ class App(tk.Tk):
                     check_logs_automatically=check_logs,
                     tech_cost_multiplier=tech_cost,
                     meal_multiplier=meals,
+                    sickness_multiplier=sickness,
                 ),
             )
             self.last_output_dir = results[0][0].parent

@@ -207,7 +207,8 @@
     {
       "ids": ["vv4_no_fishing_at_science_2"],
       "guide": [
-        "Off by default. The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
+        "Off by default, Select All does not tick it, and Owner's Defaults ticks Clothmaking Unlocks at Science Level 3 instead (ticking one unticks the other).",
+        "The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
         "Without the Clothing Hut there is no cloth, and without cloth the fishing nets cannot be mended, so fish come later.",
         "A site already showing in your village hides until Science 3, then comes back with all its building kept.",
         "A finished Clothing Hut stays as it is.",
@@ -236,8 +237,41 @@
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
-        "and No Fishing at Science Level 2 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers).",
+        "and Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
+        "and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
+      ]
+    },
+    {
+      "ids": ["vv4_clothmaking_at_science_3"],
+      "guide": [
+        "Off by default. The Clothing Hut comes at Science level 2 as normal, but no cloth can be made until Science level 3.",
+        "Until then a villager dropped on the vines says \"Don't know what to do with these tough vines!\"",
+        "Cloth you already have still mends the fishing nets. Ticking it unticks No Fishing at Science Level 2, and the other way round."
+      ]
+    },
+    {
+      "ids": ["vv1_sickness_multiplier", "vv2_sickness_multiplier", "vv3_sickness_multiplier", "vv4_sickness_multiplier", "vv5_sickness_multiplier"],
+      "guide": [
+        "Off by default. Villagers fall sick more often: set how many times with the 2-10x Sickness slider (2 to 10).",
+        "Every Medicine level and difficulty keeps its own chance, multiplied; old villagers' extra chance too.",
+        "It also multiplies Sickness works like VV1-3. Healers, the fire, Easy and events cure as before. Patch again after moving the slider."
+      ]
+    },
+    {
+      "ids": ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"],
+      "guide": [
+        "Off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard.",
+        "With the fire burning on Easy or Medium nothing changes; Medicine's levels keep their own chances.",
+        "Keep the fire lit to protect your villagers. 2-10x Sickness multiplies these chances too."
+      ]
+    },
+    {
+      "ids": ["vv4_collectible_spawn_like_vv3"],
+      "guide": [
+        "Off by default. Mushrooms and collectibles appear on their own as often as in The Secret City: about a quarter less often than normal.",
+        "Fog with Wind Flute pieces, rain, island events and the ghost work as before.",
+        "New Believers already works this way, so it has no such patch."
       ]
     },
     {
@@ -997,21 +1031,19 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either: tick them yourself.",
+        "2-10x Tech Cost (all five games), Classic VV Difficulty and No Fishing at Science Level 2 are not ticked either.",
         "It does not change the population mode."
       ]
     },
     "default_patches": {
       "title": "Default Patches",
       "guide": [
-        "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
-        "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
-        "and Fruit Trees Take Turns Refilling (All Fruit Trees Refill at the Same Time is ticked) and Use Unicode Font (overrides in-game fonts).",
-        "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "Off because they make the game harder: 2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games),",
-        "No Fishing at Science Level 2, Science Collectibles Only Count When Complete, Hungrier Villagers (2-10x Meals), Classic VV Difficulty.",
-        "Checked Skill Preferences are listed as Jobs on Graves is off. This is what a fresh install starts with.",
-        "It does not change the population mode."
+        "Ticks every patch except: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat,",
+        "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
+        "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), No Fishing at Science Level 2, Clothmaking Unlocks at Science Level 3, Sickness works like VV1-3,",
+        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3.",
+        "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
       ]
     },
     "owners_defaults": {
@@ -1022,7 +1054,7 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
-        "Story / Cheat Upgrades cost Tech Points is off here: the Story / Cheat Upgrades are free.",
+        "Story / Cheat Upgrades cost Tech Points and No Fishing at Science Level 2 are off here (the upgrades are free).",
         "It does not change the population mode."
       ]
     },
@@ -1048,6 +1080,14 @@
         "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 10, 2 unless you move it.",
         "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
         "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
+      ]
+    },
+    "sickness_multiplier": {
+      "title": "2-10x Sickness",
+      "guide": [
+        "How many times as often villagers fall sick with the 2-10x Sickness patch: a whole number from 2 to 10, 2 unless you move it.",
+        "It is written into each game the next time you patch with 2-10x Sickness ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 2. It does nothing while 2-10x Sickness is not ticked."
       ]
     },
     "tech_cost_multiplier": {

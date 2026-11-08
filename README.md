@@ -1310,9 +1310,28 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 **No Fishing at Science Level 2**
 
-The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder); Owner's Defaults ticks it.
+The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder).
 
 - Patch ID: `vv4_no_fishing_at_science_2`
+- Off everywhere, Select All and Owner's Defaults included (the owner, 2026-11-08); ticking it unticks Clothmaking Unlocks at Science Level 3 and the other way round.
+
+**Clothmaking Unlocks at Science Level 3**
+
+The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3: a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The fishing nets need cloth, so fish come later; cloth the village already has stays usable. Cannot be ticked with No Fishing at Science Level 2 (ticking one unticks the other). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_clothmaking_at_science_3`
+
+**2-10x Sickness** (all five games)
+
+Villagers fall sick 2 to 10 times as often (the 2-10x Sickness slider, 2 unless moved): every natural roll of falling sick, at every Medicine level and difficulty, the old villagers' extra roll included; with Sickness works like VV1-3 it multiplies that rule's chances. Medicine, the fire, Easy's cures, healers and events cure as before. Off by default; Owner's Defaults ticks it and sets the slider to 2.
+
+- Patch ID: `vv1_sickness_multiplier` to `vv5_sickness_multiplier`
+
+**Sickness works like VV1-3** (The Tree of Life, New Believers)
+
+Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard (twice with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes; each Medicine level keeps its own chance, and old villagers their extra roll. These games have no Aromatherapy, which cancels the fire's part in The Secret City. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_sickness_like_vv3`, `vv5_sickness_like_vv3`
 
 **Science Collectibles Only Count When Complete**
 
@@ -1322,9 +1341,15 @@ Each Lab Equipment piece you find normally makes research bring more tech points
 
 **Classic VV Difficulty**
 
-Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2 (New Believers: Faith Loss is Doubled/Gains Halved instead of No Fishing). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
+
+**Collectible Spawn Timing works like VV1-3** (The Tree of Life)
+
+Mushrooms and collectibles appear on their own with The Secret City's chance, 3 in 6,000 each update instead of 4 (and the same in heavy weather's second roll): about a quarter less often. Fog's Wind Flute chance, rain's all-mushroom spawns, island events and the ghost are unchanged. New Believers already uses The Secret City's timing. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_collectible_spawn_like_vv3`
 
 **Hungrier Villagers (2-10x Meals)** (all five games)
 

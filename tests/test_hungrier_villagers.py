@@ -186,7 +186,9 @@ class Registration(unittest.TestCase):
         """The owner (2026-11-07): "have the classic vv difficulty on default for owner's defaults! (set the
         sliders to 2x." -- and "make the text colored red for the classic vv difficulty patch titles"."""
         public = {p.id: p for p in patcher.load_public_fun_patches()}
-        pieces = {"vv4": {"vv4_no_fishing_at_science_2"}, "vv5": {"vv5_faith_loss_doubled_gains_halved"}}
+        pieces = {"vv4": {"vv4_clothmaking_at_science_3", "vv4_collectible_spawn_like_vv3", "vv4_sickness_like_vv3",
+                          "vv4_difficulty_settings"},
+                  "vv5": {"vv5_faith_loss_doubled_gains_halved", "vv5_sickness_like_vv3", "vv5_difficulty_settings"}}
         for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
             game = patch_id[:3]
             row = public[patch_id]
@@ -204,7 +206,7 @@ class Registration(unittest.TestCase):
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         body = source[source.index("def _owners_default_fun_patches("):]
         body = body[:body.index("\n    def ")]
-        self.assertIn('("tech_cost_var", "meal_var")', body)
+        self.assertIn('("tech_cost_var", "meal_var", "sickness_var")', body)
         self.assertIn("OWNERS_DEFAULT_SLIDER", body)
         self.assertIn('configure(style="ClassicDifficulty.TCheckbutton")', source)
 

@@ -31,6 +31,7 @@ class Trip:
     catch_up_words: str = ""                   # the catch-up rule, with addresses
     verified: str = "running"                  # gm.RUNNING or gm.CODE
     extra: tuple[str, ...] = field(default_factory=tuple)   # further measured facts, one line each
+    max_workers: dict[int, float] | None = None  # speed -> villagers that can work it at once (an estimate)
 
 
 def game_module(game: int):

@@ -49,7 +49,8 @@ ROLLS = (
          (Check(0x472D74, 100, 0x32, "jl"), Check(0x472D83, 100, 0x1E, "jge", take=False),
           Check(0x472DE2, 100, 0x4B, "jg", take=False)),
          ("Eating 2 more: on Medium with 8,000 food or more, and on Hard at any amount, each believer eats 2 more "
-          "{2} of the time (and gains 1 more Divine Energy); never on Easy.",)),
+          "{2} of the time; never on Easy. On every such age unit, whether or not the 2 more are eaten, the "
+          "believer also adds 1 more Divine Energy (0x472DD2, before the roll).",)),
     Roll("Starving: " + AGE_UNIT + ", with no food left each believer loses 1 health {0} of the time.",
          (Check(0x472E0A, 100, 0x4B, "jle"), Check(0x472E88, 100, 0x1E, "jg", take=False)),
          ("On Hard, and for a believer whose hidden name number is a multiple of 6, the loss comes every age unit.",
@@ -57,7 +58,8 @@ ROLLS = (
           "regains 1 health {1} of the time.")),
     Roll("A sick believer's health: " + AGE_UNIT + ", a sick believer loses 1 health {0} of the time while above 20 "
          "health, and only " + chance(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less. "
-         "Sickness never ends by itself.",
+         "Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (the Easy roll 0x472F8A runs the "
+         "sickness roll half the time, and on Easy it answers \"not sick\" half the time, 0x465F61).",
          (Check(0x472EA8, 100, 0x3C, "jg", take=False), Check(0x472EBD, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a believer who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the fire burning on a second "

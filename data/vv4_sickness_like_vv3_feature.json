@@ -1,0 +1,27 @@
+{
+  "id": "vv4_sickness_like_vv3",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Sickness works like VV1-3",
+  "description": "**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick as in The Secret City: twice as often while the Fire Pit is out, and on Hard one step more (twice as often with the Fire Pit burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's part there, does not exist in this game. 2-10x Sickness multiplies these chances too.",
+  "output_tag": "Sickness like VV3",
+  "behavior_changes": [
+    "The natural sickness roll 0x45E930 (its only caller the life tick) rewritten in place: m = 1 + (the fire is out) + (Hard), and by Medicine rand(1440) <= 3m, rand(2460) <= 3m, rand(5400) <= 2m, as The Secret City 0x455C00 without Aromatherapy; Easy, an existing sickness and the old villagers' roll as stock."
+  ],
+  "explicit_non_changes": [
+    "Medicine's other effects, the fire's research bonus and health regain, healers, the Hospital, stews, island events, god powers, Faith and Heathens are unchanged.",
+    "One guarded edit of the routine's own bytes and its int3 padding; nothing else is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; every Medicine level, difficulty and fire state, Easy's cure, an existing sickness and the old villagers' roll are emulated against The Secret City's table in tests/test_sickness_patches.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x5E930",
+      "before": "568BF1E83815FCFF83B8F47001000075136A64E8884DFAFF83C40483F8320F8C8900000080BE481C00000075466A01B95C6F4D00E857F8FBFF83E801743C83E801741E83E80175446818150000E84E4DFAFF83C40483F8027F32B8010000005EC3689C090000E8354DFAFF83C40483F8037F19B8010000005EC368A0050000E81C4DFAFF83C40483F8037EE78D8E8C1B0000E8E974000084C0741268E8030000E8FB4CFAFF83C40483F80E7EC633C05EC3CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "after": "565789CEE83715FCFF8BB8F470010085FF750D6A64E8864DFAFF5983F8327C7C80BE481C000000757731C083FF020F94C08D7801B97C864D00E8923CFDFF84C07501476A01B95C6F4D00E841F8FBFF48741948740C48752501FF6818150000EB128D3C7F689C090000EB088D3C7F68A0050000E8284DFAFF5939F87E238D8E8C1B0000E8F874000084C0741068E8030000E80A4DFAFF5983F80E7E0431C0EB0331C0405F5EC3CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+      "purpose": "the natural sickness roll (0x45E930): The Secret City's rule, the fire and Hard raising the chance, Medicine kept"
+    }
+  ]
+}

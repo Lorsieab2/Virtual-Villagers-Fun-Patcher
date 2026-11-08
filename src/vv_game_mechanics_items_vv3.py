@@ -80,7 +80,7 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_super_secret_golden_mushroom", "vv3_manual_drop_breeding_overrides_birth_control",
                          "vv3_population_256", "vv3_fruit_trees_take_turns", "vv3_unicode_font",
                          "vv3_preferred_job_graves", "vv3_tech_cost_multiplier",
-                         "vv3_hungrier_villagers"})
+                         "vv3_hungrier_villagers", "vv3_sickness_multiplier"})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv3_origins_village_wide_upgrades"
