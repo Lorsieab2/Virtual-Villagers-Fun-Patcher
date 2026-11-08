@@ -158,7 +158,11 @@ class HungrierVillagers(unittest.TestCase):
 
 class FarFuture(unittest.TestCase):
     def test_a_moment_past_the_calendar_does_not_stop_the_page(self) -> None:
-        self.assertEqual(gm.when(1e15), "far in the future")
+        self.assertEqual(gm.when(1e15), "10+ years from now")
+        self.assertEqual(gm.duration(gm.TEN_YEARS), "10+ years")
+        self.assertEqual(gm.about(gm.TEN_YEARS * 50), "10+ years")
+        self.assertEqual(gm.never_note(gm.TEN_YEARS), " (practically never runs out)")
+        self.assertEqual(gm.about(3600), "about 1 hour")
         self.assertIn("2027", gm.when(1.8e9))
 
 

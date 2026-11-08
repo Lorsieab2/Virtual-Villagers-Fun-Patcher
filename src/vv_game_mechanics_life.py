@@ -341,7 +341,7 @@ def by_age(ctx: Context, units: float) -> tuple[float | None, str]:
     counted = gm.counted_away(ctx.game, ctx.village.now - ctx.last, ctx.speed) or 0.0
     if seconds <= counted:
         return None, "as soon as the village is next played (the time away counted covers it)"
-    return None, (f"after about {gm.duration(seconds - counted)} more of real-life play on {gm.speed_name(ctx.speed)} speed "
+    return None, (f"after {gm.about(seconds - counted)} more of real-life play on {gm.speed_name(ctx.speed)} speed "
                   "once the time away counted is used")
 
 
@@ -832,15 +832,15 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
                      for s in ctx.sources if s.per_unit) or "none refill") + ".", True)
     if per_hour > 0:
         hours_store = ctx.food / per_hour
-        add(f"Storage alone, with nothing picked, lasts about {gm.duration(hours_store * 3600)} of real-life play on {on} speed"
-            + (f", to about {gm.when(ctx.village.now + hours_store * 3600)} if played from now" if not ctx.paused else "")
+        add(f"Storage alone, with nothing picked, lasts {gm.about(hours_store * 3600)} of real-life play on {on} speed"
+            + (f", to about {gm.when(ctx.village.now + hours_store * 3600)} if played from now" if not ctx.paused and hours_store * 3600 < gm.TEN_YEARS else gm.never_note(hours_store * 3600))
             + ".", True)
         total = ctx.food + on_sources
         if net_hour < 0:
             lasts = total / -net_hour * 3600
-            add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: about "
-                f"{gm.duration(lasts)} of real-life play on {on} speed"
-                + (f", to about {gm.when(ctx.village.now + lasts)} if played from now" if not ctx.paused else "")
+            add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: "
+                f"{gm.about(lasts)} of real-life play on {on} speed"
+                + (f", to about {gm.when(ctx.village.now + lasts)} if played from now" if not ctx.paused and lasts < gm.TEN_YEARS else gm.never_note(lasts))
                 + ".", True)
         else:
             add(f"Storage, the food on the sources ({on_sources:,}) and their refills, all picked: the refills keep up "
@@ -1006,7 +1006,7 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
             words += f". It cannot feed the village alone: {grows} against {eaten_unit:,.1f} eaten"
             if on_it:
                 lasts = on_it / (eaten_unit - regrow) * ctx.unit
-                words += (f"; the {on_it:,.0f} food on it now lasts about {gm.duration(lasts)} of counted catch-up "
+                words += (f"; the {on_it:,.0f} food on it now lasts {gm.about(lasts)} of counted catch-up "
                           f"time or live play on {on} speed")
             if regrow:
                 words += f", then it feeds about {regrow / per_unit:,.1f} villagers"
@@ -1030,7 +1030,7 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
               "never runs out takes the rest)")
     if short > 1e-9:
         words += (f". Even with every source the village is short by about {short:,.1f} food each age unit, which "
-                  f"the {ctx.food:,} in storage covers for about {gm.duration(ctx.food / short * ctx.unit)} on {on} "
+                  f"the {ctx.food:,} in storage covers for {gm.about(ctx.food / short * ctx.unit)} on {on} "
                   "speed")
     add(words + ".")
     # The difficulty changes only the eating here (each game's eating step reads it; see DIFFICULTY_AT).
@@ -1087,7 +1087,7 @@ def fill_time(ctx: Context, s: Source) -> tuple[float | None, str]:
         first = s.first_in if s.first_in is not None else s.interval
         return None, f"full after {gm.duration(first + rest)} of real-life play once unpaused ({words}), with nobody picking"
     if s.next_at is None:
-        return None, f"full after about {gm.duration(s.interval + rest)} of real-life play ({words}), with nobody picking"
+        return None, f"full after {gm.about(s.interval + rest)} of real-life play ({words}), with nobody picking"
     moment = s.next_at + rest
     if moment <= ctx.village.now:
         return moment, f"full by {gm.when(moment)} ({words}), when the village is next played, with nobody picking"
