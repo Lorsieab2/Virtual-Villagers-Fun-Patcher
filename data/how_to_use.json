@@ -238,7 +238,7 @@
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
-        "and Sickness works like VV1-3.",
+        "and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },

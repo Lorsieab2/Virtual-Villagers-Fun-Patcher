@@ -1341,7 +1341,7 @@ Each Lab Equipment piece you find normally makes research bring more tech points
 
 **Classic VV Difficulty**
 
-Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
 

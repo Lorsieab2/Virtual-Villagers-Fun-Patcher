@@ -25,13 +25,15 @@ PIECES = {
             ("vv4_science_collectibles_complete", "Science Collectibles Only Count When Complete"),
             ("vv4_clothmaking_at_science_3", "Clothmaking Unlocks at Science Level 3"),
             ("vv4_collectible_spawn_like_vv3", "Collectible Spawn Timing works like VV1-3"),
-            ("vv4_sickness_like_vv3", "Sickness works like VV1-3")],
+            ("vv4_sickness_like_vv3", "Sickness works like VV1-3"),
+            ("vv4_difficulty_settings", "Difficulty Settings")],
     "vv5": [("vv5_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
             ("vv5_hungrier_villagers", "Hungrier Villagers (2-10x Meals)"),
             ("vv5_tech_cost_multiplier", "2-10x Tech Cost"),
             ("vv5_science_collectibles_complete", "Science Collectibles Only Count When Complete"),
             ("vv5_faith_loss_doubled_gains_halved", "Faith Loss is Doubled/Gains Halved"),
-            ("vv5_sickness_like_vv3", "Sickness works like VV1-3")],
+            ("vv5_sickness_like_vv3", "Sickness works like VV1-3"),
+            ("vv5_difficulty_settings", "Difficulty Settings")],
 }
 
 
