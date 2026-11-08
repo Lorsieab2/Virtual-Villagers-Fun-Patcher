@@ -37,6 +37,7 @@
 #include <windows.h>
 #include <string.h>
 #include "../shared/install_sites.h"
+#include "../shared/game_save_slot.h"
 
 #define FN_GAME 5                          /* New Believers */
 #define FN_QUIET_MS 3000u                  /* a popup waits this long after the last conversion */
@@ -82,6 +83,22 @@ static int g_food;                         /* food in storage when the drift beg
 static int g_count;
 static int g_counts[FNR_COUNT];
 static DWORD g_last;
+/* The village the batch belongs to (Codex, #732): the save slot (the save manager's own field) and the reset
+   generation (VvfpFaithNoticeVillageReset, from VVFP Story Upgrades.dll's VvfpStoryVillageReset, at Start Over
+   or a deleted tribe).  A conversion in another village, or a popup asked for in another, discards the batch:
+   one village's believers are never told in another's popup. */
+static int g_batch_slot;
+static unsigned int g_batch_generation;
+static unsigned int g_generation;
+
+static void forget_batch(void) {
+    g_count = 0;
+    memset(g_counts, 0, sizeof g_counts);
+}
+
+static int batch_is_here(void) {
+    return g_batch_slot == vv_game_save_slot(FN_GAME) && g_batch_generation == g_generation;
+}
 
 static DWORD fn_now(void) {
     return GetTickCount();
@@ -175,6 +192,11 @@ static void __cdecl drift_after(void) {
             } else if (roll_hit(ROLL_BELIEVERS)) {
                 reason = FNR_BELIEVERS;
             }
+            if (g_count > 0 && !batch_is_here()) {
+                forget_batch();            /* the last batch was another village's */
+            }
+            g_batch_slot = vv_game_save_slot(FN_GAME);
+            g_batch_generation = g_generation;
             ++g_count;
             ++g_counts[reason];
             g_last = fn_now();
@@ -210,7 +232,14 @@ int __stdcall VvfpFaithNoticeInstalled(void) {
    believers, other). */
 int __stdcall VvfpFaithNoticePending(int game, int *out) {
     int i;
-    if (game != FN_GAME || !g_installed || g_count <= 0 || out == NULL || fn_now() - g_last < FN_QUIET_MS) {
+    if (game != FN_GAME || !g_installed || g_count <= 0 || out == NULL) {
+        return 0;
+    }
+    if (!batch_is_here()) {
+        forget_batch();                    /* another village is loaded now: that batch is not this one's */
+        return 0;
+    }
+    if (fn_now() - g_last < FN_QUIET_MS) {
         return 0;
     }
     out[0] = g_count;
@@ -223,8 +252,16 @@ int __stdcall VvfpFaithNoticePending(int game, int *out) {
 /* The popup is on its way: start counting again. */
 void __stdcall VvfpFaithNoticeTaken(int game) {
     if (game == FN_GAME) {
-        g_count = 0;
-        memset(g_counts, 0, sizeof g_counts);
+        forget_batch();
+    }
+}
+
+/* Start Over or a deleted tribe (VVFP Story Upgrades.dll's VvfpStoryVillageReset): the village the batch was for
+   is gone, so the batch is. */
+void __stdcall VvfpFaithNoticeVillageReset(int game) {
+    if (game == FN_GAME) {
+        ++g_generation;
+        forget_batch();
     }
 }
 

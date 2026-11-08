@@ -32,6 +32,8 @@ SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
 HUNGRIER = "vv4_hungrier_villagers"
+CLASSIC = "vv4_classic_vv_difficulty"
+SPAWN_LIKE_VV3 = "vv4_collectible_spawn_like_vv3"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 # Food Gains are Flat, like VV1-3 (Harder Games): a blackberry pick pays The Secret City's fruit and honey pick
@@ -40,6 +42,7 @@ SCALES = "vv4_complete_scales_golden_fish"
 FLAT = "vv4_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
 NO_FISHING = "vv4_no_fishing_at_science_2"
+CLOTHMAKING = "vv4_clothmaking_at_science_3"
 SCIENCE_SET = "vv4_science_collectibles_complete"
 STORY = "vv4_story_cheat_upgrades"
 
@@ -265,6 +268,30 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", f"Stomping or shaking down fruit brings {food(3)}; the fishing net {food(4)} a fish, or {food(8)} for "
                         "a Golden Fish: a (2 x fish scales + 1)% chance (3% with 1 scale, 25% with 12, none with 0)."
                         + mastery_words, gm.RUNNING)
+    # The yellow fruit tree and the Cooking Pit (puzzle 6, CFruitwells vtable 0x48E890, constructor 0x436510): the drop
+    # 0x435970 (action 0x6A before the restore, 0x64 after), the trip 0x4343A0 -> 0x65..0x68 (0x4346F0), the spot
+    # locks 5..8 and holes 1..4 (table 0x704E38; timeouts 0x46D563 45 and 180 game seconds, freed by 0x46D7F0 from
+    # 0x43F984), the stew 0x4349A3, the credit job event 15 0x464567; catch-up 0x463A30 and the bonus 0x468A7A.
+    add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored; before that a villager dropped on it "
+                        "only finds the fruit needs cooking): a trip claims one of the pit's 4 fruit spots (all 4 taken: "
+                        "\"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit down, "
+                        "the Farming check ((Farming + 34) in 100; a failure ends it with nothing), carries the fruit to "
+                        "the pit, a 5 s wait, stomps it in its cooking hole, a 3 s wait, then walks it to the food bin: "
+                        "3 food. If the stew pot is waiting for an ingredient the fruit goes into the stew instead. "
+                        "About 162 real-life seconds a trip at every speed.", gm.CODE)
+    add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
+                        "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
+                        "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
+                        "on fruit trips at once: about 14, 7 or 5 (an estimate). A villager dropped on the tree does "
+                        "one trip (no task is set); a farmer the game sends picks the bush, the fruit or the nets at "
+                        "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
+    add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
+                        "Cooking Pit is restored, after each counted age unit's job turns (all but the last 2) every "
+                        "villager who had them (aged 14 or more, not sick) adds 5 food x Food Mastery (5, 7 or 10) on "
+                        "a (Farming - 25) in 100 chance, whatever its job, with no walking and no spot limit: 3.75 "
+                        "food a unit at Farming 100, 1.75 at 60, nothing at 25 or less (Food Mastery 1); children add "
+                        "nothing. Each villager eats 2, so it carries a tribe of high-Farming adults but not a large "
+                        "one of children and low-Farming villagers.", gm.CODE)
     # The Mossy Rocks (CMossyRocks, vtable 0x48E944; its villager is "Catching a crab", 0x436F30) pay 35 on their
     # result 1 (0x436F0E); a villager's find of a crab pays 55 and says "This villager found a crab!" (the job
     # event 18, 0x464A3F..0x464A93).  The owner: the 55-food catch is a crab.
@@ -289,6 +316,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
     # The fishing nets need the Clothing Hut built (0x4334FC); its site appears at Science 2 (0x430CF0), or at Science 3
     # with this patch (tests/test_vv4_no_fishing_at_science_2.py).
+    # Cloth Invented's drop 0x436D40: the Clothing Hut finished -> cutting the pulpy vines (action 0x7A, the only start
+    # of the cloth chain); with the patch also Science 3 (scripts/build_vv4_clothmaking_at_science_3_feature.py).
+    if village.has(CLOTHMAKING) is not False:
+        add("Food sources", gm.patch_words(village, CLOTHMAKING, "no cloth can be made until Science level 3: a "
+                                           "villager dropped on the vines says \"Don't know what to do with these "
+                                           "tough vines!\" until then, so the fishing nets, which need cloth, wait "
+                                           "for it unless the village already has cloth"))
     if village.has(NO_FISHING) is not False:
         add("Food sources", gm.patch_words(village, NO_FISHING, "the Clothing Hut, which the fishing nets need, "
                                            "appears at Science level 3 instead of 2, so fish come later"))
@@ -311,6 +345,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
                      "each gone after 90 real-life seconds (real time, the same at every speed: the computer's clock 0x403750).",
                      False)
+    # The roll 0x4143A8: rand(6000) < 4 (fog: (Wind Flute pieces / 2) x 4); above weather strength 50 a second < 4
+    # (0x4143CF).  The Secret City's is < 3 and < 3 (0x42DD7A, 0x42DD95).
+    add("Mushrooms", "The roll: 4 in 6,000 each update of the village (The Secret City: 3 in 6,000); in fog (Wind "
+                     "Flute pieces ÷ 2, rounded down) x 4 in 6,000 instead, so none with 0 or 1 piece; while the "
+                     "weather strength is above 50, a second roll of 4 in 6,000.", gm.CODE)
+    if village.has(SPAWN_LIKE_VV3) is not False:
+        add("Mushrooms", gm.patch_words(village, SPAWN_LIKE_VV3, "the roll and the heavy-weather second roll are "
+                                        "3 in 6,000, as in The Secret City (about a quarter fewer); fog's Wind "
+                                        "Flute roll and everything else are unchanged"))
     add("Mushrooms", "30.03% of them are mushrooms, and every one while it rains or while the weather level is above "
                      f"20 (wet ground): brown 91.99% of the time, worth {food(6)} food, red (rare) 8.01%, worth "
                      f"{food(35)}.", gm.RUNNING)
@@ -389,6 +432,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
+    if village.has(CLASSIC) is not False:
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+                                         "Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at "
+                                         "Science Level 3 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
@@ -450,14 +497,54 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     net_food = ((1 - golden_share) * farmers_mod.boosted(4, multiplier_now)
                 + golden_share * farmers_mod.boosted(8, multiplier_now)) / multiplier_now
     net_food = int(net_food) if golden_share == 0 else float(net_food)
+    # The Cooking Pit (puzzle 6; the owner, 2026-11-08: "a special food source where it never runs out, BUT it can't
+    # support a large tribe like the fish due to the amount of cooking and walk time to the food bin it takes ...
+    # there's also a limited amount of villagers that can work at the fruit cooking pit simultaneously"): live, the
+    # fruit trip (src/vv_game_mechanics_farmers_vv4.py, "fruit stomps": 4 fruit spots, 0x4343A0); while catching up
+    # no farmer is sent to it (0x463A30) and the Cooking Pit bonus adds food by itself (FRUITWELLS, 0x468A7A).
+    pit = _i32(data, PUZZLE_ENTRIES + 8 * 6) >= PUZZLE_THRESHOLDS[6]
+    pit_level = max(1, min(3, level[FOOD_MASTERY]))
+
+    def pit_bonus(members):
+        if not pit:
+            return None
+        workers = [p for p in members if p.works]
+        known = [p.skill("Farming", 4) for p in workers]
+        if any(f is None for f in known):
+            return None
+        food_each = farmers_mod.game_module(4).FRUITWELLS["food"][pit_level]
+        total = sum(farmers_mod.game_module(4).fruitwells_food_unit(int(f), pit_level) for f in known)
+        paying = sum(1 for f in known if f > 25)
+        return total, (
+            f"The Cooking Pit while catching up (it is restored): after each counted age unit's job turns, every "
+            f"villager who had them (aged 14 or more, not sick or pregnant; all but the last 2 units) adds {food_each} "
+            f"food (Food Mastery level {pit_level}) on a (Farming - 25) in 100 chance, whatever its job and with no "
+            f"walking; nobody is sent to the fruit itself (0x463A30, 0x468A7A). This village: {len(workers)} working "
+            f"villagers, {paying} of them with Farming above 25, so about {total:,.1f} food each counted age unit, "
+            f"against about {sum(1 for p in members if not p.golden) * life.eat_per_unit(ctx_ref[0]):,.1f} eaten. "
+            "Farming 25 or less adds nothing and children add nothing, so a large tribe of low-Farming villagers "
+            "gets little from it.")
+
+    ctx_ref = []
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
-                 life.Source("The fishing net", None, unlimited=True,
+                 ] + ([life.Source("The fishing net", None, unlimited=True,
                              refill_words="no store of theirs is read here: they bring what the farmers fetch",
-                             verified=False)],
+                             verified=False)]
+                      if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else [])
+                + ([life.Source("The Cooking Pit fruit", None, unlimited=True,
+                                refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
+                                             "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
+                                             "trip can start only while one of its 4 fruit spots is free (0x4343A0; "
+                                             "each frees itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
+                                             "villagers work it at once on Fast, Normal or Slow, an estimate)",
+                                verified=gm.CODE,
+                                capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
+                                             "villagers work it at once on Fast, Normal or Slow, and while catching up only the Cooking Pit's own food comes "
+                                             "(below)")] if pit else []),
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
@@ -485,7 +572,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         trips=[("blackberry picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, berries // 100), "Blackberries"),
                ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
-                "The fishing net")])
+                "The fishing net"),
+               ("fruit stomps", 3 if pit else 0, "The Cooking Pit fruit")],
+        catch_up_bonus=pit_bonus)
+    ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out

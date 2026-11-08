@@ -63910,20 +63910,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_faith_notice.FAITH_NOTICE_TITLE.s0",
    "english": "Hard Choices",
    "games": [
@@ -64117,6 +64103,20 @@
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher message shown by the game (the popup's first paragraph)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
   }
  ]
 }

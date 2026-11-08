@@ -4,3 +4,4 @@ EXPORTS
     VvfpFaithNoticeInstalled
     VvfpFaithNoticePending
     VvfpFaithNoticeTaken
+    VvfpFaithNoticeVillageReset

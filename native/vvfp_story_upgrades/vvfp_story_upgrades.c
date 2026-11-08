@@ -171,6 +171,7 @@ static void *c5_choice_object(void);
 /* Defined with Choose Time Skip Amount (story_time_skip.inc), used earlier. */
 static void time_skip_tick(int game);
 static void faith_notice_tick(int game);
+static void faith_notice_village_reset(int game);
 static int time_skip_event_open(void);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* Defined with the host (story_common.inc), used by the arms below: the
@@ -509,7 +510,35 @@ static int vv4_arm(void) {
     return 1;
 }
 
+/* A bought island event's "on its way" bits (0x10 bought, 0x20 handed over at
+   the Tech screen's close) are set together with [manager+0x17D3C] = 0, and the
+   game's trigger rewrites that timer past the village's last tick when it runs
+   the event.  The Origins payload retired them only at a Tech screen's open or
+   close, so an event armed in the village -- Choose Time Skip Amount's closing
+   notice, or a Custom Island Event delivered after its screen closed -- left
+   them set until the player opened and closed the Tech screen twice: every
+   purchase in between was refused with "already queued and on its way" and the
+   Time Skip's notice never came (the owner, 2026-11-08: "my bought upgrades
+   such as custom island events ... never spawn").  Retired here, every frame
+   and before each check, once the timer is past the last tick (a pause only
+   moves a due timer to a moment still behind it, so that is never taken for a
+   delivery).  The Barrel's bits (4, 8) are its own selector's and untouched. */
+#define VV5_LAST_TICK 0x17D50u
+static void vv5_retire_delivered_island(void) {
+    unsigned char *world = *(unsigned char **)(uintptr_t)VV5_WORLD_GLOBAL;
+    unsigned int countdown, last;
+    if (world == NULL || (read_u32(VV5_PURCHASE_FLAGS) & 0x30u) == 0) {
+        return;
+    }
+    countdown = *(unsigned int *)(world + VV5_COUNTDOWN);
+    last = *(unsigned int *)(world + VV5_LAST_TICK);
+    if (countdown != 0u && countdown > last) {
+        *(volatile unsigned int *)(uintptr_t)VV5_PURCHASE_FLAGS &= ~0x30u;
+    }
+}
+
 static int vv5_island_pending(void) {
+    vv5_retire_delivered_island();
     return (read_u32(VV5_PURCHASE_FLAGS) & 0x3Cu) != 0;
 }
 
@@ -873,6 +902,10 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
         return 0;
     }
     sq_game = game;             /* the game the selectors' restore is for, from the first call (story_queue.inc) */
+    /* New Believers: a delivered bought island event stops counting as on its way. */
+    if (game == 5) {
+        vv5_retire_delivered_island();
+    }
     /* Choose Time Skip Amount: its next step, once the last is replayed. */
     time_skip_tick(game);
     /* Popup When Believers Become Heathens (New Believers): the believers the Faith drift turned Heathen. */
@@ -1016,6 +1049,7 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
     ++story_village_generation;
     sq_village_reset(game, slot);   /* its queue's file goes with it */
     titles_village_reset(game, slot);   /* and its custom titles (story_titles.inc) */
+    faith_notice_village_reset(game);   /* and the believers waiting for their popup (story_faith_notice.inc) */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its

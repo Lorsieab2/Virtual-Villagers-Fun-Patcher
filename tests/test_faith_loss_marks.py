@@ -43,6 +43,7 @@ FAITH_ADD, MANAGER_OF, TO_HEATHEN, TO_BELIEVER, FOOD = 0x468020, 0x425950, 0x466
 SAVE_MANAGER, SLOT_FIELD = 0x4DACE0, 0x17D80
 STRIDE, FIRST = 0x2F44, 0x48
 NAME, HEALTH, SICK, PRESENT, HEATHEN, FAITH, LIKES = 0x1B9C, 0x1C40, 0x1C48, 0x1CD4, 0x1CEC, 0x1CF0, 0x1F5C
+AGE, DISLIKES = 0x1B8C, 0x1F68
 
 _renders: dict = {}
 
@@ -129,7 +130,7 @@ class Files:
         (data,) = [v for k, v in self.files.items() if k.endswith("believers kept - save 1.dat")]
         magic, version, game, slot, count = struct.unpack_from("<5I", data)
         self.assertion = (magic, version, game, slot)
-        return list(struct.unpack_from(f"<{count}I", data, 20))
+        return [struct.unpack_from("<5I", data, 20 + 20 * i)[0] for i in range(count)]
 
 
 class Game:
@@ -179,6 +180,7 @@ class Game:
             p.put32(rec + HEALTH, 50)
             p.write(rec + PRESENT, b"\x01")
             p.put32(rec + FAITH, 2)
+            p.put32(rec + AGE, 400)
             self.records.append(rec)
 
     def drift(self, rec: int, *, sick: int = 0) -> None:
@@ -311,6 +313,53 @@ class OnceACrisis(unittest.TestCase):
         again.forced = [99, 99, 99]
         again.drift(again.records[1])                  # fed and well: this one's mark clears, the file is written
         self.assertEqual(len(files.marks()), 1)
+
+    def test_the_mark_follows_a_rename_or_new_likes_and_dislikes(self):
+        """Codex (#732): the mark is not lost when the player renames the villager or the Custom Island Event (or an
+        island event) changes their likes or dislikes -- no second roll -- and a write made meanwhile for somebody
+        else's mark never prunes it; through a reload too."""
+        files = Files()
+        exe = rendered((FAITH_LOSS,))
+        g = Game(exe, files, n=2)
+        a, b = g.records
+        g.p.put32(a + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(a)                                          # a is marked
+        g.p.write(a + NAME, b"Renamed Villager\0")          # renamed
+        g.p.put32(b + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(b)                                          # b is marked: a write, a's mark not pruned
+        self.assertEqual(g.marked(), 2)
+        self.assertEqual(len(files.marks()), 2)
+        g.p.put32(a + LIKES, 77)                            # new likes too (a CIE edit)
+        g.p.put32(a + AGE, 401)
+        g.forced = [0, 99, 0]                               # a roll would make a Heathen: none is made
+        g.drift(a)
+        self.assertEqual((g.faith(a), g.heathen(a), g.decisions), (1, False, 2))
+        again = Game(exe, files, n=2)                       # reloaded: the file has a's new identity
+        again.p.write(again.records[0] + NAME, b"Renamed Villager\0")
+        again.p.put32(again.records[0] + LIKES, 77)
+        again.p.put32(again.records[0] + FAITH, 1)
+        again.forced = [0, 99, 0]
+        again.drift(again.records[0])
+        self.assertEqual((again.heathen(again.records[0]), again.decisions), (False, 0))
+
+    def test_a_newborn_in_a_marked_villagers_record_inherits_nothing(self):
+        g = Game(rendered((FAITH_LOSS,)), Files(), n=1)
+        (rec,) = g.records
+        g.p.put32(rec + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(rec)
+        self.assertEqual(g.marked(), 1)
+        # The marked villager died and a baby was put in the record: another name, younger.
+        g.p.write(rec + NAME, b"Baby\0")
+        g.p.put32(rec + LIKES, 5)
+        g.p.put32(rec + AGE, 0)
+        g.p.put32(rec + FAITH, 1)
+        g.forced = [0, 99, 0]
+        g.drift(rec)
+        self.assertEqual(g.decisions, 2, "decided on its own")
+        self.assertTrue(g.heathen(rec))
 
     def test_another_slot_has_its_own_marks(self):
         files = Files()

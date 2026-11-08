@@ -128,6 +128,14 @@ class Village:
     def heathen(self) -> bool:
         return self.proc.read(self.record + 0x1CEC, 1) != b"\0"
 
+    def slot(self, slot: int) -> None:
+        """The save slot the game's save manager says (native/shared/game_save_slot.h: [0x4DACE0] + 0x17D80)."""
+        p = self.proc
+        if not hasattr(self, "_manager"):
+            self._manager = p.alloc(0x20000)
+            p.put32(0x4DACE0, self._manager)
+        p.put32(self._manager + 0x17D80, slot)
+
     def pending(self, tick: int):
         """(count, reasons) when the popup may come at `tick`, else None."""
         p = self.proc
@@ -256,6 +264,35 @@ class FaithNoticeCompanion(unittest.TestCase):
         island = (ROOT / "native" / "vvfp_story_upgrades" / "story_c5.inc").read_text(encoding="utf-8")
         self.assertIn("TC0(0x4669E0u, r);", island)
         self.assertIn("TC9(0x46FD20u, C5_MANAGER", island)
+
+    def test_a_batch_belongs_to_its_village(self):
+        """Codex (#732): the counts of one village never show in another's popup.  Loading another slot before the
+        popup -- in the quiet wait, or while another event holds it -- drops the batch; a conversion in the new
+        village starts its own; Start Over or a deleted tribe (VvfpFaithNoticeVillageReset, from VVFP Story
+        Upgrades.dll's VvfpStoryVillageReset) drops it too."""
+        v = Village(rendered(()))
+        quiet = gen_quiet()
+        v.slot(1)
+        v.proc.tick = 1000
+        v.drift(faith=1, food=100, rolls=[0])
+        v.slot(2)                                           # another village loaded during the wait
+        self.assertIsNone(v.pending(1000 + quiet))
+        v.slot(1)
+        self.assertIsNone(v.pending(1000 + quiet), "dropped, not kept for when slot 1 comes back")
+        v.proc.tick = 5000
+        v.drift(faith=1, food=100, rolls=[0])               # slot 1: a new batch
+        v.slot(2)
+        v.proc.tick = 5010
+        v.drift(faith=1, sick=1, food=1000, rolls=[0])      # slot 2's own conversion: slot 1's batch is not added
+        self.assertEqual(v.pending(5010 + quiet), (1, only(SICKNESS)))
+        v.proc.export("VvfpFaithNoticeTaken", 5)
+        v.proc.tick = 9000
+        v.drift(faith=1, food=100, rolls=[0])
+        v.proc.export("VvfpFaithNoticeVillageReset", 5)     # Start Over in the same slot
+        self.assertIsNone(v.pending(9000 + quiet))
+        v.proc.tick = 12000
+        v.drift(faith=1, food=100, rolls=[0])               # the new tribe's own
+        self.assertEqual(v.pending(12000 + quiet), (1, only(HUNGER)))
 
     def test_no_conversion_counts_nothing(self):
         v = Village(rendered(()))
@@ -532,6 +569,18 @@ class Popup(unittest.TestCase):
         self.assertEqual(notice(story)["armed"], 1, "the skip's own popup first")
         self.assertEqual(self.armed(story, scratch)[0], "Time Skip")
         self.assertEqual(p.export("VvfpStoryProbeFaithNoticeTaken"), 0, "then the believers', in its turn")
+
+    def test_start_over_drops_a_waiting_batch(self):
+        story, scratch, tick = self.story()
+        p = story.proc
+        p.export("VvfpStoryProbeIslandEventOpen", 1)        # held by an open event
+        self.counts(story, scratch, (0, 2, 0, 0, 0))
+        tick(story, 100)
+        p.export("VvfpStoryVillageReset", 5, 1)             # Start Over
+        p.export("VvfpStoryProbeIslandEventOpen", 0)
+        tick(story, 200)
+        self.assertEqual(p.export("VvfpStoryProbeFaithNoticeTaken"), 0)
+        self.assertEqual(self.armed(story, scratch), ("", ""))
 
     def test_only_in_new_believers(self):
         scratch, Story, island_ready, tick = story_harness()

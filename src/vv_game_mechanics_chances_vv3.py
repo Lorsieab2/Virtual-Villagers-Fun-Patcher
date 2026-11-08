@@ -71,7 +71,9 @@ ROLLS = (
           "time.")),
     Roll("A sick villager's health: " + AGE_UNIT + ", a sick villager loses 1 health {0} of the time while above 20 "
          "health, and only " + _ch(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less ({0} "
-         "times {1}). Sickness never ends by itself.",
+         "times {1}). Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (the Easy roll "
+         "0x460280 runs the sickness roll half the time, and on Easy it answers \"not sick\" half the time, "
+         "0x455C12).",
          (Check(0x46017D, 100, 0x3C, "jg", take=False), Check(0x460195, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a villager who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the fire burning on a second "

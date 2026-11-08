@@ -1195,8 +1195,9 @@ class ManifestTests(unittest.TestCase):
         # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-10x Tech Cost
         # (vv2_tech_cost_multiplier), its 35 price immediates only; 40 with Checked Skill Preferences are listed
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
-        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place.
-        self.assertEqual(len(feature_ids), 41)
+        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
+        # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published.
+        self.assertEqual(len(feature_ids), 42)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4156,6 +4157,7 @@ class StockIntegrationTests(unittest.TestCase):
             # 2-10x Tech Cost: the Tech screen's price immediates, x 3.
             "vv2_tech_cost_multiplier",
             "vv2_hungrier_villagers",
+            "vv2_sickness_multiplier",
             # Children's Graves Say Apprentice: the grave rank pick re-encoded in place.
             "vv2_apprentice_graves",
             # Checked Skill Preferences are listed as Jobs on Graves: the burial writer re-encoded in place.

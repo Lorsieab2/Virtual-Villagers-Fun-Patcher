@@ -231,6 +231,25 @@ static void faith_notice_tick(int game) {
     }
 }
 
+/* Start Over or a deleted tribe (VvfpStoryVillageReset): the companion's waiting batch was that village's, so it
+   is dropped there (VvfpFaithNoticeVillageReset); an armed popup goes with every other armed event. */
+static void faith_notice_village_reset(int game) {
+    typedef void (__stdcall *reset_fn)(int game);
+    HMODULE module;
+    reset_fn reset;
+#ifdef VVFP_TEST
+    test_faith_waiting = 0;
+#endif
+    if (game != FAITH_NOTICE_GAME) {
+        return;
+    }
+    module = GetModuleHandleA("VVFP Faith Notice.dll");
+    reset = module != NULL ? (reset_fn)(void *)GetProcAddress(module, "VvfpFaithNoticeVillageReset") : NULL;
+    if (reset != NULL) {
+        reset(game);
+    }
+}
+
 #ifdef VVFP_TEST
 /* Stands in for "VVFP Faith Notice.dll": how many believers turned Heathen for each reason (starvation,
    hunger, sickness, too few believers, other). */

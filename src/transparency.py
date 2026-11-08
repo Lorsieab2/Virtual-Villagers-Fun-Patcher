@@ -440,6 +440,12 @@ def render_transparency_text(
         if feature["id"].endswith("_tech_cost_multiplier") and data.get("tech_cost_multiplier"):
             lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 2-10x Tech Cost slider): every "
                          "technology price is its normal price times this.")
+        if feature["id"].endswith("_hungrier_villagers") and data.get("meal_multiplier"):
+            lines.append(f"  Multiplier: x{data['meal_multiplier']} (the Hungrier Villagers slider): every villager "
+                         "meal takes its normal food times this.")
+        if feature["id"].endswith("_sickness_multiplier") and data.get("sickness_multiplier"):
+            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 2-10x Sickness slider): villagers fall "
+                         "sick that many times as often.")
         if (
             "Cure all Villagers" in feature.get("description", "")
             and "Cured X villagers" not in feature.get("description", "")

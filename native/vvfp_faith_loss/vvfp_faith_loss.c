@@ -22,17 +22,25 @@
    starvation or sickness kills them as usual.  It is the one place all of it runs -- live, in the load-time
    catch-up, a Time Warp and Choose Time Skip Amount -- since the life tick (0x472D17) is the drift's only caller.
 
-   THE FILE.  The marks are villagers' identities (the name, likes and dislikes: native/shared/custom_titles.h's
-   vv_title_identity, as the Former Heathens file keys them), kept per save in
+   THE FILE.  A mark is a villager's identity (the name, likes and dislikes: native/shared/custom_titles.h's
+   vv_title_identity, as the Former Heathens file keys them) with what follows it through a change of one part
+   of it (Codex, #732: a rename, or the Custom Island Event's likes and dislikes, must not lose the mark and give
+   a second roll): the record the villager was last seen in, what a likes / dislikes change leaves (the name and
+   the sex, identity_in_place.h's vv_identity_keep), what a rename leaves (the likes, dislikes and sex, as the
+   Former Heathens' rename rule, cod_former.inc former_stable) and the age last seen.  A villager is the mark's
+   when the identity is the same, or -- in the same record, not younger -- one of the two parts is (and the mark
+   then takes the new identity), so a renamed or re-liked villager keeps it, and a newborn or newcomer put in a
+   dead villager's record (younger, or neither part the same) never inherits it.  The marks are kept per save in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Loss\Believers Kept - Save <S>.dat
    (sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside).  It is read when the
    game's save slot (the save manager's own field, set before the slot's village is created or loaded:
    native/shared/game_save_slot.h) is first seen, so the load-time catch-up already has them; it is written each
-   time a mark is made or cleared, with only the identities that are living believers then.  Start Over deletes
+   time a mark is made or cleared, with only the marks of villagers who are living believers then (matched as
+   above, so a renamed villager's mark is carried, never pruned).  Start Over deletes
    the save's folder, and the file with it (native/shared/save_reset.c).  The save itself is never written.
 
    FORMAT (little-endian): u32 magic 'VFK1', u32 version 1, u32 game 5, u32 slot, u32 count (0..FL_MARKS_MAX),
-   then `count` u32 identities.  Exactly 20 + 4 * count bytes.
+   then `count` entries of 5 u32: identity, record (0..255), keep, stable, age.  Exactly 20 + 20 * count bytes.
 
    SAFETY.  One call site, in the row's own cave, checked to hold the row's bytes before it is written (all or
    none, native/shared/install_sites.h).  Our steps run under structured exception handling: a fault gives the
@@ -45,6 +53,7 @@
 #include "../shared/game_save_slot.h"
 #include "../shared/vv5_villager_table.h"
 #include "../shared/custom_titles.h"
+#include "../shared/identity_in_place.h"   /* vv_identity_keep */
 
 #define FL_GAME 5
 #define FL_RULE_CALL 0x494F14u          /* the tail cave's call of the rule */
@@ -58,6 +67,8 @@
 /* New Believers' villager record. */
 #define REC_FIRST 0x48u
 #define REC_STRIDE 0x2F44u
+#define REC_AGE 0x1B8Cu
+#define REC_SEX 0x1B90u
 #define REC_NAME 0x1B9Cu
 #define REC_NAME_CAP 0x19u
 #define REC_HEALTH 0x1C40u
@@ -78,21 +89,68 @@
 
 typedef int (__cdecl *rand_fn)(int);
 
+typedef struct {
+    unsigned int identity;
+    unsigned int record;                /* the record the villager was last seen in */
+    unsigned int keep;                  /* the name and sex (what a likes / dislikes change leaves) */
+    unsigned int stable;                /* the likes, dislikes and sex (what a rename leaves) */
+    int age;                            /* the age last seen */
+} fl_mark;
+
 static int g_installed;
-static unsigned int g_marks[FL_MARKS_MAX];
+static fl_mark g_marks[FL_MARKS_MAX];
 static int g_count;
 static int g_slot;                      /* the slot whose file the marks are (0: none read yet) */
 static vv_sidecar_gate g_gate;
-static unsigned char g_buffer[FL_HEADER + 4u * FL_MARKS_MAX];
+static unsigned char g_buffer[FL_HEADER + sizeof(fl_mark) * FL_MARKS_MAX];
 
 static unsigned int identity(const unsigned char *rec) {
     return vv_title_identity(rec, REC_NAME, REC_NAME_CAP, REC_LIKES, REC_DISLIKES, REC_SLOTS);
 }
 
-static int marked_at(unsigned int id) {
+static unsigned int keep_of(const unsigned char *rec) {
+    return vv_identity_keep(rec, REC_NAME, REC_NAME_CAP, REC_SEX);
+}
+
+static unsigned int stable_of(const unsigned char *rec) {
+    unsigned int h = vv_title_identity(rec, REC_NAME, 0u, REC_LIKES, REC_DISLIKES, REC_SLOTS);
+    h = (h ^ (unsigned int)*(const int *)(rec + REC_SEX)) * 16777619u;
+    return h ? h : 1u;
+}
+
+/* The villager in record `index` now, as a mark keeps it. */
+static fl_mark mark_of(const unsigned char *rec, int index) {
+    fl_mark m;
+    m.identity = identity(rec);
+    m.record = (unsigned int)index;
+    m.keep = keep_of(rec);
+    m.stable = stable_of(rec);
+    m.age = *(const int *)(rec + REC_AGE);
+    return m;
+}
+
+/* Whether mark `m` is the villager `now` (see THE FILE): the same identity, or in the same record, not younger,
+   with the part a rename or a likes / dislikes change leaves. */
+static int mark_is(const fl_mark *m, const fl_mark *now) {
+    if (m->identity == now->identity) {
+        return 1;
+    }
+    return m->record == now->record && now->age >= m->age && (m->keep == now->keep || m->stable == now->stable);
+}
+
+/* The mark of the villager in record `index` (`rec`), carried to who they are now; -1 when none. */
+static int marked_at(const unsigned char *rec, int index) {
+    fl_mark now = mark_of(rec, index);
     int i;
     for (i = 0; i < g_count; ++i) {
-        if (g_marks[i] == id) {
+        if (g_marks[i].identity == now.identity) {
+            g_marks[i] = now;
+            return i;
+        }
+    }
+    for (i = 0; i < g_count; ++i) {
+        if (mark_is(&g_marks[i], &now)) {
+            g_marks[i] = now;              /* renamed or re-liked: the mark follows them */
             return i;
         }
     }
@@ -151,7 +209,7 @@ static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
         || u[3] != (unsigned int)*(const int *)ctx || u[4] > FL_MARKS_MAX) {
         return 0;
     }
-    return len == FL_HEADER + 4u * u[4];
+    return len == FL_HEADER + sizeof(fl_mark) * u[4];
 }
 
 /* The marks of `slot`'s file (none when it is missing, set aside or blocked). */
@@ -165,7 +223,7 @@ static void read_marks(int slot) {
     }
     if (vv_sidecar_load(&g_gate, path, g_buffer, sizeof g_buffer, &got, valid_file, &slot) == VV_SIDECAR_LOAD_VALID) {
         g_count = (int)((const unsigned int *)g_buffer)[4];
-        memcpy(g_marks, g_buffer + FL_HEADER, 4u * (unsigned int)g_count);
+        memcpy(g_marks, g_buffer + FL_HEADER, sizeof(fl_mark) * (unsigned int)g_count);
     }
 }
 
@@ -193,20 +251,38 @@ static int living_believer(const unsigned char *rec) {
            && rec[REC_HEATHEN] == 0;
 }
 
-/* Only the marks of living believers are kept (a mark is a believer's: one who died or left has none). */
+/* Only the marks of living believers are kept (a mark is a believer's: one who died or left has none), each
+   carried to who its villager is now -- a renamed or re-liked villager's mark is never pruned. */
 static void keep_living(void) {
-    int i, k, kept = 0;
+    static fl_mark now[FL_MARKS_MAX];
+    static unsigned char living[FL_MARKS_MAX];
+    int i, k, kept = 0, n;
     locate();
     if (g_records == NULL || g_slots <= 0) {
         return;
     }
+    n = g_slots < FL_MARKS_MAX ? g_slots : FL_MARKS_MAX;
+    for (k = 0; k < n; ++k) {                       /* one look at the village */
+        const unsigned char *rec = g_records + (unsigned int)k * REC_STRIDE;
+        living[k] = (unsigned char)living_believer(rec);
+        if (living[k]) {
+            now[k] = mark_of(rec, k);
+        }
+    }
     for (i = 0; i < g_count; ++i) {
-        for (k = 0; k < g_slots; ++k) {
-            const unsigned char *rec = g_records + (unsigned int)k * REC_STRIDE;
-            if (living_believer(rec) && identity(rec) == g_marks[i]) {
-                g_marks[kept++] = g_marks[i];
-                break;
+        int found = -1;
+        for (k = 0; k < n && found < 0; ++k) {
+            if (living[k] && now[k].identity == g_marks[i].identity) {
+                found = k;
             }
+        }
+        for (k = 0; k < n && found < 0; ++k) {
+            if (living[k] && mark_is(&g_marks[i], &now[k])) {
+                found = k;
+            }
+        }
+        if (found >= 0) {
+            g_marks[kept++] = now[found];
         }
     }
     g_count = kept;
@@ -232,7 +308,7 @@ static void write_marks(void) {
     parts[0] = header;
     sizes[0] = sizeof header;
     parts[1] = g_marks;
-    sizes[1] = 4u * (DWORD)g_count;
+    sizes[1] = (DWORD)(sizeof(fl_mark) * (unsigned int)g_count);
     (void)vv_sidecar_publish(&g_gate, path, parts, sizes, g_count > 0 ? 2 : 1);
 }
 
@@ -248,14 +324,24 @@ static void bind_slot(void) {
 
 /* ---- the rule --------------------------------------------------------------------------------------------- */
 
+/* The record's place in the villager table (-1 outside it). */
+static int record_index(const unsigned char *rec) {
+    UINT_PTR offset;
+    locate();
+    if (g_records == NULL || rec < g_records) {
+        return -1;
+    }
+    offset = (UINT_PTR)(rec - g_records);
+    return offset % REC_STRIDE == 0 && offset / REC_STRIDE < (UINT_PTR)g_slots ? (int)(offset / REC_STRIDE) : -1;
+}
+
 static int __cdecl faith_rule(unsigned char *rec, int sum, int losses) {
     int result = sum;
     __try {
-        unsigned int id;
-        int at, faith;
+        int at, faith, index;
         bind_slot();
-        id = identity(rec);
-        at = marked_at(id);
+        index = record_index(rec);
+        at = marked_at(rec, index);
         if (at >= 0 && *(const volatile int *)(UINT_PTR)FL_FOOD > FL_CRISIS_FOOD && rec[REC_SICK] == 0) {
             g_marks[at] = g_marks[--g_count];      /* the crisis is over: the next one is decided afresh */
             at = -1;
@@ -270,7 +356,7 @@ static int __cdecl faith_rule(unsigned char *rec, int sum, int losses) {
                 return sum;                        /* 1 in 10: a Heathen, as before */
             }
             if (g_count < FL_MARKS_MAX) {
-                g_marks[g_count++] = id;
+                g_marks[g_count++] = mark_of(rec, index);
                 write_marks();
             }
         }

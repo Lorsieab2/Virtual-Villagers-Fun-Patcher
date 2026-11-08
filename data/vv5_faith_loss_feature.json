@@ -22,7 +22,7 @@
     {
       "source": "assets/faith_loss/VVFP Faith Loss.dll",
       "destination": "VVFP Faith Loss.dll",
-      "sha256": "9A42A664A8EC64599F6268B3DAD92EE3E7FF7AC7B52D20DCDA10EE12D6D05DB5"
+      "sha256": "AC5F2ED31C2884950ADD05E8A28322ABA49348EFE082DFAA9A3EC4E6D16C651F"
     }
   ],
   "patches": [
