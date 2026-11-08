@@ -93,6 +93,18 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 ### Optional features
 
+#### 2-10x Sickness (`vv1_sickness_multiplier`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches. Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large.
+- Explicit non-changes/exclusions: The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 2-10x Tech Cost (`vv1_tech_cost_multiplier`)
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 6,000, level 3 50,000; Fertility level 2 11,000, level 3 240,000; Science level 2 12,000, level 3 150,000; Medicine level 2 15,000, level 3 250,000; Construction level 2 2,500, level 3 80,000; Spirituality level 2 5,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
@@ -686,6 +698,18 @@ Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe
 
 ### Optional features
 
+#### 2-10x Sickness (`vv2_sickness_multiplier`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches. Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large.
+- Explicit non-changes/exclusions: The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 2-10x Tech Cost (`vv2_tech_cost_multiplier`)
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Farming level 2 1,500, level 3 90,000; Exploration level 2 10,000, level 3 160,000; Science level 2 16,000, level 3 150,000; Medicine level 2 20,000, level 3 65,000; Engineering level 2 5,000, level 3 75,000; Culture level 2 20,000, level 3 85,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
@@ -1202,6 +1226,18 @@ After each successful save of slots 1 through 5, writes the save's local lifetim
 Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 22 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### 2-10x Sickness (`vv3_sickness_multiplier`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches. Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large.
+- Explicit non-changes/exclusions: The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### 2-10x Tech Cost (`vv3_tech_cost_multiplier`)
 
@@ -1720,6 +1756,18 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
+#### 2-10x Sickness (`vv4_sickness_multiplier`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches (with Sickness works like VV1-3 it multiplies that rule's chances). Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large.
+- Explicit non-changes/exclusions: The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 2-10x Tech Cost (`vv4_tech_cost_multiplier`)
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Dendrology level 2 3,000, level 3 60,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
@@ -1787,13 +1835,13 @@ A grave's Job line names the skill the villager had checked as their skill prefe
 
 #### Classic VV Difficulty (`vv4_classic_vv_difficulty`)
 
-Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
+Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3 and Sickness works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
 
-**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires Clothmaking Unlocks at Science Level 3: ticking this ticks it, and unticking it unticks this. Requires Collectible Spawn Timing works like VV1-3: ticking this ticks it, and unticking it unticks this.**
+**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires Clothmaking Unlocks at Science Level 3: ticking this ticks it, and unticking it unticks this. Requires Collectible Spawn Timing works like VV1-3: ticking this ticks it, and unticking it unticks this. Requires Sickness works like VV1-3: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3.
+- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3 and Sickness works like VV1-3.
 - Explicit non-changes/exclusions: No executable byte, file or save is changed by this row itself.
-- Dependencies: vv4_food_pays_like_earlier_games, vv4_hungrier_villagers, vv4_tech_cost_multiplier, vv4_science_collectibles_complete, vv4_clothmaking_at_science_3, vv4_collectible_spawn_like_vv3
+- Dependencies: vv4_food_pays_like_earlier_games, vv4_hungrier_villagers, vv4_tech_cost_multiplier, vv4_science_collectibles_complete, vv4_clothmaking_at_science_3, vv4_collectible_spawn_like_vv3, vv4_sickness_like_vv3
 - Evidence status: a selection of other patches; each one's own evidence applies
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
@@ -2054,6 +2102,18 @@ Lets the game draw, measure and accept ANY character -- accented letters, Greek,
 - Evidence status: implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Sickness works like VV1-3 (`vv4_sickness_like_vv3`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick as in The Secret City: twice as often while the Fire Pit is out, and on Hard one step more (twice as often with the Fire Pit burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's part there, does not exist in this game. 2-10x Sickness multiplies these chances too.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The natural sickness roll 0x45E930 (its only caller the life tick) rewritten in place: m = 1 + (the fire is out) + (Hard), and by Medicine rand(1440) <= 3m, rand(2460) <= 3m, rand(5400) <= 2m, as The Secret City 0x455C00 without Aromatherapy; Easy, an existing sickness and the old villagers' roll as stock.
+- Explicit non-changes/exclusions: Medicine's other effects, the fire's research bonus and health regain, healers, the Hospital, stews, island events, god powers, Faith and Heathens are unchanged. One guarded edit of the routine's own bytes and its int3 padding; nothing else is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every Medicine level, difficulty and fire state, Easy's cure, an existing sickness and the old villagers' roll are emulated against The Secret City's table in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Story / Cheat Upgrades (`vv4_story_cheat_upgrades`)
 
 Adds optional tools intended for custom stories, experiments, sandbox play, and cheats. These features deliberately allow the player to bypass normal game progression and random-event behavior. When enabled, all Origins Upgrades cost 0 Tech Points. Also adds the following Origins Upgrades: Pick Island Event -- Allows the player to directly choose which stock Island Event occurs instead of relying on random selection. Opening this upgrade displays a list of the game's official Island Event titles, each with a brief description. Selecting an event causes that specific event to occur through the game's Island Event system. Custom Island Event -- Allows the player to create and trigger a custom Island Event for storytelling, testing, sandbox play, or cheats. The player may customize supported event properties, including: Title and description; Food gained or lost; Tech Points gained or lost; Villagers spawned; Spawned-villager details, including supported appearance, age, sex, name, likes/dislikes, skills, and other valid villager attributes; Villager behavior or state changes; Village-state changes; Puzzle-state changes; Other game-specific values that can be safely and reliably manipulated. Custom events should appear and behave as closely as practical to ordinary Island Events, while clearly allowing player-defined outcomes. Only what this game's own code supports is offered; the rest is shown as not available in this game. A custom title is kept per save slot in a file beside the saves and is removed by Start Over. Bought island events don't change when the game's own island events come. A Custom Island Event can also be bought and delivered when everyone in the village has died (the game's own island events wait for a living villager), so new villagers, food, Tech Points, refills and revived skeletons can bring the village back; what needs a living villager is simply not there to choose, and a question with two choices is refused until someone lives. In A New Home and The Lost Children a village that died before its first island event gets it too, uncounted, so its first island event is still the game's own visitor once someone lives. A custom event can also ask a question with two choices: the player writes the question, the two button labels and, for each button, one to four outcomes, each with its own chance, result text and changes (everything the event itself can change); clicking a button rolls one of its outcomes by those chances and makes only that outcome's changes. **A question with two choices can be queued only in a game whose own two-button island-event popup the companion hooks; in any other game the option is shown as not available yet.** Pick Island Event also lets the player set how the picked event turns out. Each setting starts at "Random (original game)" and offers only what that event's own code can produce in this game: its result (for a two-choice event, the result of each choice -- the popup still appears and the player still clicks), every amount it can roll, who a roll it makes for each villager hits (nobody, everyone, or the villagers chosen), which villager it is about, and each baby's details; in A New Home and The Lost Children also its strength (normally a third of the population, 1 to 10). A setting whose condition does not hold right now can not be bought. An event whose own condition is only a matter of timing or story can be picked anyway, and developer-dead events proven to work are offered as never happening in the original game; events that need something the village lacks, or room for new villagers, stay locked with the reason. On by default, with Story / Cheat Upgrades cost Tech Points ticked too, so the upgrades keep their normal tech-point prices until that row is unticked. **Requires Enable Origins Tech, Details, and Village-Wide Upgrades: ticking this ticks it, and without it there are no Origins Upgrades to make free and no Pick Island Event or Custom Island Event.** **A pregnancy a custom event starts is written to the Births and Conceptions log only with Write Births and Conceptions Log to Text File ticked.** Also adds Choose Time Skip Amount (0 Tech Points, the same as Time Warp): the player types how many years to skip, from 1 to 72, and the village moves forward that many villager years as a run of the Time Warp upgrade's own advance -- one Time Warp at a time (3 years on slow, 6 on normal, 12 on fast, the last one only what is left), each caught up by the game before the next -- so villagers work, eat, have babies, grow up and die of old age through the skipped years just as after a Time Warp. **Keep the game running until the skip is done: it pauses while the game is paused, and loading another village, Start Over or deleting the tribe drops the rest.** Cancel charges nothing.
@@ -2183,6 +2243,18 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 ### Optional features
 
+#### 2-10x Sickness (`vv5_sickness_multiplier`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick 2 to 10 times as often as they would: you choose how many times with the 2-10x Sickness slider in the patcher window (a whole number, 2 unless you move it). Every natural chance of falling sick is multiplied, at every Medicine level and difficulty, the old villagers' extra chance included, and it stacks with the other patches (with Sickness works like VV1-3 it multiplies that rule's chances). Medicine, the fire, Easy's cures, healers, island events and everything that cures are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The natural sickness roll's four moduli (Medicine 1, 2, 3 and the old villagers' roll) become round(stock / N), N the slider (2 to 10): each chance about N times as large.
+- Explicit non-changes/exclusions: The roll's thresholds, Medicine, the fire, the difficulty, Easy's cures, healers, events, the Hospital and every other health rule are unchanged; four immediates in place, written when the build is published.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every multiplier on every site, stock and with Sickness works like VV1-3, is checked in tests/test_sickness_patches.py; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### 2-10x Tech Cost (`vv5_tech_cost_multiplier`)
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Spirituality level 2 8,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
@@ -2274,13 +2346,13 @@ A child's grave names the child's job as an "Apprentice", the way The Tree of Li
 
 #### Classic VV Difficulty (`vv5_classic_vv_difficulty`)
 
-Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
+Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Faith Loss is Doubled/Gains Halved and Sickness works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
 
-**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires Faith Loss is Doubled/Gains Halved: ticking this ticks it, and unticking it unticks this.**
+**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires Faith Loss is Doubled/Gains Halved: ticking this ticks it, and unticking it unticks this. Requires Sickness works like VV1-3: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved.
+- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Faith Loss is Doubled/Gains Halved and Sickness works like VV1-3.
 - Explicit non-changes/exclusions: No executable byte, file or save is changed by this row itself.
-- Dependencies: vv5_food_pays_like_earlier_games, vv5_hungrier_villagers, vv5_tech_cost_multiplier, vv5_science_collectibles_complete, vv5_faith_loss_doubled_gains_halved
+- Dependencies: vv5_food_pays_like_earlier_games, vv5_hungrier_villagers, vv5_tech_cost_multiplier, vv5_science_collectibles_complete, vv5_faith_loss_doubled_gains_halved, vv5_sickness_like_vv3
 - Evidence status: a selection of other patches; each one's own evidence applies
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
@@ -2564,6 +2636,18 @@ Lets the game draw, measure and accept ANY character -- accented letters, Greek,
 - Explicit non-changes/exclusions: The researcher's points, the Purify Tree's glow, the fire's +1, catch-up's research, the duplicates' tech points, the population room and the collections screens are unchanged. One guarded in-place edit of 9 bytes; no code is added and no executable space is claimed.
 - Dependencies: none
 - Evidence status: implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Sickness works like VV1-3 (`vv5_sickness_like_vv3`)
+
+**Needs no other patch.** Makes the game harder; off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and on Hard one step more (twice as often with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes. Medicine's levels keep their own chances (the higher the level, the rarer), old villagers keep their extra chance, and Easy still lets a sickness end by itself. The Secret City's Aromatherapy, which cancels the fire's part there, does not exist in this game. 2-10x Sickness multiplies these chances too.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The natural sickness roll 0x465F50 (its only caller the life tick) rewritten in place: m = 1 + (the fire is out) + (Hard), and by Medicine rand(1440) <= 3m, rand(2460) <= 3m, rand(5400) <= 2m, as The Secret City 0x455C00 without Aromatherapy; Easy, an existing sickness and the old villagers' roll as stock.
+- Explicit non-changes/exclusions: Medicine's other effects, the fire's research bonus and health regain, healers, the Hospital, stews, island events, god powers, Faith and Heathens are unchanged. One guarded edit of the routine's own bytes and its int3 padding; nothing else is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; every Medicine level, difficulty and fire state, Easy's cure, an existing sickness and the old villagers' roll are emulated against The Secret City's table in tests/test_sickness_patches.py; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)

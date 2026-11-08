@@ -1321,6 +1321,18 @@ The Clothing Hut appears at Science level 2 as normal, but no cloth can be made 
 
 - Patch ID: `vv4_clothmaking_at_science_3`
 
+**2-10x Sickness** (all five games)
+
+Villagers fall sick 2 to 10 times as often (the 2-10x Sickness slider, 2 unless moved): every natural roll of falling sick, at every Medicine level and difficulty, the old villagers' extra roll included; with Sickness works like VV1-3 it multiplies that rule's chances. Medicine, the fire, Easy's cures, healers and events cure as before. Off by default; Owner's Defaults ticks it and sets the slider to 2.
+
+- Patch ID: `vv1_sickness_multiplier` to `vv5_sickness_multiplier`
+
+**Sickness works like VV1-3** (The Tree of Life, New Believers)
+
+Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard (twice with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes; each Medicine level keeps its own chance, and old villagers their extra roll. These games have no Aromatherapy, which cancels the fire's part in The Secret City. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_sickness_like_vv3`, `vv5_sickness_like_vv3`
+
 **Science Collectibles Only Count When Complete**
 
 Each Lab Equipment piece you find normally makes research bring more tech points (a random 0 to pieces found - 1 more each time). With this patch the pieces add nothing until all 12 are found; then research gets the normal bonus, 0 to 11 more. The researcher's own points, the Purify Tree's glow, the fire's extra point and the tech points a duplicate piece pays are unchanged. New Believers has the same patch for its 24-piece collection whose duplicates pay tech points. Off by default (it makes the game harder); Owner's Defaults ticks it.

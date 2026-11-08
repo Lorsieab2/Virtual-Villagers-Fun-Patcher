@@ -136,7 +136,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_classic_vv_difficulty")
                   # Collectible Spawn Timing works like VV1-3 (the owner, 2026-11-08): a difficulty change too.
                   or p == "vv4_collectible_spawn_like_vv3"
-                  or p == "vv4_clothmaking_at_science_3"})
+                  or p == "vv4_clothmaking_at_science_3"
+                  # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
+                  or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")})
 
     def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
         """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in

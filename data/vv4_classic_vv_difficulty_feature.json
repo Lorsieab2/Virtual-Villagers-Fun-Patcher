@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv4",
   "name": "Classic VV Difficulty",
-  "description": "Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**",
+  "description": "Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3 and Sickness works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**",
   "output_tag": "Classic VV Difficulty",
   "dependencies": [
     "vv4_food_pays_like_earlier_games",
@@ -13,10 +13,11 @@
     "vv4_tech_cost_multiplier",
     "vv4_science_collectibles_complete",
     "vv4_clothmaking_at_science_3",
-    "vv4_collectible_spawn_like_vv3"
+    "vv4_collectible_spawn_like_vv3",
+    "vv4_sickness_like_vv3"
   ],
   "behavior_changes": [
-    "None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3."
+    "None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3, Collectible Spawn Timing works like VV1-3 and Sickness works like VV1-3."
   ],
   "explicit_non_changes": [
     "No executable byte, file or save is changed by this row itself."
