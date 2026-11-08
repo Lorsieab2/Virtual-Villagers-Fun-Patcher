@@ -117,7 +117,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "counted under the loss roll that took their Faith (starvation: food under 10; hunger: food 10 to 250; "
             "sickness; too few believers), and 3 real-life seconds (real time, the same at every speed) after the "
             "last one, once no other island event is showing or on its way, a popup in the island-event window, "
-            "\"Hard Choices\", says \"Several of your villagers have lost faith in you due to the dire conditions "
+            "\"The Breaking Point\", says \"Several of your villagers have lost faith in you due to the dire conditions "
             "and have decided to join the heathens' tribe.\" and \"N villagers have left due to ...\" "
             "(\"... the Isolans' tribe\" with Guardians of Isola); one popup a catch-up, Time Warp or time skip. It "
             "is not an island event (the next one keeps its time; not counted, not logged), and a believer an "

@@ -841,7 +841,7 @@
       "ids": ["vv5_heathen_conversion_notice"],
       "guide": [
         "Nothing to click in the patcher: on by default.",
-        "When believers lose their Faith to hunger, sickness or too few believers and become Heathens, a popup in the island-event window, Hard Choices, says how many left and why.",
+        "When believers lose their Faith to hunger, sickness or too few believers and become Heathens, a popup in the island-event window, The Breaking Point, says how many left and why.",
         "A whole catch-up, Time Warp or time skip gives one popup, after any other island event. It does not change when island events come.",
         "Island events that make Heathens never bring it. The bottom bar still says the game's own line for each one.",
         "Needs Story / Cheat Upgrades (on by default) for the popup."

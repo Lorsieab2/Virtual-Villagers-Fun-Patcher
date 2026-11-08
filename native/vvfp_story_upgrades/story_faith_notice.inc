@@ -13,7 +13,7 @@
    (VvfpStoryTimeSkipNoticeShown), and the game's own next island event keeps its time (the arm goes through
    story_island_arming, native/shared/island_timer_keep.h).
 
-     Hard Choices
+     The Breaking Point
      Several of your villagers have lost faith in you due to the dire conditions and have decided to join the
      heathens' tribe.
 
@@ -23,7 +23,7 @@
    string 0x48, "A villager has left the tribe!"): "Several of your villagers have lost hope due to the dire
    conditions and have decided to join the Isolans' tribe." and "too few tribe members".  The game's string is read where the game reads it
    (0x4506D0: the entry [0x5240A8 + 4 * id], its loaded text +0xC or its built-in +8), so the popup follows the
-   same file the bottom bar does.  The title is FAITH_NOTICE_TITLE, "Hard Choices" (the owner's).
+   same file the bottom bar does.  The title is FAITH_NOTICE_TITLE, "The Breaking Point" (the owner's).
 
    ONLY THE FAITH DRIFT.  The companion counts a believer only when the drift's own FAITH_ADD makes them a
    Heathen (the record is a believer as the life tick calls the drift and a Heathen when it returns).  An island
@@ -43,7 +43,7 @@
 #define FAITH_STRING_TABLE 0x5240A8u     /* 0x4506D0: [table + 4 * id] -> { id, name, built-in, loaded } */
 /* The popup's title, the owner's (2026-11-08), with and without Guardians of Isola (one line; its translation
    row is ...FAITH_NOTICE_TITLE.s0). */
-#define FAITH_NOTICE_TITLE "Hard Choices"
+#define FAITH_NOTICE_TITLE "The Breaking Point"
 #define FAITH_REASONS 5                  /* starvation, hunger, sickness, too few believers, other */
 
 typedef int (__stdcall *faith_pending_fn)(int game, int *out);

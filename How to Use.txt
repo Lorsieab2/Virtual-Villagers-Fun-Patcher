@@ -1271,7 +1271,7 @@ On by default. The game already says "A villager has stopped believing in
 you!" on the bottom bar each time a believer becomes a Heathen ("A villager
 has left the tribe!" with Guardians of Isola), but after a catch-up, a Time
 Warp or a time skip that line is easy to miss. With this patch a popup in the
-game's own island-event window, "Hard Choices", sums them up, for example:
+game's own island-event window, "The Breaking Point", sums them up, for example:
 "Several of your villagers have lost faith in you due to the dire conditions
 and have decided to join the heathens' tribe." and, below it, "3 villagers
 have left due to starvation, 1 due to sickness and 2 due to too few

@@ -421,7 +421,7 @@ ISOLA = ("Several of your villagers have lost hope due to the dire conditions an
          "join the Isolans' tribe.\n\n")
 ISOLA_ONE = ("One of your villagers has lost hope due to the dire conditions and has decided to join "
              "the Isolans' tribe.\n\n")
-TITLE = "Hard Choices"
+TITLE = "The Breaking Point"
 
 
 class Popup(unittest.TestCase):
@@ -471,7 +471,7 @@ class Popup(unittest.TestCase):
 
     def test_the_title_is_one_constant_with_its_own_key(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_faith_notice.inc").read_text(encoding="utf-8")
-        self.assertIn('#define FAITH_NOTICE_TITLE "Hard Choices"', source)
+        self.assertIn('#define FAITH_NOTICE_TITLE "The Breaking Point"', source)
         self.assertIn('"vvfp.story/story_faith_notice.FAITH_NOTICE_TITLE.s0", FAITH_NOTICE_TITLE', source)
 
     def test_the_longest_popup_is_delivered_whole(self):
