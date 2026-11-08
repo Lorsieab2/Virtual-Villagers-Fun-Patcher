@@ -214,18 +214,41 @@ static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
     return len == FL_HEADER + sizeof(fl_mark) * u[4];
 }
 
-/* The marks of `slot`'s file (none when it is missing, set aside or blocked). */
-static void read_marks(int slot) {
+/* 1 while the slot's file could not be read (locked, a read failed, its folder not known yet): the load is
+   retried on the gate's own throttle until it settles (Codex, #732) -- the gate refuses every write meanwhile. */
+static int g_load_blocked;
+
+/* The marks of `slot`'s file (none when it is missing, set aside or blocked).  `merge`: a retry after a blocked
+   load -- the marks made since (kept only in memory, as the gate refused to write them) are kept beside the
+   file's, never duplicated (the same identity is one mark). */
+static void read_marks(int slot, int merge) {
+    static fl_mark pending[FL_MARKS_MAX];
     char path[MAX_PATH];
     DWORD got = 0;
+    int kept = merge ? g_count : 0, i, k, status;
+    if (kept > 0) {
+        memcpy(pending, g_marks, sizeof(fl_mark) * (unsigned int)kept);
+    }
     g_count = 0;
+    g_load_blocked = 0;
     vv_sidecar_gate_bind(&g_gate, slot);
     if (!marks_path(slot, path, 0)) {
-        return;
+        vv_sidecar_gate_block(&g_gate);            /* retried on the gate's throttle */
+        g_load_blocked = 1;
+    } else {
+        status = vv_sidecar_load(&g_gate, path, g_buffer, sizeof g_buffer, &got, valid_file, &slot);
+        if (status == VV_SIDECAR_LOAD_VALID) {
+            g_count = (int)((const unsigned int *)g_buffer)[4];
+            memcpy(g_marks, g_buffer + FL_HEADER, sizeof(fl_mark) * (unsigned int)g_count);
+        }
+        g_load_blocked = status == VV_SIDECAR_LOAD_BLOCKED;
     }
-    if (vv_sidecar_load(&g_gate, path, g_buffer, sizeof g_buffer, &got, valid_file, &slot) == VV_SIDECAR_LOAD_VALID) {
-        g_count = (int)((const unsigned int *)g_buffer)[4];
-        memcpy(g_marks, g_buffer + FL_HEADER, sizeof(fl_mark) * (unsigned int)g_count);
+    for (i = 0; i < kept; ++i) {
+        for (k = 0; k < g_count && g_marks[k].identity != pending[i].identity; ++k) {
+        }
+        if (k == g_count && g_count < FL_MARKS_MAX) {
+            g_marks[g_count++] = pending[i];
+        }
     }
 }
 
@@ -321,6 +344,7 @@ static void write_marks(void) {
 static void forget_marks(void) {
     g_count = 0;
     g_slot = 0;
+    g_load_blocked = 0;
     memset(&g_gate, 0, sizeof g_gate);
 }
 
@@ -348,9 +372,18 @@ static void bind_slot(void) {
         forget_marks();
     }
     if (slot != 0 && slot != g_slot) {
-        read_marks(slot);
+        read_marks(slot, 0);
         g_slot = slot;
         g_file_seen = g_count > 0;
+    } else if (slot != 0 && g_load_blocked && !vv_sidecar_gate_throttled(&g_gate)) {
+        int had = g_count;
+        read_marks(slot, 1);                       /* the lock may have cleared: load it now */
+        if (!g_load_blocked) {
+            g_file_seen = g_file_seen || g_count > 0;
+            if (had > 0) {
+                write_marks();                     /* the marks made while blocked reach the file */
+            }
+        }
     }
 }
 
@@ -386,6 +419,9 @@ static int __cdecl faith_rule(unsigned char *rec, int sum, int losses) {
         if (at < 0) {
             if (((rand_fn)(UINT_PTR)FL_RAND)(FL_DECIDE) < FL_CONVERTS) {
                 return sum;                        /* 1 in 10: a Heathen, as before */
+            }
+            if (g_count >= FL_MARKS_MAX) {
+                keep_living();                     /* a dead or replaced villager's mark frees its place (Codex, #732) */
             }
             if (g_count < FL_MARKS_MAX) {
                 g_marks[g_count++] = mark_of(rec, index);

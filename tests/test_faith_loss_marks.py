@@ -392,6 +392,67 @@ class OnceACrisis(unittest.TestCase):
                 self.assertTrue(g.heathen(rec))
                 self.assertEqual(g.marked(), 0)
 
+    def test_a_locked_marks_file_is_read_again_once_the_lock_clears(self):
+        """Codex (#732): a marks file locked (or unreadable) at the village's first drift is retried on the gate's
+        throttle, not taken as loaded and empty: the marked believers keep their protection, and a mark made while
+        the file was locked reaches it once the lock clears."""
+        files = Files()
+        exe = rendered((FAITH_LOSS,))
+        g = Game(exe, files, n=2)
+        a, b = g.records
+        g.p.put32(a + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(a)                                          # a is marked and written
+        self.assertEqual(len(files.marks()), 1)
+        again = Game(exe, files, n=2)                       # reloaded while something holds the file
+        create = again.p.api_handlers["CreateFileA"]
+        locked = {"on": True}
+
+        def maybe_locked(q):
+            if locked["on"] and q.cstring(q.arg(0)).lower().endswith("believers kept - save 1.dat"):
+                files.error = 32                            # ERROR_SHARING_VIOLATION
+                return 0xFFFFFFFF, 28
+            return create(q)
+        again.p.api_handlers["CreateFileA"] = maybe_locked
+        again.p.tick = 1000
+        again.p.put32(again.records[1] + FAITH, 1)
+        again.forced = [0, 99, 5]
+        again.drift(again.records[1])                       # b is decided and marked while the file is locked
+        self.assertEqual(again.decisions, 1)
+        locked["on"] = False
+        again.p.tick = 1000 + 2000                          # the gate's retry window has passed
+        again.p.put32(again.records[0] + FAITH, 1)
+        again.forced = [0, 99, 0]
+        again.drift(again.records[0])                       # a: the file is read now, so a is still protected
+        self.assertEqual((again.heathen(again.records[0]), again.decisions), (False, 1))
+        self.assertEqual(sorted(files.marks()), sorted(set(files.marks())))
+        self.assertEqual(len(files.marks()), 2, "b's mark, made while locked, reached the file")
+
+    def test_a_full_table_drops_a_dead_villagers_mark_before_refusing_a_new_one(self):
+        """Codex (#732): with every place taken (256 Villagers), a marked believer who died must not keep the table
+        full, or the next believer in a crisis would be rolled again at every fall."""
+        files = Files()
+        g = Game(rendered((FAITH_LOSS, POP256)), files, n=256)
+        for rec in g.records:
+            g.p.put32(rec + FAITH, 1)
+            g.forced = [0, 99, 5]
+            g.drift(rec)
+        self.assertEqual(g.marked(), 256)
+        dead = g.records[0]
+        g.p.put32(dead + HEALTH, 0)                         # died in the crisis
+        g.p.write(dead + NAME, b"Newborn\0")                # a baby in the record
+        g.p.put32(dead + LIKES, 999)
+        g.p.put32(dead + AGE, 0)
+        g.p.put32(dead + HEALTH, 50)
+        g.p.put32(dead + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(dead)                                       # decided: stays, and is marked
+        before = g.decisions
+        g.p.put32(dead + FAITH, 1)
+        g.forced = [0, 99, 0]
+        g.drift(dead)                                       # no second roll
+        self.assertEqual((g.decisions, g.heathen(dead)), (before, False))
+
     def test_another_slot_has_its_own_marks(self):
         files = Files()
         exe = rendered((FAITH_LOSS,))
