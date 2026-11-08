@@ -1787,15 +1787,27 @@ A grave's Job line names the skill the villager had checked as their skill prefe
 
 #### Classic VV Difficulty (`vv4_classic_vv_difficulty`)
 
-Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
+Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, No Fishing at Science Level 2 and Collectible Spawn Timing works like VV1-3. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
 
-**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires No Fishing at Science Level 2: ticking this ticks it, and unticking it unticks this.**
+**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires No Fishing at Science Level 2: ticking this ticks it, and unticking it unticks this. Requires Collectible Spawn Timing works like VV1-3: ticking this ticks it, and unticking it unticks this.**
 
-- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2.
+- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, No Fishing at Science Level 2 and Collectible Spawn Timing works like VV1-3.
 - Explicit non-changes/exclusions: No executable byte, file or save is changed by this row itself.
-- Dependencies: vv4_food_pays_like_earlier_games, vv4_hungrier_villagers, vv4_tech_cost_multiplier, vv4_science_collectibles_complete, vv4_no_fishing_at_science_2
+- Dependencies: vv4_food_pays_like_earlier_games, vv4_hungrier_villagers, vv4_tech_cost_multiplier, vv4_science_collectibles_complete, vv4_no_fishing_at_science_2, vv4_collectible_spawn_like_vv3
 - Evidence status: a selection of other patches; each one's own evidence applies
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Collectible Spawn Timing works like VV1-3 (`vv4_collectible_spawn_like_vv3`)
+
+**Needs no other patch.** Makes collectibles come less often, as in The Secret City; off by default. A mushroom or collectible appears on its own with a chance of 4 in 6,000 each update of the village in The Tree of Life, against 3 in 6,000 in The Secret City (the same game engine), so about a quarter more often. With this patch the chance is The Secret City's 3 in 6,000, and in heavy rain (weather strength above 50) its second roll is 3 in 6,000 too. Fog's Wind Flute chance, rain making everything a mushroom, island events, the ghost and every other spawn are unchanged. New Believers needs no such patch: its timing already is The Secret City's.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The random spawn roll 0x4143A8 compares rand(6000) with 3 (stock 4) outside fog; in fog (weather 4) the stock Wind Flute threshold (pieces / 2) x 4 is kept. The second roll above weather strength 50 (0x4143CF) compares with 3 (stock 4).
+- Explicit non-changes/exclusions: What appears (mushroom or collectible, its rarity), at most 2 random items out, their 90-second lifetime, fog's Wind Flute chance, rain's all-mushroom spawns, island events, the ghost and every other spawn are unchanged. Two guarded in-place edits (the 42-byte roll block, rewritten to the same length, and one immediate); no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the thresholds in fair weather, rain, fog with 0 to 12 Wind Flute pieces and heavy weather are emulated stock and patched in tests/test_collectible_spawn_like_vv3.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 

@@ -237,6 +237,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds (real time, the "
                      "same at every speed: 90 seconds on the computer's clock, 0x41441B) of "
                      "real-life time.", gm.RUNNING)
+    # The Secret City's roll is the same (0x42DD6D..0x42DD98): the owner asked for VV4's to match it (2026-11-08).
+    add("Mushrooms", "Apart from fog's doubling, this is exactly The Secret City's timing (3 in 6,000 each update, a "
+                     "second 3 in 6,000 above weather strength 50, at most 2 out at once), so New Believers needs no "
+                     "\"Collectible Spawn Timing works like VV1-3\" patch.", gm.CODE)
     add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
                      "real-life second; the update rate was not read from the code, so this is an estimate.")
     if village.has(GOLDEN):

@@ -133,7 +133,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_science_collectibles_complete")
                   # Hungrier Villagers and Classic VV Difficulty (the owner, 2026-11-07): difficulty changes too.
                   or p.endswith("_hungrier_villagers")
-                  or p.endswith("_classic_vv_difficulty")})
+                  or p.endswith("_classic_vv_difficulty")
+                  # Collectible Spawn Timing works like VV1-3 (the owner, 2026-11-08): a difficulty change too.
+                  or p == "vv4_collectible_spawn_like_vv3"})
 
     def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
         """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in

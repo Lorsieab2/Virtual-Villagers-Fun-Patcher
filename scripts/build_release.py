@@ -264,6 +264,7 @@ FILES = [
     "data/vv4_science_collectibles_complete_feature.json",
     "data/vv5_science_collectibles_complete_feature.json",
     "data/vv4_classic_vv_difficulty_feature.json",
+    "data/vv4_collectible_spawn_like_vv3_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",

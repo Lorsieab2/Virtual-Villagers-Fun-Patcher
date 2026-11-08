@@ -63,6 +63,7 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_super_secret_golden_mushroom", "vv4_manual_drop_breeding_overrides_birth_control",
                          "vv4_population_256", "vv4_unicode_font", "vv4_tech_cost_multiplier",
                          "vv4_food_pays_like_earlier_games", "vv4_preferred_job_graves", "vv4_no_fishing_at_science_2",
+                         "vv4_collectible_spawn_like_vv3",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"

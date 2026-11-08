@@ -1326,6 +1326,12 @@ Ticks the harder-game patches together, for the feel of the classic games: Food 
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
 
+**Collectible Spawn Timing works like VV1-3** (The Tree of Life)
+
+Mushrooms and collectibles appear on their own with The Secret City's chance, 3 in 6,000 each update instead of 4 (and the same in heavy weather's second roll): about a quarter less often. Fog's Wind Flute chance, rain's all-mushroom spawns, island events and the ghost are unchanged. New Believers already uses The Secret City's timing. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_collectible_spawn_like_vv3`
+
 **Hungrier Villagers (2-10x Meals)** (all five games)
 
 Every villager's meal takes 2 to 10 times the normal food (the Hungrier Villagers slider, 2 unless moved): the meal's 2 food and the difficulty's extra 2 are both multiplied. Food never goes below 0; when it runs out the game's own starvation rules take over. Skipped meals at low food, the snack at the food bin, events and every source of food are unchanged. Off by default (it makes the game harder); Owner's Defaults ticks it.

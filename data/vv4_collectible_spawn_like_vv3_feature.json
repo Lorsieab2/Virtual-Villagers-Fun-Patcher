@@ -1,0 +1,33 @@
+{
+  "id": "vv4_collectible_spawn_like_vv3",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Collectible Spawn Timing works like VV1-3",
+  "description": "**Needs no other patch.** Makes collectibles come less often, as in The Secret City; off by default. A mushroom or collectible appears on its own with a chance of 4 in 6,000 each update of the village in The Tree of Life, against 3 in 6,000 in The Secret City (the same game engine), so about a quarter more often. With this patch the chance is The Secret City's 3 in 6,000, and in heavy rain (weather strength above 50) its second roll is 3 in 6,000 too. Fog's Wind Flute chance, rain making everything a mushroom, island events, the ghost and every other spawn are unchanged. New Believers needs no such patch: its timing already is The Secret City's.",
+  "output_tag": "Collectible Spawn like VV3",
+  "behavior_changes": [
+    "The random spawn roll 0x4143A8 compares rand(6000) with 3 (stock 4) outside fog; in fog (weather 4) the stock Wind Flute threshold (pieces / 2) x 4 is kept. The second roll above weather strength 50 (0x4143CF) compares with 3 (stock 4)."
+  ],
+  "explicit_non_changes": [
+    "What appears (mushroom or collectible, its rarity), at most 2 random items out, their 90-second lifetime, fog's Wind Flute chance, rain's all-mushroom spawns, island events, the ghost and every other spawn are unchanged.",
+    "Two guarded in-place edits (the 42-byte roll block, rewritten to the same length, and one immediate); no code is added and no executable space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the thresholds in fair weather, rain, fog with 0 to 12 Wind Flute pieces and heavy weather are emulated stock and patched in tests/test_collectible_spawn_like_vv3.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x1437E",
+      "before": "BE0400000039351C466C00751D6A016A016A016A6AB938C84C00E8F3F7FFFF992BC28BF0D1FE03F603F6",
+      "after": "833D1C466C0004BE03000000751C6A016A016A016A6AB938C84C00E8F2F7FFFF9929D089C6D1FEC1E602",
+      "purpose": "the random spawn roll's threshold (0x41437E): 3 outside fog (stock 4); fog's Wind Flute threshold kept"
+    },
+    {
+      "offset": "0x143D1",
+      "before": "04",
+      "after": "03",
+      "purpose": "the second roll above weather strength 50 (0x4143CF): rand(6000) < 3 (stock 4)"
+    }
+  ]
+}

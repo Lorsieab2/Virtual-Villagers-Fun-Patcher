@@ -306,6 +306,9 @@ SCIENCE_COLLECTIBLES_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_science_collectibles_complete_feature.json" for n in (4, 5))
 # Classic VV Difficulty (The Tree of Life, New Believers; off by default, on in Owner's Defaults): no bytes of its
 # own, it needs the harder-game patches, so ticking it ticks them; scripts/build_classic_vv_difficulty_features.py.
+# Collectible Spawn Timing works like VV1-3 (The Tree of Life; off by default, in Classic VV Difficulty): the random
+# spawn roll at The Secret City's 3 in 6,000; scripts/build_collectible_spawn_like_vv3_feature.py.
+COLLECTIBLE_SPAWN_FEATURE_PATHS = (ROOT / "data" / "vv4_collectible_spawn_like_vv3_feature.json",)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
@@ -4149,7 +4152,7 @@ def _load_fun_patch_records(
                          + SKIP_INTRO_FEATURE_PATHS + OVERVIEW_CLOUDS_FEATURE_PATHS
                          + TECH_COST_MULTIPLIER_FEATURE_PATHS + HUNGRIER_VILLAGERS_FEATURE_PATHS
                          + NO_FISHING_AT_SCIENCE_2_FEATURE_PATHS + SCIENCE_COLLECTIBLES_FEATURE_PATHS
-                         + CLASSIC_DIFFICULTY_FEATURE_PATHS):
+                         + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

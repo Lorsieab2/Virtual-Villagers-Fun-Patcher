@@ -33,6 +33,7 @@ BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
 HUNGRIER = "vv4_hungrier_villagers"
 CLASSIC = "vv4_classic_vv_difficulty"
+SPAWN_LIKE_VV3 = "vv4_collectible_spawn_like_vv3"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 # Food Gains are Flat, like VV1-3 (Harder Games): a blackberry pick pays The Secret City's fruit and honey pick
@@ -336,6 +337,15 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
                      "each gone after 90 real-life seconds (real time, the same at every speed: the computer's clock 0x403750).",
                      False)
+    # The roll 0x4143A8: rand(6000) < 4 (fog: (Wind Flute pieces / 2) x 4); above weather strength 50 a second < 4
+    # (0x4143CF).  The Secret City's is < 3 and < 3 (0x42DD7A, 0x42DD95).
+    add("Mushrooms", "The roll: 4 in 6,000 each update of the village (The Secret City: 3 in 6,000); in fog (Wind "
+                     "Flute pieces ÷ 2, rounded down) x 4 in 6,000 instead, so none with 0 or 1 piece; while the "
+                     "weather strength is above 50, a second roll of 4 in 6,000.", gm.CODE)
+    if village.has(SPAWN_LIKE_VV3) is not False:
+        add("Mushrooms", gm.patch_words(village, SPAWN_LIKE_VV3, "the roll and the heavy-weather second roll are "
+                                        "3 in 6,000, as in The Secret City (about a quarter fewer); fog's Wind "
+                                        "Flute roll and everything else are unchanged"))
     add("Mushrooms", "30.03% of them are mushrooms, and every one while it rains or while the weather level is above "
                      f"20 (wet ground): brown 91.99% of the time, worth {food(6)} food, red (rare) 8.01%, worth "
                      f"{food(35)}.", gm.RUNNING)

@@ -190,6 +190,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # to 2x." -- Owner's Defaults ticks it, which ticks its pieces (2-10x Tech
     # Cost included, there), and sets both sliders to 2.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
+    # difficulty change in Classic VV Difficulty; Owner's Defaults ticks it.
+    + ["vv4_collectible_spawn_like_vv3"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
