@@ -42,6 +42,7 @@ SCALES = "vv4_complete_scales_golden_fish"
 FLAT = "vv4_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
 NO_FISHING = "vv4_no_fishing_at_science_2"
+CLOTHMAKING = "vv4_clothmaking_at_science_3"
 SCIENCE_SET = "vv4_science_collectibles_complete"
 STORY = "vv4_story_cheat_upgrades"
 
@@ -315,6 +316,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
     # The fishing nets need the Clothing Hut built (0x4334FC); its site appears at Science 2 (0x430CF0), or at Science 3
     # with this patch (tests/test_vv4_no_fishing_at_science_2.py).
+    # Cloth Invented's drop 0x436D40: the Clothing Hut finished -> cutting the pulpy vines (action 0x7A, the only start
+    # of the cloth chain); with the patch also Science 3 (scripts/build_vv4_clothmaking_at_science_3_feature.py).
+    if village.has(CLOTHMAKING) is not False:
+        add("Food sources", gm.patch_words(village, CLOTHMAKING, "no cloth can be made until Science level 3: a "
+                                           "villager dropped on the vines says \"Don't know what to do with these "
+                                           "tough vines!\" until then, so the fishing nets, which need cloth, wait "
+                                           "for it unless the village already has cloth"))
     if village.has(NO_FISHING) is not False:
         add("Food sources", gm.patch_words(village, NO_FISHING, "the Clothing Hut, which the fishing nets need, "
                                            "appears at Science level 3 instead of 2, so fish come later"))
@@ -426,8 +434,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
     if village.has(CLASSIC) is not False:
         add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
-                                         "Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2 "
-                                         "together; each one's own line on this page says what it changes"))
+                                         "Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at "
+                                         "Science Level 3 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

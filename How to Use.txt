@@ -509,7 +509,7 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
 Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
-plus No Fishing at Science Level 2 and Collectible Spawn Timing works like
+plus Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like
 VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
 Life, and Faith Loss is Doubled/Gains Halved in New Believers. Unticking any of them unticks Classic VV
 Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.

@@ -186,7 +186,7 @@ class Registration(unittest.TestCase):
         """The owner (2026-11-07): "have the classic vv difficulty on default for owner's defaults! (set the
         sliders to 2x." -- and "make the text colored red for the classic vv difficulty patch titles"."""
         public = {p.id: p for p in patcher.load_public_fun_patches()}
-        pieces = {"vv4": {"vv4_no_fishing_at_science_2", "vv4_collectible_spawn_like_vv3"},
+        pieces = {"vv4": {"vv4_clothmaking_at_science_3", "vv4_collectible_spawn_like_vv3"},
                   "vv5": {"vv5_faith_loss_doubled_gains_halved"}}
         for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
             game = patch_id[:3]
