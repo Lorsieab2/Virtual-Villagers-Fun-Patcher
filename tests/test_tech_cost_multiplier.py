@@ -497,7 +497,9 @@ class EmulatedTechScreenTests(unittest.TestCase):
                     self.assertEqual(getter_price(game, exe, "label", tech_id, 3), 0)
 
     def test_every_public_patch_in_every_mode_keeps_the_multiplied_prices(self):
-        public = [p for p in patcher.load_public_fun_patches() if p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
+        # Classic VV Difficulty needs this row, so the build without it leaves Classic out too.
+        public = [p for p in patcher.load_public_fun_patches() if p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
+                  and not p.id.endswith("_classic_vv_difficulty")]
         for game in GAMES:
             stock = stock_bytes(game)
             ids = [p.id for p in public if p.game_id == f"vv{game}"]
@@ -530,19 +532,23 @@ class RegistrationTests(unittest.TestCase):
             with self.subTest(game=game):
                 row = public[IDS[game]]
                 self.assertEqual(row.name, "2-10x Tech Cost")
+                # The Tree of Life and New Believers: Classic VV Difficulty needs it (the owner, 2026-11-07).
                 self.assertEqual(patcher.patch_requirement_text(row, list(public.values())),
-                                 "Requires no other patch to be ticked.")
+                                 "Requires no other patch to be ticked."
+                                 + (" Needed by Classic VV Difficulty: unticking this unticks it."
+                                    if game in (4, 5) else ""))
                 self.assertIn(f'"data/vv{game}_tech_cost_multiplier_feature.json"', release)
                 self.assertIn(f"- Patch ID: `{IDS[game]}`", readme)
                 self.assertIn(f"#### 2-10x Tech Cost (`{IDS[game]}`)", doc)
 
     def test_only_its_own_row_ticks_it(self):
         """The owner: "7 should be default off for everything. players who want it must explicitly choose it."
-        Default Patches (and a fresh install), Owner's Defaults and Select All all leave every game's row off."""
+        Default Patches (and a fresh install) and Select All leave every game's row off.  Owner's Defaults ticks it
+        in all five games (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"), slider at 2."""
         for game in GAMES:
             with self.subTest(game=game):
                 self.assertFalse(gui.default_fun_patch_selection(IDS[game]))
-                self.assertFalse(gui.owners_default_fun_patch_selection(IDS[game]))
+                self.assertTrue(gui.owners_default_fun_patch_selection(IDS[game]))
                 self.assertFalse(gui.select_all_fun_patch_selection(IDS[game]))
                 self.assertNotIn(IDS[game], gui.COTICKED_FUN_PATCH_IDS.values())
         # Nothing else in those sets moved: every other patch keeps its own answer.
@@ -553,7 +559,11 @@ class RegistrationTests(unittest.TestCase):
         for p in patcher.load_public_fun_patches():
             deps = set(p.raw.get("dependencies") or ()) | {n["id"] for n in p.raw.get("needs_on") or ()}
             with self.subTest(patch=p.id):
-                self.assertFalse(deps & set(IDS.values()))
+                # Only Classic VV Difficulty (the owner, 2026-11-07), which ticks it on purpose.
+                if p.id.endswith("_classic_vv_difficulty"):
+                    self.assertEqual(deps & set(IDS.values()), {f"{p.game_id}_tech_cost_multiplier"})
+                else:
+                    self.assertFalse(deps & set(IDS.values()))
 
 
 class PublishTests(unittest.TestCase):

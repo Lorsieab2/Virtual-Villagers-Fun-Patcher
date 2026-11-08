@@ -1,0 +1,27 @@
+{
+  "id": "vv5_science_collectibles_complete",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Science Collectibles Only Count When Complete",
+  "description": "**Needs no other patch.** Makes tech points come slower, so the game is harder; off by default. In the base game every piece of the second collectible set (24 pieces, the one whose duplicates pay tech points) you find makes research bring more tech points: each successful research adds a random 0 to (half the pieces found - 1) more. With this patch those pieces add nothing until the collection is complete: with all 24 found, research gets the normal bonus (0 to 11 more). The researcher's own points, the Purify Tree's glow, the fire's extra point, the tech points a duplicate piece pays and everything else the collection does are unchanged.",
+  "output_tag": "Science Collectibles When Complete",
+  "behavior_changes": [
+    "The research bonus (0x46DE4D..0x46DE77): the second set's count 0x413F50(0x50) becomes 12 when all 24 pieces are found and 0 otherwise (stock: the count / 2), so the bonus rand(...) is 0 to 11 with the set complete and the stock rand(0), 0, before."
+  ],
+  "explicit_non_changes": [
+    "The researcher's points, the Purify Tree's glow, the fire's +1, catch-up's research, the duplicates' tech points, the population room and the collections screens are unchanged.",
+    "One guarded in-place edit of 9 bytes; no code is added and no executable space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x6DE5F",
+      "before": "85C07405992BC2D1F8",
+      "after": "83F8180F94C06BC00C",
+      "purpose": "the research bonus after the second set's count (0x46DE5F): 12 with all 24 pieces, else 0 (stock: the count / 2)"
+    }
+  ]
+}

@@ -33,6 +33,7 @@ DAM, SCARER, GONG_FIRST_DONE, BEETLES = 0x2E798, 0x2E770, 0x2E910, 0x2E7E0
 COCONUT_CAP, CROPS_FULL = 1500, 800
 FIRE_HOURS = {gm.FAST: 10, gm.NORMAL: 20, gm.SLOW: 40}
 GOLDEN = "vv2_super_secret_golden_mushroom"
+HUNGRIER = "vv2_hungrier_villagers"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
 STORY = "vv2_story_cheat_upgrades"
@@ -338,6 +339,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food earned", f"Each villager eats 2 food every age unit ({gm.duration(60 * speed)} of real-life play on {on} "
                        f"speed, {2 * 3600 / (60 * speed):g} food per real-life hour); when it is skipped and how much "
                        "more is eaten, and the snack, are under Chances (Eating, A snack).", gm.RUNNING)
+    # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
+    if village.has(HUNGRIER) is not False:
+        add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
+                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

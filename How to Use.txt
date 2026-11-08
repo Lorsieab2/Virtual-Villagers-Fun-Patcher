@@ -78,7 +78,9 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "No Fishing at Science
    Level 2" (off by default: the Clothing Hut, and so cloth and the fishing
-   nets, waits for Science level 3) and/or "Enable Origins Tech,
+   nets, waits for Science level 3) and/or "Science Collectibles Only Count
+   When Complete" (off by default, also in New Believers: the science
+   collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
    (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
    reference unless you check "Manual Drop-Breeding overrides Birth Control"
@@ -487,8 +489,29 @@ shows the multiplied price, a level cannot be bought with fewer tech points
 choosing a faction (Nature or Magic) costs that many times too. Research,
 tech points from anywhere else, other tech-point costs (such as clothes) and
 the patcher's own upgrades are unchanged. The higher you set it, the harder
-the game. Default Patches, Owner's Defaults and Select All never tick it: only
-its own box does. Patch again after moving the slider.
+the game. Default Patches and Select All never tick it; Owner's Defaults ticks
+it in all five games and sets the slider to 2. Patch again after moving the
+slider.
+
+HUNGRIER VILLAGERS (2-10X MEALS) (ALL FIVE GAMES)
+
+Off by default. Every villager's meal takes 2 to 10 times the normal food: you
+choose how many times with the Hungrier Villagers slider beside the patch
+settings (a whole number, 2 unless you move it), and it is written into the
+game when you patch. Normally a meal takes 2 food, and on Normal or Hard
+difficulty often 2 more; both are multiplied. Food never goes below 0: when it
+runs out, the game's own starvation rules take over. Skipped meals when food is
+low, the snack at the food bin, events and everything that brings food in are
+unchanged. Patch again after moving the slider.
+
+CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
+
+Off by default; its title is drawn in red. Ticking it ticks the harder-game
+patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
+Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
+plus No Fishing at Science Level 2 in The Tree of Life and Faith Loss is
+Doubled/Gains Halved in New Believers. Unticking any of them unticks Classic VV
+Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
 PICTURE STUDIO
 

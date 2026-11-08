@@ -1314,6 +1314,24 @@ The Clothing Hut's building site appears at Science level 3 (70,000 tech points)
 
 - Patch ID: `vv4_no_fishing_at_science_2`
 
+**Science Collectibles Only Count When Complete**
+
+Each Lab Equipment piece you find normally makes research bring more tech points (a random 0 to pieces found - 1 more each time). With this patch the pieces add nothing until all 12 are found; then research gets the normal bonus, 0 to 11 more. The researcher's own points, the Purify Tree's glow, the fire's extra point and the tech points a duplicate piece pays are unchanged. New Believers has the same patch for its 24-piece collection whose duplicates pay tech points. Off by default (it makes the game harder); Owner's Defaults ticks it.
+
+- Patch ID: `vv4_science_collectibles_complete` (New Believers: `vv5_science_collectibles_complete`)
+
+**Classic VV Difficulty**
+
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2 (New Believers: Faith Loss is Doubled/Gains Halved instead of No Fishing). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+
+- Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
+
+**Hungrier Villagers (2-10x Meals)** (all five games)
+
+Every villager's meal takes 2 to 10 times the normal food (the Hungrier Villagers slider, 2 unless moved): the meal's 2 food and the difficulty's extra 2 are both multiplied. Food never goes below 0; when it runs out the game's own starvation rules take over. Skipped meals at low food, the snack at the food bin, events and every source of food are unchanged. Off by default (it makes the game harder); Owner's Defaults ticks it.
+
+- Patch ID: `vv1_hungrier_villagers` to `vv5_hungrier_villagers`
+
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 
 Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, All Villagers are Exactly 18, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance, and the Heathen mask cosmetics are included. The point doublers do not double Island Event or Duplicate Collectible tech gains. Bought island events don't change when the game's own island events come.

@@ -329,6 +329,18 @@ Healers are more likely to keep studying plants regardless of the food supply. A
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Hungrier Villagers (2-10x Meals) (`vv1_hungrier_villagers`)
+
+**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four above 2,000 food on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The meal routine's two food amounts (0x42ECCC, 0x42ED03), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more.
+- Explicit non-changes/exclusions: When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged. Two one-byte edits in place; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Improved Pathfinding (`vv1_improved_pathfinding`)
 
 Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock walk runs unchanged.
@@ -907,6 +919,18 @@ A villager who completes Recovering at the hospital gains exactly 1 health point
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Hungrier Villagers (2-10x Meals) (`vv2_hungrier_villagers`)
+
+**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four above 4,000 food on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The meal routine's two food amounts (0x43BAF9, 0x43BB30), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more.
+- Explicit non-changes/exclusions: When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged. Two one-byte edits in place; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Improved Pathfinding (`vv2_improved_pathfinding`)
 
 Updates the pathfinding to resemble VV3-VV5. Hopefully villagers don't get stuck behind things anymore! When a villager's next step toward a task is blocked, a route round the obstacle is planned on the game's own walkability grid and followed, the way The Secret City does it, instead of the villager giving up and dropping the task. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL; if the DLL cannot be loaded, the stock walk runs unchanged.
@@ -1408,6 +1432,18 @@ The Villager Details screen keeps a villager's whole name. In the base game its 
 - Evidence status: static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR
 - Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Hungrier Villagers (2-10x Meals) (`vv3_hungrier_villagers`)
+
+**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four at 8,000 food or more on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The meal routine's two food amounts (0x460080, 0x4600C4), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more.
+- Explicit non-changes/exclusions: When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged. Two one-byte edits in place; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Keep the Game's Own Log (ldwLog.txt) (`vv3_game_log`)
 
 Keeps the game's own log, 'ldwLog.txt' in the game's save folder (Documents\LDW\<game executable name>\). Every Virtual Villagers game has always had this log, but the base game starts the file afresh the first time it writes in each run (erasing the earlier runs' lines), holds what it writes in memory until the game closes (a crash loses it), and writes only when something goes wrong -- so most players never see the file. Now each time the game opens it adds a "---- Game started ----" line, and every line the game writes is added to the file at once and kept: a missing font picture, a missing picture, a missing sound, a text the game asks for that is missing from its text file (sm.xml), a text in sm.xml with no end, a healer who could not find anyone to heal and "Seconds Timer out of bounds!" (the computer's clock was set back, so the game's one-second timer is ahead of it). The Secret City's code contains no tip or path-finding line, so those cannot be logged (its villagers keep a pointer to the log, but no code writes through it). A line repeated without a break is written once a minute with how many times it repeated, at most 1,000 lines are written a minute, and when the file reaches 4 MB it is renamed 'ldwLog 1.txt' (then 2, 3, ...) and a new one is started, so no file grows without limit; nothing is ever deleted. **Needs no other patch.**
@@ -1688,7 +1724,7 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Dendrology level 2 3,000, level 3 60,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: Every non-zero entry of the technology price table 0x4BC18C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x41E220, called by the Tech screen's hover label, information box and purchase (0x43E57D, 0x43E900, 0x43EA76): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
 - Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
@@ -1748,6 +1784,18 @@ A grave's Job line names the skill the villager had checked as their skill prefe
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Classic VV Difficulty (`vv4_classic_vv_difficulty`)
+
+Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
+
+**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires No Fishing at Science Level 2: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2.
+- Explicit non-changes/exclusions: No executable byte, file or save is changed by this row itself.
+- Dependencies: vv4_food_pays_like_earlier_games, vv4_hungrier_villagers, vv4_tech_cost_multiplier, vv4_science_collectibles_complete, vv4_no_fishing_at_science_2
+- Evidence status: a selection of other patches; each one's own evidence applies
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
@@ -1842,7 +1890,7 @@ Fixes bugs in the base game. A village with exactly 150 villagers can be saved a
 
 Changes the food sources that scale to a flat gain. A blackberry pick (stock: the berries ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many berries from the bush. Cooking Pit fruit (3), the blackberry harvest with a cutting tool (up to 30 at once), fish from the net (4) and the Golden Fish (8) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: a well-stocked bush no longer pays more.
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: The blackberry pick (job event 13, 0x464464) pays 7 food on Fast, 3 on Normal and 2 on Slow (the speed value game+0x17110: 3, 6 or 10), and 4 while the game catches up time away (the catch-up flag game+0x171A4), instead of the berries ÷ 100 (at least 2). The bush loses what the pick paid, as before; the stock clamp at 0 and the end of the bush task below 3 berries are unchanged.
 - Explicit non-changes/exclusions: Food Mastery (0x41D920) still boosts the amount; the Farming check, the trips, the regrowth, the blackberry harvest with a cutting tool (job event 14), the fruit, the fish (4) and the Golden Fish (8, job event 17, on its stock (2 x fish scales + 1)% chance), the crabs and the mushrooms are stock. Tech points are unchanged. No save data is written.
@@ -1861,6 +1909,18 @@ The Villager Details screen keeps a villager's whole name. In the base game its 
 - Dependencies: none
 - Evidence status: static exact-build evidence (every byte checked against the stock executable, every buffer the name passes through measured); live tests: see the PR
 - Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Hungrier Villagers (2-10x Meals) (`vv4_hungrier_villagers`)
+
+**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four at 8,000 food or more on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The meal routine's two food amounts (0x4684C8, 0x46850B), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more.
+- Explicit non-changes/exclusions: When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged. Two one-byte edits in place; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Keep the Game's Own Log (ldwLog.txt) (`vv4_game_log`)
 
@@ -1914,7 +1974,7 @@ Every death that leaves a body is written to the Deaths log ('Virtual Villagers 
 
 **Needs no other patch.** Makes fishing come later, so the game is harder; off by default. In the base game buying Science level 2 (8,000 tech points) makes the Clothing Hut's building site appear, and the Clothing Hut is what lets your villagers make cloth (Cloth Invented) and mend the fishing nets with it (Fishing Nets) -- so fish come early. With this patch the Clothing Hut's site appears only at Science level 3 (70,000 tech points). A village whose Clothing Hut site is already showing, with or without some building done, while Science is below 3 gets the site locked again: it disappears and nobody builds it until Science reaches 3; then it comes back in the same place with all the building it already had. Nothing is reset or lost. (A site with no building done yet has no points to keep: at Science 3 the game places it itself, as it places any new site, so it may appear in a different spot.) A Clothing Hut that is already finished is never affected. Two more things wait for the Clothing Hut and so for Science 3: new clothes (only a finished Clothing Hut gives them), and builders fixing huts on their own (the game fixes huts only once Huts 1 to 3 and the Clothing Hut are all finished), unless Builders Fix Huts When Idle is ticked. If you remove this patch while a partly built Clothing Hut is hidden below Science 3, the normal game restarts a site with under 400 points from 0.
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: The Clothing Hut's site (project 22, object 0x4D82D8) is revealed by its predicate 0x430CF0 at Science 3 (stock: Science 2, i.e. above 1), and only while it was never built on. Below Science 3 an unfinished Clothing Hut site that shows (state not 4) is relocked by the update 0x4300E0 (path 0x430156): state 4, its map area erased by the game's own 0x430490; at Science 3 it returns to state 3 in the same place and is repainted. Its progress (0x4D8CA8) is never written. Below Science 3 project 22's percent (0x438980) is below 1, so the Building dispatcher (0x463E49) and Builders Fix Huts When Idle never offer it, live or while catching up; a villager on task 15 (building it) drops the task (0x46378D).
 - Explicit non-changes/exclusions: A finished Clothing Hut, every other building, the tech prices, Cloth Invented and Fishing Nets themselves are unchanged; no save data is written by the patch beyond the site's own state. Guarded edits in place: two rewritten stock routines (0x430156, 0x430CF0), one vtable entry, one call, and int3 padding between routines; no executable tail space is claimed.
@@ -1957,6 +2017,18 @@ Lets the game draw, measure and accept ANY character -- accented letters, Greek,
 - Dependencies: vv4_details_full_names
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Science Collectibles Only Count When Complete (`vv4_science_collectibles_complete`)
+
+**Needs no other patch.** Makes tech points come slower, so the game is harder; off by default. In the base game every piece of the Lab Equipment collection (12 pieces) you find makes research bring more tech points: each successful research adds a random 0 to (pieces found - 1) more. With this patch those pieces add nothing until the collection is complete: with all 12 found, research gets the normal bonus (0 to 11 more). The researcher's own points, the Purify Tree's glow, the fire's extra point, the tech points a duplicate piece pays and everything else the collection does are unchanged.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The research bonus (0x464E5D..0x464E82): the Lab Equipment count 0x413B90(0x52) is followed by cmp al,12 / jne (stock test eax,eax / jle), so fewer than 12 pieces add nothing and 12 add the stock rand(12), 0 to 11.
+- Explicit non-changes/exclusions: The researcher's points, the Purify Tree's glow, the fire's +1, catch-up's research, the duplicates' tech points, the population room and the collections screens are unchanged. One guarded in-place edit of 4 bytes; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Story / Cheat Upgrades (`vv4_story_cheat_upgrades`)
 
@@ -2091,7 +2163,7 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 8,000, level 3 70,000; Medicine level 2 5,000, level 3 50,000; Learning level 2 4,000, level 3 35,000; Construction level 2 5,000, level 3 65,000; Food Mastery level 2 3,000, level 3 40,000; Spirituality level 2 8,000, level 3 80,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: Every non-zero entry of the technology price table 0x4CA3B4, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x4236D0, called by the Tech screen's hover label, information box and purchase (0x440DCA, 0x4412A0, 0x441676): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number.
 - Explicit non-changes/exclusions: Each price is changed in place, same length; no code is added and no executable space is claimed. Research, tech points from island events and duplicate collectibles, every other tech-point cost (such as 5,000 for clothes) and the patcher's Origins and Story / Cheat upgrades keep their stock numbers.
@@ -2175,6 +2247,18 @@ A child's grave names the child's job as an "Apprentice", the way The Tree of Li
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Classic VV Difficulty (`vv5_classic_vv_difficulty`)
+
+Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**
+
+**Requires Food Gains are Flat, like VV1-3 (Harder Games): ticking this ticks it, and unticking it unticks this. Requires Hungrier Villagers (2-10x Meals): ticking this ticks it, and unticking it unticks this. Requires 2-10x Tech Cost: ticking this ticks it, and unticking it unticks this. Requires Science Collectibles Only Count When Complete: ticking this ticks it, and unticking it unticks this. Requires Faith Loss is Doubled/Gains Halved: ticking this ticks it, and unticking it unticks this.**
+
+- Behavior changes: None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved.
+- Explicit non-changes/exclusions: No executable byte, file or save is changed by this row itself.
+- Dependencies: vv5_food_pays_like_earlier_games, vv5_hungrier_villagers, vv5_tech_cost_multiplier, vv5_science_collectibles_complete, vv5_faith_loss_doubled_gains_halved
+- Evidence status: a selection of other patches; each one's own evidence applies
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Clickable Tips (`vv5_clickable_tips`)
 
@@ -2270,7 +2354,7 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 
 Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck!
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: The Faith drift 0x468040 (each believer, once per age unit, live and while catching up; Heathens skipped at 0x472CB7): every loss roll's rand(100) threshold doubled, every gain roll's halved, and the 50% skip of a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged. A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock game.
 - Explicit non-changes/exclusions: Thirteen immediates and branches inside the routine; no code is added and no executable space is claimed. Starting Faith, preaching, Spreading the Word, the Heathen Doctor's cure, The Heathen Chief, the Hydroponic Farm, the Heathen Mommy's puzzle and island events are unchanged.
@@ -2294,7 +2378,7 @@ Fixes bugs in the base game. Every default name can be chosen: the game numbers 
 
 Changes the food sources that scale to a flat gain. A noni pick (stock: the noni ÷ 100, at least 2, up to 10) now pays 7, 3 or 2 food on Fast, Normal or Slow and 4 while catching up, as The Secret City's fruit and honey do, and takes as many noni from the bushes. Hydroponic Farm crops (10, 7 or 4 by speed) and lake fish (4) already pay a fixed amount and are unchanged. Food Mastery still multiplies every gain. A harder setting: well-stocked bushes no longer pay more.
 
-**Requires no other patch to be ticked.**
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
 
 - Behavior changes: The noni pick (job step 12, 0x46CFCD) pays 7 food on Fast, 3 on Normal and 2 on Slow (the speed value game+0x17D7C: 3, 6 or 10), and 4 while the game catches up time away (the catch-up flag game+0x17E10), instead of the noni ÷ 100 (at least 2). The bushes lose what the pick paid, as before; the stock clamp at 0 and the end of the noni job below 3 noni are unchanged.
 - Explicit non-changes/exclusions: Food Mastery (0x41EB40) still boosts the amount; the Farming check, the trips, the regrowth, the crops, the fish and the mushrooms are stock. Tech points are unchanged. No save data is written.
@@ -2337,6 +2421,18 @@ Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Hungrier Villagers (2-10x Meals) (`vv5_hungrier_villagers`)
+
+**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four at 8,000 food or more on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The meal routine's two food amounts (0x472D9E, 0x472DEF), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more.
+- Explicit non-changes/exclusions: When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged. Two one-byte edits in place; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Keep the Game's Own Log (ldwLog.txt) (`vv5_game_log`)
 
@@ -2433,6 +2529,18 @@ Lets the game draw, measure and accept ANY character -- accented letters, Greek,
 - Dependencies: vv5_details_full_names
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Science Collectibles Only Count When Complete (`vv5_science_collectibles_complete`)
+
+**Needs no other patch.** Makes tech points come slower, so the game is harder; off by default. In the base game every piece of the second collectible set (24 pieces, the one whose duplicates pay tech points) you find makes research bring more tech points: each successful research adds a random 0 to (half the pieces found - 1) more. With this patch those pieces add nothing until the collection is complete: with all 24 found, research gets the normal bonus (0 to 11 more). The researcher's own points, the Purify Tree's glow, the fire's extra point, the tech points a duplicate piece pays and everything else the collection does are unchanged.
+
+**Requires no other patch to be ticked. Needed by Classic VV Difficulty: unticking this unticks it.**
+
+- Behavior changes: The research bonus (0x46DE4D..0x46DE77): the second set's count 0x413F50(0x50) becomes 12 when all 24 pieces are found and 0 otherwise (stock: the count / 2), so the bonus rand(...) is 0 to 11 with the set complete and the stock rand(0), 0, before.
+- Explicit non-changes/exclusions: The researcher's points, the Purify Tree's glow, the fire's +1, catch-up's research, the duplicates' tech points, the population room and the collections screens are unchanged. One guarded in-place edit of 9 bytes; no code is added and no executable space is claimed.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 

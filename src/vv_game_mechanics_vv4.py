@@ -31,6 +31,7 @@ BERRIES, EVENT_NEXT = 0x17108, 0x170F0
 SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
+HUNGRIER = "vv4_hungrier_villagers"
 LEARNING = "vv4_learning_never_fails"
 SCALES = "vv4_complete_scales_golden_fish"
 # Food Gains are Flat, like VV1-3 (Harder Games): a blackberry pick pays The Secret City's fruit and honey pick
@@ -39,6 +40,7 @@ SCALES = "vv4_complete_scales_golden_fish"
 FLAT = "vv4_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
 NO_FISHING = "vv4_no_fishing_at_science_2"
+SCIENCE_SET = "vv4_science_collectibles_complete"
 STORY = "vv4_story_cheat_upgrades"
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
@@ -368,6 +370,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                        "at every speed: its end is set on the computer's clock, 0x460A90 -> "
                                        "0x403750, so paused time counts too), and while it lasts their research "
                                        "brings 3 times the tech points.", gm.RUNNING)
+    # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
+    if divisor and village.has(SCIENCE_SET) is not False:
+        add("Tech points and effects", gm.patch_words(village, SCIENCE_SET, "the Lab Equipment pieces add nothing to "
+                                                      "research until all 12 are found; then 0 to 11 more"))
     if village.has(LEARNING) is not False:
         add("Tech points and effects", gm.patch_words(village, LEARNING, "no skill roll fails"))
     out.extend(nursery.lines(village, 4))       # the Nursery School and why children gain skills
@@ -379,6 +385,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        f"speed, {2 * 3600 / (60 * speed):g} food per real-life hour); when it is skipped and how much "
                        "more is eaten are under Chances (Eating). A snack (below full health, with food in storage) "
                        "costs 1 food and heals 1 health 50.05% of the time.", gm.RUNNING)
+    # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
+    if village.has(HUNGRIER) is not False:
+        add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
+                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

@@ -215,6 +215,32 @@
       ]
     },
     {
+      "ids": ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"],
+      "guide": [
+        "Off by default. Science collectibles make research bring more tech points; with this patch they help only once the whole collection is found.",
+        "The Tree of Life: all 12 Lab Equipment pieces. New Believers: all 24 pieces of the collection whose duplicates pay tech points.",
+        "With the collection complete, research gets the normal bonus (0 to 11 more tech points each time).",
+        "The researcher's own points, the Purify Tree's glow and the fire's extra point are unchanged."
+      ]
+    },
+    {
+      "ids": ["vv1_hungrier_villagers", "vv2_hungrier_villagers", "vv3_hungrier_villagers", "vv4_hungrier_villagers", "vv5_hungrier_villagers"],
+      "guide": [
+        "Off by default. Every villager's meal takes more food: set how many times with the Hungrier Villagers slider (2 to 10).",
+        "Food never goes below 0. When it runs out, the game's own starvation rules take over.",
+        "Patch again after moving the slider."
+      ]
+    },
+    {
+      "ids": ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"],
+      "guide": [
+        "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
+        "and No Fishing at Science Level 2 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers).",
+        "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
@@ -903,7 +929,7 @@
         "At 3, for example, 6,000 becomes 18,000. The higher you set it, the harder the game.",
         "The Tech screen shows the multiplied price, and a level cannot be bought with fewer points. Nothing else costs more.",
         "In The Secret City choosing a faction (Nature or Magic) costs that many times too. Patch again after moving the slider.",
-        "Off by default. Default Patches and Owner's Defaults leave it off, and Select All does not tick it: tick it yourself."
+        "Off by default. Default Patches leaves it off and Select All does not tick it; Owner's Defaults ticks it in all five games and sets the slider to 2."
       ]
     },
     {
@@ -971,7 +997,7 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "2-10x Tech Cost (all five games) is not ticked either: only its own box ticks it.",
+        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either: tick them yourself.",
         "It does not change the population mode."
       ]
     },
@@ -980,11 +1006,11 @@
       "guide": [
         "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
         "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
-        "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
-        "Use Unicode Font (overrides in-game fonts) is off: Render Unicode with In-Game Fonts is ticked instead.",
+        "and Fruit Trees Take Turns Refilling (All Fruit Trees Refill at the Same Time is ticked) and Use Unicode Font (overrides in-game fonts).",
         "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games) and No Fishing at Science Level 2 are off: they make the game harder.",
-        "This is what a fresh install starts with. Checked Skill Preferences are listed as Jobs on Graves is off.",
+        "Off because they make the game harder: 2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games),",
+        "No Fishing at Science Level 2, Science Collectibles Only Count When Complete, Hungrier Villagers (2-10x Meals), Classic VV Difficulty.",
+        "Checked Skill Preferences are listed as Jobs on Graves is off. This is what a fresh install starts with.",
         "It does not change the population mode."
       ]
     },
@@ -995,7 +1021,8 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
-        "2-10x Tech Cost (all five games) stays off here too: only its own box ticks it.",
+        "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
+        "Story / Cheat Upgrades cost Tech Points is off here: the Story / Cheat Upgrades are free.",
         "It does not change the population mode."
       ]
     },
@@ -1013,6 +1040,14 @@
         "It is written next to the game as VVFP Unicode Font.txt the next time you patch with Use Unicode Font ticked; patch again after changing it.",
         "Characters the typeface lacks come from Windows' other fonts, then the bundled open fonts (Noto, Unifont, Last Resort).",
         "It does nothing while Render Unicode with In-Game Fonts is used instead."
+      ]
+    },
+    "meal_multiplier": {
+      "title": "Hungrier Villagers",
+      "guide": [
+        "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 10, 2 unless you move it.",
+        "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
       ]
     },
     "tech_cost_multiplier": {

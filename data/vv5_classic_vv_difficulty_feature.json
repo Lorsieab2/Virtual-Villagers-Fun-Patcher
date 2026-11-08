@@ -1,0 +1,26 @@
+{
+  "id": "vv5_classic_vv_difficulty",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Classic VV Difficulty",
+  "description": "Makes the game play as hard as the classic Virtual Villagers games; off by default. Ticking it ticks all of these: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved. Set how hard with the two sliders (2-10x Tech Cost and Hungrier Villagers); Owner's Defaults sets both to 2. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. **Needs all of the patches it names.**",
+  "output_tag": "Classic VV Difficulty",
+  "dependencies": [
+    "vv5_food_pays_like_earlier_games",
+    "vv5_hungrier_villagers",
+    "vv5_tech_cost_multiplier",
+    "vv5_science_collectibles_complete",
+    "vv5_faith_loss_doubled_gains_halved"
+  ],
+  "behavior_changes": [
+    "None of its own: it ticks Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved."
+  ],
+  "explicit_non_changes": [
+    "No executable byte, file or save is changed by this row itself."
+  ],
+  "evidence_status": "a selection of other patches; each one's own evidence applies",
+  "companion_files": [],
+  "patches": []
+}

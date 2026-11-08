@@ -1,0 +1,27 @@
+{
+  "id": "vv4_science_collectibles_complete",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Science Collectibles Only Count When Complete",
+  "description": "**Needs no other patch.** Makes tech points come slower, so the game is harder; off by default. In the base game every piece of the Lab Equipment collection (12 pieces) you find makes research bring more tech points: each successful research adds a random 0 to (pieces found - 1) more. With this patch those pieces add nothing until the collection is complete: with all 12 found, research gets the normal bonus (0 to 11 more). The researcher's own points, the Purify Tree's glow, the fire's extra point, the tech points a duplicate piece pays and everything else the collection does are unchanged.",
+  "output_tag": "Science Collectibles When Complete",
+  "behavior_changes": [
+    "The research bonus (0x464E5D..0x464E82): the Lab Equipment count 0x413B90(0x52) is followed by cmp al,12 / jne (stock test eax,eax / jle), so fewer than 12 pieces add nothing and 12 add the stock rand(12), 0 to 11."
+  ],
+  "explicit_non_changes": [
+    "The researcher's points, the Purify Tree's glow, the fire's +1, catch-up's research, the duplicates' tech points, the population room and the collections screens are unchanged.",
+    "One guarded in-place edit of 4 bytes; no code is added and no executable space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the bonus for every piece count is emulated stock and patched in tests/test_science_collectibles_complete.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x64E6F",
+      "before": "85C07E14",
+      "after": "3C0C7514",
+      "purpose": "the research bonus after the Lab Equipment count (0x464E6F): skip it unless all 12 pieces are found (stock: skip only with none)"
+    }
+  ]
+}

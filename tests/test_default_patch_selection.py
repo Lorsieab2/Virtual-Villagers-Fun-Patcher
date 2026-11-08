@@ -128,7 +128,12 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_tech_cost_multiplier")
                   # No Fishing at Science Level 2 (The Tree of Life): a difficulty
                   # change, off by default, on in Owner's Defaults.
-                  or p == "vv4_no_fishing_at_science_2"})
+                  or p == "vv4_no_fishing_at_science_2"
+                  # Science Collectibles Only Count When Complete: a difficulty change too.
+                  or p.endswith("_science_collectibles_complete")
+                  # Hungrier Villagers and Classic VV Difficulty (the owner, 2026-11-07): difficulty changes too.
+                  or p.endswith("_hungrier_villagers")
+                  or p.endswith("_classic_vv_difficulty")})
 
     def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
         """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in
@@ -240,6 +245,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
         # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
+        # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
+        held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
@@ -251,8 +258,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
     def test_tech_cost_multiplier_is_ticked_only_by_its_own_box(self) -> None:
         """The owner (2026-11-06): "7 should be default off for everything.
         players who want it must explicitly choose it." -- the fresh-install
-        default, Default Patches, Owner's Defaults and Select All all leave
-        every game's 2-10x Tech Cost unticked."""
+        default, Default Patches and Select All leave every game's 2-10x Tech
+        Cost unticked.  Owner's Defaults ticks it (the owner, 2026-11-07:
+        "sure, default them on in vv1-3 too!")."""
         from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection
 
         ids = fun_patch_ids()
@@ -261,7 +269,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
             with self.subTest(patch=patch_id):
                 self.assertIn(patch_id, ids)
                 self.assertFalse(default_fun_patch_selection(patch_id))
-                self.assertFalse(owners_default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
                 self.assertFalse(select_all_fun_patch_selection(patch_id))
                 self.assertNotIn(patch_id, COTICKED_FUN_PATCH_IDS.values())
 
