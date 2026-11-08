@@ -63985,6 +63985,51 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s4",
+   "english": "starvation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s5",
+   "english": "hunger",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s6",
+   "english": "sickness",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s0",
    "english": "1 villager has left due to %s",
    "games": [

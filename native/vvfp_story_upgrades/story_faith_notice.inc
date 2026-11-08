@@ -127,16 +127,17 @@ static int faith_notice_left_the_tribe(void) {
     return found;
 }
 
-/* Reason `k`'s words in the player's language (Guardians of Isola's for the believers when `isola`).
-   "starvation", "hunger" and "sickness" are words of the game's own, so they have no row of their own. */
+/* Reason `k`'s words in the player's language (Guardians of Isola's for the believers when `isola`), each by its
+   own translation row (Codex, #732: a translated sentence keeps its %s as given, so an English word there stayed
+   English).  The game has no lowercase word for any of these (its "Starvation" is a grave's cause). */
 static const char *faith_notice_reason(int k, int isola) {
     switch (k) {
     case 0:
-        return "starvation";
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s4", "starvation", 64);
     case 1:
-        return "hunger";
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s5", "hunger", 64);
     case 2:
-        return "sickness";
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s6", "sickness", 64);
     case 3:
         return isola ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s0", "too few tribe members", 64)
                      : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s1", "too few believers", 64);
@@ -245,6 +246,12 @@ static void faith_notice_village_reset(int game) {
     }
     module = GetModuleHandleA("VVFP Faith Notice.dll");
     reset = module != NULL ? (reset_fn)(void *)GetProcAddress(module, "VvfpFaithNoticeVillageReset") : NULL;
+    if (reset != NULL) {
+        reset(game);
+    }
+    /* ...and Faith Loss's crisis marks (native/vvfp_faith_loss): they were that village's too. */
+    module = GetModuleHandleA("VVFP Faith Loss.dll");
+    reset = module != NULL ? (reset_fn)(void *)GetProcAddress(module, "VvfpFaithLossVillageReset") : NULL;
     if (reset != NULL) {
         reset(game);
     }

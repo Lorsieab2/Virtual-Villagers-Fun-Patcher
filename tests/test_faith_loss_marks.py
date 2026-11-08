@@ -361,6 +361,37 @@ class OnceACrisis(unittest.TestCase):
         self.assertEqual(g.decisions, 2, "decided on its own")
         self.assertTrue(g.heathen(rec))
 
+    def test_start_over_forgets_the_marks(self):
+        """Codex (#732): Start Over in the same slot (the file deleted with the save's folder, the game not
+        restarted) must not leave the old village's marks in memory, where a new founder in a marked record -- same
+        sex and likes, another name, not younger -- could take the protection.  Forgotten by the reset VVFP Story
+        Upgrades.dll forwards (VvfpFaithLossVillageReset), or, without it, once the file is seen gone."""
+        for signal in ("reset export", "file gone"):
+            with self.subTest(signal=signal):
+                files = Files()
+                g = Game(rendered((FAITH_LOSS,)), files, n=1)
+                (rec,) = g.records
+                g.p.put32(rec + FAITH, 1)
+                g.forced = [0, 99, 5]
+                g.drift(rec)
+                self.assertEqual((g.marked(), len(files.files)), (1, 1))
+                files.files.clear()                                 # Start Over deletes the save's folder
+                if signal == "reset export":
+                    g.p.export("VvfpFaithLossVillageReset", 5)
+                else:
+                    g.p.api_handlers["GetFileAttributesA"] = lambda q: (
+                        0xFFFFFFFF if q.cstring(q.arg(0)).lower() not in files.files else 0x80, 4)
+                    files.error = 2
+                    g.p.tick = 10000
+                g.p.write(rec + NAME, b"New Founder\0")             # same sex and likes, another name, older
+                g.p.put32(rec + AGE, 600)
+                g.p.put32(rec + FAITH, 1)
+                g.forced = [0, 99, 0]
+                g.drift(rec)
+                self.assertEqual(g.decisions, 2, "the founder is decided on their own")
+                self.assertTrue(g.heathen(rec))
+                self.assertEqual(g.marked(), 0)
+
     def test_another_slot_has_its_own_marks(self):
         files = Files()
         exe = rendered((FAITH_LOSS,))

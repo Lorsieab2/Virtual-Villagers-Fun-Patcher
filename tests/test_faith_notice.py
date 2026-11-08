@@ -474,6 +474,28 @@ class Popup(unittest.TestCase):
         self.assertIn('#define FAITH_NOTICE_TITLE "The Breaking Point"', source)
         self.assertIn('"vvfp.story/story_faith_notice.FAITH_NOTICE_TITLE.s0", FAITH_NOTICE_TITLE', source)
 
+    def test_every_reason_word_has_its_own_translation_row(self):
+        """Codex (#732): a translated sentence keeps its %s as given, so each reason word is asked for by its own key
+        (vvfp_tr), with a key row the Translations companion knows (tr_key_stems.inc) -- never an English literal."""
+        import json
+        import re
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_faith_notice.inc").read_text(encoding="utf-8")
+        body = source[source.index("static const char *faith_notice_reason("):]
+        body = body[:body.index("\n}\n")]
+        self.assertNotRegex(body, r'return\s+"', "no reason is returned as a bare English literal")
+        asked = dict(re.findall(r'vvfp_tr\("([^"]+)",\s*"([^"]+)"', body))
+        self.assertEqual(sorted(asked.values()), sorted(["starvation", "hunger", "sickness", "too few believers",
+                                                         "too few tribe members", "a loss of faith",
+                                                         "a loss of hope"]))
+        rows = {r["stem"]: r for r in json.loads((ROOT / "data" / "translations" / "patcher_strings.json")
+                                                 .read_text(encoding="utf-8"))["strings"]}
+        stems = (ROOT / "native" / "vvfp_translations" / "tr_key_stems.inc").read_text(encoding="utf-8")
+        for stem, english in asked.items():
+            with self.subTest(stem=stem):
+                self.assertEqual(rows[stem]["english"], english)
+                self.assertEqual(rows[stem]["route"], "key")
+                self.assertIn(f'"{stem}"', stems)
+
     def test_the_longest_popup_is_delivered_whole(self):
         story, scratch, tick = self.story()
         p = story.proc

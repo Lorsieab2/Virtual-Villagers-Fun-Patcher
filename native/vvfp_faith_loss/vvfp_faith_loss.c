@@ -103,6 +103,8 @@ static int g_count;
 static int g_slot;                      /* the slot whose file the marks are (0: none read yet) */
 static vv_sidecar_gate g_gate;
 static unsigned char g_buffer[FL_HEADER + sizeof(fl_mark) * FL_MARKS_MAX];
+static int g_file_seen;                 /* the file was read or written for g_slot */
+static DWORD g_reset_checked;
 
 static unsigned int identity(const unsigned char *rec) {
     return vv_title_identity(rec, REC_NAME, REC_NAME_CAP, REC_LIKES, REC_DISLIKES, REC_SLOTS);
@@ -309,16 +311,46 @@ static void write_marks(void) {
     sizes[0] = sizeof header;
     parts[1] = g_marks;
     sizes[1] = (DWORD)(sizeof(fl_mark) * (unsigned int)g_count);
-    (void)vv_sidecar_publish(&g_gate, path, parts, sizes, g_count > 0 ? 2 : 1);
+    if (vv_sidecar_publish(&g_gate, path, parts, sizes, g_count > 0 ? 2 : 1)) {
+        g_file_seen = 1;
+    }
+}
+
+/* Forget the marks and the file's state: the next drift reads the slot's file afresh (Codex, #732: Start Over in
+   the same slot deleted the file, and a new founder in a marked record could otherwise take the old mark). */
+static void forget_marks(void) {
+    g_count = 0;
+    g_slot = 0;
+    memset(&g_gate, 0, sizeof g_gate);
+}
+
+/* Whether the slot's file is gone while marks were read from it or written to it: Start Over or a deleted tribe
+   (native/shared/save_reset.c deletes the save's folder), seen even when VVFP Story Upgrades.dll is not there to
+   say so.  Looked at once in FL_RESET_CHECK_MS. */
+#define FL_RESET_CHECK_MS 2000u
+
+static int file_was_deleted(void) {
+    char path[MAX_PATH];
+    DWORD now = GetTickCount();
+    if (!g_file_seen || g_slot == 0 || now - g_reset_checked < FL_RESET_CHECK_MS) {
+        return 0;
+    }
+    g_reset_checked = now;
+    return marks_path(g_slot, path, 0) && GetFileAttributesA(path) == INVALID_FILE_ATTRIBUTES
+           && (GetLastError() == ERROR_FILE_NOT_FOUND || GetLastError() == ERROR_PATH_NOT_FOUND);
 }
 
 /* The marks are the slot's: read when the game's slot is first seen (it is set before the slot's village is
-   made or loaded, so before the load-time catch-up). */
+   made or loaded, so before the load-time catch-up), and again after a reset. */
 static void bind_slot(void) {
     int slot = vv_game_save_slot(FL_GAME);
+    if (slot != 0 && slot == g_slot && file_was_deleted()) {
+        forget_marks();
+    }
     if (slot != 0 && slot != g_slot) {
         read_marks(slot);
         g_slot = slot;
+        g_file_seen = g_count > 0;
     }
 }
 
@@ -386,6 +418,14 @@ __declspec(naked) static void rule_call(void) {
 /* 1 when the rule is installed, else 0. */
 int __stdcall VvfpFaithLossInstalled(void) {
     return g_installed;
+}
+
+/* Start Over or a deleted tribe (VVFP Story Upgrades.dll's VvfpStoryVillageReset forwards it): the village the
+   marks were for is gone; the next drift reads the slot's file afresh. */
+void __stdcall VvfpFaithLossVillageReset(int game) {
+    if (game == FL_GAME) {
+        forget_marks();
+    }
 }
 
 /* How many believers are marked to stay, for the save slot now. */

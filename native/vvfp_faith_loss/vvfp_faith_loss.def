@@ -3,3 +3,4 @@ EXPORTS
     VvfpStartup
     VvfpFaithLossInstalled
     VvfpFaithLossMarked
+    VvfpFaithLossVillageReset
