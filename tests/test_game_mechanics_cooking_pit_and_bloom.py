@@ -156,5 +156,11 @@ class HungrierVillagers(unittest.TestCase):
                     self.assertEqual(life.eat_per_unit(ctx, level=0), 14.0)
 
 
+class FarFuture(unittest.TestCase):
+    def test_a_moment_past_the_calendar_does_not_stop_the_page(self) -> None:
+        self.assertEqual(gm.when(1e15), "far in the future")
+        self.assertIn("2027", gm.when(1.8e9))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -144,8 +144,13 @@ class Village:
 
 
 def when(seconds: float) -> str:
-    """A real moment as the owner reads it: "22 October 2026, 3:14 PM" (local time)."""
-    moment = datetime.fromtimestamp(seconds)
+    """A real moment as the owner reads it: "22 October 2026, 3:14 PM" (local time).  A moment past what the
+    computer's calendar can show (a village with billions of food lasting millennia) reads "far in the future"
+    rather than stopping the page (the owner's New Believers save, 2026-11-08: 1,410,065,491 food)."""
+    try:
+        moment = datetime.fromtimestamp(seconds)
+    except (OverflowError, OSError, ValueError):
+        return "far in the future" if seconds > 0 else "long ago"
     hour = moment.hour % 12 or 12
     return f"{moment.day} {_MONTHS[moment.month - 1]} {moment.year}, {hour}:{moment.minute:02d} " \
            f"{'AM' if moment.hour < 12 else 'PM'}"
