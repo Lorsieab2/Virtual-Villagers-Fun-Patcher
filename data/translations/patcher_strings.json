@@ -63922,6 +63922,201 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.FAITH_NOTICE_TITLE.s0",
+   "english": "Hard Choices",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the title of the popup, one line)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s0",
+   "english": "too few tribe members",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s1",
+   "english": "too few believers",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s2",
+   "english": "a loss of hope",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s3",
+   "english": "a loss of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s0",
+   "english": "1 villager has left due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s1",
+   "english": "%d villagers have left due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s2",
+   "english": "%d due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s3",
+   "english": " and ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (joins the last two items of the list: \"..., 1 due to X and 2 due to Y\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s0",
+   "english": "One of your villagers has lost hope due to the dire conditions and has decided to join the Isolans' tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s1",
+   "english": "Several of your villagers have lost hope due to the dire conditions and have decided to join the Isolans' tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s2",
+   "english": "One of your villagers has lost faith in you due to the dire conditions and has decided to join the heathens' tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s3",
+   "english": "Several of your villagers have lost faith in you due to the dire conditions and have decided to join the heathens' tribe.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
   }
  ]
 }

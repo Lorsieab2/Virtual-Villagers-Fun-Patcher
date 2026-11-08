@@ -1,0 +1,5 @@
+LIBRARY "VVFP Faith Loss"
+EXPORTS
+    VvfpStartup
+    VvfpFaithLossInstalled
+    VvfpFaithLossMarked

@@ -116,6 +116,10 @@ FILES = [
     "assets/keep_carried/VVFP Keep Carried.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
+    # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
+    "assets/faith_notice/VVFP Faith Notice.dll",
+    # Faith Loss is Doubled/Gains Halved (New Believers): the once-a-crisis rule for starving and sick believers.
+    "assets/faith_loss/VVFP Faith Loss.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -212,6 +216,8 @@ FILES = [
     "data/vv4_preferred_job_graves_feature.json",
     "data/vv5_preferred_job_graves_feature.json",
     "data/vv5_faith_loss_feature.json",
+    "data/vv5_new_heathens_faith_feature.json",
+    "data/vv5_heathen_conversion_notice_feature.json",
     "data/vv5_puddles_by_the_lake_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",

@@ -789,7 +789,28 @@
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
         "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
+        "When hunger or sickness first would make a believer a Heathen, it is decided once: 1 in 10 leaves; the others stay believers at Faith 1 and can starve or die of illness.",
+        "They stay until fed (more than 250 food) and well; a later crisis is decided again. Saving and loading keeps this.",
         "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
+      ]
+    },
+    {
+      "ids": ["vv5_new_heathens_get_heathen_faith"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
+        "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "Needs no other patch."
+      ]
+    },
+    {
+      "ids": ["vv5_heathen_conversion_notice"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "When believers lose their Faith to hunger, sickness or too few believers and become Heathens, a popup in the island-event window, Hard Choices, says how many left and why.",
+        "A whole catch-up, Time Warp or time skip gives one popup, after any other island event. It does not change when island events come.",
+        "Island events that make Heathens never bring it. The bottom bar still says the game's own line for each one.",
+        "Needs Story / Cheat Upgrades (on by default) for the popup."
       ]
     },
     {

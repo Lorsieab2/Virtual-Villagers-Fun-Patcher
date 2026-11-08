@@ -170,6 +170,7 @@ static void *c4_choice_object(void);
 static void *c5_choice_object(void);
 /* Defined with Choose Time Skip Amount (story_time_skip.inc), used earlier. */
 static void time_skip_tick(int game);
+static void faith_notice_tick(int game);
 static int time_skip_event_open(void);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* Defined with the host (story_common.inc), used by the arms below: the
@@ -874,6 +875,8 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     sq_game = game;             /* the game the selectors' restore is for, from the first call (story_queue.inc) */
     /* Choose Time Skip Amount: its next step, once the last is replayed. */
     time_skip_tick(game);
+    /* Popup When Believers Become Heathens (New Believers): the believers the Faith drift turned Heathen. */
+    faith_notice_tick(game);
     /* A Custom Island Event held by a new village's two opening island
        events: made due once they are over (story_custom_ui.inc). */
     ce_opening_tick(game);
@@ -1127,6 +1130,7 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
+#include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

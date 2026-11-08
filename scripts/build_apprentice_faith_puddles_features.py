@@ -1,7 +1,8 @@
-"""Generate three new kinds of exe patch rows:
+"""Generate four new kinds of exe patch rows:
 
   data/vv{1,2,3,5}_apprentice_graves_feature.json   "Children's Graves Say Apprentice" (default on)
   data/vv5_faith_loss_feature.json                  "Faith Loss is Doubled/Gains Halved" (default off)
+  data/vv5_new_heathens_faith_feature.json          "New Heathens Get a Heathen's Faith" (default on)
   data/vv5_puddles_by_the_lake_feature.json         "Puddle Play Moves to the Lake Shore" (default on)
 
 Each is a few guarded byte edits of the stock exe, assembled here (keystone) from the stock bytes
@@ -52,20 +53,41 @@ chance, halve every gain roll's chance, drop the "below 5 a fall is skipped half
 
 A believer at 0 or less becomes a Heathen in the setter 0x467F90, as in the stock game.
 
-PUDDLE PLAY MOVES TO THE LAKE SHORE.  The owner: children "Playing in puddles" in the dry lake bed; "once the
-lake bed is full of water that action is disabled (because they can't swim)", and asked for them to play "at this
-edge of the lake" (the north-west sandy shore, marked on a screenshot).  The owner (2026-11-07): "PLAYING IN
-PUDDLES IS PLAYING IN PUDDLES NOT ANYTHING ELSE" -- not "Excited about the puddles" (0xEB) nor "Chasing fish"
-(0xEA), which stay exactly as stock.  "Playing in puddles" is behaviour 0x5E (routine 0x45FFF0, string 0x229,
-registered at 0x4643A6): five walks to a random point of lake-bed area 0x6A (0x4744C0 at 0x46003B), each with
-gestures.  Its one chooser, 0x46E4F7, starts it when the rain level [0x718EB8] is 50 or more, rand(100) < 75, it is
-raining (0x477040) and the lake holds no water (0x43C5D0: project 10's progress above 0, when the full lake is
-drawn).  The patch drops "the lake holds no water" (test al,al / jne at 0x46E527 -> nops; the start flag is bl,
-untouched), and 0x5E's walk (0x46003B) calls a cave at 0x494E00: with water in the lake, a walk to a random point
-of the shore line (SHORE_* below); without, the stock walk into the lake bed.  The spots are lcmap.dat cells (8 x
-8 world pixels) on that sandy strip: walkable, not lake (areas 0x69 / 0x6A), every neighbour walkable, connected
-to the village; the owner's screenshot matched the map art at 1.5x, top-left world (1345, 1870).  Behaviour 0x5F
-(0x4600D0, the waterfall pool; started only by The Missing Kids island event, 0x4161AA) is unchanged.
+STARVING AND SICK BELIEVERS MOSTLY DIE RATHER THAN LEAVE (part of the same row; the owner, 2026-11-08:
+"villagers should preferentially die if their faith decrease-turn heathen is due to starvation or disease ... so
+most starving villagers die / most sick people die instead of them all turning heathen"; then: decided once per
+villager per crisis, 1 in 10).  A Heathen is skipped by the life tick (0x472CB7): it never eats, starves, falls
+ill or loses health, so a believer the drift turns Heathen is out of reach of hunger and sickness.  The rule, per
+villager: the first time a believer's Faith would reach 0 or less because of the food roll (under 10, or 10 to
+250) or the sickness roll -- the drift's other changes alone would leave Faith above 0 -- it is decided once:
+1 in 10 the believer becomes a Heathen as before; 9 in 10 the believer is marked to stay.  While marked, food and
+sickness losses never take that believer below Faith 1 (other changes, "too few believers" included, apply as
+stock); the mark clears at the first age unit with food above 250 and the believer not sick, so a later crisis
+is decided afresh.  The marks are kept by the row's companion, "VVFP Faith Loss.dll" (native/vvfp_faith_loss), in
+the save's own folder, by villager identity.
+
+How: the routine keeps a count of the food and sickness losses in ebp, which it does not otherwise use (saved
+and zeroed by an entry cave at 0x494F00; the three loss sites `or esi,-1` / `sub esi,1` become `dec esi; inc
+ebp` -- esi is 0 at both food sites; the epilogue pops it), and its final FAITH_ADD (0x4681DB) goes through a
+cave at 0x494F14 whose first instruction calls the rule (esi the sum, ebp the food and sickness losses, ebx the
+record; it returns the sum to apply in esi).  The companion redirects that call to its own rule (the marks); the
+call's own target, the cave's fallback at 0x494F28, is used only when the companion is not there: the same
+decision made each time instead of once per crisis (1 in 10 converts, else Faith 1).
+
+NEW HEATHENS GET A HEATHEN'S FAITH (the owner, 2026-11-08: "Once they turn heathen, have their faith randomly set
+to the typical blue heathen threshold" and "Blue heathen ranges only. NOT CHIEF/ORANGE/RED ETC (READ THE MASK
+TYPE!!!)").  The stock setter makes a believer at Faith 0 or less a Heathen (0x4669E0, which sets the role +0x1CFC
+to 0) and stores the new Faith as it is -- 0 to -3 from the drift -- so a single preaching (+3 to +5) brings them
+back at once, with Faith 55 (0x467FC7).  The mask a Heathen wears is not chosen by Faith: the draw 0x4728C6 takes
+the role (+0x1CFC 12, 14-16 purple, 13 the Chief, the table 0x472B60), then the kind bytes +0x1CED (orange) and
++0x1CEE (red), and anything else is blue.  The game sets an ordinary Heathen's Faith once, when it makes them, and
+never moves it (the life tick skips Heathens): a new village's Heathens are made at -1 (0x424AC0) and those still
+at -1 are set to -38 - rand(30), -38 to -67 (0x471050..0x471099), but five blue ones (red and orange bytes 0,
+0x470F01..0x470F11) set to -5, -9, -16, -23 and -30 (0x470F1F..0x471037); Barrel O' Babies! (heathens) -55 (push
+-0x37 at 0x4152B0); the Heathen Doctor -14, the Masters -74, the Chief -94.  For the Faith drift's conversions only
+(the setter called by FAITH_ADD called by the drift, by their return addresses), the call of 0x4669E0 at 0x467FDF
+goes through a cave at 0x494F80 that clears the two kind bytes -- an ordinary blue-mask Heathen -- and draws the
+Faith the game's way, -38 - rand(30).  Island events (The Spa, The Cracked Mask: -10) are unchanged.
 """
 from __future__ import annotations
 
@@ -88,6 +110,8 @@ CHILD_AGE = 0x118           # 280 age units, 14 years: The Tree of Life's own bo
 APPRENTICE_NAME = "Children's Graves Say Apprentice"
 FAITH_ID = "vv5_faith_loss_doubled_gains_halved"
 FAITH_NAME = "Faith Loss is Doubled/Gains Halved"
+NEW_HEATHEN_ID = "vv5_new_heathens_get_heathen_faith"
+NEW_HEATHEN_NAME = "New Heathens Get a Heathen's Faith"
 PUDDLES_ID = "vv5_puddles_by_the_lake"
 PUDDLES_NAME = "Puddle Play Moves to the Lake Shore"
 
@@ -249,6 +273,104 @@ FAITH_EDITS = (
     (0x4681AE, "7D", "EB", "a fall with Faith under 5 was skipped on rand(100) < 50: jge -> jmp, never skipped"),
 )
 
+# Starving and sick believers mostly die rather than leave (see the top of this file).
+DRIFT_ENTRY, DRIFT_TAIL, DRIFT_EPILOGUE = 0x468040, 0x4681DB, 0x4681E3
+FAITH_ENTRY_CAVE, FAITH_TAIL_CAVE, FAITH_RULE_CAVE = 0x494F00, 0x494F14, 0x494F28
+FAITH_STAY_ROLL, FAITH_STAY_CONVERTS = 10, 1        # decided once a crisis: a Heathen on rand(10) < 1
+FAITH_COMPANION = "VVFP Faith Loss.dll"
+FAITH_COMPANION_SOURCE = "assets/faith_loss/VVFP Faith Loss.dll"
+# The three food and sickness loss sites: (va, stock, patched, purpose).  esi is 0 at both food sites (nothing has
+# been added yet), so `dec esi` is the stock `or esi,-1`.
+FAITH_LOSS_MARKS = (
+    (0x46805E, "83CEFFEB40", "4E4590EB40",
+     "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (one food loss counted); the jmp is kept"),
+    (0x46807E, "83CEFFEB20", "4E4590EB20",
+     "food 10..250 (or under 10 when its first roll missed), the roll hit: or esi,-1 -> dec esi; inc ebp"),
+    (0x4680BB, "83EE01", "4E4590", "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp"),
+)
+
+
+def faith_entry_cave() -> bytes:
+    return asm(f"""
+        push ebx
+        push esi
+        push ebp
+        xor esi,esi
+        xor ebp,ebp
+        cmp dword ptr [0x51d34c],0xa
+        jmp {DRIFT_ENTRY + 11:#x}
+        """, FAITH_ENTRY_CAVE)
+
+
+def faith_tail_cave() -> bytes:
+    """The drift's FAITH_ADD, through the rule: call the rule (the companion redirects this call), then
+    FAITH_ADD(esi) and the epilogue."""
+    return asm(f"""
+        call {FAITH_RULE_CAVE:#x}
+        push esi
+        mov ecx,ebx
+        call 0x468020
+        jmp {DRIFT_EPILOGUE:#x}
+        """, FAITH_TAIL_CAVE)
+
+
+def faith_rule_cave() -> bytes:
+    """The rule without the companion: a fall to 0 or less that the food or sickness losses (ebp) cause -- the
+    other changes alone (esi + ebp) leave Faith above 0 -- is made on rand(10) < 1, else Faith is left at 1."""
+    return asm(f"""
+        test esi,esi
+        jge done
+        test ebp,ebp
+        je done
+        mov eax,dword ptr [ebx+0x1cf0]
+        add eax,esi
+        test eax,eax
+        jg done
+        add eax,ebp
+        test eax,eax
+        jle done
+        push {FAITH_STAY_ROLL}
+        call 0x403660
+        add esp,4
+        cmp eax,{FAITH_STAY_CONVERTS}
+        jl done
+        mov esi,1
+        sub esi,dword ptr [ebx+0x1cf0]
+    done:
+        ret
+        """, FAITH_RULE_CAVE)
+
+
+def faith_stay_patches() -> list[dict]:
+    entry, tail, rule = faith_entry_cave(), faith_tail_cave(), faith_rule_cave()
+    assert FAITH_ENTRY_CAVE + len(entry) <= FAITH_TAIL_CAVE and FAITH_TAIL_CAVE + len(tail) <= FAITH_RULE_CAVE
+    assert FAITH_RULE_CAVE + len(rule) <= NEW_HEATHEN_CAVE
+    out = [
+        patch(5, DRIFT_ENTRY, asm(f"jmp {FAITH_ENTRY_CAVE:#x}", DRIFT_ENTRY) + b"\x90" * 6,
+              "the drift's entry (push ebx; push esi; xor esi,esi; cmp [food],10) -> jmp the entry cave 0x494F00, "
+              "which also saves and zeroes ebp, the count of food and sickness losses"),
+    ]
+    out += [patch(5, va, bytes.fromhex(after), purpose, bytes.fromhex(before))
+            for va, before, after, purpose in FAITH_LOSS_MARKS]
+    out += [
+        patch(5, DRIFT_TAIL, asm(f"jmp {FAITH_TAIL_CAVE:#x}", DRIFT_TAIL) + b"\x90" * 3,
+              "the drift's FAITH_ADD (push esi; mov ecx,ebx; call 0x468020) -> jmp the tail cave 0x494F14"),
+        patch(5, DRIFT_EPILOGUE, bytes.fromhex("5D5E5BC3"),
+              "the drift's epilogue: pop esi; pop ebx; ret -> pop ebp; pop esi; pop ebx; ret (into the int3 "
+              "padding after it)", bytes.fromhex("5E5BC3CC")),
+        patch(5, FAITH_ENTRY_CAVE, entry,
+              "the entry cave: push ebx; push esi; push ebp; esi = 0; ebp = 0; cmp [food],10; jmp back to 0x46804B",
+              bytes(len(entry))),
+        patch(5, FAITH_TAIL_CAVE, tail,
+              "the tail cave: call the rule (0x494F28; VVFP Faith Loss.dll redirects this call to its per-villager "
+              "rule), then FAITH_ADD(esi) and the epilogue", bytes(len(tail))),
+        patch(5, FAITH_RULE_CAVE, rule,
+              "the rule without the companion: a fall (esi < 0) that the food or sickness losses (ebp) take to 0 or "
+              "less, the rest alone leaving Faith above 0, is made on rand(10) < 1; otherwise esi = 1 - Faith "
+              "(the believer stays at Faith 1)", bytes(len(rule))),
+    ]
+    return out
+
 
 def faith_feature() -> dict:
     description = (
@@ -261,7 +383,14 @@ def faith_feature() -> dict:
         "stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); "
         "12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer "
         "skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, "
-        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, "
+        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers "
+        "mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or "
+        "sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a "
+        "Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on "
+        "facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is "
+        "over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through "
+        "saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. "
+        "Preaching, Spreading the Word, "
         "island events and every other Faith change are unchanged. Adds a real chance of your "
         "villagers becoming heathens. Makes the game that much harder. Good Luck!")
     return {
@@ -279,15 +408,146 @@ def faith_feature() -> dict:
             "a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged.",
             "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock "
             "game.",
+            "Starving and sick believers mostly die rather than leave, decided once per villager per crisis: the first "
+            "time the drift's food losses (0x46805E, 0x46807E) or sickness loss (0x4680BB) would take a believer to "
+            "Faith 0 or less -- its other changes alone leaving Faith above 0 -- VVFP Faith Loss.dll (at the tail "
+            "cave's call 0x494F14, before the FAITH_ADD 0x4681DB) makes the fall on rand(10) < 1, else marks the "
+            "villager; while marked, food and sickness losses never take them below Faith 1 (FAITH_ADD(1 - Faith) at "
+            "most), and the life tick goes on with its hunger and sickness (0x472D66 on) as for any believer. The "
+            "mark clears at the first age unit with food above 250 and the villager not sick.",
+            "The marks are kept by villager identity (name, likes and dislikes) in <save folder>\\Virtual Villagers "
+            "Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, written when a mark is made "
+            "or cleared and read for the slot the game loads (before its catch-up); only living believers are kept. "
+            "Start Over deletes it with the save's folder.",
+            "Without the companion the cave's own rule (0x494F28) decides each such fall alone: 1 in 10 converts, "
+            "else Faith 1.",
         ],
         "explicit_non_changes": [
-            "Thirteen immediates and branches inside the routine; no code is added and no executable space is claimed.",
+            "Thirteen immediates and branches inside the routine, its entry, three loss sites, its last call and its "
+            "epilogue; three caves in the .text tail (0x494F00, 0x494F14, 0x494F28). The routine's rolls, their "
+            "order and the Faith they move are the stock ones but for the 1-in-10 decision added after them. No "
+            "save or villager-record byte is written.",
             "Starting Faith, preaching, Spreading the Word, the Heathen Doctor's cure, The Heathen "
             "Chief, the Hydroponic Farm, the Heathen Mommy's puzzle and island events are unchanged.",
         ],
-        "companion_files": [],
+        "companion_files": [{"source": FAITH_COMPANION_SOURCE, "destination": FAITH_COMPANION,
+                             "sha256": file_sha256(ROOT / FAITH_COMPANION_SOURCE)}],
         "patches": [patch(5, va, bytes.fromhex(after), purpose, bytes.fromhex(before))
-                    for va, before, after, purpose in FAITH_EDITS],
+                    for va, before, after, purpose in FAITH_EDITS] + faith_stay_patches(),
+        "runtime_detours": [{
+            "va": f"0x{FAITH_TAIL_CAVE:X}",
+            "stock_bytes": asm(f"call {FAITH_RULE_CAVE:#x}", FAITH_TAIL_CAVE).hex().upper(),
+            "written_bytes": "E8XXXXXXXX",
+            "routine": "the Faith drift's tail cave: its call of the rule goes to the companion's per-villager rule "
+                       "(the marks)",
+            "installed_by": f"{FAITH_COMPANION}, VvfpStartup (started by VVFP Startup.dll, second word)",
+        }],
+    }
+
+
+def file_sha256(path: Path) -> str:
+    import hashlib
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+
+
+# ---- New Heathens Get a Heathen's Faith ------------------------------------------------------------------------
+
+NEW_HEATHEN_SITE = 0x467FDF                 # the setter's call of 0x4669E0 (to a Heathen)
+NEW_HEATHEN_CAVE = 0x494F80
+FAITH_ADD_RETURN = 0x468032                 # the setter's return into FAITH_ADD 0x468020
+DRIFT_ADD_RETURN = 0x4681E3                 # FAITH_ADD's return into the drift (stock)
+# ...and into Faith Loss's tail cave (call rule; push esi; mov ecx,ebx; call 0x468020 -> here).
+FAITH_LOSS_ADD_RETURN = FAITH_TAIL_CAVE + 5 + 1 + 2 + 5
+BLUE_FAITH_BASE, BLUE_FAITH_SPAN = -38, 30  # a new village's ordinary Heathens: -38 - rand(30) (0x471070..0x471099)
+ORANGE, RED = 0x1CED, 0x1CEE                # the mask kind bytes the mask draw reads (0x4728EB, 0x472903)
+
+
+def new_heathen_cave() -> bytes:
+    """Called by the setter in place of 0x4669E0.  Only for the Faith drift's conversion -- the setter called by
+    FAITH_ADD (its return 0x468032 at [esp+0xC]) called by the drift (FAITH_ADD's return at [esp+0x18]: 0x4681E3,
+    or Faith Loss's tail cave) -- the new Heathen is made an ordinary blue-mask one (0x4669E0 already sets the
+    role +0x1CFC to 0; the orange and red bytes are cleared) and the Faith the setter stores (esi) is drawn as the
+    game draws an ordinary Heathen's: -38 - rand(30)."""
+    return asm(f"""
+        call 0x4669e0
+        cmp dword ptr [esp+0xc],{FAITH_ADD_RETURN:#x}
+        jne keep
+        mov eax,dword ptr [esp+0x18]
+        cmp eax,{DRIFT_ADD_RETURN:#x}
+        je drift
+        cmp eax,{FAITH_LOSS_ADD_RETURN:#x}
+        jne keep
+    drift:
+        mov byte ptr [edi+{ORANGE:#x}],0
+        mov byte ptr [edi+{RED:#x}],0
+        push {BLUE_FAITH_SPAN}
+        call 0x403660
+        add esp,4
+        mov esi,{BLUE_FAITH_BASE}
+        sub esi,eax
+    keep:
+        ret
+        """, NEW_HEATHEN_CAVE)
+
+
+def new_heathen_feature() -> dict:
+    cave = new_heathen_cave()
+    low, high = BLUE_FAITH_BASE - (BLUE_FAITH_SPAN - 1), BLUE_FAITH_BASE
+    description = (
+        "In New Believers a believer whose Faith drifts down to 0 (low food, sickness, too few believers) becomes a "
+        "Heathen with Faith 0 or just below it, so one preaching brought them straight back. Every ordinary "
+        f"blue-mask Heathen the game makes has far less: a new village's get {low} to {high}, Barrel O' Babies' "
+        "-55. With this patch a believer the Faith drift turns Heathen (with or without Faith Loss is "
+        f"Doubled/Gains Halved) becomes an ordinary blue-mask Heathen with a random Faith from {low} to {high}, "
+        "drawn exactly as the game draws a new village's ordinary Heathens, and needs as much preaching as any blue "
+        "Heathen to be won back. A Heathen's Faith never moves on its own in New Believers, so this is the Faith "
+        "they keep until preached to. The game's own message \"A villager has stopped believing in you!\" is still "
+        "shown. Island events that make a Heathen (The Spa, The Cracked Mask, the Custom Island Event) keep their "
+        "own Faith (-10).")
+    return {
+        "id": NEW_HEATHEN_ID,
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
+        "game_id": "vv5",
+        "name": NEW_HEATHEN_NAME,
+        "description": description,
+        "output_tag": "New Heathens Faith",
+        "behavior_changes": [
+            "The Faith setter 0x467F90: a believer whose new Faith is 0 or less becomes a Heathen (0x4669E0, called "
+            "at 0x467FDF, as stock: the role +0x1CFC set to 0 at 0x4669F5, the bottom bar's eSayStoppedBelieving, "
+            "string 0x48, at 0x4669EC). When the setter was called by FAITH_ADD 0x468020 for the Faith drift "
+            "0x468040 (its return 0x4681E3, or Faith Loss's tail cave 0x494F21), the cave 0x494F80 also clears the "
+            "orange and red mask bytes (+0x1CED, +0x1CEE) and sets the Faith to be stored to -38 - rand(30). Stock "
+            "stored the drift's Faith as it was (0 to -3).",
+            "The mask a Heathen wears is chosen by the game's draw 0x4728C6..0x472919 from the role +0x1CFC (12 and "
+            "14-16 the purple Masters' and the Doctor's, 13 the Chief's, through the table 0x472B60) and then the "
+            "kind bytes +0x1CED (orange, the chasers) and +0x1CEE (red, the scary ones); anything else is the blue "
+            "mask. Faith plays no part in it. So a drift convert is made role 0 (0x4669E0's own) with neither kind "
+            "byte: a blue-mask Heathen.",
+            f"{low} to {high} is the ordinary Heathens' Faith: the new village's Heathens are made at -1 (the "
+            "creator 0x46FD20's last argument at 0x424AC0's calls) and every one still at -1 is then set to -38 - "
+            "rand(30) (0x471050..0x471099) -- but five blue ones, set to -5, -9, -16, -23 and -30 (0x470F1F.."
+            "0x471037); Barrel O' Babies! (heathens) makes its at -55 (push -0x37 at 0x4152B0, stored by 0x46FC31). "
+            "No Heathen's Faith drifts: the life tick skips Heathens (0x472CB7).",
+        ],
+        "explicit_non_changes": [
+            "Only the Faith drift's conversions change. The Spa (0x415D02) and The Cracked Mask (0x416C51) keep "
+            "their -10 and their villager's mask; the Custom Island Event's \"Becomes a Heathen\" (which calls "
+            "0x4669E0 itself) and every Heathen the game makes are unchanged.",
+            "Preaching, Spreading the Word and every conversion back to a believer (0x4668B0, Faith 55 below 5) are "
+            "unchanged. One 5-byte call and one cave in the .text tail; no save byte is written.",
+        ],
+        "companion_files": [],
+        "patches": [
+            patch(5, NEW_HEATHEN_SITE, asm(f"call {NEW_HEATHEN_CAVE:#x}", NEW_HEATHEN_SITE),
+                  "the setter's call of 0x4669E0 (to a Heathen) -> call the cave 0x494F80"),
+            patch(5, NEW_HEATHEN_CAVE, cave,
+                  "the cave: call 0x4669E0 (as stock); for the Faith drift's conversion (the setter's return "
+                  "0x468032, FAITH_ADD's 0x4681E3 or 0x494F21) clear the orange and red mask bytes and set the Faith "
+                  "the setter stores (esi) to -38 - rand(30); ret to 0x467FE4 (the clamp and store)",
+                  bytes(len(cave))),
+        ],
     }
 
 
@@ -515,6 +775,7 @@ def main() -> None:
     for game in GRAVES:
         out[ROOT / "data" / f"vv{game}_apprentice_graves_feature.json"] = apprentice_feature(game)
     out[ROOT / "data" / "vv5_faith_loss_feature.json"] = faith_feature()
+    out[ROOT / "data" / "vv5_new_heathens_faith_feature.json"] = new_heathen_feature()
     out[ROOT / "data" / "vv5_puddles_by_the_lake_feature.json"] = puddles_feature()
     for path, record in out.items():
         for p in record["patches"]:

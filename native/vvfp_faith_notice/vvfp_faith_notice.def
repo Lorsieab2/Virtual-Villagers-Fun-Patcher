@@ -1,0 +1,6 @@
+LIBRARY "VVFP Faith Notice"
+EXPORTS
+    VvfpStartup
+    VvfpFaithNoticeInstalled
+    VvfpFaithNoticePending
+    VvfpFaithNoticeTaken
