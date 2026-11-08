@@ -290,7 +290,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "3 food. If the stew pot is waiting for an ingredient the fruit goes into the stew instead. "
                         "About 162 real-life seconds a trip at every speed.", gm.CODE)
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
-                        "a spot frees itself 45 seconds of game time after it is claimed (22.5, 45 or 75 real-life "
+                        "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
                         "on fruit trips at once: about 14, 7 or 5 (an estimate). A villager dropped on the tree does "
                         "one trip (no task is set); a farmer the game sends picks the bush, the fruit or the nets at "
@@ -606,7 +606,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                 refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
                                              "trip can start only while one of its 4 fruit spots is free (0x4343A0; "
-                                             "each frees itself after 45 seconds of game time, so about 14, 7 or 5 "
+                                             "each frees itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, an estimate)",
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "

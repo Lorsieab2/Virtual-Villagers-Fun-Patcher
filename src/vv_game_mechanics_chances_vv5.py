@@ -49,7 +49,8 @@ ROLLS = (
          (Check(0x472D74, 100, 0x32, "jl"), Check(0x472D83, 100, 0x1E, "jge", take=False),
           Check(0x472DE2, 100, 0x4B, "jg", take=False)),
          ("Eating 2 more: on Medium with 8,000 food or more, and on Hard at any amount, each believer eats 2 more "
-          "{2} of the time (and gains 1 more Divine Energy); never on Easy.",)),
+          "{2} of the time; never on Easy. On every such age unit, whether or not the 2 more are eaten, the "
+          "believer also adds 1 more Divine Energy (0x472DD2, before the roll).",)),
     Roll("Starving: " + AGE_UNIT + ", with no food left each believer loses 1 health {0} of the time.",
          (Check(0x472E0A, 100, 0x4B, "jle"), Check(0x472E88, 100, 0x1E, "jg", take=False)),
          ("On Hard, and for a believer whose hidden name number is a multiple of 6, the loss comes every age unit.",

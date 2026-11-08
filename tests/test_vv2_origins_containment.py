@@ -46,6 +46,8 @@ REMAINING = {
     "vv2_tech_cost_multiplier",
     # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
     "vv2_hungrier_villagers",
+    # 2-10x Sickness: no render byte (written at publish), nothing of Origins.
+    "vv2_sickness_multiplier",
     "vv2_island_events",
     "vv2_storytelling",
     "vv2_game_log",
