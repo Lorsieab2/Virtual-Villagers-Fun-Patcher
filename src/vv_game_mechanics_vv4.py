@@ -450,14 +450,54 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     net_food = ((1 - golden_share) * farmers_mod.boosted(4, multiplier_now)
                 + golden_share * farmers_mod.boosted(8, multiplier_now)) / multiplier_now
     net_food = int(net_food) if golden_share == 0 else float(net_food)
+    # The Cooking Pit (puzzle 6; the owner, 2026-11-08: "a special food source where it never runs out, BUT it can't
+    # support a large tribe like the fish due to the amount of cooking and walk time to the food bin it takes ...
+    # there's also a limited amount of villagers that can work at the fruit cooking pit simultaneously"): live, the
+    # fruit trip (src/vv_game_mechanics_farmers_vv4.py, "fruit stomps": 4 fruit spots, 0x4343A0); while catching up
+    # no farmer is sent to it (0x463A30) and the Cooking Pit bonus adds food by itself (FRUITWELLS, 0x468A7A).
+    pit = _i32(data, PUZZLE_ENTRIES + 8 * 6) >= PUZZLE_THRESHOLDS[6]
+    pit_level = max(1, min(3, level[FOOD_MASTERY]))
+
+    def pit_bonus(members):
+        if not pit:
+            return None
+        workers = [p for p in members if p.works]
+        known = [p.skill("Farming", 4) for p in workers]
+        if any(f is None for f in known):
+            return None
+        food_each = farmers_mod.game_module(4).FRUITWELLS["food"][pit_level]
+        total = sum(farmers_mod.game_module(4).fruitwells_food_unit(int(f), pit_level) for f in known)
+        paying = sum(1 for f in known if f > 25)
+        return total, (
+            f"The Cooking Pit while catching up (it is restored): after each counted age unit's job turns, every "
+            f"villager who had them (aged 14 or more, not sick or pregnant; all but the last 2 units) adds {food_each} "
+            f"food (Food Mastery level {pit_level}) on a (Farming - 25) in 100 chance, whatever its job and with no "
+            f"walking; nobody is sent to the fruit itself (0x463A30, 0x468A7A). This village: {len(workers)} working "
+            f"villagers, {paying} of them with Farming above 25, so about {total:,.1f} food each counted age unit, "
+            f"against about {sum(1 for p in members if not p.golden) * life.eat_per_unit(ctx_ref[0]):,.1f} eaten. "
+            "Farming 25 or less adds nothing and children add nothing, so a large tribe of low-Farming villagers "
+            "gets little from it.")
+
+    ctx_ref = []
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Blackberries", berries, BERRY_CAP, 2.0, growth_at, f"+2 {life.every_real(360, speed_value)}",
                              verified=gm.SAVE, step=2, interval=gm.real_seconds(360, speed_value),
                              next_at=real(NEXT_TICK), first_in=max(0, _i32(data, NEXT_TICK) - _i32(data, LAST_TICK)), rule=gm.RUNNING),
-                 life.Source("The fishing net", None, unlimited=True,
+                 ] + ([life.Source("The fishing net", None, unlimited=True,
                              refill_words="no store of theirs is read here: they bring what the farmers fetch",
-                             verified=False)],
+                             verified=False)]
+                      if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else [])
+                + ([life.Source("The Cooking Pit fruit", None, unlimited=True,
+                                refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
+                                             "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
+                                             "trip can start only while one of its 4 fruit spots is free (0x4343A0; "
+                                             "each frees itself after 45 game-clock seconds, so about 14, 7 or 5 "
+                                             "villagers work it at once on Fast, Normal or Slow, an estimate)",
+                                verified=gm.CODE,
+                                capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
+                                             "villagers work it at once on Fast, Normal or Slow, and while catching up only the Cooking Pit's own food comes "
+                                             "(below)")] if pit else []),
         tech=_i32(data, TECH), tech_words="Research brings them; a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=3600 / 45 * 0.30, mastery=multiplier,
         golden=village.has(GOLDEN) is True,
@@ -485,7 +525,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         trips=[("blackberry picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, berries // 100), "Blackberries"),
                ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
-                "The fishing net")])
+                "The fishing net"),
+               ("fruit stomps", 3 if pit else 0, "The Cooking Pit fruit")],
+        catch_up_bonus=pit_bonus)
+    ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out

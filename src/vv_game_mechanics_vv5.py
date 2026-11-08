@@ -360,6 +360,61 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         progress = _i32(data, PROJECTS + 8 * pid)
         if 0 < progress < PUZZLE_THRESHOLDS[pid]:
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    # Hand of Bloom for food (the owner, 2026-11-08: "The player may cast Hand of Bloom on the noni bush to add
+    # fruit, the crop field once the puzzle is solved to instantly refill it, and on the ground to spawn a variety of
+    # mushrooms ... take into account god power refill time and divine energy"): 150 Divine Energy a cast
+    # (0x498840), no cooldown (0x422E50); the effects src/vv_game_mechanics_powers_vv5.py EFFECTS[4] cites
+    # (0x42315F, 0x439EA0, 0x420E5B, 0x420C18); Divine Energy each age unit per believer 1, 4 at Devotion 50 or more,
+    # 9 at 88 or more (the life tick, see Tech points and effects).
+    energy_now, energy_cap = _i32(data, ENERGY), _i32(data, ENERGY_CAP)
+    boost = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
+
+    def bloom_lines(c, members):
+        believers = [p for p in members if not p.heathen]
+        devotion = [p.skill("Devotion", 5) for p in believers]
+        if not believers or any(d is None for d in devotion):
+            return []
+        income = sum(9 if d >= 88 else 4 if d >= 50 else 1 for d in devotion)
+        out = []
+        head = (f"Hand of Bloom for food (cast by the player in live play; 150 Divine Energy a cast, no cooldown): this "
+                f"tribe's {len(believers)} believers make about {income:,} Divine Energy each age unit (1 each, 4 at "
+                f"Devotion 50 or more, 9 at 88 or more; Honoring adds more), now {energy_now:,} of a {energy_cap:,} cap. ")
+        if energy_cap < 150:
+            return [head + "The cap is below 150, so Hand of Bloom cannot be cast yet."]
+        units = 150 / income
+        wait = units * c.unit
+        per_hour = 3600.0 / wait
+        head += (f"One cast's worth comes every {units:,.1f} age units ({gm.duration(wait)} of real-life play on "
+                 f"{gm.speed_name(c.speed)} speed), so at most about {per_hour:,.2f} casts per real-life hour, "
+                 f"{energy_now // 150:,} castable now. The Divine Energy also builds up while catching up, so casts can "
+                 "wait for when the game is played. Each use below takes a whole cast; other powers take from the same "
+                 "Divine Energy.")
+        out.append(head)
+        noni_food = 149.5 * boost
+        out.append(f"On the noni bushes: +100 to +199 noni (about 150) over the next 100 to 199 updates, so about "
+                   f"{noni_food:,.0f} food once picked (a pick takes as many noni as the food it brings, before Food "
+                   f"Mastery); above 1,000 the next growth cuts it back, so it helps only below about 850 noni"
+                   + (f" (now {noni:,}: a cast adds nothing until farmers pick the bushes down)." if noni >= 850
+                      else f" (now {noni:,})."))
+        if farm:
+            room = max(0, CROPS_FULL - crops)
+            out.append(f"On the field (the Hydroponic Farm built): the crops are filled to {CROPS_FULL} at once and their "
+                       f"timer starts again, so it adds what is missing, {room:,} crops now, about {room * boost:,.0f} "
+                       "food once harvested (a harvest takes as many crops as the food it brings, before Food Mastery); "
+                       "best cast when the field is nearly empty.")
+        else:
+            out.append("On the field: only once the Hydroponic Farm is built (until then the game refuses it and "
+                       "nothing is spent).")
+        brown, red = 6 * boost, 35 * boost
+        out.append(f"On open ground: 17 to 22 plants, each a mushroom half the time while 10 to 12 mushroom places are "
+                   f"left, so up to about 10 mushrooms, brown ({brown:g} food) or red ({red:g}) equally likely: about "
+                   f"{10 * (brown + red) / 2:,.0f} food a cast if all are picked (children pick them, in live play when "
+                   "dropped on them).")
+        return out
+
+    # Fishing at the lake needs The Lake restored (project 10, the dispatcher 0x46C600; before it, "Looking for bits
+    # of fish", 0x454130): the owner, 2026-11-08: fish never run out once their puzzle is done.
+    lake = _i32(data, PROJECTS + 8 * 10) >= PUZZLE_THRESHOLDS[10]
     ctx = life.Context(
         village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
@@ -371,11 +426,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              else "the Hydroponic Farm is not built yet", verified=gm.SAVE,
                              step=CROPS_FULL if farm else 0, interval=gm.real_seconds(CROP_UNITS * UNIT, speed_value),
                              next_at=real(CROPS_NEXT), first_in=life.resumed(max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), speed_value), rule=gm.RUNNING),
+                 ] + ([
                  # The fish step 0x46D790 adds 4 food (0x41EB40) and reads or takes nothing: no store to run out.
                  life.Source("Fishing at the lake", None, unlimited=True,
                              refill_words="it has no store: every fish brings 4 food (before Food Mastery) and "
                                           "nothing runs out",
-                             verified=gm.CODE)],
+                             verified=gm.CODE)] if lake else []),
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
         mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
@@ -397,7 +453,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         # With Food Gains are Flat the pick pays FLAT_PICK live and FLAT_CATCH_UP while catching up.
         trips=[("noni picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, noni // 100), "Noni bushes"),
-               ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4, "Fishing at the lake")])
+               ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4 if lake else 0, "Fishing at the lake")],
+        food_extra=bloom_lines)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))
