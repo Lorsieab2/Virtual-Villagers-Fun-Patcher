@@ -57,6 +57,7 @@ UNIT = 360                                    # an age unit, in Normal-speed sec
 REGROW_UNITS = 40
 FIELD_CAP = 800
 GOLDEN = "vv1_super_secret_golden_mushroom"
+HUNGRIER = "vv1_hungrier_villagers"
 LEARNING = "vv1_learning_never_fails"
 MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
 
@@ -428,6 +429,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         f"speed, {2 * 3600 / (60 * speed):g} food per real-life hour), and more on Medium and Hard; "
                         "when the meal is skipped and what going without costs are under Chances (Eating, "
                         "Starving)."), gm.RUNNING)
+    # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
+    if village.has(HUNGRIER) is not False:
+        add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
+                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
     add("Food earned", "A villager dropped on the food store goes \"Eating\": it costs 1 food, and below 100 health it "
                        "gives 1 health 50.05% of the time. Adults also go \"Eating\" on their own: when the game sends "
                        "an adult to its free-time choices, 10.66% of them are a meal while there is food (0x446030, "

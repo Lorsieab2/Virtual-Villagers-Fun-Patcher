@@ -593,6 +593,7 @@ CHIEF_READY = {"call a rare collectible (Leadership 3)": 0x12EFC - HEADER,
 SCIENCE, MEDICINE, ALCHEMY, LEADERSHIP = 0, 1, 2, 4
 UNSURE = ""                              # every unverified line carries UNCONFIRMED
 GOLDEN = "vv3_super_secret_golden_mushroom"
+HUNGRIER = "vv3_hungrier_villagers"
 RARE_RETRY = "vv3_rare_collectible_retry"
 MORTALITY = "vv3_nature_level_three_alters_mortality"
 STORY = "vv3_story_cheat_upgrades"
@@ -792,6 +793,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                        "food or more or on Hard at any amount 2 more on 76% of age units (never on Easy). Skipped "
                        "meals at 500 or less and the health lost without food: Chances (Eating, Starving).",
         gm.CODE)
+    # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
+    if village.has(HUNGRIER) is not False:
+        add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
+                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

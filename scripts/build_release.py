@@ -255,7 +255,16 @@ FILES = [
     "data/vv3_tech_cost_multiplier_feature.json",
     "data/vv4_tech_cost_multiplier_feature.json",
     "data/vv5_tech_cost_multiplier_feature.json",
+    "data/vv1_hungrier_villagers_feature.json",
+    "data/vv2_hungrier_villagers_feature.json",
+    "data/vv3_hungrier_villagers_feature.json",
+    "data/vv4_hungrier_villagers_feature.json",
+    "data/vv5_hungrier_villagers_feature.json",
     "data/vv4_no_fishing_at_science_2_feature.json",
+    "data/vv4_science_collectibles_complete_feature.json",
+    "data/vv5_science_collectibles_complete_feature.json",
+    "data/vv4_classic_vv_difficulty_feature.json",
+    "data/vv5_classic_vv_difficulty_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the

@@ -36,7 +36,9 @@ UNIT = 360                                    # an age unit, in Normal-speed sec
 NONI_CAP, CROPS_FULL, CROP_UNITS = 1000, 800, 40
 STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
+HUNGRIER = "vv5_hungrier_villagers"
 LEARNING = "vv5_learning_never_fails"
+SCIENCE_SET = "vv5_science_collectibles_complete"
 # Food Gains are Flat, like VV1-3 (Harder Games): a noni pick pays The Secret City's fruit and honey pick
 # (0x434ABB..0x434AE4: 7, 3 or 2 on Fast, Normal or Slow, 4 while catching up) instead of the noni / 100; the
 # patched step 0x46CFD4 reads the catch-up flag game+0x17E10 and the speed game+0x17D7C (any other value: 3).
@@ -258,6 +260,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         "less 1) more, each equally likely (0 to 11 with all 24), and, while the fire burns, 1 more 10.01% of the "
         "time; while catching up ÷ 7, ÷ 7 or ÷ 5 at any speed (see Time away (catch-up)). 2% of successful "
         "research sessions also cost the researcher 0 to 9 health (see Death and graves)."), gm.RUNNING)
+    # The bonus 0x46DE5F: 12 with all 24 pieces, else 0 (scripts/build_science_collectibles_complete_features.py).
+    if village.has(SCIENCE_SET) is not False:
+        add("Tech points and effects", gm.patch_words(village, SCIENCE_SET, "the second collectible set's pieces add "
+                                                      "nothing to research until all 24 are found; then 0 to 11 more"))
     # The cap 0x425020-0x4250D0: 5 x (0x4713F0: living believers + the babies they carry + 2); +50 at the statue's
     # stage 1 or more and +50 more at 2 (0x51D950); +100 once The Tribute Statue (puzzle 14) is solved; +50 at
     # Spirituality 2 and +50 more at 3; the first set's pieces owned (ids 0x68-0x7F, 0x413F50 at 0x42509F): below 24
@@ -282,6 +288,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                        f"{2 * 3600 / (60 * speed):g} a real-life hour); how often they eat less at 500 food or less, or 2 more on "
                        "Medium at 8,000 food or more and on Hard, is under Chances. Heathens never eat; a nursing "
                        "mother eats as one believer and her babies nothing.", gm.RUNNING)
+    # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
+    if village.has(HUNGRIER) is not False:
+        add("Food earned", gm.patch_words(village, HUNGRIER, "each believer's meal, and the difficulty's extra, "
+                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

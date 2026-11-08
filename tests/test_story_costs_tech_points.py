@@ -96,7 +96,14 @@ class SelectionTests(unittest.TestCase):
                 # On by default with Story / Cheat Upgrades (owner, 2026-11-01).
                 self.assertNotIn(COST.format(n), gui.DEFAULT_OFF_FUN_PATCH_IDS)
                 self.assertTrue(gui.default_fun_patch_selection(COST.format(n)))
-                self.assertNotIn(COST.format(n), gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+                # Off in Owner's Defaults (the owner, 2026-11-07), and the button does not co-tick it back.
+                self.assertIn(COST.format(n), gui.OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
+                self.assertFalse(gui.owners_default_fun_patch_selection(COST.format(n)))
+                self.assertTrue(gui.owners_default_fun_patch_selection(f"vv{n}_story_cheat_upgrades"))
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        body = source[source.index("def _owners_default_fun_patches("):]
+        body = body[:body.index("\n    def ")]
+        self.assertIn("self._apply_gui_dependency_selection(cotick=False)", body)
 
 
 # Every item Story / Cheat Upgrades adds at "0 Tech Points" -- the Origins Upgrades it lists ("Name --

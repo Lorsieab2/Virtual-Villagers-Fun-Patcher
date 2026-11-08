@@ -1,0 +1,39 @@
+{
+  "id": "vv5_hungrier_villagers",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Hungrier Villagers (2-10x Meals)",
+  "description": "**Needs no other patch.** Makes the game harder; off by default. Every villager's meal takes 2 to 10 times the normal food: you choose how many times with the Hungrier Villagers slider in the patcher window (a whole number, 2 unless you move it). Normally a villager's meal takes 2 food, and 2 more three times in four at 8,000 food or more on Normal difficulty, at any food level on Hard, never on Easy; at x 2 that is 4 and 4 more. Food never goes below 0: when it runs out the game's own starvation rules take over, as without the patch. Skipped meals when food is low, the snack at the food bin, events that take food and everything that brings food in are unchanged.",
+  "output_tag": "Hungrier Villagers",
+  "behavior_changes": [
+    "The meal routine's two food amounts (0x472D9E, 0x472DEF), each -2, become -2 x N (the slider, 2 to 10; 2 by default); the stock clamp keeps food at 0 or more."
+  ],
+  "explicit_non_changes": [
+    "When a villager eats, the low-food skip, starvation, the snack at the food bin, starting food, events and everything that brings food in are unchanged.",
+    "Two one-byte edits in place; no code is added and no executable space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the meal at every multiplier and the zero clamp are emulated in tests/test_hungrier_villagers.py; runtime/player confirmation pending",
+  "meal_multiplier": {
+    "default": 2,
+    "minimum": 2,
+    "maximum": 10,
+    "stock_meal": 2
+  },
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x72D9F",
+      "before": "FE",
+      "after": "FC",
+      "purpose": "the meal at 0x472D9E: -2 food -> -4 at x 2"
+    },
+    {
+      "offset": "0x72DF0",
+      "before": "FE",
+      "after": "FC",
+      "purpose": "the difficulty extra meal at 0x472DEF: -2 food -> -4 at x 2"
+    }
+  ]
+}
