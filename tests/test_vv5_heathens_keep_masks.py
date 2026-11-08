@@ -205,6 +205,46 @@ class TheRow(unittest.TestCase):
         self.assertEqual([c["destination"] for c in row["companion_files"]], ["VVFP Heathens Keep Masks.dll"])
         self.assertIn("VVFP Heathens Keep Masks.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
 
+    def test_registered_bundled_documented(self):
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
+        how_to = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
+        log = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        row = json.loads(FEATURE.read_text(encoding="utf-8"))
+        self.assertIn('"assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll"', release)
+        self.assertIn('"data/vv5_heathens_keep_masks_feature.json"', release)
+        self.assertIn(f"- Patch ID: `{ROW}`", readme)
+        self.assertIn(row["description"], readme)
+        self.assertIn("HEATHENS KEEP THEIR MASKS WHEN CONVERTED (NEW BELIEVERS)", how_to)
+        entry = [e for e in guide["patches"] if ROW in e.get("ids", [])]
+        self.assertEqual(len(entry), 1)
+        lines = entry[0]["guide"]
+        self.assertLessEqual(len(lines), 8)
+        self.assertLessEqual(max(len(line) for line in lines), 180)
+        self.assertLessEqual(sum(len(line) for line in lines), 900)
+        self.assertIn(f"#### Heathens Keep Their Masks When Converted (`{ROW}`)", log)
+        self.assertNotIn(b"\r\n", (ROOT / "docs" / "transparency-log.md").read_bytes())
+
+    def test_the_dll_exports_imports_and_shows_no_text(self):
+        try:
+            import pefile
+        except ImportError:
+            self.skipTest("pefile is not installed")
+        pe = pefile.PE(str(DLL))
+        names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
+        self.assertEqual(names, ["VvfpHeathensKeepMasksInstalled", "VvfpHeathensKeepMasksKept", "VvfpStartup"])
+        imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
+        self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA",
+                                    "OutputDebugStringW", "MessageBoxA", "MessageBoxW", "CreateFileA",
+                                    "DeleteFileW", "MoveFileW", "RegSetValueExW", "Sleep", "CreateThread"}, set())
+        for section in pe.sections:
+            self.assertFalse(section.Characteristics & 0x20000000 and section.Characteristics & 0x80000000)
+        source = (ROOT / "native" / "vvfp_heathens_keep_masks" / "vvfp_heathens_keep_masks.c").read_text(
+            encoding="utf-8")
+        self.assertNotIn("vvfp_tr", source)          # no text of its own: nothing to translate
+        self.assertNotIn("OutputDebugString", source)
+
 
 @unittest.skipIf(_skip(), _skip() or "")
 class KeptMasks(unittest.TestCase):

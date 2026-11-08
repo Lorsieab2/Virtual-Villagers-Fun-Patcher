@@ -513,6 +513,17 @@ int main(int argc, char **argv) {
     g_masks[2] = 4;
     (void)tick();
     check(original(2) == 20020, "Change Appearance afterwards: the original stays");
+    /* Heathens Keep Their Masks When Converted (native/vvfp_heathens_keep_masks): a Heathen seen with no
+       Change Appearance mask joins the tribe and the mask they wore (red, 3) becomes their mask -- like a
+       Change Appearance mask, never their original, so Reset to original takes it off. */
+    rec(3)[0x1CEC] = 1;                      /* New Believers' faction byte: a Heathen */
+    (void)tick();
+    rec(3)[0x1CEC] = 0;                      /* joins the tribe, keeping the red mask */
+    g_masks[3] = 3;
+    (void)tick();
+    check(original(3) == 30030, "a Heathen's kept mask at the conversion: the original stays maskless");
+    g_masks[3] = 0;
+    (void)tick();
     new_session();
     g_game_slot = 1;
     settle();

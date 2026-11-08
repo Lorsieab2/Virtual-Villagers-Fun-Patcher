@@ -94,6 +94,7 @@ class TheStore(unittest.TestCase):
         self.assertGreaterEqual(out.count("[PASS]"), 75)
         for proven in ("everyone's look is recorded at first sight", "a birth in play is recorded as SEEN",
                        "Change Appearance afterwards: the original stays",
+                       "a Heathen's kept mask at the conversion: the original stays maskless",
                        "after the reload Kai3's original is on Kai3 in record 2",
                        "a newborn in a dead villager's record is seen as themselves",
                        "a renamed villager keeps the original", "never recorded for either",
