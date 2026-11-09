@@ -458,6 +458,34 @@ int main(int argc, char **argv) {
         vv_rekey_count = 0;
     }
 
+    printf("10. A Heathen's own rule follows the rename\n");
+    {
+        static char want[RULE_FILE_MAX + 1];
+        char rule[8];
+        const char *text;
+        clear_table();
+        villager(2, "Tama", 1, 50);
+        villager(4, "Pua", 1, 50);
+        villager(5, "Pua", 0, 50);                 /* a believer with the Heathen's name and looks */
+        *(int *)(rec(5) + NB_HEAD) = *(int *)(rec(4) + NB_HEAD);
+        *(int *)(rec(5) + NB_BODY) = *(int *)(rec(4) + NB_BODY);
+        _snprintf(buf, sizeof buf, "%srule\tfather\nvillager\tTama\t2\t2\tM\tmother\nvillager\tPua\t4\t4\tM\tlist\n",
+                  head);
+        put_record(buf);
+        heathens_at_load(table, 150, 1);
+        text = record_text();
+        _snprintf(want, sizeof want, "villager\t%s\t2\t2\tM\tmother\n", name_of(2));
+        check(strstr(text, want) != NULL && strstr(text, "villager\tTama\t2\t2\tM\tmother\n") == NULL,
+              "the Heathen's own rule is under their new name, the rest of the line as it was");
+        check(strstr(text, "villager\tPua\t4\t4\tM\tlist\n") != NULL,
+              "a line a believer outside the batch still is (name, looks, sex) is left as it is");
+        check(read_record(1, rule, sizeof rule) && own_rule(name_of(2), 2, 2, 'M') == 'm',
+              "the rule is theirs at a birth: own_rule finds it by the new name");
+        lstrcpynA(want, record_text(), sizeof want);
+        heathens_at_load(table, 150, 1);
+        check(strcmp(record_text(), want) == 0, "a later load carries nothing more");
+    }
+
     DeleteFileA(g_path);
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;

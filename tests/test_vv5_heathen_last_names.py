@@ -32,8 +32,8 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-# 1: 5; 2: 4; 3: 8; 4: 5; 5: 4; 6: 2; 7: 3; 8: 1; 9: 2.
-HARNESS_CHECKS = 5 + 4 + 8 + 5 + 4 + 2 + 3 + 1 + 2
+# 1: 5; 2: 4; 3: 8; 4: 5; 5: 4; 6: 2; 7: 3; 8: 1; 9: 2; 10: 4.
+HARNESS_CHECKS = 5 + 4 + 8 + 5 + 4 + 2 + 3 + 1 + 2 + 4
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
@@ -89,6 +89,47 @@ class TheRecord(unittest.TestCase):
     def test_only_new_believers_has_heathens(self):
         with tempfile.TemporaryDirectory() as tmp:
             self.assertEqual(ln.heathen_identities(Path(tmp), 3, 1), set())
+
+
+class AnOwnRuleFollowsTheRename(unittest.TestCase):
+    """Codex, #733: a Heathen with no last name who has their own rule for their children's last names keeps
+    it when the load names them.  The DLL carries the record's "villager" line (heathen_names_harness.c
+    section 10); here, Repair's editor and checks follow the "Name changed" record the load writes."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.folder = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def log(self, *renames):
+        logs = self.folder / "Virtual Villagers Fun Patcher Logs" / "Save 1" / "Births and Conceptions"
+        logs.mkdir(parents=True, exist_ok=True)
+        text = "Village: Kalahuna (Save 1)\r\n" + "".join(
+            f"Name changed\r\n  Name: {new}\r\n  Old name: {old}\r\n  Age: 300\r\n  Head: 2\r\n  Body: 3\r\n"
+            "  Likes:\r\n  Dislikes:\r\n\r\n" for old, new in renames)
+        (logs / "Virtual Villagers 5 Births and Conceptions Log 1.txt").write_bytes(text.encode("latin-1"))
+
+    def rules(self):
+        _record(self.folder, "VVFP LAST NAMES v1 game=5\nrule\tfather\nvillager\tTama\t2\t3\tM\tmother\n")
+        people = [ln.Living(0, "Tama Akikai", "Male", 2, 3, 1, "Akikai"),
+                  ln.Living(0, "Ana Alosaka", "Female", 4, 4, 1, "Akikai")]
+        with mock.patch("vv_log_additions.current_villages", return_value=None):
+            return ln.logged_renames(self.folder, 5, 1), ln.own_rules_now(self.folder, 5, 1, people)
+
+    def test_the_rule_is_theirs_under_the_new_name(self):
+        self.log(("Tama", "Tama Akikai"))
+        renames, rules = self.rules()
+        self.assertEqual(renames, {("Tama", 2, 3): "Tama Akikai"})
+        self.assertEqual(rules, {("Tama Akikai", 2, 3, "Male"): "mother"})
+
+    def test_without_the_record_or_with_two_answers_it_is_not_moved(self):
+        for renames in ((), (("Tama", "Tama Akikai"), ("Tama", "Tama Bahati"))):
+            with self.subTest(renames=renames):
+                self.log(*renames)
+                _renames, rules = self.rules()
+                self.assertEqual(rules, {("Tama", 2, 3, "Male"): "mother"}, "never a guess")
 
 
 class TheVillagesNames(unittest.TestCase):

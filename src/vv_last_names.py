@@ -811,16 +811,57 @@ def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> d
     except (gen.GenealogyError, OSError, ValueError):
         pass
     living_keys = {own_key(v) for v in people if v.alive}
+    renamed = logged_renames(folder, game, slot)
     out: dict[tuple, str] = {}
     for key, rule in stored.items():
         if key not in living_keys:
             moved = (*looks.current(key[:3]), key[3])
+            # A "Name changed" record (VVFP Last Names.dll names New Believers' Heathens with no last name as
+            # the village loads, and logs it so): the villager of these looks and sex under the new name.
+            named = (renamed.get(moved[:3], moved[0]), *moved[1:])
             if moved in living_keys and moved not in stored:
                 key = moved
+            elif named in living_keys and named not in stored:
+                key = named
             else:
                 key = _relooked(key, stored, living_keys)
         out[key] = rule
     return out
+
+
+def logged_renames(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+    """(old name, head, body) -> the name a chain of the village's "Name changed" records (the Births and
+    Conceptions log) ends on.  An old name and looks two records take to different names is left out
+    (never a guess); none when the logs cannot be read."""
+    import vv_log_additions as additions
+    out: dict[tuple, str] = {}
+    clash: set[tuple] = set()
+    try:
+        villages = additions.current_villages(folder, game, slot)
+        births = [path for path in tools.load_checker().log_files(folder) if "Births and Conceptions" in path.name]
+        for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
+            for b in additions.blocks(path):
+                if b.heading != "Name changed" or not b.of(slot, game, villages):
+                    continue
+                new, head, body = b.identity
+                old = b.value("Old name")
+                if not new or not old or old == new or head is None or body is None:
+                    continue
+                if out.get((old, head, body), new) != new:
+                    clash.add((old, head, body))
+                out[(old, head, body)] = new
+    except (OSError, ValueError, UnicodeError):
+        return {}
+    for key in clash:
+        out.pop(key, None)
+    done: dict[tuple, str] = {}
+    for (old, head, body), new in out.items():
+        seen = {old}
+        while (new, head, body) in out and new not in seen and len(seen) < 16:
+            seen.add(new)
+            new = out[(new, head, body)]
+        done[(old, head, body)] = new
+    return done
 
 
 def _relooked(key: tuple, stored, living_keys: set[tuple]) -> tuple:

@@ -75,6 +75,10 @@ HEATHENS_BEHAVIOR = [
     "the new name and writes its own file; a name two renamed Heathens shared, or one a villager outside the "
     "batch still has, is carried to nobody (a custom title is then told apart by the looks it was kept with), "
     "and the batch is handed over again at later loads for a file a session never rewrote.",
+    "A Heathen's own rule for their children's last names (a \"villager\" line of the Last Names record, keyed by "
+    "the whole name, head, body and sex) is carried to the new name the same moment -- never a line a villager "
+    "outside the batch still is, or two of the batch were -- and Repair's editor follows the \"Name changed\" "
+    "record to it.",
     "\"Random from the existing Village Names\" never counts a current Heathen's last name (the villagers in the "
     "game at a birth, and Repair's names of the village); a converted Heathen keeps their name and it counts from "
     "then on.",

@@ -1665,6 +1665,120 @@ static int earlier_renames(unsigned char *records, int slots, unsigned char **li
     return count;
 }
 
+/* THEIR OWN RULE FOLLOWS THEM (Codex, #733).  A Heathen with no last name may
+   have a rule of their own for their children's last names -- a "villager"
+   line of this companion's record, keyed by the whole name, head, body and
+   sex (own_rule) -- and a load-time rename would leave it under the old name:
+   after their conversion their children would take the village's rule, and
+   Repair's editor would show none.  So each such line of a renamed villager
+   (`list`, `old_names`: the renamed and the names they had) takes the new
+   name, the rest of the line as it is, through a temporary file swapped in
+   whole.  Only for that villager, never a guess: a line whose name, head,
+   body and sex two villagers of the batch had, or a living villager outside
+   it still has, or one the new name already has a line for, is left as it
+   is.  A line already carried (an earlier load's) is not there to carry
+   again.  Returns the lines carried. */
+#define NB_SEX 0x1B90u                  /* i32, 0 male, 1 female */
+
+static char sex_of(const unsigned char *record) {
+    return *(const int *)(record + NB_SEX) == 1 ? 'F' : 'M';
+}
+
+static int own_line_for(const char *name, int head, int body, char sex) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        struct own_line o;
+        if (own_line_of(line, &o) && strcmp(o.name, name) == 0 && o.head == head && o.body == body && o.sex == sex) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int rekey_own_rules(int slot, unsigned char *records, int slots, unsigned char *const *list,
+                           char (*old_names)[TABLE_NAME_MAX], int count) {
+    static char out[RULE_FILE_MAX + 1];
+    char rule[8], path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16], text[2 * TABLE_NAME_MAX];
+    const char *line;
+    size_t used = 0;
+    int moved = 0, i;
+    HANDLE h;
+    DWORD wrote = 0;
+    if (slot < 1 || count <= 0 || !read_record(slot, rule, sizeof rule) || g_rule_size >= RULE_FILE_MAX
+        || !record_path(slot, path, sizeof path)) {
+        return 0;
+    }
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        size_t n = strchr(line, '\n') ? (size_t)(strchr(line, '\n') + 1 - line) : strlen(line);
+        struct own_line o;
+        int who = -1, k;
+        if (own_line_of(line, &o)) {
+            for (k = 0; k < count; ++k) {
+                const unsigned char *r = list[k];
+                if (strcmp(old_names[k], o.name) == 0 && *(const int *)(r + NB_HEAD) == o.head
+                    && *(const int *)(r + NB_BODY) == o.body && sex_of(r) == o.sex) {
+                    who = who == -1 ? k : -2;      /* two of the batch were this villager: nobody */
+                }
+            }
+            for (i = 0; who >= 0 && i < slots; ++i) {
+                const unsigned char *r = records + (size_t)i * NB_STRIDE;
+                int in_batch = 0;
+                for (k = 0; k < count; ++k) {
+                    in_batch |= list[k] == r;
+                }
+                if (!in_batch && r[NB_ACTIVE] == 1 && !vv_lookalike(NB_STRIDE, r)
+                    && memcmp(r + NB_NAME, o.name, strlen(o.name) + 1) == 0 && *(const int *)(r + NB_HEAD) == o.head
+                    && *(const int *)(r + NB_BODY) == o.body && sex_of(r) == o.sex) {
+                    who = -2;                      /* somebody else is still this villager */
+                }
+            }
+            if (who >= 0 && own_line_for((const char *)(list[who] + NB_NAME), o.head, o.body, o.sex)) {
+                who = -2;                          /* the new name has a line of its own already */
+            }
+        }
+        if (who >= 0 && utf8_of((const char *)(list[who] + NB_NAME), text, sizeof text) > 0) {
+            size_t rest = (size_t)(line + n - o.looks);
+            size_t a = strlen(text);
+            if (used + 9 + a + 1 + rest + 1 >= sizeof out) {
+                return 0;
+            }
+            memcpy(out + used, "villager\t", 9);
+            memcpy(out + used + 9, text, a);
+            out[used + 9 + a] = '\t';
+            memcpy(out + used + 10 + a, o.looks, rest);
+            used += 10 + a + rest;
+            ++moved;
+        } else {
+            if (used + n >= sizeof out) {
+                return 0;
+            }
+            memcpy(out + used, line, n);
+            used += n;
+        }
+    }
+    if (moved == 0 || _snprintf(temporary, sizeof temporary, "%s.own-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return moved;
+}
+
 /* Right after a load: every living Heathen whose name carries no last name
    gets one (a keyed line's, when this load's name, head and body have one).
    Returns how many were named. */
@@ -1735,6 +1849,7 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
         (void)append_record_lines(slot, add, used);
     }
     renamed_count = earlier_renames(records, slots, renamed, renamed_old, renamed_count);
+    (void)rekey_own_rules(slot, records, slots, renamed, renamed_old, renamed_count);
     if (slot >= 1 && renamed_count > 0) {
         const char *olds[HEATHEN_LINES_MAX];
         for (i = 0; i < renamed_count; ++i) {
