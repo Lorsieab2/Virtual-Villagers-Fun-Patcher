@@ -259,6 +259,20 @@ del _game
 UNTICKING_CONFLICT_IDS["vv5_puddles_by_the_lake"] = "vv5_playing_in_the_dirt_spot"
 UNTICKING_CONFLICT_IDS["vv5_playing_in_the_dirt_spot"] = "vv5_puddles_by_the_lake"
 
+# A saved selection restored with both of such a pair ticked keeps the value and unticks the key.  Before
+# 2026-11-08 Move the "Playing in the dirt" Spot and Puddle Play Moves to the Lake Shore were both on by default,
+# so a selection saved then holds both; unticking-on-tick only acts on a new tick, and the patcher refuses to build
+# the pair, so a restored selection prefers Puddle Play (the new default) and drops the dirt spot.
+RESTORED_SELECTION_PREFERS = {"vv5_playing_in_the_dirt_spot": "vv5_puddles_by_the_lake"}
+
+
+def restored_fun_selection(saved: list) -> list:
+    """A saved patch list as the window restores it: of a pair in RESTORED_SELECTION_PREFERS that are both in it,
+    only the preferred one stays."""
+    ids = set(saved)
+    return [patch_id for patch_id in saved
+            if not (patch_id in RESTORED_SELECTION_PREFERS and RESTORED_SELECTION_PREFERS[patch_id] in ids)]
+
 
 def conflict_blockers(patch_id: str, fun_patches, ticked) -> list[str]:
     """The names of the ticked patches that patch `patch_id` can never be built with (either one
@@ -2479,6 +2493,7 @@ class App(tk.Tk):
         # default is supposed to apply.
         selected_fun = data.get("fun_patches")
         if isinstance(selected_fun, list):
+            selected_fun = restored_fun_selection(selected_fun)
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
             self._last_fun_selection = set()

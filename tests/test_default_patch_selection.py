@@ -169,6 +169,55 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertEqual(UNTICKING_CONFLICT_IDS[spot], puddles)
         self.assertEqual(UNTICKING_CONFLICT_IDS[puddles], spot)
 
+    def test_an_old_saved_selection_with_both_dirt_patches_loads_as_puddle_play_only(self) -> None:
+        """Before 2026-11-08 both dirt patches were on by default, so settings saved then tick both; the strict
+        resolver refuses the pair, so restoring them keeps Puddle Play Moves to the Lake Shore (the new default)
+        and unticks Move the "Playing in the dirt" Spot.  A selection with only the dirt spot keeps it."""
+        import shutil
+        import tempfile
+        import types
+        from unittest import mock
+
+        import vv_fun_patcher as patcher
+        import vv_fun_patcher_gui as gui
+
+        class Var:
+            def __init__(self, value=None):
+                self.value = value
+
+            def get(self):
+                return self.value
+
+            def set(self, value):
+                self.value = value
+
+        spot, puddles = "vv5_playing_in_the_dirt_spot", "vv5_puddles_by_the_lake"
+        root = Path(tempfile.mkdtemp(prefix="dsel"))
+        self.addCleanup(shutil.rmtree, root, True)
+        settings = root / "patcher_local_settings.json"
+        public = patcher.load_public_fun_patches()
+        old_default = [p.id for p in public if p.id in (spot, puddles) or default_fun_patch_selection(p.id)]
+
+        def load(saved):
+            settings.write_text(json.dumps({"fun_patches": saved}), encoding="utf-8")
+            win = types.SimpleNamespace(
+                fun_patches=public, fun_patch_vars={p.id: Var(False) for p in public},
+                _apply_gui_dependency_selection=lambda cotick=True: None, exe_var=Var(), output_root_var=Var(),
+                check_logs_var=Var(True), pair_rules={}, tree_window={}, tree_style={}, builds=[],
+                all_folder_vars={}, patch_modes=[], patch_mode_var=Var(), game_mechanics_exes={})
+            with mock.patch.object(gui, "SETTINGS", settings):
+                gui.App._load_settings(win)
+            return {pid for pid, var in win.fun_patch_vars.items() if var.get()}
+
+        ticked = load(old_default)
+        self.assertIn(puddles, ticked)
+        self.assertNotIn(spot, ticked)
+        self.assertEqual(ticked, set(old_default) - {spot})
+        patcher.resolve_fun_patch_ids([p for p in ticked if p.startswith("vv5_")], game_id="vv5")
+        self.assertIn(spot, load([spot]))
+        self.assertEqual(gui.restored_fun_selection([spot, puddles, "x"]), [puddles, "x"])
+        self.assertEqual(gui.restored_fun_selection([spot, "x"]), [spot, "x"])
+
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
         etc) and anything that adds new content to the game (besides the stuff
