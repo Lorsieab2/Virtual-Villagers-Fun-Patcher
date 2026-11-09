@@ -47,3 +47,4 @@ EXPORTS
     VvfpCauseRollTest DATA
     VvfpCauseTestCreationSave=_VvfpCauseTestCreationSave@12
     VvfpCauseTestCreationFields=_VvfpCauseTestCreationFields@8
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20

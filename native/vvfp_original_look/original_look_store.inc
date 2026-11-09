@@ -79,6 +79,8 @@
    ol_identity(r), ol_stable(r), ol_slot_now(), ol_game(), ol_look(r, &head, &body, &mask) (0 while the mask
    cannot be told) and ol_save_written(slot, &time) (0 when it cannot be told). */
 
+#include "../shared/villager_rekey.h"   /* a rename at a load keeps the original (VvfpVillagersRenamed) */
+
 #define OL_MAGIC 0x314C4F56u            /* 'VOL1' */
 #define OL_VERSION 1u
 #define OL_HEADER 24u
@@ -569,7 +571,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     char path[MAX_PATH];
     DWORD got = 0, at;
     unsigned int count, logged, i;
-    int status, kept;
+    int status, kept, renamed;
     memset(g_source, 0, sizeof g_source);
     memset(g_id, 0, sizeof g_id);
     memset(g_head, 0, sizeof g_head);
@@ -603,6 +605,9 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     for (i = 0; i < (unsigned int)kept; ++i) {
         filesnap[i] = ol_u32(g_file + OL_HEADER + i * OL_ENTRY);
     }
+    /* Villagers another companion renamed as the village loaded (native/shared/villager_rekey.h): the
+       identities the file keeps for them read as the ones they have now (here, the entries and the logs'). */
+    renamed = vv_rekey_apply(slot, filesnap, kept);
     if (!ol_same_village(filesnap, live)) {
         g_foreign = 1;
         return 2;                               /* another village's file: kept, never replaced */
@@ -613,7 +618,8 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
         if (id == 0u || e[17] < OL_FIRST_RUN || e[17] > OL_NOT_KNOWN || e[16] > 5) {
             continue;                           /* nothing kept here (or nothing this build knows) */
         }
-        g_id[i] = id;
+        g_id[i] = vv_rekey_follow(slot, id);
+        renamed += g_id[i] != id;
         memcpy(&g_head[i], e + 8, 4);
         memcpy(&g_body[i], e + 12, 4);
         g_mask[i] = e[16];
@@ -624,15 +630,65 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     }
     at = OL_HEADER + count * OL_ENTRY;
     for (i = 0; i < logged; ++i, at += OL_LOGGED_ENTRY) {
-        g_logged[i].id = ol_u32(g_file + at);
+        g_logged[i].id = vv_rekey_follow(slot, ol_u32(g_file + at));
+        renamed += g_logged[i].id != ol_u32(g_file + at);
         memcpy(&g_logged[i].head, g_file + at + 4, 4);
         memcpy(&g_logged[i].body, g_file + at + 8, 4);
         g_logged[i].mask = g_file[at + 12];
         g_logged[i].kind = g_file[at + 13];
     }
     g_logged_count = logged;
-    *rewrite = ol_follow(filesnap, live, 0);
+    /* A file read through rename pairs is written again under the names its villagers have now. */
+    *rewrite = ol_follow(filesnap, live, 0) || renamed > 0;
     return 1;
+}
+
+/* What is held in memory for `slot`, carried through its rename pairs (villager_rekey.h): who held each
+   record, the identity each original is kept for, the logs' originals, and a village waiting to settle.
+   Returns how many changed; the caller writes the file when the village is bound. */
+static int ol_rekey_held(int slot) {
+    int changed = 0, k;
+    unsigned int i;
+    if (g_candidate_slot == slot) {
+        changed += vv_rekey_apply(slot, g_candidate, OL_MAX);
+    }
+    for (k = 0; k < g_convert_count; ++k) {      /* a waiting conversion goes with its villager, bound or not */
+        if (g_convert[k].slot == slot) {
+            g_convert[k].id = vv_rekey_follow(slot, g_convert[k].id);
+        }
+    }
+    if (g_state == OL_UNBOUND || g_slot != slot) {
+        return changed;
+    }
+    changed += vv_rekey_apply(slot, g_roster, OL_MAX);
+    changed += vv_rekey_apply(slot, g_id, OL_MAX);
+    changed += vv_rekey_apply(slot, g_at_bind, OL_MAX);
+    for (i = 0; i < g_logged_count; ++i) {
+        unsigned int to = vv_rekey_follow(slot, g_logged[i].id);
+        if (to != g_logged[i].id) {
+            g_logged[i].id = to;
+            ++changed;
+        }
+    }
+    return changed;
+}
+
+/* Villagers renamed as the village loaded, by another companion (native/shared/villager_rekey.h; the
+   records at `stride`, the name at name_at, name_bytes): the pairs are kept for the slot's file (ol_load),
+   and what is held for the slot is carried now -- and written, once the village is bound.  Returns how many
+   pairs were kept. */
+static int ol_renamed(int slot, int count, const void *const *records, const char *const *old_names,
+                      unsigned int stride, unsigned int name_at, unsigned int name_bytes) {
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
+    int n = vv_rekey_pairs(count, records, old_names, ol_identity, stride, name_at, name_bytes, from, to);
+    int kept;
+    /* An old identity somebody outside the batch still carries may be theirs: left alone. */
+    (void)vv_rekey_drop_carried(from, n, records, ol_slots(), ol_record, ol_present, ol_identity);
+    kept = vv_rekey_note(slot, from, to, n);
+    if (kept > 0 && ol_rekey_held(slot) > 0 && g_state == OL_BOUND) {
+        (void)ol_publish();
+    }
+    return kept;
 }
 
 /* The game saved the slot since the village was bound: the village on screen is that slot's. */

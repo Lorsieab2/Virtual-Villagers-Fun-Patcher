@@ -5,3 +5,4 @@ EXPORTS
     VvfpHeadLookGet=_VvfpHeadLookGet@8
     VvfpHeadLookSet=_VvfpHeadLookSet@12
     VvfpHeadLookSetMany=_VvfpHeadLookSetMany@16
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20

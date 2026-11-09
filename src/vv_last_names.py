@@ -551,11 +551,49 @@ def lasts_in_use(people: list, parents: dict[tuple, tuple], carried=own_last_nam
 def village_names(folder: Path, game: int, slot: int, people: list | None = None,
                   parents: dict[tuple, tuple] | None = None, known: set[str] | None = None) -> set[str]:
     """Every last name this village has ever used (VILLAGE_NAMES): the record's "used" lines and the last
-    names of every villager the save and the logs know, living or dead (everyone)."""
+    names of every villager the save and the logs know, living or dead (everyone).  Never a New Believers
+    Heathen's (HEATHENS): theirs is no village name until they convert."""
     known = known_names(folder, game, slot) if known is None else known
     if people is None or parents is None:
         people, parents = everyone(folder, game, slot)
+    import vv_genealogy as gen
+    try:
+        heathens = heathen_identities(folder, game, slot)
+    except (gen.GenealogyError, LastNamesError, OSError, ValueError, struct.error):
+        heathens = set()                # the village cannot be read: nobody is known to be a Heathen
+    if heathens:
+        people = [v for v in people if v.identity not in heathens]
+        parents = {child: tuple(None if key in heathens else key for key in pair)
+                   for child, pair in parents.items() if child not in heathens}
     return read_used(folder, game, slot) | lasts_in_use(people, parents, lambda name: split_name(game, name, known)[1])
+
+
+# HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!!
+# (they can share last names but be unrelated if there's not enough default ones in the list, but try to make
+# them all unique)").  VVFP Last Names.dll gives every Heathen a last name drawn at random from the game's list:
+# a new Heathen as the game makes them, an existing one with none the first time the patched game loads the
+# village (with a "Name changed" record, so the logs follow them).  The draw avoids every last name anyone has
+# used -- the villagers in the game, the record's "used" lines and its "heathen" lines -- and shares one only
+# when the list is exhausted; a shared name never means family.  The record keeps each name given:
+#     heathen<TAB>last name                              (a new Heathen)
+#     heathen<TAB>last name<TAB>name<TAB>head<TAB>body   (named at a load: the name, head and body they had)
+# A converted Heathen keeps the name; "Random from the existing Village Names" counts it only from then on
+# (village_names leaves out the Heathens).  Repair keeps the lines as they are (write_record); an earlier
+# build's reader skips them.
+def read_heathen_lines(folder: Path, game: int, slot: int) -> list[str]:
+    """The record's "heathen" lines, as written."""
+    try:
+        lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError):
+        return []
+    if not lines or lines[0] != RECORD_HEADER.format(game=game):
+        return []
+    return [line for line in lines[1:] if line.split("\t")[0] == "heathen" and len(line.split("\t")) in (2, 5)]
+
+
+def read_heathens(folder: Path, game: int, slot: int) -> set[str]:
+    """The last names the record says Heathens were given ("heathen" lines)."""
+    return {line.split("\t")[1] for line in read_heathen_lines(folder, game, slot) if line.split("\t")[1]}
 
 
 def read_whole(folder: Path, game: int, slot: int) -> set[str]:
@@ -583,10 +621,11 @@ def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: di
                  arrivals: bool | None = None, used: set[str] | None = None) -> None:
     """The record, kept whole: `whole`, `own` (each villager's own rule) and `arrivals` (the arrivals
     toggle) default to the record's.  `used` (the last names the village has used) is added to the record's
-    "used" lines, never taking one away."""
+    "used" lines, never taking one away.  The "heathen" lines (HEATHENS) are kept as they are."""
     whole = read_whole(folder, game, slot) if whole is None else whole
     own = read_own(folder, game, slot) if own is None else own
     arrivals = read_arrivals(folder, game, slot) if arrivals is None else arrivals
+    heathens = read_heathen_lines(folder, game, slot)
     used = read_used(folder, game, slot) | {n for n in (used or ()) if usable_village_name(n)}
     path = record_path(folder, game, slot)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -597,6 +636,7 @@ def write_record(folder: Path, game: int, slot: int, rule: str | None, fixed: di
     if not arrivals:                            # on is the default: a line only when off
         lines.append(f"arrivals\t{ARRIVALS_NONE}")
     lines += [f"used\t{name}" for name in sorted(used)]
+    lines += heathens
     _write(path, ("\n".join(lines) + "\n").encode("utf-8"))
 
 
@@ -771,16 +811,57 @@ def own_rules_now(folder: Path, game: int, slot: int, people: list[Living]) -> d
     except (gen.GenealogyError, OSError, ValueError):
         pass
     living_keys = {own_key(v) for v in people if v.alive}
+    renamed = logged_renames(folder, game, slot)
     out: dict[tuple, str] = {}
     for key, rule in stored.items():
         if key not in living_keys:
             moved = (*looks.current(key[:3]), key[3])
+            # A "Name changed" record (VVFP Last Names.dll names New Believers' Heathens with no last name as
+            # the village loads, and logs it so): the villager of these looks and sex under the new name.
+            named = (renamed.get(moved[:3], moved[0]), *moved[1:])
             if moved in living_keys and moved not in stored:
                 key = moved
+            elif named in living_keys and named not in stored:
+                key = named
             else:
                 key = _relooked(key, stored, living_keys)
         out[key] = rule
     return out
+
+
+def logged_renames(folder: Path, game: int, slot: int) -> dict[tuple, str]:
+    """(old name, head, body) -> the name a chain of the village's "Name changed" records (the Births and
+    Conceptions log) ends on.  An old name and looks two records take to different names is left out
+    (never a guess); none when the logs cannot be read."""
+    import vv_log_additions as additions
+    out: dict[tuple, str] = {}
+    clash: set[tuple] = set()
+    try:
+        villages = additions.current_villages(folder, game, slot)
+        births = [path for path in tools.load_checker().log_files(folder) if "Births and Conceptions" in path.name]
+        for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
+            for b in additions.blocks(path):
+                if b.heading != "Name changed" or not b.of(slot, game, villages):
+                    continue
+                new, head, body = b.identity
+                old = b.value("Old name")
+                if not new or not old or old == new or head is None or body is None:
+                    continue
+                if out.get((old, head, body), new) != new:
+                    clash.add((old, head, body))
+                out[(old, head, body)] = new
+    except (OSError, ValueError, UnicodeError):
+        return {}
+    for key in clash:
+        out.pop(key, None)
+    done: dict[tuple, str] = {}
+    for (old, head, body), new in out.items():
+        seen = {old}
+        while (new, head, body) in out and new not in seen and len(seen) < 16:
+            seen.add(new)
+            new = out[(new, head, body)]
+        done[(old, head, body)] = new
+    return done
 
 
 def _relooked(key: tuple, stored, living_keys: set[tuple]) -> tuple:
@@ -2299,10 +2380,14 @@ def random_seed() -> int:
 
 
 def heathen_identities(folder: Path, game: int, slot: int) -> set[tuple]:
-    """The villagers the logs say are Heathens (New Believers): they never get a last name here."""
+    """The villagers who are Heathens (New Believers; the save's faction for the living, the latest record for
+    the dead and gone), never converted.  Repair's random last names leave them alone -- the game gives each
+    Heathen a last name of their own (HEATHENS) -- and their last names are no village names (village_names)."""
+    if game != 5:
+        return set()
     import vv_genealogy as gen
     village = gen.load_village(Path(folder), game, slot, full_names=False)
-    return {p.key for p in village.known() if getattr(p, "heathen", False)}
+    return {p.key for p in village.known() if gen.is_unconverted_heathen(p)}
 
 
 def earlier_record_names(game: int, village, known: set[str] | frozenset = frozenset()) -> dict[tuple, set[str]]:
@@ -2341,7 +2426,8 @@ def random_last_names(game: int, people: list[Living], parents: dict[tuple, tupl
     """(the new last names, the villagers none fits): random last names from the game's list (`pool`)
     for the villagers in `people` -- "missing": only those with no last name now (`current`: identity ->
     the last name in their box, "" none, else the one their name carries); "everyone": all of them,
-    each given one that differs from the one they have.  Villagers in `skip` (Heathens) are left alone.
+    each given one that differs from the one they have.  Villagers in `skip` (Heathens: the game gives them
+    their own, HEATHENS) are left alone.
     Only the changed names are returned, and every one fits the game's name field (`room`).  Not
     unique by design, but a name no one else in the village has is preferred while the list has one.
     `families`: a family shares one random name -- a villager with no recorded parent gets one, and
@@ -2425,7 +2511,7 @@ def random_last_names(game: int, people: list[Living], parents: dict[tuple, tupl
 # split_name reads it: one word, a numeral after one word, or words the player said are one first name)
 # -- an island event's or a Custom Island Event's newcomer, an older villager from before the patch, a
 # rename that dropped it -- is found here, with a last name suggested.  Never a current Heathen (New
-# Believers: Heathens never count).  The game's quit check (native/shared/crosscheck_bridge.h) finds the
+# Believers: the game gives each Heathen one of their own as it loads the village, HEATHENS).  The game's quit check (native/shared/crosscheck_bridge.h) finds the
 # same villagers and queues the player's answer in the slot's request file:
 #     VVFP MISSING LAST NAMES v1 game=N
 #     asked<TAB>remind | not now

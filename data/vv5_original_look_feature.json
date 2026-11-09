@@ -28,7 +28,7 @@
     {
       "source": "assets/original_look/VVFP Original Look.dll",
       "destination": "VVFP Original Look.dll",
-      "sha256": "87B74AF5B84D8EDBBBE3C93BEF3CBAA2C3BC860F9F7DC184CCA66FD20F992E4C"
+      "sha256": "AF5877CA48169B76F0F60E1930B1264CA1231C4C9099092C86BEC68B238DF58E"
     }
   ],
   "patches": [],

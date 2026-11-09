@@ -185,6 +185,19 @@ static int hl_slot_now(void) {
 
 #include "head_look_store.inc"
 
+/* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
+   New Believers' Heathens with no last name right after the villager table's load, before any look here,
+   and hands the batch over.  Each look stays its villager's: the pairs are kept for the slot's file, and a
+   table already held for the slot is carried and written now.  Returns how many pairs were kept. */
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                                         const char *const *old_names) {
+    if (game < 1 || game > 5 || game != g_game) {
+        return 0;
+    }
+    return hl_renamed(slot, count, records, old_names, LAYOUT[game].stride, LAYOUT[game].name,
+                      LAYOUT[game].name_bytes);
+}
+
 /* ---- the draws ------------------------------------------------------------------------------------- */
 
 /* Register numbers as x86 encodes them; HL_NONE for no second register. */
