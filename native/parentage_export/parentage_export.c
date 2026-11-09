@@ -3578,6 +3578,28 @@ static void vv1_parentage_bridge(const void *records, const void *mother, const 
     vv1_parentage_conceived(records, mother, father);
 }
 
+/* Skin Tones (A New Home only, a draft; native/shared/skin_tones.h): each
+   conception this hook sees is handed to "VVFP Skin Tones.dll", which keeps
+   the mother's and the father's skin tones as they are now for the baby to
+   come (father NULL: not captured).  Found with GetModuleHandleA (VVFP
+   Startup.dll loads it at game start; nothing is ever loaded from here), so
+   with that row off this is a no-op. */
+typedef int (__stdcall *vv1_skin_conceived_t)(const void *mother, const void *father);
+static int vv1_skin_state;        /* 0 = not tried, 1 = resolved, -1 = not in the game */
+static vv1_skin_conceived_t vv1_skin_conceived;
+
+static void vv1_skin_bridge(const void *mother, const void *father) {
+    if (vv1_skin_state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Skin Tones.dll");
+        vv1_skin_conceived = dll != NULL
+            ? (vv1_skin_conceived_t)GetProcAddress(dll, "Vv1SkinToneConceived") : NULL;
+        vv1_skin_state = vv1_skin_conceived != NULL ? 1 : -1;
+    }
+    if (vv1_skin_state == 1) {
+        (void)vv1_skin_conceived(mother, father);
+    }
+}
+
 /* Set only for the length of one WriteParentageConceptionFatherSet call (A
    New Home: a father the Custom Island Event set, with no record of his to
    capture); NULL otherwise. */
@@ -3731,6 +3753,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
            sees it on some births and not others learns something true: the
            call site that produced this one did not carry a father. */
         father = father_from_caller;
+        vv1_skin_bridge(mother, father);      /* A New Home's skin tones (father NULL: not captured) */
         if (father == NULL) {
             memcpy(father_name, "(not captured for this birth)", 30);
         } else {

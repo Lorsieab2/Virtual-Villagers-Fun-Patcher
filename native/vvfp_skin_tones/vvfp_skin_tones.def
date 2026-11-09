@@ -1,0 +1,15 @@
+LIBRARY "VVFP Skin Tones"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    Vv1SkinToneInstalled=_Vv1SkinToneInstalled@0
+    Vv1SkinToneCount=_Vv1SkinToneCount@0
+    Vv1SkinToneGet=_Vv1SkinToneGet@4
+    Vv1SkinToneOriginal=_Vv1SkinToneOriginal@4
+    Vv1SkinToneSet=_Vv1SkinToneSet@8
+    Vv1SkinToneSetMany=_Vv1SkinToneSetMany@12
+    Vv1SkinToneConceived=_Vv1SkinToneConceived@8
+    Vv1SkinToneBorn=_Vv1SkinToneBorn@8
+    Vv1SkinToneSheetFor=_Vv1SkinToneSheetFor@12
+    Vv1SkinToneGreySheetFor=_Vv1SkinToneGreySheetFor@12
+    Vv1SkinToneDrawPreview=_Vv1SkinToneDrawPreview@24

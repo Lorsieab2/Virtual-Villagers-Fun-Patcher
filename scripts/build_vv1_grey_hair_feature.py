@@ -131,6 +131,10 @@ def row(dll_sha: str, sheet_sha: dict[str, str]) -> dict:
             "Show Parents (\"VVFP VV1 Parentage.dll\") draws a child's Details portrait head again over the "
             "parents' figures with the portrait's own arguments; it asks Vv1GreyHairSheetFor for the sheet, so "
             "that redrawn head is the same grey or young head the portrait's own draw used.",
+            "Skin Tones (\"VVFP Skin Tones.dll\", A New Home's draft row vv1_skin_tones): with it in the game, "
+            "the head sheet chosen at the engine entry -- young or grey -- is then the villager's skin tone's "
+            "(Vv1SkinToneSheetFor / Vv1SkinToneGreySheetFor), the owner's own sheet when it is there; "
+            "Vv1GreyHairSheetFor answers the same.  Without it nothing changes.",
         ],
         "explicit_non_changes": [
             "This row changes no executable bytes: the DLL verifies the 29 reads, the two engine entries and "

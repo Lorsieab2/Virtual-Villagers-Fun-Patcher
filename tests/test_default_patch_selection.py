@@ -149,7 +149,18 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # DEFAULTS ONLY").
                   or p == "vv5_heathens_keep_masks_when_converted"
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
-                  or p == "vv5_respecting_the_legacy_of_isola"})
+                  or p == "vv5_respecting_the_legacy_of_isola"
+                  # Skin Tones (A New Home; a draft): off by default, on in Owner's Defaults and Select All.
+                  or p == "vv1_skin_tones"})
+
+    def test_skin_tones_is_off_by_default_and_on_in_owners_defaults_and_select_all(self) -> None:
+        """Skin Tones (A New Home; a draft for the owner): off by default, on in Owner's Defaults and Select All
+        (no rule says otherwise: it changes neither the output's name nor the save format)."""
+        patch_id = "vv1_skin_tones"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
 
     def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it

@@ -223,6 +223,10 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (2026-11-08): "default on in OWNERS DEFAULTS ONLY" -- off here; Owner's
     # Defaults ticks it, as it ticks every default-off patch it does not name.
     + ["vv5_heathens_keep_masks_when_converted"]
+    # Skin Tones (A New Home; a draft): off by default, on in Owner's Defaults
+    # and Select All (Owner's Defaults ticks every default-off patch it does
+    # not name).
+    + ["vv1_skin_tones"]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]

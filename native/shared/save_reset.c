@@ -101,6 +101,10 @@ int vv_reset_refused_paths = 0;
    native/vvfp_head_look/head_look_store.inc): it belongs to the village being erased.  Written only in
    the save's own folder (per_save.h), which the older-layout name below routes to. */
 #define HEAD_LOOKS_FORMAT DATA_FORMAT("Head Looks", "Head Looks")
+/* ...and A New Home's skin tones (native/vvfp_skin_tones/skin_tone_store.inc; a draft): each villager's
+   tone and the tones kept at a conception belong to the village being erased; the new founders are given
+   theirs as they are first seen.  Routed the same way. */
+#define SKIN_TONES_FORMAT DATA_FORMAT("Skin Tones", "Skin Tones")
 #define SIDECAR_FORMAT_COUNT 23
 static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
     /* VV1 */ { PAID_FORMAT("1"), STORY_QUEUE_FORMAT("1"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 1 Village Masks"),
@@ -115,7 +119,7 @@ static const char *const SIDECAR_FORMATS[5][SIDECAR_FORMAT_COUNT] = {
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Villagers at Last Save"),
                DATA_FORMAT(VV_DATA_SUB_UNACCOUNTED, "Virtual Villagers 1 Village Roster"),
                ROSTER_FORMAT("1"), GRAVES_LOGGED_FORMAT("1"), ARRIVALS_FORMAT("1"), APPROVAL_FORMAT("1"),
-               HEAD_LOOKS_FORMAT },
+               HEAD_LOOKS_FORMAT, SKIN_TONES_FORMAT },
     /* VV2 */ { PAID_FORMAT("2"), STORY_QUEUE_FORMAT("2"), DATA_FORMAT(VV_DATA_SUB_MASKS, "Virtual Villagers 2 Village Masks"),
                "%s\\Virtual Villagers Fun Patcher Data\\Virtual Villagers 2 Village Masks - Save %d.dat",
                "%s\\vv2_masks_%d.dat", CUSTOM_TITLES_FORMAT,

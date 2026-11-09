@@ -1416,6 +1416,37 @@ The Day of Honor island event and every other action are unchanged.
 Nothing is saved. The game never starts "Reflecting" by itself: only a
 Custom Island Event does.
 
+SKIN TONES (DRAFT) (A NEW HOME)
+
+A draft for the owner, not for a release: the pictures are not included.
+Every A New Home villager has a skin tone of their own. Tone 0 is the game's
+own art; tones 1, 2, 3 ... are pictures you draw, put in the game folder's
+Images\vvfp_skin\1\, Images\vvfp_skin\2\ ... under the game's own file names
+and sizes (docs\skin-tones-art-guide.md lists every file). The number of tone
+folders is the number of tones (eight until the first folder exists). A
+picture that is missing, or not the game's size, is drawn from the game's own
+art, so nothing breaks before you draw it.
+
+Founders, Start Over's new villagers, everyone who joins from outside and
+everyone already in the village when you install it get a random tone. A
+baby gets the tone halfway between its mother's and its father's tones as
+they were when it was conceived (a half step toward the mother's); twins
+share one. Without Write Births and Conceptions Log to Text File the father
+is not known, and a baby takes its mother's tone.
+
+Change Appearance has a Skin tone row: < and > step through the tones, Random
+picks another, and the preview shows the chosen tone. Undo changes and Reset
+to original (the tone the villager was born with or first given) include it.
+Change Appearance for All has a Skin tone (every villager) row: Leave as is,
+Random (each villager), or one tone for everyone. A change costs the
+window's usual price and is written in the Births and Conceptions log as
+"Appearance changed", with an Old skin tone and a New skin tone line.
+
+Off by default; on in Owner's Defaults and Select All. Runs on the Origins
+upgrades and on Grey Hair at 55 (which draws every head); the patcher adds
+both with it. Show Parents' small parent figures, the Family Tree and Picture
+Studio keep the game's own skin. Not yet seen in a running game.
+
 SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
 
 The Lost Children and the later games let you sort the villagers you step
@@ -1486,6 +1517,18 @@ Fun Patcher Data", one file per save slot:
                                                     Deleted by Start Over; delete
                                                     it yourself and every look is
                                                     Auto again)
+    Skin Tones\                                    (Skin Tones, A New Home, a
+        Skin Tones - Save <slot>.dat                draft: each villager's skin
+                                                    tone, the tone it was born
+                                                    with or first given, and a
+                                                    carrying mother's parents'
+                                                    tones. Written in the save's
+                                                    own folder, Virtual Villagers
+                                                    Fun Patcher\Save <slot>\Data\
+                                                    Skin Tones. Deleted by Start
+                                                    Over; delete it yourself and
+                                                    every villager gets a random
+                                                    tone again)
     Original Looks\                                (Original Looks: each villager's
         Original Looks - Save <slot>.dat            head, body and mask before any
                                                     change, for Change Appearance's

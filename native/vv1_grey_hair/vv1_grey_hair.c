@@ -47,6 +47,11 @@
    young-sheet arguments, asks Vv1GreyHairSheetFor for the sheet first, so the redrawn head is the one the
    village draws; the parents' own small pictures stay young.
 
+   SKIN TONES (A New Home, a draft: native/vvfp_skin_tones).  With "VVFP Skin Tones.dll" in the game, the
+   sheet chosen above -- young or grey -- is then the villager's skin tone's, the owner's own sheet when it
+   is there (engine_draw and Vv1GreyHairSheetFor ask Vv1SkinToneSheetFor / Vv1SkinToneGreySheetFor).  The
+   head reads and the engine entries stay this DLL's alone: the masks still see the young sheet.
+
    THE ART.  Images\vvfp_grey_male_heads.png and Images\vvfp_grey_female_heads.png, beside the game's
    own sheets (the game's sprite loader opens them there by name), each exactly the stock layout:
    280 x 1300 pixels, 7 columns x 20 rows of 40 x 65 cells, the row the head value.  Each is built on
@@ -66,6 +71,7 @@
 #include "../shared/install_sites.h"
 #include "../shared/vv1_grey_hair.h"
 #include "../shared/head_look.h"
+#include "../shared/skin_tones.h"
 
 #define VV1_GAME 1
 #define MALE_HEADS 0x3DFF8u             /* gameobj: male_heads.png's sprite */
@@ -152,6 +158,7 @@ static int installed;
 static unsigned char site_expect[SITE_COUNT][SITE_LEN];
 static unsigned int remembered_sheet;              /* the young sheet a read just handed out, 0 none */
 static const unsigned char *remembered_record;
+static const unsigned char *remembered_game;
 static int remembered_male;
 static int sheet_state[2];                         /* by sex: 0 not tried, 1 built, -1 not usable */
 static unsigned char *sheet[2];
@@ -175,6 +182,26 @@ static int head_look(const unsigned char *record) {
         look_state = look_get != NULL ? 1 : -1;
     }
     return look_state == 1 ? look_get(VV1_GAME, record) : VVFP_HEAD_LOOK_AUTO;
+}
+
+/* Skin Tones (native/shared/skin_tones.h; A New Home, a draft): "VVFP Skin Tones.dll" keeps each villager's
+   skin tone and the owner's sheets for it.  A head's sheet may only change here, at the engine entry, after
+   the Origins mask hooks have seen the young sheet, so the head draws ask it here: the young sheet as the
+   villager's tone draws it (Vv1SkinToneSheetFor), or the grey one (Vv1SkinToneGreySheetFor).  Found once,
+   at the first head drawn; without it every head is the game's own (or this patch's grey) sheet. */
+static int skin_state;                             /* 0 not looked for, 1 found, -1 not in the game */
+static vv1_skin_tone_sheet_for_fn skin_young;
+static vv1_skin_tone_grey_sheet_for_fn skin_grey;
+
+static int skin_found(void) {
+    if (skin_state == 0) {
+        HMODULE dll = GetModuleHandleA(VVFP_SKIN_TONES_DLL);
+        skin_young = dll != NULL ? (vv1_skin_tone_sheet_for_fn)GetProcAddress(dll, VV1_SKIN_TONE_SHEET_FOR) : NULL;
+        skin_grey = dll != NULL
+            ? (vv1_skin_tone_grey_sheet_for_fn)GetProcAddress(dll, VV1_SKIN_TONE_GREY_SHEET_FOR) : NULL;
+        skin_state = skin_young != NULL && skin_grey != NULL ? 1 : -1;
+    }
+    return skin_state == 1;
 }
 
 /* Grey from a shown age of 1,100 -- or always (Old), or never (Young), when Change Appearance says so. */
@@ -265,6 +292,7 @@ static unsigned int __cdecl site_read(unsigned int *frame) {
     unsigned int young = *(const unsigned int *)(game + (s->male ? MALE_HEADS : FEMALE_HEADS));
     frame[7 - s->reg] = young;
     remembered_record = villager_at(s, frame, game);
+    remembered_game = game;
     remembered_male = s->male;
     remembered_sheet = remembered_record != NULL ? young : 0;
     return s->va + SITE_LEN;
@@ -301,7 +329,8 @@ static void (*const SITE_STUBS[])(void) = {
 
 /* ---- part 2: the two engine draws ----------------------------------------------------------------- */
 
-/* `sprite` is the draw's first argument. */
+/* `sprite` is the draw's first argument.  The grey sheet when the villager is drawn grey, then -- with
+   Skin Tones in the game -- that sheet as the villager's tone draws it. */
 static void __cdecl engine_draw(unsigned int *sprite) {
     if (remembered_sheet != 0 && *sprite == remembered_sheet) {
         const unsigned char *record = remembered_record;
@@ -311,7 +340,14 @@ static void __cdecl engine_draw(unsigned int *sprite) {
             unsigned char *grey = grey_sheet(male);
             if (grey != NULL) {
                 *sprite = (unsigned int)(UINT_PTR)grey;
+                if (skin_found()) {
+                    *sprite = (unsigned int)(UINT_PTR)skin_grey(record, male, grey);
+                }
+                return;
             }
+        }
+        if (skin_found()) {
+            *sprite = (unsigned int)(UINT_PTR)skin_young(remembered_game, record, (void *)(UINT_PTR)*sprite);
         }
     }
 }
@@ -408,7 +444,7 @@ int __stdcall Vv1GreyHairWanted(const void *record) {
    over the parents' figures with the Details portrait's own seven arguments, whose sprite is still the
    young sheet the read handed out.  The grey sheet of that sex when this villager is drawn grey and that
    sheet can be drawn; otherwise `sprite`, untouched -- anything not one of `gameobj`'s two young sheets
-   included.  Asked from that draw, so building the sheet here is safe (the head's own draw, just before,
+   included.  With Skin Tones in the game, the sheet is then the one the villager's tone draws.  Asked from that draw, so building the sheet here is safe (the head's own draw, just before,
    has built it already). */
 void *__stdcall Vv1GreyHairSheetFor(const void *gameobj, const void *record, void *sprite) {
     const unsigned char *game = (const unsigned char *)gameobj;
@@ -431,11 +467,13 @@ void *__stdcall Vv1GreyHairSheetFor(const void *gameobj, const void *record, voi
     } else {
         return sprite;
     }
-    if (!drawn_grey(r)) {
-        return sprite;
+    if (drawn_grey(r)) {
+        grey = grey_sheet(male);
+        if (grey != NULL) {
+            return skin_found() ? skin_grey(r, male, grey) : grey;
+        }
     }
-    grey = grey_sheet(male);
-    return grey != NULL ? grey : sprite;
+    return skin_found() ? skin_young(game, r, sprite) : sprite;
 }
 
 /* Whether the grey heads of a sex can be drawn at all (native/shared/vv1_grey_hair.h).  Asked from a

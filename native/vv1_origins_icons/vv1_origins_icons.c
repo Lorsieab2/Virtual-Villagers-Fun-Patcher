@@ -19,6 +19,9 @@
 #include "../shared/data_subfolder.h" /* each kind of data file in its own folder */
 #include "../shared/vv1_grey_hair.h"  /* Grey Hair at 55: the picker previews a grey head */
 #include "../shared/head_look.h"      /* Change Appearance's head look: Auto, Young or Old */
+#if !defined(VV_STORY_GAME) || VV_STORY_GAME == 1   /* A New Home only: The Lost Children's build is unchanged */
+#include "../shared/skin_tones.h"     /* Skin Tones (A New Home, a draft): births and Change Appearance */
+#endif
 #include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
@@ -1741,7 +1744,24 @@ static void vv1_parentage_bridge_draw(void *gameobj, void *record,
    already named, and its mother's.  Forwarded to the parentage companion; a
    missing companion is a no-op. */
 #if VV_STORY_GAME == 1
+/* Skin Tones (native/shared/skin_tones.h): the child's tone from its parents' (Vv1SkinToneBorn), handed
+   every birth this hook sees, with or without the parentage companion.  Found once; GetModuleHandle never
+   loads anything, so with the row off this is a no-op. */
+static void vv1_skin_born(void *child, void *mother) {
+    static int state;             /* 0 = not tried, 1 = resolved, -1 = not in the game */
+    static vv1_skin_tone_pair_fn born;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA(VVFP_SKIN_TONES_DLL);
+        born = dll != NULL ? (vv1_skin_tone_pair_fn)GetProcAddress(dll, VV1_SKIN_TONE_BORN) : NULL;
+        state = born != NULL ? 1 : -1;
+    }
+    if (state == 1) {
+        (void)born(child, mother);
+    }
+}
+
 int __stdcall Vv1Born(void *child, void *mother) {
+    vv1_skin_born(child, mother);
     if (!vv1_parentage_resolve()) {
         return 0;
     }
@@ -2803,6 +2823,125 @@ static int appearance_look_offered;
 static int appearance_look;          /* 0 Auto, 1 Young, 2 Old */
 static int appearance_look_was;
 
+#if VV_STORY_GAME == 1
+/* SKIN TONE (native/shared/skin_tones.h; A New Home, a draft): offered when "VVFP Skin Tones.dll" is in the
+   game with its draws in.  The row ("Skin tone": < name >, Random) is added below the pickers as the window
+   opens (vv1_skin_row_add), so the dialog templates are unchanged; the preview draws the head and the body
+   from the owner's sheet of the chosen tone, or the game's own strip when that sheet is not there.  The tone
+   is kept on OK -- with the head, body and mask when they changed too, alone when they did not -- charged
+   like any change, and written in the "Appearance changed" record. */
+#define ID_TONE_PREV   3540
+#define ID_TONE_LABEL  3541
+#define ID_TONE_NEXT   3542
+#define ID_TONE_RANDOM 3543
+#define ID_TONE_GROUP  3544
+static vv1_skin_tone_api appearance_tone_api;
+static int appearance_tone_offered;
+static int appearance_tone;          /* the tone shown: 0..N */
+static int appearance_tone_was;      /* as the window opened: -1 none kept yet (drawn as 0), else 0..N */
+
+/* The tone the villager is drawn with now, 0..N. */
+static int vv1_tone_shown(int kept) {
+    return kept < 0 ? 0 : kept;
+}
+
+/* Grow `window` at `from` (client pixels) by `extra` pixels: every control at or below `from` moves down,
+   and the dialog kit (vvfp_dialog_kit.h) takes the grown size as the smallest. */
+static void vv1_grow_dialog(HWND window, int from, int extra) {
+    HWND child;
+    RECT r;
+    vk_state *kit = vk_get(window);
+    for (child = GetWindow(window, GW_CHILD); child != NULL; child = GetWindow(child, GW_HWNDNEXT)) {
+        POINT at;
+        GetWindowRect(child, &r);
+        at.x = r.left;
+        at.y = r.top;
+        ScreenToClient(window, &at);
+        if (at.y >= from) {
+            SetWindowPos(child, NULL, at.x, at.y + extra, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+        }
+    }
+    if (kit != NULL) {
+        RemovePropA(window, VK_PROP);   /* the kit lays nothing out for this resize */
+    }
+    GetWindowRect(window, &r);
+    SetWindowPos(window, NULL, 0, 0, r.right - r.left, r.bottom - r.top + extra,
+                 SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+    if (kit != NULL) {
+        GetClientRect(window, &r);
+        kit->w0 = r.right;
+        kit->h0 = r.bottom;
+        GetWindowRect(window, &r);
+        kit->min_w = r.right - r.left;
+        kit->min_h = r.bottom - r.top;
+        kit->captured = 0;
+        kit->count = 0;
+        SetPropA(window, VK_PROP, kit);
+    }
+}
+
+/* A control at (x, y, w, h) dialog units from the client point (0, top), in the dialog's font. */
+static HWND vv1_add_control(HWND window, const char *kind, const char *text, DWORD style, int id, int top,
+                            int x, int y, int w, int h) {
+    RECT r;
+    HWND control;
+    r.left = x;
+    r.top = y;
+    r.right = x + w;
+    r.bottom = y + h;
+    MapDialogRect(window, &r);
+    control = CreateWindowExA(0, kind, text, WS_CHILD | WS_VISIBLE | style, r.left, top + r.top,
+                              r.right - r.left, r.bottom - r.top, window, (HMENU)(UINT_PTR)id,
+                              module_instance, NULL);
+    if (control != NULL) {
+        SendMessageA(control, WM_SETFONT, SendMessageA(window, WM_GETFONT, 0, 0), FALSE);
+    }
+    return control;
+}
+
+/* The "Skin tone" row, above the Randomize group (whose first button is Random head). */
+static void vv1_skin_row_add(HWND window) {
+    RECT r;
+    POINT at;
+    int top;
+    HWND anchor = GetDlgItem(window, VVFP_AX_RANDOM_HEAD);
+    if (anchor == NULL) {
+        return;
+    }
+    GetWindowRect(anchor, &r);
+    at.x = r.left;
+    at.y = r.top;
+    ScreenToClient(window, &at);
+    r.left = 0;
+    r.top = 11;                     /* the Randomize group's frame is 11 units above its first row */
+    r.right = 0;
+    r.bottom = 30;                  /* the row's height */
+    MapDialogRect(window, &r);
+    top = at.y - r.top;
+    vv1_grow_dialog(window, top, r.bottom);
+    vv1_add_control(window, "BUTTON", "Skin tone", BS_GROUPBOX, ID_TONE_GROUP, top, 14, 0, 336, 26);
+    vv1_add_control(window, "BUTTON", "<", WS_TABSTOP | BS_PUSHBUTTON, ID_TONE_PREV, top, 28, 9, 16, 13);
+    vv1_add_control(window, "STATIC", "", SS_CENTER, ID_TONE_LABEL, top, 46, 11, 90, 9);
+    vv1_add_control(window, "BUTTON", ">", WS_TABSTOP | BS_PUSHBUTTON, ID_TONE_NEXT, top, 138, 9, 16, 13);
+    vv1_add_control(window, "BUTTON", "Random", WS_TABSTOP | BS_PUSHBUTTON, ID_TONE_RANDOM, top, 292, 9, 50, 13);
+}
+
+static void vv1_skin_row_show(HWND window) {
+    char name[24];
+    if (appearance_tone_offered) {
+        vv1_skin_tone_name(name, appearance_tone);
+        SetDlgItemTextA(window, ID_TONE_LABEL, name);
+    }
+}
+
+/* The preview of a head or body in the chosen tone, from the owner's sheet; 0 when the caller draws its
+   own strip (tone 0, the row not offered, or that sheet not there). */
+static int vv1_skin_preview(DRAWITEMSTRUCT *item, int male, int part, int row) {
+    return appearance_tone_offered && appearance_tone > 0
+        && appearance_tone_api.preview(item->hDC, &item->rcItem, male, part, row, appearance_tone);
+}
+#endif
+
 static void appearance_draw_head(DRAWITEMSTRUCT *item, const unsigned char *villager, int male) {
     HMODULE grey = GetModuleHandleA(VV1_GREY_HAIR_DLL);
     vv1_grey_hair_wanted_fn wanted = grey != NULL
@@ -2814,6 +2953,11 @@ static void appearance_draw_head(DRAWITEMSTRUCT *item, const unsigned char *vill
     int drawn_grey = appearance_look_offered
         ? usable != NULL && usable(male) && vvfp_head_look_old(appearance_look, *(const int *)(villager + VV_AGE_OFFSET))
         : wanted != NULL && wanted(villager);
+#if VV_STORY_GAME == 1
+    if (vv1_skin_preview(item, male, drawn_grey ? VVFP_SKIN_PART_GREY_HEAD : VVFP_SKIN_PART_HEAD, head)) {
+        return;
+    }
+#endif
     if (drawn_grey) {
         appearance_draw_from(item, grey, male ? VV1_GREY_HAIR_PREVIEW_MALE : VV1_GREY_HAIR_PREVIEW_FEMALE, head);
         return;
@@ -2864,6 +3008,9 @@ static void appearance_show(HWND window) {
     if (appearance_look_offered) {
         CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
     }
+#if VV_STORY_GAME == 1
+    vv1_skin_row_show(window);
+#endif
     appearance_repaint(window, IDC_HEAD_PREVIEW);
     appearance_repaint(window, IDC_BODY_PREVIEW);
     appearance_repaint(window, IDC_MASK_PREVIEW);
@@ -2878,6 +3025,9 @@ static int appearance_extra(HWND window, unsigned int command) {
     if (command == VVFP_AX_UNDO) {
         appearance_revert();
         appearance_look = appearance_look_was;
+#if VV_STORY_GAME == 1
+        appearance_tone = vv1_tone_shown(appearance_tone_was);
+#endif
     } else if (command == VVFP_AX_RESET) {
         int h, b, m;
         if (!vvfp_original_look(1, appearance_state.villager, &h, &b, &m) || h < 0 || h >= count
@@ -2895,6 +3045,15 @@ static int appearance_extra(HWND window, unsigned int command) {
         if (appearance_look_offered) {
             appearance_look = VVFP_HEAD_LOOK_AUTO;
         }
+#if VV_STORY_GAME == 1
+        if (appearance_tone_offered) {
+            /* The tone it was born with or first given; a villager with none kept keeps the one shown. */
+            int original = appearance_tone_api.original(appearance_state.villager);
+            if (original >= 0) {
+                appearance_tone = original;
+            }
+        }
+#endif
     } else if (command == VVFP_AX_RANDOM_HEAD
                || (command >= VVFP_AX_HAIR_FIRST && command <= VVFP_AX_HAIR_LAST)) {
         if (!vv1_confirm_head_genetics_warning(window)) {
@@ -2956,6 +3115,11 @@ static INT_PTR CALLBACK appearance_dialog(
            mask row has no owner-draw preview (it's a plain text label,
            not a bitmap strip cell), so its starting text is set directly
            here rather than through WM_DRAWITEM. */
+#if VV_STORY_GAME == 1
+        if (appearance_tone_offered) {
+            vv1_skin_row_add(window);
+        }
+#endif
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
         appearance_show(window);
@@ -2975,6 +3139,12 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (item->CtlID == IDC_BODY_PREVIEW) {
+#if VV_STORY_GAME == 1
+            if (vv1_skin_preview(item, appearance_state.male, VVFP_SKIN_PART_BODY,
+                                 *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET))) {
+                return TRUE;
+            }
+#endif
             appearance_draw(
                 item,
                 appearance_state.male ? IDB_BODY_M : IDB_BODY_F,
@@ -2996,6 +3166,21 @@ static INT_PTR CALLBACK appearance_dialog(
         if (appearance_extra(window, command)) {
             return TRUE;
         }
+#if VV_STORY_GAME == 1
+        if (appearance_tone_offered
+            && (command == ID_TONE_PREV || command == ID_TONE_NEXT || command == ID_TONE_RANDOM)) {
+            int tones = appearance_tone_api.count + 1;      /* 0 (the game's own) .. N */
+            if (command == ID_TONE_RANDOM) {
+                appearance_tone = vvfp_ax_pick_other(&appearance_rng, tones, appearance_tone);
+            } else {
+                appearance_tone = (appearance_tone + (command == ID_TONE_PREV ? tones - 1 : 1)) % tones;
+            }
+            vv1_skin_row_show(window);
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
+            appearance_repaint(window, IDC_BODY_PREVIEW);
+            return TRUE;
+        }
+#endif
         if (command == ID_HEAD_PREV) {
             if (!vv1_confirm_head_genetics_warning(window)) {
                 return TRUE;
@@ -3052,6 +3237,24 @@ static INT_PTR CALLBACK appearance_dialog(
                 }
                 changed = 1;
             }
+#if VV_STORY_GAME == 1
+            /* The skin tone ("VVFP Skin Tones.dll"'s own file), kept like the head look: charged like any
+               change, the tone alone too; a tone that cannot be kept keeps nothing else either. */
+            if (appearance_tone_offered && appearance_tone != vv1_tone_shown(appearance_tone_was)) {
+                if (!appearance_tone_api.set(appearance_state.villager, appearance_tone)) {
+                    MessageBoxA(window, "The skin tone could not be kept: the patcher's file for this save "
+                                "could not be written. Nothing was changed.", "Villager Upgrades",
+                                MB_OK | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND);
+                    if (appearance_look_offered && appearance_look != appearance_look_was) {
+                        (void)appearance_look_api.set(1, appearance_state.villager, appearance_look_was);
+                    }
+                    appearance_revert();
+                    EndDialog(window, 0);
+                    return TRUE;
+                }
+                changed = 1;
+            }
+#endif
             /* Persist the mask table the moment a mask edit is confirmed, so
                the choice survives a quit even without the exe's own save. */
             if (mask_changed) {
@@ -3074,6 +3277,47 @@ static INT_PTR CALLBACK appearance_dialog(
 }
 
 #if VV_STORY_GAME == 1
+/* One villager's "Appearance changed" record (native/shared/appearance_log.h), with two more lines when the
+   skin tone changed (old_tone != new_tone, each 0..N; -1 not offered): after the mask lines, so the four look
+   lines parentage_export.c relook_last_name reads stay first --
+       Old skin tone: Game's own
+       New skin tone: Tone 3
+   A change of the tone alone is a record too, its head, body and mask lines old = new. */
+static void vv1_log_look(const void *record, int old_head, int old_body, int old_mask, int new_head,
+                         int new_body, int new_mask, int old_tone, int new_tone) {
+    static vv_write_village_record_fn write_record;
+    static int looked;
+    char before[300], was[24], now[24];
+    if (old_tone < 0 || new_tone < 0 || old_tone == new_tone) {
+        vv_log_appearance_mask(1, record, old_head, old_body, old_mask, new_head, new_body, new_mask);
+        return;
+    }
+    {
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+        vv_story_appearance_fn changed = story != NULL
+            ? (vv_story_appearance_fn)GetProcAddress(story, "VvfpStoryAppearanceChanged") : NULL;
+        if (changed != NULL) {
+            (void)changed(1, record, new_head, new_body);
+        }
+    }
+    if (!looked) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        looked = 1;
+        if (module != NULL) {
+            write_record = (vv_write_village_record_fn)GetProcAddress(module, "WriteVillageRecord");
+        }
+    }
+    if (write_record == NULL || old_mask < 0 || old_mask > 5 || new_mask < 0 || new_mask > 5) {
+        return;
+    }
+    vv1_skin_tone_name(was, old_tone);
+    vv1_skin_tone_name(now, new_tone);
+    wsprintfA(before, "  Old head: %d\n  Old body: %d\n  New head: %d\n  New body: %d\n  Old mask: %s\n"
+              "  New mask: %s\n  Old skin tone: %s\n  New skin tone: %s\n", old_head, old_body, new_head, new_body,
+              VV_APPEARANCE_MASK_NAMES[old_mask], VV_APPEARANCE_MASK_NAMES[new_mask], was, now);
+    (void)write_record(1, VV_KIND_APPEARANCE, record, 1, before, NULL, 0);
+}
+
 int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
@@ -3105,6 +3349,9 @@ int __stdcall ShowOriginsAppearancePicker(
     appearance_look_offered = vvfp_head_look_find(1, &appearance_look_api);
     appearance_look = appearance_look_was =
         appearance_look_offered ? appearance_look_api.get(1, villager) : VVFP_HEAD_LOOK_AUTO;
+    appearance_tone_offered = vv1_skin_tone_find(&appearance_tone_api);
+    appearance_tone_was = appearance_tone_offered ? appearance_tone_api.get(villager) : -1;
+    appearance_tone = vv1_tone_shown(appearance_tone_was);
     appearance_rng = GetTickCount() | 1u;
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
@@ -3116,9 +3363,11 @@ int __stdcall ShowOriginsAppearancePicker(
         (LPARAM)(UINT_PTR)villager
     );
     if (result == 1) {                  /* changed and kept: the exe charges for it next */
-        vv_log_appearance_mask(1, villager, appearance_state.original_head, appearance_state.original_body,
-                               appearance_state.original_mask, *(int *)(villager + VV_HEAD_OFFSET),
-                               *(int *)(villager + VV_CLOTHING_OFFSET), vv1_mask_get(villager));
+        vv1_log_look(villager, appearance_state.original_head, appearance_state.original_body,
+                     appearance_state.original_mask, *(int *)(villager + VV_HEAD_OFFSET),
+                     *(int *)(villager + VV_CLOTHING_OFFSET), vv1_mask_get(villager),
+                     appearance_tone_offered ? vv1_tone_shown(appearance_tone_was) : -1,
+                     appearance_tone_offered ? appearance_tone : -1);
     }
     return result;
 }
@@ -3218,6 +3467,110 @@ static int forall_cycle(int cur, int delta, int count) {
    of "effects" applied so the caller can bill ONLY when something changed (an
    all-Off / all-No-change OK must not deduct). Head/Body are ordinary record
    fields; masks go to the .data table (never the .ldw save). */
+#if VV_STORY_GAME == 1
+/* SKIN TONE for every villager (A New Home, a draft; native/shared/skin_tones.h): one row added as the
+   window opens -- "Skin tone (every villager):" < Leave as is | Random (each villager) | Game's own |
+   Tone 1 .. N > -- kept for every villager whose tone changes, in one write, before anything else changes
+   (so a failed write changes nothing), and written in each one's "Appearance changed" record. */
+#define ID_FORALL_TONE_PREV  3550
+#define ID_FORALL_TONE_LABEL 3551
+#define ID_FORALL_TONE_NEXT  3552
+#define ID_FORALL_TONE_TEXT  3553
+#define FORALL_TONE_LEAVE  (-2)
+#define FORALL_TONE_RANDOM (-1)
+static vv1_skin_tone_api forall_tone_api;
+static int forall_tone_offered;
+static int forall_tone;                         /* FORALL_TONE_LEAVE, FORALL_TONE_RANDOM, or 0..N */
+static int forall_tone_old[VV_MASK_SLOTS];      /* by record: the tone before (-1 no change planned) */
+static int forall_tone_new[VV_MASK_SLOTS];
+static const void *forall_tone_record[VV_MASK_SLOTS];
+static int forall_tone_value[VV_MASK_SLOTS];
+static int forall_tone_count;
+
+static void forall_tone_show(HWND window) {
+    char name[40];
+    if (!forall_tone_offered) {
+        return;
+    }
+    if (forall_tone == FORALL_TONE_LEAVE) {
+        lstrcpyA(name, "Leave as is");
+    } else if (forall_tone == FORALL_TONE_RANDOM) {
+        lstrcpyA(name, "Random (each villager)");
+    } else {
+        vv1_skin_tone_name(name, forall_tone);
+    }
+    SetDlgItemTextA(window, ID_FORALL_TONE_LABEL, name);
+}
+
+/* The row, above the "OK deducts" line (the Undo changes button's row is 14 units below it). */
+static void forall_tone_row_add(HWND window) {
+    RECT r;
+    POINT at;
+    int top;
+    HWND anchor = GetDlgItem(window, VVFP_AX_UNDO);
+    if (anchor == NULL) {
+        return;
+    }
+    GetWindowRect(anchor, &r);
+    at.x = r.left;
+    at.y = r.top;
+    ScreenToClient(window, &at);
+    r.left = 0;
+    r.top = 14;
+    r.right = 0;
+    r.bottom = 16;
+    MapDialogRect(window, &r);
+    top = at.y - r.top;
+    vv1_grow_dialog(window, top, r.bottom);
+    vv1_add_control(window, "STATIC", "Skin tone (every villager):", 0, ID_FORALL_TONE_TEXT, top, 8, 2, 100, 9);
+    vv1_add_control(window, "BUTTON", "<", WS_TABSTOP | BS_PUSHBUTTON, ID_FORALL_TONE_PREV, top, 110, 0, 12, 13);
+    vv1_add_control(window, "STATIC", "", SS_CENTER, ID_FORALL_TONE_LABEL, top, 124, 2, 100, 9);
+    vv1_add_control(window, "BUTTON", ">", WS_TABSTOP | BS_PUSHBUTTON, ID_FORALL_TONE_NEXT, top, 226, 0, 12, 13);
+}
+
+/* Plan every covered villager's tone: the row's choice (Random rolled per villager, here, so the plan is
+   what is kept), else the original tone when Reset to original reaches it.  Only a change is planned. */
+static void forall_plan_tones(void) {
+    unsigned char *base = VV_MASK_MANAGER;
+    int i;
+    forall_tone_count = 0;
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        forall_tone_old[i] = forall_tone_new[i] = -1;
+    }
+    if (!forall_tone_offered || base == NULL) {
+        return;
+    }
+    for (i = 0; i < VV_MASK_SLOTS; ++i) {
+        unsigned char *rec = base + (size_t)i * VV_RECORD_STRIDE;
+        int was, want = -1, h, b, m;
+        if (rec[VV_OCCUPIED_OFFSET] != 1) {
+            continue;
+        }
+        was = vv1_tone_shown(forall_tone_api.get(rec));
+        if (forall_tone == FORALL_TONE_RANDOM) {
+            want = vvfp_ax_pick(&forall_state.rng, forall_tone_api.count + 1);
+        } else if (forall_tone >= 0) {
+            want = forall_tone;
+        } else if (forall_state.reset && forall_original(rec, &h, &b, &m)) {
+            want = forall_tone_api.original(rec);
+        }
+        if (want < 0 || want == was) {
+            continue;
+        }
+        forall_tone_old[i] = was;
+        forall_tone_new[i] = want;
+        forall_tone_record[forall_tone_count] = rec;
+        forall_tone_value[forall_tone_count] = want;
+        ++forall_tone_count;
+    }
+}
+
+static int forall_commit_tones(void) {
+    return forall_tone_count == 0
+        || forall_tone_api.set_many(forall_tone_record, forall_tone_value, forall_tone_count);
+}
+#endif
+
 static int forall_apply(void) {
     unsigned char *base = VV_MASK_MANAGER;
     int mo = forall_state.mask_override;
@@ -3321,8 +3674,14 @@ static int forall_apply(void) {
         if (rec[VV_OCCUPIED_OFFSET] == 1) {
             changed += *(int *)(rec + VV_HEAD_OFFSET) != old_head[i]
                 || *(int *)(rec + VV_CLOTHING_OFFSET) != old_body[i] || vv1_mask_get(rec) != old_mask[i];
+#if VV_STORY_GAME == 1
+            vv1_log_look(rec, old_head[i], old_body[i], old_mask[i], *(int *)(rec + VV_HEAD_OFFSET),
+                         *(int *)(rec + VV_CLOTHING_OFFSET), vv1_mask_get(rec), forall_tone_old[i],
+                         forall_tone_new[i]);
+#else
             vv_log_appearance_mask(1, rec, old_head[i], old_body[i], old_mask[i], *(int *)(rec + VV_HEAD_OFFSET),
                                    *(int *)(rec + VV_CLOTHING_OFFSET), vv1_mask_get(rec));
+#endif
         }
     }
     return changed;
@@ -3375,6 +3734,9 @@ static void forall_start(HWND window) {
         appearance_repaint(window, cyclers[r]);
     }
     vvfp_ax_look_rows_init(window, forall_look_offered, forall_state.look);
+#if VV_STORY_GAME == 1
+    forall_tone_show(window);
+#endif
 }
 
 static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
@@ -3393,6 +3755,12 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
            this dialog opened; calling it again here (instead of centering)
            left the whole-village dialog pinned at (0,0) -- effectively
            unreachable in fullscreen. */
+#if VV_STORY_GAME == 1
+        forall_tone = FORALL_TONE_LEAVE;
+        if (forall_tone_offered) {
+            forall_tone_row_add(window);
+        }
+#endif
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
         forall_start(window);
@@ -3430,6 +3798,20 @@ static INT_PTR CALLBACK forall_dialog(HWND window, UINT message,
             if (vvfp_ax_look_rows_command((unsigned int)id, forall_state.look)) {
                 return TRUE;
             }
+#if VV_STORY_GAME == 1
+            if (forall_tone_offered && (id == ID_FORALL_TONE_PREV || id == ID_FORALL_TONE_NEXT)) {
+                /* Leave as is, Random, Game's own, Tone 1 .. N, round. */
+                int choices = forall_tone_api.count + 3;
+                int at = forall_tone + 2;
+                at = (at + (id == ID_FORALL_TONE_PREV ? choices - 1 : 1)) % choices;
+                forall_tone = at - 2;
+                forall_tone_show(window);
+                return TRUE;
+            }
+            if (id == VVFP_AX_UNDO) {
+                forall_tone = FORALL_TONE_LEAVE;
+            }
+#endif
             if (id == VVFP_AX_UNDO) {
                 forall_start(window);
                 return TRUE;
@@ -3529,6 +3911,9 @@ int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
     tech = (int *)(ctx + VV_TECH_POINTS_OFFSET);
     vv1_mask_sidecar_load();      /* start from the persisted table */
     forall_look_offered = vvfp_head_look_find(VV_STORY_GAME, &forall_look_api);
+#if VV_STORY_GAME == 1
+    forall_tone_offered = vv1_skin_tone_find(&forall_tone_api);
+#endif
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
     result = (int)DialogBoxParamA(
@@ -3554,6 +3939,9 @@ int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
                   || forall_state.female_mask != FORALL_NO_CHANGE
                   || forall_state.reset
                   || forall_state.look[0] != VVFP_AX_LEAVE || forall_state.look[1] != VVFP_AX_LEAVE;
+#if VV_STORY_GAME == 1
+        any = any || (forall_tone_offered && forall_tone != FORALL_TONE_LEAVE);
+#endif
         if (!any) {
             MessageBoxA(owner,
                         "No appearance options were selected. No tech points deducted.",
@@ -3589,7 +3977,19 @@ int __stdcall ShowOriginsAppearanceForAll(int gamectx_ptr) {
                     "Change Appearance for All", MB_OK | MB_ICONWARNING);
         return 0;
     }
+#if VV_STORY_GAME == 1
+    forall_plan_tones();
+    if (!forall_commit_tones()) {
+        vvfp_ax_look_plan_undo(&looks, &forall_look_api, VV_STORY_GAME);
+        MessageBoxA(owner, "The skin tones could not be kept: the patcher's file for this save could not be "
+                    "written. Nothing was changed and no tech points have been deducted.",
+                    "Change Appearance for All", MB_OK | MB_ICONWARNING);
+        return 0;
+    }
+    if (forall_apply() + looks.count + forall_tone_count <= 0) {
+#else
     if (forall_apply() + looks.count <= 0) {
+#endif
         return 0;                 /* nothing actually applied -> no charge */
     }
     *tech -= vvfp_story_price(VV_STORY_GAME, VV_FORALL_COST);

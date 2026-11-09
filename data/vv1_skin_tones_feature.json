@@ -1,0 +1,283 @@
+{
+  "id": "vv1_skin_tones",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Skin Tones (Draft)",
+  "description": "**A draft for the owner: not for a release, and the art is not included.** **Needs Enable Origins-Exclusive Features (Change Appearance and the birth hook) and Grey Hair at 55 (which draws every head), which the patcher installs automatically with it.** **Needs Write Births and Conceptions Log to Text File on for the father's tone**: with that patch off a baby takes its mother's tone. Gives every A New Home villager a skin tone of their own. Founders, Start Over's new villagers, everyone who joins from outside and everyone already in your village when you install it get a random tone; a baby gets the tone halfway between its mother's and its father's, as they were when it was conceived (a half step toward the mother's), never a random one; twins share one. Change Appearance has a Skin tone row (with a preview, Random, Undo changes and Reset to original), and Change Appearance for All a row for every villager; a tone change costs the window's usual price and is written in the Births and Conceptions log as \"Appearance changed\". Tone 0 is the game's own art. The other tones are pictures you draw: put each tone's sheets in the game folder's Images\\vvfp_skin\\<tone>\\ folder (1, 2, 3, ...), under the game's own file names and sizes (male_heads.png, female_bodies00.png, male_actions01.png and so on, and Grey Hair's vvfp_grey_male_heads.png and vvfp_grey_female_heads.png); docs\\skin-tones-art-guide.md lists them. The number of tone folders is the number of tones (eight until the first folder exists). A sheet that is missing or not the game's size is drawn from the game's own art, so nothing breaks before the art exists. Each villager's tone is kept in 'Skin Tones - Save <slot>.dat' in the save slot's 'Virtual Villagers Fun Patcher\\Save <slot>\\Data\\Skin Tones' folder beside the saves, never in the save; it follows the villager through renames and reloads, and Start Over deletes it. **Show Parents' small parent figures and the Family Tree keep the game's own skin.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Skin Tones.dll\", started by VVFP Startup.dll.",
+  "output_tag": "Skin Tones",
+  "dependencies": [
+    "vv1_enable_origins_exclusive_features",
+    "vv1_grey_hair"
+  ],
+  "behavior_changes": [
+    "Every draw of a villager's body or action from male_bodies / female_bodies / male_actions / female_actions -- the 35 reads of gameobj+0x3DFE4 / +0x3DFE8 / +0x3DFEC / +0x3DFF0 in the Details portrait 0x437340, a dialog's villager figure 0x4375F0, the village 0x437790 and the map 0x4388E0 -- takes that villager's skin tone's sheet of the same name from Images\\vvfp_skin\\<tone>\\ (the same cells, built once by the game's own constructors 0x40A070 / 0x40A0F0), or the game's own sheet for tone 0 or a sheet that is missing or not the stock size.",
+    "Every head is drawn through Grey Hair at 55's engine-entry swap (0x408AF0 / 0x408740), which asks this companion for the villager's tone's young or grey head sheet (Vv1SkinToneSheetFor / Vv1SkinToneGreySheetFor); Show Parents asks the same for the child it draws again over its parents.",
+    "Each villager's tone is kept in 'Skin Tones - Save <slot>.dat' (the patcher's own per-save file, following the villager by name, sex and family through renames and the load's record packing; another village's file is never replaced; Start Over deletes it).",
+    "A founder or an arrival -- any living villager first seen with no tone once the roster has settled, and every villager of a save the row is first installed on -- gets a random tone 0..N from the companion's own generator (never the game's rand()).",
+    "A conception (the parentage log's hook, Vv1SkinToneConceived) keeps the mother's and the father's tones against the mother; a birth (the Origins birth hook's Vv1Born: live play, the load-time catch-up, Time Warp, twins and triplets, a golden-child mother's extra child, the Golden Child puzzle) gives the baby the midpoint of those tones, a half step toward the mother's, or the mother's own tone when none were kept.",
+    "Change Appearance gains a Skin tone row (< name >, Random) with a preview from the owner's sheet, Undo changes and Reset to original (the tone at birth or first sight); Change Appearance for All gains a Skin tone (every villager) row: Leave as is, Random (each villager), or one tone.  A change is charged like any change and written as an \"Appearance changed\" record with \"Old skin tone\" and \"New skin tone\" lines after the mask lines."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion verifies the 35 reads and the four routines' register set-ups and writes its detours at run time through the shared all-or-none writer; a different build installs nothing and every villager keeps the game's own art.",
+    "Nothing is recoloured: every tone but 0 is the owner's own picture, and no picture is shipped with this row.  The game's own sheets are never changed.",
+    "No villager record byte is written: the head, body and every other field stay what they were, so the logs, genetics and the Origins masks read the same values as before.",
+    "Show Parents' small parent figures, the Family Tree Maker and Picture Studio keep the game's own skin."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/skin_tones/VVFP Skin Tones.dll",
+      "destination": "VVFP Skin Tones.dll",
+      "sha256": "DD5F40D12513F0647910A144DF12364695B3ED22DB35012E86321905ED994E35"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4373B8",
+      "stock_bytes": "8B96E8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, the read of male_bodies (mov edx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437441",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4374C0",
+      "stock_bytes": "8B86E8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, the read of male_bodies (mov eax, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437513",
+      "stock_bytes": "8B96E4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the Details portrait 0x437340, the read of female_bodies (mov edx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437679",
+      "stock_bytes": "8B8EE8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, the read of male_bodies (mov ecx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4376D5",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437723",
+      "stock_bytes": "8B8EE8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, the read of male_bodies (mov ecx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437744",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "a dialog's villager figure 0x4375F0, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437A8E",
+      "stock_bytes": "8B8EF0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov ecx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437AED",
+      "stock_bytes": "8B96E8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_bodies (mov edx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437B2D",
+      "stock_bytes": "8B96F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov edx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437C62",
+      "stock_bytes": "8B96F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov edx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437D08",
+      "stock_bytes": "8B96ECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_actions (mov edx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437E38",
+      "stock_bytes": "8B96E8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_bodies (mov edx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x437F3E",
+      "stock_bytes": "8B96E4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_bodies (mov edx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438210",
+      "stock_bytes": "8B8EF0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov ecx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438286",
+      "stock_bytes": "8B8EECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_actions (mov ecx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438327",
+      "stock_bytes": "8B8EF0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov ecx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43837D",
+      "stock_bytes": "8B8EECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_actions (mov ecx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x43853F",
+      "stock_bytes": "8B8EF0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_actions (mov ecx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438593",
+      "stock_bytes": "8B8EECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_actions (mov ecx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438723",
+      "stock_bytes": "8B8EE8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of male_bodies (mov ecx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438777",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the village 0x437790, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438A07",
+      "stock_bytes": "8B86F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_actions (mov eax, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438AAE",
+      "stock_bytes": "8B8EF0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_actions (mov ecx, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438B05",
+      "stock_bytes": "8B8EE8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_bodies (mov ecx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438B7B",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438CDC",
+      "stock_bytes": "8B86F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_actions (mov eax, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438D6A",
+      "stock_bytes": "8B8EECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of female_actions (mov ecx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438E36",
+      "stock_bytes": "8B86F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_actions (mov eax, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x438EA3",
+      "stock_bytes": "8B86ECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of female_actions (mov eax, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x439002",
+      "stock_bytes": "8B86F0DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_actions (mov eax, [esi+0x3DFF0]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x439087",
+      "stock_bytes": "8B8EECDF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of female_actions (mov ecx, [esi+0x3DFEC]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x439170",
+      "stock_bytes": "8B8EE8DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of male_bodies (mov ecx, [esi+0x3DFE8]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4391EA",
+      "stock_bytes": "8B8EE4DF0300",
+      "written_bytes": "E9XXXXXXXX90",
+      "routine": "the map 0x4388E0, the read of female_bodies (mov ecx, [esi+0x3DFE4]): the companion does the read itself and puts that villager's skin tone's sheet in the register (the game's own when tone 0 or no sheet), then on at the next instruction",
+      "installed_by": "VVFP Skin Tones.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

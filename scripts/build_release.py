@@ -125,6 +125,8 @@ FILES = [
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
+    # Skin Tones (A New Home; a draft): per-villager skin tones drawn from the owner's own sheets.
+    "assets/skin_tones/VVFP Skin Tones.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -265,6 +267,8 @@ FILES = [
     "data/vv3_push_overview_clouds_feature.json",
     # Heathens Keep Their Masks When Converted (New Believers).
     "data/vv5_heathens_keep_masks_feature.json",
+    # Skin Tones (A New Home; a draft).
+    "data/vv1_skin_tones_feature.json",
     # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

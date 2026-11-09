@@ -663,6 +663,18 @@
       ]
     },
     {
+      "ids": ["vv1_skin_tones"],
+      "guide": [
+        "A draft: the art is not included. Each villager has a skin tone; tone 0 is the game's own art.",
+        "Founders, newcomers and everyone already in the village get a random tone. A baby gets the tone halfway between its parents' tones.",
+        "Change Appearance has a Skin tone row (< >, Random); Change Appearance for All has one for every villager. A change costs the usual price.",
+        "Your art: Images\\vvfp_skin\\1\\, 2\\, 3\\ ... in the game folder, each with the game's own sheet names and sizes (docs\\skin-tones-art-guide.md).",
+        "A missing sheet is drawn from the game's own art, so nothing breaks before you draw it.",
+        "Needs Origins and Grey Hair at 55 (ticked with it); the father's tone needs Write Births and Conceptions Log.",
+        "Off by default; on in Owner's Defaults and Select All. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv1_grey_hair"],
       "guide": [
         "Nothing to click: tick the patch, and every villager of 55 years or more is drawn with grey hair.",

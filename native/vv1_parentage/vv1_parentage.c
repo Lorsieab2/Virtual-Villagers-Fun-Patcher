@@ -2308,13 +2308,28 @@ static void *vv1_head_sheet(void *gameobj, const void *rec, void *sprite) {
     return state == 1 ? sheet_for(gameobj, rec, sprite) : sprite;
 }
 
+/* The sheet the child's body is drawn from again: with Skin Tones in the game (A New Home, a draft;
+   native/shared/skin_tones.h) the child's skin tone's body sheet, as the portrait just drew it; otherwise
+   the game's own.  Found once, at the first portrait drawn; GetModuleHandle never loads anything. */
+typedef void *(__stdcall *vv1_skin_sheet_for_fn)(const void *gameobj, const void *record, void *sprite);
+static void *vv1_body_sheet(void *gameobj, const void *rec, void *sprite) {
+    static int state;             /* 0 = not tried, 1 = resolved, -1 = not in the game */
+    static vv1_skin_sheet_for_fn sheet_for;
+    if (state == 0) {
+        HMODULE dll = GetModuleHandleA("VVFP Skin Tones.dll");
+        sheet_for = dll ? (vv1_skin_sheet_for_fn)GetProcAddress(dll, "Vv1SkinToneSheetFor") : NULL;
+        state = sheet_for != NULL ? 1 : -1;
+    }
+    return state == 1 ? sheet_for(gameobj, rec, sprite) : sprite;
+}
+
 /* sub_437340's body draw, recomputed from the record: children grow with
    age (scale 100 + 2*(age/7), frame +0x20 + 11, y 253), adults are fixed
    (scale 200, frame 11, y 233); x 120, flag 1; the atlas by gender. */
 static void vv1_replay_body(void *wrapper, unsigned char *gameobj, const unsigned char *rec) {
     int age = *(const int *)(rec + VV1_AGE_OFFSET);
     int male = *(const int *)(rec + VV1_GENDER_OFFSET) == VV1_GENDER_MALE;
-    void *atlas = *(void **)(gameobj + (male ? VV1_MALE_BODY_ATLAS : VV1_FEMALE_BODY_ATLAS));
+    void *atlas = vv1_body_sheet(gameobj, rec, *(void **)(gameobj + (male ? VV1_MALE_BODY_ATLAS : VV1_FEMALE_BODY_ATLAS)));
     int row = *(const int *)(rec + VV1_BODY_OFFSET);
     if (age < VV1_ADULT_AGE) {
         vv1_replay_draw(wrapper, atlas, 0x78, 0xFD, row, *(const int *)(rec + VV1_ANIM_OFFSET) + 0xB, 2 * (age / 7) + 100, 1);
