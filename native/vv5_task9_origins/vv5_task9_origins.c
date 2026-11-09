@@ -868,7 +868,11 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
    refused (vv5_write_mask_sidecar) and the load that settles clears the table first, so the mask would be
    lost.  Then it waits here, by the villager's identity (vv5_identity) and slot, and is put on them right
    after the load settles (vv5_keep_apply, from Vv5MaskSync): on the one living villager of that identity,
-   none when two share it or nobody does. */
+   none when two share it or nobody does.  It waits too while the roster the table is kept by does not name
+   this villager in their record yet (a Heathen made since the last look, at most 250 ms ago, in an empty
+   record or one somebody else held -- Codex, #740): a nibble written then would be followed, at the next
+   look, as the record's old occupant's and dropped or moved to them; it is put on them at that look, once
+   the roster names them. */
 #define VV5_KEEP_MAX 64
 static struct {
     int slot;
@@ -932,8 +936,8 @@ __declspec(dllexport) int __stdcall VvfpMaskKeep(void *record, int mask) {
         return 0;
     }
     index = (int)(delta / VV5_ROSTER_STRIDE);
-    vv5_keep_nibble(index, mask);                         /* drawn at once */
-    if (vv5_keep_ready(slot)) {
+    if (vv5_keep_ready(slot) && g_vv5_roster[index] == vv5_identity(r)) {
+        vv5_keep_nibble(index, mask);                     /* drawn at once */
         WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
         return 1;
     }
@@ -997,6 +1001,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
             g_vv5_roster[renamed] = cur[renamed];
             memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
             WriteMaskSidecar(table);
+            vv5_keep_settled(slot);     /* a mask that waited for the roster to name its villager */
             return 1;
         }
     }

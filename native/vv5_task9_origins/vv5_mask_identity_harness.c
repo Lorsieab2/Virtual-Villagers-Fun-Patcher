@@ -236,9 +236,9 @@ int main(int argc, char **argv) {
             Sleep(300);
             CHECK(sync() == 0, "back to slot 1: its load is pending while the file is locked");
             CHECK(keep(rec(4), 2) == 2, "a conversion now: Ali's orange mask waits for the load");
-            CHECK((table()[2] & 0x0F) == 2, "...and is drawn at once");
+            CHECK((table()[2] & 0x0F) == 0, "...and is not written into a table the load will clear");
             Sleep(300);
-            CHECK(sync() == 0 && (table()[2] & 0x0F) == 0, "still locked: the pending load cleared the table");
+            CHECK(sync() == 0 && (table()[2] & 0x0F) == 0, "still locked: nothing yet");
             if (lock != INVALID_HANDLE_VALUE) CloseHandle(lock);
             Sleep(VV_RETRY_WAIT_MS);
             CHECK(sync() == 1, "unlocked: the load settles");
@@ -252,6 +252,38 @@ int main(int argc, char **argv) {
             Sleep(300);
             CHECK(sync() == 1 && (table()[2] & 0x0F) == 2, "a later sync keeps it (nothing waits any more)");
             CHECK(keep(rec(140), 2) == 0, "an empty record is refused");
+
+            printf("== a Heathen made since the last look converts (Codex, #740) ==\n");
+            Sleep(300);
+            CHECK(sync() == 1, "(the roster is up to date)");
+            set_villager(3, "Moana");                   /* an empty record filled since the last look */
+            CHECK(keep(rec(3), 4) == 2 && (table()[1] >> 4) == 0,
+                  "empty record now occupied: the mask waits for the roster to name her");
+            Sleep(300);
+            CHECK(sync() == 1 && (table()[1] >> 4) == 4, "the next look puts the purple mask on Moana");
+            Sleep(300);
+            CHECK(sync() == 1 && (table()[1] >> 4) == 4, "...and keeps it there");
+            keep(rec(7), 1);                            /* Tiare wears a blue mask... */
+            CHECK((table()[3] >> 4) == 1, "(Tiare's blue mask)");
+            Sleep(300);
+            CHECK(sync() == 1, "(looked at)");
+            set_villager(7, "Hina");                    /* ...dies, and Hina is made in her record */
+            CHECK(keep(rec(7), 5) == 2, "replaced occupant: the Chief's mask waits for the roster to name Hina");
+            Sleep(300);
+            CHECK(sync() == 1 && (table()[3] >> 4) == 5, "the next look puts it on Hina, not Tiare's blue");
+            {
+                int i, others = 0;
+                for (i = 0; i < 150; ++i) {
+                    int v = (i & 1) ? (table()[i >> 1] >> 4) : (table()[i >> 1] & 0x0F);
+                    others += i != 7 && v == 5;
+                }
+                CHECK(others == 0, "nobody else took the Chief's mask");
+            }
+            lock = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+            got = 0;
+            if (lock != INVALID_HANDLE_VALUE) { ReadFile(lock, disk, sizeof disk, &got, NULL); CloseHandle(lock); }
+            CHECK(got == sizeof disk && (disk[4 + 600 + 1] >> 4) == 4 && (disk[4 + 600 + 3] >> 4) == 5,
+                  "both are in the file");
         }
     }
 
