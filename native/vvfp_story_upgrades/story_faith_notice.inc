@@ -13,17 +13,34 @@
    (VvfpStoryTimeSkipNoticeShown), and the game's own next island event keeps its time (the arm goes through
    story_island_arming, native/shared/island_timer_keep.h).
 
+   The owner's wording (2026-11-08), without Guardians of Isola:
+
      The Breaking Point
-     Several of your villagers have lost faith in you due to the dire conditions and have decided to join the
-     heathens' tribe.
+     Several of your villagers have lost faith due to the dire conditions amongst the tribe and have decided to
+     join the heathens.
 
      3 villagers have left due to starvation, 1 due to sickness and 2 due to too few believers.
 
    With the Guardians of Isola rewrite (its sm.xml makes the game's own bottom-bar line eSayStoppedBelieving,
-   string 0x48, "A villager has left the tribe!"): "Several of your villagers have lost hope due to the dire
-   conditions and have decided to join the Isolans' tribe." and "too few tribe members".  The game's string is read where the game reads it
-   (0x4506D0: the entry [0x5240A8 + 4 * id], its loaded text +0xC or its built-in +8), so the popup follows the
-   same file the bottom bar does.  The title is FAITH_NOTICE_TITLE, "The Breaking Point" (the owner's).
+   string 0x48, "A villager has left the tribe!"):
+
+     The Breaking Point
+     Conditions have been dire amongst the tribe, and several villagers have been struggling to cope. They have
+     lost trust in the village's ability to provide for their needs. Citing personal reasons, they have decided
+     to join the Isolans.
+
+     The following circumstances contributed to their decisions:
+     Starvation: 3 villagers
+     Sickness: 1 villager
+     Desire for a larger community: 2 villagers
+
+   One villager: "One of your villagers has ... and has decided", "one villager has been struggling" and "their
+   decision".  The list shows only the reasons that came, one a line (the owner's blank lines between them would
+   need up to 17 lines; the plain popup has 14, title apart, so five reasons fit in 13 without them).  The rare
+   fifth reason (a believer already at Faith 0 or below, no loss roll) reads "a loss of faith" / "Loss of trust".
+   The game's string is read where the game reads it (0x4506D0: the entry [0x5240A8 + 4 * id], its loaded text
+   +0xC or its built-in +8), so the popup follows the same file the bottom bar does.  The title is
+   FAITH_NOTICE_TITLE, "The Breaking Point" (the owner's).
 
    ONLY THE FAITH DRIFT.  The companion counts a believer only when the drift's own FAITH_ADD makes them a
    Heathen (the record is a believer as the life tick calls the drift and a Heathen when it returns).  An island
@@ -130,7 +147,7 @@ static int faith_notice_left_the_tribe(void) {
 /* Reason `k`'s words in the player's language (Guardians of Isola's for the believers when `isola`), each by its
    own translation row (Codex, #732: a translated sentence keeps its %s as given, so an English word there stayed
    English).  The game has no lowercase word for any of these (its "Starvation" is a grave's cause). */
-static const char *faith_notice_reason(int k, int isola) {
+static const char *faith_notice_reason(int k) {
     switch (k) {
     case 0:
         return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s4", "starvation", 64);
@@ -139,17 +156,59 @@ static const char *faith_notice_reason(int k, int isola) {
     case 2:
         return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s6", "sickness", 64);
     case 3:
-        return isola ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s0", "too few tribe members", 64)
-                     : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s1", "too few believers", 64);
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s1", "too few believers", 64);
     default:
-        return isola ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s2", "a loss of hope", 64)
-                     : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s3", "a loss of faith", 64);
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_reason.s3", "a loss of faith", 64);
+    }
+}
+
+/* Guardians of Isola's list labels (the owner's, 2026-11-08). */
+static const char *faith_notice_isola_label(int k) {
+    switch (k) {
+    case 0:
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_label.s0", "Starvation", 64);
+    case 1:
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_label.s1", "Food shortages", 64);
+    case 2:
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_label.s2", "Sickness", 64);
+    case 3:
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_label.s3", "Desire for a larger community", 64);
+    default:
+        return vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_label.s4", "Loss of trust", 64);
+    }
+}
+
+/* Guardians of Isola: "The following circumstances contributed to their decisions:" and one line a reason that
+   came ("Starvation: 3 villagers"), into `out` (`cap` bytes). */
+static void faith_notice_isola_list(char *out, int cap, const int *counts, int total) {
+    char item[160];
+    int k;
+    lstrcpynA(out, total == 1
+                       ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_list.s0",
+                                 "The following circumstances contributed to their decision:", 160)
+                       : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_isola_list.s1",
+                                 "The following circumstances contributed to their decisions:", 160), cap);
+    for (k = 0; k < FAITH_REASONS; ++k) {
+        if (counts[k] <= 0) {
+            continue;
+        }
+        if (counts[k] == 1) {
+            ce_tr_printf(item, sizeof item, "vvfp.story/story_faith_notice.faith_notice_isola_list.s2",
+                         "%s: 1 villager", faith_notice_isola_label(k));
+        } else {
+            ce_tr_printf(item, sizeof item, "vvfp.story/story_faith_notice.faith_notice_isola_list.s3",
+                         "%s: %d villagers", faith_notice_isola_label(k), counts[k]);
+        }
+        if (lstrlenA(out) + 1 + lstrlenA(item) < cap) {
+            lstrcatA(out, "\n");
+            lstrcatA(out, item);
+        }
     }
 }
 
 /* "X villagers have left due to A, Y due to B and Z due to C." into `out` (`cap` bytes): every reason that
    came, in their order; the first item says "1 villager has" or "N villagers have". */
-static void faith_notice_reasons(char *out, int cap, const int *counts, int isola) {
+static void faith_notice_reasons(char *out, int cap, const int *counts) {
     char item[160];
     int k, listed = 0, total = 0, done = 0;
     for (k = 0; k < FAITH_REASONS; ++k) {
@@ -162,13 +221,13 @@ static void faith_notice_reasons(char *out, int cap, const int *counts, int isol
         }
         if (listed == 0 && counts[k] == 1) {
             ce_tr_printf(item, sizeof item, "vvfp.story/story_faith_notice.faith_notice_reasons.s0",
-                         "1 villager has left due to %s", faith_notice_reason(k, isola));
+                         "1 villager has left due to %s", faith_notice_reason(k));
         } else if (listed == 0) {
             ce_tr_printf(item, sizeof item, "vvfp.story/story_faith_notice.faith_notice_reasons.s1",
-                         "%d villagers have left due to %s", counts[k], faith_notice_reason(k, isola));
+                         "%d villagers have left due to %s", counts[k], faith_notice_reason(k));
         } else {
             ce_tr_printf(item, sizeof item, "vvfp.story/story_faith_notice.faith_notice_reasons.s2",
-                         "%d due to %s", counts[k], faith_notice_reason(k, isola));
+                         "%d due to %s", counts[k], faith_notice_reason(k));
         }
         ++listed;
         if (listed > 1) {
@@ -198,17 +257,18 @@ static void faith_notice_compose(ce_event *e, const int *info) {
         /* (Each English on one line: the translation inventory reads one literal.) */
         opening = info[0] == 1
             ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_compose.s0",
-                      "One of your villagers has lost hope due to the dire conditions and has decided to join the Isolans' tribe.", 200)
+                      "Conditions have been dire amongst the tribe, and one villager has been struggling to cope. They have lost trust in the village's ability to provide for their needs. Citing personal reasons, they have decided to join the Isolans.", 320)
             : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_compose.s1",
-                      "Several of your villagers have lost hope due to the dire conditions and have decided to join the Isolans' tribe.", 200);
+                      "Conditions have been dire amongst the tribe, and several villagers have been struggling to cope. They have lost trust in the village's ability to provide for their needs. Citing personal reasons, they have decided to join the Isolans.", 320);
+        faith_notice_isola_list(why, sizeof why, info + 1, info[0]);
     } else {
         opening = info[0] == 1
             ? vvfp_tr("vvfp.story/story_faith_notice.faith_notice_compose.s2",
-                      "One of your villagers has lost faith in you due to the dire conditions and has decided to join the heathens' tribe.", 200)
+                      "One of your villagers has lost faith due to the dire conditions amongst the tribe and has decided to join the heathens.", 320)
             : vvfp_tr("vvfp.story/story_faith_notice.faith_notice_compose.s3",
-                      "Several of your villagers have lost faith in you due to the dire conditions and have decided to join the heathens' tribe.", 200);
+                      "Several of your villagers have lost faith due to the dire conditions amongst the tribe and have decided to join the heathens.", 320);
+        faith_notice_reasons(why, sizeof why, info + 1);
     }
-    faith_notice_reasons(why, sizeof why, info + 1, isola);
     lstrcpynA(e->text, opening, sizeof e->text);
     if (why[0] != '\0' && lstrlenA(e->text) + 2 + lstrlenA(why) < (int)sizeof e->text) {
         lstrcatA(e->text, "\n\n");          /* a paragraph of its own */
