@@ -887,6 +887,31 @@ static const itk_game VV5_ITK = {
     "Virtual Villagers - New Believers"
 };
 
+/* A Barrel of Babies that can never arrive is refunded (native/shared/barrel_refund.h): the
+   trigger at 0x4426EA asks the game's own believer count (0x4713F0 on the manager its `mov ecx` at
+   0x4426F6 loads) and runs nothing while it is 0; the Barrel rides that trigger (the selector stub
+   0x41890F).  Its bits are 8 (bought, the Tech screen open) and 4 (handed over at its close) of
+   0x51D388, the save's own word, so the save holds either the barrel or its refund.  Its price is
+   the Task9 page's 75,000, or 0 when the Origins upgrades are free. */
+#include "../shared/barrel_refund.h"
+#define VV5_BARREL_PRICE 75000
+static int vv5_br_pending(void) {
+    return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x0Cu) != 0;
+}
+static int vv5_br_island_waiting(void) {
+    return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x30u) != 0;
+}
+static void vv5_br_cancel(void) {
+    *(volatile unsigned int *)(UINT_PTR)0x0051D388u &= ~0x0Cu;
+}
+static int vv5_br_price(void) {
+    return vvfp_story_price(5, VV5_BARREL_PRICE);
+}
+static const vv_barrel_refund_game VV5_BARREL_REFUND = {
+    5, 0x4713F0u, 0x4426F7u, (volatile int *)(UINT_PTR)0x0051D5F8u,
+    vv5_br_pending, vv5_br_island_waiting, vv5_br_cancel, vv5_br_price, NULL
+};
+
 /* The runtime companions, installed before the first catch-up.  Vv5MaskSync
    runs only on a villager head draw, and New Believers catches up the time
    that passed while it was closed when it enters the village (0x425E30, from
@@ -898,6 +923,7 @@ static const itk_game VV5_ITK = {
    state); every later save and load makes it a no-op. */
 __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
     itk_install(&VV5_ITK);      /* bought island events keep the natural timer: once (game start made it) */
+    vv_br_install(&VV5_BARREL_REFUND);   /* a Barrel that can never arrive is refunded */
     vvfp_fix_huts_bridge();
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
@@ -916,6 +942,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     VVFP_STARTUP_GUARDED(itk_install(&VV5_ITK));     /* bought island events keep the natural timer */
+    VVFP_STARTUP_GUARDED(vv_br_install(&VV5_BARREL_REFUND));   /* a Barrel that can never arrive is refunded */
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(5));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(5));

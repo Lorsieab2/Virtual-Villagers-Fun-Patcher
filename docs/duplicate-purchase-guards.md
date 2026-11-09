@@ -62,6 +62,17 @@ companion, called by "VVFP Save Reset.dll"): before, only a change of slot
 cleared it, so it arrived in the new village. Nothing is refunded -- the
 village that paid is gone, and the new one never paid.
 
+A Barrel of Babies that can never arrive is refunded (`native/shared/barrel_refund.h`,
+VV4 and VV5 only: their Barrel rides the island-event trigger, which does nothing
+while the game's own count -- VV4 `0x467610`, VV5 `0x4713F0`, believers -- is 0; the
+other three deliver theirs from their own frame code, waiting only for room). At the
+moment the trigger finds the timer due (the keeper's `itk_due_hook`), with that count
+0, the barrel is cleared, its price added back to the tech points (`vvfp_story_price`:
+0 when the Origins upgrades are free), VV4's Paid Purchases file deleted, the timer
+put back to the natural event's time unless an Island Event waits too, and the player
+told once (`vvfp_tr` rows `vvfp.shared/barrel_refund.vv_br_tell.s0` / `.s1`). The
+trigger's draw has no age bounds, so a village of children still gets its barrel.
+
 ## How each game refuses
 
 **VV1, VV2, VV4, VV5 — the row stays clickable and explains itself.** The Tech

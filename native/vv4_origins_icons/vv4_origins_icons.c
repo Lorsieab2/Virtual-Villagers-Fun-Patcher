@@ -1298,10 +1298,13 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
    stay on Vv4MaskCacheSurface; every bridge is install-once.  `game` is the
    executable's own number (4); `shipped` is
    this build's companion bits (native/shared/startup_companions.h). */
+static void vv4_barrel_refund_install(void);   /* with the Barrel's file, below */
+
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     VVFP_STARTUP_GUARDED(itk_install(&VV4_ITK));     /* bought island events keep the natural timer */
+    VVFP_STARTUP_GUARDED(vv4_barrel_refund_install());   /* a Barrel that can never arrive is refunded */
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(4));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(4));
@@ -1372,6 +1375,38 @@ void __stdcall VvfpOriginsVillageReset(int game, int slot) {
     itk_village_reset(slot);
 }
 
+/* A Barrel of Babies that can never arrive is refunded (native/shared/barrel_refund.h): the
+   trigger at 0x43FA3D asks the game's own count (0x467610 on the manager its `mov ecx` at 0x43FA49
+   loads) and runs nothing while it is 0; the Barrel rides that trigger (its cue at 0x43FBE5).  Its
+   price is the Tech menu's own row 2 (75,000), or 0 when the Origins upgrades are free. */
+#include "../shared/barrel_refund.h"
+#define VV4_BARREL_PRICE 75000
+static int vv4_br_pending(void) {
+    return *(volatile unsigned char *)(UINT_PTR)0x00728B04u != 0;
+}
+static int vv4_br_island_waiting(void) {
+    return *(volatile unsigned char *)(UINT_PTR)0x00728B08u != 0;
+}
+static void vv4_br_cancel(void) {
+    *(volatile unsigned char *)(UINT_PTR)0x00728B04u = 0;
+    *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 0;
+}
+static int vv4_br_price(void) {
+    return vvfp_story_price(4, VV4_BARREL_PRICE);
+}
+static void vv4_br_withdrawn(void) {
+    vv_paid_withdrawn(4, vv_captured_save_slot());
+}
+static const vv_barrel_refund_game VV4_BARREL_REFUND = {
+    4, 0x467610u, 0x43FA4Au, (volatile int *)(UINT_PTR)0x004D6F88u,
+    vv4_br_pending, vv4_br_island_waiting, vv4_br_cancel, vv4_br_price, vv4_br_withdrawn
+};
+static void vv4_barrel_refund_install(void) {
+    if (vv_paid_mapped(&VV4_PAID)) {
+        vv_br_install(&VV4_BARREL_REFUND);
+    }
+}
+
 static void vv4_paid_tick(void) {
     static unsigned int ids[VV_PAID_RECORDS];
     int slots = vv_slots(), i;
@@ -1395,6 +1430,7 @@ void __stdcall Vv4MaskCacheSurface(void *surface) {
     vvfp_cause_bridge(4);  /* cause of death companion: once, fail-open */
     (void)surface;   /* the hook still passes the render target; nothing here draws */
     itk_install(&VV4_ITK);      /* bought island events keep the natural timer: once (game start made it) */
+    vv4_barrel_refund_install(); /* a Barrel that can never arrive is refunded */
     vv4_paid_tick();            /* a bought Barrel not delivered yet survives a quit */
     vv_prepare_mask_state();
     cleared = vv_mask_sweep();  /* clear masks on slots the game freed/reused */

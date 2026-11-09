@@ -1516,6 +1516,10 @@ Fun Patcher Data", one file per save slot:
       when the barrel arrives, and by Start Over. The Tree of Life: an Island
       Event bought before the barrel waits behind it, and the file keeps that
       too, so after the next load it comes right after the barrel.
+      The Tree of Life and New Believers: a barrel bought for a village where
+      nobody is left (New Believers: no believer) can never come, so it is
+      cancelled and its price given back (0 if the upgrades were free), once,
+      with a message; the file goes with it.
         Virtual Villagers <N> Story Purchases - Save <slot>.dat  (Story / Cheat Upgrades)
       A Pick Island Event, Custom Island Event, Pick Gong of Wonder Outcome or
       the rest of a Choose Time Skip Amount bought and not delivered yet, kept

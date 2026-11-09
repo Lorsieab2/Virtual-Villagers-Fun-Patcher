@@ -9,3 +9,5 @@ EXPORTS
     ItkProbeStoryArming=_ItkProbeStoryArming@8
     ItkProbeOnItsWay=_ItkProbeOnItsWay@0
     ItkProbeVillageReset=_ItkProbeVillageReset@4
+    ItkProbeBarrelRefund=_ItkProbeBarrelRefund@8
+    ItkProbeBarrelState=_ItkProbeBarrelState@4

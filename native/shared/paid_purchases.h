@@ -429,6 +429,19 @@ static int vv_paid_tick(int game, int slot, const unsigned int *roster, const vv
     return 0;
 }
 
+/* The purchase taken back and refunded (native/shared/barrel_refund.h): its
+   file goes at once, before any save can hold the refund beside a file that
+   would re-arm it after a relaunch -- so it is refunded once, never twice --
+   and the tracker forgets it. */
+static void vv_paid_withdrawn(int game, int slot) {
+    if (slot >= 1 && slot <= 5) {
+        vv_paid_delete(game, slot);
+    }
+    vv_paid_last = 0;
+    vv_paid_dirty = 0;
+    vv_paid_held_last = 0;
+}
+
 /* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY (the
    Origins companions' VvfpOriginsVillageReset, called by "VVFP Save
    Reset.dll" before the game erases the village).  The token is process

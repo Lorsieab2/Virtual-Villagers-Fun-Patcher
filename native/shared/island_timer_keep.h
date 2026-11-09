@@ -321,8 +321,17 @@ static void __cdecl itk_note(unsigned int *field, unsigned int value) {
     }
 }
 
+/* Asked first whenever the trigger finds the timer due -- in play, with the
+   village loaded: a companion's own look at that moment (native/shared/
+   barrel_refund.h, a Barrel of Babies that can never arrive).  Nonzero: it
+   took the bought event back (itk_withdraw), and nothing more is done. */
+static int (__cdecl *itk_due_hook)(unsigned int *field);
+
 /* The trigger found the timer at `field` due. */
 static void __cdecl itk_firing(unsigned int *field) {
+    if (itk_due_hook != NULL && itk_due_hook(field)) {
+        return;
+    }
     if (itk_fire_pending && field == itk_fire_field && *field == itk_fire_seen) {
         return;                           /* worked out already, nothing moved */
     }
@@ -403,6 +412,22 @@ static void itk_village_reset(int slot) {
         memset(&itk_rec, 0, sizeof itk_rec);
     }
     itk_checked = 0;
+}
+
+/* A bought event taken back before the trigger ran it (barrel_refund.h): the
+   timer at `field` goes back to the game's own next event's time, as a
+   delivery would leave it, and the keeper forgets the purchase (its file
+   too).  Only this village's purchase; 1 when one was taken back. */
+static int itk_withdraw(unsigned int *field) {
+    if (itk_state != 1 || field == NULL || !itk_active || !itk_rec_here()) {
+        return 0;
+    }
+    *field += itk_rec.delta;
+    itk_active = 0;
+    itk_fire_pending = 0;
+    itk_remove((int)itk_rec.slot);
+    itk_checked = 0;
+    return 1;
 }
 
 /* ---- Installing ----------------------------------------------------------- */

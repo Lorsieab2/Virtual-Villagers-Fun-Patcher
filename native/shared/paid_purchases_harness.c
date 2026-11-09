@@ -24,6 +24,8 @@
         hands back nothing.
     11. Start Over in the slot of the village in memory: the token and
         counter go with the village (VvfpOriginsVillageReset).
+    12. A barrel refunded (barrel_refund.h): its file goes at once, so a
+        relaunch never re-arms it (refunded once, never twice).
 
    Usage: paid_purchases_harness.exe   (exit 0 when every check passes) */
 #include <windows.h>
@@ -331,6 +333,21 @@ int main(void) {
           "Start Over: the barrel goes with the village, nothing tracked");
     CHECK(vv_paid_tick(2, 4, roster_b, &G) == 0 && g_token == 0,
           "...and the new village in the slot gets no barrel");
+
+    /* 12 */
+    quit();
+    g_token = 2;
+    vv_paid_tick(2, 3, roster_a, &G);
+    Sleep(20);
+    save_now(3);
+    g_token = 0;                                /* refunded: cleared ... */
+    vv_paid_withdrawn(2, 3);                    /* ... and its file withdrawn */
+    vv_paid_tick(2, 3, roster_a, &G);
+    Sleep(20);
+    save_now(3);                                /* the save holds the refund */
+    quit();
+    CHECK(!file_exists(3) && vv_paid_tick(2, 3, roster_a, &G) == 0 && g_token == 0,
+          "a refunded barrel's file is gone: the relaunch re-arms nothing, so it is never refunded twice");
 
     for (i = 1; i <= 5; ++i) {
         char p[MAX_PATH];

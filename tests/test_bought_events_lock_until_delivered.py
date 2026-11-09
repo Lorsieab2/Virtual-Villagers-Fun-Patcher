@@ -504,5 +504,210 @@ class StartOverTakesThePurchasesWithTheVillage(unittest.TestCase):
                 self.assertIn("VvfpOriginsVillageReset=_VvfpOriginsVillageReset@8", _source(rel))
 
 
+# ---------------------------------------------------------------------------
+# 5. A Barrel of Babies that can never arrive is refunded (the owner, on #745)
+# ---------------------------------------------------------------------------
+
+# The Tree of Life and New Believers: the Barrel rides the island-event trigger, which does nothing
+# while the game's own count (VV4 0x467610, VV5 0x4713F0: believers) is 0.  Each game's tech points.
+REFUND = {"vv4": dict(count=0x467610, tech=0x4D6F88), "vv5": dict(count=0x4713F0, tech=0x51D5F8)}
+BARREL_PRICE = 75000
+
+
+def _barrel_pending(v) -> bool:
+    if v.game == "vv4":
+        return v.proc.read(0x728B04, 1) != b"\0"
+    return bool(v.proc.u32(0x51D388) & 0x0C)
+
+
+def _run_trigger(v, living: int) -> None:
+    """The game's own trigger once, the timer due, the game's count answering `living` -- with nobody,
+    up to where it leaves (as stock, it does nothing)."""
+    p = v.proc
+    owner = v._helpers()
+    p.stub(REFUND[v.game]["count"], lambda q: (living, 0))
+    p.set_reg("esp", HEAP + 0x3000000)
+    p.set_reg("esi", owner)
+    p.set_reg("ebx", 0)
+    p.set_reg("eax", v.now)
+    p.set_reg(v.spec["obj_reg"], v.obj)
+    p.run(v.spec["trigger"], v.spec["skip"])
+
+
+@_skip_without(KEEPER_DLL)
+class ABarrelThatCanNeverArriveIsRefunded(unittest.TestCase):
+    """native/shared/barrel_refund.h, through the keeper's test build (the same header and the same
+    wiring the two Origins companions compile), on each game's own purchase and trigger."""
+
+    def _bought(self, game, price, *, island=False):
+        v = KeeperVillage(game)
+        natural = CLOCK + 3 * HOUR
+        v.set_timer(natural)
+        if island:
+            v.buy("island")
+        v.buy("barrel")      # the Origins purchase's own code (New Believers: its Tech screen's close too)
+        if game == "vv5":
+            v.proc.put32(0x51D5A4, 0xFFFFFFFF)            # no God Power armed
+        v.proc.export("ItkProbeBarrelRefund", v.n, price)
+        v.proc.put32(REFUND[game]["tech"], 1000)
+        self.assertTrue(_barrel_pending(v))
+        return v, natural
+
+    def state(self, v):
+        out = v.proc.alloc(16)
+        v.proc.export("ItkProbeBarrelState", out)
+        return dict(zip(("refunds", "told", "amount", "files"), struct.unpack("<4i", v.proc.read(out, 16))))
+
+    def test_nobody_left_refunds_it_once_with_its_price(self):
+        for game in REFUND:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v, natural = self._bought(game, BARREL_PRICE)
+                v.now += 10
+                _run_trigger(v, 0)
+                self.assertEqual(v.proc.u32(REFUND[game]["tech"]), 1000 + BARREL_PRICE, "exactly what it cost")
+                self.assertFalse(_barrel_pending(v), "cleared: nothing stays blocked")
+                st = self.state(v)
+                self.assertEqual((st["refunds"], st["told"], st["amount"]), (1, 1, BARREL_PRICE),
+                                 "the player is told, with the amount")
+                self.assertEqual(st["files"], 1 if game == "vv4" else 0, "The Tree of Life's file goes at once")
+                self.assertEqual(v.timer(), natural, "the game's own next event keeps its time")
+                self.assertEqual(v.proc.export("ItkProbeOnItsWay"), 0)
+                for _ in range(3):                         # the trigger keeps asking: never again
+                    v.now += 2
+                    _run_trigger(v, 0)
+                self.assertEqual(v.proc.u32(REFUND[game]["tech"]), 1000 + BARREL_PRICE)
+                self.assertEqual(self.state(v)["refunds"], 1)
+
+    def test_a_free_barrel_gives_back_nothing_and_is_still_cleared(self):
+        for game in REFUND:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v, _ = self._bought(game, 0)              # the Origins upgrades were free
+                _run_trigger(v, 0)
+                self.assertEqual(v.proc.u32(REFUND[game]["tech"]), 1000)
+                self.assertFalse(_barrel_pending(v))
+                st = self.state(v)
+                self.assertEqual((st["refunds"], st["told"], st["amount"]), (1, 1, 0))
+
+    def test_anyone_the_trigger_can_run_for_and_it_waits_as_before(self):
+        """A village with someone in it (children included: the trigger's draw has no age bounds) still
+        gets its barrel, however long it waits for room or its cue: never refunded."""
+        for game in REFUND:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v, _ = self._bought(game, BARREL_PRICE)
+                v.proc.export("ItkProbeBarrelRefund", v.n, BARREL_PRICE)
+                self.assertTrue(v.tick())                  # the game's own count answers 1
+                self.assertEqual(v.proc.u32(REFUND[game]["tech"]), 1000)
+                self.assertEqual(self.state(v)["refunds"], 0)
+
+    def test_a_reload_never_refunds_it_twice(self):
+        """What a save holds after the refund: New Believers' bits are the save's own word (cleared with
+        the refund, in the same save as the refunded points); The Tree of Life's token comes back only
+        from its file, which the refund deleted (tests/test_paid_purchases.py, check 12).  Loaded again,
+        nothing is pending, so nothing is paid."""
+        for game in REFUND:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v, _ = self._bought(game, BARREL_PRICE)
+                _run_trigger(v, 0)
+                saved_tech = v.proc.u32(REFUND[game]["tech"])
+                saved_word = v.proc.u32(0x51D388) if game == "vv5" else None
+                again = KeeperVillage(game)                # a new process, the save loaded
+                again.proc.export("ItkProbeBarrelRefund", again.n, BARREL_PRICE)
+                again.proc.put32(REFUND[game]["tech"], saved_tech)
+                if saved_word is not None:
+                    again.proc.put32(0x51D388, saved_word)
+                    again.proc.put32(0x51D5A4, 0xFFFFFFFF)
+                again.set_timer(0)
+                _run_trigger(again, 0)
+                self.assertEqual(again.proc.u32(REFUND[game]["tech"]), saved_tech)
+                self.assertEqual(self.state(again)["refunds"], 0)
+
+    def test_an_island_event_waiting_too_keeps_the_timer(self):
+        """The Tree of Life: an Island Event bought before the Barrel waits on the same timer; the barrel
+        is refunded, the island event stays on its way (a Custom Island Event may take its place)."""
+        if not have_stock("vv4"):
+            self.skipTest("stock executable not present")
+        v, _ = self._bought("vv4", BARREL_PRICE, island=True)
+        _run_trigger(v, 0)
+        self.assertFalse(_barrel_pending(v))
+        self.assertEqual(v.timer(), 0, "still due")
+        self.assertEqual(v.proc.read(0x728B08, 1), b"\1")
+        self.assertEqual(v.proc.export("ItkProbeOnItsWay"), 1)
+
+
+class TheShippedCompanionsRefundIt(unittest.TestCase):
+    """The shipped Tree of Life and New Believers Origins companions, started as "VVFP Startup.dll"
+    starts them, on the rendered executable: nobody left, the trigger due -> the price back, the
+    barrel cleared, the player told in a message box."""
+
+    SPEC = {
+        "vv4": dict(world_ptr=0x4CB51C, timer=0x170E0, clock=0x403750, trigger=0x43FA32, skip=0x43FC0E),
+        "vv5": dict(world_ptr=0x4DACE0, timer=0x17D3C, clock=0x4036E0, trigger=0x4426DF, skip=0x44285F),
+    }
+
+    def test_each(self):
+        if not HAVE_EMULATOR:
+            self.skipTest("capstone/unicorn/pefile not installed")
+        for game, s in self.SPEC.items():
+            if not have_stock(game) or not ORIGINS_COMPANION[game].is_file():
+                continue
+            with self.subTest(game=game):
+                n = int(game[2:])
+                p = Process(render(game, "collection_progression"), ORIGINS_COMPANION[game])
+                boxes = []
+                p.api_handlers["VirtualAlloc"] = lambda q: (q.alloc(q.arg(1)), 16)
+                p.api_handlers["GetActiveWindow"] = lambda q: (0, 0)
+                p.api_handlers["MessageBoxW"] = lambda q: (
+                    boxes.append(q.read(q.arg(1), 400).decode("utf-16le").split("\0")[0]) or 1, 16)
+                p.export("VvfpStartup", n, 0)               # nothing else shipped: the price is the Origins one
+                world = p.alloc(0x18000)
+                p.put32(s["world_ptr"], world)
+                p.put32(world + s["timer"], 0)
+                p.stub(s["clock"], lambda q: (CLOCK, 0))
+                p.stub(REFUND[game]["count"], lambda q: (0, 0))
+                if game == "vv4":
+                    p.write(0x728B04, b"\1")
+                else:
+                    p.put32(0x51D388, 0x04 | 0x01)          # the barrel handed over; a doubler owned
+                    p.put32(0x51D5A4, 0xFFFFFFFF)
+                p.put32(REFUND[game]["tech"], 1000)
+                scene = p.alloc(0x100)
+                p.put32(scene + 0x10, world)
+                for _ in range(2):
+                    p.set_reg("esi", scene)
+                    p.set_reg("ebx", 0)
+                    p.set_reg("esp", HEAP + 0x3000000)
+                    p.run(s["trigger"], s["skip"])
+                self.assertEqual(p.u32(REFUND[game]["tech"]), 1000 + BARREL_PRICE)
+                if game == "vv4":
+                    self.assertEqual(p.read(0x728B04, 1), b"\0")
+                else:
+                    self.assertEqual(p.u32(0x51D388), 0x01, "the doubler's bit stays")
+                self.assertEqual(len(boxes), 1, "told once")
+                self.assertIn("Barrel of Babies", boxes[0])
+                self.assertIn("75,000 tech points have been given back", boxes[0])
+
+    def test_the_companions_charge_what_the_upgrades_cost(self):
+        for rel, game in (("native/vv4_origins_icons/vv4_origins_icons.c", 4),
+                          ("native/vv5_task9_origins/vv5_task9_origins.c", 5)):
+            with self.subTest(source=rel):
+                text = _source(rel)
+                self.assertIn(f"return vvfp_story_price({game}, VV{game}_BARREL_PRICE);", text)
+                self.assertIn(f"#define VV{game}_BARREL_PRICE 75000", text)
+        header = _source("native/shared/barrel_refund.h")
+        self.assertIn('vvfp_tr("vvfp.shared/barrel_refund.vv_br_tell.s0"', header)
+        self.assertIn('vvfp_tr("vvfp.shared/barrel_refund.vv_br_tell.s1"', header)
+        due = header[header.index("static int __cdecl vv_br_due("):]
+        self.assertLess(due.index("g->cancel();"), due.index("*g->tech += price;"),
+                        "cleared before it is paid: no second check can find it pending")
+
+
 if __name__ == "__main__":
     unittest.main()
