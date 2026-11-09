@@ -51,7 +51,13 @@ the bought or picked event it went ahead of is made due again once it has come
 charge. A waiting VV4 or VV5 Barrel is never replaced: it comes first, then the
 custom event. With nobody the trigger accepts -- a count of 0, or no draw it would
 take (VV1/VV2 draw adults only) -- the count stub sends the custom event on as for
-an empty village (`story_empty_village.inc` `ce_trigger_bypass`).
+an empty village (`story_empty_village.inc` `ce_trigger_bypass`). It is never held for a
+new village's two opening island events either: delivered before the first one it is not
+counted (`ce_first_before`: Island Events Seen stays 0, so VV1/VV2's visitor is still the
+first and every game's 30-minute second still follows), VV1/VV2's trigger goes past its
+visitor check for it, and the keeper puts the opening event's time back. A bought event it
+went ahead of is kept in the Story queue file with it (`SQ_REQUEUE`), so a quit between
+loses nothing.
 
 VV4's Island Event bought before a Barrel waits behind it on the Barrel's
 process-only token `0x728B08`; that token is now kept in the Barrel's Paid

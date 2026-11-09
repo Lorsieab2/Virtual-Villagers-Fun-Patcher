@@ -295,9 +295,9 @@ class ACustomIslandEventIsAvailableAtAllTimes(unittest.TestCase):
     no adult is needed to spawn villagers."  Each game's own trigger, popup and count, as the patcher renders the
     executable; the game's leaf routines (clock, random, sound, builder, picker) are stand-ins."""
 
-    def _empty(self, game, *, living=0):
+    def _empty(self, game, *, living=0, counter=5):
         from test_story_empty_village import _Empty
-        e = _Empty(self, game)
+        e = _Empty(self, game, counter=counter)
         e.population[0] = living
         return e
 
@@ -320,11 +320,13 @@ class ACustomIslandEventIsAvailableAtAllTimes(unittest.TestCase):
         """Villagers live, but none the trigger's own draw accepts (A New Home and The Lost Children draw adults
         only; a villager whose age has not caught up never passes): before, the trigger waited for ever."""
         none = {"vv1": -1, "vv2": -1, "vv3": 1, "vv4": 0, "vv5": 0}
-        for game in GAMES:
+        # Codex on #745: with exactly two opening events done (2) the bypass once took the next event for an
+        # opening one and returned before asking -- a village of children waited.
+        for game, counter in [(g, c) for g in GAMES for c in (2, 5)]:
             if not have_stock(game):
                 continue
-            with self.subTest(game=game):
-                e = self._empty(game, living=3)
+            with self.subTest(game=game, island_events_seen=counter):
+                e = self._empty(game, living=3, counter=counter)
                 e.story.village.put(1, sex="m", years=5, name="Keoni")     # a child
                 picker, pop = e.trigger.SPEC[game]["picker"]
                 e.story.proc.stub(picker, lambda q, v=none[game], pop=pop: (v & 0xFFFFFFFF, pop))
@@ -498,6 +500,109 @@ class ACustomIslandEventGoesFirst(unittest.TestCase):
         self.assertIn("if (done) {\n        a->change_tech(CE_AMOUNT_SUBTRACT, price);", charged)
         custom = _source("native/vvfp_story_upgrades/story_custom_ui.inc")
         self.assertNotIn("story_charge_waived", custom)
+
+
+@_skip_without(TEST_DLL)
+class TheEventACustomOneWentAheadOfSurvivesAQuit(unittest.TestCase):
+    """Codex on #745: buy an island event, queue a Custom Island Event ahead of it, quit before either came --
+    the bought one used to be lost on reload (the waiting purchase lived only in memory).  The queue file now
+    keeps it with the custom event (SQ_REQUEUE, story_queue.inc): after the reload the custom event comes, and
+    the bought one follows it, charged once (only the custom event's own charge is new)."""
+
+    SQ_CUSTOM, SQ_REQUEUE = 2, 32
+
+    def _story(self, game):
+        from test_story_queued_purchases import fresh
+        story = fresh(game)
+        p = story.proc
+        if game == "vv3" and p.u32(0x4B309C) == 0:
+            p.put32(0x4B309C, p.alloc(0x13000))
+        world = story.village.world or p.u32(0x4B309C)
+        if game in CLOCKS:
+            p.stub(CLOCKS[game], lambda q: (CLOCK, 0))
+        host = _Host(p, story.n)
+        return story, world, host
+
+    def _bought(self, story, world, host, game):
+        p = story.proc
+        host.on[0] = 1                                         # the keeper saw the purchase's write
+        p.put32(world + TIMER[game], CLOCK + 5 if game != "vv5" else 0)
+        if game == "vv3":
+            p.write(0x6E0050, b"\1")
+        if game == "vv4":
+            p.write(0x728B08, b"\1")
+            p.put32(0x728B0C, CLOCK + 5)
+        if game == "vv5":
+            p.put32(0x51D388, 0x10)
+            p.put32(world + 0x17D50, CLOCK)
+
+    def _queue_custom(self, story):
+        from story_custom_fixtures import Event
+        from test_story_custom_island_event import EVENT_BUF
+        event = Event(game=story.n, title="The Long Night", text="The stars went out.")
+        story.proc.write(EVENT_BUF, event.pack())
+        self.assertEqual(story.proc.export("VvfpStoryProbeQueueCustom", story.n, EVENT_BUF, 0), 1)
+
+    def test_bought_then_a_custom_event_then_a_quit(self):
+        from test_story_custom_island_event import TEXT_BUF
+        from test_story_queued_purchases import LATE, have, queue_file, session, tick
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story, world, host = self._story(game)
+                self._bought(story, world, host, game)
+                self._queue_custom(story)
+                tick(story)
+                file = queue_file(story)
+                self.assertEqual(have(file, story) & (self.SQ_CUSTOM | self.SQ_REQUEUE),
+                                 self.SQ_CUSTOM | self.SQ_REQUEUE, "the waiting purchase is in the file")
+                story.proc.export("VvfpStoryProbeQueueSaved")   # the quit's save
+
+                again, world2, host2 = self._story(game)       # the next process, the save loaded
+                self._bought(again, world2, host2, game)
+                session(again, file, LATE)
+                tick(again)
+                out = again.proc.alloc(12)
+                again.proc.export("VvfpStoryProbeCustomGate", again.n, out)
+                self.assertEqual(struct.unpack("<3i", again.proc.read(out, 12))[2], again.n,
+                                 "the custom event is back, and the bought one waits behind it")
+                self.assertEqual(again.proc.export("VvfpStoryProbeDeliver", again.n, TEXT_BUF, 4096), 1,
+                                 "the custom event comes first")
+                again.proc.put32(world2 + TIMER[game], CLOCK + 36000)  # the trigger's reschedule
+                host2.on[0] = 0
+                if game == "vv3":
+                    again.proc.write(0x6E0050, b"\0")
+                tick(again)
+                self.assertEqual(again.proc.export("VvfpStoryProbePending", again.n), 1,
+                                 "the bought event is made due again: it follows")
+                expected = 0 if game == "vv5" else CLOCK + 5
+                self.assertEqual(again.proc.u32(world2 + TIMER[game]), expected)
+
+    def test_a_quit_right_after_the_custom_event_came(self):
+        """Delivered, the bought one not yet made due again: the file says so, and the next process makes it due."""
+        from test_story_custom_island_event import TEXT_BUF
+        from test_story_queued_purchases import LATE, have, queue_file, session, tick
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story, world, host = self._story(game)
+                self._bought(story, world, host, game)
+                self._queue_custom(story)
+                tick(story)
+                self.assertEqual(story.proc.export("VvfpStoryProbeDeliver", story.n, TEXT_BUF, 4096), 1)
+                tick(story)                                    # the trigger has not rescheduled yet
+                file = queue_file(story)
+                self.assertEqual(have(file, story) & (self.SQ_CUSTOM | self.SQ_REQUEUE), self.SQ_REQUEUE)
+                story.proc.export("VvfpStoryProbeQueueSaved")
+
+                again, world2, host2 = self._story(game)
+                again.proc.put32(world2 + TIMER[game], CLOCK + 36000)
+                session(again, file, LATE)
+                tick(again)
+                tick(again)
+                self.assertEqual(again.proc.export("VvfpStoryProbePending", again.n), 1, "it follows")
 
 
 # ---------------------------------------------------------------------------

@@ -707,7 +707,9 @@ def build() -> None:
                 "charged once; a waiting Barrel of Babies is never replaced (it comes first).  With "
                 "nobody the trigger accepts (a count of 0, or no villager its own draw takes), the "
                 "custom event is delivered all the same, so its new villagers always arrive; changes "
-                "for villagers who are not there are skipped and the popup says so.",
+                "for villagers who are not there are skipped and the popup says so.  It is never "
+                "held for a new village's two opening island events: it comes first, uncounted, and "
+                "they still come after it as the game makes them.",
             ] + ([
                 "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or "
                 f"{TIME_WARP_PRICE:,} with Story / Cheat Upgrades cost Tech Points) to the Origins "

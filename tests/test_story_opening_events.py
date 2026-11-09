@@ -323,26 +323,35 @@ class OpeningSequenceTests(unittest.TestCase):
         trigger.counter = 0                       # a new tribe: no island event yet
         return story, trigger
 
-    def test_a_custom_event_bought_at_the_start_comes_third(self):
-        """Queued at village start (the purchase's own path), the first two
-        island events are the game's own and the custom event is the third."""
+    def test_a_custom_event_bought_at_the_start_comes_first(self):
+        """The owner (2026-11-09): "a Custom Island Event comes FIRST, even before a brand-new village's two
+        opening visitor events.  Don't hold it for them, and make sure the opening events still come
+        afterwards, unchanged and not skipped."  Queued at village start (the purchase's own path): the custom
+        event is the first the player sees, uncounted, and then the village's two opening island events come
+        as the game makes them -- A New Home's and The Lost Children's visitor first -- with the 30 minutes the
+        first one gives the second."""
         for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 story, trigger = self._new_village(game)
+                if game == "vv3" and story.proc.u32(0x4B309C) == 0:
+                    story.proc.put32(0x4B309C, trigger.world)       # the manager the purchase's helper writes
                 _custom_event(story)
                 self.assertEqual(story.proc.export("VvfpStoryProbeQueueCustom", story.n, EVENT_BUF, 0), 1)
-                seen = []
-                for _ in range(3):
-                    seen.append(trigger.fire())
-                    story.proc.export("VvfpStoryInstall", story.n)       # the companion's frame
+                self.assertEqual(trigger.fire(), "custom")
+                self.assertEqual(trigger.counter, 0, "not counted: the opening events are still to come")
+                story.proc.export("VvfpStoryInstall", story.n)       # the companion's frame
                 first = "visitor" if game in ("vv1", "vv2") else "stock island event"
-                self.assertEqual(seen, [first, "stock island event", "custom"])
-                self.assertEqual(trigger.counter, 3, "the game counted each of the three")
+                self.assertEqual(trigger.fire(), first, "the first opening event, unchanged")
+                self.assertEqual(trigger.counter, 1)
+                self.assertEqual(story.proc.u32(trigger.world + trigger.g["countdown"]), CLOCK + 0x708,
+                                 "and the game's 30 minutes to the second")
+                self.assertEqual(trigger.fire(), "stock island event", "the second opening event")
+                self.assertEqual(trigger.counter, 2)
                 self.assertEqual(story.proc.export("VvfpStoryProbeCustomPending", story.n), 0, "taken once")
 
-    def test_queued_after_the_first_event_it_still_waits_for_the_second(self):
+    def test_queued_after_the_first_event_it_comes_next(self):
         for game in GAMES:
             if not have_stock(game):
                 continue
@@ -353,7 +362,7 @@ class OpeningSequenceTests(unittest.TestCase):
                 story.proc.export("VvfpStoryProbeSetCustom", story.n, EVENT_BUF, 0)
                 seen += [trigger.fire(), trigger.fire()]
                 first = "visitor" if game in ("vv1", "vv2") else "stock island event"
-                self.assertEqual(seen, [first, "stock island event", "custom"])
+                self.assertEqual(seen, [first, "custom", "stock island event"])
 
     def test_an_established_village_gets_it_at_the_next_event(self):
         """Unchanged once the two opening events are over."""
@@ -370,9 +379,9 @@ class OpeningSequenceTests(unittest.TestCase):
                     self.assertEqual(trigger.counter, seen_before + 1)
 
     def test_the_opening_rolls_and_draws_stay_the_games_own(self):
-        """A New Home / The Lost Children: while the custom event waits, the
-        family rolls are the game's own random draws (the first event is the
-        game's visitor, the second the game's own roll)."""
+        """A New Home / The Lost Children: the custom event goes first on its own route (no random roll, past
+        the visitor check), then the opening events' rolls are the game's own (the visitor's, then the
+        second one's family roll)."""
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
@@ -380,22 +389,20 @@ class OpeningSequenceTests(unittest.TestCase):
                 story, trigger = self._new_village(game)
                 _custom_event(story)
                 story.proc.export("VvfpStoryProbeSetCustom", story.n, EVENT_BUF, 0)
+                self.assertEqual(trigger.fire(), "custom")
+                self.assertEqual(trigger.rolls, [], "the custom event's own route: no random roll")
                 trigger.fire()
                 self.assertEqual(trigger.rolls, [100], "the visitor roll was the game's own")
                 trigger.fire()
                 self.assertEqual(trigger.rolls, [100, 100], "both family rolls were the game's own")
-                trigger.fire()
-                self.assertEqual(trigger.rolls, [], "the custom event's own route: no random roll")
 
 
 @emulated
 class EveryModeTests(unittest.TestCase):
-    def test_held_in_every_mode_with_the_whole_catalog(self):
-        """The hold reads the counter through the trigger's own count sites
-        (story_custom.inc, ce_event_counter): with every public patch rendered,
-        in all three population modes, those sites are still the stock ones,
-        so the event being built as the first or second is never the custom
-        one."""
+    def test_never_held_in_every_mode_with_the_whole_catalog(self):
+        """A player's own event is never held for the opening events (ce_held): with every public patch
+        rendered, in all three population modes, the event being built is the custom one whatever the
+        count."""
         for game in GAMES:
             if not have_stock(game):
                 continue
@@ -410,7 +417,7 @@ class EveryModeTests(unittest.TestCase):
                         _custom_event(story)
                         p.export("VvfpStoryProbeSetCustom", story.n, EVENT_BUF, 0)
                         delivered.append(p.export("VvfpStoryProbeDeliver", story.n, TEXT_BUF, 4096))
-                    self.assertEqual(delivered, [0, 0, 1])
+                    self.assertEqual(delivered, [1, 1, 1])
 
 
 # ---------------------------------------------------------------------------
@@ -435,29 +442,25 @@ class HeldPurchaseTests(unittest.TestCase):
 
         return [proc.read(base + off, size) for base, off, size in part1.LockTests.STATE[game](world)]
 
-    def test_bought_at_the_start_it_keeps_the_lock_without_bringing_the_first_event_forward(self):
+    def test_bought_at_the_start_it_is_made_due_at_once_and_keeps_the_lock(self):
         for game in GAMES:
             if not have_stock(game):
                 continue
             n = int(game[2:])
             with self.subTest(game=game):
                 proc = Process(render(game, "collection_progression"), TEST_DLL)
-                world = self._world(proc, game, 0)
-                untouched = self._state(proc, game, world)
+                self._world(proc, game, 0)
                 _write_event(proc, n)
                 self.assertEqual(proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0), 1)
-                self.assertEqual(self._state(proc, game, world), untouched,
-                                 "the island event's own schedule is left as the game set it")
-                self.assertEqual(proc.export("VvfpStoryProbePending", n), 0)
-                self.assertEqual(proc.export("VvfpStoryProbeCustomHeld"), 1)
-                # The lock: one island event at a time, as with any queued event.
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 1, "made due: it comes first")
+                self.assertEqual(proc.export("VvfpStoryProbeCustomHeld"), 0)
                 self.assertEqual(proc.export("VvfpStoryPickPending", n), 1)
                 self.assertEqual(proc.export("VvfpStoryPickIslandEvent", n, 0), 0)
                 self.assertIn("already queued", proc.messages[-1])
                 self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
                 self.assertIn("Your last custom island event is still on its way", proc.messages[-1])
 
-    def test_after_the_second_opening_event_it_is_made_due_as_the_purchase_does(self):
+    def test_queued_at_the_start_it_is_made_due_as_the_purchase_does(self):
         import test_story_cheat_upgrades as part1
 
         for game in GAMES:
@@ -469,32 +472,31 @@ class HeldPurchaseTests(unittest.TestCase):
                 world = self._world(proc, game, 0)
                 _write_event(proc, n)
                 proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0)
-                untouched = self._state(proc, game, world)
-                proc.put32(events_seen_address(game, world), 1)           # the first opening event
-                proc.export("VvfpStoryInstall", n)
-                self.assertEqual(self._state(proc, game, world), untouched, "still waiting")
-                self.assertEqual(proc.export("VvfpStoryProbeCustomHeld"), 1)
-                proc.put32(events_seen_address(game, world), 2)           # the second
-                proc.export("VvfpStoryInstall", n)
-                self.assertEqual(proc.export("VvfpStoryProbeCustomHeld"), 0)
-                self.assertEqual(proc.export("VvfpStoryProbePending", n), 1, "made due")
                 bought = Process(render(game, "collection_progression"), TEST_DLL)
-                bought_world = self._world(bought, game, 2)
+                bought_world = self._world(bought, game, 0)
                 part1.LockTests._purchase(None, bought, game, bought_world)
                 self.assertEqual(self._state(proc, game, world), self._state(bought, game, bought_world),
                                  "exactly the Island Event purchase's own writes")
-                # Made due once: later frames write nothing more -- except that in New Believers the game's
-                # trigger, rescheduling the timer past the last tick, has delivered the event, so the
-                # purchase's "on its way" bits (0x10 bought, 0x20 handed over) are retired
-                # (vv5_retire_delivered_island).
-                proc.put32(world + {"vv1": 0xA300, "vv2": 0x2EAE0, "vv3": 0x12EF4, "vv4": 0x170E0,
-                                    "vv5": 0x17D3C}[game], CLOCK + 36000)
-                after = self._state(proc, game, world)
-                if game == "vv5":
-                    after[-1] = struct.pack("<I", struct.unpack("<I", after[-1])[0] & ~0x30)
-                proc.export("VvfpStoryInstall", n)
-                self.assertEqual(self._state(proc, game, world), after)
-                self.assertEqual(proc.export("VvfpStoryProbeCustomPending", n), 1, "still queued")
+
+    def test_the_notices_still_wait_for_the_first_visitor(self):
+        """A New Home / The Lost Children: the Time Skip's and the Faith popup's notices are not the player's
+        own events -- they keep waiting for the village's first island event, the game's visitor."""
+        from test_story_time_skip import TimeSkipHost, counter_address, island_ready, notice, run_skip, tick
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story = Story(game)
+                island_ready(story)
+                host = TimeSkipHost(story, 6)
+                story.proc.put32(counter_address(story), 0)
+                at = run_skip(story, host, 6)
+                tick(story, at + 100)
+                self.assertEqual(notice(story)["waiting_to_arm"], 6)
+                self.assertEqual(notice(story)["armed"], 0)
+                story.proc.put32(counter_address(story), 1)       # the visitor has come
+                tick(story, at + 200)
+                self.assertEqual(notice(story)["armed"], 1)
 
     def test_the_time_skip_notice_is_not_held(self):
         """Not an island event (its count is taken back): armed as before."""

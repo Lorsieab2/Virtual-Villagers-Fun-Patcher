@@ -2934,7 +2934,7 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
 static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int notice) {
     /* An empty village never has its opening events (its trigger waits for a
        villager): nothing to wait for (story_empty_village.inc). */
-    int hold = !notice && ce_opening(game, 0) && !ce_village_empty(game);
+    int hold = 0;                     /* a player's own event is never held (ce_held) */
     int displaces = 0;
     /* A player's own event goes first: a bought or picked event already on
        its way comes right after it (ce_requeue_tick). */
@@ -2967,6 +2967,7 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int noti
 static void ce_opening_tick(int game) {
     ce_dead_firing = 0;              /* only ever set inside one trigger run */
     ce_dead_first = 0;
+    ce_first_before = 0;
     if (!ce_armed) {
         ce_wait_arm = 0;
         return;
@@ -2974,12 +2975,7 @@ static void ce_opening_tick(int game) {
     if (ce_armed_event.game != game || ce_armed_is_notice || !ce_pending(game)) {
         return;
     }
-    if (ce_opening(game, 0) && !ce_village_empty(game)) {
-        ce_wait_arm = 1;             /* e.g. put back from the queue file in a new village */
-        return;
-    }
-    /* Everyone has died before the opening events were over: they can never
-       come, so the event is made due now (story_empty_village.inc). */
+    /* An event an older build held for the opening events (ce_held holds nothing now): made due. */
     if (!ce_wait_arm || time_skip_event_open()) {
         return;
     }

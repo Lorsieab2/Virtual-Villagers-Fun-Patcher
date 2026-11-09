@@ -537,18 +537,27 @@ static int ce_dead_first;
 static int ce_village_empty(int game);
 static const char *ce_empty_refusal(int game, const char *refusal);
 
+/* A PLAYER'S OWN EVENT IS NEVER HELD (the owner, 2026-11-09: "a Custom Island Event comes FIRST, even
+   before a brand-new village's two opening visitor events.  Don't hold it for them, and make sure the
+   opening events still come afterwards, unchanged and not skipped").  It is delivered as soon as it is
+   due, and a village's opening events still come after it, as the game makes them: a custom event
+   delivered before the village's first island event is not counted (ce_first_before: Island Events
+   Seen stays 0, so A New Home's and The Lost Children's first one is still the game's visitor, and
+   every game's 30-minute second one still follows it), A New Home's and The Lost Children's trigger
+   goes on past its visitor check for it (story_empty_village.inc ce_trigger_bypass), and the island
+   timer's keeper puts the opening event's own time back after it (island_timer_keep.h).  The Time
+   Skip and Faith notices keep waiting for the opening events as before (A New Home's and The Lost
+   Children's arm refusal for a notice).  Kept as a function for its callers; it holds nothing. */
 static int ce_held(int game, int counted) {
-    /* An empty village's trigger delivering it (story_empty_village.inc):
-       such a village can never have its opening events. */
-    if (ce_dead_firing == game) {
-        return 0;
-    }
-    if (!ce_armed || ce_armed_is_notice || ce_armed_event.game != game || !ce_opening(game, counted)) {
-        return 0;
-    }
-    ce_wait_arm = 1;
-    return 1;
+    (void)game;
+    (void)counted;
+    return 0;
 }
+
+/* The game whose trigger, on this run, found its Island Events Seen count still 0 -- set by the count
+   stub before the trigger counts the event it makes (story_empty_village.inc ce_trigger_bypass), so a
+   player's event delivered on this run takes that count back (ce_deliver, ce_choice_begin). */
+static int ce_first_before;
 
 /* Whether the armed event of `game` is to be delivered by this island event:
    armed for this village and not held by the opening events. */
@@ -1768,8 +1777,9 @@ static int ce_deliver(int game, char *text, int size) {
     notice = ce_armed_is_notice;
     /* An empty village's event before its first island event: not counted,
        so that first one is still the game's visitor (story_empty_village.inc). */
-    first = ce_dead_first == game;
+    first = ce_dead_first == game || (!notice && ce_first_before == game);
     ce_dead_first = 0;
+    ce_first_before = 0;
     ce_armed = 0;
     ce_armed_is_notice = 0;
     ce_dead_firing = 0;
@@ -2172,6 +2182,11 @@ static int ce_choice_begin(int game, char *text, int size) {
     if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
         return 0;
     }
+    if (ce_dead_first == game || ce_first_before == game) {
+        ce_uncount_notice(game);      /* before the village's first island event: not counted, as a plain one */
+    }
+    ce_dead_first = 0;
+    ce_first_before = 0;
     ce_armed = 0;
     ce_armed_is_choice = 0;
     ce_notice_shown = 0;              /* a player's own question, never the notice */

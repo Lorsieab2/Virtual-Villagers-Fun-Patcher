@@ -176,8 +176,9 @@ nobody the game's island events accept (A New Home and The Lost Children only
 take adults), it is sent through all the same, so its new villagers always
 arrive. Changes for villagers who are no longer there are skipped, and the
 popup says so; food, tech points, refills, puzzles and the rest still happen.
-A question with two choices still needs someone to ask, and a new village's
-two opening island events still come first. One Custom Island Event is queued
+A question with two choices still needs someone to ask. It comes before a new
+village's two opening island events too (the visitor in A New Home and The Lost
+Children); they still come after it, unchanged. One Custom Island Event is queued
 at a time: the next can be bought once the last has come (within seconds).
 
 BACK UP SAVES

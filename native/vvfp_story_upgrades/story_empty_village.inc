@@ -186,12 +186,22 @@ static int ce_trigger_accepts(int game, void *scene, void *count_this) {
    0 = as stock.  A count of 0 is the empty village (ce_dead_bypass); otherwise only a plain Custom
    Island Event due now, not held, in a village with nobody the trigger's own draw accepts. */
 static int __cdecl ce_trigger_bypass(int game, int count, void *scene, void *count_this) {
+    const int *counter = ce_event_counter(game);
+    /* Before the trigger counts the event it makes: the village's first island event still to come. */
+    ce_first_before = counter != NULL && *counter == 0 ? game : 0;
     if (count == 0) {
         return ce_dead_bypass(game);
     }
     ce_dead_firing = 0;
     ce_dead_first = 0;
-    if (!ce_plain_pending(game) || ce_held(game, 1) || ce_trigger_accepts(game, scene, count_this)) {
+    /* A New Home, The Lost Children: a village's first island event is the game's own visitor
+       (0x42382C, 0x42EF3C).  A player's own event comes first: the trigger goes on past that check
+       for it, uncounted, so the visitor is still the village's first island event after it. */
+    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game) && !ce_armed_is_notice) {
+        ce_dead_first = game;
+        return CE_DEAD_FIRST;
+    }
+    if (!ce_plain_pending(game) || ce_trigger_accepts(game, scene, count_this)) {
         return 0;
     }
     return CE_DEAD_GO;
