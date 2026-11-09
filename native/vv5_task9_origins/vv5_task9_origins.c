@@ -872,11 +872,15 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
    this villager in their record yet (a Heathen made since the last look, at most 250 ms ago, in an empty
    record or one somebody else held -- Codex, #740): a nibble written then would be followed, at the next
    look, as the record's old occupant's and dropped or moved to them; it is put on them at that look, once
-   the roster names them. */
+   the roster names them.  A waiting mask keeps the record and the part of the identity a rename leaves
+   (vv5_stable), and follows a confirmed rename at every look until it is put on (vv5_keep_follow): the same
+   record, the same gender and parents, and the old identity held by nobody any more (Codex, #740). */
 #define VV5_KEEP_MAX 64
 static struct {
     int slot;
     unsigned int id;
+    unsigned int stable;                                  /* vv5_stable: what a rename leaves */
+    int index;                                            /* the record (nobody moves while a village plays) */
     unsigned char mask;
 } g_vv5_keep[VV5_KEEP_MAX];
 static int g_vv5_keep_count;
@@ -891,24 +895,54 @@ static int vv5_keep_ready(int slot) {
     return slot > 0 && g_vv5_have_roster && g_vv5_slot == slot && vv_sidecar_gate_ready(&g_vv5_mask_gate, slot);
 }
 
+/* How many living records carry `id`. */
+static int vv5_keep_holders(unsigned int id, int *where) {
+    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
+    int i, holders = 0, slots = vv5_slots();
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
+        if (rec[VV5_ACTIVE_OFFSET] != 0 && vv5_identity(rec) == id) {
+            if (where != NULL) {
+                *where = i;
+            }
+            ++holders;
+        }
+    }
+    return holders;
+}
+
+/* A waiting villager renamed since: their record now holds a villager of the same gender and parents, and
+   nobody carries the old identity any more.  The entry takes the new identity. */
+static void vv5_keep_follow(void) {
+    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
+    int k;
+    for (k = 0; k < g_vv5_keep_count; ++k) {
+        const unsigned char *rec;
+        unsigned int now;
+        if (g_vv5_keep[k].index < 0 || g_vv5_keep[k].index >= vv5_slots()) {
+            continue;
+        }
+        rec = base + (unsigned int)g_vv5_keep[k].index * VV5_ROSTER_STRIDE;
+        if (rec[VV5_ACTIVE_OFFSET] == 0 || (now = vv5_identity(rec)) == g_vv5_keep[k].id) {
+            continue;
+        }
+        if (vv5_stable(rec) == g_vv5_keep[k].stable && vv5_keep_holders(g_vv5_keep[k].id, NULL) == 0) {
+            g_vv5_keep[k].id = now;
+        }
+    }
+}
+
 /* Every waiting mask of `slot` on its villager, then the file once; each entry is used up either way. */
 static void vv5_keep_apply(int slot) {
-    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
-    int k, kept = 0, any = 0, slots = vv5_slots();
+    int k, kept = 0, any = 0;
+    vv5_keep_follow();
     for (k = 0; k < g_vv5_keep_count; ++k) {
-        int i, at = -1, holders = 0;
+        int at = -1;
         if (g_vv5_keep[k].slot != slot) {
             g_vv5_keep[kept++] = g_vv5_keep[k];          /* another village's: still waiting */
             continue;
         }
-        for (i = 0; i < slots; ++i) {
-            const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
-            if (rec[VV5_ACTIVE_OFFSET] != 0 && vv5_identity(rec) == g_vv5_keep[k].id) {
-                at = i;
-                ++holders;
-            }
-        }
-        if (holders == 1) {
+        if (vv5_keep_holders(g_vv5_keep[k].id, &at) == 1) {
             vv5_keep_nibble(at, g_vv5_keep[k].mask);
             any = 1;
         }
@@ -956,6 +990,8 @@ __declspec(dllexport) int __stdcall VvfpMaskKeep(void *record, int mask) {
     }
     g_vv5_keep[k].slot = slot;
     g_vv5_keep[k].id = vv5_identity(r);
+    g_vv5_keep[k].stable = vv5_stable(r);
+    g_vv5_keep[k].index = index;
     g_vv5_keep[k].mask = (unsigned char)mask;
     return 2;
 }
@@ -978,6 +1014,9 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
     vvfp_crosscheck_bridge(5, 1);  /* the cross-check, silent while played: a head is being drawn */
+    if (g_vv5_keep_count > 0) {
+        vv5_keep_follow();          /* a waiting mask follows its villager's rename, load pending or not */
+    }
     if (g_vv5_have_roster && (now - g_vv5_sync_tick) < VV5_SYNC_INTERVAL_MS) {
         return 1;                   /* checked a moment ago */
     }

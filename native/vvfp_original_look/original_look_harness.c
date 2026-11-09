@@ -862,7 +862,7 @@ int main(int argc, char **argv) {
     check(original(0) == 0 && original(1) == 10010 && original(7) == 70070, "a believer born a believer is unchanged");
     villager(8, "Ari8", 0, "", "", 8, 8);       /* a Heathen made and converted before any look */
     g_masks[8] = 5;
-    check(ol_converted(rec(8), 5) == 0 && g_source[8] == OL_NONE, "no original yet: nothing at the conversion");
+    check(ol_converted(rec(8), 5) == 2 && g_source[8] == OL_NONE, "not in the roster yet: the conversion waits");
     (void)tick();
     check(original(8) == 80085 && g_believer[8] == 1, "...the first sight records the kept mask");
     new_session();
@@ -894,6 +894,47 @@ int main(int argc, char **argv) {
     g_game_slot = 1;
     settle();
     check(original(6) == 440042 && g_source[6] == OL_LOGS, "...and after a restart");
+    /* A conversion while the village is settling (the load-time catch-up) and while the file is locked. */
+    {
+        HANDLE lock;
+        villager(9, "Ari9", 1, "", "", 9, 9);   /* two Heathens arrive and are seen as Heathens */
+        rec(9)[0x1CEC] = 1;
+        villager(10, "Ari10", 0, "", "", 11, 1);
+        rec(10)[0x1CEC] = 1;
+        (void)tick();
+        check(original(9) == 90090 && g_believer[9] == 0 && g_believer[10] == 0, "(two Heathens' originals)");
+        new_session();
+        g_game_slot = 1;
+        (void)tick();                           /* the village is being looked at, not bound yet */
+        check(g_state == OL_UNBOUND, "(the village is settling)");
+        rec(9)[0x1CEC] = 0;                     /* Ari9 converts in the catch-up, keeping the purple mask */
+        g_masks[9] = 4;
+        check(ol_converted(rec(9), 4) == 2, "a conversion while the village settles waits");
+        settle();
+        check(g_state == OL_BOUND && original(9) == 90094,
+              "...and is put on the original once bound: Reset to original gives the purple mask back");
+        new_session();
+        g_game_slot = 1;
+        lock = CreateFileA(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+        check(lock != INVALID_HANDLE_VALUE, "(the file is held by another program)");
+        settle();
+        check(g_state == OL_UNBOUND, "(a locked file: nothing is bound)");
+        rec(10)[0x1CEC] = 0;                    /* Ari10 converts, keeping the red mask... */
+        g_masks[10] = 3;
+        check(ol_converted(rec(10), 3) == 2, "a conversion while the file is locked waits");
+        lstrcpyA((char *)rec(10) + LAYOUT[5].name, "Ari10 Tama");   /* ...and is renamed meanwhile */
+        if (lock != INVALID_HANDLE_VALUE) {
+            CloseHandle(lock);
+        }
+        g_ticks += VV_SIDECAR_RETRY_MS + 1;
+        settle();
+        g_ticks += VV_SIDECAR_RETRY_MS + 1;
+        settle();
+        check(g_state == OL_BOUND, "(the file opens: the village is bound)");
+        check(original(10) == 110013 && original(9) == 90094,
+              "...applied under the new name once the file opens: Reset to original gives the red mask back");
+        check(g_convert_count == 0, "nothing waits any more");
+    }
 
     printf("no village\n");
     new_session();

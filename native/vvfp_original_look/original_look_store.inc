@@ -454,6 +454,112 @@ static int ol_note_believers(const unsigned int *live) {
     return changed;
 }
 
+/* CONVERSIONS THAT WAIT (Codex, #740).  A conversion told while no village is bound -- the 1.5 s a loaded
+   village takes to settle (the load-time catch-up runs then), its file held by another program, another
+   slot's village still bound -- or while the roster does not yet name the villager in their record (made a
+   moment ago) waits here, by identity, with their record and what a rename leaves of the identity
+   (ol_stable), and is applied at the first look that can (ol_apply_converts): before any first sight or
+   believer note of that look, so neither can come first.  A rename since is followed: the same record, the
+   same sex and parents, and the old identity held by nobody. */
+#define OL_CONVERT_MAX 64
+static struct {
+    int slot;
+    unsigned int id, stable;
+    int index;
+    unsigned char mask;
+} g_convert[OL_CONVERT_MAX];
+static int g_convert_count;
+
+static void ol_convert_wait(int slot, const unsigned char *record, int index, int mask) {
+    int k;
+    unsigned int id = ol_identity(record);
+    for (k = 0; k < g_convert_count; ++k) {
+        if (g_convert[k].slot == slot && g_convert[k].id == id) {
+            break;                              /* the same villager again: the newer mask */
+        }
+    }
+    if (k == g_convert_count) {
+        if (g_convert_count == OL_CONVERT_MAX) {
+            memmove(&g_convert[0], &g_convert[1], sizeof g_convert[0] * (OL_CONVERT_MAX - 1));
+            --g_convert_count;                  /* the oldest gives way (64 waiting: never seen) */
+            k = g_convert_count;
+        }
+        ++g_convert_count;
+    }
+    g_convert[k].slot = slot;
+    g_convert[k].id = id;
+    g_convert[k].stable = ol_stable(record);
+    g_convert[k].index = index;
+    g_convert[k].mask = (unsigned char)mask;
+}
+
+/* The rule of ol_converted on record i, whose villager g_roster names.  1 when an original changed. */
+static int ol_convert_at(int i, int mask) {
+    const unsigned char *r = ol_record(i);
+    int head, body, look;
+    unsigned int id;
+    if (r == NULL || g_roster[i] == 0) {
+        return 0;
+    }
+    id = g_roster[i];
+    if (g_source[i] == OL_NONE) {
+        /* No original yet: the convert's own look, recorded now as a first sight records it, with the mask
+           they wore -- never left to a first sight that could come before the mask reaches the store. */
+        if (ol_holders(g_roster, id) != 1 || ol_logged_unknown(id) || !ol_look(r, &head, &body, &look)) {
+            return 0;
+        }
+        g_source[i] = (unsigned char)(ol_holders(g_at_bind, id) != 0 ? OL_FIRST_RUN : OL_SEEN);
+        g_id[i] = id;
+        g_head[i] = head;
+        g_body[i] = body;
+        g_mask[i] = (unsigned char)mask;
+        g_game_body[i] = 0;
+        g_believer[i] = 1;
+        g_game_mask[i] = 1;
+        return 1;
+    }
+    if (g_source[i] == OL_NOT_KNOWN || g_id[i] != id) {
+        return 0;
+    }
+    if (g_believer[i] || g_mask[i] != 0) {
+        g_believer[i] = 1;
+        return 0;
+    }
+    g_mask[i] = (unsigned char)mask;
+    g_believer[i] = 1;
+    g_game_mask[i] = 1;                         /* the logs' original never takes it back (ol_apply_logged) */
+    return 1;
+}
+
+/* Every waiting conversion of the bound slot, on its villager in `live` (the roster now): used up either
+   way.  1 when an original changed. */
+static int ol_apply_converts(const unsigned int *live) {
+    int k, kept = 0, changed = 0, slots = ol_slots();
+    for (k = 0; k < g_convert_count; ++k) {
+        int i, at = -1;
+        if (g_convert[k].slot != g_slot) {
+            g_convert[kept++] = g_convert[k];   /* another village's: still waiting */
+            continue;
+        }
+        if (ol_holders(live, g_convert[k].id) == 1) {
+            for (i = 0; i < slots; ++i) {
+                if (live[i] == g_convert[k].id) {
+                    at = i;
+                }
+            }
+        } else if (ol_holders(live, g_convert[k].id) == 0 && g_convert[k].index >= 0 && g_convert[k].index < slots
+                   && live[g_convert[k].index] != 0 && ol_record(g_convert[k].index) != NULL
+                   && ol_stable(ol_record(g_convert[k].index)) == g_convert[k].stable) {
+            at = g_convert[k].index;            /* renamed since, in their own record */
+        }
+        if (at >= 0) {
+            changed |= ol_convert_at(at, g_convert[k].mask);
+        }
+    }
+    g_convert_count = kept;
+    return changed;
+}
+
 /* Load the slot's file for the village whose roster is `live`.  The table is cleared FIRST, so every
    failure leaves no original known.  Returns -1 while it must stay pending (blocked: nothing may be read or
    written), 0 for no file (missing, or an invalid one set aside), 1 for this village's file, 2 for another
@@ -578,6 +684,7 @@ static int ol_sync(int now_please) {
         }
         if (g_state != OL_UNBOUND) {
             changed |= ol_apply_logged(cur);
+            changed |= ol_apply_converts(cur);
             changed |= ol_first_sight(cur);
             changed |= ol_note_believers(cur);
             if (g_state == OL_PENDING && ol_confirmed()) {
@@ -618,6 +725,7 @@ static int ol_sync(int now_please) {
     }
     changed = rewrite;
     changed |= ol_apply_logged(cur);
+    changed |= ol_apply_converts(cur);
     changed |= ol_first_sight(cur);
     changed |= ol_note_believers(cur);
     if (changed && g_state == OL_BOUND) {
@@ -667,8 +775,8 @@ static int ol_game_body(const unsigned char *record, int body) {
 /* A HEATHEN'S MASK IS PART OF THEIR ORIGINAL (the owner, 2026-11-08, "Heathens Keep Their Masks When
    Converted": Reset to original gives the Heathen mask back).  "VVFP Heathens Keep Masks.dll" calls this when a
    Heathen joins the tribe keeping `mask` (1..5) as their Change Appearance mask.  The rule:
-     * no original kept for them yet: nothing here -- the first sight, a moment later, sees them a believer
-       with that mask and records it, as any first sight;
+     * no original kept for them yet: their look now is recorded as their original, as a first sight records
+       one, with the mask they wore;
      * an original kept while they were a Heathen (never seen a believer since it was kept: g_believer 0) with
        no mask -- a Heathen has no Change Appearance mask -- takes `mask`: that original was the Heathen's
        look, and the Heathen wore it.  Whatever its source -- a first sight, or the logs' original Repair
@@ -677,21 +785,20 @@ static int ol_game_body(const unsigned char *record, int body) {
      * any other original stays: one kept while they were a believer (a believer who later left for the
        Heathens and came back keeps their own original from before), or one with a mask of its own.
    From then on they count as seen a believer (g_believer 1), so a later conversion never changes it again.
-   1 when an original changed. */
+   When this cannot be decided now (no village bound, or the roster not naming them yet) it waits
+   (ol_convert_wait) for the first look that can.  1 when an original changed, 2 when it waits. */
 static int ol_converted(const unsigned char *record, int mask) {
-    int i;
-    if (record == NULL || mask < 1 || mask > 5 || g_state == OL_UNBOUND || (i = ol_index(record)) < 0
-        || g_source[i] == OL_NONE || g_source[i] == OL_NOT_KNOWN || g_roster[i] == 0
-        || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]) {
+    int i, slot = ol_slot_now();
+    if (record == NULL || mask < 1 || mask > 5 || (i = ol_index(record)) < 0 || slot <= 0 || !ol_present(record)) {
         return 0;
     }
-    if (g_believer[i] || g_mask[i] != 0) {
-        g_believer[i] = 1;
+    if (g_state == OL_UNBOUND || g_slot != slot || g_roster[i] == 0 || g_roster[i] != ol_identity(record)) {
+        ol_convert_wait(slot, record, i, mask);
+        return 2;
+    }
+    if (!ol_convert_at(i, mask)) {
         return 0;
     }
-    g_mask[i] = (unsigned char)mask;
-    g_believer[i] = 1;
-    g_game_mask[i] = 1;                         /* the logs' original never takes it back (ol_apply_logged) */
     if (g_state == OL_BOUND) {
         ol_publish();
     }

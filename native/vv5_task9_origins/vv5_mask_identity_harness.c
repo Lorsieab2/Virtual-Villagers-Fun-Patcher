@@ -237,13 +237,14 @@ int main(int argc, char **argv) {
             CHECK(sync() == 0, "back to slot 1: its load is pending while the file is locked");
             CHECK(keep(rec(4), 2) == 2, "a conversion now: Ali's orange mask waits for the load");
             CHECK((table()[2] & 0x0F) == 0, "...and is not written into a table the load will clear");
+            set_villager(4, "Alipate");                 /* renamed while the load is still blocked */
             Sleep(300);
             CHECK(sync() == 0 && (table()[2] & 0x0F) == 0, "still locked: nothing yet");
             if (lock != INVALID_HANDLE_VALUE) CloseHandle(lock);
             Sleep(VV_RETRY_WAIT_MS);
             CHECK(sync() == 1, "unlocked: the load settles");
             CHECK(table()[0] == 0x21 && (table()[2] >> 4) == 3, "the file's masks are loaded");
-            CHECK((table()[2] & 0x0F) == 2, "Ali's waiting mask is put on him after the load");
+            CHECK((table()[2] & 0x0F) == 2, "Ali's waiting mask is put on him after the load, under his new name");
             lock = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
             got = 0;
             if (lock != INVALID_HANDLE_VALUE) { ReadFile(lock, disk, sizeof disk, &got, NULL); CloseHandle(lock); }
