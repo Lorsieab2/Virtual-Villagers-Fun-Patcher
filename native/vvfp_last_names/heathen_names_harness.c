@@ -70,6 +70,11 @@ static void harness_tell(int slot, int count, const void *const *records, const 
 }
 #define LN_TELL_OWNERS harness_tell
 
+/* The game's own save slot, as the harness says it is (the companion reads the save manager's field). */
+static int harness_slot;
+static int harness_current_slot(void) { return harness_slot; }
+#define LN_CURRENT_SLOT harness_current_slot
+
 #include "vvfp_last_names.c"
 
 static int failures;
@@ -562,6 +567,65 @@ int main(int argc, char **argv) {
         lstrcpynA(want, record_text(), sizeof want);
         heathens_at_load(table, 150, 1);
         check(strcmp(record_text(), want) == 0, "a later load carries nothing more");
+    }
+
+    printf("11. Four chosen before the slot was known are written once it is (Codex, #743)\n");
+    {
+        int fam[8], again[8], same = 1, f;
+        char memory[4][LONGEST_LAST + 1];
+        put_record(NULL);
+        clear_table();
+        g_family_count = 0;
+        g_family_session_slot = -1;
+        harness_slot = 0;
+        for (i = 0; i < 4; ++i) {                  /* a new village's Heathens, its slot not known yet */
+            _snprintf(buf, sizeof buf, "H%c", 'a' + i);
+            villager(10 + i, buf, 1, 50);
+            heathen_created(rec(10 + i) + NB_VILLAGER, table, 150, 0);
+        }
+        for (i = 0; i < 4; ++i) {
+            lstrcpynA(memory[i], g_family[i], sizeof memory[i]);
+        }
+        f = GetFileAttributesA(g_path) == INVALID_FILE_ATTRIBUTES;
+        harness_slot = 1;                          /* the game names the slot; no Heathen is named */
+        families_flush_pending();
+        check(f && families_in_file(fam) == 4 && strcmp(g_last[fam[0]], memory[0]) == 0
+              && strcmp(g_last[fam[3]], memory[3]) == 0,
+              "nothing written while the slot is unknown; the four are written as soon as it is known");
+        g_family_count = 0;                        /* the next session */
+        g_family_session_slot = -1;
+        harness_slot = 0;
+        villager(20, "Lani", 1, 50);
+        heathen_created(rec(20) + NB_VILLAGER, table, 150, 1);
+        families_in_file(again);
+        for (i = 0; i < 4; ++i) {
+            same &= fam[i] == again[i];
+        }
+        check(same && count_lines(record_text(), "family\t") == 4, "a reload keeps the same four");
+        check(in_set(last_index(name_of(20)), fam, 4) && in_set(last_index(name_of(10)), fam, 4),
+              "the saved Heathens and a later one carry the same four");
+    }
+
+    printf("12. A lost record never splits the tribe (Codex, #743)\n");
+    {
+        static const int carried[11] = { 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 5 };   /* Kaab x4, Kaac x3, ... */
+        int fam[8];
+        put_record(NULL);
+        clear_table();
+        g_family_count = 0;
+        g_family_session_slot = -1;
+        villager(0, "Ago Kaag", 0, 50);            /* a believer */
+        for (i = 0; i < 11; ++i) {
+            _snprintf(buf, sizeof buf, "H%c %s", 'a' + i, g_last[carried[i]]);
+            villager(1 + i, buf, 1, 50);
+        }
+        k = heathens_at_load(table, 150, 1);
+        check(k == 0 && families_in_file(fam) == 4 && fam[0] == 1 && fam[1] == 2 && fam[2] == 3 && fam[3] == 4,
+              "the four are the Heathens' own names, the most carried first: written at the load");
+        villager(30, "Lani", 1, 50);
+        heathen_created(rec(30) + NB_VILLAGER, table, 150, 1);
+        check(in_set(last_index(name_of(30)), fam, 4) && families_in_file(fam) == 4,
+              "a later Heathen carries one of them, and none is chosen anew");
     }
 
     DeleteFileA(g_path);

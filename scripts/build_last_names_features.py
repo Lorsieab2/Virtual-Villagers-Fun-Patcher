@@ -62,7 +62,10 @@ HEATHENS_BEHAVIOR = [
     "random from the game's list among the names no believer in the game (converts included) and no \"used\" line "
     "of the village's Last Names record has (every last name the tribe has ever had, living or dead); with fewer "
     "than four such names the rest are any others of the list. Kept as four \"family\" lines of the record, so a "
-    "reload gives the same four; Start Over deletes the record with the village.",
+    "reload gives the same four; Start Over deletes the record with the village. A record with no \"family\" lines "
+    "while living Heathens already carry last names (a session that ended before its four were written, a record "
+    "lost) takes their names as the four, the most carried first, before choosing any anew; four chosen while the "
+    "village's slot was not known yet are written at the first naming or birth after it is.",
     "A Heathen (the Heathen allocator 0x46FB80, every Heathen the game makes: a new village's 28, Barrel O' Babies' "
     "Heathen babies, the Story / Cheat Upgrades' and the Custom Island Event's Heathens, the Heathen Mommy) is "
     "called \"<first name> <family name>\": one of the four that fits, at random, each weighted by how far it is "

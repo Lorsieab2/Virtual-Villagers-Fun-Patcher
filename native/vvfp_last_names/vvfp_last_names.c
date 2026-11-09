@@ -996,6 +996,8 @@ static void carried_last(const char *name, char *out) {
    etc.: the game's villager table at the birth, for "village" (used_of_table;
    NULL: the record's names and the parents' only).  Returns 1 when the name
    changed. */
+static void families_flush_pending(void);
+
 static int rule_last_name(char *name, unsigned int room,
                           const char *father, int father_head, int father_body,
                           const char *mother, int mother_head, int mother_body, int slot,
@@ -1008,6 +1010,7 @@ static int rule_last_name(char *name, unsigned int room,
     if (install_state != 1 || name == NULL || room < 2 || memchr(name, '\0', room) == NULL) {
         return 0;
     }
+    families_flush_pending();               /* New Believers' Heathen families, once the slot is known */
     if (slot <= 0) {
         slot = slot_of_parents(father, mother);
     }
@@ -1614,6 +1617,62 @@ static int heathen_families(int slot, const unsigned char *records, int slots) {
     if (g_family_count >= HEATHEN_FAMILY_COUNT || (slot < 1 && g_family_session_slot == slot && g_family_count > 0)) {
         return g_family_count;
     }
+    /* A LOST RECORD NEVER SPLITS THE TRIBE (Codex, #743): with no "family" lines but living Heathens who
+       carry last names already -- a session that ended before its four were written, a record deleted or
+       never made -- their names are the village's families, the most carried first (ties: in record
+       order), before any is chosen anew. */
+    {
+        static char carried_names[HEATHEN_LINES_MAX][LONGEST_LAST + 1];
+        static int carried_count[HEATHEN_LINES_MAX];
+        int distinct = 0;
+        for (i = 0; records != NULL && i < slots && i < HEATHEN_LINES_MAX; ++i) {
+            const unsigned char *r = records + (size_t)i * NB_STRIDE;
+            char whole[TABLE_NAME_MAX], last[LONGEST_LAST + 1];
+            if (r[NB_ACTIVE] != 1 || vv_lookalike(NB_STRIDE, r) || r[NB_FACTION] == 0
+                || *(const int *)(r + NB_HEALTH) <= 0) {
+                continue;
+            }
+            memcpy(whole, r + NB_NAME, NB_NAME_CAP);
+            whole[NB_NAME_CAP] = '\0';
+            carried_last(whole, last);
+            if (last[0] == '\0') {
+                continue;
+            }
+            for (k = 0; k < distinct && strcmp(carried_names[k], last) != 0; ++k) {
+            }
+            if (k == distinct) {
+                memcpy(carried_names[distinct], last, strlen(last) + 1);
+                carried_count[distinct++] = 0;
+            }
+            ++carried_count[k];
+        }
+        while (g_family_count < HEATHEN_FAMILY_COUNT) {
+            int best = -1;
+            for (k = 0; k < distinct; ++k) {
+                int have = 0, f;
+                for (f = 0; f < g_family_count && !have; ++f) {
+                    have = strcmp(g_family[f], carried_names[k]) == 0;
+                }
+                if (!have && carried_count[k] > 0 && (best < 0 || carried_count[k] > carried_count[best])) {
+                    best = k;
+                }
+            }
+            if (best < 0) {
+                break;
+            }
+            {
+                size_t n = utf8_of(carried_names[best], text, sizeof text);
+                memcpy(g_family[g_family_count++], carried_names[best], strlen(carried_names[best]) + 1);
+                carried_count[best] = 0;
+                if (n > 0 && used + 7 + n + 1 < sizeof add) {
+                    memcpy(add + used, "family\t", 7);
+                    memcpy(add + used + 7, text, n);
+                    used += 7 + n;
+                    add[used++] = '\n';
+                }
+            }
+        }
+    }
     /* Choose the rest: first among the names no villager has, then among any others of the list. */
     g_used_count = 0;
     used_of_record();
@@ -1652,6 +1711,28 @@ static int heathen_families(int slot, const unsigned char *records, int slots) {
     }
     g_family_session_slot = slot;
     return g_family_count;
+}
+
+/* THE FOUR ARE WRITTEN AS SOON AS THE SLOT IS KNOWN (Codex, #743).  A new
+   village's Heathens named before the game named its slot keep their four in
+   memory only; the first call into this companion after the slot is known --
+   any villager's naming, a birth's rule (VvfpRuleLastName2 / 3), the load --
+   writes them, so a save and quit right after keeps them.  (This companion
+   has no frame of its own to look from; a session that ends before any such
+   call is recovered at the next load from the Heathens' own names:
+   heathen_families.) */
+#ifndef LN_CURRENT_SLOT
+#define LN_CURRENT_SLOT nb_current_slot
+#endif
+static void families_flush_pending(void) {
+    int slot, slots;
+    const unsigned char *records;
+    if (g_game != 5 || g_family_session_slot != 0 || g_family_count != HEATHEN_FAMILY_COUNT
+        || (slot = LN_CURRENT_SLOT()) < 1) {
+        return;
+    }
+    records = nb_records(&slots);
+    (void)heathen_families(slot, records, slots);
 }
 
 /* A new Heathen, as the naming routine has just named them (`villager`: the
@@ -1948,6 +2029,20 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
         }
         LN_TELL_OWNERS(slot, renamed_count, (const void *const *)renamed, olds);
     }
+    /* A village of Heathens whose record has no "family" lines (Codex, #743: a session that ended before its
+       four were written, a record lost): the four are kept now, from the Heathens' own names. */
+    if (!families && slot >= 1) {
+        char rule[8];
+        int heathens = 0;
+        for (i = 0; i < slots; ++i) {
+            const unsigned char *r = records + (size_t)i * NB_STRIDE;
+            heathens += r[NB_ACTIVE] == 1 && !vv_lookalike(NB_STRIDE, r) && r[NB_FACTION] != 0
+                && *(const int *)(r + NB_HEALTH) > 0;
+        }
+        if (heathens > 0 && (!read_record(slot, rule, sizeof rule) || strstr(g_rule_file, "\nfamily\t") == NULL)) {
+            (void)heathen_families(slot, records, slots);
+        }
+    }
     return named;
 }
 
@@ -1970,6 +2065,10 @@ static void __cdecl after_load(unsigned char *manager, unsigned int loaded) {
         records = manager + NB_RECORDS;     /* not the table the executable names: the stock count */
         slots = 150;
     }
+    /* A load puts another village (or this one as saved) in the table: four kept in memory for a village whose
+       slot was never known are not this one's -- its own come from its record, or from its Heathens' names. */
+    g_family_count = 0;
+    g_family_session_slot = -1;
     (void)heathens_at_load(records, slots, nb_current_slot());
 }
 
@@ -2039,8 +2138,9 @@ static void __cdecl after_villager(const unsigned int *entry, unsigned char *vil
     if (gets_a_last_name(entry)) {
         give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
     } else if (is_heathen_naming(entry)) {
-        heathen_named(villager);            /* New Believers: a random one of their own (HEATHENS) */
+        heathen_named(villager);            /* New Believers: one of the village's four (HEATHENS) */
     }
+    families_flush_pending();               /* the four of a village whose slot is known now */
 }
 
 /* thiscall (array, index, out), ret 8: the routine, then the last name.

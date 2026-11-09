@@ -32,8 +32,8 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-# 1: 6; 2: 3; 3: 3; 4: 1; 5: 8; 6: 5; 7: 4; 8: 6; 9: 2; 10: 4.
-HARNESS_CHECKS = 6 + 3 + 3 + 1 + 8 + 5 + 4 + 6 + 2 + 4
+# 1: 6; 2: 3; 3: 3; 4: 1; 5: 8; 6: 5; 7: 4; 8: 6; 9: 2; 10: 4; 11: 3; 12: 2.
+HARNESS_CHECKS = 6 + 3 + 3 + 1 + 8 + 5 + 4 + 6 + 2 + 4 + 3 + 2
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
