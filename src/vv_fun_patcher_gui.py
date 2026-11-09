@@ -206,6 +206,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
+    # Shrine to the Ancestors (New Believers; the owner, 2026-11-08): off by default, on in Owner's
+    # Defaults and Select All.
+    + ["vv5_respectful_hovel_cover"]
     # Heathens Keep Their Masks When Converted (New Believers): the owner
     # (2026-11-08): "default on in OWNERS DEFAULTS ONLY" -- off here; Owner's
     # Defaults ticks it, as it ticks every default-off patch it does not name.
