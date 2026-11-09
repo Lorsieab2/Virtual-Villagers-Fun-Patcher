@@ -20,3 +20,4 @@ EXPORTS
     VvfpStoryCustomTitle=_VvfpStoryCustomTitle@16
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
+    VvfpVillagersRenamed=_VvfpVillagersRenamed@20

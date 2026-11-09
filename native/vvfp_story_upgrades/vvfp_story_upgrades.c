@@ -739,6 +739,18 @@ static int story_title_skills_float(int game) {
 }
 
 #include "story_titles.inc"
+
+/* Villagers renamed as the village loaded (story_titles.inc titles_renamed): the game's name field. */
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                                         const char *const *old_names) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL) {
+        return 0;
+    }
+    return titles_renamed(game, slot, count, records, old_names, (unsigned int)a->off_name,
+                          (unsigned int)a->name_bytes);
+}
+
 #include "story_outcomes.inc"
 
 /* ---- The per-game table ---------------------------------------------------- */

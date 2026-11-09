@@ -182,6 +182,20 @@ static int ol_save_written(int slot, FILETIME *out) {
 
 #include "original_look_store.inc"
 
+/* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
+   New Believers' Heathens with no last name right after the villager table's load, before any look here,
+   and hands the batch over.  Each original stays its villager's: the pairs are kept for the slot's file,
+   and what is held for the slot is carried now (and written, once the village is bound).  Returns how
+   many pairs were kept. */
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                                         const char *const *old_names) {
+    if (game < 1 || game > 5 || game != g_game) {
+        return 0;
+    }
+    return ol_renamed(slot, count, records, old_names, LAYOUT[game].stride, LAYOUT[game].name,
+                      LAYOUT[game].name_bytes);
+}
+
 /* ---- the look between frames ---------------------------------------------------------------------- */
 
 static HHOOK g_hook;
