@@ -1782,6 +1782,44 @@ class TitleSetTests(unittest.TestCase):
                 else:
                     self.assertEqual(at, 0, "the believer's title is never moved to the Heathen")
 
+    def test_two_heathens_given_one_family_name_are_still_told_apart(self):
+        """The owner, 2026-11-09: a village's Heathens share four family names, so two Heathens called Tama
+        are often both named Tama Akikai at the load.  The title stays the titled one's: by the likes and
+        dislikes when theirs differ (their fingerprints differ before and after), by the looks it was kept
+        with when they are the same (one fingerprint for both)."""
+        from story_custom_fixtures import MemoryFiles
+
+        if not have_stock("vv5"):
+            self.skipTest("the stock New Believers executable is not in inputs/")
+        for same_likes in (False, True):
+            story = Story("vv5")
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            v.put(3, sex="m", years=30, name="Tama", head=3, body=4, faction=1)
+            v.put(4, sex="m", years=30, name="Tama", head=5, body=6, faction=1)
+            if not same_likes:
+                p.put32(v.record(4) + v.L["likes"], 2)
+            ok, r, _ = story.apply(Event(changes=[story.change(3, title_op=1, title="Moon Watcher")]))
+            self.assertEqual(r["refused"], 0)
+            name = "Tama Akikai"
+            for i in (3, 4):
+                p.write(v.record(i) + v.L["name"], name.encode() + bytes(v.L["name_cap"] - len(name)))
+            records, names = SCRATCH + 0x200, SCRATCH + 0x300
+            p.write(SCRATCH + 0x400, b"Tama\0")
+            p.write(records, struct.pack("<II", v.record(3), v.record(4)))
+            p.write(names, struct.pack("<II", SCRATCH + 0x400, SCRATCH + 0x400))
+            with self.subTest(same_likes=same_likes):
+                self.assertEqual(v.title_identity(3) == v.title_identity(4), same_likes)
+                p.export("VvfpVillagersRenamed", 5, 1, 2, records, names)
+                self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "Moon Watcher")])
+                self.assertEqual(p.cstring(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3))), "Moon Watcher")
+                self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(4)), 0,
+                                 "the other Tama Akikai is never given it")
+
     def test_the_file_keeps_each_games_own_looks_with_the_title(self):
         """v1.35.70: a title is kept with the villager's whole identity -- the age, head, body, sex and
         skills read at each game's own record offsets (the adapter's, story_c*.inc) -- so the companion

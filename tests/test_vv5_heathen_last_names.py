@@ -32,13 +32,13 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-# 1: 5; 2: 4; 3: 8; 4: 5; 5: 4; 6: 2; 7: 3; 8: 1; 9: 2; 10: 4.
-HARNESS_CHECKS = 5 + 4 + 8 + 5 + 4 + 2 + 3 + 1 + 2 + 4
+# 1: 6; 2: 3; 3: 3; 4: 1; 5: 8; 6: 5; 7: 4; 8: 6; 9: 2; 10: 4; 11: 3; 12: 2.
+HARNESS_CHECKS = 6 + 3 + 3 + 1 + 8 + 5 + 4 + 6 + 2 + 4 + 3 + 2
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
 class TheShippedCode(unittest.TestCase):
-    def test_heathens_get_unique_random_last_names(self):
+    def test_heathens_carry_the_villages_four_family_names(self):
         with tempfile.TemporaryDirectory(prefix="vvfp_heathen_names_") as out:
             exe = Path(out) / "heathen_names_harness.exe"
             build = subprocess.run(
@@ -74,17 +74,22 @@ class TheRecord(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             folder = Path(tmp)
             path = _record(folder, "VVFP LAST NAMES v1 game=5\nrule\tmother\nused\tAkikai\n"
+                                   "family\tPowaka\nfamily\tWikimak\nfamily\tKaimana\nfamily\tBahati\n"
                                    "heathen\tWikimak\nheathen\tKaimana\tTama\t3\t4\nheathen\tbad\tline\n")
+            families = ["Powaka", "Wikimak", "Kaimana", "Bahati"]
             self.assertEqual(ln.read_heathens(folder, 5, 1), {"Wikimak", "Kaimana"})
+            self.assertEqual(ln.read_heathen_families(folder, 5, 1), families)
             self.assertEqual(ln.read_record(folder, 5, 1)[0], "mother", "an earlier reader's lines are unchanged")
             self.assertEqual(ln.read_used(folder, 5, 1), {"Akikai"}, "a Heathen's name is no used line")
             ln.write_record(folder, 5, 1, "village", {}, used={"Alosaka"})
             text = path.read_text(encoding="utf-8")
-            self.assertIn("heathen\tWikimak\nheathen\tKaimana\tTama\t3\t4\n", text)
+            self.assertIn("family\tPowaka\nfamily\tWikimak\nfamily\tKaimana\nfamily\tBahati\n"
+                          "heathen\tWikimak\nheathen\tKaimana\tTama\t3\t4\n", text)
             self.assertIn("rule\tvillage\n", text)
-            self.assertEqual(ln.read_used(folder, 5, 1), {"Akikai", "Alosaka"})
+            self.assertEqual(ln.read_used(folder, 5, 1), {"Akikai", "Alosaka"}, "the family names are no used lines")
             ln.save_arrivals(folder, 5, 1, False, processes=NoGame())
             self.assertEqual(ln.read_heathens(folder, 5, 1), {"Wikimak", "Kaimana"}, "the arrivals toggle keeps them")
+            self.assertEqual(ln.read_heathen_families(folder, 5, 1), families, "the same four, in order")
 
     def test_only_new_believers_has_heathens(self):
         with tempfile.TemporaryDirectory() as tmp:

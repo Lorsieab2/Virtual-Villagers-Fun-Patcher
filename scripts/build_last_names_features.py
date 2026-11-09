@@ -44,31 +44,39 @@ SITES = {
     "vv5": (0x46F680, 0x4B8450, "the villager naming routine (thiscall villager, family)"),
 }
 ROOM = {"vv1": 27, "vv2": 23, "vv3": 23, "vv4": 23, "vv5": 23}
-# New Believers' Heathens (the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!! (they
-# can share last names but be unrelated if there's not enough default ones in the list, but try to make them all
-# unique)"); native/vvfp_last_names, HEATHENS.
+# New Believers' Heathens (the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!!";
+# 2026-11-09: "among the entire heathen tribe they should have like... maybe 4-5 unique last names from the defaults
+# list that don't overlap with the villagers' last names" -- always four); native/vvfp_last_names, HEATHENS.
 LOAD_VV5 = 0x46FA20
 HEATHENS_DESCRIPTION = (
-    " Heathens get a random last name of their own from the same list: a new Heathen as the game makes them, and "
-    "a Heathen with none the first time the patched game loads the village. Each Heathen's is one nobody in the "
-    "village has used (living or dead, tribe or Heathen) while the list has one; only when all 50 are taken do "
-    "Heathens share a last name, and a shared name never makes them family. A Heathen who converts keeps their "
-    "last name. While they are Heathens their last names are not counted among the village's existing names "
-    "(Random from the existing Village Names); once converted, theirs counts like any other."
+    " Heathens get last names too: each village's Heathen tribe has four family names of its own, chosen once at "
+    "random from the same list among the names none of the village's villagers have ever used, and the same after "
+    "every reload. Each Heathen gets one of the four at random, kept roughly even so no family is empty or huge: a "
+    "new Heathen as the game makes them, and a Heathen with none the first time the patched game loads the village. "
+    "Heathens who share a family name are not related. A Heathen who converts keeps their last name. While they "
+    "are Heathens their last names are not counted among the village's existing names (Random from the existing "
+    "Village Names); once converted, theirs counts like any other. Start Over gives the new village four of its own."
 )
 HEATHENS_BEHAVIOR = [
+    "Each village's Heathens have FOUR family names: chosen once, the first time one of its Heathens is named, at "
+    "random from the game's list among the names no believer in the game (converts included) and no \"used\" line "
+    "of the village's Last Names record has (every last name the tribe has ever had, living or dead); with fewer "
+    "than four such names the rest are any others of the list. Kept as four \"family\" lines of the record, so a "
+    "reload gives the same four; Start Over deletes the record with the village. A record with no \"family\" lines "
+    "while living Heathens already carry last names (a session that ended before its four were written, a record "
+    "lost) takes their names as the four, the most carried first, before choosing any anew; four chosen while the "
+    "village's slot was not known yet are written at the first naming or birth after it is.",
     "A Heathen (the Heathen allocator 0x46FB80, every Heathen the game makes: a new village's 28, Barrel O' Babies' "
-    "Heathen babies, the Story / Cheat Upgrades' and the Custom Island Event's Heathens) is called \"<first name> "
-    "<last name>\", the last name drawn at random from the game's list among the names no villager in the game, "
-    "no \"used\" line and no \"heathen\" line of the village's Last Names record has; only when every name that "
-    "fits is taken, one that gives no living villager's full name, else any that fits.",
+    "Heathen babies, the Story / Cheat Upgrades' and the Custom Island Event's Heathens, the Heathen Mommy) is "
+    "called \"<first name> <family name>\": one of the four that fits, at random, each weighted by how far it is "
+    "behind the most-carried one among the living Heathens (1, and 4 more for each Heathen behind), so the four "
+    "stay roughly even. Sharing one never makes Heathens related: the name is drawn, never inherited.",
     "Right after the villager table's load (0x46FA20), each living Heathen whose name carries no last name gets one "
     "the same way (a numeral is kept after it), and a \"Name changed\" record (Old name, Age) goes to the Births and "
     "Conceptions log at the next save, so the logs, the Family Tree Maker and Check Saves & Logs follow them as one "
-    "villager.",
-    "Each name given is kept in the village's Last Names record as a \"heathen\" line (one named at a load with the "
-    "name, head and body they had, so a session that ends without a save gives them the same name again), only "
-    "ever added to; the record is made when the village has none, never for a slot that cannot be told.",
+    "villager. Each is kept as a \"heathen\" line with the name, head and body they had, so a session that ends "
+    "without a save gives them the same name again; never written for a slot that cannot be told (a village whose "
+    "slot is not known yet keeps its four in memory, and writes them once it is).",
     "Whatever the patcher keeps for a Heathen by their name -- a custom title, a mask, a head look, an original "
     "look, a Former Heathens entry -- stays theirs: right after the load the renamed are handed, as one batch, to "
     "each of those companions that is loaded (its export VvfpVillagersRenamed), which carries its own records to "

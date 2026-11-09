@@ -692,18 +692,20 @@ existing Village Names" as no rule ("From the father" for the village).
 
 LAST NAMES: NEW BELIEVERS' HEATHENS
 
-With Villagers Have Last Names, every Heathen in New Believers gets a last
-name of their own, drawn at random from the game's list of 50: a new Heathen
-as the game makes them, and a Heathen who has none the first time the patched
-game loads the village (the Births and Conceptions log records it as "Name
-changed", so the logs and the Family Tree Maker follow them; a custom title,
-a mask or a chosen look a Heathen had stays theirs). Each Heathen's
-last name is one nobody in the village has used -- living or dead, tribe or
-Heathen -- while the list has one; only when all 50 are taken do Heathens
-share a last name, and a shared name never makes them family. A Heathen who
-converts keeps their last name. While they are Heathens, their last names do
-not count for "Random from the existing Village Names"; once converted,
-theirs counts like any other. Heathens still never count in the statistics.
+With Villagers Have Last Names, the Heathens of each New Believers village
+share four family names, chosen once at random from the game's list of 50
+among the names none of the village's villagers have ever used, and kept with
+the village, so a reload gives the same four (Start Over gives the new
+village four of its own). Every Heathen gets one of the four at random, kept
+roughly even so no family is empty or huge: a new Heathen as the game makes
+them, and a Heathen who has none the first time the patched game loads the
+village (the Births and Conceptions log records it as "Name changed", so the
+logs and the Family Tree Maker follow them; a custom title, a mask or a
+chosen look a Heathen had stays theirs). Heathens who share a family name are
+not related. A Heathen who converts keeps their last name. While they are
+Heathens, their last names do not count for "Random from the existing Village
+Names"; once converted, theirs counts like any other. Heathens still never
+count in the statistics.
 
 VILLAGERS WHO SHARE A NAME ARE NUMBERED AUTOMATICALLY (all five games)
 

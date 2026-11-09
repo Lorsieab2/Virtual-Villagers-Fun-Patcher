@@ -501,40 +501,45 @@ def vv5_name(g: Game, record: int) -> str:
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
-class HeathensGetARandomLastNameOfTheirOwn(unittest.TestCase):
-    """New Believers (the owner, 2026-11-08): "in vv5, please give heathens random last names thanks!!!! (they
-    can share last names but be unrelated if there's not enough default ones in the list, but try to make them
-    all unique)".  The shipped DLL in the stock executable; native/vvfp_last_names/heathen_names_harness.c
-    (tests/test_vv5_heathen_last_names.py) checks the record and every rule in detail."""
+class HeathensCarryTheVillagesFamilyNames(unittest.TestCase):
+    """New Believers (the owner, 2026-11-08: "in vv5, please give heathens random last names"; 2026-11-09:
+    "among the entire heathen tribe they should have like... maybe 4-5 unique last names from the defaults list
+    that don't overlap with the villagers' last names"): four family names per village, each Heathen one of
+    them.  The shipped DLL in the stock executable; native/vvfp_last_names/heathen_names_harness.c
+    (tests/test_vv5_heathen_last_names.py) checks the record, the spread and every rule in detail."""
 
     def lists(self):
         image = pefile.PE(str(STOCK / EXE["vv5"])).get_memory_mapped_image()
         _, _, last, male, _ = SITES["vv5"]
         return names(image, last), names(image, male)
 
-    def test_a_new_heathen_gets_one_nobody_has(self):
+    def test_new_heathens_carry_the_four_names_no_believer_has(self):
         last, male = self.lists()
-        for free in (0, 17, 49):
-            with self.subTest(free=last[free]):
+        for free in ((0, 1, 2, 3), (17, 23, 31, 49)):
+            with self.subTest(free=[last[k] for k in free]):
                 g = Game("vv5")
                 g.startup()
-                for i, other in enumerate(n for k, n in enumerate(last) if k != free):
-                    vv5_villager(g, i, f"Ago {other}", heathen=i % 2 == 0)
-                name, state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(HEATHEN))
-                self.assertEqual(name, f"{male[4]} {last[free]}", "the one name no villager has")
-                self.assertTrue(state["esp_ok"] and state["kept"])
+                for i, other in enumerate(n for k, n in enumerate(last) if k not in free):
+                    vv5_villager(g, i, f"Ago {other}", heathen=False)      # believers carry the other 46
+                seen = set()
+                for _ in range(60):
+                    name, state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(HEATHEN))
+                    self.assertTrue(state["esp_ok"] and state["kept"])
+                    self.assertTrue(name.startswith(f"{male[4]} "))
+                    seen.add(name.split(" ", 1)[1])
+                self.assertEqual(seen, {last[k] for k in free}, "the four names no believer has, all of them used")
 
-    def test_with_nobody_in_the_village_any_of_the_list(self):
+    def test_with_nobody_in_the_village_four_of_the_list(self):
         last, male = self.lists()
         g = Game("vv5")
         g.startup()
         seen = set()
-        for _ in range(40):
+        for _ in range(60):
             name, _state = g.name(sex_female=False, family=9, first_roll=3, frame=stack(HEATHEN))
             self.assertTrue(name.startswith(f"{male[4]} "))
             seen.add(name.split(" ", 1)[1])
         self.assertLessEqual(seen, set(last))
-        self.assertGreater(len(seen), 10, "a fresh random draw each time, not the family's")
+        self.assertEqual(len(seen), 4, "four family names for the village, not a fresh name each time")
 
     def test_the_load_names_existing_heathens(self):
         last, _male = self.lists()
@@ -577,7 +582,7 @@ class HeathensGetARandomLastNameOfTheirOwn(unittest.TestCase):
         self.assertEqual((pua[0], pua[2], len(pua)), ("Pua", "II", 3), "the numeral stays after the last name")
         self.assertIn(tama[1], last)
         self.assertIn(pua[1], last)
-        self.assertEqual(len({tama[1], pua[1], last[0], last[1]}), 4, "each one nobody else has")
+        self.assertNotIn(last[0], (tama[1], pua[1]), "never the believer's last name")
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
