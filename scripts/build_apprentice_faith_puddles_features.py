@@ -598,16 +598,57 @@ def puddle_cave() -> bytes:
         """, CAVE)
 
 
+# "Playing in the dirt" (the routine 0x45ED40, say-event 504) moves to the same shore, always (the owner,
+# 2026-11-08: before and after The Lake has water; "Those specific actions only and NOT ANY OTHERS!!!").  The
+# routine queues six go-tos (0x4745A0 at 0x45ED99, ecx the villager, arguments x, y, speed 0x64, flag 0) to points
+# it picks in its own strip; the call is re-aimed at a cave that puts a random point of the puddles' shore line in
+# place of the x and y and jumps on to 0x4745A0, so the routine's steps, speed, gestures and say-event stay its own.
+# Move the "Playing in the dirt" Spot (vv5_playing_in_the_dirt_spot) moves the same walk to the flower patch: the
+# two name each other in "conflicts", and ticking one unticks the other (UNTICKING_CONFLICT_IDS).
+DIRT_SITE = 0x45ED99                     # "Playing in the dirt": call 0x4745A0, six times in its loop
+DIRT_SPOT_ID = "vv5_playing_in_the_dirt_spot"
+
+
+def dirt_cave(at: int) -> bytes:
+    return asm(f"""
+        push ecx
+        push {SHORE_SPAN}
+        call 0x403660
+        pop edx
+        pop ecx
+        mov edx,eax
+        imul edx,edx,{SHORE_SLOPE[0]}
+        sar edx,{SHORE_SLOPE[1]}
+        neg edx
+        add edx,{SHORE_Y}
+        add eax,{SHORE_X}
+        mov dword ptr [esp+4],eax
+        mov dword ptr [esp+8],edx
+        jmp 0x4745a0
+        """, at)
+
+
+def dirt_cave_at() -> int:
+    """Right after the puddles' cave (the .text tail's every byte must be reached)."""
+    return CAVE + len(puddle_cave())
+
+
 def puddles_feature() -> dict:
     cave = puddle_cave()
+    dirt_at = dirt_cave_at()
+    dirt = dirt_cave(dirt_at)
+    assert dirt_at + len(dirt) <= 0x494E80, "the Fix Vanilla Bugs picker cave starts at 0x494E80"
     description = (
         "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds "
         "water the game never starts that action again, because they cannot swim. With this patch, after The Lake "
         "has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the "
         "lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the "
         "action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. "
-        "The action, its text and its length are the game's own; \"Excited about the puddles\" and \"Chasing "
-        "fish\" are not changed.")
+        "Children \"Playing in the dirt\" play on that same sandy shore, always, before and after The Lake has "
+        "water: each of the action's six steps goes to a random point along it. The actions, their text and their "
+        "length are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are "
+        "not changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves \"Playing in the "
+        "dirt\" to the flower patch instead (ticking one unticks the other).**")
     return {
         "id": PUDDLES_ID,
         "enabled": True,
@@ -617,6 +658,7 @@ def puddles_feature() -> dict:
         "name": PUDDLES_NAME,
         "description": description,
         "output_tag": "Puddles By The Lake",
+        "conflicts": [DIRT_SPOT_ID],
         "behavior_changes": [
             "The chooser of \"Playing in puddles\" (behaviour 0x5E, routine 0x45FFF0), 0x46E4F7, starts it when the "
             "rain level [0x718EB8] is 50 or more, rand(100) < 75 and it is raining (0x477040), as stock; stock also "
@@ -625,10 +667,15 @@ def puddles_feature() -> dict:
             "of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the "
             "feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed "
             "(area 0x6A, 0x4744C0).",
+            "\"Playing in the dirt\" (routine 0x45ED40, say-event 504), with the lake dry or full: each of its six "
+            f"go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same shore line, x = 1348 + r, y = 2116 - "
+            f"(17r >> 6), r = rand(252) (the cave 0x{dirt_at:X} replaces the routine's own x and y and jumps on to "
+            "0x4745A0); stock: 236..453 by 442..475, a strip from the rainbow totem's side across the river.",
         ],
         "explicit_non_changes": [
-            "Before the lake holds water everything is as stock. The action's text (string 0x229), its gestures, speed "
-            "and length are unchanged.",
+            "Before the lake holds water \"Playing in puddles\" is as stock. Its text (string 0x229), its gestures, "
+            "speed and length are unchanged; so are \"Playing in the dirt\"'s text, sound, six steps, speed and "
+            "gestures (only the points it walks to change).",
             "\"Excited about the puddles\" (0xEB, 0x454200) and \"Chasing fish\" (0xEA) and their choosers "
             "(0x469E4B, 0x46EFB2) are exactly as stock. Behaviour 0x5F (0x4600D0, the waterfall pool), started only "
             "by The Missing Kids island event (0x4161AA), is unchanged. No save or villager-record byte is written.",
@@ -644,6 +691,11 @@ def puddles_feature() -> dict:
                   "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - "
                   "(17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
                   bytes(len(cave))),
+            patch(5, DIRT_SITE, asm(f"call {dirt_at:#x}", DIRT_SITE),
+                  f"\"Playing in the dirt\" (0x45ED40)'s go-to: call 0x4745A0 -> call the dirt shore cave 0x{dirt_at:X}"),
+            patch(5, dirt_at, dirt,
+                  "the dirt shore cave: r = rand(252); the go-to's x and y become (1348 + r, 2116 - (17r >> 6)); "
+                  "jmp 0x4745A0 with the routine's own speed and flag", bytes(len(dirt))),
         ],
     }
 

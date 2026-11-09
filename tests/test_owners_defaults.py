@@ -37,8 +37,11 @@ def _owner_keeps_off(patch_id: str) -> bool:
     # Unicode Font, the alternative of Render Unicode with In-Game Fonts, stays off.
     # 2-10x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
     # Upgrades cost Tech Points is not ("set "story upgrades cost tech points" default off in owner's defaults").
+    # Move the "Playing in the dirt" Spot stays off (the owner, 2026-11-08): Puddle Play Moves to the Lake Shore,
+    # ticked, moves "Playing in the dirt" to the lake shore, and the two untick each other.
     return ("learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
-            or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points"))
+            or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points")
+            or patch_id == "vv5_playing_in_the_dirt_spot")
 
 
 class OwnersDefaultsTests(unittest.TestCase):
