@@ -96,18 +96,30 @@ static struct {
 
 static ce_event time_skip_notice_event;
 
-/* Arms the closing popup for `years` in `game` (see THE CLOSING POPUP).
-   1 when armed, 0 when it must wait (the slot is taken or the game's
-   trigger could not show it now). */
-static int time_skip_notice_arm(int game, int years) {
+/* 1 when a notice (a plain event with no changes) could be armed in `game` now: the one slot is free (no
+   queued pick, custom event or island event on its way) and the game's trigger could show it. */
+static int story_notice_free(int game) {
     const ce_adapter *a = ce_adapter_for(game);
-    ce_event *e = &time_skip_notice_event;
     if (a == NULL || !story_installed(game)) {
         return 0;
     }
     drop_lapsed_pick();
     ce_drop_lapsed();
-    if (pick_slot >= 0 || ce_armed || GAMES[game].island_pending() || a->arm_refusal() != NULL) {
+    return !(pick_slot >= 0 || ce_armed || GAMES[game].island_pending() || a->arm_refusal() != NULL);
+}
+
+/* Arms notice `e` in `game` (the Time Skip's closing popup; Popup When Believers Become Heathens,
+   story_faith_notice.inc): 1 when armed, 0 when it must wait. */
+static int story_notice_arm(int game, const ce_event *e) {
+    return story_notice_free(game) && ce_arm_with(game, e, NULL, 1);
+}
+
+/* Arms the closing popup for `years` in `game` (see THE CLOSING POPUP).
+   1 when armed, 0 when it must wait (the slot is taken or the game's
+   trigger could not show it now). */
+static int time_skip_notice_arm(int game, int years) {
+    ce_event *e = &time_skip_notice_event;
+    if (!story_notice_free(game)) {
         return 0;
     }
     memset(e, 0, sizeof *e);

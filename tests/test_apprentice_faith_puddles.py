@@ -5,7 +5,10 @@ lake-bed spots.  The traces and the rules are in scripts/build_apprentice_faith_
 Each patch is run, stock and patched, in unicorn from the executable the patcher renders:
   * the grave dialog's rank pick, for every age edge, best skill edge and job (none included): the string id it
     fetches and the stack and buffer it hands the copy call;
-  * New Believers' Faith drift 0x468040, every roll's threshold found by forcing the game's rand(100) at that roll;
+  * New Believers' Faith drift 0x468040, every roll's threshold found by forcing the game's rand(100) at that roll,
+    and Faith Loss's 3-in-10 rule for a fall to 0 made of a food or sickness loss;
+  * New Believers' Faith setter 0x467F90 turning a believer Heathen, stock and with New Heathens Get a Heathen's
+    Faith;
   * the puddle play's choosers and walk, and the area-point picker, on the game's real map (tests/
     farmers_emulation_vv5.py; skipped without research/game-data/vv5).
 Tests that need the stock executables skip when they are absent.
@@ -42,8 +45,8 @@ _spec.loader.exec_module(gen)
 
 STOCK_DIR = ROOT / "research" / "stock-executables"
 APPRENTICE = {g: gen.apprentice_id(g) for g in (1, 2, 3, 5)}
-FAITH, PUDDLES = gen.FAITH_ID, gen.PUDDLES_ID
-NEW_IDS = tuple(APPRENTICE.values()) + (FAITH, PUDDLES)
+FAITH, PUDDLES, NEW_HEATHEN = gen.FAITH_ID, gen.PUDDLES_ID, gen.NEW_HEATHEN_ID
+NEW_IDS = tuple(APPRENTICE.values()) + (FAITH, PUDDLES, NEW_HEATHEN)
 
 
 def build(game: int):
@@ -273,10 +276,16 @@ PATCHED_THRESHOLD = {"food under 10": 60, "food 10 to 250": 20, "food 8000": 10,
                      "spirituality 1": 5, "11 believers": 2, "1 believer": 22, "50 believers": 5, "14 believers": 1}
 
 
+# The rule's rand(10) return address, in the rule cave (the rule without its companion).
+STAY_ROLL = gen.FAITH_RULE_CAVE + gen.faith_rule_cave().index(b"\x6A\x0A\xE8") + 7
+# New Heathens Get a Heathen's Faith's rand(30) return address, in its cave.
+BLUE_ROLL = gen.NEW_HEATHEN_CAVE + gen.new_heathen_cave().index(b"\x6A\x1E\xE8") + 7
+
+
 def drift(exe: bytes, *, faith=50, food=1000, sick=0, statue_done=0, stage=0, spirit=0, believers=12,
-          forced: dict | None = None, default=99) -> int | None:
+          forced: dict | None = None, default=99, registers: dict | None = None) -> int | None:
     """Run the drift once: the change it applies (None: none).  rand(100) gives `default` except where forced
-    (return address -> value)."""
+    (return address -> value).  `registers`, when given, gets ebx, esi and ebp before and after the call."""
     m = Machine(exe)
     forced = forced or {}
     v = m.SCRATCH
@@ -295,7 +304,16 @@ def drift(exe: bytes, *, faith=50, food=1000, sick=0, statue_done=0, stage=0, sp
     m.w32(sp, m.RET)
     m.uc.reg_write(UC_X86_REG_ESP, sp)
     m.uc.reg_write(UC_X86_REG_ECX, v)
+    before = {"ebx": 0x1111, "esi": 0x2222, "ebp": 0x3333}
+    m.uc.reg_write(UC_X86_REG_EBX, before["ebx"])
+    m.uc.reg_write(UC_X86_REG_ESI, before["esi"])
+    m.uc.reg_write(UC_X86_REG_EBP, before["ebp"])
     m.uc.emu_start(DRIFT, m.RET, count=2000)
+    if registers is not None:
+        registers["before"] = before
+        registers["after"] = {"ebx": m.uc.reg_read(UC_X86_REG_EBX), "esi": m.uc.reg_read(UC_X86_REG_ESI),
+                              "ebp": m.uc.reg_read(UC_X86_REG_EBP),
+                              "esp": m.uc.reg_read(UC_X86_REG_ESP) - (sp + 4)}
     return applied[0] if applied else None
 
 
@@ -325,10 +343,63 @@ class FaithLoss(unittest.TestCase):
         fall = dict(food=100, forced={0x468076: 0, 0x4681B7: 0})        # the fall, and the skip roll's 0 (< 50)
         self.assertIsNone(drift(stock, faith=3, **fall), "stock skips the fall below 5 on rand(100) < 50")
         self.assertEqual(drift(patched, faith=3, **fall), -1)
-        self.assertEqual(drift(patched, faith=1, **fall), -1, "reaches 0: the setter makes a Heathen as stock")
+        to_zero = dict(food=100, forced={0x468076: 0, 0x4681B7: 0, STAY_ROLL: 0})
+        self.assertEqual(drift(patched, faith=1, **to_zero), -1, "reaches 0: the setter makes a Heathen as stock")
         rise = dict(food=9000, forced={0x468096: 0, 0x4681D3: 0})       # the rise, and the skip roll's 0 (< 70)
         self.assertIsNone(drift(stock, faith=80, **rise))
         self.assertIsNone(drift(patched, faith=80, **rise), "a rise above 75 is still skipped 70%")
+
+    def test_without_its_companion_the_rule_is_1_in_10_each_time(self):
+        """The cave's own rule (the companion decides once a crisis, tests/test_faith_loss_marks.py): a fall that the
+        food or sickness losses take to 0 or less -- the drift's other changes alone leaving Faith above 0 -- is made
+        on rand(10) < 1; otherwise the believer is left at Faith 1.  A fall the other changes make on their own is
+        made as stock."""
+        patched = rendered(5, (FAITH,))
+        cases = (
+            ("food under 10", dict(food=5), {0x468056: 0}, 1, 0),
+            ("food 10 to 250", dict(food=100), {0x468076: 0}, 1, 0),
+            ("food under 10, its second roll", dict(food=5), {0x468076: 0}, 1, 0),
+            ("sickness", dict(sick=1), {0x4680B3: 0}, 1, 0),
+            ("food, sickness and too few believers", dict(food=100, sick=1, believers=3),
+             {0x468076: 0, 0x4680B3: 0, 0x468171: 0}, 3, 1),
+        )
+        for name, case, forced, fall, others in cases:
+            for faith in (1, 2, 3, 4):
+                for k in range(10):
+                    with self.subTest(name, faith=faith, roll=k):
+                        got = drift(patched, faith=faith, forced={**forced, STAY_ROLL: k}, **case)
+                        if faith - fall > 0:
+                            self.assertEqual(got, -fall, "a fall that leaves Faith above 0 is not decided")
+                        elif faith - others <= 0:
+                            self.assertEqual(got, -fall, "too few believers alone takes the last Faith: as stock")
+                        elif k < 1:
+                            self.assertEqual(got, -fall, "1 in 10 the believer becomes a Heathen")
+                        else:
+                            self.assertEqual(got, 1 - faith, "9 in 10 the believer stays at Faith 1")
+        exact = sum(1 for v in range(32768) if v % 10 < 1)
+        self.assertEqual(exact, 3277, "rand(10) < 1 comes 3,277 times in 32,768 (10.00%)")
+
+    def test_too_few_believers_alone_and_every_rise_are_unchanged(self):
+        stock, patched = rendered(5, ()), rendered(5, (FAITH,))
+        for faith in (1, 2, 30):
+            for k in range(10):
+                self.assertEqual(drift(patched, faith=faith, believers=5, forced={0x468171: 0, STAY_ROLL: k}), -1)
+        self.assertEqual(drift(stock, faith=50, food=9000, forced={0x468096: 0}), 1)
+        self.assertEqual(drift(patched, faith=50, food=9000, forced={0x468096: 0}), 1)
+        self.assertEqual(drift(patched, faith=50, food=5, forced={0x468056: 0}), -1,
+                         "a fall that does not reach 0 is the stock fall")
+
+    def test_the_drift_keeps_the_callers_registers(self):
+        """ebp counts the food and sickness losses inside the routine; the caller's ebx, esi, ebp and esp come
+        back as they were (the life tick 0x472C90 keeps ebp across the call)."""
+        patched = rendered(5, (FAITH,))
+        for case in (dict(food=100, forced={0x468076: 0}, faith=1), dict(food=9000, faith=50),
+                     dict(food=9000, forced={0x468096: 0, 0x4681D3: 0}, faith=90), dict(sick=1, faith=3)):
+            regs: dict = {}
+            drift(patched, registers=regs, **case)
+            after = dict(regs["after"])
+            self.assertEqual(after.pop("esp"), 0, case)
+            self.assertEqual(after, regs["before"], case)
 
     def test_default_off(self):
         self.assertFalse(default_fun_patch_selection(FAITH))
@@ -336,6 +407,160 @@ class FaithLoss(unittest.TestCase):
         description = next(p for p in rows if p.id == FAITH).description
         self.assertTrue(description.endswith("Adds a real chance of your villagers becoming heathens. Makes the "
                                              "game that much harder. Good Luck!"))
+
+
+# ---------------------------------------------------------------------------
+# New Heathens Get a Heathen's Faith
+# ---------------------------------------------------------------------------
+
+SET_FAITH, TO_HEATHEN, MANAGER_OF, TO_BELIEVER = 0x467F90, 0x4669E0, 0x425950, 0x4668B0
+GAME = 0x32000000                           # the manager 0x425950 returns: +0x17E39, the island runs
+ORANGE, RED, ROLE, FACTION = 0x1CED, 0x1CEE, 0x1CFC, 0x1CEC
+
+
+def setup_conversions(m, made: list) -> None:
+    """The island runs (0x17E39) and 0x4669E0 makes the record a Heathen with role 0, as the game's does
+    (0x4669F5, 0x4669FF); 0x4668B0 is only noted."""
+    m.uc.mem_map(GAME, 0x20000)
+    m.uc.mem_write(GAME + 0x17E39, b"\x01")
+    m.stub(MANAGER_OF, lambda mm: GAME, 0)
+
+    def to_heathen(mm):
+        rec = mm.uc.reg_read(UC_X86_REG_ECX)
+        made.append("heathen")
+        mm.w32(rec + ROLE, 0)
+        mm.uc.mem_write(rec + FACTION, b"\x01")
+        return 0
+    m.stub(TO_HEATHEN, to_heathen, 0)
+    m.stub(TO_BELIEVER, lambda mm: made.append("believer") or 0, 0)
+
+
+def set_faith(exe: bytes, *, old: int, new: int, flag: int = 1, running: int = 1) -> tuple[int, list]:
+    """Run the setter 0x467F90 alone (as an island event calls it) on a record at Faith `old` with `new`: the Faith it
+    stores and the conversions it made."""
+    m = Machine(exe)
+    v = m.SCRATCH
+    m.w32(v + 0x1CF0, old)
+    made: list = []
+    setup_conversions(m, made)
+    m.uc.mem_write(GAME + 0x17E39, bytes([running]))
+    sp = m.STACK + 0x80000
+    m.w32(sp, m.RET)
+    m.w32(sp + 4, new)
+    m.w32(sp + 8, flag)
+    m.uc.reg_write(UC_X86_REG_ESP, sp)
+    m.uc.reg_write(UC_X86_REG_ECX, v)
+    m.uc.reg_write(UC_X86_REG_ESI, 0x2222)
+    m.uc.emu_start(SET_FAITH, m.RET, count=500)
+    assert m.uc.reg_read(UC_X86_REG_ESP) == sp + 12 and m.uc.reg_read(UC_X86_REG_ESI) == 0x2222
+    return struct.unpack("<i", bytes(m.uc.mem_read(v + 0x1CF0, 4)))[0], made
+
+
+def drift_convert(exe: bytes, *, faith: int, kind: tuple = (0, 0), role: int = 0, forced: dict | None = None,
+                  default: int = 99, **conditions) -> dict:
+    """Run the drift with the game's own FAITH_ADD and setter (food 100: a food fall when forced): the record's Faith,
+    mask bytes, role and faction after it."""
+    m = Machine(exe)
+    v = m.SCRATCH
+    forced = {0x468076: 0, **(forced or {})}
+    m.w32(FOOD, conditions.get("food", 100))
+    m.uc.mem_write(v + 0x1C48, bytes([conditions.get("sick", 0)]))
+    m.w32(v + 0x1CF0, faith)
+    m.uc.mem_write(v + ORANGE, bytes(kind))
+    m.w32(v + ROLE, role)
+    made: list = []
+    setup_conversions(m, made)
+    m.stub(0x403660, lambda mm: forced.get(mm.r32(mm.uc.reg_read(UC_X86_REG_ESP)), default)
+           % mm.r32(mm.uc.reg_read(UC_X86_REG_ESP) + 4), 0)
+    m.stub(PROJECT_DONE, lambda mm: 0, 4)
+    m.stub(STATUE_STAGE, lambda mm: 0, 0)
+    m.stub(TECH, lambda mm: 0, 4)
+    m.stub(BELIEVERS, lambda mm: conditions.get("believers", 12), 0)
+    sp = m.STACK + 0x80000
+    m.w32(sp, m.RET)
+    m.uc.reg_write(UC_X86_REG_ESP, sp)
+    m.uc.reg_write(UC_X86_REG_ECX, v)
+    m.uc.emu_start(DRIFT, m.RET, count=5000)
+    raw = bytes(m.uc.mem_read(v + ORANGE, 2))
+    return {"faith": struct.unpack("<i", bytes(m.uc.mem_read(v + 0x1CF0, 4)))[0], "orange": raw[0],
+            "red": raw[1], "role": m.r32(v + ROLE), "heathen": bytes(m.uc.mem_read(v + FACTION, 1)) != b"\0",
+            "made": made}
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "unicorn/pefile not installed")
+class NewHeathensFaith(unittest.TestCase):
+    def test_the_manifest_is_the_generators(self):
+        stock_path(5)
+        path = ROOT / "data" / "vv5_new_heathens_faith_feature.json"
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8")), gen.new_heathen_feature())
+
+    def test_a_drift_convert_is_an_ordinary_blue_heathen_at_minus_38_to_minus_67(self):
+        """The owner: "Once they turn heathen, have their faith randomly set to the typical blue heathen threshold"
+        -- the mask by the mask type: role 0 and neither the orange nor the red byte; the Faith drawn as the game
+        draws an ordinary Heathen's, -38 - rand(30)."""
+        stock, patched = rendered(5, ()), rendered(5, (NEW_HEATHEN,))
+        got = drift_convert(stock, faith=1, kind=(1, 0), role=5)
+        self.assertEqual((got["faith"], got["heathen"], got["orange"], got["role"]), (0, True, 1, 0),
+                         "stock: Faith 0, the orange byte kept")
+        for k in (0, 1, 17, 29, 30, 59):
+            for kind in ((0, 0), (1, 0), (0, 1)):
+                with self.subTest(roll=k, kind=kind):
+                    got = drift_convert(patched, faith=1, kind=kind, role=7, forced={BLUE_ROLL: k})
+                    self.assertEqual(got["faith"], -38 - k % 30)
+                    self.assertTrue(got["heathen"])
+                    self.assertEqual((got["orange"], got["red"], got["role"]), (0, 0, 0), "the blue mask")
+                    self.assertEqual(got["made"], ["heathen"])
+
+    def test_with_faith_loss_the_drift_conversion_is_a_blue_heathen_too(self):
+        both = rendered(5, tuple(sorted((FAITH, NEW_HEATHEN))))
+        got = drift_convert(both, faith=1, kind=(0, 1), forced={STAY_ROLL: 0, BLUE_ROLL: 12})
+        self.assertEqual((got["faith"], got["heathen"], got["orange"], got["red"]), (-50, True, 0, 0))
+        stays = drift_convert(both, faith=1, kind=(0, 1), forced={STAY_ROLL: 4})
+        self.assertEqual((stays["faith"], stays["heathen"]), (1, False), "9 in 10 stay at Faith 1")
+
+    def test_island_events_and_every_other_setter_call_are_stock(self):
+        """The Spa and The Cracked Mask call the setter with -10 themselves (0x415D02, 0x416C51): not the drift, so
+        the stock answer, Faith -10."""
+        stock, patched = rendered(5, ()), rendered(5, (NEW_HEATHEN,))
+        for kw in (dict(old=1, new=0), dict(old=10, new=-10), dict(old=50, new=-3), dict(old=50, new=49),
+                   dict(old=-55, new=-50), dict(old=-55, new=3), dict(old=-55, new=20), dict(old=-1, new=-5),
+                   dict(old=5, new=0, flag=0), dict(old=5, new=-3, running=0), dict(old=99, new=150),
+                   dict(old=5, new=-200)):
+            self.assertEqual(set_faith(patched, **kw), set_faith(stock, **kw), kw)
+        self.assertEqual(set_faith(patched, old=10, new=-10), (-10, ["heathen"]))
+
+    def test_the_mask_is_chosen_by_role_and_kind_bytes_not_faith(self):
+        """The Heathen draw 0x4728C6..0x472919: role +0x1CFC - 12 through the table 0x472B60 (12..16: purple or
+        the Chief), then +0x1CED (orange) and +0x1CEE (red); nothing reads Faith there."""
+        image = pefile.PE(data=rendered(5, ()), fast_load=True).get_memory_mapped_image()
+        at = lambda va, n: bytes(image[va - 0x400000:va - 0x400000 + n])  # noqa: E731
+        self.assertEqual(at(0x4728C6, 9), bytes.fromhex("8B86FC1C000083C0F4"), "mov eax,[esi+0x1CFC]; add eax,-12")
+        self.assertEqual(at(0x4728D1, 12), bytes.fromhex("83F8047715FF2485602B4700"), "cmp 4; ja; jmp [table]")
+        self.assertEqual(at(0x4728EB, 7), bytes.fromhex("80BEED1C000000"), "cmp byte [esi+0x1CED],0 (orange)")
+        self.assertEqual(at(0x472903, 7), bytes.fromhex("80BEEE1C000000"), "cmp byte [esi+0x1CEE],0 (red)")
+        self.assertNotIn(bytes.fromhex("F01C0000"), at(0x4728C6, 0x472919 - 0x4728C6), "no Faith (+0x1CF0) read")
+        self.assertEqual(at(0x4669F5, 10), bytes.fromhex("C786FC1C000000000000"), "0x4669E0 sets the role to 0")
+
+    def test_minus_38_to_minus_67_is_the_ordinary_heathens_faith(self):
+        """A new village's Heathens are made at -1 (0x424AC0's creator calls) and every one still at -1 is set to
+        -38 - rand(30) (0x471050..0x471099); Barrel O' Babies! (heathens) makes its at -55 (0x4152B0)."""
+        image = pefile.PE(data=rendered(5, ()), fast_load=True).get_memory_mapped_image()
+        at = lambda va, n: bytes(image[va - 0x400000:va - 0x400000 + n])  # noqa: E731
+        self.assertEqual(at(0x424AC0, 2), bytes.fromhex("6AFF"), "the first creator call's Faith: push -1")
+        self.assertEqual(at(0x47105A, 8), bytes.fromhex("83BC18381D0000FF"), "cmp [record+0x1CF0],-1")
+        self.assertEqual(at(0x471070, 2), bytes.fromhex("6A1E"), "rand(30)")
+        self.assertEqual(at(0x47107C, 5), bytes.fromhex("B9DAFFFFFF"), "-38 - rand(30)")
+        self.assertEqual(at(0x47108E, 5), bytes.fromhex("BADAFFFFFF"), "-38 - rand(30)")
+        self.assertEqual(at(0x4152B0, 2), bytes.fromhex("6AC9"), "Barrel O' Babies! (heathens): push -0x37")
+        self.assertIn(-55, range(-67, -37))
+
+    def test_on_by_default_and_needs_nothing(self):
+        public = patcher.load_public_fun_patches()
+        rows = {p.id: p for p in public}
+        self.assertIn(NEW_HEATHEN, rows)
+        self.assertTrue(default_fun_patch_selection(NEW_HEATHEN))
+        self.assertEqual(patcher.patch_requirement_text(rows[NEW_HEATHEN], public),
+                         "Requires no other patch to be ticked.")
 
 
 # ---------------------------------------------------------------------------
@@ -576,18 +801,20 @@ class PuddlesByTheLake(unittest.TestCase):
         howto = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
         guided = {i for entry in howto["patches"] for i in entry.get("ids", [])}
         self.assertIn("PUDDLES_BY_THE_LAKE_FEATURE_PATHS", source)
+        self.assertIn("NEW_HEATHENS_FAITH_FEATURE_PATHS", source)
         for pid in NEW_IDS:
             self.assertIn(f"- Patch ID: `{pid}`", readme)
             self.assertIn(f"`{pid}`", log)
         for name in ("vv1_apprentice_graves", "vv2_apprentice_graves", "vv3_apprentice_graves",
-                     "vv5_apprentice_graves", "vv5_faith_loss", "vv5_puddles_by_the_lake"):
+                     "vv5_apprentice_graves", "vv5_faith_loss", "vv5_new_heathens_faith", "vv5_puddles_by_the_lake"):
             self.assertIn(f'"data/{name}_feature.json"', release)
         for pid in NEW_IDS:
             self.assertIn(pid, guided)
 
     def test_no_other_patch_claims_the_bytes(self):
         mine: dict[str, set] = {}
-        for record in [gen.apprentice_feature(g) for g in (1, 2, 3, 5)] + [gen.faith_feature(), gen.puddles_feature()]:
+        for record in [gen.apprentice_feature(g) for g in (1, 2, 3, 5)] + [gen.faith_feature(), gen.puddles_feature(),
+                                                                           gen.new_heathen_feature()]:
             for p in record["patches"]:
                 off = int(p["offset"], 16)
                 mine.setdefault(record["game_id"], set()).update(range(off, off + len(p["after"]) // 2))
