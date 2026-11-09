@@ -38,6 +38,8 @@ STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 HUNGRIER = "vv5_hungrier_villagers"
 CLASSIC = "vv5_classic_vv_difficulty"
+# Respecting the Legacy of Isola: no rule of its own, it ticks five New Believers patches.
+LEGACY_OF_ISOLA = "vv5_respecting_the_legacy_of_isola"
 LEARNING = "vv5_learning_never_fails"
 SCIENCE_SET = "vv5_science_collectibles_complete"
 # Food Gains are Flat, like VV1-3 (Harder Games): a noni pick pays The Secret City's fruit and honey pick
@@ -353,6 +355,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                      "\"Honoring the dead\" (after the flowers) and of \"Reflecting\" go to random "
                                      "points in front of the hovel, 2176..2272 by 1576..1600; the Day of Honor is "
                                      "unchanged"), gm.CODE)
+    if village.has(LEGACY_OF_ISOLA) is not False:
+        add("Other", gm.patch_words(village, LEGACY_OF_ISOLA, "it ticks Guardians of Isola Rewrite, Shrine to the "
+                                    "Ancestors, Heathens Keep Their Masks When Converted, Memorial Actions Can Also "
+                                    "Occur at the Heathen Hovel and Popup When Believers Become Heathens together "
+                                    "and changes nothing by itself"))
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "

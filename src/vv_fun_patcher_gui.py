@@ -133,8 +133,18 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
 # Classic VV Difficulty: drawn with a red title (the owner, 2026-11-07).
 CLASSIC_DIFFICULTY_FUN_PATCH_IDS = ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"]
+# Respecting the Legacy of Isola (New Believers): the five respectful patches in one row; its own colour, green.
+LEGACY_OF_ISOLA_FUN_PATCH_ID = "vv5_respecting_the_legacy_of_isola"
 HOVEL_MEMORIAL_ACTIONS_ID = "vv5_hovel_memorial_actions"
 CLASSIC_DIFFICULTY_TITLE_COLOUR = "#c00000"
+LEGACY_OF_ISOLA_TITLE_COLOUR = "#1e8a3c"
+# The bundle rows whose title is drawn in a colour of its own: patch id -> (ttk style, colour).  Both colours read
+# on a light and on a dark window.
+TITLE_COLOURS = {
+    **{patch_id: ("ClassicDifficulty.TCheckbutton", CLASSIC_DIFFICULTY_TITLE_COLOUR)
+       for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS},
+    LEGACY_OF_ISOLA_FUN_PATCH_ID: ("LegacyOfIsola.TCheckbutton", LEGACY_OF_ISOLA_TITLE_COLOUR),
+}
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -213,6 +223,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (2026-11-08): "default on in OWNERS DEFAULTS ONLY" -- off here; Owner's
     # Defaults ticks it, as it ticks every default-off patch it does not name.
     + ["vv5_heathens_keep_masks_when_converted"]
+    # Respecting the Legacy of Isola (New Believers): off by default, on in
+    # Owner's Defaults and Select All (it ticks its five pieces there too).
+    + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
@@ -1700,10 +1713,10 @@ class App(tk.Tk):
             variable=self.fun_patch_vars[patch.id],
             command=self._fun_patch_changed,
         )
-        if patch.id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
-            ttk.Style(patch_row).configure("ClassicDifficulty.TCheckbutton",
-                                           foreground=CLASSIC_DIFFICULTY_TITLE_COLOUR)
-            button.configure(style="ClassicDifficulty.TCheckbutton")
+        if patch.id in TITLE_COLOURS:
+            title_style, colour = TITLE_COLOURS[patch.id]
+            ttk.Style(patch_row).configure(title_style, foreground=colour)
+            button.configure(style=title_style)
         button.pack(side="left")
         self._help_button(patch_row, key, label).pack(side="left", padx=(4, 0))
         RichDescription(frame, row_description(patch), 620, requirement_font,
