@@ -279,6 +279,39 @@ static void former_rekey(unsigned int from, unsigned int to, int shared) {
     former_queue(shared ? FORMER_OP_UNSURE : FORMER_OP_REKEY, from, to);
 }
 
+/* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
+   New Believers' Heathens with no last name right after the villager table's load, before this tick's first
+   look, and hands the batch over.  A Former Heathens entry kept for one of them (a believer converted once,
+   and a Heathen again) is carried to the new identity -- queued like every change, so it reaches the file.
+   A `from` two villagers of the batch shared is carried to neither (FORMER_OP_UNSURE).  Returns how many
+   were carried. */
+static unsigned int former_identity(const unsigned char *record);
+
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                                         const char *const *old_names) {
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH], all_from[VV_REKEY_BATCH];
+    int n, kept, i, j;
+    if (game != 5 || g_game != 5 || slot <= 0 || slot != cod_slot()) {
+        return 0;
+    }
+    n = vv_rekey_pairs(count, records, old_names, former_identity, REC[5].stride, FORMER_NAME, FORMER_NAME_CAP,
+                       from, to);
+    memcpy(all_from, from, sizeof(unsigned int) * (size_t)n);
+    for (i = 0; i < n; ++i) {              /* shared: neither is given the entry */
+        for (j = 0; j < i; ++j) {
+            if (all_from[i] != 0u && all_from[j] == all_from[i] && from[i] != to[i]) {
+                former_rekey(all_from[i], to[i], 1);
+                break;
+            }
+        }
+    }
+    kept = vv_rekey_note(slot, from, to, n);
+    for (i = 0; i < kept; ++i) {
+        former_rekey(from[i], to[i], 0);
+    }
+    return kept;
+}
+
 /* How many records carried `identity` at the last look. */
 static int former_carried(int n, const unsigned int *seen, unsigned int identity) {
     int i, c = 0;

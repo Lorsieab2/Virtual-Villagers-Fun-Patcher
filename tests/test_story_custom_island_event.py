@@ -1645,6 +1645,54 @@ class TitleSetTests(unittest.TestCase):
                 self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "After")])
                 self.assertEqual(p.export("VvfpStoryProbeTitleCount"), 1)
 
+    def test_a_heathen_renamed_at_the_load_keeps_the_title(self):
+        """Codex, #733: VVFP Last Names.dll gives New Believers' Heathens with no last name one as the village
+        loads, before the titles look, and hands the batch to VvfpVillagersRenamed (native/shared/
+        villager_rekey.h).  The titled Heathen keeps the title, in memory and in the file, under the new
+        identity; an untitled one changes nothing; without the call the title is lost (what Codex found)."""
+        from story_custom_fixtures import MemoryFiles
+
+        if not have_stock("vv5"):
+            self.skipTest("the stock New Believers executable is not in inputs/")
+        for told in (True, False):
+            story = Story("vv5")
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            v.put(3, sex="m", years=30, name="Tama", faction=1)
+            v.put(4, sex="f", years=30, name="Pua", faction=1)
+            ok, r, _ = story.apply(Event(changes=[story.change(3, title_op=1, title="Moon Watcher")]))
+            self.assertEqual(r["refused"], 0)
+            before = files.titles(path)[1]
+            old = v.title_identity(3)
+            self.assertEqual(before, [(3, old, "Moon Watcher")])
+            for i, name in ((3, "Tama Akikai"), (4, "Pua Alosaka")):
+                p.write(v.record(i) + v.L["name"], name.encode() + bytes(v.L["name_cap"] - len(name)))
+            records, names = SCRATCH + 0x200, SCRATCH + 0x300
+            p.write(SCRATCH + 0x400, b"Tama\0")
+            p.write(SCRATCH + 0x410, b"Pua\0")
+            p.write(records, struct.pack("<II", v.record(3), v.record(4)))
+            p.write(names, struct.pack("<II", SCRATCH + 0x400, SCRATCH + 0x410))
+            with self.subTest(told=told):
+                if told:
+                    self.assertEqual(p.export("VvfpVillagersRenamed", 5, 1, 2, records, names), 2)
+                    self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "Moon Watcher")],
+                                     "the file has the title under the new identity; nobody else gained one")
+                    self.assertNotEqual(v.title_identity(3), old)
+                    self.assertEqual(p.cstring(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3))),
+                                     "Moon Watcher")
+                    self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(4)), 0)
+                    self.assertEqual(p.export("VvfpVillagersRenamed", 5, 1, 2, records, names), 2)
+                    self.assertEqual(files.titles(path)[1], [(3, v.title_identity(3), "Moon Watcher")],
+                                     "told again (a later load): nothing more changes")
+                else:
+                    self.assertEqual(p.export("VvfpStoryProbeTitleOf", story.n, v.record(3)), 0,
+                                     "without the companion's word the title is lost")
+                    self.assertEqual(files.titles(path)[1], before)
+
     def test_the_file_keeps_each_games_own_looks_with_the_title(self):
         """v1.35.70: a title is kept with the villager's whole identity -- the age, head, body, sex and
         skills read at each game's own record offsets (the adapter's, story_c*.inc) -- so the companion

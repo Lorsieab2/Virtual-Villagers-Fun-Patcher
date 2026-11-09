@@ -19,6 +19,7 @@
 #include "../shared/original_look.h"  /* Change Appearance's Reset to original */
 #include "../shared/appearance_extras.h" /* Change Appearance's Undo, Reset and Random buttons */
 #include "../shared/vvfp_translate.h" /* the drawn labels in the player's language, by key */
+#include "../shared/villager_rekey.h" /* a rename at a load keeps the mask (VvfpVillagersRenamed) */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
    UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
@@ -637,6 +638,27 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
     (void)vv5_write_mask_sidecar(table);
 }
 
+/* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
+   New Believers' Heathens with no last name right after the villager table's load, before the masks look,
+   and hands the batch over.  Each mask stays its villager's: the pairs are kept for the slot's file, and a
+   table already held for the slot is carried and written now.  Returns how many pairs were kept. */
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                                         const char *const *old_names) {
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
+    int n, kept;
+    if (game != 5) {
+        return 0;
+    }
+    n = vv_rekey_pairs(count, records, old_names, vv5_identity, VV5_ROSTER_STRIDE, VV5_NAME_OFFSET,
+                       VV5_NAME_CAPACITY, from, to);
+    kept = vv_rekey_note(slot, from, to, n);
+    if (kept > 0 && g_vv5_have_roster && g_vv5_slot == slot
+        && vv_rekey_apply(slot, g_vv5_roster, VV5_RECORD_COUNT) + vv_rekey_apply(slot, g_vv5_mask_id, VV5_MAX_VILLAGERS) > 0) {
+        (void)vv5_write_mask_sidecar((const unsigned char *)VV5_MASK_TABLE);
+    }
+    return kept;
+}
+
 /* Move the masks in `table` from the records `stored` names to where those
    villagers are in `live` (native/shared/mask_follow.h).  `weak` for a
    name-only roster: then a mask only moves DOWN a record.  Returns 1 when
@@ -690,6 +712,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     int kept;
     int i;
     int status;
+    int renamed;
     /* FAIL CLOSED: the clear precedes EVERY exit.
 
        A load that does not complete must not leave the PREVIOUS village's
@@ -739,6 +762,12 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
     memcpy(buf, file + 4 + (size_t)count * sizeof(unsigned int), (size_t)kept / 2);
     memcpy(&magic, file, sizeof(magic));
     weak = magic == VV5_MASK_SIDECAR_MAGIC || magic == VV5_MASK_SIDECAR_MAGIC_256;
+    renamed = 0;
+    if (!weak) {
+        /* Villagers another companion renamed as the village loaded (villager_rekey.h): the identities
+           the file keeps for them read as the ones they have now, and the file is written so. */
+        renamed = vv_rekey_apply(VV5_MASK_SLOT_NOW, filesnap, kept);
+    }
     if (weak) {
         vv5_roster_snapshot(names);   /* a name-only file is compared with names */
         against = names;
@@ -754,7 +783,7 @@ static int vv5_mask_sidecar_load(unsigned char *table, const unsigned int *live)
         memcpy(table, buf, table_bytes);
         /* The file was written against the records as they were then; a
            reload has packed them since.  Each mask goes to its villager. */
-        g_vv5_rewrite_after_load = vv5_mask_follow_table(table, filesnap, against, weak, 0) || weak;
+        g_vv5_rewrite_after_load = vv5_mask_follow_table(table, filesnap, against, weak, 0) || weak || renamed > 0;
         if (weak) {
             vv_om_from_names(VV5_RECORD_COUNT, g_vv5_mask_id, names, live);
         }

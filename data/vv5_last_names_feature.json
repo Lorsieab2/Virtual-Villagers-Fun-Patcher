@@ -17,6 +17,7 @@
     "A Heathen (the Heathen allocator 0x46FB80, every Heathen the game makes: a new village's 28, Barrel O' Babies' Heathen babies, the Story / Cheat Upgrades' and the Custom Island Event's Heathens) is called \"<first name> <last name>\", the last name drawn at random from the game's list among the names no villager in the game, no \"used\" line and no \"heathen\" line of the village's Last Names record has; only when every name that fits is taken, one that gives no living villager's full name, else any that fits.",
     "Right after the villager table's load (0x46FA20), each living Heathen whose name carries no last name gets one the same way (a numeral is kept after it), and a \"Name changed\" record (Old name, Age) goes to the Births and Conceptions log at the next save, so the logs, the Family Tree Maker and Check Saves & Logs follow them as one villager.",
     "Each name given is kept in the village's Last Names record as a \"heathen\" line (one named at a load with the name, head and body they had, so a session that ends without a save gives them the same name again), only ever added to; the record is made when the village has none, never for a slot that cannot be told.",
+    "Whatever the patcher keeps for a Heathen by their name -- a custom title, a mask, a head look, an original look, a Former Heathens entry -- stays theirs: right after the load the renamed are handed, as one batch, to each of those companions that is loaded (its export VvfpVillagersRenamed), which carries its own records to the new name and writes its own file; a name two renamed Heathens shared is carried to neither, and the batch is handed over again at later loads for a file a session never rewrote.",
     "\"Random from the existing Village Names\" never counts a current Heathen's last name (the villagers in the game at a birth, and Repair's names of the village); a converted Heathen keeps their name and it counts from then on."
   ],
   "explicit_non_changes": [
@@ -30,7 +31,7 @@
     {
       "source": "assets/last_names/VVFP Last Names.dll",
       "destination": "VVFP Last Names.dll",
-      "sha256": "0D759640AF0167F9AD032AA5CE8F1D0007031AF58E6E400A5D262325DE864324"
+      "sha256": "F143F3A397DB3F152C85BC313AEF6E05631F42CC2CB398A5344BFABC4B3028C3"
     }
   ],
   "runtime_detours": [

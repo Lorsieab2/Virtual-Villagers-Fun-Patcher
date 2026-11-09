@@ -23,6 +23,7 @@
 #include "../shared/mask_follow.h"
 #include "../shared/identity_in_place.h"
 #include "../shared/foreign_sidecar.h"   /* vv_roster_shares: another array is not play */
+#include "../shared/villager_rekey.h"    /* a rename at a load keeps the title (VvfpVillagersRenamed) */
 
 #define TITLES_CHECK_MS 2000u
 #define TITLES_ROSTER VV_MASK_FOLLOW_MAX    /* every game has 150 or 256 records */
@@ -121,8 +122,18 @@ static void titles_sync(int game) {
         }
         titles_forget();
         if (result == VV_SIDECAR_LOAD_VALID) {
+            int i;
             titles.count = vv_titles_parse(titles_buffer, titles.entries);
             titles.file_present = 1;
+            /* Villagers another companion renamed as the village loaded (villager_rekey.h): the title
+               kept for them reads as theirs under the name they have now, and the file says so next. */
+            for (i = 0; i < titles.count; ++i) {
+                unsigned int to = vv_rekey_follow(slot, titles.entries[i].fingerprint);
+                if (to != titles.entries[i].fingerprint) {
+                    titles.entries[i].fingerprint = to;
+                    titles_unpublished = 1;
+                }
+            }
         }
         titles.loaded = 1;
         titles.checked_at = GetTickCount();
@@ -994,6 +1005,47 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomTitle(int game, const void *r
         lstrcpynA(out, title, size);
     }
     return 1;
+}
+
+/* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
+   New Believers' Heathens with no last name right after the villager table's load, before the titles look,
+   and hands the batch over.  Each custom title stays its villager's: the pairs are kept for the slot's file
+   (titles_sync), and a table already held for the slot is carried and written now (the records' name field
+   at name_at, name_bytes; the export, vvfp_story_upgrades.c VvfpVillagersRenamed, gives the game's own).
+   Returns how many pairs were kept. */
+static int titles_rekey_game;
+
+static unsigned int titles_rekey_identity(const unsigned char *record) {
+    return story_title_identity(titles_rekey_game, record);
+}
+
+static int titles_renamed(int game, int slot, int count, const void *const *records, const char *const *old_names,
+                          unsigned int name_at, unsigned int name_bytes) {
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
+    const unsigned char *first, *second;
+    int n, kept, i, changed = 0;
+    if (story_record_count(game) < 2 || (first = story_record(game, 0)) == NULL
+        || (second = story_record(game, 1)) == NULL || second <= first) {
+        return 0;
+    }
+    titles_rekey_game = game;
+    n = vv_rekey_pairs(count, records, old_names, titles_rekey_identity, (unsigned int)(second - first),
+                       name_at, name_bytes, from, to);
+    kept = vv_rekey_note(slot, from, to, n);
+    if (kept > 0 && titles.game == game && titles.slot == slot && titles.loaded) {
+        for (i = 0; i < titles.count; ++i) {
+            unsigned int now = vv_rekey_follow(slot, titles.entries[i].fingerprint);
+            if (now != titles.entries[i].fingerprint) {
+                titles.entries[i].fingerprint = now;
+                changed = 1;
+            }
+        }
+        changed |= vv_rekey_apply(slot, titles.roster, TITLES_ROSTER) > 0;
+        if (changed && !titles_publish()) {
+            titles_unpublished = 1;          /* the next tick writes it */
+        }
+    }
+    return kept;
 }
 
 /* Called by Origins' Change Appearance (native/shared/appearance_log.h) when

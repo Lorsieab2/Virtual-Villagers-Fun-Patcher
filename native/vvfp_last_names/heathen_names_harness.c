@@ -50,6 +50,22 @@ static BOOL harness_docs(HWND owner, LPSTR path, int folder, BOOL create) {
 }
 #define SHGetSpecialFolderPathA harness_docs
 
+/* The owners' VvfpVillagersRenamed (native/shared/villager_rekey.h): every batch handed over, kept. */
+static int told_batches, told_count, told_slot;
+static const void *told_records[256];
+static char told_old[256][64];
+static void harness_tell(int slot, int count, const void *const *records, const char *const *old_names) {
+    int i;
+    ++told_batches;
+    told_slot = slot;
+    told_count = count;
+    for (i = 0; i < count && i < 256; ++i) {
+        told_records[i] = records[i];
+        lstrcpynA(told_old[i], old_names[i], 64);
+    }
+}
+#define LN_TELL_OWNERS harness_tell
+
 #include "vvfp_last_names.c"
 
 static int failures;
@@ -276,8 +292,13 @@ int main(int argc, char **argv) {
         villager(7, "Nalu", 1, 50);
         rec(7)[NB_ACTIVE] = 0;                     /* an empty record */
         written = 0;
+        told_batches = 0;
         k = heathens_at_load(table, 150, 1);
         check(k == 3, "three Heathens named");
+        check(told_batches == 1 && told_slot == 1 && told_count == 3 && told_records[0] == rec(2)
+              && told_records[1] == rec(3) && told_records[2] == rec(4) && strcmp(told_old[0], "Tama") == 0
+              && strcmp(told_old[1], "Kai II") == 0 && strcmp(told_old[2], "Mele") == 0,
+              "the owners are handed one batch: the renamed records and the names they had");
         for (a = 2; a <= 4; ++a) {
             i = last_index(name_of(a));
             taken_ok &= i >= 0 && i != 0 && i != 1 && i != 3;
@@ -318,6 +339,12 @@ int main(int argc, char **argv) {
               && strcmp(name_of(4), names[2]) == 0, "the same three names again");
         check(strcmp(record_text(), before_text) == 0, "no new line");
         check(written == 3, "the Name changed records again (the first ones were never saved)");
+        told_batches = 0;
+        written = 0;
+        k = heathens_at_load(table, 150, 1);       /* a later load: the save already has the names */
+        check(k == 0 && written == 0 && told_batches == 1 && told_count == 3 && strcmp(told_old[0], "Tama") == 0
+              && told_records[0] == rec(2),
+              "a later load names nobody, and hands the owners the earlier renames again");
         /* two nameless Heathens with the same name and looks share no keyed line */
         villager(10, "Tama", 1, 50);
         *(int *)(rec(10) + NB_HEAD) = 2;
@@ -378,9 +405,10 @@ int main(int argc, char **argv) {
         put_record(NULL);
         clear_table();
         villager(0, "Tama", 1, 50);
+        told_batches = 0;
         heathens_at_load(table, 150, 0);
-        check(last_index(name_of(0)) >= 0 && GetFileAttributesA(g_path) == INVALID_FILE_ATTRIBUTES,
-              "a slot that cannot be told: named, nothing written");
+        check(last_index(name_of(0)) >= 0 && GetFileAttributesA(g_path) == INVALID_FILE_ATTRIBUTES
+              && told_batches == 0, "a slot that cannot be told: named, nothing written, no owner told");
         put_record("VVFP LAST NAMES v1 game=4\nrule\tfather\n");
         strcpy(name_of(0), "Tama");
         heathens_at_load(table, 150, 1);

@@ -821,6 +821,65 @@ int main(int argc, char **argv) {
     got = read_file(path, buf, sizeof buf);
     check(buf[24 + 5 * 20 + 17] == OL_SEEN && buf[24 + 6 * 20 + 17] == OL_SEEN, "...and the next write carries everything");
 
+    printf("Heathens renamed as the village loads (VvfpVillagersRenamed, Codex #733)\n");
+    {
+        static const char *const OLD[6] = { "Kai0", "Kai1", "Kai2", "Kai3", "Kai4", "Kai5" };
+        static char akikai[6][32], dakila[32];
+        const char *was[6];
+        const void *records[6];
+        int k;
+        const ol_layout *l = &LAYOUT[5];
+        fresh_disk();
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        founders(10, "Kai");                     /* Kai0..Kai5 the Heathens, Kai6..Kai9 believers */
+        settle();
+        game_saves(1);
+        check(g_state == OL_BOUND && original(2) == 20020, "a bound village's originals");
+        for (k = 0; k < 6; ++k) {
+            records[k] = rec(k);
+            wsprintfA(akikai[k], "%s Akikai", OLD[k]);
+            was[k] = akikai[k];
+        }
+        new_session();                           /* the next session's load names them, before any look */
+        g_game_slot = 1;
+        for (k = 0; k < 6; ++k) {
+            lstrcpynA((char *)rec(k) + l->name, akikai[k], (int)l->name_bytes);
+        }
+        check(ol_renamed(1, 6, records, OLD, l->stride, l->name, l->name_bytes) == 6, "the batch is taken: six pairs");
+        settle();
+        check(g_state == OL_BOUND && original(2) == 20020 && original(5) == 50050 && original(7) == 70070,
+              "the village is still its file's, and every renamed Heathen keeps their original");
+        new_session();
+        vv_rekey_count = 0;                      /* a later session: nothing told */
+        g_game_slot = 1;
+        settle();
+        check(g_state == OL_BOUND && original(2) == 20020, "the file was written under the new names");
+        for (k = 0; k < 6; ++k) {                /* renamed again while the village is bound */
+            wsprintfA(dakila, "%s Bahati", OLD[k]);
+            lstrcpynA((char *)rec(k) + l->name, dakila, (int)l->name_bytes);
+        }
+        check(ol_renamed(1, 6, records, was, l->stride, l->name, l->name_bytes) == 6 && original(2) == 20020,
+              "a bound village is carried");
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        settle();
+        check(g_state == OL_BOUND && original(2) == 20020, "and written at once");
+        new_session();
+        vv_rekey_count = 0;
+        g_game_slot = 1;
+        for (k = 0; k < 6; ++k) {                /* the same rename without the word */
+            wsprintfA(dakila, "%s Dakila", OLD[k]);
+            lstrcpynA((char *)rec(k) + l->name, dakila, (int)l->name_bytes);
+        }
+        settle();
+        check(g_state != OL_BOUND, "without it the file is taken for another village's (what Codex found)");
+        new_session();
+        vv_rekey_count = 0;
+    }
+
     printf("no village\n");
     new_session();
     g_game_slot = 0;

@@ -46,6 +46,8 @@
    The includer defines, for its game: HL_MAX, hl_slots(), hl_record(i), hl_present(r), hl_identity(r),
    hl_stable(r), hl_slot_now(), hl_game(). */
 
+#include "../shared/villager_rekey.h"   /* a rename at a load keeps the look (VvfpVillagersRenamed) */
+
 #define HL_MAGIC 0x324C4856u            /* 'VHL2' */
 #define HL_MAGIC_V1 0x314C4856u         /* 'VHL1', still read */
 #define HL_HEADER 12u
@@ -195,7 +197,7 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
     char path[MAX_PATH];
     DWORD got = 0;
     unsigned int count, magic, looks_at;
-    int status, kept, i;
+    int status, kept, i, renamed;
     memset(g_look, 0, sizeof g_look);
     memset(g_look_id, 0, sizeof g_look_id);
     g_foreign = 0;
@@ -228,6 +230,9 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
         memcpy(fileids, filesnap, sizeof fileids);  /* 'VHL1': the roster named each look's villager */
         looks_at = HL_HEADER + count * 4u;
     }
+    /* Villagers another companion renamed as the village loaded (native/shared/villager_rekey.h): the
+       identities the file keeps for them read as the ones they have now. */
+    renamed = vv_rekey_apply(slot, filesnap, kept) + vv_rekey_apply(slot, fileids, kept);
     g_foreign = !hl_same_village(filesnap, live);
     if (g_foreign) {
         return 1;                               /* another village's file: kept, never replaced */
@@ -239,9 +244,25 @@ static int hl_load(int slot, const unsigned int *live, int *rewrite) {
             fileids[i] = 0;
         }
     }
-    /* A 'VHL1' file is written again in this layout. */
-    *rewrite = hl_follow(fileids, filesnap, live, 0) || magic != HL_MAGIC;
+    /* A 'VHL1' file is written again in this layout, and one read through rename pairs under the names
+       its villagers have now. */
+    *rewrite = hl_follow(fileids, filesnap, live, 0) || magic != HL_MAGIC || renamed > 0;
     return 1;
+}
+
+/* Villagers renamed as the village loaded, by another companion (native/shared/villager_rekey.h; the
+   records at `stride`, the name at name_at, name_bytes): the pairs are kept for the slot's file (hl_load),
+   and a table already held for the slot is carried and written now.  Returns how many pairs were kept. */
+static int hl_renamed(int slot, int count, const void *const *records, const char *const *old_names,
+                      unsigned int stride, unsigned int name_at, unsigned int name_bytes) {
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
+    int n = vv_rekey_pairs(count, records, old_names, hl_identity, stride, name_at, name_bytes, from, to);
+    int kept = vv_rekey_note(slot, from, to, n);
+    if (kept > 0 && g_have_roster && g_slot == slot
+        && vv_rekey_apply(slot, g_roster, HL_MAX) + vv_rekey_apply(slot, g_look_id, HL_MAX) > 0) {
+        (void)hl_publish();
+    }
+    return kept;
 }
 
 /* Bind the table to the village on screen (throttled: at most every HL_SYNC_MS).  Called on head draws and

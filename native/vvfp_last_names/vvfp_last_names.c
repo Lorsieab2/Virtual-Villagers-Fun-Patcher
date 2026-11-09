@@ -149,6 +149,7 @@
 #include "../shared/villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "../shared/vv5_villager_table.h"  /* New Believers' table, stock or 256 */
 #include "../shared/patcher_files.h"     /* the Parentage Export companion, by its full path */
+#include "../shared/villager_rekey.h"    /* the owners' VvfpVillagersRenamed (HEATHENS) */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -1594,14 +1595,86 @@ static int heathen_created(unsigned char *villager, const unsigned char *records
     return 1;
 }
 
+/* WHAT IS KEPT FOR THEM FOLLOWS THEM (Codex, #733).  Every per-save file that
+   follows a villager keys them by an identity that hashes the name -- the
+   custom titles, the Origins masks, the Head Looks, the Original Looks, the
+   Former Heathens -- and a load-time rename comes before any of their owners
+   has looked, so a Heathen's custom title or mask would be lost, and with
+   enough of them renamed a file would no longer share a majority with the
+   village.  So the renamed are handed, as one batch (records with their new
+   names, and the names they had), to each owner that is LOADED, through its
+   own export VvfpVillagersRenamed (native/shared/villager_rekey.h): it carries
+   its own bindings to the new identities and writes its own file, never the
+   save.  An owner not loaded is not asked.  At every later load the renames
+   the record's keyed lines name are handed over again (earlier_renames), for
+   an owner whose file the session of the rename never rewrote; an owner that
+   already carried them changes nothing. */
+static const char *const RENAME_OWNERS[] = {
+    "VVFP Story Upgrades.dll",          /* custom titles */
+    "VVFP Origins Icons.dll",           /* New Believers' masks */
+    "VVFP Head Look.dll",
+    "VVFP Original Look.dll",
+    "VVFP Cause of Death.dll",          /* Former Heathens */
+};
+
+static void tell_owners(int slot, int count, const void *const *records, const char *const *old_names) {
+    size_t k;
+    for (k = 0; k < sizeof RENAME_OWNERS / sizeof RENAME_OWNERS[0]; ++k) {
+        HMODULE owner = GetModuleHandleA(RENAME_OWNERS[k]);
+        vv_rekey_export_fn renamed = owner != NULL
+            ? (vv_rekey_export_fn)GetProcAddress(owner, "VvfpVillagersRenamed") : NULL;
+        if (renamed != NULL) {
+            (void)renamed(5, slot, count, records, old_names);
+        }
+    }
+}
+#ifndef LN_TELL_OWNERS
+#define LN_TELL_OWNERS tell_owners
+#endif
+
+/* The renames of earlier loads the record's keyed lines name: a living record
+   (either faction) not in the list, with the line's head and body, called the
+   line's name with its last name.  Added to the list; returns its count. */
+static int earlier_renames(unsigned char *records, int slots, unsigned char **list,
+                           char (*old_names)[TABLE_NAME_MAX], int count) {
+    const char *line;
+    for (line = g_rule_file; line != NULL && *line != '\0' && count < HEATHEN_LINES_MAX;
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        struct heathen_line h;
+        char full[TABLE_NAME_MAX];
+        int i, k;
+        if (!heathen_line_of(line, &h) || !h.keyed || !with_heathen_last(h.name, NB_ROOM, h.last, full)) {
+            continue;
+        }
+        for (i = 0; i < slots; ++i) {
+            unsigned char *r = records + (size_t)i * NB_STRIDE;
+            if (r[NB_ACTIVE] != 1 || vv_lookalike(NB_STRIDE, r) || *(const int *)(r + NB_HEAD) != h.head
+                || *(const int *)(r + NB_BODY) != h.body || memcmp(r + NB_NAME, full, strlen(full) + 1) != 0) {
+                continue;
+            }
+            for (k = 0; k < count && list[k] != r; ++k) {
+            }
+            if (k == count) {
+                list[count] = r;
+                memcpy(old_names[count], h.name, strlen(h.name) + 1);
+                ++count;
+            }
+            break;
+        }
+    }
+    return count;
+}
+
 /* Right after a load: every living Heathen whose name carries no last name
    gets one (a keyed line's, when this load's name, head and body have one).
    Returns how many were named. */
 static int heathens_at_load(unsigned char *records, int slots, int slot) {
     static char add[RULE_FILE_MAX];
+    static unsigned char *renamed[HEATHEN_LINES_MAX];
+    static char renamed_old[HEATHEN_LINES_MAX][TABLE_NAME_MAX];
     const char *given[HEATHEN_LINES_MAX];
     size_t used = 0;
-    int i, named = 0, given_count = 0;
+    int i, named = 0, given_count = 0, renamed_count = 0;
     if (records == NULL || slots <= 0 || slots > HEATHEN_LINES_MAX || !readable(records, (size_t)slots * NB_STRIDE)) {
         return 0;
     }
@@ -1651,10 +1724,23 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
         memcpy(name, full, strlen(full) + 1);
         add_used(last);
         log_name_change(r, old);
+        if (renamed_count < HEATHEN_LINES_MAX) {
+            renamed[renamed_count] = r;
+            memcpy(renamed_old[renamed_count], old, strlen(old) + 1);
+            ++renamed_count;
+        }
         ++named;
     }
     if (used > 0) {
         (void)append_record_lines(slot, add, used);
+    }
+    renamed_count = earlier_renames(records, slots, renamed, renamed_old, renamed_count);
+    if (slot >= 1 && renamed_count > 0) {
+        const char *olds[HEATHEN_LINES_MAX];
+        for (i = 0; i < renamed_count; ++i) {
+            olds[i] = renamed_old[i];
+        }
+        LN_TELL_OWNERS(slot, renamed_count, (const void *const *)renamed, olds);
     }
     return named;
 }
