@@ -582,6 +582,40 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "Farming 25 or less adds nothing and children add nothing, so a large tribe of low-Farming villagers "
             "gets little from it." + limited)
 
+    def fruit_budget(ctx, members, counted, credited, added):
+        """With the limited tree, one store for the fruit (Codex, PR #735): the closed-game estimate counted the
+        tree's refills as fruit to pick (life.closed_refills) and, separately, the catch-up bonus that takes that
+        same fruit.  Here the tree runs unit by unit as the companion runs it: the saved fruit, each unit's bonuses
+        (all but the last 2 units) taking FRUIT_BONUS fruit each while it has them, then the refill to FRUIT_FULL at
+        every FRUIT_REFILL_UNITS-th unit.  Nobody is sent to the fruit while catching up, so no trip takes any.
+        What is left on the tree beyond the saved fruit is the food credited on it (1 food a fruit, before Food
+        Mastery, as a trip's 3 for 3)."""
+        if not (pit and fruit_patch is True) or not callable(ctx.catch_up_bonus):
+            return credited, added
+        fruit_source = next((s for s in ctx.sources if s.name == "The Cooking Pit fruit" and not s.unlimited), None)
+        if fruit_source is None:
+            return credited, added
+        workers = [p for p in members if p.works]
+        known = [p.skill("Farming", 4) for p in workers]
+        units = int(counted // ctx.unit)
+        start = supply[0] if supply is not None else FRUIT_FULL
+        since = supply[1] if supply is not None else 0
+        naive = min(fruit_source.per_unit * counted / ctx.unit, max(0, FRUIT_FULL - start)) * ctx.mastery
+        if any(f is None for f in known):
+            return credited, added
+        food_each = farmers_mod.game_module(4).FRUITWELLS["food"][pit_level]
+        wanted = sum(farmers_mod.game_module(4).fruitwells_food_unit(int(f), pit_level) for f in known) / food_each
+        fruit, paid = float(start), 0.0
+        for unit in range(1, units + 1):
+            if unit <= units - 2:
+                bonuses = min(wanted, fruit // FRUIT_BONUS)
+                fruit -= bonuses * FRUIT_BONUS
+                paid += bonuses
+            since += 1
+            if since >= FRUIT_REFILL_UNITS:
+                since, fruit = 0, float(FRUIT_FULL)
+        return credited - naive + (fruit - start) * ctx.mastery, paid * food_each
+
     ctx_ref = []
     ctx = life.Context(
         village, speed_value, real(LAST_TICK), _i32(data, FOOD), low_food=500, extra_from=8000,
@@ -643,7 +677,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                ("fish in the net", net_food if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else 0,
                 "The fishing net"),
                ("fruit stomps", 3 if pit else 0, "The Cooking Pit fruit")],
-        catch_up_bonus=pit_bonus)
+        catch_up_bonus=pit_bonus, closed_budget=fruit_budget)
     ctx_ref.append(ctx)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))

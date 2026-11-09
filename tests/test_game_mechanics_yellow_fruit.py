@@ -116,9 +116,33 @@ class YellowFruitPage(unittest.TestCase):
         self.assertIn("so about 75.0 food each counted age unit", stock)
         self.assertNotIn("Yellow Fruit Trees", stock)
 
+    def test_the_closed_estimate_shares_one_fruit_store_with_the_bonus(self) -> None:
+        """Codex, PR #735: the tree's refills and the catch-up bonus draw on the same fruit.  Normal speed, Food
+        Mastery 1, 20 adults with Farming 100 (15 bonuses a unit wanted), 8 hours closed: 80 age units, so the tree
+        refills twice (units 40 and 80) -- 2,000 fruit in all with an empty tree, and 1,000 more with a full one."""
+        big = [adult(f"V{i}", 100) for i in range(20)]
 
-if __name__ == "__main__":
-    unittest.main()
+        def closed(fruit: int) -> str:
+            folder = Path(tempfile.mkdtemp(dir=self.tmp.name))
+            path = folder / "Virtual Villagers Fun Patcher" / "Save 1" / "Data" / "Fruit Trees" / \
+                "Virtual Villagers 4 Yellow Fruit Tree - Save 1.dat"
+            path.parent.mkdir(parents=True)
+            path.write_bytes(tree_file(fruit, units=0, roster=[identity("V0")]))
+            page = render(folder, frozenset({vv4.YELLOW_FRUIT}), living={identity("V0")}, people=big)
+            return next(line for line in page.splitlines() if line.startswith("Closed for 8 real-life hours"))
+
+        empty, full = closed(0), closed(1000)
+        # Empty: nothing until the refill at unit 40, whose 1,000 fruit the bonuses take (200 bonuses, 1,000 food);
+        # the refill at unit 80 is left on the tree (1,000 more than saved, beside the berries' 160).
+        self.assertIn("about 1,160 on the sources", empty)
+        self.assertIn("the Cooking Pit adds about 1,000 straight to storage", empty)
+        # Full: the saved 1,000 and the refill at 40 go to the bonuses (2,000 food); the tree ends as saved.
+        self.assertIn("about 160 on the sources", full)
+        self.assertIn("the Cooking Pit adds about 2,000 straight to storage", full)
+        # Without the patch the fruit never runs out: the bonus is the uncapped 75 food a unit for 78 units.
+        stock = render(self.folder, frozenset(), people=big)
+        self.assertIn("the Cooking Pit adds about 5,850 straight to storage",
+                      next(line for line in stock.splitlines() if line.startswith("Closed for 8 real-life hours")))
 
 
 class YellowBreadfruitEvent(unittest.TestCase):
@@ -142,3 +166,7 @@ class YellowBreadfruitEvent(unittest.TestCase):
         stock = self.events(frozenset())
         self.assertIn("A Closer Look (Blackberries)", stock)
         self.assertNotIn("Yellow Breadfruit", stock)
+
+
+if __name__ == "__main__":
+    unittest.main()
