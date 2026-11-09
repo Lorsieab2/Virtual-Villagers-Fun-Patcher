@@ -135,7 +135,7 @@ def patches() -> list[dict[str, str]]:
 
 
 # The owner's opening sentence (2026-11-08), verbatim.
-OPENING = "Turns the restored hovel into an ancestral shrine. A symbol of everlasting peace throughout Isola."
+OPENING = "Turns the restored hovel into an ancestral shrine. A sacred, peaceful place where villagers can honor the ancestral spirits that guide them."
 DESCRIPTION = (
     OPENING + " Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\". Once The Last Heathen is "
     "converted, the game covers the old Heathen camp with a picture of the empty hovel among flowers. With this patch "
