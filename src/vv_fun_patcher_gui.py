@@ -202,6 +202,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default and in Select All (SELECT_ALL_OFF_FUN_PATCH_IDS), on in Owner's Defaults.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
+    # More Respectful Flower Hovel Cover (New Believers; the owner, 2026-11-08): off by default, on in Owner's
+    # Defaults and Select All.
+    + ["vv5_respectful_hovel_cover"]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its

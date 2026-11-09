@@ -149,10 +149,10 @@ class Manifest(unittest.TestCase):
         self.assertEqual((box[0], box[3]), (0, builder.ART_HEIGHT))
 
     def test_defaults(self) -> None:
-        """Cosmetic content: on by default and in Owner's Defaults."""
+        """The owner (2026-11-08): off in the normal defaults, on in Owner's Defaults and Select All."""
         from vv_fun_patcher_gui import (default_fun_patch_selection, owners_default_fun_patch_selection,
                                         select_all_fun_patch_selection)
-        self.assertTrue(default_fun_patch_selection(FEATURE))
+        self.assertFalse(default_fun_patch_selection(FEATURE))
         self.assertTrue(owners_default_fun_patch_selection(FEATURE))
         self.assertTrue(select_all_fun_patch_selection(FEATURE))
 

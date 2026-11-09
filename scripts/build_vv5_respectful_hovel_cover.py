@@ -143,7 +143,8 @@ DESCRIPTION = (
     "both the game's own picture and Fix Vanilla Bugs' redrawn one; it sits where Fix Vanilla Bugs puts the hovel "
     "(on the map's own tiles), with Fix Vanilla Bugs on or off. The patcher puts it in the game's Images folder as "
     "vvfp_respectful_hovel.png; the game's own hovel_cover.png is never changed. When the cover appears and every "
-    "other picture are the base game's own. On by default. **Needs no other patch.**")
+    "other picture are the base game's own. Off by default; Owner's Defaults and Select All tick it. **Needs no "
+    "other patch.**")
 
 
 def row() -> dict:

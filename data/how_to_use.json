@@ -978,7 +978,7 @@
         "Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\".",
         "Once The Last Heathen is converted, the old Heathen camp is covered with the owner's more respectful picture (art by Lorsieab2): the hovel with graves and flowers.",
         "Its bottom and left edges sit on the old cover's; it is used instead of both the game's own picture and Fix Vanilla Bugs' one, in the village and on the Overview Map.",
-        "Nothing to click. On by default."
+        "Nothing to click. Off by default; Owner's Defaults and Select All tick it."
       ]
     },
     {
@@ -1079,8 +1079,9 @@
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
         "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
-        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, and Memorial Actions Can Also Occur at the Heathen Hovel.",
-        "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
+        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3,",
+        "Memorial Actions Can Also Occur at the Heathen Hovel and More Respectful Flower Hovel Cover.",
+        "Story / Cheat Upgrades is ticked with its cost Tech Points row. A fresh install starts with this; the mode is unchanged."
       ]
     },
     "owners_defaults": {

@@ -1313,7 +1313,7 @@ old Heathen camp is covered with the owner's more respectful picture (art
 by Lorsieab2): the hovel with graves and flowers. Its bottom and left edges
 sit on the old cover's; it is used instead of both the game's own picture
 and Fix Vanilla Bugs' one, in the village and on the Overview Map. Nothing
-to click. On by default.
+to click. Off by default; Owner's Defaults and Select All tick it.
 
 MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
 
