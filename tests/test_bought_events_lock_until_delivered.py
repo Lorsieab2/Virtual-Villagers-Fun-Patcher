@@ -605,6 +605,65 @@ class TheEventACustomOneWentAheadOfSurvivesAQuit(unittest.TestCase):
                 self.assertEqual(again.proc.export("VvfpStoryProbePending", again.n), 1, "it follows")
 
 
+@_skip_without(TEST_DLL)
+class ACustomEventBehindABarrelSurvivesAQuit(unittest.TestCase):
+    """Codex on #745: The Tree of Life / New Believers -- a Barrel bought, then a Custom Island Event queued, then
+    a quit.  The barrel goes first; the custom event is made due right after it (ce_behind_barrel), and the queue
+    file now keeps that (SQ_BARREL_FIRST): after the reload the barrel comes, then the custom event at once --
+    not at the next natural island event."""
+
+    SQ_CUSTOM, SQ_BARREL_FIRST = 2, 64
+
+    def _story(self, game):
+        return TheEventACustomOneWentAheadOfSurvivesAQuit._story(self, game)
+
+    def _barrel(self, story, world, game):
+        p = story.proc
+        p.put32(world + TIMER[game], 0)                       # the barrel's own write: due now
+        if game == "vv4":
+            p.write(0x728B04, b"\1")
+        else:
+            p.put32(0x51D388, 0x04)
+            p.put32(world + 0x17D50, CLOCK)
+
+    def test_barrel_then_a_custom_event_then_a_quit(self):
+        from story_custom_fixtures import Event
+        from test_story_custom_island_event import EVENT_BUF
+        from test_story_queued_purchases import LATE, have, queue_file, session, tick
+        for game in ("vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story, world, host = self._story(game)
+                self._barrel(story, world, game)
+                event = Event(game=story.n, title="The Long Night", text="The stars went out.")
+                story.proc.write(EVENT_BUF, event.pack())
+                self.assertEqual(story.proc.export("VvfpStoryProbeQueueCustom", story.n, EVENT_BUF, 0), 1)
+                tick(story)
+                file = queue_file(story)
+                self.assertEqual(have(file, story) & (self.SQ_CUSTOM | self.SQ_BARREL_FIRST),
+                                 self.SQ_CUSTOM | self.SQ_BARREL_FIRST)
+                story.proc.export("VvfpStoryProbeQueueSaved")
+
+                again, world2, host2 = self._story(game)       # the save loaded: the barrel still on its way
+                self._barrel(again, world2, game)
+                session(again, file, LATE)
+                tick(again)
+                self.assertEqual(again.proc.export("VvfpStoryProbeCustomPending", again.n), 1)
+                # The barrel comes: the game's trigger presents it and reschedules its next natural event.
+                if game == "vv4":
+                    again.proc.write(0x728B04, b"\0")
+                    again.proc.write(0x728B08, b"\0")             # (its own requeue not counted on here)
+                else:
+                    again.proc.put32(0x51D388, 0)
+                again.proc.put32(world2 + TIMER[game], CLOCK + 36000)
+                tick(again)
+                self.assertEqual(again.proc.export("VvfpStoryProbePending", again.n), 1,
+                                 "the custom event is made due right after the barrel")
+                expected = 0 if game == "vv5" else CLOCK + 5
+                self.assertEqual(again.proc.u32(world2 + TIMER[game]), expected)
+
+
 # ---------------------------------------------------------------------------
 # 1, 2. The Origins companions' own rows ask the keeper too
 # ---------------------------------------------------------------------------
