@@ -79,7 +79,8 @@ EVENTS = (
     Event("A Closer Look (Yellow Breadfruit)",
           f"needs the Cooking Pit restored and {ANY}; added by \"Yellow Fruit Trees are No Longer Unlimited\" "
           "(without it the event does not exist)", (
-              f"The Cooking Pit's yellow fruit tree gains {YELLOW_FRUIT_EVENT_GAIN} fruit, up to its 1,000.",),
+              f"The Cooking Pit's yellow fruit tree gains {YELLOW_FRUIT_EVENT_GAIN} fruit, up to its 1,000, and the "
+              "villager walks to the tree (as the blackberry event's farmer goes to the bushes).",),
           only_with=YELLOW_FRUIT),
     Event("The Rainy Season", "always possible", ("Rain comes (0x414B90).",)),
     Event("The Cold Snap", "needs the Fire Pit burning", ("Fog comes and the fire goes out (0x414BD0).",)),

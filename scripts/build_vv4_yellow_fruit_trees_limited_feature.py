@@ -163,7 +163,9 @@ def row(dll_sha: str) -> dict:
             "villager of any age, 0x4679B0(-1,-1,-1,1,1,-1,0,0,0)), text id 0x2E7 (an id with no string entry "
             "that no code pushes; its index slot 0x4DEA20+4*id points at the companion's text, by key "
             "vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0 in the player's language), result "
-            f"(+{EVENT_GAIN} fruit, at most 1,000; the villager is not moved, unlike the berry event's farmer) and "
+            f"(+{EVENT_GAIN} fruit, at most 1,000; then, as the berry event moves its farmer to the bushes, the "
+            "villager's queue is cleared (0x468C60) and they walk to the tree, map area 38, the first walk of every "
+            "\"Shaking down some fruit!\" action 0x65..0x6A: 0x468FC0(38, 100, 0), 0x46A030) and "
             "a delete that frees nothing (the exit teardown 0x417760 calls it).",
             "Message 2 to the tree's area handler 0x435970 (the tree clicked; ignored by the stock game) shows "
             "\"Fruit remaining: N\" on the status line 0x4DB8E8 through 0x44C3A0, for 5 seconds, as the bush "

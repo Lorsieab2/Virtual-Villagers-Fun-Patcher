@@ -137,7 +137,8 @@ class YellowBreadfruitEvent(unittest.TestCase):
         self.assertIn("A Closer Look (Blackberries) -- needs a living villager of any age", page)
         self.assertIn("A Closer Look (Yellow Breadfruit) -- needs the Cooking Pit restored and a living villager of "
                       "any age; added by \"Yellow Fruit Trees are No Longer Unlimited\"", page)
-        self.assertIn("The Cooking Pit's yellow fruit tree gains 350 fruit, up to its 1,000.", page)
+        self.assertIn("The Cooking Pit's yellow fruit tree gains 350 fruit, up to its 1,000, and the villager walks "
+                      "to the tree", page)
         stock = self.events(frozenset())
         self.assertIn("A Closer Look (Blackberries)", stock)
         self.assertNotIn("Yellow Breadfruit", stock)

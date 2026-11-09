@@ -605,6 +605,48 @@ class YellowBreadfruitEvent(unittest.TestCase):
         t.save()
         self.assertEqual(struct.unpack_from("<2I", t.files.files[side()], 16), (1000, 9))   # the clock runs on
 
+    def test_the_villager_walks_to_the_tree_as_the_shaking_actions_do(self) -> None:
+        """As the berry event sends its farmer to the bushes, the villager shown goes to the tree: its queue cleared
+        (0x468C60), then the game's own walk to map area 38 (0x468FC0(38, 100, 0)), the first walk of every
+        "Shaking down some fruit!" action 0x65..0x6A, started (0x46A030)."""
+        def walks(t: Tree, run) -> list[tuple[int, ...]]:
+            seen: list[tuple[int, ...]] = []
+
+            def on(uc, *_):
+                sp = uc.reg_read(UC_X86_REG_ESP)
+                seen.append(struct.unpack("<3i", bytes(uc.mem_read(sp + 4, 12))))
+            hook = t.v.uc.hook_add(UC_HOOK_CODE, on, begin=0x468FC0, end=0x468FC0)
+            run()
+            t.v.uc.hook_del(hook)
+            return seen
+
+        shake = Tree(patched=False)
+        shake.villager(at=(135, 1434))
+        first = walks(shake, lambda: shake.v.start(0x6A))[0]
+        self.assertEqual(first, (38, 100, 0))           # the shaking action's own first walk
+        t = Tree()
+        r = t.villager(at=(135, 1434))                    # far from the tree, by the blackberry bushes
+        self.assertEqual(self.possible(t), 1)
+        self.assertEqual(walks(t, lambda: t.v.call(self.method(t, 12), self.obj(t))), [first])
+        # The queue now holds that one walk, the same command the shaking action queues first.
+        head = struct.unpack("<4i", bytes(t.v.uc.mem_read(r, 16)))
+        shaking = struct.unpack("<4i", bytes(shake.v.uc.mem_read(shake.v.rec(0), 16)))
+        self.assertEqual(head[:2], shaking[:2])
+        self.assertLess(abs(head[2] - shaking[2]) + abs(head[3] - shaking[3]), 60)
+        self.assertEqual(t.v.r32(r + 0x58), 0, "nothing queued after the walk")
+        start = t.v.pos()
+        self.assertGreater(abs(start[0] - 1100) + abs(start[1] - 1255), 1000)
+        arrived = None
+        for frame in range(6000):                         # across the village (the tree is by the food bin)
+            t.v.step_frame()
+            if frame % 25 == 0:
+                x, y = t.v.pos()
+                if abs(x - 1100) + abs(y - 1255) < 120:
+                    arrived = frame
+                    break
+        self.assertIsNotNone(arrived, "the villager never reached the tree")
+        self.assertEqual(t.v.r32(r + 0x1CC4) & 0xFF, 1)
+
     def test_the_teardown_does_not_free_it(self) -> None:
         t = Tree()
         self.assertEqual(t.v.call(self.method(t, 0), self.obj(t), 1) & 0xFFFFFFFF, self.obj(t))

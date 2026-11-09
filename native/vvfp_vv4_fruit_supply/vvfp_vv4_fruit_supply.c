@@ -60,9 +60,12 @@
      +0x0C  the text id EV_TEXT_ID (0x2E7): an id no string-table entry has and no code pushes, whose index slot
             (0x4DEA20 + 4*id, what the lookup 0x44D3D0 reads) is pointed at this DLL's entry just before the id
             is returned -- its text is the owner's, in the player's language when a translation has it;
-     +0x30  the result: the tree gains FS_EVENT_GAIN fruit, to at most 1,000.  The berry event's own result also
-            moves its farmer to the bushes (0x414B4A..0x414B65); no place at the tree was proven, so this one
-            leaves the villager as they are.
+     +0x30  the result: the tree gains FS_EVENT_GAIN fruit, to at most 1,000, and the villager shown goes to the
+            tree: as the berry event's result moves its farmer to the bushes (its queue cleared, 0x468C60, then
+            placed at 115,1379, 0x414B4A..0x414B65), the queue is cleared and the villager walks to map area 38
+            (0x468FC0(38, 100, 0), then the queue started, 0x46A030) -- the tree, where every "Shaking down some
+            fruit!" action 0x65..0x6A walks first (0x434733: the game's own walk, which picks the point in the
+            area).
    The title is the berry event's own (+0x08, id 0x342 "A Closer Look").  Without this companion slot 19 stays
    NULL, so the event does not exist.
 
@@ -157,6 +160,10 @@
 #define STRING_INDEX 0x4DEA20u       /* the string lookup's pointer per id */
 #define EV_TEXT_ID 0x2E7
 #define FS_EVENT_GAIN 350            /* fruit the event adds (the berry event adds 350 berries, 0x414B38) */
+#define CLEAR_QUEUE 0x468C60u        /* thiscall(record): the villager's action queue emptied */
+#define QUEUE_WALK 0x468FC0u         /* thiscall(record; area, 100, 0): walk to a point of map area `area` */
+#define QUEUE_START 0x46A030u        /* thiscall(record): the queue's first step started */
+#define TREE_AREA 38                 /* the yellow fruit tree's map area, the shaking actions' first walk */
 #define SITES 11
 
 static const unsigned char CREDIT_STOCK[12] = { 0x6A, 0x03, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0xA8, 0x93, 0xFB, 0xFF };
@@ -600,13 +607,21 @@ static int __fastcall ev_text_id(void *self, void *unused) {
     return EV_TEXT_ID;
 }
 
-/* The result (OK): FS_EVENT_GAIN fruit, to at most 1,000. */
+typedef void (__fastcall *record_fn)(void *record, void *unused);
+typedef void (__fastcall *walk_fn)(void *record, void *unused, int area, int a, int b);
+
+/* The result (OK): FS_EVENT_GAIN fruit, to at most 1,000; the villager shown walks to the tree. */
 static void __fastcall ev_result(void *self, void *unused) {
-    (void)self;
     (void)unused;
     __try {
+        unsigned char *villager = (unsigned char *)((event_object *)self)->villager;
         if (bind_village(0)) {
             g_fruit = g_fruit + FS_EVENT_GAIN < FS_FULL ? g_fruit + FS_EVENT_GAIN : FS_FULL;
+        }
+        if (villager != NULL && alive(villager)) {
+            ((record_fn)(UINT_PTR)CLEAR_QUEUE)(villager, NULL);
+            ((walk_fn)(UINT_PTR)QUEUE_WALK)(villager, NULL, TREE_AREA, 100, 0);
+            ((record_fn)(UINT_PTR)QUEUE_START)(villager, NULL);
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
