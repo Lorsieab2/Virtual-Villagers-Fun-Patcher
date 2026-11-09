@@ -34,6 +34,15 @@ class Faith(unittest.TestCase):
         self.assertNotIn("Heathen Mommy's puzzle", without)
         self.assertIn("Heathen Mommy's puzzle", with_it)
 
+    def test_heathens_keep_masks_only_with_its_patch(self) -> None:
+        """Shown when the game has the patch (or when that cannot be told), never when it is known to be out."""
+        without = " ".join(f.text for f in faith.lines(village(frozenset())))
+        with_it = " ".join(f.text for f in faith.lines(village(frozenset({faith.KEEP_MASKS}))))
+        self.assertNotIn("Heathens Keep Their Masks When Converted", without)
+        self.assertIn('With "Heathens Keep Their Masks When Converted" (in this game) a Heathen who joins the tribe',
+                      with_it)
+        self.assertIn("Reset to original gives it back", with_it)
+
     def test_constants_from_the_stock_exe(self) -> None:
         try:
             import pefile
