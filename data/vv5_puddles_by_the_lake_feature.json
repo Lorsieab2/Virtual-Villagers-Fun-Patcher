@@ -5,14 +5,18 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Puddle Play Moves to the Lake Shore",
-  "description": "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. The action, its text and its length are the game's own; \"Excited about the puddles\" and \"Chasing fish\" are not changed.",
+  "description": "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. Children \"Playing in the dirt\" play on that same sandy shore, always, before and after The Lake has water: each of the action's six steps goes to a random point along it. The actions, their text and their length are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are not changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves \"Playing in the dirt\" to the flower patch instead (ticking one unticks the other).**",
   "output_tag": "Puddles By The Lake",
+  "conflicts": [
+    "vv5_playing_in_the_dirt_spot"
+  ],
   "behavior_changes": [
     "The chooser of \"Playing in puddles\" (behaviour 0x5E, routine 0x45FFF0), 0x46E4F7, starts it when the rain level [0x718EB8] is 50 or more, rand(100) < 75 and it is raining (0x477040), as stock; stock also needed the lake to hold no water (0x43C5D0).",
-    "0x5E's walk (0x46003B, five times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed (area 0x6A, 0x4744C0)."
+    "0x5E's walk (0x46003B, five times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed (area 0x6A, 0x4744C0).",
+    "\"Playing in the dirt\" (routine 0x45ED40, say-event 504), with the lake dry or full: each of its six go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same shore line, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (the cave 0x494E44 replaces the routine's own x and y and jumps on to 0x4745A0); stock: 236..453 by 442..475, a strip from the rainbow totem's side across the river."
   ],
   "explicit_non_changes": [
-    "Before the lake holds water everything is as stock. The action's text (string 0x229), its gestures, speed and length are unchanged.",
+    "Before the lake holds water \"Playing in puddles\" is as stock. Its text (string 0x229), its gestures, speed and length are unchanged; so are \"Playing in the dirt\"'s text, sound, six steps, speed and gestures (only the points it walks to change).",
     "\"Excited about the puddles\" (0xEB, 0x454200) and \"Chasing fish\" (0xEA) and their choosers (0x469E4B, 0x46EFB2) are exactly as stock. Behaviour 0x5F (0x4600D0, the waterfall pool), started only by The Missing Kids island event (0x4161AA), is unchanged. No save or villager-record byte is written."
   ],
   "companion_files": [],
@@ -34,6 +38,18 @@
       "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
       "after": "51E8CA77FAFF5984C074345168FC000000E84AE8F6FF5A59FF74240CFF74240C89C26BD211C1FA06F7DA81C24408000052054405000050E864F7FDFFC20C00E97CF6FDFF",
       "purpose": "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - (17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)"
+    },
+    {
+      "offset": "0x5ED99",
+      "before": "E802580100",
+      "after": "E8A6600300",
+      "purpose": "\"Playing in the dirt\" (0x45ED40)'s go-to: call 0x4745A0 -> call the dirt shore cave 0x494E44"
+    },
+    {
+      "offset": "0x94E44",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "5168FC000000E811E8F6FF5A5989C26BD211C1FA06F7DA81C24408000005440500008944240489542408E92DF7FDFF",
+      "purpose": "the dirt shore cave: r = rand(252); the go-to's x and y become (1348 + r, 2116 - (17r >> 6)); jmp 0x4745A0 with the routine's own speed and flag"
     }
   ]
 }
