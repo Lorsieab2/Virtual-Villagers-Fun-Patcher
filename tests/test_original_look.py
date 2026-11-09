@@ -94,6 +94,19 @@ class TheStore(unittest.TestCase):
         self.assertGreaterEqual(out.count("[PASS]"), 75)
         for proven in ("everyone's look is recorded at first sight", "a birth in play is recorded as SEEN",
                        "Change Appearance afterwards: the original stays",
+                       "a convert's original takes the mask they wore: Reset to original gives it back",
+                       "a later Change Appearance change: the original keeps the Heathen mask",
+                       "a believer who became a Heathen and came back keeps their own original",
+                       "a believer born a believer is unchanged",
+                       "...the first sight records the kept mask",
+                       "a conversion while the village settles waits",
+                       "...and is put on the original once bound: Reset to original gives the purple mask back",
+                       "a conversion while the file is locked waits",
+                       "...applied under the new name once the file opens: Reset to original gives the red mask back",
+                       "slot 2's founder is not given the waiting mask",
+                       "back in slot 1: Ari11's original takes the Chief's mask",
+                       "the next looks re-apply the logs' original and keep the mask",
+                       "...and after a restart",
                        "after the reload Kai3's original is on Kai3 in record 2",
                        "a newborn in a dead villager's record is seen as themselves",
                        "a renamed villager keeps the original", "never recorded for either",
@@ -216,8 +229,10 @@ class TheContract(unittest.TestCase):
             if HAVE_EMULATOR else None
         if names is None:
             self.skipTest("pefile is not installed")
+        # VvfpOriginalLookConverted: New Believers' Heathens Keep Their Masks When Converted (ol_converted);
         # VvfpVillagersRenamed: VVFP Last Names.dll's load-time renames (native/shared/villager_rekey.h).
-        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet", "VvfpVillagersRenamed"})
+        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet", "VvfpOriginalLookConverted",
+                                      "VvfpVillagersRenamed"})
         source = (ROOT / "native" / "vvfp_original_look" / "vvfp_original_look.c").read_text(encoding="utf-8")
         self.assertIn("int __stdcall VvfpOriginalLookGet(int game, const void *record, int *head, int *body, "
                       "int *mask)", source)

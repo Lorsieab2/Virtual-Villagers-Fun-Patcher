@@ -30,6 +30,11 @@ static int ol_present(const unsigned char *r) {
     return g_game == 1 ? held == 1 : held != 0;
 }
 
+/* A believer: everyone but New Believers' Heathens (the faction byte +0x1CEC, native/shared/former_heathens.h). */
+static int ol_believer(const unsigned char *r) {
+    return g_game != 5 || r[0x1CECu] == 0;
+}
+
 /* A record the game has named: one made a moment ago and not named yet is seen once it is. */
 static int ol_named(const unsigned char *r) {
     return r[LAYOUT[g_game].name] != 0;

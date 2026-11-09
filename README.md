@@ -1637,6 +1637,12 @@ Meant to make VV5 harder and push players to take care of their tribe. When New 
 
 - Patch ID: `vv5_heathen_conversion_notice`
 
+**Heathens Keep Their Masks When Converted**
+
+**Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. "Heathen" masks are culturally important to them. Their choices must be honored. When a Heathen joins the tribe -- preached to, Spreading the Word, a God Power, a puzzle solved, an island event, a Custom Island Event, any way at all -- the mask they wore stays on their head: blue, orange, red, purple (the Heathen Doctor and the Heathen Masters) or the Tribal Chief's (the Heathen Chief, who becomes the Retired Chief). It is kept exactly as if you had chosen it with Change Appearance, so Change Appearance shows it as their mask and you can change it or take it off whenever you like; nothing is charged. **Reset to original gives it back**: a convert's original look is the head and body they had with the mask they wore (Original Looks for Reset to Original keeps it). **Heathens who joined the tribe before this patch keep the look they have now.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Heathens Keep Masks.dll", started by VVFP Startup.dll; it writes only the Origins upgrades' own Village Masks file, never a save. If the Origins companion is not loaded, a convert loses the mask as in the stock game. **Off by default; on in Owner's Defaults.**
+
+- Patch ID: `vv5_heathens_keep_masks_when_converted`
+
 **Statue Drops: Normal Action or Honoring**
 
 Dropping a villager on a completed statue gives Polishing the Statue or Honoring on a 50/50 choice, regardless of that villager's skills. Only the completed statue is affected: building an unfinished statue, the upgradeable statue's Honoring, and the Confused result when the technology is missing all keep their stock behaviour. When a villager later carries that statue job on by themselves (the game's own choice), the 50/50 pick is kept only for a villager checked on its skill -- Honoring on Devotion, Polishing on Building -- and for anyone else 14% of the time; otherwise they do neither and the game gives them something else to do. Your own drop is never restricted.

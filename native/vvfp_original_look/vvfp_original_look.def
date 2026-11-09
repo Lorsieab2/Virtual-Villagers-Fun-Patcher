@@ -3,3 +3,4 @@ EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpOriginalLookGet=_VvfpOriginalLookGet@20
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpOriginalLookConverted=_VvfpOriginalLookConverted@12

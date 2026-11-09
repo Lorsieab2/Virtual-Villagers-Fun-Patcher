@@ -1,0 +1,49 @@
+{
+  "id": "vv5_heathens_keep_masks_when_converted",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Heathens Keep Their Masks When Converted",
+  "description": "**Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. \"Heathen\" masks are culturally important to them. Their choices must be honored. When a Heathen joins the tribe -- preached to, Spreading the Word, a God Power, a puzzle solved, an island event, a Custom Island Event, any way at all -- the mask they wore stays on their head: blue, orange, red, purple (the Heathen Doctor and the Heathen Masters) or the Tribal Chief's (the Heathen Chief, who becomes the Retired Chief). It is kept exactly as if you had chosen it with Change Appearance, so Change Appearance shows it as their mask and you can change it or take it off whenever you like; nothing is charged. **Reset to original gives it back**: a convert's original look is the head and body they had with the mask they wore (Original Looks for Reset to Original keeps it). **Heathens who joined the tribe before this patch keep the look they have now.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Heathens Keep Masks.dll\", started by VVFP Startup.dll; it writes only the Origins upgrades' own Village Masks file, never a save. If the Origins companion is not loaded, a convert loses the mask as in the stock game.",
+  "output_tag": "Heathens Keep Masks",
+  "dependencies": [
+    "vv5_enable_origins_exclusive_features"
+  ],
+  "behavior_changes": [
+    "When a Heathen joins the tribe through the conversion 0x4668B0 (SetFaith 0x467F90 above 0: preaching, Spreading the Word, a God Power's Faith, the puzzle rewards, island events; the Custom Island Event's \"Becomes a believer\") or The Defector's direct faction setter call 0x41699F, the mask the game draws on them (0x4728C6, native/shared/former_heathens.h vv_former_kind_of: purple for roles 12 and 14-16, the Chief's for role 13, else orange +0x1CED, red +0x1CEE or blue) is written into their nibble of the Origins companion's mask table (1 Blue, 2 Orange, 3 Red, 4 Purple, 5 the Tribal Chief's; 0x7B1D20, or 0x7F1400 with 256 Villagers), the store Change Appearance keeps a believer's mask in, while the record is still a Heathen; then the Origins companion's WriteMaskSidecar writes its Village Masks file.",
+    "The Origins render (the mask table at 0x472481) then draws that mask on the believer; Change Appearance shows it as the villager's mask, and changing it or choosing No Mask works as for any other mask.",
+    "The Original Look companion is told (VvfpOriginalLookConverted): the original it kept while they were a Heathen, with no mask, takes the mask they wore, so Reset to original gives it back; an original kept while they were a believer (one who left for the Heathens and came back) or one with a mask of its own stays. With no original kept yet, its first sight records them with the kept mask.",
+    "While the slot's Village Masks file has not loaded yet (held by another program a moment), the Origins companion's VvfpMaskKeep keeps the mask waiting, by the villager's identity, and puts it on them as soon as the load settles, then writes the file."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion splices the two sites at run time, only after verifying their stock bytes, all or none; each splice makes the very instruction it replaced, every register and flag as they were.",
+    "Nothing is charged and no \"Appearance changed\" is logged. The role, Faith, faction, the Former Heathens file and every other part of the conversion are the game's own. Nothing is written to a save or a villager record.",
+    "Without the Origins companion loaded (or one that is not New Believers'), or when its VvfpMaskOf does not answer the mask just written, nothing is kept: the convert loses the mask as in the stock game.",
+    "Heathens converted before the row was installed are not given a mask."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
+      "destination": "VVFP Heathens Keep Masks.dll",
+      "sha256": "31852248F4AC58A853D36557EC0701FFFD3BD7DD47FD740A103B871B9E34DFF1"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x466966",
+      "stock_bytes": "83BEFC1C00000D",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "the conversion 0x4668B0's role test `cmp dword [esi+0x1CFC], 0xD` (before it clears every role but the Heathen Chief's at 0x46696F and the faction byte at 0x46697D): the companion keeps the Heathen's mask, then makes the same compare and goes on at the je 0x46696D",
+      "installed_by": "VVFP Heathens Keep Masks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41699F",
+      "stock_bytes": "E8DCFE0400",
+      "written_bytes": "E9XXXXXXXX",
+      "routine": "The Defector's `call 0x466880` with 0 (after its SetFaith(+20)), which makes a Heathen whose Faith stayed at 0 or below a believer without the conversion: the companion keeps the mask while the record is still a Heathen, then calls the setter with the stock return address 0x4169A4",
+      "installed_by": "VVFP Heathens Keep Masks.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}
