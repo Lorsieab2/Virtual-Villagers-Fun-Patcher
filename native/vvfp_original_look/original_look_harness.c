@@ -218,6 +218,7 @@ static void new_session(void) {
     memset(g_body, 0, sizeof g_body);
     memset(g_mask, 0, sizeof g_mask);
     memset(g_believer, 0, sizeof g_believer);
+    memset(g_game_mask, 0, sizeof g_game_mask);
     memset(g_logged, 0, sizeof g_logged);
     g_logged_count = 0;
     memset(g_roster, 0, sizeof g_roster);
@@ -843,7 +844,7 @@ int main(int argc, char **argv) {
           "a convert's original takes the mask they wore: Reset to original gives it back");
     file_path(1, path);
     got = read_file(path, buf, sizeof buf);
-    check(buf[24 + 5 * 20 + 16] == 3 && buf[24 + 5 * 20 + 19] == 1, "...written at once");
+    check(buf[24 + 5 * 20 + 16] == 3 && buf[24 + 5 * 20 + 19] == 3, "...written at once (seen a believer, the mask kept)");
     g_masks[5] = 1;                             /* Change Appearance: Blue */
     (void)tick();
     check(original(5) == 50053, "a later Change Appearance change: the original keeps the Heathen mask");
@@ -868,6 +869,31 @@ int main(int argc, char **argv) {
     g_game_slot = 1;
     settle();
     check(original(5) == 50053 && original(2) == 20020 && original(8) == 80085, "all of it read back next session");
+    /* A Heathen whose original came from the logs (Repair Saves & Logs), with no mask (Codex, #740). */
+    g_logged[0].id = ol_identity(rec(6));
+    g_logged[0].head = 44;
+    g_logged[0].body = 4;
+    g_logged[0].mask = 0;
+    g_logged[0].kind = OL_LOGGED_KNOWN;
+    g_logged_count = 1;
+    check(ol_publish() == 1, "(Ari6, a Heathen, has a logs' original with no mask)");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 440040 && g_source[6] == OL_LOGS && g_believer[6] == 0, "the logs' original, a Heathen's");
+    rec(6)[0x1CEC] = 0;                         /* Ari6 joins the tribe keeping her orange mask */
+    g_masks[6] = 2;
+    check(ol_converted(rec(6), 2) == 1 && original(6) == 440042, "a logs' original takes the kept mask too");
+    (void)tick();
+    (void)tick();
+    check(original(6) == 440042, "the next looks re-apply the logs' original and keep the mask");
+    g_masks[6] = 0;                             /* Change Appearance: No Mask; then Reset to original */
+    (void)tick();
+    check(original(6) == 440042, "...Reset to original still gives the mask back");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 440042 && g_source[6] == OL_LOGS, "...and after a restart");
 
     printf("no village\n");
     new_session();

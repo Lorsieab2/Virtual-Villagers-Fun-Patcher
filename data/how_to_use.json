@@ -1083,7 +1083,7 @@
         "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, and Memorial Actions Can Also Occur at the Heathen Hovel.",
-        "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
+        "Story / Cheat Upgrades is ticked with its cost Tech Points row. A fresh install starts with this; the mode is unchanged."
       ]
     },
     "owners_defaults": {

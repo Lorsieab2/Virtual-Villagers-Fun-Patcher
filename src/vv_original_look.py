@@ -93,7 +93,8 @@ class Entry:
     mask: int = 0
     source: int = 0
     game_body: int = 0       # 1: the game itself set the body since (the DLL's ol_game_body); kept as it is
-    believer: int = 0        # 1: New Believers: seen a believer since the original was kept (the DLL's g_believer)
+    believer: int = 0        # New Believers' flags byte, kept as it is: bit 0 seen a believer since the original was
+    #                          kept (the DLL's g_believer), bit 1 the mask is the one kept at the conversion (g_game_mask)
 
 
 @dataclass
@@ -136,7 +137,7 @@ def parse(data: bytes, game: int) -> OriginalLooks | None:
     for i in range(count):
         roster, ident, head, body, mask, source, game_body, believer = struct.unpack_from(
             "<IIiiBBBB", data, HEADER + i * ENTRY)
-        entries.append(Entry(roster, ident, head, body, mask, source, game_body, believer & 1))
+        entries.append(Entry(roster, ident, head, body, mask, source, game_body, believer))
     at = HEADER + count * ENTRY
     kept = []
     for i in range(logged):

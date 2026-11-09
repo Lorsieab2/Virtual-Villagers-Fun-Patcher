@@ -99,6 +99,8 @@ class TheStore(unittest.TestCase):
                        "a believer who became a Heathen and came back keeps their own original",
                        "a believer born a believer is unchanged",
                        "...the first sight records the kept mask",
+                       "the next looks re-apply the logs' original and keep the mask",
+                       "...and after a restart",
                        "after the reload Kai3's original is on Kai3 in record 2",
                        "a newborn in a dead villager's record is seen as themselves",
                        "a renamed villager keeps the original", "never recorded for either",
