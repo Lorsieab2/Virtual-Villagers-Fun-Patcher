@@ -20,6 +20,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from origins_base_text import ORIGINS_BASE_SENTENCE  # noqa: E402
 ROW_ID = "vv5_heathens_keep_masks_when_converted"
 NAME = "Heathens Keep Their Masks When Converted"
 DLL_NAME = "VVFP Heathens Keep Masks.dll"
@@ -42,10 +44,10 @@ SITES = (
 
 def description() -> str:
     return (
-        "**Needs Enable Origins-Exclusive Features (Change Appearance and its masks), which the patcher installs "
-        "automatically with it.** \"Heathen\" masks are culturally important to them. Their choices must be "
-        "honored. When a Heathen joins the tribe -- preached to, Spreading the Word, the "
-        "Earthquake, a puzzle solved, an island event, a Custom Island Event, any way at all -- the mask they wore "
+        ORIGINS_BASE_SENTENCE + " "
+        "\"Heathen\" masks are culturally important to them. Their choices must be "
+        "honored. When a Heathen joins the tribe -- preached to, Spreading the Word, a "
+        "God Power, a puzzle solved, an island event, a Custom Island Event, any way at all -- the mask they wore "
         "stays on their head: blue, orange, red, purple (the Heathen Doctor and the Heathen Masters) or the Tribal "
         "Chief's (the Heathen Chief, who becomes the Retired Chief). It is kept exactly as if you had chosen it "
         "with Change Appearance, so Change Appearance shows it as their mask and you can change it or take it off "
@@ -72,7 +74,7 @@ def row(dll_sha: str) -> dict:
         "dependencies": [ORIGINS],
         "behavior_changes": [
             "When a Heathen joins the tribe through the conversion 0x4668B0 (SetFaith 0x467F90 above 0: preaching, "
-            "Spreading the Word, the Earthquake, the puzzle rewards, island events; the Custom Island Event's "
+            "Spreading the Word, a God Power's Faith, the puzzle rewards, island events; the Custom Island Event's "
             "\"Becomes a believer\") or The Defector's direct faction setter call 0x41699F, the mask the game draws "
             "on them (0x4728C6, native/shared/former_heathens.h vv_former_kind_of: purple for roles 12 and 14-16, "
             "the Chief's for role 13, else orange +0x1CED, red +0x1CEE or blue) is written into their nibble of the "

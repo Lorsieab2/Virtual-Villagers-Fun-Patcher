@@ -198,10 +198,10 @@ class TheRow(unittest.TestCase):
         self.assertEqual(row["game_id"], "vv5")
         self.assertEqual(row["dependencies"], ["vv5_enable_origins_exclusive_features"])
         self.assertEqual(row["patches"], [])
-        self.assertTrue(row["description"].startswith("**Needs Enable Origins-Exclusive Features"),
-                        "the dependency comes first, in bold")
+        from origins_base_text import ORIGINS_BASE_SENTENCE
+        self.assertTrue(row["description"].startswith(ORIGINS_BASE_SENTENCE), "the dependency comes first, in bold")
         owner = '"Heathen" masks are culturally important to them. Their choices must be honored.'
-        self.assertIn("with it.** " + owner + " When a Heathen", row["description"],
+        self.assertTrue(row["description"].startswith(ORIGINS_BASE_SENTENCE + " " + owner + " When a Heathen"),
                       "the owner's sentence opens the description, right after the bold dependency")
         guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
         self.assertIn(owner, [line for e in guide["patches"] if ROW in e.get("ids", []) for line in e["guide"]])
