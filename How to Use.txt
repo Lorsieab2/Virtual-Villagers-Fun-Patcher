@@ -1197,7 +1197,9 @@ worn ground with the flowers, west of the flower rock; about 305 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
-saved: it is purely where the child walks.
+saved: it is purely where the child walks. Off by default, in Owner's
+Defaults and in Select All: Puddle Play Moves to the Lake Shore moves the
+same walk to the lake shore instead, and ticking one unticks the other.
 
 CHARITABLE SOUL EPITAPH (NEW BELIEVERS)
 
@@ -1311,7 +1313,11 @@ When it rains, children play in the puddles of the dry lake bed. Once The
 Lake holds water the normal game stops this, because they cannot swim. With
 this patch they keep playing when it rains, on the lake's north-west sandy
 shore (between the lake's west tip and the rocks with the red flower), never
-in the water. Before The Lake is filled nothing changes. On by default.
+in the water. Before The Lake is filled nothing changes. Children "Playing
+in the dirt" play on that same sandy shore too, always, before and after
+The Lake is filled: each of their six steps goes to a random point along
+it. No other action changes. On by default. Cannot be used with Move the
+"Playing in the dirt" Spot (ticking one unticks the other).
 
 MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
 
