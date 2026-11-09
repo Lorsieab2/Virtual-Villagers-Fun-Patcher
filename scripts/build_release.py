@@ -213,6 +213,7 @@ FILES = [
     "data/vv5_preferred_job_graves_feature.json",
     "data/vv5_faith_loss_feature.json",
     "data/vv5_puddles_by_the_lake_feature.json",
+    "data/vv5_hovel_memorial_actions_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",
     "data/vv3_story_cheat_upgrades_feature.json",
