@@ -120,7 +120,10 @@ PUDDLE_LINES = (
      "(0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts it (0x454200), three walks to the lake bed "
      "(area 0x69); with water in the lake, or without rain, those choosers pick \"Chasing fish\" instead "
      "(\"Looking for bits of fish\" before The Lake is solved, 0x454130).", gm.CODE),
+    ("\"Playing in the dirt\" (0x45ED40) takes six steps to random points of a strip 236..453 by 442..475 that runs "
+     "from the rainbow totem's side down across the river (0x4745A0 at 0x45ED99).", gm.CODE),
 )
+DIRT_SPOT = "vv5_playing_in_the_dirt_spot"
 # The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
 # contradicted the exact one under Faith and Heathens (0x46D2A8: +30 to one listener, not "a random heathen"), and
 # the God Power spell timers repeated God powers (the game calls Revive "Revive", not "Reanimate").
@@ -337,7 +340,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
                               "lake's west tip and the rocks with the red flower (0x494E00); before The Lake has "
-                              "water, nothing changes"), gm.CODE)
+                              "water, nothing changes. \"Playing in the dirt\" goes to that same shore always, "
+                              "before and after The Lake has water: each of its six steps to a random point along "
+                              "it (0x494E44)"), gm.CODE)
+    if village.has(DIRT_SPOT) is not False:
+        add("Other", gm.patch_words(
+            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
+                                "of the dirt path, 1860..2164 by 1479..1683"), gm.CODE)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
