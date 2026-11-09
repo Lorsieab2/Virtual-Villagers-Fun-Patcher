@@ -37,7 +37,9 @@ try {
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
         ("/OUT:" + (Join-Path $work "VVFP Faith Notice.dll")) `
         /RELEASE `
-        kernel32.lib
+        kernel32.lib `
+        shell32.lib `
+        user32.lib
     $built = $LASTEXITCODE
     if ($built -eq 0) {
         Copy-Item -LiteralPath (Join-Path $work "VVFP Faith Notice.dll") -Destination (Join-Path $outputRoot "VVFP Faith Notice.dll") -Force

@@ -102,6 +102,25 @@ static int faith_notice_pending(int *out) {
     return faith_pending_export(FAITH_NOTICE_GAME, out) != 0;
 }
 
+/* Every frame, while the popup waits too (a time skip, a menu): the companion keeps the waiting batch in its
+   slot's file, so a quit never loses it (native/vvfp_faith_notice, THE FILE). */
+static faith_taken_fn faith_keep_export;
+
+static void faith_notice_keep(void) {
+    HMODULE module;
+    if (faith_keep_export == NULL) {
+        module = GetModuleHandleA("VVFP Faith Notice.dll");
+        if (module == NULL) {
+            return;
+        }
+        faith_keep_export = (faith_taken_fn)(void *)GetProcAddress(module, "VvfpFaithNoticeKeep");
+        if (faith_keep_export == NULL) {
+            return;
+        }
+    }
+    faith_keep_export(FAITH_NOTICE_GAME);
+}
+
 static void faith_notice_taken(void) {
 #ifdef VVFP_TEST
     if (test_faith_waiting) {
@@ -280,6 +299,9 @@ static void faith_notice_compose(ce_event *e, const int *info) {
 static void faith_notice_tick(int game) {
     int info[1 + FAITH_REASONS];
     const story_host *host = story_time_skip_host(game);
+    if (game == FAITH_NOTICE_GAME) {
+        faith_notice_keep();
+    }
     if (game != FAITH_NOTICE_GAME || !story_installed(game)
         || (time_skip.game == game && (time_skip.active || time_skip.finishing || time_skip.notice > 0))
         || time_skip_event_open() || (host != NULL && !story_host_running(host))

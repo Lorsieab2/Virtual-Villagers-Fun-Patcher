@@ -278,7 +278,7 @@ class FaithNoticeCompanion(unittest.TestCase):
         v.slot(2)                                           # another village loaded during the wait
         self.assertIsNone(v.pending(1000 + quiet))
         v.slot(1)
-        self.assertIsNone(v.pending(1000 + quiet), "dropped, not kept for when slot 1 comes back")
+        self.assertIsNone(v.pending(1000 + quiet), "dropped from memory (with no file here: WaitingPopupFile)")
         v.proc.tick = 5000
         v.drift(faith=1, food=100, rolls=[0])               # slot 1: a new batch
         v.slot(2)
@@ -386,6 +386,209 @@ class FaithNoticeCompanion(unittest.TestCase):
                     self.assertEqual(v.drift(faith=1, food=100, rolls=[0, 99, 0]), -47)
                     self.assertTrue(v.heathen())
                     self.assertEqual(v.pending(200000), (1, only(HUNGER)))
+
+
+FILE_NAME = "waiting popup - save {}.dat"
+FN_MAGIC = 0x314E4656                               # 'VFN1'
+
+
+@skip_without_emulator
+class WaitingPopupFile(unittest.TestCase):
+    """The owner (2026-11-09): save the waiting Faith popup ("The Breaking Point") so a quit doesn't lose it.  The
+    batch waiting for its popup is kept in "<save folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Faith
+    Notice\\Waiting Popup - Save <S>.dat" (sidecar_io.h), deleted once the popup is armed; read back on load and
+    shown by the usual rules, once; dropped with Start Over or a deleted tribe; never another slot's."""
+
+    def session(self, files, slot: int = 1) -> "Village":
+        """A new process (a launch) with the slot's save loaded, over the same files."""
+        v = Village(rendered(()))
+        files.install(v.proc)
+        v.slot(slot)
+        return v
+
+    def files(self):
+        from test_faith_loss_marks import Files
+        return Files()
+
+    def keep(self, v, tick: int) -> None:
+        v.proc.tick = tick
+        v.proc.export("VvfpFaithNoticeKeep", 5)
+
+    def sidecar(self, files, slot: int = 1):
+        found = [(k, d) for k, d in files.files.items() if k.endswith(FILE_NAME.format(slot))]
+        if not found:
+            return None
+        (path, data), = found
+        self.assertIn(f"\\virtual villagers fun patcher\\save {slot}\\data\\faith notice\\", path)
+        self.assertEqual(len(data), 40)
+        words = struct.unpack("<10I", data)
+        self.assertEqual(words[:4], (FN_MAGIC, 1, 5, slot))
+        self.assertEqual(sum(words[5:]), words[4])
+        return words[4], words[5:]
+
+    def test_a_quit_before_the_popup_keeps_it_and_it_shows_once_after_the_reload(self):
+        files = self.files()
+        quiet = gen_quiet()
+        v = self.session(files)
+        self.keep(v, 900)                                   # the slot seen (its file read) before they turn
+        for k, case in enumerate((dict(food=100, rolls=[0]), dict(sick=1, food=1000, rolls=[0]),
+                                  dict(food=1000, believers=4, rolls=[0]))):
+            v.proc.tick = 1000 + 10 * k
+            v.drift(faith=1, **case)
+        self.keep(v, 1100)
+        self.assertEqual(self.sidecar(files), (3, only(HUNGER, SICKNESS, BELIEVERS)))
+        # Quit before the popup: a new launch, the same save.  Its load-time catch-up turns one more.
+        again = self.session(files)
+        again.proc.tick = 50
+        again.drift(faith=1, food=5, rolls=[0])
+        self.assertIsNone(again.pending(100), "it waits for the quiet, as any batch")
+        self.assertEqual(again.pending(100 + quiet), (4, only(STARVATION, HUNGER, SICKNESS, BELIEVERS)))
+        self.assertEqual(self.sidecar(files), (4, only(STARVATION, HUNGER, SICKNESS, BELIEVERS)))
+        again.proc.export("VvfpFaithNoticeTaken", 5)        # armed: the Story queue keeps it from here
+        self.assertIsNone(self.sidecar(files), "deleted at once")
+        self.assertIsNone(again.pending(100 + 10 * quiet), "once")
+        third = self.session(files)
+        self.assertIsNone(third.pending(100 + 10 * quiet), "never again after another reload")
+
+    def test_armed_then_quit_only_the_story_queue_brings_it_back(self):
+        """Never double-shown: the companion's file goes the moment the popup is armed, and the Story queue's own
+        file (restored on load) is the only copy -- one popup after the reload, from the queue."""
+        files = self.files()
+        quiet = gen_quiet()
+        v = self.session(files)
+        v.proc.tick = 1000
+        v.drift(faith=1, food=100, rolls=[0])
+        self.keep(v, 1100)
+        self.assertIsNotNone(self.sidecar(files))
+        self.assertEqual(v.pending(1000 + quiet), (1, only(HUNGER)))
+        v.proc.export("VvfpFaithNoticeTaken", 5)
+        self.assertIsNone(self.sidecar(files))
+        again = self.session(files)
+        self.assertIsNone(again.pending(1000 + 2 * quiet), "the companion has nothing to give again")
+
+        scratch, Story, island_ready, tick = story_harness()
+        from test_story_queued_purchases import LATE, queue_file, session, tick as frame
+        story = Story("vv5")
+        island_ready(story)
+        story.proc.write(scratch + 0x800, struct.pack("<5I", 0, 1, 0, 0, 0))
+        story.proc.export("VvfpStoryProbeFaithNotice", scratch + 0x800)
+        tick(story, 100)
+        self.assertEqual(story.proc.export("VvfpStoryProbeFaithNoticeTaken"), 1, "armed")
+        frame(story)                                        # the queue's own tick writes its file
+        file = queue_file(story)
+        self.assertTrue(file, "the armed popup is in the Story queue's file")
+        reloaded = Story("vv5")
+        island_ready(reloaded)
+        session(reloaded, file, LATE)
+        frame(reloaded)
+        reloaded.proc.export("VvfpStoryProbeArmedNotice", scratch, scratch + 0x100)
+        self.assertEqual(reloaded.proc.cstring(scratch), TITLE, "restored from the queue")
+        self.assertEqual(reloaded.proc.export("VvfpStoryProbeFaithNoticeTaken"), 0,
+                         "not armed a second time from the companion")
+
+    def test_start_over_drops_it_and_another_slots_reset_keeps_it(self):
+        files = self.files()
+        quiet = gen_quiet()
+        v = self.session(files)
+        v.proc.tick = 1000
+        v.drift(faith=1, food=100, rolls=[0])
+        self.keep(v, 1100)
+        # Another tribe (slot 2) deleted from the menu: save_reset.c deletes ITS folder.
+        v.proc.export("VvfpFaithNoticeVillageReset", 5)
+        for key in [k for k in files.files if "\\save 2\\" in k]:
+            del files.files[key]
+        self.keep(v, 1200)                                  # read afresh: it waits its quiet again
+        self.assertEqual(v.pending(1200 + quiet), (1, only(HUNGER)), "slot 1's popup still comes")
+        self.assertEqual(self.sidecar(files), (1, only(HUNGER)))
+        # Start Over in slot 1: the batch goes in memory, and save_reset.c deletes the slot's folder.
+        v.proc.export("VvfpFaithNoticeVillageReset", 5)
+        for key in [k for k in files.files if "\\save 1\\" in k]:
+            del files.files[key]
+        self.keep(v, 1200 + quiet)
+        self.assertIsNone(v.pending(1200 + 3 * quiet))
+        self.keep(v, 1200 + 4 * quiet)
+        self.assertIsNone(self.sidecar(files), "nothing written back for the new tribe")
+        self.assertIsNone(self.session(files).pending(1200 + 5 * quiet), "nor after a relaunch")
+
+    def test_another_slot_never_sees_it(self):
+        files = self.files()
+        quiet = gen_quiet()
+        v = self.session(files, slot=1)
+        v.proc.tick = 1000
+        v.drift(faith=1, food=100, rolls=[0])
+        self.keep(v, 1100)
+        other = self.session(files, slot=2)
+        self.assertIsNone(other.pending(1100 + quiet))
+        self.assertIsNone(self.sidecar(files, 2))
+        # Slot 1's file under slot 2's name (its own slot inside) is set aside, never shown.
+        (key,) = [k for k in files.files if k.endswith(FILE_NAME.format(1))]
+        files.files[key.replace("save 1", "save 2")] = files.files[key]
+        third = self.session(files, slot=2)
+        self.assertIsNone(third.pending(1100 + quiet))
+        self.assertIsNone(self.sidecar(files, 2), "moved aside, not used")
+        # The same process switching slots: slot 2 never shows it, slot 1 gets it back.
+        v.slot(2)
+        self.assertIsNone(v.pending(1100 + 2 * quiet))
+        v.slot(1)
+        self.keep(v, 1100 + 3 * quiet)
+        self.assertEqual(v.pending(1100 + 4 * quiet), (1, only(HUNGER)))
+        # Slot 2 loaded and its catch-up turns a believer before the next frame: slot 1's file never takes it.
+        v.slot(2)
+        v.proc.tick = 1100 + 5 * quiet
+        v.drift(faith=1, sick=1, food=1000, rolls=[0])
+        self.keep(v, 1100 + 5 * quiet + 10)
+        self.assertEqual(self.sidecar(files, 1), (1, only(HUNGER)))
+        self.assertEqual(self.sidecar(files, 2), (1, only(SICKNESS)), "its own slot's file")
+
+    def test_a_locked_file_is_read_again_once_the_lock_clears(self):
+        files = self.files()
+        quiet = gen_quiet()
+        v = self.session(files)
+        v.proc.tick = 100
+        v.drift(faith=1, food=100, rolls=[0])
+        self.keep(v, 200)
+        written = dict(files.files)
+        again = self.session(files)
+        create = again.proc.api_handlers["CreateFileA"]
+        locked = {"on": True}
+
+        def maybe_locked(q):
+            if locked["on"] and q.cstring(q.arg(0)).lower().endswith(FILE_NAME.format(1)):
+                files.error = 32                            # ERROR_SHARING_VIOLATION
+                return 0xFFFFFFFF, 28
+            return create(q)
+        again.proc.api_handlers["CreateFileA"] = maybe_locked
+        again.proc.tick = 500
+        again.drift(faith=1, sick=1, food=1000, rolls=[0])  # the catch-up's own, while the file is locked
+        self.keep(again, 1000)
+        self.assertEqual(files.files, written, "a locked file is never replaced")
+        locked["on"] = False
+        again.proc.api_calls.clear()
+        self.keep(again, 1000 + 1000)                       # inside the gate's throttle: not read yet
+        self.assertEqual(files.files, written)
+        self.assertNotIn("SHGetSpecialFolderPathA", again.proc.api_calls, "no file work between retries")
+        self.keep(again, 1000 + 2000)                       # the throttle passed: read, and the two added
+        self.assertEqual(again.pending(3000 + quiet), (2, only(HUNGER, SICKNESS)))
+        self.assertEqual(self.sidecar(files), (2, only(HUNGER, SICKNESS)))
+
+    def test_the_file_is_never_touched_inside_the_life_tick(self):
+        files = self.files()
+        v = self.session(files)
+        v.proc.api_calls.clear()
+        v.proc.tick = 1000
+        v.drift(faith=1, food=100, rolls=[0])
+        self.assertTrue(v.heathen())
+        self.assertFalse({"CreateFileA", "MoveFileExA", "DeleteFileA", "WriteFile"} & set(v.proc.api_calls))
+        self.assertEqual(files.files, {})
+
+    def test_the_story_companion_keeps_it_every_frame(self):
+        story = (ROOT / "native" / "vvfp_story_upgrades" / "story_faith_notice.inc").read_text(encoding="utf-8")
+        tick = story[story.index("static void faith_notice_tick(int game) {"):]
+        self.assertLess(tick.index("faith_notice_keep();"), tick.index("time_skip.active"),
+                        "asked before every wait (a time skip, a paused game)")
+        self.assertIn('"VvfpFaithNoticeKeep"', story)
+        exports = (ROOT / "native" / "vvfp_faith_notice" / "vvfp_faith_notice.def").read_text(encoding="utf-8")
+        self.assertIn("VvfpFaithNoticeKeep", exports)
 
 
 def gen_quiet() -> int:

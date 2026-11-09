@@ -1370,7 +1370,10 @@ it: a believer an island event makes a Heathen is not. With Guardians of Isola
 it says the villagers have lost trust in the village's ability to provide for
 their needs and have decided to join the Isolans, then lists the circumstances
 one a line: Starvation, Food shortages, Sickness, Desire for a larger community
-(and, rarely, Loss of trust). Needs Story / Cheat Upgrades (on by default) to
+(and, rarely, Loss of trust). A popup still waiting when you quit is kept (in
+its own file in the patcher's save folder) and comes after you load that save
+again, once; Start Over or deleting the tribe takes it with the village, and it
+never shows in another save. Needs Story / Cheat Upgrades (on by default) to
 show the popup.
 
 HEATHENS KEEP THEIR MASKS WHEN CONVERTED (NEW BELIEVERS)

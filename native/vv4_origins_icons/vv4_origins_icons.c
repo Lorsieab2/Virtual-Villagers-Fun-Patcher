@@ -1275,6 +1275,13 @@ static int vv4_island_on_its_way(void) {
     return itk_on_its_way();
 }
 
+/* The Story / Cheat Upgrades' "a bought island event is on its way" (the host table's island_on_its_way) is
+   the same answer: a Barrel bought on its own is never an island event for a Custom Island Event to put back
+   after itself (Codex, #745: Barrel only, then a custom event, armed a random island event for free). */
+static int __stdcall vv4_story_island_on_its_way(void) {
+    return vv4_island_on_its_way();
+}
+
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv4_story_time_skip_step(int years);
 static int __stdcall vv4_story_time_skip_settled(void);
@@ -1284,7 +1291,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
         vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running,
-        itk_story_arming, itk_story_on_its_way
+        itk_story_arming, vv4_story_island_on_its_way
     };
     return &host;
 }

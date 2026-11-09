@@ -664,6 +664,84 @@ class ACustomEventBehindABarrelSurvivesAQuit(unittest.TestCase):
                 self.assertEqual(again.proc.u32(world2 + TIMER[game]), expected)
 
 
+@_skip_without(TEST_DLL)
+class ABarrelIsNeverAnIslandEventToPutBack(unittest.TestCase):
+    """Codex on #745: The Tree of Life -- a Barrel bought on its own writes the island timer, and the keeper holds
+    that write too, so the host's "a bought island event is on its way" said yes: a Custom Island Event bought
+    then recorded an island event to put back after itself, and a random one was armed for free.  A Barrel with no
+    Island Event token is never an island event (ce_purchase_locked, and the VV4 host entry itself); New
+    Believers goes by its island bits (0x30), never the Barrel's (0x04)."""
+
+    def _village(self, game, *, island: bool):
+        n = int(game[2:])
+        proc = process(game)
+        world = LockTests._world(LockTests(), proc, game)
+        proc.export("VvfpStoryInstall", n)
+        from test_story_custom_island_event import events_seen_address
+        proc.put32(events_seen_address(game, world), 5)          # past its two opening island events
+        host = _Host(proc, n)
+        proc.put32(world + TIMER[game], 0)                        # the Barrel's own write: due now
+        host.on[0] = 1                                            # the keeper holds that write
+        if game == "vv4":
+            proc.write(0x728B04, b"\1")
+            if island:
+                proc.write(0x728B08, b"\1")                       # an Island Event bought too: its token
+                proc.put32(0x728B0C, 0)
+        else:
+            proc.put32(0x51D388, 0x04 | (0x10 if island else 0))
+            proc.put32(world + 0x17D50, CLOCK)
+        return proc, world, host, n
+
+    def gate(self, proc, n) -> tuple:
+        out = proc.alloc(12)
+        proc.export("VvfpStoryProbeCustomGate", n, out)
+        return struct.unpack("<3i", proc.read(out, 12))
+
+    def _custom_after_the_barrel(self, proc, world, host, n, game):
+        """A custom event queued, the Barrel presented (the trigger reschedules the timer), the custom event made
+        due and delivered, the trigger rescheduling again; then two frames."""
+        from story_custom_fixtures import Event
+        from test_story_custom_island_event import EVENT_BUF, TEXT_BUF
+        event = Event(game=n, title="The Long Night", text="The stars went out.")
+        proc.write(EVENT_BUF, event.pack())
+        self.assertEqual(proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0), 1, "never refused")
+        if game == "vv4":
+            proc.write(0x728B04, b"\0")
+            proc.write(0x728B08, b"\0")
+        else:
+            proc.put32(0x51D388, proc.u32(0x51D388) & ~0x04)
+        proc.put32(world + TIMER[game], CLOCK + 36000)
+        host.on[0] = 0
+        proc.export("VvfpStoryInstall", n)                        # the custom event is made due after it
+        self.assertEqual(proc.export("VvfpStoryProbeDeliver", n, TEXT_BUF, 4096), 1, "the custom event came")
+        proc.put32(world + TIMER[game], CLOCK + 36000)
+        if game == "vv5":
+            proc.put32(0x51D388, 0)
+        proc.export("VvfpStoryInstall", n)
+        proc.export("VvfpStoryInstall", n)
+
+    def test_barrel_only_then_a_custom_event_arms_nothing_more(self):
+        for game in ("vv4", "vv5"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                proc, world, host, n = self._village(game, island=False)
+                self.assertEqual(self.gate(proc, n)[:2], (0, 0), "no island event is waiting")
+                self._custom_after_the_barrel(proc, world, host, n, game)
+                self.assertEqual(self.gate(proc, n)[2], 0, "nothing recorded to put back")
+                self.assertEqual(proc.u32(world + TIMER[game]), CLOCK + 36000, "the game's own next event")
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 0, "no free island event armed")
+
+    def test_barrel_and_a_bought_island_event_then_a_custom_event_the_island_event_follows(self):
+        if not have_stock("vv4"):
+            self.skipTest("stock executable not present")
+        proc, world, host, n = self._village("vv4", island=True)
+        self.assertEqual(self.gate(proc, n)[:2], (0, 1), "the bought island event is waiting")
+        self._custom_after_the_barrel(proc, world, host, n, "vv4")
+        self.assertEqual(proc.u32(world + TIMER["vv4"]), CLOCK + 5, "the bought island event is made due again")
+        self.assertEqual(proc.export("VvfpStoryProbePending", n), 1)
+
+
 # ---------------------------------------------------------------------------
 # 1, 2. The Origins companions' own rows ask the keeper too
 # ---------------------------------------------------------------------------
@@ -688,9 +766,15 @@ class TheTechMenuRowsAskTheKeeper(unittest.TestCase):
     def test_every_host_hands_the_answer_over(self):
         for rel in ("native/vv1_origins_icons/vv1_origins_icons.c", "native/vv2_origins_icons/vv2_origins_icons.c",
                     "native/vv3_full_mastery_candidate/vv3_full_mastery_candidate.c",
-                    "native/vv4_origins_icons/vv4_origins_icons.c", "native/vv5_task9_origins/vv5_task9_origins.c"):
+                    "native/vv5_task9_origins/vv5_task9_origins.c"):
             with self.subTest(source=rel):
                 self.assertIn("itk_story_arming, itk_story_on_its_way\n    };", _source(rel))
+        # The Tree of Life's Barrel writes the same timer: its host entry is the Tech row's own answer, which
+        # leaves out a Barrel bought on its own (Codex, #745).
+        vv4 = _source("native/vv4_origins_icons/vv4_origins_icons.c")
+        self.assertIn("itk_story_arming, vv4_story_island_on_its_way\n    };", vv4)
+        entry = vv4[vv4.index("static int __stdcall vv4_story_island_on_its_way(void) {"):]
+        self.assertEqual(entry[:entry.index("\n}\n")].split("{", 1)[1].strip(), "return vv4_island_on_its_way();")
 
     def test_the_custom_button_is_the_story_companions_to_judge(self):
         bridge = _source("native/shared/story_bridge.h")

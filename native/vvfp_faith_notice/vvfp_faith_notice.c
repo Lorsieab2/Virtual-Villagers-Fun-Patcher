@@ -32,11 +32,33 @@
    its island-event notice (story_faith_notice.inc), once no conversion has come for FN_QUIET_MS, so a catch-up's
    conversions make one popup; then it calls VvfpFaithNoticeTaken.
 
+   THE FILE.  The owner (2026-11-09): save the waiting popup so a quit doesn't lose it.  The batch still waiting
+   for its popup (the total and each reason's count) is kept per save slot in
+       <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Notice\Waiting Popup - Save <S>.dat
+   (native/shared/sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside, a locked
+   one retried on the gate's throttle, as Faith Loss's).  It is written when the batch changes -- at most once in
+   FN_WRITE_MS, from VvfpFaithNoticeKeep (VVFP Story Upgrades.dll calls it every frame, while the popup waits too)
+   and VvfpFaithNoticePending, never from inside the game's life tick -- and deleted the moment the popup is armed
+   (VvfpFaithNoticeTaken): from then on the Story queue's own file keeps the armed popup and restores it
+   (story_queue.inc), so a quit after the arm never shows it twice.  It is read when the game's save slot (the save
+   manager's own field, set before the slot's village is made or loaded) is first seen, and what it holds is added
+   to the believers the load-time catch-up has turned since; the popup then comes by the usual rules.  Start Over
+   or a deleted tribe (VvfpFaithNoticeVillageReset, the reset generation) forgets the batch in memory and the slot's
+   file is read afresh: native/shared/save_reset.c deletes the reset slot's folder, the file with it, so that
+   village's popup never comes back and another slot's still does.  A batch is only ever written to its own slot's
+   file, and a file is only read for its own slot.  The save itself is never written.
+
+   FORMAT (little-endian): u32 magic 'VFN1', u32 version 1, u32 game 5, u32 slot, u32 total (1 or more), then the
+   five reasons' u32 counts (starvation, hunger, sickness, too few believers, other), which add up to the total.
+   Exactly 40 bytes.
+
    SAFETY.  Our steps run under structured exception handling; a fault loses a count, never the game's drift.  No
    debug output. */
 #include <windows.h>
+#include <shlobj.h>
 #include <string.h>
 #include "../shared/install_sites.h"
+#include "../shared/sidecar_io.h"
 #include "../shared/game_save_slot.h"
 
 #define FN_GAME 5                          /* New Believers */
@@ -102,6 +124,168 @@ static int batch_is_here(void) {
 
 static DWORD fn_now(void) {
     return GetTickCount();
+}
+
+/* ---- the file (THE FILE, above) ---------------------------------------------------------------------------- */
+
+#define FN_MAGIC 0x314E4656u               /* 'VFN1' */
+#define FN_VERSION 1u
+#define FN_FILE_WORDS (5 + FNR_COUNT)
+#define FN_WRITE_MS 500u                   /* the file follows the batch at most this often */
+#define FN_RESERVE ((int)sizeof(".unreadable-4294967295-999"))   /* sidecar_io.h's set-aside name */
+
+static vv_sidecar_gate g_gate;
+static int g_file_slot;                    /* the slot whose file was read (0: none yet, or read it again) */
+static int g_load_blocked;                 /* its file could not be read: retried on the gate's throttle */
+static int g_dirty;                        /* the batch is not what the file says */
+static DWORD g_synced_at;
+static unsigned int g_buffer[FN_FILE_WORDS + 1];
+
+/* "<Documents>\LDW\<executable's name>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Notice\
+   Waiting Popup - Save <S>.dat"; `make` creates the folders. */
+static int notice_path(int slot, char *out, int make) {
+    static const char *const LEVELS[4] = {
+        "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data", "\\Faith Notice"
+    };
+    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    char *base = exe, *p, *dot = NULL;
+    DWORD n;
+    int i;
+    if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
+        return 0;
+    }
+    n = GetModuleFileNameA(NULL, exe, MAX_PATH);
+    if (n == 0 || n >= MAX_PATH) {
+        return 0;
+    }
+    for (p = exe; *p != '\0'; ++p) {
+        if (*p == '\\') {
+            base = p + 1;
+            dot = NULL;
+        } else if (*p == '.') {
+            dot = p;
+        }
+    }
+    if (dot != NULL) {
+        *dot = '\0';
+    }
+    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - FN_RESERVE) {
+        return 0;
+    }
+    wsprintfA(out, "%s\\LDW\\%s", docs, base);
+    for (i = 0; i < 4; ++i) {
+        wsprintfA(part, LEVELS[i], slot);
+        lstrcatA(out, part);
+        if (make) {
+            CreateDirectoryA(out, NULL);
+        }
+    }
+    wsprintfA(part, "\\Waiting Popup - Save %d.dat", slot);
+    lstrcatA(out, part);
+    return 1;
+}
+
+static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
+    const unsigned int *u = (const unsigned int *)data;
+    unsigned int sum = 0;
+    int i;
+    if (len != sizeof(unsigned int) * FN_FILE_WORDS || u[0] != FN_MAGIC || u[1] != FN_VERSION || u[2] != FN_GAME
+        || u[3] != (unsigned int)*(const int *)ctx || u[4] == 0u || u[4] > 0xFFFFu) {
+        return 0;
+    }
+    for (i = 0; i < FNR_COUNT; ++i) {
+        sum += u[5 + i] <= 0xFFFFu ? u[5 + i] : 0x10000u;
+    }
+    return sum == u[4];
+}
+
+/* The slot's file, read into the batch: what it holds is added to the believers this village has turned since it
+   came (the load-time catch-up) -- never to another village's, whose own slot's file has them. */
+static void read_batch(int slot) {
+    char path[MAX_PATH];
+    DWORD got = 0;
+    int status, i;
+    if (g_count > 0 && (g_batch_slot != slot || g_batch_generation != g_generation)) {
+        forget_batch();
+    }
+    g_load_blocked = 0;
+    vv_sidecar_gate_bind(&g_gate, slot);
+    if (!notice_path(slot, path, 0)) {
+        vv_sidecar_gate_block(&g_gate);    /* retried on the gate's throttle */
+        g_load_blocked = 1;
+        return;
+    }
+    status = vv_sidecar_load(&g_gate, path, (unsigned char *)g_buffer, sizeof g_buffer, &got, valid_file, &slot);
+    g_load_blocked = status == VV_SIDECAR_LOAD_BLOCKED;
+    g_dirty = g_count > 0;                 /* what came before the file was read is not in it yet */
+    g_synced_at = fn_now() - FN_WRITE_MS;  /* and it may be written at once */
+    if (status == VV_SIDECAR_LOAD_VALID) {
+        g_count += (int)g_buffer[4];
+        for (i = 0; i < FNR_COUNT; ++i) {
+            g_counts[i] += (int)g_buffer[5 + i];
+        }
+        g_batch_slot = slot;
+        g_batch_generation = g_generation;
+        g_last = fn_now();                 /* it waits its quiet time, as any batch */
+    }
+}
+
+/* The file made what the batch is: written while believers wait, deleted once none does.  `now`: at once, else
+   no sooner than FN_WRITE_MS after the last. */
+static void sync_file(int now) {
+    unsigned int words[FN_FILE_WORDS];
+    const void *parts[1];
+    DWORD sizes[1];
+    char path[MAX_PATH];
+    int i;
+    if (!g_dirty || g_file_slot == 0 || g_load_blocked || !vv_sidecar_gate_ready(&g_gate, g_file_slot)
+        || (!now && fn_now() - g_synced_at < FN_WRITE_MS)) {
+        return;
+    }
+    if (g_count > 0 && (g_batch_slot != g_file_slot || g_batch_generation != g_generation)) {
+        return;                            /* another village's believers: never this slot's file */
+    }
+    g_synced_at = fn_now();
+    if (g_count <= 0) {
+        if (!notice_path(g_file_slot, path, 0) || DeleteFileA(path) || GetLastError() == ERROR_FILE_NOT_FOUND
+            || GetLastError() == ERROR_PATH_NOT_FOUND) {
+            g_dirty = 0;                   /* else tried again after FN_WRITE_MS */
+        }
+        return;
+    }
+    if (!notice_path(g_file_slot, path, 1)) {
+        return;
+    }
+    words[0] = FN_MAGIC;
+    words[1] = FN_VERSION;
+    words[2] = FN_GAME;
+    words[3] = (unsigned int)g_file_slot;
+    words[4] = (unsigned int)g_count;
+    for (i = 0; i < FNR_COUNT; ++i) {
+        words[5 + i] = (unsigned int)g_counts[i];
+    }
+    parts[0] = words;
+    sizes[0] = sizeof words;
+    if (vv_sidecar_publish(&g_gate, path, parts, sizes, 1)) {
+        g_dirty = 0;
+    }
+}
+
+/* The slot's file read when the slot is first seen (again after a reset, or once a lock clears), and the batch's
+   changes written to it. */
+static void keep_file(void) {
+    int slot = vv_game_save_slot(FN_GAME);
+    if (slot == 0) {
+        return;
+    }
+    if (slot != g_file_slot) {
+        sync_file(1);                      /* the last slot's batch reaches its own file first */
+        g_file_slot = slot;
+        read_batch(slot);
+    } else if (g_load_blocked && !vv_sidecar_gate_throttled(&g_gate)) {
+        read_batch(slot);                  /* the lock may have cleared */
+    }
+    sync_file(0);
 }
 
 static int fn_rand(int n) {
@@ -193,13 +377,14 @@ static void __cdecl drift_after(void) {
                 reason = FNR_BELIEVERS;
             }
             if (g_count > 0 && !batch_is_here()) {
-                forget_batch();            /* the last batch was another village's */
+                forget_batch();            /* the last batch was another village's (its own file has it) */
             }
             g_batch_slot = vv_game_save_slot(FN_GAME);
             g_batch_generation = g_generation;
             ++g_count;
             ++g_counts[reason];
             g_last = fn_now();
+            g_dirty = 1;                   /* written by the next VvfpFaithNoticeKeep, never in the life tick */
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
@@ -232,7 +417,11 @@ int __stdcall VvfpFaithNoticeInstalled(void) {
    believers, other). */
 int __stdcall VvfpFaithNoticePending(int game, int *out) {
     int i;
-    if (game != FN_GAME || !g_installed || g_count <= 0 || out == NULL) {
+    if (game != FN_GAME || !g_installed || out == NULL) {
+        return 0;
+    }
+    keep_file();
+    if (g_count <= 0) {
         return 0;
     }
     if (!batch_is_here()) {
@@ -249,19 +438,33 @@ int __stdcall VvfpFaithNoticePending(int game, int *out) {
     return 1;
 }
 
-/* The popup is on its way: start counting again. */
-void __stdcall VvfpFaithNoticeTaken(int game) {
-    if (game == FN_GAME) {
-        forget_batch();
+/* Called every frame by "VVFP Story Upgrades.dll", while the popup waits too (a time skip, a menu): the slot's
+   file read, and kept what the batch is. */
+void __stdcall VvfpFaithNoticeKeep(int game) {
+    if (game == FN_GAME && g_installed) {
+        keep_file();
     }
 }
 
-/* Start Over or a deleted tribe (VVFP Story Upgrades.dll's VvfpStoryVillageReset): the village the batch was for
-   is gone, so the batch is. */
+/* The popup is armed (the Story queue's file keeps it from now on): start counting again, and the file goes at
+   once, so a quit never shows it twice. */
+void __stdcall VvfpFaithNoticeTaken(int game) {
+    if (game == FN_GAME) {
+        forget_batch();
+        g_dirty = 1;
+        sync_file(1);
+    }
+}
+
+/* Start Over or a deleted tribe (VVFP Story Upgrades.dll's VvfpStoryVillageReset, before native/shared/save_reset.c
+   deletes the slot's folder): the village the batch was for is gone, so the batch is, and the slot's file is read
+   afresh when next asked -- gone for the reset slot, another slot's waiting popup kept. */
 void __stdcall VvfpFaithNoticeVillageReset(int game) {
     if (game == FN_GAME) {
         ++g_generation;
         forget_batch();
+        g_dirty = 0;
+        g_file_slot = 0;
     }
 }
 

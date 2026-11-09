@@ -3023,10 +3023,18 @@ static int ce_purchase_locked(int game, int *displaces) {
         bought = *(volatile unsigned char *)(uintptr_t)VV3_ISLAND_FLAG != 0 || story_bought_on_its_way(3);
         break;
     case 4:
-        bought = *(volatile unsigned char *)(uintptr_t)VV4_ISLAND_TOKEN != 0 || story_bought_on_its_way(4);
+        /* A Barrel of Babies writes the same timer, and the keeper holds its write too: with the Barrel armed
+           and no Island Event token (every Island Event purchase sets it, and the Barrel's file keeps it across
+           a quit), what the keeper holds is the Barrel's -- never an island event to deliver afterwards (Codex,
+           #745; the companion's own host entry says the same, vv4_story_island_on_its_way). */
+        if (*(volatile unsigned char *)(uintptr_t)VV4_ISLAND_TOKEN != 0) {
+            bought = 1;
+        } else {
+            bought = *(volatile unsigned char *)(uintptr_t)VV4_BARREL_ARMED == 0 && story_bought_on_its_way(4);
+        }
         break;
     case 5:
-        bought = (read_u32(VV5_PURCHASE_FLAGS) & 0x30u) != 0;
+        bought = (read_u32(VV5_PURCHASE_FLAGS) & 0x30u) != 0;   /* the island bits; the Barrel's is 0x04 */
         break;
     default:
         bought = story_bought_on_its_way(game);

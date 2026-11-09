@@ -49,7 +49,11 @@ times always"). It is armed on the same timer and the trigger delivers it first;
 the bought or picked event it went ahead of is made due again once it has come
 (`story_custom_ui.inc` `ce_purchase_locked`, `ce_requeue_tick`), each with its own
 charge. A waiting VV4 or VV5 Barrel is never replaced: it comes first, then the
-custom event. With nobody the trigger accepts -- a count of 0, or no draw it would
+custom event. A Barrel is never an island event to make due again afterwards: VV4's
+Barrel writes the same timer and the keeper holds that write, so with the Barrel armed
+and no Island Event token `0x728B08` the lock counts nothing (both in `ce_purchase_locked`
+and in the VV4 host entry `vv4_story_island_on_its_way`); VV5 goes by its island bits
+`0x30`, never the Barrel's `0x04`. With nobody the trigger accepts -- a count of 0, or no draw it would
 take (VV1/VV2 draw adults only) -- the count stub sends the custom event on as for
 an empty village (`story_empty_village.inc` `ce_trigger_bypass`). It is never held for a
 new village's two opening island events either: delivered before the first one it is not
