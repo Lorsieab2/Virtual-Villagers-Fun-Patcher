@@ -413,14 +413,16 @@ def story_harness():
 
 
 # The owner's words (2026-11-08); the list is a paragraph of its own.
-OPENING = ("Several of your villagers have lost faith in you due to the dire conditions and have "
-           "decided to join the heathens' tribe.\n\n")
-OPENING_ONE = ("One of your villagers has lost faith in you due to the dire conditions and has "
-               "decided to join the heathens' tribe.\n\n")
-ISOLA = ("Several of your villagers have lost hope due to the dire conditions and have decided to "
-         "join the Isolans' tribe.\n\n")
-ISOLA_ONE = ("One of your villagers has lost hope due to the dire conditions and has decided to join "
-             "the Isolans' tribe.\n\n")
+OPENING = ("Several of your villagers have lost faith due to the dire conditions amongst the tribe and have "
+           "decided to join the heathens.\n\n")
+OPENING_ONE = ("One of your villagers has lost faith due to the dire conditions amongst the tribe and has "
+               "decided to join the heathens.\n\n")
+ISOLA = ("Conditions have been dire amongst the tribe, and several villagers have been struggling to cope. They "
+         "have lost trust in the village's ability to provide for their needs. Citing personal reasons, they have "
+         "decided to join the Isolans.\n\nThe following circumstances contributed to their decisions:\n")
+ISOLA_ONE = ("Conditions have been dire amongst the tribe, and one villager has been struggling to cope. They have "
+             "lost trust in the village's ability to provide for their needs. Citing personal reasons, they have "
+             "decided to join the Isolans.\n\nThe following circumstances contributed to their decision:\n")
 TITLE = "The Breaking Point"
 
 
@@ -485,8 +487,14 @@ class Popup(unittest.TestCase):
         self.assertNotRegex(body, r'return\s+"', "no reason is returned as a bare English literal")
         asked = dict(re.findall(r'vvfp_tr\("([^"]+)",\s*"([^"]+)"', body))
         self.assertEqual(sorted(asked.values()), sorted(["starvation", "hunger", "sickness", "too few believers",
-                                                         "too few tribe members", "a loss of faith",
-                                                         "a loss of hope"]))
+                                                         "a loss of faith"]))
+        labels = source[source.index("static const char *faith_notice_isola_label("):]
+        labels = labels[:labels.index("\n}\n")]
+        self.assertNotRegex(labels, r'return\s+"')
+        isola = dict(re.findall(r'vvfp_tr\("([^"]+)",\s*"([^"]+)"', labels))
+        self.assertEqual(sorted(isola.values()), sorted(["Starvation", "Food shortages", "Sickness",
+                                                         "Desire for a larger community", "Loss of trust"]))
+        asked.update(isola)
         rows = {r["stem"]: r for r in json.loads((ROOT / "data" / "translations" / "patcher_strings.json")
                                                  .read_text(encoding="utf-8"))["strings"]}
         stems = (ROOT / "native" / "vvfp_translations" / "tr_key_stems.inc").read_text(encoding="utf-8")
@@ -507,24 +515,31 @@ class Popup(unittest.TestCase):
         self.assertIn("99 due to a loss of faith.", p.cstring(scratch + 0x1000).replace("\n", " "))
         self.assertEqual(p.export("VvfpStoryTimeSkipNoticeShown", 5), 1, "not an island event: not logged as one")
 
-    def test_with_guardians_of_isola_the_isolans_tribe(self):
+    def test_with_guardians_of_isola_the_isolans_and_the_owners_list(self):
+        for counts, text in (
+                ((4, 0, 0, 0, 0), f"{ISOLA}Starvation: 4 villagers"),
+                ((0, 0, 0, 1, 0), f"{ISOLA_ONE}Desire for a larger community: 1 villager"),
+                ((0, 0, 0, 0, 3), f"{ISOLA}Loss of trust: 3 villagers"),
+                ((3, 2, 1, 2, 0), f"{ISOLA}Starvation: 3 villagers\nFood shortages: 2 villagers\nSickness: 1 villager"
+                                  "\nDesire for a larger community: 2 villagers")):
+            with self.subTest(counts=counts):
+                story, scratch, tick = self.story()
+                self.isola(story, b"A villager has left the tribe!")
+                self.counts(story, scratch, counts)
+                tick(story, 100)
+                self.assertEqual(self.armed(story, scratch), (TITLE, text))
+
+    def test_with_guardians_of_isola_the_longest_list_fits_the_popup(self):
+        """All five reasons, three digits each: 13 lines of the plain popup's 14 (one reason a line)."""
         story, scratch, tick = self.story()
+        p = story.proc
         self.isola(story, b"A villager has left the tribe!")
-        self.counts(story, scratch, (4, 0, 0, 0, 0))
+        self.counts(story, scratch, (999, 999, 999, 999, 999))
         tick(story, 100)
-        self.assertEqual(self.armed(story, scratch),
-                         (TITLE, f"{ISOLA}4 villagers have left due to starvation."))
-        story, scratch, tick = self.story()
-        self.isola(story, b"A villager has left the tribe!")
-        self.counts(story, scratch, (0, 0, 0, 1, 0))
-        tick(story, 100)
-        self.assertEqual(self.armed(story, scratch)[1],
-                         f"{ISOLA_ONE}1 villager has left due to too few tribe members.")
-        story, scratch, tick = self.story()
-        self.isola(story, b"A villager has left the tribe!")
-        self.counts(story, scratch, (0, 0, 0, 0, 3))
-        tick(story, 100)
-        self.assertEqual(self.armed(story, scratch)[1], f"{ISOLA}3 villagers have left due to a loss of hope.")
+        title, text = self.armed(story, scratch)
+        self.assertTrue(text.startswith(ISOLA) and text.endswith("Loss of trust: 999 villagers"), text)
+        self.assertEqual(p.export("VvfpStoryProbeDeliver", 5, scratch + 0x1000, 4096), 1)
+        self.assertIn("Loss of trust: 999 villagers", p.cstring(scratch + 0x1000))
 
     def test_the_stock_string_keeps_the_stock_wording(self):
         story, scratch, tick = self.story()
