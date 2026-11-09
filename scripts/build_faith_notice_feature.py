@@ -47,14 +47,17 @@ def sha256(path: Path) -> str:
 
 def feature() -> dict:
     description = (
+        "Meant to make VV5 harder and push players to take care of their tribe. "
         "When New Believers' own Faith drift turns believers into Heathens, the game says \"A villager has stopped "
         "believing in you!\" on the bottom bar for each one (that is the game's own line; with Guardians of Isola "
         "it is \"A villager has left the tribe!\"), but after a catch-up, a Time Warp or a time skip nothing told "
         "you how many left or why. With this patch a popup in the game's own island-event window sums them up: "
-        "\"The Breaking Point: Several of your villagers have lost faith in you due to the dire conditions and have "
-        "decided to join the heathens' tribe.\" and, below it, \"3 villagers have left due to starvation, 1 due to "
-        "sickness and 2 due to too few believers.\" (with Guardians of Isola: \"... have lost hope due to the dire "
-        "conditions and have decided to join the Isolans' tribe.\"). Each believer is counted "
+        "\"The Breaking Point: Several of your villagers have lost faith due to the dire conditions amongst the tribe "
+        "and have decided to join the heathens.\" and, below it, \"3 villagers have left due to starvation, 1 due to "
+        "sickness and 2 due to too few believers.\" With Guardians of Isola it says the villagers have lost trust in "
+        "the village's ability to provide for their needs and have decided to join the Isolans, and lists the "
+        "circumstances one a line (\"Starvation: 3 villagers\", \"Food shortages\", \"Sickness\", \"Desire for a "
+        "larger community\"). Each believer is counted "
         "once, under the Faith roll that took their Faith: starvation (food under 10), hunger (food 10 to 250), "
         "sickness, or too few believers (fewer than 12). It comes once no believer has left for a few seconds, so "
         "a whole catch-up or time skip is one popup; it waits until no other island event is showing or on its way "
@@ -93,13 +96,16 @@ def feature() -> dict:
             "pick, custom or island event is on its way and the game is running, VVFP Story Upgrades.dll arms one "
             "popup with its island-event notice (as the Time Skip's closing popup; the next island event keeps its "
             "time, the trigger's count is taken back, the Island Events log writes nothing): title FAITH_NOTICE_TITLE "
-            "(\"The Breaking Point\"), \"Several of your villagers have lost faith in you due to the dire conditions and "
-            "have decided to join the heathens' tribe.\" (\"One of your villagers has ...\" for one) and, in a "
+            "(\"The Breaking Point\"), \"Several of your villagers have lost faith due to the dire conditions amongst "
+            "the tribe and have decided to join the heathens.\" (\"One of your villagers has ...\" for one) and, in a "
             "paragraph of its own, \"N villagers have left due to <reason>, M due to <reason> and K due to "
             "<reason>.\"; when the game's own string 0x48 (eSayStoppedBelieving, read at [0x5240A8 + 0x120] as "
-            "0x4506D0 reads it) says \"left the tribe\" (the Guardians of Isola rewrite), \"... have lost hope due "
-            "to the dire conditions and have decided to join the Isolans' tribe.\" with "
-            "\"too few tribe members\" and \"a loss of hope\". The count starts again when it is armed.",
+            "0x4506D0 reads it) says \"left the tribe\" (the Guardians of Isola rewrite), \"Conditions have been dire "
+            "amongst the tribe, and several villagers have been struggling to cope. They have lost trust in the "
+            "village's ability to provide for their needs. Citing personal reasons, they have decided to join the "
+            "Isolans.\" and \"The following circumstances contributed to their decisions:\" with one line a reason "
+            "that came (\"Starvation\", \"Food shortages\", \"Sickness\", \"Desire for a larger community\", "
+            "\"Loss of trust\": N villagers). The count starts again when it is armed.",
             "The bottom bar's line for each conversion is the game's own: 0x4669E0 says string 0x48 through the "
             "say bar 0x520F68 / 0x44EF60 (0x4669EC) on every conversion, with or without this patch.",
         ],
