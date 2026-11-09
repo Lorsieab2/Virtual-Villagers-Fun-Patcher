@@ -99,6 +99,11 @@
    "reason": "An exe patch's name for a companion DLL or one of its exports: code, never shown.",
    "patch_files": ["data/*"],
    "match": "^[A-Za-z_][A-Za-z0-9_]*$"
+  },
+  {
+   "reason": "Popup When Believers Become Heathens: the words looked for in the game's own eSayStoppedBelieving to tell the Guardians of Isola wording; never shown.",
+   "files": ["native/vvfp_story_upgrades/story_faith_notice.inc"],
+   "functions": ["faith_notice_left_the_tribe"]
   }
  ]
 }

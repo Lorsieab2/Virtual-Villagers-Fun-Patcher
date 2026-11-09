@@ -25,7 +25,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## What's new in v1.35.91
 
 - **New Believers: The Hungry Totem's time on the Puzzles screen** (Fix Vanilla Bugs). The owner, 2026-11-06: the Hungry Totem's completion time was "permanently set to 0 regardless of when you solved it". The game keeps the right time for it (as for every puzzle), but the Puzzles screen's code for that one puzzle skipped the step that reads the time, so it always said "Completed in 0 hours". Now it shows the kept hours; a village that already solved it shows its real time too, since its save always held it. The other 15 puzzles, and the puzzle screens of the other four games, were checked and show their own times. Patch again to get it.
-- **More Respectful Flower Hovel Cover** (New Believers, new, on by default). Once The Last Heathen is converted, the old Heathen camp is covered with the owner's new picture (art by Lorsieab2): the hovel with graves and flowers, its bottom and left edges on the old cover's. It replaces both the game's own picture and Fix Vanilla Bugs' redrawn one, in the village and on the Overview Map. Not yet seen in a running game.
+- **More Respectful Flower Hovel Cover** (New Believers, new, on by default). Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola. Once The Last Heathen is converted, the old Heathen camp is covered with the owner's new picture (art by Lorsieab2): the hovel with graves and flowers, its bottom and left edges on the old cover's. It replaces both the game's own picture and Fix Vanilla Bugs' redrawn one, in the village and on the Overview Map. Not yet seen in a running game.
 - **Villagers who get stuck** (Fix Vanilla Bugs). The Lost Children: a villager no longer shuttles forever at the south-east shore on the way to the herb; it tries other spots around it first, then gives up the game's normal way. A New Home, The Secret City, The Tree of Life and New Believers: a villager carrying food or a collectible whose walk gives up looks for another way and still delivers it ("VVFP Stuck Walks.dll", "VVFP Keep Carried.dll"). Proven by running each game's own code; not yet seen in a running game.
 - **2-10x Tech Cost** (all five games, off by default; Owner's Defaults and Select All leave it off too): every technology level on the Tech screen costs 2 to 10 times its normal tech points, chosen with a slider in the patcher window (3 unless moved), shown, checked and charged alike. The higher you set it, the harder the game.
 - **Skip All on the intro story** (A New Home, The Lost Children): a button on the story pages that goes straight to the game's own help question, as in The Secret City ("VVFP Skip Intro.dll").
@@ -1309,11 +1309,23 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 - Patch ID: `vv4_complete_scales_golden_fish`
 
-**No Fishing at Science Level 2**
+**Harder Fishing Unlock in VV4**
 
-The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder); Owner's Defaults ticks it.
+Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them; this patch makes both come later. The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3 (70,000 tech points): a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The piers cannot be fixed until Construction level 3 (65,000 tech points): a villager dropped on them says "Additional research may be necessary." (the game's own words on a hut that needs more Construction), builders do not go to them on their own, and a villager who was fixing them stops. Piers already fixed stay fixed, work already done on them is kept for Construction 3, and cloth the village already has stays usable. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
 
-- Patch ID: `vv4_no_fishing_at_science_2`
+- Patch ID: `vv4_harder_fishing_unlock`
+
+**2-10x Sickness** (all five games)
+
+Villagers fall sick 2 to 10 times as often (the 2-10x Sickness slider, 2 unless moved): every natural roll of falling sick, at every Medicine level and difficulty, the old villagers' extra roll included; with Sickness works like VV1-3 it multiplies that rule's chances. Medicine, the fire, Easy's cures, healers and events cure as before. Off by default; Owner's Defaults ticks it and sets the slider to 2.
+
+- Patch ID: `vv1_sickness_multiplier` to `vv5_sickness_multiplier`
+
+**Sickness works like VV1-3** (The Tree of Life, New Believers)
+
+Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard (twice with the fire burning, three times with it out). With the fire burning on Easy or Medium nothing changes; each Medicine level keeps its own chance, and old villagers their extra roll. These games have no Aromatherapy, which cancels the fire's part in The Secret City. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_sickness_like_vv3`, `vv5_sickness_like_vv3`
 
 **Science Collectibles Only Count When Complete**
 
@@ -1323,9 +1335,15 @@ Each Lab Equipment piece you find normally makes research bring more tech points
 
 **Classic VV Difficulty**
 
-Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete and No Fishing at Science Level 2 (New Believers: Faith Loss is Doubled/Gains Halved instead of No Fishing). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
+
+**Collectible Spawn Timing works like VV1-3** (The Tree of Life)
+
+Mushrooms and collectibles appear on their own with The Secret City's chance, 3 in 6,000 each update instead of 4 (and the same in heavy weather's second roll): about a quarter less often. Fog's Wind Flute chance, rain's all-mushroom spawns, island events and the ghost are unchanged. New Believers already uses The Secret City's timing. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
+
+- Patch ID: `vv4_collectible_spawn_like_vv3`
 
 **Hungrier Villagers (2-10x Meals)** (all five games)
 
@@ -1574,15 +1592,21 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Move the "Playing in the dirt" Spot**
 
-Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged.
+Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged. **Off by default, in Owner's Defaults and in Select All. Cannot be used with Puddle Play Moves to the Lake Shore, which moves "Playing in the dirt" to the lake's north-west sandy shore instead (ticking one unticks the other).** **Needs to be manually turned on.**
 
 - Patch ID: `vv5_playing_in_the_dirt_spot`
 
 **Puddle Play Moves to the Lake Shore**
 
-When it rains, children in New Believers go "Playing in puddles" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go "Playing in puddles" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. The action, its text and its length are the game's own; "Excited about the puddles" and "Chasing fish" are not changed. On by default. **Needs no other patch.**
+When it rains, children in New Believers go "Playing in puddles" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go "Playing in puddles" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. Children "Playing in the dirt" play on that same sandy shore, always, before and after The Lake has water: each of the action's six steps goes to a random point along it. The actions, their text and their length are the game's own; "Excited about the puddles", "Chasing fish" and every other action are not changed. **Cannot be used with Move the "Playing in the dirt" Spot, which moves "Playing in the dirt" to the flower patch instead (ticking one unticks the other).** On by default. **Needs no other patch.**
 
 - Patch ID: `vv5_puddles_by_the_lake`
+
+**Memorial Actions Can Also Occur at the Heathen Hovel**
+
+Best paired with "More Respectful Flower Hovel Cover". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate. **Needs no other patch.** Once every Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if Heathens come back later. From then on, a villager who goes "Honoring the dead" on an ordinary day honors at the hovel a quarter of the time: they still go for their flowers first, then lay them in front of the hovel instead of at the graves. A villager "Reflecting" also reflects in front of the hovel a quarter of the time instead of in the usual spot. Each walk goes to a random point of the open ground just in front of the hovel. The Day of Honor island event's honoring, every other action and every other place are unchanged, and before the memorial nothing changes. Nothing is saved: the game's own puzzle progress decides it. **New Believers never sends villagers "Reflecting" by itself: only a Custom Island Event (Story / Cheat Upgrades) does, so the Reflecting part shows only then.** **Off by default and in Select All; on in Owner's Defaults.**
+
+- Patch ID: `vv5_hovel_memorial_actions`
 
 **Charitable Soul Epitaph**
 
@@ -1592,9 +1616,21 @@ When a Devotee dies and is buried, the epitaph New Believers writes on the grave
 
 **Faith Loss is Doubled/Gains Halved**
 
-Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck! **Off by default.** **Needs no other patch.**
+Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck! **Off by default.** **Needs no other patch.**
 
 - Patch ID: `vv5_faith_loss_doubled_gains_halved`
+
+**New Heathens Get a Heathen's Faith**
+
+In New Believers a believer whose Faith drifts down to 0 (low food, sickness, too few believers) becomes a Heathen with Faith 0 or just below it, so one preaching brought them straight back. Every ordinary blue-mask Heathen the game makes has far less: a new village's get -67 to -38, Barrel O' Babies' -55. With this patch a believer the Faith drift turns Heathen (with or without Faith Loss is Doubled/Gains Halved) becomes an ordinary blue-mask Heathen with a random Faith from -67 to -38, drawn exactly as the game draws a new village's ordinary Heathens, and needs as much preaching as any blue Heathen to be won back. A Heathen's Faith never moves on its own in New Believers, so this is the Faith they keep until preached to. The game's own message "A villager has stopped believing in you!" is still shown. Island events that make a Heathen (The Spa, The Cracked Mask, the Custom Island Event) keep their own Faith (-10). **On by default.** **Needs no other patch.**
+
+- Patch ID: `vv5_new_heathens_get_heathen_faith`
+
+**Popup When Believers Become Heathens**
+
+Meant to make VV5 harder and push players to take care of their tribe. When New Believers' own Faith drift turns believers into Heathens, the game says "A villager has stopped believing in you!" on the bottom bar for each one (that is the game's own line; with Guardians of Isola it is "A villager has left the tribe!"), but after a catch-up, a Time Warp or a time skip nothing told you how many left or why. With this patch a popup in the game's own island-event window sums them up: "The Breaking Point: Several of your villagers have lost faith due to the dire conditions amongst the tribe and have decided to join the heathens." and, below it, "3 villagers have left due to starvation, 1 due to sickness and 2 due to too few believers." With Guardians of Isola it says the villagers have lost trust in the village's ability to provide for their needs and have decided to join the Isolans, and lists the circumstances one a line ("Starvation: 3 villagers", "Food shortages", "Sickness", "Desire for a larger community"). Each believer is counted once, under the Faith roll that took their Faith: starvation (food under 10), hunger (food 10 to 250), sickness, or too few believers (fewer than 12). It comes once no believer has left for a few seconds, so a whole catch-up or time skip is one popup; it waits until no other island event is showing or on its way and the game is running, and like every island event it needs a living adult to show it to. It is not an island event: it does not move the next island event, is not counted in Island Events Seen and is not written to the Island Events log. It counts only believers the Faith drift turns Heathen: a believer an island event makes a Heathen, and Heathens island events or the Story / Cheat Upgrades make, never bring it. Nothing in the game is changed by it. **On by default.** **Needs Story / Cheat Upgrades (on by default) for the popup: that patch's DLL shows it.** The companion is "VVFP Faith Notice.dll", started by VVFP Startup.dll; saves are never written by it.
+
+- Patch ID: `vv5_heathen_conversion_notice`
 
 **Statue Drops: Normal Action or Honoring**
 
@@ -1720,7 +1756,7 @@ Fixes bugs in the base game. Every default name can be chosen: the game numbers 
 
 **More Respectful Flower Hovel Cover**
 
-Once The Last Heathen is converted, the game covers the old Heathen camp with a picture of the empty hovel among flowers. With this patch that picture is the owner's more respectful one (art by Lorsieab2): the same hovel, with graves and flowers round the camp. Its bottom and left edges sit on the old picture's, so it rises above and reaches right of where the old one ended. It is drawn wherever the game draws the cover, the village and the Overview Map alike, and replaces both the game's own picture and Fix Vanilla Bugs' redrawn one; it sits where Fix Vanilla Bugs puts the hovel (on the map's own tiles), with Fix Vanilla Bugs on or off. The patcher puts it in the game's Images folder as `vvfp_respectful_hovel.png`; the game's own `hovel_cover.png` is never changed. **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of the stock executable's draw and a mockup on the game's own map).
+Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola. Best paired with "Memorial Actions Can Also Occur at the Heathen Hovel". Once The Last Heathen is converted, the game covers the old Heathen camp with a picture of the empty hovel among flowers. With this patch that picture is the owner's more respectful one (art by Lorsieab2): the same hovel, with graves and flowers round the camp. Its bottom and left edges sit on the old picture's, so it rises above and reaches right of where the old one ended. It is drawn wherever the game draws the cover, the village and the Overview Map alike, and replaces both the game's own picture and Fix Vanilla Bugs' redrawn one; it sits where Fix Vanilla Bugs puts the hovel (on the map's own tiles), with Fix Vanilla Bugs on or off. The patcher puts it in the game's Images folder as `vvfp_respectful_hovel.png`; the game's own `hovel_cover.png` is never changed. **On by default.** **Needs no other patch.** **Not yet seen in a running game** (checked by emulation of the stock executable's draw and a mockup on the game's own map).
 
 - Patch ID: `vv5_respectful_hovel_cover`
 

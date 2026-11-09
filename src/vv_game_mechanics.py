@@ -144,16 +144,33 @@ class Village:
 
 
 def when(seconds: float) -> str:
-    """A real moment as the owner reads it: "22 October 2026, 3:14 PM" (local time)."""
-    moment = datetime.fromtimestamp(seconds)
+    """A real moment as the owner reads it: "22 October 2026, 3:14 PM" (local time).  A moment past what the
+    computer's calendar can show (a village with billions of food lasting millennia) reads "far in the future"
+    rather than stopping the page (the owner's New Believers save, 2026-11-08: 1,410,065,491 food)."""
+    import time
+    if seconds - time.time() >= TEN_YEARS:
+        return "10+ years from now"
+    try:
+        moment = datetime.fromtimestamp(seconds)
+    except (OverflowError, OSError, ValueError):
+        return "far in the future" if seconds > 0 else "long ago"
     hour = moment.hour % 12 or 12
     return f"{moment.day} {_MONTHS[moment.month - 1]} {moment.year}, {hour}:{moment.minute:02d} " \
            f"{'AM' if moment.hour < 12 else 'PM'}"
 
 
+# Past this, an estimate says so instead of an exact length or date (the owner, 2026-11-08: "If the food or tech
+# points is so high that it's practically never gonna run out in more than ten years, say so instead of giving an
+# exact date").
+TEN_YEARS = 10 * 365 * 24 * 3600
+
+
 def duration(seconds: float, exact: bool = False) -> str:
     """A real length of time in words: "3 hours", "1 hour 30 minutes", "45 minutes", "20 seconds" --
-    to the minute, or `exact` to the second (a rule like "8 hours 36 minutes 40 seconds")."""
+    to the minute, or `exact` to the second (a rule like "8 hours 36 minutes 40 seconds"); "10+ years" past
+    ten years (the owner: "10+ years")."""
+    if seconds >= TEN_YEARS:
+        return "10+ years"
     seconds = int(round(seconds))
     if seconds < 60:
         return _plural(seconds, "second")
@@ -164,6 +181,16 @@ def duration(seconds: float, exact: bool = False) -> str:
     hours, minutes = divmod(rest, 60)
     parts = [_plural(n, unit) for n, unit in ((days, "day"), (hours, "hour"), (minutes, "minute")) if n]
     return " ".join(parts)
+
+
+def about(seconds: float) -> str:
+    """"about 3 hours", or "10+ years" past ten years (the sentence then ends with NEVER_NOTE)."""
+    return "10+ years" if seconds >= TEN_YEARS else f"about {duration(seconds)}"
+
+
+def never_note(seconds: float) -> str:
+    """" (practically never runs out)" for a supply that lasts 10+ years, else ""."""
+    return " (practically never runs out)" if seconds >= TEN_YEARS else ""
 
 
 def _plural(n: int, unit: str) -> str:

@@ -205,16 +205,6 @@
       ]
     },
     {
-      "ids": ["vv4_no_fishing_at_science_2"],
-      "guide": [
-        "Off by default. The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
-        "Without the Clothing Hut there is no cloth, and without cloth the fishing nets cannot be mended, so fish come later.",
-        "A site already showing in your village hides until Science 3, then comes back with all its building kept.",
-        "A finished Clothing Hut stays as it is.",
-        "New clothes, and builders fixing huts on their own, wait for the Clothing Hut too (unless Builders Fix Huts When Idle is ticked)."
-      ]
-    },
-    {
       "ids": ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"],
       "guide": [
         "Off by default. Science collectibles make research bring more tech points; with this patch they help only once the whole collection is found.",
@@ -236,8 +226,43 @@
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
-        "and No Fishing at Science Level 2 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers).",
+        "and Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
+        "and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
+      ]
+    },
+    {
+      "ids": ["vv4_harder_fishing_unlock"],
+      "guide": [
+        "Off by default. Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them: this patch makes both come later.",
+        "The Clothing Hut comes at Science level 2 as normal, but no cloth can be made until Science level 3.",
+        "Until then a villager dropped on the vines says \"Don't know what to do with these tough vines!\"",
+        "The piers cannot be fixed until Construction level 3: a villager dropped on them says \"Additional research may be necessary.\" and builders leave them alone.",
+        "Piers already fixed stay fixed, work already done on them is kept, and cloth you already have still mends the nets."
+      ]
+    },
+    {
+      "ids": ["vv1_sickness_multiplier", "vv2_sickness_multiplier", "vv3_sickness_multiplier", "vv4_sickness_multiplier", "vv5_sickness_multiplier"],
+      "guide": [
+        "Off by default. Villagers fall sick more often: set how many times with the 2-10x Sickness slider (2 to 10).",
+        "Every Medicine level and difficulty keeps its own chance, multiplied; old villagers' extra chance too.",
+        "It also multiplies Sickness works like VV1-3. Healers, the fire, Easy and events cure as before. Patch again after moving the slider."
+      ]
+    },
+    {
+      "ids": ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"],
+      "guide": [
+        "Off by default. Villagers fall sick as in The Secret City: twice as often while the fire is out, and one step more on Hard.",
+        "With the fire burning on Easy or Medium nothing changes; Medicine's levels keep their own chances.",
+        "Keep the fire lit to protect your villagers. 2-10x Sickness multiplies these chances too."
+      ]
+    },
+    {
+      "ids": ["vv4_collectible_spawn_like_vv3"],
+      "guide": [
+        "Off by default. Mushrooms and collectibles appear on their own as often as in The Secret City: about a quarter less often than normal.",
+        "Fog with Wind Flute pieces, rain, island events and the ghost work as before.",
+        "New Believers already works this way, so it has no such patch."
       ]
     },
     {
@@ -789,7 +814,28 @@
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
         "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
+        "When hunger or sickness first would make a believer a Heathen, it is decided once: 1 in 10 leaves; the others stay believers at Faith 1 and can starve or die of illness.",
+        "They stay until fed (more than 250 food) and well; a later crisis is decided again. Saving and loading keeps this.",
         "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
+      ]
+    },
+    {
+      "ids": ["vv5_new_heathens_get_heathen_faith"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
+        "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "Needs no other patch."
+      ]
+    },
+    {
+      "ids": ["vv5_heathen_conversion_notice"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "When believers lose their Faith to hunger, sickness or too few believers and become Heathens, a popup in the island-event window, The Breaking Point, says how many left and why.",
+        "A whole catch-up, Time Warp or time skip gives one popup, after any other island event. It does not change when island events come.",
+        "Island events that make Heathens never bring it. The bottom bar still says the game's own line for each one.",
+        "Needs Story / Cheat Upgrades (on by default) for the popup."
       ]
     },
     {
@@ -797,14 +843,27 @@
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
         "Before The Lake is filled nothing changes: they play in the dry lake bed.",
-        "Nothing to click."
+        "Children \"Playing in the dirt\" play on that same shore, always, before and after The Lake has water.",
+        "Ticking it unticks Move the \"Playing in the dirt\" Spot. Nothing to click."
+      ]
+    },
+    {
+      "ids": ["vv5_hovel_memorial_actions"],
+      "guide": [
+        "Best paired with \"More Respectful Flower Hovel Cover\". Villagers will sometimes come here to pay their respects to those that passed on,",
+        "and others that guide their fate.",
+        "Once every Heathen is converted and the old Heathen hovel gets its flower cover, the hovel is a memorial for good.",
+        "Then villagers \"Honoring the dead\" on an ordinary day, or \"Reflecting\", go in front of the hovel a quarter of the time.",
+        "The Day of Honor and every other action are unchanged. Only a Custom Island Event starts \"Reflecting\".",
+        "Off by default, and Select All does not tick it; Owner's Defaults does. Nothing to click."
       ]
     },
     {
       "ids": ["vv5_playing_in_the_dirt_spot"],
       "guide": [
         "Children who play in the dirt now play in the flower patch east of the dirt path, instead of wandering through the river.",
-        "Nothing to click."
+        "Off by default, and Select All does not tick it: Puddle Play Moves to the Lake Shore moves dirt play to the lake shore instead.",
+        "Ticking one unticks the other. Nothing to click."
       ]
     },
     {
@@ -915,6 +974,8 @@
     {
       "ids": ["vv5_respectful_hovel_cover"],
       "guide": [
+        "Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola.",
+        "Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\".",
         "Once The Last Heathen is converted, the old Heathen camp is covered with the owner's more respectful picture (art by Lorsieab2): the hovel with graves and flowers.",
         "Its bottom and left edges sit on the old cover's; it is used instead of both the game's own picture and Fix Vanilla Bugs' one, in the village and on the Overview Map.",
         "Nothing to click. On by default."
@@ -1005,21 +1066,21 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either: tick them yourself.",
+        "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
+        "Memorial Actions Can Also Occur at the Heathen Hovel is not ticked either.",
+        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
         "It does not change the population mode."
       ]
     },
     "default_patches": {
       "title": "Default Patches",
       "guide": [
-        "Ticks the recommended set: all but Learning Skills Never Fails, Manual Drop-Breeding and 256 Villagers,",
-        "and except the two cheats: VV1 Mushroom/Collectible Duplication Cheat and Super-Secret Golden Mushroom,",
-        "and Fruit Trees Take Turns Refilling (All Fruit Trees Refill at the Same Time is ticked) and Use Unicode Font (overrides in-game fonts).",
-        "Story / Cheat Upgrades is ticked, with Story / Cheat Upgrades cost Tech Points, so its upgrades keep their prices.",
-        "Off because they make the game harder: 2-10x Tech Cost, Faith Loss is Doubled/Gains Halved, Food Gains are Flat, like VV1-3 (Harder Games),",
-        "No Fishing at Science Level 2, Science Collectibles Only Count When Complete, Hungrier Villagers (2-10x Meals), Classic VV Difficulty.",
-        "Checked Skill Preferences are listed as Jobs on Graves is off. This is what a fresh install starts with.",
-        "It does not change the population mode."
+        "Ticks every patch except: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
+        "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
+        "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
+        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, and Memorial Actions Can Also Occur at the Heathen Hovel.",
+        "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
       ]
     },
     "owners_defaults": {
@@ -1028,9 +1089,10 @@
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
+        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
-        "Story / Cheat Upgrades cost Tech Points is off here: the Story / Cheat Upgrades are free.",
+        "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free).",
         "It does not change the population mode."
       ]
     },
@@ -1056,6 +1118,14 @@
         "How many times its normal food every villager meal takes with the Hungrier Villagers patch: a whole number from 2 to 10, 2 unless you move it.",
         "It is written into each game the next time you patch with Hungrier Villagers ticked; patch again after changing it.",
         "Owner's Defaults sets it to 2. It does nothing while Hungrier Villagers is not ticked."
+      ]
+    },
+    "sickness_multiplier": {
+      "title": "2-10x Sickness",
+      "guide": [
+        "How many times as often villagers fall sick with the 2-10x Sickness patch: a whole number from 2 to 10, 2 unless you move it.",
+        "It is written into each game the next time you patch with 2-10x Sickness ticked; patch again after changing it.",
+        "Owner's Defaults sets it to 2. It does nothing while 2-10x Sickness is not ticked."
       ]
     },
     "tech_cost_multiplier": {

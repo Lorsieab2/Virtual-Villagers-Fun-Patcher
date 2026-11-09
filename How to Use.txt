@@ -76,9 +76,10 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
    and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets" and/or "No Fishing at Science
-   Level 2" (off by default: the Clothing Hut, and so cloth and the fishing
-   nets, waits for Science level 3) and/or "Science Collectibles Only Count
+   "Complete Fish Scales = Golden Fish in Nets" and/or "Harder Fishing Unlock
+   in VV4" (off by default: cloth waits for Science level 3 and fixing the
+   piers for Construction level 3, so the fishing nets come later; piers
+   already fixed and cloth already made are kept) and/or "Science Collectibles Only Count
    When Complete" (off by default, also in New Believers: the science
    collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
@@ -493,6 +494,14 @@ the game. Default Patches and Select All never tick it; Owner's Defaults ticks
 it in all five games and sets the slider to 2. Patch again after moving the
 slider.
 
+2-10X SICKNESS (ALL FIVE GAMES)
+
+Off by default. Villagers fall sick 2 to 10 times as often: you choose how
+many times with the 2-10x Sickness slider beside the patch settings (2 unless
+you move it). Every Medicine level and difficulty keeps its own chance,
+multiplied, and so does Sickness works like VV1-3. Healers, the fire, Easy's
+cures and events work as before. Patch again after moving the slider.
+
 HUNGRIER VILLAGERS (2-10X MEALS) (ALL FIVE GAMES)
 
 Off by default. Every villager's meal takes 2 to 10 times the normal food: you
@@ -509,8 +518,11 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
 Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
-plus No Fishing at Science Level 2 in The Tree of Life and Faith Loss is
-Doubled/Gains Halved in New Believers. Unticking any of them unticks Classic VV
+plus Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like
+VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
+Life, Faith Loss is Doubled/Gains Halved in New Believers, and Sickness works
+like VV1-3 in both (villagers fall sick as in The Secret City: more often
+while the fire is out and on Hard). Unticking any of them unticks Classic VV
 Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
 PICTURE STUDIO
@@ -1185,7 +1197,9 @@ worn ground with the flowers, west of the flower rock; about 305 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
-saved: it is purely where the child walks.
+saved: it is purely where the child walks. Off by default, in Owner's
+Defaults and in Select All: Puddle Play Moves to the Lake Shore moves the
+same walk to the lake shore instead, and ticking one unticks the other.
 
 CHARITABLE SOUL EPITAPH (NEW BELIEVERS)
 
@@ -1230,9 +1244,53 @@ With this patch every roll that takes Faith away is twice as likely (little
 food, sickness, fewer than 12 believers) and every roll that gives Faith is
 half as likely (plenty of food, the Tribute Statue, Spirituality, a big
 tribe). A falling believer near 0 is no longer protected, so Faith can reach
-0 and the believer becomes a Heathen, as in the normal game. Preaching and
-everything else that changes Faith are unchanged. Adds a real chance of your
-villagers becoming heathens. Makes the game that much harder. Good Luck!
+0 and the believer becomes a Heathen, as in the normal game. But a Heathen
+never eats, starves or falls ill, so the first time hunger or sickness would
+make a believer a Heathen, it is decided once for that believer: 1 in 10
+becomes a Heathen; the other 9 in 10 stay believers at Faith 1 (hunger and
+sickness never take them lower) and can starve or die of illness as usual.
+That lasts until they are fed (more than 250 food) and well; a later crisis
+is decided again. The patch keeps this in its own file in the save's folder,
+so saving and loading keeps it. Too few believers takes Faith as before.
+Preaching and everything else that changes Faith are unchanged. Adds a real
+chance of your villagers becoming heathens. Makes the game that much harder.
+Good Luck!
+
+NEW HEATHENS GET A HEATHEN'S FAITH (NEW BELIEVERS)
+
+On by default. In the normal game a believer whose Faith drifts down to 0
+(low food, sickness, too few believers) becomes a Heathen with Faith 0 or
+just below it, so one preaching brings them straight back. With this patch
+they become an ordinary blue-mask Heathen (never orange, red or a special
+Heathen) with a random Faith from -38 to -67, drawn the way the game draws
+its own new village's blue Heathens, so you win them back by preaching like
+any other Heathen. This covers the Faith drift with or without Faith Loss is
+Doubled/Gains Halved; island events (The Spa, The Cracked Mask) keep their
+own -10. Needs no other patch.
+
+POPUP WHEN BELIEVERS BECOME HEATHENS (NEW BELIEVERS)
+
+Meant to make VV5 harder and push players to take care of their tribe. On by
+default. The game already says "A villager has stopped believing in you!" on
+the bottom bar each time a believer becomes a Heathen ("A villager has left the
+tribe!" with Guardians of Isola), but after a catch-up, a Time Warp or a time
+skip that line is easy to miss. With this patch a popup in the game's own
+island-event window, "The Breaking Point", sums them up, for example: "Several
+of your villagers have lost faith due to the dire conditions amongst the tribe
+and have decided to join the heathens." and, below it, "3 villagers have left
+due to starvation, 1 due to sickness and 2 due to too few believers." Each is
+counted under what took their Faith: starvation (food under 10), hunger (food
+10 to 250), sickness, or too few believers (fewer than 12). A whole catch-up or
+time skip gives one popup, once no other island event is showing or on its
+way; like every island event it needs a living adult to show it to. It is not
+an island event: the next island event keeps its time and it is not counted or
+logged as one. Only believers who lose their Faith to the Faith drift are in
+it: a believer an island event makes a Heathen is not. With Guardians of Isola
+it says the villagers have lost trust in the village's ability to provide for
+their needs and have decided to join the Isolans, then lists the circumstances
+one a line: Starvation, Food shortages, Sickness, Desire for a larger community
+(and, rarely, Loss of trust). Needs Story / Cheat Upgrades (on by default) to
+show the popup.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
@@ -1240,7 +1298,38 @@ When it rains, children play in the puddles of the dry lake bed. Once The
 Lake holds water the normal game stops this, because they cannot swim. With
 this patch they keep playing when it rains, on the lake's north-west sandy
 shore (between the lake's west tip and the rocks with the red flower), never
-in the water. Before The Lake is filled nothing changes. On by default.
+in the water. Before The Lake is filled nothing changes. Children "Playing
+in the dirt" play on that same sandy shore too, always, before and after
+The Lake is filled: each of their six steps goes to a random point along
+it. No other action changes. On by default. Cannot be used with Move the
+"Playing in the dirt" Spot (ticking one unticks the other).
+
+MORE RESPECTFUL FLOWER HOVEL COVER (NEW BELIEVERS)
+
+Turns the restored hovel into a memorial for the fallen. A symbol of
+everlasting peace throughout Isola. Best paired with "Memorial Actions Can
+Also Occur at the Heathen Hovel". Once The Last Heathen is converted, the
+old Heathen camp is covered with the owner's more respectful picture (art
+by Lorsieab2): the hovel with graves and flowers. Its bottom and left edges
+sit on the old cover's; it is used instead of both the game's own picture
+and Fix Vanilla Bugs' one, in the village and on the Overview Map. Nothing
+to click. On by default.
+
+MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
+
+Best paired with "More Respectful Flower Hovel Cover". Villagers will
+sometimes come here to pay their respects to those that passed on, and
+others that guide their fate. Off by default and in Select All; on in
+Owner's Defaults. Once every Heathen has been converted and the villagers
+have fixed up the old Heathen hovel (The Last Heathen is solved and the
+hovel's flower cover appears), the hovel is a memorial for good, even if
+Heathens come back later. Then a villager "Honoring the dead" on an
+ordinary day honors in front of the hovel a quarter of the time (flowers
+first, as usual), and a villager "Reflecting" reflects there a quarter of
+the time.
+The Day of Honor island event and every other action are unchanged.
+Nothing is saved. The game never starts "Reflecting" by itself: only a
+Custom Island Event does.
 
 SORT BY AGE/SKILL/HEALTH IN DETAILS SCREEN (A NEW HOME)
 

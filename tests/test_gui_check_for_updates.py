@@ -428,7 +428,10 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
                                         "vv_game_mechanics_farmers",
                                         # The technology times under the tech points (function-level).
-                                        "vv_game_mechanics_tech_time"}),
+                                        "vv_game_mechanics_tech_time",
+                                        # Each villager's skills where the saved entry keeps them (function-level;
+                                        # the Cooking Pit and Hand of Bloom estimates, 2026-11-08).
+                                        "vv_corrupt_skills"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).

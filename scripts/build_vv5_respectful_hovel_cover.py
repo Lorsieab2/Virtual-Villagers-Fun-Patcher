@@ -132,11 +132,14 @@ def patches() -> list[dict[str, str]]:
     ]
 
 
+# The owner's opening sentence (2026-11-08), verbatim.
+OPENING = "Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola."
 DESCRIPTION = (
-    "Once The Last Heathen is converted, the game covers the old Heathen camp with a picture of the empty hovel "
-    "among flowers. With this patch that picture is the owner's more respectful one (art by Lorsieab2): the same "
-    "hovel, with graves and flowers round the camp. Its bottom and left edges sit on the old picture's, so it rises above and reaches right of where the old "
-    "one ended. It is drawn wherever the game draws the cover, the village and the Overview Map alike, and replaces "
+    OPENING + " Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\". Once The Last Heathen is "
+    "converted, the game covers the old Heathen camp with a picture of the empty hovel among flowers. With this patch "
+    "that picture is the owner's more respectful one (art by Lorsieab2): the same hovel, with graves and flowers "
+    "round the camp. Its bottom and left edges sit on the old picture's, so it rises above and reaches right of where "
+    "the old one ended. It is drawn wherever the game draws the cover, the village and the Overview Map alike, and replaces "
     "both the game's own picture and Fix Vanilla Bugs' redrawn one; it sits where Fix Vanilla Bugs puts the hovel "
     "(on the map's own tiles), with Fix Vanilla Bugs on or off. The patcher puts it in the game's Images folder as "
     "vvfp_respectful_hovel.png; the game's own hovel_cover.png is never changed. When the cover appears and every "

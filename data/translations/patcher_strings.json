@@ -63910,6 +63910,351 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_faith_notice.FAITH_NOTICE_TITLE.s0",
+   "english": "The Breaking Point",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the title of the popup, one line)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s1",
+   "english": "too few believers",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s3",
+   "english": "a loss of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s4",
+   "english": "starvation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s5",
+   "english": "hunger",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reason.s6",
+   "english": "sickness",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason, after \"due to\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s0",
+   "english": "1 villager has left due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s1",
+   "english": "%d villagers have left due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s2",
+   "english": "%d due to %s",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game; %1 = a number (number); %2 = a reason (text)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_reasons.s3",
+   "english": " and ",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (joins the last two items of the list: \"..., 1 due to X and 2 due to Y\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s0",
+   "english": "Conditions have been dire amongst the tribe, and one villager has been struggling to cope. They have lost trust in the village's ability to provide for their needs. Citing personal reasons, they have decided to join the Isolans.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s1",
+   "english": "Conditions have been dire amongst the tribe, and several villagers have been struggling to cope. They have lost trust in the village's ability to provide for their needs. Citing personal reasons, they have decided to join the Isolans.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s2",
+   "english": "One of your villagers has lost faith due to the dire conditions amongst the tribe and has decided to join the heathens.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_compose.s3",
+   "english": "Several of your villagers have lost faith due to the dire conditions amongst the tribe and have decided to join the heathens.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the popup's first paragraph)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_label.s0",
+   "english": "Starvation",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason label in the Guardians of Isola list, before \":\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_label.s1",
+   "english": "Food shortages",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason label in the Guardians of Isola list, before \":\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_label.s2",
+   "english": "Sickness",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason label in the Guardians of Isola list, before \":\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_label.s3",
+   "english": "Desire for a larger community",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason label in the Guardians of Isola list, before \":\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_label.s4",
+   "english": "Loss of trust",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (a reason label in the Guardians of Isola list, before \":\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_list.s0",
+   "english": "The following circumstances contributed to their decision:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the Guardians of Isola list: its heading, or one line \"Label: N villagers\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_list.s1",
+   "english": "The following circumstances contributed to their decisions:",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the Guardians of Isola list: its heading, or one line \"Label: N villagers\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_list.s2",
+   "english": "%s: 1 villager",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the Guardians of Isola list: its heading, or one line \"Label: N villagers\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_faith_notice.faith_notice_isola_list.s3",
+   "english": "%s: %d villagers",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher message shown by the game (the Guardians of Isola list: its heading, or one line \"Label: N villagers\")",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [

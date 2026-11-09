@@ -37,6 +37,7 @@ NONI_CAP, CROPS_FULL, CROP_UNITS = 1000, 800, 40
 STORY = "vv5_story_cheat_upgrades"
 GOLDEN = "vv5_super_secret_golden_mushroom"
 HUNGRIER = "vv5_hungrier_villagers"
+CLASSIC = "vv5_classic_vv_difficulty"
 LEARNING = "vv5_learning_never_fails"
 SCIENCE_SET = "vv5_science_collectibles_complete"
 # Food Gains are Flat, like VV1-3 (Harder Games): a noni pick pays The Secret City's fruit and honey pick
@@ -108,6 +109,16 @@ FIRE_LINES = (
 # (0x4744C0 at 0x46003B) and its picker 0x477B90.  "Excited about the puddles" (0xEB, 0x454200) is another action:
 # its choosers 0x469E4B (the child-activity pick 0x469DC0, case 4) and 0x46EFB2, three walks to area 0x69.
 PUDDLES = "vv5_puddles_by_the_lake"
+# The everyday "Honoring the dead" (scripts/build_vv5_hovel_memorial_actions.py has the trace): behaviour 17
+# (0x4595B0), started by the adults' leisure pick 0x46F387 -> 0x46B0F0 when the food store holds 8,000 or more:
+# rand(100) > 70, rand(3) = 0, a grave (0x464E90), rand(100) < 50.  The Day of Honor starts it for everyone
+# (0x414DDA).  No stock code starts "Reflecting" (behaviour 29, 0x457E90).
+HOVEL_MEMORIAL = "vv5_hovel_memorial_actions"
+HONORING_LINE = (
+    "In the code: on an ordinary day an adult with nothing else to do, with 8,000 food or more stored, goes "
+    "\"Honoring the dead\" when a grave exists and the rolls pass (0x46B0F0: rand(100) above 70, then 1 in 3, then 1 "
+    "in 2): first for flowers, then three walks to the graves (0x4595B0). The Day of Honor island event sends "
+    "everyone. Nothing in the game itself starts \"Reflecting\" (only a Custom Island Event does).")
 PUDDLE_LINES = (
     ("Children go \"Playing in puddles\" in the dry lake bed when it rains; once the lake bed is full of water they "
      "no longer do, because they cannot swim.", gm.OWNER),
@@ -119,7 +130,10 @@ PUDDLE_LINES = (
      "(0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts it (0x454200), three walks to the lake bed "
      "(area 0x69); with water in the lake, or without rain, those choosers pick \"Chasing fish\" instead "
      "(\"Looking for bits of fish\" before The Lake is solved, 0x454130).", gm.CODE),
+    ("\"Playing in the dirt\" (0x45ED40) takes six steps to random points of a strip 236..453 by 442..475 that runs "
+     "from the rainbow totem's side down across the river (0x4745A0 at 0x45ED99).", gm.CODE),
 )
+DIRT_SPOT = "vv5_playing_in_the_dirt_spot"
 # The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
 # contradicted the exact one under Faith and Heathens (0x46D2A8: +30 to one listener, not "a random heathen"), and
 # the God Power spell timers repeated God powers (the game calls Revive "Revive", not "Reanimate").
@@ -236,6 +250,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds (real time, the "
                      "same at every speed: 90 seconds on the computer's clock, 0x41441B) of "
                      "real-life time.", gm.RUNNING)
+    # The Secret City's roll is the same (0x42DD6D..0x42DD98): the owner asked for VV4's to match it (2026-11-08).
+    add("Mushrooms", "Apart from fog's doubling, this is exactly The Secret City's timing (3 in 6,000 each update, a "
+                     "second 3 in 6,000 above weather strength 50, at most 2 out at once), so New Believers needs no "
+                     "\"Collectible Spawn Timing works like VV1-3\" patch.", gm.CODE)
     add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
                      "real-life second; the update rate was not read from the code, so this is an estimate.")
     if village.has(GOLDEN):
@@ -292,6 +310,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each believer's meal, and the difficulty's extra, "
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
+    if village.has(CLASSIC) is not False:
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+                                         "Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved "
+                                         "together; each one's own line on this page says what it changes"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
@@ -323,12 +345,26 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "spots, each equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every "
                      "other walk to an area, fishing and \"Excited about the puddles\" included, picks as stock.",
             gm.CODE)
+    add("Other", HONORING_LINE, gm.CODE)
+    if village.has(HOVEL_MEMORIAL) is not False:
+        add("Other", gm.patch_words(
+            village, HOVEL_MEMORIAL, "once The Last Heathen is solved (the hovel's flower cover), the hovel is a "
+                                     "memorial for good, even if Heathens come back: a quarter of the everyday "
+                                     "\"Honoring the dead\" (after the flowers) and of \"Reflecting\" go to random "
+                                     "points in front of the hovel, 2176..2272 by 1576..1600; the Day of Honor is "
+                                     "unchanged"), gm.CODE)
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
                               "lake's west tip and the rocks with the red flower (0x494E00); before The Lake has "
-                              "water, nothing changes"), gm.CODE)
+                              "water, nothing changes. \"Playing in the dirt\" goes to that same shore always, "
+                              "before and after The Lake has water: each of its six steps to a random point along "
+                              "it (0x494E44)"), gm.CODE)
+    if village.has(DIRT_SPOT) is not False:
+        add("Other", gm.patch_words(
+            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
+                                "of the dirt path, 1860..2164 by 1479..1683"), gm.CODE)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
@@ -366,6 +402,66 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         progress = _i32(data, PROJECTS + 8 * pid)
         if 0 < progress < PUZZLE_THRESHOLDS[pid]:
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
+    # Hand of Bloom for food (the owner, 2026-11-08: "The player may cast Hand of Bloom on the noni bush to add
+    # fruit, the crop field once the puzzle is solved to instantly refill it, and on the ground to spawn a variety of
+    # mushrooms ... take into account god power refill time and divine energy"): 150 Divine Energy a cast
+    # (0x498840), no cooldown (0x422E50); the effects src/vv_game_mechanics_powers_vv5.py EFFECTS[4] cites
+    # (0x42315F, 0x439EA0, 0x420E5B, 0x420C18); Divine Energy each age unit per believer 1, 4 at Devotion 50 or more,
+    # 9 at 88 or more (the life tick, see Tech points and effects).
+    energy_now, energy_cap = _i32(data, ENERGY), _i32(data, ENERGY_CAP)
+    boost = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
+
+    def bloom_lines(c, members):
+        believers = [p for p in members if not p.heathen]
+        devotion = [p.skill("Devotion", 5) for p in believers]
+        if not believers or any(d is None for d in devotion):
+            return []
+        # 1 more each on Hard, or on Medium at 8,000 food or more (the life tick; Tech points and effects).
+        level = c.difficulty
+        extra = 1 if level == 2 or (level == 1 and c.food >= 8000) else 0
+        income = sum(9 if d >= 88 else 4 if d >= 50 else 1 for d in devotion) + extra * len(believers)
+        out = []
+        head = (f"Hand of Bloom for food (cast by the player in live play; 150 Divine Energy a cast, no cooldown): this "
+                f"tribe's {len(believers)} believers make about {income:,} Divine Energy each age unit (1 each, 4 at "
+                f"Devotion 50 or more, 9 at 88 or more, 1 more on Hard or on Medium at 8,000 food or more"
+                + (", as now" if extra else "") + f"; Honoring adds more), now {energy_now:,} of a {energy_cap:,} cap. ")
+        if energy_cap < 150:
+            return [head + "The cap is below 150, so Hand of Bloom cannot be cast yet."]
+        units = 150 / income
+        wait = units * c.unit
+        per_hour = 3600.0 / wait
+        head += (f"One cast's worth comes every {units:,.1f} age units ({gm.duration(wait)} of real-life play on "
+                 f"{gm.speed_name(c.speed)} speed), so at most about {per_hour:,.2f} casts per real-life hour, "
+                 f"{energy_now // 150:,} castable now. The Divine Energy also builds up while catching up, so casts can "
+                 "wait for when the game is played. Each use below takes a whole cast; other powers take from the same "
+                 "Divine Energy.")
+        out.append(head)
+        noni_food = 149.5 * boost
+        kept = max(0.0, min(149.5, 1000 - noni))
+        out.append(f"On the noni bushes: +100 to +199 noni (about 150) over the next 100 to 199 updates, about "
+                   f"{noni_food:,.0f} food once picked (a pick takes as many noni as the food it brings, before Food "
+                   f"Mastery); the next +2 growth cuts anything above 1,000 back to 1,000, so unless farmers pick "
+                   f"during it a cast keeps at most 1,000 minus the noni there: now {noni:,}, so about {kept:,.0f} noni "
+                   f"({kept * boost:,.0f} food) kept" + (" (the whole cast)." if kept >= 149.5 else "."))
+        if farm:
+            room = max(0, CROPS_FULL - crops)
+            out.append(f"On the field (the Hydroponic Farm built): the crops are filled to {CROPS_FULL} at once and their "
+                       f"timer starts again, so it adds what is missing, {room:,} crops now, about {room * boost:,.0f} "
+                       "food once harvested (a harvest takes as many crops as the food it brings, before Food Mastery); "
+                       "best cast when the field is nearly empty.")
+        else:
+            out.append("On the field: only once the Hydroponic Farm is built (until then the game refuses it and "
+                       "nothing is spent).")
+        brown, red = 6 * boost, 35 * boost
+        out.append(f"On open ground: 17 to 22 plants, each a mushroom half the time while 10 to 12 mushroom places are "
+                   f"left, so up to about 10 mushrooms, brown ({brown:g} food) or red ({red:g}) equally likely: about "
+                   f"{10 * (brown + red) / 2:,.0f} food a cast if all are picked (children pick them, in live play when "
+                   "dropped on them).")
+        return out
+
+    # Fishing at the lake needs The Lake restored (project 10, the dispatcher 0x46C600; before it, "Looking for bits
+    # of fish", 0x454130): the owner, 2026-11-08: fish never run out once their puzzle is done.
+    lake = _i32(data, PROJECTS + 8 * 10) >= PUZZLE_THRESHOLDS[10]
     ctx = life.Context(
         village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
         sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
@@ -377,11 +473,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              else "the Hydroponic Farm is not built yet", verified=gm.SAVE,
                              step=CROPS_FULL if farm else 0, interval=gm.real_seconds(CROP_UNITS * UNIT, speed_value),
                              next_at=real(CROPS_NEXT), first_in=life.resumed(max(0, _i32(data, CROPS_NEXT) - _i32(data, LAST_TICK)), speed_value), rule=gm.RUNNING),
+                 ] + ([
                  # The fish step 0x46D790 adds 4 food (0x41EB40) and reads or takes nothing: no store to run out.
                  life.Source("Fishing at the lake", None, unlimited=True,
                              refill_words="it has no store: every fish brings 4 food (before Food Mastery) and "
                                           "nothing runs out",
-                             verified=gm.CODE)],
+                             verified=gm.CODE)] if lake else []),
         tech=_i32(data, TECH), tech_words="Research brings them (the skill ÷ 11, ÷ 9 or ÷ 7 at Science 1 to 3).",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0,
         mastery=2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0), golden=village.has(GOLDEN) is True,
@@ -403,7 +500,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         # With Food Gains are Flat the pick pays FLAT_PICK live and FLAT_CATCH_UP while catching up.
         trips=[("noni picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, noni // 100), "Noni bushes"),
-               ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4, "Fishing at the lake")])
+               ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4 if lake else 0, "Fishing at the lake")],
+        food_extra=bloom_lines)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))
