@@ -1,0 +1,26 @@
+{
+  "id": "vv5_respecting_the_legacy_of_isola",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Respecting the Legacy of Isola",
+  "description": "**Needs all five of the patches it names: Guardians of Isola Rewrite, Shrine to the Ancestors, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel and Popup When Believers Become Heathens; ticking it ticks them.** **Heathens Keep Their Masks When Converted runs on the Origins-exclusive base, which the patcher installs automatically with it, so this also adds the Origins Upgrades buttons to the Tech and Villager Details screens.** **The Breaking Point popup also needs Story / Cheat Upgrades (on by default), which this row does not tick.** One tick for the patches that make New Believers more respectful of Isola and its people. Guardians of Isola Rewrite: Changes some aspects of VV5 to make things more culturally respectful (hopefully!) Focused around peace, post-traumatic healing and growth. Shrine to the Ancestors: Turns the restored hovel into an ancestral shrine. A sacred, peaceful place where villagers can honor the ancestral spirits that guide them. Heathens Keep Their Masks When Converted: \"Heathen\" masks are culturally important to them. Their choices must be honored. Memorial Actions Can Also Occur at the Heathen Hovel: Best paired with \"Shrine to the Ancestors\". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate. Popup When Believers Become Heathens (The Breaking Point): Meant to make VV5 harder and push players to take care of their tribe. Unticking any of them unticks this row too, and then the rest stay as they are. This row changes nothing by itself. Off by default; Owner's Defaults and Select All tick it.",
+  "output_tag": "Respecting the Legacy of Isola",
+  "dependencies": [
+    "vv5_guardians_of_isola_rewrite",
+    "vv5_respectful_hovel_cover",
+    "vv5_heathens_keep_masks_when_converted",
+    "vv5_hovel_memorial_actions",
+    "vv5_heathen_conversion_notice"
+  ],
+  "behavior_changes": [
+    "None of its own: it ticks Guardians of Isola Rewrite, Shrine to the Ancestors, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel and Popup When Believers Become Heathens."
+  ],
+  "explicit_non_changes": [
+    "No executable byte, file or save is changed by this row itself."
+  ],
+  "evidence_status": "a selection of other patches; each one's own evidence applies",
+  "companion_files": [],
+  "patches": []
+}

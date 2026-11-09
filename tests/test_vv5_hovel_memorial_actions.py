@@ -322,7 +322,10 @@ class Manifest(unittest.TestCase):
             "their respects to those that passed on, and others that guide their fate. **Needs no other patch.**"))
         public = patcher.load_public_fun_patches()
         row = next(p for p in public if p.id == pid)
-        self.assertEqual(patcher.patch_requirement_text(row, public), "Requires no other patch to be ticked.")
+        # Respecting the Legacy of Isola needs it (it ticks it with the other four respectful patches).
+        self.assertEqual(patcher.patch_requirement_text(row, public),
+                         "Requires no other patch to be ticked. Needed by Respecting the Legacy of Isola: unticking "
+                         "this unticks it.")
 
     def test_registered_and_documented(self):
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")

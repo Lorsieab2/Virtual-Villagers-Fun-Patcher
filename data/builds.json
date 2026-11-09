@@ -3911,7 +3911,7 @@
       "id": "vv5_guardians_of_isola_rewrite",
       "game_id": "vv5",
       "name": "Guardians of Isola Rewrite",
-      "description": "Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.",
+      "description": "Changes some aspects of VV5 to make things more culturally respectful (hopefully!) Focused around peace, post-traumatic healing and growth. Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files. **Needs no other patch.**",
       "output_tag": "Guardians of Isola",
       "patches": [],
       "companion_files": [
