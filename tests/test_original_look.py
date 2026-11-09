@@ -221,7 +221,8 @@ class TheContract(unittest.TestCase):
             if HAVE_EMULATOR else None
         if names is None:
             self.skipTest("pefile is not installed")
-        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet"})
+        # VvfpOriginalLookConverted: New Believers' Heathens Keep Their Masks When Converted (ol_converted).
+        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet", "VvfpOriginalLookConverted"})
         source = (ROOT / "native" / "vvfp_original_look" / "vvfp_original_look.c").read_text(encoding="utf-8")
         self.assertIn("int __stdcall VvfpOriginalLookGet(int game, const void *record, int *head, int *body, "
                       "int *mask)", source)
