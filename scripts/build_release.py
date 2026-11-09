@@ -122,6 +122,9 @@ FILES = [
     "assets/faith_loss/VVFP Faith Loss.dll",
     # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
     "assets/fruit_supply/VVFP VV4 Fruit Supply.dll",
+    # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
+    # Appearance mask.
+    "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -164,6 +167,8 @@ FILES = [
     "assets/vv3_hospital/vvfp_hospitalFixed.png",
     # New Believers' Fix Vanilla Bugs: the owner's redrawn hovel cover.
     "assets/vv5_fix_vanilla_bugs/vvfp_hovel.png",
+    # New Believers' Shrine to the Ancestors: the owner's cover with graves and flowers.
+    "assets/vv5_respectful_hovel_cover/vvfp_respectful_hovel.png",
     "data/vv1_origins_village_wide_upgrades.json",
     "data/vv2_origins_village_wide_upgrades.json",
     "data/vv3_origins_village_wide_upgrades.json",
@@ -258,6 +263,8 @@ FILES = [
     "data/vv4_disable_overview_clouds_feature.json",
     "data/vv5_disable_overview_clouds_feature.json",
     "data/vv3_push_overview_clouds_feature.json",
+    # Heathens Keep Their Masks When Converted (New Believers).
+    "data/vv5_heathens_keep_masks_feature.json",
     # 2-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

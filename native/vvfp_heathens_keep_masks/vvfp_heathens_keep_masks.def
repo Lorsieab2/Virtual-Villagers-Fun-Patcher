@@ -1,0 +1,5 @@
+LIBRARY "VVFP Heathens Keep Masks"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHeathensKeepMasksInstalled=_VvfpHeathensKeepMasksInstalled@0
+    VvfpHeathensKeepMasksKept=_VvfpHeathensKeepMasksKept@0

@@ -88,7 +88,13 @@ def row(game: int, dll_sha: str) -> dict:
             "Tree of Life 0x41961D, New Believers 0x419D68 and 0x419E8E) -- tells the companion the body first, "
             "which becomes part of that villager's original; the game's write then happens exactly as before. "
             "A New Home's stock game has no such writer.",
-        ],
+        ] + ([
+            "New Believers, with Heathens Keep Their Masks When Converted: a Heathen who joins the tribe keeping "
+            "their mask (VvfpOriginalLookConverted) has the mask put on the original kept while they were a "
+            "Heathen with no mask, so Reset to original gives it back; an original kept while they were a "
+            "believer (one who left for the Heathens and came back) or one with a mask of its own stays. Each "
+            "original notes whether its villager has been seen a believer since (the entry's last byte).",
+        ] if game == 5 else []),
         "explicit_non_changes": [
             "This row changes no executable bytes: the companion splices the game's own body writers listed "
             "above at run time, after checking their stock bytes, through the shared all-or-none writer (a "

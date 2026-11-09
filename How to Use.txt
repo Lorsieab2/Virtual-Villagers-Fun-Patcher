@@ -1338,6 +1338,21 @@ one a line: Starvation, Food shortages, Sickness, Desire for a larger community
 (and, rarely, Loss of trust). Needs Story / Cheat Upgrades (on by default) to
 show the popup.
 
+HEATHENS KEEP THEIR MASKS WHEN CONVERTED (NEW BELIEVERS)
+
+"Heathen" masks are culturally important to them. Their choices must be
+honored. Off by default; on in Owner's Defaults. When a Heathen joins the
+tribe (by preaching, Spreading the Word, a God Power, a puzzle, an island
+event, a Custom Island Event or any other way) the mask they wore stays on
+their head: blue, orange, red, purple (the Heathen Doctor and the Heathen
+Masters) or the Tribal Chief's (the Heathen Chief, who becomes the Retired
+Chief). It is kept exactly as if you had chosen it with Change Appearance:
+Change Appearance shows it as their mask, and you can change it or choose No
+Mask whenever you like. Nothing is charged. Reset to original gives it back: a
+convert's original look is the head and body they had with the mask they wore.
+Heathens who joined before this patch keep the look they have now. Runs on the
+Origins upgrades, which the patcher adds with it.
+
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The
@@ -1350,9 +1365,21 @@ The Lake is filled: each of their six steps goes to a random point along
 it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
 
+SHRINE TO THE ANCESTORS (NEW BELIEVERS)
+
+Turns the restored hovel into an ancestral shrine. A sacred, peaceful place
+where villagers can honor the ancestral spirits that guide them. Best paired
+with "Memorial Actions Can Also Occur at the Heathen Hovel". Once The Last
+Heathen is converted, the old Heathen camp is covered with the owner's more
+respectful picture (art by Lorsieab2): the hovel with graves and flowers.
+Its bottom and left edges sit on the old cover's; it is used instead of both
+the game's own picture and Fix Vanilla Bugs' one, in the village and on the
+Overview Map. Nothing to click. Off by default; Owner's Defaults and Select
+All tick it.
+
 MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
 
-Best paired with "More Respectful Flower Hovel Cover". Villagers will
+Best paired with "Shrine to the Ancestors". Villagers will
 sometimes come here to pay their respects to those that passed on, and
 others that guide their fate. Off by default; on in Owner's Defaults and
 Select All. Once every Heathen has been converted and the villagers

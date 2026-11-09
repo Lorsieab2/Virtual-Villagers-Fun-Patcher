@@ -318,7 +318,7 @@ class Manifest(unittest.TestCase):
         self.assertNotIn(pid, UNTICKING_CONFLICT_IDS)
         m = manifest()
         self.assertTrue(m["description"].startswith(
-            "Best paired with \"More Respectful Flower Hovel Cover\". Villagers will sometimes come here to pay "
+            "Best paired with \"Shrine to the Ancestors\". Villagers will sometimes come here to pay "
             "their respects to those that passed on, and others that guide their fate. **Needs no other patch.**"))
         public = patcher.load_public_fun_patches()
         row = next(p for p in public if p.id == pid)
