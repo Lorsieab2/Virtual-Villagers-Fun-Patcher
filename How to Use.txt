@@ -1283,25 +1283,27 @@ own -10. Needs no other patch.
 
 POPUP WHEN BELIEVERS BECOME HEATHENS (NEW BELIEVERS)
 
-On by default. The game already says "A villager has stopped believing in
-you!" on the bottom bar each time a believer becomes a Heathen ("A villager
-has left the tribe!" with Guardians of Isola), but after a catch-up, a Time
-Warp or a time skip that line is easy to miss. With this patch a popup in the
-game's own island-event window, "The Breaking Point", sums them up, for example:
-"Several of your villagers have lost faith in you due to the dire conditions
-and have decided to join the heathens' tribe." and, below it, "3 villagers
-have left due to starvation, 1 due to sickness and 2 due to too few
-believers." Each is counted under what took their Faith:
-starvation (food under 10), hunger (food 10 to 250), sickness, or too few
-believers (fewer than 12). A whole catch-up or time skip gives one popup,
-once no other island event is showing or on its way; like every island event
-it needs a living adult to show it to. It is not an island event: the next
-island event keeps its time and it is not counted or logged as one. Only
-believers who lose their Faith to the Faith drift are in it: a believer an
-island event makes a Heathen is not. With Guardians of Isola it says they
-"have lost hope due to the dire conditions and have decided to join the
-Isolans' tribe". Needs Story / Cheat Upgrades (on by default) to show the
-popup.
+Meant to make VV5 harder and push players to take care of their tribe. On by
+default. The game already says "A villager has stopped believing in you!" on
+the bottom bar each time a believer becomes a Heathen ("A villager has left the
+tribe!" with Guardians of Isola), but after a catch-up, a Time Warp or a time
+skip that line is easy to miss. With this patch a popup in the game's own
+island-event window, "The Breaking Point", sums them up, for example: "Several
+of your villagers have lost faith due to the dire conditions amongst the tribe
+and have decided to join the heathens." and, below it, "3 villagers have left
+due to starvation, 1 due to sickness and 2 due to too few believers." Each is
+counted under what took their Faith: starvation (food under 10), hunger (food
+10 to 250), sickness, or too few believers (fewer than 12). A whole catch-up or
+time skip gives one popup, once no other island event is showing or on its
+way; like every island event it needs a living adult to show it to. It is not
+an island event: the next island event keeps its time and it is not counted or
+logged as one. Only believers who lose their Faith to the Faith drift are in
+it: a believer an island event makes a Heathen is not. With Guardians of Isola
+it says the villagers have lost trust in the village's ability to provide for
+their needs and have decided to join the Isolans, then lists the circumstances
+one a line: Starvation, Food shortages, Sickness, Desire for a larger community
+(and, rarely, Loss of trust). Needs Story / Cheat Upgrades (on by default) to
+show the popup.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
