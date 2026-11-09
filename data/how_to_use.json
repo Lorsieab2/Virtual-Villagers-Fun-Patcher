@@ -226,8 +226,8 @@
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
-        "and Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
-        "and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
+        "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
+        "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
@@ -263,6 +263,17 @@
         "Off by default. Mushrooms and collectibles appear on their own as often as in The Secret City: about a quarter less often than normal.",
         "Fog with Wind Flute pieces, rain, island events and the ghost work as before.",
         "New Believers already works this way, so it has no such patch."
+      ]
+    },
+    {
+      "ids": ["vv4_yellow_fruit_trees_limited"],
+      "guide": [
+        "Off by default. The Cooking Pit's fruit tree holds at most 1,000 fruit, refilled to full every 40 age units (4 hours on Normal).",
+        "A fruit trip takes 3 fruit when its food reaches the food bin (or its fruit goes in the stew); a catch-up Cooking Pit bonus takes 5.",
+        "With fewer than 3 left villagers refuse it and farmers are not sent there. Click the tree to see how much fruit is left.",
+        "A Custom Island Event (Story / Cheat Upgrades) that refills the food sources fills it to 1,000 too.",
+        "Adds an island event, A Closer Look (Yellow Breadfruit): once the Cooking Pit is restored, the tree gains 350 fruit (up to 1,000).",
+        "The count is kept beside the save (in Save N, Data, Fruit Trees); the save itself is never changed."
       ]
     },
     {
@@ -867,7 +878,7 @@
         "Once every Heathen is converted and the old Heathen hovel gets its flower cover, the hovel is a memorial for good.",
         "Then villagers \"Honoring the dead\" on an ordinary day, or \"Reflecting\", go in front of the hovel a quarter of the time.",
         "The Day of Honor and every other action are unchanged. Only a Custom Island Event starts \"Reflecting\".",
-        "Off by default, and Select All does not tick it; Owner's Defaults does. Nothing to click."
+        "Off by default; Owner's Defaults and Select All tick it. Nothing to click."
       ]
     },
     {
@@ -1069,7 +1080,6 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
-        "Memorial Actions Can Also Occur at the Heathen Hovel is not ticked either.",
         "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
         "It does not change the population mode."
       ]
@@ -1080,10 +1090,11 @@
         "Ticks every patch except: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Heathens Keep Their Masks When Converted,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
-        "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
+        "and harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
-        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, and Memorial Actions Can Also Occur at the Heathen Hovel.",
-        "Story / Cheat Upgrades is ticked with its cost Tech Points row. A fresh install starts with this; the mode is unchanged."
+        "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited",
+        "and Memorial Actions Can Also Occur at the Heathen Hovel.",
+        "Story / Cheat Upgrades is ticked with its cost row. A fresh install starts with this."
       ]
     },
     "owners_defaults": {

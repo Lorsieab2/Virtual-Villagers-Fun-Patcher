@@ -139,6 +139,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_harder_fishing_unlock"
                   # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
+                  # Yellow Fruit Trees are No Longer Unlimited, a Classic VV Difficulty piece (the owner, 2026-11-08).
+                  or p == "vv4_yellow_fruit_trees_limited"
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
@@ -333,8 +335,6 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
         held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
-        # ...and Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08: off in Select All).
-        held_back |= {"vv5_hovel_memorial_actions"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

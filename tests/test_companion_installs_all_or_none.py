@@ -379,6 +379,10 @@ CASES = [
     Case("Faith Loss", "assets/faith_loss/VVFP Faith Loss.dll", (5,),
          lambda g: [f"vv{g}_faith_loss_doubled_gains_halved"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFaithLossInstalled"))[1]),
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): eight jumps and two Cooking Pit vtable slots.
+    Case("VV4 Fruit Supply", "assets/fruit_supply/VVFP VV4 Fruit Supply.dll", (4,),
+         lambda g: [f"vv{g}_yellow_fruit_trees_limited"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpYellowFruitInstalled"))[1]),
     # Heathens Keep Their Masks When Converted (New Believers): the conversion's role test and The Defector's setter call.
     Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
          lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],

@@ -23558,7 +23558,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_VALUES.0.3",
-   "english": "One store for every bush; the game's own ceiling is 1000. The fruit trees and fishing have no store: they never run out.",
+   "english": "One store for every bush; the game's own ceiling is 1000. Fishing has no store, and the fruit trees none unless Yellow Fruit Trees are No Longer Unlimited is on (Refill fills its tree).",
    "games": [
     "vv4"
    ],
@@ -23888,7 +23888,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.37",
-   "english": "Not in The Tree of Life:\r\n\r\n- Refill and amounts: the fruit trees and fishing have no store (they never run out).\r\n- Special statuses: Scholar and Elderly are worked out from skills and age, and \"Tribal Chief\" is never shown, so there is none to give.\r\n- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire and the huts as puzzles (they are not puzzles).\r\n- The unborn baby's starting skill: what the baby does with it at birth was not traced to the end, so only the father's name and looks are offered.\r\n- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and skeletons that have already crumbled away.\r\n- Weather other than rain and clear: the other types are not identified.\r\n- Golden Child, faction, totems: The Tree of Life has none.",
+   "english": "Not in The Tree of Life:\r\n\r\n- Refill and amounts: fishing has no store (it never runs out). The fruit trees have none either unless Yellow Fruit Trees are No Longer Unlimited is on; then Refill fills its tree to 1,000, but it cannot be set to an amount.\r\n- Special statuses: Scholar and Elderly are worked out from skills and age, and \"Tribal Chief\" is never shown, so there is none to give.\r\n- The Cooking Pit as unsolved (see its note), and the stew pot, the cooks, the fire and the huts as puzzles (they are not puzzles).\r\n- The unborn baby's starting skill: what the baby does with it at birth was not traced to the end, so only the father's name and looks are offered.\r\n- Actions: none left out; the risky ones are offered marked (Unsafe).\r\n- Revive: the mausoleum's ghosts, buried villagers (their record is gone) and skeletons that have already crumbled away.\r\n- Weather other than rain and clear: the other types are not identified.\r\n- Golden Child, faction, totems: The Tree of Life has none.",
    "games": [
     "vv4"
    ],
@@ -23898,7 +23898,7 @@
   },
   {
    "stem": "vvfp.story/story_c4.C4_ADAPTER.42",
-   "english": "Refills the berry bushes.",
+   "english": "Refills the berry bushes and, with Yellow Fruit Trees are No Longer Unlimited, the yellow fruit tree.",
    "games": [
     "vv4"
    ],
@@ -64252,6 +64252,81 @@
    "mechanism": "d",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher message shown by the game (the Guardians of Isola list: its heading, or one line \"Label: N villagers\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.10.variant",
+   "english": "Blackberries",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.title",
+   "english": "A Closer Look",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.variant",
+   "english": "Yellow Breadfruit",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.description",
+   "english": "A farmer finds leftover breadfruit around the trees: the Cooking Pit's yellow fruit tree gains fruit.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_tables.VV4_EVENTS.45.requires",
+   "english": "the Yellow Fruit Trees are No Longer Unlimited patch, which adds this event; the Cooking Pit restored and a villager the event can be about",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.on_click.s0",
+   "english": "Fruit remaining: %d",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP VV4 Fruit Supply.dll (the yellow fruit tree clicked: the game's status line)",
+   "notes": "a patcher message shown by the game; %1 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.fruit_supply/vvfp_vv4_fruit_supply.ev_text_id.s0",
+   "english": "While checking the breadfruit orchard, one of the farmers notices some leftover fruits scattered around the trees. They must have overlooked them last harvest. Turns out there were more growing up there than they had thought!",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP VV4 Fruit Supply.dll (the island event A Closer Look (Yellow Breadfruit): its popup text, under the game's own title A Closer Look)",
+   "notes": "a patcher text shown by the game in its island-event popup",
    "route": "key"
   },
   {

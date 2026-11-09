@@ -322,6 +322,10 @@ COLLECTIBLE_SPAWN_FEATURE_PATHS = (ROOT / "data" / "vv4_collectible_spawn_like_v
                                    # Difficulty): no cloth below Science 3 and no fixing the piers below
                                    # Construction 3; scripts/build_vv4_harder_fishing_unlock_feature.py.
                                    ROOT / "data" / "vv4_harder_fishing_unlock_feature.json")
+# Yellow Fruit Trees are No Longer Unlimited (The Tree of Life; off by default, in Classic VV Difficulty): the Cooking
+# Pit's fruit tree holds 1,000 fruit, refilled every 40 age units, kept in a per-save file; companion only, "VVFP VV4
+# Fruit Supply.dll", started by VVFP Startup.dll from its second word; scripts/build_vv4_yellow_fruit_trees_limited_feature.py.
+YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_feature.json",)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
@@ -4180,7 +4184,8 @@ def _load_fun_patch_records(
                          + TECH_COST_MULTIPLIER_FEATURE_PATHS + HUNGRIER_VILLAGERS_FEATURE_PATHS
                          + SICKNESS_FEATURE_PATHS
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
-                         + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS):
+                         + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
+                         + YELLOW_FRUIT_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12675,7 +12680,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "A48C51F3A233869C8A94694730F5E74738BD9F28B163F97C0BE14E24FAF84712",
+    "sha256": "C5C7A7160BC35D28D23427B691E9BADEF147188B8CAA721E76CE857A0F7BB9A4",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12762,6 +12767,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Faith Loss is Doubled/Gains Halved (New Believers): starving and sick believers are decided once a crisis,
     # 1 in 10 a Heathen, the rest kept at Faith 1 until fed and well.
     "VVFP Faith Loss.dll",
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
+    "VVFP VV4 Fruit Supply.dll",
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "VVFP Heathens Keep Masks.dll",

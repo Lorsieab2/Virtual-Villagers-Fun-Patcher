@@ -479,6 +479,13 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         audit = machine.audit(stock_path(game).read_bytes(), vfp.STARTUP_LOADER_WINMAIN_CALL[game][1])
         call_va = vfp.STARTUP_LOADER_WINMAIN_CALL[game][0]
         audit["game_code_run"] = [a for a in audit["game_code_run"] if a[1] != f"{call_va:#x}"]
+        # A selected row's own declared site in the game's writable data -- only The Tree of Life's island-event
+        # table slot 19 (0x4CCA74), empty in the stock game, which Yellow Fruit Trees are No Longer Unlimited
+        # fills with its event object -- is verified and written like any code site (unverified_writes still
+        # catches a write nothing read first).  Every other access to the game's data stays forbidden.
+        declared_data = {va + i for va, stock, _ in declared_detours(features) for i in range(len(stock))
+                         if va == 0x4CCA74 and game == "vv4"}
+        audit["game_data"] = [a for a in audit["game_data"] if int(a[1], 16) not in declared_data]
         for key in ("game_data", "game_code_run", "unverified_writes", "writable_data"):
             self.assertEqual(audit[key], [], f"{key}: {audit[key][:5]}")
         # The quit hook: in place with the Origins companion, never without.

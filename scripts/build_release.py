@@ -120,6 +120,8 @@ FILES = [
     "assets/faith_notice/VVFP Faith Notice.dll",
     # Faith Loss is Doubled/Gains Halved (New Believers): the once-a-crisis rule for starving and sick believers.
     "assets/faith_loss/VVFP Faith Loss.dll",
+    # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
+    "assets/fruit_supply/VVFP VV4 Fruit Supply.dll",
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
@@ -284,6 +286,7 @@ FILES = [
     "data/vv5_sickness_multiplier_feature.json",
     "data/vv4_sickness_like_vv3_feature.json",
     "data/vv5_sickness_like_vv3_feature.json",
+    "data/vv4_yellow_fruit_trees_limited_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
