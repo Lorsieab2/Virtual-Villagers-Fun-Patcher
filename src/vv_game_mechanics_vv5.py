@@ -346,7 +346,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(HOVEL_MEMORIAL) is not False:
         add("Other", gm.patch_words(
             village, HOVEL_MEMORIAL, "once The Last Heathen is solved (the hovel's flower cover), the hovel is a "
-                                     "memorial for good, even if Heathens come back: half of the everyday "
+                                     "memorial for good, even if Heathens come back: a quarter of the everyday "
                                      "\"Honoring the dead\" (after the flowers) and of \"Reflecting\" go to random "
                                      "points in front of the hovel, 2176..2272 by 1576..1600; the Day of Honor is "
                                      "unchanged"), gm.CODE)

@@ -85,7 +85,7 @@ def decide_rand() -> int:
 
 def village(fe, *, memorial: bool, patched: bool, hovel: bool | None = None, seed: int = 5):
     """A village (The Last Heathen solved or not), the manifest poked in and the behaviour table registered again
-    from the patched bytes, as the game does at start-up; `hovel` forces the wrapper's rand(100) (True: < 50)."""
+    from the patched bytes, as the game does at start-up; `hovel` forces the wrapper's rand(100) (True: < 25)."""
     projects = (fe.GRANARY, fe.HUNGRY_TOTEM, fe.HYDRO_FARM, fe.LAKE) + ((gen.LAST_HEATHEN,) if memorial else ())
     v = fe.Village(seed=seed, projects=projects)
     if patched:
@@ -195,6 +195,34 @@ class Emulated(unittest.TestCase):
                     self.assertArrivesAtTheHovel(v, rec.targets)
                 else:
                     self.assertEqual((rec.areas, rec.targets), ([0x7A, 0x7B, 0x7B, 0x7B], []))
+
+    def test_the_hovel_is_chosen_a_quarter_of_the_time(self):
+        """The owner (2026-11-08): 25%, the wrapper's rand(100) < 25."""
+        fe = emulation()
+        self.assertEqual(gen.CHANCE, 25)
+        for roll, at_hovel in ((0, True), (24, True), (25, False), (99, False)):
+            with self.subTest(roll=roll):
+                v = village(fe, memorial=True, patched=True)
+                v.by_caller[decide_rand()] = roll
+                rec = Recorder(v)
+                v.start(gen.REFLECTING)
+                rec.close()
+                self.assertTrue(in_box(rec.targets, HOVEL_BOX if at_hovel else REFLECT_BOX), (roll, rec.targets))
+
+    def test_honoring_the_dead_another_way_never_uses_the_hovel(self):
+        """The owner (2026-11-08): the Custom Island Event's "Honoring the dead (another way)" (behaviour 46,
+        0x4567C0) must not use the hovel: its one go-to stays in its own strip, 1454..1839 by 1705..1742."""
+        fe = emulation()
+        v = village(fe, memorial=True, patched=True, hovel=True)
+        rec = Recorder(v)
+        v.start(46)
+        rec.close()
+        self.assertEqual(len(rec.targets), 1)
+        self.assertTrue(in_box(rec.targets, (1454, 1839, 1705, 1742)), rec.targets)
+        code = bytes.fromhex(next(p for p in manifest()["patches"] if p["offset"] == "0x6409E")["after"])
+        self.assertEqual(len(code), 5)
+        offsets = {int(p["offset"], 16) + 0x400000 for p in manifest()["patches"]}
+        self.assertFalse(offsets & set(range(0x4567C0, 0x456936)), "nothing in behaviour 46's routine")
 
     def test_the_memorial_is_for_good_and_needs_no_other_state(self):
         """Once The Last Heathen is solved a Heathen in the village changes nothing, and the game's own check never
