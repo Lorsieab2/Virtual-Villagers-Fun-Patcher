@@ -335,7 +335,7 @@ VV4_SPEED, VV4_LAST = 0x17120, 0x17100
 VV4_PENDING, VV4_HEALTH = 0x98, 0xA4                         # from a villager entry (vv_last_names._entries)
 VV4_WORK_FIRST = "vv4_builders_and_healers_work_first"
 VV4_FIX_HUTS = "vv4_builders_fix_huts"
-VV4_NO_FISHING = "vv4_no_fishing_at_science_2"
+VV4_HARDER_FISHING = "vv4_harder_fishing_unlock"
 VV4_LEARNING = "vv4_learning_never_fails"
 VV4_STORY = "vv4_story_cheat_upgrades"
 VV4_ORIGINS = "vv4_enable_origins_exclusive_features"
@@ -446,10 +446,10 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "
                                       "built, and examines huts only once Huts 1 to 3 and the Clothing Hut stand.",
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
-        _patch(village, VV4_NO_FISHING, "Normally the Clothing Hut, one of the four buildings the game's own hut "
-                                        "fixing waits for, can be built from Science level 2.",
-               "the Clothing Hut waits for Science level 3, so without Builders Fix Huts When Idle the game's own "
-               "hut fixing waits for it too."),
+        _patch(village, VV4_HARDER_FISHING, "Normally a builder in a job turn can go on fixing piers the player "
+                                            "has started, and a villager away fixing them carries on.",
+               "below Construction level 3 no builder is sent to the piers and one who was fixing them stops, in "
+               "job turns too (the Building dispatcher's option 6 0x463DD8, the task-30 continuation 0x46385B)."),
         _patch(village, VV4_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
     ):

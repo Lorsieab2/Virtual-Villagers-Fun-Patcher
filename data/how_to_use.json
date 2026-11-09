@@ -205,17 +205,6 @@
       ]
     },
     {
-      "ids": ["vv4_no_fishing_at_science_2"],
-      "guide": [
-        "Off by default, Select All does not tick it, and Owner's Defaults ticks Clothmaking Unlocks at Science Level 3 instead (ticking one unticks the other).",
-        "The Clothing Hut's building site shows up only once you buy Science level 3, not level 2.",
-        "Without the Clothing Hut there is no cloth, and without cloth the fishing nets cannot be mended, so fish come later.",
-        "A site already showing in your village hides until Science 3, then comes back with all its building kept.",
-        "A finished Clothing Hut stays as it is.",
-        "New clothes, and builders fixing huts on their own, wait for the Clothing Hut too (unless Builders Fix Huts When Idle is ticked)."
-      ]
-    },
-    {
       "ids": ["vv4_science_collectibles_complete", "vv5_science_collectibles_complete"],
       "guide": [
         "Off by default. Science collectibles make research bring more tech points; with this patch they help only once the whole collection is found.",
@@ -237,17 +226,19 @@
       "guide": [
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
-        "and Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
+        "and Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like VV1-3 (The Tree of Life) or Faith Loss is Doubled/Gains Halved (New Believers),",
         "and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
     {
-      "ids": ["vv4_clothmaking_at_science_3"],
+      "ids": ["vv4_harder_fishing_unlock"],
       "guide": [
-        "Off by default. The Clothing Hut comes at Science level 2 as normal, but no cloth can be made until Science level 3.",
+        "Off by default. Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them: this patch makes both come later.",
+        "The Clothing Hut comes at Science level 2 as normal, but no cloth can be made until Science level 3.",
         "Until then a villager dropped on the vines says \"Don't know what to do with these tough vines!\"",
-        "Cloth you already have still mends the fishing nets. Ticking it unticks No Fishing at Science Level 2, and the other way round."
+        "The piers cannot be fixed until Construction level 3: a villager dropped on them says \"Additional research may be necessary.\" and builders leave them alone.",
+        "Piers already fixed stay fixed, work already done on them is kept, and cloth you already have still mends the nets."
       ]
     },
     {
@@ -824,7 +815,28 @@
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
         "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
+        "When hunger or sickness first would make a believer a Heathen, it is decided once: 1 in 10 leaves; the others stay believers at Faith 1 and can starve or die of illness.",
+        "They stay until fed (more than 250 food) and well; a later crisis is decided again. Saving and loading keeps this.",
         "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
+      ]
+    },
+    {
+      "ids": ["vv5_new_heathens_get_heathen_faith"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
+        "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "Needs no other patch."
+      ]
+    },
+    {
+      "ids": ["vv5_heathen_conversion_notice"],
+      "guide": [
+        "Nothing to click in the patcher: on by default.",
+        "When believers lose their Faith to hunger, sickness or too few believers and become Heathens, a popup in the island-event window, The Breaking Point, says how many left and why.",
+        "A whole catch-up, Time Warp or time skip gives one popup, after any other island event. It does not change when island events come.",
+        "Island events that make Heathens never bring it. The bottom bar still says the game's own line for each one.",
+        "Needs Story / Cheat Upgrades (on by default) for the popup."
       ]
     },
     {
@@ -1032,7 +1044,7 @@
         "Except 256 Villagers (Experimental), which you tick yourself,",
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
-        "2-10x Tech Cost (all five games), Classic VV Difficulty and No Fishing at Science Level 2 are not ticked either.",
+        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
         "It does not change the population mode."
       ]
     },
@@ -1042,7 +1054,7 @@
         "Ticks every patch except: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
         "and the harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
-        "Food Gains are Flat, like VV1-3 (Harder Games), No Fishing at Science Level 2, Clothmaking Unlocks at Science Level 3, Sickness works like VV1-3,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3.",
         "Story / Cheat Upgrades is ticked with Story / Cheat Upgrades cost Tech Points. A fresh install starts with this; the mode is unchanged."
       ]
@@ -1055,7 +1067,7 @@
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "That includes Story / Cheat Upgrades and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
-        "Story / Cheat Upgrades cost Tech Points and No Fishing at Science Level 2 are off here (the upgrades are free).",
+        "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free).",
         "It does not change the population mode."
       ]
     },
