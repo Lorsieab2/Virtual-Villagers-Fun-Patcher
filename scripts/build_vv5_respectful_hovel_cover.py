@@ -5,13 +5,14 @@ normal graphics and fix vanilla bugs vv5 graphic with the one I'm going to give 
 respectful hovel cover over the original one? its bottom and left edges should be aligned to the bottom and left
 edges of the original completed hovel."
 
-THE ART.  The owner's picture (assets/vv5_respectful_hovel_cover/vvfp_respectful_hovel.png, the owner's file byte
-for byte; the owner, after the first mockup: "I'll change the art", so this first one is a placeholder) is 800 x 500
-RGBA, flattened from a GIMP file whose bottom layers are the completed hovel cover at
-(0, 214): 634 x 286, flush with the canvas's bottom and left edges.  Graves, grave flowers, heathen heads and flowers
-are painted on top, some above the old picture (up to y 44) and right of it (up to x 711).  The base is already in
-the picture, so it is shipped as it is: compositing it over the hovel again would only thicken the hovel's faded
-edges.  It goes to Images as vvfp_respectful_hovel.png; the game's own hovel_cover.png and Fix Vanilla Bugs'
+THE ART.  The owner's picture (assets/vv5_respectful_hovel_cover/vvfp_respectful_hovel.png; the owner, 2026-11-08,
+of this one: "I think this will do for now") is 800 x 500 RGBA.  The owner painted it fully opaque over the bare
+map, with the completed hovel cover (634 x 286) flush with the canvas's bottom and left edges at (0, 214).  It was
+then made transparent wherever it equals the bare map (within 14 levels), keeping every object the owner added with
+a 1-pixel grown edge and the old hovel's footprint (where Fix Vanilla Bugs' hovel has alpha) solid, so laid over the
+map it matches the owner's painting within 14 levels; its objects reach up to y 7 and right to x 743.  The base is
+already in the picture, so it is shipped as it is: compositing it over the hovel again would only thicken the
+hovel's faded edges.  It goes to Images as vvfp_respectful_hovel.png; the game's own hovel_cover.png and Fix Vanilla Bugs'
 vvfp_hovel.png are never changed.
 
 THE DRAW.  0x4370E0 is the only drawer of image 0x1B (the image table entry 0x4CF768); once project 25

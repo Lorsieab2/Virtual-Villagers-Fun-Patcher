@@ -7,8 +7,8 @@ left edges of the original completed hovel".
 0x4370E0, the only drawer of image 0x1B, calls 0x44F320(sprite, x, y, 1.0f) once The Last Heathen (project 25) is
 done; 0x44F320 draws at once from the top-left corner (tests/test_vv5_hovel_cover.py has the stock trace).  The
 completed hovel is Fix Vanilla Bugs' 634 x 286 picture at (1702, 1465), bottom-left (1702, 1751); the owner's
-picture (its height read from the PNG; the first, placeholder art is 800 x 500 with its hovel layers at (0, 214),
-flush with its bottom and left edges) is drawn at (1702, 1751 - height) = (1702, 1251) for 500, with Fix Vanilla
+picture (its height read from the PNG; the owner's approved art is 800 x 500 with the hovel at (0, 214), flush
+with its bottom and left edges) is drawn at (1702, 1751 - height) = (1702, 1251) for 500, with Fix Vanilla
 Bugs on or off.  New art is the one file plus the builder re-run; nothing here needs changing.  The row writes none of Fix Vanilla Bugs' bytes
 (scripts/build_vv5_respectful_hovel_cover.py has the design).
 
