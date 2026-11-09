@@ -38,6 +38,12 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Keep Carried.dll",
     /* Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse. */
     "VVFP Push Clouds.dll",
+    /* Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen,
+       and why, for VVFP Story Upgrades.dll's popup. */
+    "VVFP Faith Notice.dll",
+    /* Faith Loss is Doubled/Gains Halved (New Believers): starving and sick believers are decided once a crisis,
+       1 in 10 a Heathen, the rest kept at Faith 1 until fed and well. */
+    "VVFP Faith Loss.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
