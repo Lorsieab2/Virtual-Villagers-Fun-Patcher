@@ -5,8 +5,11 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Move the \"Playing in the dirt\" Spot",
-  "description": "Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged.",
+  "description": "Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged. **Off by default, in Owner's Defaults and in Select All. Cannot be used with Puddle Play Moves to the Lake Shore, which moves \"Playing in the dirt\" to the lake's north-west sandy shore instead (ticking one unticks the other).**",
   "output_tag": "Playing In The Dirt Spot",
+  "conflicts": [
+    "vv5_puddles_by_the_lake"
+  ],
   "behavior_changes": [
     "A child who starts \"Playing in the dirt\" walks to a random point in the flower patch whose record coordinates are 1860..2164 by 1479..1683 (was 236..453 by 442..475; the second coordinate now steps by two) and wanders inside it for the six steps the stock routine already takes."
   ],

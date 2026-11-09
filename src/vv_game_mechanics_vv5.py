@@ -109,6 +109,16 @@ FIRE_LINES = (
 # (0x4744C0 at 0x46003B) and its picker 0x477B90.  "Excited about the puddles" (0xEB, 0x454200) is another action:
 # its choosers 0x469E4B (the child-activity pick 0x469DC0, case 4) and 0x46EFB2, three walks to area 0x69.
 PUDDLES = "vv5_puddles_by_the_lake"
+# The everyday "Honoring the dead" (scripts/build_vv5_hovel_memorial_actions.py has the trace): behaviour 17
+# (0x4595B0), started by the adults' leisure pick 0x46F387 -> 0x46B0F0 when the food store holds 8,000 or more:
+# rand(100) > 70, rand(3) = 0, a grave (0x464E90), rand(100) < 50.  The Day of Honor starts it for everyone
+# (0x414DDA).  No stock code starts "Reflecting" (behaviour 29, 0x457E90).
+HOVEL_MEMORIAL = "vv5_hovel_memorial_actions"
+HONORING_LINE = (
+    "In the code: on an ordinary day an adult with nothing else to do, with 8,000 food or more stored, goes "
+    "\"Honoring the dead\" when a grave exists and the rolls pass (0x46B0F0: rand(100) above 70, then 1 in 3, then 1 "
+    "in 2): first for flowers, then three walks to the graves (0x4595B0). The Day of Honor island event sends "
+    "everyone. Nothing in the game itself starts \"Reflecting\" (only a Custom Island Event does).")
 PUDDLE_LINES = (
     ("Children go \"Playing in puddles\" in the dry lake bed when it rains; once the lake bed is full of water they "
      "no longer do, because they cannot swim.", gm.OWNER),
@@ -120,7 +130,10 @@ PUDDLE_LINES = (
      "(0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts it (0x454200), three walks to the lake bed "
      "(area 0x69); with water in the lake, or without rain, those choosers pick \"Chasing fish\" instead "
      "(\"Looking for bits of fish\" before The Lake is solved, 0x454130).", gm.CODE),
+    ("\"Playing in the dirt\" (0x45ED40) takes six steps to random points of a strip 236..453 by 442..475 that runs "
+     "from the rainbow totem's side down across the river (0x4745A0 at 0x45ED99).", gm.CODE),
 )
+DIRT_SPOT = "vv5_playing_in_the_dirt_spot"
 # The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
 # contradicted the exact one under Faith and Heathens (0x46D2A8: +30 to one listener, not "a random heathen"), and
 # the God Power spell timers repeated God powers (the game calls Revive "Revive", not "Reanimate").
@@ -332,12 +345,26 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "spots, each equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every "
                      "other walk to an area, fishing and \"Excited about the puddles\" included, picks as stock.",
             gm.CODE)
+    add("Other", HONORING_LINE, gm.CODE)
+    if village.has(HOVEL_MEMORIAL) is not False:
+        add("Other", gm.patch_words(
+            village, HOVEL_MEMORIAL, "once The Last Heathen is solved (the hovel's flower cover), the hovel is a "
+                                     "memorial for good, even if Heathens come back: a quarter of the everyday "
+                                     "\"Honoring the dead\" (after the flowers) and of \"Reflecting\" go to random "
+                                     "points in front of the hovel, 2176..2272 by 1576..1600; the Day of Honor is "
+                                     "unchanged"), gm.CODE)
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
                               "lake's west tip and the rocks with the red flower (0x494E00); before The Lake has "
-                              "water, nothing changes"), gm.CODE)
+                              "water, nothing changes. \"Playing in the dirt\" goes to that same shore always, "
+                              "before and after The Lake has water: each of its six steps to a random point along "
+                              "it (0x494E44)"), gm.CODE)
+    if village.has(DIRT_SPOT) is not False:
+        add("Other", gm.patch_words(
+            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
+                                "of the dirt path, 1860..2164 by 1479..1683"), gm.CODE)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)

@@ -1591,15 +1591,21 @@ Every technology level on the Tech screen costs 2 to 10 times its normal price i
 
 **Move the "Playing in the dirt" Spot**
 
-Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged.
+Moves where children go to play in the dirt. In the stock game the spot is a strip of ground that runs from the rainbow totem's side down across the river, so a child playing in the dirt wanders through the water and ends up on the bank behind the research shelves; this makes it the flower patch east of the dirt path (the worn ground with the flowers, west of the flower rock), where the owner marked it: about 305 by 205 with six random steps inside it. The action, its text, its sound and its length are unchanged. **Off by default, in Owner's Defaults and in Select All. Cannot be used with Puddle Play Moves to the Lake Shore, which moves "Playing in the dirt" to the lake's north-west sandy shore instead (ticking one unticks the other).** **Needs to be manually turned on.**
 
 - Patch ID: `vv5_playing_in_the_dirt_spot`
 
 **Puddle Play Moves to the Lake Shore**
 
-When it rains, children in New Believers go "Playing in puddles" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go "Playing in puddles" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. The action, its text and its length are the game's own; "Excited about the puddles" and "Chasing fish" are not changed. On by default. **Needs no other patch.**
+When it rains, children in New Believers go "Playing in puddles" in the dry lake bed. Once The Lake holds water the game never starts that action again, because they cannot swim. With this patch, after The Lake has water, children still go "Playing in puddles" when it rains, on the north-west sandy shore of the lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. Children "Playing in the dirt" play on that same sandy shore, always, before and after The Lake has water: each of the action's six steps goes to a random point along it. The actions, their text and their length are the game's own; "Excited about the puddles", "Chasing fish" and every other action are not changed. **Cannot be used with Move the "Playing in the dirt" Spot, which moves "Playing in the dirt" to the flower patch instead (ticking one unticks the other).** On by default. **Needs no other patch.**
 
 - Patch ID: `vv5_puddles_by_the_lake`
+
+**Memorial Actions Can Also Occur at the Heathen Hovel**
+
+Best paired with "More Respectful Flower Hovel Cover". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate. **Needs no other patch.** Once every Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if Heathens come back later. From then on, a villager who goes "Honoring the dead" on an ordinary day honors at the hovel a quarter of the time: they still go for their flowers first, then lay them in front of the hovel instead of at the graves. A villager "Reflecting" also reflects in front of the hovel a quarter of the time instead of in the usual spot. Each walk goes to a random point of the open ground just in front of the hovel. The Day of Honor island event's honoring, every other action and every other place are unchanged, and before the memorial nothing changes. Nothing is saved: the game's own puzzle progress decides it. **New Believers never sends villagers "Reflecting" by itself: only a Custom Island Event (Story / Cheat Upgrades) does, so the Reflecting part shows only then.** **Off by default and in Select All; on in Owner's Defaults.**
+
+- Patch ID: `vv5_hovel_memorial_actions`
 
 **Charitable Soul Epitaph**
 
