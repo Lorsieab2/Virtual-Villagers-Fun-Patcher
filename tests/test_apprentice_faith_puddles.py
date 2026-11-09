@@ -637,13 +637,13 @@ class PuddlesByTheLake(unittest.TestCase):
                 for dy in (-1, 0, 1):
                     self.assertTrue(free(cx + dx, cy + dy), (r, x, y))
 
-    def run_action(self, v, fe):
+    def run_action(self, v, fe, behaviour: int = 0x5E):
         targets, areas = [], []
         hooks = [v.uc.hook_add(UC_HOOK_CODE, lambda uc, a, s, d: targets.append(struct.unpack(
                      "<ii", bytes(uc.mem_read(uc.reg_read(UC_X86_REG_ESP) + 4, 8)))), begin=0x4745A0, end=0x4745A0),
                  v.uc.hook_add(UC_HOOK_CODE, lambda uc, a, s, d: areas.append(struct.unpack(
                      "<i", bytes(uc.mem_read(uc.reg_read(UC_X86_REG_ESP) + 4, 4)))[0]), begin=0x4744C0, end=0x4744C0)]
-        v.start(0x5E)                          # "Playing in puddles"
+        v.start(behaviour)                     # 0x5E "Playing in puddles" (0x68 "Playing in the dirt")
         for h in hooks:
             v.uc.hook_del(h)
         frames, ends = 0, []
@@ -679,6 +679,69 @@ class PuddlesByTheLake(unittest.TestCase):
         v = lake_village(fe, lake=False, patches=feature["patches"])
         targets, areas, _ = self.run_action(v, fe)
         self.assertEqual((areas, targets), ([0x6A] * 5, []))
+
+    def dirt_spot(self):
+        return json.loads((ROOT / "data" / "vv5_playing_in_the_dirt_feature.json").read_text(encoding="utf-8"))
+
+    def test_playing_in_the_dirt_goes_to_the_shore_with_the_lake_dry_or_full(self):
+        """The owner (2026-11-08): Puddle Play Moves to the Lake Shore also moves "Playing in the dirt" (behaviour
+        0x68, 0x45ED40) to the same shore, before and after The Lake has water.  Stock and with Move the "Playing in
+        the dirt" Spot, the six go-tos stay in their own boxes; with the shore patch every one is a shore point, and
+        the child arrives on the shore and the action ends."""
+        fe = emulation()
+        shore = {gen.shore_point(r) for r in range(gen.SHORE_SPAN)}
+        puddles, spot = gen.puddles_feature()["patches"], self.dirt_spot()["patches"]
+        for lake in (False, True):
+            for seed in (3, 7):
+                with self.subTest(lake=lake, seed=seed):
+                    targets, areas, _ = self.run_action(lake_village(fe, lake=lake, seed=seed), fe, 0x68)
+                    self.assertEqual((len(targets), areas), (6, []))
+                    self.assertTrue(all(236 <= x <= 453 and 442 <= y <= 475 for x, y in targets), targets)
+                    targets, _, _ = self.run_action(lake_village(fe, lake=lake, patches=spot, seed=seed), fe, 0x68)
+                    self.assertEqual(len(targets), 6)
+                    self.assertTrue(all(1860 <= x <= 2164 and 1479 <= y <= 1683 for x, y in targets), targets)
+                    v = lake_village(fe, lake=lake, patches=puddles, seed=seed)
+                    targets, areas, ends = self.run_action(v, fe, 0x68)
+                    self.assertEqual((len(targets), areas), (6, []))
+                    for t in targets:
+                        self.assertIn(t, shore)
+                    self.assertGreater(len({t for t in targets}), 1, "random points, not one spot")
+                    # Each walk ends where the game puts a villager sent to that point (its feet 12 left, 35 up).
+                    self.assertTrue(any(abs(x - (tx - 12)) <= 4 and abs(y - (ty - 35)) <= 4
+                                        for (x, y) in ends for (tx, ty) in targets), (targets, ends))
+
+    def test_the_dirt_cave_changes_only_the_dirt_walk(self):
+        """Only "Playing in the dirt"'s own go-to is re-aimed: the cave's one caller is 0x45ED99, and every other
+        call of 0x4745A0 in the executable is the stock one."""
+        stock_path(5)
+        feature = gen.puddles_feature()
+        at = gen.dirt_cave_at()
+        sites = {int(p["offset"], 16) + 0x400000: bytes.fromhex(p["after"]) for p in feature["patches"]}
+        self.assertEqual(sites[gen.DIRT_SITE], bytes([0xE8]) + struct.pack("<i", at - (gen.DIRT_SITE + 5)))
+        self.assertEqual(sites[at], gen.dirt_cave(at))
+        image = rendered(5, (PUDDLES,))
+        pe = pefile.PE(data=image, fast_load=True).get_memory_mapped_image()
+        callers = [va for va in range(0x401000, 0x494000)
+                   if pe[va - 0x400000] == 0xE8 and va + 5 + struct.unpack_from("<i", pe, va - 0x400000 + 1)[0] == at]
+        self.assertEqual(callers, [gen.DIRT_SITE])
+        # The puddles' own cave and the Fix Vanilla Bugs picker cave are where they were.
+        self.assertEqual(at, gen.CAVE + len(gen.puddle_cave()))
+        self.assertLessEqual(at + len(gen.dirt_cave(at)), gen.PICKER_CAVE)
+
+    def test_the_two_dirt_patches_untick_each_other_and_never_build_together(self):
+        from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS, conflict_blockers
+        spot = self.dirt_spot()
+        self.assertEqual(spot["conflicts"], [PUDDLES])
+        self.assertEqual(gen.puddles_feature()["conflicts"], [gen.DIRT_SPOT_ID])
+        self.assertEqual(UNTICKING_CONFLICT_IDS[PUDDLES], gen.DIRT_SPOT_ID)
+        self.assertEqual(UNTICKING_CONFLICT_IDS[gen.DIRT_SPOT_ID], PUDDLES)
+        public = patcher.load_public_fun_patches()
+        self.assertEqual(conflict_blockers(gen.DIRT_SPOT_ID, public, {PUDDLES}), [])
+        with self.assertRaises(patcher.PatcherError):
+            patcher.resolve_fun_patch_ids([PUDDLES, gen.DIRT_SPOT_ID], game_id="vv5")
+        self.assertIn(gen.DIRT_SPOT_ID, patcher.ALTERNATIVE_FUN_PATCH_IDS)
+        self.assertIn("**Cannot be used with Move the \"Playing in the dirt\" Spot", gen.puddles_feature()["description"])
+        self.assertIn("Cannot be used with Puddle Play Moves to the Lake Shore", spot["description"])
 
     def chooser(self, fe, patches, lake: bool, rain: int) -> int:
         """\"Excited about the puddles\"' child-activity pick 0x469DC0 (rand(6) = 4, the lake case)."""
