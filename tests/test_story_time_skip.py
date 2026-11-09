@@ -621,6 +621,52 @@ class TimeSkipPopupTests(unittest.TestCase):
         self.assertEqual(notice(story)["armed"], 0)
         self.assertEqual(story.proc.export("VvfpStoryProbeArmedSlot"), 0, "the pick is left alone")
 
+    def test_comes_once_a_bought_island_event_is_delivered_in_every_game(self):
+        """The owner (2026-11-08): the notice never came -- in New Believers a delivered bought island event kept
+        counting as on its way.  In every game it waits while an island event bought from the Origins menu is
+        still to come, and is armed on the first frame after the game's own trigger has delivered it."""
+        from test_story_cheat_upgrades import CLOCK
+
+        for game in ALL_GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                story, host = self._story(game, 6)
+                p, w = story.proc, story.village.world
+                if game in ("vv1", "vv2"):
+                    timer = w + (0xA300 if game == "vv1" else 0x2EAE0)
+                    p.put32(timer, CLOCK + 5)               # the Origins Island Event: now + 5
+                elif game == "vv3":
+                    manager = p.u32(0x4B309C)
+                    timer = manager + 0x12EF4
+                    p.call(0x6DF340, [], ecx=manager)       # its own arming helper
+                elif game == "vv4":
+                    timer = w + 0x170E0
+                    p.put32(timer, CLOCK + 5)
+                    p.write(0x728B08, b"\1")
+                    p.put32(0x728B0C, CLOCK + 5)
+                else:
+                    timer = w + 0x17D3C
+                    p.put32(timer, 0)
+                    p.put32(w + 0x17D50, CLOCK)
+                    p.put32(0x51D388, 0x10)
+                at = run_skip(story, host, 6)
+                tick(story, at + 100)
+                self.assertEqual(notice(story)["waiting_to_arm"], 6, "an island event is on its way")
+                self.assertEqual(notice(story)["armed"], 0)
+                # The game's trigger runs it and rewrites the timer; The Secret City's frame hook first.
+                if game == "vv3":
+                    p.stub(0x403330, lambda q: (CLOCK + 5, 0))
+                    scene = p.alloc(0x100)
+                    p.put32(scene + 0x10, manager)
+                    p.set_reg("esi", scene)
+                    p.set_reg("esp", 0x23000000)
+                    p.run(0x468727, 0x46872F)
+                p.put32(timer, CLOCK + 36000)
+                tick(story, at + 200)
+                self.assertEqual(notice(story)["armed"], 1, "armed once the bought event was delivered")
+                self.assertEqual(notice(story)["waiting_to_arm"], 0)
+
     def test_waits_while_the_game_could_not_show_it(self):
         """A New Home: the village's first island event is always a visitor."""
         story, host = self._story("vv1", 6)
