@@ -97,6 +97,7 @@ GAME_OF_RECORD = 0x2E28
 
 BIN = (1116, 1260)            # the middle of the food bin (map area 8, x 1096-1127, y 1248-1271)
 STACK, HEAP, GAME, LANG, RET = 0x10000000, 0x11000000, 0x12000000, 0x13000000, 0x14000000
+DLL_STACK = 0x16000000         # the stack when a companion DLL (based at 0x10000000) is mapped
 GDT, TEB = 0x15000000, 0x15001000
 
 
@@ -116,19 +117,37 @@ class Village:
     """The stock exe in an emulator: a village state, the real map and villager 0."""
 
     def __init__(self, *, seed: int = 1, speed: int = 6, berries: int = 1000, food: int = 1000,
-                 solved=(6, 0xB), difficulty: int = 1, levels=(1, 1, 1, 1, 1, 1, 1, 1), tutorial_done: bool = True):
-        pe = pefile.PE(str(STOCK), fast_load=True)
-        base = pe.OPTIONAL_HEADER.ImageBase
-        image = pe.get_memory_mapped_image()
-        uc = Uc(UC_ARCH_X86, UC_MODE_32)
-        uc.mem_map(base, (pe.OPTIONAL_HEADER.SizeOfImage + 0xFFFF) & ~0xFFFF)
-        uc.mem_write(base, image)
-        for area, n in ((STACK, 0x200000), (HEAP, 0x100000), (GAME, 0x20000), (LANG, 0x1000), (RET, 0x1000),
+                 solved=(6, 0xB), difficulty: int = 1, levels=(1, 1, 1, 1, 1, 1, 1, 1), tutorial_done: bool = True,
+                 exe: bytes | None = None, dll: Path | None = None):
+        """`exe`: a rendered executable instead of the stock one; `dll`: a companion mapped beside it (through
+        tests/story_emulator.py's Process, whose API stubs answer its imports: `self.process`).  The stack then
+        moves off 0x10000000, where a companion DLL is based."""
+        self.process = None
+        self.stack = STACK
+        if dll is None:
+            pe = pefile.PE(data=exe, fast_load=True) if exe is not None else pefile.PE(str(STOCK), fast_load=True)
+            base = pe.OPTIONAL_HEADER.ImageBase
+            image = pe.get_memory_mapped_image()
+            uc = Uc(UC_ARCH_X86, UC_MODE_32)
+            uc.mem_map(base, (pe.OPTIONAL_HEADER.SizeOfImage + 0xFFFF) & ~0xFFFF)
+            uc.mem_write(base, image)
+        else:
+            from story_emulator import API_STUBS, Process
+            self.process = Process(exe if exe is not None else STOCK.read_bytes(), dll)
+            uc = self.process.mu
+            # Every instruction through Python is far too slow for whole trips: only the API stubs are hooked.
+            uc.hook_del(self.process.code_hook)
+            uc.hook_add(UC_HOOK_CODE, self.process._on_code, begin=API_STUBS, end=API_STUBS + 0xFFFF)
+            pe = pefile.PE(data=exe if exe is not None else STOCK.read_bytes(), fast_load=True)
+            base = pe.OPTIONAL_HEADER.ImageBase
+            image = pe.get_memory_mapped_image()
+            self.stack = DLL_STACK
+        for area, n in ((self.stack, 0x200000), (HEAP, 0x100000), (GAME, 0x20000), (LANG, 0x1000), (RET, 0x1000),
                         (GDT, 0x1000), (TEB, 0x1000)):
             uc.mem_map(area, n)
         uc.reg_write(UC_X86_REG_FPCW, 0x027F)
         # A thread block for the C runtime's exception frames (fs:[0]): fs is a GDT data segment based there.
-        uc.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, STACK + 0x200000, STACK, 0, 0, 0, TEB))
+        uc.mem_write(TEB, struct.pack("<7I", 0xFFFFFFFF, self.stack + 0x200000, self.stack, 0, 0, 0, TEB))
         uc.mem_write(GDT + 8, struct.pack("<Q", 0xFFF | ((TEB & 0xFFFFFF) << 16) | (0x92 << 40) | (0x4 << 52)
                                           | (((TEB >> 24) & 0xFF) << 56)))
         uc.mem_write(GDT + 16, struct.pack("<Q", 0xFFFF | (0x92 << 40) | (0xF << 48) | (0xC << 52)))
@@ -220,7 +239,7 @@ class Village:
         self.food_log.append((self.frame, self.r32(self.uc.reg_read(UC_X86_REG_ESP) + 4)))
 
     def call(self, function: int, this: int, *args: int, count: int = 5_000_000) -> int:
-        sp = STACK + 0x180000
+        sp = self.stack + 0x180000
         for value in reversed(args):
             sp -= 4
             self.uc.mem_write(sp, struct.pack("<I", value & 0xFFFFFFFF))

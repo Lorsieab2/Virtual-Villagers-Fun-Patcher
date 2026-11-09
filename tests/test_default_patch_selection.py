@@ -139,6 +139,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_harder_fishing_unlock"
                   # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
+                  # Yellow Fruit Trees are No Longer Unlimited, a Classic VV Difficulty piece (the owner, 2026-11-08).
+                  or p == "vv4_yellow_fruit_trees_limited"
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # More Respectful Flower Hovel Cover (the owner, 2026-11-08): on in Owner's Defaults only.

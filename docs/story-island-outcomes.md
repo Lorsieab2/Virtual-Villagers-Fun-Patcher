@@ -946,7 +946,7 @@ is about (one the game would not pick leaves the choice to the game).
 | --- | --- | --- |
 | How long the fog lasts (game-clock units) | amount | any of 180 to 359 game-clock units |
 
-### A Closer Look
+### A Closer Look (Blackberries)
 
 | Setting | Kind | Choices besides Random |
 | --- | --- | --- |

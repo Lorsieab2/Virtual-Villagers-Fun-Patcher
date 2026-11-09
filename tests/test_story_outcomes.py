@@ -1687,6 +1687,33 @@ class ChooserTests(unittest.TestCase):
         g.proc.export("VvfpStoryProbeChooserSet", index, ci & 0xFFFFFFFF, value & 0xFFFFFFFF,
                       SCRATCH + 0x4000, len(who))
 
+    def test_vv4_the_two_a_closer_looks_and_the_breadfruit_one_only_with_its_object(self):
+        """A Closer Look (Blackberries), slot 12, and A Closer Look (Yellow Breadfruit), slot 19, which only
+        "VVFP VV4 Fruit Supply.dll" (Yellow Fruit Trees are No Longer Unlimited) puts in the event table: without
+        an object in slot 19 the chooser does not list it."""
+        if not have_stock("vv4"):
+            self.skipTest("needs The Tree of Life's stock executable")
+        labels = {(e["slot"], e["title"], e["variant"]) for e in story_island_events.EVENTS["vv4"]}
+        self.assertIn((12, "A Closer Look", "Blackberries"), labels)
+        self.assertIn((19, "A Closer Look", "Yellow Breadfruit"), labels)
+        self.assertEqual(story_island_events.EVENTS["vv4"][-1]["slot"], 19, "appended: the stock rows keep their index")
+        berry, fruit = _position("vv4", 12), _position("vv4", 19)
+        g, n = self._open("vv4")
+        self.assertEqual(n, len(story_island_events.EVENTS["vv4"]))
+        self.assertEqual((g.proc.export("VvfpStoryProbeChooserListed", berry),
+                          g.proc.export("VvfpStoryProbeChooserListed", fruit)), (1, 1))
+        g = Game("vv4")
+        for slot in range(1, 50):
+            if slot != 19:
+                event = _Event(g, slot)
+                g.proc.stub(event.code + 1, lambda p: (1, 0))
+        g.proc.stub(0x417F70, lambda p: (0, 0))          # the table's getter: the table is already built
+        g.proc.export("VvfpStoryProbeChooserOpen", 4, 0)
+        self.assertEqual((g.proc.export("VvfpStoryProbeChooserListed", berry),
+                          g.proc.export("VvfpStoryProbeChooserListed", fruit)), (1, 0))
+        listed = [g.proc.export("VvfpStoryProbeChooserListed", i) for i in range(n)]
+        self.assertEqual(listed.count(0), 1, "only the breadfruit event is left out")
+
     def test_the_tsunami_warns_before_everyone_is_swept_away(self):
         g, _ = self._open("vv3")
         index = _position("vv3", 1)

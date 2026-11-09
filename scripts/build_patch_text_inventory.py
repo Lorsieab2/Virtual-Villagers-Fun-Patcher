@@ -44,6 +44,7 @@ PARTS = {
     "vv1_parentage": ("vvfp.parentage", "VVFP VV1 Parentage.dll"),
     "vvfp_storytelling": ("vvfp.storytelling", "VVFP Storytelling.dll"),
     "vvfp_vv3_both_factions": ("vvfp.factions", "VVFP VV3 Both Factions.dll"),
+    "vvfp_vv4_fruit_supply": ("vvfp.fruit_supply", "VVFP VV4 Fruit Supply.dll"),
 }
 
 
@@ -55,6 +56,9 @@ def games_of(found: scan.Found) -> list[str]:
         number = int(m.group(1))
         return ["vv1", "vv2"] if number == 1 and folder == "vv1_origins_icons" else [f"vv{number}"]
     m = re.match(r"story_c([1-5])\.inc$", parts[-1])
+    if m:
+        return [f"vv{m.group(1)}"]
+    m = re.match(r"vvfp_vv([1-5])_", folder)
     if m:
         return [f"vv{m.group(1)}"]
     m = re.match(r"(VV|vv)([1-5])_", found.context)

@@ -27,8 +27,9 @@ What is copied, and what changes in the copy
     names the slot or the village, the copy is made to name the target (src/vv_copy_slot.py
     `_transform`): the slot field of every binary file that keeps one (Parentage Records, the logs'
     cross-check and repair-approval markers, the arrival and birth markers, Paid Purchases, Story
-    Purchases, the Island Event Timer, The Secret City's Fruit Tree Timers and Second Faction, The Lost
-    Children's Elder Totems files, with their own checksums made again); the village ids those markers
+    Purchases, the Island Event Timer, The Secret City's Fruit Tree Timers and Second Faction, The Tree of
+    Life's Yellow Fruit Tree, The Lost Children's Elder Totems files, with their own checksums made again);
+    the village ids those markers
     keep (FNV-1a of the "Village: <name> (Save <S>)" line); the logs' "Village: <name> (Save <S>)" lines of
     this village; Log Decisions; and the Like and Dislike Words boundaries of every copied log.  Files the
     game binds by roster or fingerprint (graves, rosters, masks, titles, looks...) are copied byte for byte.
@@ -110,6 +111,7 @@ _SLOT_FIELD = {
     b"VITK": 12,    # Island Event Timer (island_timer_keep.h)
     b"VV3T": 12,    # The Secret City's Fruit Tree Timers (vv3_fruit_timers.h)
     b"VV2F": 12,    # The Secret City's Second Faction (vvfp_vv3_both_factions.c)
+    b"VV4F": 12,    # The Tree of Life's Yellow Fruit Tree (vvfp_vv4_fruit_supply.c)
 }
 # Where a marker keeps its village id (FNV-1a of "Village: <name> (Save <S>)"), and its length then.
 _VILLAGE_ID = {b"VXC1": (44, 48), b"VCA1": (16, 20), b"VCB1": (16, 20)}
