@@ -133,6 +133,7 @@ ALTERNATIVE_OFF_FUN_PATCH_IDS = ALTERNATIVE_FUN_PATCH_IDS
 TECH_COST_MULTIPLIER_FUN_PATCH_IDS = ["vv%d_tech_cost_multiplier" % game for game in range(1, 6)]
 # Classic VV Difficulty: drawn with a red title (the owner, 2026-11-07).
 CLASSIC_DIFFICULTY_FUN_PATCH_IDS = ["vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"]
+HOVEL_MEMORIAL_ACTIONS_ID = "vv5_hovel_memorial_actions"
 CLASSIC_DIFFICULTY_TITLE_COLOUR = "#c00000"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
@@ -202,6 +203,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # difficulty change in Classic VV Difficulty, off by default (the owner,
     # 2026-11-08); Owner's Defaults ticks it.
     + ["vv4_yellow_fruit_trees_limited"]
+    # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
+    # default and in Select All (SELECT_ALL_OFF_FUN_PATCH_IDS), on in Owner's Defaults.
+    + [HOVEL_MEMORIAL_ACTIONS_ID]
 )
 
 # Ticking the key ticks the value too (the value can still be unticked on its
@@ -244,6 +248,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # Memorial Actions Can Also Occur at the Heathen Hovel: the owner (2026-11-08), off in Select All too.
+    + [HOVEL_MEMORIAL_ACTIONS_ID]
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
