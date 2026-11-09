@@ -878,6 +878,17 @@ int main(int argc, char **argv) {
         check(g_state != OL_BOUND, "without it the file is taken for another village's (what Codex found)");
         new_session();
         vv_rekey_count = 0;
+        /* A believer outside the batch who has the Heathen's old identity (the same name, sex and no
+           parents): what is kept for that identity may be theirs, so the pair is not made. */
+        g_game_slot = 1;
+        founders(10, "Kai");
+        villager(9, "Kai0", 0, "", "", 9, 9);    /* Kai0's namesake, a believer */
+        records[0] = rec(0);
+        lstrcpynA((char *)rec(0) + l->name, "Kai0 Akikai", (int)l->name_bytes);
+        check(ol_renamed(1, 1, records, OLD, l->stride, l->name, l->name_bytes) == 0,
+              "an old identity somebody outside the batch still carries is no pair");
+        new_session();
+        vv_rekey_count = 0;
     }
 
     printf("no village\n");

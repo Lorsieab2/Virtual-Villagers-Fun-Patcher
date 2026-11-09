@@ -1019,11 +1019,70 @@ static unsigned int titles_rekey_identity(const unsigned char *record) {
     return story_title_identity(titles_rekey_game, record);
 }
 
+/* NOBODY ELSE IS THAT VILLAGER (Codex, #733): may the title fingerprint `from[i]` be somebody else's
+   than batch villager i's?  Another villager of the batch was it too, or a present villager outside the
+   batch still is -- a believer with no last name who has the renamed Heathen's name, likes and dislikes. */
+static int titles_rekey_doubt(int game, const void *const *records, int n, int i, const unsigned int *from) {
+    int j, count = story_record_count(game);
+    for (j = 0; j < n; ++j) {
+        if (j != i && from[j] == from[i]) {
+            return 1;
+        }
+    }
+    for (j = 0; j < count; ++j) {
+        const unsigned char *r = story_record(game, j);
+        if (r != NULL && story_record_present(game, r) && !vv_rekey_in_batch(r, records, n)
+            && story_title_identity(game, r) == from[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* 0: `record` cannot be the villager title `e` was kept for; 1: could be; 2: could be, with the title's
+   head and body too (custom_titles.h: those only break a tie). */
+static int titles_rekey_fits(int game, const vv_custom_title *e, const unsigned char *record) {
+    vv_title_looks now;
+    story_title_looks(game, record, &now);
+    vv_title_normalise_skills(&now, story_title_skills_float(game));
+    if (!vv_title_looks_could_be(&e->looks, &now, story_title_skills_float(game))) {
+        return 0;
+    }
+    return vv_title_looks_same(&e->looks, &now) ? 2 : 1;
+}
+
+/* Whose is title `e`, kept for fingerprint from[i] that others carry too?  Batch villager i's only when
+   the looks the title was kept with (custom_titles.h: sex, an age and skills no lower) fit them and
+   nobody else who was or is that fingerprint -- or, several fitting, when they alone have its head and
+   body too (titles_candidates' tie rule).  Otherwise nobody's for certain: left as it is. */
+static int titles_rekey_owner(int game, const vv_custom_title *e, const void *const *records, int n, int i,
+                              const unsigned int *from) {
+    int j, mine, fits = 0, same = 0, count = story_record_count(game);
+    if (!(e->flags & VV_TITLE_KNOWN) || (mine = titles_rekey_fits(game, e, (const unsigned char *)records[i])) == 0) {
+        return 0;
+    }
+    for (j = 0; j < n; ++j) {
+        int f = j != i && from[j] == from[i] ? titles_rekey_fits(game, e, (const unsigned char *)records[j]) : 0;
+        fits += f != 0;
+        same += f == 2;
+    }
+    for (j = 0; j < count; ++j) {
+        const unsigned char *r = story_record(game, j);
+        int f = r != NULL && story_record_present(game, r) && !vv_rekey_in_batch(r, records, n)
+            && story_title_identity(game, r) == from[i] ? titles_rekey_fits(game, e, r) : 0;
+        fits += f != 0;
+        same += f == 2;
+    }
+    return fits == 0 || (mine == 2 && same == 0);
+}
+
 static int titles_renamed(int game, int slot, int count, const void *const *records, const char *const *old_names,
                           unsigned int name_at, unsigned int name_bytes) {
-    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
+    static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH], plain_from[VV_REKEY_BATCH],
+        plain_to[VV_REKEY_BATCH];
+    static unsigned char doubt[VV_REKEY_BATCH];
     const unsigned char *first, *second;
-    int n, kept, i, changed = 0;
+    int n, kept, i, k, changed = 0;
     if (story_record_count(game) < 2 || (first = story_record(game, 0)) == NULL
         || (second = story_record(game, 1)) == NULL || second <= first) {
         return 0;
@@ -1031,19 +1090,40 @@ static int titles_renamed(int game, int slot, int count, const void *const *reco
     titles_rekey_game = game;
     n = vv_rekey_pairs(count, records, old_names, titles_rekey_identity, (unsigned int)(second - first),
                        name_at, name_bytes, from, to);
-    kept = vv_rekey_note(slot, from, to, n);
-    if (kept > 0 && titles.game == game && titles.slot == slot && titles.loaded) {
-        for (i = 0; i < titles.count; ++i) {
-            unsigned int now = vv_rekey_follow(slot, titles.entries[i].fingerprint);
-            if (now != titles.entries[i].fingerprint) {
-                titles.entries[i].fingerprint = now;
+    /* Only a fingerprint nobody else was or is goes into the pairs a later read of the file follows; one
+       that others share is settled below, title by title, by its looks -- or left as it is. */
+    for (i = 0; i < n; ++i) {
+        doubt[i] = (unsigned char)(from[i] != 0u && titles_rekey_doubt(game, records, n, i, from));
+        plain_from[i] = doubt[i] ? 0u : from[i];
+        plain_to[i] = doubt[i] ? 0u : to[i];
+    }
+    kept = vv_rekey_note(slot, plain_from, plain_to, n);
+    titles_sync(game);                       /* the slot's table, read now when it can be */
+    if (titles.game != game || titles.slot != slot || !titles.loaded) {
+        return kept;
+    }
+    for (k = 0; k < titles.count; ++k) {
+        vv_custom_title *e = &titles.entries[k];
+        for (i = 0; i < n; ++i) {
+            if (from[i] == 0u || from[i] == to[i] || e->fingerprint != from[i]) {
+                continue;
+            }
+            if (!doubt[i] || titles_rekey_owner(game, e, records, n, i, from)) {
+                e->fingerprint = to[i];      /* theirs, and only theirs */
                 changed = 1;
+                break;
             }
         }
-        changed |= vv_rekey_apply(slot, titles.roster, TITLES_ROSTER) > 0;
-        if (changed && !titles_publish()) {
-            titles_unpublished = 1;          /* the next tick writes it */
+    }
+    for (i = 0; i < n; ++i) {                /* the last look, for the renamed records only */
+        int r = story_record_index(game, (const unsigned char *)records[i]);
+        if (from[i] != 0u && r >= 0 && r < TITLES_ROSTER && titles.roster[r] == from[i]) {
+            titles.roster[r] = to[i];
+            changed = 1;
         }
+    }
+    if (changed && !titles_publish()) {
+        titles_unpublished = 1;              /* the next tick writes it */
     }
     return kept;
 }

@@ -624,6 +624,25 @@ int main(void) {
         new_session();
         vv_rekey_count = 0;
         g_slot = 1;
+        /* A believer outside the batch who has the Heathen's old identity (the same name, sex and no
+           parents): the look kept for that identity may be theirs, so it is left where it is. */
+        fresh_disk();
+        clear_village();
+        villager(0, "Ana", 1, "", "");
+        villager(1, "Ago", 0, "", "");
+        villager(2, "Kai", 0, "", "");           /* the believer */
+        villager(3, "Kai", 0, "", "");           /* the Heathen */
+        check(hl_set(g_records[2], 2) == 1, "the believer's look is kept");
+        new_session();
+        g_slot = 1;
+        lstrcpynA((char *)g_records[3] + 1, "Kai Akikai", 25);
+        records[0] = g_records[3];
+        check(hl_renamed(1, 1, records, OLD, REC, 1, 25) == 0,
+              "an old identity somebody outside the batch still carries is no pair");
+        check(look(3) == 0, "the believer's look is never given to the renamed Heathen");
+        new_session();
+        vv_rekey_count = 0;
+        g_slot = 1;
     }
 
     printf("256 records\n");

@@ -1693,6 +1693,52 @@ class TitleSetTests(unittest.TestCase):
                                      "without the companion's word the title is lost")
                     self.assertEqual(files.titles(path)[1], before)
 
+    def test_a_believer_with_the_heathens_old_fingerprint_keeps_their_title(self):
+        """Codex, #733: a believer with no last name who has the renamed Heathen's name, likes and dislikes has
+        the same title fingerprint.  Only the Heathen is in the batch: the believer's title stays theirs, and
+        a title of the Heathen's is told apart by the looks it was kept with."""
+        from story_custom_fixtures import MemoryFiles
+
+        if not have_stock("vv5"):
+            self.skipTest("the stock New Believers executable is not in inputs/")
+        for heathen_titled in (False, True):
+            story = Story("vv5")
+            p = story.proc
+            files = MemoryFiles(p)
+            path = r"C:\Save\Custom Titles - Save 1.dat"
+            p.write(SCRATCH, path.encode() + b"\0")
+            p.export("VvfpStoryProbeTitlesLoaded", story.n, 1, SCRATCH)
+            v = story.village
+            v.put(3, sex="m", years=30, name="Tama", head=3, body=4, faction=1)     # the Heathen
+            v.put(5, sex="m", years=30, name="Tama", head=7, body=8, faction=0)     # a believer of that name
+            old = v.title_identity(5)
+            self.assertEqual(v.title_identity(3), old, "(one fingerprint)")
+            changes = [story.change(5, title_op=1, title="Elder Fisher")]
+            if heathen_titled:
+                changes.append(story.change(3, title_op=1, title="Moon Watcher"))
+            ok, r, _ = story.apply(Event(changes=changes))
+            self.assertEqual(r["refused"], 0)
+            name = "Tama Akikai"
+            p.write(v.record(3) + v.L["name"], name.encode() + bytes(v.L["name_cap"] - len(name)))
+            records, names = SCRATCH + 0x200, SCRATCH + 0x300
+            p.write(SCRATCH + 0x400, b"Tama\0")
+            p.write(records, struct.pack("<I", v.record(3)))
+            p.write(names, struct.pack("<I", SCRATCH + 0x400))
+            with self.subTest(heathen_titled=heathen_titled):
+                self.assertEqual(p.export("VvfpVillagersRenamed", 5, 1, 1, records, names), 0,
+                                 "a fingerprint somebody else still carries is no pair for the file")
+                want = [(5, old, "Elder Fisher")]
+                if heathen_titled:
+                    want.append((3, v.title_identity(3), "Moon Watcher"))
+                self.assertEqual(sorted(files.titles(path)[1]), sorted(want))
+                self.assertEqual(p.cstring(p.export("VvfpStoryProbeTitleOf", story.n, v.record(5))),
+                                 "Elder Fisher", "the believer keeps their own title")
+                at = p.export("VvfpStoryProbeTitleOf", story.n, v.record(3))
+                if heathen_titled:
+                    self.assertEqual(p.cstring(at), "Moon Watcher", "the Heathen's, told by its looks, is theirs")
+                else:
+                    self.assertEqual(at, 0, "the believer's title is never moved to the Heathen")
+
     def test_the_file_keeps_each_games_own_looks_with_the_title(self):
         """v1.35.70: a title is kept with the villager's whole identity -- the age, head, body, sex and
         skills read at each game's own record offsets (the adapter's, story_c*.inc) -- so the companion

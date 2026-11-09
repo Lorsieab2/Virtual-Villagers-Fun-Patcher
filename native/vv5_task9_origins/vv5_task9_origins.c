@@ -642,8 +642,19 @@ __declspec(dllexport) void __stdcall WriteMaskSidecar(const unsigned char *table
    New Believers' Heathens with no last name right after the villager table's load, before the masks look,
    and hands the batch over.  Each mask stays its villager's: the pairs are kept for the slot's file, and a
    table already held for the slot is carried and written now.  Returns how many pairs were kept. */
+static const unsigned char *vv5_rekey_record(int index) {
+    if (index < 0 || index >= vv5_slots()) {
+        return NULL;
+    }
+    return (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS + (unsigned int)index * VV5_ROSTER_STRIDE;
+}
+
+static int vv5_rekey_present(const unsigned char *record) {
+    return record[VV5_ACTIVE_OFFSET] != 0;
+}
+
 int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
-                                                         const char *const *old_names) {
+                                   const char *const *old_names) {
     static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
     int n, kept;
     if (game != 5) {
@@ -651,6 +662,8 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     n = vv_rekey_pairs(count, records, old_names, vv5_identity, VV5_ROSTER_STRIDE, VV5_NAME_OFFSET,
                        VV5_NAME_CAPACITY, from, to);
+    /* An old identity somebody outside the batch still carries may be theirs: left alone. */
+    (void)vv_rekey_drop_carried(from, n, records, vv5_slots(), vv5_rekey_record, vv5_rekey_present, vv5_identity);
     kept = vv_rekey_note(slot, from, to, n);
     if (kept > 0 && g_vv5_have_roster && g_vv5_slot == slot
         && vv_rekey_apply(slot, g_vv5_roster, VV5_RECORD_COUNT) + vv_rekey_apply(slot, g_vv5_mask_id, VV5_MAX_VILLAGERS) > 0) {

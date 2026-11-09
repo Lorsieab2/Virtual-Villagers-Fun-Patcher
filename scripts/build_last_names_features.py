@@ -72,8 +72,9 @@ HEATHENS_BEHAVIOR = [
     "Whatever the patcher keeps for a Heathen by their name -- a custom title, a mask, a head look, an original "
     "look, a Former Heathens entry -- stays theirs: right after the load the renamed are handed, as one batch, to "
     "each of those companions that is loaded (its export VvfpVillagersRenamed), which carries its own records to "
-    "the new name and writes its own file; a name two renamed Heathens shared is carried to neither, and the "
-    "batch is handed over again at later loads for a file a session never rewrote.",
+    "the new name and writes its own file; a name two renamed Heathens shared, or one a villager outside the "
+    "batch still has, is carried to nobody (a custom title is then told apart by the looks it was kept with), "
+    "and the batch is handed over again at later loads for a file a session never rewrote.",
     "\"Random from the existing Village Names\" never counts a current Heathen's last name (the villagers in the "
     "game at a birth, and Repair's names of the village); a converted Heathen keeps their name and it counts from "
     "then on.",

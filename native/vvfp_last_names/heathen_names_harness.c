@@ -444,6 +444,20 @@ int main(int argc, char **argv) {
         check(k == 70 && ok, "all 70 named, the first 50 each a different name, then shared");
     }
 
+    printf("9. The owners' rename pairs (native/shared/villager_rekey.h)\n");
+    {
+        unsigned int from[5] = { 0xA, 0xA, 0xB, 0xC, 0xA }, to[5] = { 1, 2, 3, 4, 5 };
+        unsigned int ids[3] = { 0xA, 0xB, 0xC };
+        int kept;
+        vv_rekey_count = 0;
+        kept = vv_rekey_note(1, from, to, 5);
+        check(kept == 2 && from[0] == 0xB && to[0] == 3 && from[1] == 0xC && to[1] == 4,
+              "[A, A, B, C, A]: B and C are kept, in order");
+        check(vv_rekey_follow(1, 0xA) == 0xA && vv_rekey_apply(1, ids, 3) == 2 && ids[0] == 0xA && ids[1] == 3
+              && ids[2] == 4, "and no A mapping: what three villagers were goes to none of them");
+        vv_rekey_count = 0;
+    }
+
     DeleteFileA(g_path);
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);
     return failures ? 1 : 0;

@@ -257,7 +257,10 @@ static int hl_renamed(int slot, int count, const void *const *records, const cha
                       unsigned int stride, unsigned int name_at, unsigned int name_bytes) {
     static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH];
     int n = vv_rekey_pairs(count, records, old_names, hl_identity, stride, name_at, name_bytes, from, to);
-    int kept = vv_rekey_note(slot, from, to, n);
+    int kept;
+    /* An old identity somebody outside the batch still carries may be theirs: left alone. */
+    (void)vv_rekey_drop_carried(from, n, records, hl_slots(), hl_record, hl_present, hl_identity);
+    kept = vv_rekey_note(slot, from, to, n);
     if (kept > 0 && g_have_roster && g_slot == slot
         && vv_rekey_apply(slot, g_roster, HL_MAX) + vv_rekey_apply(slot, g_look_id, HL_MAX) > 0) {
         (void)hl_publish();

@@ -262,6 +262,12 @@ int main(int argc, char **argv) {
         Sleep(300);
         CHECK(sync() == 1 && table()[1] == 0 && table()[2] == 0,
               "without it the masks are lost (what Codex found)");
+        /* A believer outside the batch who has a renamed Heathen's old identity (the same name; the
+           harness's villagers share sex and parents): the mask kept for it may be theirs. */
+        set_villager(8, "Kai");
+        set_villager(3, "Kai Zephyr");
+        CHECK(renamed != NULL && renamed(5, 1, 1, records, OLD) == 0,
+              "an old identity somebody outside the batch still carries is no pair");
     }
 
     DeleteFileA(file);

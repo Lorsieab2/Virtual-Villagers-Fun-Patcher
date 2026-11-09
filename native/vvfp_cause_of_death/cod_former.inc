@@ -287,8 +287,20 @@ static void former_rekey(unsigned int from, unsigned int to, int shared) {
    were carried. */
 static unsigned int former_identity(const unsigned char *record);
 
+static const unsigned char *former_rekey_record(int index) {
+    const unsigned char *records = cod_records();
+    if (records == NULL || index < 0 || index >= (int)REC[5].slots) {
+        return NULL;
+    }
+    return records + (size_t)index * REC[5].stride;
+}
+
+static int former_rekey_present(const unsigned char *record) {
+    return roster_member(record);
+}
+
 int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
-                                                         const char *const *old_names) {
+                                   const char *const *old_names) {
     static unsigned int from[VV_REKEY_BATCH], to[VV_REKEY_BATCH], all_from[VV_REKEY_BATCH];
     int n, kept, i, j;
     if (game != 5 || g_game != 5 || slot <= 0 || slot != cod_slot()) {
@@ -296,6 +308,9 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     n = vv_rekey_pairs(count, records, old_names, former_identity, REC[5].stride, FORMER_NAME, FORMER_NAME_CAP,
                        from, to);
+    /* An old identity somebody outside the batch still carries may be theirs: left alone. */
+    (void)vv_rekey_drop_carried(from, n, records, (int)REC[5].slots, former_rekey_record, former_rekey_present,
+                                former_identity);
     memcpy(all_from, from, sizeof(unsigned int) * (size_t)n);
     for (i = 0; i < n; ++i) {              /* shared: neither is given the entry */
         for (j = 0; j < i; ++j) {

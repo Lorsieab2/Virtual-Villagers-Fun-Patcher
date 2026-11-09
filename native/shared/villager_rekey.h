@@ -20,7 +20,9 @@
      * carries what it already holds in memory for that slot the same way, and writes its file through
        its own atomic write (sidecar_io.h) when it may.
    NEVER A GUESS: a `from` two villagers of the batch shared (two Heathens called Tama, of one sex and
-   no parents) goes to neither -- what was kept for it stays ambiguous, as it was.  A pair whose
+   no parents) goes to neither -- what was kept for it stays ambiguous, as it was -- and so does one a
+   villager outside the batch still carries (vv_rekey_drop_carried: a believer with no last name who has
+   the Heathen's name; the custom titles alone tell such a title's owner by the looks it was kept with).  A pair whose
    identities are equal (the identity does not hash the name) changes nothing.  Pairs chain (a later
    rename of a renamed villager), and a pair already kept is not kept twice, so the same batch
    delivered again at a later load (the Last Names companion repeats its load-time renames from its
@@ -104,22 +106,29 @@ static int vv_rekey_apply(int slot, unsigned int *ids, int n) {
    dropped from both, a pair with a 0 or with from == to is no pair, and one already kept is not kept
    again.  The pairs kept are left in from[] / to[] (the first *kept); returns how many. */
 static int vv_rekey_note(int slot, unsigned int *from, unsigned int *to, int n) {
+    static unsigned char shared[VV_REKEY_BATCH];
     int i, j, kept = 0;
     if (slot <= 0) {
         return 0;
     }
+    if (n > VV_REKEY_BATCH) {
+        n = VV_REKEY_BATCH;
+    }
+    /* Which `from`s two villagers of the batch shared, found on the batch as it was handed over -- never
+       while it is compacted below, where a later pair takes an earlier one's place (Codex, #733: with
+       [A, A, B, C, A] the last A was taken for the only one, and given a binding). */
     for (i = 0; i < n; ++i) {
-        int shared = 0;
-        if (from[i] == 0u || to[i] == 0u || from[i] == to[i]) {
-            continue;
-        }
-        for (j = 0; j < n; ++j) {
+        shared[i] = 0;
+        for (j = 0; j < n && from[i] != 0u; ++j) {
             if (j != i && from[j] == from[i]) {
-                shared = 1;
+                shared[i] = 1;
+                break;
             }
         }
-        if (shared) {
-            continue;                   /* two villagers were this identity: nothing is guessed */
+    }
+    for (i = 0; i < n; ++i) {
+        if (from[i] == 0u || to[i] == 0u || from[i] == to[i] || shared[i]) {
+            continue;                   /* no pair, or two villagers were this identity: nothing is guessed */
         }
         for (j = 0; j < vv_rekey_count; ++j) {
             if (vv_rekeys[j].slot == slot && vv_rekeys[j].from == from[i]) {
@@ -182,6 +191,46 @@ static int vv_rekey_pairs(int count, const void *const *records, const char *con
         }
     }
     return count;
+}
+
+/* NOBODY ELSE IS THAT VILLAGER (Codex, #733).  A pair whose `from` a present villager OUTSIDE the batch
+   still carries -- a believer with no last name who has the renamed Heathen's name and the rest of the
+   owner's identity -- says nothing about whose the binding kept for `from` is: it may be that villager's.
+   Such a pair is dropped (from[i] = 0), so what was kept for `from` stays where it is.  The owner's
+   records: `slots` of them through record(i) and present(r); the batch: `n` records.  Returns how many
+   pairs were dropped. */
+typedef const unsigned char *(*vv_rekey_record_fn)(int index);
+typedef int (*vv_rekey_present_fn)(const unsigned char *record);
+
+static int vv_rekey_in_batch(const unsigned char *record, const void *const *batch, int n) {
+    int k;
+    for (k = 0; k < n; ++k) {
+        if ((const unsigned char *)batch[k] == record) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int vv_rekey_drop_carried(unsigned int *from, int n, const void *const *batch, int slots,
+                                 vv_rekey_record_fn record, vv_rekey_present_fn present,
+                                 vv_rekey_identity_fn identity) {
+    int i, j, dropped = 0;
+    for (j = 0; j < slots; ++j) {
+        const unsigned char *r = record(j);
+        unsigned int id;
+        if (r == NULL || !present(r) || vv_rekey_in_batch(r, batch, n)) {
+            continue;
+        }
+        id = identity(r);
+        for (i = 0; i < n; ++i) {
+            if (from[i] != 0u && from[i] == id) {
+                from[i] = 0u;
+                ++dropped;
+            }
+        }
+    }
+    return dropped;
 }
 
 #endif /* VV_VILLAGER_REKEY_H */
