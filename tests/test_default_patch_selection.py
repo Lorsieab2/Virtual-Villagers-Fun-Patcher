@@ -144,7 +144,19 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
-                  or p == "vv5_respectful_hovel_cover"})
+                  or p == "vv5_respectful_hovel_cover"
+                  # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
+                  # DEFAULTS ONLY").
+                  or p == "vv5_heathens_keep_masks_when_converted"})
+
+    def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it
+        like every other Owner's Defaults-only row (Faith Loss, Food Gains are Flat)."""
+        patch_id = "vv5_heathens_keep_masks_when_converted"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
 
     def test_harder_fishing_unlock_is_off_by_default_and_on_in_owners_defaults(self) -> None:
         """Harder Fishing Unlock in VV4 (the owner, 2026-11-08: "Default ON in Owner's Defaults") -- and off in the

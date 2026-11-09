@@ -24,6 +24,7 @@ HEATHEN_MOMMY = "vv5_heathen_mommy_puzzle"
 FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
 NEW_HEATHENS = "vv5_new_heathens_get_heathen_faith"
 HEATHEN_NOTICE = "vv5_heathen_conversion_notice"
+KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
 DRAWS = 32768
 
 
@@ -159,6 +160,17 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         "Kids can mark a Heathen child sick (0x4161D1, see Island events). Their details can't be viewed (\"You "
         "cannot view details about heathens. They do not believe in you.\"). Becoming a Heathen clears a villager's role, even the Retired Chief's (0x4669F5); "
         "joining the tribe clears it too, except the Retired Chief's (0x466966).")
+    # Heathens Keep Their Masks When Converted (native/vvfp_heathens_keep_masks): shown when the game has it, or when
+    # whether it has it cannot be told, as every other patch is.
+    keep_masks = village.has(KEEP_MASKS)
+    if keep_masks is not False:
+        where = "in this game" if keep_masks else "whether the game has it could not be told"
+        add(f"With \"{gm.feature_name(KEEP_MASKS)}\" ({where}) a Heathen who joins the tribe (0x4668B0, or The "
+            "Defector's direct call 0x41699F) keeps the mask the game drew on them (0x4728C6: purple for the Heathen "
+            "Doctor and the three Masters, the Chief's for the Heathen Chief, else orange, red or blue) as their "
+            "Change Appearance mask, kept by the Origins upgrades; Change Appearance can change it or take it off, "
+            "and Reset to original gives it back (their original look is the one they had as a Heathen, mask and "
+            "all). Heathens who joined before the patch are not given one.", sub=True)
     add("The owner: Heathens never fall sick in play.", gm.OWNER, sub=True)
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
         sub=True)

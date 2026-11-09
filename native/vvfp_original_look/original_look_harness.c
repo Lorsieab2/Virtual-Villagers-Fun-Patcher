@@ -217,6 +217,8 @@ static void new_session(void) {
     memset(g_head, 0, sizeof g_head);
     memset(g_body, 0, sizeof g_body);
     memset(g_mask, 0, sizeof g_mask);
+    memset(g_believer, 0, sizeof g_believer);
+    memset(g_game_mask, 0, sizeof g_game_mask);
     memset(g_logged, 0, sizeof g_logged);
     g_logged_count = 0;
     memset(g_roster, 0, sizeof g_roster);
@@ -820,6 +822,144 @@ int main(int argc, char **argv) {
     (void)tick();
     got = read_file(path, buf, sizeof buf);
     check(buf[24 + 5 * 20 + 17] == OL_SEEN && buf[24 + 6 * 20 + 17] == OL_SEEN, "...and the next write carries everything");
+
+    printf("a Heathen joins the tribe keeping their mask (Heathens Keep Their Masks When Converted)\n");
+    fresh_disk();
+    new_session();
+    g_game_slot = 1;
+    founders(8, "Ari");                         /* Ari0..Ari7, believers but two */
+    rec(5)[0x1CEC] = 1;                         /* New Believers' faction byte: Ari5 and Ari6 are Heathens */
+    rec(6)[0x1CEC] = 1;
+    settle();
+    game_saves(1);
+    check(g_state == OL_BOUND && original(5) == 50050 && g_believer[5] == 0 && g_believer[0] == 1,
+          "a Heathen's original is kept with no mask, as a Heathen's");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(g_state == OL_BOUND && g_believer[5] == 0 && g_believer[1] == 1, "...and the file says whose was a Heathen's");
+    rec(5)[0x1CEC] = 0;                         /* the conversion: Ari5 keeps the red mask she wore */
+    g_masks[5] = 3;
+    check(ol_converted(rec(5), 3) == 1 && original(5) == 50053,
+          "a convert's original takes the mask they wore: Reset to original gives it back");
+    file_path(1, path);
+    got = read_file(path, buf, sizeof buf);
+    check(buf[24 + 5 * 20 + 16] == 3 && buf[24 + 5 * 20 + 19] == 3, "...written at once (seen a believer, the mask kept)");
+    g_masks[5] = 1;                             /* Change Appearance: Blue */
+    (void)tick();
+    check(original(5) == 50053, "a later Change Appearance change: the original keeps the Heathen mask");
+    g_masks[5] = 0;                             /* Change Appearance: No Mask */
+    (void)tick();
+    check(original(5) == 50053, "...and after No Mask too");
+    check(ol_converted(rec(5), 2) == 0 && original(5) == 50053, "a later conversion never changes it again");
+    check(original(6) == 60060 && g_believer[6] == 0, "a Heathen who has not converted keeps a Heathen's original");
+    rec(2)[0x1CEC] = 1;                         /* Ari2, a believer, leaves for the Heathens and comes back */
+    (void)tick();
+    rec(2)[0x1CEC] = 0;
+    g_masks[2] = 4;
+    check(ol_converted(rec(2), 4) == 0 && original(2) == 20020,
+          "a believer who became a Heathen and came back keeps their own original");
+    check(original(0) == 0 && original(1) == 10010 && original(7) == 70070, "a believer born a believer is unchanged");
+    villager(8, "Ari8", 0, "", "", 8, 8);       /* a Heathen made and converted before any look */
+    g_masks[8] = 5;
+    check(ol_converted(rec(8), 5) == 2 && g_source[8] == OL_NONE, "not in the roster yet: the conversion waits");
+    (void)tick();
+    check(original(8) == 80085 && g_believer[8] == 1, "...the first sight records the kept mask");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(5) == 50053 && original(2) == 20020 && original(8) == 80085, "all of it read back next session");
+    /* A Heathen whose original came from the logs (Repair Saves & Logs), with no mask (Codex, #740). */
+    g_logged[0].id = ol_identity(rec(6));
+    g_logged[0].head = 44;
+    g_logged[0].body = 4;
+    g_logged[0].mask = 0;
+    g_logged[0].kind = OL_LOGGED_KNOWN;
+    g_logged_count = 1;
+    check(ol_publish() == 1, "(Ari6, a Heathen, has a logs' original with no mask)");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 440040 && g_source[6] == OL_LOGS && g_believer[6] == 0, "the logs' original, a Heathen's");
+    rec(6)[0x1CEC] = 0;                         /* Ari6 joins the tribe keeping her orange mask */
+    g_masks[6] = 2;
+    check(ol_converted(rec(6), 2) == 1 && original(6) == 440042, "a logs' original takes the kept mask too");
+    (void)tick();
+    (void)tick();
+    check(original(6) == 440042, "the next looks re-apply the logs' original and keep the mask");
+    g_masks[6] = 0;                             /* Change Appearance: No Mask; then Reset to original */
+    (void)tick();
+    check(original(6) == 440042, "...Reset to original still gives the mask back");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 440042 && g_source[6] == OL_LOGS, "...and after a restart");
+    /* A conversion while the village is settling (the load-time catch-up) and while the file is locked. */
+    {
+        HANDLE lock;
+        villager(9, "Ari9", 1, "", "", 9, 9);   /* two Heathens arrive and are seen as Heathens */
+        rec(9)[0x1CEC] = 1;
+        villager(10, "Ari10", 0, "", "", 11, 1);
+        rec(10)[0x1CEC] = 1;
+        (void)tick();
+        check(original(9) == 90090 && g_believer[9] == 0 && g_believer[10] == 0, "(two Heathens' originals)");
+        new_session();
+        g_game_slot = 1;
+        (void)tick();                           /* the village is being looked at, not bound yet */
+        check(g_state == OL_UNBOUND, "(the village is settling)");
+        rec(9)[0x1CEC] = 0;                     /* Ari9 converts in the catch-up, keeping the purple mask */
+        g_masks[9] = 4;
+        check(ol_converted(rec(9), 4) == 2, "a conversion while the village settles waits");
+        settle();
+        check(g_state == OL_BOUND && original(9) == 90094,
+              "...and is put on the original once bound: Reset to original gives the purple mask back");
+        new_session();
+        g_game_slot = 1;
+        lock = CreateFileA(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+        check(lock != INVALID_HANDLE_VALUE, "(the file is held by another program)");
+        settle();
+        check(g_state == OL_UNBOUND, "(a locked file: nothing is bound)");
+        rec(10)[0x1CEC] = 0;                    /* Ari10 converts, keeping the red mask... */
+        g_masks[10] = 3;
+        check(ol_converted(rec(10), 3) == 2, "a conversion while the file is locked waits");
+        lstrcpyA((char *)rec(10) + LAYOUT[5].name, "Ari10 Tama");   /* ...and is renamed meanwhile */
+        if (lock != INVALID_HANDLE_VALUE) {
+            CloseHandle(lock);
+        }
+        g_ticks += VV_SIDECAR_RETRY_MS + 1;
+        settle();
+        g_ticks += VV_SIDECAR_RETRY_MS + 1;
+        settle();
+        check(g_state == OL_BOUND, "(the file opens: the village is bound)");
+        check(original(10) == 110013 && original(9) == 90094,
+              "...applied under the new name once the file opens: Reset to original gives the red mask back");
+        check(g_convert_count == 0, "nothing waits any more");
+        /* A conversion waiting for slot 1 while slot 2 is played (Codex, #740): slot 2's founder in the same
+           record, of the same sex and with no parents, is never taken for the convert's rename. */
+        villager(11, "Ari11", 1, "", "", 12, 2);
+        rec(11)[0x1CEC] = 1;
+        (void)tick();
+        check(original(11) == 120020 && g_believer[11] == 0, "(Ari11, a Heathen, has an original)");
+        new_session();
+        g_game_slot = 1;
+        (void)tick();                           /* slot 1 settling */
+        rec(11)[0x1CEC] = 0;
+        g_masks[11] = 5;
+        check(ol_converted(rec(11), 5) == 2, "Ari11 converts while slot 1 settles: it waits");
+        g_game_slot = 2;                        /* the player switches to slot 2... */
+        lstrcpyA((char *)rec(11) + LAYOUT[5].name, "Zed");   /* ...whose founder in record 11 matches but for the name */
+        g_masks[11] = 0;                        /* (slot 2's own mask table: Zed wears none) */
+        settle();
+        check(g_slot == 2 && g_state != OL_UNBOUND && g_mask[11] == 0,
+              "slot 2's founder is not given the waiting mask");
+        check(g_convert_count == 1, "...which still waits for slot 1");
+        lstrcpyA((char *)rec(11) + LAYOUT[5].name, "Ari11");
+        g_masks[11] = 5;
+        g_game_slot = 1;
+        settle();
+        check(g_slot == 1 && g_state == OL_BOUND && original(11) == 120025 && g_convert_count == 0,
+              "back in slot 1: Ari11's original takes the Chief's mask");
+    }
 
     printf("Heathens renamed as the village loads (VvfpVillagersRenamed, Codex #733)\n");
     {

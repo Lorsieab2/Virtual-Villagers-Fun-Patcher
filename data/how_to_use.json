@@ -851,6 +851,18 @@
       ]
     },
     {
+      "ids": ["vv5_heathens_keep_masks_when_converted"],
+      "guide": [
+        "Off by default; on in Owner's Defaults. Nothing to click: tick the patch.",
+        "\"Heathen\" masks are culturally important to them. Their choices must be honored.",
+        "A Heathen who joins the tribe keeps the mask they wore: blue, orange, red, purple or the Chief's.",
+        "It is their Change Appearance mask: change it there or choose No Mask whenever you like. Nothing is charged.",
+        "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
+        "Heathens who joined before this patch keep the look they have now.",
+        "Needs Origins (ticked with it). Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the lake's north-west sandy shore.",
@@ -1087,12 +1099,13 @@
       "title": "Default Patches",
       "guide": [
         "Ticks every patch except: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
+        "Heathens Keep Their Masks When Converted,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
         "and harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Memorial Actions Can Also Occur at the Heathen Hovel and Shrine to the Ancestors.",
-        "Story / Cheat Upgrades comes with its cost row. A fresh install starts here; the mode stays."
+        "Story / Cheat Upgrades comes with its cost row."
       ]
     },
     "owners_defaults": {
