@@ -346,6 +346,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         village, "vv5_fix_vanilla_bugs", "the cover is drawn at (1702, 1465), 3 pixels left and 6 lower, where it "
         "meets the map's own tiles, in the owner's redrawn picture vvfp_hovel.png (art by Lorsieab2); the game's own "
         "hovel_cover.png is not changed"), gm.CODE, True))
+    # More Respectful Flower Hovel Cover draws the owner's picture with its bottom-left on the completed hovel's
+    # (1702, 1751), with or without Fix Vanilla Bugs (tests/test_vv5_respectful_hovel_cover.py).
+    out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
+        village, "vv5_respectful_hovel_cover", "the cover is the owner's picture vvfp_respectful_hovel.png (art by "
+        "Lorsieab2: the hovel with graves and flowers), its bottom-left corner on the completed hovel's (1702, "
+        "1751); it is used instead of both hovel_cover.png and Fix Vanilla Bugs' vvfp_hovel.png"), gm.CODE, True))
 
     # -- The countdowns, and the people and clocks (src/vv_game_mechanics_life.py) ------------
     noni_at = None if paused else real(NONI_NEXT)

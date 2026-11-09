@@ -158,6 +158,8 @@ FILES = [
     "assets/vv3_hospital/vvfp_hospitalFixed.png",
     # New Believers' Fix Vanilla Bugs: the owner's redrawn hovel cover.
     "assets/vv5_fix_vanilla_bugs/vvfp_hovel.png",
+    # New Believers' More Respectful Flower Hovel Cover: the owner's cover with graves and flowers.
+    "assets/vv5_respectful_hovel_cover/vvfp_respectful_hovel.png",
     "data/vv1_origins_village_wide_upgrades.json",
     "data/vv2_origins_village_wide_upgrades.json",
     "data/vv3_origins_village_wide_upgrades.json",

@@ -913,6 +913,14 @@
       ]
     },
     {
+      "ids": ["vv5_respectful_hovel_cover"],
+      "guide": [
+        "Once The Last Heathen is converted, the old Heathen camp is covered with the owner's more respectful picture (art by Lorsieab2): the hovel with graves and flowers.",
+        "Its bottom and left edges sit on the old cover's; it is used instead of both the game's own picture and Fix Vanilla Bugs' one, in the village and on the Overview Map.",
+        "Nothing to click. On by default."
+      ]
+    },
+    {
       "ids": ["vv5_population_256"],
       "guide": [
         "EXPERIMENTAL: gives the game 256 villager places instead of 150 (believers and Heathens share them).",
