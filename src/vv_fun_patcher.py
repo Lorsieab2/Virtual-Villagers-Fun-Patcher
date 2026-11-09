@@ -328,6 +328,10 @@ COLLECTIBLE_SPAWN_FEATURE_PATHS = (ROOT / "data" / "vv4_collectible_spawn_like_v
 YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_feature.json",)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
+# Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
+# its own, it needs five New Believers patches, so ticking it ticks them;
+# scripts/build_respecting_the_legacy_of_isola_feature.py.
+LEGACY_OF_ISOLA_FEATURE_PATHS = (ROOT / "data" / "vv5_respecting_the_legacy_of_isola_feature.json",)
 # Move the "Playing in the dirt" Spot: New Believers' two base coordinates
 # of the stock routine, so children play on the grass rather than on the
 # totem statue (the owner marked the spot).
@@ -4185,7 +4189,7 @@ def _load_fun_patch_records(
                          + SICKNESS_FEATURE_PATHS
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
-                         + YELLOW_FRUIT_FEATURE_PATHS):
+                         + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):

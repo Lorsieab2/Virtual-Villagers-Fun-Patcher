@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import vv_fun_patcher as patcher  # noqa: E402
-from vv_fun_patcher_gui import (CLASSIC_DIFFICULTY_FUN_PATCH_IDS, OWNERS_DEFAULT_SLIDER,  # noqa: E402
+from vv_fun_patcher_gui import (CLASSIC_DIFFICULTY_FUN_PATCH_IDS, OWNERS_DEFAULT_SLIDER, TITLE_COLOURS,  # noqa: E402
                                 default_fun_patch_selection, owners_default_fun_patch_selection,
                                 saved_meal_multiplier, select_all_fun_patch_selection)
 
@@ -208,7 +208,10 @@ class Registration(unittest.TestCase):
         body = body[:body.index("\n    def ")]
         self.assertIn('("tech_cost_var", "meal_var", "sickness_var")', body)
         self.assertIn("OWNERS_DEFAULT_SLIDER", body)
-        self.assertIn('configure(style="ClassicDifficulty.TCheckbutton")', source)
+        # The title colour rule: a map of patch id -> (style, colour); Classic's rows are red.
+        for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
+            self.assertEqual(TITLE_COLOURS[patch_id], ("ClassicDifficulty.TCheckbutton", "#c00000"))
+        self.assertIn("button.configure(style=title_style)", source)
 
 
 if __name__ == "__main__":

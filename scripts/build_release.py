@@ -290,6 +290,7 @@ FILES = [
     "data/vv5_sickness_like_vv3_feature.json",
     "data/vv4_yellow_fruit_trees_limited_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
+    "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
     "data/font_glyph_tables.json",
     # Unicode 18.0 (v1.35.90): the compact tables every version-dependent check reads (src/vv_unicode18.py), the

@@ -532,6 +532,24 @@ like VV1-3 in both (villagers fall sick as in The Secret City: more often
 while the fire is out and on Hard). Unticking any of them unticks Classic VV
 Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
+RESPECTING THE LEGACY OF ISOLA (NEW BELIEVERS)
+
+Off by default; Owner's Defaults and Select All tick it. Its title is drawn in
+green. Ticking it ticks five New Believers patches together: Guardians of
+Isola Rewrite (Changes some aspects of VV5 to make things more culturally
+respectful (hopefully!) Focused around peace, post-traumatic healing and
+growth.), Shrine to the Ancestors (Turns the restored hovel into an ancestral
+shrine. A sacred, peaceful place where villagers can honor the ancestral
+spirits that guide them.), Heathens Keep Their Masks When Converted ("Heathen"
+masks are culturally important to them. Their choices must be honored.),
+Memorial Actions Can Also Occur at the Heathen Hovel (villagers will sometimes
+come there to pay their respects to those that passed on, and others that
+guide their fate) and Popup When Believers Become Heathens, The Breaking Point
+(Meant to make VV5 harder and push players to take care of their tribe.).
+Heathens Keep Their Masks runs on the Origins upgrades, which the patcher adds
+with it. The row changes nothing by itself; unticking any of the five unticks
+it too. It is not part of Classic VV Difficulty.
+
 YELLOW FRUIT TREES ARE NO LONGER UNLIMITED (THE TREE OF LIFE)
 
 Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. The
@@ -1364,6 +1382,15 @@ in the dirt" play on that same sandy shore too, always, before and after
 The Lake is filled: each of their six steps goes to a random point along
 it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
+
+GUARDIANS OF ISOLA REWRITE (NEW BELIEVERS)
+
+Changes some aspects of VV5 to make things more culturally respectful
+(hopefully!) Focused around peace, post-traumatic healing and growth. On by
+default. It replaces New Believers' story text and twelve story pictures (the
+totems, the idol, the masks and the main menu) with the Guardians of Isola
+rewrite. Words and pictures only: gameplay and saves are not touched. Untick
+it and patch again to get the original story back. Needs no other patch.
 
 SHRINE TO THE ANCESTORS (NEW BELIEVERS)
 
