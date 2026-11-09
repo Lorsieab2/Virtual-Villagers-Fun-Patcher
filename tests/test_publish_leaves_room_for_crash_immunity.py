@@ -75,7 +75,8 @@ class PublishLeavesRoomForCrashImmunityTests(unittest.TestCase):
         failing for the wrong reason.
         """
         selectable = []
-        for patch in load_fun_patches():
+        features = load_fun_patches()
+        for patch in features:
             if (patch.game_id != game_id or patch.id.endswith(EXCLUDED_SUFFIX)
                     or patch.id in ALTERNATIVE_FUN_PATCH_IDS):
                 continue
@@ -84,7 +85,16 @@ class PublishLeavesRoomForCrashImmunityTests(unittest.TestCase):
             if any(entry.get("preimage_sha256") for entry in companions):
                 continue
             selectable.append(patch.id)
-        return selectable
+        # A patch whose prerequisite was left out above (a bundle such as Respecting the Legacy of Isola needs
+        # Guardians of Isola Rewrite, an asset swap) cannot be ticked without it either: drop it too, until
+        # nothing changes.
+        needs = {f.id: list(f.raw.get("dependencies") or []) for f in features}
+        while True:
+            chosen = set(selectable)
+            trimmed = [i for i in selectable if all(d in chosen for d in needs.get(i, []))]
+            if trimmed == selectable:
+                return selectable
+            selectable = trimmed
 
     def _publish(self, build, source: Path, selected: list[str]) -> None:
         with tempfile.TemporaryDirectory() as temp:

@@ -73,12 +73,28 @@ def replaces_game_files(feature) -> bool:
     return any(item.get("preimage_sha256") for item in feature.raw.get("companion_files", []))
 
 
+def without_missing_prerequisites(features, ids: list[str]) -> list[str]:
+    """Drop every id whose prerequisites (its "dependencies") are not all kept, until nothing changes: a bundle
+    such as Respecting the Legacy of Isola needs Guardians of Isola Rewrite, an asset swap left out above, and a
+    player whose game folder lacks that piece could not tick the bundle either."""
+    needs = {f.id: list(f.raw.get("dependencies") or []) for f in features}
+    kept = list(ids)
+    while True:
+        chosen = set(kept)
+        trimmed = [i for i in kept if all(d in chosen for d in needs.get(i, []))]
+        if trimmed == kept:
+            return kept
+        kept = trimmed
+
+
 def public_ids(game: str) -> list[str]:
-    return [p.id for p in vfp.load_fun_patches()
-            if p.game_id == game and not p.raw.get("catalog_hidden")
-            and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)
-            and p.id not in POPULATION_256 and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS
-            and not replaces_game_files(p)]
+    features = vfp.load_fun_patches()
+    return without_missing_prerequisites(features, [
+        p.id for p in features
+        if p.game_id == game and not p.raw.get("catalog_hidden")
+        and p.raw.get("catalog_enabled", True) and p.raw.get("enabled", True)
+        and p.id not in POPULATION_256 and p.id not in vfp.ALTERNATIVE_FUN_PATCH_IDS
+        and not replaces_game_files(p)])
 
 
 def catalog_items(game: str | None = None):
