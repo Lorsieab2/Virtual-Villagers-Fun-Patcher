@@ -912,14 +912,16 @@ static int vv5_keep_holders(unsigned int id, int *where) {
 }
 
 /* A waiting villager renamed since: their record now holds a villager of the same gender and parents, and
-   nobody carries the old identity any more.  The entry takes the new identity. */
+   nobody carries the old identity any more.  The entry takes the new identity.  Only in the entry's own save
+   slot: another slot's village in the records is not the entry's (a founder there, of the same sex and with
+   no parents, would look exactly like a rename -- Codex, #740). */
 static void vv5_keep_follow(void) {
     const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
-    int k;
+    int k, slot = VV5_MASK_SLOT_NOW;
     for (k = 0; k < g_vv5_keep_count; ++k) {
         const unsigned char *rec;
         unsigned int now;
-        if (g_vv5_keep[k].index < 0 || g_vv5_keep[k].index >= vv5_slots()) {
+        if (g_vv5_keep[k].slot != slot || g_vv5_keep[k].index < 0 || g_vv5_keep[k].index >= vv5_slots()) {
             continue;
         }
         rec = base + (unsigned int)g_vv5_keep[k].index * VV5_ROSTER_STRIDE;

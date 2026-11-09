@@ -285,6 +285,31 @@ int main(int argc, char **argv) {
             if (lock != INVALID_HANDLE_VALUE) { ReadFile(lock, disk, sizeof disk, &got, NULL); CloseHandle(lock); }
             CHECK(got == sizeof disk && (disk[4 + 600 + 1] >> 4) == 4 && (disk[4 + 600 + 3] >> 4) == 5,
                   "both are in the file");
+
+            printf("== a mask waiting in slot 1 while slot 2 is played (Codex, #740) ==\n");
+            Sleep(300);
+            *(int *)SLOT_VA = 2;
+            CHECK(sync() == 1, "(slot 2 on screen)");
+            lock = CreateFileA(file, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);   /* slot 1's file held */
+            *(int *)SLOT_VA = 1;
+            Sleep(300);
+            CHECK(sync() == 0, "slot 1 again: its load is pending (locked)");
+            CHECK(keep(rec(6), 2) == 2, "Turuki converts: his orange mask waits for slot 1's load");
+            *(int *)SLOT_VA = 2;                        /* the player switches to slot 2 ... */
+            set_villager(6, "Puhi");                    /* ...whose founder in record 6 has the same sex, no parents */
+            Sleep(300);
+            CHECK(sync() == 1, "(slot 2's village on screen)");
+            Sleep(300);
+            CHECK(sync() == 1, "(looked at again)");
+            set_villager(6, "Turuki");                  /* back to slot 1, where a Puhi lives too */
+            set_villager(9, "Puhi");
+            *(int *)SLOT_VA = 1;
+            if (lock != INVALID_HANDLE_VALUE) CloseHandle(lock);
+            Sleep(VV_RETRY_WAIT_MS);
+            CHECK(sync() == 1, "slot 1's load settles");
+            CHECK((table()[3] & 0x0F) == 2 && (table()[4] >> 4) == 0,
+                  "the mask is Turuki's: slot 2's founder was never taken for his rename");
+            set_villager(9, NULL);
         }
     }
 

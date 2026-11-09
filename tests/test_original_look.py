@@ -103,6 +103,8 @@ class TheStore(unittest.TestCase):
                        "...and is put on the original once bound: Reset to original gives the purple mask back",
                        "a conversion while the file is locked waits",
                        "...applied under the new name once the file opens: Reset to original gives the red mask back",
+                       "slot 2's founder is not given the waiting mask",
+                       "back in slot 1: Ari11's original takes the Chief's mask",
                        "the next looks re-apply the logs' original and keep the mask",
                        "...and after a restart",
                        "after the reload Kai3's original is on Kai3 in record 2",

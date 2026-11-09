@@ -934,6 +934,31 @@ int main(int argc, char **argv) {
         check(original(10) == 110013 && original(9) == 90094,
               "...applied under the new name once the file opens: Reset to original gives the red mask back");
         check(g_convert_count == 0, "nothing waits any more");
+        /* A conversion waiting for slot 1 while slot 2 is played (Codex, #740): slot 2's founder in the same
+           record, of the same sex and with no parents, is never taken for the convert's rename. */
+        villager(11, "Ari11", 1, "", "", 12, 2);
+        rec(11)[0x1CEC] = 1;
+        (void)tick();
+        check(original(11) == 120020 && g_believer[11] == 0, "(Ari11, a Heathen, has an original)");
+        new_session();
+        g_game_slot = 1;
+        (void)tick();                           /* slot 1 settling */
+        rec(11)[0x1CEC] = 0;
+        g_masks[11] = 5;
+        check(ol_converted(rec(11), 5) == 2, "Ari11 converts while slot 1 settles: it waits");
+        g_game_slot = 2;                        /* the player switches to slot 2... */
+        lstrcpyA((char *)rec(11) + LAYOUT[5].name, "Zed");   /* ...whose founder in record 11 matches but for the name */
+        g_masks[11] = 0;                        /* (slot 2's own mask table: Zed wears none) */
+        settle();
+        check(g_slot == 2 && g_state != OL_UNBOUND && g_mask[11] == 0,
+              "slot 2's founder is not given the waiting mask");
+        check(g_convert_count == 1, "...which still waits for slot 1");
+        lstrcpyA((char *)rec(11) + LAYOUT[5].name, "Ari11");
+        g_masks[11] = 5;
+        g_game_slot = 1;
+        settle();
+        check(g_slot == 1 && g_state == OL_BOUND && original(11) == 120025 && g_convert_count == 0,
+              "back in slot 1: Ari11's original takes the Chief's mask");
     }
 
     printf("no village\n");
