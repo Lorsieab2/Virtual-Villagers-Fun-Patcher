@@ -124,7 +124,7 @@ FOUNDATION_OUTPUT = (
 # Recertified for the Story buttons in the player's language (native/shared/story_bridge.h, live French
 # TEST, 2026-11-04): each button's name, its price wrapper and the zeroed price lines are their own rows,
 # asked for by key, set as UTF-16, and a longer label widens its button (vvfp_to_wide, native/shared/vvfp_translate.h); its buy prompts and the names and speeds they show are their own rows too, and every message box is shown as UTF-16 (vvfp_message_box).
-SOURCE_SHA256 = "8DDFEC6E4E2216440A0273E958F1764677DDB80799CE5A110A25A2581EA46007"
+SOURCE_SHA256 = "9230572CC2FD0D24D769A79A11719C4369A0784EB648BEEAF91E2E8E6D5DA6F0"
 SOURCE_SIZE = 2011648
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}

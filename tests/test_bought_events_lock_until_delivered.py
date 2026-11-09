@@ -1028,6 +1028,39 @@ class ABarrelThatCanNeverArriveIsRefunded(unittest.TestCase):
                 self.assertEqual(again.proc.u32(REFUND[game]["tech"]), saved_tech)
                 self.assertEqual(self.state(again)["refunds"], 0)
 
+    def test_a_reload_with_a_waiting_barrel_and_nobody_left(self):
+        """Codex (#745): the save brings the Barrel back with nobody left; the trigger's first due frame after
+        the load reaches the refund before anything else had looked at the keeper's file.  The keeper's own
+        record is read first, so the refund takes it back too: once, the natural time restored, the keeper
+        idle and its file gone -- never a purchase left on its way that nothing can retire."""
+        for game in REFUND:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v, natural = self._bought(game, BARREL_PRICE)
+                self.assertEqual(v.state()[4], 1, "the keeper's file is written at the purchase")
+                v.proc.export("ItkProbeSaved", 1)              # the quit's save
+                v.proc.export("ItkProbeSession", 1)            # a new process: the save's bits, the file on disk
+                v.now += 10
+                _run_trigger(v, 0)
+                self.assertEqual(v.proc.u32(REFUND[game]["tech"]), 1000 + BARREL_PRICE)
+                self.assertEqual(self.state(v)["refunds"], 1)
+                self.assertFalse(_barrel_pending(v))
+                self.assertEqual(v.timer(), natural, "the game's own next event keeps its time")
+                self.assertEqual(v.state()[0], 0, "the keeper is idle")
+                self.assertEqual(v.state()[4], 0, "its file is gone")
+                self.assertEqual(v.proc.export("ItkProbeOnItsWay"), 0, "nothing is left locked")
+                for _ in range(3):
+                    v.now += 2
+                    _run_trigger(v, 0)
+                self.assertEqual(self.state(v)["refunds"], 1, "once")
+                v.buy("island")                                # a later purchase is not blocked
+                self.assertEqual(v.proc.export("ItkProbeOnItsWay"), 1)
+                v.now += 10
+                self.assertTrue(v.tick())                      # someone alive again: it is delivered
+                self.assertEqual(v.timer(), natural)
+                self.assertEqual(v.proc.export("ItkProbeOnItsWay"), 0)
+
     def test_an_island_event_waiting_too_keeps_the_timer(self):
         """The Tree of Life: an Island Event bought before the Barrel waits on the same timer; the barrel
         is refunded, the island event stays on its way (a Custom Island Event may take its place)."""

@@ -341,6 +341,14 @@ static int (__cdecl *itk_due_hook)(unsigned int *field);
 
 /* The trigger found the timer at `field` due. */
 static void __cdecl itk_firing(unsigned int *field) {
+    /* The village's saved record first (Codex, #745): a reload with a waiting
+       Barrel and nobody left reaches the hook on the load's first due frame,
+       and a refund there must also take the keeper's purchase back -- the
+       natural time restored, its file gone -- or the record loaded after it
+       is a purchase nothing can ever retire. */
+    if (!itk_active) {
+        itk_load(field, 0);
+    }
     if (itk_due_hook != NULL && itk_due_hook(field)) {
         return;
     }

@@ -85,6 +85,9 @@ moment the trigger finds the timer due (the keeper's `itk_due_hook`), with that 
 put back to the natural event's time unless an Island Event waits too, and the player
 told once (`vvfp_tr` rows `vvfp.shared/barrel_refund.vv_br_tell.s0` / `.s1`). The
 trigger's draw has no age bounds, so a village of children still gets its barrel.
+The keeper reads the village's saved record before it asks the hook, so a reload
+with a waiting Barrel and nobody left is refunded with the keeper's purchase taken
+back too (the natural time restored, its file gone), never left on its way.
 
 ## How each game refuses
 
