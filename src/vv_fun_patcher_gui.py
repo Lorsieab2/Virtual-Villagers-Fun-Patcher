@@ -229,6 +229,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # "story upgrades cost tech points" default off in owner's defaults too"
     # -- Story / Cheat Upgrades stays ticked there; its co-tick is skipped.
     + ["vv%d_story_cheat_upgrades_cost_tech_points" % game for game in range(1, 6)]
+    # The owner (2026-11-08): Move the "Playing in the dirt" Spot is off by default, in Owner's Defaults and in
+    # Select All; Puddle Play Moves to the Lake Shore (on everywhere) moves "Playing in the dirt" to the lake shore.
+    + ["vv5_playing_in_the_dirt_spot"]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select
@@ -251,6 +254,10 @@ for _game in range(1, 6):
     UNTICKING_CONFLICT_IDS["vv%d_unicode_text" % _game] = "vv%d_unicode_font" % _game
     UNTICKING_CONFLICT_IDS["vv%d_unicode_font" % _game] = "vv%d_unicode_text" % _game
 del _game
+# New Believers (the owner, 2026-11-08): Puddle Play Moves to the Lake Shore and Move the "Playing in the dirt" Spot
+# both move "Playing in the dirt"; ticking one unticks the other.
+UNTICKING_CONFLICT_IDS["vv5_puddles_by_the_lake"] = "vv5_playing_in_the_dirt_spot"
+UNTICKING_CONFLICT_IDS["vv5_playing_in_the_dirt_spot"] = "vv5_puddles_by_the_lake"
 
 
 def conflict_blockers(patch_id: str, fun_patches, ticked) -> list[str]:

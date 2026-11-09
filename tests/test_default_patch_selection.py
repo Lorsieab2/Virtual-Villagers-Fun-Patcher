@@ -121,6 +121,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # The alternative of a pair that can never be built together:
                   # All Fruit Trees Refill at the Same Time is the one ticked.
                   or p == "vv3_fruit_trees_take_turns"
+                  # Move the "Playing in the dirt" Spot is the alternative of Puddle Play Moves to the Lake Shore
+                  # (the owner, 2026-11-08: off by default, in Owner's Defaults and in Select All).
+                  or p == "vv5_playing_in_the_dirt_spot"
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
                   or p.endswith("_unicode_font")
@@ -150,6 +153,21 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertTrue(select_all_fun_patch_selection(patch_id))
         self.assertNotIn(patch_id, UNTICKING_CONFLICT_IDS)
         self.assertNotIn("vv4_no_fishing_at_science_2", fun_patch_ids())
+
+    def test_the_dirt_spot_is_off_everywhere_and_puddle_play_on_everywhere(self) -> None:
+        """The owner (2026-11-08): Move the "Playing in the dirt" Spot is default OFF in the normal defaults,
+        Owner's Defaults and Select All; Puddle Play Moves to the Lake Shore keeps its defaults (on everywhere) and
+        now moves "Playing in the dirt" too, so the two untick each other."""
+        from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS, owners_default_fun_patch_selection
+
+        spot, puddles = "vv5_playing_in_the_dirt_spot", "vv5_puddles_by_the_lake"
+        self.assertTrue({spot, puddles} <= fun_patch_ids())
+        for pick in (default_fun_patch_selection, owners_default_fun_patch_selection, select_all_fun_patch_selection):
+            with self.subTest(selection=pick.__name__):
+                self.assertFalse(pick(spot))
+                self.assertTrue(pick(puddles))
+        self.assertEqual(UNTICKING_CONFLICT_IDS[spot], puddles)
+        self.assertEqual(UNTICKING_CONFLICT_IDS[puddles], spot)
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
@@ -246,6 +264,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # always gives a selection that builds.
         experimental = {"vv3_population_256", "vv4_population_256", "vv5_population_256"}
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
+        # ...and Move the "Playing in the dirt" Spot, the alternative of Puddle Play Moves to the Lake Shore.
+        held_back |= {"vv5_playing_in_the_dirt_spot"}
         # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
