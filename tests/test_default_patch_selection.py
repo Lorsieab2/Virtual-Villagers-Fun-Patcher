@@ -143,7 +143,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_yellow_fruit_trees_limited"
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
-                  # More Respectful Flower Hovel Cover (the owner, 2026-11-08): on in Owner's Defaults only.
+                  # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
                   or p == "vv5_respectful_hovel_cover"})
 
     def test_harder_fishing_unlock_is_off_by_default_and_on_in_owners_defaults(self) -> None:

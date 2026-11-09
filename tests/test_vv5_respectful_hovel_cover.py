@@ -1,8 +1,9 @@
-"""New Believers' More Respectful Flower Hovel Cover: the owner's cover, its bottom-left on the completed hovel's.
+"""New Believers' Shrine to the Ancestors: the owner's cover, its bottom-left on the completed hovel's.
 
 The owner (2026-11-08): "a patch that overrides the normal one: "More Respectful Flower Hovel Cover" - overrides the
 normal graphics and fix vanilla bugs vv5 graphic", and "its bottom and left edges should be aligned to the bottom and
-left edges of the original completed hovel".
+left edges of the original completed hovel".  Renamed "Shrine to the Ancestors" by the owner (2026-11-09); the id
+stays.
 
 0x4370E0, the only drawer of image 0x1B, calls 0x44F320(sprite, x, y, 1.0f) once The Last Heathen (project 25) is
 done; 0x44F320 draws at once from the top-left corner (tests/test_vv5_hovel_cover.py has the stock trace).  The

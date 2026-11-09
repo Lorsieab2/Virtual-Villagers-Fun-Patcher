@@ -73,7 +73,7 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # cover; the game's own image table names it (the row renames the stock
     # name "hovel_cover.png" in place).
     "Images/vvfp_hovel.png": _GAME_IMAGE,
-    # New Believers' More Respectful Flower Hovel Cover: the owner's cover with graves and
+    # New Believers' Shrine to the Ancestors: the owner's cover with graves and
     # flowers; the game's own image table names it (the row points entry 0x1B's name at it).
     "Images/vvfp_respectful_hovel.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.

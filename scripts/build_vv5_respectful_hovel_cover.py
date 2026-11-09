@@ -1,9 +1,10 @@
-"""Generate New Believers' "More Respectful Flower Hovel Cover" row in data/builds.json.
+"""Generate New Believers' "Shrine to the Ancestors" row in data/builds.json.
 
 THE OWNER (2026-11-08): "a patch that overrides the normal one: "More Respectful Flower Hovel Cover" - overrides the
 normal graphics and fix vanilla bugs vv5 graphic with the one I'm going to give you", then: "can you overlay this
 respectful hovel cover over the original one? its bottom and left edges should be aligned to the bottom and left
-edges of the original completed hovel."
+edges of the original completed hovel."  The owner (2026-11-09) renamed the patch "Shrine to the Ancestors"; the id
+stays vv5_respectful_hovel_cover.
 
 THE ART.  The owner's picture (assets/vv5_respectful_hovel_cover/vvfp_respectful_hovel.png; the owner, 2026-11-08,
 of this one: "I think this will do for now") is 800 x 500 RGBA.  The owner painted it fully opaque over the bare
@@ -134,7 +135,7 @@ def patches() -> list[dict[str, str]]:
 
 
 # The owner's opening sentence (2026-11-08), verbatim.
-OPENING = "Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola."
+OPENING = "Turns the restored hovel into an ancestral shrine. A symbol of everlasting peace throughout Isola."
 DESCRIPTION = (
     OPENING + " Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\". Once The Last Heathen is "
     "converted, the game covers the old Heathen camp with a picture of the empty hovel among flowers. With this patch "
@@ -154,9 +155,9 @@ def row() -> dict:
     return {
         "id": FEATURE,
         "game_id": "vv5",
-        "name": "More Respectful Flower Hovel Cover",
+        "name": "Shrine to the Ancestors",
         "description": DESCRIPTION,
-        "output_tag": "Respectful Hovel Cover",
+        "output_tag": "Shrine to the Ancestors",
         "behavior_changes": [
             f"The Last Heathen's hovel cover (0x4370E0, drawn once project 25 CConvertLastHeathenPuzzle is done; the "
             f"only drawer of image 0x1B) is the owner's {ART_WIDTH} x {ART_HEIGHT} picture {ART_NAME}, drawn with its "

@@ -206,7 +206,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
-    # More Respectful Flower Hovel Cover (New Believers; the owner, 2026-11-08): off by default, on in Owner's
+    # Shrine to the Ancestors (New Believers; the owner, 2026-11-08): off by default, on in Owner's
     # Defaults and Select All.
     + ["vv5_respectful_hovel_cover"]
 )

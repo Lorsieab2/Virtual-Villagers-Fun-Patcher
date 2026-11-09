@@ -862,7 +862,7 @@
     {
       "ids": ["vv5_hovel_memorial_actions"],
       "guide": [
-        "Best paired with \"More Respectful Flower Hovel Cover\". Villagers will sometimes come here to pay their respects to those that passed on,",
+        "Best paired with \"Shrine to the Ancestors\". Villagers will sometimes come here to pay their respects to those that passed on,",
         "and others that guide their fate.",
         "Once every Heathen is converted and the old Heathen hovel gets its flower cover, the hovel is a memorial for good.",
         "Then villagers \"Honoring the dead\" on an ordinary day, or \"Reflecting\", go in front of the hovel a quarter of the time.",
@@ -986,7 +986,7 @@
     {
       "ids": ["vv5_respectful_hovel_cover"],
       "guide": [
-        "Turns the restored hovel into a memorial for the fallen. A symbol of everlasting peace throughout Isola.",
+        "Turns the restored hovel into an ancestral shrine. A symbol of everlasting peace throughout Isola.",
         "Best paired with \"Memorial Actions Can Also Occur at the Heathen Hovel\".",
         "Once The Last Heathen is converted, the old Heathen camp is covered with the owner's more respectful picture (art by Lorsieab2): the hovel with graves and flowers.",
         "Its bottom and left edges sit on the old cover's; it is used instead of both the game's own picture and Fix Vanilla Bugs' one, in the village and on the Overview Map.",
@@ -1091,7 +1091,7 @@
         "and harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel and More Respectful Flower Hovel Cover.",
+        "Memorial Actions Can Also Occur at the Heathen Hovel and Shrine to the Ancestors.",
         "Story / Cheat Upgrades comes with its cost row. A fresh install starts here; the mode stays."
       ]
     },
