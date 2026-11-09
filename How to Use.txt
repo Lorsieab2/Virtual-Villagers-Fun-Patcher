@@ -1361,9 +1361,21 @@ The Lake is filled: each of their six steps goes to a random point along
 it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
 
+SHRINE TO THE ANCESTORS (NEW BELIEVERS)
+
+Turns the restored hovel into an ancestral shrine. A sacred, peaceful place
+where villagers can honor the ancestral spirits that guide them. Best paired
+with "Memorial Actions Can Also Occur at the Heathen Hovel". Once The Last
+Heathen is converted, the old Heathen camp is covered with the owner's more
+respectful picture (art by Lorsieab2): the hovel with graves and flowers.
+Its bottom and left edges sit on the old cover's; it is used instead of both
+the game's own picture and Fix Vanilla Bugs' one, in the village and on the
+Overview Map. Nothing to click. Off by default; Owner's Defaults and Select
+All tick it.
+
 MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
 
-Best paired with "More Respectful Flower Hovel Cover". Villagers will
+Best paired with "Shrine to the Ancestors". Villagers will
 sometimes come here to pay their respects to those that passed on, and
 others that guide their fate. Off by default; on in Owner's Defaults and
 Select All. Once every Heathen has been converted and the villagers

@@ -224,7 +224,7 @@ def patch(va: int, after: bytes, purpose: str, before: bytes | None = None) -> d
 
 
 DESCRIPTION = (
-    "Best paired with \"More Respectful Flower Hovel Cover\". Villagers will sometimes come here to pay their "
+    "Best paired with \"Shrine to the Ancestors\". Villagers will sometimes come here to pay their "
     "respects to those that passed on, and others that guide their fate. **Needs no other patch.** Once every "
     "Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The "
     "Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if "

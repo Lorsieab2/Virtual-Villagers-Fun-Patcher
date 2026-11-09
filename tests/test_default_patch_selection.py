@@ -143,6 +143,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv4_yellow_fruit_trees_limited"
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
+                  # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
+                  or p == "vv5_respectful_hovel_cover"
                   # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
                   # DEFAULTS ONLY").
                   or p == "vv5_heathens_keep_masks_when_converted"})
