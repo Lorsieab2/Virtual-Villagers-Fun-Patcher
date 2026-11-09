@@ -370,6 +370,15 @@ CASES = [
     Case("Push Clouds", "assets/push_clouds/VVFP Push Clouds.dll", (3,),
          lambda g: [f"vv{g}_push_overview_clouds"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpPushCloudsInstalled"))[1]),
+    # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
+    # loss rolls' calls of rand.
+    Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),
+         lambda g: [f"vv{g}_heathen_conversion_notice"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFaithNoticeInstalled"))[1]),
+    # Faith Loss is Doubled/Gains Halved (New Believers): the tail cave's call of the rule.
+    Case("Faith Loss", "assets/faith_loss/VVFP Faith Loss.dll", (5,),
+         lambda g: [f"vv{g}_faith_loss_doubled_gains_halved"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFaithLossInstalled"))[1]),
     # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): eight jumps and two Cooking Pit vtable slots.
     Case("VV4 Fruit Supply", "assets/fruit_supply/VVFP VV4 Fruit Supply.dll", (4,),
          lambda g: [f"vv{g}_yellow_fruit_trees_limited"],

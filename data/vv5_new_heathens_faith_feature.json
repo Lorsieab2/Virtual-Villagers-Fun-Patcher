@@ -1,0 +1,34 @@
+{
+  "id": "vv5_new_heathens_get_heathen_faith",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "New Heathens Get a Heathen's Faith",
+  "description": "In New Believers a believer whose Faith drifts down to 0 (low food, sickness, too few believers) becomes a Heathen with Faith 0 or just below it, so one preaching brought them straight back. Every ordinary blue-mask Heathen the game makes has far less: a new village's get -67 to -38, Barrel O' Babies' -55. With this patch a believer the Faith drift turns Heathen (with or without Faith Loss is Doubled/Gains Halved) becomes an ordinary blue-mask Heathen with a random Faith from -67 to -38, drawn exactly as the game draws a new village's ordinary Heathens, and needs as much preaching as any blue Heathen to be won back. A Heathen's Faith never moves on its own in New Believers, so this is the Faith they keep until preached to. The game's own message \"A villager has stopped believing in you!\" is still shown. Island events that make a Heathen (The Spa, The Cracked Mask, the Custom Island Event) keep their own Faith (-10).",
+  "output_tag": "New Heathens Faith",
+  "behavior_changes": [
+    "The Faith setter 0x467F90: a believer whose new Faith is 0 or less becomes a Heathen (0x4669E0, called at 0x467FDF, as stock: the role +0x1CFC set to 0 at 0x4669F5, the bottom bar's eSayStoppedBelieving, string 0x48, at 0x4669EC). When the setter was called by FAITH_ADD 0x468020 for the Faith drift 0x468040 (its return 0x4681E3, or Faith Loss's tail cave 0x494F21), the cave 0x494F80 also clears the orange and red mask bytes (+0x1CED, +0x1CEE) and sets the Faith to be stored to -38 - rand(30). Stock stored the drift's Faith as it was (0 to -3).",
+    "The mask a Heathen wears is chosen by the game's draw 0x4728C6..0x472919 from the role +0x1CFC (12 and 14-16 the purple Masters' and the Doctor's, 13 the Chief's, through the table 0x472B60) and then the kind bytes +0x1CED (orange, the chasers) and +0x1CEE (red, the scary ones); anything else is the blue mask. Faith plays no part in it. So a drift convert is made role 0 (0x4669E0's own) with neither kind byte: a blue-mask Heathen.",
+    "-67 to -38 is the ordinary Heathens' Faith: the new village's Heathens are made at -1 (the creator 0x46FD20's last argument at 0x424AC0's calls) and every one still at -1 is then set to -38 - rand(30) (0x471050..0x471099) -- but five blue ones, set to -5, -9, -16, -23 and -30 (0x470F1F..0x471037); Barrel O' Babies! (heathens) makes its at -55 (push -0x37 at 0x4152B0, stored by 0x46FC31). No Heathen's Faith drifts: the life tick skips Heathens (0x472CB7)."
+  ],
+  "explicit_non_changes": [
+    "Only the Faith drift's conversions change. The Spa (0x415D02) and The Cracked Mask (0x416C51) keep their -10 and their villager's mask; the Custom Island Event's \"Becomes a Heathen\" (which calls 0x4669E0 itself) and every Heathen the game makes are unchanged.",
+    "Preaching, Spreading the Word and every conversion back to a believer (0x4668B0, Faith 55 below 5) are unchanged. One 5-byte call and one cave in the .text tail; no save byte is written."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x67FDF",
+      "before": "E8FCE9FFFF",
+      "after": "E89CCF0200",
+      "purpose": "the setter's call of 0x4669E0 (to a Heathen) -> call the cave 0x494F80"
+    },
+    {
+      "offset": "0x94F80",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "E85B1AFDFF817C240C3280460075318B4424183DE381460074073D214F4900751FC687ED1C000000C687EE1C0000006A1EE8AAE6F6FF83C404BEDAFFFFFF29C6C3",
+      "purpose": "the cave: call 0x4669E0 (as stock); for the Faith drift's conversion (the setter's return 0x468032, FAITH_ADD's 0x4681E3 or 0x494F21) clear the orange and red mask bytes and set the Faith the setter stores (esi) to -38 - rand(30); ret to 0x467FE4 (the clamp and store)"
+    }
+  ]
+}

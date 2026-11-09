@@ -83,6 +83,9 @@ EXPORTS
     VvfpStoryProbeTimeSkipNotice=_VvfpStoryProbeTimeSkipNotice@4
     VvfpStoryProbeTimeSkipPrice=_VvfpStoryProbeTimeSkipPrice@4
     VvfpStoryProbeTimeSkipBox=_VvfpStoryProbeTimeSkipBox@4
+    VvfpStoryProbeFaithNotice=_VvfpStoryProbeFaithNotice@4
+    VvfpStoryProbeFaithNoticeTaken=_VvfpStoryProbeFaithNoticeTaken@0
+    VvfpStoryProbeArmedNotice=_VvfpStoryProbeArmedNotice@8
     VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
     VvfpStoryProbeIslandEventOpen=_VvfpStoryProbeIslandEventOpen@4
     VvfpStoryStats DATA
