@@ -568,6 +568,83 @@ int main(void) {
     clear_village();
     check(hl_set(g_records[1], 2) == 0, "nobody in the records: nothing is kept");
 
+    printf("Heathens renamed as the village loads (VvfpVillagersRenamed, Codex #733)\n");
+    {
+        static const char *const OLD[5] = { "Kai", "Pua", "Hina", "Lono", "Mele" };
+        static char akikai[5][32];
+        const char *was[5];
+        const void *records[5];
+        char name[32];
+        int k;
+        fresh_disk();
+        new_session();
+        vv_rekey_count = 0;
+        g_count = 150;
+        g_slot = 1;
+        clear_village();
+        villager(0, "Ana", 1, "", "");
+        villager(1, "Ago", 0, "", "");
+        villager(2, "Aipi", 1, "", "");
+        for (k = 0; k < 5; ++k) {
+            villager(3 + k, OLD[k], k & 1, "", "");
+            records[k] = g_records[3 + k];
+            wsprintfA(akikai[k], "%s Akikai%c", OLD[k], 'a' + k);
+            was[k] = akikai[k];
+        }
+        check(hl_set(g_records[3], 1) == 1 && hl_set(g_records[4], 2) == 1, "two Heathens' looks are kept");
+        new_session();                           /* the next session's load names them, before any look */
+        g_slot = 1;
+        for (k = 0; k < 5; ++k) {
+            lstrcpynA((char *)g_records[3 + k] + 1, akikai[k], 25);
+        }
+        check(hl_renamed(1, 5, records, OLD, REC, 1, 25) == 5, "the batch is taken: five pairs");
+        check(look(3) == 1 && look(4) == 2 && look(5) == 0, "each renamed Heathen keeps their look");
+        new_session();
+        vv_rekey_count = 0;                      /* a later session: nothing told */
+        g_slot = 1;
+        check(look(3) == 1 && look(4) == 2, "the file was written under the new names");
+        for (k = 0; k < 5; ++k) {                /* renamed again while the table is held */
+            wsprintfA(name, "%s Bahati%c", OLD[k], 'a' + k);
+            lstrcpynA((char *)g_records[3 + k] + 1, name, 25);
+        }
+        check(hl_renamed(1, 5, records, was, REC, 1, 25) == 5 && look(3) == 1 && look(4) == 2,
+              "a table already held is carried");
+        new_session();
+        vv_rekey_count = 0;
+        g_slot = 1;
+        check(look(3) == 1 && look(4) == 2, "and written at once");
+        new_session();
+        vv_rekey_count = 0;
+        g_slot = 1;
+        for (k = 0; k < 5; ++k) {                /* the same rename without the word */
+            wsprintfA(name, "%s Dakila%c", OLD[k], 'a' + k);
+            lstrcpynA((char *)g_records[3 + k] + 1, name, 25);
+        }
+        check(look(3) == 0 && look(4) == 0, "without it the looks are lost (what Codex found)");
+        new_session();
+        vv_rekey_count = 0;
+        g_slot = 1;
+        /* A believer outside the batch who has the Heathen's old identity (the same name, sex and no
+           parents): the look kept for that identity may be theirs, so it is left where it is. */
+        fresh_disk();
+        clear_village();
+        villager(0, "Ana", 1, "", "");
+        villager(1, "Ago", 0, "", "");
+        villager(2, "Kai", 0, "", "");           /* the believer */
+        villager(3, "Kai", 0, "", "");           /* the Heathen */
+        check(hl_set(g_records[2], 2) == 1, "the believer's look is kept");
+        new_session();
+        g_slot = 1;
+        lstrcpynA((char *)g_records[3] + 1, "Kai Akikai", 25);
+        records[0] = g_records[3];
+        check(hl_renamed(1, 1, records, OLD, REC, 1, 25) == 0,
+              "an old identity somebody outside the batch still carries is no pair");
+        check(look(3) == 0, "the believer's look is never given to the renamed Heathen");
+        new_session();
+        vv_rekey_count = 0;
+        g_slot = 1;
+    }
+
     printf("256 records\n");
     fresh_disk();
     new_session();

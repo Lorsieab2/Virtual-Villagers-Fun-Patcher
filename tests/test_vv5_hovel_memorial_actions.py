@@ -313,7 +313,7 @@ class Manifest(unittest.TestCase):
     def test_selection_and_text(self):
         pid = gen.ID
         self.assertFalse(default_fun_patch_selection(pid))
-        self.assertFalse(select_all_fun_patch_selection(pid))
+        self.assertTrue(select_all_fun_patch_selection(pid))           # the owner (2026-11-08): Select All ticks it
         self.assertTrue(owners_default_fun_patch_selection(pid))
         self.assertNotIn(pid, UNTICKING_CONFLICT_IDS)
         m = manifest()

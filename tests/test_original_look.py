@@ -216,7 +216,8 @@ class TheContract(unittest.TestCase):
             if HAVE_EMULATOR else None
         if names is None:
             self.skipTest("pefile is not installed")
-        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet"})
+        # VvfpVillagersRenamed: VVFP Last Names.dll's load-time renames (native/shared/villager_rekey.h).
+        self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet", "VvfpVillagersRenamed"})
         source = (ROOT / "native" / "vvfp_original_look" / "vvfp_original_look.c").read_text(encoding="utf-8")
         self.assertIn("int __stdcall VvfpOriginalLookGet(int game, const void *record, int *head, int *body, "
                       "int *mask)", source)

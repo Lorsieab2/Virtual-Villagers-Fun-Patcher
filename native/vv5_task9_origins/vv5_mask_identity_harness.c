@@ -212,6 +212,64 @@ int main(int argc, char **argv) {
     Sleep(300);
     CHECK(sync() == 1 && table()[0] == 0x21, "back to slot 1: A's masks reload from its file");
 
+    printf("== Heathens renamed as the village loads (VvfpVillagersRenamed, Codex #733) ==\n");
+    {
+        typedef int (__stdcall *renamed_t)(int, int, int, const void *const *, const char *const *);
+        renamed_t renamed = (renamed_t)GetProcAddress(dll, "VvfpVillagersRenamed");
+        static const char *const OLD[5] = { "Kai", "Pua", "Hina", "Lono", "Mele" };
+        static const char *const NEW[5] = { "Kai Akikai", "Pua Alosaka", "Hina Awanata", "Lono Bahati",
+                                            "Mele Chinaka" };
+        const void *records[5];
+        int i;
+        CHECK(renamed != NULL, "VvfpVillagersRenamed resolves");
+        Sleep(300);
+        clear_village();
+        set_villager(0, "Ana"); set_villager(1, "Ago"); set_villager(2, "Aipi");
+        for (i = 0; i < 5; ++i) {
+            set_villager(3 + i, OLD[i]);
+            records[i] = rec(3 + i);
+        }
+        CHECK(sync() == 1, "a village of three believers and five Heathens with no last name");
+        memset(table(), 0, TABLE_BYTES);
+        table()[1] = 0x20;                      /* record 3 masked (2) */
+        table()[2] = 0x41;                      /* records 4 (1) and 5 (4) */
+        writes(table());
+        for (i = 0; i < 5; ++i) {
+            set_villager(3 + i, NEW[i]);       /* the load names them */
+        }
+        CHECK(renamed != NULL && renamed(5, 1, 5, records, OLD) == 5, "the batch is taken: five pairs");
+        Sleep(300);
+        CHECK(sync() == 1 && table()[1] == 0x20 && table()[2] == 0x41, "every masked Heathen keeps the mask");
+        Sleep(300);
+        *(int *)SLOT_VA = 2;
+        CHECK(sync() == 1, "another slot");
+        *(int *)SLOT_VA = 1;
+        Sleep(300);
+        CHECK(sync() == 1 && table()[1] == 0x20 && table()[2] == 0x41,
+              "the file was written under the new names: read back, the masks are theirs");
+        CHECK(renamed != NULL && renamed(5, 1, 5, records, OLD) == 5 && table()[1] == 0x20 && table()[2] == 0x41,
+              "told again (a later load): nothing more changes");
+        /* The same rename without the word: five of eight names changed at once is no village of the file's. */
+        for (i = 0; i < 5; ++i) {
+            char other[24];
+            _snprintf(other, sizeof other, "%s Dakila", OLD[i]);
+            set_villager(3 + i, other);
+        }
+        Sleep(300);
+        *(int *)SLOT_VA = 2;
+        sync();
+        *(int *)SLOT_VA = 1;
+        Sleep(300);
+        CHECK(sync() == 1 && table()[1] == 0 && table()[2] == 0,
+              "without it the masks are lost (what Codex found)");
+        /* A believer outside the batch who has a renamed Heathen's old identity (the same name; the
+           harness's villagers share sex and parents): the mask kept for it may be theirs. */
+        set_villager(8, "Kai");
+        set_villager(3, "Kai Zephyr");
+        CHECK(renamed != NULL && renamed(5, 1, 1, records, OLD) == 0,
+              "an old identity somebody outside the batch still carries is no pair");
+    }
+
     DeleteFileA(file);
     {
         /* ...and any copy of another village's file this run set aside. */

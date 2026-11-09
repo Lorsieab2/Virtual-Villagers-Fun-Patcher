@@ -86,6 +86,7 @@
 #include "sidecar_io.h"
 #include "custom_titles.h"     /* vv_title_identity: who a former Heathen is */
 #include "former_heathens.h"
+#include "villager_rekey.h"   /* a rename at a load keeps a Former Heathen's entry (cod_former.inc) */
 #include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "save_folder.h"

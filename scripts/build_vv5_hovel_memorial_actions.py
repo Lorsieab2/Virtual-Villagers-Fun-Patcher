@@ -1,5 +1,5 @@
 """Generate data/vv5_hovel_memorial_actions_feature.json: "Memorial Actions Can Also Occur at the Heathen Hovel"
-(New Believers; off by default and in Select All, on in Owner's Defaults).
+(New Believers; off by default, on in Owner's Defaults and Select All).
 
 THE OWNER (2026-11-08).  Only two actions may use the hovel: "Reflecting" and the everyday "Honoring the dead" --
 no other action.  The hovel counts as a memorial only once all Heathens have converted, and from the first time
