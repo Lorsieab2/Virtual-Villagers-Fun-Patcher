@@ -5,17 +5,26 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Faith Loss is Doubled/Gains Halved",
-  "description": "Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck!",
+  "description": "Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck!",
   "output_tag": "Faith Loss Doubled",
   "behavior_changes": [
     "The Faith drift 0x468040 (each believer, once per age unit, live and while catching up; Heathens skipped at 0x472CB7): every loss roll's rand(100) threshold doubled, every gain roll's halved, and the 50% skip of a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged.",
-    "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock game."
+    "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock game.",
+    "Starving and sick believers mostly die rather than leave, decided once per villager per crisis: the first time the drift's food losses (0x46805E, 0x46807E) or sickness loss (0x4680BB) would take a believer to Faith 0 or less -- its other changes alone leaving Faith above 0 -- VVFP Faith Loss.dll (at the tail cave's call 0x494F14, before the FAITH_ADD 0x4681DB) makes the fall on rand(10) < 1, else marks the villager; while marked, food and sickness losses never take them below Faith 1 (FAITH_ADD(1 - Faith) at most), and the life tick goes on with its hunger and sickness (0x472D66 on) as for any believer. The mark clears at the first age unit with food above 250 and the villager not sick.",
+    "The marks are kept by villager identity (name, likes and dislikes) in <save folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, written when a mark is made or cleared and read for the slot the game loads (before its catch-up); only living believers are kept. Start Over deletes it with the save's folder.",
+    "Without the companion the cave's own rule (0x494F28) decides each such fall alone: 1 in 10 converts, else Faith 1."
   ],
   "explicit_non_changes": [
-    "Thirteen immediates and branches inside the routine; no code is added and no executable space is claimed.",
+    "Thirteen immediates and branches inside the routine, its entry, three loss sites, its last call and its epilogue; three caves in the .text tail (0x494F00, 0x494F14, 0x494F28). The routine's rolls, their order and the Faith they move are the stock ones but for the 1-in-10 decision added after them. No save or villager-record byte is written.",
     "Starting Faith, preaching, Spreading the Word, the Heathen Doctor's cure, The Heathen Chief, the Hydroponic Farm, the Heathen Mommy's puzzle and island events are unchanged."
   ],
-  "companion_files": [],
+  "companion_files": [
+    {
+      "source": "assets/faith_loss/VVFP Faith Loss.dll",
+      "destination": "VVFP Faith Loss.dll",
+      "sha256": "A6BAA554497A934D5D18D8FDECAEEE32CD3974B5171E11F0129B5436D08D10CA"
+    }
+  ],
   "patches": [
     {
       "offset": "0x6805B",
@@ -94,6 +103,69 @@
       "before": "7D",
       "after": "EB",
       "purpose": "a fall with Faith under 5 was skipped on rand(100) < 50: jge -> jmp, never skipped"
+    },
+    {
+      "offset": "0x68040",
+      "before": "535633F6833D4CD351000A",
+      "after": "E9BBCE0200909090909090",
+      "purpose": "the drift's entry (push ebx; push esi; xor esi,esi; cmp [food],10) -> jmp the entry cave 0x494F00, which also saves and zeroes ebp, the count of food and sickness losses"
+    },
+    {
+      "offset": "0x6805E",
+      "before": "83CEFFEB40",
+      "after": "4E4590EB40",
+      "purpose": "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (one food loss counted); the jmp is kept"
+    },
+    {
+      "offset": "0x6807E",
+      "before": "83CEFFEB20",
+      "after": "4E4590EB20",
+      "purpose": "food 10..250 (or under 10 when its first roll missed), the roll hit: or esi,-1 -> dec esi; inc ebp"
+    },
+    {
+      "offset": "0x680BB",
+      "before": "83EE01",
+      "after": "4E4590",
+      "purpose": "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp"
+    },
+    {
+      "offset": "0x681DB",
+      "before": "568BCBE83DFEFFFF",
+      "after": "E934CD0200909090",
+      "purpose": "the drift's FAITH_ADD (push esi; mov ecx,ebx; call 0x468020) -> jmp the tail cave 0x494F14"
+    },
+    {
+      "offset": "0x681E3",
+      "before": "5E5BC3CC",
+      "after": "5D5E5BC3",
+      "purpose": "the drift's epilogue: pop esi; pop ebx; ret -> pop ebp; pop esi; pop ebx; ret (into the int3 padding after it)"
+    },
+    {
+      "offset": "0x94F00",
+      "before": "00000000000000000000000000000000000000",
+      "after": "53565531F631ED833D4CD351000AE93831FDFF",
+      "purpose": "the entry cave: push ebx; push esi; push ebp; esi = 0; ebp = 0; cmp [food],10; jmp back to 0x46804B"
+    },
+    {
+      "offset": "0x94F14",
+      "before": "000000000000000000000000000000000000",
+      "after": "E80F0000005689D9E8FF30FDFFE9BD32FDFF",
+      "purpose": "the tail cave: call the rule (0x494F28; VVFP Faith Loss.dll redirects this call to its per-villager rule), then FAITH_ADD(esi) and the epilogue"
+    },
+    {
+      "offset": "0x94F28",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "85F67D3085ED742C8B83F01C000001F085C07F2001E885C07E1A6A0AE817E7F6FF83C40483F8017C0BBE010000002BB3F01C0000C3",
+      "purpose": "the rule without the companion: a fall (esi < 0) that the food or sickness losses (ebp) take to 0 or less, the rest alone leaving Faith above 0, is made on rand(10) < 1; otherwise esi = 1 - Faith (the believer stays at Faith 1)"
+    }
+  ],
+  "runtime_detours": [
+    {
+      "va": "0x494F14",
+      "stock_bytes": "E80F000000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the Faith drift's tail cave: its call of the rule goes to the companion's per-villager rule (the marks)",
+      "installed_by": "VVFP Faith Loss.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]
 }
