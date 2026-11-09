@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "scripts/build_paid_purchases_harness.ps1"
 CL = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x86\cl.exe")
-CHECKS = 23   # 19, and 4 for the save's own folder (native/shared/per_save.h)
+CHECKS = 29   # 19, 4 for the save's own folder (native/shared/per_save.h), 3 for what waits behind the token, 2 for Start Over, 1 for a refund
 
 
 class PaidPurchases(unittest.TestCase):

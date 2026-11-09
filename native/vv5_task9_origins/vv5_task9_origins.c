@@ -887,6 +887,31 @@ static const itk_game VV5_ITK = {
     "Virtual Villagers - New Believers"
 };
 
+/* A Barrel of Babies that can never arrive is refunded (native/shared/barrel_refund.h): the
+   trigger at 0x4426EA asks the game's own believer count (0x4713F0 on the manager its `mov ecx` at
+   0x4426F6 loads) and runs nothing while it is 0; the Barrel rides that trigger (the selector stub
+   0x41890F).  Its bits are 8 (bought, the Tech screen open) and 4 (handed over at its close) of
+   0x51D388, the save's own word, so the save holds either the barrel or its refund.  Its price is
+   the Task9 page's 75,000, or 0 when the Origins upgrades are free. */
+#include "../shared/barrel_refund.h"
+#define VV5_BARREL_PRICE 75000
+static int vv5_br_pending(void) {
+    return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x0Cu) != 0;
+}
+static int vv5_br_island_waiting(void) {
+    return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x30u) != 0;
+}
+static void vv5_br_cancel(void) {
+    *(volatile unsigned int *)(UINT_PTR)0x0051D388u &= ~0x0Cu;
+}
+static int vv5_br_price(void) {
+    return vvfp_story_price(5, VV5_BARREL_PRICE);
+}
+static const vv_barrel_refund_game VV5_BARREL_REFUND = {
+    5, 0x4713F0u, 0x4426F7u, (volatile int *)(UINT_PTR)0x0051D5F8u,
+    vv5_br_pending, vv5_br_island_waiting, vv5_br_cancel, vv5_br_price, NULL
+};
+
 /* The runtime companions, installed before the first catch-up.  Vv5MaskSync
    runs only on a villager head draw, and New Believers catches up the time
    that passed while it was closed when it enters the village (0x425E30, from
@@ -898,6 +923,7 @@ static const itk_game VV5_ITK = {
    state); every later save and load makes it a no-op. */
 __declspec(dllexport) void __stdcall Vv5InstallCompanions(void) {
     itk_install(&VV5_ITK);      /* bought island events keep the natural timer: once (game start made it) */
+    vv_br_install(&VV5_BARREL_REFUND);   /* a Barrel that can never arrive is refunded */
     vvfp_fix_huts_bridge();
     vvfp_story_bridge(5);       /* story / cheat upgrades companion: once, fail-open */
     vvfp_cause_bridge(5);  /* cause of death companion: once, fail-open */
@@ -916,6 +942,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     (void)game;
     vvfp_startup_note_shipped(shipped);   /* every bridge loads only what this build ships */
     VVFP_STARTUP_GUARDED(itk_install(&VV5_ITK));     /* bought island events keep the natural timer */
+    VVFP_STARTUP_GUARDED(vv_br_install(&VV5_BARREL_REFUND));   /* a Barrel that can never arrive is refunded */
     VVFP_STARTUP_GUARDED(vvfp_fix_huts_bridge());          /* loads and installs Builders and Healers Work First too */
     VVFP_STARTUP_GUARDED(vvfp_story_startup(5));
     VVFP_STARTUP_GUARDED(vvfp_cause_install_once(5));
@@ -2573,6 +2600,26 @@ static int __stdcall vv5_story_slot(void) {
     return vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH);
 }
 
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  New Believers keeps its purchase bits in the word the save
+   holds (0x51D388: 4 / 8 the Barrel of Babies, 0x10 / 0x20 a bought Island
+   Event), which the game's new-save setup clears -- and only a change of
+   slot cleared otherwise (the executable's slot stub).  So that a purchase
+   not yet delivered can never come to the new village started in the same
+   slot, whatever that setup does, its bits go with the village that paid for
+   them -- no refund: its tech points go with it, and the new village never
+   paid.  The doublers' ownership bits (1, 2) are the save's own and are left
+   for the game.  Another slot's tribe deleted from the menu leaves the
+   village in memory as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 5 || slot < 1 || slot > 5 || slot != vv5_story_slot()) {
+        return;
+    }
+    *(volatile unsigned int *)(UINT_PTR)0x0051D388u &= ~0x3Cu;
+    itk_village_reset(slot);
+}
+
 static int __stdcall vv5_story_mask_get(void *record) {
     int index = vv5_story_index(record);
     int mask;
@@ -2660,7 +2707,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL,
         vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }

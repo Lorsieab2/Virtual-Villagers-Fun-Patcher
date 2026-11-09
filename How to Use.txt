@@ -160,6 +160,27 @@ anything behind a link or junction and any file that is in use; each is listed
 in "Virtual Villagers Fun Patcher\Start Over Report - Save <N>.txt". Back up
 first (BACK UP SAVES, below) if you may want the old tribe's logs again.
 
+A Barrel of Babies or island event bought from the Tech menu and not yet
+arrived goes with the old tribe too (all five games): it never comes to the new
+tribe started in the same save. No tech points come back -- they were the old
+tribe's, and the new tribe never paid. Deleting another save's tribe from the
+save-slot menu leaves the tribe you were playing as it is.
+
+CUSTOM ISLAND EVENTS (STORY / CHEAT UPGRADES)
+
+A Custom Island Event can be bought at any time. If an island event you bought
+or picked is already on its way, the Custom Island Event comes first and that
+one comes right after it (each is charged once); a Barrel of Babies on its way
+still comes first. It needs no adult: with nobody left in the village, or
+nobody the game's island events accept (A New Home and The Lost Children only
+take adults), it is sent through all the same, so its new villagers always
+arrive. Changes for villagers who are no longer there are skipped, and the
+popup says so; food, tech points, refills, puzzles and the rest still happen.
+A question with two choices still needs someone to ask. It comes before a new
+village's two opening island events too (the visitor in A New Home and The Lost
+Children); they still come after it, unchanged. One Custom Island Event is queued
+at a time: the next can be bought once the last has come (within seconds).
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.
@@ -1349,7 +1370,10 @@ it: a believer an island event makes a Heathen is not. With Guardians of Isola
 it says the villagers have lost trust in the village's ability to provide for
 their needs and have decided to join the Isolans, then lists the circumstances
 one a line: Starvation, Food shortages, Sickness, Desire for a larger community
-(and, rarely, Loss of trust). Needs Story / Cheat Upgrades (on by default) to
+(and, rarely, Loss of trust). A popup still waiting when you quit is kept (in
+its own file in the patcher's save folder) and comes after you load that save
+again, once; Start Over or deleting the tribe takes it with the village, and it
+never shows in another save. Needs Story / Cheat Upgrades (on by default) to
 show the popup.
 
 HEATHENS KEEP THEIR MASKS WHEN CONVERTED (NEW BELIEVERS)
@@ -1507,7 +1531,13 @@ Fun Patcher Data", one file per save slot:
       A Barrel of Babies bought and not delivered yet: it is kept here while it
       waits, so a quit does not lose it (the tech points are already spent and
       saved), and the barrel arrives once the village is played again. Deleted
-      when the barrel arrives, and by Start Over.
+      when the barrel arrives, and by Start Over. The Tree of Life: an Island
+      Event bought before the barrel waits behind it, and the file keeps that
+      too, so after the next load it comes right after the barrel.
+      The Tree of Life and New Believers: a barrel bought for a village where
+      nobody is left (New Believers: no believer) can never come, so it is
+      cancelled and its price given back (0 if the upgrades were free), once,
+      with a message; the file goes with it.
         Virtual Villagers <N> Story Purchases - Save <slot>.dat  (Story / Cheat Upgrades)
       A Pick Island Event, Custom Island Event, Pick Gong of Wonder Outcome or
       the rest of a Choose Time Skip Amount bought and not delivered yet, kept

@@ -28,6 +28,67 @@ event of either kind blocks both rows.
 Time Warp needs no guard: it subtracts from the clock, so a second purchase
 does advance the village again.
 
+## Pending until the game delivers it (v1.35.91)
+
+The countdown tests above read "due within the five seconds the purchase
+gave it" (VV1, VV2, VV4 without its token), and VV3's flag was released at
+its due second (the island handler's frame hook, and the companion's menu
+draw). The Tech screen pauses the game, so an event bought there stays due,
+undelivered, for as long as the screen is open: once the menu was built again
+more than five seconds on, the row was buyable and a second Island Event, Pick
+or Custom Island Event charged again for one delivery. Every Origins companion
+already ran the island timer's keeper (`native/shared/island_timer_keep.h`),
+which sees each purchase's write and the trigger's own write for it, so each
+Island Event row (`row_block_reason`) and the Story / Cheat Upgrades' lock (its
+host table's `island_on_its_way`) also count an event bought and not yet run
+by the trigger, in the village it was bought in. VV5's bits already last until
+the delivery (`vv5_retire_delivered_island`).
+
+A Custom Island Event is never held by this lock (the owner: "available at all
+times always"). It is armed on the same timer and the trigger delivers it first;
+the bought or picked event it went ahead of is made due again once it has come
+(`story_custom_ui.inc` `ce_purchase_locked`, `ce_requeue_tick`), each with its own
+charge. A waiting VV4 or VV5 Barrel is never replaced: it comes first, then the
+custom event. A Barrel is never an island event to make due again afterwards: VV4's
+Barrel writes the same timer and the keeper holds that write, so with the Barrel armed
+and no Island Event token `0x728B08` the lock counts nothing (both in `ce_purchase_locked`
+and in the VV4 host entry `vv4_story_island_on_its_way`); VV5 goes by its island bits
+`0x30`, never the Barrel's `0x04`. With nobody the trigger accepts -- a count of 0, or no draw it would
+take (VV1/VV2 draw adults only) -- the count stub sends the custom event on as for
+an empty village (`story_empty_village.inc` `ce_trigger_bypass`). It is never held for a
+new village's two opening island events either: delivered before the first one it is not
+counted (`ce_first_before`: Island Events Seen stays 0, so VV1/VV2's visitor is still the
+first and every game's 30-minute second still follows), VV1/VV2's trigger goes past its
+visitor check for it, and the keeper puts the opening event's time back. A bought event it
+went ahead of is kept in the Story queue file with it (`SQ_REQUEUE`), so a quit between
+loses nothing.
+
+VV4's Island Event bought before a Barrel waits behind it on the Barrel's
+process-only token `0x728B08`; that token is now kept in the Barrel's Paid
+Purchases file (`held`, `restore_held` in `native/shared/paid_purchases.h`) and
+set again with the Barrel after a relaunch, so the Barrel's cue still puts the
+Island Event back.
+
+Start Over or a deleted tribe in the slot of the village in memory clears what
+it bought and has not received (`VvfpOriginsVillageReset` in each Origins
+companion, called by "VVFP Save Reset.dll"): before, only a change of slot
+cleared it, so it arrived in the new village. Nothing is refunded -- the
+village that paid is gone, and the new one never paid.
+
+A Barrel of Babies that can never arrive is refunded (`native/shared/barrel_refund.h`,
+VV4 and VV5 only: their Barrel rides the island-event trigger, which does nothing
+while the game's own count -- VV4 `0x467610`, VV5 `0x4713F0`, believers -- is 0; the
+other three deliver theirs from their own frame code, waiting only for room). At the
+moment the trigger finds the timer due (the keeper's `itk_due_hook`), with that count
+0, the barrel is cleared, its price added back to the tech points (`vvfp_story_price`:
+0 when the Origins upgrades are free), VV4's Paid Purchases file deleted, the timer
+put back to the natural event's time unless an Island Event waits too, and the player
+told once (`vvfp_tr` rows `vvfp.shared/barrel_refund.vv_br_tell.s0` / `.s1`). The
+trigger's draw has no age bounds, so a village of children still gets its barrel.
+The keeper reads the village's saved record before it asks the hook, so a reload
+with a waiting Barrel and nobody left is refunded with the keeper's purchase taken
+back too (the natural time restored, its file gone), never left on its way.
+
 ## How each game refuses
 
 **VV1, VV2, VV4, VV5 — the row stays clickable and explains itself.** The Tech

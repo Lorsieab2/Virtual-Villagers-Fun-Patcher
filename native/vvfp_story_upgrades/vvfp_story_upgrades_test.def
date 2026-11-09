@@ -20,6 +20,7 @@ EXPORTS
     VvfpStoryProbeQueueCustom=_VvfpStoryProbeQueueCustom@12
     VvfpStoryProbeSetCustom=_VvfpStoryProbeSetCustom@12
     VvfpStoryProbeCustomPending=_VvfpStoryProbeCustomPending@4
+    VvfpStoryProbeCustomGate=_VvfpStoryProbeCustomGate@8
     VvfpStoryProbeCustomHeld=_VvfpStoryProbeCustomHeld@0
     VvfpStoryProbeResult=_VvfpStoryProbeResult@4
     VvfpStoryProbeApply=_VvfpStoryProbeApply@20

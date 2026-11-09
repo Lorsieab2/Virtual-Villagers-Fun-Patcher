@@ -64330,6 +64330,129 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s9",
+   "english": "Your custom island event is on its way. It takes the place of the island event already on its way, which can not come while nobody lives in the village.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.shared/barrel_refund.vv_br_tell.s0",
+   "english": "Nobody is left in the village to receive the Barrel of Babies, so it has been cancelled and its %s tech points have been given back.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.shared/barrel_refund.vv_br_tell.s1",
+   "english": "Nobody is left in the village to receive the Barrel of Babies, so it has been cancelled. It cost no tech points, so none were given back.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "shared",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_c1.c1_arm_refusal.s3",
+   "english": "A question needs a living adult in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_c5.c5_arm_refusal.s1",
+   "english": "A question needs a living adult believer in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_compose_in_once.s5",
+   "english": "Their changes were skipped: there was nobody to apply them to.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s10",
+   "english": "Your last custom island event is still on its way. It arrives within seconds once you close this screen; then you can buy the next one.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s11",
+   "english": "Your last custom island event is still on its way.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s12",
+   "english": "Your custom island event is on its way. It comes first; the island event already on its way comes right after it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [

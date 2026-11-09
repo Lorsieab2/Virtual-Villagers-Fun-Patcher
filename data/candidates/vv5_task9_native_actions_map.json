@@ -6,8 +6,8 @@
   },
   "active_base": {
     "size": 24426,
-    "file_sha256": "97480BCF215F2312B5C555EBAB066BE319F73C2DE923FC8BD3F2DF305B749FC5",
-    "source_text_sha256": "97480BCF215F2312B5C555EBAB066BE319F73C2DE923FC8BD3F2DF305B749FC5"
+    "file_sha256": "0D3243AE581D3623E29C299C075102D52F9E0BB0914F0DE7C7C96699F2EFED3E",
+    "source_text_sha256": "0D3243AE581D3623E29C299C075102D52F9E0BB0914F0DE7C7C96699F2EFED3E"
   },
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
@@ -18,15 +18,15 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "CA063A772F66F4954D2F5F76BB331A826F811A23100A00BD28D489989F36F957"
+      "source_text_sha256": "3773097E3289594A519822EB6BDC1DB16B3C5A3E136420AD73B82591CC7FA3A4"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "0B711949753706F4379CAB030C253574785C4B8FA6A389567474AA984B5A9718"
+      "source_text_sha256": "F595B5A67559911EB6F6EDA591AFCB9BAA663BA178CB6725AF33C5309A33E401"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "7C7D881759290F34EF3DE460E28956E4771C27E7F0BA9A7C92E21B94E53B5C6E"
+      "source_text_sha256": "2A4CAE436493D6C7B0EBF2E200BDC62798086F535753AF9DF6D49B1529EDB856"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
@@ -46,7 +46,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "97480BCF215F2312B5C555EBAB066BE319F73C2DE923FC8BD3F2DF305B749FC5"
+      "source_text_sha256": "0D3243AE581D3623E29C299C075102D52F9E0BB0914F0DE7C7C96699F2EFED3E"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 1890304,
-    "sha256": "8AC82C841DC92C0C00E431318DD9666650F0027674C4DAB9E59143D61F45A241"
+    "size": 1891840,
+    "sha256": "DE015EB8DA79F15BB50E405C93022CF4D4117EA2E711159096A198D78D2F0F10"
   },
   "payload": {
     "sha256": "FC05283D127AC9FEF5B9AA02406D320A9EC484FD3CE119011C0129C1F6F9ED51",

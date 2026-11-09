@@ -25,3 +25,4 @@ EXPORTS
     ; .text string cave (VV2's ordinal-resolution tip).
     VvfpStartup=_VvfpStartup@8
     VvfpMaskOf=_VvfpMaskOf@4
+    VvfpOriginsVillageReset=_VvfpOriginsVillageReset@8

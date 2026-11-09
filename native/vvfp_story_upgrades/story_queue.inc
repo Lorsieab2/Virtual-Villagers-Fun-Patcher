@@ -74,6 +74,16 @@
 #define SQ_GONG   4u
 #define SQ_SKIP   8u
 #define SQ_ASKED  16u                       /* with SQ_CUSTOM: the question is on screen, not just armed */
+/* With the custom event's item (its moment, when[1]): a bought or picked island event was waiting when it
+   was bought, and comes right after it (story_custom_ui.inc ce_requeue_tick) -- with SQ_CUSTOM armed, it
+   is still to go first; without it, or with its question on screen, it has come and the waiting one is
+   to be made due now (Codex, #745: a quit in between lost the bought event). */
+#define SQ_REQUEUE 32u
+/* With the custom event's item: a Barrel of Babies was on its way when it was bought (The Tree of Life,
+   New Believers: the same trigger), so the barrel comes first and the custom event is made due right
+   after it (story_custom_ui.inc ce_behind_barrel; Codex, #745: a quit in between left the custom event
+   for the next natural island event). */
+#define SQ_BARREL_FIRST 64u
 #define SQ_ITEMS  4
 
 typedef struct {
@@ -317,6 +327,13 @@ static void sq_capture(int game, sq_file *f) {
         f->ce_is_choice = 1;
         f->ce_is_notice = 0;
     }
+    if ((ce_requeue_game == game && (f->have & SQ_CUSTOM) && !(f->have & SQ_ASKED))
+        || (ce_requeue_due == game && story_village_is(game, &ce_requeue_village))) {
+        f->have |= SQ_REQUEUE;              /* the island event it went ahead of, still to come */
+    }
+    if (ce_behind_barrel == game && (f->have & SQ_CUSTOM) && !(f->have & SQ_ASKED)) {
+        f->have |= SQ_BARREL_FIRST;         /* a barrel goes first; this event right after it */
+    }
     if (game == 2 && oc_gong.state == OC_ARMED && oc_gong.game == 2 && oc_gong.save_slot == slot) {
         f->have |= SQ_GONG;
         f->gong = oc_gong.set;
@@ -332,6 +349,11 @@ static void sq_capture(int game, sq_file *f) {
 
 /* Whether item `bit`'s own fields differ between a and b. */
 static int sq_item_differs(const sq_file *a, const sq_file *b, unsigned int bit) {
+    /* SQ_BARREL_FIRST is written with its custom event and never moves its moment: left in the file once the
+       barrel has come, it only makes an event already due due again (ce_requeue_tick checks). */
+    if (bit == SQ_CUSTOM && (a->have & SQ_REQUEUE) != (b->have & SQ_REQUEUE)) {
+        return 1;
+    }
     if ((a->have & bit) != (b->have & bit)) {
         return 1;
     }
@@ -390,7 +412,15 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
     if (!(f->have & SQ_CUSTOM)) {
         f->have &= ~SQ_ASKED;
     }
-    if ((f->have & SQ_PICK) && pick_slot < 0 && !ce_armed
+    if ((f->have & SQ_REQUEUE) && (!have_save || f->when[sq_bit_index(SQ_CUSTOM)] > saved)) {
+        f->have &= ~SQ_REQUEUE;             /* newer than the save: the save still holds the bought event's own timer */
+    }
+    if (!(f->have & SQ_CUSTOM)) {
+        f->have &= ~SQ_BARREL_FIRST;        /* only ever with its custom event */
+    }
+    /* A pick and a custom event can both be queued: the custom event goes first and the pick
+       follows it (story_custom_ui.inc ce_purchase_locked), so each comes back on its own. */
+    if ((f->have & SQ_PICK) && pick_slot < 0
         && f->pick_index >= 0 && f->pick_index < GAMES[game].event_count
         && GAMES[game].events[f->pick_index].slot == f->pick_slot) {
         pick_slot = f->pick_slot;
@@ -403,7 +433,7 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         }
         restored |= SQ_PICK;
     }
-    if ((f->have & SQ_CUSTOM) && !ce_armed && pick_slot < 0 && f->ce.game == game
+    if ((f->have & SQ_CUSTOM) && !ce_armed && f->ce.game == game
         && (!f->ce_is_choice || choice != NULL)) {
         ce_armed_event = f->ce;
         ce_armed_is_choice = f->ce_is_choice;
@@ -416,6 +446,13 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         ce_armed = 1;
         ce_wait_arm = 0;                /* held again by ce_opening_tick if the village is that new */
         restored |= SQ_CUSTOM;
+        if ((pick_slot >= 0 && pick_game == game) || ((f->have & SQ_REQUEUE) && !(f->have & SQ_ASKED))) {
+            ce_requeue_game = game;     /* the pick or bought event it went ahead of comes after it */
+            ce_requeue_village = ce_armed_village;
+        }
+        if ((f->have & SQ_BARREL_FIRST) && !(f->have & SQ_ASKED)) {
+            ce_behind_barrel = game;    /* the barrel it let go first: made due once that has come */
+        }
         if ((f->have & SQ_ASKED) && !lazy) {
             /* The question was on screen at the quit, so the save's timer is
                spent: make the island event due as the purchase did, once. */
@@ -426,6 +463,13 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
 #endif
             restored |= SQ_ASKED;
         }
+    }
+    /* The custom event has come (or its question is on screen): the island event it went ahead of is
+       made due on the next frame (ce_requeue_tick), as if no quit had come between. */
+    if ((f->have & SQ_REQUEUE) && (!(f->have & SQ_CUSTOM) || (f->have & SQ_ASKED)) && ce_requeue_due == 0) {
+        ce_requeue_due = game;
+        ce_requeue_village = story_village_now(game);
+        restored |= SQ_REQUEUE;
     }
     if ((f->have & SQ_GONG) && game == 2 && oc_gong.state == OC_IDLE) {
         oc_arm_set(&oc_gong, 2, OC_GONG_SLOT, &f->gong);

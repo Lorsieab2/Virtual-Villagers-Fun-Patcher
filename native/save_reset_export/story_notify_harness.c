@@ -8,7 +8,10 @@
  * when that DLL is already loaded, and never loading it. It tells "VVFP Cause
  * of Death.dll" the same way (VvfpCauseVillageReset), so the graves table it
  * holds for the erased slot is dropped before the sweep deletes the slot's
- * file and can never be written back into the next village.
+ * file and can never be written back into the next village. And it tells
+ * the game's Origins companion (VvfpOriginsVillageReset, under whichever
+ * name that game ships it), so a Barrel of Babies or Island Event bought and
+ * not yet delivered in the erased village never comes to the new one.
  *
  * This compiles the SHIPPED save_reset_export.c (included, not copied) with
  * the module lookups, the save folder and the sweep itself replaced by
@@ -23,6 +26,7 @@
 
 #define STORY_MODULE ((HMODULE)(UINT_PTR)0x10000000u)
 #define CAUSE_MODULE ((HMODULE)(UINT_PTR)0x11000000u)
+#define ORIGINS_MODULE ((HMODULE)(UINT_PTR)0x12000000u)
 
 static int g_story_loaded;
 static int g_story_exports;
@@ -42,6 +46,13 @@ static int g_cause_slot;
 static int g_swept;
 static int g_notified_before_sweep;
 static int g_cause_before_sweep;
+static const char *g_origins_name;     /* the name the Origins companion is loaded under, NULL: none */
+static int g_origins_exports;
+static char g_origins_proc_asked[64];
+static int g_origins_notified;
+static int g_origins_game;
+static int g_origins_slot;
+static int g_origins_before_sweep;
 
 static void __stdcall fake_story_reset(int game, int slot) {
     ++g_notified;
@@ -57,8 +68,18 @@ static void __stdcall fake_cause_reset(int game, int slot) {
     g_cause_before_sweep = g_swept == 0;
 }
 
+static void __stdcall fake_origins_reset(int game, int slot) {
+    ++g_origins_notified;
+    g_origins_game = game;
+    g_origins_slot = slot;
+    g_origins_before_sweep = g_swept == 0;
+}
+
 static HMODULE WINAPI harness_get_module(LPCSTR name) {
     ++g_modules_asked;
+    if (g_origins_name != NULL && lstrcmpA(name, g_origins_name) == 0) {
+        return ORIGINS_MODULE;
+    }
     if (lstrcmpA(name, "VVFP Story Upgrades.dll") == 0) {
         ++g_story_name_asked;
         return g_story_loaded ? STORY_MODULE : NULL;
@@ -78,6 +99,10 @@ static FARPROC WINAPI harness_get_proc(HMODULE module, LPCSTR name) {
     if (module == CAUSE_MODULE) {
         lstrcpynA(g_cause_proc_asked, name, sizeof g_cause_proc_asked);
         return g_cause_exports ? (FARPROC)fake_cause_reset : NULL;
+    }
+    if (module == ORIGINS_MODULE) {
+        lstrcpynA(g_origins_proc_asked, name, sizeof g_origins_proc_asked);
+        return g_origins_exports ? (FARPROC)fake_origins_reset : NULL;
     }
     return NULL;
 }
@@ -123,6 +148,10 @@ static void reset_recorders(int story_loaded, int story_exports, int cause_loade
     g_modules_asked = g_story_name_asked = g_cause_name_asked = 0;
     g_notified = g_notified_game = g_notified_slot = g_swept = g_notified_before_sweep = 0;
     g_cause_notified = g_cause_game = g_cause_slot = g_cause_before_sweep = 0;
+    g_origins_name = NULL;
+    g_origins_exports = 0;
+    g_origins_proc_asked[0] = '\0';
+    g_origins_notified = g_origins_game = g_origins_slot = g_origins_before_sweep = 0;
 }
 
 int main(void) {
@@ -159,6 +188,34 @@ int main(void) {
     ResetDeletedTribe(1, 4);
     check(g_notified == 0 && g_cause_notified == 1 && g_cause_slot == 4 && g_swept == 1,
           "either companion is told without the other");
+
+    {
+        /* Each game's Origins companion, under the name it ships as (data/vv*_origins_feature.json). */
+        static const char *const names[5] = {
+            "VVFP VV1 Origins Icons.dll", "VVFP VV2 Origins Icons.dll", "VVFP Origins Icons.dll",
+            "VVFP VV4 Origins Icons.dll", "VVFP Origins Icons.dll"
+        };
+        for (game = 1; game <= 5; ++game) {
+            char what[120];
+            reset_recorders(1, 1, 1, 1);
+            g_origins_name = names[game - 1];
+            g_origins_exports = 1;
+            ResetDeletedTribe(game, 3);
+            wsprintfA(what, "THE ORIGINS COMPANION IS TOLD THE VILLAGE IS GONE (game %d, \"%s\")", game, names[game - 1]);
+            check(g_origins_notified == 1 && g_origins_game == game && g_origins_slot == 3
+                  && lstrcmpA(g_origins_proc_asked, "VvfpOriginsVillageReset") == 0, what);
+            check(g_origins_before_sweep && g_swept == 1, "told before the sweep, and the sweep still runs");
+        }
+        reset_recorders(1, 1, 1, 1);
+        g_origins_name = names[0];
+        ResetDeletedTribe(1, 3);
+        check(g_origins_notified == 0 && g_swept == 1 && g_notified == 1,
+              "an Origins companion without the export is left alone");
+        reset_recorders(1, 1, 1, 1);
+        ResetDeletedTribe(4, 3);
+        check(g_origins_notified == 0 && g_origins_proc_asked[0] == '\0' && g_swept == 1,
+              "WITHOUT THE ORIGINS COMPANION LOADED NOTHING IS CALLED");
+    }
 
     reset_recorders(1, 1, 1, 1);
     ResetDeletedTribe(5, 0);

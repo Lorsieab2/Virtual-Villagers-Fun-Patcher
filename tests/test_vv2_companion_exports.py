@@ -40,6 +40,9 @@ BY_ORDINAL = {100: "ShowVV2AppearanceForAll"}
 BY_STARTUP_LOADER = {"VvfpStartup"}
 # Resolved by the log exporters (native/shared/mask_line.h), for the "Mask:" line.
 BY_LOG_EXPORTERS = {"VvfpMaskOf"}
+# Resolved by "VVFP Save Reset.dll" at Start Over or a deleted tribe (native/save_reset_export), so a
+# purchase not yet delivered goes with the erased village.
+BY_SAVE_RESET = {"VvfpOriginsVillageReset"}
 # Names the companion no longer exports; the executable must not ask for them.
 REMOVED = {
     "ShowOriginsAgeResult", "ShowOriginsAppearanceForAll",
@@ -65,7 +68,8 @@ def _exports() -> dict[str, int]:
 class Vv2CompanionExportTests(unittest.TestCase):
     def test_export_table_is_exactly_what_the_executable_resolves(self) -> None:
         exports = _exports()
-        self.assertEqual(set(exports), BY_NAME | set(BY_ORDINAL.values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS)
+        self.assertEqual(set(exports), BY_NAME | set(BY_ORDINAL.values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS
+                         | BY_SAVE_RESET)
         for ordinal, name in BY_ORDINAL.items():
             self.assertEqual(exports[name], ordinal)
         self.assertFalse(

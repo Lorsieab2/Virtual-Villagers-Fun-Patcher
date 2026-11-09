@@ -2243,6 +2243,20 @@ static const itk_game VV2_ITK = {
     "Virtual Villagers - The Lost Children"
 };
 
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  As A New Home's (vv1_origins_icons.c): the Barrel's token
+   0x49C700 and cue counter 0x49C708 go with the village that paid for them,
+   no refund; the keeper forgets its bought island event.  Another slot's
+   tribe deleted from the menu leaves the village in memory as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 2 || slot < 1 || slot > 5 || slot != vv2_story_slot()) {
+        return;
+    }
+    vv_paid_village_reset(&VV2_PAID);
+    itk_village_reset(slot);
+}
+
 void __stdcall Vv2MaskSweep(unsigned char *base) {
     int i;
     vvfp_pathfinding_bridge(2); /* pathfinding companion: installs its detours once, fail-open */
@@ -2477,7 +2491,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv2_story_slot, vv2_story_mask_get, vv2_story_mask_set, NULL,
         vv2_story_time_skip_step, vv2_story_time_skip_settled, vv2_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }

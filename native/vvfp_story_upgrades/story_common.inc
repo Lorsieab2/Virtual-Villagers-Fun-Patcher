@@ -179,6 +179,12 @@ typedef struct {
        event keeps its time (native/shared/island_timer_keep.h): absent from
        a host that predates it (its size stops before it). */
     void (__stdcall *island_arming)(void *field, unsigned int value);
+    /* 1 while a bought island event of this village is on its way: from
+       its purchase until the game's trigger delivers it, however long the
+       paused Tech screen keeps it due (island_timer_keep.h
+       itk_on_its_way): absent from a host that predates it (its size stops
+       before it), which then goes by the timer alone. */
+    int (__stdcall *island_on_its_way)(void);
 } story_host;
 
 /* The size of a host without the time skip's entries. */
@@ -187,6 +193,8 @@ typedef struct {
 #define STORY_HOST_SKIP_SIZE ((int)offsetof(story_host, time_skip_running))
 /* ...and of one with every time-skip entry but not the island timer's. */
 #define STORY_HOST_RUNNING_SIZE ((int)offsetof(story_host, island_arming))
+/* ...and of one with the island timer's arming but not its "on its way". */
+#define STORY_HOST_ARMING_SIZE ((int)offsetof(story_host, island_on_its_way))
 
 static const story_host *story_hosts[6];
 
@@ -213,9 +221,20 @@ static int story_host_running(const story_host *host) {
    `field`: the host keeps the time the game's own next event was due. */
 static void story_island_arming(int game, void *field, unsigned int value) {
     const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
-    if (host != NULL && host->size >= (int)sizeof(story_host) && host->island_arming != NULL) {
+    if (host != NULL && host->size > STORY_HOST_RUNNING_SIZE && host->island_arming != NULL) {
         host->island_arming(field, value);
     }
+}
+
+/* Whether a bought island event of `game`'s village is on its way, as the
+   host's keeper knows it: from the purchase (the Origins row's, or an arm
+   here) until the game's trigger delivers it -- not merely "due within five
+   seconds", which the paused Tech screen outlasts.  0 from a host that
+   cannot say (the timer alone decides then, as before). */
+static int story_bought_on_its_way(int game) {
+    const story_host *host = game >= 1 && game <= 5 ? story_hosts[game] : NULL;
+    return host != NULL && host->size > STORY_HOST_ARMING_SIZE && host->island_on_its_way != NULL
+        && host->island_on_its_way() != 0;
 }
 
 /* Called once by each game's Origins companion (native/shared/story_bridge.h)
@@ -223,7 +242,8 @@ static void story_island_arming(int game, void *field, unsigned int value) {
 __declspec(dllexport) int __stdcall VvfpStoryAttachHost(int game, const story_host *host) {
     if (game < 1 || game > 5 || host == NULL
         || (host->size != STORY_HOST_BASE_SIZE && host->size != STORY_HOST_SKIP_SIZE
-            && host->size != STORY_HOST_RUNNING_SIZE && host->size != (int)sizeof(story_host))
+            && host->size != STORY_HOST_RUNNING_SIZE && host->size != STORY_HOST_ARMING_SIZE
+            && host->size != (int)sizeof(story_host))
         || host->slot == NULL || host->mask_get == NULL || host->mask_set == NULL) {
         return 0;
     }

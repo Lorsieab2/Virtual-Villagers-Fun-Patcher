@@ -20,3 +20,4 @@ EXPORTS
     VvfpMaskOf=_VvfpMaskOf@4
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
     VvfpMaskKeep=_VvfpMaskKeep@8
+    VvfpOriginsVillageReset=_VvfpOriginsVillageReset@8

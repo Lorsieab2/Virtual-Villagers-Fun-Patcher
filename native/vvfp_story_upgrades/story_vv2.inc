@@ -52,7 +52,12 @@ static int vv2_peek(void) {
 
 /* The family an armed pick or custom event needs, as a slot, or -1. */
 static int vv2_route(void) {
-    int slot = vv2_peek();
+    int slot = -1;
+    /* A custom event goes first (story_custom_ui.inc ce_purchase_locked): a pick waiting with it is
+       not taken by this run, and comes next. */
+    if (!ce_due(2, 0)) {
+        slot = vv2_peek();
+    }
     if (slot < 0 && ce_due(2, 0)) {
         /* A question is asked by family A's two-button popup (story_c2.inc),
            a plain event by family C's single-result popup. */
@@ -367,6 +372,8 @@ static int vv2_possible(const story_event *e) {
     return vv2_any_villager(pool, -1, -1, 0, 0);
 }
 
+/* As A New Home's (story_vv1.inc vv1_island_pending): due within five
+   seconds, or a bought event still on its way past them. */
 static int vv2_island_pending(void) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
     unsigned int countdown;
@@ -374,7 +381,7 @@ static int vv2_island_pending(void) {
         return 1;
     }
     countdown = *(unsigned int *)(world + VV2_COUNTDOWN);
-    if (countdown == 0) {
+    if (countdown == 0 || story_bought_on_its_way(2)) {
         return 1;
     }
     return countdown - (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL) <= 5u;

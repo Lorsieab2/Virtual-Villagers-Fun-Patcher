@@ -73,12 +73,23 @@ typedef struct {
     /* What else the game's delivery needs re-armed after a relaunch (NULL:
        nothing); counter may be NULL when the game has none. */
     void (*restore)(void);
+    /* WHAT WAITS BEHIND THE BARREL (NULL: nothing).  The Tree of Life's
+       Barrel and Island Event share one timer: an Island Event bought before
+       the Barrel waits behind it and is put back on the timer once the
+       Barrel is presented -- by its own process-only token.  held() gives
+       such bits while the purchase is pending; they are kept in the file
+       beside the token (the token word's upper bytes: a file without them
+       reads as nothing held) and handed to restore_held after `restore` when
+       the purchase is re-armed. */
+    unsigned int (*held)(void);
+    void (*restore_held)(unsigned int bits);
 } vv_paid_game;
 
 static int vv_paid_slot;                       /* the village tracked: its slot ... */
 static unsigned int vv_paid_roster[VV_PAID_RECORDS];  /* ... and its roster */
 static int vv_paid_have;
 static int vv_paid_last;                       /* pending on the last frame */
+static unsigned int vv_paid_held_last;         /* the held bits the file was last written with */
 static FILETIME vv_paid_bought;
 static DWORD vv_paid_written;
 static int vv_paid_dirty;                      /* the roster changed since the file was written */
@@ -266,6 +277,13 @@ static int vv_paid_write(int game, int slot, unsigned int token, const unsigned 
     return 1;
 }
 
+/* The token word the file keeps: the token, and what waits behind it (held). */
+static unsigned int vv_paid_word(const vv_paid_game *g) {
+    unsigned int held = g->held != NULL ? g->held() & 0xFFFFFFu : 0u;
+    vv_paid_held_last = held;
+    return (unsigned int)*g->token | (held << 8);
+}
+
 static void vv_paid_delete(int game, int slot) {
     char path[MAX_PATH];
     if (vv_paid_path(game, slot, path, 0)) {
@@ -326,6 +344,9 @@ static int vv_paid_arrive(int game, int slot, const unsigned int *roster, const 
     if (g->restore != NULL) {
         g->restore();
     }
+    if (g->restore_held != NULL) {
+        g->restore_held(f.token >> 8);       /* what waited behind it, back too */
+    }
     return 1;
 }
 
@@ -380,7 +401,7 @@ static int vv_paid_tick(int game, int slot, const unsigned int *roster, const vv
             static vv_paid_file other;
             if (!(vv_paid_read(game, slot, &other) > 0 && !vv_paid_same_village(other.roster, roster))) {
                 GetSystemTimeAsFileTime(&vv_paid_bought);
-                vv_paid_write(game, slot, *g->token, roster);
+                vv_paid_write(game, slot, vv_paid_word(g), roster);
             }
         }
         vv_paid_last = pending;
@@ -389,21 +410,60 @@ static int vv_paid_tick(int game, int slot, const unsigned int *roster, const vv
     pending = *g->token != 0;
     if (pending && !vv_paid_last) {
         GetSystemTimeAsFileTime(&vv_paid_bought);   /* bought now */
-        vv_paid_write(game, slot, *g->token, roster);
+        vv_paid_write(game, slot, vv_paid_word(g), roster);
     } else if (!pending && vv_paid_last) {
         vv_paid_delete(game, slot);                  /* delivered */
     } else if (pending) {
         if (memcmp(vv_paid_roster, roster, sizeof vv_paid_roster) != 0) {
             vv_paid_dirty = 1;                        /* a birth, a death while it waits */
         }
-        if (vv_paid_dirty && GetTickCount() - vv_paid_written >= VV_PAID_REFRESH_MS
-            && vv_paid_write(game, slot, *g->token, roster)) {
+        if (g->held != NULL && (g->held() & 0xFFFFFFu) != vv_paid_held_last) {
+            vv_paid_write(game, slot, vv_paid_word(g), roster);   /* what waits behind it changed */
+        } else if (vv_paid_dirty && GetTickCount() - vv_paid_written >= VV_PAID_REFRESH_MS
+            && vv_paid_write(game, slot, vv_paid_word(g), roster)) {
             vv_paid_dirty = 0;                        /* the village it waits in, as it is now */
         }
     }
     memcpy(vv_paid_roster, roster, sizeof vv_paid_roster);
     vv_paid_last = pending;
     return 0;
+}
+
+/* The purchase taken back and refunded (native/shared/barrel_refund.h): its
+   file goes at once, before any save can hold the refund beside a file that
+   would re-arm it after a relaunch -- so it is refunded once, never twice --
+   and the tracker forgets it. */
+static void vv_paid_withdrawn(int game, int slot) {
+    if (slot >= 1 && slot <= 5) {
+        vv_paid_delete(game, slot);
+    }
+    vv_paid_last = 0;
+    vv_paid_dirty = 0;
+    vv_paid_held_last = 0;
+}
+
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY (the
+   Origins companions' VvfpOriginsVillageReset, called by "VVFP Save
+   Reset.dll" before the game erases the village).  The token is process
+   memory, and a slot change is the only thing the executable clears it on,
+   so a barrel bought and not yet delivered came to the NEW village started
+   in the same slot.  The village that paid for it is gone (its tech points
+   with it, and the new village never paid), so the purchase goes with it --
+   no refund, as Start Over discards every queued Story purchase too.  The
+   slot's file goes with the save's own folder (native/shared/save_reset.c);
+   the next village on screen is tracked afresh. */
+static void vv_paid_village_reset(const vv_paid_game *g) {
+    if (!vv_paid_mapped(g)) {
+        return;
+    }
+    *g->token = 0;
+    if (g->counter != NULL) {
+        *g->counter = 0u;
+    }
+    vv_paid_have = 0;
+    vv_paid_last = 0;
+    vv_paid_dirty = 0;
+    vv_paid_held_last = 0;
 }
 
 #endif /* VV_PAID_PURCHASES_H */

@@ -149,6 +149,7 @@ static DWORD test_tick;
 static int ce_pending(int game);
 static int ce_due(int game, int counted);
 static void ce_opening_tick(int game);
+static void ce_requeue_tick(int game);
 /* Defined with the outcomes (story_outcomes.inc), used earlier. */
 static void oc_new_choice(int game);
 static void oc_delivered(int game, void *object);
@@ -177,6 +178,9 @@ static unsigned int choice_resolve_target(int game, unsigned int va, unsigned in
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* ... and by the locks below: a bought island event is on its way until the
+   game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
+static int story_bought_on_its_way(int game);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -462,9 +466,16 @@ typedef int (__fastcall *clock_fn)(void *self, void *unused_edx);
 
 /* Each game: is an island event already on its way (the Island Event row's
    own lock), and make one due exactly as the Origins Island Event purchase
-   does.  Returns 1 on success. */
+   does.  Returns 1 on success.
+
+   A bought event counts as on its way until the game's trigger delivers it
+   (story_bought_on_its_way), not only while the timer or flag says it is
+   due: the Tech screen pauses the game, so one bought there stays due,
+   undelivered, for as long as the screen is open -- and The Secret City's
+   flag was released by its due second alone (the island handler's frame
+   hook, the Origins companion's menu draw). */
 static int vv3_island_pending(void) {
-    return *(volatile unsigned char *)(uintptr_t)VV3_ISLAND_FLAG != 0;
+    return *(volatile unsigned char *)(uintptr_t)VV3_ISLAND_FLAG != 0 || story_bought_on_its_way(3);
 }
 
 static int vv3_arm(void) {
@@ -490,7 +501,7 @@ static int vv4_island_pending(void) {
             || *(volatile unsigned char *)(uintptr_t)VV4_BARREL_ARMED != 0)) {
         return 1;
     }
-    if (countdown == 0) {
+    if (countdown == 0 || story_bought_on_its_way(4)) {
         return 1;
     }
     return countdown - (unsigned int)((clock_fn)(uintptr_t)VV4_CLOCK)(world, NULL) <= 5u;
@@ -943,6 +954,9 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     /* A Custom Island Event held by a new village's two opening island
        events: made due once they are over (story_custom_ui.inc). */
     ce_opening_tick(game);
+    /* A Custom Island Event goes first: the event it went ahead of comes next,
+       and one a barrel went ahead of is made due again (story_custom_ui.inc). */
+    ce_requeue_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -990,6 +1004,9 @@ static const char *story_price_text(int game) {
 }
 
 typedef int (*story_command_fn)(int game, HWND owner);
+
+static int ce_purchase_locked(int game, int *displaces);
+static int ce_barrel_waiting(int game);
 
 /* `command`, charged when the upgrades cost tech points: refused with a
    message while the village has fewer, and the price taken only when the
@@ -1320,6 +1337,15 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeSetTick(DWORD tick) {
 
 __declspec(dllexport) int __stdcall VvfpStoryProbePending(int game) {
     return GAMES[game].island_pending();
+}
+
+/* The Custom Island Event's own lock (story_custom_ui.inc ce_purchase_locked):
+   out[0] refused, out[1] a bought or picked event is waiting (it goes first,
+   that one comes after it), out[2] the displaced event to put back after a
+   delivery (ce_requeue: 0 none, else the game). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeCustomGate(int game, int *out) {
+    out[0] = ce_purchase_locked(game, &out[1]);
+    out[2] = ce_requeue_game;
 }
 
 __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int position) {

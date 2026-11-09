@@ -13,6 +13,12 @@
 #include "island_timer_vv4.inc"
 #include "island_timer_vv5.inc"
 
+/* The refund of a Barrel of Babies that can never arrive (barrel_refund.h), with the message
+   recorded instead of shown. */
+static int test_told, test_told_amount;
+#define VV_BARREL_REFUND_TELL(refunded) (++test_told, test_told_amount = (refunded))
+#include "barrel_refund.h"
+
 static int test_slot;
 static unsigned int test_roster[ITK_ROSTER];
 
@@ -92,6 +98,55 @@ __declspec(dllexport) void __stdcall ItkProbeState(unsigned int *out) {
 /* The Story / Cheat Upgrades' arm, as its host table hands it over. */
 __declspec(dllexport) void __stdcall ItkProbeStoryArming(void *field, unsigned int value) {
     itk_story_arming(field, value);
+}
+
+/* Whether a bought island event is on its way, as the island-event rows'
+   locks ask it (the Origins companions directly, the Story / Cheat Upgrades
+   through their host table). */
+__declspec(dllexport) int __stdcall ItkProbeOnItsWay(void) {
+    return itk_story_on_its_way();
+}
+
+/* Start Over or a deleted tribe in `slot` (VvfpOriginsVillageReset). */
+__declspec(dllexport) void __stdcall ItkProbeVillageReset(int slot) {
+    itk_village_reset(slot);
+}
+
+/* The Tree of Life's and New Believers' barrel refund, as their Origins companions wire it
+   (vv4_origins_icons.c VV4_BARREL_REFUND, vv5_task9_origins.c VV5_BARREL_REFUND), with the price
+   the test sets (the Origins price, or 0 when the upgrades are free) and the Barrel's file a count. */
+static int test_price, test_withdrawn;
+static int t4_pending(void) { return *(volatile unsigned char *)(UINT_PTR)0x00728B04u != 0; }
+static int t4_island(void) { return *(volatile unsigned char *)(UINT_PTR)0x00728B08u != 0; }
+static void t4_cancel(void) {
+    *(volatile unsigned char *)(UINT_PTR)0x00728B04u = 0;
+    *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 0;
+}
+static int t5_pending(void) { return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x0Cu) != 0; }
+static int t5_island(void) { return (*(volatile unsigned int *)(UINT_PTR)0x0051D388u & 0x30u) != 0; }
+static void t5_cancel(void) { *(volatile unsigned int *)(UINT_PTR)0x0051D388u &= ~0x0Cu; }
+static int t_price(void) { return test_price; }
+static void t_withdrawn(void) { ++test_withdrawn; }
+static const vv_barrel_refund_game TEST_REFUND[2] = {
+    { 4, 0x467610u, 0x43FA4Au, (volatile int *)(UINT_PTR)0x004D6F88u,
+      t4_pending, t4_island, t4_cancel, t_price, t_withdrawn },
+    { 5, 0x4713F0u, 0x4426F7u, (volatile int *)(UINT_PTR)0x0051D5F8u,
+      t5_pending, t5_island, t5_cancel, t_price, NULL },
+};
+
+__declspec(dllexport) void __stdcall ItkProbeBarrelRefund(int game, int price) {
+    test_price = price;
+    if (game == 4 || game == 5) {
+        vv_br_install(&TEST_REFUND[game - 4]);
+    }
+}
+
+/* out[0] refunds made, out[1] messages, out[2] the last message's amount, out[3] files withdrawn. */
+__declspec(dllexport) void __stdcall ItkProbeBarrelState(int *out) {
+    out[0] = vv_br_count;
+    out[1] = test_told;
+    out[2] = test_told_amount;
+    out[3] = test_withdrawn;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

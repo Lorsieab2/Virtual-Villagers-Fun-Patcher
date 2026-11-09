@@ -230,10 +230,11 @@ class EncounterDialogTests(unittest.TestCase):
             # The tallest result (Bea's): the title, five empty lines (the
             # picture), the text, an empty line, "999 of the chosen villagers
             # were no longer here." (two lines at The Lost Children's 46
-            # characters) and "999 changes could not be made.".
+            # characters), "Their changes were skipped: there was nobody to apply them to." (two lines at
+            # either game's width) and "999 changes could not be made.".
             skipped = 2 if CHOICE_PANEL[game][2] < 48 else 1
             with self.subTest(game=game):
-                self.assertEqual(_lines(question), 1 + 5 + 1 + 1 + skipped + 1)
+                self.assertEqual(_lines(question), 1 + 5 + 1 + 1 + skipped + 2 + 1)
                 self.assertEqual(question.rstrip("\n"), "The Strange Lights" + "\n" * 6 + "Short?",
                                  "only line breaks are added")
 
@@ -374,7 +375,9 @@ class EncounterDialogTests(unittest.TestCase):
             p.write(CHOICE_BUF, _choice(story).pack())
             with self.subTest(game=game):
                 self.assertEqual(p.export("VvfpStoryProbeChoiceRefusal", story.n, EVENT_BUF, CHOICE_BUF), 0)
-                self.assertIn("first island event", story.refusal(Event(title="Plain", text="x")) or "")
+                # A plain one may be queued then too (the owner, 2026-11-09: available at all times); it is
+                # held until the two opening island events are over (ce_held).
+                self.assertIsNone(story.refusal(Event(title="Plain", text="x")))
 
 
 # ---------------------------------------------------------------------------

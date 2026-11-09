@@ -308,6 +308,47 @@ static void notify_cause_of_death(int game, int slot) {
     }
 }
 
+/* The Origins companion: a Barrel of Babies or Island Event bought and not
+ * delivered yet is held in the executable's own memory (A New Home 0x48D700,
+ * The Lost Children 0x49C700, The Secret City 0x6E0050 / 0x6E0058, The Tree
+ * of Life 0x728B00..0x728B0C, New Believers' bits 0x3C of 0x51D388), which
+ * only a change of slot cleared -- so it came to the new village started in
+ * the same slot. The companion drops it (VvfpOriginsVillageReset, only when
+ * `slot` is the village in memory's) BEFORE the game makes the new village.
+ * Each game ships its companion under its own name ("VVFP Origins Icons.dll"
+ * is The Secret City's and New Believers'); only one is loaded, and it is
+ * called only when already loaded. */
+static const char *const ORIGINS_COMPANIONS[] = {
+    "VVFP VV1 Origins Icons.dll",
+    "VVFP VV2 Origins Icons.dll",
+    "VVFP Origins Icons.dll",
+    "VVFP VV4 Origins Icons.dll",
+};
+
+static void notify_origins(int game, int slot) {
+    HMODULE seen[sizeof ORIGINS_COMPANIONS / sizeof ORIGINS_COMPANIONS[0]];
+    int i, k, count = 0;
+    for (i = 0; i < (int)(sizeof ORIGINS_COMPANIONS / sizeof ORIGINS_COMPANIONS[0]); ++i) {
+        HMODULE origins = GetModuleHandleA(ORIGINS_COMPANIONS[i]);
+        story_village_reset_fn reset;
+        int again = 0;
+        if (origins == NULL) {
+            continue;
+        }
+        for (k = 0; k < count; ++k) {
+            again |= seen[k] == origins;
+        }
+        if (again) {
+            continue;
+        }
+        seen[count++] = origins;
+        reset = (story_village_reset_fn)(void *)GetProcAddress(origins, "VvfpOriginsVillageReset");
+        if (reset != NULL) {
+            reset(game, slot);
+        }
+    }
+}
+
 __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     char village[256];
     wchar_t folder[MAX_PATH];
@@ -318,6 +359,7 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     }
     notify_story_upgrades(game, slot);
     notify_cause_of_death(game, slot);
+    notify_origins(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full

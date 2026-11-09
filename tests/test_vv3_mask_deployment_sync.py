@@ -156,8 +156,13 @@ class VV3MaskDeploymentSyncTests(unittest.TestCase):
         # CheckHighestSkill, the Tech menu's rows 14-16 (also through the
         # .def only). 35 since the VV1-shaped ShowOriginsUpgradeMenu (and
         # its decorated twin), which the executable never resolved, was
-        # removed (v1.35.70).
-        self.assertEqual(len(exports), 35)
+        # removed (v1.35.70). 36 since VvfpOriginsVillageReset, which "VVFP
+        # Save Reset.dll" calls at Start Over or a deleted tribe so a purchase
+        # not yet delivered goes with the erased village (also through the
+        # .def only).
+        self.assertEqual(len(exports), 36)
+        self.assertIn("VvfpOriginsVillageReset", exports)
+        self.assertNotIn("_VvfpOriginsVillageReset@8", exports)
         self.assertNotIn("ShowOriginsUpgradeMenu", exports)
 
     def test_deployed_companion_carries_every_complete_result_message(self) -> None:

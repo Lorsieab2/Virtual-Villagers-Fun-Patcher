@@ -65,10 +65,12 @@ def feature() -> dict:
         "island event: it does not move the next island event, is not counted in Island Events Seen and is not "
         "written to the Island Events log. It counts only believers the Faith drift turns Heathen: a believer an "
         "island event makes a Heathen, and Heathens island events or the Story / Cheat Upgrades make, never bring "
-        "it. Nothing in the game is changed by it. "
+        "it. A popup still waiting when you quit is kept and comes after you load that save again, once; it goes "
+        "with the village on Start Over or a deleted tribe and never shows in another save. Nothing in the game is "
+        "changed by it. "
         "**On by default.** **Needs Story / Cheat Upgrades (on by default) for the popup: that patch's DLL shows "
         "it.** The companion is \"VVFP Faith Notice.dll\", started by VVFP Startup.dll; saves are never written "
-        "by it.")
+        "by it (the waiting popup is kept in its own file in the patcher's save folder).")
     return {
         "id": NOTICE_ID,
         "enabled": True,
@@ -108,6 +110,16 @@ def feature() -> dict:
             "\"Loss of trust\": N villagers). The count starts again when it is armed.",
             "The bottom bar's line for each conversion is the game's own: 0x4669E0 says string 0x48 through the "
             "say bar 0x520F68 / 0x44EF60 (0x4669EC) on every conversion, with or without this patch.",
+            "The batch still waiting for its popup (the total and each reason's count) is kept per save slot in "
+            "<save folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Faith Notice\\Waiting Popup - Save <S>.dat "
+            "(native/shared/sidecar_io.h: atomic writes; a locked or unreadable file is never replaced and is read "
+            "again on the gate's throttle): written when the batch changes (at most every half second, from "
+            "VvfpFaithNoticeKeep, which VVFP Story Upgrades.dll calls every frame, never from inside the life tick) "
+            "and deleted the moment the popup is armed, when the Story queue's own file takes it over, so a quit "
+            "after the arm never shows it twice. It is read when the game's save slot is first seen and added to "
+            "what the load-time catch-up has turned since, then shown by the rules above. Start Over or a deleted "
+            "tribe (VvfpFaithNoticeVillageReset) forgets it in memory, and native/shared/save_reset.c deletes the "
+            "slot's folder with the file; a batch is only written to, and a file only read for, its own slot.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched and no Faith, villager record or save byte is written: the companion "

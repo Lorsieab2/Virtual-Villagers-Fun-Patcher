@@ -290,7 +290,9 @@ class EmptyTriggerTests(unittest.TestCase):
                     self.assertEqual(e.trigger.fire(), "stock island event")
                     self.assertEqual(e.trigger.counter, 2)
 
-    def test_a_living_village_before_its_first_event_is_unchanged(self):
+    def test_a_living_village_before_its_first_event_gets_it_first(self):
+        """The owner (2026-11-09): a Custom Island Event comes first, even before the visitor; the visitor is
+        still the village's first island event after it."""
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
@@ -299,8 +301,9 @@ class EmptyTriggerTests(unittest.TestCase):
                 e.population[0] = 3
                 e.story.village.put(1, sex="m", years=30, name="Adam")
                 e.queue()
-                self.assertEqual(e.trigger.fire(), "visitor", "the game's own first event")
-                self.assertEqual(e.story.proc.export("VvfpStoryProbeCustomPending", e.n), 1)
+                self.assertEqual(e.trigger.fire(), "custom")
+                self.assertEqual(e.trigger.counter, 0, "not counted")
+                self.assertEqual(e.trigger.fire(), "visitor", "the game's own first event, after it")
 
     def test_an_empty_village_does_not_wait_for_its_opening_events(self):
         """It can never have them: the trigger does nothing while it is empty."""
@@ -323,10 +326,12 @@ class EmptyTriggerTests(unittest.TestCase):
                 e.story.village.put(1, sex="m", years=30, name="Adam")
                 e.queue()
                 self.assertEqual(e.trigger.fire(), "custom")
-                self.assertEqual(len(e.draws), 1, "the game's own draw, as before")
-                e.trigger.counter = 1                  # opening events still hold it
+                # Two draws with the trigger's own arguments: the count stub's look for anyone the trigger
+                # accepts (ce_trigger_bypass), then the trigger's own draw, as before.
+                self.assertEqual(len(e.draws), 2)
+                e.trigger.counter = 1                  # between the opening events: it comes first
                 e.queue()
-                self.assertEqual(e.trigger.fire(), "stock island event")
+                self.assertEqual(e.trigger.fire(), "custom")
 
     def test_new_villagers_arrive_through_the_trigger(self):
         for game in GAMES:
@@ -420,14 +425,16 @@ class PurchaseTests(unittest.TestCase):
                 story.village.put(3, sex="m", years=40, name="Bones", health=0)
                 self.assertIsNone(story.refusal(Event(spawns=[Spawn()])), "skeletons are not alive")
 
-    def test_someone_alive_but_no_adult_is_still_refused(self):
+    def test_someone_alive_but_no_adult_is_never_refused(self):
+        """The owner (2026-11-09): "These should be a special exception where no adult is needed to spawn
+        villagers" -- the trigger's draw is gone around when nobody it accepts lives (ce_trigger_bypass)."""
         for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 story = self._story(game)
                 story.village.put(1, sex="m", years=5, name="Kid")
-                self.assertIn("living adult", story.refusal(Event()) or "")
+                self.assertIsNone(story.refusal(Event()))
 
     def test_a_question_is_refused_with_its_reason(self):
         for game in GAMES:
@@ -450,7 +457,8 @@ class PurchaseTests(unittest.TestCase):
 
     def test_before_the_first_island_event(self):
         """An empty village may queue one before its first island event (the
-        visitor stays its first); a living one still waits for the visitor."""
+        visitor stays its first); a living one may too, and it is held until the
+        two opening island events are over (ce_held)."""
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
@@ -459,7 +467,7 @@ class PurchaseTests(unittest.TestCase):
                 story.proc.put32(events_seen_address(game, story.village.world), 0)
                 self.assertIsNone(story.refusal(Event(spawns=[Spawn(count=2)])))
                 story.village.put(1, sex="m", years=30, name="Adam")
-                self.assertIn("first island event", story.refusal(Event()) or "")
+                self.assertIsNone(story.refusal(Event()))
 
     def test_bought_for_an_empty_new_village_it_is_made_due_at_once(self):
         for game in GAMES:
@@ -478,10 +486,9 @@ class PurchaseTests(unittest.TestCase):
                 self.assertEqual(p.export("VvfpStoryProbeCustomHeld"), 0)
                 self.assertEqual(p.export("VvfpStoryProbePending", story.n), 1, "made due")
 
-    def test_held_by_the_opening_events_then_everyone_dies(self):
-        """Bought in a new village (held), then the last villager dies: the
-        companion's frame makes it due, since the opening events can no
-        longer come."""
+    def test_bought_in_a_new_village_it_is_made_due_at_once(self):
+        """Never held for the opening events (the owner, 2026-11-09): made due at once, whether the village
+        keeps its villagers or the last one dies."""
         for game in GAMES:
             if not have_stock(game):
                 continue
@@ -497,9 +504,9 @@ class PurchaseTests(unittest.TestCase):
                 event.game = story.n
                 p.write(EVENT_BUF, event.pack())
                 self.assertEqual(p.export("VvfpStoryProbeQueueCustom", story.n, EVENT_BUF, 0), 1)
-                self.assertEqual(p.export("VvfpStoryProbeCustomHeld"), 1)
+                self.assertEqual(p.export("VvfpStoryProbeCustomHeld"), 0)
                 p.export("VvfpStoryInstall", story.n)
-                self.assertEqual(p.export("VvfpStoryProbePending", story.n), 0, "still waiting")
+                self.assertEqual(p.export("VvfpStoryProbePending", story.n), 1, "made due at once")
                 alive[0] = 0
                 p.export("VvfpStoryInstall", story.n)
                 self.assertEqual(p.export("VvfpStoryProbeCustomHeld"), 0)

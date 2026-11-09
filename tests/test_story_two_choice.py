@@ -393,7 +393,7 @@ class ChoiceArmingTests(unittest.TestCase):
                 self.assertEqual(p.export("VvfpStoryPickIslandEvent", n, 0), 0)
                 self.assertIn("already queued", p.messages[-1])
                 self.assertEqual(p.export("VvfpStoryCustomIslandEvent", n, 0), 0)
-                self.assertIn("already queued", p.messages[-1])
+                self.assertIn("Your last custom island event is still on its way", p.messages[-1])
 
     def test_queueing_remembers_the_village(self):
         for game in GAMES:

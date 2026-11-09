@@ -137,24 +137,97 @@ static int __cdecl ce_dead_bypass(int game) {
     return CE_DEAD_GO;
 }
 
+/* NOBODY THE TRIGGER ACCEPTS (the owner, 2026-11-09: "I want the following available at all times
+   always: Custom Island Events (with full functionality) ESPECIALLY THE PARTS THAT BRING NEW
+   VILLAGERS.  These should be a special exception where no adult is needed to spawn villagers.").
+   Past its count, each trigger draws one villager with the game's own picker and runs the event only
+   when that villager's age equals its processed age (story_fast_delivery.inc) -- A New Home's and The
+   Lost Children's picker draws adults only (its argument 1), The Secret City's checks a live villager
+   too.  So a village of children (A New Home, The Lost Children), or of villagers none of whom the
+   picker or the age check accepts, never got its Custom Island Event.  With a plain one due and not
+   held by the opening events, the count stub asks the same picker, with the trigger's own arguments,
+   up to CE_FAST_TRIES times (as the quicker delivery does): no draw the trigger would accept, and the
+   event goes on as for an empty village -- delivered by the game's own trigger, popup and count, its
+   new villagers made by the game's own creators, which need no other villager. */
+static int ce_trigger_accepts(int game, void *scene, void *count_this) {
+    int drawn;
+    switch (game) {
+    case 1: case 2: {
+        ce_index_pick p = { NULL, 1, game == 1 ? 0x43BCD0u : 0x44BAE0u, game == 1 ? 0x3D8u : 0xE48Cu,
+                            game == 1 ? 0x348u : 0x530u, game == 1 ? 0x34Cu : 0x534u };
+        if (scene == NULL || (p.self = *(void **)((unsigned char *)scene + 0x20)) == NULL) {
+            return 1;                  /* nothing to ask: the game decides, as stock */
+        }
+        drawn = ce_fast_pick(ce_index_draw, ce_index_fits, -1, &p);
+        return drawn != -1 && ce_index_fits(&p, drawn);
+    }
+    case 3: {
+        ce_index_pick p = { count_this, 1, 0x45C9D0u, 0, 0, 0 };
+        drawn = ce_fast_pick(ce_index_draw, ce_vv3_fits, -1, &p);
+        return drawn != -1 && ce_vv3_fits(&p, drawn);
+    }
+    case 4: {
+        ce_record_pick p = { count_this, { -1, -1, -1, 1, 1, -1, 0, 0, 0, 0 } };
+        drawn = ce_fast_pick(ce_vv4_draw, ce_record_fits, 0, &p);
+        return drawn != 0 && ce_record_fits(&p, drawn);
+    }
+    case 5: {
+        ce_record_pick p = { count_this, { -1, -1, -1, 1, 1, -1, 0, 0, 0, 0, 0, 1, 0, 0 } };
+        drawn = ce_fast_pick(ce_vv5_draw, ce_record_fits, 0, &p);
+        return drawn != 0 && ce_record_fits(&p, drawn);
+    }
+    default:
+        return 1;
+    }
+}
+
+/* Asked by every count stub with the count the game answered (and the trigger's own object and the
+   count's `this`): CE_DEAD_GO / CE_DEAD_FIRST = go on to the event as if a villager had been drawn,
+   0 = as stock.  A count of 0 is the empty village (ce_dead_bypass); otherwise only a plain Custom
+   Island Event due now, not held, in a village with nobody the trigger's own draw accepts. */
+static int __cdecl ce_trigger_bypass(int game, int count, void *scene, void *count_this) {
+    const int *counter = ce_event_counter(game);
+    /* Before the trigger counts the event it makes: the village's first island event still to come. */
+    ce_first_before = counter != NULL && *counter == 0 ? game : 0;
+    if (count == 0) {
+        return ce_dead_bypass(game);
+    }
+    ce_dead_firing = 0;
+    ce_dead_first = 0;
+    /* A New Home, The Lost Children: a village's first island event is the game's own visitor
+       (0x42382C, 0x42EF3C).  A player's own event comes first: the trigger goes on past that check
+       for it, uncounted, so the visitor is still the village's first island event after it. */
+    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game) && !ce_armed_is_notice) {
+        ce_dead_first = game;
+        return CE_DEAD_FIRST;
+    }
+    if (!ce_plain_pending(game) || ce_trigger_accepts(game, scene, count_this)) {
+        return 0;
+    }
+    return CE_DEAD_GO;
+}
+
 /* New Believers' selector found no stock event possible: 1 = present the
    custom event instead (a plain one due now). */
 static int __cdecl ce_dead_select(int game) {
     return ce_plain_pending(game) && !ce_held(game, 1);
 }
 
-/* The arm refusal's answer for a village with no living adult: NULL (a
-   plain event may be queued) when the village is empty, a question's own
-   refusal when it is one, or `refusal` (someone lives but no adult). */
+/* The arm refusal's answer for a village with no living adult.  A plain
+   event is never refused for it -- no adult is needed: the trigger's own
+   draw is gone around when nobody it accepts lives (ce_trigger_bypass), and
+   changes for villagers who are not there are skipped and named in the
+   popup.  Only a question needs someone to ask: refused with `refusal`
+   (someone lives but no adult), or its own words for an empty village. */
 static const char *ce_empty_refusal(int game, const char *refusal) {
+    if (!ce_refusal_for_choice) {
+        return NULL;
+    }
     if (!ce_village_empty(game)) {
         return refusal;
     }
-    if (ce_refusal_for_choice) {
-        return "Everyone in the village has died, so there is nobody to ask a question. "
-               "Untick \"Ask a question with two choices\" to send this event to the empty village.";
-    }
-    return NULL;
+    return "Everyone in the village has died, so there is nobody to ask a question. "
+           "Untick \"Ask a question with two choices\" to send this event to the empty village.";
 }
 
 /* ---- The count stubs -------------------------------------------------------
@@ -163,28 +236,35 @@ static const char *ce_empty_refusal(int game, const char *refusal) {
    stock code loads -- the world, or the villager manager, which 256
    Villagers (Experimental) moves, so the `mov ecx` before the call is left
    as it is.  The stub runs the count and returns to the stock `test eax,
-   eax; je <skip>` with it -- or, for an empty village with a custom event
-   queued, drops its return address and goes on at the point after the
-   villager draw and age check, with the register the stock code has there
+   eax; je <skip>` with it -- or, with a plain custom event due and nobody
+   the trigger accepts (the count 0, or no draw it would take:
+   ce_trigger_bypass), drops its return address and goes on at the point
+   after the villager draw and age check, with the register the stock code has there
    (EDI in A New Home / The Lost Children, EBP in the later three: the value
    of the routine called between the draw and the check).  pushad keeps
    every register for the stock path; the saved EAX is [esp+0x1C]. */
 
 __declspec(naked) static void c1_count_stub(void) {
     __asm {
+        push ecx                     /* the count's this (the world, or the villager manager) */
         mov eax, 0x41CF90
         call eax
-        test eax, eax
-        jnz done
         pushad
+        push dword ptr [esp + 0x20]  /* the count's this, pushed before the call */
+        push esi                     /* the trigger's own object */
+        push eax                     /* the count the game answered */
         push 1
-        call ce_dead_bypass
+        call ce_trigger_bypass
+        add esp, 16
+        test eax, eax
+        jnz go
+        popad                        /* as stock: the game's own count */
         add esp, 4
+        ret
+    go:
         mov dword ptr [esp + 0x1C], eax
         popad
-        test eax, eax
-        jz nobody
-        add esp, 4
+        add esp, 8                   /* the kept this and the return: on past the draw */
         push eax                    /* CE_DEAD_GO or CE_DEAD_FIRST */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x41D110
@@ -199,28 +279,30 @@ __declspec(naked) static void c1_count_stub(void) {
     first:                          /* past the first-event visitor check */
         push 0x423838
         ret
-    nobody:
-        xor eax, eax
-    done:
-        ret
     }
 }
 
 __declspec(naked) static void c2_count_stub(void) {
     __asm {
+        push ecx                     /* the count's this (the world, or the villager manager) */
         mov eax, 0x425860
         call eax
-        test eax, eax
-        jnz done
         pushad
+        push dword ptr [esp + 0x20]  /* the count's this, pushed before the call */
+        push esi                     /* the trigger's own object */
+        push eax                     /* the count the game answered */
         push 2
-        call ce_dead_bypass
+        call ce_trigger_bypass
+        add esp, 16
+        test eax, eax
+        jnz go
+        popad                        /* as stock: the game's own count */
         add esp, 4
+        ret
+    go:
         mov dword ptr [esp + 0x1C], eax
         popad
-        test eax, eax
-        jz nobody
-        add esp, 4
+        add esp, 8                   /* the kept this and the return: on past the draw */
         push eax                    /* CE_DEAD_GO or CE_DEAD_FIRST */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x426110
@@ -235,28 +317,30 @@ __declspec(naked) static void c2_count_stub(void) {
     first:                          /* past the first-event visitor check */
         push 0x42EF48
         ret
-    nobody:
-        xor eax, eax
-    done:
-        ret
     }
 }
 
 __declspec(naked) static void c3_count_stub(void) {
     __asm {
+        push ecx                     /* the count's this (the world, or the villager manager) */
         mov eax, 0x45E8F0
         call eax
-        test eax, eax
-        jnz done
         pushad
+        push dword ptr [esp + 0x20]  /* the count's this, pushed before the call */
+        push esi                     /* the trigger's own object */
+        push eax                     /* the count the game answered */
         push 3
-        call ce_dead_bypass
+        call ce_trigger_bypass
+        add esp, 16
+        test eax, eax
+        jnz go
+        popad                        /* as stock: the game's own count */
         add esp, 4
+        ret
+    go:
         mov dword ptr [esp + 0x1C], eax
         popad
-        test eax, eax
-        jz nobody
-        add esp, 4
+        add esp, 8                   /* the kept this and the return: on past the draw */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x402200
         call eax
@@ -264,38 +348,36 @@ __declspec(naked) static void c3_count_stub(void) {
         xor edi, edi
         push 0x468798
         ret
-    nobody:
-        xor eax, eax
-    done:
-        ret
     }
 }
 
 __declspec(naked) static void c4_count_stub(void) {
     __asm {
+        push ecx                     /* the count's this (the world, or the villager manager) */
         mov eax, 0x467610
         call eax
-        test eax, eax
-        jnz done
         pushad
+        push dword ptr [esp + 0x20]  /* the count's this, pushed before the call */
+        push esi                     /* the trigger's own object */
+        push eax                     /* the count the game answered */
         push 4
-        call ce_dead_bypass
+        call ce_trigger_bypass
+        add esp, 16
+        test eax, eax
+        jnz go
+        popad                        /* as stock: the game's own count */
         add esp, 4
+        ret
+    go:
         mov dword ptr [esp + 0x1C], eax
         popad
-        test eax, eax
-        jz nobody
-        add esp, 4
+        add esp, 8                   /* the kept this and the return: on past the draw */
         mov ecx, dword ptr [esi + 0x10]
         mov eax, 0x416EB0
         call eax
         mov ebp, eax
         xor edi, edi
         push 0x43FA9B
-        ret
-    nobody:
-        xor eax, eax
-    done:
         ret
     }
 }
@@ -305,19 +387,25 @@ __declspec(naked) static void c4_count_stub(void) {
    God Powers manager 0x51D4C8 +0xDC). */
 __declspec(naked) static void c5_count_stub(void) {
     __asm {
+        push ecx                     /* the count's this (the world, or the villager manager) */
         mov eax, 0x4713F0
         call eax
-        test eax, eax
-        jnz done
         pushad
+        push dword ptr [esp + 0x20]  /* the count's this, pushed before the call */
+        push esi                     /* the trigger's own object */
+        push eax                     /* the count the game answered */
         push 5
-        call ce_dead_bypass
+        call ce_trigger_bypass
+        add esp, 16
+        test eax, eax
+        jnz go
+        popad                        /* as stock: the game's own count */
         add esp, 4
+        ret
+    go:
         mov dword ptr [esp + 0x1C], eax
         popad
-        test eax, eax
-        jz nobody
-        add esp, 4
+        add esp, 8                   /* the kept this and the return: on past the draw */
         cmp dword ptr ds:[0x51D5A4], -1   /* the stock check after the count: no God Power armed */
         jne skip
         mov ecx, dword ptr [esi + 0x10]
@@ -329,10 +417,6 @@ __declspec(naked) static void c5_count_stub(void) {
         ret
     skip:
         push 0x44285F
-        ret
-    nobody:
-        xor eax, eax
-    done:
         ret
     }
 }
