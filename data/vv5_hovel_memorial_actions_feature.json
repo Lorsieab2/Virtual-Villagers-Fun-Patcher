@@ -1,0 +1,94 @@
+{
+  "id": "vv5_hovel_memorial_actions",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Memorial Actions Can Also Occur at the Heathen Hovel",
+  "description": "Best paired with \"More Respectful Flower Hovel Cover\". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate. **Needs no other patch.** Once every Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if Heathens come back later. From then on, a villager who goes \"Honoring the dead\" on an ordinary day honors at the hovel a quarter of the time: they still go for their flowers first, then lay them in front of the hovel instead of at the graves. A villager \"Reflecting\" also reflects in front of the hovel a quarter of the time instead of in the usual spot. Each walk goes to a random point of the open ground just in front of the hovel. The Day of Honor island event's honoring, every other action and every other place are unchanged, and before the memorial nothing changes. Nothing is saved: the game's own puzzle progress decides it. **New Believers never sends villagers \"Reflecting\" by itself: only a Custom Island Event (Story / Cheat Upgrades) does, so the Reflecting part shows only then.**",
+  "output_tag": "Hovel Memorial Actions",
+  "behavior_changes": [
+    "The hovel is a memorial once The Last Heathen (project 25) is done (0x43AE80 on 0x51E008): the game solves it when no Heathen is left and the villagers have fixed up the mud hut (0x437120, behaviour 0xD8, 0x46D487), and draws the hovel's flower cover from then on (0x4370E0). Project progress is saved and never goes back, so the hovel stays a memorial even when Heathens appear again.",
+    "The everyday \"Honoring the dead\" (behaviour 17, 0x4595B0) started by its chooser 0x46B0F0 (0x46B145): with the memorial, rand(100) < 25 sends its three walks to the graves (area 0x7B) to random points in front of the hovel instead, x = 2176 + rand(97), y = 1576 + rand(25) (the feet's point; 2176..2272 by 1576..1600); its walk for the flowers (area 0x7A) is unchanged.",
+    "\"Reflecting\" (behaviour 29, 0x457E90; registered at 0x46409E, so every start of it): with the memorial, rand(100) < 25 sends its five go-tos to random points in front of the hovel instead of 1530..1803 by 1606..1805."
+  ],
+  "explicit_non_changes": [
+    "The Day of Honor island event's honoring (behaviour 17 for everyone, 0x414DDA -> 0x470C60) and the Custom Island Event's \"Honoring the dead [Day of Honor]\" are as stock; so are \"Honoring the dead (another way)\" (behaviour 46, 0x4567C0) and every other action.",
+    "Before The Last Heathen is solved everything is as stock. The actions' text, gestures, speeds, flags and length are their own. No save, sidecar or villager-record byte is written."
+  ],
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x6409E",
+      "before": "68907E4500",
+      "after": "68614B4900",
+      "purpose": "\"Reflecting\" (behaviour 29) registration: push 0x457E90 -> push the wrapper 0x494B61"
+    },
+    {
+      "offset": "0x6B145",
+      "before": "E836A4FFFF",
+      "after": "E8309A0200",
+      "purpose": "the everyday \"Honoring the dead\" chooser 0x46B0F0's start of behaviour 17: call 0x465580 -> call the wrapper 0x494B7A"
+    },
+    {
+      "offset": "0x57EE2",
+      "before": "E8B9C60100",
+      "after": "E8DACE0300",
+      "purpose": "\"Reflecting\" (0x457E90)'s go-to: call 0x4745A0 -> call 0x494DC1"
+    },
+    {
+      "offset": "0x57F13",
+      "before": "E888C60100",
+      "after": "E8A9CE0300",
+      "purpose": "\"Reflecting\" (0x457E90)'s go-to: call 0x4745A0 -> call 0x494DC1"
+    },
+    {
+      "offset": "0x57F6E",
+      "before": "E82DC60100",
+      "after": "E84ECE0300",
+      "purpose": "\"Reflecting\" (0x457E90)'s go-to: call 0x4745A0 -> call 0x494DC1"
+    },
+    {
+      "offset": "0x57FC9",
+      "before": "E8D2C50100",
+      "after": "E8F3CD0300",
+      "purpose": "\"Reflecting\" (0x457E90)'s go-to: call 0x4745A0 -> call 0x494DC1"
+    },
+    {
+      "offset": "0x58024",
+      "before": "E877C50100",
+      "after": "E898CD0300",
+      "purpose": "\"Reflecting\" (0x457E90)'s go-to: call 0x4745A0 -> call 0x494DC1"
+    },
+    {
+      "offset": "0x59630",
+      "before": "E88BAE0100",
+      "after": "E863B50300",
+      "purpose": "\"Honoring the dead\" (0x4595B0)'s walk to the graves (area 0x7B): call 0x4744C0 -> call 0x494B98"
+    },
+    {
+      "offset": "0x5966D",
+      "before": "E84EAE0100",
+      "after": "E826B50300",
+      "purpose": "\"Honoring the dead\" (0x4595B0)'s walk to the graves (area 0x7B): call 0x4744C0 -> call 0x494B98"
+    },
+    {
+      "offset": "0x596BA",
+      "before": "E801AE0100",
+      "after": "E8D9B40300",
+      "purpose": "\"Honoring the dead\" (0x4595B0)'s walk to the graves (area 0x7B): call 0x4744C0 -> call 0x494B98"
+    },
+    {
+      "offset": "0x94B40",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "516A19B908E05100E83363FAFF84C0740E6A64E808EBF6FF5983F8190F9CC059C3E8DAFFFFFF84C07505E92133FCFFFF742404E81833FCFF59C3E8C1FFFFFF84C07505E9F809FDFFFF742408FF742408E8EB09FDFFC20800817C242C954B49000F851AF9FDFFE8F5010000FF74240CFF74240C5250E8E6F9FDFFC20C00",
+      "purpose": "cave: the memorial-and-chance check 0x494B40 (The Last Heathen, project 25, done (0x43AE80) and rand(100) < 25), the Reflecting wrapper 0x494B61 (mark 0x494B78), the Honoring start wrapper 0x494B7A (mark 0x494B95) and the marked graves walk 0x494B98"
+    },
+    {
+      "offset": "0x94DA0",
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "516A61E8B8E8F6FF8904246A19E8AEE8F6FF5A8D902806000058058008000059C3817C241C784B49000F85D1F7FDFFE8CCFFFFFF8944240489542408E9BFF7FDFF",
+      "purpose": "cave: the hovel point 0x494DA0 (2176 + rand(97), 1576 + rand(25)) and the marked Reflecting go-to 0x494DC1"
+    }
+  ]
+}

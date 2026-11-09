@@ -222,6 +222,7 @@ FILES = [
     "data/vv5_new_heathens_faith_feature.json",
     "data/vv5_heathen_conversion_notice_feature.json",
     "data/vv5_puddles_by_the_lake_feature.json",
+    "data/vv5_hovel_memorial_actions_feature.json",
     "data/vv1_story_cheat_upgrades_feature.json",
     "data/vv2_story_cheat_upgrades_feature.json",
     "data/vv3_story_cheat_upgrades_feature.json",
