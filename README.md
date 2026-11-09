@@ -1601,6 +1601,12 @@ When it rains, children in New Believers go "Playing in puddles" in the dry lake
 
 - Patch ID: `vv5_puddles_by_the_lake`
 
+**Memorial Actions Can Also Occur at the Heathen Hovel**
+
+Best paired with "More Respectful Flower Hovel Cover". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate. **Needs no other patch.** Once every Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if Heathens come back later. From then on, a villager who goes "Honoring the dead" on an ordinary day honors at the hovel half of the time: they still go for their flowers first, then lay them in front of the hovel instead of at the graves. A villager "Reflecting" also reflects in front of the hovel half of the time instead of in the usual spot. Each walk goes to a random point of the open ground just in front of the hovel. The Day of Honor island event's honoring, every other action and every other place are unchanged, and before the memorial nothing changes. Nothing is saved: the game's own puzzle progress decides it. **New Believers never sends villagers "Reflecting" by itself: only a Custom Island Event (Story / Cheat Upgrades) does, so the Reflecting part shows only then.** **Off by default and in Select All; on in Owner's Defaults.**
+
+- Patch ID: `vv5_hovel_memorial_actions`
+
 **Charitable Soul Epitaph**
 
 When a Devotee dies and is buried, the epitaph New Believers writes on the grave is chosen at random, with equal chances, between the game's usual epitaph ("Respected Citizen", or "Respected Devotee" with Guardians of Isola Rewrite) and "Charitable Soul". In the stock game every other job already gets one of two epitaphs on a coin flip (a Farmer is "Child of the Earth" or "Nature's Friend", and so on), but a Devotee always got the usual epitaph, which an adult with no skill at all also gets. A villager's job here is the one the grave names: their highest skill. Only Devotees change: the unskilled adult keeps the usual epitaph, children and villagers with three or more master skills keep their own epitaphs, and every other job keeps its pair. The epitaph is stored in the grave like any other, so it is saved with the village, the player can still edit it, and the Deaths log records it. Graves that earlier versions of this patch wrote as "Devoted Soul" keep that epitaph.
