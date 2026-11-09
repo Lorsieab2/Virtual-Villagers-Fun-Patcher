@@ -157,6 +157,29 @@ class TheKeeperKnowsUntilTheTriggerDelivers(unittest.TestCase):
                 self.assertTrue(v.tick(), "someone lives again: the trigger runs it")
                 self.assertEqual(self.on(v), 0)
 
+    def test_everyone_dying_after_the_purchase_keeps_it_on_its_way(self):
+        """Codex on #745: the purchase is tied to its village by the save slot and the keeper's record, not
+        by who survives.  Bought while villagers live, then everyone dies (the roster callbacks skip the
+        dead): still on its way, in memory and after a relaunch into the empty village."""
+        nobody = [0] * 256
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                v = KeeperVillage(game)
+                v.set_timer(CLOCK + 3 * HOUR)
+                v.buy()
+                v.village(1, ROSTER[:2] + [0] * 254)      # most have died: two survivors
+                self.assertEqual(self.on(v), 1)
+                v.village(1, nobody)                       # everyone has died
+                self.assertEqual(self.on(v), 1)
+                v.proc.export("ItkProbeSaved", 1)          # saved, then the game closed
+                v.proc.export("ItkProbeSession", 1)
+                self.assertEqual(self.on(v), 0, "a new process: nothing in memory yet")
+                v.now += 60
+                _run_trigger(v, 0)                         # the empty village's trigger, due, runs nothing
+                self.assertEqual(self.on(v), 1, "its file is this slot's: on its way again")
+
     def test_never_another_villages_and_start_over_forgets_it(self):
         for game in LOCKED:
             if not have_stock(game):
@@ -266,89 +289,215 @@ class TheStoryLockAsksTheKeeper(unittest.TestCase):
 
 
 @_skip_without(TEST_DLL)
-class EmptyVillageCustomTakesThePlace(unittest.TestCase):
-    """story_custom_ui.inc ce_purchase_locked: out = (refused, takes the waiting event's place, free)."""
+class ACustomIslandEventIsAvailableAtAllTimes(unittest.TestCase):
+    """The owner (2026-11-09): "I want the following available at all times always: Custom Island Events (with
+    full functionality) ESPECIALLY THE PARTS THAT BRING NEW VILLAGERS.  These should be a special exception where
+    no adult is needed to spawn villagers."  Each game's own trigger, popup and count, as the patcher renders the
+    executable; the game's leaf routines (clock, random, sound, builder, picker) are stand-ins."""
 
-    def gate(self, e) -> tuple:
-        out = e.story.proc.alloc(12)
-        e.story.proc.export("VvfpStoryProbeCustomGate", e.n, out)
-        return struct.unpack("<3i", e.story.proc.read(out, 12))
-
-    def _empty(self, game):
+    def _empty(self, game, *, living=0):
         from test_story_empty_village import _Empty
         e = _Empty(self, game)
-        e.host2 = _Host(e.story.proc, e.n)
+        e.population[0] = living
         return e
 
-    def test_a_bought_event_waiting_in_an_empty_village(self):
+    def _newcomers(self):
+        from story_custom_fixtures import Event, Spawn
+        return Event(title="The Long Night", text="Strangers came ashore.", spawns=[Spawn(count=2)])
+
+    def test_an_empty_village_gets_its_newcomers(self):
         for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 e = self._empty(game)
-                p = e.story.proc
-                timer = e.trigger.world + TIMER[game]
-                # Bought (each game's own record of it), due, and never delivered: nobody lives.
-                p.put32(timer, CLOCK - 600 if game != "vv5" else 0)
-                e.host2.on[0] = 1
+                e.queue(self._newcomers())
+                self.assertEqual(e.trigger.fire(), "custom")
+                self.assertEqual(len(e.story.creations), 2, "both newcomers made by the game's own creator")
+                self.assertEqual(e.story.proc.export("VvfpStoryProbeCustomPending", e.n), 0)
+
+    def test_nobody_the_trigger_accepts_and_it_still_comes(self):
+        """Villagers live, but none the trigger's own draw accepts (A New Home and The Lost Children draw adults
+        only; a villager whose age has not caught up never passes): before, the trigger waited for ever."""
+        none = {"vv1": -1, "vv2": -1, "vv3": 1, "vv4": 0, "vv5": 0}
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                e = self._empty(game, living=3)
+                e.story.village.put(1, sex="m", years=5, name="Keoni")     # a child
+                picker, pop = e.trigger.SPEC[game]["picker"]
+                e.story.proc.stub(picker, lambda q, v=none[game], pop=pop: (v & 0xFFFFFFFF, pop))
                 if game == "vv3":
-                    p.write(0x6E0050, b"\1")
-                if game == "vv4":
-                    p.write(0x728B08, b"\1")
-                    p.put32(0x728B0C, CLOCK - 600)
-                if game == "vv5":
-                    p.put32(0x51D388, 0x10)
-                    p.put32(e.trigger.world + 0x17D50, CLOCK)
-                self.assertEqual(self.gate(e), (0, 1, 1),
-                                 "a Custom Island Event takes its place, and is not charged again")
-                e.population[0] = 3                       # someone lives: it will come
-                self.assertEqual(self.gate(e), (1, 0, 0), "one island event at a time")
+                    e.story.proc.stub(0x45EE60, lambda q: (0, 4))      # the drawn one is not a live villager
+                e.queue(self._newcomers())
+                self.assertEqual(e.trigger.fire(), "custom")
+                self.assertEqual(len(e.story.creations), 2)
 
-    def test_a_barrel_waiting_is_never_replaced(self):
-        for game, setup in (("vv4", lambda p, w: (p.write(0x728B04, b"\1"), p.put32(w + 0x170E0, 0))),
-                            ("vv5", lambda p, w: (p.put32(0x51D388, 0x08), p.put32(w + 0x17D3C, 0)))):
+    def test_with_someone_the_trigger_accepts_it_is_the_games_own_draw(self):
+        for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
-                e = self._empty(game)
-                setup(e.story.proc, e.trigger.world)
-                e.host2.on[0] = 1
-                self.assertEqual(self.gate(e), (1, 0, 0))
+                e = self._empty(game, living=4)
+                e.story.village.put(1, sex="m", years=30, name="Adam")
+                e.queue(self._newcomers())
+                self.assertEqual(e.trigger.fire(), "custom")
+                self.assertGreaterEqual(len(e.draws), 1, "the trigger's own draw, as before")
 
-    def test_an_armed_pick_keeps_its_place(self):
+    def test_a_question_still_needs_someone_to_ask(self):
         for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 e = self._empty(game)
-                e.story.proc.export("VvfpStoryProbeSetPick", e.n, 0, 0)
-                self.assertEqual(self.gate(e)[0], 1)
-
-    def test_nothing_waiting_nothing_waived(self):
-        for game in GAMES:
-            if not have_stock(game):
-                continue
-            with self.subTest(game=game):
-                e = self._empty(game)
+                from story_custom_fixtures import Choice, Event, Outcome
                 p = e.story.proc
-                p.put32(e.trigger.world + TIMER[game], CLOCK + 36000)
-                if game == "vv5":
-                    p.put32(0x51D388, 0)
-                self.assertEqual(self.gate(e), (0, 0, 0))
+                from test_story_empty_village import CHOICE_BUF
+                from test_story_custom_island_event import EVENT_BUF
+                event = Event(title="A Fork", text="Which way?")
+                event.game = e.n
+                p.write(EVENT_BUF, event.pack())
+                choice = Choice(labels=("Left", "Right"),
+                                outcomes=([Outcome(1, Event(title="", text="Left."))],
+                                          [Outcome(1, Event(title="", text="Right."))]))
+                p.write(CHOICE_BUF, choice.pack())
+                p.export("VvfpStoryProbeSetChoice", e.n, EVENT_BUF, CHOICE_BUF, 0)
+                self.assertEqual(e.run_waiting(), [])
 
-    def test_the_charge_is_waived_only_for_the_replacement(self):
+    def test_changes_with_nobody_to_apply_them_to_are_skipped_and_named(self):
+        from test_story_custom_island_event import _stories
+        from story_custom_fixtures import Event
+        for game, story in _stories():
+            v = story.village
+            v.put(2, sex="m", years=30, name="Gone")
+            change = story.change(2, sick=1)
+            v.put(2, sex="m", years=30, name="Gone", health=0)       # died before it came
+            ok, r, text = story.apply(Event(title="Rain", text="It rained.", food_op=1, food_amount=10,
+                                            changes=[change]))
+            with self.subTest(game=game):
+                self.assertEqual((r["skipped"], r["changed"]), (1, 0))
+                flat = text.replace("\n", " ")
+                self.assertIn("1 of the chosen villagers were no longer here.", flat)
+                self.assertIn("Their changes were skipped: there was nobody to apply them to.", flat)
+                self.assertNotEqual(r["food_after"], r["food_before"], "the rest of the event still happens")
+
+
+@_skip_without(TEST_DLL)
+class ACustomIslandEventGoesFirst(unittest.TestCase):
+    """story_custom_ui.inc ce_purchase_locked / ce_requeue_tick: a bought or picked island event already on its way
+    never stops a Custom Island Event: the custom event comes first, the waiting one right after it, each with its
+    own charge."""
+
+    def gate(self, proc, n) -> tuple:
+        out = proc.alloc(12)
+        proc.export("VvfpStoryProbeCustomGate", n, out)
+        return struct.unpack("<3i", proc.read(out, 12))
+
+    def _bought(self, game, *, picked=False):
+        n = int(game[2:])
+        proc = process(game)
+        world = LockTests._world(LockTests(), proc, game)
+        proc.export("VvfpStoryInstall", n)
+        from test_story_custom_island_event import events_seen_address
+        proc.put32(events_seen_address(game, world), 5)          # past its two opening island events
+        host = _Host(proc, n)
+        if picked:
+            proc.export("VvfpStoryProbeArm", n, 0, 0)            # Pick Island Event, armed as bought
+        else:
+            LockTests._purchase(LockTests(), proc, game, world)  # the Origins Island Event's own code
+        host.on[0] = 1                                            # the keeper saw its write
+        if game == "vv5":
+            proc.put32(world + 0x17D50, CLOCK)
+        return proc, world, host, n
+
+    def _deliver_custom(self, proc, n):
+        from story_custom_fixtures import Event
+        from test_story_custom_island_event import EVENT_BUF, TEXT_BUF
+        event = Event(game=n, title="The Long Night", text="The stars went out.")
+        proc.write(EVENT_BUF, event.pack())
+        self.assertEqual(proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0), 1, "never refused")
+        self.assertEqual(proc.export("VvfpStoryProbeDeliver", n, TEXT_BUF, 4096), 1, "it comes first")
+
+    def _the_trigger_rescheduled(self, proc, world, host, game):
+        """What the game's trigger leaves after running the custom event: the timer hours away, the keeper's
+        record delivered, The Secret City's flag released by its frame hook."""
+        proc.put32(world + TIMER[game], CLOCK + 36000)
+        host.on[0] = 0
+        if game == "vv3":
+            proc.write(0x6E0050, b"\0")
+
+    def _due_again(self, proc, world, game) -> bool:
+        if game == "vv5":
+            return proc.u32(world + TIMER[game]) == 0 and bool(proc.u32(0x51D388) & 0x10)
+        return proc.u32(world + TIMER[game]) == CLOCK + 5
+
+    def test_a_bought_event_waiting_comes_right_after_it(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                proc, world, host, n = self._bought(game)
+                refused, displaces, _ = self.gate(proc, n)
+                self.assertEqual((refused, displaces), (0, 1))
+                self._deliver_custom(proc, n)
+                self._the_trigger_rescheduled(proc, world, host, game)
+                proc.export("VvfpStoryInstall", n)                # the next frame
+                self.assertTrue(self._due_again(proc, world, game), "the bought event is made due again")
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 1)
+                proc.export("VvfpStoryInstall", n)
+                self.assertEqual(self.gate(proc, n)[2], 0, "once")
+
+    def test_a_picked_event_waiting_comes_right_after_it(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                proc, world, host, n = self._bought(game, picked=True)
+                slot = proc.export("VvfpStoryProbeArmedSlot")
+                self._deliver_custom(proc, n)
+                self.assertEqual(proc.export("VvfpStoryProbeArmedSlot"), slot, "the pick was not taken")
+                self._the_trigger_rescheduled(proc, world, host, game)
+                proc.export("VvfpStoryInstall", n)
+                self.assertTrue(self._due_again(proc, world, game))
+                self.assertEqual(proc.export("VvfpStoryProbeArmedSlot"), slot)
+
+    def test_the_custom_event_is_routed_before_a_pick(self):
+        """A New Home, The Lost Children: the family rolls go to the custom event's family while both are armed,
+        so the pick's own rolls are not taken by the custom event's run."""
+        # A pick of the other family (A New Home's villager encounters, position 15; The Lost Children's family A,
+        # position 30), whose roll would answer 0.
+        for game, site, position in (("vv1", 0x423818, 15), ("vv2", 0x42EF28, 30)):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                from story_custom_fixtures import Event
+                from test_story_custom_island_event import EVENT_BUF
+                n = int(game[2:])
+                proc = process(game)
+                world = LockTests._world(LockTests(), proc, game)
+                from test_story_custom_island_event import events_seen_address
+                proc.put32(events_seen_address(game, world), 5)          # past its two opening island events
+                proc.export("VvfpStoryInstall", n)
+                proc.export("VvfpStoryProbeSetPick", n, position, 0)
+                event = Event(game=n, title="The Long Night", text="The stars went out.")
+                proc.write(EVENT_BUF, event.pack())
+                proc.export("VvfpStoryProbeQueueCustom", n, EVENT_BUF, 0)
+                esp = HEAP + 0x3000000
+                proc.set_reg("esp", esp)
+                proc.put32(esp, 100)
+                proc.stub(0x402F10 if game == "vv1" else 0x4031A0, lambda q: (0, 0))
+                proc.run(site, site + 5)
+                self.assertEqual(proc.reg("eax"), 99, "the island family: the custom event's own")
+
+    def test_one_charge_each(self):
         body = _source("native/vvfp_story_upgrades/vvfp_story_upgrades.c")
         charged = body[body.index("static int story_charged("):]
         charged = charged[:charged.index("\n}\n")]
-        self.assertIn("if (command == story_custom_island_event) {", charged)
-        self.assertIn("if (!waived && a->tech() < price) {", charged)
-        self.assertIn("if (done && !story_charge_waived) {", charged)
+        self.assertNotIn("waived", charged)
+        self.assertIn("if (done) {\n        a->change_tech(CE_AMOUNT_SUBTRACT, price);", charged)
         custom = _source("native/vvfp_story_upgrades/story_custom_ui.inc")
-        custom = custom[custom.index("static int story_custom_island_event(int game, HWND owner) {"):]
-        self.assertIn("story_charge_waived = waived;", custom)
-        self.assertIn('waived ? "0" : story_price_text(game)', custom)
-        self.assertLess(custom.index("ce_purchase_locked(game, &replaces, &waived)) {\n        refusal"),
-                        custom.index("story_charge_waived = waived;"))
+        self.assertNotIn("story_charge_waived", custom)
 
 
 # ---------------------------------------------------------------------------
@@ -511,6 +660,8 @@ class StartOverTakesThePurchasesWithTheVillage(unittest.TestCase):
 # The Tree of Life and New Believers: the Barrel rides the island-event trigger, which does nothing
 # while the game's own count (VV4 0x467610, VV5 0x4713F0: believers) is 0.  Each game's tech points.
 REFUND = {"vv4": dict(count=0x467610, tech=0x4D6F88), "vv5": dict(count=0x4713F0, tech=0x51D5F8)}
+# Each game's own count, the trigger's first test.
+COUNT = {"vv1": 0x41CF90, "vv2": 0x425860, "vv3": 0x45E8F0, "vv4": 0x467610, "vv5": 0x4713F0}
 BARREL_PRICE = 75000
 
 
@@ -525,7 +676,7 @@ def _run_trigger(v, living: int) -> None:
     up to where it leaves (as stock, it does nothing)."""
     p = v.proc
     owner = v._helpers()
-    p.stub(REFUND[v.game]["count"], lambda q: (living, 0))
+    p.stub(COUNT[v.game], lambda q: (living, 0))
     p.set_reg("esp", HEAP + 0x3000000)
     p.set_reg("esi", owner)
     p.set_reg("ebx", 0)

@@ -1995,16 +1995,19 @@ class TextTests(unittest.TestCase):
         for game in GAMES:
             if not have_stock(game):
                 continue
+            # The owner (2026-11-09): "These should be a special exception where no adult is needed to spawn
+            # villagers" -- a plain Custom Island Event is never refused for it, nor before a new village's first
+            # island event (it is held until the two opening island events are over, ce_held).
             story = Story(game)
             story.village.put(1, sex="m", years=5, name="Kid")
             with self.subTest(game=game, case="no adult"):
-                self.assertIn("living adult", story.refusal(Event()) or "")
+                self.assertIsNone(story.refusal(Event()))
             if game in ("vv1", "vv2"):
                 story.village.put(2, sex="f", years=30, name="Adult")
                 counter = story.village.world + (0x9E40 if game == "vv1" else 0x2E51C)
                 story.proc.put32(counter, 0)
                 with self.subTest(game=game, case="first event"):
-                    self.assertIn("first island event", story.refusal(Event()) or "")
+                    self.assertIsNone(story.refusal(Event()))
 
 
 # ---------------------------------------------------------------------------
@@ -2337,13 +2340,22 @@ class CustomLockTests(unittest.TestCase):
                 self.assertEqual(proc.export("VvfpStoryPickIslandEvent", n, 0), 0)
                 self.assertIn("already queued", proc.messages[-1])
                 self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
-                self.assertIn("already queued", proc.messages[-1])
+                self.assertIn("Your last custom island event is still on its way", proc.messages[-1])
             with self.subTest(game=game, armed="pick"):
+                # The owner (2026-11-09): a Custom Island Event is available at all times -- it goes first and
+                # the pick comes right after it (tests/test_bought_events_lock_until_delivered.py), so it
+                # reaches its own dialog (cancelled here: nothing bought).
                 proc = Process(render(game, "collection_progression"), TEST_DLL)
                 self._world(proc, game)
                 proc.export("VvfpStoryProbeArm", n, 0, 0)
+                dialogs = []
+                proc.api_handlers["DialogBoxParamA"] = lambda q: (dialogs.append(q.arg(1)) or 2, 20)
                 self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
-                self.assertIn("already queued", proc.messages[-1])
+                said = " ".join(proc.messages)
+                self.assertNotIn("already queued", said, "never refused for the pick on its way")
+                self.assertNotIn("still on its way", said)
+                if game not in ("vv1", "vv2"):         # this stand-in A New Home / Lost Children world has no villagers
+                    self.assertEqual(len(dialogs), 1, "the custom event's own dialog")
 
     def test_queueing_remembers_the_village_it_was_queued_in(self):
         """The purchase paths (not the probes that set state directly) bind
@@ -2575,7 +2587,8 @@ class LockStaysWhileArmedTests(unittest.TestCase):
                 proc.export("VvfpStoryProbeArm", n, 0, 0)
                 lock._world(proc, game)
                 self.assertEqual(proc.export("VvfpStoryProbePending", n), 0)
-                self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
+                self.assertEqual(proc.export("VvfpStoryPickPending", n), 1, "the armed pick is the lock")
+                self.assertEqual(proc.export("VvfpStoryPickIslandEvent", n, 0), 0)
                 self.assertIn("already queued", proc.messages[-1])
 
 

@@ -242,13 +242,15 @@ static void itk_load(const unsigned int *field, int force) {
     static unsigned int roster[ITK_ROSTER];
     static itk_file f;
     unsigned __int64 saved;
-    int slot = itk_slot_now(), read;
+    int slot = itk_slot_now(), read, living;
     if (slot == 0 || (!force && itk_checked && itk_checked_slot == slot && itk_checked_value == *field)) {
         return;
     }
-    if (itk_roster_now(roster) == 0) {
-        return;                           /* no village to tell yet: asked again */
-    }
+    /* Nobody alive to compare (everyone has died, or a load frame of this
+       slot's village): the slot's file is read all the same -- the save's own
+       time below still says whether it is this village's purchase -- and a
+       village that turns out to be another one never takes it (itk_rec_here). */
+    living = itk_roster_now(roster);
     itk_checked = 1;
     itk_checked_slot = slot;
     itk_checked_value = *field;
@@ -261,7 +263,7 @@ static void itk_load(const unsigned int *field, int force) {
         itk_remove(slot);                 /* malformed: nothing it says can be used */
         return;
     }
-    if (!itk_same_village(f.roster, roster)) {
+    if (living > 0 && !itk_same_village(f.roster, roster)) {
         return;                           /* another village's: it waits for its own */
     }
     if (!itk_save_time(slot, &saved) || saved < f.when) {
@@ -272,10 +274,17 @@ static void itk_load(const unsigned int *field, int force) {
     itk_active = 1;
 }
 
-/* Whether the bought event in memory is this village's: its slot, and --
-   when it was bought with anyone in the village -- a majority of its
-   villagers.  One bought in another village (its file stays for it) is
-   never applied here, nor its distance added to a purchase made here. */
+/* Whether the bought event in memory is this village's.  IT IS TIED TO ITS
+   VILLAGE BY THE SAVE SLOT AND THE KEEPER'S RECORD FOR IT, NOT BY WHO
+   SURVIVES (Codex, #745): its slot, and -- only while anyone lives to be
+   compared -- most of the villagers it was bought with still here, or most
+   of those here among them (a few survivors of many).  A village whose last
+   villagers died after the purchase still has it on its way (the trigger
+   runs nothing there; a Custom Island Event goes first and it follows,
+   story_custom_ui.inc).  Another village is another slot, or one that is
+   mostly other villagers (Start Over or a new tribe in the slot also
+   forgets it at once: itk_village_reset), so one bought there is never
+   applied here, nor its distance added to a purchase made here. */
 static int itk_rec_here(void) {
     static unsigned int roster[ITK_ROSTER];
     int i, any = 0;
@@ -285,7 +294,8 @@ static int itk_rec_here(void) {
     for (i = 0; i < ITK_ROSTER && !any; ++i) {
         any = itk_rec.roster[i] != 0u;
     }
-    return !any || (itk_roster_now(roster) > 0 && itk_same_village(itk_rec.roster, roster));
+    return !any || itk_roster_now(roster) == 0 || itk_same_village(itk_rec.roster, roster)
+        || itk_same_village(roster, itk_rec.roster);
 }
 
 /* A purchase is about to write `value` into the timer at `field`. */
@@ -315,9 +325,11 @@ static void __cdecl itk_note(unsigned int *field, unsigned int value) {
     itk_fire_pending = 0;
     if (itk_roster_now(roster) > 0) {
         memcpy(itk_rec.roster, roster, sizeof roster);
-        if (itk_rec.slot != 0u) {
-            itk_store(&itk_rec);
-        }
+    }
+    /* Kept for the slot even with nobody alive (a village whose last villagers
+       died): its save's own time still decides at a relaunch. */
+    if (itk_rec.slot != 0u) {
+        itk_store(&itk_rec);
     }
 }
 

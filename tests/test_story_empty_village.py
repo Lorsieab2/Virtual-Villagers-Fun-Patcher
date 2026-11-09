@@ -323,7 +323,9 @@ class EmptyTriggerTests(unittest.TestCase):
                 e.story.village.put(1, sex="m", years=30, name="Adam")
                 e.queue()
                 self.assertEqual(e.trigger.fire(), "custom")
-                self.assertEqual(len(e.draws), 1, "the game's own draw, as before")
+                # Two draws with the trigger's own arguments: the count stub's look for anyone the trigger
+                # accepts (ce_trigger_bypass), then the trigger's own draw, as before.
+                self.assertEqual(len(e.draws), 2)
                 e.trigger.counter = 1                  # opening events still hold it
                 e.queue()
                 self.assertEqual(e.trigger.fire(), "stock island event")
@@ -420,14 +422,16 @@ class PurchaseTests(unittest.TestCase):
                 story.village.put(3, sex="m", years=40, name="Bones", health=0)
                 self.assertIsNone(story.refusal(Event(spawns=[Spawn()])), "skeletons are not alive")
 
-    def test_someone_alive_but_no_adult_is_still_refused(self):
+    def test_someone_alive_but_no_adult_is_never_refused(self):
+        """The owner (2026-11-09): "These should be a special exception where no adult is needed to spawn
+        villagers" -- the trigger's draw is gone around when nobody it accepts lives (ce_trigger_bypass)."""
         for game in GAMES:
             if not have_stock(game):
                 continue
             with self.subTest(game=game):
                 story = self._story(game)
                 story.village.put(1, sex="m", years=5, name="Kid")
-                self.assertIn("living adult", story.refusal(Event()) or "")
+                self.assertIsNone(story.refusal(Event()))
 
     def test_a_question_is_refused_with_its_reason(self):
         for game in GAMES:
@@ -450,7 +454,8 @@ class PurchaseTests(unittest.TestCase):
 
     def test_before_the_first_island_event(self):
         """An empty village may queue one before its first island event (the
-        visitor stays its first); a living one still waits for the visitor."""
+        visitor stays its first); a living one may too, and it is held until the
+        two opening island events are over (ce_held)."""
         for game in ("vv1", "vv2"):
             if not have_stock(game):
                 continue
@@ -459,7 +464,7 @@ class PurchaseTests(unittest.TestCase):
                 story.proc.put32(events_seen_address(game, story.village.world), 0)
                 self.assertIsNone(story.refusal(Event(spawns=[Spawn(count=2)])))
                 story.village.put(1, sex="m", years=30, name="Adam")
-                self.assertIn("first island event", story.refusal(Event()) or "")
+                self.assertIsNone(story.refusal(Event()))
 
     def test_bought_for_an_empty_new_village_it_is_made_due_at_once(self):
         for game in GAMES:

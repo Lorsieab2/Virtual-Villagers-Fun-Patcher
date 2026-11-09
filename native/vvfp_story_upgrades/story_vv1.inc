@@ -62,7 +62,12 @@ static int vv1_peek(void) {
 
 /* The family an armed pick or custom event needs, as a slot, or -1. */
 static int vv1_route(void) {
-    int slot = vv1_peek();
+    int slot = -1;
+    /* A custom event goes first (story_custom_ui.inc ce_purchase_locked): a pick waiting with it is
+       not taken by this run, and comes next. */
+    if (!ce_due(1, 0)) {
+        slot = vv1_peek();
+    }
     if (slot < 0 && ce_due(1, 0)) {
         /* A question is asked by the villager encounters' two-button popup
            (story_c1.inc), a plain event by the island events' popup. */

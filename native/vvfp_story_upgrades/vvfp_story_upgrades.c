@@ -149,6 +149,7 @@ static DWORD test_tick;
 static int ce_pending(int game);
 static int ce_due(int game, int counted);
 static void ce_opening_tick(int game);
+static void ce_requeue_tick(int game);
 /* Defined with the outcomes (story_outcomes.inc), used earlier. */
 static void oc_new_choice(int game);
 static void oc_delivered(int game, void *object);
@@ -953,6 +954,9 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     /* A Custom Island Event held by a new village's two opening island
        events: made due once they are over (story_custom_ui.inc). */
     ce_opening_tick(game);
+    /* A Custom Island Event goes first: the event it went ahead of comes next,
+       and one a barrel went ahead of is made due again (story_custom_ui.inc). */
+    ce_requeue_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1001,28 +1005,20 @@ static const char *story_price_text(int game) {
 
 typedef int (*story_command_fn)(int game, HWND owner);
 
-/* Set by a command whose event took the place of an island event already
-   paid for (story_custom_ui.inc ce_purchase_locked): nothing more is taken. */
-static int story_charge_waived;
-static int story_custom_island_event(int game, HWND owner);
-static int ce_purchase_locked(int game, int *replaces, int *waived);
+static int ce_purchase_locked(int game, int *displaces);
+static int ce_barrel_waiting(int game);
 
 /* `command`, charged when the upgrades cost tech points: refused with a
    message while the village has fewer, and the price taken only when the
-   command says an event (or outcome) is now on its way -- and not taken when
-   it says that event replaces one already paid for. */
+   command says an event (or outcome) is now on its way. */
 static int story_charged(int game, HWND owner, story_command_fn command) {
     const ce_adapter *a = ce_adapter_for(game);
     int price = VvfpStoryEventPrice(game);
-    int done, replaces, waived = 0;
-    story_charge_waived = 0;
+    int done;
     if (price == 0 || a == NULL) {
         return command(game, owner);
     }
-    if (command == story_custom_island_event) {
-        (void)ce_purchase_locked(game, &replaces, &waived);
-    }
-    if (!waived && a->tech() < price) {
+    if (a->tech() < price) {
         char text[160];
         wsprintfA(text, "This costs %d,%03d tech points, and your village has %d.",
                   price / 1000, price % 1000, a->tech());
@@ -1030,10 +1026,9 @@ static int story_charged(int game, HWND owner, story_command_fn command) {
         return 0;
     }
     done = command(game, owner);
-    if (done && !story_charge_waived) {
+    if (done) {
         a->change_tech(CE_AMOUNT_SUBTRACT, price);
     }
-    story_charge_waived = 0;
     return done;
 }
 
@@ -1345,10 +1340,12 @@ __declspec(dllexport) int __stdcall VvfpStoryProbePending(int game) {
 }
 
 /* The Custom Island Event's own lock (story_custom_ui.inc ce_purchase_locked):
-   out[0] refused, out[1] it takes a waiting event's place (an empty
-   village), out[2] that event was bought, so nothing more is charged. */
+   out[0] refused, out[1] a bought or picked event is waiting (it goes first,
+   that one comes after it), out[2] the displaced event to put back after a
+   delivery (ce_requeue: 0 none, else the game). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeCustomGate(int game, int *out) {
-    out[0] = ce_purchase_locked(game, &out[1], &out[2]);
+    out[0] = ce_purchase_locked(game, &out[1]);
+    out[2] = ce_requeue_game;
 }
 
 __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int position) {

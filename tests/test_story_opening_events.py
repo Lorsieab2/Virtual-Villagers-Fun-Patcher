@@ -455,7 +455,7 @@ class HeldPurchaseTests(unittest.TestCase):
                 self.assertEqual(proc.export("VvfpStoryPickIslandEvent", n, 0), 0)
                 self.assertIn("already queued", proc.messages[-1])
                 self.assertEqual(proc.export("VvfpStoryCustomIslandEvent", n, 0), 0)
-                self.assertIn("already queued", proc.messages[-1])
+                self.assertIn("Your last custom island event is still on its way", proc.messages[-1])
 
     def test_after_the_second_opening_event_it_is_made_due_as_the_purchase_does(self):
         import test_story_cheat_upgrades as part1

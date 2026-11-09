@@ -166,6 +166,20 @@ tribe started in the same save. No tech points come back -- they were the old
 tribe's, and the new tribe never paid. Deleting another save's tribe from the
 save-slot menu leaves the tribe you were playing as it is.
 
+CUSTOM ISLAND EVENTS (STORY / CHEAT UPGRADES)
+
+A Custom Island Event can be bought at any time. If an island event you bought
+or picked is already on its way, the Custom Island Event comes first and that
+one comes right after it (each is charged once); a Barrel of Babies on its way
+still comes first. It needs no adult: with nobody left in the village, or
+nobody the game's island events accept (A New Home and The Lost Children only
+take adults), it is sent through all the same, so its new villagers always
+arrive. Changes for villagers who are no longer there are skipped, and the
+popup says so; food, tech points, refills, puzzles and the rest still happen.
+A question with two choices still needs someone to ask, and a new village's
+two opening island events still come first. One Custom Island Event is queued
+at a time: the next can be bought once the last has come (within seconds).
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.

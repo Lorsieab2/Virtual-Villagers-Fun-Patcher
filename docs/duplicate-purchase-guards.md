@@ -44,11 +44,14 @@ host table's `island_on_its_way`) also count an event bought and not yet run
 by the trigger, in the village it was bought in. VV5's bits already last until
 the delivery (`vv5_retire_delivered_island`).
 
-An empty village's trigger runs no island event, so this lock would never lift
-there. A plain Custom Island Event (the one event that reaches an empty
-village) may take the waiting event's place instead, uncharged when that one
-was bought (`story_custom_ui.inc` `ce_purchase_locked`); a waiting VV4 or VV5
-Barrel is never replaced.
+A Custom Island Event is never held by this lock (the owner: "available at all
+times always"). It is armed on the same timer and the trigger delivers it first;
+the bought or picked event it went ahead of is made due again once it has come
+(`story_custom_ui.inc` `ce_purchase_locked`, `ce_requeue_tick`), each with its own
+charge. A waiting VV4 or VV5 Barrel is never replaced: it comes first, then the
+custom event. With nobody the trigger accepts -- a count of 0, or no draw it would
+take (VV1/VV2 draw adults only) -- the count stub sends the custom event on as for
+an empty village (`story_empty_village.inc` `ce_trigger_bypass`).
 
 VV4's Island Event bought before a Barrel waits behind it on the Barrel's
 process-only token `0x728B08`; that token is now kept in the Barrel's Paid

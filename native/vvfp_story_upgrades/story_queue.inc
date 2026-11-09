@@ -390,7 +390,9 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
     if (!(f->have & SQ_CUSTOM)) {
         f->have &= ~SQ_ASKED;
     }
-    if ((f->have & SQ_PICK) && pick_slot < 0 && !ce_armed
+    /* A pick and a custom event can both be queued: the custom event goes first and the pick
+       follows it (story_custom_ui.inc ce_purchase_locked), so each comes back on its own. */
+    if ((f->have & SQ_PICK) && pick_slot < 0
         && f->pick_index >= 0 && f->pick_index < GAMES[game].event_count
         && GAMES[game].events[f->pick_index].slot == f->pick_slot) {
         pick_slot = f->pick_slot;
@@ -403,7 +405,7 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         }
         restored |= SQ_PICK;
     }
-    if ((f->have & SQ_CUSTOM) && !ce_armed && pick_slot < 0 && f->ce.game == game
+    if ((f->have & SQ_CUSTOM) && !ce_armed && f->ce.game == game
         && (!f->ce_is_choice || choice != NULL)) {
         ce_armed_event = f->ce;
         ce_armed_is_choice = f->ce_is_choice;
@@ -416,6 +418,10 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         ce_armed = 1;
         ce_wait_arm = 0;                /* held again by ce_opening_tick if the village is that new */
         restored |= SQ_CUSTOM;
+        if (pick_slot >= 0 && pick_game == game) {
+            ce_requeue_game = game;     /* the pick it went ahead of comes after it */
+            ce_requeue_village = ce_armed_village;
+        }
         if ((f->have & SQ_ASKED) && !lazy) {
             /* The question was on screen at the quit, so the save's timer is
                spent: make the island event due as the purchase did, once. */

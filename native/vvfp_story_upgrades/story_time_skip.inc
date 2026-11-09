@@ -105,7 +105,16 @@ static int story_notice_free(int game) {
     }
     drop_lapsed_pick();
     ce_drop_lapsed();
-    return !(pick_slot >= 0 || ce_armed || GAMES[game].island_pending() || a->arm_refusal() != NULL);
+    {
+        const char *refused;
+        if (pick_slot >= 0 || ce_armed || GAMES[game].island_pending()) {
+            return 0;
+        }
+        ce_refusal_for_notice = 1;
+        refused = a->arm_refusal();
+        ce_refusal_for_notice = 0;
+        return refused == NULL;
+    }
 }
 
 /* Arms notice `e` in `game` (the Time Skip's closing popup; Popup When Believers Become Heathens,

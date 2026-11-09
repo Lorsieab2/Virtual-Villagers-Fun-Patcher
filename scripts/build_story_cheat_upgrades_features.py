@@ -702,10 +702,12 @@ def build() -> None:
                 "Origins companion's keeper of the island timer knows it from the purchase's write "
                 "until the trigger's own (native/shared/island_timer_keep.h) -- not only while the "
                 "timer is due within the purchase's five seconds, which the paused Tech screen "
-                "outlasts.  In a village where everyone has died, whose trigger runs no island "
-                "event, a plain Custom Island Event may take the place of the island event waiting "
-                "there, and is not charged when that one was bought; a waiting Barrel of Babies is "
-                "never replaced.",
+                "outlasts.  A Custom Island Event is never held by it: it is delivered first and "
+                "the bought or picked event it went ahead of is made due again right after it, each "
+                "charged once; a waiting Barrel of Babies is never replaced (it comes first).  With "
+                "nobody the trigger accepts (a count of 0, or no villager its own draw takes), the "
+                "custom event is delivered all the same, so its new villagers always arrive; changes "
+                "for villagers who are not there are skipped and the popup says so.",
             ] + ([
                 "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or "
                 f"{TIME_WARP_PRICE:,} with Story / Cheat Upgrades cost Tech Points) to the Origins "

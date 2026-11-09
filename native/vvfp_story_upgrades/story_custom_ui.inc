@@ -2935,7 +2935,18 @@ static int ce_arm_with(int game, const ce_event *e, const ce_choice *c, int noti
     /* An empty village never has its opening events (its trigger waits for a
        villager): nothing to wait for (story_empty_village.inc). */
     int hold = !notice && ce_opening(game, 0) && !ce_village_empty(game);
+    int displaces = 0;
+    /* A player's own event goes first: a bought or picked event already on
+       its way comes right after it (ce_requeue_tick). */
+    if (!notice && !ce_purchase_locked(game, &displaces) && displaces) {
+        ce_requeue_game = game;
+        ce_requeue_village = story_village_now(game);
+    }
+    /* A Barrel of Babies on its way (The Tree of Life, New Believers) is never replaced: it comes
+       first, and this event is made due again once it has (ce_requeue_tick). */
+    ce_behind_barrel = !notice && ce_barrel_waiting(game) ? game : 0;
     if (!hold && !GAMES[game].arm()) {
+        ce_requeue_game = 0;
         return 0;
     }
     ce_armed_event = *e;
@@ -2988,37 +2999,27 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND ow
     return story_charged(game, owner, story_custom_island_event);
 }
 
-/* ONE ISLAND EVENT AT A TIME -- AND AN EMPTY VILLAGE NEVER LOCKED FOR GOOD.
+/* A CUSTOM ISLAND EVENT IS AVAILABLE AT ALL TIMES, AND GOES FIRST.
 
-   A bought island event is on its way until the game's trigger delivers it
-   (the island-event lock, GAMES[game].island_pending), so a second one is
-   never sold for the same delivery.  But the trigger does nothing while
-   nobody lives in the village (story_empty_village.inc): an island event
-   bought there, or bought before everyone died, never comes, and its lock
-   would never lift.  There, and only for a plain Custom Island Event (the
-   one event that can come to an empty village and bring villagers back),
-   the custom event TAKES THE WAITING EVENT'S PLACE: it is armed on the same
-   timer, the trigger delivers it, and it is not charged when the event it
-   replaces was bought (that one was paid for; one payment, one event).  A
-   barrel waiting in The Tree of Life or New Believers shares the lock and
-   is never replaced; a picked or custom event already armed keeps its place.
-
-   1 = the lock refuses; *replaces = 1 when the custom event takes the
-   waiting one's place, *waived = 1 when that one was bought. */
-static int ce_purchase_locked(int game, int *replaces, int *waived) {
-    int pending = GAMES[game].island_pending();
+   The owner (2026-11-09): "I want the following available at all times always: Custom Island
+   Events (with full functionality) ESPECIALLY THE PARTS THAT BRING NEW VILLAGERS."  So it is never
+   refused for another event on its way:
+     - an island event bought (the Origins row, a Story arm) or a picked one waiting: the custom
+       event is armed on the same timer and the game's trigger delivers it first (each game's chooser
+       takes an armed custom event before a pick); once it has come, the waiting one is made due again
+       exactly as its purchase made it (ce_requeue_tick), so it still comes, with its own charge and
+       nothing charged twice;
+     - a Barrel of Babies waiting (The Tree of Life, New Believers ride the same trigger): the barrel
+       is never replaced -- it comes first, and the custom event is made due right after it;
+     - a village where nobody lives, or nobody the trigger's own draw accepts: delivered all the same
+       (story_empty_village.inc ce_trigger_bypass).
+   Only one custom event is queued at a time: while one is armed (it comes within seconds), the next
+   waits for it.  1 = refused (another custom event armed); *displaces = 1 when a bought or picked
+   island event is waiting, to be put back after this one. */
+static int ce_purchase_locked(int game, int *displaces) {
     int bought;
-    *replaces = 0;
-    *waived = 0;
-    if (pick_slot >= 0 || ce_armed) {
-        return 1;
-    }
-    if (!pending) {
-        return 0;
-    }
-    if (!ce_village_empty(game)
-        || (game == 4 && *(volatile unsigned char *)(uintptr_t)VV4_BARREL_ARMED != 0)
-        || (game == 5 && (read_u32(VV5_PURCHASE_FLAGS) & 0x0Cu) != 0)) {
+    *displaces = 0;
+    if (ce_armed) {
         return 1;
     }
     switch (game) {
@@ -3035,27 +3036,55 @@ static int ce_purchase_locked(int game, int *replaces, int *waived) {
         bought = story_bought_on_its_way(game);
         break;
     }
-    *replaces = 1;
-    *waived = bought;
+    *displaces = bought || (pick_slot >= 0 && pick_game == game);
     return 0;
+}
+
+/* Every frame (VvfpStoryInstall), in the village the custom event was bought in:
+     - the custom event has come: the bought or picked event it went ahead of is made due again,
+       exactly as its purchase made it (GAMES[game].arm, which the island timer's keeper sees, so the
+       game's own next event still keeps its time) -- once nothing else is on its way;
+     - the custom event is still armed behind a Barrel of Babies that has now come (the game
+       rescheduled the timer for its next natural event): it is made due now. */
+static int ce_barrel_waiting(int game) {
+    return (game == 4 && *(volatile unsigned char *)(uintptr_t)VV4_BARREL_ARMED != 0)
+        || (game == 5 && (read_u32(VV5_PURCHASE_FLAGS) & 0x0Cu) != 0);
+}
+
+static void ce_requeue_tick(int game) {
+    if (ce_requeue_due == game) {
+        if (!story_village_is(game, &ce_requeue_village)) {
+            ce_requeue_due = 0;
+        } else if (!ce_armed && !GAMES[game].island_pending() && !time_skip_event_open()) {
+            ce_requeue_due = 0;
+            (void)GAMES[game].arm();
+        }
+    }
+    if (ce_requeue_game != 0 && !ce_armed && ce_requeue_due == 0) {
+        ce_requeue_game = 0;               /* the custom event was dropped: the waiting one is untouched */
+    }
+    if (ce_behind_barrel == game && (!ce_armed || ce_armed_event.game != game)) {
+        ce_behind_barrel = 0;
+    } else if (ce_behind_barrel == game && !ce_barrel_waiting(game) && !ce_wait_arm && !ce_asked
+               && story_village_is(game, &ce_armed_village) && !GAMES[game].island_pending()
+               && !time_skip_event_open()) {
+        ce_behind_barrel = 0;
+        (void)GAMES[game].arm();       /* the barrel has come: this event now */
+    }
 }
 
 static int story_custom_island_event(int game, HWND owner) {
     const char *refusal;
-    int replaces, waived;
+    int displaces;
     if (!story_installed(game) || ce_adapter_for(game) == NULL) {
         return 0;
     }
     drop_lapsed_pick();
     ce_drop_lapsed();
-    if (ce_purchase_locked(game, &replaces, &waived)) {
+    if (ce_purchase_locked(game, &displaces)) {
         MessageBoxA(owner,
-                    game == 5
-                        ? "An island event or a barrel of babies is already queued "
-                          "and on its way.\n\nIt arrives shortly. Close this screen "
-                          "and wait for it to arrive."
-                        : "An island event is already queued and on its way.\n\n"
-                          "It arrives shortly. Close this screen and wait for it to arrive.",
+                    vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s10",
+                            "Your last custom island event is still on its way. It arrives within seconds once you close this screen; then you can buy the next one.", 400),
                     "Not right now", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
     }
@@ -3077,10 +3106,9 @@ static int story_custom_island_event(int game, HWND owner) {
         return 0;
     }
     char prompt[600];
-    (void)ce_purchase_locked(game, &replaces, &waived);
     wsprintfA(prompt, vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s3",
                               "Do you want to buy Custom Island Event for %s tech points?\r\nPress OK to confirm, or Cancel.",
-                              400), waived ? "0" : story_price_text(game));
+                              400), story_price_text(game));
     if (MessageBoxA(owner, prompt,
                     "Origins Upgrades",
                     MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND) != IDOK) {
@@ -3088,23 +3116,22 @@ static int story_custom_island_event(int game, HWND owner) {
     }
     /* The village may have moved on while the boxes were open. */
     refusal = ce_choice_refusal(game, &ui.draft, &ui.choice);   /* plain: ce_refusal */
-    if (refusal == NULL && ce_purchase_locked(game, &replaces, &waived)) {
-        refusal = "An island event is already queued and on its way.";
+    if (refusal == NULL && ce_purchase_locked(game, &displaces)) {
+        refusal = "Your last custom island event is still on its way.";
     }
     if (refusal != NULL || !ce_arm_with(game, &ui.draft, &ui.choice, 0)) {
         ui_message(owner, refusal != NULL ? refusal
                                           : "The event can not happen right now. No tech points have been deducted.");
         return 0;
     }
-    story_charge_waived = waived;              /* it took the place of an island event already paid for */
     memset(&ui.draft, 0, sizeof ui.draft);     /* queued: start the next one fresh */
     memset(&ui.choice, 0, sizeof ui.choice);
     ui_message(owner, ce_wait_arm
                           ? "Your custom island event is on its way. A new village always has its "
                             "first two island events first, so it arrives right after them."
-                          : replaces
-                          ? "Your custom island event is on its way. It takes the place of the island event "
-                            "already on its way, which can not come while nobody lives in the village."
+                          : displaces
+                          ? vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s12",
+                                    "Your custom island event is on its way. It comes first; the island event already on its way comes right after it.", 400)
                           : "Your custom island event is on its way.");
     return 1;
 }

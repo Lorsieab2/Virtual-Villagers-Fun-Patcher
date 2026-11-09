@@ -188,6 +188,13 @@ static const ce_adapter *ce_adapter_for(int game);
 
 static ce_event ce_armed_event;
 static int ce_armed;               /* 1 while an event is queued and not yet delivered */
+/* A player's custom event bought while a bought or picked island event was on its way goes first
+   (story_custom_ui.inc ce_purchase_locked): the game it did so in, and -- once it has been
+   delivered -- the game whose waiting event is made due again (ce_requeue_tick), in its village. */
+static int ce_requeue_game;
+static int ce_requeue_due;
+static int ce_behind_barrel;        /* the game whose waiting barrel this event let go first */
+static story_village ce_requeue_village;
 static story_village ce_armed_village;   /* the village it was queued in */
 static ce_result ce_last_result;
 
@@ -1164,6 +1171,12 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             ce_tr_printf(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s2",
                          "%d of the chosen villagers were no longer here.", r->skipped);
             ce_line(&w, line);
+            /* The owner (2026-11-09): changes that need a villager, with nobody to apply them to, are
+               skipped and the popup says so; everything else in the event still happens. */
+            ce_tr_done(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s5",
+                       "Their changes were skipped: there was nobody to apply them to.",
+                       "Their changes were skipped: there was nobody to apply them to.");
+            ce_line(&w, line);
         }
         if (r->refused > 0) {
             /* What the game's own rules did not allow -- and, while the popup
@@ -1761,6 +1774,10 @@ static int ce_deliver(int game, char *text, int size) {
     ce_armed_is_notice = 0;
     ce_dead_firing = 0;
     ce_notice_shown = notice ? game : 0;
+    if (ce_requeue_game == game) {
+        ce_requeue_due = game;           /* the event it went ahead of comes next */
+        ce_requeue_game = 0;
+    }
     ce_apply(a, &ce_armed_event, &ce_last_result);
     if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the title and description were
@@ -1842,6 +1859,11 @@ static const char *ce_refusal(int game, const ce_event *e) {
 /* 1 while ce_choice_refusal asks the adapter's arm_refusal: the event is a
    question (A New Home / The Lost Children then allow the first event). */
 static int ce_refusal_for_choice;
+/* 1 while a notice (the Time Skip's, the Faith popup) asks it: A New Home /
+   The Lost Children keep a new village's first island event the game's own
+   visitor for it.  A player's plain event is queued then too, and held until
+   the two opening island events are over (ce_held). */
+static int ce_refusal_for_notice;
 
 #ifdef VVFP_TEST
 static int test_choice_cap;        /* TEST build: every game may ask (the hooks are tested apart) */
@@ -2153,6 +2175,10 @@ static int ce_choice_begin(int game, char *text, int size) {
     ce_armed = 0;
     ce_armed_is_choice = 0;
     ce_notice_shown = 0;              /* a player's own question, never the notice */
+    if (ce_requeue_game == game) {
+        ce_requeue_due = game;           /* the event it went ahead of comes next */
+        ce_requeue_game = 0;
+    }
     ce_asked = 1;
     ce_asked_store = ce_armed_store;
     ce_asked_game = game;

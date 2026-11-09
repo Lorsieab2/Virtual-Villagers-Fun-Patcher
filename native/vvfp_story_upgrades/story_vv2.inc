@@ -52,7 +52,12 @@ static int vv2_peek(void) {
 
 /* The family an armed pick or custom event needs, as a slot, or -1. */
 static int vv2_route(void) {
-    int slot = vv2_peek();
+    int slot = -1;
+    /* A custom event goes first (story_custom_ui.inc ce_purchase_locked): a pick waiting with it is
+       not taken by this run, and comes next. */
+    if (!ce_due(2, 0)) {
+        slot = vv2_peek();
+    }
     if (slot < 0 && ce_due(2, 0)) {
         /* A question is asked by family A's two-button popup (story_c2.inc),
            a plain event by family C's single-result popup. */
