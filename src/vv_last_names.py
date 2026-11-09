@@ -568,32 +568,42 @@ def village_names(folder: Path, game: int, slot: int, people: list | None = None
     return read_used(folder, game, slot) | lasts_in_use(people, parents, lambda name: split_name(game, name, known)[1])
 
 
-# HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!!
-# (they can share last names but be unrelated if there's not enough default ones in the list, but try to make
-# them all unique)").  VVFP Last Names.dll gives every Heathen a last name drawn at random from the game's list:
-# a new Heathen as the game makes them, an existing one with none the first time the patched game loads the
-# village (with a "Name changed" record, so the logs follow them).  The draw avoids every last name anyone has
-# used -- the villagers in the game, the record's "used" lines and its "heathen" lines -- and shares one only
-# when the list is exhausted; a shared name never means family.  The record keeps each name given:
-#     heathen<TAB>last name                              (a new Heathen)
+# HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give heathens random last names thanks!!!!";
+# 2026-11-09: "among the entire heathen tribe they should have like... maybe 4-5 unique last names from the
+# defaults list that don't overlap with the villagers' last names").  VVFP Last Names.dll gives each village FOUR
+# Heathen family names, chosen once from the game's list among the names no believer and no "used" line has, and
+# every Heathen one of the four at random, roughly even: a new Heathen as the game makes them, an existing one
+# with none the first time the patched game loads the village (with a "Name changed" record, so the logs follow
+# them).  Heathens sharing a family name are not related.  The record keeps them:
+#     family<TAB>last name                               (the village's four, once)
 #     heathen<TAB>last name<TAB>name<TAB>head<TAB>body   (named at a load: the name, head and body they had)
-# A converted Heathen keeps the name; "Random from the existing Village Names" counts it only from then on
-# (village_names leaves out the Heathens).  Repair keeps the lines as they are (write_record); an earlier
-# build's reader skips them.
+#     heathen<TAB>last name                              (an earlier build's, a new Heathen's: read, kept)
+# Start Over deletes the record with the village.  A converted Heathen keeps the name; "Random from the existing
+# Village Names" counts it only from then on (village_names leaves out the Heathens and these lines).  Repair
+# keeps the lines as they are (write_record); an earlier build's reader skips them.
 def read_heathen_lines(folder: Path, game: int, slot: int) -> list[str]:
-    """The record's "heathen" lines, as written."""
+    """The record's "family" and "heathen" lines, as written."""
     try:
         lines = record_path(folder, game, slot).read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeError):
         return []
     if not lines or lines[0] != RECORD_HEADER.format(game=game):
         return []
-    return [line for line in lines[1:] if line.split("\t")[0] == "heathen" and len(line.split("\t")) in (2, 5)]
+    return [line for line in lines[1:]
+            if (line.split("\t")[0] == "heathen" and len(line.split("\t")) in (2, 5))
+            or (line.split("\t")[0] == "family" and len(line.split("\t")) == 2)]
 
 
 def read_heathens(folder: Path, game: int, slot: int) -> set[str]:
     """The last names the record says Heathens were given ("heathen" lines)."""
-    return {line.split("\t")[1] for line in read_heathen_lines(folder, game, slot) if line.split("\t")[1]}
+    return {line.split("\t")[1] for line in read_heathen_lines(folder, game, slot)
+            if line.split("\t")[0] == "heathen" and line.split("\t")[1]}
+
+
+def read_heathen_families(folder: Path, game: int, slot: int) -> list[str]:
+    """The village's Heathen family names ("family" lines), in the record's order."""
+    return [line.split("\t")[1] for line in read_heathen_lines(folder, game, slot)
+            if line.split("\t")[0] == "family" and line.split("\t")[1]]
 
 
 def read_whole(folder: Path, game: int, slot: int) -> set[str]:

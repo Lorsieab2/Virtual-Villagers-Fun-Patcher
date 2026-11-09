@@ -1185,8 +1185,11 @@ __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int mal
 /* HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give
    heathens random last names thanks!!!! (they can share last names but be
    unrelated if there's not enough default ones in the list, but try to make
-   them all unique)").  Every Heathen gets a last name drawn at random from
-   the game's own list of 50 (g_last), every eligible name equally likely:
+   them all unique)"), changed 2026-11-09: "among the entire heathen tribe
+   they should have like... maybe 4-5 unique last names from the defaults list
+   that don't overlap with the villagers' last names" -- always FOUR family
+   names per village, each Heathen one of the four at random, roughly even.
+   Every Heathen gets one of the village's Heathen family names:
 
      * a NEW Heathen as the game names it -- the Heathen allocator 0x46FB80
        calls the fresh init 0x4681F0 at 0x46FC23 (return 0x46FC28, at +0x15C
@@ -1205,23 +1208,33 @@ __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int mal
        until the next save) ties the old name to the new one, so the logs, the
        Family Tree and Check Saves & Logs follow them as one villager.
 
-   UNIQUE WHILE THE LIST LASTS.  The draw is among the names nobody has used:
-   no villager in the game now (either faction, living), no "used" line (every
-   last name the tribe has ever had, Repair's and the births'), no "heathen"
-   line (every last name a Heathen was ever given, dead ones too).  Only when
-   every name that fits is taken may a Heathen share one -- then a name that
-   gives no living villager's exact full name, else any that fits.  A shared
-   name says nothing about family: a Heathen's last name is drawn, never
+   FOUR FAMILY NAMES PER VILLAGE (heathen_families).  Chosen once, the first
+   time a Heathen of the village is named, at random from the game's list of
+   50 among the names no villager has used: no believer in the game now (a
+   convert is a believer), no "used" line (every last name the tribe has ever
+   had, living or dead, Repair's and the births').  With fewer than four such
+   names the rest are any others of the list, at random.  Kept in the
+   village's record as four "family" lines, so a reload gives the same four;
+   Start Over deletes the record with the rest of the village
+   (native/shared/save_reset.c), so a new village chooses its own.
+   ROUGHLY EVEN (family_draw): each Heathen one of the four that fits after
+   their first name, at random, each weighted by how far it is behind the
+   most-carried one among the living Heathens (the most-carried weighs 1, one
+   behind by k weighs 4k + 1), so no family stays empty and none grows huge.
+   Heathens sharing a family name are not related: the name is drawn, never
    inherited, and no parent is recorded for it.
 
    KEPT IN THE VILLAGE'S RECORD (Last Names - Save <slot>.dat) as lines
-       heathen<TAB><last name>                              (a new Heathen)
+       family<TAB><last name>                               (four, once)
        heathen<TAB><last name><TAB><name><TAB><head><TAB><body>  (named at a load)
    (UTF-8), only ever added to; the record is made with its header when the
    village has none.  A Heathen named at a load whose session ended without a
    save is nameless again at the next load: the keyed line gives them the same
-   last name again, and no new line.  Never for a slot that cannot be told.
-   An earlier build's reader skips these lines.
+   last name again, and no new line.  Never for a slot that cannot be told (a
+   village whose slot is not known yet keeps its four in memory for the
+   session).  An earlier build's reader skips these lines; a "heathen" line
+   without the name, head and body (an earlier build's, a new Heathen's) is
+   read and kept, and no longer written.
 
    NOT A VILLAGE NAME WHILE A HEATHEN (the owner): "Random from the existing
    Village Names" never counts a Heathen's last name (table_lasts) nor a
@@ -1327,18 +1340,6 @@ static int heathen_line_of(const char *line, struct heathen_line *h) {
     return 1;
 }
 
-/* Every "heathen" line's last name into the names taken (g_used). */
-static void heathens_of_record(void) {
-    const char *line;
-    for (line = g_rule_file; line != NULL && *line != '\0';
-         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
-        struct heathen_line h;
-        if (heathen_line_of(line, &h)) {
-            add_used(h.last);
-        }
-    }
-}
-
 /* The keyed line a load wrote for this Heathen (the name, head and body they
    have now), not one already given this load (`given`); NULL for none. */
 static const char *kept_heathen_line(const char *name, int head, int body, const char *const *given, int given_count,
@@ -1360,16 +1361,6 @@ static const char *kept_heathen_line(const char *name, int head, int body, const
         return line;
     }
     return NULL;
-}
-
-static int is_used_name(const char *last) {
-    int i;
-    for (i = 0; i < g_used_count; ++i) {
-        if (strcmp(g_used[i], last) == 0) {
-            return 1;
-        }
-    }
-    return 0;
 }
 
 /* The length of `name` without its trailing numerals (Number Duplicate
@@ -1402,41 +1393,57 @@ static int with_heathen_last(const char *name, unsigned int room, const char *la
     return 1;
 }
 
-/* Whether a living villager in the table other than `self` is called `full`. */
-static int full_name_held(const unsigned char *records, int slots, const char *full, const char *self) {
-    size_t n = strlen(full);
-    int i;
-    if (records == NULL || n + 1 > NB_NAME_CAP) {
-        return 0;
-    }
-    for (i = 0; i < slots; ++i) {
-        const unsigned char *r = records + (size_t)i * NB_STRIDE;
-        if (r[NB_ACTIVE] == 1 && !vv_lookalike(NB_STRIDE, r) && (const char *)(r + NB_NAME) != self
-            && memcmp(r + NB_NAME, full, n + 1) == 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
+/* The village's four Heathen family names (heathen_families). */
+#define HEATHEN_FAMILY_COUNT 4
+static char g_family[HEATHEN_FAMILY_COUNT][LONGEST_LAST + 1];
+static int g_family_count;
+static int g_family_session_slot = -1;       /* the slot the four in memory were chosen for (0: not known) */
 
-/* A Heathen's last name: one of the game's list that fits after `name` and
-   nobody has used (g_used); with none, one that gives no living villager's
-   full name; with none, any that fits.  Every candidate equally likely; ""
+/* A Heathen's last name: one of the family names that fits after `name`, at
+   random, each weighted by how far it is behind the most-carried one among
+   the living Heathens in the table (`self`, the one being named, not
+   counted): the most-carried weighs 1, one behind by k weighs 4k + 1.  ""
    when none fits. */
-static const char *heathen_draw(const char *name, unsigned int room, const unsigned char *records, int slots) {
-    int fits[FAMILIES], count = 0, i, pass;
+static const char *family_draw(const char *name, unsigned int room, const unsigned char *records, int slots,
+                               const char *self) {
+    int carried_by[HEATHEN_FAMILY_COUNT] = { 0 }, fits[HEATHEN_FAMILY_COUNT], weight[HEATHEN_FAMILY_COUNT];
+    int i, k, count = 0, most = 0, total = 0;
+    unsigned int pick;
     char full[TABLE_NAME_MAX];
-    for (pass = 0; pass < 3 && count == 0; ++pass) {
-        for (i = 0; i < FAMILIES; ++i) {
-            if (!with_heathen_last(name, room, g_last[i], full)
-                || (pass == 0 && is_used_name(g_last[i]))
-                || (pass == 1 && full_name_held(records, slots, full, name))) {
-                continue;
-            }
-            fits[count++] = i;
+    for (i = 0; records != NULL && i < slots; ++i) {
+        const unsigned char *r = records + (size_t)i * NB_STRIDE;
+        char whole[TABLE_NAME_MAX], last[LONGEST_LAST + 1];
+        if (r[NB_ACTIVE] != 1 || vv_lookalike(NB_STRIDE, r) || r[NB_FACTION] == 0 || *(const int *)(r + NB_HEALTH) <= 0
+            || (const char *)(r + NB_NAME) == self) {
+            continue;
+        }
+        memcpy(whole, r + NB_NAME, NB_NAME_CAP);
+        whole[NB_NAME_CAP] = '\0';
+        carried_last(whole, last);
+        for (k = 0; k < g_family_count; ++k) {
+            carried_by[k] += strcmp(last, g_family[k]) == 0;
         }
     }
-    return count == 0 ? "" : g_last[fits[random_below((unsigned int)count)]];
+    for (k = 0; k < g_family_count; ++k) {
+        if (with_heathen_last(name, room, g_family[k], full)) {
+            fits[count++] = k;
+            if (carried_by[k] > most) {
+                most = carried_by[k];
+            }
+        }
+    }
+    if (count == 0) {
+        return "";
+    }
+    for (i = 0; i < count; ++i) {
+        weight[i] = 1 + 4 * (most - carried_by[fits[i]]);
+        total += weight[i];
+    }
+    pick = random_below((unsigned int)total);
+    for (i = 0; i < count - 1 && pick >= (unsigned int)weight[i]; ++i) {
+        pick -= (unsigned int)weight[i];
+    }
+    return g_family[fits[i]];
 }
 
 /* `text` (the game's Latin-1) as UTF-8 into out[size]: its length, or 0 for a
@@ -1551,47 +1558,122 @@ static void log_name_change(const unsigned char *record, const char *old_name) {
     (void)g_write_village_record(5, KIND_NAME_CHANGE, record, 1, before, NULL, 1);
 }
 
-/* The names taken for a Heathen's draw: the record's "used" and "heathen"
-   lines and everyone in the table now (both factions) but `self`. */
-static void heathen_taken(int slot, const unsigned char *records, int slots, const char *self) {
-    char rule[8];
+/* The village's four Heathen family names in g_family (see HEATHENS above):
+   the record's "family" lines, else -- the first Heathen named in a village
+   that has none -- four chosen now at random among the game's list's names
+   no believer in the table and no "used" line has (any others of the list
+   when fewer than four are free), kept as "family" lines; for a slot that
+   cannot be told, kept in memory for the session.  The record (g_rule_file)
+   is read here.  Returns how many there are (4 but for a list of fewer). */
+static int heathen_families(int slot, const unsigned char *records, int slots) {
+    char rule[8], add[HEATHEN_FAMILY_COUNT * (16 + 2 * LONGEST_LAST)], text[2 * LONGEST_LAST + 2];
+    const char *line;
+    int free_names[FAMILIES], free_count = 0, i, k, chosen;
+    size_t used = 0;
     if (!read_record(slot, rule, sizeof rule)) {
         g_rule_file[0] = '\0';              /* no record of this village (yet): no lines of it */
         g_rule_size = 0;
     }
+    if (slot >= 1 && g_family_session_slot == 0 && g_family_count == HEATHEN_FAMILY_COUNT
+        && strstr(g_rule_file, "\nfamily\t") == NULL) {
+        g_family_session_slot = -2;         /* a new village's four, chosen before its slot was known: kept now */
+        for (k = 0; k < g_family_count; ++k) {
+            size_t n = utf8_of(g_family[k], text, sizeof text);
+            if (n > 0 && used + 7 + n + 1 < sizeof add) {
+                memcpy(add + used, "family\t", 7);
+                memcpy(add + used + 7, text, n);
+                used += 7 + n;
+                add[used++] = '\n';
+            }
+        }
+        if (used > 0 && append_record_lines(slot, add, used)) {
+            (void)read_record(slot, rule, sizeof rule);
+        }
+        used = 0;
+    }
+    if (slot >= 1 || g_family_session_slot != slot) {
+        g_family_count = 0;
+    }
+    for (line = g_rule_file; line != NULL && *line != '\0' && g_family_count < HEATHEN_FAMILY_COUNT;
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        size_t n;
+        char last[LONGEST_LAST + 1];
+        if (strncmp(line, "family\t", 7) != 0) {
+            continue;
+        }
+        n = strcspn(line + 7, "\r\n");
+        if (n > 0 && memchr(line + 7, '\t', n) == NULL && memchr(line + 7, ' ', n) == NULL
+            && latin1_of(line + 7, n, last, sizeof last)) {
+            for (k = 0; k < g_family_count && strcmp(g_family[k], last) != 0; ++k) {
+            }
+            if (k == g_family_count) {
+                memcpy(g_family[g_family_count++], last, strlen(last) + 1);
+            }
+        }
+    }
+    if (g_family_count >= HEATHEN_FAMILY_COUNT || (slot < 1 && g_family_session_slot == slot && g_family_count > 0)) {
+        return g_family_count;
+    }
+    /* Choose the rest: first among the names no villager has, then among any others of the list. */
     g_used_count = 0;
     used_of_record();
-    heathens_of_record();
-    table_lasts(records, NB_STRIDE, slots, NB_ACTIVE, NB_NAME, NB_NAME_CAP, self, 1);
+    table_lasts(records, NB_STRIDE, slots, NB_ACTIVE, NB_NAME, NB_NAME_CAP, NULL, 0);   /* believers only */
+    for (chosen = 0; chosen < 2 && g_family_count < HEATHEN_FAMILY_COUNT; ++chosen) {
+        free_count = 0;
+        for (i = 0; i < FAMILIES; ++i) {
+            int taken = g_last[i][0] == '\0';
+            for (k = 0; k < g_family_count && !taken; ++k) {
+                taken = strcmp(g_family[k], g_last[i]) == 0;
+            }
+            for (k = 0; chosen == 0 && k < g_used_count && !taken; ++k) {
+                taken = strcmp(g_used[k], g_last[i]) == 0;
+            }
+            if (!taken) {
+                free_names[free_count++] = i;
+            }
+        }
+        while (free_count > 0 && g_family_count < HEATHEN_FAMILY_COUNT) {
+            int at = (int)random_below((unsigned int)free_count);
+            const char *last = g_last[free_names[at]];
+            size_t n = utf8_of(last, text, sizeof text);
+            memcpy(g_family[g_family_count++], last, strlen(last) + 1);
+            free_names[at] = free_names[--free_count];
+            if (n > 0 && used + 7 + n + 1 < sizeof add) {
+                memcpy(add + used, "family\t", 7);
+                memcpy(add + used + 7, text, n);
+                used += 7 + n;
+                add[used++] = '\n';
+            }
+        }
+    }
+    if (slot >= 1 && used > 0) {
+        (void)append_record_lines(slot, add, used);
+        (void)read_record(slot, rule, sizeof rule);    /* the record as it is now */
+    }
+    g_family_session_slot = slot;
+    return g_family_count;
 }
 
 /* A new Heathen, as the naming routine has just named them (`villager`: the
-   routine's `this`, the record + NB_VILLAGER): a last name of their own.
-   Returns 1 when the name changed. */
+   routine's `this`, the record + NB_VILLAGER): one of the village's family
+   names.  Returns 1 when the name changed. */
 static int heathen_created(unsigned char *villager, const unsigned char *records, int slots, int slot) {
     char *name = (char *)(villager + 0x10);
-    char full[TABLE_NAME_MAX], last[LONGEST_LAST + 1], line[16 + 2 * LONGEST_LAST];
+    char full[TABLE_NAME_MAX], last[LONGEST_LAST + 1];
     const char *pick;
-    size_t n;
     if (memchr(name, '\0', NB_ROOM) == NULL || name[0] == '\0') {
         return 0;
     }
-    heathen_taken(slot, records, slots, name);
+    (void)heathen_families(slot, records, slots);
     carried_last(name, last);
     if (last[0] != '\0') {
         return 0;                           /* already one: kept */
     }
-    pick = heathen_draw(name, NB_ROOM, records, slots);
+    pick = family_draw(name, NB_ROOM, records, slots, name);
     if (pick[0] == '\0' || !with_heathen_last(name, NB_ROOM, pick, full)) {
         return 0;
     }
     memcpy(name, full, strlen(full) + 1);
-    memcpy(line, "heathen\t", 8);
-    n = utf8_of(pick, line + 8, sizeof line - 10);
-    if (n > 0) {
-        line[8 + n] = '\n';
-        (void)append_record_lines(slot, line, 8 + n + 1);
-    }
     return 1;
 }
 
@@ -1788,11 +1870,17 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
     static char renamed_old[HEATHEN_LINES_MAX][TABLE_NAME_MAX];
     const char *given[HEATHEN_LINES_MAX];
     size_t used = 0;
-    int i, named = 0, given_count = 0, renamed_count = 0;
+    int i, named = 0, given_count = 0, renamed_count = 0, families = 0;
     if (records == NULL || slots <= 0 || slots > HEATHEN_LINES_MAX || !readable(records, (size_t)slots * NB_STRIDE)) {
         return 0;
     }
-    heathen_taken(slot, records, slots, NULL);
+    {
+        char rule[8];
+        if (!read_record(slot, rule, sizeof rule)) {
+            g_rule_file[0] = '\0';          /* no record of this village (yet): no lines of it */
+            g_rule_size = 0;
+        }
+    }
     for (i = 0; i < slots; ++i) {
         unsigned char *r = records + (size_t)i * NB_STRIDE;
         char *name = (char *)(r + NB_NAME);
@@ -1814,9 +1902,13 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
         if (line != NULL && with_heathen_last(old, NB_ROOM, last, full)) {
             given[given_count++] = line;    /* the same name again: no new line */
         } else {
-            const char *pick = heathen_draw(old, NB_ROOM, records, slots);
+            const char *pick;
             size_t a, b;
             int k;
+            if (!families && heathen_families(slot, records, slots) > 0) {
+                families = 1;               /* (the record is read again: the keyed lines are as they were) */
+            }
+            pick = family_draw(old, NB_ROOM, records, slots, name);
             if (pick[0] == '\0' || !with_heathen_last(old, NB_ROOM, pick, full)) {
                 continue;
             }
@@ -1836,7 +1928,6 @@ static int heathens_at_load(unsigned char *records, int slots, int slot) {
         }
         memset(name, 0, NB_NAME_CAP);
         memcpy(name, full, strlen(full) + 1);
-        add_used(last);
         log_name_change(r, old);
         if (renamed_count < HEATHEN_LINES_MAX) {
             renamed[renamed_count] = r;
