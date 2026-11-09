@@ -22,6 +22,8 @@ import vv_game_mechanics as gm
 FAITH = "Faith and Heathens"
 HEATHEN_MOMMY = "vv5_heathen_mommy_puzzle"
 FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
+NEW_HEATHENS = "vv5_new_heathens_get_heathen_faith"
+HEATHEN_NOTICE = "vv5_heathen_conversion_notice"
 KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
 DRAWS = 32768
 
@@ -90,9 +92,38 @@ def lines(village: gm.Village) -> list[gm.Fact]:
                 f"(believers / 5) in 100 -> (believers / 10) in 100, rounded down (50 believers {_p(10)} -> {_p(5)}).",
                 f"A fall with Faith below 5: skipped {_p(50)} of the time -> never skipped, so a falling believer can "
                 f"reach 0 and become a Heathen; a rise above 75 is still skipped {_p(70)} of the time.",
+                f"Starving and sick believers mostly die rather than leave, decided once per villager per crisis: the "
+                f"first time low food or sickness would take a believer's last Faith (the drift's other changes alone "
+                f"leaving it above 0), rand(10) < 1 ({pct(below(10, 1))}) makes them a Heathen; otherwise they are "
+                "marked and low food and sickness never take them below Faith 1, so they go on eating, starving and "
+                "falling ill as any believer (a Heathen does none of that). The mark clears at the first age unit "
+                "with food above 250 and the villager not sick; a later crisis is decided afresh. Too few believers "
+                "takes Faith as stock. The marks are kept by the patch's companion in the save's folder (\"Faith "
+                "Loss\Believers Kept - Save <S>.dat\"), by villager identity (0x4681DB, the cave 0x494F14).",
                 "A thriving village (8,000 food or more, Spirituality, the Tribute Statue, 12 or more believers, "
                 "nobody sick) still rises towards 100: only the chances change, and no loss roll fires there."):
             add(text, sub=True)
+    new_heathens = village.has(NEW_HEATHENS)
+    if new_heathens is not False:
+        where = "in this game" if new_heathens else "whether the game has it could not be told"
+        add(f"With \"{gm.feature_name(NEW_HEATHENS)}\" ({where}): a believer the Faith drift turns Heathen becomes "
+            "an ordinary blue-mask Heathen (the orange and red mask bytes cleared; the role is already 0) with Faith "
+            "-38 - rand(30), -38 to -67, as the game draws a new village's ordinary Heathens (stock: the Faith "
+            "that took them there, 0 to -3), so it takes as much preaching as any blue Heathen to win them back "
+            "(0x467FDF, the cave 0x494F80). The Spa, The Cracked Mask and the Custom Island Event keep their -10.")
+    notice = village.has(HEATHEN_NOTICE)
+    if notice is not False:
+        where = "in this game" if notice else "whether the game has it could not be told"
+        add(f"With \"{gm.feature_name(HEATHEN_NOTICE)}\" ({where}): each believer the drift turns Heathen is "
+            "counted under the loss roll that took their Faith (starvation: food under 10; hunger: food 10 to 250; "
+            "sickness; too few believers), and 3 real-life seconds (real time, the same at every speed) after the "
+            "last one, once no other island event is showing or on its way, a popup in the island-event window, "
+            "\"The Breaking Point\", says \"Several of your villagers have lost faith in you due to the dire conditions "
+            "and have decided to join the heathens' tribe.\" and \"N villagers have left due to ...\" "
+            "(\"... the Isolans' tribe\" with Guardians of Isola); one popup a catch-up, Time Warp or time skip. It "
+            "is not an island event (the next one keeps its time; not counted, not logged), and a believer an "
+            "island event makes a Heathen is not in it. It needs Story / Cheat "
+            "Upgrades to show it, and a living adult, as every island event.")
     add("Other things that change Faith, exactly:")
     for text in (
             "Preaching to a Heathen (after the preacher's Devotion check): +3, +4 at Devotion 50 or more, +5 at 88 or "
@@ -116,6 +147,13 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "into the tribe (0x43979C).", sub=True)
     # The owner's words (2026-10-25: "Heathens never fall sick" is true in play): the life tick skips them, so a
     # sick mark an island event sets on one has no effect (The Missing Kids' own line says so).
+    add("A Heathen's mask is chosen by its role and kind, never by Faith (0x4728C6): roles 12 and 14-16 purple, 13 "
+        "the Chief's (the table 0x472B60), then the orange byte +0x1CED (the chasers) and the red byte +0x1CEE (the "
+        "scary ones); every other Heathen wears the blue mask.")
+    add("A Heathen's Faith is set once, when the game makes them, and never drifts: Barrel O' Babies! (heathens) -55 "
+        "(0x4152B0); a new village's ordinary Heathens -38 to -67, each equally likely (-38 - rand(30), 0x471070), "
+        "except five set to -5, -9, -16, -23 and -30 (0x470F1F..0x471037); the Heathen Doctor -14, the three Masters "
+        "-74, the Heathen Chief -94 (the creator calls of 0x424AC0).")
     add("Heathens: the life tick skips them (0x472CB7), so while catching up or otherwise they never age, eat, gain "
         "Divine Energy or get the sickness roll, and a sick mark costs them no health; in the game's code The Missing "
         "Kids can mark a Heathen child sick (0x4161D1, see Island events). Their details can't be viewed (\"You "

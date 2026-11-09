@@ -173,11 +173,6 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS, SELECT_ALL_OFF_FUN_PATCH_IDS).
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     + sorted(ALTERNATIVE_OFF_FUN_PATCH_IDS)
-    # No Fishing at Science Level 2 (The Tree of Life) makes the game harder:
-    # a difficulty change, not content, so it is off by default. The owner
-    # (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- Owner's Defaults ticks
-    # it, as it ticks every default-off patch it does not name.
-    + ["vv4_no_fishing_at_science_2"]
     # Science Collectibles Only Count When Complete (The Tree of Life, New
     # Believers): a difficulty change too, so off by default; Owner's Defaults
     # ticks it like every default-off patch it does not name.
@@ -195,9 +190,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Collectible Spawn Timing works like VV1-3 (The Tree of Life): a
     # difficulty change in Classic VV Difficulty; Owner's Defaults ticks it.
     + ["vv4_collectible_spawn_like_vv3"]
-    # Clothmaking Unlocks at Science Level 3 (The Tree of Life, the owner
-    # 2026-11-08: "Default ON in Owner's Defaults"), in Classic VV Difficulty.
-    + ["vv4_clothmaking_at_science_3"]
+    # Harder Fishing Unlock in VV4 (The Tree of Life, the owner 2026-11-08:
+    # "Default ON in Owner's Defaults"), in Classic VV Difficulty.
+    + ["vv4_harder_fishing_unlock"]
     # 2-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree
     # of Life, New Believers; in Classic VV Difficulty): the owner
     # (2026-11-08): off by default, Owner's Defaults ticks both.
@@ -227,9 +222,6 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner's own pick of the fruit-tree pair is the other way round: Fruit
     # Trees Take Turns Refilling on, All Fruit Trees Refill at the Same Time off.
     + ["vv3_fruit_trees_refill_together"]
-    # No Fishing at Science Level 2 (the owner, 2026-11-08: "should be DEFAULT OFF everywhere"): its alternative
-    # Clothmaking Unlocks at Science Level 3 is ticked instead.
-    + ["vv4_no_fishing_at_science_2"]
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on." --
     # Render Unicode with In-Game Fonts on, its alternative Use Unicode Font (overrides in-game fonts) off.
     + ["vv%d_unicode_font" % game for game in range(1, 6)]
@@ -252,8 +244,6 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
-    # No Fishing at Science Level 2: off everywhere (the owner, 2026-11-08); its alternative is ticked.
-    + ["vv4_no_fishing_at_science_2"]
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 
@@ -264,10 +254,6 @@ UNTICKING_CONFLICT_IDS = {}
 for _game in range(1, 6):
     UNTICKING_CONFLICT_IDS["vv%d_unicode_text" % _game] = "vv%d_unicode_font" % _game
     UNTICKING_CONFLICT_IDS["vv%d_unicode_font" % _game] = "vv%d_unicode_text" % _game
-# The owner (2026-11-08): Clothmaking Unlocks at Science Level 3 and No Fishing at Science Level 2 are "mutually
-# exclusive": ticking one unticks the other.
-UNTICKING_CONFLICT_IDS["vv4_clothmaking_at_science_3"] = "vv4_no_fishing_at_science_2"
-UNTICKING_CONFLICT_IDS["vv4_no_fishing_at_science_2"] = "vv4_clothmaking_at_science_3"
 del _game
 
 

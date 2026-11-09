@@ -41,8 +41,7 @@ SCALES = "vv4_complete_scales_golden_fish"
 # patched step 0x46446B reads the catch-up flag game+0x171A4 and the speed game+0x17110 (any other value: 3).
 FLAT = "vv4_food_pays_like_earlier_games"
 FLAT_PICK, FLAT_CATCH_UP = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}, 4
-NO_FISHING = "vv4_no_fishing_at_science_2"
-CLOTHMAKING = "vv4_clothmaking_at_science_3"
+HARDER_FISHING = "vv4_harder_fishing_unlock"
 SCIENCE_SET = "vv4_science_collectibles_complete"
 STORY = "vv4_story_cheat_upgrades"
 
@@ -314,18 +313,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         + gm.flat_pick_mastery(village, FLAT, flat, levels), gm.RUNNING)
     if village.has(SCALES) is not False:
         add("Food sources", gm.patch_words(village, SCALES, "a Golden Fish needs all 12 scales"))
-    # The fishing nets need the Clothing Hut built (0x4334FC); its site appears at Science 2 (0x430CF0), or at Science 3
-    # with this patch (tests/test_vv4_no_fishing_at_science_2.py).
+    # The fishing nets need the piers fixed (stage [0x4D86AC] >= 2, 0x4334CC) and the Clothing Hut built (0x4334FC).
     # Cloth Invented's drop 0x436D40: the Clothing Hut finished -> cutting the pulpy vines (action 0x7A, the only start
-    # of the cloth chain); with the patch also Science 3 (scripts/build_vv4_clothmaking_at_science_3_feature.py).
-    if village.has(CLOTHMAKING) is not False:
-        add("Food sources", gm.patch_words(village, CLOTHMAKING, "no cloth can be made until Science level 3: a "
+    # of the cloth chain); with the patch also Science 3.  Fixing the piers (action 0x80: the drop 0x4334D5, the
+    # Building dispatcher's option 6 0x463DD8, the task-30 continuation 0x46384D): with the patch also Construction 3
+    # (scripts/build_vv4_harder_fishing_unlock_feature.py).
+    if village.has(HARDER_FISHING) is not False:
+        add("Food sources", gm.patch_words(village, HARDER_FISHING, "no cloth can be made until Science level 3 (a "
                                            "villager dropped on the vines says \"Don't know what to do with these "
-                                           "tough vines!\" until then, so the fishing nets, which need cloth, wait "
-                                           "for it unless the village already has cloth"))
-    if village.has(NO_FISHING) is not False:
-        add("Food sources", gm.patch_words(village, NO_FISHING, "the Clothing Hut, which the fishing nets need, "
-                                           "appears at Science level 3 instead of 2, so fish come later"))
+                                           "tough vines!\") and the piers cannot be fixed until Construction level "
+                                           "3 (a villager dropped on them says \"Additional research may be "
+                                           "necessary.\", and builders leave them alone), so the fishing nets, "
+                                           "which need both, wait for them; piers already fixed and cloth the "
+                                           "village already has still count"))
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
@@ -434,8 +434,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
     if village.has(CLASSIC) is not False:
         add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
-                                         "Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at "
-                                         "Science Level 3 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
+                                         "Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in "
+                                         "VV4 and Collectible Spawn Timing works like VV1-3 together; each one's own line on this page says what it changes"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 

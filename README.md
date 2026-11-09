@@ -1308,18 +1308,11 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 - Patch ID: `vv4_complete_scales_golden_fish`
 
-**No Fishing at Science Level 2**
+**Harder Fishing Unlock in VV4**
 
-The Clothing Hut's building site appears at Science level 3 (70,000 tech points) instead of Science level 2 (8,000). The Clothing Hut is what lets villagers make cloth (Cloth Invented) and mend the fishing nets (Fishing Nets), so fish come later. A site already showing while Science is below 3 is locked again: hidden and not built until Science 3, then back in the same place with all its building kept. A finished Clothing Hut is never affected. New clothes and builders fixing huts on their own also need the finished Clothing Hut, so they wait for Science 3 too (hut fixing not with Builders Fix Huts When Idle ticked). Off by default (it makes the game harder).
+Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them; this patch makes both come later. The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3 (70,000 tech points): a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The piers cannot be fixed until Construction level 3 (65,000 tech points): a villager dropped on them says "Additional research may be necessary." (the game's own words on a hut that needs more Construction), builders do not go to them on their own, and a villager who was fixing them stops. Piers already fixed stay fixed, work already done on them is kept for Construction 3, and cloth the village already has stays usable. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
 
-- Patch ID: `vv4_no_fishing_at_science_2`
-- Off everywhere, Select All and Owner's Defaults included (the owner, 2026-11-08); ticking it unticks Clothmaking Unlocks at Science Level 3 and the other way round.
-
-**Clothmaking Unlocks at Science Level 3**
-
-The Clothing Hut appears at Science level 2 as normal, but no cloth can be made until Science level 3: a villager dropped on the vines says "Don't know what to do with these tough vines!" until then. The fishing nets need cloth, so fish come later; cloth the village already has stays usable. Cannot be ticked with No Fishing at Science Level 2 (ticking one unticks the other). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it.
-
-- Patch ID: `vv4_clothmaking_at_science_3`
+- Patch ID: `vv4_harder_fishing_unlock`
 
 **2-10x Sickness** (all five games)
 
@@ -1341,7 +1334,7 @@ Each Lab Equipment piece you find normally makes research bring more tech points
 
 **Classic VV Difficulty**
 
-Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Clothmaking Unlocks at Science Level 3 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
+Ticks the harder-game patches together, for the feel of the classic games: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete, Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like VV1-3 (New Believers: Faith Loss is Doubled/Gains Halved instead of those two), Sickness works like VV1-3 and Difficulty Settings (so Easy, Medium or Hard can be chosen; VV4 and VV5 already play each level like The Secret City). Its title is red in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. Off by default; Owner's Defaults ticks it and sets both sliders to 2.
 
 - Patch ID: `vv4_classic_vv_difficulty` (New Believers: `vv5_classic_vv_difficulty`)
 
@@ -1616,9 +1609,21 @@ When a Devotee dies and is buried, the epitaph New Believers writes on the grave
 
 **Faith Loss is Doubled/Gains Halved**
 
-Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck! **Off by default.** **Needs no other patch.**
+Every believer's Faith moves each age unit by a few small rolls (New Believers' own Faith drift). This doubles the chance of every roll that takes Faith away and halves the chance of every roll that gives it: food under 10 loses 1 Faith 60% of the time (was 30%), and when that misses, 20% (was 10%); food 10 to 250 loses 1 Faith 20% of the time (was 10%); a sick believer loses 1 more 30% of the time (was 15%); fewer than 12 believers loses 1 with a chance of 2 x (12 - believers) in 100 (was 12 - believers). Food 8,000 or more gains 1 Faith 10% of the time (was 20%); the Tribute Statue solved 15% (was 30%; its first and second stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); 12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. Preaching, Spreading the Word, island events and every other Faith change are unchanged. Adds a real chance of your villagers becoming heathens. Makes the game that much harder. Good Luck! **Off by default.** **Needs no other patch.**
 
 - Patch ID: `vv5_faith_loss_doubled_gains_halved`
+
+**New Heathens Get a Heathen's Faith**
+
+In New Believers a believer whose Faith drifts down to 0 (low food, sickness, too few believers) becomes a Heathen with Faith 0 or just below it, so one preaching brought them straight back. Every ordinary blue-mask Heathen the game makes has far less: a new village's get -67 to -38, Barrel O' Babies' -55. With this patch a believer the Faith drift turns Heathen (with or without Faith Loss is Doubled/Gains Halved) becomes an ordinary blue-mask Heathen with a random Faith from -67 to -38, drawn exactly as the game draws a new village's ordinary Heathens, and needs as much preaching as any blue Heathen to be won back. A Heathen's Faith never moves on its own in New Believers, so this is the Faith they keep until preached to. The game's own message "A villager has stopped believing in you!" is still shown. Island events that make a Heathen (The Spa, The Cracked Mask, the Custom Island Event) keep their own Faith (-10). **On by default.** **Needs no other patch.**
+
+- Patch ID: `vv5_new_heathens_get_heathen_faith`
+
+**Popup When Believers Become Heathens**
+
+When New Believers' own Faith drift turns believers into Heathens, the game says "A villager has stopped believing in you!" on the bottom bar for each one (that is the game's own line; with Guardians of Isola it is "A villager has left the tribe!"), but after a catch-up, a Time Warp or a time skip nothing told you how many left or why. With this patch a popup in the game's own island-event window sums them up: "The Breaking Point: Several of your villagers have lost faith in you due to the dire conditions and have decided to join the heathens' tribe." and, below it, "3 villagers have left due to starvation, 1 due to sickness and 2 due to too few believers." (with Guardians of Isola: "... have lost hope due to the dire conditions and have decided to join the Isolans' tribe."). Each believer is counted once, under the Faith roll that took their Faith: starvation (food under 10), hunger (food 10 to 250), sickness, or too few believers (fewer than 12). It comes once no believer has left for a few seconds, so a whole catch-up or time skip is one popup; it waits until no other island event is showing or on its way and the game is running, and like every island event it needs a living adult to show it to. It is not an island event: it does not move the next island event, is not counted in Island Events Seen and is not written to the Island Events log. It counts only believers the Faith drift turns Heathen: a believer an island event makes a Heathen, and Heathens island events or the Story / Cheat Upgrades make, never bring it. Nothing in the game is changed by it. **On by default.** **Needs Story / Cheat Upgrades (on by default) for the popup: that patch's DLL shows it.** The companion is "VVFP Faith Notice.dll", started by VVFP Startup.dll; saves are never written by it.
+
+- Patch ID: `vv5_heathen_conversion_notice`
 
 **Heathens Keep Their Masks When Converted**
 

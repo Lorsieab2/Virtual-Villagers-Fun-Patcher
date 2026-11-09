@@ -1,0 +1,54 @@
+{
+  "id": "vv4_harder_fishing_unlock",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Harder Fishing Unlock in VV4",
+  "description": "**Needs no other patch.** Makes fishing come later, so the game is harder; off by default. Fish need the fishing nets, and the nets need the piers fixed and cloth to mend them. With this patch cloth waits for Science level 3 (70,000 tech points) and fixing the piers waits for Construction level 3 (65,000 tech points). The Clothing Hut still appears at Science level 2 as normal, but until Science 3 a villager dropped on the vines says \"Don't know what to do with these tough vines!\" and makes no cloth. Until Construction 3 a villager dropped on the broken piers says \"Additional research may be necessary.\" (as on a hut that needs more Construction), builders do not go to fix them on their own, and a villager who was fixing them stops. Piers already fixed stay fixed, work already done on them is kept for Construction 3, and cloth the village already has can still be used: the nets are mended with it and the Clothing Hut gives clothes as before. Nothing else changes.",
+  "output_tag": "Harder Fishing Unlock",
+  "behavior_changes": [
+    "The vines' drop handler 0x436D40: with the Clothing Hut finished and Science below 3, the stock refusal \"Don't know what to do with these tough vines!\" (0x249) instead of the cloth start (action 0x7A); at Science 3 the stock cloth start.",
+    "The Fishing Nets drop handler 0x433440 (case 0, project 11 unfinished): with the piers unfixed (stage [0x4D86AC] < 2) and Construction ([0x4D6F68], tech 3) below 3, the villager says \"Additional research may be necessary.\" (0x75, the game's refusal on Hut 2 / Hut 3 below their Construction level) instead of starting the pier fix (action 0x80, task 30); at Construction 3 the stock pier start. The nets' branch is unchanged.",
+    "Below Construction 3 the Building dispatcher never lists \"Fixing the piers\" (option 6, 0x463DD8), live or while catching up, and a villager on task 30 (fixing the piers, saved mid-fix) has the task cleared (0x46385B) instead of resuming it; at Construction 3 both are stock."
+  ],
+  "explicit_non_changes": [
+    "The Clothing Hut's site (Science 2), its building, cloth bolts already in the store, the fishing nets' use of them, clothes and every other drop are unchanged; nothing but the vines' drop starts cloth-making.",
+    "The piers' stage and counter are never written by the patch: fixed piers stay fixed and a part-done counter is kept; mending the nets, catching fish, the tech prices and every other building job are unchanged.",
+    "Guarded in-place edits: one jump and int3 padding after the vines' handler, and three stock routines' own bytes rewritten to the same length (the nets' drop tail, the dispatcher's pier test, the task-30 continuation); no executable tail space is claimed."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the vines' drop at Science 1, 2 and 3, and the piers' drop, the dispatcher's pier offer and the task-30 continuation at Construction 1, 2 and 3 with the piers unfixed, part-done and fixed (and the nets' branch with the Clothing Hut finished and unfinished) are emulated stock and patched in tests/test_vv4_harder_fishing_unlock.py; runtime/player confirmation pending",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0x36D86",
+      "before": "7517",
+      "after": "752C",
+      "purpose": "the Clothing Hut finished test's jump (0x436D86): to the Science check 0x436DB4"
+    },
+    {
+      "offset": "0x36DB4",
+      "before": "CCCCCCCCCCCCCCCCCCCCCC",
+      "after": "833D5C6F4D00037CCBEBE0",
+      "purpose": "the Science check in the padding (0x436DB4): below 3 the stock refusal 0x436D88, else the stock cloth start 0x436D9F"
+    },
+    {
+      "offset": "0x334CC",
+      "before": "833DAC864D00027D278B4C24108844240C8D44240C506880000000C781541C00001E000000E8CAA90200B00183C408C36A16B9F88B4D00E85854000084C0741B8D4C2402518B4C24146A7FC644240A00E89FA90200B00183C408C38B4C24108D542404526A1AC744240C36010000E881A90200B00183C408C3",
+      "after": "833DAC864D00027D2EB875000000833D686F4D00037C4A8B4C24108D44240CC600005068800000006A1E8F81541C0000E8BFA90200EB3C6A16B9F88B4D00E85154000084C0B83601000074158B4C24108D442402C60000506A7FE895A90200EB128B4C24108D5424048902526A1AE881A90200B00183C408C3",
+      "purpose": "the Fishing Nets drop, case 0 tail (0x4334CC..0x433544, same length): piers unfixed and Construction below 3 -> say 0x75 \"Additional research may be necessary.\"; else the stock pier start (action 0x80, task 30); piers fixed -> the stock nets branch (Clothing Hut finished -> action 0x7F, else say 0x136), sharing one say"
+    },
+    {
+      "offset": "0x63DD8",
+      "before": "B9A8864D00E8EE58FDFF83F8027D40B9A8864D00E87FD7FBFF83F8647D31",
+      "after": "833D686F4D00037C46833DAC864D00027D3D833DB0864D00647D34909090",
+      "purpose": "the Building dispatcher's pier test (0x463DD8): option 6 only at Construction 3, with the stock stage < 2 and counter < 100"
+    },
+    {
+      "offset": "0x6385B",
+      "before": "0F857CFEFFFFB9A8864D00E8655EFDFF83F8020F8D69FEFFFF",
+      "after": "7512833D686F4D00037C09833DAC864D00027C05E969FEFFFF",
+      "purpose": "the task-30 continuation (0x46385B): below Construction 3 the task is cleared (0x4636DD), as for fixed piers; else the stock stage test"
+    }
+  ]
+}

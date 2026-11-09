@@ -126,9 +126,6 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_unicode_font")
                   # 2-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
                   or p.endswith("_tech_cost_multiplier")
-                  # No Fishing at Science Level 2 (The Tree of Life): a difficulty
-                  # change, off by default, on in Owner's Defaults.
-                  or p == "vv4_no_fishing_at_science_2"
                   # Science Collectibles Only Count When Complete: a difficulty change too.
                   or p.endswith("_science_collectibles_complete")
                   # Hungrier Villagers and Classic VV Difficulty (the owner, 2026-11-07): difficulty changes too.
@@ -136,7 +133,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_classic_vv_difficulty")
                   # Collectible Spawn Timing works like VV1-3 (the owner, 2026-11-08): a difficulty change too.
                   or p == "vv4_collectible_spawn_like_vv3"
-                  or p == "vv4_clothmaking_at_science_3"
+                  or p == "vv4_harder_fishing_unlock"
                   # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
                   # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
@@ -152,24 +149,19 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         self.assertTrue(owners_default_fun_patch_selection(patch_id))
         self.assertTrue(select_all_fun_patch_selection(patch_id))
 
-    def test_no_fishing_at_science_2_is_off_by_default_and_on_in_owners_defaults(self) -> None:
-        """The owner (2026-11-06): "DEFAULT ON IN OWNER's DEFAULTS" -- and off in
-        the normal defaults, as a change that only makes the game harder."""
-        from vv_fun_patcher_gui import (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS,
-                                        owners_default_fun_patch_selection)
+    def test_harder_fishing_unlock_is_off_by_default_and_on_in_owners_defaults(self) -> None:
+        """Harder Fishing Unlock in VV4 (the owner, 2026-11-08: "Default ON in Owner's Defaults") -- and off in the
+        normal defaults, as a change that only makes the game harder.  No Fishing at Science Level 2 is removed
+        ("not needed")."""
+        from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS, owners_default_fun_patch_selection
 
-        patch_id = "vv4_no_fishing_at_science_2"
+        patch_id = "vv4_harder_fishing_unlock"
         self.assertIn(patch_id, fun_patch_ids())
         self.assertFalse(default_fun_patch_selection(patch_id))
-        # The owner (2026-11-08): "should be DEFAULT OFF everywhere" -- its alternative, Clothmaking Unlocks at
-        # Science Level 3, is ticked instead; ticking one unticks the other.
-        self.assertIn(patch_id, OWNERS_DEFAULT_OFF_FUN_PATCH_IDS)
-        self.assertFalse(owners_default_fun_patch_selection(patch_id))
-        self.assertFalse(select_all_fun_patch_selection(patch_id))
-        self.assertTrue(owners_default_fun_patch_selection("vv4_clothmaking_at_science_3"))
-        from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS
-        self.assertEqual(UNTICKING_CONFLICT_IDS[patch_id], "vv4_clothmaking_at_science_3")
-        self.assertEqual(UNTICKING_CONFLICT_IDS["vv4_clothmaking_at_science_3"], patch_id)
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertTrue(select_all_fun_patch_selection(patch_id))
+        self.assertNotIn(patch_id, UNTICKING_CONFLICT_IDS)
+        self.assertNotIn("vv4_no_fishing_at_science_2", fun_patch_ids())
 
     def test_story_cheat_upgrades_and_its_costs_are_on_by_default_in_all_five(self) -> None:
         """The owner (2026-11-01): "Anything that costs (money tech points food
@@ -270,8 +262,6 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
         held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
-        # ...and No Fishing at Science Level 2, off everywhere (the owner, 2026-11-08).
-        held_back |= {"vv4_no_fishing_at_science_2"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
