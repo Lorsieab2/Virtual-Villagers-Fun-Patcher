@@ -861,6 +861,109 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     VVFP_STARTUP_GUARDED(vvfp_crosscheck_startup(5));   /* the quit check's hook, after the quit save (crosscheck_bridge.h) */
 }
 
+/* ---- Heathens Keep Their Masks When Converted ("VVFP Heathens Keep Masks.dll") ----------------------
+   A Heathen joining the tribe keeps the mask they wore as their Change Appearance mask: this store, as the
+   chooser's OK sets it (the nibble, then the Village Masks file).  While the table is not yet this village's
+   -- its slot's file not loaded yet, or blocked a moment ago (another program holding it) -- a write is
+   refused (vv5_write_mask_sidecar) and the load that settles clears the table first, so the mask would be
+   lost.  Then it waits here, by the villager's identity (vv5_identity) and slot, and is put on them right
+   after the load settles (vv5_keep_apply, from Vv5MaskSync): on the one living villager of that identity,
+   none when two share it or nobody does. */
+#define VV5_KEEP_MAX 64
+static struct {
+    int slot;
+    unsigned int id;
+    unsigned char mask;
+} g_vv5_keep[VV5_KEEP_MAX];
+static int g_vv5_keep_count;
+
+static void vv5_keep_nibble(int index, int mask) {
+    unsigned char *at = &((unsigned char *)VV5_MASK_TABLE)[index >> 1];
+    *at = (index & 1) ? (unsigned char)((*at & 0x0F) | (mask << 4)) : (unsigned char)((*at & 0xF0) | mask);
+}
+
+/* The table is the village's on screen and may be written. */
+static int vv5_keep_ready(int slot) {
+    return slot > 0 && g_vv5_have_roster && g_vv5_slot == slot && vv_sidecar_gate_ready(&g_vv5_mask_gate, slot);
+}
+
+/* Every waiting mask of `slot` on its villager, then the file once; each entry is used up either way. */
+static void vv5_keep_apply(int slot) {
+    const unsigned char *base = (const unsigned char *)(UINT_PTR)VV5_ROSTER_RECORDS;
+    int k, kept = 0, any = 0, slots = vv5_slots();
+    for (k = 0; k < g_vv5_keep_count; ++k) {
+        int i, at = -1, holders = 0;
+        if (g_vv5_keep[k].slot != slot) {
+            g_vv5_keep[kept++] = g_vv5_keep[k];          /* another village's: still waiting */
+            continue;
+        }
+        for (i = 0; i < slots; ++i) {
+            const unsigned char *rec = base + (unsigned int)i * VV5_ROSTER_STRIDE;
+            if (rec[VV5_ACTIVE_OFFSET] != 0 && vv5_identity(rec) == g_vv5_keep[k].id) {
+                at = i;
+                ++holders;
+            }
+        }
+        if (holders == 1) {
+            vv5_keep_nibble(at, g_vv5_keep[k].mask);
+            any = 1;
+        }
+    }
+    g_vv5_keep_count = kept;
+    if (any) {
+        WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
+    }
+}
+
+/* int __stdcall VvfpMaskKeep(void *record, int mask): `mask` (1..5) becomes the Change Appearance mask of the
+   villager in `record`.  1 kept and written now, 2 waiting for this slot's load to settle, 0 refused (not a
+   held record, no village slot, a mask out of range). */
+__declspec(dllexport) int __stdcall VvfpMaskKeep(void *record, int mask) {
+    const unsigned char *r = (const unsigned char *)record;
+    unsigned int delta;
+    int index, slot = VV5_MASK_SLOT_NOW, k;
+    if (r == NULL || mask < 1 || mask >= VV5_MASK_COUNT || slot <= 0
+        || (unsigned int)(UINT_PTR)r < VV5_ROSTER_RECORDS) {
+        return 0;
+    }
+    delta = (unsigned int)(UINT_PTR)r - VV5_ROSTER_RECORDS;
+    if (delta % VV5_ROSTER_STRIDE != 0 || delta / VV5_ROSTER_STRIDE >= (unsigned int)vv5_slots()
+        || r[VV5_ACTIVE_OFFSET] == 0) {
+        return 0;
+    }
+    index = (int)(delta / VV5_ROSTER_STRIDE);
+    vv5_keep_nibble(index, mask);                         /* drawn at once */
+    if (vv5_keep_ready(slot)) {
+        WriteMaskSidecar((const unsigned char *)VV5_MASK_TABLE);
+        return 1;
+    }
+    for (k = 0; k < g_vv5_keep_count; ++k) {
+        if (g_vv5_keep[k].slot == slot && g_vv5_keep[k].id == vv5_identity(r)) {
+            break;                                        /* the same villager again: the newer mask */
+        }
+    }
+    if (k == g_vv5_keep_count) {
+        if (g_vv5_keep_count == VV5_KEEP_MAX) {
+            memmove(&g_vv5_keep[0], &g_vv5_keep[1], sizeof g_vv5_keep[0] * (VV5_KEEP_MAX - 1));
+            --g_vv5_keep_count;                           /* the oldest gives way (64 waiting: never seen) */
+            k = g_vv5_keep_count;
+        }
+        ++g_vv5_keep_count;
+    }
+    g_vv5_keep[k].slot = slot;
+    g_vv5_keep[k].id = vv5_identity(r);
+    g_vv5_keep[k].mask = (unsigned char)mask;
+    return 2;
+}
+
+/* What waits for `slot`, put on its villagers once the table is that village's (after the load that settled,
+   never before). */
+static void vv5_keep_settled(int slot) {
+    if (g_vv5_keep_count > 0 && vv5_keep_ready(slot)) {
+        vv5_keep_apply(slot);
+    }
+}
+
 __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
     unsigned int cur[VV5_RECORD_COUNT];
     unsigned int cur_stable[VV5_RECORD_COUNT];
@@ -910,6 +1013,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
             memcpy(g_vv5_stable, cur_stable, sizeof(cur_stable));
             WriteMaskSidecar(table);
         }
+        vv5_keep_settled(slot);     /* a mask that waited for this village's table */
         return 1;                   /* same village -> keep the masks as they are */
     }
     /* REPLACED (or first sight): clear, reload only a matching file, adopt.
@@ -928,6 +1032,7 @@ __declspec(dllexport) int __stdcall Vv5MaskSync(void) {
         WriteMaskSidecar(table);    /* the followed table, in this build's format */
         g_vv5_rewrite_after_load = 0;
     }
+    vv5_keep_settled(slot);         /* a converting Heathen's mask that waited for the load */
     return 1;
 }
 

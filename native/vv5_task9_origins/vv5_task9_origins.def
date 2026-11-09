@@ -18,3 +18,4 @@ EXPORTS
     Vv5InstallCompanions=_Vv5InstallCompanions@0
     VvfpStartup=_VvfpStartup@8
     VvfpMaskOf=_VvfpMaskOf@4
+    VvfpMaskKeep=_VvfpMaskKeep@8

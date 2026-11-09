@@ -169,7 +169,8 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Defector's direct call 0x41699F) keeps the mask the game drew on them (0x4728C6: purple for the Heathen "
             "Doctor and the three Masters, the Chief's for the Heathen Chief, else orange, red or blue) as their "
             "Change Appearance mask, kept by the Origins upgrades; Change Appearance can change it or take it off, "
-            "and Reset to original takes it off. Heathens who joined before the patch are not given one.", sub=True)
+            "and Reset to original gives it back (their original look is the one they had as a Heathen, mask and "
+            "all). Heathens who joined before the patch are not given one.", sub=True)
     add("The owner: Heathens never fall sick in play.", gm.OWNER, sub=True)
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
         sub=True)

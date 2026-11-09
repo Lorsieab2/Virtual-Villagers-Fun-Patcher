@@ -93,6 +93,7 @@ class Entry:
     mask: int = 0
     source: int = 0
     game_body: int = 0       # 1: the game itself set the body since (the DLL's ol_game_body); kept as it is
+    believer: int = 0        # 1: New Believers: seen a believer since the original was kept (the DLL's g_believer)
 
 
 @dataclass
@@ -133,8 +134,9 @@ def parse(data: bytes, game: int) -> OriginalLooks | None:
         return None
     entries = []
     for i in range(count):
-        roster, ident, head, body, mask, source, game_body = struct.unpack_from("<IIiiBBB", data, HEADER + i * ENTRY)
-        entries.append(Entry(roster, ident, head, body, mask, source, game_body))
+        roster, ident, head, body, mask, source, game_body, believer = struct.unpack_from(
+            "<IIiiBBBB", data, HEADER + i * ENTRY)
+        entries.append(Entry(roster, ident, head, body, mask, source, game_body, believer & 1))
     at = HEADER + count * ENTRY
     kept = []
     for i in range(logged):
@@ -149,7 +151,7 @@ def build(looks: OriginalLooks) -> bytes:
         raise OriginalLookError("The original looks do not fit the file.")
     out = bytearray(struct.pack("<6I", MAGIC, VERSION, looks.game, looks.count, len(looks.logged), 0))
     for e in looks.entries:
-        out += struct.pack("<IIiiBBBB", e.roster, e.id, e.head, e.body, e.mask, e.source, e.game_body, 0)
+        out += struct.pack("<IIiiBBBB", e.roster, e.id, e.head, e.body, e.mask, e.source, e.game_body, e.believer)
     for e in looks.logged:
         out += struct.pack("<IiiBBBB", e.id, e.head, e.body, e.mask, e.kind, 0, 0)
     out += struct.pack("<I", zlib.crc32(bytes(out)))

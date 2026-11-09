@@ -2,3 +2,4 @@ LIBRARY "VVFP Original Look"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
     VvfpOriginalLookGet=_VvfpOriginalLookGet@20
+    VvfpOriginalLookConverted=_VvfpOriginalLookConverted@12

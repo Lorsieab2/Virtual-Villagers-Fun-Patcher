@@ -9,15 +9,17 @@ public modes, and with 256 Villagers (Experimental):
 * the game's own conversion 0x4668B0 runs on a Heathen record (its sound, sparkle, message and trophy calls stood
   in for; the faction setter 0x466880 writes the faction byte), and The Defector's answer 0x416970 runs its direct
   setter call 0x41699F;
-* the Origins companion is a stand-in whose VvfpMaskOf answers from the mask table as its caf_get_mask does, whose
-  WriteMaskSidecar records each write, and whose Vv5MaskSync exists.
+* the Origins companion is a stand-in whose VvfpMaskKeep puts the mask in the mask table as the real one does
+  (the real one, its file and the locked-file wait, are run by native/vv5_task9_origins/vv5_mask_identity_harness.c,
+  tests/test_vv5_mask_identity_harness.py), and the Original Look companion a stand-in that records what it is told
+  (its rule is run by native/vvfp_original_look/original_look_harness.c, tests/test_original_look.py).
 
 Then the mask the Heathen wore -- blue, orange, red, purple (the Heathen Doctor and the three Masters) or the
 Chief's -- is the villager's nibble in the mask table, read back by the Task9 page's own mask_get (the routine the
-render and Change Appearance read), and the Village Masks file is written once.  The page's own mask_set (what
-Change Appearance's OK and Reset to original write through) changes it or takes it off afterwards, and nothing
-puts it back.  With the companion not started, without the Origins companion, or with one that answers another
-table, nothing is kept and the convert loses the mask as in the stock game.
+render and Change Appearance read), and Original Look is told it (so Reset to original gives it back).  The page's
+own mask_set (what Change Appearance's OK and Reset to original write through) changes it or takes it off
+afterwards, and nothing puts it back.  With the companion not started, without the Origins companion (or one with
+no VvfpMaskKeep), or when the store refuses, nothing is kept and the convert loses the mask as in the stock game.
 """
 from __future__ import annotations
 
@@ -49,7 +51,7 @@ STRIDE, ACTIVE, FACTION, ORANGE, RED, ROLE, FAITH = 0x2F44, 0x1CD4, 0x1CEC, 0x1C
 STOCK_RECORDS, STOCK_TABLE = 0x554148 + 0x48, 0x7B1D20
 BIG_RECORDS, BIG_TABLE = 0x800000 + 0x48, 0x7F1400
 ORIGINS_BASE = 0x0B000000
-OTHER_TABLE = 0x23000000            # high in the emulator's heap: zeros, never the game's table
+LOOKS_BASE = 0x0B100000
 CONVERT, DEFECTOR = 0x4668B0, 0x416970
 
 # What the conversion 0x4668B0 calls, each popping its own arguments (thiscall/stdcall): sound 0x44C440, the
@@ -88,19 +90,26 @@ MASK_SET = PAGE_VA + T9.OFF["mask_set"]
 class Village(Machine):
     """The rendered game, the companion, and a stand-in Origins companion."""
 
-    def __init__(self, exe: bytes, *, big: bool = False, origins: bool = True, answers=None):
+    def __init__(self, exe: bytes, *, big: bool = False, origins: bool = True, keep_export: bool = True,
+                 keep_answer: int = 1, looks: bool = True):
         super().__init__(exe, DLL)
         self.records = BIG_RECORDS if big else STOCK_RECORDS
         self.table = BIG_TABLE if big else STOCK_TABLE
-        self.answers = answers if answers is not None else self.table   # the table VvfpMaskOf reads
         self.origins = origins
-        self.sidecar_writes: list[bytes] = []
+        self.looks = looks
+        self.keep_answer = keep_answer           # 1 kept now, 2 waiting for the load, 0 refused
+        self.keeps: list[tuple[int, int]] = []
+        self.told: list[tuple[int, int, int]] = []
         self.faction_calls: list[tuple[int, int, int]] = []
         stubs = self.alloc(0x100)
-        self.exports_of_origins = {"WriteMaskSidecar": stubs, "VvfpMaskOf": stubs + 0x10, "Vv5MaskSync": stubs + 0x20}
-        self.stub(stubs, self._write_masks)
-        self.stub(stubs + 0x10, self._mask_of)
-        self.stub(stubs + 0x20, lambda p: (1, 0))
+        self.exports_of_origins = {"WriteMaskSidecar": stubs + 0x10, "VvfpMaskOf": stubs + 0x20}
+        if keep_export:
+            self.exports_of_origins["VvfpMaskKeep"] = stubs
+        self.exports_of_looks = {"VvfpOriginalLookConverted": stubs + 0x30}
+        self.stub(stubs, self._keep)
+        self.stub(stubs + 0x10, lambda p: (0, 4))
+        self.stub(stubs + 0x20, lambda p: (0, 4))
+        self.stub(stubs + 0x30, self._converted)
         self.api_handlers["GetModuleHandleA"] = self._module
         self.api_handlers["GetProcAddress"] = self._proc
         for va, pop in CONVERSION_CALLS.items():
@@ -110,24 +119,29 @@ class Village(Machine):
     # ---- the stand-in Origins companion ---------------------------------------------------------------------
     def _module(self, p):
         name = p.cstring(p.arg(0))
-        return (ORIGINS_BASE if self.origins and name == "VVFP Origins Icons.dll" else 0), 4
+        if self.origins and name == "VVFP Origins Icons.dll":
+            return ORIGINS_BASE, 4
+        return (LOOKS_BASE if self.looks and name == "VVFP Original Look.dll" else 0), 4
 
     def _proc(self, p):
-        if p.arg(0) != ORIGINS_BASE:
-            return 0, 8
-        return self.exports_of_origins.get(p.cstring(p.arg(1)), 0), 8
+        exports = {ORIGINS_BASE: self.exports_of_origins, LOOKS_BASE: self.exports_of_looks}.get(p.arg(0), {})
+        return exports.get(p.cstring(p.arg(1)), 0), 8
 
-    def _index(self, record: int) -> int:
-        return (record - self.records) // STRIDE
+    def _keep(self, p):
+        """VvfpMaskKeep(record, mask): the nibble, as the real store sets it (vv5_keep_nibble)."""
+        record, mask = p.arg(0), p.arg(1)
+        self.keeps.append((record, mask))
+        if self.keep_answer:
+            index = (record - self.records) // STRIDE
+            at = self.table + (index >> 1)
+            byte = p.read(at, 1)[0]
+            byte = ((byte & 0x0F) | (mask << 4)) if index & 1 else ((byte & 0xF0) | mask)
+            p.write(at, bytes([byte]))
+        return self.keep_answer, 8
 
-    def _mask_of(self, p):
-        index = self._index(p.arg(0))
-        byte = p.read(self.answers + (index >> 1), 1)[0]
-        return ((byte >> 4) if index & 1 else byte) & 0x0F, 4
-
-    def _write_masks(self, p):
-        self.sidecar_writes.append(p.read(p.arg(0), 128))
-        return 0, 4
+    def _converted(self, p):
+        self.told.append((p.arg(0), p.arg(1), p.arg(2)))
+        return 1, 12
 
     # ---- the game ---------------------------------------------------------------------------------------
     def _game_call(self, va: int, pop: int):
@@ -229,7 +243,12 @@ class TheRow(unittest.TestCase):
         self.assertLessEqual(max(len(line) for line in lines), 180)
         self.assertLessEqual(sum(len(line) for line in lines), 900)
         self.assertIn(f"#### Heathens Keep Their Masks When Converted (`{ROW}`)", log)
-        self.assertNotIn(b"\r\n", (ROOT / "docs" / "transparency-log.md").read_bytes())
+        # The committed log is LF (scripts/generate_transparency_docs.py); a Windows checkout may hand it over
+        # as CRLF (core.autocrlf), so the blob is what is checked.
+        import subprocess
+        blob = subprocess.run(["git", "show", "HEAD:docs/transparency-log.md"], cwd=ROOT, capture_output=True)
+        if blob.returncode == 0:
+            self.assertNotIn(b"\r", blob.stdout)
 
     def test_the_dll_exports_imports_and_shows_no_text(self):
         try:
@@ -275,7 +294,8 @@ class KeptMasks(unittest.TestCase):
                     self.assertEqual(v.u32(record + ROLE), 13 if role == 13 else 0,
                                      "every role but the Chief's is cleared, as in the stock game")
                     self.assertEqual(v.mask_get(record), mask, "the mask they wore is their mask now")
-                    self.assertEqual(len(v.sidecar_writes), 1, "the Village Masks file is written once")
+                    self.assertEqual(v.keeps, [(record, mask)], "handed to the store once")
+                    self.assertEqual(v.told, [(5, record, mask)], "Original Look is told: Reset gives it back")
                     self.assertEqual(v.export("VvfpHeathensKeepMasksKept"), 1)
 
     def test_with_256_villagers_the_table_of_that_build(self):
@@ -308,7 +328,7 @@ class KeptMasks(unittest.TestCase):
         self.assertEqual(v.mask_get(record), 0)
         v.convert(record)                             # a believer reaching the conversion again: nothing is kept
         self.assertEqual(v.mask_get(record), 0, "a believer's own choice is never put back")
-        self.assertEqual(len(v.sidecar_writes), 1)
+        self.assertEqual(len(v.keeps), 1)
 
     def test_a_heathen_who_comes_back_takes_the_mask_of_this_conversion(self):
         """A believer with a Change Appearance mask who became a Heathen and joins again wears, and keeps, the
@@ -326,7 +346,7 @@ class KeptMasks(unittest.TestCase):
         self.assertEqual(v.read(record + FACTION, 1), b"\0")
         self.assertEqual(v.faction_calls[-1][2], 0x4169A4, "the setter sees the stock return address")
         self.assertEqual(v.mask_get(record), 4)
-        self.assertEqual(len(v.sidecar_writes), 1)
+        self.assertEqual(v.keeps, [(record, 4)])
 
     def test_the_defector_after_a_conversion_keeps_nothing_twice(self):
         v = self.village()
@@ -334,7 +354,7 @@ class KeptMasks(unittest.TestCase):
         v.convert(record)                             # SetFaith(+20) converted already
         v.defector(record)
         self.assertEqual(v.mask_get(record), 1)
-        self.assertEqual(len(v.sidecar_writes), 1)
+        self.assertEqual(len(v.keeps), 1)
 
     def test_the_patch_off_keeps_nothing(self):
         """Without the row the companion is not shipped, so VVFP Startup.dll never starts it: the stock loss."""
@@ -342,7 +362,7 @@ class KeptMasks(unittest.TestCase):
         record = v.heathen(7, 0, 1, 0)
         v.convert(record)
         self.assertEqual(v.mask_get(record), 0)
-        self.assertEqual(v.sidecar_writes, [])
+        self.assertEqual(v.keeps, [])
         shipping = {p.id for p in patcher.load_fun_patches()
                     if any(c.get("destination") == "VVFP Heathens Keep Masks.dll" for c in p.raw.get("companion_files", []))}
         self.assertEqual(shipping, {ROW}, "only this row ships the companion")
@@ -352,16 +372,36 @@ class KeptMasks(unittest.TestCase):
         record = v.heathen(7, 0, 1, 0)
         v.convert(record)
         self.assertEqual(v.read(record + FACTION, 1), b"\0", "the conversion goes on")
-        self.assertEqual(v.mask_get(record), 0)
-        self.assertEqual(v.sidecar_writes, [])
+        self.assertEqual(v.keeps, [])
+        self.assertEqual(v.told, [])
         self.assertEqual(v.export("VvfpHeathensKeepMasksKept"), 0)
 
-    def test_an_origins_companion_answering_another_table_is_never_written_into(self):
-        v = self.village(answers=OTHER_TABLE)
+    def test_an_origins_companion_without_the_keep_export_keeps_nothing(self):
+        v = self.village(keep_export=False)
         record = v.heathen(7, 0, 1, 0)
         v.convert(record)
-        self.assertEqual(v.mask_get(record), 0, "the nibble is put back")
-        self.assertEqual(v.sidecar_writes, [])
+        self.assertEqual((v.mask_get(record), v.keeps, v.told), (0, [], []))
+
+    def test_a_refused_keep_tells_original_look_nothing(self):
+        v = self.village(keep_answer=0)
+        record = v.heathen(7, 0, 1, 0)
+        v.convert(record)
+        self.assertEqual(v.keeps, [(record, 2)])
+        self.assertEqual((v.mask_get(record), v.told, v.export("VvfpHeathensKeepMasksKept")), (0, [], 0))
+
+    def test_a_mask_waiting_for_the_load_is_still_part_of_the_original(self):
+        """VvfpMaskKeep answering 2 (the slot's file not loaded yet: it waits, then is put on them)."""
+        v = self.village(keep_answer=2)
+        record = v.heathen(7, 13, 0, 0)
+        v.convert(record)
+        self.assertEqual(v.keeps, [(record, 5)])
+        self.assertEqual(v.told, [(5, record, 5)])
+
+    def test_without_original_look_the_mask_is_still_kept(self):
+        v = self.village(looks=False)
+        record = v.heathen(7, 0, 0, 1)
+        v.convert(record)
+        self.assertEqual((v.mask_get(record), v.told), (3, []))
 
     def test_the_install_is_refused_on_other_bytes(self):
         exe = bytearray(render(5, with_requirements(5, [ROW]), "collection_progression"))

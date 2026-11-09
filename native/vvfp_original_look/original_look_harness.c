@@ -217,6 +217,7 @@ static void new_session(void) {
     memset(g_head, 0, sizeof g_head);
     memset(g_body, 0, sizeof g_body);
     memset(g_mask, 0, sizeof g_mask);
+    memset(g_believer, 0, sizeof g_believer);
     memset(g_logged, 0, sizeof g_logged);
     g_logged_count = 0;
     memset(g_roster, 0, sizeof g_roster);
@@ -513,17 +514,6 @@ int main(int argc, char **argv) {
     g_masks[2] = 4;
     (void)tick();
     check(original(2) == 20020, "Change Appearance afterwards: the original stays");
-    /* Heathens Keep Their Masks When Converted (native/vvfp_heathens_keep_masks): a Heathen seen with no
-       Change Appearance mask joins the tribe and the mask they wore (red, 3) becomes their mask -- like a
-       Change Appearance mask, never their original, so Reset to original takes it off. */
-    rec(3)[0x1CEC] = 1;                      /* New Believers' faction byte: a Heathen */
-    (void)tick();
-    rec(3)[0x1CEC] = 0;                      /* joins the tribe, keeping the red mask */
-    g_masks[3] = 3;
-    (void)tick();
-    check(original(3) == 30030, "a Heathen's kept mask at the conversion: the original stays maskless");
-    g_masks[3] = 0;
-    (void)tick();
     new_session();
     g_game_slot = 1;
     settle();
@@ -831,6 +821,53 @@ int main(int argc, char **argv) {
     (void)tick();
     got = read_file(path, buf, sizeof buf);
     check(buf[24 + 5 * 20 + 17] == OL_SEEN && buf[24 + 6 * 20 + 17] == OL_SEEN, "...and the next write carries everything");
+
+    printf("a Heathen joins the tribe keeping their mask (Heathens Keep Their Masks When Converted)\n");
+    fresh_disk();
+    new_session();
+    g_game_slot = 1;
+    founders(8, "Ari");                         /* Ari0..Ari7, believers but two */
+    rec(5)[0x1CEC] = 1;                         /* New Believers' faction byte: Ari5 and Ari6 are Heathens */
+    rec(6)[0x1CEC] = 1;
+    settle();
+    game_saves(1);
+    check(g_state == OL_BOUND && original(5) == 50050 && g_believer[5] == 0 && g_believer[0] == 1,
+          "a Heathen's original is kept with no mask, as a Heathen's");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(g_state == OL_BOUND && g_believer[5] == 0 && g_believer[1] == 1, "...and the file says whose was a Heathen's");
+    rec(5)[0x1CEC] = 0;                         /* the conversion: Ari5 keeps the red mask she wore */
+    g_masks[5] = 3;
+    check(ol_converted(rec(5), 3) == 1 && original(5) == 50053,
+          "a convert's original takes the mask they wore: Reset to original gives it back");
+    file_path(1, path);
+    got = read_file(path, buf, sizeof buf);
+    check(buf[24 + 5 * 20 + 16] == 3 && buf[24 + 5 * 20 + 19] == 1, "...written at once");
+    g_masks[5] = 1;                             /* Change Appearance: Blue */
+    (void)tick();
+    check(original(5) == 50053, "a later Change Appearance change: the original keeps the Heathen mask");
+    g_masks[5] = 0;                             /* Change Appearance: No Mask */
+    (void)tick();
+    check(original(5) == 50053, "...and after No Mask too");
+    check(ol_converted(rec(5), 2) == 0 && original(5) == 50053, "a later conversion never changes it again");
+    check(original(6) == 60060 && g_believer[6] == 0, "a Heathen who has not converted keeps a Heathen's original");
+    rec(2)[0x1CEC] = 1;                         /* Ari2, a believer, leaves for the Heathens and comes back */
+    (void)tick();
+    rec(2)[0x1CEC] = 0;
+    g_masks[2] = 4;
+    check(ol_converted(rec(2), 4) == 0 && original(2) == 20020,
+          "a believer who became a Heathen and came back keeps their own original");
+    check(original(0) == 0 && original(1) == 10010 && original(7) == 70070, "a believer born a believer is unchanged");
+    villager(8, "Ari8", 0, "", "", 8, 8);       /* a Heathen made and converted before any look */
+    g_masks[8] = 5;
+    check(ol_converted(rec(8), 5) == 0 && g_source[8] == OL_NONE, "no original yet: nothing at the conversion");
+    (void)tick();
+    check(original(8) == 80085 && g_believer[8] == 1, "...the first sight records the kept mask");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(5) == 50053 && original(2) == 20020 && original(8) == 80085, "all of it read back next session");
 
     printf("no village\n");
     new_session();

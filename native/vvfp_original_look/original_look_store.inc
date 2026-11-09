@@ -31,7 +31,9 @@
                  an original -- through a load's packing and a rename in play, where the logs' entry stays
                  under the old identity -- so no first sight is ever recorded for them; head, body and mask 0),
                  u8 game body (1: the game itself set the body since -- the robe, a bought outfit -- so the
-                 logs' original never takes it back; 0 otherwise), u8 0 }                 20 bytes each
+                 logs' original never takes it back; 0 otherwise), u8 believer (New Believers: 1 once the
+                 villager has been seen a believer while this original stood, so it is not a Heathen's; 0 in
+                 the other games and in a file written before it existed) }               20 bytes each
        logged x { u32 id      the villager's identity in the save, by Repair Saves & Logs
                   i32 head, i32 body, u8 mask, u8 kind (1 the original is proven, 2 it is NOT known: the
                   villager was seen changed with no record of it, so nothing is ever recorded for them),
@@ -102,6 +104,7 @@ static unsigned int g_id[OL_MAX];             /* the identity each original was 
 static int g_head[OL_MAX], g_body[OL_MAX];
 static unsigned char g_mask[OL_MAX];
 static unsigned char g_game_body[OL_MAX];     /* 1: the body is the game's own since (ol_game_body) */
+static unsigned char g_believer[OL_MAX];      /* 1: seen a believer while this original stood (ol_converted) */
 static ol_logged g_logged[OL_LOGGED_MAX];     /* the logs' originals (src/vv_original_look.py) */
 static unsigned int g_logged_count;
 static unsigned int g_roster[OL_MAX];         /* who held each record at the last look */
@@ -242,7 +245,7 @@ static int ol_publish(void) {
         tail[0] = g_source[i] != OL_NONE ? g_mask[i] : 0;
         tail[1] = g_source[i];
         tail[2] = g_source[i] != OL_NONE ? g_game_body[i] : 0;
-        tail[3] = 0;
+        tail[3] = g_source[i] != OL_NONE ? g_believer[i] : 0;
         any |= g_source[i];
         memcpy(out + at, &roster, 4);
         memcpy(out + at + 4, &id, 4);
@@ -278,7 +281,7 @@ static int ol_publish(void) {
 static int ol_follow(const unsigned int *stored_roster, const unsigned int *live, int in_play) {
     static unsigned char value[OL_MAX], moved[OL_MAX];
     static unsigned int moved_id[OL_MAX];
-    static unsigned char source[OL_MAX], mask[OL_MAX], game_body[OL_MAX];
+    static unsigned char source[OL_MAX], mask[OL_MAX], game_body[OL_MAX], believer[OL_MAX];
     static unsigned int id[OL_MAX];
     static int head[OL_MAX], body[OL_MAX];
     int slots = ol_slots(), t, i, changed;
@@ -314,6 +317,7 @@ static int ol_follow(const unsigned int *stored_roster, const unsigned int *live
         body[t] = g_body[from];
         mask[t] = g_mask[from];
         game_body[t] = g_game_body[from];
+        believer[t] = g_believer[from];
     }
     for (t = 0; t < slots; ++t) {
         g_source[t] = source[t];
@@ -322,6 +326,7 @@ static int ol_follow(const unsigned int *stored_roster, const unsigned int *live
         g_body[t] = source[t] != OL_NONE ? body[t] : 0;
         g_mask[t] = source[t] != OL_NONE ? mask[t] : 0;
         g_game_body[t] = source[t] != OL_NONE ? game_body[t] : 0;
+        g_believer[t] = source[t] != OL_NONE ? believer[t] : 0;
     }
     return changed;
 }
@@ -374,6 +379,7 @@ static int ol_apply_logged(const unsigned int *live) {
                 g_head[i] = g_body[i] = 0;
                 g_mask[i] = 0;
                 g_game_body[i] = 0;
+                g_believer[i] = 0;
                 changed = 1;
             }
             continue;
@@ -416,6 +422,23 @@ static int ol_first_sight(const unsigned int *live) {
         g_body[i] = body;
         g_mask[i] = (unsigned char)mask;
         g_game_body[i] = 0;
+        g_believer[i] = (unsigned char)ol_believer(r);
+        changed = 1;
+    }
+    return changed;
+}
+
+/* Note who has been seen a believer while their original stood (New Believers' Heathens: see ol_converted).
+   1 when the table changed. */
+static int ol_note_believers(const unsigned int *live) {
+    int i, changed = 0, slots = ol_slots();
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *r;
+        if (live[i] == 0 || g_believer[i] || g_source[i] == OL_NONE || g_source[i] == OL_NOT_KNOWN
+            || g_id[i] != live[i] || (r = ol_record(i)) == NULL || !ol_believer(r)) {
+            continue;
+        }
+        g_believer[i] = 1;
         changed = 1;
     }
     return changed;
@@ -437,6 +460,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
     memset(g_body, 0, sizeof g_body);
     memset(g_mask, 0, sizeof g_mask);
     memset(g_game_body, 0, sizeof g_game_body);
+    memset(g_believer, 0, sizeof g_believer);
     g_logged_count = 0;
     g_foreign = 0;
     *rewrite = 0;
@@ -478,6 +502,7 @@ static int ol_load(int slot, const unsigned int *live, int *rewrite) {
         g_mask[i] = e[16];
         g_source[i] = e[17];
         g_game_body[i] = (unsigned char)(e[18] == 1);
+        g_believer[i] = (unsigned char)(e[19] == 1);
     }
     at = OL_HEADER + count * OL_ENTRY;
     for (i = 0; i < logged; ++i, at += OL_LOGGED_ENTRY) {
@@ -542,6 +567,7 @@ static int ol_sync(int now_please) {
         if (g_state != OL_UNBOUND) {
             changed |= ol_apply_logged(cur);
             changed |= ol_first_sight(cur);
+            changed |= ol_note_believers(cur);
             if (g_state == OL_PENDING && ol_confirmed()) {
                 g_state = OL_BOUND;
                 changed = 1;
@@ -581,6 +607,7 @@ static int ol_sync(int now_please) {
     changed = rewrite;
     changed |= ol_apply_logged(cur);
     changed |= ol_first_sight(cur);
+    changed |= ol_note_believers(cur);
     if (changed && g_state == OL_BOUND) {
         ol_publish();
     }
@@ -619,6 +646,37 @@ static int ol_game_body(const unsigned char *record, int body) {
     }
     g_body[i] = body;
     g_game_body[i] = 1;
+    if (g_state == OL_BOUND) {
+        ol_publish();
+    }
+    return 1;
+}
+
+/* A HEATHEN'S MASK IS PART OF THEIR ORIGINAL (the owner, 2026-11-08, "Heathens Keep Their Masks When
+   Converted": Reset to original gives the Heathen mask back).  "VVFP Heathens Keep Masks.dll" calls this when a
+   Heathen joins the tribe keeping `mask` (1..5) as their Change Appearance mask.  The rule:
+     * no original kept for them yet: nothing here -- the first sight, a moment later, sees them a believer
+       with that mask and records it, as any first sight;
+     * an original kept while they were a Heathen (never seen a believer since it was kept: g_believer 0) with
+       no mask -- a Heathen has no Change Appearance mask -- takes `mask`: that original was the Heathen's
+       look, and the Heathen wore it;
+     * any other original stays: one kept while they were a believer (a believer who later left for the
+       Heathens and came back keeps their own original from before), or one with a mask of its own.
+   From then on they count as seen a believer (g_believer 1), so a later conversion never changes it again.
+   1 when an original changed. */
+static int ol_converted(const unsigned char *record, int mask) {
+    int i;
+    if (record == NULL || mask < 1 || mask > 5 || g_state == OL_UNBOUND || (i = ol_index(record)) < 0
+        || g_source[i] == OL_NONE || g_source[i] == OL_NOT_KNOWN || g_roster[i] == 0
+        || g_roster[i] != ol_identity(record) || g_id[i] != g_roster[i]) {
+        return 0;
+    }
+    if (g_believer[i] || g_mask[i] != 0) {
+        g_believer[i] = 1;
+        return 0;
+    }
+    g_mask[i] = (unsigned char)mask;
+    g_believer[i] = 1;
     if (g_state == OL_BOUND) {
         ol_publish();
     }

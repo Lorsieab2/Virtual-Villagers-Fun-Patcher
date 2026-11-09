@@ -15,7 +15,8 @@
     "A village is bound only once its records have held still for 1.5 s; one whose file is missing or belongs to another village is kept in memory only until the game itself saves that slot again (so the title screen's seeded records are never written into a slot's file).",
     "Repair Saves & Logs (game closed) adds the originals the logs prove (src/vv_original_look.py): the Old head and Old body of each villager's earliest \"Appearance changed\" record, the mask before it when logged; where a change is seen with no record, the original is marked not known.",
     "Change Appearance's Reset to original reads it through VvfpOriginalLookGet (native/shared/original_look.h).",
-    "The game's own changes are kept: each instruction by which the game itself writes a villager's body outside Change Appearance and island events -- The Secret City's robe (0x45FBDE in the robing 0x45FBC0) and the clothing dialog's OK (The Lost Children 0x4228E4, The Secret City 0x41BF89, The Tree of Life 0x41961D, New Believers 0x419D68 and 0x419E8E) -- tells the companion the body first, which becomes part of that villager's original; the game's write then happens exactly as before. A New Home's stock game has no such writer."
+    "The game's own changes are kept: each instruction by which the game itself writes a villager's body outside Change Appearance and island events -- The Secret City's robe (0x45FBDE in the robing 0x45FBC0) and the clothing dialog's OK (The Lost Children 0x4228E4, The Secret City 0x41BF89, The Tree of Life 0x41961D, New Believers 0x419D68 and 0x419E8E) -- tells the companion the body first, which becomes part of that villager's original; the game's write then happens exactly as before. A New Home's stock game has no such writer.",
+    "New Believers, with Heathens Keep Their Masks When Converted: a Heathen who joins the tribe keeping their mask (VvfpOriginalLookConverted) has the mask put on the original kept while they were a Heathen with no mask, so Reset to original gives it back; an original kept while they were a believer (one who left for the Heathens and came back) or one with a mask of its own stays. Each original notes whether its villager has been seen a believer since (the entry's last byte)."
   ],
   "explicit_non_changes": [
     "This row changes no executable bytes: the companion splices the game's own body writers listed above at run time, after checking their stock bytes, through the shared all-or-none writer (a different build installs none, and then the game's own changes are not kept); it writes no record byte of its own -- the splice makes the very write the game makes.",
@@ -27,7 +28,7 @@
     {
       "source": "assets/original_look/VVFP Original Look.dll",
       "destination": "VVFP Original Look.dll",
-      "sha256": "79688145879A5C1E69ABD4D89B7D3A24B33DD430C1962998FCF29B2A27A6090E"
+      "sha256": "FA9FD1EB9C25748CD488ED673A6A50E9D6D2994FA73AB1E96DA47FC4D4E1A43B"
     }
   ],
   "patches": [],

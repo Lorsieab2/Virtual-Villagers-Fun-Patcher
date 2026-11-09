@@ -335,6 +335,19 @@ int __stdcall VvfpOriginalLookGet(int game, const void *record, int *head, int *
     return 1;
 }
 
+/* A Heathen joins the tribe keeping `mask` (native/shared/original_look.h VVFP_ORIGINAL_LOOK_CONVERTED). */
+int __stdcall VvfpOriginalLookConverted(int game, const void *record, int mask) {
+    int changed;
+    if (g_game == 0 || game != g_game || game != 5 || g_busy) {
+        return 0;
+    }
+    g_busy = 1;
+    (void)ol_sync(1);
+    changed = ol_converted((const unsigned char *)record, mask);
+    g_busy = 0;
+    return changed;
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {

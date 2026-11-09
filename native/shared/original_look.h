@@ -21,7 +21,10 @@
      The Tree of Life VVFP VV4 Origins Icons.dll  (vv_peek_mask / vv_set_mask, "Village Masks")
      New Believers    VVFP Origins Icons.dll      (caf_get_mask / caf_set_mask, "Village Masks") -- the
                       patcher's cosmetic mask only: a Heathen's own mask is the game's (its faction, the
-                      game's mask draw 0x4728C6) and is never part of the original look. */
+                      game's mask draw 0x4728C6), so a Heathen's original has no mask -- until, with
+                      "Heathens Keep Their Masks When Converted", they join the tribe keeping it: then the
+                      original kept while they were a Heathen takes that mask (VVFP_ORIGINAL_LOOK_CONVERTED),
+                      and Reset to original gives it back. */
 #ifndef VVFP_ORIGINAL_LOOK_H
 #define VVFP_ORIGINAL_LOOK_H
 
@@ -32,6 +35,12 @@
    three untouched, when it is not (never seen, an original the logs cannot prove, the DLL started in
    another game, or the village not known yet). */
 #define VVFP_ORIGINAL_LOOK_GET "VvfpOriginalLookGet"
+
+/* int __stdcall VvfpOriginalLookConverted(int game, const void *record, int mask): New Believers only.  The
+   Heathen in `record` joins the tribe keeping `mask` (1..5) as their Change Appearance mask ("VVFP Heathens
+   Keep Masks.dll"): an original kept while they were a Heathen, with no mask, takes it (original_look_store.inc
+   ol_converted has the rule).  1 when an original changed. */
+#define VVFP_ORIGINAL_LOOK_CONVERTED "VvfpOriginalLookConverted"
 
 #ifndef RC_INVOKED
 typedef int (__stdcall *vvfp_original_look_get_fn)(int game, const void *record, int *head, int *body, int *mask);

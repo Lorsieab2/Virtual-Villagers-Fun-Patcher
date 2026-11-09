@@ -51,8 +51,9 @@ def description() -> str:
         "stays on their head: blue, orange, red, purple (the Heathen Doctor and the Heathen Masters) or the Tribal "
         "Chief's (the Heathen Chief, who becomes the Retired Chief). It is kept exactly as if you had chosen it "
         "with Change Appearance, so Change Appearance shows it as their mask and you can change it or take it off "
-        "whenever you like; nothing is charged. **Reset to original takes it off**, as it does any mask chosen in "
-        "Change Appearance: a convert's original look is the head and body they had, with no mask. **Heathens who "
+        "whenever you like; nothing is charged. **Reset to original gives it back**: a convert's original look "
+        "is the head and body they had with the mask they wore (Original Looks for Reset to Original keeps it). "
+        "**Heathens who "
         "joined the tribe before this patch keep the look they have now.** **Works the same with every other "
         "patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the "
         "stock executable). The companion is \"VVFP Heathens Keep Masks.dll\", started by VVFP Startup.dll; it "
@@ -82,8 +83,15 @@ def row(dll_sha: str) -> dict:
             "0x7F1400 with 256 Villagers), the store Change Appearance keeps a believer's mask in, while the record "
             "is still a Heathen; then the Origins companion's WriteMaskSidecar writes its Village Masks file.",
             "The Origins render (the mask table at 0x472481) then draws that mask on the believer; Change "
-            "Appearance shows it as the villager's mask, and changing it, choosing No Mask or Reset to original "
-            "(the original look the Original Look companion recorded, with no mask) works as for any other mask.",
+            "Appearance shows it as the villager's mask, and changing it or choosing No Mask works as for any "
+            "other mask.",
+            "The Original Look companion is told (VvfpOriginalLookConverted): the original it kept while they were "
+            "a Heathen, with no mask, takes the mask they wore, so Reset to original gives it back; an original "
+            "kept while they were a believer (one who left for the Heathens and came back) or one with a mask of "
+            "its own stays. With no original kept yet, its first sight records them with the kept mask.",
+            "While the slot's Village Masks file has not loaded yet (held by another program a moment), the "
+            "Origins companion's VvfpMaskKeep keeps the mask waiting, by the villager's identity, and puts it on "
+            "them as soon as the load settles, then writes the file.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the two sites at run time, only after verifying "

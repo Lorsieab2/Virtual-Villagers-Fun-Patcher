@@ -41,7 +41,7 @@ class Faith(unittest.TestCase):
         self.assertNotIn("Heathens Keep Their Masks When Converted", without)
         self.assertIn('With "Heathens Keep Their Masks When Converted" (in this game) a Heathen who joins the tribe',
                       with_it)
-        self.assertIn("Reset to original takes it off", with_it)
+        self.assertIn("Reset to original gives it back", with_it)
 
     def test_constants_from_the_stock_exe(self) -> None:
         try:

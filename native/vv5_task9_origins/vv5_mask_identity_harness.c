@@ -32,6 +32,7 @@ static int failures;
 #define SLOT_VA      0x007B1D7Cu
 #define TABLE_VA     0x007B1D20u
 #define TABLE_BYTES  75
+#define VV_RETRY_WAIT_MS 2100   /* past sidecar_io.h VV_SIDECAR_RETRY_MS (2000) */
 
 typedef int (__stdcall *sync_t)(void);
 typedef void (__stdcall *write_t)(const unsigned char *);
@@ -211,6 +212,48 @@ int main(int argc, char **argv) {
     *(int *)SLOT_VA = 1;
     Sleep(300);
     CHECK(sync() == 1 && table()[0] == 0x21, "back to slot 1: A's masks reload from its file");
+
+    printf("== a converting Heathen's mask while the file is locked (VvfpMaskKeep) ==\n");
+    {
+        typedef int (__stdcall *keep_t)(void *, int);
+        keep_t keep = (keep_t)GetProcAddress(dll, "VvfpMaskKeep");
+        HANDLE lock;
+        unsigned char disk[4 + 150 * 4 + TABLE_BYTES];
+        DWORD got = 0;
+        CHECK(keep != NULL, "VvfpMaskKeep resolves");
+        if (keep != NULL) {
+            CHECK(keep(rec(5), 3) == 1 && (table()[2] >> 4) == 3, "settled store: Tepeu's red mask is kept at once");
+            lock = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+            got = 0;
+            if (lock != INVALID_HANDLE_VALUE) { ReadFile(lock, disk, sizeof disk, &got, NULL); CloseHandle(lock); }
+            CHECK(got == sizeof disk && (disk[4 + 600 + 2] >> 4) == 3, "...and written to the file");
+            Sleep(300);
+            *(int *)SLOT_VA = 2;
+            CHECK(sync() == 1, "slot 2 on screen");
+            lock = CreateFileA(file, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);   /* slot 1's file held */
+            CHECK(lock != INVALID_HANDLE_VALUE, "slot 1's file is locked by another program");
+            *(int *)SLOT_VA = 1;
+            Sleep(300);
+            CHECK(sync() == 0, "back to slot 1: its load is pending while the file is locked");
+            CHECK(keep(rec(4), 2) == 2, "a conversion now: Ali's orange mask waits for the load");
+            CHECK((table()[2] & 0x0F) == 2, "...and is drawn at once");
+            Sleep(300);
+            CHECK(sync() == 0 && (table()[2] & 0x0F) == 0, "still locked: the pending load cleared the table");
+            if (lock != INVALID_HANDLE_VALUE) CloseHandle(lock);
+            Sleep(VV_RETRY_WAIT_MS);
+            CHECK(sync() == 1, "unlocked: the load settles");
+            CHECK(table()[0] == 0x21 && (table()[2] >> 4) == 3, "the file's masks are loaded");
+            CHECK((table()[2] & 0x0F) == 2, "Ali's waiting mask is put on him after the load");
+            lock = CreateFileA(file, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+            got = 0;
+            if (lock != INVALID_HANDLE_VALUE) { ReadFile(lock, disk, sizeof disk, &got, NULL); CloseHandle(lock); }
+            CHECK(got == sizeof disk && (disk[4 + 600 + 2] & 0x0F) == 2 && (disk[4 + 600 + 2] >> 4) == 3,
+                  "...and written to the file with the others");
+            Sleep(300);
+            CHECK(sync() == 1 && (table()[2] & 0x0F) == 2, "a later sync keeps it (nothing waits any more)");
+            CHECK(keep(rec(140), 2) == 0, "an empty record is refused");
+        }
+    }
 
     DeleteFileA(file);
     {

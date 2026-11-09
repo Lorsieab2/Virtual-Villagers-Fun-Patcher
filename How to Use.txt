@@ -1300,10 +1300,10 @@ their head: blue, orange, red, purple (the Heathen Doctor and the Heathen
 Masters) or the Tribal Chief's (the Heathen Chief, who becomes the Retired
 Chief). It is kept exactly as if you had chosen it with Change Appearance:
 Change Appearance shows it as their mask, and you can change it or choose No
-Mask whenever you like. Nothing is charged. Reset to original takes it off, as
-it does any mask chosen in Change Appearance. Heathens who joined before this
-patch keep the look they have now. Runs on the Origins upgrades, which the
-patcher adds with it.
+Mask whenever you like. Nothing is charged. Reset to original gives it back: a
+convert's original look is the head and body they had with the mask they wore.
+Heathens who joined before this patch keep the look they have now. Runs on the
+Origins upgrades, which the patcher adds with it.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 

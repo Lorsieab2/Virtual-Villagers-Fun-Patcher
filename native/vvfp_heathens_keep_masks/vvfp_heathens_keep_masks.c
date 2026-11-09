@@ -2,7 +2,8 @@
 
    The owner (2026-11-08): "Heathens keep their masks when converted -- when a heathen converts their mask stays
    on their head (as if the player manually set it using Change Appearance)."  "Oh and the player can always
-   Change Appearance to change it or take it off if they want to."
+   Change Appearance to change it or take it off if they want to."  And: "Reset to original" gives the Heathen
+   mask back -- a convert's original look is the head and body they had with the mask they wore.
 
    THE STOCK GAME.  A Heathen joins the tribe through the conversion 0x4668B0 (what SetFaith 0x467F90 calls when
    a Heathen's Faith rises above 0 -- preaching, Spreading the Word, the Earthquake, the puzzle rewards, island
@@ -20,20 +21,22 @@
 
    WHAT THIS COMPANION DOES.  At both places -- inside the conversion just before the role is cleared
    (0x466966, the `cmp dword [esi+0x1CFC], 13`), and at The Defector's direct call of the setter (0x41699F) --
-   while the record is still a Heathen, the mask they wear is put in the store Change Appearance keeps a
-   believer's mask in: the Origins companion's mask table (one nibble per villager record: 0 none, 1 Blue,
-   2 Orange, 3 Red, 4 Purple, 5 the Tribal Chief's; the stock build's 0x7B1D20, the 256 Villagers build's
-   0x7F1400, native/shared/vv5_villager_table.h), then that companion writes its Village Masks file
-   (WriteMaskSidecar, the export Change Appearance's OK calls).  So the convert is drawn with the mask exactly as
-   a believer whose mask the player chose in Change Appearance (the Origins render: the mask table, 0x472481),
-   Change Appearance shows it as their mask, and the player can change it or take it off as with any other.
+   while the record is still a Heathen:
+     * the mask they wear (1 Blue, 2 Orange, 3 Red, 4 Purple, 5 the Tribal Chief's) is handed to the Origins
+       companion's VvfpMaskKeep, which puts it in the store Change Appearance keeps a believer's mask in (its
+       mask table and Village Masks file) -- at once, or, while that slot's file has not loaded yet (held by
+       another program a moment), as soon as the load settles.  So the convert is drawn with the mask exactly as
+       a believer whose mask the player chose (the Origins render, 0x472481), Change Appearance shows it as
+       their mask, and the player can change it or take it off as with any other;
+     * "VVFP Original Look.dll" is told (VvfpOriginalLookConverted): their original look, kept while they were a
+       Heathen with no mask, takes the mask, so Reset to original gives it back (original_look_store.inc
+       ol_converted has the rule).  Without that companion nothing is told: Reset to original then has the
+       original it has.
    Nothing is charged and no "Appearance changed" is logged: the villager's look did not change.
 
-   ONLY WITH THE ORIGINS COMPANION.  The table belongs to "VVFP Origins Icons.dll" (Enable Origins-Exclusive
-   Features, this row's dependency).  When that companion is not loaded or is not New Believers' (no
-   WriteMaskSidecar, Vv5MaskSync or VvfpMaskOf export), nothing is written: the convert loses the mask as in the
-   stock game.  After the nibble is written the companion's own VvfpMaskOf must answer it, or the nibble is put
-   back and nothing is kept.
+   ONLY WITH THE ORIGINS COMPANION.  The store belongs to "VVFP Origins Icons.dll" (Enable Origins-Exclusive
+   Features, this row's dependency).  When it is not loaded or has no VvfpMaskKeep, nothing is kept: the convert
+   loses the mask as in the stock game.
 
    HOW.  Both sites are spliced at run time, after their stock bytes are checked, all or none
    (native/shared/install_sites.h); no executable byte is patched.  The splice saves every register and flag,
@@ -43,13 +46,10 @@
 #include <windows.h>
 #include "../shared/install_sites.h"
 #include "../shared/former_heathens.h"
-#include "../shared/vv5_villager_table.h"
+#include "../shared/original_look.h"
 
 #define HK_GAME 5
 #define HK_ORIGINS "VVFP Origins Icons.dll"
-#define HK_STRIDE 0x2F44u               /* a New Believers villager record */
-#define HK_RECORDS_FROM 0x48u           /* the records' start in the villager manager */
-#define HK_ACTIVE 0x1CD4u               /* held record */
 
 /* The conversion's role test: cmp dword [esi+0x1CFC], 0xD -- then je 0x466979. */
 #define HK_CONVERT_SITE 0x466966u
@@ -63,74 +63,36 @@ static const unsigned char CONVERT_STOCK[7] = { 0x83, 0xBE, 0xFC, 0x1C, 0x00, 0x
 static const unsigned char DEFECTOR_STOCK[5] = { 0xE8, 0xDC, 0xFE, 0x04, 0x00 };
 
 static int g_installed;
-static unsigned int g_kept;             /* masks kept this session (the tests read it) */
+static unsigned int g_kept;             /* masks handed to the store this session (the tests read it) */
 
-typedef void (__stdcall *hk_write_fn)(const unsigned char *table);
-typedef int (__stdcall *hk_mask_of_fn)(void *record);
+typedef int (__stdcall *hk_keep_fn)(void *record, int mask);
+typedef int (__stdcall *hk_converted_fn)(int game, const void *record, int mask);
 
-/* The villager records and how many: the stock 150, or 256 with 256 Villagers (Experimental). */
-static unsigned char *hk_records(int *slots) {
-    unsigned int rva, count;
-    vv5_villager_table((const unsigned char *)(UINT_PTR)0x400000u, &rva, &count);
-    *slots = (int)count;
-    return (unsigned char *)(UINT_PTR)(0x400000u + rva + HK_RECORDS_FROM);
-}
-
-/* The record's number, or -1 when `record` is not the start of a held one. */
-static int hk_index(const unsigned char *record, const unsigned char *first, int slots) {
-    unsigned int delta;
-    if (record < first) {
-        return -1;
-    }
-    delta = (unsigned int)(record - first);
-    if (delta % HK_STRIDE != 0 || delta / HK_STRIDE >= (unsigned int)slots || record[HK_ACTIVE] == 0) {
-        return -1;
-    }
-    return (int)(delta / HK_STRIDE);
-}
-
-static int hk_nibble(const unsigned char *table, int index) {
-    return (index & 1) ? (table[index >> 1] >> 4) & 0x0F : table[index >> 1] & 0x0F;
-}
-
-static void hk_set_nibble(unsigned char *table, int index, int mask) {
-    unsigned char *at = &table[index >> 1];
-    *at = (index & 1) ? (unsigned char)((*at & 0x0F) | (mask << 4)) : (unsigned char)((*at & 0xF0) | mask);
-}
-
-/* The Heathen in `record` is joining the tribe: the mask they wear becomes their Change Appearance mask. */
+/* The Heathen in `record` is joining the tribe: the mask they wear becomes their Change Appearance mask, and
+   part of their original look. */
 static void hk_keep(unsigned char *record) {
-    HMODULE origins;
-    hk_write_fn write_masks;
-    hk_mask_of_fn mask_of;
-    unsigned char *table;
-    int slots, index, mask, was;
+    HMODULE origins, looks;
+    hk_keep_fn keep;
+    hk_converted_fn converted;
+    int mask;
     if (record == NULL || record[VV5_FACTION] == 0) {
         return;                         /* already a believer: nothing to keep */
     }
     origins = GetModuleHandleA(HK_ORIGINS);
-    if (origins == NULL) {
-        return;
+    keep = origins != NULL ? (hk_keep_fn)GetProcAddress(origins, "VvfpMaskKeep") : NULL;
+    if (keep == NULL) {
+        return;                         /* no New Believers Origins companion: the stock loss */
     }
-    write_masks = (hk_write_fn)GetProcAddress(origins, "WriteMaskSidecar");
-    mask_of = (hk_mask_of_fn)GetProcAddress(origins, "VvfpMaskOf");
-    if (write_masks == NULL || mask_of == NULL || GetProcAddress(origins, "Vv5MaskSync") == NULL) {
-        return;                         /* not New Believers' Origins companion */
-    }
-    index = hk_index(record, hk_records(&slots), slots);
-    if (index < 0) {
-        return;
-    }
-    table = (unsigned char *)(UINT_PTR)(slots == 256 ? VV5_256_MASK_TABLE : VV5_STOCK_MASK_TABLE);
     mask = vv_former_kind_of(record) + 1;           /* VV_FORMER_BLUE..CHIEF -> 1..5 */
-    was = hk_nibble(table, index);
-    hk_set_nibble(table, index, mask);
-    if (mask_of(record) != mask) {
-        hk_set_nibble(table, index, was);           /* not the table the companion answers from */
-        return;
+    if (keep(record, mask) <= 0) {
+        return;                         /* refused: not a villager record the store knows */
     }
-    write_masks(table);
     ++g_kept;
+    looks = GetModuleHandleA(VVFP_ORIGINAL_LOOK_DLL);
+    converted = looks != NULL ? (hk_converted_fn)GetProcAddress(looks, VVFP_ORIGINAL_LOOK_CONVERTED) : NULL;
+    if (converted != NULL) {
+        (void)converted(HK_GAME, record, mask);
+    }
 }
 
 static void __stdcall hk_converting(unsigned char *record) {
@@ -175,7 +137,7 @@ int __stdcall VvfpHeathensKeepMasksInstalled(void) {
     return g_installed;
 }
 
-/* How many masks were kept this session (for the tests' emulation). */
+/* How many masks were handed to the store this session (for the tests' emulation). */
 unsigned int __stdcall VvfpHeathensKeepMasksKept(void) {
     return g_kept;
 }
