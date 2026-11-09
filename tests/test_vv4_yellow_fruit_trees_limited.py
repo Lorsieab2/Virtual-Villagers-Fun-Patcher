@@ -449,6 +449,33 @@ class TheFile(unittest.TestCase):
         t.v.process.tick += 1000                          # the companion looks at the roster again
         self.assertEqual(t.left(), 1000)
 
+    def test_a_locked_file_is_never_bound_over_and_is_read_once_the_lock_clears(self) -> None:
+        """Codex, PR #735: a file locked at the first use is not replaced by a full tree.  While it cannot be read
+        the tree is the stock game's (no refusal, nothing taken, no refill counted, nothing written); the load is
+        retried on the gate's 2-second throttle, and then the saved fruit and refill progress are the village's."""
+        saved = tree_file(120, units=17, roster=[identity("Ana")])
+        t = Tree(files={side(): saved})
+        t.files.locked.add(side())
+        t.v.process.tick = 1000
+        t.villager()
+        self.assertEqual(t.left(), 1000)                  # not known yet: as the stock tree, never empty
+        t.v.run_trip(fe.FRUIT)
+        self.assertEqual(t.v.food(), 1003)                # the trip pays as in the stock game...
+        self.assertEqual(t.left(), 1000)                  # ...and takes nothing from a count not known
+        t.save()
+        self.assertEqual(t.files.files[side()], saved, "never written while it cannot be read")
+        t.v.process.tick += 500                           # still locked, inside the retry window
+        self.assertEqual(t.left(), 1000)
+        t.files.locked.discard(side())
+        t.v.process.tick += 500                           # unlocked, but the retry window has not passed
+        self.assertEqual(t.left(), 1000)
+        t.v.process.tick += 2500
+        self.assertEqual(t.left(), 120)                   # the saved fruit, read at last
+        t.v.run_trip(fe.FRUIT)
+        self.assertEqual(t.left(), 117)
+        t.save()
+        self.assertEqual(struct.unpack_from("<2I", t.files.files[side()], 16), (117, 17))   # its refill progress kept
+
     def test_another_slots_file_and_a_bad_file_are_not_used(self) -> None:
         t = Tree(files={side(2): tree_file(2, roster=[identity("Ana")], slot=2)})
         t.villager()

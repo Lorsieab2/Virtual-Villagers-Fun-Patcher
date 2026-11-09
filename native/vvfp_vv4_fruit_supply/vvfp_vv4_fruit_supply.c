@@ -183,6 +183,8 @@ static const unsigned char DROP_DONE_STOCK[4] = { 0xB0, 0x01, 0x59, 0xC3 };
 
 static int g_installed;
 static int g_bound;                  /* the state below is a village's */
+static int g_pending;                /* bound, but its file could not be read yet (locked, a read failed): see
+                                        bind_village */
 static int g_slot;                   /* its slot (0: not known) */
 static int g_fruit = FS_FULL;
 static int g_units;                  /* age units counted since the last refill (0..39) */
@@ -360,8 +362,8 @@ static void write_file(void) {
     const void *parts[1];
     DWORD sizes[1];
     int i, n = 0;
-    if (!g_bound || g_slot == 0 || read_file(g_slot, &old) < 0) {
-        return;                      /* no slot, or a file there that cannot be read: never replaced */
+    if (!g_bound || g_slot == 0 || g_pending || read_file(g_slot, &old) < 0) {
+        return;                      /* no slot, a file not read yet, or one that cannot be read: never replaced */
     }
     memset(&f, 0, sizeof f);
     f.magic = FILE_MAGIC;
@@ -385,14 +387,47 @@ static void write_file(void) {
 
 /* ---- the village ------------------------------------------------------------------------------------------ */
 
+/* A file that could not be read when the village was bound (Codex, PR #735): read again, at most once per the
+   sidecar gate's retry window.  Read: its fruit and refill progress are the village's, when its villagers are this
+   village's; missing or set aside: the village starts full, as a new one; still blocked: pending on. */
+static void retry_pending(void) {
+    static fruit_file f;
+    int r;
+    if (!g_pending || vv_sidecar_gate_throttled(&g_gate)) {
+        return;
+    }
+    r = read_file(g_slot, &f);
+    if (r < 0) {
+        return;                      /* still locked: the gate refuses every write meanwhile */
+    }
+    g_pending = 0;
+    g_fruit = FS_FULL;
+    g_units = 0;
+    if (r == 1 && same_village(f.roster, g_roster)) {
+        g_fruit = (int)f.fruit;
+        g_units = (int)f.units;
+    }
+}
+
 /* The tree's state belongs to the village on screen: its slot and its living villagers.  A village not seen
    before takes its file when the file's villagers are still in it, and otherwise starts full.  1 when there is a
-   village (anyone alive). */
+   village (anyone alive).
+
+   A file that exists but cannot be read (locked, a read failed) is never bound over (Codex, PR #735): the village
+   is bound PENDING -- its saved fruit is not known, so until the file is read the tree behaves as the stock game's
+   (it never refuses, takes nothing, counts no refill, and an event or a refill changes nothing), and nothing is
+   written.  That is the safest choice: a guess of 0 would refuse food the village may have, and any count kept
+   meanwhile would be a guess.  The load is retried on the gate's throttle (retry_pending); once it reads, the
+   saved fruit and refill progress are restored and play goes on from them. */
 static int bind_village(int force) {
     static unsigned int now[ROSTER_MAX];
     static fruit_file f;
     int slot = vv_current_save_slot(FS_GAME, 0);
     DWORD tick = GetTickCount();
+    int r;
+    if (g_bound && g_pending && slot == g_slot) {
+        retry_pending();
+    }
     if (g_bound && !force && slot == g_slot && tick - g_checked < 500u) {
         return 1;
     }
@@ -407,9 +442,15 @@ static int bind_village(int force) {
     g_fruit = FS_FULL;
     g_units = 0;
     g_reference = NULL;
-    if (slot != 0 && read_file(slot, &f) == 1 && same_village(f.roster, now)) {
-        g_fruit = (int)f.fruit;
-        g_units = (int)f.units;
+    g_pending = 0;
+    if (slot != 0) {
+        r = read_file(slot, &f);
+        if (r == 1 && same_village(f.roster, now)) {
+            g_fruit = (int)f.fruit;
+            g_units = (int)f.units;
+        } else if (r < 0) {
+            g_pending = 1;           /* a file there that cannot be read yet: never bound over */
+        }
     }
     g_slot = slot;
     g_bound = 1;
@@ -420,8 +461,8 @@ static int bind_village(int force) {
 /* Take `n` fruit when the tree holds that many: 1 taken, 0 not.  With no one alive there is no village to keep
    a count for (it cannot happen in play): the stock game's answer. */
 static int take(int n) {
-    if (!bind_village(0)) {
-        return 1;
+    if (!bind_village(0) || g_pending) {
+        return 1;                    /* no village, or its fruit not known yet: the stock game's answer */
     }
     if (g_fruit < n) {
         return 0;
@@ -446,7 +487,7 @@ static int __cdecl on_credit(void) {
 /* The stomped fruit is in the stew: 3 fruit taken, down to 0. */
 static void __cdecl on_stew(void) {
     __try {
-        if (bind_village(0)) {
+        if (bind_village(0) && !g_pending) {
             g_fruit = g_fruit > FS_TRIP ? g_fruit - FS_TRIP : 0;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -457,7 +498,7 @@ static void __cdecl on_stew(void) {
 static int __cdecl on_offer(void) {
     int ok = 1;
     __try {
-        ok = !bind_village(0) || g_fruit >= FS_TRIP;
+        ok = !bind_village(0) || g_pending || g_fruit >= FS_TRIP;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         ok = 1;
     }
@@ -522,7 +563,7 @@ static int alive(const unsigned char *rec) {
    record holds someone else; only a living villager becomes the reference. */
 static void __cdecl on_unit(const unsigned char *rec) {
     __try {
-        if (!bind_village(0)) {
+        if (!bind_village(0) || g_pending) {
             return;
         }
         if (g_reference == NULL || !alive(g_reference) || identity(g_reference) != g_reference_id) {
@@ -615,7 +656,7 @@ static void __fastcall ev_result(void *self, void *unused) {
     (void)unused;
     __try {
         unsigned char *villager = (unsigned char *)((event_object *)self)->villager;
-        if (bind_village(0)) {
+        if (bind_village(0) && !g_pending) {
             g_fruit = g_fruit + FS_EVENT_GAIN < FS_FULL ? g_fruit + FS_EVENT_GAIN : FS_FULL;
         }
         if (villager != NULL && alive(villager)) {
@@ -667,6 +708,7 @@ static int __fastcall on_load(void *self, void *unused, const void *in) {
     int r = ((load_fn)(UINT_PTR)STOCK_LOAD)(self, NULL, in);
     (void)unused;
     g_bound = 0;                     /* a village was loaded: its file is read at the next use */
+    g_pending = 0;
     g_reference = NULL;
     return r;
 }
@@ -848,7 +890,7 @@ int __stdcall VvfpYellowFruitRefill(void) {
         return 0;
     }
     __try {
-        if (bind_village(0)) {
+        if (bind_village(0) && !g_pending) {
             g_fruit = FS_FULL;
             filled = 1;
         }

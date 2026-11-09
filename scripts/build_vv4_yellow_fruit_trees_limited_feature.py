@@ -176,7 +176,11 @@ def row(dll_sha: str) -> dict:
             "parents' names, as the Origins companion's); written atomically when the game saves the puzzles "
             "(CFruitwells slot 4), read after the game loads them (slot 3) and used only while at least one of "
             "its villagers is alive in the village. An unreadable file is never replaced; an invalid one is set "
-            "aside.",
+            "aside. A file that exists but cannot be read when the village is bound (locked, a read failed) is "
+            "never bound over: until it is read -- retried at most every 2 seconds, the sidecar gate's throttle -- "
+            "the tree is the stock game's (no refusal, nothing taken, no refill counted, the event and the Custom "
+            "Island Event refill change nothing) and nothing is written; then the saved fruit and refill progress "
+            "are restored.",
         ],
         "explicit_non_changes": [
             "Technologies and effects, read from the code: Food Mastery (tech 4) multiplies inside the food writer "
