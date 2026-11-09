@@ -912,6 +912,194 @@ class LockTests(unittest.TestCase):
                 self.assertEqual(proc.export("VvfpStoryProbePending", 5), pending)
                 self.assertEqual(proc.u32(0x51D388), left)
 
+    # The owner (2026-11-08), after the New Believers fix: "do this for all 5 games".  The other four keep no
+    # "on its way" bits that only a Tech screen retires: A New Home and The Lost Children lock on the island timer
+    # itself, The Secret City's flag is released by the island handler's own frame hook, and The Tree of Life's
+    # token counts only while the timer still holds the stamp its purchase wrote (or a barrel went ahead of it).
+
+    def _row_state(self, proc, game, world):
+        """The Tech menu's own state word (the Origins payload's pending rows)."""
+        if game == "vv1":
+            menu = proc.alloc(0x100)
+            proc.put32(menu + 0xC, world)
+            proc.call(0x48DF00, [], regs={"esi": menu, "edi": 0})
+            return proc.reg("edi")
+        if game == "vv2":
+            proc.set_reg("esp", HEAP + 0x3000000)
+            proc.set_reg("eax", 0)
+            proc.set_reg("edi", world)
+            proc.run(0x49C280, 0x49C2A7)
+            return proc.reg("eax")
+        if game == "vv4":
+            return proc.call(0x728C20, [], regs={"eax": 0})
+        return proc.call(0x7C9A22, [], regs={"eax": 0})
+
+    def test_vv1_vv2_the_island_timer_is_the_lock_so_a_delivered_event_never_holds_it(self):
+        """A New Home world+0xA300, The Lost Children world+0x2EAE0: the purchase (and every Story / Cheat Upgrades
+        arm) writes now + 5, and the trigger rewrites the timer 12-23 / 10-19 hours on when it runs the event.  The
+        lock is that timer due within the queue window, so it is gone the moment the trigger has run -- in the
+        companion and in the Tech menu's own row alike.  The Barrel of Babies' token (0x48D700 / 0x49C700) is its
+        own row's lock: never read or written here."""
+        for game, barrel in (("vv1", 0x48D700), ("vv2", 0x49C700)):
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            for timer, pending, why in (
+                    (CLOCK + 5, 1, "bought: due in five seconds"),
+                    (CLOCK, 1, "due now"),
+                    (0, 1, "due now (an older build's zero)"),
+                    (CLOCK + 36000, 0, "delivered: the trigger rescheduled it")):
+                for token in (0, 2):
+                    with self.subTest(game=game, why=why, barrel_token=token):
+                        proc = process(game)
+                        world = self._world(proc, game)
+                        proc.write(barrel, bytes((token,)))
+                        proc.put32(world + (0xA300 if game == "vv1" else 0x2EAE0), timer)
+                        proc.export("VvfpStoryInstall", n)
+                        self.assertEqual(proc.export("VvfpStoryProbePending", n), pending)
+                        self.assertEqual(bool(self._row_state(proc, game, world) & 0x800000), bool(pending))
+                        self.assertEqual(proc.read(barrel, 1), bytes((token,)), "the Barrel's own token")
+
+    def test_vv1_vv2_an_arm_counts_until_the_trigger_rewrites_the_timer(self):
+        """Every Story / Cheat Upgrades arm writes the timer as the purchase does; the trigger's own rewrite ends it."""
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                n = int(game[2:])
+                proc = process(game)
+                world = self._world(proc, game)
+                proc.export("VvfpStoryInstall", n)
+                proc.export("VvfpStoryProbeArm", n, 0, 0)
+                self.assertEqual(proc.u32(world + (0xA300 if game == "vv1" else 0x2EAE0)), CLOCK + 5)
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 1)
+                proc.put32(world + (0xA300 if game == "vv1" else 0x2EAE0), CLOCK + 50000)   # the trigger ran it
+                proc.export("VvfpStoryInstall", n)
+                self.assertEqual(proc.export("VvfpStoryProbePending", n), 0)
+
+    def test_vv3_the_island_handlers_frame_hook_releases_the_flag_once_it_is_due(self):
+        """The Secret City: the purchase (and every Story / Cheat Upgrades arm, through the same helper 0x6DF340)
+        sets the flag 0x6E0050 and its due second 0x6E0054.  The island handler's per-frame hook (0x468727 ->
+        0x47B3B1) releases it once the clock reaches that second -- in the same pass, the trigger at 0x468732 then
+        runs the event -- so no Tech screen visit is needed.  The Barrel's own flag 0x6E0058 is its own: the hook
+        presents the barrel only once ITS due second has come, and the island's release never touches it."""
+        if not have_stock("vv3"):
+            self.skipTest("stock executable not present")
+        for barrel in (0, 1):
+            with self.subTest(barrel=barrel):
+                proc = process("vv3")
+                manager = self._world(proc, "vv3")
+                scene = proc.alloc(0x100)
+                proc.put32(scene + 0x10, manager)
+                proc.put32(manager + 0x12EF4, CLOCK + 36000)
+                proc.export("VvfpStoryInstall", 3)
+                proc.export("VvfpStoryProbeArm", 3, 0, 0)
+                self.assertEqual(proc.read(0x6E0050, 1), b"\1")
+                self.assertEqual(proc.u32(0x6E0054), CLOCK + 5)
+                self.assertEqual(proc.u32(manager + 0x12EF4), CLOCK + 5)
+                proc.write(0x6E0058, bytes((barrel,)))
+                proc.put32(0x6E004C, CLOCK + 3600)         # the barrel's own due second, not yet come
+                for now, pending in ((CLOCK + 4, 1), (CLOCK + 5, 0), (CLOCK + 6, 0)):
+                    proc.stub(0x403330, lambda p, now=now: (now, 0))
+                    proc.set_reg("esi", scene)
+                    proc.set_reg("esp", HEAP + 0x3000000)
+                    proc.run(0x468727, 0x46872F)            # the handler's frame: the hook, then the clock
+                    proc.export("VvfpStoryInstall", 3)
+                    self.assertEqual(proc.export("VvfpStoryProbePending", 3), pending, hex(now - CLOCK))
+                    self.assertEqual(proc.read(0x6E0058, 1), bytes((barrel,)), "the Barrel's own flag")
+
+    def _vv4_trigger(self, proc, world, rolls, *, seen=1):
+        """The Tree of Life's island-event trigger (0x43FA32), stock, with the game's routines it calls answered:
+        a living adult, `rolls` for its rand(100) / rand(8) calls, `seen` earlier island events.  Runs to the call
+        it always ends with (0x43FBE5, the Barrel's cue) and past it."""
+        record = proc.alloc(0x2000)
+        proc.put32(record + 0x1B8C, 30 * 0x14)
+        proc.put32(record + 0x1C3C, 30 * 0x14)
+        rolls = list(rolls)
+        proc.stub(0x467610, lambda p: (5, 0))                  # the living count
+        proc.stub(0x4679B0, lambda p: (record, 40))            # the adult it is about
+        proc.stub(0x4036D0, lambda p: (rolls.pop(0) if rolls else 0, 0))
+        proc.stub(0x448E10, lambda p: (0, 4))                  # the island music
+        proc.stub(0x417F70, lambda p: (0x4CCA28, 0))           # the event manager
+        proc.stub(0x418000, lambda p: (0, 4))                  # the game's own pick: a natural event
+        proc.stub(0x418190, lambda p: (0, 8))                  # an event presented (the Barrel)
+        proc.stub(0x41FE70, lambda p: (world, 0))
+        proc.put32(0x4D6E04, seen)
+        scene = proc.alloc(0x100)
+        proc.put32(scene + 0x10, world)
+        proc.set_reg("esi", scene)
+        proc.set_reg("ebx", 0)
+        proc.set_reg("esp", HEAP + 0x3000000)
+        proc.put32(HEAP + 0x3000000, 0)
+        proc.run(0x43FA32, 0x43FBEA)
+
+    def test_vv4_a_delivered_island_event_or_barrel_stops_counting_as_on_its_way(self):
+        """The Tree of Life: the token 0x728B08 and its stamp 0x728B0C (every arm writes the same), the Barrel's
+        0x728B04 and the shared timer world+0x170E0.  The token counts only while the timer still holds its stamp,
+        or while an armed Barrel went ahead of it (the Barrel's cue puts it back); a token left set after the
+        trigger rescheduled the timer counts for nothing, and the Tech menu retires it on its next build."""
+        if not have_stock("vv4"):
+            self.skipTest("stock executable not present")
+        due = CLOCK + 5
+        for token, stamp, timer, barrel, pending, why in (
+                (1, due, due, 0, 1, "bought, not yet delivered"),
+                (1, due, CLOCK + 36000, 0, 0, "delivered: the trigger rescheduled it"),
+                (1, due, CLOCK + 6 * 3600, 0, 0, "delivered: the natural time put back"),
+                (1, due, 0, 1, 1, "a barrel bought after it: the barrel comes first, then it again"),
+                (0, 0, 0, 1, 1, "a barrel bought: due now"),
+                (1, due, CLOCK + 36000, 1, 1, "a barrel still to come"),
+                (0, 0, CLOCK + 36000, 0, 0, "nothing bought")):
+            with self.subTest(why=why):
+                proc = process("vv4")
+                world = self._world(proc, "vv4")
+                proc.write(0x728B08, bytes((token,)))
+                proc.put32(0x728B0C, stamp)
+                proc.write(0x728B04, bytes((barrel,)))
+                proc.put32(world + 0x170E0, timer)
+                proc.export("VvfpStoryInstall", 4)
+                self.assertEqual(proc.export("VvfpStoryProbePending", 4), pending)
+                state = self._row_state(proc, "vv4", world)
+                self.assertEqual(bool(state & 0x800000), bool(pending) and not (barrel and not token), hex(state))
+                self.assertEqual(bool(state & 0x1000000), bool(barrel), "the Barrel's own row")
+                if token and not barrel and timer != stamp:
+                    self.assertEqual(proc.read(0x728B08, 1), b"\0", "retired by the Tech menu's build")
+                self.assertEqual(proc.export("VvfpStoryProbePending", 4), pending)
+
+    def test_vv4_every_reschedule_of_the_trigger_delivers_an_armed_barrel(self):
+        """The Barrel's cue replaces the trigger's one call of the game's pick (0x43FBE5), which every path that
+        rewrites the timer reaches (the first event's 30 minutes, the visitors' and both island families' 8-15
+        hours): an armed Barrel can never be left behind by a delivered event.  An island event bought before it
+        is put back on the timer with a fresh stamp, so it still counts, and stops counting once delivered."""
+        if not have_stock("vv4"):
+            self.skipTest("stock executable not present")
+        paths = (
+            ("the first event: 30 minutes", (99,), 0),
+            ("the first event, the visitors' roll: 30 minutes", (5,), 0),
+            ("the visitors: 8-15 hours", (5, 3), 1),
+            ("rand(100) < 50: 8-15 hours", (50, 10, 3), 1),
+            ("rand(100) >= 50: 8-15 hours", (50, 60, 3), 1),
+        )
+        for why, rolls, seen in paths:
+            for token in (0, 1):
+                with self.subTest(why=why, island_bought=token):
+                    proc = process("vv4")
+                    world = self._world(proc, "vv4")
+                    proc.write(0x728B04, b"\1")                 # do_barrel: armed, the timer zeroed
+                    proc.put32(world + 0x170E0, 0)
+                    proc.write(0x728B08, bytes((token,)))
+                    proc.put32(0x728B0C, CLOCK - 100 if token else 0)
+                    self.assertEqual(proc.export("VvfpStoryProbePending", 4), 1)
+                    self._vv4_trigger(proc, world, rolls, seen=seen)
+                    self.assertEqual(proc.read(0x728B04, 1), b"\0", "the Barrel was presented")
+                    if token:
+                        self.assertEqual(proc.u32(world + 0x170E0), CLOCK + 5, "the island event put back")
+                        self.assertEqual(proc.u32(0x728B0C), CLOCK + 5)
+                        self.assertEqual(proc.export("VvfpStoryProbePending", 4), 1)
+                        proc.put32(world + 0x170E0, CLOCK + 36000)  # its own delivery
+                    else:
+                        self.assertGreater(proc.u32(world + 0x170E0), CLOCK + 5)
+                    self.assertEqual(proc.export("VvfpStoryProbePending", 4), 0)
+
     def test_an_armed_pick_is_the_island_events_lock(self):
         for game in GAMES:
             if not have_stock(game):
@@ -939,23 +1127,7 @@ class LockTests(unittest.TestCase):
                 proc = process(game)
                 world = self._world(proc, game)
                 proc.export("VvfpStoryProbeArm", n, 0, 0)
-                if game == "vv1":
-                    menu = proc.alloc(0x100)
-                    proc.put32(menu + 0xC, world)
-                    proc.call(0x48DF00, [], regs={"esi": menu, "edi": 0})
-                    state = proc.reg("edi")
-                elif game == "vv2":
-                    proc.set_reg("esp", HEAP + 0x3000000)
-                    proc.set_reg("eax", 0)
-                    proc.set_reg("edi", world)
-                    proc.run(0x49C280, 0x49C2A7)
-                    state = proc.reg("eax")
-                elif game == "vv4":
-                    proc.call(0x728C20, [], regs={"eax": 0})
-                    state = proc.reg("eax")
-                else:
-                    proc.call(0x7C9A22, [], regs={"eax": 0})
-                    state = proc.reg("eax")
+                state = self._row_state(proc, game, world)
                 self.assertTrue(state & 0x800000, hex(state))
 
     def test_vv3_the_companion_flag_is_the_purchase_flag(self):
