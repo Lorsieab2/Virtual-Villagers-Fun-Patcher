@@ -15,3 +15,4 @@ EXPORTS
     ShowVv4TimeWarp=_ShowVv4TimeWarp@4 @115
     VvfpStartup=_VvfpStartup@8
     VvfpMaskOf=_VvfpMaskOf@4
+    VvfpOriginsVillageReset=_VvfpOriginsVillageReset@8

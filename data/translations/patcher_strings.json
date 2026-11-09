@@ -64342,6 +64342,20 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s9",
+   "english": "Your custom island event is on its way. It takes the place of the island event already on its way, which can not come while nobody lives in the village.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   }
  ]
 }

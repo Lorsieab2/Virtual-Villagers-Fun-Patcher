@@ -627,6 +627,9 @@ static const char *vv3_block_reason_text(int reason, int row) {
 
 /* Defined further down, next to the export that shares it. */
 static int vv3_barrel_has_room_for_three(void);
+/* island_timer_keep.h, included further down: a bought island event is on
+   its way until the game's trigger delivers it. */
+static int itk_on_its_way(void);
 
 static int vv3_row_block_reason(int villager_menu, int row) {
     if (villager_menu) {
@@ -657,6 +660,20 @@ static int vv3_row_block_reason(int villager_menu, int row) {
     }
     if (row != VV3_PENDING_ROW_ISLAND) {
         return VV3_BLOCK_NONE;
+    }
+    /* A BOUGHT EVENT IS ON ITS WAY UNTIL THE GAME'S TRIGGER DELIVERS IT.
+       Both releases of the flag below go by its due second -- this menu
+       draw's, and the island handler's frame hook (0x468727 -> 0x47B3B1 ->
+       0x6DF380) -- but the Tech screen pauses the game, so an event bought
+       there is still due, undelivered, while the screen is open: a menu drawn
+       again after its second (after another purchase) released it, and a
+       second Island Event could be bought -- two charges, one event.  The
+       keeper (native/shared/island_timer_keep.h) knows a bought event from
+       its purchase until the trigger's own write for it, whatever the clock;
+       while it says so the flag is not released either.  Without the keeper
+       installed the flag decides alone, as before. */
+    if (itk_on_its_way()) {
+        return VV3_BLOCK_ALREADY_PENDING;
     }
     /* Read the payload's own pending flag rather than inferring pending-ness
        from the countdown. The old test was `countdown == 0`, but the purchase
@@ -1900,7 +1917,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv3_story_slot, vv3_story_mask_get, vv3_story_mask_set,
         VV3RunningMaskBoundary, vv3_story_time_skip_step, vv3_story_time_skip_settled, vv3_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }
@@ -2092,6 +2109,27 @@ static const vv_paid_game VV3_PAID = {
     (volatile unsigned char *)0x006E0058, (volatile unsigned int *)0x006E004C, 1,
     "Virtual Villagers - The Secret City", NULL
 };
+
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  The Barrel's flag 0x6E0058 and due second 0x6E004C, and the
+   bought Island Event's flag 0x6E0050 and due second 0x6E0054, are in the
+   payload's process-only page, which only a change of slot cleared (the
+   executable's slot stub): a purchase not yet delivered came to the new
+   village started in the same slot.  They go with the village that paid for
+   them -- no refund: its tech points go with it, and the new village never
+   paid (native/shared/paid_purchases.h vv_paid_village_reset); the keeper
+   forgets its bought island event.  Another slot's tribe deleted from the
+   menu leaves the village in memory as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 3 || slot < 1 || slot > 5 || slot != vv3_story_slot() || !vv_paid_mapped(&VV3_PAID)) {
+        return;
+    }
+    vv_paid_village_reset(&VV3_PAID);
+    *(volatile unsigned char *)(UINT_PTR)VV3_ISLAND_PENDING_FLAG = 0;
+    *(volatile unsigned int *)(UINT_PTR)0x006E0054u = 0u;
+    itk_village_reset(slot);
+}
 
 /* Once a quarter second at most: the world draw runs for every villager. */
 static void vv3_paid_tick(void) {

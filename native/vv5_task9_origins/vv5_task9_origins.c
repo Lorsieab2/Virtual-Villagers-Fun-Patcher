@@ -2411,6 +2411,26 @@ static int __stdcall vv5_story_slot(void) {
     return vv_current_save_slot(5, *(volatile int *)VV5_SLOT_SCRATCH);
 }
 
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  New Believers keeps its purchase bits in the word the save
+   holds (0x51D388: 4 / 8 the Barrel of Babies, 0x10 / 0x20 a bought Island
+   Event), which the game's new-save setup clears -- and only a change of
+   slot cleared otherwise (the executable's slot stub).  So that a purchase
+   not yet delivered can never come to the new village started in the same
+   slot, whatever that setup does, its bits go with the village that paid for
+   them -- no refund: its tech points go with it, and the new village never
+   paid.  The doublers' ownership bits (1, 2) are the save's own and are left
+   for the game.  Another slot's tribe deleted from the menu leaves the
+   village in memory as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 5 || slot < 1 || slot > 5 || slot != vv5_story_slot()) {
+        return;
+    }
+    *(volatile unsigned int *)(UINT_PTR)0x0051D388u &= ~0x3Cu;
+    itk_village_reset(slot);
+}
+
 static int __stdcall vv5_story_mask_get(void *record) {
     int index = vv5_story_index(record);
     int mask;
@@ -2498,7 +2518,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv5_story_slot, vv5_story_mask_get, vv5_story_mask_set, NULL,
         vv5_story_time_skip_step, vv5_story_time_skip_settled, vv5_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }

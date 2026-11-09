@@ -1836,6 +1836,25 @@ static const itk_game VV1_ITK = {
     1, ITK_VV1_SITES, sizeof ITK_VV1_SITES / sizeof ITK_VV1_SITES[0], vv1_story_slot, vv1_itk_roster,
     "Virtual Villagers"
 };
+
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  The Barrel's token and delay counter are process memory that
+   only a change of slot cleared (the executable's slot stub), so a barrel
+   bought and not yet delivered came to the new village started in the same
+   slot.  It goes with the village that paid for it -- no refund: its tech
+   points go with it, and the new village never paid (native/shared/
+   paid_purchases.h vv_paid_village_reset).  A bought island event is the
+   village's own timer, made anew with it; the keeper forgets it too.
+   Another slot's tribe deleted from the menu leaves the village in memory
+   as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 1 || slot < 1 || slot > 5 || slot != vv1_story_slot()) {
+        return;
+    }
+    vv_paid_village_reset(&VV1_PAID);
+    itk_village_reset(slot);
+}
 #endif
 
 void __stdcall Vv1MaskTick(void) {
@@ -2205,11 +2224,22 @@ enum {
     BLOCK_NO_VILLAGER_SLOTS = 2 /* the village has no room for the children */
 };
 
+/* island_timer_keep.h (included by each game's own part of this file): a
+   bought island event is on its way until the game's trigger delivers it. */
+static int itk_on_its_way(void);
+
 static int row_block_reason(int villager_menu, int row, long state) {
     if (villager_menu) {
         return BLOCK_NONE;
     }
-    if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
+    /* The executable's bit reads the timer "due within five seconds" of the
+       purchase.  The Tech screen pauses the game, so an event bought there
+       stays due, undelivered, while the screen is open; once the menu was
+       built again five seconds on (after another purchase), the bit was
+       clear and a second Island Event could be bought -- two charges, one
+       event.  The keeper says "on its way" until the trigger has delivered
+       it, whatever the clock. */
+    if (row == PENDING_ROW_ISLAND && ((state & STATE_ISLAND_PENDING) != 0 || itk_on_its_way())) {
         return BLOCK_ALREADY_PENDING;
     }
     if (row != PENDING_ROW_BARREL) {
@@ -2689,7 +2719,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv1_story_slot, vv1_story_mask_get, vv1_story_mask_set, NULL,
         vv1_story_time_skip_step, vv1_story_time_skip_settled, vv1_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }

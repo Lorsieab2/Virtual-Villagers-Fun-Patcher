@@ -160,6 +160,12 @@ anything behind a link or junction and any file that is in use; each is listed
 in "Virtual Villagers Fun Patcher\Start Over Report - Save <N>.txt". Back up
 first (BACK UP SAVES, below) if you may want the old tribe's logs again.
 
+A Barrel of Babies or island event bought from the Tech menu and not yet
+arrived goes with the old tribe too (all five games): it never comes to the new
+tribe started in the same save. No tech points come back -- they were the old
+tribe's, and the new tribe never paid. Deleting another save's tribe from the
+save-slot menu leaves the tribe you were playing as it is.
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.
@@ -1451,7 +1457,9 @@ Fun Patcher Data", one file per save slot:
       A Barrel of Babies bought and not delivered yet: it is kept here while it
       waits, so a quit does not lose it (the tech points are already spent and
       saved), and the barrel arrives once the village is played again. Deleted
-      when the barrel arrives, and by Start Over.
+      when the barrel arrives, and by Start Over. The Tree of Life: an Island
+      Event bought before the barrel waits behind it, and the file keeps that
+      too, so after the next load it comes right after the barrel.
         Virtual Villagers <N> Story Purchases - Save <slot>.dat  (Story / Cheat Upgrades)
       A Pick Island Event, Custom Island Event, Pick Gong of Wonder Outcome or
       the rest of a Choose Time Skip Amount bought and not delivered yet, kept

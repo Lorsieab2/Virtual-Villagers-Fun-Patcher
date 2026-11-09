@@ -58,6 +58,11 @@ typedef struct {
        (native/shared/island_timer_keep.h): called by an arm with the timer
        and the value about to be written into it.  NULL: nothing kept. */
     void (__stdcall *island_arming)(void *field, unsigned int value);
+    /* 1 while a bought island event of this village is on its way: from its
+       purchase until the game's trigger delivers it (island_timer_keep.h
+       itk_on_its_way), however long the paused Tech screen keeps it due.
+       NULL: the Story companion goes by the timer alone. */
+    int (__stdcall *island_on_its_way)(void);
 } vvfp_story_host;
 static const vvfp_story_host *vvfp_story_host_table(void);
 
@@ -508,12 +513,17 @@ static int vvfp_story_pick_clicked(int game, HWND dialog, int command, const cha
         /* Not an island event: the Island Event row's lock does not apply. */
         return vvfp_story_time_skip_offered(game) && vvfp_story_time_skip(game, dialog) == 1;
     }
+    if (command == VVFP_STORY_CUSTOM_ID) {
+        /* The Story companion keeps the same lock itself, with the one case
+           this row cannot see: in a village where everyone has died, the
+           island event already bought can never come (the game's trigger
+           waits for a villager), so a Custom Island Event that brings
+           villagers may take its place there (story_custom_ui.inc). */
+        return vvfp_story_custom(game, dialog) == 1;
+    }
     if (blocked_reason != NULL) {
         MessageBoxA(dialog, blocked_reason, "Not right now", MB_OK | MB_ICONINFORMATION);
         return 0;
-    }
-    if (command == VVFP_STORY_CUSTOM_ID) {
-        return vvfp_story_custom(game, dialog) == 1;
     }
     return vvfp_story_pick(game, dialog) == 1;
 }

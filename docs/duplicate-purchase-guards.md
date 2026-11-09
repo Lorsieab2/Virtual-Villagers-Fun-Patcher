@@ -28,6 +28,40 @@ event of either kind blocks both rows.
 Time Warp needs no guard: it subtracts from the clock, so a second purchase
 does advance the village again.
 
+## Pending until the game delivers it (v1.35.91)
+
+The countdown tests above read "due within the five seconds the purchase
+gave it" (VV1, VV2, VV4 without its token), and VV3's flag was released at
+its due second (the island handler's frame hook, and the companion's menu
+draw). The Tech screen pauses the game, so an event bought there stays due,
+undelivered, for as long as the screen is open: once the menu was built again
+more than five seconds on, the row was buyable and a second Island Event, Pick
+or Custom Island Event charged again for one delivery. Every Origins companion
+already ran the island timer's keeper (`native/shared/island_timer_keep.h`),
+which sees each purchase's write and the trigger's own write for it, so each
+Island Event row (`row_block_reason`) and the Story / Cheat Upgrades' lock (its
+host table's `island_on_its_way`) also count an event bought and not yet run
+by the trigger, in the village it was bought in. VV5's bits already last until
+the delivery (`vv5_retire_delivered_island`).
+
+An empty village's trigger runs no island event, so this lock would never lift
+there. A plain Custom Island Event (the one event that reaches an empty
+village) may take the waiting event's place instead, uncharged when that one
+was bought (`story_custom_ui.inc` `ce_purchase_locked`); a waiting VV4 or VV5
+Barrel is never replaced.
+
+VV4's Island Event bought before a Barrel waits behind it on the Barrel's
+process-only token `0x728B08`; that token is now kept in the Barrel's Paid
+Purchases file (`held`, `restore_held` in `native/shared/paid_purchases.h`) and
+set again with the Barrel after a relaunch, so the Barrel's cue still puts the
+Island Event back.
+
+Start Over or a deleted tribe in the slot of the village in memory clears what
+it bought and has not received (`VvfpOriginsVillageReset` in each Origins
+companion, called by "VVFP Save Reset.dll"): before, only a change of slot
+cleared it, so it arrived in the new village. Nothing is refunded -- the
+village that paid is gone, and the new one never paid.
+
 ## How each game refuses
 
 **VV1, VV2, VV4, VV5 — the row stays clickable and explains itself.** The Tech

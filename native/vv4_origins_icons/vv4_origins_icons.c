@@ -1261,6 +1261,20 @@ static const itk_game VV4_ITK = {
     "Virtual Villagers - The Tree of Life"
 };
 
+/* A bought Island Event on its way, for the Tech menu's Island Event row
+   (row_block_reason): the keeper's answer (island_timer_keep.h
+   itk_on_its_way) -- except that a Barrel bought on its own writes the same
+   timer (0) and is the keeper's too.  While the Barrel is armed with no
+   Island Event token (0x728B08), what the keeper holds is the Barrel's, and
+   the Island Event row stays as the executable leaves it. */
+static int vv4_island_on_its_way(void) {
+    if (*(volatile unsigned char *)(UINT_PTR)0x00728B04u != 0
+        && *(volatile unsigned char *)(UINT_PTR)0x00728B08u == 0) {
+        return 0;
+    }
+    return itk_on_its_way();
+}
+
 /* Choose Time Skip Amount: defined with the Time Warp below. */
 static int __stdcall vv4_story_time_skip_step(int years);
 static int __stdcall vv4_story_time_skip_settled(void);
@@ -1270,7 +1284,7 @@ static const vvfp_story_host *vvfp_story_host_table(void) {
     static const vvfp_story_host host = {
         sizeof(vvfp_story_host), vv4_story_slot, vv4_story_mask_get, vv4_story_mask_set, NULL,
         vv4_story_time_skip_step, vv4_story_time_skip_settled, vv4_story_time_skip_running,
-        itk_story_arming
+        itk_story_arming, itk_story_on_its_way
     };
     return &host;
 }
@@ -1313,9 +1327,50 @@ static void vv4_paid_rearm(void) {
         *(volatile unsigned int *)(world + 0x170E0u) = 0u;     /* due now */
     }
 }
+/* AN ISLAND EVENT BOUGHT BEFORE THE BARREL WAITS BEHIND IT ACROSS A QUIT.
+   The Barrel's zero takes the shared timer; the Island Event bought before
+   it is put back on the timer by the Barrel's cue (0x728A50) when the Barrel
+   is presented -- only while its token 0x728B08 is set, and that token is
+   process memory.  So a quit with both pending brought the Barrel back
+   (above) and lost the Island Event: a Pick or Custom Island Event put back
+   from its own file waited for the next natural event, an Origins Island
+   Event never came.  The token is kept in the Barrel's file (bit 0) and set
+   again with it; its stamp is the timer the re-arm leaves (0), so it counts
+   as on its way until the cue puts it back with a fresh one. */
+static unsigned int vv4_paid_held(void) {
+    return *(volatile unsigned char *)(UINT_PTR)0x00728B08u != 0 ? 1u : 0u;
+}
+static void vv4_paid_restore_held(unsigned int bits) {
+    if ((bits & 1u) != 0) {
+        *(volatile unsigned char *)(UINT_PTR)0x00728B08u = 1;     /* the Island Event bought */
+        *(volatile unsigned int *)(UINT_PTR)0x00728B0Cu = 0u;     /* its stamp: the timer re-armed above */
+    }
+}
 static const vv_paid_game VV4_PAID = {
-    (volatile unsigned char *)0x00728B04, NULL, 1, "Virtual Villagers - The Tree of Life", vv4_paid_rearm
+    (volatile unsigned char *)0x00728B04, NULL, 1, "Virtual Villagers - The Tree of Life", vv4_paid_rearm,
+    vv4_paid_held, vv4_paid_restore_held
 };
+
+/* START OVER, OR THE TRIBE DELETED, IN THE SLOT OF THE VILLAGE IN MEMORY:
+   called by "VVFP Save Reset.dll" (ResetDeletedTribe) before the game erases
+   the village.  The Barrel (0x728B04, its three-children flag 0x728B00) and
+   the Island Event token and stamp (0x728B08 / 0x728B0C) are process memory
+   that only a change of slot cleared (the executable's slot stub), so a
+   purchase not yet delivered came to the new village started in the same
+   slot.  They go with the village that paid for them -- no refund: its tech
+   points go with it, and the new village never paid (native/shared/
+   paid_purchases.h vv_paid_village_reset).  Another slot's tribe deleted
+   from the menu leaves the village in memory as it is. */
+void __stdcall VvfpOriginsVillageReset(int game, int slot) {
+    if (game != 4 || slot < 1 || slot > 5 || slot != vv_captured_save_slot() || !vv_paid_mapped(&VV4_PAID)) {
+        return;
+    }
+    vv_paid_village_reset(&VV4_PAID);
+    *(volatile unsigned char *)(UINT_PTR)0x00728B00u = 0;
+    *(volatile unsigned char *)(UINT_PTR)0x00728B08u = 0;
+    *(volatile unsigned int *)(UINT_PTR)0x00728B0Cu = 0u;
+    itk_village_reset(slot);
+}
 
 static void vv4_paid_tick(void) {
     static unsigned int ids[VV_PAID_RECORDS];
@@ -1888,7 +1943,15 @@ static int row_block_reason(int villager_menu, int row, long state) {
     if (villager_menu) {
         return BLOCK_NONE;
     }
-    if (row == PENDING_ROW_ISLAND && (state & STATE_ISLAND_PENDING) != 0) {
+    /* The executable's bit reads the purchase's token and stamp, or -- with
+       no token -- the timer "due within five seconds".  The keeper says "on
+       its way" until the game's trigger has delivered a bought event,
+       however long the paused Tech screen keeps it due (island_timer_keep.h
+       itk_on_its_way), so a second one is never sold for one delivery.  A
+       Barrel bought on its own writes the same timer (0) and is the
+       keeper's too; it is not an island event, and the row stays as the
+       executable leaves it then (vv4_island_on_its_way). */
+    if (row == PENDING_ROW_ISLAND && ((state & STATE_ISLAND_PENDING) != 0 || vv4_island_on_its_way())) {
         return BLOCK_ALREADY_PENDING;
     }
     if (row != PENDING_ROW_BARREL) {

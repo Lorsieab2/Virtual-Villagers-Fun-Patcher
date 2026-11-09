@@ -368,6 +368,43 @@ static void __stdcall itk_story_arming(void *field, unsigned int value) {
     }
 }
 
+/* A BOUGHT ISLAND EVENT IS ON ITS WAY UNTIL THE GAME'S TRIGGER DELIVERS IT.
+
+   The island-event rows' locks read the timer as "due within the five
+   seconds the purchase gave it" (A New Home, The Lost Children, The Tree of
+   Life without its token) or released their flag once that second had come
+   (The Secret City).  The Tech screen pauses the game, so an event bought
+   there stays due, undelivered, while the screen is open: five seconds
+   later it read as delivered and a second one could be sold -- two charges,
+   one event.  The keeper knows: a purchase is on its way from its write
+   (itk_note) until the trigger's own write for it (itk_rescheduled),
+   whatever the clock says, and only in the village it was bought in.  An
+   empty village, whose trigger never runs, is the Story / Cheat Upgrades'
+   to judge (a Custom Island Event may take the waiting event's place there,
+   story_custom_ui.inc). */
+static int itk_on_its_way(void) {
+    return itk_state == 1 && itk_active && itk_rec_here();
+}
+
+/* For the Story / Cheat Upgrades' locks (story_bridge.h's host table). */
+static int __stdcall itk_story_on_its_way(void) {
+    return itk_on_its_way();
+}
+
+/* Start Over or a deleted tribe in `slot` (the Origins companions'
+   VvfpOriginsVillageReset): a bought event of that village is gone with it.
+   Memory only -- the slot's file goes with the save's own folder
+   (native/shared/save_reset.c), and one left elsewhere is another village's
+   to the roster check. */
+static void itk_village_reset(int slot) {
+    if (itk_active && (itk_rec.slot == 0u || itk_rec.slot == (unsigned int)slot)) {
+        itk_active = 0;
+        itk_fire_pending = 0;
+        memset(&itk_rec, 0, sizeof itk_rec);
+    }
+    itk_checked = 0;
+}
+
 /* ---- Installing ----------------------------------------------------------- */
 
 static int itk_readable(unsigned int va, int length) {

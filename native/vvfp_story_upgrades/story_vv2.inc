@@ -367,6 +367,8 @@ static int vv2_possible(const story_event *e) {
     return vv2_any_villager(pool, -1, -1, 0, 0);
 }
 
+/* As A New Home's (story_vv1.inc vv1_island_pending): due within five
+   seconds, or a bought event still on its way past them. */
 static int vv2_island_pending(void) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV2_WORLD_GLOBAL;
     unsigned int countdown;
@@ -374,7 +376,7 @@ static int vv2_island_pending(void) {
         return 1;
     }
     countdown = *(unsigned int *)(world + VV2_COUNTDOWN);
-    if (countdown == 0) {
+    if (countdown == 0 || story_bought_on_its_way(2)) {
         return 1;
     }
     return countdown - (unsigned int)((clock_fn)(uintptr_t)VV2_CLOCK)(world, NULL) <= 5u;

@@ -425,10 +425,10 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # again when bought island events learned to keep the game's own
         # island-event timer (native/shared/island_timer_keep.h). Larger again when the
         # drawn (None) / No change labels were translated (audit R1).
-        self.assertEqual(vv5_companion["size"], 1887744)
+        self.assertEqual(vv5_companion["size"], 1888256)
         self.assertEqual(
             vv5_companion["sha256"],
-            "E57E3CD6B6286B02EBB75D64144B3F874A3A23FCD825FD6A0141C6719ABC0AD8",
+            "8A1670996C6B5F3DC959BAC40CE5E669741790B5558B86F389EF26EF1A8F89CF",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

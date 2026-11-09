@@ -296,6 +296,10 @@ static int vv1_possible(const story_event *e) {
     return 1;
 }
 
+/* The island timer due within the five seconds a purchase gives it -- or a
+   bought event still on its way past them: the Tech screen pauses the game,
+   so one bought there stays due, undelivered, while the screen is open, and
+   only the trigger's own rewrite delivers it (story_bought_on_its_way). */
 static int vv1_island_pending(void) {
     unsigned char *world = *(unsigned char **)(uintptr_t)VV1_WORLD_GLOBAL;
     unsigned int countdown;
@@ -303,7 +307,7 @@ static int vv1_island_pending(void) {
         return 1;
     }
     countdown = *(unsigned int *)(world + VV1_COUNTDOWN);
-    if (countdown == 0) {
+    if (countdown == 0 || story_bought_on_its_way(1)) {
         return 1;
     }
     return countdown - (unsigned int)((clock_fn)(uintptr_t)VV1_CLOCK)(world, NULL) <= 5u;

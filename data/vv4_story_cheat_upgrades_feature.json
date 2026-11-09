@@ -11,6 +11,7 @@
   "behavior_changes": [
     "Every Origins upgrade on the Tech screen and the Villager Details screen costs 0 tech points: each price the Origins payload compares, deducts, refunds or shows is set to 0 at run time, and the Origins companion shows and charges 0.",
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
+    "A bought island event (the Origins Island Event, Pick Island Event, Custom Island Event) counts as pending until the game's own island-event trigger runs it -- the Origins companion's keeper of the island timer knows it from the purchase's write until the trigger's own (native/shared/island_timer_keep.h) -- not only while the timer is due within the purchase's five seconds, which the paused Tech screen outlasts.  In a village where everyone has died, whose trigger runs no island event, a plain Custom Island Event may take the place of the island event waiting there, and is not charged when that one was bought; a waiting Barrel of Babies is never replaced.",
     "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or 50,000 with Story / Cheat Upgrades cost Tech Points) to the Origins Tech menu: a plain Windows dialog takes 1-72 years (20 age units a year), and the Origins companion's own Time Warp advance runs in steps of at most one Time Warp at the current speed, the next step only once the game's villager tick has replayed the last (its catch-up), so no jump is bigger than a Time Warp.  Charged once, when the first step is made; Cancel, a paused game or an empty village charge nothing.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
     "Offers 46 island events; events that can never run in this game are not offered.",
@@ -36,7 +37,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "72E9B9B358B8E573F89094BC8F13A1836D770AB1215362BBCB8E2CEC4762F532"
+      "sha256": "AD79D2C8700B4D90DEB2A631915C5107E3575B3D0B98335AE39D728B39A8AABD"
     }
   ],
   "runtime_detours": [

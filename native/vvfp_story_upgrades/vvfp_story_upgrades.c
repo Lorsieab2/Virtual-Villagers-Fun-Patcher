@@ -177,6 +177,9 @@ static unsigned int choice_resolve_target(int game, unsigned int va, unsigned in
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* ... and by the locks below: a bought island event is on its way until the
+   game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
+static int story_bought_on_its_way(int game);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -462,9 +465,16 @@ typedef int (__fastcall *clock_fn)(void *self, void *unused_edx);
 
 /* Each game: is an island event already on its way (the Island Event row's
    own lock), and make one due exactly as the Origins Island Event purchase
-   does.  Returns 1 on success. */
+   does.  Returns 1 on success.
+
+   A bought event counts as on its way until the game's trigger delivers it
+   (story_bought_on_its_way), not only while the timer or flag says it is
+   due: the Tech screen pauses the game, so one bought there stays due,
+   undelivered, for as long as the screen is open -- and The Secret City's
+   flag was released by its due second alone (the island handler's frame
+   hook, the Origins companion's menu draw). */
 static int vv3_island_pending(void) {
-    return *(volatile unsigned char *)(uintptr_t)VV3_ISLAND_FLAG != 0;
+    return *(volatile unsigned char *)(uintptr_t)VV3_ISLAND_FLAG != 0 || story_bought_on_its_way(3);
 }
 
 static int vv3_arm(void) {
@@ -490,7 +500,7 @@ static int vv4_island_pending(void) {
             || *(volatile unsigned char *)(uintptr_t)VV4_BARREL_ARMED != 0)) {
         return 1;
     }
-    if (countdown == 0) {
+    if (countdown == 0 || story_bought_on_its_way(4)) {
         return 1;
     }
     return countdown - (unsigned int)((clock_fn)(uintptr_t)VV4_CLOCK)(world, NULL) <= 5u;
@@ -991,17 +1001,28 @@ static const char *story_price_text(int game) {
 
 typedef int (*story_command_fn)(int game, HWND owner);
 
+/* Set by a command whose event took the place of an island event already
+   paid for (story_custom_ui.inc ce_purchase_locked): nothing more is taken. */
+static int story_charge_waived;
+static int story_custom_island_event(int game, HWND owner);
+static int ce_purchase_locked(int game, int *replaces, int *waived);
+
 /* `command`, charged when the upgrades cost tech points: refused with a
    message while the village has fewer, and the price taken only when the
-   command says an event (or outcome) is now on its way. */
+   command says an event (or outcome) is now on its way -- and not taken when
+   it says that event replaces one already paid for. */
 static int story_charged(int game, HWND owner, story_command_fn command) {
     const ce_adapter *a = ce_adapter_for(game);
     int price = VvfpStoryEventPrice(game);
-    int done;
+    int done, replaces, waived = 0;
+    story_charge_waived = 0;
     if (price == 0 || a == NULL) {
         return command(game, owner);
     }
-    if (a->tech() < price) {
+    if (command == story_custom_island_event) {
+        (void)ce_purchase_locked(game, &replaces, &waived);
+    }
+    if (!waived && a->tech() < price) {
         char text[160];
         wsprintfA(text, "This costs %d,%03d tech points, and your village has %d.",
                   price / 1000, price % 1000, a->tech());
@@ -1009,9 +1030,10 @@ static int story_charged(int game, HWND owner, story_command_fn command) {
         return 0;
     }
     done = command(game, owner);
-    if (done) {
+    if (done && !story_charge_waived) {
         a->change_tech(CE_AMOUNT_SUBTRACT, price);
     }
+    story_charge_waived = 0;
     return done;
 }
 
@@ -1320,6 +1342,13 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeSetTick(DWORD tick) {
 
 __declspec(dllexport) int __stdcall VvfpStoryProbePending(int game) {
     return GAMES[game].island_pending();
+}
+
+/* The Custom Island Event's own lock (story_custom_ui.inc ce_purchase_locked):
+   out[0] refused, out[1] it takes a waiting event's place (an empty
+   village), out[2] that event was bought, so nothing more is charged. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeCustomGate(int game, int *out) {
+    out[0] = ce_purchase_locked(game, &out[1], &out[2]);
 }
 
 __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int position) {

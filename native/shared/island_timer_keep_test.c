@@ -94,6 +94,18 @@ __declspec(dllexport) void __stdcall ItkProbeStoryArming(void *field, unsigned i
     itk_story_arming(field, value);
 }
 
+/* Whether a bought island event is on its way, as the island-event rows'
+   locks ask it (the Origins companions directly, the Story / Cheat Upgrades
+   through their host table). */
+__declspec(dllexport) int __stdcall ItkProbeOnItsWay(void) {
+    return itk_story_on_its_way();
+}
+
+/* Start Over or a deleted tribe in `slot` (VvfpOriginsVillageReset). */
+__declspec(dllexport) void __stdcall ItkProbeVillageReset(int slot) {
+    itk_village_reset(slot);
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)instance;
     (void)reason;

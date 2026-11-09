@@ -18,6 +18,12 @@
      7. A held barrel waiting a long time: births and deaths refresh the
         roster in the file, so the village is still recognised.
      8. No village (an empty roster) is no frame at all.
+    10. What waits behind the purchase (The Tree of Life's Island Event
+        token behind its Barrel) is kept in the file with it -- written when
+        it changes -- and handed back after a relaunch; a file without it
+        hands back nothing.
+    11. Start Over in the slot of the village in memory: the token and
+        counter go with the village (VvfpOriginsVillageReset).
 
    Usage: paid_purchases_harness.exe   (exit 0 when every check passes) */
 #include <windows.h>
@@ -41,6 +47,10 @@ static volatile unsigned int g_counter;
 static int g_restored;
 static void restored(void) { ++g_restored; }
 static const vv_paid_game G = { &g_token, &g_counter, 2, "Harness Save", restored };
+static unsigned int g_held, g_restored_held, g_restore_held_calls;
+static unsigned int held(void) { return g_held; }
+static void restore_held(unsigned int bits) { ++g_restore_held_calls; g_restored_held = bits; }
+static const vv_paid_game H = { &g_token, &g_counter, 1, "Harness Save", restored, held, restore_held };
 static unsigned int roster_a[VV_PAID_RECORDS], roster_b[VV_PAID_RECORDS], empty[VV_PAID_RECORDS];
 
 static void quit(void) {                       /* the process ends: memory forgotten */
@@ -50,8 +60,10 @@ static void quit(void) {                       /* the process ends: memory forgo
     vv_paid_last = 0;
     vv_paid_dirty = 0;
     vv_paid_written = 0;
+    vv_paid_held_last = 0;
     g_token = 0;
     g_counter = 0;
+    g_held = 0;
 }
 
 static int file_exists(int slot) {
@@ -268,6 +280,57 @@ int main(void) {
               && GetFileAttributesA(own_file) == INVALID_FILE_ATTRIBUTES,
               "...and delivered, it is deleted there");
     }
+
+    /* 10 */
+    quit();
+    g_held = 1;                                 /* an Island Event bought first ... */
+    g_token = 1;                                /* ... then the Barrel */
+    vv_paid_tick(2, 3, roster_a, &H);
+    Sleep(20);
+    save_now(3);
+    quit();
+    g_restore_held_calls = 0;
+    g_restored_held = 0;
+    CHECK(vv_paid_tick(2, 3, roster_a, &H) == 1 && g_token == 1 && g_restore_held_calls == 1 && g_restored_held == 1,
+          "relaunch: what waited behind the barrel comes back with it");
+    g_token = 0;
+    vv_paid_tick(2, 3, roster_a, &H);
+    quit();
+    g_token = 1;                                /* the Barrel first ... */
+    vv_paid_tick(2, 3, roster_a, &H);
+    g_held = 1;                                 /* ... something held after it */
+    vv_paid_tick(2, 3, roster_a, &H);
+    Sleep(20);
+    save_now(3);
+    quit();
+    g_restored_held = 0;
+    CHECK(vv_paid_tick(2, 3, roster_a, &H) == 1 && g_restored_held == 1,
+          "...also when it is set after the purchase (the file is written again)");
+    g_token = 0;
+    vv_paid_tick(2, 3, roster_a, &H);
+    quit();
+    g_token = 1;                                /* a barrel alone */
+    vv_paid_tick(2, 3, roster_a, &G);           /* (a game that holds nothing) */
+    Sleep(20);
+    save_now(3);
+    quit();
+    g_restore_held_calls = 0;
+    g_restored_held = 7;
+    CHECK(vv_paid_tick(2, 3, roster_a, &H) == 1 && g_restore_held_calls == 1 && g_restored_held == 0,
+          "a file written without held bits hands back nothing");
+    g_token = 0;
+    vv_paid_tick(2, 3, roster_a, &H);
+
+    /* 11 */
+    quit();
+    g_token = 2;
+    g_counter = 17;
+    vv_paid_tick(2, 4, roster_a, &G);
+    vv_paid_village_reset(&G);
+    CHECK(g_token == 0 && g_counter == 0 && !vv_paid_have && !vv_paid_last,
+          "Start Over: the barrel goes with the village, nothing tracked");
+    CHECK(vv_paid_tick(2, 4, roster_b, &G) == 0 && g_token == 0,
+          "...and the new village in the slot gets no barrel");
 
     for (i = 1; i <= 5; ++i) {
         char p[MAX_PATH];

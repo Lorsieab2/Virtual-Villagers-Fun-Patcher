@@ -697,6 +697,15 @@ def build() -> None:
                 "is set to 0 at run time, and the Origins companion shows and charges 0.",
                 "Every existing refusal stays: one pending Island Event or Barrel of Babies at a "
                 "time, room for the Barrel's children, and every \"nothing to change\" check.",
+                "A bought island event (the Origins Island Event, Pick Island Event, Custom Island "
+                "Event) counts as pending until the game's own island-event trigger runs it -- the "
+                "Origins companion's keeper of the island timer knows it from the purchase's write "
+                "until the trigger's own (native/shared/island_timer_keep.h) -- not only while the "
+                "timer is due within the purchase's five seconds, which the paused Tech screen "
+                "outlasts.  In a village where everyone has died, whose trigger runs no island "
+                "event, a plain Custom Island Event may take the place of the island event waiting "
+                "there, and is not charged when that one was bought; a waiting Barrel of Babies is "
+                "never replaced.",
             ] + ([
                 "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or "
                 f"{TIME_WARP_PRICE:,} with Story / Cheat Upgrades cost Tech Points) to the Origins "
