@@ -44,6 +44,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Faith Loss is Doubled/Gains Halved (New Believers): starving and sick believers are decided once a crisis,
        1 in 10 a Heathen, the rest kept at Faith 1 until fed and well. */
     "VVFP Faith Loss.dll",
+    /* Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply. */
+    "VVFP VV4 Fruit Supply.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

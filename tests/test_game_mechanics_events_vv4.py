@@ -51,7 +51,10 @@ class Rendering(unittest.TestCase):
         facts = [f for f in gm.general(GAME) if f.group == "Island events"]
         text = " ".join(f.text for f in facts)
         for event in vv4.EVENTS:
-            self.assertIn(event.title, text)
+            if event.only_with is None:                  # a patch's own event: only with it in the game
+                self.assertIn(event.title, text)
+            else:
+                self.assertNotIn(event.title, text)
         for m in re.finditer(r"\b\d[\d,.]* (seconds?|minutes?|hours?)\b", text):
             self.assertRegex(text[max(0, m.start() - 60):m.end() + 60], r"real-life", m.group(0))
         for dead in ("The Tsunami", "The Canoe from the Other Side", "The Medical Emergency", "The Return of Biggles"):

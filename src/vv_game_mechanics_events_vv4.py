@@ -23,6 +23,8 @@ from __future__ import annotations
 from vv_game_mechanics_events import Event, Line
 
 STORY = "vv4_story_cheat_upgrades"
+YELLOW_FRUIT = "vv4_yellow_fruit_trees_limited"
+YELLOW_FRUIT_EVENT_GAIN = 350               # scripts/build_vv4_yellow_fruit_trees_limited_feature.py EVENT_GAIN
 SLOTS = 49
 FM = "before Food Mastery, which raises a food gain by half at level 2 and doubles it at level 3"
 WEATHER = ("1.5 to 3, 3 to 6 or 5 to 10 real-life minutes on Fast, Normal or Slow speed (paused time does not "
@@ -70,8 +72,16 @@ EVENTS = (
         "+2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow (0x414A10).",)),
     Event("The Mysterious Footprints (tech lost)", "always possible", (
         "-2,000 tech points, and fog comes 15, 30 or 50 real-life seconds later on Fast, Normal or Slow (0x414A80).",)),
-    Event("A Closer Look", f"needs {ANY}", (
+    Event("A Closer Look (Blackberries)", f"needs {ANY}", (
         "The blackberry bushes gain 350 berries (0x414B38).",)),
+    # The patch's own event (VVFP VV4 Fruit Supply.dll): its object in the event table's empty slot 19, the berry
+    # event's title, the owner's text (id 0x2E7), the berry event's condition 0x415E00 after the Cooking Pit test.
+    Event("A Closer Look (Yellow Breadfruit)",
+          f"needs the Cooking Pit restored and {ANY}; added by \"Yellow Fruit Trees are No Longer Unlimited\" "
+          "(without it the event does not exist)", (
+              f"The Cooking Pit's yellow fruit tree gains {YELLOW_FRUIT_EVENT_GAIN} fruit, up to its 1,000, and the "
+              "villager walks to the tree (as the blackberry event's farmer goes to the bushes).",),
+          only_with=YELLOW_FRUIT),
     Event("The Rainy Season", "always possible", ("Rain comes (0x414B90).",)),
     Event("The Cold Snap", "needs the Fire Pit burning", ("Fog comes and the fire goes out (0x414BD0).",)),
     Event("\"A Monsoon!\"", "always possible", (

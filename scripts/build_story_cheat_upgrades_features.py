@@ -172,7 +172,8 @@ CUSTOM_OFFERED = {
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
             "custom title", "mask", BEHAVIOURS_OFFERED("vv3")],
     "vv4": ["title and description", "food and tech points (add, subtract, set to 0)",
-            "refill: berry bushes", "new villagers", "dies (leaves a skeleton)",
+            "refill: berry bushes, and the yellow fruit tree (to 1,000) with Yellow Fruit Trees are No Longer "
+            "Unlimited", "new villagers", "dies (leaves a skeleton)",
             "disappears (no skeleton)", "falls sick",
             "pregnant with a baby, twins or triplets (adults 18+, either sex)",
             "likes and dislikes", "appearance (heads and bodies 0-29)", "skills", "parents",
@@ -201,7 +202,7 @@ CUSTOM_OMITTED = {
             {"option": "Esteemed Elder", "reason": "worked out from three mastered skills, not stored"},
             {"option": "puzzle solved", "reason": "the puzzles create the objects they need"},
             {"option": "refill the beehive", "reason": "its refill is tied to its puzzle"}],
-    "vv4": [{"option": "refill fruit trees and fishing", "reason": "the game has no refill for them"},
+    "vv4": [{"option": "refill fishing", "reason": "the game has no refill for it"},
             {"option": "special statuses", "reason": "Scholar and Elderly are worked out; Tribal "
              "Chief is never shown"},
             {"option": "other weather", "reason": "the other weather types are not identified"},

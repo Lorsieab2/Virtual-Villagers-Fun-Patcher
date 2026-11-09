@@ -65,6 +65,7 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_food_pays_like_earlier_games", "vv4_preferred_job_graves", "vv4_harder_fishing_unlock",
                          "vv4_collectible_spawn_like_vv3",
                          "vv4_sickness_multiplier", "vv4_sickness_like_vv3",
+                         "vv4_yellow_fruit_trees_limited",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
@@ -511,7 +512,9 @@ def _patcher() -> list[Entry]:
                               "the game's own list; it runs through the game's own island event code.", UNCONFIRMED),
         ("Custom Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{cost}\" ticked): an island event the "
                                 "player writes -- food, tech points, new villagers and what this game's own code can "
-                                "change.", UNCONFIRMED),
+                                "change. Its \"Refill the food sources\" fills the blackberry bushes to 1,000 and, "
+                                "with \"Yellow Fruit Trees are No Longer Unlimited\", the yellow fruit tree to "
+                                "1,000; fishing has no store to refill.", UNCONFIRMED),
         ("Choose Time Skip Amount", f"{st}: 0 tech points ({_tp(50_000)} with \"{cost}\" ticked): 1 to 72 villager "
                                     "years, as a run of Time Warps (12, 6 or 3 years each on Fast, Normal or Slow), "
                                     "each caught up by the game before the next.", UNCONFIRMED),
