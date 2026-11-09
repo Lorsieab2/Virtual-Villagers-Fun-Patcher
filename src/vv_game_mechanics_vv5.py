@@ -109,6 +109,16 @@ FIRE_LINES = (
 # (0x4744C0 at 0x46003B) and its picker 0x477B90.  "Excited about the puddles" (0xEB, 0x454200) is another action:
 # its choosers 0x469E4B (the child-activity pick 0x469DC0, case 4) and 0x46EFB2, three walks to area 0x69.
 PUDDLES = "vv5_puddles_by_the_lake"
+# The everyday "Honoring the dead" (scripts/build_vv5_hovel_memorial_actions.py has the trace): behaviour 17
+# (0x4595B0), started by the adults' leisure pick 0x46F387 -> 0x46B0F0 when the food store holds 8,000 or more:
+# rand(100) > 70, rand(3) = 0, a grave (0x464E90), rand(100) < 50.  The Day of Honor starts it for everyone
+# (0x414DDA).  No stock code starts "Reflecting" (behaviour 29, 0x457E90).
+HOVEL_MEMORIAL = "vv5_hovel_memorial_actions"
+HONORING_LINE = (
+    "In the code: on an ordinary day an adult with nothing else to do, with 8,000 food or more stored, goes "
+    "\"Honoring the dead\" when a grave exists and the rolls pass (0x46B0F0: rand(100) above 70, then 1 in 3, then 1 "
+    "in 2): first for flowers, then three walks to the graves (0x4595B0). The Day of Honor island event sends "
+    "everyone. Nothing in the game itself starts \"Reflecting\" (only a Custom Island Event does).")
 PUDDLE_LINES = (
     ("Children go \"Playing in puddles\" in the dry lake bed when it rains; once the lake bed is full of water they "
      "no longer do, because they cannot swim.", gm.OWNER),
@@ -335,6 +345,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "spots, each equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every "
                      "other walk to an area, fishing and \"Excited about the puddles\" included, picks as stock.",
             gm.CODE)
+    add("Other", HONORING_LINE, gm.CODE)
+    if village.has(HOVEL_MEMORIAL) is not False:
+        add("Other", gm.patch_words(
+            village, HOVEL_MEMORIAL, "once The Last Heathen is solved (the hovel's flower cover), the hovel is a "
+                                     "memorial for good, even if Heathens come back: a quarter of the everyday "
+                                     "\"Honoring the dead\" (after the flowers) and of \"Reflecting\" go to random "
+                                     "points in front of the hovel, 2176..2272 by 1576..1600; the Day of Honor is "
+                                     "unchanged"), gm.CODE)
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
