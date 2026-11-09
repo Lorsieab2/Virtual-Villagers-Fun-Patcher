@@ -13,7 +13,7 @@
     "Every existing refusal stays: one pending Island Event or Barrel of Babies at a time, room for the Barrel's children, and every \"nothing to change\" check.",
     "Adds a Choose Time Skip Amount upgrade (the Time Warp's price: 0 tech points, or 50,000 with Story / Cheat Upgrades cost Tech Points) to the Origins Tech menu: a plain Windows dialog takes 1-72 years (20 age units a year), and the Origins companion's own Time Warp advance runs in steps of at most one Time Warp at the current speed, the next step only once the game's villager tick has replayed the last (its catch-up), so no jump is bigger than a Time Warp.  Charged once, when the first step is made; Cancel, a paused game or an empty village charge nothing.",
     "Adds a Pick Island Event upgrade (0 tech points) to the Origins Tech menu: a plain Windows list of this game's island events by their official titles, each with a one-line description.  The pick makes the island event due exactly as the Island Event upgrade does (the same pending lock), and when the game's own scheduler fires it, the game's own chooser runs the picked event -- only if that event's own condition holds -- with its own text, choices, random outcomes and amounts.",
-    "Offers 45 island events; events that can never run in this game are not offered.",
+    "Offers 46 island events; events that can never run in this game are not offered.",
     "Adds a Custom Island Event upgrade (0 tech points): plain Windows dialogs build an event (title, description, village changes, new villagers, per-villager changes for a list with extended selection and the group toggles All Adult Women, All Adult Men, All Females, All Males and All Children, plus in New Believers All Heathens and one toggle for each Heathen type; each villager's row names the role the game keeps for them, such as the Golden Child or the Tribal Chief).  It is queued exactly as the Island Event upgrade queues one (the same lock), and when the game's own scheduler fires it, the game's own island-event popup shows the custom title and description and the changes are made through the game's own routines.",
     "Its amounts list shows each amount the game keeps as it is now, below 0 included (The Lost Children's fish and the field's protection fall below 0 in the original game), and the event replaces it; only a store that is not there yet, such as a farm not yet built, reads \"not there yet\" and is refused.",
     "Villager Changes offers every villager action the game's own code can start for one villager, Celebrating included, grouped (work, leisure, celebration and dance, devotion, family, children, health, curiosity, moods, puzzles and story) and sorted, each labelled with the text the Details screen then shows; the villager is stopped first and the game's own starter runs.  An action that may harm the game or the save ends \"(Unsafe)\": choosing it shows the reason and advises backing up the save (OK / Cancel), and one that would need a missing object is refused when the event happens instead of crashing.",
@@ -36,7 +36,7 @@
     {
       "source": "assets/story_upgrades/VVFP Story Upgrades.dll",
       "destination": "VVFP Story Upgrades.dll",
-      "sha256": "9EBEEAAA4BE697C2FC42DE800A94FCC1E95CDD4EEEDC1C12D86F0C78447AA5C2"
+      "sha256": "72E9B9B358B8E573F89094BC8F13A1836D770AB1215362BBCB8E2CEC4762F532"
     }
   ],
   "runtime_detours": [
@@ -604,7 +604,7 @@
     {
       "slot": 12,
       "title": "A Closer Look",
-      "variant": "",
+      "variant": "Blackberries",
       "description": "A farmer finds many overlooked berries: more berries are left.",
       "requires": "a villager the event can be about"
     },
@@ -845,6 +845,13 @@
       "variant": "",
       "description": "Biggles appears by the Tree of Life and answers one question.",
       "requires": "a villager the event can be about"
+    },
+    {
+      "slot": 19,
+      "title": "A Closer Look",
+      "variant": "Yellow Breadfruit",
+      "description": "A farmer finds leftover breadfruit around the trees: the Cooking Pit's yellow fruit tree gains fruit.",
+      "requires": "the Yellow Fruit Trees are No Longer Unlimited patch, which adds this event; the Cooking Pit restored and a villager the event can be about"
     }
   ],
   "excluded_island_events": [
@@ -858,7 +865,7 @@
     },
     {
       "title": "The Salty Air",
-      "reason": "slot 19: strings only, no event object"
+      "reason": "slot 19: strings only, no event object (with Yellow Fruit Trees are No Longer Unlimited the slot holds the patch's own A Closer Look (Yellow Breadfruit) instead)"
     },
     {
       "title": "The Return of Biggles",
@@ -1319,7 +1326,7 @@
     "offered": [
       "title and description",
       "food and tech points (add, subtract, set to 0)",
-      "refill: berry bushes",
+      "refill: berry bushes, and the yellow fruit tree (to 1,000) with Yellow Fruit Trees are No Longer Unlimited",
       "new villagers",
       "dies (leaves a skeleton)",
       "disappears (no skeleton)",
@@ -1336,8 +1343,8 @@
     ],
     "omitted": [
       {
-        "option": "refill fruit trees and fishing",
-        "reason": "the game has no refill for them"
+        "option": "refill fishing",
+        "reason": "the game has no refill for it"
       },
       {
         "option": "special statuses",

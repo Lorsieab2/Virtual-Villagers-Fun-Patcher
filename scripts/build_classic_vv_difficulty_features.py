@@ -26,6 +26,7 @@ PIECES = {
             ("vv4_harder_fishing_unlock", "Harder Fishing Unlock in VV4"),
             ("vv4_collectible_spawn_like_vv3", "Collectible Spawn Timing works like VV1-3"),
             ("vv4_sickness_like_vv3", "Sickness works like VV1-3"),
+            ("vv4_yellow_fruit_trees_limited", "Yellow Fruit Trees are No Longer Unlimited"),
             ("vv4_difficulty_settings", "Difficulty Settings")],
     "vv5": [("vv5_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
             ("vv5_hungrier_villagers", "Hungrier Villagers (2-10x Meals)"),

@@ -2479,7 +2479,7 @@ static const story_event VV4_EVENTS[] = {
     { 9, "The Mysterious Footprints", "tech gained", "Footprints appear overnight, and useful instruments: tech points gained.", "nothing beyond an island event being possible" },
     { 10, "The Mysterious Footprints", "tech lost", "Footprints appear overnight, and research tools are stolen.", "nothing beyond an island event being possible" },
     { 11, "Blessings Day Celebration", "", "The villagers give thanks with dancing, ceremonies and a feast.", "nothing beyond an island event being possible" },
-    { 12, "A Closer Look", "", "A farmer finds many overlooked berries: more berries are left.", "a villager the event can be about" },
+    { 12, "A Closer Look", "Blackberries", "A farmer finds many overlooked berries: more berries are left.", "a villager the event can be about" },
     { 13, "The Arc of Brilliant Colors", "", "A villager sees a rainbow: look for its end near the mausoleum, or the cliff.", "a villager the event can be about" },
     { 14, "The Robber Crab", "", "A villager spots a rare robber crab with healing properties.", "a villager the event can be about" },
     { 15, "The Phosphorescent Fungi", "", "A villager finds a dangerous glowing mushroom and decides what to do.", "a villager the event can be about" },
@@ -2514,8 +2514,9 @@ static const story_event VV4_EVENTS[] = {
     { 47, "Tough Lessons", "", "A child is stuck high in the Tree of Life: rescue them, or let them learn.", "a child and an adult the event can be about" },
     { 48, "The Pretty Shell", "", "Two children fight over a shell: teach them to share, or decide who keeps it.", "an adult the event can be about, and at least two adults" },
     { 49, "The Legendary Stranger", "", "Biggles appears by the Tree of Life and answers one question.", "a villager the event can be about" },
+    { 19, "A Closer Look", "Yellow Breadfruit", "A farmer finds leftover breadfruit around the trees: the Cooking Pit's yellow fruit tree gains fruit.", "the Yellow Fruit Trees are No Longer Unlimited patch, which adds this event; the Cooking Pit restored and a villager the event can be about" },
 };
-#define VV4_EVENT_COUNT 45
+#define VV4_EVENT_COUNT 46
 
 static const unsigned char VV5_W0_E[6] = { 0x81, 0xFE, 0x20, 0xA1, 0x07, 0x00 };
 static const unsigned char VV5_W0_R[6] = { 0x81, 0xFE, 0x00, 0x00, 0x00, 0x00 };

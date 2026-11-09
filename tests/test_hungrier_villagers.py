@@ -187,7 +187,7 @@ class Registration(unittest.TestCase):
         sliders to 2x." -- and "make the text colored red for the classic vv difficulty patch titles"."""
         public = {p.id: p for p in patcher.load_public_fun_patches()}
         pieces = {"vv4": {"vv4_harder_fishing_unlock", "vv4_collectible_spawn_like_vv3", "vv4_sickness_like_vv3",
-                          "vv4_difficulty_settings"},
+                          "vv4_yellow_fruit_trees_limited", "vv4_difficulty_settings"},
                   "vv5": {"vv5_faith_loss_doubled_gains_halved", "vv5_sickness_like_vv3", "vv5_difficulty_settings"}}
         for patch_id in CLASSIC_DIFFICULTY_FUN_PATCH_IDS:
             game = patch_id[:3]

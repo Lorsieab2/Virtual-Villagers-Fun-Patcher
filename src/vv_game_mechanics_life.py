@@ -270,6 +270,9 @@ class Context:
     catch_up_bonus: object = None
     # More Food estimates lines from the save (New Believers' Hand of Bloom): (ctx, members) -> [text], or None.
     food_extra: object = None
+    # One store shared by a source and the catch-up bonus (The Tree of Life's limited yellow fruit tree): (ctx,
+    # members, counted seconds, food credited on the sources, bonus food) -> the two again, from that one store.
+    closed_budget: object = None
 
     @property
     def game(self) -> int:
@@ -889,6 +892,8 @@ def food_estimates(ctx: Context, members: list[Person]) -> list[gm.Fact]:
             credited = closed_refills(ctx, hours * 3600)
             # The bonus comes with the job turns: every counted unit but the last 2.
             added = bonus[0] * max(0.0, counted / ctx.unit - 2) if bonus else 0.0
+            if callable(ctx.closed_budget):
+                credited, added = ctx.closed_budget(ctx, members, counted, credited, added)
             add(f"Closed for {hours} real-life hours: {gm.duration(counted)} counts as time away on {on} speed (the hours "
                 f"closed are real time), so about {eaten:,.0f} food is eaten while "
                 f"catching up; every refill missed while closed is added, about {credited:,.0f} on the sources (each "

@@ -649,9 +649,15 @@ class VillageOptionTests(unittest.TestCase):
                     story.apply(Event(refill=1))      # the game's own 0x4340A0, run
                     self.assertEqual([p.u32(trees + 0x30 + 0x18 * k) for k in range(3)], [1000, 1000, 1])
                 elif game == "vv4":
+                    # Without Yellow Fruit Trees are No Longer Unlimited its companion is not loaded: looked for,
+                    # nothing else.
+                    looked = []
+                    p.api_handlers["GetModuleHandleA"] = lambda q: (looked.append(q.cstring(q.arg(0))) or 0, 4)
                     p.put32(w + 0x170F8, 12)
                     story.apply(Event(refill=1))
                     self.assertEqual(p.u32(w + 0x170F8), 1000)
+                    self.assertIn("VVFP VV4 Fruit Supply.dll", looked)
+                    del p.api_handlers["GetModuleHandleA"]
                 else:
                     done = [0]
                     p.stub(0x43AE80, lambda q: (done[0], 4))
@@ -662,6 +668,43 @@ class VillageOptionTests(unittest.TestCase):
                     done[0] = 1
                     story.apply(Event(refill=1))
                     self.assertEqual(p.u32(w + 0x17D5C), 800)
+
+    def test_vv4_refill_fills_the_yellow_fruit_tree_through_its_companion(self):
+        """With Yellow Fruit Trees are No Longer Unlimited, "VVFP VV4 Fruit Supply.dll" keeps the tree's supply:
+        the refill calls its VvfpYellowFruitRefill (stdcall, no arguments; the companion's own side is
+        tests/test_vv4_yellow_fruit_trees_limited.py CustomIslandEventRefill).  Only a refill calls it."""
+        if not have_stock("vv4"):
+            self.skipTest("needs The Tree of Life's stock executable")
+        story = Story("vv4")
+        p = story.proc
+        w = story.village.world
+        module, export = 0x72000000, p.alloc(0x10)
+        asked = []
+        p.api_handlers["GetModuleHandleA"] = lambda q: (
+            module if q.cstring(q.arg(0)) == "VVFP VV4 Fruit Supply.dll" else 0, 4)
+
+        def proc_address(q):
+            asked.append(q.cstring(q.arg(1)))
+            return (export if q.arg(0) == module and q.cstring(q.arg(1)) == "VvfpYellowFruitRefill" else 0), 8
+        p.api_handlers["GetProcAddress"] = proc_address
+        filled = []
+        p.stub(export, lambda q: (filled.append(1) or 1, 0))
+        p.put32(w + 0x170F8, 12)
+        story.apply(Event(food_op=ADD, food_amount=5))
+        self.assertEqual(filled, [], "no refill asked for: the tree is left as it is")
+        ok, r, _ = story.apply(Event(refill=1))
+        self.assertEqual(r["refused"], 0)
+        self.assertEqual(filled, [1])
+        self.assertEqual(p.u32(w + 0x170F8), 1000, "the berries as before")
+        self.assertIn("VvfpYellowFruitRefill", asked)
+        # The tree already full, or the companion refusing (no village): the event is the same.
+        p.stub(export, lambda q: (filled.append(0) or 0, 0))
+        ok, r, _ = story.apply(Event(refill=1))
+        self.assertEqual((r["refused"], filled), (0, [1, 0]))
+        # The companion loaded without the export (an older build): nothing is called.
+        p.api_handlers["GetProcAddress"] = lambda q: (0, 8)
+        story.apply(Event(refill=1))
+        self.assertEqual(filled, [1, 0])
 
     def test_village_and_puzzle_changes_are_the_stock_events_own(self):
         if have_stock("vv1"):
