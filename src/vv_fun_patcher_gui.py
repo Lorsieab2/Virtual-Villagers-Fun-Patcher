@@ -200,7 +200,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv%d_sickness_multiplier" % game for game in range(1, 6)]
     + ["vv4_sickness_like_vv3", "vv5_sickness_like_vv3"]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
-    # default and in Select All (SELECT_ALL_OFF_FUN_PATCH_IDS), on in Owner's Defaults.
+    # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
 )
 
@@ -247,8 +247,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
-    # Memorial Actions Can Also Occur at the Heathen Hovel: the owner (2026-11-08), off in Select All too.
-    + [HOVEL_MEMORIAL_ACTIONS_ID]
+    # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
+    # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
 
 

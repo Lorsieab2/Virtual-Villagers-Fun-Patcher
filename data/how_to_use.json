@@ -855,7 +855,7 @@
         "Once every Heathen is converted and the old Heathen hovel gets its flower cover, the hovel is a memorial for good.",
         "Then villagers \"Honoring the dead\" on an ordinary day, or \"Reflecting\", go in front of the hovel a quarter of the time.",
         "The Day of Honor and every other action are unchanged. Only a Custom Island Event starts \"Reflecting\".",
-        "Off by default, and Select All does not tick it; Owner's Defaults does. Nothing to click."
+        "Off by default; Owner's Defaults and Select All tick it. Nothing to click."
       ]
     },
     {
@@ -1057,7 +1057,6 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
-        "Memorial Actions Can Also Occur at the Heathen Hovel is not ticked either.",
         "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
         "It does not change the population mode."
       ]
