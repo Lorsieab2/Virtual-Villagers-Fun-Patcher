@@ -1333,8 +1333,8 @@ MEMORIAL ACTIONS CAN ALSO OCCUR AT THE HEATHEN HOVEL (NEW BELIEVERS)
 
 Best paired with "More Respectful Flower Hovel Cover". Villagers will
 sometimes come here to pay their respects to those that passed on, and
-others that guide their fate. Off by default and in Select All; on in
-Owner's Defaults. Once every Heathen has been converted and the villagers
+others that guide their fate. Off by default; on in Owner's Defaults and
+Select All. Once every Heathen has been converted and the villagers
 have fixed up the old Heathen hovel (The Last Heathen is solved and the
 hovel's flower cover appears), the hovel is a memorial for good, even if
 Heathens come back later. Then a villager "Honoring the dead" on an
