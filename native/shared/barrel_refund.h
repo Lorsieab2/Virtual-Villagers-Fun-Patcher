@@ -83,12 +83,10 @@ static void vv_br_tell(int refunded) {
             wsprintfA(amount, "%d", refunded);
         }
         wsprintfA(text, vvfp_tr("vvfp.shared/barrel_refund.vv_br_tell.s0",
-                                "Nobody is left in the village to receive the Barrel of Babies, so it has been "
-                                "cancelled and its %s tech points have been given back.", 400), amount);
+                                "Nobody is left in the village to receive the Barrel of Babies, so it has been cancelled and its %s tech points have been given back.", 400), amount);
     } else {
         lstrcpynA(text, vvfp_tr("vvfp.shared/barrel_refund.vv_br_tell.s1",
-                                "Nobody is left in the village to receive the Barrel of Babies, so it has been "
-                                "cancelled. It cost no tech points, so none were given back.", 400),
+                                "Nobody is left in the village to receive the Barrel of Babies, so it has been cancelled. It cost no tech points, so none were given back.", 400),
                   sizeof text);
     }
     vvfp_message_box(GetActiveWindow(), text, "Barrel of Babies",
