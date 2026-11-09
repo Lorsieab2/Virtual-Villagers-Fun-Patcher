@@ -147,7 +147,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p == "vv5_respectful_hovel_cover"
                   # Heathens Keep Their Masks When Converted (the owner, 2026-11-08: "default on in OWNERS
                   # DEFAULTS ONLY").
-                  or p == "vv5_heathens_keep_masks_when_converted"})
+                  or p == "vv5_heathens_keep_masks_when_converted"
+                  # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
+                  or p == "vv5_respecting_the_legacy_of_isola"})
 
     def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it

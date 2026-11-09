@@ -25,6 +25,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 ## What's new in v1.35.91
 
 - **New Believers: The Hungry Totem's time on the Puzzles screen** (Fix Vanilla Bugs). The owner, 2026-11-06: the Hungry Totem's completion time was "permanently set to 0 regardless of when you solved it". The game keeps the right time for it (as for every puzzle), but the Puzzles screen's code for that one puzzle skipped the step that reads the time, so it always said "Completed in 0 hours". Now it shows the kept hours; a village that already solved it shows its real time too, since its save always held it. The other 15 puzzles, and the puzzle screens of the other four games, were checked and show their own times. Patch again to get it.
+- **Respecting the Legacy of Isola** (New Believers, new, off by default; on in Owner's Defaults and Select All): one tick, with a green title, for Guardians of Isola Rewrite, Shrine to the Ancestors, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel and Popup When Believers Become Heathens (The Breaking Point). It changes nothing by itself.
 - **Shrine to the Ancestors** (New Believers, new, off by default; on in Owner's Defaults and Select All). Turns the restored hovel into an ancestral shrine. A sacred, peaceful place where villagers can honor the ancestral spirits that guide them. Once The Last Heathen is converted, the old Heathen camp is covered with the owner's new picture (art by Lorsieab2): the hovel with graves and flowers, its bottom and left edges on the old cover's. It replaces both the game's own picture and Fix Vanilla Bugs' redrawn one, in the village and on the Overview Map. Not yet seen in a running game.
 - **Villagers who get stuck** (Fix Vanilla Bugs). The Lost Children: a villager no longer shuttles forever at the south-east shore on the way to the herb; it tries other spots around it first, then gives up the game's normal way. A New Home, The Secret City, The Tree of Life and New Believers: a villager carrying food or a collectible whose walk gives up looks for another way and still delivers it ("VVFP Stuck Walks.dll", "VVFP Keep Carried.dll"). Proven by running each game's own code; not yet seen in a running game.
 - **2-10x Tech Cost** (all five games, off by default; Owner's Defaults and Select All leave it off too): every technology level on the Tech screen costs 2 to 10 times its normal tech points, chosen with a slider in the patcher window (3 unless moved), shown, checked and charged alike. The higher you set it, the harder the game.
@@ -1548,9 +1549,23 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 - Requires: vv5_enable_origins_exclusive_features
 - Patch ID: `vv5_origins_village_wide_upgrades`
 
+**Respecting the Legacy of Isola**
+
+**Needs all five of the patches it names; ticking it ticks them. Heathens Keep Their Masks When Converted runs on the Origins-exclusive base, which the patcher installs automatically with it, so this also adds the Origins Upgrades buttons to the Tech and Villager Details screens. The Breaking Point popup also needs Story / Cheat Upgrades (on by default), which this row does not tick.** One tick for the patches that make New Believers more respectful of Isola and its people:
+
+- **Guardians of Isola Rewrite**: Changes some aspects of VV5 to make things more culturally respectful (hopefully!) Focused around peace, post-traumatic healing and growth.
+- **Shrine to the Ancestors**: Turns the restored hovel into an ancestral shrine. A sacred, peaceful place where villagers can honor the ancestral spirits that guide them.
+- **Heathens Keep Their Masks When Converted**: "Heathen" masks are culturally important to them. Their choices must be honored.
+- **Memorial Actions Can Also Occur at the Heathen Hovel**: Best paired with "Shrine to the Ancestors". Villagers will sometimes come here to pay their respects to those that passed on, and others that guide their fate.
+- **Popup When Believers Become Heathens** (The Breaking Point): Meant to make VV5 harder and push players to take care of their tribe.
+
+Its title is green in the patcher window. It changes nothing by itself; unticking any of its patches unticks it. It is not part of Classic VV Difficulty. Off by default; Owner's Defaults and Select All tick it.
+
+- Patch ID: `vv5_respecting_the_legacy_of_isola`
+
 **Guardians of Isola Rewrite**
 
-Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
+Changes some aspects of VV5 to make things more culturally respectful (hopefully!) Focused around peace, post-traumatic healing and growth. Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files. **Needs no other patch.**
 
 - Patch ID: `vv5_guardians_of_isola_rewrite`
 
