@@ -1297,7 +1297,7 @@
         "Old backups are never replaced or deleted.",
         "Back up before Start Over: Start Over wipes everything the Fun Patcher kept for that save: all its logs (the Village History too),",
         "all its data (the Elder Totems too) and its family tree files. It keeps Backups, Copies Made Before Repairs and tree pictures.",
-        "Other saves are not touched."
+        "Every save in the backup is set to Paused, always; other saves are not touched."
       ]
     },
     "restore_saves": {
@@ -1348,12 +1348,12 @@
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
         "Tick what to do, then Repair (backed up first). Reset corrupted skill values, old \"?\" names, children's \"Apprentice\" Job lines.",
-        "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; what the files cannot tell, you are asked.",
-        "Give villagers last names (Choose...): by the village rule, their own rule, or Random; in the game and every log.",
+        "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; you are asked what files cannot tell.",
+        "Give villagers last names (Choose...): village rule, own rule or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",
-        "Fix grave information (Choose...): where a grave and its records differ, pick the right value, or edit a grave.",
-        "Let the game repair: play the tribe and quit from its menu (needs a patch that keeps logs).",
-        "Move Old Files to New Names / Move Files to Save Folders: rename older files, or move each save's into its own folder; repatch first."
+        "Fix grave information (Choose...): where a grave and its records differ, pick the value, or edit a grave.",
+        "Let the game repair: play the tribe, quit from its menu (needs a patch that keeps logs). Move Old Files to New Names / Move Files to Save Folders: repatch first.",
+        "Game speed: in the save, or in a backup (Set the speed in a backup...); always works."
       ]
     },
     "family_tree_maker": {

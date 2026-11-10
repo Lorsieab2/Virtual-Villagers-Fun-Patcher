@@ -211,7 +211,12 @@ The patcher can copy your modded games' saves for you, in all five games.
 6. The backup's copies of your slot saves are set to Paused exactly as the
    game's own pause key pauses them: the game's clock is stopped too, so the
    campfire and every other timer keep the time they had. Repair Saves & Logs'
-   "Game speed" changes a save the same way the game's own speed buttons do.
+   "Game speed" changes a save the same way the game's own speed buttons do,
+   and its "Set the speed in a backup..." button does the same to the saves
+   in one backup you choose (only that backup changes). Both always work, in
+   all five games: a save paused or changed just before the game was closed
+   is changed from that moment, so no time is lost or added. Only a file
+   that is not one of the game's saves is refused, and it is left as it is.
 
 RESTORE SAVES
 

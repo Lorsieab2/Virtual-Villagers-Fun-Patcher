@@ -1062,6 +1062,62 @@ def set_speed_choice(game: int, path: Path, choice: str,
     return old, speed + _PAUSED if paused else speed
 
 
+@dataclass
+class BackupSpeedOutcome:
+    changed: list[tuple[str, int, int]] = field(default_factory=list)   # (file, old value, new value)
+    already: list[str] = field(default_factory=list)
+    skipped: list[tuple[str, str]] = field(default_factory=list)
+
+
+def set_backup_speed(save_folder: Path, backup: Path, choice: str) -> BackupSpeedOutcome:
+    """Repair Saves & Logs' Game speed in a backup (the owner, v1.35.92: "ALLOW THE ABILITY IN REPAIR SAVES
+    TO SET THE GAME SPEED IN BACKUPS TOO"): every slot save in one of this folder's backups set to Paused,
+    Slow, Normal or Fast exactly as set_speed_choice sets a save.  Only that backup's files change (each
+    through a temporary file and a read-back, its file times kept); the live saves never do.  The game
+    never reads a backup, so whether it is running does not matter.  A backup that is not one of this
+    folder's is refused; a file in it that is not a save of the game is listed and left as it is."""
+    game = game_number(save_folder)
+    if game is None:
+        raise BackupError(f"{save_folder.name} is not a Virtual Villagers save folder.")
+    if choice not in SPEED_CHOICES:
+        raise ValueError(choice)
+    try:
+        ours = {info.path.resolve() for info in list_backups(save_folder)}
+        chosen = backup.resolve()
+    except OSError as exc:
+        raise BackupError(f"The backups of {save_folder.name} could not be read ({exc}).") from exc
+    if chosen not in ours:
+        raise BackupError(f"{backup.name} is not one of the backups in {save_folder / BACKUPS_FOLDER}; "
+                          "nothing was changed.")
+    outcome = BackupSpeedOutcome()
+    for path in sorted(chosen.glob("*.ldw")):
+        if not is_slot_save(Path(path.name)):
+            continue
+        try:
+            data = path.read_bytes()
+            found = save_speed(game, data)
+            if found is None:
+                outcome.skipped.append((path.name, "not a save whose speed can be read"))
+                continue
+            old = found[1]
+            base = old - _PAUSED if old >= _PAUSED else old
+            paused = choice == "paused"
+            speed = base if paused else _SPEED_VALUES[choice]
+            changed = _speed_edit(game, data, speed, paused)
+            if changed is None:
+                outcome.already.append(path.name)
+                continue
+            stat = path.stat()
+            _write_save(path, changed, data)
+            if game == vv3_second_faction.GAME:
+                vv3_second_faction.relink(chosen, _save_number(path.name), data, changed)
+            _keep_times(path, (stat.st_atime_ns, stat.st_mtime_ns))
+            outcome.changed.append((path.name, old, speed + _PAUSED if paused else speed))
+        except (OSError, BackupError) as exc:
+            outcome.skipped.append((path.name, str(exc)))
+    return outcome
+
+
 def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
     """A backup's copy of a slot save, set to Paused: the speed it had, or None."""
     return pause_save_file(game, path) if is_slot_save(relative) else None
