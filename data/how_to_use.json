@@ -1307,7 +1307,19 @@
         "Quit the game first, from its own menu.",
         "Choose a backup, choose whole folder or one slot, then Restore...; you are shown what will change first.",
         "Your saves as they are now are backed up first, so a restore can be undone.",
-        "Delete Backup... removes a backup you no longer want (it asks first)."
+        "Delete Backup... removes a backup you no longer want (it asks first).",
+        "Details... shows the chosen backup's tribes: population, food, tech points, last saved and last played."
+      ]
+    },
+    "backups": {
+      "title": "Backups",
+      "guide": [
+        "Shows every backup of one save folder, newest first, with its date and time, size and the save slots it holds.",
+        "Choose a backup to see each tribe in it: population, food, tech points, technology levels, speed and difficulty.",
+        "Last saved is the save file's own time; last played is the save's own last moment, when the game last ran.",
+        "Population counts living villagers and babies on the way; in New Believers only believers (Heathens apart).",
+        "A value that cannot be read says unknown. It only reads: nothing is changed.",
+        "Restore Saves has Details... for the chosen backup, and Repair Saves & Logs a Backups... button."
       ]
     },
     "rename_tribe": {

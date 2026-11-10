@@ -39,7 +39,7 @@ CONTROLS = {
     "output_location", "choose_exe", "validate", "dry_run", "create_modified_exe",
     "game_folders", "find_all_5", "validate_all_5", "dry_run_all_5", "patch_all_5",
     "open_vanilla_folder", "open_modified_folder", "open_game_folder",
-    "back_up_saves", "restore_saves", "rename_tribe", "check_logs", "repair_logs",
+    "back_up_saves", "restore_saves", "backups", "rename_tribe", "check_logs", "repair_logs",
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
     "game_mechanics", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
 }

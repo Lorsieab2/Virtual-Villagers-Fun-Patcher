@@ -243,6 +243,26 @@ RESTORE SAVES
    changed is put back.
 6. "Delete Backup..." deletes the chosen backup after asking. A restore never
    changes or deletes any backup.
+7. "Details..." opens the Backups window at the chosen backup (below).
+
+BACKUPS
+
+1. Click "Backups..." on a game's row on the Tools tab, or the "Backups..."
+   button below the five games; "Details..." in Restore Saves and
+   "Backups..." in Repair Saves & Logs open it too. It works for all five
+   games and only reads: nothing is changed, so the game may be running.
+2. Pick the game and its save folder. Every backup is listed newest first:
+   Back Up Saves' and the ones each tool makes first, such as
+   "(before restore)" and "(before repair re-arm)".
+3. Choose a backup to see its date and time, folder, size and the save slots
+   it holds, and for each slot: the tribe name; the population (living
+   villagers, plus babies on the way as the game counts them; in New
+   Believers believers only, the Heathens outside the tribe shown apart);
+   food in storage; tech points; each technology's level; game speed (or
+   Paused) and difficulty; last saved (the save file's own time); last
+   played (the save's own last-tick time, the moment the game last ran it);
+   and the real hours played from the Village Statistics log in the backup.
+4. A value that cannot be read says "unknown"; it is never guessed.
 
 RENAME TRIBE
 

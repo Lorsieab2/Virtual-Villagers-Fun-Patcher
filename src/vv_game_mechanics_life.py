@@ -39,6 +39,7 @@ from __future__ import annotations
 
 import math
 import struct
+import threading
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -1306,8 +1307,30 @@ def claim_template(text: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+# save_context's catch (one per thread): each game's module builds its Context and hands it to sections() last.
+_CATCH = threading.local()
+
+
+def save_context(village: gm.Village) -> Context | None:
+    """The Context the game's own module builds for this save -- its food, tech points, speed and last moment, read
+    by the same code as the Game Mechanics page -- without building the page; None when the module could not read
+    the save.  Read-only (Backups..., src/vv_backup_details.py)."""
+    import importlib
+    module = importlib.import_module(f"vv_game_mechanics_vv{village.game}")
+    _CATCH.found = found = []
+    try:
+        module.facts(village)
+    finally:
+        _CATCH.found = None
+    return found[0] if found else None
+
+
 def sections(ctx: Context) -> list[gm.Fact]:
     """The four groups for one save; nothing for a game's general page (no save)."""
+    found = getattr(_CATCH, "found", None)
+    if found is not None:                  # save_context: the Context is all that is wanted
+        found.append(ctx)
+        return []
     if ctx.village.general:
         return []
     everyone = people(ctx.village)
