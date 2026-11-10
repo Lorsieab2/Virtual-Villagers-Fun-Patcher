@@ -7,10 +7,12 @@ backup and now I've lost the second faction").  These tests use a real 256-villa
 from __future__ import annotations
 
 import gzip
+import os
 import struct
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -165,6 +167,102 @@ class SecondFaction(unittest.TestCase):
         self.assertEqual(len(data), 20 + 16 * 24)
         fps = [struct.unpack_from("<I", data, 20 + i * 24)[0] for i in range(16)]
         self.assertEqual(fps, list(range(2, 17)) + [99])
+
+    # ---- Repair's game speed in a backup (Codex, #750) ----------------------------------------------
+
+    def old_backup(self) -> Path:
+        """A backup made before the patcher kept the faction link: its copy paused, its faction file without
+        the paused fingerprint; the game's own copy of the save it was made from is the slot's N+20."""
+        old = self.folder / "Backups" / "Backup 2026-10-25 21-58-47"
+        old.mkdir(parents=True)
+        (old / f"{BASE}1.ldw").write_bytes(backup.pause_save_bytes(3, self.save))
+        faction.faction_file(old, 1).parent.mkdir(parents=True)
+        faction.faction_file(old, 1).write_bytes(self.dat.read_bytes())
+        (self.folder / f"{BASE}21.ldw").write_bytes(self.save)
+        self.assertFalse(self.linked(old))
+        return old
+
+    def test_a_backups_speed_change_recovers_its_second_faction_first(self):
+        old = self.old_backup()
+        for choice in ("fast", "slow", "normal", "paused"):
+            with self.subTest(choice=choice):
+                done = backup.set_backup_speed(self.folder, old, choice)
+                self.assertEqual([name for name, *_ in done.changed], [f"{BASE}1.ldw"])
+                self.assertTrue(self.linked(old), "the changed save keeps its second faction")
+                new = faction.entry_for(faction.faction_file(old, 1),
+                                        faction.fingerprint((old / f"{BASE}1.ldw").read_bytes()))
+                source = faction.entry_for(self.dat, faction.fingerprint(self.save))
+                self.assertEqual(new[8:], source[8:], "the same factions, levels and recipes")
+        self.assertEqual((self.folder / f"{BASE}1.ldw").read_bytes(), self.save, "the live save is untouched")
+
+    def state(self, folder: Path) -> tuple:
+        path = folder / f"{BASE}1.ldw"
+        return path.read_bytes(), path.stat().st_mtime_ns, faction.faction_file(folder, 1).read_bytes()
+
+    def failing_steps(self):
+        """Each step after the save is written, failing: the relink (after writing its entry), the time."""
+        real_relink = faction.relink
+
+        def relink_then_fail(*args):
+            real_relink(*args)
+            raise OSError("the faction file could not be written")
+
+        def times_fail(path, times):
+            raise backup.BackupError(f"The time of {path.name} could not be kept (test).")
+
+        yield "relink", lambda: mock.patch.object(backup.vv3_second_faction, "relink", relink_then_fail)
+        yield "times", lambda: mock.patch.object(backup, "_keep_times", times_fail)
+
+    def set_old_time(self, path: Path) -> None:
+        os.utime(path, ns=(1_600_000_000 * 10**9, 1_600_000_000 * 10**9))
+
+    def test_a_failure_after_the_write_puts_everything_back(self):
+        old = self.old_backup()
+        copy = old / f"{BASE}1.ldw"
+        live = self.folder / f"{BASE}1.ldw"
+        self.set_old_time(copy)
+        self.set_old_time(live)
+        for step, patch in self.failing_steps():
+            with self.subTest(tool="backup speed", step=step):
+                before = self.state(old)
+                with patch():
+                    done = backup.set_backup_speed(self.folder, old, "fast")
+                self.assertEqual(done.changed, [])
+                self.assertEqual([name for name, _ in done.skipped], [copy.name])
+                self.assertIn("put back exactly as it was", done.skipped[0][1])
+                self.assertEqual(self.state(old), before, "bytes, time and faction file as they were")
+                self.assertFalse(self.linked(old), "the recovered link is taken back too")
+            with self.subTest(tool="Repair game speed", step=step):
+                before = self.state(self.folder)
+                with patch(), self.assertRaises(backup.BackupError) as raised:
+                    backup.set_speed_choice(3, live, "fast", NoGame())
+                self.assertIn("put back exactly as it was", str(raised.exception))
+                self.assertEqual(self.state(self.folder), before)
+            with self.subTest(tool="Repair set to Paused", step=step):
+                kept = copy.read_bytes()
+                copy.write_bytes(self.save)                              # an old backup, never paused
+                self.set_old_time(copy)
+                before = self.state(old)
+                with patch():
+                    outcome = backup.pause_saves([copy], NoGame())
+                self.assertEqual(outcome.paused, [])
+                self.assertIn("put back exactly as it was", outcome.skipped[0][1])
+                self.assertEqual(self.state(old), before)
+                copy.write_bytes(kept)
+                self.set_old_time(copy)
+        # Nothing failing, a retry does it all: changed, linked, its time kept.
+        done = backup.set_backup_speed(self.folder, old, "fast")
+        self.assertEqual(len(done.changed), 1)
+        self.assertTrue(self.linked(old))
+        self.assertEqual(copy.stat().st_mtime_ns, 1_600_000_000 * 10**9)
+
+    def test_the_live_speed_change_keeps_the_second_faction_and_the_time(self):
+        live = self.folder / f"{BASE}1.ldw"
+        self.set_old_time(live)
+        backup.set_speed_choice(3, live, "slow", NoGame())
+        self.assertNotEqual(live.read_bytes(), self.save)
+        self.assertTrue(self.linked(self.folder))
+        self.assertEqual(live.stat().st_mtime_ns, 1_600_000_000 * 10**9)
 
 
 if __name__ == "__main__":
