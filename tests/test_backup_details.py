@@ -229,6 +229,67 @@ class WindowTests(Case):
         self.assertIn("no backups yet", window.backups_text.get("1.0", "end"))
 
 
+SMALLEST = r"""
+import gzip, json, sys, tkinter, tkinter.ttk
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import vv_backup_details_window as w
+try:
+    root = tkinter.Tk()
+except tkinter.TclError as exc:
+    print(exc, file=sys.stderr)
+    sys.exit(3)
+root.tk.call("tk", "scaling", float(sys.argv[3]))       # large system fonts: every point is bigger
+root.withdraw()
+parent = tkinter.Toplevel(root)
+parent.geometry("200x100+0+0")
+parent.update()
+window = w.show_backup_details(parent, 4, Path(sys.argv[2]), documents=Path(sys.argv[2]).parents[1])
+low_w, low_h = window.minsize()
+out = {"minsize": [low_w, low_h]}
+bar = [c for c in window.backups_text.master.winfo_children() if isinstance(c, tkinter.ttk.Scrollbar)][0]
+# The window's own smallest size, and the original smallest size with that minimum lifted (a screen too small for
+# the larger minimum): the details keep their room either way.
+for size, lifted in (((low_w, low_h), False), ((w.MIN_WIDTH, w.MIN_HEIGHT), True)):
+    if lifted:
+        window.minsize(1, 1)
+    window.geometry(f"{size[0]}x{size[1]}+0+0")
+    for _ in range(5):
+        window.update()
+    out[f"{size[0]}x{size[1]}"] = {
+        "text": window.backups_text.winfo_height(), "bar": bar.winfo_height(),
+        "bar_shown": bool(bar.winfo_ismapped()), "list": window.backups_list.winfo_height(),
+        "line": window.backups_text.tk.call("font", "metrics", window.backups_text.cget("font"), "-linespace")}
+window.destroy()
+root.destroy()
+print(json.dumps(out))
+"""
+
+
+class SmallestSizeTests(Case):
+    def test_the_details_keep_their_room_at_the_smallest_size_with_large_fonts(self) -> None:
+        import json
+        import subprocess
+        self.backup(4, "2026-10-01 09-00-00", {1: fixture(4)})
+        self.backup(4, "2026-11-01 09-00-00", {1: fixture(4), 2: fixture(4)})
+        for scaling in (1.33, 2.5):                     # 100% and about 190% Windows text size
+            with self.subTest(scaling=scaling):
+                done = subprocess.run([sys.executable, "-c", SMALLEST, str(ROOT / "src"), str(self.save_folder(4)),
+                                       str(scaling)], capture_output=True, text=True, timeout=120)
+                if done.returncode == 3:
+                    self.skipTest(f"no display: {done.stderr.strip()}")
+                self.assertEqual(done.returncode, 0, done.stderr)
+                result = json.loads(done.stdout.strip().splitlines()[-1])
+                for key, sizes in result.items():
+                    if key == "minsize":
+                        continue
+                    with self.subTest(size=key):
+                        self.assertGreaterEqual(sizes["text"], 3 * sizes["line"], sizes)
+                        self.assertTrue(sizes["bar_shown"], sizes)
+                        self.assertGreater(sizes["bar"], 0, sizes)
+                        self.assertGreater(sizes["list"], sizes["line"], sizes)
+
+
 class GuiWiringTests(unittest.TestCase):
     SOURCE = GUI.read_text(encoding="utf-8")
 

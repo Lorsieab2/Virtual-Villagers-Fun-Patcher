@@ -20,7 +20,7 @@ import vv_tribe_rename
 
 TITLE = "Backups"
 WIDTH, HEIGHT = 900, 640
-MIN_WIDTH, MIN_HEIGHT = 560, 400
+MIN_WIDTH, MIN_HEIGHT = 600, 460
 INTRO = ("Every backup of the save folder, newest first (Back Up Saves' and the ones each tool makes first, such as "
          "\"(before restore)\" and \"(before repair re-arm)\"). Choose one to see, for each save slot in it, the "
          "tribe, population, food, tech points, technology levels, game speed and when it was last saved and last "
@@ -65,7 +65,6 @@ def show_backup_details(parent, game=None, save_folder: Path | None = None, back
     outer = ttk.Frame(window, padding=12)
     outer.pack(fill="both", expand=True)
     top = ttk.Frame(outer)
-    top.pack(fill="x")
     intro = ttk.Label(top, text=INTRO, wraplength=width - 60, justify="left")
     intro.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 8))
     top.bind("<Configure>", lambda event: intro.configure(wraplength=max(200, event.width - 8)))
@@ -79,30 +78,43 @@ def show_backup_details(parent, game=None, save_folder: Path | None = None, back
     top.columnconfigure(1, weight=1)
 
     buttons = ttk.Frame(outer)
-    buttons.pack(side="bottom", fill="x", pady=(8, 0))
-    ttk.Label(outer, text="Backups (newest first):", font=fonts["bold"]).pack(anchor="w", pady=(8, 2))
-    list_row = ttk.Frame(outer)
-    list_row.pack(fill="x")
-    listbox = tk.Listbox(list_row, height=7, exportselection=False, font=fonts["text"])
+    # The list and the details share the height in a paned window, each with a minimum of its own (Codex, #751:
+    # at the smallest size, or with large fonts, a fixed list left the details no room); the sash moves the split.
+    line = max(12, fonts["text"].metrics("linespace"))
+    paned = tk.PanedWindow(outer, orient="vertical", sashwidth=6, sashrelief="flat", borderwidth=0,
+                           background=ttk.Style(window).lookup("TFrame", "background"))
+    list_pane = ttk.Frame(paned)
+    ttk.Label(list_pane, text="Backups (newest first):", font=fonts["bold"]).pack(anchor="w", pady=(8, 2))
+    list_row = ttk.Frame(list_pane)
+    list_row.pack(fill="both", expand=True)
+    listbox = tk.Listbox(list_row, height=5, exportselection=False, font=fonts["text"])
     list_bar = ttk.Scrollbar(list_row, orient="vertical", command=listbox.yview)
     listbox.configure(yscrollcommand=list_bar.set)
     list_bar.pack(side="right", fill="y")
     listbox.pack(side="left", fill="both", expand=True)
-    body = ttk.Frame(outer)
-    body.pack(fill="both", expand=True, pady=(8, 0))
-    text = vv_tool_fonts.tool_text(body, wrap="word", height=12, relief="flat", padx=8, pady=6)
+    body = ttk.Frame(paned)
+    text = vv_tool_fonts.tool_text(body, wrap="word", height=8, relief="flat", padx=8, pady=6)
     text_bar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
     text.configure(yscrollcommand=text_bar.set)
     text_bar.pack(side="right", fill="y")
     text.pack(side="left", fill="both", expand=True)
     text.tag_configure("heading", font=fonts["heading"])
     text.tag_configure("slot", font=fonts["bold"])
+    paned.add(list_pane, minsize=fonts["bold"].metrics("linespace") + 10 + 3 * line, stretch="always")
+    paned.add(body, minsize=7 * line, stretch="always")
+    # Packed in this order, the buttons and then the list and details get their room first; the intro and the
+    # pickers above them take what is left.
+    buttons.pack(side="bottom", fill="x", pady=(8, 0))
+    paned.pack(side="bottom", fill="both", expand=True, pady=(0, 0))
+    top.pack(side="top", fill="x")
 
     state: dict = {"folders": [], "backups": [], "read": {}, "want": Path(backup) if backup else None,
                    "folder": Path(save_folder) if save_folder else None}
     window.backups_state = state            # for the tests
     window.backups_list = listbox
     window.backups_text = text
+    window.backups_text_bar = text_bar
+    window.backups_paned = paned
     window.backups_game = game_var
     window.backups_folder = folder_box
 
@@ -202,6 +214,8 @@ def show_backup_details(parent, game=None, save_folder: Path | None = None, back
         messagebox.showerror(TITLE, f"The backups could not be read ({exc}).", parent=parent)
         return None
     window.update_idletasks()
+    # The smallest size shows everything at the fonts in use (large system fonts make it larger), up to the screen.
+    window.minsize(MIN_WIDTH, max(MIN_HEIGHT, min(outer.winfo_reqheight(), window.winfo_screenheight() - 80)))
     window.grab_set()                       # the patcher's Windows-way hold (vv_fun_patcher_gui._hold)
     listbox.focus_set()
     return window
