@@ -819,21 +819,36 @@ All three modes and optional-patch combinations use:
 (name of game) - Modded\
 (name of game) - Modded.exe
 
-Mode and optional-patch details are recorded in the .patch-log.json file in
-the "Virtual Villagers Fun Patcher Files" folder beside the modified EXE,
-instead of being added to the EXE or save-folder name.
+Mode and optional-patch details are recorded in the patch log, "VVFP Patch
+Log.json", in the "Virtual Villagers Fun Patcher Files" folder beside the
+modified EXE, instead of being added to the EXE or save-folder name.
 
 THE PATCHER'S OWN FILES
 
 Everything the patcher adds to a Modded folder is in one subfolder named
 "Virtual Villagers Fun Patcher Files": every add-on DLL (VVFP ... .dll,
-including VVFP Startup.dll), images only those add-ons use, the
-.patch-log.json and the VVFP Transparency Log.txt. The game loads the add-ons
+including VVFP Startup.dll), images only those add-ons use, the patch log
+(VVFP Patch Log.json) and the VVFP Transparency Log.txt. The game loads the add-ons
 from there by their full path (never from the current folder or the Windows
 DLL search), and works in a game folder whose name has accented or Japanese
 characters. A missing folder or DLL only switches that add-on off; the game
-always starts. If the output path is too long for Windows (260 characters),
-the patcher says so before writing anything: choose a shorter location.
+always starts.
+
+LONG FOLDER PATHS: the games can only open a file whose full path is 259
+characters or less (Windows does not let these older games use longer paths,
+even where long paths are switched on). The patcher refuses an output location
+only when one of the files the game itself opens (the modified EXE, the game's
+own files, an add-on, or an image or font the add-ons read) would be deeper.
+It names that file, says how many characters too long it is and how long the
+location may be, and writes nothing; a folder near the top of a drive, such
+as C:\Games, always works. The patcher's own files never stop a patch: the
+two logs, its hidden working folders beside the output (.vvfp-stage-...,
+.vvfp-backup-..., .vvfp-recovery-...) and your own files a re-patch carries
+over are written with Windows' long-path form, so any length works. Older
+versions named the patch log after the game ("Virtual Villagers - The Tree of
+Life - Modded 256.patch-log.json"), the longest path in the build, and so
+refused deep folders whose game files all fit; patching again replaces that
+log with "VVFP Patch Log.json", and the patcher reads either name.
 
 A few files must stay where the game itself looks for them, so they are not
 in that folder: replaced stock images and text (Visual Mods, Optional Text

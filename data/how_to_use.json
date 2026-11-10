@@ -1195,7 +1195,9 @@
       "guide": [
         "Click Choose Folder... to pick where the modded copies go.",
         "Each game is made inside it as \"(Game name) - Modded\".",
-        "Leave it blank to put each copy beside its original game folder."
+        "Leave it blank to put each copy beside its original game folder.",
+        "A deep folder is fine. The games can only open files whose full path is 259 characters or less, so if one of the game's own files would be deeper, nothing is written:",
+        "the patcher names that file and says how many characters shorter the folder must be. A folder near the top of a drive, such as C:\\Games, always works."
       ]
     },
     "choose_exe": {

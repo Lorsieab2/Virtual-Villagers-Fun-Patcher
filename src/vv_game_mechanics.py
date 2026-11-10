@@ -51,6 +51,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import patcher_files
+
 TITLE = "Game Mechanics"
 # Vital statistics first (the owner, 2026-10-24), then where the page's facts come from, then the village's people
 # and clocks (src/vv_game_mechanics_life.py), then the rules.
@@ -833,24 +835,31 @@ def _game_exes(save_folder: Path, game_folders: list[Path]) -> list[Path]:
 
 def _from_logs(exe: Path, digest: str) -> tuple[frozenset[str] | None, str, list[str]]:
     """The patch list from the patcher's own logs of the run that wrote `exe` -- its patch log
-    "<exe stem>.patch-log.json" or its transparency report -- only when the log's output hash is this exe's."""
+    ("VVFP Patch Log.json", or an older patcher's "<exe stem>.patch-log.json") or its transparency report --
+    only when the log's output hash is this exe's.  Read through long_path: a log deeper than MAX_PATH is
+    read like any other."""
     import json
-    files = exe.parent / "Virtual Villagers Fun Patcher Files"
     problems: list[str] = []
-    try:
-        data = json.loads((files / (exe.stem + PATCH_LOG_SUFFIX)).read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        data = None
+    data = None
+    log_name = ""
+    for candidate in patcher_files.patch_log_candidates(exe):
+        try:
+            data = json.loads(patcher_files.long_path(candidate).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = None
+            continue
+        log_name = candidate.name
+        break
     if isinstance(data, dict) and data.get("patcher") == PATCHER_SIGNATURE:
         if str(data.get("output_sha256", "")).lower() == digest:
             ids = frozenset(str(x) for x in data.get("fun_patches", []) if isinstance(x, str))
             return ids, f"the patcher's log of the run that made it ({data.get('created_utc', 'no date')} UTC)", []
-        problems.append(f"The patcher's log {exe.stem + PATCH_LOG_SUFFIX} is for a different {exe.name} (made "
+        problems.append(f"The patcher's log {log_name} is for a different {exe.name} (made "
                         f"{data.get('created_utc', 'on an unknown date')} UTC): the game was patched again or replaced "
                         "since, so the log is not used.")
     for report in TRANSPARENCY:
         try:
-            text = (exe.parent / report).read_text(encoding="utf-8", errors="replace")
+            text = patcher_files.long_path(exe.parent / report).read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
         stamp = _TIMESTAMP.search(text)

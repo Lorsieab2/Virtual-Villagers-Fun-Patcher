@@ -8351,7 +8351,8 @@ def get_patch_variant(build: Build, patch_mode: str) -> dict[str, Any]:
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
+    # long_path: a file of a deep output folder is hashed at any length.
+    with patcher_files.long_path(path).open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest().upper()
@@ -10856,18 +10857,22 @@ def _copy_game_folder_direct(
     existed = destination.exists()
     if existed and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {destination}")
+    # Copied and checked through long_path: a file deep in the copy (the
+    # player's own, or a patcher log) never fails for its length.
+    long_source = patcher_files.long_path(source_folder)
+    long_destination = patcher_files.long_path(destination)
     try:
         expected_parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(
-            source_folder,
-            destination,
+            long_source,
+            long_destination,
             copy_function=shutil.copy2,
             dirs_exist_ok=overwrite,
         )
-        for source_path in source_folder.rglob("*"):
+        for source_path in long_source.rglob("*"):
             if not source_path.is_file():
                 continue
-            copied_path = destination / source_path.relative_to(source_folder)
+            copied_path = long_destination / source_path.relative_to(long_source)
             if (
                 not copied_path.is_file()
                 or copied_path.stat().st_size != source_path.stat().st_size
@@ -10879,7 +10884,7 @@ def _copy_game_folder_direct(
                 )
     except Exception:
         if not existed and destination.exists():
-            shutil.rmtree(destination, ignore_errors=True)
+            shutil.rmtree(long_destination, ignore_errors=True)
         raise
 
 
@@ -10906,7 +10911,9 @@ def _copy_companion_files(
                 if sha256(source) != expected_hash:
                     raise PatcherError(f"Companion file hash mismatch: {source.name}")
                 preimage_hash = str(item.get("preimage_sha256", "")).upper() or None
-                destination = output_folder / destination_name
+                # Written through long_path; the record keeps the plain path.
+                recorded = output_folder / destination_name
+                destination = patcher_files.long_path(recorded)
                 # Idempotent re-apply: if the destination is already the exact
                 # patched file, there is nothing to do.  This lets the patch be
                 # re-applied over an already-patched game without tripping the
@@ -10922,7 +10929,7 @@ def _copy_companion_files(
                         or sha256(destination) != preimage_hash
                     ):
                         raise PatcherError(
-                            f"Companion replacement preimage mismatch: {destination}"
+                            f"Companion replacement preimage mismatch: {recorded}"
                         )
                     _atomic_companion_replace(
                         source,
@@ -10934,7 +10941,7 @@ def _copy_companion_files(
                 copied.append(
                     {
                         "feature": feature.id,
-                        "path": str(destination),
+                        "path": str(recorded),
                         "sha256": expected_hash,
                         **({"preimage_sha256": preimage_hash, "restore_sha256": str(item["restore_sha256"]).upper()} if preimage_hash else {}),
                     }
@@ -11019,7 +11026,7 @@ def _write_unicode_font_choice(output_folder: Path, fun_patches: list[FunPatch])
         if not feature.id.endswith("_unicode_font"):
             continue
         for item in feature.raw.get("companion_files", []):
-            dll = output_folder / _safe_companion_destination(item["destination"])
+            dll = patcher_files.long_path(output_folder / _safe_companion_destination(item["destination"]))
             dll.parent.mkdir(parents=True, exist_ok=True)
             lines = _unicode_font_face + "\n"
             if _unicode_font_file is not None and _unicode_font_file.is_file():
@@ -11084,9 +11091,10 @@ def _remove_unselected_companions(
     startup = _safe_companion_destination(STARTUP_LOADER_DLL)
     candidates.setdefault(startup.as_posix().casefold(), STARTUP_LOADER_COMPANION)
     removed: list[dict[str, str]] = []
+    long_staging = patcher_files.long_path(staging_folder)
 
     def remove(relative: Path, item: dict[str, Any], reason: str) -> None:
-        path = staging_folder / relative
+        path = long_staging / relative
         if not path.is_file():
             return
         digest = sha256(path)
@@ -11119,19 +11127,15 @@ def _remove_unselected_companions(
     # The reports of the build the source folder came from (a folder an
     # earlier patcher produced): they describe that build, not this one, which
     # writes its own. The same files _patcher_owned_companion_keys owns on
-    # overwrite: the transparency log by name, a patch log only when the
-    # patcher signed it, so a player's file of a similar name is kept.
+    # overwrite: the transparency log by name, a patch log (under its name or
+    # an older patcher's "<exe>.patch-log.json") only when the patcher signed
+    # it, so a player's file of a similar name is kept.
     reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
     for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
-        for log_path in sorted((staging_folder / folder).glob("*" + patcher_files.PATCH_LOG_SUFFIX)):
-            try:
-                log = json.loads(log_path.read_text(encoding="utf-8"))
-            except (OSError, ValueError):
-                continue
-            if isinstance(log, dict) and log.get("patcher") == "Virtual Villagers Fun Patcher":
-                reports.append(folder / log_path.name)
+        for log_path in _signed_patch_logs(long_staging / folder):
+            reports.append(folder / log_path.name)
     for relative in reports:
-        path = staging_folder / relative
+        path = long_staging / relative
         if not path.is_file():
             continue
         digest = sha256(path)
@@ -11142,6 +11146,27 @@ def _remove_unselected_companions(
             "reason": "a report of the earlier build the source folder came from",
         })
     return removed
+
+
+def _signed_patch_logs(folder: Path) -> list[Path]:
+    """The patch logs directly in `folder` -- under this patcher's name or an
+    older patcher's "<exe>.patch-log.json" -- that the patcher signed
+    (_log_data), sorted by name. A player's file of a similar name is not one."""
+    found: list[Path] = []
+    try:
+        entries = sorted(Path(folder).iterdir(), key=lambda path: path.name)
+    except OSError:
+        return found
+    for path in entries:
+        if not patcher_files.is_patch_log_name(path.name) or not path.is_file():
+            continue
+        try:
+            log = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if isinstance(log, dict) and log.get("patcher") == "Virtual Villagers Fun Patcher":
+            found.append(path)
+    return found
 
 
 def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]:
@@ -11184,11 +11209,13 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     # describe the previous build, and the new build writes its own.
     owned.add(patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix().casefold())
     owned.add(patcher_files.TRANSPARENCY_FILENAME.casefold())
+    # Read through long_path; only a file that is the patcher's own log
+    # (_log_data signs every one) is owned, under its name or an older
+    # patcher's "<exe>.patch-log.json": a re-patch replaces the older name.
+    long_output = patcher_files.long_path(output_folder)
     patch_logs = [
-        *output_folder.glob("*" + patcher_files.PATCH_LOG_SUFFIX),
-        *(output_folder / patcher_files.PATCHER_FILES_FOLDER).glob(
-            "*" + patcher_files.PATCH_LOG_SUFFIX
-        ),
+        *_signed_patch_logs(long_output),
+        *_signed_patch_logs(long_output / patcher_files.PATCHER_FILES_FOLDER),
     ]
     for log_path in patch_logs:
         try:
@@ -11196,11 +11223,7 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
             records = log.get("companion_files", [])
         except (OSError, ValueError, AttributeError):
             continue
-        # Only a file that is the patcher's own log (_log_data signs every
-        # one) is owned; a player's file of a similar name is kept.
-        if not isinstance(log, dict) or log.get("patcher") != "Virtual Villagers Fun Patcher":
-            continue
-        owned.add(log_path.relative_to(output_folder).as_posix().casefold())
+        owned.add(log_path.relative_to(long_output).as_posix().casefold())
         # The log records absolute paths. Resolve them against the folder the
         # log itself says it was published to, so an install moved since then
         # (both folders relocated together) still names its own companions.
@@ -11228,8 +11251,8 @@ def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Pa
     must retain directory identity (``a/X.dll`` and ``b/X.dll`` are distinct)
     and only collapse repeated writes to the same normalized destination.
     """
-    root = Path(output_folder).resolve()
-    candidate = Path(path)
+    root = patcher_files.plain_path(Path(output_folder).resolve())
+    candidate = patcher_files.plain_path(path)
     try:
         relative = Path(os.path.relpath(str(candidate), str(root)))
     except (OSError, ValueError) as exc:
@@ -11256,7 +11279,7 @@ def _verify_final_companion_records(
         relative, key = _companion_relative_destination(Path(item["path"]), output_folder)
         final[key] = (relative, item)
     for relative, item in final.values():
-        destination = Path(output_folder) / relative
+        destination = patcher_files.long_path(output_folder) / relative
         expected = str(item["sha256"]).upper()
         if not destination.is_file() or sha256(destination) != expected:
             raise PatcherError(
@@ -11312,7 +11335,7 @@ def _tree_records_match(root: Path, records: list[dict[str, Any]]) -> bool:
 
 def _read_recovery_file(path: Path) -> tuple[bytes, os.stat_result]:
     """Read one owned recovery file with no-follow identity checks."""
-    path = Path(path)
+    path = patcher_files.long_path(path)
     try:
         before = os.lstat(path)
     except OSError as exc:
@@ -11356,8 +11379,11 @@ def _read_recovery_file(path: Path) -> tuple[bytes, os.stat_result]:
 
 
 def _capture_tree_snapshot(root: Path) -> dict[str, Any]:
-    """Capture a complete tree with explicit no-follow enumeration."""
-    root = Path(root)
+    """Capture a complete tree with explicit no-follow enumeration.
+
+    Walked through long_path, so a file deeper than MAX_PATH is read like any
+    other; the snapshot records only paths relative to `root`."""
+    root = patcher_files.long_path(root)
     if not os.path.lexists(root):
         return {"exists": False, "entries": []}
 
@@ -11528,8 +11554,9 @@ def _clear_readonly(path: Path) -> None:
 
 
 def _cleanup_owned_tree(root: Path) -> None:
-    """Remove an inventory-owned tree bottom-up without following links."""
-    root = Path(root)
+    """Remove an inventory-owned tree bottom-up without following links
+    (through long_path, so no file is too deep to remove)."""
+    root = patcher_files.long_path(root)
     if not os.path.lexists(root):
         return
 
@@ -11629,7 +11656,7 @@ def _write_recovery_report(
             if item.get("backup_path")
             else ((backup_root / rel) if backup_root is not None else None)
         )
-        if backup_path is not None and not os.path.lexists(backup_path):
+        if backup_path is not None and not os.path.lexists(patcher_files.long_path(backup_path)):
             raise PatcherError("Recovery report backup member is missing at final retained location.")
         backup_data = _read_recovery_file(backup_path)[0] if backup_path is not None else None
         members.append(
@@ -13329,72 +13356,104 @@ def _publish_sibling(parent: Path, kind: str, token: str | None = None) -> Path:
     return parent / f".vvfp-{kind}-{token if token is not None else uuid.uuid4().hex[:PUBLISH_SIBLING_TOKEN]}"
 
 
+def _game_opened_relatives(
+    fun_patches: list[FunPatch],
+    output_name: str = "",
+    source_folder: Path | None = None,
+) -> list[str]:
+    """Every file of the build the GAME itself opens, relative to the game
+    folder: the modified executable, the game's own files copied from
+    `source_folder`, every companion the build ships (the DLLs the game loads
+    and the images, fonts and word lists it or its companions read; their
+    licence texts are never longer than the fonts beside them), and the files
+    written there later for the game to read (the Translations window's
+    Translation.txt, the Unicode Font choice and font file, the Heathen mask
+    atlas). The patcher's own reports are not among them: only the patcher
+    reads and writes those (through long_path), so their length never matters."""
+    relatives: list[str] = []
+    for feature in fun_patches:
+        for item in feature.raw.get("companion_files", []):
+            installed = _safe_companion_destination(item["destination"])
+            relatives.append(str(installed))
+            if feature.id.endswith("_unicode_font"):
+                relatives.append(str(installed.parent / UNICODE_FONT_CHOICE_FILE))
+                if _unicode_font_file is not None:
+                    relatives.append(str(installed.parent / UNICODE_FONT_FILE_FOLDER
+                                         / _font_file_name_for_companion(_unicode_font_file)))
+            if str(item.get("destination", "")).casefold() == "vvfp translations.dll":
+                relatives.append(str(Path(patcher_files.PATCHER_FILES_FOLDER) / "Translation" / "Translation.txt"))
+    if relatives:
+        # Written by a companion at run time (src/patcher_files.py RUNTIME_GAME_FILES).
+        relatives.extend(str(Path(*name.split("/"))) for name in patcher_files.RUNTIME_GAME_FILES)
+    if output_name:
+        relatives.append(output_name)
+    if source_folder is not None:
+        long_source = patcher_files.long_path(source_folder)
+        if long_source.is_dir():
+            for path in long_source.rglob("*"):
+                if not path.is_file():
+                    continue
+                relative = path.relative_to(long_source)
+                # An earlier build's reports (a source folder the patcher made):
+                # the staged copy drops them, and the game never opens them.
+                if patcher_files.is_patch_log_name(relative.name)                         or relative.name.casefold() == patcher_files.TRANSPARENCY_FILENAME.casefold():
+                    continue
+                relatives.append(str(relative))
+    return relatives
+
+
 def _require_patcher_files_path_fits(
     output_folder: Path,
     fun_patches: list[FunPatch],
     output_name: str = "",
     source_folder: Path | None = None,
 ) -> None:
-    """Refuse, before anything is written, an output folder so deep that a
-    path the patcher writes would reach Windows' MAX_PATH (260 characters).
+    """Refuse, before anything is written, an output folder so deep that the
+    GAME could not open one of its own files there.
 
-    Two limits meet here. The games are not long-path aware, so Windows would
-    refuse to load a companion past it: the build would start, but none of
-    its add-ons would (the loaders fail safe either way). And the patcher
-    itself writes through the hidden staging folder (".vvfp-stage-<8 hex>",
-    see _publish_sibling) and
-    puts the patch log and the transparency log in the patcher's folder, so
-    on a default Windows install a deep enough folder would fail part way
-    through publishing. So every file the build will hold -- the game's own
-    files copied from `source_folder`, the modified executable, every
-    companion, both logs, and the player's own files a re-patch carries over --
-    is measured in the output folder and in every hidden sibling the publish
-    may move it through (stage, backup, failed, recovery). The folder is taken as the player gave it
+    The games are 32-bit programs that are not long-path aware, so Windows
+    lets them open a path of at most MAX_PATH - 1 (259) characters, even where
+    long paths are switched on: a companion past it would never load (the
+    build would start, but none of its add-ons), and a game file past it would
+    never be read. Every file the game opens (_game_opened_relatives) is
+    measured in the output folder, in UTF-16 units as Windows counts them.
+
+    Everything else is the patcher's own and goes through long_path, so it is
+    never the reason for a refusal (the owner, 2026-11-09: "fix the path too
+    long bug when trying to patch games"): the patch log and the transparency
+    log, the hidden staging, backup, failed and recovery folders beside the
+    output (".vvfp-<kind>-<8 hex>", see _publish_sibling) and the player's own
+    files a re-patch carries over. The folder is taken as the player gave it
     (os.path.abspath, not resolve(): a mapped or subst drive stays the short
     path the game will see).
     """
-    relatives: list[str] = []
-    for feature in fun_patches:
-        for item in feature.raw.get("companion_files", []):
-            relatives.append(str(_safe_companion_destination(item["destination"])))
-    if output_name:
-        relatives.append(output_name)
-        relatives.append(str(Path(*patcher_files.patch_log_relative_path(output_name).parts)))
-    relatives.append(str(Path(*patcher_files.TRANSPARENCY_RELATIVE_PATH.parts)))
-    if source_folder is not None and Path(source_folder).is_dir():
-        for path in Path(source_folder).rglob("*"):
-            if path.is_file():
-                relatives.append(str(path.relative_to(source_folder)))
+    relatives = _game_opened_relatives(fun_patches, output_name, source_folder)
+    if not relatives:
+        return
     output = Path(os.path.abspath(output_folder))
-    # A re-patch over an existing Modded folder carries the player's own files
-    # over into the staging tree, and the whole prior folder moves through the
-    # backup (or failed / recovery) sibling: every one of them is measured too,
-    # so nothing can fail part way through for its depth.
-    if output.is_dir():
-        for path in output.rglob("*"):
-            if path.is_file():
-                relatives.append(str(path.relative_to(output)))
-    siblings = [_publish_sibling(output.parent, kind, "0" * PUBLISH_SIBLING_TOKEN) for kind in PUBLISH_SIBLING_KINDS]
-    # An unresolved failure keeps its evidence one level deeper, inside the
-    # recovery sibling (apply_patch: "backup" and "failed-publication").
-    recovery = _publish_sibling(output.parent, "recovery", "0" * PUBLISH_SIBLING_TOKEN)
-    siblings += [recovery / name for name in RECOVERY_RETAINED_FOLDERS]
-    # Windows counts UTF-16 units: a character outside the BMP (an emoji)
-    # takes two, where Python's len() counts one.
-    def wchars(path: str) -> int:
-        return len(path.encode("utf-16-le", "surrogatepass")) // 2
-
-    worst = max(
-        (str(folder / relative) for folder in (output, *siblings) for relative in relatives),
-        key=wchars,
-    )
-    if wchars(worst) >= patcher_files.MAX_PATH:
-        raise PatcherError(
-            "The output folder's path is too long: the patched game would need a path "
-            f"of {wchars(worst)} characters ({worst}), and Windows allows "
-            f"{patcher_files.MAX_PATH - 1}. Nothing was written. Choose an output "
-            "folder with a shorter path."
+    limit = patcher_files.MAX_PATH - 1
+    worst_relative = max(relatives, key=lambda relative: patcher_files.windows_length(output / relative))
+    worst = output / worst_relative
+    length = patcher_files.windows_length(worst)
+    if length <= limit:
+        return
+    over = length - limit
+    parent = output.parent
+    allowed = patcher_files.windows_length(parent) - over
+    if allowed >= 3:
+        fix = (
+            f"Choose an output folder whose path is at most {allowed} characters long "
+            f"(\"{parent}\" is {patcher_files.windows_length(parent)}), for example a folder near the top "
+            "of a drive such as C:\\Games."
         )
+    else:
+        fix = "No output folder is short enough for this file."
+    raise PatcherError(
+        "The output folder's path is too long for the game: it could not open "
+        f"{worst_relative} at {worst}, a path of {length} characters, {over} more than the {limit} "
+        "Windows lets the game use (the games cannot use longer paths, even where Windows allows them). "
+        f"Nothing was written. {fix}"
+    )
 
 
 def tech_cost_multiplier_applied(applied: list[dict[str, str]]) -> int | None:
@@ -13721,11 +13780,11 @@ def apply_patch(
             relative, _ = _companion_relative_destination(Path(item["path"]), staging_folder)
             converted.append({**item, "path": str(output_folder / relative)})
         companions = converted
-        with staged_output.open("wb") as handle:
+        with patcher_files.long_path(staged_output).open("wb") as handle:
             handle.write(patched)
             handle.flush()
             os.fsync(handle.fileno())
-        if staged_output.stat().st_size != len(patched):
+        if patcher_files.long_path(staged_output).stat().st_size != len(patched):
             raise PatcherError("Verification failed: patched file size mismatch")
         output_hash = sha256(staged_output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
@@ -13771,13 +13830,16 @@ def apply_patch(
             # companions the new selection staged may survive.
             original_records = _capture_tree_records(output_folder)
             owned = _patcher_owned_companion_keys(build, output_folder)
-            for prior in output_folder.rglob("*"):
+            # Carried over through long_path: a player's file (or an older
+            # build's log) deeper than MAX_PATH is copied like any other.
+            long_output = patcher_files.long_path(output_folder)
+            for prior in long_output.rglob("*"):
                 if not prior.is_file():
                     continue
-                relative = prior.relative_to(output_folder)
+                relative = prior.relative_to(long_output)
                 if relative.as_posix().casefold() in owned:
                     continue
-                target = staging_folder / relative
+                target = patcher_files.long_path(staging_folder) / relative
                 if target.exists():
                     continue
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -13795,10 +13857,11 @@ def apply_patch(
         # The log is rendered before publication while the tree still has its
         # staging name.  Normalize the emitted output identity after the
         # atomic rename so consumers never observe a transient staging path.
-        if log_path.is_file():
-            published_log = json.loads(log_path.read_text(encoding="utf-8"))
+        long_log = patcher_files.long_path(log_path)
+        if long_log.is_file():
+            published_log = json.loads(long_log.read_text(encoding="utf-8"))
             published_log["output_path"] = str(output)
-            log_path.write_text(
+            long_log.write_text(
                 json.dumps(published_log, indent=2, ensure_ascii=False) + "\n",
                 encoding="utf-8",
             )

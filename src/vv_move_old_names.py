@@ -42,6 +42,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import patcher_files
 import vv_log_tools as tools
 import vv_save_backup
 import vv_save_layout as layout
@@ -103,7 +104,8 @@ def patched_by(save_folder: Path, game_folders: list[Path]) -> PatchedBy:
             continue
         for report in TRANSPARENCY:
             try:
-                match = _VERSION.search((folder / report).read_text(encoding="utf-8", errors="replace"))
+                match = _VERSION.search(patcher_files.long_path(folder / report).read_text(encoding="utf-8",
+                                                                                         errors="replace"))
             except OSError:
                 continue
             if match:
