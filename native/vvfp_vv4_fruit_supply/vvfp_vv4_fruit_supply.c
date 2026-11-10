@@ -31,7 +31,29 @@
      * clicking the tree (its area handler's message 2, which the stock game ignores for the tree) shows
        "Fruit remaining: N" on the game's own status line (0x4DB8E8 via 0x44C3A0), as the blackberry bush shows
        "Berries remaining: N" (0x46F82A, text 0x115).
+     * the two yellow fruit trees are drawn with the fruit they have left (THE PICTURES below).
    Nothing else: the trips, the Farming check, the stew and the bonus odds are the game's own.
+
+   THE PICTURES.  The trees and their fruit are painted on the map itself: tile MapX0Y3.jpg, built by 0x46FCE0 as
+   tile (0, 3) of a 4 x 4 grid of 512 x 512 tiles at (512 x, 512 y) -- (0, 1536) -- holds them in its section
+   (0, 128)-(256, 384), world (0, 1664)-(256, 1920).  The map is never changed: over that section the companion
+   draws one 256 x 256 picture, chosen by the fruit left (FS_STAGES, the one table of the stages), from the
+   game's Images folder (vvfp_fruit_tree_5.png .. _0.png, the owner's repainted treetops with 5, 4, 3, 2, 1 or 0
+   fruits on each tree), or nothing (the map's own trees) when no village is bound or while its file is not read
+   yet (pending).  It is
+   drawn where the game draws the map's overlay list 0x4CCB20, just before it (so above the map and under
+   everything else: the list, the queued sprites, the villagers):
+     the village   0x440050 draws the map tiles (0x46FE10 at 0x4400A8), then the list (0x41C370 at 0x4400B2,
+                   each picture at its world place minus the scroll [0x72563C], [0x725640], through 0x409960);
+                   the picture is drawn the same way at (0, 1664) minus the scroll (at 0x4400AD);
+     the Overview  0x4453C0 draws overview_bg.jpg, then the list at its origin (188, 61) and scale 0.20703125
+       Map         (0x41C5B0 at 0x44542B, each picture at ftol(x * scale) + 188, ftol(y * scale) + 61 and the
+                   scale's whole percent through 0x409AD0); the picture is drawn the same way (at 0x445426), at
+                   the percent the list uses: cut (20) by _ftol, or rounded (21) when Fix Vanilla Bugs rounds the
+                   list's (0x41C5CB).
+   Each picture is built once, on first use, by the game's own ldwImageGrid 0x40AB10 (name, 1, 1) -- the image
+   kind the overlay list draws -- after its PNG header says 8-bit RGBA 256 x 256; a missing or wrong file is never
+   drawn (the map's own trees show).
 
    THE FILE.  The count is kept per save in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Fruit Trees\
@@ -81,6 +103,8 @@
      0x48E8A0   4  CFruitwells vtable slot 4 (save)
      0x48E89C   4  CFruitwells vtable slot 3 (load)
      0x4CCA74   4  the island-event table's slot 19 (NULL): the event object
+     0x4400AD   5  the village's mov ecx, 0x4CCB20 before the overlay list (the pictures)
+     0x445426   5  the Overview Map's mov ecx, 0x4CCB20 before the overlay list (the pictures)
 
    SAFETY.  Our steps run under structured exception handling: a fault leaves the stock decision (the fruit
    offered, the food paid).  No debug output. */
@@ -92,6 +116,7 @@
 #include "../shared/game_save_slot.h"
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vvfp_translate.h"
+#include "../shared/patcher_files.h"
 
 #define FS_GAME 4
 #define FS_FULL 1000
@@ -164,7 +189,11 @@
 #define QUEUE_WALK 0x468FC0u         /* thiscall(record; area, 100, 0): walk to a point of map area `area` */
 #define QUEUE_START 0x46A030u        /* thiscall(record): the queue's first step started */
 #define TREE_AREA 38                 /* the yellow fruit tree's map area, the shaking actions' first walk */
-#define SITES 11
+#define VILLAGE_SITE 0x4400ADu       /* the village draw 0x440050: mov ecx, 0x4CCB20 before the overlay list */
+#define VILLAGE_ON 0x4400B2u
+#define OVERVIEW_SITE 0x445426u      /* the Overview Map draw 0x4453C0: mov ecx, 0x4CCB20 before the list */
+#define OVERVIEW_ON 0x44542Bu
+#define SITES 13
 
 static const unsigned char CREDIT_STOCK[12] = { 0x6A, 0x03, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0xA8, 0x93, 0xFB, 0xFF };
 static const unsigned char OFFER_STOCK[11] = { 0xC7, 0x44, 0xBC, 0x1C, 0x02, 0x00, 0x00, 0x00, 0x83, 0xC7, 0x01 };
@@ -174,6 +203,7 @@ static const unsigned char CLICK_STOCK[5] = { 0x83, 0xE8, 0x01, 0x75, 0x5F };
 static const unsigned char BONUS_STOCK[12] = { 0x6A, 0x05, 0xB9, 0xD0, 0x6D, 0x4D, 0x00, 0xE8, 0x69, 0x4E, 0xFB, 0xFF };
 static const unsigned char UNIT_STOCK[8] = { 0x8D, 0x4E, 0x20, 0xE8, 0x72, 0x22, 0x00, 0x00 };
 static const unsigned char STEW_STOCK[7] = { 0xC6, 0x86, 0x1F, 0x0B, 0x00, 0x00, 0x01 };
+static const unsigned char LIST_STOCK[5] = { 0xB9, 0x20, 0xCB, 0x4C, 0x00 };    /* mov ecx, 0x4CCB20 */
 /* The other bytes the stubs rely on: the credit's call of the food writer resolves to 0x41D920, the bonus's too,
    the unit site's call to 0x46AD50 (checked through the bytes above), and the empty way out of the task gate. */
 static const unsigned char TASK_EMPTY_STOCK[7] = { 0x8B, 0x96, 0x88, 0x1B, 0x00, 0x00, 0x5F };
@@ -713,6 +743,160 @@ static int __fastcall on_load(void *self, void *unused, const void *in) {
     return r;
 }
 
+/* ---- the pictures ----------------------------------------------------------------------------------------- */
+
+/* THE STAGES -- the one table of them.  The owner's rule: six pictures, by the fruits on each tree, 5 down to 0
+   (the owner's repainted treetops; the map's own trees have 3).  The numbers are the owner's (2026-11-10: the
+   even split, 200 fruit a stage).  Change them HERE ONLY, then run scripts/build_vv4_yellow_fruit_trees_limited_feature.py (it builds this DLL and
+   reads this table for the row's words).  The first row whose `from` the fruit left reaches is the picture drawn;
+   the rows go from the most fruit down and the last one's `from` is 0.  A NULL name would draw nothing for that
+   stage (the map's own trees).  While the fruit is not known (no village bound, its file pending) nothing is
+   drawn at all. */
+typedef struct {
+    int from;                        /* at least this much fruit left */
+    const char *name;                /* the picture in the game's Images folder; NULL: none (the map's own) */
+} fs_stage;
+
+static const fs_stage FS_STAGES[] = {
+    { 801, "vvfp_fruit_tree_5.png" },     /* 5 fruits on each tree: 801..1000 */
+    { 601, "vvfp_fruit_tree_4.png" },     /* 4 on each: 601..800 */
+    { 401, "vvfp_fruit_tree_3.png" },     /* 3 on each: 401..600 */
+    { 201, "vvfp_fruit_tree_2.png" },     /* 2 on each: 201..400 */
+    { 1, "vvfp_fruit_tree_1.png" },       /* 1 on each: 1..200 */
+    { 0, "vvfp_fruit_tree_0.png" },       /* no fruit: 0 */
+};
+#define FS_STAGE_COUNT ((int)(sizeof FS_STAGES / sizeof FS_STAGES[0]))
+
+/* Where the picture goes: the map tile MapX0Y3.jpg is tile (0, 3) at (0, 1536) (0x46FCE0: tile (x, y) at
+   (512 x, 512 y)); the trees are its section (0, 128)-(256, 384). */
+#define ART_X 0
+#define ART_Y 1664
+#define ART_SIZE 256
+
+#define SCROLL_X 0x72563Cu           /* the village's scroll, as the map and the overlay list subtract it */
+#define SCROLL_Y 0x725640u
+#define OVERLAYS 0x4CCB20u           /* the map's overlay list (0x41C370 the village, 0x41C5B0 the Overview Map) */
+#define OVERLAY_TARGET 0x1680u       /* [list + 0x1680]: what the list draws through */
+#define DRAW_WHOLE 0x409960u         /* thiscall(target; image, x, y): the list's village draw */
+#define DRAW_CELL 0x409AD0u          /* thiscall(target; image, x, y, cell, percent, centred): its Overview draw */
+#define GRID_CTOR 0x40AB10u          /* thiscall(object; name, columns, rows): ldwImageGrid, the sprite table's */
+#define GRID_SIZE 0x34               /* the sprite table's object (0x44CA63: push 0x34) */
+#define GRID_CELL_W 0x10
+#define GRID_CELL_H 0x14
+#define PERCENT_SITE 0x41C5CBu       /* the list's _ftol of scale x 100; Fix Vanilla Bugs rounds it instead */
+static const unsigned char PERCENT_ROUNDED[5] = { 0x50, 0xDB, 0x1C, 0x24, 0x58 };   /* push eax / fistp / pop eax */
+
+typedef void *(__fastcall *grid_ctor_fn)(void *self, void *unused, const char *name, int columns, int rows);
+typedef void (__fastcall *draw_whole_fn)(void *target, void *unused, void *image, int x, int y);
+typedef void (__fastcall *draw_cell_fn)(void *target, void *unused, void *image, int x, int y, int cell,
+                                        int percent, int centred);
+
+static unsigned int g_art[FS_STAGE_COUNT][(GRID_SIZE + 3) / 4];   /* the game's image objects, never freed */
+static int g_art_state[FS_STAGE_COUNT];                         /* 0 not tried, 1 built, -1 not usable */
+
+/* The stage for `fruit` left. */
+static int stage_of(int fruit) {
+    int i;
+    for (i = 0; i < FS_STAGE_COUNT - 1; ++i) {
+        if (fruit >= FS_STAGES[i].from) {
+            return i;
+        }
+    }
+    return FS_STAGE_COUNT - 1;
+}
+
+/* Images\<name> says 8-bit RGBA, ART_SIZE x ART_SIZE in its PNG header. */
+static int art_file_fits(const char *name) {
+    static const unsigned char SIGNATURE[16] = {
+        0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 'I', 'H', 'D', 'R',
+    };
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    char leaf[64];
+    unsigned char header[26];
+    DWORD got = 0;
+    HANDLE file;
+    int ok;
+    wsprintfA(leaf, "Images\\%s", name);
+    if (!vvfp_game_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, leaf)) {
+        return 0;
+    }
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    ok = ReadFile(file, header, sizeof header, &got, NULL) && got == sizeof header
+        && memcmp(header, SIGNATURE, sizeof SIGNATURE) == 0
+        && header[16] == 0 && header[17] == 0 && header[18] == (ART_SIZE >> 8) && header[19] == (ART_SIZE & 0xFF)
+        && header[20] == 0 && header[21] == 0 && header[22] == (ART_SIZE >> 8) && header[23] == (ART_SIZE & 0xFF)
+        && header[24] == 8 && header[25] == 6;
+    CloseHandle(file);
+    return ok;
+}
+
+/* The picture of a stage, built on first use; NULL for a stage without one or when it cannot be used. */
+static void *stage_art(int stage) {
+    if (FS_STAGES[stage].name == NULL) {
+        return NULL;
+    }
+    if (g_art_state[stage] == 0) {
+        unsigned char *made = (unsigned char *)g_art[stage];
+        g_art_state[stage] = -1;
+        if (!art_file_fits(FS_STAGES[stage].name)) {
+            return NULL;
+        }
+        memset(made, 0, sizeof g_art[stage]);
+        ((grid_ctor_fn)(UINT_PTR)GRID_CTOR)(made, NULL, FS_STAGES[stage].name, 1, 1);
+        if (*(const int *)(made + GRID_CELL_W) != ART_SIZE || *(const int *)(made + GRID_CELL_H) != ART_SIZE) {
+            return NULL;                 /* not loaded as one 256 x 256 cell: never drawn */
+        }
+        g_art_state[stage] = 1;
+    }
+    return g_art_state[stage] == 1 ? (void *)g_art[stage] : NULL;
+}
+
+/* The picture to draw now: none without a village or while its file is not read yet (the map's own trees). */
+static void *art_now(void) {
+    if (!g_installed || !bind_village(0) || g_pending) {
+        return NULL;
+    }
+    return stage_art(stage_of(g_fruit));
+}
+
+static void *overlay_target(void) {
+    return *(void *const *)(UINT_PTR)(OVERLAYS + OVERLAY_TARGET);
+}
+
+/* The village, just before the overlay list: at (ART_X, ART_Y) minus the scroll, as the list draws. */
+static void __cdecl on_village(void) {
+    __try {
+        void *art = art_now();
+        if (art != NULL) {
+            ((draw_whole_fn)(UINT_PTR)DRAW_WHOLE)(overlay_target(), NULL, art,
+                                                   ART_X - *(const int *)(UINT_PTR)SCROLL_X,
+                                                   ART_Y - *(const int *)(UINT_PTR)SCROLL_Y);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* The Overview Map, just before the overlay list, with the list's own arguments (`list`: left, top and the scale's
+   float): at ftol(x * scale) + left, ftol(y * scale) + top and the whole percent the list uses. */
+static void __cdecl on_overview(const unsigned int *list) {
+    __try {
+        void *art = art_now();
+        if (art != NULL) {
+            float scale = *(const float *)&list[2];
+            double percent = (double)scale * 100.0;
+            int whole = vvfp_site_holds(PERCENT_SITE, PERCENT_ROUNDED, sizeof PERCENT_ROUNDED)
+                        ? (int)(percent + 0.5) : (int)percent;
+            ((draw_cell_fn)(UINT_PTR)DRAW_CELL)(overlay_target(), NULL, art,
+                                                 (int)((double)ART_X * scale) + (int)list[0],
+                                                 (int)((double)ART_Y * scale) + (int)list[1], 0, whole, 0);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
 /* ---- the stubs -------------------------------------------------------------------------------------------- */
 
 static unsigned int g_food_add = FOOD_ADD;
@@ -865,6 +1049,33 @@ __declspec(naked) static void stew_stub(void) {
     }
 }
 
+/* At VILLAGE_SITE (after the map tiles): the picture, then the stock mov ecx, 0x4CCB20 and the list's draw. */
+__declspec(naked) static void village_stub(void) {
+    __asm {
+        pushad
+        call on_village
+        popad
+        mov ecx, OVERLAYS
+        push VILLAGE_ON
+        ret
+    }
+}
+
+/* At OVERVIEW_SITE (the list's left, top and scale already pushed): the picture, then the stock mov ecx and call. */
+__declspec(naked) static void overview_stub(void) {
+    __asm {
+        pushad
+        lea eax, [esp + 32]
+        push eax
+        call on_overview
+        add esp, 4
+        popad
+        mov ecx, OVERLAYS
+        push OVERVIEW_ON
+        ret
+    }
+}
+
 /* ---- installing ------------------------------------------------------------------------------------------- */
 
 static unsigned int g_expect[3];
@@ -930,6 +1141,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_ours[2] = (unsigned int)(UINT_PTR)&g_event;
     vvfp_site_bytes(&w[10], EVENT_SLOT_VA, 4, (const unsigned char *)&g_expect[2],
                     (const unsigned char *)&g_ours[2]);
+    vvfp_site_branch(&w[11], VILLAGE_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)village_stub);
+    vvfp_site_branch(&w[12], OVERVIEW_SITE, sizeof LIST_STOCK, LIST_STOCK, 0xE9, (const void *)overview_stub);
     if (vvfp_install_sites(w, SITES)) {
         g_installed = 1;
     }
