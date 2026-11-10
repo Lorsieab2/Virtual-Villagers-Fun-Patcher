@@ -17,6 +17,7 @@ from tkinter import filedialog, messagebox, ttk
 from transparency import PATCHER_VERSION
 import patcher_files
 import vv_answered_questions
+import vv_backup_details_window
 import vv_copy_slot_window
 import vv_how_to_use
 import vv_log_tools
@@ -2014,9 +2015,10 @@ class App(tk.Tk):
         for grid_, column, key in (
             (tools, 1, "back_up_saves"),
             (tools, 2, "restore_saves"),
-            (tools, 3, "rename_tribe"),
-            (tools, 4, "check_logs"),
-            (tools, 5, "repair_logs"),
+            (tools, 3, "backups"),
+            (tools, 4, "rename_tribe"),
+            (tools, 5, "check_logs"),
+            (tools, 6, "repair_logs"),
             (family, 1, "family_tree_maker"),
             (family, 2, "village_matchmaker"),
             (family, 3, "game_mechanics"),
@@ -2041,21 +2043,27 @@ class App(tk.Tk):
                 "Restore saves...",
                 lambda game=build: self._restore_saves(game),
             ).grid(row=row, column=2, padx=(12, 0), pady=2)
+            # Backups (the owner, 2026-11-09): each backup's vital statistics, read-only.
+            self._folder_link(
+                tools,
+                "Backups...",
+                lambda game=build: vv_backup_details_window.show_backup_details(self, game),
+            ).grid(row=row, column=3, padx=(12, 0), pady=2)
             self._folder_link(
                 tools,
                 "Rename tribe...",
                 lambda game=build: self._rename_tribe(game),
-            ).grid(row=row, column=3, padx=(12, 0), pady=2)
+            ).grid(row=row, column=4, padx=(12, 0), pady=2)
             self._folder_link(
                 tools,
                 "Check saves & logs...",
                 lambda game=build: self._log_tool(game, repair=False),
-            ).grid(row=row, column=4, padx=(12, 0), pady=2)
+            ).grid(row=row, column=5, padx=(12, 0), pady=2)
             self._folder_link(
                 tools,
                 "Repair saves & logs...",
                 lambda game=build: self._log_tool(game, repair=True),
-            ).grid(row=row, column=5, padx=(12, 0), pady=2)
+            ).grid(row=row, column=6, padx=(12, 0), pady=2)
             self._folder_link(
                 family,
                 "Family tree maker...",
@@ -2083,6 +2091,12 @@ class App(tk.Tk):
             command=lambda: self._back_up_saves(list(self.builds)),
         ).pack(side="left")
         self._help_button(save_tools, "back_up_saves").pack(side="left", padx=(2, 0))
+        ttk.Button(
+            save_tools,
+            text="Backups...",
+            command=lambda: vv_backup_details_window.show_backup_details(self, None),
+        ).pack(side="left", padx=(8, 0))
+        self._help_button(save_tools, "backups").pack(side="left", padx=(2, 0))
         ttk.Button(
             save_tools,
             text="Rename Tribe...",
@@ -3743,7 +3757,16 @@ class App(tk.Tk):
         listbox.bind("<<ListboxSelect>>", selected)
         buttons = ttk.Frame(frame)
         buttons.pack(fill="x", pady=(14, 0))
+        def show_details() -> None:
+            item = current()
+            if item is not None:
+                vv_backup_details_window.show_backup_details(dialog, build, item[0], item[1].path)
+
         ttk.Button(buttons, text="Restore...", command=restore).pack(side="left")
+        # The chosen backup's vital statistics (the owner, 2026-11-09), read-only.
+        ttk.Button(buttons, text="Details...", command=show_details).pack(
+            side="left", padx=(8, 0)
+        )
         ttk.Button(buttons, text="Delete Backup...", command=delete).pack(
             side="left", padx=(8, 0)
         )
@@ -5497,6 +5520,14 @@ class App(tk.Tk):
         if history.get("note"):
             ttk.Label(frame, text=history["note"], wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # This folder's backups and each one's vital statistics (the owner, 2026-11-09), read-only.
+        backups_row = ttk.Frame(frame)
+        backups_row.pack(anchor="w", pady=(4, 0))
+        ttk.Button(backups_row, text="Backups…",
+                   command=lambda: vv_backup_details_window.show_backup_details(window, number, folder)
+                   ).pack(side="left")
+        ttk.Label(backups_row, text="See every backup of this save folder: population, food, tech points, "
+                                    "last saved and last played").pack(side="left", padx=(8, 0))
         # Game speed Paused in backups and in saves the player picks (the owner, 2026-10-08): a
         # restored backup must never catch up on the time since it was made.
         pause_backups_var = tk.BooleanVar(value=bool(unpaused))

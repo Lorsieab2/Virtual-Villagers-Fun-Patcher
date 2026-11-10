@@ -174,6 +174,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_long_names", "vv_legacy_names",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
+               # Backups (the owner, 2026-11-09): each backup's vital statistics and its window.
+               "vv_backup_details", "vv_backup_details_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
