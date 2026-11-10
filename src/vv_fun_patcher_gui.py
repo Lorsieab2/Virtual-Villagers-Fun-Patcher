@@ -6362,8 +6362,7 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title("Repair Saves & Logs: game speed in a backup")
         window.transient(parent)
-        inner = ttk.Frame(window, padding=12)
-        inner.pack(fill="both", expand=True)
+        inner = scrollable_frame(window, padding=12)
         ttk.Label(inner, wraplength=560, justify="left",
                   text="Sets the game speed of every save in the backup you choose, exactly as the game's own "
                        "speed control and pause key set it. Only the backup's copies change; your own saves "
