@@ -13,7 +13,9 @@ on the same save fixture the patcher edits, and asserts the patcher's bytes are 
     with the save's clock and every saved timer registered to it as the game registers them.
 
 Only the wall clock each routine reads is a stand-in (it returns the save's last tick, the "now" the
-patcher replays the change at), popping exactly what the real routine pops.  Every start (Slow,
+patcher replays the change at -- or, when the player changed the clock after that tick, the moment of
+that change, the earliest the game's own wall clock can read then), popping exactly what the real
+routine pops.  Every start (Slow,
 Normal, Fast, each paused) to every target, and back.  Then the owner's 10-23 sequence: a save whose
 speed dword was set to Paused by an older patcher while its clock ran on Fast, set to Paused Normal
 by Repair -- the fire now keeps its correct Normal length.
@@ -23,6 +25,7 @@ The live effect in a running game is NOT verified here.
 from __future__ import annotations
 
 import functools
+from fractions import Fraction
 import gzip
 import struct
 import sys
@@ -221,8 +224,11 @@ def stock_edit(game: int, data: bytes, speed: int, paused: bool, fpcw: int | Non
             emu.store_state(save)
             save.put(rules.speed, speed + 999 if paused else speed)
         return save.bytes()
+    emu.now = max(emu.now, save.get(rules.clock + 8))     # a change made after the last tick
     emu.load_clock(save)
     rate, before = emu.clock_fields()[:2]
+    if rate == 0 and before not in SPEEDS:                   # the unpause key passes the speed dword
+        before = value - 999 if value >= 999 else value
     if rate == 0 and not (paused and speed == before):
         emu.set_speed(before)
         rate = before
@@ -268,6 +274,23 @@ def paused_at(game: int, name: str, speed: int) -> bytes:
     return save.bytes()
 
 
+def pressed_after_tick(game: int, name: str, start: int, press: int, gap: int) -> bytes:
+    """The save running at `start`, then the player's pause key (press 999) or a speed button pressed
+    `gap` seconds after the last world tick, and saved before another tick: the clock's wall base is
+    later than the last tick (the owner's v1.35.92 Tree of Life save was refused in this state)."""
+    save = Save(game, running(game, name, start))
+    rules = clock.GAMES[game]
+    now = save.get(rules.now)
+    emu = emulator(game, None)
+    emu.now = now + gap
+    emu.load_clock(save)
+    emu.set_speed(press)
+    emu.store_clock(save)
+    save.put(rules.speed, start + 999 if press == 999 else press)
+    assert save.get(rules.clock + 8) == now + gap > save.get(rules.now)
+    return save.bytes()
+
+
 FIXTURE = {1: "vv1-huttest-1", 2: "vv2-huttest-1", 3: "vv3-huttest-1", 4: "vv4-huttest-1", 5: "vv5-huttest-1"}
 FIXTURE_256 = {3: "vv3-256-1", 4: "vv4-256-1", 5: "vv5-256-1"}
 
@@ -276,6 +299,12 @@ class EveryChangeIsTheGamesOwn(unittest.TestCase):
     def check(self, game: int, name: str) -> None:
         starts = [(f"running {s}", running(game, name, s)) for s in SPEEDS]
         starts += [(f"paused {s}", paused_at(game, name, s)) for s in SPEEDS]
+        if isinstance(clock.GAMES[game], clock.ClockGame):
+            for gap in (1, 3, 5_000):
+                starts += [(f"paused {s} {gap}s after the tick", pressed_after_tick(game, name, s, 999, gap))
+                           for s in SPEEDS]
+                starts += [(f"{s} -> {t} {gap}s after the tick", pressed_after_tick(game, name, s, t, gap))
+                           for s in SPEEDS for t in SPEEDS if t != s]
         for label, data in starts:
             for speed in SPEEDS:
                 for paused in (False, True):
@@ -407,35 +436,56 @@ class TheOwnersFire(unittest.TestCase):
         self.assertEqual(Save(3, paused).get(clock.GAMES[3].clock), 0)
 
 
-class Refusals(unittest.TestCase):
-    def test_a_save_the_game_did_not_lay_out_is_refused(self) -> None:
-        data = bytearray(running(3, FIXTURE[3], 6))
-        struct.pack_into("<I", data, 12 + 0x11ED4 - 8, 0x200)     # the stock 150-villager damage
-        with self.assertRaises(clock.SpeedEditRefused):
-            clock.edit_speed(3, bytes(data), 12, 3, False)
-        with self.assertRaises(backup.SpeedRefused):
-            backup.pause_save_bytes(3, bytes(data))
+class OnlyANonSaveIsRefused(unittest.TestCase):
+    """The owner (v1.35.92): "the game speed should always be able to be altered in the save using
+    repair saves".  Only a file the game cannot load as its save is refused."""
 
-    def test_an_unknown_clock_state_is_refused(self) -> None:
-        data = bytearray(running(4, FIXTURE[4], 6))
-        struct.pack_into("<I", data, 24 + 0x8E8 - 8, 7)
-        with self.assertRaises(clock.SpeedEditRefused):
-            clock.edit_speed(4, bytes(data), 24, 3, False)
+    def test_a_block_the_game_did_not_lay_out_is_refused(self) -> None:
+        for game, at in ((3, 0x11ED4), (4, 0x160C0)):
+            data = bytearray(running(game, FIXTURE[game], 6))
+            header = backup._save_header(game, bytes(data))
+            struct.pack_into("<I", data, header + at - 8, 0x123)
+            with self.assertRaises(clock.SpeedEditRefused):
+                clock.edit_speed(game, bytes(data), header, 3, False)
+            with self.assertRaises(backup.SpeedRefused):
+                backup.pause_save_bytes(game, bytes(data))
 
-    def test_a_value_whose_rounding_could_differ_is_refused(self) -> None:
-        """A timer so far ahead that timer x 10/6 (single precision) is not held exactly at 53 bits
-        and lies within the FPU's rounding of an integer: refused, never guessed."""
-        base = Save(3, running(3, FIXTURE[3], 6))
-        for timer in range(0xF0000000, 0xF0000000 + 200_000):
+    def test_the_150_villager_damage_is_changed_as_the_game_changes_it(self) -> None:
+        """The base game's exactly-150-villager bug zeroes the block size's low byte (0x2AD -> 0x200,
+        0x250 -> 0x200); the block is otherwise intact, so its timers are changed as usual."""
+        for game, at in ((3, 0x11ED4), (4, 0x160C0)):
+            if not have(game):
+                self.skipTest("the stock games are not in inputs\\")
+            data = bytearray(running(game, FIXTURE[game], 6))
+            header = backup._save_header(game, bytes(data))
+            struct.pack_into("<I", data, header + at - 8, 0x200)
+            for speed in SPEEDS:
+                for paused in (False, True):
+                    mine = clock.edit_speed(game, bytes(data), header, speed, paused)
+                    self.assertEqual(mine or bytes(data), stock_edit(game, bytes(data), speed, paused))
+
+    def test_a_value_the_fpu_must_round_is_rounded_as_the_game_rounds_it(self) -> None:
+        """A timer so far ahead that timer x 10/6 (single precision) is not held exactly at 53 bits:
+        the game's own result at its 53-bit control word, never a refusal."""
+        if not have(3):
+            self.skipTest("the stock Secret City is not in inputs\\")
+        rounded = 0
+        # Timers whose exact product lies just below an integer that the 53-bit rounding reaches
+        # (timer x m = -1..-3 mod 2^23, m the single-precision factor's mantissa), and a run of others.
+        cases = [(6, 10, t) for t in (0x80000003, 0x80800003, 0x82800003)]
+        cases += [(10, 6, t) for t in (0x807FFFFB, 0x80FFFFFB, 0x827FFFFB)]
+        cases += [(6, 10, t) for t in range(0xF0000000, 0xF0000000 + 2_000, 7)]
+        for start, speed, timer in cases:
+            base = Save(3, running(3, FIXTURE[3], start))
             base.put(0x12125, timer)
-            try:
-                clock.edit_speed(3, base.bytes(), 12, 10, False)
-            except clock.SpeedEditRefused:
-                break
-        else:
-            self.fail("no refused value found")
-        with self.assertRaises(backup.SpeedRefused):
-            backup._speed_edit(3, base.bytes(), 10, False)
+            mine = clock.edit_speed(3, base.bytes(), 12, speed, False)
+            self.assertEqual(mine, stock_edit(3, base.bytes(), speed, False), hex(timer))
+            factor = clock._f32(Fraction(speed, start))
+            shift = (base.get(clock.GAMES[3].now) - int(base.get(clock.GAMES[3].now) * factor)) & MASK
+            if int(timer * factor) != (Save(3, mine).get(0x12125) - shift) & MASK:
+                rounded += 1                     # the rounding, not the exact value, decided it
+        self.assertGreaterEqual(rounded, 6)
+        self.assertIsNotNone(backup._speed_edit(3, base.bytes(), 10, False))
 
 
 if __name__ == "__main__":
