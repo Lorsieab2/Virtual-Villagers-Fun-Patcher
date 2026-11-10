@@ -19,10 +19,16 @@ save does not hold as its last tick, the clock is first taken as the game finds 
 only a file that is not one of the game's saves is refused (SpeedEditRefused, nothing written).
 
 NORMALISING (the clock as the game itself finds it at its next key press):
-  * the clock was last changed after the last tick (wall base > now): the player pressed pause or a
-    speed button after the game's last world tick, and saved before another.  The wall base is the
-    moment of that press, and the game clock is exactly the game base there.  The replay is made at
-    that moment, the latest the save knows of -- the game's own wall clock can read no earlier: the
+  * the clock was last changed after the last tick (wall base > now): the player pressed the pause
+    key after the game's last world update, and the save was written before another.  The stock
+    games do this themselves (static reading): the world update that stamps "now" runs only every
+    few seconds (VV4 0x4448A3: at most once per 2 s, 0x420330 writing 0x170F0 at 0x42066E), and the
+    pause / unpause key toggle calls set_speed without it (VV4 0x44071A-0x44077E, VV3 0x466492-
+    0x4664E0), while the Options speed buttons run the update before and after (VV4 0x41ACB0).
+    So pausing and then closing the game before the next update (within those seconds, or through a
+    screen that does not run it -- not seen live) leaves wall base > now.  The wall base is the moment
+    of that press, and the game clock is exactly the game base there.  The replay is made at that
+    moment, the latest the save knows of -- the game's own wall clock can read no earlier: the
     game clock, every timer and the village's age carry over exactly (the game base is kept, nothing
     is moved back to the tick), and the save's last tick is left as the game wrote it;
   * a rate the game never stores: the arithmetic is the game's own for any rate above 0; a paused

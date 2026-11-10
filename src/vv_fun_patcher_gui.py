@@ -5532,6 +5532,17 @@ class App(tk.Tk):
         speed_box.pack(side="left", padx=(8, 0))
         if speed is None:
             speed_box.state(["disabled"])
+        # The game speed in a backup (the owner, v1.35.92: "ALLOW THE ABILITY IN REPAIR SAVES TO SET THE
+        # GAME SPEED IN BACKUPS TOO"): set at once, in that backup's copies only.
+        # A backup whose speed the player sets here keeps it: its saves leave the pending "Paused in backups"
+        # list, so the Repair that follows does not pause them again (Codex, PR #750).
+        speed_set_backups: set[Path] = set()
+        backup_speed_button = ttk.Button(speed_row, text="Set the speed in a backup…",
+                                         command=lambda: self._backup_speed_dialog(
+                                             window, folder, on_set=speed_set_backups.add))
+        backup_speed_button.pack(side="left", padx=(12, 0))
+        if not vv_save_backup.list_backups(folder):
+            backup_speed_button.state(["disabled"])
         questions = [(kind, q) for kind in kinds for q in kind.questions.values()]
         questions_row = ttk.Frame(frame)
         questions_row.pack(anchor="w", pady=(8, 0))
@@ -5620,7 +5631,8 @@ class App(tk.Tk):
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
                                  restore,
-                                 (list(unpaused) if pause_backups_var.get() else []) + list(picked_saves),
+                                 ([p for p in unpaused if Path(p).parent not in speed_set_backups]
+                                  if pause_backups_var.get() else []) + list(picked_saves),
                                  next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None),
                                  grave_state if graves_var.get() else None)
             window.destroy()
@@ -6346,6 +6358,66 @@ class App(tk.Tk):
         window.grab_set()
         parent.wait_window(window)
         _regrab(parent)
+    def _backup_speed_dialog(self, parent, folder: Path, on_set=None) -> None:
+        """One backup of this save folder and a game speed; Set changes that backup's slot saves only
+        (vv_save_backup.set_backup_speed), never the saves the game plays."""
+        backups = vv_save_backup.list_backups(folder)
+        if not backups:
+            return
+        window = tk.Toplevel(parent)
+        window.title("Repair Saves & Logs: game speed in a backup")
+        window.transient(parent)
+        inner = scrollable_frame(window, padding=12)
+        ttk.Label(inner, wraplength=560, justify="left",
+                  text="Sets the game speed of every save in the backup you choose, exactly as the game's own "
+                       "speed control and pause key set it. Only the backup's copies change; your own saves "
+                       "do not. A backup that is not Paused catches up on the time since it was made when "
+                       "you restore it and play.").pack(anchor="w")
+
+        def label(info) -> str:
+            villages = ", ".join(info.villages.values())
+            return f"{info.label}" + (f" ({villages})" if villages else "")
+
+        labels = [f"{i}. {label(info)}" for i, info in enumerate(backups, 1)]   # unique, newest first
+        backup_var = tk.StringVar(value=labels[0])
+        ttk.Label(inner, text="Backup:").pack(anchor="w", pady=(8, 0))
+        ttk.Combobox(inner, textvariable=backup_var, values=labels, state="readonly", width=70).pack(anchor="w")
+        speed_var = tk.StringVar(value=vv_save_backup.SPEED_CHOICES["paused"])
+        ttk.Label(inner, text="Game speed:").pack(anchor="w", pady=(8, 0))
+        ttk.Combobox(inner, textvariable=speed_var, values=list(vv_save_backup.SPEED_CHOICES.values()),
+                     state="readonly", width=20).pack(anchor="w")
+
+        def apply() -> None:
+            info = backups[labels.index(backup_var.get())]
+            choice = next(k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get())
+            try:
+                done = self._run_with_wait("Setting the game speed in the backup…",
+                                           lambda: vv_save_backup.set_backup_speed(folder, info.path, choice))
+            except (vv_save_backup.BackupError, OSError) as exc:
+                messagebox.showerror("Repair Saves & Logs", f"The game speed was not changed. {exc}",
+                                     parent=window)
+                return
+            lines = [f"Backup {info.label}:"]
+            lines += [f"{name}: {vv_save_backup.speed_words(new)} (was {vv_save_backup.speed_words(old)})"
+                      for name, old, new in done.changed]
+            lines += [f"{name}: already {speed_var.get()}" for name in done.already]
+            lines += [f"{name}: left as it is ({why})" for name, why in done.skipped]
+            if len(lines) == 1:
+                lines.append("It holds no slot saves.")
+            lines.append("Your own saves were not changed.")
+            if on_set is not None and (done.changed or done.already):
+                on_set(Path(info.path))
+            messagebox.showinfo("Repair Saves & Logs", "\n".join(lines), parent=window)
+
+        buttons = ttk.Frame(inner)
+        buttons.pack(anchor="w", pady=(12, 0))
+        ttk.Button(buttons, text="Set the speed", command=apply).pack(side="left")
+        ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left", padx=(8, 0))
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+
     def _repair_questions(self, parent, questions: list, answers: dict) -> None:
         """One answer per question, from its own options; kept in `answers`."""
         window = tk.Toplevel(parent)

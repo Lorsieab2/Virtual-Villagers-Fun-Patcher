@@ -20,6 +20,7 @@ of every clock state and against the stock routine run in the emulator (tests/te
 """
 from __future__ import annotations
 
+import os
 import struct
 import sys
 import tempfile
@@ -201,6 +202,85 @@ class BackUpSavesPausesEverySlot(unittest.TestCase):
                     self.assertEqual((folder / f"{title}{slot}.ldw").read_bytes(), data)   # live untouched
                     copy = (result.backup_folder / f"{title}{slot}.ldw").read_bytes()
                     self.assertGreaterEqual(backup.save_speed(game, copy)[1], 999)
+
+
+class GameSpeedInABackup(unittest.TestCase):
+    """Repair Saves & Logs sets the game speed of a backup's saves (the owner, v1.35.92: "ALLOW THE ABILITY
+    IN REPAIR SAVES TO SET THE GAME SPEED IN BACKUPS TOO"): only that backup's copies change."""
+
+    def setUp(self) -> None:
+        if not all(se.have(game) for game in (1, 2, 3, 4, 5)):
+            self.skipTest("the stock games are not in inputs\\")
+
+    def test_every_game_every_choice_only_the_backup_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            for game in (1, 2, 3, 4, 5):
+                title = se.EXE[game][:-4]
+                folder = Path(tmp) / f"{title} - Modded"
+                folder.mkdir()
+                if isinstance(clock.GAMES[game], clock.ClockGame):
+                    live = se.pressed_after_tick(game, se.FIXTURE[game], 6, 999, 2)   # once refused
+                else:
+                    live = se.running(game, se.FIXTURE[game], 6)
+                (folder / f"{title}1.ldw").write_bytes(live)
+                os.utime(folder / f"{title}1.ldw", ns=(1_700_000_000 * 10**9, 1_700_000_000 * 10**9))
+                made = backup.copy_save_folder(folder)
+                other = backup.copy_save_folder(folder, suffix=" (before something)")
+                copy = made.backup_folder / f"{title}1.ldw"
+                untouched = (other.backup_folder / f"{title}1.ldw").read_bytes()
+                for choice, want in (("fast", 3), ("slow", 10), ("normal", 6), ("paused", 1005)):
+                    with self.subTest(game=game, choice=choice):
+                        before = copy.read_bytes()
+                        mtime = copy.stat().st_mtime_ns
+                        done = backup.set_backup_speed(folder, made.backup_folder, choice)
+                        after = copy.read_bytes()
+                        self.assertEqual(backup.save_speed(game, after)[1], want)
+                        self.assertEqual(done.changed, [(copy.name, backup.save_speed(game, before)[1], want)])
+                        header = backup._save_header(game, before)
+                        value = backup.save_speed(game, before)[1]
+                        self.assertEqual(after, clock.edit_speed(game, before, header, want % 999, want >= 999))
+                        self.assertEqual(after, se.stock_edit(game, before, want % 999, want >= 999))
+                        self.assertNotEqual(value, want)
+                        self.assertLessEqual(abs(copy.stat().st_mtime_ns - mtime), 2_000_000_000)
+                        # The live save and the other backup are exactly as they were.
+                        self.assertEqual((folder / f"{title}1.ldw").read_bytes(), live)
+                        self.assertEqual((other.backup_folder / f"{title}1.ldw").read_bytes(), untouched)
+                again = backup.set_backup_speed(folder, made.backup_folder, "paused")
+                self.assertEqual((again.changed, again.already), ([], [copy.name]))
+
+    def test_a_folder_that_is_not_one_of_its_backups_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            title = se.EXE[4][:-4]
+            folder = Path(tmp) / f"{title} - Modded 256"
+            folder.mkdir()
+            data = se.running(4, se.FIXTURE[4], 6)
+            (folder / f"{title}1.ldw").write_bytes(data)
+            for not_a_backup in (folder, Path(tmp)):
+                with self.assertRaises(backup.BackupError):
+                    backup.set_backup_speed(folder, not_a_backup, "fast")
+            self.assertEqual((folder / f"{title}1.ldw").read_bytes(), data)
+
+
+class ABackupsSetSpeedIsKept(unittest.TestCase):
+    """Codex (PR #750): a backup whose speed the player sets in Repair's dialog leaves the checklist's pending
+    "Paused in backups" list, so the Repair that follows does not pause it again (src/vv_fun_patcher_gui.py)."""
+    SOURCE = (Path(__file__).resolve().parents[1] / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+
+    def body(self, start: str, end: str) -> str:
+        return self.SOURCE[self.SOURCE.index(start):self.SOURCE.index(end)]
+
+    def test_the_checklist_leaves_a_set_backup_out_of_the_pause_list(self) -> None:
+        checklist = self.body("    def _repair_checklist(", "    def _last_names_dialog(")
+        self.assertIn("speed_set_backups: set[Path] = set()", checklist)
+        self.assertIn("on_set=speed_set_backups.add", checklist)
+        self.assertIn("[p for p in unpaused if Path(p).parent not in speed_set_backups]", checklist)
+        self.assertNotIn("(list(unpaused) if pause_backups_var.get() else [])", checklist)
+
+    def test_the_dialog_reports_the_backup_it_set(self) -> None:
+        dialog = self.body("    def _backup_speed_dialog(", "    def _repair_questions(")
+        self.assertIn("def _backup_speed_dialog(self, parent, folder: Path, on_set=None)", dialog)
+        self.assertIn("if on_set is not None and (done.changed or done.already):", dialog)
+        self.assertIn("on_set(Path(info.path))", dialog)
 
 
 class OnlyANonSaveIsRefused(unittest.TestCase):

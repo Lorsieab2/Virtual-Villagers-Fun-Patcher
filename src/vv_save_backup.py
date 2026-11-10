@@ -57,7 +57,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Iterator, Protocol
+from typing import Callable, Iterator, Protocol
 
 import vv_save_clock
 import vv3_second_faction
@@ -997,6 +997,61 @@ def _write_save(path: Path, data: bytes, original: bytes) -> None:
     raise BackupError(f"{path.name} did not read back as written; it was put back as it was.")
 
 
+def _rewrite_slot_save(game: int, path: Path, data: bytes, changed: bytes,
+                       recover: Callable[[], object] | None = None) -> None:
+    """Swap ``changed`` in for a slot save's ``data``, as one step: The Secret City's second faction carried
+    to the new bytes (vv3_second_faction.relink, in the faction file beside the save) and the file's access
+    and modified times kept (the companions believe a queued purchase only when the save was written after it,
+    see _keep_times).  ``recover`` runs first (a backup's lost faction link found again, while its bytes are
+    still the ones the game's copies pause to).  If anything fails, the save's bytes and times and the
+    faction file are all put back as they were and BackupError says so (Codex, #750): a file reported as left
+    as it is always is."""
+    found = path.stat()
+    times = (found.st_atime_ns, found.st_mtime_ns)
+    number = _save_number(path.name)
+    faction = (vv3_second_faction.faction_file(path.parent, number)
+               if game == vv3_second_faction.GAME and number is not None else None)
+    try:
+        faction_before = faction.read_bytes() if faction is not None and faction.is_file() else None
+    except OSError as exc:
+        raise BackupError(f"{path.name}: its second faction file could not be read ({exc}); it was left as "
+                          "it is.") from exc
+    written = False
+    try:
+        if recover is not None:
+            recover()
+        _write_save(path, changed, data)
+        written = True
+        if faction is not None:
+            vv3_second_faction.relink(path.parent, number, data, changed)
+        _keep_times(path, times)
+    except (OSError, BackupError) as exc:
+        problems = []
+        if written:
+            try:
+                _swap_in(path, data)
+                if path.read_bytes() != data:
+                    problems.append("its bytes")
+            except OSError:
+                problems.append("its bytes")
+        try:
+            os.utime(path, ns=times)
+        except OSError:
+            problems.append("its file time")
+        if faction_before is not None:
+            try:
+                if faction.read_bytes() != faction_before:
+                    _swap_in(faction, faction_before)
+                if faction.read_bytes() != faction_before:
+                    problems.append("its second faction file")
+            except OSError:
+                problems.append("its second faction file")
+        if problems:
+            raise BackupError(f"{path.name}: {exc}; {' and '.join(problems)} could not be put back as they "
+                              "were: restore it from a backup.") from exc
+        raise BackupError(f"{path.name}: {exc}; it was put back exactly as it was.") from exc
+
+
 def pause_save_file(game: int, path: Path) -> int | None:
     """Set one save file to Paused, through a temporary file and a read-back.  Returns the speed
     it had, or None when it was already paused or is not a save this can read (then it is left
@@ -1035,7 +1090,8 @@ def set_speed_choice(game: int, path: Path, choice: str,
     ties to its clock (src/vv_save_clock.py); the speed it keeps under Paused is the one it had.
     Returns (old value, new value), or None when it already is so.  A file that is not a save of this
     game (SpeedRefused), or whose game is running or cannot be checked (Codex, #576), is refused and
-    left exactly as it is; the state of its clock never is (src/vv_save_clock.py)."""
+    left exactly as it is; the state of its clock never is (src/vv_save_clock.py).  The file keeps its
+    times and The Secret City's second faction, or is put back whole (_rewrite_slot_save)."""
     exe = game_exe_name(path.parent)
     try:
         controller = processes if processes is not None else WindowsProcesses()
@@ -1058,8 +1114,66 @@ def set_speed_choice(game: int, path: Path, choice: str,
         raise SpeedRefused(f"{path.name}: {exc}.") from exc
     if changed is None:
         return None
-    _write_save(path, changed, data)
+    _rewrite_slot_save(game, path, changed=changed, data=data)
     return old, speed + _PAUSED if paused else speed
+
+
+@dataclass
+class BackupSpeedOutcome:
+    changed: list[tuple[str, int, int]] = field(default_factory=list)   # (file, old value, new value)
+    already: list[str] = field(default_factory=list)
+    skipped: list[tuple[str, str]] = field(default_factory=list)
+
+
+def set_backup_speed(save_folder: Path, backup: Path, choice: str) -> BackupSpeedOutcome:
+    """Repair Saves & Logs' Game speed in a backup (the owner, v1.35.92: "ALLOW THE ABILITY IN REPAIR SAVES
+    TO SET THE GAME SPEED IN BACKUPS TOO"): every slot save in one of this folder's backups set to Paused,
+    Slow, Normal or Fast exactly as set_speed_choice sets a save.  Only that backup's files change (each
+    through a temporary file and a read-back, its file times kept); the live saves never do.  The game
+    never reads a backup, so whether it is running does not matter.  A backup that is not one of this
+    folder's is refused; a file in it that is not a save of the game is listed and left as it is."""
+    game = game_number(save_folder)
+    if game is None:
+        raise BackupError(f"{save_folder.name} is not a Virtual Villagers save folder.")
+    if choice not in SPEED_CHOICES:
+        raise ValueError(choice)
+    try:
+        ours = {info.path.resolve() for info in list_backups(save_folder)}
+        chosen = backup.resolve()
+    except OSError as exc:
+        raise BackupError(f"The backups of {save_folder.name} could not be read ({exc}).") from exc
+    if chosen not in ours:
+        raise BackupError(f"{backup.name} is not one of the backups in {save_folder / BACKUPS_FOLDER}; "
+                          "nothing was changed.")
+    outcome = BackupSpeedOutcome()
+    for path in sorted(chosen.glob("*.ldw")):
+        if not is_slot_save(Path(path.name)):
+            continue
+        try:
+            data = path.read_bytes()
+            found = save_speed(game, data)
+            if found is None:
+                outcome.skipped.append((path.name, "not a save whose speed can be read"))
+                continue
+            old = found[1]
+            base = old - _PAUSED if old >= _PAUSED else old
+            paused = choice == "paused"
+            speed = base if paused else _SPEED_VALUES[choice]
+            changed = _speed_edit(game, data, speed, paused)
+            if changed is None:
+                outcome.already.append(path.name)
+                continue
+            recover = None
+            if game == vv3_second_faction.GAME:
+                # A backup made before the patcher kept the faction link: found again from the game's copy
+                # that pauses to these bytes, before they change and can no longer be matched (Codex, #750).
+                recover = (lambda name=path.name, slot=_save_number(path.name): vv3_second_faction.recognise(
+                    save_folder, slot, name, lambda copy: pause_save_bytes(game, copy), chosen))
+            _rewrite_slot_save(game, path, data, changed, recover)
+            outcome.changed.append((path.name, old, speed + _PAUSED if paused else speed))
+        except (OSError, BackupError) as exc:
+            outcome.skipped.append((path.name, str(exc)))
+    return outcome
 
 
 def pause_save_copy(game: int, path: Path, relative: Path) -> int | None:
@@ -1131,11 +1245,9 @@ def pause_saves(paths: list[Path], processes: ProcessController | None = None) -
             continue
         try:
             before = path.read_bytes()
-            if pause_save_file(game, path) is not None:
-                if game == vv3_second_faction.GAME:
-                    number = _save_number(path.name)
-                    if number is not None and 1 <= number <= 5:
-                        vv3_second_faction.relink(path.parent, number, before, path.read_bytes())
+            paused = pause_save_bytes(game, before)
+            if paused is not None:
+                _rewrite_slot_save(game, path, before, paused)
                 outcome.paused.append(path)
             else:
                 outcome.already.append(path)
