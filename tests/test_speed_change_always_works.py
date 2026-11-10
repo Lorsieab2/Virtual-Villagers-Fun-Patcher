@@ -261,6 +261,28 @@ class GameSpeedInABackup(unittest.TestCase):
             self.assertEqual((folder / f"{title}1.ldw").read_bytes(), data)
 
 
+class ABackupsSetSpeedIsKept(unittest.TestCase):
+    """Codex (PR #750): a backup whose speed the player sets in Repair's dialog leaves the checklist's pending
+    "Paused in backups" list, so the Repair that follows does not pause it again (src/vv_fun_patcher_gui.py)."""
+    SOURCE = (Path(__file__).resolve().parents[1] / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+
+    def body(self, start: str, end: str) -> str:
+        return self.SOURCE[self.SOURCE.index(start):self.SOURCE.index(end)]
+
+    def test_the_checklist_leaves_a_set_backup_out_of_the_pause_list(self) -> None:
+        checklist = self.body("    def _repair_checklist(", "    def _last_names_dialog(")
+        self.assertIn("speed_set_backups: set[Path] = set()", checklist)
+        self.assertIn("on_set=speed_set_backups.add", checklist)
+        self.assertIn("[p for p in unpaused if Path(p).parent not in speed_set_backups]", checklist)
+        self.assertNotIn("(list(unpaused) if pause_backups_var.get() else [])", checklist)
+
+    def test_the_dialog_reports_the_backup_it_set(self) -> None:
+        dialog = self.body("    def _backup_speed_dialog(", "    def _repair_questions(")
+        self.assertIn("def _backup_speed_dialog(self, parent, folder: Path, on_set=None)", dialog)
+        self.assertIn("if on_set is not None and (done.changed or done.already):", dialog)
+        self.assertIn("on_set(Path(info.path))", dialog)
+
+
 class OnlyANonSaveIsRefused(unittest.TestCase):
     def test_a_file_that_is_not_the_games_save_is_refused_and_left(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
