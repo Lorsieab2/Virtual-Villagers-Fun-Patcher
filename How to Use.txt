@@ -602,13 +602,18 @@ failed Farming check or an interrupted trip takes nothing. Each catch-up
 Cooking Pit bonus takes 5 (none paid when fewer are left). With fewer than 3
 fruit, a villager dropped on the tree refuses ("There is not enough to
 harvest.") and farmers are not sent there. Click the tree to see "Fruit
-remaining: N". A Custom Island Event (Story / Cheat Upgrades) that refills
-the food sources fills the tree to 1,000 too. The patch also adds an island
-event, A Closer Look (Yellow Breadfruit): once the Cooking Pit is restored, a
-farmer finds leftover fruit and the tree gains 350 fruit (up to 1,000); it is
-as likely as any other island event that can happen then. Pick Island Event
-lists it beside A Closer Look (Blackberries). A new village and Start Over
-start full. The count is kept in
+remaining: N". The two trees show the fruit left (art by Lorsieab2), in the
+village and on the Overview Map: 5 fruits on each tree with 801 to 1,000
+fruit, 4 with 601 to 800, 3 with 401 to 600, 2 with 201 to 400, 1 with 1 to
+200, none at 0. The map itself is never changed: the pictures are new files
+drawn over it, Images\vvfp_fruit_tree_0.png to _5.png. A Custom Island
+Event (Story / Cheat Upgrades) that refills the food sources fills the tree
+to 1,000 too.
+The patch also adds an island event, A Closer Look (Yellow Breadfruit): once
+the Cooking Pit is restored, a farmer finds leftover fruit and the tree gains
+350 fruit (up to 1,000); it is as likely as any other island event that can
+happen then. Pick Island Event lists it beside A Closer Look (Blackberries).
+A new village and Start Over start full. The count is kept in
 Documents\LDW\(game)\Virtual Villagers Fun Patcher\Save N\Data\Fruit Trees\
 Virtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
 saves; the save itself is never changed, so without the patch the tree is

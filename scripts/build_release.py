@@ -122,6 +122,12 @@ FILES = [
     "assets/faith_loss/VVFP Faith Loss.dll",
     # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
     "assets/fruit_supply/VVFP VV4 Fruit Supply.dll",
+    "assets/fruit_supply/vvfp_fruit_tree_0.png",
+    "assets/fruit_supply/vvfp_fruit_tree_1.png",
+    "assets/fruit_supply/vvfp_fruit_tree_2.png",
+    "assets/fruit_supply/vvfp_fruit_tree_3.png",
+    "assets/fruit_supply/vvfp_fruit_tree_4.png",
+    "assets/fruit_supply/vvfp_fruit_tree_5.png",
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",

@@ -351,7 +351,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "Construction gate other puzzles (and the pit's debris), not the fruit; the difficulty, the Purify "
             "Tree, the Tree of Life, the Nursery's \"Showing baby the cooking area\" and the island event that "
             "needs the restored pit take no fruit; a Custom Island Event that refills the food sources fills the "
-            f"tree to {FRUIT_FULL:,}, and no island event of the game's own refills it"))
+            f"tree to {FRUIT_FULL:,}, and no island event of the game's own refills it"
+            + (f"; the two trees show the fruit left (art by Lorsieab2), in the village and on the Overview Map "
+               f"({stages})" if (stages := fruit_stages_text()) else "")))
         if fruit_patch is True:
             if supply is None:
                 add("Food sources", "The yellow fruit tree's supply: no file of the patch's for this village, so "
@@ -359,8 +361,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     gm.SAVE)
             else:
                 left = FRUIT_REFILL_UNITS - supply[1]
+                shown = fruit_shown(supply[0])
                 add("Food sources", f"The yellow fruit tree's supply (the patch's file, as of the last save): "
-                                    f"{supply[0]:,} of {FRUIT_FULL:,} fruit left; refilled to full after {left} more "
+                                    f"{supply[0]:,} of {FRUIT_FULL:,} fruit left"
+                                    + (f" (the trees show: {shown})" if shown else "")
+                                    + f"; refilled to full after {left} more "
                                     f"age units ({gm.duration(gm.real_seconds(left * 360, speed_value))} of play on "
                                     f"{on} speed).", gm.SAVE)
 
@@ -718,6 +723,31 @@ def fruit_supply(village: gm.Village) -> tuple[int, int] | None:
         return None
     roster = {v for v in struct.unpack_from("<256I", raw, 32) if v}
     return (fruit, units) if roster & fruit_living(village) else None
+
+
+def fruit_stages() -> list[dict]:
+    """The trees' pictures by the fruit left: [{"from", "to", "picture", "shows"}], the most fruit first, from the
+    patch's row (data/vv4_yellow_fruit_trees_limited_feature.json, written from the companion's one table FS_STAGES);
+    [] when it cannot be read."""
+    import json
+    try:
+        record = json.loads((Path(__file__).resolve().parents[1] / "data" / f"{YELLOW_FRUIT}_feature.json")
+                            .read_text(encoding="utf-8"))
+        return list(record["fruit_tree_stages"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return []
+
+
+def fruit_stages_text() -> str:
+    """'801 to 1,000 fruit: 5 fruits on each tree; ...' -- the pictures' stages in words ('' when unknown)."""
+    def span(row: dict) -> str:
+        return f"{row['from']:,}" if row["from"] == row["to"] else f"{row['from']:,} to {row['to']:,}"
+    return "; ".join(f"{span(row)} fruit: {row['shows']}" for row in fruit_stages())
+
+
+def fruit_shown(fruit: int) -> str:
+    """What the trees show with `fruit` left ('' when unknown)."""
+    return next((row["shows"] for row in fruit_stages() if row["from"] <= fruit <= row["to"]), "")
 
 
 def fruit_living(village: gm.Village) -> set[int]:

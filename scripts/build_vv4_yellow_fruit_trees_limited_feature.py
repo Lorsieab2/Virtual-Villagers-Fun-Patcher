@@ -11,11 +11,19 @@ from its second word; tests/test_vv4_yellow_fruit_trees_limited.py proves it by 
 
 One command after the DLL's source changes: this script builds it (scripts/build_vvfp_vv4_fruit_supply.ps1) and pins
 it by SHA-256.  --no-build pins what is already built.
+
+THE PICTURES.  The DLL draws one 256 x 256 picture over the two trees by the fruit left: the stages are ONE table,
+FS_STAGES in native/vvfp_vv4_fruit_supply/vvfp_vv4_fruit_supply.c, which this script reads for the row's words (change
+the numbers there only).  New art (the owner's): replace assets/fruit_supply/vvfp_fruit_tree_5.png .. _0.png (8-bit RGBA,
+256 x 256, top-left on world (0, 1664): the section (0, 128)-(256, 384) of MapX0Y3.jpg; the base to paint on is
+assets/fruit_supply/yellow_fruit_trees_map_section.png), then run this script (--no-build); it checks and pins each
+picture by SHA-256.  scripts/vv4_fruit_tree_mockups.py previews the six stages on the game's own map.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 import struct
 import subprocess
 import sys
@@ -26,6 +34,8 @@ ID = "vv4_yellow_fruit_trees_limited"
 NAME = "Yellow Fruit Trees are No Longer Unlimited"
 DLL_NAME = "VVFP VV4 Fruit Supply.dll"
 DLL = ROOT / "assets" / "fruit_supply" / DLL_NAME
+SOURCE = ROOT / "native" / "vvfp_vv4_fruit_supply" / "vvfp_vv4_fruit_supply.c"
+ART_SIZE, ART_X, ART_Y = 256, 0, 1664     # MapX0Y3.jpg is tile (0, 3) at (0, 1536); the trees' section is (0, 128)
 SIDECAR = ("Virtual Villagers Fun Patcher\\Save <S>\\Data\\Fruit Trees\\"
            "Virtual Villagers 4 Yellow Fruit Tree - Save <S>.dat")
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
@@ -56,12 +66,63 @@ SITES = (
     (0x42EAE7, "C6861F0B000001",
      "the stew's item listener 0x42EA30, item 0x37 (the stomped fruit put in the cauldron): 3 fruit taken (down to "
      "0), then the stock flag"),
+    (0x4400AD, "B920CB4C00",
+     "the village draw 0x440050, after the map tiles (0x46FE10) and before the map's overlay list (mov ecx, "
+     "0x4CCB20 / call 0x41C370): the fruit trees' picture at (0, 1664) minus the scroll, then the stock mov"),
+    (0x445426, "B920CB4C00",
+     "the Overview Map draw 0x4453C0, before the map's overlay list (mov ecx, 0x4CCB20 / call 0x41C5B0, its left, "
+     "top and scale pushed): the fruit trees' picture where the list puts a picture of (0, 1664), then the stock mov"),
 )
 VTABLE = 0x48E890
 EVENT_SLOT_VA = 0x4CCA74       # the island-event table 0x4CCA28's slot 19, NULL in the stock game
 EVENT_GAIN = 350               # fruit the event adds (the berry event's +350, 0x414B38); the owner gave no amount
 SLOTS = ((4, 0x433CB0, "save: the companion writes the tree's file, then the stock save"),
          (3, 0x433820, "load: the stock load, then the file is read again at the next use"))
+
+
+FULL_FRUIT = 1000
+STAGE_WORDS = ("5 fruits on each tree", "4 fruits on each tree", "3 fruits on each tree", "2 fruits on each tree",
+               "1 fruit on each tree", "no fruit on either tree")
+
+
+def stages() -> list[tuple[int, str | None]]:
+    """FS_STAGES from the DLL's source: (from, picture or None), the most fruit first, the last from 0."""
+    text = SOURCE.read_text(encoding="utf-8")
+    body = re.search(r"static const fs_stage FS_STAGES\[\] = \{(.*?)\n\};", text, re.S).group(1)
+    rows = [(int(a), None if b == "NULL" else b.strip('"'))
+            for a, b in re.findall(r"\{\s*(\d+),\s*(NULL|\"[^\"]+\")\s*\}", body)]
+    assert rows and rows[-1][0] == 0 and all(x[0] > y[0] for x, y in zip(rows, rows[1:])), rows
+    return rows
+
+
+def stage_ranges() -> list[tuple[int, int, str | None]]:
+    """(lowest, highest, picture) of each stage."""
+    rows = stages()
+    tops = [FULL_FRUIT] + [r[0] - 1 for r in rows[:-1]]
+    return [(low, top, name) for (low, name), top in zip(rows, tops)]
+
+
+def pictures() -> list[str]:
+    return [name for _, _, name in stage_ranges() if name is not None]
+
+
+def art_file(name: str) -> dict:
+    data = (ROOT / "assets" / "fruit_supply" / name).read_bytes()
+    if data[:8] != b"\x89PNG\r\n\x1a\n" or struct.unpack(">II", data[16:24]) != (ART_SIZE, ART_SIZE) \
+            or (data[24], data[25]) != (8, 6):
+        raise SystemExit(f"assets/fruit_supply/{name} must be an 8-bit RGBA PNG of {ART_SIZE} x {ART_SIZE}")
+    return {"source": f"assets/fruit_supply/{name}", "destination": f"Images/{name}",
+            "sha256": hashlib.sha256(data).hexdigest().upper()}
+
+
+def shows(i: int, name: str | None) -> str:
+    return STAGE_WORDS[i] if i < len(STAGE_WORDS) else str(name)
+
+
+def ranges_text() -> str:
+    def span(low: int, top: int) -> str:
+        return f"{low:,}" if low == top else f"{low:,} to {top:,}"
+    return "; ".join(f"{span(low, top)} fruit: {shows(i, name)}" for i, (low, top, name) in enumerate(stage_ranges()))
 
 
 def description() -> str:
@@ -77,7 +138,9 @@ def description() -> str:
         "\"There is not enough to harvest.\" when it is the selected villager), and villagers deciding to farm are "
         "not sent there. Click the tree to see "
         "how much fruit is left (\"Fruit remaining: N\" on the game's own status line, as the blackberry bush "
-        "shows its berries). A new village starts with a full tree. Technologies and effects: Food Mastery "
+        "shows its berries). The two trees are drawn with the fruit they have left (art by Lorsieab2), over the map's own picture of them (the map is never "
+        f"changed): {ranges_text()}; the same picture on the Overview Map. A new village starts with a full tree. "
+        "Technologies and effects: Food Mastery "
         "multiplies the food a trip or a bonus pays, never the fruit taken (3 and 5 are taken before it); "
         "Construction (the pit's debris) and Dendrology gate other steps and puzzles, not the fruit; the "
         "difficulty changes only meals; the stew takes fruit as above; the Purify Tree, the Tree of Life, the "
@@ -181,6 +244,20 @@ def row(dll_sha: str) -> dict:
             "the tree is the stock game's (no refusal, nothing taken, no refill counted, the event and the Custom "
             "Island Event refill change nothing) and nothing is written; then the saved fruit and refill progress "
             "are restored.",
+            "The pictures (FS_STAGES, the one table of the stages in the companion's source): "
+            f"{ranges_text()}. Over the map tile MapX0Y3.jpg's section (0, 128)-(256, 384) (the tile is (0, 3) of "
+            "the 4 x 4 grid of 512 x 512 tiles 0x46FCE0 builds at (512 x, 512 y)), world (0, 1664)-(256, 1920), "
+            "the companion draws Images\\" + ", Images\\".join(pictures()) + " (256 x 256 RGBA, top-left at "
+            "(0, 1664)); no village bound, or its file not read yet (pending): nothing, the map's own trees. "
+            "Village (0x440050): after the map tiles (0x46FE10 at 0x4400A8), just before the map's overlay list "
+            "(0x41C370, list 0x4CCB20) and as it draws, through 0x409960 at (0, 1664) minus the scroll "
+            "([0x72563C], [0x725640]); everything after (the list, the queued sprites, the villagers) is drawn "
+            "over it. Overview Map (0x4453C0): just before the list (0x41C5B0 at 0x44542B, origin (188, 61), "
+            "scale 0.20703125), as the list draws: through 0x409AD0 at ftol(0 x scale) + 188, ftol(1664 x scale) + "
+            "61 and the list's whole percent (20 cut by _ftol; 21 when Fix Vanilla Bugs rounds the list's at "
+            "0x41C5CB). Each picture is built once by the game's own ldwImageGrid 0x40AB10 (name, 1, 1), the image "
+            "kind the list draws, only after its PNG header says 8-bit RGBA 256 x 256; a missing or wrong file is "
+            "never drawn.",
         ],
         "explicit_non_changes": [
             "Technologies and effects, read from the code: Food Mastery (tech 4) multiplies inside the food writer "
@@ -195,22 +272,28 @@ def row(dll_sha: str) -> dict:
             "touches the tree: of the 49 event classes' results (vtable slots 11 and 12) and the routines they "
             "call, only A Closer Look (0x414B38, the blackberries +350) refills a food source, and it stays "
             "berries only (the owner, 2026-11-08).",
-            "No executable byte is patched: the companion writes its 8 jumps, 2 vtable slots and the event "
+            "No executable byte is patched: the companion writes its 10 jumps, 2 vtable slots and the event "
             "table's empty slot 19 at run time, only "
             "after verifying every stock value, all or none; a different build installs nothing.",
             "The save is never written, so removing the patch leaves the tree unlimited as in the stock game; the "
             "file stays beside the save, unused (Start Over empties the save's folder).",
             "The trips, the Farming check and its practice, the stew, the bonus odds and amounts, Food Mastery "
             "and every other food source are the game's own.",
+            "The map tiles (MapX0Y3.jpg included) and every other picture are never changed; the fruit trees' "
+            "pictures are new files in Images, drawn only by the companion.",
         ],
         "evidence_status": ("implemented from exact-build disassembly; emulated stock and patched (trips, refusal, "
-                            "dispatcher, task gate, stew, catch-up bonus, refill, file, Start Over) in "
+                            "dispatcher, task gate, stew, catch-up bonus, refill, file, Start Over, the pictures' "
+                            "draws in the village and on the Overview Map) in "
                             "tests/test_vv4_yellow_fruit_trees_limited.py; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/fruit_supply/{DLL_NAME}", "destination": DLL_NAME, "sha256": dll_sha},
-        ],
+        ] + [art_file(name) for name in pictures()],
         "patches": [],
         "runtime_detours": detours,
+        # The companion's one table of the stages (FS_STAGES), as written here for Game Mechanics to read.
+        "fruit_tree_stages": [{"from": low, "to": top, "picture": name, "shows": shows(i, name)}
+                              for i, (low, top, name) in enumerate(stage_ranges())],
     }
 
 

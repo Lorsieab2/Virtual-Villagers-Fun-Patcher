@@ -28,7 +28,8 @@ import vv_fun_patcher as patcher  # noqa: E402
 try:
     import pefile  # noqa: F401
     from unicorn import UC_HOOK_CODE
-    from unicorn.x86_const import UC_X86_REG_EDI, UC_X86_REG_ESP
+    from unicorn.x86_const import (UC_X86_REG_EBP, UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDI, UC_X86_REG_EIP,
+                                   UC_X86_REG_ESI, UC_X86_REG_ESP)
 
     import farmers_emulation_vv4 as fe
     import test_vv3_both_factions as both_factions   # its in-memory file system
@@ -61,7 +62,9 @@ SKILL_ROLL = 0x462B1A           # rand(100) of the skill check (return address)
 BONUS_ROLL = 0x468AA1           # rand(100) of the Cooking Pit bonus
 GATE_ROLLS = (0x4634F4, 0x463503)
 SITES = {0x46456C: 12, 0x463A38: 11, 0x46364E: 7, 0x4359B8: 7, 0x43597A: 5, 0x468AAB: 12, 0x468AD6: 8,
-         0x42EAE7: 7}
+         0x42EAE7: 7, 0x4400AD: 5, 0x445426: 5}
+ART = ROOT / "assets" / "fruit_supply"
+PICTURES = tuple(f"vvfp_fruit_tree_{n}.png" for n in range(6))     # PICTURES[n]: n fruits on each tree
 
 
 def identity(name: str, sex: int = 1, father: str = "", mother: str = "") -> int:
@@ -678,6 +681,297 @@ class YellowBreadfruitEvent(unittest.TestCase):
         t = Tree()
         self.assertEqual(t.v.call(self.method(t, 0), self.obj(t), 1) & 0xFFFFFFFF, self.obj(t))
         self.assertNotEqual(self.obj(t), 0)
+
+
+MAP_TILES = 0x705510            # the map object: 16 tiles {image, x, y} (0x46FCE0 fills them, 0x46FE10 draws them)
+OVERLAYS = 0x4CCB20             # the map's overlay list: 20-byte pictures {active, x, y, image, cell}, then its target
+SCROLL = 0x72563C               # the village's scroll x, y
+TARGET, LIST_IMAGE = 0x18000000, 0x18000100
+TILE_IMAGES = 0x18001000        # where the stubbed tile loader puts its images
+DRAWS = {0x409960: ("whole", 3), 0x409AD0: ("cell", 6)}
+GRID_CTOR, TILE_CTOR, TILE_NEW, TILE_SPRINTF = 0x40AB10, 0x40A840, 0x470C5C, 0x4716DB
+OVERVIEW_SCALE = 0.20703125     # [0x4BF3AC], the Overview Map's (188, 61) origin pushed with it
+# The owner's stages (2026-11-10, the even split): the picture for each fruit count at every boundary.
+EXPECTED = {0: PICTURES[0], 1: PICTURES[1], 200: PICTURES[1], 201: PICTURES[2], 400: PICTURES[2], 401: PICTURES[3],
+            600: PICTURES[3], 601: PICTURES[4], 800: PICTURES[4], 801: PICTURES[5], 1000: PICTURES[5]}
+
+
+class Scene:
+    """The village with the companion, and the game's own map and overlay-list draws around the two picture sites.
+
+    The picture files come from the companion's own CreateFileW (by full path, Images beside the executable); the
+    game's image constructors and the two draw entries 0x409960 / 0x409AD0 are recorded and return at once (their
+    bodies are the renderer's).  Everything between them -- the map draw 0x46FE10, the overlay list's draws 0x41C370
+    and 0x41C5B0, the stubs at 0x4400AD and 0x445426 -- is the rendered executable's and the companion's own code."""
+
+    def __init__(self, fruit: int | None = 1000, *, exe: bytes | None = None, art: dict | None = None,
+                 locked: bool = False, alive: bool = True, patched: bool = True):
+        files = {} if fruit is None else {side(): tree_file(fruit, roster=[identity("Ana")])}
+        self.t = Tree(patched, exe=exe, files=files)
+        if alive:
+            self.t.villager()
+        if locked:
+            self.t.files.locked.add(side())
+        self.art = {n: (ART / n).read_bytes() for n in PICTURES} if art is None else art
+        self.names: dict[int, str] = {}
+        self.built: list[str] = []                    # every image the game's constructors built
+        self.draws: list[tuple] = []
+        v = self.t.v
+        if patched:
+            self.t.v.process.api_handlers["CreateFileW"] = self._create_w
+        v.w32(OVERLAYS + 0x1680, TARGET)
+        v.w32(0x4CB928, TARGET)                       # the map's draw target, 0x408130's [0x4CB928]
+        for at, (kind, n) in DRAWS.items():
+            v.uc.hook_add(UC_HOOK_CODE, lambda *_a, kind=kind, n=n: self._draw(kind, n), begin=at, end=at)
+        v.uc.hook_add(UC_HOOK_CODE, lambda *_: self._grid(), begin=GRID_CTOR, end=GRID_CTOR)
+        # One picture of the game's own in the overlay list, at the trees' place: the list draws it as it draws all.
+        v.uc.mem_write(OVERLAYS, struct.pack("<B3xiiIi", 1, 0, 1664, LIST_IMAGE, -1) + bytes(20))
+        self._tiles()
+
+    # -- stand-ins ----------------------------------------------------------------------------------------------
+    def _create_w(self, p):
+        path = p.wstring(p.arg(0))
+        folder, _, name = path.rpartition("\\")
+        files = self.t.files
+        if folder.lower() != "c:\\games\\village\\images" or name not in self.art:
+            files.error = 2
+            return 0xFFFFFFFF, 28
+        h = files.next_handle
+        files.next_handle += 4
+        files.handles[h] = [path.lower(), bytearray(self.art[name]), 0, False]
+        return h, 28
+
+    def _grid(self):
+        """ldwImageGrid 0x40AB10 (this; name, columns, rows): the cell size from the PNG's own header."""
+        v = self.t.v
+        sp = v.uc.reg_read(UC_X86_REG_ESP)
+        this = v.uc.reg_read(UC_X86_REG_ECX)
+        name_at, cols, rows = struct.unpack("<3I", bytes(v.uc.mem_read(sp + 4, 12)))
+        name = bytes(v.uc.mem_read(name_at, 64)).split(b"\0")[0].decode()
+        w, h = struct.unpack(">II", self.art[name][16:24])
+        v.w32(this + 0x10, w // cols)
+        v.w32(this + 0x14, h // rows)
+        self.names[this] = name
+        self.built.append(name)
+        v._ret(this, 12)
+
+    def _draw(self, kind: str, n: int):
+        v = self.t.v
+        sp = v.uc.reg_read(UC_X86_REG_ESP)
+        args = struct.unpack(f"<{n}i", bytes(v.uc.mem_read(sp + 4, 4 * n)))
+        self.draws.append((kind, v.uc.reg_read(UC_X86_REG_ECX)) + args)
+        v._ret(0, 4 * n)
+
+    def _tiles(self):
+        """The map's own tile loader 0x46FCE0, with its sprintf, new and image constructor stood in for: the 16
+        tiles get their images and places as the game gives them."""
+        v = self.t.v
+        made = []
+
+        def sprintf():
+            sp = v.uc.reg_read(UC_X86_REG_ESP)
+            out, fmt, prefix, x, y = struct.unpack("<5I", bytes(v.uc.mem_read(sp + 4, 20)))
+            text = bytes(v.uc.mem_read(fmt, 32)).split(b"\0")[0].decode()
+            pre = bytes(v.uc.mem_read(prefix, 16)).split(b"\0")[0].decode()
+            name = (text.replace("%s", pre).replace("%01d", "{}", 2)).format(x, y)
+            v.uc.mem_write(out, name.encode() + b"\0")
+            v._ret(len(name), 0)
+
+        def new():
+            made.append(TILE_IMAGES + 0x10 * len(made))
+            v._ret(made[-1], 0)
+
+        def tile():
+            sp = v.uc.reg_read(UC_X86_REG_ESP)
+            this = v.uc.reg_read(UC_X86_REG_ECX)
+            name_at = struct.unpack("<I", bytes(v.uc.mem_read(sp + 4, 4)))[0]
+            self.names[this] = bytes(v.uc.mem_read(name_at, 16)).split(b"\0")[0].decode()
+            v._ret(this, 4)
+        v.uc.mem_map(TARGET, 0x10000)
+        hooks = [v.uc.hook_add(UC_HOOK_CODE, lambda *_, f=f: f(), begin=a, end=a)
+                 for a, f in ((TILE_SPRINTF, sprintf), (TILE_NEW, new), (TILE_CTOR, tile))]
+        v.call(0x46FCE0, MAP_TILES)
+        for h in hooks:
+            v.uc.hook_del(h)
+
+    # -- the two scenes -----------------------------------------------------------------------------------------
+    def _run(self, start: int, until: int, stack: list[int]) -> dict:
+        v = self.t.v
+        sp = v.stack + 0x180000
+        for value in reversed(stack):
+            sp -= 4
+            v.uc.mem_write(sp, struct.pack("<I", value & 0xFFFFFFFF))
+        v.uc.reg_write(UC_X86_REG_ESP, sp)
+        regs = {r: 0x01010101 * (i + 1) for i, r in enumerate((UC_X86_REG_EBX, UC_X86_REG_ESI, UC_X86_REG_EDI,
+                                                                 UC_X86_REG_EBP))}
+        for r, value in regs.items():
+            v.uc.reg_write(r, value)
+        self.draws.clear()
+        v.uc.emu_start(start, until, count=5_000_000)
+        assert v.uc.reg_read(UC_X86_REG_EIP) == until
+        return {"esp": v.uc.reg_read(UC_X86_REG_ESP) - sp, "kept": all(v.uc.reg_read(r) == x for r, x in regs.items())}
+
+    def village(self, scroll=(0, 1300)) -> dict:
+        """0x4400A3..0x4400B7: mov ecx, the map / call 0x46FE10 (the tiles) / [the site] mov ecx, 0x4CCB20 / call
+        0x41C370 (the overlay list), with the scroll and the view's clip box pushed as 0x440050 pushes them."""
+        self.t.v.w32(SCROLL, scroll[0])
+        self.t.v.w32(SCROLL + 4, scroll[1])
+        return self._run(0x4400A3, 0x4400B7, [scroll[0], scroll[1], 0, 0, 800, 600])
+
+    def overview(self) -> dict:
+        """0x445415..0x445430: the scale and origin pushed / [the site] mov ecx, 0x4CCB20 / call 0x41C5B0."""
+        return self._run(0x445415, 0x445430, [])
+
+    def picture(self, draw: tuple) -> str:
+        return self.names.get(draw[2], hex(draw[2]))
+
+    def ours(self) -> list[tuple]:
+        return [d for d in self.draws if d[2] not in (LIST_IMAGE,) and not self.picture(d).startswith("Map")]
+
+
+@unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")
+class Pictures(unittest.TestCase):
+    """The trees drawn running out: one picture over the map's own trees, by the fruit left."""
+
+    def test_the_trees_are_tile_x0_y3s_section_at_0_1664(self) -> None:
+        s = Scene(1000)
+        tiles = {s.names[img]: (x, y) for img, x, y in
+                 (struct.unpack("<I2i", bytes(s.t.v.uc.mem_read(MAP_TILES + 12 * k, 12))) for k in range(16))}
+        self.assertEqual(len(tiles), 16)
+        self.assertEqual(tiles["MapX0Y3.jpg"], (0, 1536))                # 512 x 512 tiles at (512 x, 512 y)
+        self.assertEqual(tiles["MapX3Y0.jpg"], (1536, 0))
+        self.assertEqual(sorted(tiles.values()), sorted((512 * x, 512 * y) for x in range(4) for y in range(4)))
+        # The section (0, 128)-(256, 384) of that tile: the base the pictures are painted on is that crop.
+        from PIL import Image
+        base = Image.open(ART / "yellow_fruit_trees_map_section.png")
+        self.assertEqual(base.size, (256, 256))
+        tile = ROOT / "research" / "game-images" / "Virtual Villagers - The Tree of Life" / "Images" / "MapX0Y3.jpg"
+        if tile.is_file():
+            self.assertEqual(Image.open(tile).convert("RGB").crop((0, 128, 256, 384)).tobytes(),
+                             base.convert("RGB").tobytes())
+
+    def test_each_threshold_picks_its_picture(self) -> None:
+        for fruit, expected in EXPECTED.items():
+            with self.subTest(fruit=fruit):
+                s = Scene(fruit)
+                self.assertEqual(s.t.left(), fruit)
+                for scene in (s.village, s.overview):
+                    scene()
+                    self.assertEqual([s.picture(d) for d in s.ours()], [expected] if expected else [])
+
+    def test_the_village_draws_it_above_the_map_and_under_the_list_where_the_list_draws(self) -> None:
+        for scroll in ((0, 1300), (37, 1411), (300, 1700)):
+            with self.subTest(scroll=scroll):
+                s = Scene(500)
+                state = s.village(scroll)
+                self.assertEqual(state, {"esp": 4 * 6, "kept": True})    # the map's six arguments popped, regs kept
+                kinds = [("map" if s.picture(d).startswith("Map") else d[2]) for d in s.draws]
+                ours = kinds.index(next(d[2] for d in s.ours()))
+                self.assertEqual(kinds[ours + 1:], [LIST_IMAGE])          # just before the list's picture
+                self.assertTrue(kinds[:ours] and all(k == "map" for k in kinds[:ours]))  # every tile before it
+                ours_draw, listed = s.ours()[0], s.draws[-1]
+                self.assertEqual(ours_draw[:2], ("whole", TARGET))
+                self.assertEqual(ours_draw[3:], (0 - scroll[0], 1664 - scroll[1]))
+                self.assertEqual(ours_draw[3:], listed[3:])               # the list's own place for (0, 1664)
+                tile = next(d for d in s.draws if s.picture(d) == "MapX0Y3.jpg")
+                self.assertEqual((ours_draw[3] - tile[3], ours_draw[4] - tile[4]), (0, 128))
+
+    def test_the_overview_map_draws_it_as_the_list_does(self) -> None:
+        stock = Scene(200)
+        state = stock.overview()
+        self.assertEqual(state, {"esp": 0, "kept": True})
+        ours, listed = stock.ours(), stock.draws[-1]
+        self.assertEqual(len(stock.draws), 2)
+        self.assertEqual(listed[2], LIST_IMAGE)                          # ours first, then the list
+        self.assertEqual(ours[0][:2], ("cell", TARGET))
+        self.assertEqual(ours[0][3:], (188, 61 + int(1664 * OVERVIEW_SCALE), 0, 20, 0))
+        self.assertEqual(ours[0][3:], listed[3:])
+        # Fix Vanilla Bugs rounds the list's percent (21): the picture follows it.
+        fixed = Scene(200, exe=render("immediate_fixed"))
+        self.assertEqual(bytes(fixed.t.v.uc.mem_read(0x41C5CB, 5)), bytes.fromhex("50DB1C2458"))
+        fixed.overview()
+        self.assertEqual(fixed.ours()[0][3:], fixed.draws[-1][3:])
+        self.assertEqual(fixed.ours()[0][6], 21)
+
+    def test_a_new_village_shows_the_full_trees(self) -> None:
+        s = Scene(None)                                                   # no file: a new village starts full
+        for scene in (s.village, s.overview):
+            scene()
+            self.assertEqual([s.picture(d) for d in s.ours()], [PICTURES[5]])
+
+    def test_nothing_is_drawn_while_the_fruit_is_not_known(self) -> None:
+        cases = {"pending (the file locked)": Scene(10, locked=True), "no one alive": Scene(10, alive=False)}
+        for label, s in cases.items():
+            with self.subTest(label):
+                for scene in (s.village, s.overview):
+                    scene()
+                    self.assertEqual(s.ours(), [])
+                    self.assertEqual(s.draws[-1][2], LIST_IMAGE)          # the list still draws
+        pending = cases["pending (the file locked)"]
+        pending.t.files.locked.clear()
+        pending.t.v.process.tick += 5000                                  # past the gate's retry window
+        pending.village()
+        self.assertEqual([pending.picture(d) for d in pending.ours()], [PICTURES[1]])   # read: 10 fruit
+
+    def test_a_missing_or_wrong_picture_is_never_drawn(self) -> None:
+        from PIL import Image
+        import io
+        wrong = io.BytesIO()
+        Image.new("RGBA", (200, 256)).save(wrong, "PNG")
+        rgb = io.BytesIO()
+        Image.new("RGB", (256, 256)).save(rgb, "PNG")
+        for label, art in (("missing", {}), ("200 wide", {PICTURES[0]: wrong.getvalue()}),
+                           ("RGB", {PICTURES[0]: rgb.getvalue()})):
+            with self.subTest(label):
+                s = Scene(0, art=art)
+                s.village()
+                self.assertEqual(s.ours(), [])
+                self.assertEqual(s.built, [])          # never handed to the game's loader
+
+    def test_each_picture_is_built_once(self) -> None:
+        s = Scene(100)
+        for _ in range(3):
+            s.village()
+            s.overview()
+        self.assertEqual(s.built, [PICTURES[1]])
+
+    def test_the_stock_game_draws_no_picture(self) -> None:
+        s = Scene(0, patched=False)
+        self.assertEqual(s.village(), {"esp": 24, "kept": True})
+        self.assertEqual(s.ours(), [])
+        s.overview()
+        self.assertEqual(s.ours(), [])
+
+    def test_every_mode_and_256_villagers_draw_it(self) -> None:
+        for mode, expanded in [(m, False) for m in MODES] + [("immediate_fixed", True)]:
+            with self.subTest(mode=mode, expanded=expanded):
+                exe = render(mode, expanded)
+                s = Scene(0, exe=exe)
+                if expanded:                                            # the 256 table's own record
+                    rec = 0x800000 + 0x44
+                    s.t.v.w8(rec + 0x1CC4, 1)
+                    s.t.v.w32(rec + 0x1B90, 1)
+                    s.t.v.uc.mem_write(rec + REC_NAME, b"Ana\0")
+                    s.t.v.process.tick += 1000
+                    s.t.load()
+                s.village((10, 1500))
+                self.assertEqual([(s.picture(d),) + d[3:] for d in s.ours()], [(PICTURES[0], -10, 164)])
+                s.overview()
+                self.assertEqual([s.picture(d) for d in s.ours()], [PICTURES[0]])
+                self.assertEqual(s.ours()[0][3:], s.draws[-1][3:])
+
+    def test_the_shipped_pictures(self) -> None:
+        row = json.loads(FEATURE.read_text(encoding="utf-8"))
+        import hashlib
+        files = {f["destination"]: f for f in row["companion_files"]}
+        for name in PICTURES:
+            data = (ART / name).read_bytes()
+            self.assertEqual(struct.unpack(">II", data[16:24]), (256, 256))
+            self.assertEqual((data[24], data[25]), (8, 6))               # 8-bit RGBA
+            self.assertEqual(files[f"Images/{name}"]["sha256"], hashlib.sha256(data).hexdigest().upper())
+        self.assertEqual([(s["from"], s["to"], s["picture"]) for s in row["fruit_tree_stages"]],
+                         [(801, 1000, PICTURES[5]), (601, 800, PICTURES[4]), (401, 600, PICTURES[3]), (201, 400, PICTURES[2]),
+                          (1, 200, PICTURES[1]), (0, 0, PICTURES[0])])
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "needs pefile, unicorn, the stock executable and research/game-data/vv4")

@@ -77,6 +77,15 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # New Believers' Shrine to the Ancestors: the owner's cover with graves and
     # flowers; the game's own image table names it (the row points entry 0x1B's name at it).
     "Images/vvfp_respectful_hovel.png": _GAME_IMAGE,
+    # The Tree of Life's Yellow Fruit Trees are No Longer Unlimited: the fruit
+    # trees running out; the game's sprite constructor is handed
+    # "vvfp_fruit_tree_0.png" .. "_5.png" (vvfp_vv4_fruit_supply.c).
+    "Images/vvfp_fruit_tree_0.png": _GAME_IMAGE,
+    "Images/vvfp_fruit_tree_1.png": _GAME_IMAGE,
+    "Images/vvfp_fruit_tree_2.png": _GAME_IMAGE,
+    "Images/vvfp_fruit_tree_3.png": _GAME_IMAGE,
+    "Images/vvfp_fruit_tree_4.png": _GAME_IMAGE,
+    "Images/vvfp_fruit_tree_5.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.

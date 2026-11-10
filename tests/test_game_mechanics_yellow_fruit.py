@@ -62,7 +62,7 @@ class YellowFruitPage(unittest.TestCase):
         page = render(self.folder, frozenset({vv4.YELLOW_FRUIT}), living={identity("Ana")})
         self.assertIn("Yellow Fruit Trees are No Longer Unlimited\" is in the game: the yellow fruit tree holds at "
                       "most 1,000 fruit, refilled to full every 40 age units", page)
-        self.assertIn("412 of 1,000 fruit left; refilled to full after 10 more age units", page)
+        self.assertIn("412 of 1,000 fruit left (the trees show: 3 fruits on each tree); refilled to full after 10 more age units", page)
         self.assertIn("the yellow fruit tree is refilled to 1,000 every 40 age units", page)
         self.assertIn("Food Mastery multiplies the food, not the fruit taken", page)
         self.assertIn("Dendrology", page)
