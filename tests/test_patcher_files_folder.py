@@ -33,6 +33,7 @@ its reason). Pinned here:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -512,6 +513,34 @@ class DeepOutputFolders(unittest.TestCase):
         evidence = vfp._publish_sibling(base, "recovery", "0" * 8) / "failed-publication" / name
         self.assertGreaterEqual(len(str(evidence)), patcher_files.MAX_PATH)
         vfp._require_patcher_files_path_fits(short, [], name)
+
+    def test_a_recovery_report_records_a_member_deeper_than_max_path(self):
+        """Codex (PR #752): an unresolved failure's retained backup can hold a player file deeper than MAX_PATH;
+        the recovery report must record its owned path (not null) and pass its own validation, with Windows'
+        long paths switched off."""
+        base = short_base(self)
+        recovery = vfp._publish_sibling(base, "recovery", "0" * 8)
+        retained = recovery / vfp.RECOVERY_RETAINED_FOLDERS[0]
+        rel = "Backups/" + "b" * 120 + "/" + "c" * 60 + "/save.ldw"
+        member = patcher_files.long_path(retained / rel)
+        member.parent.mkdir(parents=True)
+        member.write_bytes(b"the player's")
+        self.assertGreaterEqual(len(str(retained / rel)), patcher_files.MAX_PATH)
+        destination = base / "o"
+        destination.mkdir()
+        records = [{"relative_path": rel, "original_path": str(destination / rel),
+                    "sha256": hashlib.sha256(b"the player's").hexdigest().upper(), "size": 12}]
+        with classic_max_path():
+            report = vfp._write_recovery_report(
+                recovery, "install", records, retained,
+                destination_root=destination,
+                destination_snapshot=vfp._capture_tree_snapshot(destination),
+                restored_snapshot=vfp._capture_tree_snapshot(retained),
+                destination_precondition=vfp._capture_tree_snapshot(destination))
+        payload = json.loads(patcher_files.long_path(report).read_bytes().decode("utf-8"))
+        (entry,) = payload["members"]
+        self.assertEqual(entry["backup_relative_path"], f"{vfp.RECOVERY_RETAINED_FOLDERS[0]}/{rel}")
+        self.assertEqual(entry["backup_size"], 12)
 
     def test_the_games_own_files_count_too(self):
         base = short_base(self)

@@ -11638,7 +11638,8 @@ def _write_recovery_report(
         report_operation = "install_new"
 
     def relative_owned(path: Path | None) -> str | None:
-        if path is None or not os.path.lexists(path):
+        # long_path: a retained member deeper than MAX_PATH exists too (Codex, PR #752).
+        if path is None or not os.path.lexists(patcher_files.long_path(path)):
             return None
         try:
             return Path(path).absolute().relative_to(recovery_dir.absolute()).as_posix()
@@ -11646,7 +11647,8 @@ def _write_recovery_report(
             raise PatcherError("Recovery report attempted to record an old or foreign sibling path.") from exc
 
     def owned_snapshot(path: Path | None) -> dict[str, Any] | None:
-        return _capture_tree_snapshot(path) if path is not None and os.path.lexists(path) else None
+        return (_capture_tree_snapshot(path)
+                if path is not None and os.path.lexists(patcher_files.long_path(path)) else None)
 
     members: list[dict[str, Any]] = []
     for item in records:
@@ -11688,7 +11690,7 @@ def _write_recovery_report(
     }
     owned_files: list[str] = []
     for root_path in (backup_root, failed_publication_root, staged_copy_root):
-        if root_path is not None and os.path.lexists(root_path):
+        if root_path is not None and os.path.lexists(patcher_files.long_path(root_path)):
             snap = _capture_tree_snapshot(root_path)
             owned_files.extend(
                 f"{Path(relative_owned(root_path) or '.').as_posix().rstrip('./')}/{item['relative_path']}".strip("/")
