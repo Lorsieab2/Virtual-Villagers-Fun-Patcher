@@ -10,8 +10,29 @@ So the patcher never writes the speed dword on its own: it replays, on the save'
 own routine that runs when the player changes speed or pauses in the game -- the same arithmetic, on
 the same fields, at the moment the save was last ticked (the "now" every game writes into its state at
 the end of its world tick, with the same clock the routine reads).  The result is the save the game
-itself would have written had the player done that just before quitting.  Anything this cannot
-reproduce exactly is refused, and the save is left as it is (the owner: no half-done patches).
+itself would have written had the player done that just before quitting.
+
+IT ALWAYS WORKS (the owner, v1.35.92: "the game speed should always be able to be altered in the save
+using repair saves!!!!!!!! for all 5 games"; "backup saves should always set the save to paused").  A
+save the game wrote is never refused for the state of its clock.  Where the replay needs a moment the
+save does not hold as its last tick, the clock is first taken as the game finds it (see NORMALISING);
+only a file that is not one of the game's saves is refused (SpeedEditRefused, nothing written).
+
+NORMALISING (the clock as the game itself finds it at its next key press):
+  * the clock was last changed after the last tick (wall base > now): the player pressed pause or a
+    speed button after the game's last world tick, and saved before another.  The wall base is the
+    moment of that press, and the game clock is exactly the game base there.  The replay is made at
+    that moment, the latest the save knows of -- the game's own wall clock can read no earlier: the
+    game clock, every timer and the village's age carry over exactly (the game base is kept, nothing
+    is moved back to the tick), and the save's last tick is left as the game wrote it;
+  * a rate the game never stores: the arithmetic is the game's own for any rate above 0; a paused
+    clock whose speed before the pause is not a speed is unpaused to the speed the save's speed dword
+    keeps under its Paused, which is what the game's unpause key passes;
+  * a product or quotient the FPU must round: rounded to 53 bits as the games' x87 control word
+    (0x27F, the Windows default they keep) rounds it, then truncated -- the game's own result;
+  * The Secret City's or The Tree of Life's world-objects size dword with its low byte zeroed (0x200):
+    the base game's exactly-150-villager save bug wrote the end-of-list flag over it; the block itself
+    is intact, so its timers are where the stock save keeps them.
 
 TWO KINDS OF GAME (static reading of the five stock executables; tests/test_save_speed_edit.py runs
 the stock routines in an emulator on the same fixtures and compares every byte):
@@ -60,14 +81,11 @@ MASK = 0xFFFFFFFF
 PAUSED = 999
 SPEEDS = (3, 6, 10)
 # The games' x87 code rounds each product and quotient to the FPU's precision (53 bits, the Windows
-# default the games keep; 64 if it were extended) before truncating it.  The exact result is used
-# here, and only where no rounding at 53 or 64 bits could carry it across an integer -- otherwise
-# the edit is refused (see _trunc).
-_ROUNDING = Fraction(1, 1 << 52)
+# default the games keep: control word 0x27F) before truncating it (see _trunc).
 
 
 class SpeedEditRefused(Exception):
-    """The edit cannot be made exactly as the game would make it; nothing was written."""
+    """The file is not a save of the game this can change; nothing was written."""
 
 
 @dataclass(frozen=True)
@@ -91,6 +109,10 @@ class ClockGame:
     block_size: int            # ... and the stock value it must hold
     rate_unit: str             # how the game turns a rate into wall seconds per game second
 
+    def block_ok(self, size: int) -> bool:
+        """The stock size, or the stock size with its low byte zeroed by the 150-villager save bug."""
+        return size in (self.block_size, self.block_size & ~0xFF)
+
 
 GAMES: dict[int, RescaleGame | ClockGame] = {
     1: RescaleGame("A New Home", 0xA318, 0xA304, (0xA2F0,)),
@@ -111,15 +133,9 @@ def _f32(value: Fraction | float) -> Fraction:
 
 
 def _trunc(value: Fraction) -> int:
-    """fistp / _ftol under truncation, low 32 bits, of a product or quotient the game first rounds to
-    its precision: the same integer whatever that rounding was, or SpeedEditRefused."""
-    whole = int(value)                       # toward zero; every value here is at least 0
-    if Fraction(float(value)) != value:      # not held exactly at 53 bits: the game rounds it
-        slack = value * _ROUNDING
-        if value - slack < whole or value + slack >= whole + 1:
-            raise SpeedEditRefused("a clock value in the save is one whose rounding in the game cannot be "
-                                   "reproduced exactly")
-    return whole & MASK
+    """_ftol (truncation, low 32 bits) of one product or quotient, which the FPU first rounds to its
+    53-bit precision, to nearest: float() of the exact value is that same correctly rounded double."""
+    return int(float(value)) & MASK          # every value here is at least 0 and far below 2^1023
 
 
 class _Buffer:
@@ -222,17 +238,18 @@ def _set_speed(game: ClockGame, buf: _Buffer, now: int, new: int) -> None:
 
 
 def _edit_clock(game: ClockGame, buf: _Buffer, speed: int, paused: bool) -> None:
-    if buf.get(game.block) != game.block_size:
-        raise SpeedEditRefused("its world-objects block is not laid out as the game writes it")
+    if not game.block_ok(buf.get(game.block)):
+        raise SpeedEditRefused("it is not a save the game can load (its world-objects block is not the "
+                               "game's)")
     value = buf.get(game.speed)
     if value not in SPEEDS and value - PAUSED not in SPEEDS:
         raise SpeedEditRefused("its game speed is not one the game writes")
     rate, before, wall, _base = (buf.get(game.clock + 4 * k) for k in range(4))
-    now = buf.get(game.now)
-    if rate not in (0,) + SPEEDS or (rate == 0 and before not in SPEEDS):
-        raise SpeedEditRefused("its game clock is not in a state the game writes")
-    if now < wall:
-        raise SpeedEditRefused("its game clock was last changed after its last tick")
+    # The moment of the replay: the last tick, or the clock's last change when the player made it
+    # after that tick (NORMALISING above).
+    now = max(buf.get(game.now), wall)
+    if rate == 0 and before not in SPEEDS:
+        before = value - PAUSED if value >= PAUSED else value
     if rate == 0:
         if not (paused and speed == before):
             _set_speed(game, buf, now, before)      # the unpause key
