@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.94
+
+- **The yellow fruit trees show how much fruit is left** (The Tree of Life, with Yellow Fruit Trees are No Longer Unlimited; art by Lorsieab2): six pictures, 5, 4, 3, 2, 1 and 0 fruits on each tree, as the tree's 1,000 fruit run down (801-1,000, 601-800, 401-600, 201-400, 1-200, empty). In the village and on the Overview Map; the game's own map is never changed.
+
 ## What's new in v1.35.93
 
 - **Repair Saves & Logs always changes the game speed** (all five games): a save whose clock the old check refused ("its game clock was last changed after its last tick", which happens when you pause and close the game within two seconds of its last tick) now changes like any other, keeping game time, the village's age and every timer. Only a file that is not one of the game's saves is refused.
