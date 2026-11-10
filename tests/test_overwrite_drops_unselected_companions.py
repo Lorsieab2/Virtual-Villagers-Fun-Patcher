@@ -58,7 +58,8 @@ class OverwriteDropsUnselectedCompanionsTests(unittest.TestCase):
         return {
             p.relative_to(folder).as_posix()
             for p in folder.rglob("*")
-            if p.is_file() and not p.name.endswith((".patch-log.json", ".transparency.json"))
+            if p.is_file() and p.name != "VVFP Patch Log.json"
+            and not p.name.endswith((".patch-log.json", ".transparency.json"))
         }
 
     def test_the_first_install_really_ships_companions(self):
@@ -94,7 +95,7 @@ class OverwriteDropsUnselectedCompanionsTests(unittest.TestCase):
         folder = self._apply(out, (), overwrite=False)
         retired = folder / "VVFP Retired Feature.dll"
         retired.write_bytes(b"MZ")
-        log = next((folder / "Virtual Villagers Fun Patcher Files").glob("*.patch-log.json"))
+        log = next((folder / "Virtual Villagers Fun Patcher Files").glob("VVFP Patch Log.json"))
         data = json.loads(log.read_text(encoding="utf-8"))
         data["companion_files"] = [
             {"feature": "vv1_retired", "path": str(retired), "sha256": "00"}
@@ -111,7 +112,7 @@ class OverwriteDropsUnselectedCompanionsTests(unittest.TestCase):
         folder = self._apply(old_root, (), overwrite=False)
         retired = folder / "VVFP Retired Feature.dll"
         retired.write_bytes(b"MZ")
-        log = next((folder / "Virtual Villagers Fun Patcher Files").glob("*.patch-log.json"))
+        log = next((folder / "Virtual Villagers Fun Patcher Files").glob("VVFP Patch Log.json"))
         data = json.loads(log.read_text(encoding="utf-8"))
         data["companion_files"] = [
             {"feature": "vv1_retired", "path": str(retired), "sha256": "00"}

@@ -27,7 +27,8 @@ every companion by its full path with the wide API.
 
 from __future__ import annotations
 
-from pathlib import PurePosixPath, PureWindowsPath
+import os
+from pathlib import Path, PurePosixPath, PureWindowsPath
 
 PATCHER_FILES_FOLDER = "Virtual Villagers Fun Patcher Files"
 
@@ -131,14 +132,63 @@ PATCHER_READS: frozenset[str] = frozenset({
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
 _PATCHER_READS = {key.casefold() for key in PATCHER_READS}
 
-PATCH_LOG_SUFFIX = ".patch-log.json"
+# The patch log. Its name is short and the same in every build (the owner,
+# 2026-11-09: "fix the path too long bug when trying to patch games"): the
+# older name, "<executable name>.patch-log.json", repeated the long game
+# title ("...\Virtual Villagers - The Tree of Life - Modded 256\Virtual
+# Villagers Fun Patcher Files\Virtual Villagers - The Tree of Life - Modded
+# 256.patch-log.json") and was the longest path in the build. Every reader
+# also finds a log under the older name; a re-patch replaces it.
+PATCH_LOG_FILENAME = "VVFP Patch Log.json"
+PATCH_LOG_SUFFIX = ".patch-log.json"   # the older name's ending
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
 TRANSPARENCY_RELATIVE_PATH = PurePosixPath(PATCHER_FILES_FOLDER) / TRANSPARENCY_FILENAME
 
-# Windows' classic path limit. A companion the game cannot open by a path this
-# long would never load, so the patcher refuses such an output folder rather
-# than publish a build whose add-ons silently do not start.
+# Windows' classic path limit: a path of at most MAX_PATH - 1 characters. The
+# games are 32-bit programs that are not long-path aware, so Windows will not
+# let them open a longer path even where long paths are switched on: a
+# companion past it would never load, and a game file past it would never be
+# read. The patcher refuses an output folder only for those files (the game's
+# own); the files only the patcher reads and writes -- the two logs, the
+# hidden staging, backup and recovery folders -- go through long_path, so
+# their length never stops a patch.
 MAX_PATH = 260
+
+_LONG_PREFIX = "\\\\?\\"
+_LONG_UNC_PREFIX = "\\\\?\\UNC\\"
+
+
+def long_path(path: "str | os.PathLike[str]") -> Path:
+    """`path` as Windows opens it at any length: absolute, with the "\\\\?\\"
+    prefix ("\\\\?\\UNC\\server\\share\\..." for a network path). For the
+    patcher's own reads and writes only -- never a path handed to a game or
+    written into a log. Unchanged when already prefixed, and on other systems."""
+    if os.name != "nt":
+        return Path(path)
+    text = os.fspath(path)
+    if text.startswith(_LONG_PREFIX) or text.startswith("\\\\.\\"):
+        return Path(text)
+    text = os.path.abspath(text)
+    if text.startswith("\\\\"):
+        return Path(_LONG_UNC_PREFIX + text[2:])
+    return Path(_LONG_PREFIX + text)
+
+
+def plain_path(path: "str | os.PathLike[str]") -> Path:
+    """`path` without long_path's prefix: the form shown to the player and
+    written into the logs."""
+    text = os.fspath(path)
+    if text.startswith(_LONG_UNC_PREFIX):
+        return Path("\\\\" + text[len(_LONG_UNC_PREFIX):])
+    if text.startswith(_LONG_PREFIX):
+        return Path(text[len(_LONG_PREFIX):])
+    return Path(text)
+
+
+def windows_length(path: "str | os.PathLike[str]") -> int:
+    """The length Windows counts: UTF-16 units, so a character outside the
+    BMP (an emoji) takes two where Python's len() counts one."""
+    return len(os.fspath(path).encode("utf-16-le", "surrogatepass")) // 2
 
 
 def normalized_destination(destination: str) -> str:
@@ -185,13 +235,33 @@ def legacy_relative_path(destination: str) -> PurePosixPath:
     return PurePosixPath(normalized_destination(destination))
 
 
-def patch_log_name(executable_name: str) -> str:
-    """The patch log's file name for the executable named `executable_name`."""
+def patch_log_name(executable_name: str = "") -> str:
+    """The patch log's file name: the same in every build (PATCH_LOG_FILENAME)."""
+    return PATCH_LOG_FILENAME
+
+
+def legacy_patch_log_name(executable_name: str) -> str:
+    """The name an older patcher gave the patch log of the executable named
+    `executable_name`: "<executable name>.patch-log.json"."""
     name = PurePosixPath(executable_name.replace("\\", "/")).name
     stem = name[:-4] if name.lower().endswith(".exe") else name
     return stem + PATCH_LOG_SUFFIX
 
 
-def patch_log_relative_path(executable_name: str) -> PurePosixPath:
-    """The patch log of the executable named `executable_name`."""
-    return PurePosixPath(PATCHER_FILES_FOLDER) / patch_log_name(executable_name)
+def patch_log_relative_path(executable_name: str = "") -> PurePosixPath:
+    """The patch log, relative to the game folder."""
+    return PurePosixPath(PATCHER_FILES_FOLDER) / PATCH_LOG_FILENAME
+
+
+def is_patch_log_name(name: str) -> bool:
+    """A file named as a patch log, by this patcher or an older one."""
+    folded = name.casefold()
+    return folded == PATCH_LOG_FILENAME.casefold() or folded.endswith(PATCH_LOG_SUFFIX)
+
+
+def patch_log_candidates(executable: "str | os.PathLike[str]") -> list[Path]:
+    """Where the patch log of `executable` may be, newest name first: the
+    patcher's folder beside it, under this name and the older one."""
+    exe = Path(executable)
+    files = exe.parent / PATCHER_FILES_FOLDER
+    return [files / PATCH_LOG_FILENAME, files / legacy_patch_log_name(exe.name)]

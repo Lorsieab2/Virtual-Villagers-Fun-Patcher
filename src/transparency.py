@@ -57,7 +57,7 @@ def validate_feature_transparency_metadata(features: Iterable[Any]) -> None:
 
 def file_hash(path: Path) -> str:
     digest = hashlib.sha256()
-    with path.open("rb") as handle:
+    with patcher_files.long_path(path).open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest().upper()
@@ -86,7 +86,7 @@ def _safe_relative(path: Path, root: Path) -> str:
 def _file_entry(path: Path, relative: str) -> dict[str, Any]:
     return {
         "path": relative,
-        "size": path.stat().st_size,
+        "size": patcher_files.long_path(path).stat().st_size,
         "sha256": file_hash(path),
     }
 
@@ -108,7 +108,9 @@ def directory_comparison(
     excluded = {str(name).replace("\\", "/") for name in generated_names}
 
     def collect(root: Path) -> dict[str, Path]:
+        # Walked through long_path: a file deeper than MAX_PATH is compared too.
         result: dict[str, Path] = {}
+        root = patcher_files.long_path(root)
         if not root.is_dir():
             return result
         for path in root.rglob("*"):
@@ -307,7 +309,7 @@ def build_transparency_data(
     comparison = directory_comparison(
         source_folder, output_folder, generated_names=generated
     )
-    stock_exe = output_folder / source.name
+    stock_exe = patcher_files.long_path(output_folder / source.name)
     retained = stock_exe.is_file() and file_hash(stock_exe) == file_hash(source)
     data = dict(base_log)
     resolved_dependencies: list[dict[str, Any]] = []
@@ -330,7 +332,7 @@ def build_transparency_data(
             },
             "modified_executable": {
                 "filename": output.name,
-                "size": output.stat().st_size,
+                "size": patcher_files.long_path(output).stat().st_size,
                 "sha256": file_hash(output),
             },
             "population_mode": base_log.get("patch_mode_name", base_log.get("patch_mode")),
@@ -616,7 +618,10 @@ def write_transparency_artifacts(
         root=root,
     )
     text = render_transparency_text(data)
-    text_path = output.parent / TRANSPARENCY_RELATIVE_PATH
+    # Written through long_path: only the patcher reads and writes the two
+    # logs, so their length never stops a patch (src/patcher_files.py).
+    text_path = patcher_files.long_path(output.parent / TRANSPARENCY_RELATIVE_PATH)
+    json_path = patcher_files.long_path(json_path)
     text_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.parent.mkdir(parents=True, exist_ok=True)
     encoded = text.encode("utf-8")
@@ -636,4 +641,4 @@ def write_transparency_artifacts(
         except OSError:
             pass
         raise
-    return text_path, text_hash
+    return patcher_files.plain_path(text_path), text_hash

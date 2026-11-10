@@ -532,7 +532,7 @@ class SaveFolderScannersIgnoreBackupsTests(unittest.TestCase):
 
     def test_the_patchers_save_folder_globs_are_not_recursive(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
-        for match in re.finditer(r"(source|destination)\.(r?glob)\(", source):
+        for match in re.finditer(r"\b(source|destination)\.(r?glob)\(", source):
             self.assertEqual(match.group(2), "glob", match.group(0))
 
     def test_copying_saves_into_a_256_folder_ignores_its_backups(self) -> None:

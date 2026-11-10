@@ -376,7 +376,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_last_names",    # the villagers, as Last Names reads them (function-level)
                                    "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
-                                   "vv_fun_patcher"}),  # the patcher's own applied-patch check of the exe (function-level)
+                                   "vv_fun_patcher",  # the patcher's own applied-patch check of the exe (function-level)
+                                   "patcher_files"}),  # the patch log's names, read at any path length
             ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
             # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
             # files as the log checker reads them (function-level), and each game's renderer.

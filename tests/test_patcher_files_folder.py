@@ -18,8 +18,14 @@ its reason). Pinned here:
   player's own, and leaves nothing twice -- and the mutation (no cleanup)
   keeps them;
 * a source folder carrying loose copies is cleaned the same way;
-* an output folder too deep for Windows to load the add-ons from is refused
-  before anything is written, at exactly MAX_PATH;
+* an output folder is refused, before anything is written, only when a file
+  the GAME opens (the executable, its own files, a companion) would reach
+  MAX_PATH; the patcher's own files (the logs, the hidden staging, backup and
+  recovery folders, a re-patch's carried-over files) go through long paths,
+  so real patches in every game (and 256 Villagers) at that limit work with
+  Windows' long paths switched off (tests/classic_max_path.py), an older
+  build's "<exe>.patch-log.json" becomes "VVFP Patch Log.json" on re-patch,
+  and the readers find either;
 * no shipped DLL can load a companion through the ANSI API or a bare name
   (import tables, sources), and the native path builder's own harness
   (Unicode folders, the buffer's edge, names that would leave the folder,
@@ -27,6 +33,7 @@ its reason). Pinned here:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -45,6 +52,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 import patcher_files  # noqa: E402
 import vv_fun_patcher as vfp  # noqa: E402
+from classic_max_path import classic_max_path  # noqa: E402
 
 FOLDER = patcher_files.PATCHER_FILES_FOLDER
 GAMES = ("vv1", "vv2", "vv3", "vv4", "vv5")
@@ -144,7 +152,7 @@ class TheRule(unittest.TestCase):
 
     def test_the_logs_are_in_the_folder(self):
         self.assertEqual(patcher_files.patch_log_relative_path("A - Modded.exe").as_posix(),
-                         f"{FOLDER}/A - Modded.patch-log.json")
+                         f"{FOLDER}/VVFP Patch Log.json")
         self.assertEqual(patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix(),
                          f"{FOLDER}/VVFP Transparency Log.txt")
 
@@ -362,44 +370,206 @@ class ASourceFolderWithLooseCopies(unittest.TestCase):
         self.assertIn("older patcher", reasons["VVFP Fix Huts.dll"])
 
 
-@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
-class ATooDeepOutputFolder(unittest.TestCase):
+def short_base(test: unittest.TestCase) -> Path:
+    """A fresh, short folder for the deep-path tests, whatever TEMP is.
 
-    def test_the_boundary(self):
-        """The longest path the build writes -- here the patch log in the
-        patcher's folder, which is longer than any DLL -- is measured in the
-        output folder and in the hidden staging folder; with the short staging
-        name (".vvfp-stage-<8>") the output folder is the deeper of the two."""
-        features = vfp._attach_automatic_companions(
-            "vv1", vfp._selected_fun_patches(build_of("vv1"), ["vv1_builders_fix_huts"]))
-        name = "Virtual Villagers - A New Home - Modded.exe"
-        log = str(Path(*patcher_files.patch_log_relative_path(name).parts))
-        longest_dll = max((str(vfp._safe_companion_destination(i["destination"]))
-                           for f in features for i in f.raw.get("companion_files", [])), key=len)
-        self.assertGreater(len(log), len(longest_dll))
-        base = Path(os.path.abspath(tempfile.gettempdir()))
-        # <base>\<folder>\<log>, and <base>\.vvfp-stage-<8>\<log> is shorter
-        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)
-        ok = base / ("o" * room)
-        self.assertEqual(len(str(ok / log)), patcher_files.MAX_PATH - 1)
-        self.assertLess(len(str(vfp._publish_sibling(base, "stage", "0" * 8) / log)), len(str(ok / log)))
-        vfp._require_patcher_files_path_fits(ok, features, name)                       # 259: fits
+    The deep-path cases are built to the character from this folder's length, so a long TEMP (CI's, or an agent's
+    scratch folder of 100+ characters) would leave no room for a folder that still fits: TEMP itself when its path
+    is short, else a folder at the top of TEMP's drive (removed afterwards)."""
+    temp = Path(os.path.abspath(tempfile.gettempdir()))
+    for parent in (temp, Path(temp.anchor)):
+        if len(str(parent)) > 40:
+            continue
+        try:
+            base = Path(tempfile.mkdtemp(prefix="vlp", dir=parent))
+        except OSError:
+            continue
+        test.addCleanup(shutil.rmtree, patcher_files.long_path(base), True)
+        return base
+    test.skipTest("no short folder to work in")
+
+
+def selection_256(game: str) -> list[str]:
+    """Every public patch, and 256 Villagers where the game has it."""
+    extra = [f"{game}_population_256"] if f"{game}_population_256" in POPULATION_256 else []
+    return public_ids(game) + extra
+
+
+def game_files(game: str, ids: list[str], source: Path | None = None) -> tuple[list[str], str, str]:
+    """The files of the build the game opens, its executable's name and its output folder's name."""
+    build = build_of(game)
+    features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(build, ids))
+    mode = "collection_progression"
+    name = vfp._output_name(build, mode, features)
+    folder = vfp.output_folder_for(Path("x") / build.input_name, build, mode, features, Path("x")).name
+    return vfp._game_opened_relatives(features, name, source), name, folder
+
+
+def root_at_the_limit(base: Path, folder_name: str, relatives: list[str]) -> Path:
+    """An output root whose game files' longest path is exactly MAX_PATH - 1 characters."""
+    longest = max(len(r) for r in relatives)
+    room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - len(folder_name) - 1 - longest - 1
+    return base / ("d" * room)
+
+
+def fake_old_build(folder: Path, exe_name: str) -> Path:
+    """What an older patcher left: the patch log under "<exe>.patch-log.json"."""
+    files = patcher_files.long_path(folder / FOLDER)
+    old = files / patcher_files.legacy_patch_log_name(exe_name)
+    (files / patcher_files.PATCH_LOG_FILENAME).replace(old)
+    return patcher_files.plain_path(old)
+
+
+class LongPaths(unittest.TestCase):
+
+    def test_long_path_and_back(self):
+        if os.name != "nt":
+            self.skipTest("Windows only")
+        self.assertEqual(str(patcher_files.long_path(r"C:\a\b")), "\\\\?\\C:\\a\\b")
+        self.assertEqual(str(patcher_files.long_path(r"\\server\share\a")), "\\\\?\\UNC\\server\\share\\a")
+        once = patcher_files.long_path(r"C:\a\b")
+        self.assertEqual(patcher_files.long_path(once), once)
+        self.assertEqual(patcher_files.plain_path(once), Path(r"C:\a\b"))
+        self.assertEqual(patcher_files.plain_path(patcher_files.long_path(r"\\server\share\a")),
+                         Path(r"\\server\share\a"))
+        self.assertTrue(patcher_files.long_path("relative").is_absolute())
+
+    def test_the_patch_log_name_is_short_and_never_repeats_the_title(self):
+        for title in ("A - Modded.exe", "Virtual Villagers - The Tree of Life - Modded 256.exe"):
+            self.assertEqual(patcher_files.patch_log_name(title), "VVFP Patch Log.json")
+        self.assertEqual(patcher_files.legacy_patch_log_name("A - Modded.exe"), "A - Modded.patch-log.json")
+        self.assertTrue(patcher_files.is_patch_log_name("vvfp patch log.JSON"))
+        self.assertTrue(patcher_files.is_patch_log_name("A - Modded.patch-log.json"))
+        self.assertFalse(patcher_files.is_patch_log_name("my notes.json"))
+        exe = Path("G") / "A - Modded.exe"
+        self.assertEqual(patcher_files.patch_log_candidates(exe),
+                         [Path("G") / FOLDER / "VVFP Patch Log.json", Path("G") / FOLDER / "A - Modded.patch-log.json"])
+
+    def test_the_emulation_refuses_a_plain_long_path(self):
+        """The guard the deep tests run under: a plain path of MAX_PATH characters fails, the prefixed one works."""
+        if os.name != "nt":
+            self.skipTest("Windows only")
+        base = short_base(self)
+        deep = base / ("x" * 130) / ("y" * 130) / "f.txt"
+        with classic_max_path() as refused:
+            with self.assertRaises(OSError):
+                deep.parent.mkdir(parents=True)
+            long = patcher_files.long_path(deep)
+            long.parent.mkdir(parents=True)
+            long.write_text("kept", encoding="utf-8")
+            self.assertFalse(deep.is_file())
+            self.assertTrue(long.is_file())
+            with self.assertRaises(OSError):
+                deep.read_text(encoding="utf-8")
+        self.assertTrue(refused)
+
+
+class DeepOutputFolders(unittest.TestCase):
+    """The owner, 2026-11-09: "also fix the path too long bug when trying to patch games!" The patcher refused
+    "...\\Virtual Villagers - The Tree of Life - Modded 256" because the patch log, named after the game
+    ("...\\Virtual Villagers Fun Patcher Files\\Virtual Villagers - The Tree of Life - Modded 256.patch-log.json"),
+    would pass 259 characters. Now only the files the GAME opens are measured (it cannot open a longer path); the
+    patcher's own files go through long_path and never stop a patch."""
+
+    def test_the_boundary_is_the_games_own_longest_file(self):
+        base = short_base(self)
+        relatives, name, folder_name = game_files("vv4", selection_256("vv4"))
+        root = root_at_the_limit(base, folder_name, relatives)
+        out = root / folder_name
+        longest = max(relatives, key=len)
+        self.assertEqual(len(str(out / longest)), patcher_files.MAX_PATH - 1)
+        features = vfp._attach_automatic_companions("vv4", vfp._selected_fun_patches(build_of("vv4"),
+                                                                                   selection_256("vv4")))
+        vfp._require_patcher_files_path_fits(out, features, name)                       # 259: fits
+        # The old check refused it: the patch log under its old name was longer still.
+        old_log = out / FOLDER / patcher_files.legacy_patch_log_name(name)
+        self.assertGreaterEqual(len(str(old_log)), patcher_files.MAX_PATH)
+        with self.assertRaises(vfp.PatcherError) as raised:
+            vfp._require_patcher_files_path_fits(root.parent / (root.name + "d") / folder_name, features, name)
+        message = str(raised.exception)
+        self.assertIn("too long", message)
+        self.assertIn(longest, message)
+        self.assertIn("a path of 260 characters, 1 more than the 259", message)
+        self.assertIn(f"at most {len(str(root))} characters", message)           # one shorter than it was
+        self.assertIn("Nothing was written", message)
+
+    def test_the_patchers_own_files_never_refuse(self):
+        """Its logs, the hidden staging / backup / recovery folders and a re-patch's carried-over player files are
+        the patcher's to read and write (long_path), so a folder whose game files fit is never refused for them."""
+        base = short_base(self)
+        out = base / ("o" * (patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len("g.exe")))
+        self.assertEqual(len(str(out / "g.exe")), patcher_files.MAX_PATH - 1)
+        for deeper in (out / patcher_files.TRANSPARENCY_RELATIVE_PATH, out / patcher_files.patch_log_relative_path()):
+            self.assertGreaterEqual(len(str(deeper)), patcher_files.MAX_PATH)
+        player = patcher_files.long_path(out / "Backups" / ("b" * 120) / "save.ldw")
+        player.parent.mkdir(parents=True)
+        player.write_bytes(b"the player's")
+        vfp._require_patcher_files_path_fits(out, [], "g.exe")
+        # A short output folder: an unresolved failure's evidence, kept one level deeper in the recovery folder
+        # beside it, would pass the limit (Codex, PR #648, measured it); it is the patcher's, so it fits.
+        short = base / "o"
+        name = "g" * (patcher_files.MAX_PATH - 1 - len(str(short)) - 1 - len(".exe")) + ".exe"
+        self.assertEqual(len(str(short / name)), patcher_files.MAX_PATH - 1)
+        evidence = vfp._publish_sibling(base, "recovery", "0" * 8) / "failed-publication" / name
+        self.assertGreaterEqual(len(str(evidence)), patcher_files.MAX_PATH)
+        vfp._require_patcher_files_path_fits(short, [], name)
+
+    def test_a_recovery_report_records_a_member_deeper_than_max_path(self):
+        """Codex (PR #752): an unresolved failure's retained backup can hold a player file deeper than MAX_PATH;
+        the recovery report must record its owned path (not null) and pass its own validation, with Windows'
+        long paths switched off."""
+        base = short_base(self)
+        recovery = vfp._publish_sibling(base, "recovery", "0" * 8)
+        retained = recovery / vfp.RECOVERY_RETAINED_FOLDERS[0]
+        rel = "Backups/" + "b" * 120 + "/" + "c" * 60 + "/save.ldw"
+        member = patcher_files.long_path(retained / rel)
+        member.parent.mkdir(parents=True)
+        member.write_bytes(b"the player's")
+        self.assertGreaterEqual(len(str(retained / rel)), patcher_files.MAX_PATH)
+        destination = base / "o"
+        destination.mkdir()
+        records = [{"relative_path": rel, "original_path": str(destination / rel),
+                    "sha256": hashlib.sha256(b"the player's").hexdigest().upper(), "size": 12}]
+        with classic_max_path():
+            report = vfp._write_recovery_report(
+                recovery, "install", records, retained,
+                destination_root=destination,
+                destination_snapshot=vfp._capture_tree_snapshot(destination),
+                restored_snapshot=vfp._capture_tree_snapshot(retained),
+                destination_precondition=vfp._capture_tree_snapshot(destination))
+        payload = json.loads(patcher_files.long_path(report).read_bytes().decode("utf-8"))
+        (entry,) = payload["members"]
+        self.assertEqual(entry["backup_relative_path"], f"{vfp.RECOVERY_RETAINED_FOLDERS[0]}/{rel}")
+        self.assertEqual(entry["backup_size"], 12)
+
+    def test_the_games_own_files_count_too(self):
+        base = short_base(self)
+        source = base / "s"
+        (source / "Sounds" / ("x" * 60)).mkdir(parents=True)
+        (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).write_bytes(b"")
+        # An earlier build's reports in the source are not the game's: never measured.
+        (source / FOLDER).mkdir()
+        (source / FOLDER / ("r" * 150 + patcher_files.PATCH_LOG_SUFFIX)).write_bytes(b"{}")
+        out = base / ("o" * (145 - len(str(base)) - 1))
+        vfp._require_patcher_files_path_fits(out, [], "g.exe")                      # without them: fits
+        with self.assertRaises(vfp.PatcherError) as raised:
+            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)
+        self.assertIn("Sounds", str(raised.exception))
+        (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).unlink()
+        vfp._require_patcher_files_path_fits(out, [], "g.exe", source)              # the reports alone: fits
+
+    def test_windows_utf16_units_are_counted(self):
+        """An emoji is two WCHARs to Windows; a path Python measures as 259 characters is then 260 units and must
+        be refused."""
+        base = short_base(self)
+        name = "g.exe"
+        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(name)       # <base>\<folder>\<exe>
+        fits = base / ("o" * room)
+        vfp._require_patcher_files_path_fits(fits, [], name)
+        emoji = base / ("o" * (room - 1) + "\U0001F600")   # same len(), one more unit
+        self.assertEqual(len(str(emoji)), len(str(fits)))
         with self.assertRaises(vfp.PatcherError):
-            vfp._require_patcher_files_path_fits(base / ("o" * (room + 1)), features, name)   # 260
-        # The old check (only <output>\<longest DLL>) passed this folder.
-        self.assertLess(len(str(base / ("o" * (room + 1)) / longest_dll)), patcher_files.MAX_PATH)
-
-    def test_a_folder_that_fits_is_not_refused_for_its_staging_name(self):
-        """The owner, 2026-10-26: "...\\Modded Games\\Virtual Villagers - The
-        Secret City - Modded 256" was refused at 263 characters, measured only
-        in the old ".<name>.staging-<32 hex>" folder; the output itself fit."""
-        base = Path(os.path.abspath(tempfile.gettempdir()))
-        name = "g - Modded.exe"
-        log = str(Path(*patcher_files.patch_log_relative_path(name).parts))
-        folder = base / ("o" * (patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)))
-        old_staging = folder.parent / f".{folder.name}.staging-{'0' * 32}" / log
-        self.assertGreaterEqual(len(str(old_staging)), patcher_files.MAX_PATH)   # the old name refused it
-        vfp._require_patcher_files_path_fits(folder, [], name)                    # now it fits
+            vfp._require_patcher_files_path_fits(emoji, [], name)
 
     def test_publish_siblings_are_short_and_fixed_length(self):
         parent = Path(os.path.abspath(tempfile.gettempdir()))
@@ -409,43 +579,36 @@ class ATooDeepOutputFolder(unittest.TestCase):
             self.assertRegex(sibling.name, r"^\.vvfp-%s-[0-9a-f]{8}$" % kind)
         self.assertNotEqual(vfp._publish_sibling(parent, "stage"), vfp._publish_sibling(parent, "stage"))
 
-    def test_the_recovery_evidence_folders_are_measured(self):
-        """Codex, PR #648: an unresolved failure keeps the failed publication in
-        <recovery>\\failed-publication, deeper than the recovery sibling itself;
-        a file that fits only without that nesting is refused up front."""
-        base = Path(os.path.abspath(tempfile.gettempdir()))
-        deepest = vfp._publish_sibling(base, "recovery", "0" * vfp.PUBLISH_SIBLING_TOKEN) / "failed-publication"
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
-        source = Path(holder.name) / "s"
-        source.mkdir()
-        out = base / "o"                                        # a short output: the nesting is the deepest
-        room = patcher_files.MAX_PATH - 1 - len(str(deepest)) - 1
-        (source / ("f" * room)).write_bytes(b"")
-        vfp._require_patcher_files_path_fits(out, [], "g.exe", source)          # 259 in failed-publication: fits
-        (source / ("f" * (room + 1))).write_bytes(b"")
-        with self.assertRaises(vfp.PatcherError):
-            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)      # 260 there: refused
+    def test_reports_from_an_earlier_build_in_the_source_are_dropped(self):
+        """A source folder the patcher produced carries that build's reports (loose from an older patcher, a
+        patch log under another executable name, or under today's name); the staged copy drops the signed ones
+        and keeps a player's look-alike."""
+        staging = short_base(self)
+        signed = json.dumps({"patcher": "Virtual Villagers Fun Patcher"})
+        inner = staging / patcher_files.PATCHER_FILES_FOLDER
+        inner.mkdir()
+        (staging / patcher_files.TRANSPARENCY_FILENAME).write_text("old", encoding="utf-8")
+        (staging / ("Old - Modded" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
+        (inner / ("Other" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
+        (inner / patcher_files.PATCH_LOG_FILENAME).write_text(signed, encoding="utf-8")
+        mine = staging / ("Mine" + patcher_files.PATCH_LOG_SUFFIX)
+        mine.write_text('{"patcher": "someone else"}', encoding="utf-8")
+        removed = vfp._remove_unselected_companions(staging, build_of("vv1"), [])
+        self.assertEqual(
+            sorted(item["path"] for item in removed),
+            sorted([
+                patcher_files.TRANSPARENCY_FILENAME,
+                "Old - Modded" + patcher_files.PATCH_LOG_SUFFIX,
+                f"{patcher_files.PATCHER_FILES_FOLDER}/Other{patcher_files.PATCH_LOG_SUFFIX}",
+                f"{patcher_files.PATCHER_FILES_FOLDER}/{patcher_files.PATCH_LOG_FILENAME}",
+            ]),
+        )
+        self.assertTrue(mine.is_file())
 
-    def test_the_games_own_files_count_too(self):
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
-        source = Path(holder.name) / "s"
-        (source / "Sounds" / ("x" * 60)).mkdir(parents=True)
-        (source / "Sounds" / ("x" * 60) / ("y" * 60 + ".ogg")).write_bytes(b"")
-        # 145 characters whatever the temp folder: deep enough for the game files alone (a short TEMP such
-        # as C:\t made a fixed 110-character name too shallow).
-        base = os.path.abspath(tempfile.gettempdir())
-        out = Path(base) / ("o" * (145 - len(base) - 1))
-        vfp._require_patcher_files_path_fits(out, [], "g.exe")                      # without them: fits
-        with self.assertRaises(vfp.PatcherError):
-            vfp._require_patcher_files_path_fits(out, [], "g.exe", source)
-
+    @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
     def test_nothing_is_written(self):
         game = "vv1"
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
-        temp = Path(holder.name)
+        temp = short_base(self)
         source = temp / "s"
         source.mkdir()
         shutil.copy2(stock_path(game), source / build_of(game).input_name)
@@ -456,106 +619,16 @@ class ATooDeepOutputFolder(unittest.TestCase):
         self.assertIn("too long", str(raised.exception))
         self.assertFalse(deep.exists())
 
-    def test_a_deep_output_is_written_whole_or_refused_up_front(self):
-        """The owner, 2026-10-26: "make sure no staging file or file runs into a
-        'path too long' error".  A real patch into output folders just inside
-        and just past the limit either writes every file (each path under
-        MAX_PATH, no hidden .vvfp-* folder left behind) or is refused before
-        anything is written -- never a failure part way through."""
-        game = "vv1"
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
-        temp = Path(holder.name)
-        source = temp / "s"
-        source.mkdir()
-        shutil.copy2(stock_path(game), source / build_of(game).input_name)
-        features = vfp._attach_automatic_companions(
-            game, vfp._selected_fun_patches(build_of(game), ["vv1_builders_fix_huts"]))
-        exe = source / build_of(game).input_name
-        mode = "collection_progression"
-        name = vfp._output_name(build_of(game), mode, features)
-
-        def fits(depth: int) -> bool:
-            folder = vfp.output_folder_for(exe, build_of(game), mode, features, temp / ("d" * depth))
-            try:
-                vfp._require_patcher_files_path_fits(folder, features, name, source)
-                return True
-            except vfp.PatcherError:
-                return False
-        low, high = 1, patcher_files.MAX_PATH          # the deepest folder name that still fits
-        while low < high:
-            mid = (low + high + 1) // 2
-            low, high = (mid, high) if fits(mid) else (low, mid - 1)
-        outcomes = set()
-        for depth in (low - 1, low, low + 1, low + 2):
-            root = temp / ("d" * depth)
-            try:
-                vfp.apply_patch(exe, mode,
-                                         fun_patch_ids=["vv1_builders_fix_huts"], output_root=root)
-            except vfp.PatcherError as raised:
-                self.assertIn("too long", str(raised))
-                self.assertFalse(root.exists(), "a refused patch wrote something")
-                outcomes.add("refused")
-                continue
-            written = [path for path in root.rglob("*") if path.is_file()]
-            self.assertTrue(written)
-            for path in written:
-                self.assertLess(len(str(path)), patcher_files.MAX_PATH, str(path))
-            self.assertEqual([p.name for p in temp.iterdir() if p.name.startswith(".vvfp-")], [])
-            outcomes.add("written")
-            shutil.rmtree(root)
-        self.assertEqual(outcomes, {"written", "refused"})
-
-    def test_windows_utf16_units_are_counted(self):
-        """An emoji is two WCHARs to Windows; a path Python measures as 259
-        characters is then 260 units and must be refused."""
-        base = Path(os.path.abspath(tempfile.gettempdir()))
-        log = str(Path(*patcher_files.TRANSPARENCY_RELATIVE_PATH.parts))
-        room = patcher_files.MAX_PATH - 1 - len(str(base)) - 1 - 1 - len(log)   # <base>\<folder>\<log>
-        fits = base / ("o" * room)
-        vfp._require_patcher_files_path_fits(fits, [], "")
-        emoji = base / ("o" * (room - 1) + "\U0001F600")   # same len(), one more unit
-        self.assertEqual(len(str(emoji)), len(str(fits)))
-        with self.assertRaises(vfp.PatcherError):
-            vfp._require_patcher_files_path_fits(emoji, [], "")
-
-    def test_reports_from_an_earlier_build_in_the_source_are_dropped(self):
-        """A source folder an older patcher produced carries that build's loose
-        reports (and a patch log under another executable name); the staged
-        copy drops the signed ones and keeps a player's look-alike."""
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
-        staging = Path(holder.name)
-        signed = json.dumps({"patcher": "Virtual Villagers Fun Patcher"})
-        inner = staging / patcher_files.PATCHER_FILES_FOLDER
-        inner.mkdir()
-        (staging / patcher_files.TRANSPARENCY_FILENAME).write_text("old", encoding="utf-8")
-        (staging / ("Old - Modded" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
-        (inner / ("Other" + patcher_files.PATCH_LOG_SUFFIX)).write_text(signed, encoding="utf-8")
-        mine = staging / ("Mine" + patcher_files.PATCH_LOG_SUFFIX)
-        mine.write_text('{"patcher": "someone else"}', encoding="utf-8")
-        removed = vfp._remove_unselected_companions(staging, build_of("vv1"), [])
-        self.assertEqual(
-            sorted(item["path"] for item in removed),
-            sorted([
-                patcher_files.TRANSPARENCY_FILENAME,
-                "Old - Modded" + patcher_files.PATCH_LOG_SUFFIX,
-                f"{patcher_files.PATCHER_FILES_FOLDER}/Other{patcher_files.PATCH_LOG_SUFFIX}",
-            ]),
-        )
-        self.assertTrue(mine.is_file())
-
     @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
     def test_apply_all_checks_every_game_before_publishing_any(self):
         """A later game too long for MAX_PATH must stop the bulk build before
         the first game is published, not after."""
         from unittest import mock
 
-        holder = tempfile.TemporaryDirectory()
-        self.addCleanup(holder.cleanup)
+        base = short_base(self)
         sources = {}
         for game in GAMES:
-            folder = Path(holder.name) / game
+            folder = base / game
             folder.mkdir()
             shutil.copy2(stock_path(game), folder / build_of(game).input_name)
             sources[game] = folder
@@ -569,8 +642,160 @@ class ATooDeepOutputFolder(unittest.TestCase):
         with mock.patch.object(vfp, "_require_patcher_files_path_fits", refuse_the_last), \
                 mock.patch.object(vfp, "apply_patch") as publish:
             with self.assertRaises(vfp.PatcherError):
-                vfp.apply_all(sources, output_root=Path(holder.name) / "out")
+                vfp.apply_all(sources, output_root=base / "out")
         publish.assert_not_called()
+
+
+def stock_source(base: Path, game: str) -> Path:
+    build = build_of(game)
+    source = base / build.title
+    source.mkdir()
+    shutil.copy2(stock_path(game), source / build.input_name)
+    return source / build.input_name
+
+
+def written_files(folder: Path) -> list[Path]:
+    """Every file under `folder`, plain paths (found through long_path)."""
+    long = patcher_files.long_path(folder)
+    return [patcher_files.plain_path(p) for p in long.rglob("*") if p.is_file()]
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class DeepOutputFoldersPatch(unittest.TestCase):
+    """Real patches into folders the old check refused, with Windows' long paths switched off (classic_max_path):
+    every game, every public patch, and 256 Villagers where the game has it."""
+
+    def test_every_game_patches_at_the_limit(self):
+        for game in GAMES:
+            ids = selection_256(game)
+            with self.subTest(game=game, villagers=256 if len(ids) > len(public_ids(game)) else 150):
+                base = short_base(self)
+                exe = stock_source(base, game)
+                relatives, name, folder_name = game_files(game, ids, exe.parent)
+                root = root_at_the_limit(base, folder_name, relatives)
+                out = root / folder_name
+                # The old check refused this folder for the old patch log's name.
+                self.assertGreaterEqual(len(str(out / FOLDER / patcher_files.legacy_patch_log_name(name))),
+                                        patcher_files.MAX_PATH)
+                with classic_max_path() as refused:
+                    output, log_path = vfp.apply_patch(exe, "collection_progression", fun_patch_ids=ids,
+                                                       output_root=root)
+                self.assertEqual(refused, [])
+                self.assertEqual(output, out / name)
+                self.assertEqual(log_path, out / FOLDER / patcher_files.PATCH_LOG_FILENAME)
+                log = json.loads(patcher_files.long_path(log_path).read_text(encoding="utf-8"))
+                self.assertEqual(log["output_path"], str(output))
+                self.assertTrue(patcher_files.long_path(out / patcher_files.TRANSPARENCY_RELATIVE_PATH).is_file())
+                # Every file the game opens is where it can open it.
+                for relative in relatives:
+                    if (out / relative).is_file() or relative == name:
+                        self.assertLess(len(str(out / relative)), patcher_files.MAX_PATH, relative)
+                self.assertTrue((out / max(relatives, key=len)).is_file())
+                self.assertEqual([p.name for p in root.iterdir() if p.name.startswith(".vvfp-")], [])
+
+    def test_a_deep_output_is_written_whole_or_refused_up_front(self):
+        """The owner, 2026-10-26: "make sure no staging file or file runs into a 'path too long' error". Real
+        patches just inside and just past the limit either write every file -- each one the game opens under
+        MAX_PATH, no hidden .vvfp-* folder left -- or are refused before anything is written."""
+        game = "vv1"
+        base = short_base(self)
+        exe = stock_source(base, game)
+        ids = ["vv1_builders_fix_huts"]
+        relatives, name, folder_name = game_files(game, ids, exe.parent)
+        at_limit = root_at_the_limit(base, folder_name, relatives)
+        outcomes = set()
+        for extra in (-1, 0, 1, 2):
+            root = base / ("d" * (len(at_limit.name) + extra))
+            try:
+                with classic_max_path() as refused:
+                    vfp.apply_patch(exe, "collection_progression", fun_patch_ids=ids, output_root=root)
+            except vfp.PatcherError as raised:
+                self.assertIn("too long", str(raised))
+                self.assertFalse(root.exists(), "a refused patch wrote something")
+                outcomes.add("refused")
+                continue
+            self.assertEqual(refused, [])
+            out = root / folder_name
+            for relative in relatives:
+                if (out / relative).is_file():
+                    self.assertLess(len(str(out / relative)), patcher_files.MAX_PATH, relative)
+            self.assertTrue(written_files(root))
+            self.assertEqual([p.name for p in base.iterdir() if p.name.startswith(".vvfp-")], [])
+            outcomes.add("written")
+            shutil.rmtree(patcher_files.long_path(root))
+        self.assertEqual(outcomes, {"written", "refused"})
+
+    def patched_at_the_limit(self, game: str = "vv4"):
+        ids = selection_256(game)
+        base = short_base(self)
+        exe = stock_source(base, game)
+        relatives, name, folder_name = game_files(game, ids, exe.parent)
+        root = root_at_the_limit(base, folder_name, relatives)
+        output, _ = vfp.apply_patch(exe, "collection_progression", fun_patch_ids=ids, output_root=root)
+        return exe, ids, root, output.parent, name
+
+    def test_a_repatch_moves_the_old_log_name_and_carries_deep_files(self):
+        """Over a build an older patcher made (its "<exe>.patch-log.json", naming a companion since retired) with a
+        player's file deeper than MAX_PATH: the re-patch drops the old log and the retired companion, writes
+        "VVFP Patch Log.json", and carries the player's file over -- all with long paths switched off."""
+        exe, ids, root, out, name = self.patched_at_the_limit()
+        old_log = fake_old_build(out, name)
+        self.assertGreaterEqual(len(str(old_log)), patcher_files.MAX_PATH)
+        retired = out / FOLDER / "VVFP Retired Feature.dll"
+        retired.write_bytes(b"MZ")
+        data = json.loads(patcher_files.long_path(old_log).read_text(encoding="utf-8"))
+        data["companion_files"].append({"feature": "vv4_retired", "path": str(retired), "sha256": "00"})
+        patcher_files.long_path(old_log).write_text(json.dumps(data), encoding="utf-8")
+        player = out / "My Backups" / ("b" * 150) / "Virtual Villagers - The Tree of Life0.ldw"
+        self.assertGreaterEqual(len(str(player)), patcher_files.MAX_PATH)
+        patcher_files.long_path(player).parent.mkdir(parents=True)
+        patcher_files.long_path(player).write_bytes(b"the player's own")
+        with classic_max_path() as refused:
+            _, log_path = vfp.apply_patch(exe, "collection_progression", fun_patch_ids=ids, output_root=root,
+                                          overwrite=True)
+        self.assertEqual(refused, [])
+        files = {p.relative_to(out).as_posix() for p in written_files(out)}
+        self.assertNotIn(f"{FOLDER}/{old_log.name}", files)
+        self.assertIn(f"{FOLDER}/{patcher_files.PATCH_LOG_FILENAME}", files)
+        self.assertFalse(retired.exists())
+        self.assertEqual(patcher_files.long_path(player).read_bytes(), b"the player's own")
+        self.assertEqual(log_path, out / FOLDER / patcher_files.PATCH_LOG_FILENAME)
+        self.assertEqual([p.name for p in root.iterdir() if p.name.startswith(".vvfp-")], [])
+
+    def test_a_failed_publish_restores_a_deep_tree(self):
+        """A publish that fails after the swap moves the failed tree aside and puts the prior one back, byte for
+        byte, deep files and all, with long paths switched off."""
+        from unittest import mock
+        exe, ids, root, out, name = self.patched_at_the_limit()
+        player = out / "My Backups" / ("b" * 150) / "kept.txt"
+        patcher_files.long_path(player).parent.mkdir(parents=True)
+        patcher_files.long_path(player).write_bytes(b"kept")
+        before = vfp._capture_tree_snapshot(out)
+        with classic_max_path() as refused, \
+                mock.patch.object(vfp, "_verify_final_companion_records", side_effect=vfp.PatcherError("injected")):
+            with self.assertRaises(vfp.PatcherError):
+                vfp.apply_patch(exe, "collection_progression", fun_patch_ids=ids, output_root=root, overwrite=True)
+        self.assertEqual(refused, [])
+        self.assertTrue(vfp._tree_snapshot_matches(out, before))
+        self.assertEqual([p.name for p in root.iterdir() if p.name.startswith(".vvfp-")], [])
+
+    def test_the_readers_find_a_deep_log(self):
+        """Check Saves & Logs' patch list (vv_game_mechanics) reads the log at any depth, under either name."""
+        import vv_game_mechanics as gm
+        exe, ids, root, out, name = self.patched_at_the_limit()
+        output = out / name
+        digest = vfp.sha256(output).lower()
+        with classic_max_path():
+            found, words, problems = gm._from_logs(output, digest)
+        self.assertIn("log of the run", words)
+        self.assertEqual(problems, [])
+        self.assertTrue(found)
+        old_log = fake_old_build(out, name)
+        self.assertGreaterEqual(len(str(old_log)), patcher_files.MAX_PATH)
+        with classic_max_path():
+            again, words, problems = gm._from_logs(output, digest)
+        self.assertEqual(again, found)
+        self.assertIn("log of the run", words)
 
 
 if __name__ == "__main__":

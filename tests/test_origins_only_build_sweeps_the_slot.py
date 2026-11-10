@@ -155,7 +155,7 @@ def _build(game: str, spec: dict) -> tuple[pathlib.Path, dict]:
         raise AssertionError(f"{game}: no output folder produced")
     folder = folders[0]
     log = json.loads(
-        next((folder / "Virtual Villagers Fun Patcher Files").glob("*.patch-log.json")).read_text(encoding="utf-8")
+        next((folder / "Virtual Villagers Fun Patcher Files").glob("VVFP Patch Log.json")).read_text(encoding="utf-8")
     )
     return folder, log
 

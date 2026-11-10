@@ -513,8 +513,8 @@ the selected mode's social cap or collection/progression behavior. All three
 modes use the stable short `- Modded` name (a build with **256 Villagers
 (Experimental)** ticked is named `- Modded 256` instead; see below). The selected mode,
 optional patches, hashes, and applied edits remain identified in the
-`.patch-log.json` in the Modded folder's `Virtual Villagers Fun Patcher Files`
-folder.
+patch log, `VVFP Patch Log.json`, in the Modded folder's
+`Virtual Villagers Fun Patcher Files` folder.
 
 In A New Home, the automatic safety also preflights the stock two-villager
 creation path: when only one physical record remains it creates one villager,
@@ -2343,7 +2343,7 @@ selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the
 stock EXE in the copy, and adds the modified EXE plus, in its
 `Virtual Villagers Fun Patcher Files` folder, the add-ons and the
-`.patch-log.json` (see below). The
+patch log, `VVFP Patch Log.json` (see below). The
 original folder and original EXE are never edited, renamed, replaced, or
 deleted. Asset-swap patches such as VV1 Visual Mods, VV4 Optional
 Text changes, and the VV5 Guardians of Isola Rewrite replace their listed image
@@ -2356,16 +2356,33 @@ after confirmation.
 Every file the patcher adds to a Modded folder is in one subfolder,
 **`Virtual Villagers Fun Patcher Files`**, beside the modified EXE: every add-on
 DLL (`VVFP ... .dll`, including `VVFP Startup.dll`), the images only those
-DLLs read, the `.patch-log.json` and the `VVFP Transparency Log.txt`. The game
+DLLs read, the patch log `VVFP Patch Log.json` and the `VVFP Transparency Log.txt`. The game
 folder itself holds only the game's own files, the modified EXE and that one
 folder. The add-ons are always loaded from that folder by their full path,
 built from the modified EXE's own location (never from the current folder or
 the Windows DLL search order), and with Unicode paths, so a game installed in
 a folder with accented or Japanese characters in its name still loads every
 add-on and writes its logs. A missing folder or DLL just switches that add-on
-off; the game always starts. If the Modded folder's path is so long that an
-add-on's path would reach Windows' 260-character limit, the patcher says so
-and writes nothing, so choose a shorter output location.
+off; the game always starts.
+
+**Long folder paths.** The games are 32-bit programs that Windows lets open a
+file only by a path of at most 259 characters, even where long paths are
+switched on. So the patcher refuses an output location only when one of the
+files the game itself opens -- the modified EXE, the game's own files, an
+add-on, an image or font the add-ons read -- would be deeper than that. The
+message names that file, says how many characters too long it is and how long
+the output location may be (for example a folder near the top of a drive,
+such as `C:\Games`, always works), and nothing is written. The patcher's own
+files are never the reason: the two logs, the hidden working folders it uses
+beside the output while it publishes (`.vvfp-stage-...`, `.vvfp-backup-...`,
+`.vvfp-recovery-...`) and your own files a re-patch carries over are read and
+written with Windows' long-path form, so they work at any length. The patch
+log is named `VVFP Patch Log.json` in every build; older versions named it
+after the game (`Virtual Villagers - The Tree of Life - Modded
+256.patch-log.json`), which made it the longest path in the build and refused
+deep folders whose game files all fit. Patching again replaces a log under
+the old name with the new one, and everything that reads the log (Game
+Mechanics, Repair Saves & Logs) finds either name.
 
 The only patcher files outside that folder are ones the game itself opens
 from its own folders by name, so they must stay where the game looks:
@@ -2388,7 +2405,8 @@ from its own folders by name, so they must stay where the game looks:
 Patching again over a Modded folder made by an older version moves
 everything into the new layout: the loose `VVFP ... .dll` files, the loose
 images only the add-ons read, the old `.patch-log.json` and the old
-`VVFP Transparency Log.txt` beside the EXE are removed (only files the
+`VVFP Transparency Log.txt` beside the EXE (and a patch log under the older
+`<game> - Modded.patch-log.json` name in the folder) are removed (only files the
 patcher itself installed, matched by name and, for non-DLL files, by
 content), and files you added yourself are kept.
 
