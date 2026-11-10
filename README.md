@@ -22,6 +22,14 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.93
+
+- **Repair Saves & Logs always changes the game speed** (all five games): a save whose clock the old check refused ("its game clock was last changed after its last tick", which happens when you pause and close the game within two seconds of its last tick) now changes like any other, keeping game time, the village's age and every timer. Only a file that is not one of the game's saves is refused.
+- **Back Up Saves always sets every backed-up save to Paused**, whatever its clock, so a restored backup never catches up on the time since it was made.
+- **Set the speed in a backup** (Repair Saves & Logs): pick one of the save folder's backups and set its game speed (Paused, Slow, Normal, Fast). Only that backup's copies change, never your own saves; a step that fails puts the backup back exactly as it was.
+- **Backups...** (all five games): a window listing every backup, newest first, with each slot's tribe, population, food, tech points, technology levels, game speed, difficulty, last played and last saved times. From each game's row, beside Back Up Saves (All 5), Restore Saves (Details...) and Repair Saves & Logs. It only reads; it never writes.
+- **Patching into a deep folder works**: only the files the game itself opens (the exe, its companion DLLs, images and sounds) must fit the game's 260-character limit; the patcher's own logs, reports and backups work at any length. When a game file truly would not fit, the message names it and how much shorter the folder must be.
+
 ## What's new in v1.35.92
 
 - **Harder Fishing Unlock in VV4** (The Tree of Life, new, in Classic VV Difficulty): cloth can't be made until Science level 3 and the piers can't be fixed until Construction level 3 (a villager dropped on them says "Additional research may be necessary."); piers already fixed stay fixed. **No Fishing at Science Level 2** is removed.
