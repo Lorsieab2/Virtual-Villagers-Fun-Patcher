@@ -886,8 +886,10 @@ def read_village_name(game: int, path: Path) -> str | None:
 # The dword is never written on its own (the owner, 2026-10-24: a Game speed change that wrote only
 # it left The Secret City's clock running at the old speed, and the campfire then burned for the old
 # speed's length).  Every change replays the game's own pause / unpause / speed-change routine on the
-# save -- its clock and every timer the game ties to the clock, at the save's last tick
-# (src/vv_save_clock.py) -- and is refused when that cannot be done exactly.
+# save -- its clock and every timer the game ties to the clock, at the save's last tick or the
+# clock's last change after it (src/vv_save_clock.py).  It always works on a save the game wrote (the
+# owner, v1.35.92: "the game speed should always be able to be altered in the save using repair
+# saves!!!!!!!! for all 5 games"); only a file that is not the game's save is refused.
 _SPEED_IN_BUFFER = {1: 0xA310, 2: 0x2EB00, 3: 0x12F18, 4: 0x17108, 5: 0x17D74}
 _SPEEDS = (3, 6, 10)
 _PAUSED = 999
@@ -897,7 +899,7 @@ _SAVE_LAYOUTS = {1: ((12, 8),), 2: ((12, 8),), 3: ((12, 8),), 4: ((24, 16), (12,
 
 
 class SpeedRefused(BackupError):
-    """A speed change the game's own routine could not be replayed for exactly; nothing was written."""
+    """The file is not a save of the game whose speed can be changed; nothing was written."""
 
 
 def _save_header(game: int, data: bytes) -> int | None:
@@ -928,22 +930,22 @@ def save_speed(game: int, data: bytes) -> tuple[int, int] | None:
 
 def _speed_edit(game: int, data: bytes, speed: int, paused: bool) -> bytes | None:
     """The save set to ``speed``, paused or not, the way the game itself does it (src/vv_save_clock.py),
-    or None when it already is so.  SpeedRefused when that cannot be reproduced exactly."""
+    or None when it already is so.  SpeedRefused when the file is not a save the game can load."""
     header = _save_header(game, data)
     if header is None:
         return None
     try:
         return vv_save_clock.edit_speed(game, data, header, speed, paused)
     except vv_save_clock.SpeedEditRefused as exc:
-        raise SpeedRefused(f"the game speed of this save cannot be changed exactly as the game changes it "
-                           f"({exc}), so it was left as it is") from exc
+        raise SpeedRefused(f"this is not a save the game can load ({exc}), so it was left as it "
+                           f"is") from exc
 
 
 def pause_save_bytes(game: int, data: bytes) -> bytes | None:
     """The save set to Paused at the speed it had, exactly as the game's pause key leaves it (the
     speed plus 999, the game clock stopped and its timers kept, src/vv_save_clock.py); None when it
-    already is so or is not a save this can read.  SpeedRefused when the game's pause cannot be
-    reproduced exactly."""
+    already is so or is not a save this can read.  SpeedRefused when the file is not a save the game
+    can load."""
     found = save_speed(game, data)
     if found is None:
         return None
@@ -998,8 +1000,8 @@ def _write_save(path: Path, data: bytes, original: bytes) -> None:
 def pause_save_file(game: int, path: Path) -> int | None:
     """Set one save file to Paused, through a temporary file and a read-back.  Returns the speed
     it had, or None when it was already paused or is not a save this can read (then it is left
-    exactly as it was).  SpeedRefused (and the file left as it is) when the game's own pause cannot
-    be reproduced exactly."""
+    exactly as it was).  SpeedRefused (and the file left as it is) when it is not a save the game
+    can load."""
     data = path.read_bytes()
     try:
         paused = pause_save_bytes(game, data)
@@ -1032,8 +1034,8 @@ def set_speed_choice(game: int, path: Path, choice: str,
     and Options speed buttons leave it -- the speed dword, the game clock and every timer the game
     ties to its clock (src/vv_save_clock.py); the speed it keeps under Paused is the one it had.
     Returns (old value, new value), or None when it already is so.  A file that is not a save of this
-    game, whose game is running or cannot be checked (Codex, #576), or whose change cannot be
-    replayed exactly (SpeedRefused), is refused and left exactly as it is."""
+    game (SpeedRefused), or whose game is running or cannot be checked (Codex, #576), is refused and
+    left exactly as it is; the state of its clock never is (src/vv_save_clock.py)."""
     exe = game_exe_name(path.parent)
     try:
         controller = processes if processes is not None else WindowsProcesses()
