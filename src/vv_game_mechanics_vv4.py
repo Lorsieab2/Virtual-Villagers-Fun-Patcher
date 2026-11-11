@@ -67,9 +67,9 @@ STEW_LINES = (
      "items); spicy, soapy, soapy: \"Burping up soap bubbles\".", gm.RUNNING),
     ("Sweet x3: honours the tree; sweet, sweet, soapy: the children get hiccups; sweet, soapy, soapy: heals 25 to "
      "59 health (5 to 14 with under 100 food), and that villager cannot eat that stew again for 10 real-life "
-     "minutes; soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it does not make the villager sick), and "
-     "the same 10 real-life minutes (real time, the same at every speed). In salt water, pulpy vines x3 make soap; any other mix tastes nasty or too "
-     "salty.", gm.RUNNING),
+     "minutes (real time, the same at every speed); soapy x3: \"I feel sick!\" and \"Throwing up soapy stew!\" (it "
+     "does not make the villager sick), with the same 10-minute wait. In salt water, pulpy vines x3 make soap; any "
+     "other mix tastes nasty or too salty.", gm.RUNNING),
 )
 # The stew pot (0x4D76D8) and its herb table (0x4D8220), the same design as The Secret City's potion: a stew
 # made (0x42EDE0) sets the table's deadline +8 to the real clock 0x403750 + 300 (0x42F240, from 0x42EEB2); the
@@ -81,9 +81,8 @@ STEW_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 
 def stew_pot_line(speed: int) -> str:
     return (f"A ready stew: the pot's on-screen countdown starts at {STEW_COUNTDOWN[speed]} on {gm.speed_name(speed)} "
-            "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and the pot "
-            "empties itself when it reaches 0:00, 5 real-life minutes after the stew was made at every speed. The "
-            "save does not keep the pot.")
+            "speed (2:30 on Fast, 5:00 on Normal, 8:20 on Slow), and the pot empties itself when it reaches 0:00, "
+            "5 real-life minutes after the stew was made at every speed. The save does not keep the pot.")
 
 
 # The owner (2026-10-24).  In the code a villager dropped on the herb table (its drop slot 0x42F0F0) empties the
@@ -134,8 +133,9 @@ LIFE_LINES = (
     ("A success raises the skill by (70 - skill) ÷ 18 for Farming, Research and Building, ÷ 10 for Parenting and "
      "÷ 12 for Healing, rounded down (7 at skill 0); twice that for a villager who likes learning, half for one who "
      "dislikes it. When that comes to 0 (Farming, Research and Building from skill 53, Parenting from 61, Healing "
-     "from 59, before the doubling or halving), a success gives 1 point 51.05% of the time when a second roll of 0 "
-     "to 99 is at or above the skill, and nothing otherwise. The odds of the check itself are under Chances.",
+     "from 59, before the doubling or halving), a success still gives 1 point when two more rolls both come up: "
+     "one of 51.05%, then a roll of 0 to 99 at or above the skill; otherwise nothing. The odds of the check itself "
+     "are under Chances.",
      gm.RUNNING),
     ("Building: every building needs 2,000 build points; each build step adds 12 to Hut 1, 4 to Hut 2, 1 to Hut 3, "
      "12 to the Clothing Hut, 200 to the Love Shack and 50 to the Nursery School and the Hospital.", gm.RUNNING),
@@ -200,17 +200,27 @@ CHANCE_V4 = (
      "(Refills, Villager timers), births (Births and gender), ghost visits and the hummingbird (Collectibles), how "
      "long an item lies (Mushrooms), the stews and the Fire Pit (Other), weather an event brings (Island "
      "events).", gm.RUNNING),
-    ("A new village: one of the first five villagers has a 30% chance of liking running (read from the "
-     "coordinator's spec, not traced in the game's code here: UNCONFIRMED).", False),
+    # Read from the coordinator's spec (mech_vv4\\spec.md), not traced in the game's code.
+    ("A new village: one of the first five villagers has a 30% chance of liking running (not traced in the game's "
+     "code).", False),
     # The refresh 0x466D20 runs at 0x43F801 when the game's clock reaches [game+0x171BC]; the 2-second step sets
     # that to the clock + 40 every time (0x43F962), as does the pause (0x43F7E3) and the refresh itself (0x43F814).
     ("Every villager's queue of actions is refreshed only when 40 seconds of the game's clock (whole real-life "
-     "seconds) pass without the village's 2-second step, which pushes that moment 40 seconds ahead each time it "
-     "runs (real time): not every 40 seconds in normal play, only after the village has stopped updating for 40 "
-     "real-life seconds or more.", gm.CODE),
-    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed, and the "
-     "wind flutes play in fog every 30 to 45, 60 to 89 or 100 to 148 real-life seconds (read from the coordinator's "
-     "spec, not traced in the game's weather code here).", False),
+     "seconds) go by without the village's 2-second step, and each step pushes that moment 40 seconds ahead: so "
+     "not every 40 seconds in normal play, only after the village has stopped updating for 40 real-life seconds "
+     "or more.", gm.CODE),
+    ("Clear weather lasts 4 to 15, 8 to 30 or 13 to 50 real-life minutes on Fast, Normal or Slow speed (not traced "
+     "in the game's weather code).", False),     # read from the coordinator's spec (mech_vv4\\spec.md)
+    # Traced in the stock exe (the coordinator, 2026-11-10): setting the weather 0x46BC30 clears the flute timer
+    # (weather object +0xC) for every kind but fog (state 4, 0x46BCA0), which sets it to the game's clock (0x41DB20)
+    # + 60 + rand(30); the weather update 0x46BE10 re-arms it the same way when it passes and, with at least 1 Wind
+    # Flute piece found (0x413B90 on the set 0x6A), counts a "Know Which Way the Wind Blows" step (0x412F90, 0x13)
+    # and plays Flute1 (1-4 pieces), Flute3 (5-9) or Flute5 (10-12) at 3.0 x the Sound slider (0x4AB3A8; FMOD
+    # caps it at full).  How the game's clock relates to real seconds at each speed was not verified with it.
+    ("Wind flutes: only in fog, they play every 60 to 89 seconds on the game's clock, and only once at least 1 Wind "
+     "Flute piece is found (none with 0). The tune changes with the pieces found (one for 1 to 4, another for 5 to "
+     "9, a third for 10 to 12), and each time counts toward the \"Know Which Way the Wind Blows\" achievement.",
+     gm.CODE),
 )
 
 
@@ -265,7 +275,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # is done with cutting tools, not cloth; the code agrees.
     add("Food sources", "A blackberry harvest is done with a cutting tool (The Cutting Tool): it uses one of the "
                         "tribe's cutting tools and brings the berries, at most 30, before Food Mastery; with no "
-                        "cutting tool on hand the villager refuses (0x46E7E0).", gm.OWNER)
+                        "cutting tool on hand the villager refuses.", gm.OWNER)       # the drop handler 0x46E7E0
     flat = village.has(FLAT)
     if flat is not False:
         add("Food sources", gm.patch_words(
@@ -281,13 +291,24 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # 0x435970 (action 0x6A before the restore, 0x64 after), the trip 0x4343A0 -> 0x65..0x68 (0x4346F0), the spot
     # locks 5..8 and holes 1..4 (table 0x704E38; timeouts 0x46D563 45 and 180 game seconds, freed by 0x46D7F0 from
     # 0x43F984), the stew 0x4349A3, the credit job event 15 0x464567; catch-up 0x463A30 and the bonus 0x468A7A.
-    add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored; before that a villager dropped on it "
-                        "only finds the fruit needs cooking): a trip claims one of the pit's 4 fruit spots (all 4 taken: "
-                        "\"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit down, "
-                        "the Farming check ((Farming + 34) in 100; a failure ends it with nothing), carries the fruit to "
-                        "the pit, a 5 s wait, stomps it in its cooking hole, a 3 s wait, then walks it to the food bin: "
-                        "3 food. If the stew pot is waiting for an ingredient the fruit goes into the stew instead. "
-                        "About 162 real-life seconds a trip at every speed.", gm.CODE)
+    add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored): a trip brings 3 food and takes "
+                        "about 162 real-life seconds at every speed. Before the pit is restored a villager dropped on "
+                        "the tree only finds the fruit needs cooking.", gm.CODE)
+    # The trip's queue (0x4346F0, spot 1; the others alike): the shake (1 s poses: step 2 0x468EE0, step 10
+    # 0x469280; then a 3 s animation, step 43 0x469EC0(3)), the Farming check (step 9 0x469220), a 3 s wait (step 14
+    # 0x4693B0(3) at 0x4348C5), the fruit taken (step 17 item 0x36), a 1 s pose (0x4348E9), the walk to the pit
+    # (area 0x22), "Cooking fruit in an earthen oven" (0x23F), a 5 s wait (0x434915), the hops, a 3 s wait
+    # (0x43497F), then "Carrying fruit to the food bin" (0x240): the stomped fruit taken (step 17 item 0x37), the walk
+    # to the food bin (area 8), a 1 s wait (0x434A0F) and the job event 15 (the food, step 19).  Steps 2, 10, 14 and
+    # 43 are waits: their seconds (+0x54) get the clock 0x403750 added when they start (0x46A072, 0x46A17D, 0x46A201,
+    # 0x46A3B4) and end through 0x46A000.
+    out.append(gm.Fact("Food sources", (
+        "How a trip goes (waits in real-life seconds, the same at every speed): it claims one of the pit's 4 fruit "
+        "spots (all 4 taken: \"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit "
+        "down (1 s poses, then a 3 s animation), the Farming check ((Farming + 34) in 100; a failure ends it with "
+        "nothing), a 3 s wait, takes the fruit, a 1 s wait, carries it to the pit, a 5 s wait, stomps it in its "
+        "cooking hole, a 3 s wait, takes the stomped fruit, walks it to the food bin, a 1 s wait, then 3 food is "
+        "added. If the stew pot is waiting for an ingredient the fruit goes into the stew instead."), gm.CODE, True))
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
                         "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
@@ -296,8 +317,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
     add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
                         "Cooking Pit is restored, after each counted age unit's job turns (all but the last 2) every "
-                        "villager who had them (aged 14 or more, not sick) adds 5 food x Food Mastery (5, 7 or 10) on "
-                        "a (Farming - 25) in 100 chance, whatever its job, with no walking and no spot limit: 3.75 "
+                        "villager who had job turns (aged 14 or more, not sick or pregnant) adds 5 food x Food "
+                        "Mastery (5, 7 or 10) on a (Farming - 25) in 100 chance, whatever its job, with no walking and "
+                        "no spot limit: 3.75 "
                         "food a unit at Farming 100, 1.75 at 60, nothing at 25 or less (Food Mastery 1); children add "
                         "nothing. Each villager eats 2, so it carries a tribe of high-Farming adults but not a large "
                         "one of children and low-Farming villagers.", gm.CODE)
@@ -312,7 +334,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     def levels(amount: int) -> str:
         return f"{amount} -> {amount + amount // 2} -> {amount * 2}"
     add("Food sources", "Food Mastery (a technology) boosts the food every source brings into storage, at the moment "
-                        "it is credited (0x41D920): level 2 adds half (rounded down), level 3 doubles it. The "
+                        "it is added: level 2 adds half (rounded down), level 3 doubles it. The "
                         "sources' own regrowth (the berries on the bush) is not boosted. Each gain at Food Mastery "
                         "level 1 -> 2 -> 3" + ("" if village.general else f" (this village is at level {max(1, mastery)})")
                         + ": a blackberry pick " + ("" if village.general else f"now {levels(max(2, berries // 100))}, ")
@@ -343,7 +365,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         add("Food sources", gm.patch_words(
             village, YELLOW_FRUIT,
             f"the yellow fruit tree holds at most {FRUIT_FULL:,} fruit, refilled to full every {FRUIT_REFILL_UNITS} "
-            f"age units ({every_refill} on {on} speed; time away as the game counts it and Time Warp count too); "
+            f"age units ({every_refill}; time away as the game counts it and Time Warp count too); "
             f"a fruit trip takes {FRUIT_TRIP} fruit when its food goes in the food bin (Food Mastery multiplies "
             f"the food, not the fruit taken), a stomped fruit put in the stew takes {FRUIT_TRIP}, a catch-up "
             f"Cooking Pit bonus takes {FRUIT_BONUS} and pays nothing with fewer left; with fewer than {FRUIT_TRIP} "
@@ -377,7 +399,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Refills", f"Next growth: {due(NEXT_TICK)}.", gm.SAVE)
     if fruit_patch is not False:
         add("Refills", gm.patch_words(village, YELLOW_FRUIT, f"the yellow fruit tree is refilled to {FRUIT_FULL:,} "
-                                      f"every {FRUIT_REFILL_UNITS} age units ({every_refill} on {on} speed), counted "
+                                      f"every {FRUIT_REFILL_UNITS} age units ({every_refill}), counted "
                                       "as the game counts its villagers' ages, live, while catching up and with "
                                       "Time Warp; a Custom Island Event that refills the food sources also fills "
                                       "it to full (the 40-unit count runs on)"))
@@ -391,7 +413,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "While playing (not paused) a mushroom or a collectible appears by the roll under Collectibles: "
                      "about every 45 real-life seconds (an estimate: the roll is made once per update of the village, "
                      "and how many updates come each real-life second is not read here); at most 2 lie at a time, "
-                     "each gone after 90 real-life seconds (real time, the same at every speed: the computer's clock 0x403750).",
+                     "each gone after 90 real-life seconds (real time, the same at every speed: it runs on the "
+                     "computer's clock).",
                      False)
     # The roll 0x4143A8: rand(6000) < 4 (fog: (Wind Flute pieces / 2) x 4); above weather strength 50 a second < 4
     # (0x4143CF).  The Secret City's is < 3 and < 3 (0x42DD7A, 0x42DD95).
@@ -420,26 +443,33 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "minutes (real time, the same at every speed; nothing if more than a real-life hour overdue); what a ghost is: under Death and graves.",
         gm.RUNNING)
     add("Collectibles", "Fog increases collectible spawning if you have Wind Flute pieces collected.", gm.OWNER)
+    # The roll 0x41437E; the Wind Flute count 0x413B90 on the set 0x6A..0x75.
     add("Collectibles", (
-        "Exactly (0x41437E): each update of the village (while not paused) something appears when a roll of 0 to 5,999 "
-        "comes under 4 -- 24 in 32,768 -- and, when the weather level is above 50 (rain or wet ground), a second such "
-        "roll gives another chance. In fog the first roll's 4 becomes 4 for every 2 Wind Flute pieces found (0x413B90 "
-        "on the set 0x6A..0x75): no spawns at all from it with 0 or 1, the normal chance with 2 or 3, twice it with 4 "
-        "or 5, up to 6 times it (144 in 32,768) with all 12."), gm.RUNNING)
+        "Exactly: each update of the village (while not paused) something appears when a roll of 0 to 5,999 comes "
+        "under 4 -- 24 in 32,768 -- and, when the weather level is above 50 (rain or wet ground), a second such roll "
+        "gives another chance. In fog the first roll's 4 becomes 4 for every 2 Wind Flute pieces found: no spawns at "
+        "all from it with 0 or 1, the normal chance with 2 or 3, twice it with 4 or 5, up to 6 times it (144 in "
+        "32,768) with all 12."), gm.RUNNING)
     flutes = life.collectible_counts(village)
     if flutes is not None and len(flutes) >= 48 and not village.general:
         found = sum(1 for c in flutes[36:48] if c > 0)
         out.append(gm.Fact("Collectibles", (
             f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
             f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
-    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes (every 23 to 25 "
-                        "once Decorate Tree is done; whether real time or on the game's clock: the next line); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
-                        "the game's clock was not traced.", False)
+    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes, the same at "
+                        "every speed (every 23 to 25 once Decorate Tree is done); it changes nothing.", gm.RUNNING)
+    # The scene update 0x43F750: skipped while paused (0x43FDDA, the game clock 0x4D6F18's rate 0); now = 0x403750
+    # (0x43FDEA: whole real-life seconds from time(), not the game clock); with more than 2 tree stages (0x41F570,
+    # 0x43FE87) and now past the timer game+0x170EC (0x43FE95) the bird flies (0x42C5F0, image 0x12F
+    # hummingbirdstrip.png) and the timer becomes now + 180 + rand(120) (0x43FEA9, 0x43FEB0), + 1,200 once
+    # Decorating the Tree (puzzle 15) is solved (0x43FECA, 0x43FED6).  The timer is not one the game clock rescales.
+    add("Collectibles", "The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are "
+                        "the same at Fast, Normal and Slow. It does not fly while the game is paused; if its time "
+                        "came during a pause, it flies as soon as the game runs again.", gm.CODE)
     # The room check 0x468350: +5 for each complete set (0x4143F0), 20 made 25 (0x4683AA).
     add("Collectibles", "Fog comes with the weather and with island events (see Island events). Each complete "
-                        "collection raises the population limit by 5, and all four by 25 (the room check 0x468350).",
-        gm.RUNNING)
+                        "collection raises the population limit by 5, and all four by 25.",
+        gm.RUNNING)                             # the room check 0x468350
 
     # -- Tech points (how many there are is under Vital statistics) -----------------------------
     lvl = level[SCIENCE]
@@ -456,11 +486,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         # 0x45EB90 looks for the villager's effect kind 1 on 0x4CE1C0, which only the Purify Tree's result 0
         # (CPurifyTree vtable 0x48E9F8 +0x30 = 0x437EC0 -> 0x438089) gives, for 240 real-life seconds (0x4380CF ->
         # 0x460A90); 0x464E4F triples the research.  The Lab Equipment bonus: rand(pieces) (0x464E5D..0x464E82).
+        # Its end is set on the computer's clock: 0x460A90 -> 0x403750.
         add("Tech points and effects", "The Purify Tree's glow: one of the Purify Tree's two results gives the "
                                        "villager a glow for 4 real-life minutes (240 seconds; real time, the same "
-                                       "at every speed: its end is set on the computer's clock, 0x460A90 -> "
-                                       "0x403750, so paused time counts too), and while it lasts their research "
-                                       "brings 3 times the tech points.", gm.RUNNING)
+                                       "at every speed, and paused time counts too), and while it lasts their "
+                                       "research brings 3 times the tech points.", gm.RUNNING)
     # The bonus 0x464E6F: cmp al,12 / jne instead of test / jle (scripts/build_science_collectibles_complete_features.py).
     if divisor and village.has(SCIENCE_SET) is not False:
         add("Tech points and effects", gm.patch_words(village, SCIENCE_SET, "the Lab Equipment pieces add nothing to "
@@ -580,7 +610,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"The Cooking Pit while catching up (it is restored): after each counted age unit's job turns, every "
             f"villager who had them (aged 14 or more, not sick or pregnant; all but the last 2 units) adds {food_each} "
             f"food (Food Mastery level {pit_level}) on a (Farming - 25) in 100 chance, whatever its job and with no "
-            f"walking; nobody is sent to the fruit itself (0x463A30, 0x468A7A). This village: {len(workers)} working "
+            f"walking; nobody is sent to the fruit itself. This village: {len(workers)} working "
             f"villagers, {paying} of them with Farming above 25, so about {total:,.1f} food each counted age unit, "
             f"against about {sum(1 for p in members if not p.golden) * life.eat_per_unit(ctx_ref[0]):,.1f} eaten. "
             "Farming 25 or less adds nothing and children add nothing, so a large tribe of low-Farming villagers "
@@ -643,10 +673,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     speed_value),
                                 rule=gm.CODE)] if pit and fruit_patch is True else [])
                 + ([life.Source("The Cooking Pit fruit", None, unlimited=True,
+                                # The fruit spots: 0x4343A0.
                                 refill_words="it never runs out, but each trip takes about 2 3/4 real-life minutes of "
                                              "shaking, stomping, cooking and walking to the food bin for 3 food, and a "
-                                             "trip can start only while one of its 4 fruit spots is free (0x4343A0; "
-                                             "each frees itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
+                                             "trip can start only while one of its 4 fruit spots is free (each frees "
+                                             "itself after 45 seconds on the game's clock, so about 14, 7 or 5 "
                                              "villagers work it at once on Fast, Normal or Slow, an estimate)",
                                 verified=gm.CODE,
                                 capped_words="the Cooking Pit fruit never runs out, but live only about 14, 7 or 5 "
@@ -670,9 +701,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         collectibles=collectibles,
         limit=life.limit_words(village, life.later_sets(village)),
         puzzles=puzzles,
+        # The meal: 0x46848B.
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
-                   "eaten, 0x46848B); on Medium at 8,000 or more, or "
-                   "on Hard, 2 more 76% of the time; never more on Easy; a snack below full health costs 1 more.",
+                   "eaten); on Medium at 8,000 or more, or on Hard, 2 more 76% of the time; never more on Easy; a "
+                   "snack below full health costs 1 more.",
         # Farmers needed lists only the sources a farmer is sent to: the bush, and the nets once Fishing Nets is
         # solved.  The fruit is left out: no job turn is sent to it while catching up and no task holds a farmer on it.
         # With Food Gains are Flat the pick pays FLAT_PICK live and FLAT_CATCH_UP while catching up.

@@ -102,7 +102,8 @@ class GreyHair(unittest.TestCase):
                 if lines:
                     self.assertIn("Young always draws the young head and Old always the old, grey head", lines[0])
                     self.assertIn("The head value itself never changes", lines[0])
-                    self.assertIn(genetics.HEAD_LOOK_SITES[game], lines[0])
+                    self.assertIn("The look is kept in the patcher's own file for the save", lines[0])
+                    self.assertNotRegex(lines[0], r"0x[0-9A-Fa-f]")       # the sites stay in HEAD_LOOK_SITES
                 village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(), 1_700_000_000,
                                      general=True)
                 self.assertFalse([f for f in genetics.facts(village) if "head look" in f.text])
@@ -138,7 +139,9 @@ class Rules(unittest.TestCase):
                 self.assertIn("31.83%", text)
                 self.assertIn("0.17%", text)
                 self.assertIn("63.5%", text)
-                self.assertIn(genetics._LATER[game]["creator"], text)
+                self.assertIn("The mother's head is the one she has at the birth; the father's is the one the game "
+                              "copied onto her at the conception.", text)
+                self.assertIn(game, genetics._LATER)                    # the code behind it, kept out of the text
                 self.assertIn("30 heads (0 to 29) and 30 bodies (0 to 29)", text)
 
     def test_the_odds_add_up(self) -> None:
@@ -166,7 +169,7 @@ class Rules(unittest.TestCase):
                     self.assertNotIn("Joey", genetics_text(game))
                     self.assertIn("father \"Unknown\" (the owner). He is a name only, not a villager",
                                   genetics_text(game))
-                    self.assertIn("head 2 and body 2 (0x465E00)", genetics_text(game))
+                    self.assertIn("as the father's name, head 2 and body 2, so her baby's head", genetics_text(game))
                 self.assertIn("changes a villager's head after it is made", genetics_text(game))
         for game in (1, 3, 4, 5):
             self.assertNotIn("fixed lists", genetics_text(game))
@@ -184,6 +187,14 @@ class Rules(unittest.TestCase):
 class Patches(unittest.TestCase):
     def village(self, game: int, installed) -> gm.Village:
         return gm.Village(Path("."), game, 1, Path("x.ldw"), b"", installed, 1_700_000_000, general=True)
+
+    def test_no_address_is_shown(self) -> None:
+        """The code addresses behind each line are comments and data (_LATER, HEAD_LOOK_SITES, ...), not text."""
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                text = gm.render(genetics.facts(self.village(game, frozenset(gm.feature_ids(f"vv{game}_")))))
+                self.assertIn("With the patcher's", text)
+                self.assertNotRegex(text, r"0x[0-9A-Fa-f]|\.dll\b|\.png\b")
 
     def test_a_patch_is_named_only_when_in_the_game(self) -> None:
         for game in range(1, 6):
@@ -261,10 +272,8 @@ class PatchLines(unittest.TestCase):
             return [f.text for f in genetics.facts(village)]
 
     def test_the_fix_line_follows_the_normal_rule_only_with_the_row(self) -> None:
-        wanted = {2: "a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29",
-                  4: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too",
-                  5: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too"}
-        normal = {2: "a man any of 0 to 28", 4: "body 29 is never given at birth", 5: "body 29 is never given at birth"}
+        wanted = {2: "a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29"}
+        normal = {2: "a man any of 0 to 28"}
         for game, line in wanted.items():
             with self.subTest(game=game):
                 fix = f"vv{game}_fix_vanilla_bugs"
@@ -275,11 +284,34 @@ class PatchLines(unittest.TestCase):
                 self.assertTrue(lines[at[0]].startswith("With the patcher's \"Fix Vanilla Bugs\" (in this game): "))
                 self.assertLess(next(i for i, t in enumerate(lines) if normal[game] in t), at[0])
 
+    def test_the_body_line_itself_gives_body_29_with_the_fix(self) -> None:
+        """The Tree of Life and New Believers (the owner, 2026-11-10): with Fix Vanilla Bugs the one body line says
+        0 to 29, body 29 included, and no second line contradicts it; without the fix (or not known) the normal
+        game's 0 to 28."""
+        for game in (4, 5):
+            with self.subTest(game=game):
+                fix = f"vv{game}_fix_vanilla_bugs"
+                lines = self.text(game, frozenset({fix}))
+                body = [t for t in lines if t.startswith("The body is never inherited")]
+                self.assertEqual(len(body), 1)
+                self.assertIn("any body 0 to 29, 1 chance in 30 each, body 29 included (with the patcher's "
+                              "\"Fix Vanilla Bugs\"; the normal game stops at 28 and never gives body 29)", body[0])
+                for who in ("every newborn", "twin and triplet", "Barrel of Babies baby", "arrival",
+                            "new village's villager"):
+                    self.assertIn(who, body[0])
+                self.assertFalse(any("body 29 is never given at birth" in t for t in lines))
+                self.assertFalse(any(t.startswith("With the patcher's \"Fix Vanilla Bugs\"") for t in lines))
+                for patches in (frozenset(), None):
+                    stock = self.text(game, patches)
+                    self.assertTrue(any("any body 0 to 28, 1 chance in 29 each; body 29 is never given at birth"
+                                        in t for t in stock))
+                    self.assertFalse(any("body 29 included" in t for t in stock))
+
     def test_a_new_home_and_the_secret_city_have_no_fix_line(self) -> None:
         for game in (1, 3):
             with self.subTest(game=game):
                 lines = self.text(game, frozenset({f"vv{game}_fix_vanilla_bugs"}))
-                self.assertFalse(any("Appearance Rolls" in t for t in lines))
+                self.assertFalse(any(t.startswith("With the patcher's \"Fix Vanilla Bugs\"") for t in lines))
 
 
 class StockCode(unittest.TestCase):

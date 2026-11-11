@@ -188,7 +188,7 @@ class SettledClocks(unittest.TestCase):
         self.assertIn("a glow for 4 real-life minutes (240 seconds; real time, the same at every speed", self.text["vv4-huttest-1"])
         self.assertIn("1 minute 30 seconds (real time, the same at every speed: 90 seconds on the computer's clock",
                       self.text["general 5"])
-        self.assertIn("for 30 real-life seconds (real time: 30 seconds on the clock 0x403200)", self.text["general 2"])
+        self.assertIn("for 30 real-life seconds (real time); no amount", self.text["general 2"])
 
     def test_unproven_clocks_say_so(self) -> None:
         # Each in a line of its own, so the label stands beside it (a confirmed line never carries the word).
@@ -196,15 +196,38 @@ class SettledClocks(unittest.TestCase):
         # (tests/test_game_mechanics_farmers_vv4.py).
         self.assertIn("30.3 pixels a real-life second at 100, 3 times that at 300 and 0.4 times at 40, in real time, "
                       "the same at every speed", self.text["general 4"])
-        for game, words in ((4, "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
-                                "the game's clock was not traced."),):
-            with self.subTest(words=words):
-                self.assertIn(f"{gm.UNCONFIRMED}  {words}", self.text[f"general {game}"])
+
+    def test_the_vv4_hummingbird_is_on_the_computers_clock(self) -> None:
+        # Traced 2026-11-10 (was UNCONFIRMED): the scene update 0x43F750 compares the timer game+0x170EC with
+        # 0x403750 (whole real-life seconds from time()) and sets it to now + 180 + rand(120), + 1,200 once
+        # Decorating the Tree is solved; the block is skipped while paused (the game clock's rate 0, 0x43FDDA).
+        text = self.text["general 4"]
+        self.assertIn("a hummingbird flies by every 3 to 5 real-life minutes, the same at every speed (every 23 to 25 "
+                      "once Decorate Tree is done); it changes nothing.", text)
+        self.assertIn("The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are "
+                      "the same at Fast, Normal and Slow. It does not fly while the game is paused; if its time came "
+                      "during a pause, it flies as soon as the game runs again.", text)
+        self.assertNotIn(f"{gm.UNCONFIRMED}  The hummingbird", text)
+        sys.path.insert(0, str(ROOT / "tests"))
+        import island_event_exe as iee
+        if not iee.available(4):
+            self.skipTest("the stock Tree of Life executable (or pefile / capstone) is not present")
+        exe = iee.exe(4)
+        self.assertEqual([exe.instruction(a) for a in (0x43FDDA, 0x43FDE1)], ["call 0x41dbc0", "jne 0x43fee0"])
+        self.assertEqual([exe.instruction(a) for a in (0x43FDEA, 0x43FDEF)], ["call 0x403750", "mov edi, eax"])
+        self.assertEqual([exe.instruction(a) for a in (0x43FE82, 0x43FE87, 0x43FE8F, 0x43FE95)],
+                         ["call 0x41f570", "cmp eax, 2", "mov eax, dword ptr [ecx + 0x170ec]", "cmp edi, eax"])
+        self.assertEqual(exe.instruction(0x43FEA4), "call 0x42c5f0")                  # the bird flies
+        self.assertEqual(exe.instruction(0x42C5C3), "push 0x12f")                     # hummingbirdstrip.png
+        self.assertEqual([exe.instruction(a) for a in (0x43FEA9, 0x43FEB0, 0x43FEC4)],
+                         ["push 0x78", "lea edx, [eax + edi + 0xb4]", "mov dword ptr [eax + 0x170ec], edx"])
+        self.assertEqual([exe.instruction(a) for a in (0x43FEBD, 0x43FECA, 0x43FED6)],
+                         ["push 0xf", "call 0x438960", "add dword ptr [eax + 0x170ec], 0x4b0"])
 
     def test_the_vv3_ash_key_trips_are_on_the_games_clock(self) -> None:
         # Each water trip sets a timer 600 seconds ahead through 0x426790 (wall now + seconds x rate / 6).
-        self.assertIn("10 minutes on the game's clock, 5, 10 or 16 minutes 40 seconds of real-life play on Fast, Normal "
-                      "or Slow", self.text["general 3"])
+        self.assertIn("10 minutes on the game's clock between trips (5, 10 or 16 minutes 40 seconds of real-life play "
+                      "on Fast, Normal or Slow)", self.text["general 3"])
 
 
 if __name__ == "__main__":

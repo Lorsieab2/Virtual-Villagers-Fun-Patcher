@@ -75,7 +75,7 @@ PINNED = {
     "Beetle Collection": "EC",
     "Pebble Collection": "EC",
     "All four collections": "CC",
-    "Stews": "ECCU",
+    "Stews": "ECC" + "C" * 18 + "U",          # the stews one line each
     "A snack (the food store)": "E",
     "Teaching children": "CC",
     "The Gong of Wonder": "EC",

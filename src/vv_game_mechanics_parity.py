@@ -42,12 +42,13 @@ class Topic:
 
 
 def _none(words: str) -> str:
-    return f"its stock exe holds no text with {words} in it"
+    # The game's stock exe (research/stock-executables), every printable text in it.
+    return f"the original game's program holds no text with {words} in it"
 
 
 def _inherited(words: str) -> str:
-    return (f"none is among its puzzles, buildings and items on this tab; its stock exe still holds {words}, text "
-            "the game's code was not traced to reach")
+    return (f"none is among its puzzles, buildings and items on this tab; the original game's program still holds "
+            f"{words}, text the game's code was not traced to reach")
 
 
 TOPICS: tuple[Topic, ...] = (
@@ -87,12 +88,13 @@ TOPICS: tuple[Topic, ...] = (
                   5: (_inherited("\"Eating some stew\" and \"This stew needs something nutritious!\"") + OWNER_VV5, O)}),
     Topic("Potions", entry={3: r"Potion 0 "},
           not_in={1: (_none("\"potion\""), C), 2: (_none("\"potion\""), C),
-                  4: (_inherited("\"Potion Made\" (eTipPuzzlePotionsMade) and \"eSayUsePotion\""), U),
-                  5: (_inherited("\"eSayUsePotion\" and island events' potions") + OWNER_VV5, O)}),
+                  # "Potion Made" is the tip eTipPuzzlePotionsMade; "eSayUsePotion" is a saying's name.
+                  4: (_inherited("the tip \"Potion Made\" and a saying's name, \"eSayUsePotion\""), U),
+                  5: (_inherited("a saying's name, \"eSayUsePotion\", and island events' potions") + OWNER_VV5, O)}),
     Topic("Totems", entry={2: r"The Elder Totem: ", 5: r"The Hungry Totem \("},
           not_in={1: (_none("\"totem\""), C),
                   3: (_inherited("\"Honoring totem\", the villager's \"'s totem\" and the Elder title"), U),
-                  4: (_inherited("\"eTotemsMade\" and the Elder sayings"), U)}),
+                  4: (_inherited("a label, \"eTotemsMade\", and the Elder sayings"), U)}),
     Topic("Statues", entry={3: r"The Statue: ", 5: r"The Tribute Statue \("},
           not_in={1: (_none("\"statue\"") + " (its idol is The Idol, a puzzle)", C),
                   2: (_inherited("\"statue\" only in story and island-event lines"), U),

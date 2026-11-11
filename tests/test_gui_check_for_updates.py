@@ -423,7 +423,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
                                        "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
                                        "vv_game_mechanics_nursery"}),
-            ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics"}),
+            # God powers: the Spirituality roll's exact odds from the shared Chances helpers.
+            ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics", "vv_game_mechanics_chances"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
             ("vv_game_mechanics_death", {"vv_game_mechanics", "vv_graves", "vv_last_names",

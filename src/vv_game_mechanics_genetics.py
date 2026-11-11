@@ -63,18 +63,21 @@ FIX = "vv{}_fix_vanilla_bugs"
 # row 19 is the Golden Child's; its girls already reach 19) and The Secret City (body 29 is the Tribal
 # Chief's robe; every head already reaches 29) have no line.
 APPEARANCE_ROLLS = {
+    # VV2: "VVFP Appearance Rolls.dll" at 0x4395ED and 0x43968F (the green vial's man's roll).
     2: ("a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29, 1 chance in 30 each, "
-        "as a woman does, so head 29 can come from the drink too (\"VVFP Appearance Rolls.dll\", at 0x4395ED and "
-        "0x43968F)."),
-    4: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
-        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
-        "by the same creator (\"VVFP Appearance Rolls.dll\", at 0x45F2AE)."),
-    5: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
-        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
-        "by the same creator (\"VVFP Appearance Rolls.dll\", at 0x4685B3)."),
+        "as a woman does, so head 29 can come from the drink too."),
 }
+# The Tree of Life and New Believers: "VVFP Appearance Rolls.dll" turns the creator's body roll rand(29) into rand(30)
+# at run time (VV4 0x45F2AE, VV5 0x4685B3).  That creator makes every newborn, twin and triplet, Barrel of Babies
+# baby, island-event or canoe arrival and new village's villager, so with the fix the body line itself gives the
+# answer (the owner, 2026-11-10) instead of a second line contradicting the normal game's.
+FIXED_BODY = (4, 5)
+FIXED_BODY_WORDS = ("The body is never inherited: any body 0 to 29, 1 chance in 30 each, body 29 included (with the "
+                    "patcher's \"{fix}\"; the normal game stops at 28 and never gives body 29) -- for every newborn, "
+                    "twin and triplet, Barrel of Babies baby, arrival and new village's villager.")
 
-# The later games' creator, its head roll and its body roll, the birth's call, and the twin copy.
+# The later games' creator, its head roll and its body roll, the birth's call, and the twin copy: the code behind
+# _later()'s head, body and twins lines (kept here, out of the visible text; the body's count is used).
 _LATER = {
     2: dict(creator="0x44C600", head="0x44CBA8..0x44CC2F", body=("0x44CC35", 30), birth="0x43BE8E",
             twin="0x44D009..0x44D01B, in the twin and triplet creator 0x44CEC0"),
@@ -85,6 +88,12 @@ _LATER = {
     5: dict(creator="0x4681F0", head="0x46853A..0x4685AC", body=("0x4685B3", 29), birth="0x473120",
             twin="0x46F5C0 called from 0x4687F0, via the twin and triplet creator 0x46FD70"),
 }
+# The grey hair line's old-age pictures and the compares that switch to them: the shown age against the constant
+# 1,100 alone -- no technology, difficulty or other value is read (the village; then, in VV2 and VV3, the Details
+# portrait's own atlas choice).
+OLD_HEAD_PICTURES = {2: "male_heads_old / female_heads_old", 3: "male_heads_old / female_heads_old",
+                     4: "male_heads10 / female_heads10", 5: "male_heads10 / female_heads10"}
+OLD_HEAD_SWITCH = {2: "0x4469BA, 0x445694", 3: "0x46086D / 0x4608AE, 0x456A15", 4: "0x467E89", 5: "0x4722A2"}
 # The rows Change Appearance offers that no villager is born with (the owner: every head and outfit is selectable).
 _CHOOSER_SPECIAL_ROWS = {
     1: ", the Golden Child's head 19 and body 19 included",
@@ -106,30 +115,32 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
     out = []
     g = village.game
     if g == 1 and village.has(GENETICS_PATCH):
+        # "VVFP VV1 Genetics.dll", at 0x43C647, for a birth's first child only (the twins copy it).
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(GENETICS_PATCH)}\" (in this game): a baby's head comes from "
             "its parents as in the later games -- the father's and the mother's heads added and halved (dropping "
             "any half), then -1, 0 or +1, one chance in 3 each; on 5 births in 100 the head the game rolled "
             "instead. A boy stays within 0 to 18 (never the Golden Child's 19), a girl within 0 to 19. The "
             "father is the one Show Parents recorded at the conception; when it knows none, the mother's head "
-            "alone. Twins and triplets share the first baby's head; bodies stay random. (\"VVFP VV1 "
-            "Genetics.dll\", at 0x43C647, for a birth's first child only.)"), gm.RUNNING))
+            "alone. Twins and triplets share the first baby's head; bodies stay random."), gm.RUNNING))
     if g == 1:
+        # The pictures male_heads.png and female_heads.png (made at 0x43C0D4 and 0x43C099); the head draws read the
+        # age only to size a child (0x437377, 0x437611, 0x4379A7, 0x438976).
         out.append(gm.Fact(GENETICS, (
-            "Grey hair: never in the original A New Home. It has one set of head pictures for each sex "
-            "(male_heads.png and female_heads.png, made at 0x43C0D4 and 0x43C099), and its head draws read the age "
-            "only to size a child (0x437377, 0x437611, 0x4379A7, 0x438976), so a villager's hair looks the same "
-            "at every age."), gm.RUNNING))
+            "Grey hair: never in the original A New Home. It has one set of head pictures for each sex, and the "
+            "game reads a villager's age only to draw a child smaller, so a villager's hair looks the same at every "
+            "age."), gm.RUNNING))
     if g == 1 and village.has(GREY_HAIR_PATCH):
+        # "VVFP VV1 Grey Hair.dll", at the 29 reads of the head pictures in 0x437340, 0x4375F0, 0x437790 and
+        # 0x4388E0, and the draws 0x408AF0 and 0x408740; the grey pictures Images\vvfp_grey_male_heads.png and
+        # Images\vvfp_grey_female_heads.png.  The Golden Child: the age tick puts him back to 100 units
+        # (0x42EB80..0x42EB8E).
         out.append(gm.Fact(GENETICS, (
-            f"Grey hair with the patcher's \"{gm.feature_name(GREY_HAIR_PATCH)}\" (in this game): at 55 years. "
-            "A villager whose shown age is "
-            "1,100 age units (55 years) or more is drawn from grey head pictures (Images\\vvfp_grey_male_heads.png, "
-            "Images\\vvfp_grey_female_heads.png), the same row as the head value, as the later games switch to their "
-            "old-age pictures at that age, head 19 too (the Golden Child himself never grows old: the age tick puts "
-            "him back to 100 units, 0x42EB80..0x42EB8E). The head value itself never "
-            "changes. (\"VVFP VV1 Grey Hair.dll\", at the 29 reads of the head pictures in 0x437340, 0x4375F0, "
-            "0x437790 and 0x4388E0, and the draws 0x408AF0 and 0x408740.)"), gm.RUNNING))
+            f"Grey hair with the patcher's \"{gm.feature_name(GREY_HAIR_PATCH)}\" (in this game): at 55 years "
+            "(a shown age of 1,100 age units, on the game's clock) a villager starts being drawn with a grey "
+            "version of the same head, as the later games switch to their old-age pictures at that age. Head 19 "
+            "too, though the Golden Child himself never grows old (the game keeps putting his age back to 100 age "
+            "units). The head value itself never changes."), gm.RUNNING))
     if g in APPEARANCE_ROLLS and village.has(FIX.format(g)):
         out.append(gm.Fact(GENETICS, (
             f"With the patcher's \"{gm.feature_name(FIX.format(g))}\" (in this game): "
@@ -143,14 +154,14 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
             "for All can give the whole village random heads by sex or heads of one hair colour (Black, Brown, Red, "
             "Blonde or Other). Neither changes anyone's recorded parents."), gm.RUNNING))
     if g in HEAD_LOOK_SITES and village.has(ORIGINS.format(g)) and (g != 1 or village.has(GREY_HAIR_PATCH)):
+        # "VVFP Head Look.dll", at HEAD_LOOK_SITES[g] (kept out of the visible text).
         out.append(gm.Fact(GENETICS, (
             f"Grey hair with the patcher's \"{gm.feature_name(ORIGINS.format(g))}\" (in this game): Change "
             "Appearance's head look overrides the age rule for each villager the player gives one -- Auto keeps the "
             "rule (the old head from 55), Young always draws the young head and Old always the old, grey head, at "
             "any age; every villager is Auto until given another. The head value itself never changes, so the logs, "
             "the Family Tree and the genetics see the same head. The look is kept in the patcher's own file for "
-            "the save and follows the villager. (\"VVFP Head Look.dll\", " + HEAD_LOOK_SITES[g] + ".)"),
-            gm.RUNNING))
+            "the save and follows the villager."), gm.RUNNING))
     if g in (1, 2, 3) and village.has(STORY.format(g)):
         event = {1: "A Mysterious Vial (red, from the sea)", 2: "A Mysterious Vial (green)",
                  3: "The Mysterious Vial (obsidian)"}[g]
@@ -163,57 +174,63 @@ def _patch_lines(village: gm.Village) -> list[gm.Fact]:
 def _vv1() -> list[gm.Fact]:
     f = gm.Fact
     return [
+        # The creator 0x43C350, rolls at 0x43C616..0x43C647.
         f(GENETICS, ("A New Home has no head genetics: a baby's head and body are rolled at random when it is born, "
-                     "and neither parent's looks are read (the creator 0x43C350, rolls at 0x43C616..0x43C647). A boy "
+                     "and neither parent's looks are read. A boy "
                      "gets any head 0 to 18 and any body 0 to 18, 1 chance in 19 each; a girl any head 0 to 19 and "
                      "any body 0 to 19, 1 chance in 20 each."), gm.RUNNING),
-        f(GENETICS, ("Twins and triplets: the second and third babies copy the first baby's sex, body and head "
-                     "(0x43C9C1..0x43C9DF, the creator 0x43C840 called at 0x42F021 and 0x42F06D), so they always "
-                     "look alike."), gm.RUNNING),
-        f(GENETICS, ("The Golden Child (family number 199, made at 0x42EF5F) is always a boy with head 19 and body "
-                     "19 (0x43C7AF..0x43C7FB): the last row of the men's pictures, which no other boy is born with."),
-          gm.RUNNING),
+        # 0x43C9C1..0x43C9DF, the creator 0x43C840 called at 0x42F021 and 0x42F06D.
+        f(GENETICS, ("Twins and triplets: the second and third babies copy the first baby's sex, body and head, so "
+                     "they always look alike."), gm.RUNNING),
+        # The Golden Child is family number 199, made at 0x42EF5F; head and body 19 at 0x43C7AF..0x43C7FB.
+        f(GENETICS, ("The Golden Child is always a boy with head 19 and body 19: the last row of the men's "
+                     "pictures, which no other boy is born with."), gm.RUNNING),
         f(GENETICS, ("A New Home has 20 heads (0 to 19) and 20 bodies (0 to 19) for each sex, one row each of its "
                      "own pictures, and no separate old-age head pictures."), gm.RUNNING),
+        # The drink: 0x42C92D..0x42CA41.
         f(GENETICS, ("What changes a head later: only the island event \"A Mysterious Vial\" whose drinker \"doesn't "
                      "quite feel\" themselves afterwards (Pick Island Event's \"A Mysterious Vial (red, from the "
                      "sea)\"), when the villager drinks it: the head is rolled again, a man any of 0 to 18, a "
-                     "woman any of 0 to 19 (it can come out the same), and the body is kept (0x42C92D..0x42CA41). "
+                     "woman any of 0 to 19 (it can come out the same), and the body is kept. "
                      "Pouring it out changes nothing. Growing older never changes the head."), gm.RUNNING),
     ]
 
 
-def _later(game: int) -> list[gm.Fact]:
+def _later(game: int, fixed_body: bool = False) -> list[gm.Fact]:
+    """`fixed_body`: Fix Vanilla Bugs is in this game and gives body 29 (FIXED_BODY)."""
     f = gm.Fact
-    t = _LATER[game]
-    body_at, body_n = t["body"]
+    body_n = _LATER[game]["body"][1]
     out = [
-        f(GENETICS, (f"A baby's head comes from both parents: the game adds the father's head and the mother's head, "
+        # _LATER[game]: the creator, the head roll, and the birth's call that passes the mother's head and the
+        # father's.
+        f(GENETICS, ("A baby's head comes from both parents: the game adds the father's head and the mother's head, "
                      "halves it (dropping any half) and adds -1, 0 or +1, one chance in 3 each; a result below 0 "
                      "becomes 0 and one above 29 becomes 29. On 5 births in 100 it instead picks any head 0 to 29, "
-                     f"1 chance in 30 each. (The creator {t['creator']}, head at {t['head']}; the birth's call "
-                     f"{t['birth']} passes the mother's head at the birth and the father's as copied onto her at the "
-                     "conception.)"), gm.RUNNING),
+                     "1 chance in 30 each. The mother's head is the one she has at the birth; the father's is the one "
+                     "the game copied onto her at the conception."), gm.RUNNING),
         f(GENETICS, (f"So each of the 3 heads around the parents' average comes {_pct(NEAR)} of the time and any "
                      f"other head {_pct(FAR)}; when the parents average 0, the -1 also becomes 0, so head 0 "
-                     "comes 63.5% of the time (29 likewise when both parents have head 29). The 5-in-100 pick is why a few children's heads are far from "
-                     "both parents'."), gm.RUNNING),
+                     "comes 63.5% of the time (29 likewise when both parents have head 29). The 5-in-100 pick is "
+                     "why a few children's heads are far from both parents'."), gm.RUNNING),
         f(GENETICS, ("A father or mother with head 0 counts as head 0 in that sum; only when both parents' heads "
                      "and bodies are all 0 is the head picked from 0 to 29 every time."), gm.RUNNING),
-        f(GENETICS, ("The body is never inherited: any body 0 to "
-                     + (f"29, 1 chance in 30 each ({body_at})." if body_n == 30 else
-                        f"28, 1 chance in 29 each ({body_at}); body 29 is never given at birth.")), gm.RUNNING),
-        f(GENETICS, ("Twins and triplets: the second and third babies copy the first baby's head and body "
-                     f"({t['twin']}), so they always look alike."), gm.RUNNING),
+        # The body roll and the twin copy: _LATER[game]["body"][0] and _LATER[game]["twin"].
+        f(GENETICS, FIXED_BODY_WORDS.format(fix=gm.feature_name(FIX.format(game))) if fixed_body else
+          ("The body is never inherited: any body 0 to "
+           + ("29, 1 chance in 30 each." if body_n == 30 else
+              "28, 1 chance in 29 each; body 29 is never given at birth.")), gm.RUNNING),
+        f(GENETICS, ("Twins and triplets: the second and third babies copy the first baby's head and body, so they "
+                     "always look alike."), gm.RUNNING),
     ]
     if game == 2:
+        # The Gong's father: 0x44EB1D..0x44EB3E.
         out.append(f(GENETICS, (
-            "The Gong of Wonder's pregnancies have the father \"?\" with head 0 and body 0 (0x44EB1D..0x44EB3E), so "
+            "The Gong of Wonder's pregnancies have the father \"?\" with head 0 and body 0, so "
             "such a baby's head is half the mother's head, -1, 0 or +1 (or any head on 5 births in 100)."),
             gm.RUNNING))
+        # The fixed lists 0x44CC54..0x44CCA3, passed only at 0x4252F2, 0x425347 and 0x42537B.
         out.append(f(GENETICS, (
-            "A new village's first two villagers take their looks from fixed lists (0x44CC54..0x44CCA3, passed only "
-            "at 0x4252F2, 0x425347 and 0x42537B): a man one of the heads 0, 1, 2, 3, 6, 7, 9, 10, 11, 12, 16, 17, 18, "
+            "A new village's first two villagers take their looks from fixed lists: a man one of the heads 0, 1, 2, 3, 6, 7, 9, 10, 11, 12, 16, 17, 18, "
             "20, 21, 28 or 29 and the bodies 0, 1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 or 15; a woman one of the "
             "heads 1, 4, 8, 17, 18, 19, 26, 27, 28 or 29 and the bodies 10, 12, 15, 16, 18, 19, 22, 23 or 29, each "
             "equally likely."), gm.RUNNING))
@@ -227,15 +244,15 @@ def _later(game: int) -> list[gm.Fact]:
         out.append(f(GENETICS, (
             "The Heathen Mommy's children have the father \"Unknown\" (the owner). He is a name only, not a villager: "
             "in a village made with the patcher's \"Heathen Mommy Puzzle Restoration\", the new-village code it "
-            "restores from the original build starts her pregnancy with the game's own word \"Unknown\" as the "
-            "father's name, head 2 and body 2 (0x465E00), so her baby's head is half of (her head + 2), -1, 0 or +1 "
+            "restores from the original build starts her pregnancy with the game's word \"Unknown\" as the "
+            "father's name, head 2 and body 2, so her baby's head is half of (her head + 2), -1, 0 or +1 "
             "(or any head on 5 births in 100). Every other conception in New Believers passes the real partner's "
-            "name, head and body (0x467DBE)."), gm.RUNNING))   # the owner's fact, read in the patch and the exe
+            "name, head and body."), gm.RUNNING))   # the owner's fact, read in the patch and the exe (see above)
     elif game in (4, 5):
+        # Joey: VV4 0x467B00, its conception call 0x467C15; VV5 0x471A50.
         out.append(f(GENETICS, (
-            "One island event makes a woman expecting by the game's default father Joey, who has head 2 and body 2 "
-            + {4: "(0x467B00, its conception call 0x467C15)", 5: "(0x471A50)"}[game]
-            + ", so such a baby's head is half of (the mother's head + 2), -1, 0 or +1 (or any head on 5 births in "
+            "One island event makes a woman expecting by the game's default father Joey, who has head 2 and body 2, "
+            "so such a baby's head is half of (the mother's head + 2), -1, 0 or +1 (or any head on 5 births in "
             "100)."), gm.RUNNING))
     # "Unknown" (the owner: seen for the Heathen Mommy in New Believers and after island events): no game passes it
     # as a father -- its one reference in each exe is the string table (VV2 0x49640C, VV3 0x4ABB38, VV4 0x4C49E0,
@@ -251,24 +268,21 @@ def _later(game: int) -> list[gm.Fact]:
             "conception copies a real partner's head"
             + (f", except {default}, as above." if default else " (this game has no fatherless conception).")
             + " So \"Unknown\" never stands for a head of its own and never changes a baby's head."), gm.RUNNING))
-    old = {2: "male_heads_old / female_heads_old", 3: "male_heads_old / female_heads_old",
-           4: "male_heads10 / female_heads10", 5: "male_heads10 / female_heads10"}[game]
-    # The old-head switch: the shown age against the constant 1,100 alone -- no technology, difficulty or other
-    # value is read (the village; then, in VV2 and VV3, the Details portrait's own atlas choice).
-    switch = {2: "0x4469BA, 0x445694", 3: "0x46086D / 0x4608AE, 0x456A15", 4: "0x467E89", 5: "0x4722A2"}[game]
+    # The old-age pictures are OLD_HEAD_PICTURES[game]; the age compares are at OLD_HEAD_SWITCH[game].
     out.append(f(GENETICS, (
-        f"Grey hair: a villager turns grey at 55 years (a shown age of 1,100 age units, on the game's clock). "
-        f"The game has 30 heads (0 to 29) and 30 bodies (0 to 29) for each sex, one row each of its own pictures. "
-        f"Growing older never changes the head value: from 55 the same row is drawn from its old-age pictures "
-        f"({old}), the age compared against 1,100 alone -- Medicine and every other technology play no part "
-        f"({switch})."), gm.RUNNING))
+        "Grey hair: a villager turns grey at 55 years (a shown age of 1,100 age units, on the game's clock). "
+        "The game has 30 heads (0 to 29) and 30 bodies (0 to 29) for each sex, one row each of its own pictures. "
+        "Growing older never changes the head value: from 55 the same row is drawn from the game's old-age "
+        "pictures, by age alone -- Medicine and every other technology play no part."), gm.RUNNING))
+    # The head writers: VV2's green vial 0x4395DF..0x439707; VV3's obsidian vial 0x4175BB (the roll), 0x417634 (the
+    # new head).
     later = {
         2: ("What changes a head later: only the island event \"A Mysterious Vial\" (the green liquid), when the "
             "villager drinks it: the head is rolled again, a man any of 0 to 28, a woman any of 0 to 29 (it can come "
-            "out the same), and the body is kept (0x4395DF..0x439707)."),
+            "out the same), and the body is kept."),
         3: ("What changes a head later: only the island event \"The Mysterious Vial\" (the obsidian one), when the "
-            "villager tastes it: 33 times in 100 their looks change, a new head any of 0 to 29 (0x4175BB, "
-            "0x417634); otherwise Clumsy (33 in 100) lowers two skills or Insight (34 in 100) raises two."),
+            "villager tastes it: 33 times in 100 their looks change, a new head any of 0 to 29; otherwise Clumsy "
+            "(33 in 100) lowers two skills or Insight (34 in 100) raises two."),
         4: "Nothing in The Tree of Life changes a villager's head after it is made: no island event or other code "
            "writes it, apart from copying a whole villager (twins, loading a save).",
         5: "Nothing in New Believers changes a villager's head after it is made: no island event or other code "
@@ -326,5 +340,6 @@ def _villagers(village: gm.Village) -> list[gm.Fact]:
 
 def facts(village: gm.Village) -> list[gm.Fact]:
     """The Genetics group for one save (or, with village.general, the game's general rules)."""
-    rules = _vv1() if village.game == 1 else _later(village.game)
+    fixed = village.game in FIXED_BODY and village.has(FIX.format(village.game)) is True
+    rules = _vv1() if village.game == 1 else _later(village.game, fixed)
     return rules + _patch_lines(village) + _villagers(village)

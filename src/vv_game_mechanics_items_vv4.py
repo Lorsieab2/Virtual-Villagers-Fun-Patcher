@@ -145,8 +145,7 @@ def _techs() -> list[Entry]:
         # the reveal 0x430810 places it and SetState(3); and 0x430156 sets an object-22 site in state 4 to state 3 at
         # Science 3.  Emulated from the game's own object and map.
         _level("Science", 2, research.format(d=9, c=7), VERIFIED_E,
-               (("Level 2 makes the Clothing Hut appear as a building site (its reveal 0x430CF0, asked by every "
-                 "building's update 0x4300E0).", VERIFIED_E),)),
+               (("Level 2 makes the Clothing Hut appear as a building site.", VERIFIED_E),)),
         _level("Science", 3, research.format(d=7, c=5), VERIFIED_E,
                ((patch(HARDER_FISHING) + ": level 3 lets villagers make cloth (Cloth Invented); below it a villager "
                  "dropped on the vines says \"Don't know what to do with these tough vines!\".", VERIFIED_E),)),
@@ -169,12 +168,14 @@ def _techs() -> list[Entry]:
         _level("Construction", 1, "Hut 1 is the only hut a villager dropped there builds; dropped on Hut 2 or Hut 3 "
                                   "the villager does not build and the game says \"Additional research may be "
                                   "necessary.\"", VERIFIED_C,
-               (("Dropped on the rubble the villager does not clear it (0x433FB4: Construction below 2); how that "
-                 "check is reached from a drop was not traced.", UNCONFIRMED),)),
-        _level("Construction", 2, "Villagers dropped on Hut 2 build it (0x46F38A); Hut 3 still refuses.", VERIFIED_C,
+               # The rubble check: 0x433FB4 (Construction below 2).
+               (("Dropped on the rubble the villager does not clear it (the game checks for Construction below 2); "
+                 "how the game reaches that check from a drop was not traced.", UNCONFIRMED),)),
+        # Hut 2's drop: Construction < 2 at 0x46F38A; Hut 3's: Construction < 3 at 0x46F477.
+        _level("Construction", 2, "Villagers dropped on Hut 2 build it; Hut 3 still refuses.", VERIFIED_C,
                (("Level 2 makes Hut 2 appear as a building site.", UNCONFIRMED),
                 ("Villagers dropped on the rubble clear it.", UNCONFIRMED))),
-        _level("Construction", 3, "Villagers dropped on Hut 3 build it (0x46F477).", VERIFIED_C,
+        _level("Construction", 3, "Villagers dropped on Hut 3 build it.", VERIFIED_C,
                (("Level 3 makes Hut 3 appear as a building site.", UNCONFIRMED),
                 (patch(HARDER_FISHING) + ": level 3 lets villagers fix the piers (Fishing Nets); below it a villager "
                  "dropped on them says \"Additional research may be necessary.\", as on Hut 3, and builders leave "
@@ -193,7 +194,7 @@ def _techs() -> list[Entry]:
                                 "dropped on the tree \"Your tribe must master dendrology to cure the tree.\"",
                VERIFIED_C),
         _level("Dendrology", 2, "The branch can be bound (Pruning the Tree): a villager dropped on it is no longer "
-                                "refused for want of Dendrology (0x437B12); the tree still refuses.", VERIFIED_C),
+                                "refused for want of Dendrology; the tree still refuses.", VERIFIED_C),     # 0x437B12
         _level("Dendrology", 3, "The tree can be purified (Purify Tree), by a villager the game counts pure of body; "
                                 "any other dropped there gets \"Only those pure of body can purify the tree.\" "
                                 "Below level 3 the game says \"Your tribe must master dendrology to cure the tree.\"",
@@ -222,14 +223,22 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", UNCONFIRMED),
         Entry(PUZZLE, "The Cooking Pit", (
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "
-            "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each adult "
-            "assigned to the fruit, or (Farming - 25)% of the others, adds 5 food per age unit."), VERIFIED_C),
+            "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each villager "
+            "aged 14 or more and not sick or pregnant adds 5 food (before Food Mastery) each age unit, except the "
+            "last 2, on a (Farming - 25) in 100 chance (never at Farming 25 or less)."), VERIFIED_C,
+              # The bonus 0x468A7A: task 2 (+0x1C54, 0x468A8A) always pays; no stock code and no patch writes 2
+              # there (the fruit drop 0x4343A0 writes only 0, at 0x434478).  The gate 0x468A24..0x468A46: more than
+              # 2 units behind, not sick (+0x1C48), not pregnant (+0x1C4C, the conception age), shown age 280+.
+              (("DEAD (never runs): the code always pays the bonus to a villager whose task is the fruit, but "
+                "nothing gives a villager that task, in the game or with the patcher's patches: dropping one on "
+                "the fruit sets no task. Only a hand-edited save could.", VERIFIED_C),)),
         Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", UNCONFIRMED,
+              # The vines' drop 0x436D40 (the Clothing Hut test at 0x436D74); the hut's label 0x46F62F.
               (("It needs the Clothing Hut finished: before that a villager dropped on the tough vines says \"Don't "
-                "know what to do with these tough vines!\" and does nothing (0x436D74); after it they start on the "
-                "cloth (cutting the pulpy vines).", VERIFIED_C),
+                "know what to do with these tough vines!\" and does nothing; after it they start on the cloth "
+                "(cutting the pulpy vines).", VERIFIED_C),
                ("The cloth bolts are kept at the Clothing Hut: pointing at the finished hut shows \"Cloth bolts "
-                "available:\" and their number (0x46F62F).", VERIFIED_C),
+                "available:\" and their number.", VERIFIED_C),
                ("The cloth bolts are stored at the Clothing Hut.", gm.OWNER),
                (patch(HARDER_FISHING) + ": no cloth is made until Science level 3, even with the Clothing Hut "
                 "finished; cloth already made is still used.", VERIFIED_E))),
@@ -246,14 +255,16 @@ def _puzzles() -> list[Entry]:
             "with none."), VERIFIED_E,
             ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish comes only with all 12 scales (25% of the "
               "time).", UNCONFIRMED),
+             # The nets' drop: the Clothing Hut test 0x4334FC; the piers 0x4334CC; the builders' job choice (the
+             # Building dispatcher 0x463DD8: piers not fixed and some work done).
              ("Mending the nets needs the Clothing Hut finished: once the piers are fixed, a villager dropped on the "
               "nets mends them (\"Attempting to fix fishing nets\") only with the Clothing Hut built, and otherwise "
-              "says \"They need cloth for this!\" (0x4334FC). So the Clothing Hut, which appears at Science level 2, "
-              "is what brings fishing early.", VERIFIED_C),
+              "says \"They need cloth for this!\". So the Clothing Hut, which appears at Science level 2, is what "
+              "brings fishing early.", VERIFIED_C),
              ("The nets depend on the Clothing Hut.", gm.OWNER),
              ("The piers come first: a villager dropped there while they are broken starts fixing them "
-              "(\"Attempting to fix the piers\", 0x4334CC), and builders go back to them by themselves only once "
-              "that has begun (the Building dispatcher, 0x463DD8: piers not fixed and some work done).", VERIFIED_C),
+              "(\"Attempting to fix the piers\"), and builders go back to them by themselves only once that has "
+              "begun (while the piers are not yet fixed and some work is done).", VERIFIED_C),
              (patch(HARDER_FISHING) + ": the piers cannot be fixed until Construction level 3 (a villager dropped "
               "on them says \"Additional research may be necessary.\", builders leave them alone and one who was "
               "fixing them stops), and the cloth for the nets waits for Science level 3. Piers already fixed stay "
@@ -269,10 +280,12 @@ def _puzzles() -> list[Entry]:
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
-            "minutes, every 23 to 25 once the tree is decorated (whether real time or on the game's clock: the line below); it changes nothing."),
+            "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
             VERIFIED_E,
-            (("The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on the game's "
-              "clock was not traced.", UNCONFIRMED),)),
+            # The timer: the scene update 0x43F750 on 0x403750 (time()), 0x43FEA9..0x43FED6 (vv_game_mechanics_vv4.py).
+            (("The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are the same "
+              "at Fast, Normal and Slow. It does not fly while the game is paused; if its time came during a pause, "
+              "it flies as soon as the game runs again.", VERIFIED_C),)),
     ]
 
 
@@ -310,8 +323,9 @@ def _buildings() -> list[Entry]:
             "the game is played (\"The love shack has not been completed!\"); time away does not check it."),
             VERIFIED_C),
         Entry(BUILDING, "The Nursery School (the building)", (
+            # The teacher: 0x437620, 0x4376B4.
             f"{steps(50)}. Finished, a villager dropped on it with at least 3 of the five skills at 50 or more becomes "
-            "the teacher (0x437620, 0x4376B4), and each child's lessons are worth the teacher's five skills added up "
+            "the teacher, and each child's lessons are worth the teacher's five skills added up "
             "÷ 240 per real-life hour at any speed, in skills below 50 (the rule is under Tech points and "
             "effects)."), VERIFIED_E,
             (("It appears as a site at Learning level 3.", UNCONFIRMED),)),
@@ -326,7 +340,8 @@ def _buildings() -> list[Entry]:
             "Building and adds nothing to the hut."), VERIFIED_C,
             ((patch("vv4_builders_fix_huts") + ": builders build first and fix huts when no building can be worked "
               "on.", UNCONFIRMED),
-             ("The test is the Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all "
+             # The Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all finished.
+             ("The builders' own job choice is what checks that Huts 1 to 3 and the Clothing Hut are all "
               "finished.", VERIFIED_C))),
         Entry(BUILDING, "The Fire Pit", (
             "lit, it burns 10, 20 or 33 hours 20 minutes of real-life play on Fast, Normal or Slow speed; feeding "

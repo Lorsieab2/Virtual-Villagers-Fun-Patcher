@@ -64,10 +64,10 @@ def _conceive(parenting: int, medicine: int) -> str:
 
 ROLLS = (
     # ---------------------------------------------------------------- Mushrooms and collectibles
+    # The check skips only a speed of exactly 999 (0x42EC87); a pause stores the speed plus 999.
     Roll("An item (a mushroom or a collectible) appears: checked every 2 real-life seconds while none lies on the "
-         "ground, at any speed and also while the game is paused (the check skips only a speed of exactly 999, and a "
-         "pause stores the speed plus 999, 0x42EC87); it appears when a roll of 0 to 99 is below Exploration level "
-         "+ 4. It lies 75 real-life seconds.",
+         "ground, at any speed and also while the game is paused; it appears when a roll of 0 to 99 is below "
+         "Exploration level + 4. It lies 75 real-life seconds.",
          (Check(0x415FED, 100, None, "jge"),),
          (f"Exploration level 1: {_c(_b(100, 5))} each check; level 2: {_c(_b(100, 6))}; level 3: {_c(_b(100, 7))}.",)),
     Roll("Mushroom or collectible: a roll of 0 to 99 below 65 - 15 x Exploration level makes it a mushroom, otherwise "
@@ -78,10 +78,11 @@ ROLLS = (
           "A mushroom is the special one (35 food instead of 6) {1} of the time (a roll of 0 to 99 below 10)."),
          feature="vv2_super_secret_golden_mushroom",
          patched="1 in 1,000,000 of the mushrooms that appear is a Golden Mushroom instead, worth 100 food (two "
-                 "draws of the game's random-number routine, each a multiple of 1,000 out of 0 to 31,999)."),
+                 "draws of the game's random numbers, each a multiple of 1,000 out of 0 to 31,999)."),
+    # The Overgrown Gong Piece's flag: 0x2E7E0.
     Roll("A collectible's collection and rarity: the collection is drawn from 4 with a roll of 0 to 3 until one is "
          "open, so each open collection is equally likely (Butterflies and Shells always; Beetles once the Overgrown "
-         "Gong Piece is uncovered, flag 0x2E7E0; Pebbles once the Dam is built). Then a roll of 0 to 99 below 2 x "
+         "Gong Piece is uncovered; Pebbles once the Dam is built). Then a roll of 0 to 99 below 2 x "
          "Exploration + 2 makes it rare, below 2 x Exploration + 14 uncommon, otherwise common.",
          (Check(0x415D99, 100),),
          (f"Exploration level 1: rare {_c(_b(100, 4))}, uncommon {_c(_b(100, 16) - _b(100, 4))}, common "
@@ -117,7 +118,7 @@ ROLLS = (
           Check(0x43BCEB, 100, 0x14, "jge", take=False)),
          (f"On Medium or Hard, when the first roll fails a second roll (0 to 99 below 50) gives it while the fire "
           f"burns: {_c(_or(_b(100, 50), _b(100, 50)))} of age units with the fire lit.",
-          "Once the Hospital is built (flag 0x2E780) every such age unit gives +1, on every difficulty.",
+          "Once the Hospital is built every such age unit gives +1, on every difficulty.",   # its flag 0x2E780
           "An elderly villager (50, 58 or 66 years and older at Medicine level 1, 2 or 3) gets the +1 only when a "
           "further roll (0 to 99 below 20) passes: {2} of the chance above.")),
     Roll("Falling sick: rolled " + AGE_UNIT + " for each villager who is not sick, at any age; the fire changes the "
@@ -138,8 +139,8 @@ ROLLS = (
          (Check(0x43BDA5, 100),)),
     # ---------------------------------------------------------------- Skills
     Roll("Every work step's skill roll (farming, building, healing, research, parenting): rolled once per step; it "
-         "passes when a roll of 0 to 99 is at most the skill + 33 (+ 66 for a villager who likes learning, + 16 for "
-         "one who dislikes it). A failed step ends the task with nothing gained; a failure at skill 0 sets the skill "
+         "passes when a roll of 0 to 99 is at most the skill + 33 (the skill + 66 for a villager who likes learning, "
+         "the skill + 16 for one who dislikes it). A failed step ends the task with nothing gained; a failure at skill 0 sets the skill "
          "to 4.",
          (Check(0x44E1D0, 100, None, "jle"), Check(0x44E2F4, None, 0x19, "jg", take=False)),
          (f"Skill 0: {_c(_b(100, 34))} ({_c(_b(100, 67))} liking learning, {_c(_b(100, 17))} disliking it); skill "
@@ -150,7 +151,7 @@ ROLLS = (
           f"99 is at least the skill: {_c(_x(_m(100, 25), N - _b(100, 46)))} at skill 46, "
           f"{_c(_x(_m(100, 25), N - _b(100, 90)))} at 90. Skills stop at 100."),
          feature="vv2_learning_never_fails",
-         patched="every work step's skill roll passes; the skill gains are the game's own."),
+         patched="every work step's skill roll passes; the skill gains are the game's usual ones."),
     # ---------------------------------------------------------------- What villagers do
     Roll("An idle villager does nothing: each time an idle adult's next activity is chosen, it is \"Nothing\" {0} of "
          "the time (a roll of 0 to 99 of 65 or less).",
@@ -162,7 +163,8 @@ ROLLS = (
          (Check(0x46198C, 100, 0x19, "jl"), Check(0x4619A4, 100, 0x46, "jge", take=False)),
          (f"A villager with Healing 50 or more who misses that roll goes on a second roll (0 to 99 below 70, {{1}}): "
           f"{_c(_or(_b(100, 25), _b(100, 70)))} in all.",)),
-    Roll("Choosing a job (each time an adult's work is chosen, 0x449C60): {0} of the time (a roll of 0 to 99 below 15) "
+    # The job chooser 0x449C60.
+    Roll("Choosing a job (each time an adult's work is chosen): {0} of the time (a roll of 0 to 99 below 15) "
          "the chooser gives up unless the villager likes work; a villager who dislikes work also gives up {1} of the "
          "time (below 70).",
          (Check(0x449C6E, 100, 0xF, "jge", take=False), Check(0x449CA1, 100, 0x46, "jl"),
@@ -259,7 +261,8 @@ ROLLS = (
          (f"No like {_c(_not(_b(100, 30)))}, one {_c(_x(_b(100, 30), _not(_b(100, 30))))}, two "
           f"{_c(_x(_b(100, 30), _b(100, 30)))}; the same for dislikes.",)),
     # ================================================================ Births and gender
-    Roll("An embrace (a villager dropped on another, or pairing up on their own, 0x44F610): both 18 or older, of "
+    # The embrace 0x44F610.
+    Roll("An embrace (a villager dropped on another, or pairing up on their own): both 18 or older, of "
          "opposite sexes, alive, not sick and not nursing. Below 300 food the embrace goes on only {0} of the time "
          "(a roll of 0 to 99 of 65 or less); then the villager who started it must pass a Parenting skill roll.",
          (Check(0x44F702, 100, 0x41, "jle"), Check(0x44F7A0, 300)),
@@ -305,6 +308,6 @@ ROLLS = (
           "Sunimeg\"): a copy of the villager who looks in it, with the same sex.",
           "An Esteemed Elder's totem keeps the elder's sex; it is a statue, not a villager."),
          group=BIRTHS, feature="vv2_enable_origins_exclusive_features",
-         patched="the Origins Barrel of Babies upgrade brings the game's own Barrel O' Babies with 3 toddlers, each "
+         patched="the Origins Barrel of Babies upgrade brings the game's Barrel O' Babies with 3 toddlers, each "
                  "sex rolled as above."),
 )

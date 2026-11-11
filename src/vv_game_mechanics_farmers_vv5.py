@@ -150,10 +150,11 @@ def _span(low: float, high: float) -> dict[int, tuple[float, float]]:
     return {speed: (low, high) for speed in SPEEDS}
 
 
+# Paused, the villagers' update is skipped (0x442AD5: speed 999 skips 0x471EB0).  A trip in progress is the step
+# queue, the record's first 0x1B80 bytes, which the save loader 0x466B60 does not restore.
 _CLOCK = ("Real-life time, the same at Fast, Normal and Slow (nothing in the walk or the waits reads the speed); "
-          "while paused the villagers stand still (0x442AD5), and a wait whose moment passes during the pause ends on "
-          "the first frame after it. A trip in progress is not saved (the step queue, the record's first 0x1B80 "
-          "bytes, is not among the fields the save loader 0x466B60 restores), so closing the game loses it.")
+          "while paused the villagers stand still, and a wait whose moment passes during the pause ends on the first "
+          "frame after it. A trip in progress is not saved, so closing the game loses it.")
 
 
 def _cycle_words(key: str) -> str:
@@ -173,15 +174,17 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: walk to the noni bushes, a 1 s gesture, wait 3 s, a 1 s gesture, the Farming "
                     "check, wait 3 s, walk back to the food bin, 3 s there and wait 3 s, then the noni are credited "
                     "(each wait lasts its seconds to one more). " + _CLOCK),
-        catch_up_words=("Each job turn that farms the noni runs one pick at once (0x46E8E0 -> 0x46C540 or 0x46BCF0 -> "
-                        "0x457910 -> 0x46E020): the Farming check, then max(2, noni / 100) food (0x46CFCD), as live. "
-                        "The dispatcher offers noni only once The Hungry Totem is solved; a believer dropped on the "
-                        "bushes picks them without it."),
+        # The job turn 0x46E8E0 -> the dispatcher 0x46C540 (or the player's job 0x46BCF0) -> the noni behaviour
+        # 0x457910 -> the instant runner 0x46E020; the pick's food at 0x46CFCD.
+        catch_up_words=("Each job turn that farms the noni runs one pick at once: the Farming check, then the noni "
+                        "÷ 100 food (at least 2), as live. The game sends a believer to the noni only once The Hungry "
+                        "Totem is solved; a believer dropped on the bushes picks them without it."),
         verified="code",
         extra=("An elder (walking at 40) takes 209.28 s (200.90-217.90); a believer who likes running (300) 44.20 s "
                "(43.89-45.90).",
                "A failed Farming check ends the trip at the bushes with nothing: 49.33 s on average from the bin.",
-               "A villager who dislikes berries refuses 60 in 100 when the dispatcher picks the noni (0x46C717).",
+               # The refusal at 0x46C717.
+               "A villager who dislikes berries refuses 60 in 100 when the game sends them to the noni.",
                _cycle_words("noni picks")),
     ),
     Trip(
@@ -197,8 +200,9 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: walk to the Hydroponic Farm, 3 s, wait 3 s, 3 s, the Farming check, wait 3 s, "
                     "walk back to the food bin, 3 s there and wait 3 s, then the crops are credited: 10, 7 or 4 food "
                     "on Fast, Normal or Slow (the speed when it is credited). " + _CLOCK),
+        # The catch-up harvest's 7 at 0x46D0D7..0x46D0E0.
         catch_up_words=("Each job turn that farms the crops runs one harvest at once: the Farming check, then 7 food "
-                        "at every speed (0x46D0D7..0x46D0E0), taken off the crops."),
+                        "at every speed, taken off the crops."),
         verified="code",
         extra=("An elder takes 188.22 s (176.88-197.90); a believer who likes running 44.87 s (43.89-45.90).",
                "A failed Farming check ends the trip at the farm with nothing: 48.39 s on average from the bin.",
@@ -211,15 +215,17 @@ TRIPS: tuple[Trip, ...] = (
         live_span=_span(*TRIP_SAMPLES["fish"][2:]),
         catch_up_trips_per_turn=CATCH_UP_TRIPS,
         success_offset=34,
-        live_words=("From the food bin: walk to a point of the lake's shore (area 0x69), wait 3 s, the "
-                    "Farming check, walk back to the food bin, wait 3 s, then 4 food is credited. " + _CLOCK),
-        catch_up_words=("Each job turn that farms the lake runs one catch at once: the Farming check, then 4 food "
-                        "(0x46D790), as live."),
+        # The shore is walk area 0x69; the catch's 4 food at 0x46D790.
+        live_words=("From the food bin: walk to a point of the lake's shore, wait 3 s, the Farming check, walk back "
+                    "to the food bin, wait 3 s, then 4 food is credited. " + _CLOCK),
+        catch_up_words=("Each job turn that farms the lake runs one catch at once: the Farming check, then 4 food, "
+                        "as live."),
         verified="code",
         extra=("An elder takes 262.13 s (219.88-330.92); a believer who likes running 41.65 s (33.89-49.90).",
                "A failed Farming check ends the trip at the lake with nothing: 55.84 s on average from the bin.",
-               "A villager who dislikes fish, the ocean or swimming refuses 60 in 100 when the dispatcher picks the "
-               "lake (0x46C699).",
+               # The refusal at 0x46C699.
+               "A villager who dislikes fish, the ocean or swimming refuses 60 in 100 when the game sends them to the "
+               "lake.",
                _cycle_words("fish")),
     ),
 )
