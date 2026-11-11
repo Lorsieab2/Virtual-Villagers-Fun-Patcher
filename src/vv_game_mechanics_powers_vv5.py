@@ -156,6 +156,33 @@ EFFECTS = (
       "While the game is paused nobody ages and the age credit's count is emptied (0x470022), so the paused part of "
       "the 5 real-life minutes (real time) gives no age. The warp is not saved: quitting ends it (0x465207), so time away (catch-up) is "
       "never warped.",
+      # Why warped villagers die at very high ages (the owner, 2026-11-10: "they would die at insanely high ages like
+      # 145 years old").  The factor is not saved: the save writer 0x465270 and loader 0x466B60 copy only +0x1B8C
+      # (0xA8 bytes), +0x1C34 (0x28: uncounted time, its stamp, the processed age), +0x1C5C (0x1C) and a few fields
+      # past +0x1CEC, never +0x1CC8; the loader 0x46FA20 first resets all 150 records (0x465100, factor 1 at
+      # 0x465207).  In play the spells' timers (0x4203C0, from 0x44256E) run before the ageing (0x425E30, from
+      # 0x4425C0) in every update, so a warp that has run out is ended before a long gap is paid.  The patcher's
+      # Origins Time Warp and each Choose Time Skip Amount step (native/vv5_task9_origins, vv5_time_warp_apply) add
+      # years x 20 x the doubled factor (vv5_aging_rate) to the shown age.  Reopening pays at most 86,400 seconds
+      # (the clamp 0x46FFAB) at factor 1: 480, 240 or 144 age units.
+      "Why a warped villager can die at a very high age, like 145: the patcher's Origins Time Warp and Choose Time "
+      "Skip Amount add their years to each villager times that villager's own ageing speed, and this God Power's "
+      "villager ages 20 times as fast. Used during the warp's 5 real-life minutes, they give the warped villager 20 "
+      "times the years at once: one Origins Time Warp gives it 240, 120 or 60 years on Fast, Normal or Slow (instead "
+      "of 12, 6 or 3), and each time-skip step 20 times its years. The age shown jumps at once; the old-age rolls "
+      "then follow one birthday at a time, so an old villager dies at one of the first birthdays rolled, but the "
+      "age on the Details screen and on the grave stays the jumped age (a dead villager's age never moves again).",
+      "Example: a 65-year-old in a village with Medicine 2 (old-age rolls from 64, certain by 73) is warped, and "
+      "Choose Time Skip Amount skips 4 years on Normal. The warped villager's age jumps by 80 years (4 x 20) to 145 "
+      "at once; it dies of old age by its 73rd birthday at the latest, and its grave says 145. Everyone else gets "
+      "the 4 years.",
+      "Quitting and reopening does not do this: the warp is not in the save, every villager's ageing speed is set "
+      "back to normal before a village loads, and time away is counted at the normal speed: at most 24, 12 or 7.2 "
+      "years on Fast, Normal or Slow (more than a day away; see Time away). That jump is worked through the same "
+      "way, so an old villager can still die at its first rolled birthday with up to that many years added to the "
+      "age on its grave, never more.",
+      ("Whether an Origins Time Warp or a time skip was used during a warp in the owner's village (seen after "
+       "reopening) was not checked in play; the save keeps no record of either.", False),
       ("Work event 54 (0x46D3F8) also sets the factor back to 1; which action queues that event was not traced.",
        False),
       ("While warped the target is drawn with a trail of its last positions (0x472101) and an effect beside it on "

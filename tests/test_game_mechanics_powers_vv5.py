@@ -117,6 +117,50 @@ class GodPowers(unittest.TestCase):
             self.assertEqual(bytes(img[at - BASE:at - BASE + len(value)]), value, hex(at))
         self.assertIn(b"You used time warp on a child\0", img)
 
+    def test_time_warp_very_old_ages(self) -> None:
+        """The owner (2026-11-10): why warped villagers die at very high ages like 145.  The factor +0x1CC8 is not
+        saved and is reset before a load; the spells' timers run before the ageing each update; reopening pays at
+        most 86,400 s at factor 1; the patcher's Origins Time Warp and time skip multiply the years by the doubled
+        factor (20 while warped)."""
+        text = self._effect("Time Warp")
+        units = [86_400 // 60 // speed for speed in (3, 6, 10)]              # reopening, factor 1
+        self.assertEqual(units, [480, 240, 144])
+        self.assertIn(f"{units[0] / 20:g}, {units[1] / 20:g} or {units[2] / 20:g} years", text)   # 24, 12 or 7.2
+        warped = [years * 20 for years in gm.TIME_WARP_YEARS.values()]
+        self.assertIn(f"{warped[0]}, {warped[1]} or {warped[2]} years on Fast, Normal or Slow", text)
+        medicine2 = (1_100 + 160 * (2 - 1)) // 20                            # 63: rolls from 64, 100% at 73
+        self.assertIn(f"rolls from {medicine2 + 1}, certain by {medicine2 + 10}", text)
+        self.assertIn(f"by {4 * 20} years (4 x 20) to {65 + 4 * 20}", text)
+        self.assertIn("like 145", text)
+        # The patcher's warp and time skip credit years x 20 x the doubled factor (native source, as built).
+        source = (ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c").read_text(encoding="utf-8")
+        self.assertIn("return rate > 1 ? rate + rate : rate;", source)
+        self.assertIn("*(int *)(rec + VV5_TW_AGE_OFFSET) += units * rate;", source)
+        self.assertIn("if (vv5_time_warp_apply(speed, step) <= 0) {", source)    # each time-skip step
+        img = _image()
+        if img is None:
+            self.skipTest("the stock VV5 exe (inputs/vv5-stock-copy) or pefile is missing")
+
+        def at(va: int, n: int) -> bytes:
+            return bytes(img[va - BASE:va - BASE + n])
+
+        def call(va: int) -> int:
+            return va + 5 + struct.unpack_from("<i", img, va - BASE + 1)[0]
+        # the record reset sets the factor to 1; the loader resets all 150 records, then copies the saved windows
+        self.assertEqual(at(0x465207, 10), bytes.fromhex("c786c81c000001000000"))
+        self.assertEqual((call(0x46FA32), call(0x46FA62)), (0x465100, 0x466B60))
+        # writer and loader windows: +0x1B8C x 0x2A dwords, +0x1C34 x 0xA, +0x1C5C x 7 (none reaches +0x1CC8)
+        for va, value in ((0x465278, "8d878c1b0000"), (0x465293, "8d87341c0000"), (0x4652AD, "8d875c1c0000"),
+                          (0x466B6C, "8d8e8c1b0000"), (0x466B7E, "8d8e341c0000"), (0x466B90, "8d8e5c1c0000"),
+                          (0x46F5C8, "b92a000000"), (0x475848, "b90a000000"), (0x475588, "b907000000")):
+            self.assertEqual(at(va, len(value) // 2), bytes.fromhex(value), hex(va))
+        self.assertLess(0x1C5C + 7 * 4, 0x1CC8)
+        for start, end in ((0x465270, 0x465359), (0x466B60, 0x466C36)):              # writer, loader
+            self.assertNotIn(b"\xc8\x1c\x00\x00", at(start, end - start), hex(start))
+        # each update: the spells (their timers) at 0x44256E before the ageing at 0x4425C0
+        self.assertEqual((call(0x44256E), call(0x4425C0)), (0x4203C0, 0x425E30))
+        self.assertEqual(at(0x46FFAB, 5), b"\xb8" + struct.pack("<I", 86_400))
+
     def test_fog_of_doom_blinds_heathens(self) -> None:
         """The owner (2026-11-06): Heathens cannot see, chase or scare believers in the Fog of Doom.  The spell sets
         the fog's thickness to 4.0 (0x41FB51 -> 0x476250) and the believers' drawing value to 0.6 (0x41FB65); the
