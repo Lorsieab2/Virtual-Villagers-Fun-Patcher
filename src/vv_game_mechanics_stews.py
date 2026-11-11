@@ -103,9 +103,8 @@ VV2_WATER = "fresh water from the pond at the foot of the waterfall"
 # check reads the carried item +0x44 above 0x32 (its "below 0" branch can never be true), so only a child out
 # fetching a find from the 22nd collectable on (the last three shells, the beetles, the pebbles) or a mushroom is
 # called: 1 in 5 of them (rand(100) < 20) for stew 1, 9 in 10 (< 90) for stew 14.
-CALLED = ("When it is cooked, the game also calls some villagers to come and eat it at once: only a child who is "
-          "just then out fetching a find (one of the last three shells, a beetle, a pebble or a mushroom) can be "
-          "called, {odds} of them.")
+CALLED = ("When it is cooked, a child who is out fetching a find (one of the last three shells, a beetle, a pebble "
+          "or a mushroom) at that moment comes to eat it, {odds}; nobody else is called.")
 VV2_STEWS = (   # (stew number, title, what happens)
     (17, "Heals 50 to 99 health and cures sickness",
      "\"This stew completely restored your villager!\" The eater gains 50 to 99 health (up to 100) and is cured of "
@@ -114,7 +113,7 @@ VV2_STEWS = (   # (stew number, title, what happens)
      "\"Your villager feels healthier after eating.\" The eater gains 2 to 6 health (up to 100)."),
     (1, "Heals 1 health (every mix not listed under another stew)",
      "\"Your villager feels healthier after eating.\" The eater gains 1 health (up to 100). "
-     + CALLED.format(odds="1 in 5")),
+     + CALLED.format(odds="1 time in 5")),
     (3, "Cures sickness",
      "\"The spicy stew clears your villager's nose and throat.\" The eater is cured of sickness."),
     (5, "Lets a villager dive for the Sunken Gong Piece",
@@ -144,11 +143,11 @@ VV2_STEWS = (   # (stew number, title, what happens)
      "\"This stew is very, very spicy!\" The eater takes a short step, then goes \"Getting a drink\"."),
     (14, "Sweet smell: children go wild",
      "\"This stew gives off a very sweet smell.\" A child under 14 goes \"Jumpy!\", \"Running away\" or "
-     "\"Dancing\" (1 in 3 each); an adult nothing more. " + CALLED.format(odds="9 in 10")),
+     "\"Dancing\" (1 in 3 each); an adult gets nothing more. " + CALLED.format(odds="9 times in 10")),
     (8, "Sends the eater to the bathroom",
      "\"The stew made your villager have to go to the bathroom.\" The eater goes \"Nature is calling!\"."),
     (4, "Nasty: loses 1 health",
-     "\"This stew is nasty. It really isn't edible.\" The eater loses 1 health (never below 3), stops what it was "
+     "\"This stew is nasty. It really isn't edible.\" The eater loses 1 health (never below 3), stops what they were "
      "doing and goes \"Shaking head\"."),
     (2, "Makes the eater sick",
      "\"The stew made your villager very ill.\" The eater falls sick."),
@@ -177,10 +176,10 @@ def vv2_facts() -> list[gm.Fact]:
             "water is always fresh water, fetched from the pond at the foot of the waterfall: no stew here takes "
             "salt water."), C),
         gm.Fact(GROUP, (
-            "The herbs: the game gives the six herbs no names -- pointing at any of them says \"... sees the strange "
-            "plant.\" -- so this page names each by where it grows. A plant goes into a stew only once your "
-            "villagers understand it; until then a villager dropped on it studies it (\"Studying strange "
-            "plant\")."), C),
+            "The herbs: the names below are the patcher's own, after where each plant grows; the game calls every "
+            "one \"the strange plant\" (pointing at any of them says \"... sees the strange plant.\"). A plant goes "
+            "into a stew only once your villagers understand it; until then a villager dropped on it studies it "
+            "(\"Studying strange plant\")."), C),
     ]
     out += [gm.Fact(GROUP, f"{name}: {where}.", C, sub=True) for name, where, _place, _spot in VV2_HERBS.values()]
     for stew, title, does in VV2_STEWS:
@@ -303,16 +302,16 @@ VV4_STEWS = {   # product: (title, what happens)
         "cannot eat this stew again for 10 real-life minutes."),
     4: ("The Grand Feast",
         "Needs a well-cooked pot (20 heat, 2 hot rocks) and the 4 feast items added; then \"It's a grand feast!\": "
-        "the whole village drops what it is doing and goes \"Something smells YUMMY!\", and it solves the Grand "
+        "the whole village drops what they are doing and goes \"Something smells YUMMY!\", and it solves the Grand "
         "Feast puzzle."),
     6: ("Honors the Tree of Life",
         "\"This smells like flowers!\" The eater goes \"Honoring the tree\" (the Honoring the Tree puzzle)."),
     1: ("Calls everyone 14 or older to the pot",
-        "\"Yummy!\" Every villager aged 14 or older drops what it is doing and goes \"Something smells YUMMY!\"."),
+        "\"Yummy!\" Every villager aged 14 or older drops what they are doing and goes \"Something smells YUMMY!\"."),
     3: ("Calls the whole village to the pot",
-        "\"Yummy!\" Every villager drops what it is doing and goes \"Something smells YUMMY!\"."),
+        "\"Yummy!\" Every villager drops what they are doing and goes \"Something smells YUMMY!\"."),
     7: ("Hiccups; calls the children to the pot",
-        "\"Oh no, hiccups!\" Every child under 14 drops what it is doing and goes \"Something smells YUMMY!\"."),
+        "\"Oh no, hiccups!\" Every child under 14 drops what they are doing and goes \"Something smells YUMMY!\"."),
     0: ("Very spicy: sends the eater to drink",
         "\"This stew is really spicy!\" The eater goes \"Drinking from stream\"."),
     2: ("Sends the eater to the bathroom",
