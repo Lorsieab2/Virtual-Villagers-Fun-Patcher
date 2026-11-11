@@ -159,10 +159,13 @@ def _span(low: float, high: float) -> dict[int, tuple[float, float]]:
     return {speed: (low, high) for speed in SPEEDS}
 
 
-_CLOCK = ("Real-life time, the same at Fast, Normal and Slow (nothing in the walk or the waits reads the speed); "
-          "while paused the villagers stand still, and a wait whose moment passes during the pause ends on the first "
-          "frame after it. A trip in progress is not saved (the step queue, record + 0, is outside the saved part of "
-          "the record); the task is (+0x1C54), so a farmer dropped on a source goes back to it after loading.")
+# The same at every speed: nothing in the walk or the waits reads the speed.  A trip in progress is not saved: the
+# step queue (record + 0) is outside the saved part of the record; the task (+0x1C54) is saved.  A wait whose moment
+# passes during the pause ends on the first frame after it.  Said in full under the first source only.
+_CLOCK = ("While paused the villagers stand still, and a wait that runs out during the pause ends as soon as the game "
+          "runs again. A trip in progress is not saved, but the task is, so a farmer dropped on a source goes back to "
+          "it after loading.")
+_CLOCK_AGAIN = "Pausing and saving: as for blackberry picks."
 
 _TASK_TURN = task_trips_per_turn(100)      # 0.8 + 0.2 x 0.83096 / 2 = 0.883096 (Farming 60 or more)
 
@@ -175,49 +178,60 @@ def _cycle(key: str) -> str:
 TRIPS: tuple[Trip, ...] = (
     Trip(
         key="blackberry picks",
-        job="dropped on the blackberry bush (task 3), or a Farming choice the dispatcher sends to the bush",
+        job="dropped on the blackberry bush (that sets its task), or sent there by its own choice of Farming",
         live_seconds=_live(94.76),
         live_span=_span(91.87, 97.91),
         catch_up_trips_per_turn=_TASK_TURN,
         success_offset=34,
-        live_words=("From the food bin: walk to a random point of the bush (map area 0x20, x 120-199, y 1408-1423), "
-                    "a 1 s pose, a 3 s wait, a 1 s pose, the Farming check, a 3 s wait, walk back to a random point "
-                    "of the food bin (area 8), two 3 s waits, then the bush / 100 (at least 2) is credited and taken "
-                    "off the bush (job event 13, 0x464464). " + _CLOCK),
-        catch_up_words=("A farmer dropped on the bush: each job turn whose task passes the gate (8 in 10), or whose "
-                        "own Farming choice the dispatcher sends to the bush (1 in 2 with the nets), runs one pick at "
-                        "once (0x465750 -> 0x4634D0 / 0x4639B0 -> 0x451C30 -> 0x464FA0): the Farming check, then "
-                        "the bush / 100, at least 2, as live. The task ends when the bush holds 3 or less."),
+        # The bush is map area 0x20 (x 120-199, y 1408-1423), the food bin area 8; the food is job event 13
+        # (0x464464).  Catch-up: 0x465750 -> the task gate 0x4634D0 / the dispatcher 0x4639B0 -> 0x451C30 -> the
+        # step resolver 0x464FA0.
+        live_words=("From the food bin (times in real-life seconds, the same at every speed): walk to a random "
+                    "point of the bush, a 1 s "
+                    "pose, a 3 s wait, a 1 s pose, the Farming check, a 3 s wait, walk back to a random point of the "
+                    "food bin, two 3 s waits, then the berries on the bush ÷ 100 (at least 2) are added to the food "
+                    "and taken off the bush. " + _CLOCK),
+        catch_up_words=("While catching up, a farmer dropped on the bush makes one pick at once on each job turn "
+                        "where it does its task (8 turns in 10), or where its own choice of Farming sends it to the "
+                        "bush (1 in 2 while the nets are open too): the Farming check, then the berries ÷ 100, at "
+                        "least 2, as when playing. The task ends when the bush holds 3 or less."),
         verified="code",
         extra=("An elder (walking at 40) takes 210.67 s (203.91-218.89); a villager who likes running (300) "
                "44.30 s (43.89-45.90).",
                "A failed Farming check ends the trip at the bush with nothing: 49.58 s on average from the bin "
                "(45 of 200 trips at Farming 0).",
-               "Catch-up trips a job turn: " + f"{_TASK_TURN:.6f}" + " at Farming 60 or more "
-               "(the task 8 turns in 10, else the Farming choice x 1/2 for the bush; with 8,000 food or more the task "
-               "only 48 turns in 100).",
+               "Catch-up trips each job turn: " + f"{_TASK_TURN:.6f}" + " at Farming 60 or more "
+               "(the task on 8 turns in 10; on the rest, its own choice of Farming, which goes to the bush half the "
+               "time; with 8,000 food or more the task only on 48 turns in 100).",
                "Live, with the game's own scheduler: " + _cycle("blackberry picks") + "."),
     ),
     Trip(
         key="fish in the net",
-        job="dropped on the fishing nets (Fishing Nets solved; task 0x1C), or a Farming choice sent to the nets",
+        job="dropped on the fishing nets (once Fishing Nets is solved; that sets its task), or sent there by its "
+            "own choice of Farming",
         live_seconds=_live(66.49),
         live_span=_span(52.90, 79.93),
         catch_up_trips_per_turn=_TASK_TURN,
         success_offset=34,
-        live_words=("From the food bin: on rand(100) < 50 two walks to the pier of map area 0x60 (x 1638-1665 "
-                    "y 1259-1282, then x 1771-1800 y 1221-1242), else three to the pier of area 0x61 (x 1618-1647 "
-                    "y 1527-1544, x 1694-1725 y 1503-1516, x 1799-1847 y 1486-1501) (0x43320E), a 3 s wait, the Farming check, take a fish, "
-                    "walk back to a new point by that side's first one, walk to the food-bin point chosen when the "
-                    "trip began, a 3 s wait, then 4 food is credited (job event 16, 0x4645A4). The piers are walkable "
-                    "only with Fishing Nets solved (0x46D0A4: areas 0x60 / 0x61). " + _CLOCK),
-        catch_up_words=("A farmer dropped on the nets: each job turn whose task passes the gate (8 in 10), or whose "
-                        "own Farming choice the dispatcher sends to the nets (1 in 2 with the bush), runs one catch at "
-                        "once (0x465750 -> 0x4634D0 / 0x4639B0 -> 0x4331D0 -> 0x464FA0): the Farming check, then 4 "
-                        "food, or the Golden Fish's 8, as live."),
+        # The pier choice rand(100) < 50 (0x43320E): two walks on the pier of map area 0x60 (x 1638-1665 y 1259-1282,
+        # then x 1771-1800 y 1221-1242), else three on the pier of area 0x61 (x 1618-1647 y 1527-1544, x 1694-1725
+        # y 1503-1516, x 1799-1847 y 1486-1501); the food is job event 16 (0x4645A4); the piers are walkable only with
+        # Fishing Nets solved (0x46D0A4: areas 0x60 / 0x61).  Catch-up: 0x465750 -> 0x4634D0 / 0x4639B0 -> 0x4331D0
+        # -> 0x464FA0.
+        live_words=("From the food bin (times in real-life seconds, the same at every speed): half the time two "
+                    "walks out along one pier, "
+                    "otherwise three along the other, a 3 s wait, the Farming check, take a fish, walk back to a new "
+                    "point near that pier's first stop, walk to the food-bin point chosen when the trip began, a 3 s "
+                    "wait, then 4 food is added. The piers can be walked on only once Fishing Nets is solved. "
+                    + _CLOCK_AGAIN),
+        catch_up_words=("While catching up, a farmer dropped on the nets makes one catch at once on each job turn "
+                        "where it does its task (8 turns in 10), or where its own choice of Farming sends it to the "
+                        "nets (1 in 2 while the bush is open too): the Farming check, then 4 food, or the Golden "
+                        "Fish's 8, as when playing."),
         verified="code",
-        extra=("The Golden Fish: with s fish scales found (s >= 1), rand(100) < 2s + 1 (0x433360..0x433387) takes it "
-               "straight to the bin: 8 food (job event 17, 0x4645E1).",
+        # The Golden Fish: rand(100) < 2s + 1 (0x433360..0x433387); job event 17 (0x4645E1).
+        extra=("The Golden Fish: with s fish scales found (1 or more), a (2s + 1) in 100 chance; the villager takes "
+               "it straight to the food bin: 8 food.",
                "An elder takes 150.02 s (124.87-188.89); a villager who likes running 28.00 s (21.91-31.91).",
                "A failed Farming check ends the trip on the pier with nothing: 38.41 s on average from the bin "
                "(42 of 200 trips at Farming 0).",
@@ -225,7 +239,8 @@ TRIPS: tuple[Trip, ...] = (
     ),
     Trip(
         key="fruit stomps",
-        job="dropped on the fruit (the Cooking Pit restored; no task is set), or a Farming choice sent to the fruit",
+        job="dropped on the fruit (once the Cooking Pit is restored; no task is set), or sent there by its own "
+            "choice of Farming",
         live_seconds=_live(162.24),
         live_span=_span(157.94, 167.97),
         catch_up_trips_per_turn=0.0,
@@ -237,26 +252,31 @@ TRIPS: tuple[Trip, ...] = (
         # so about 4 x 162 / that many villagers can be on fruit trips at once.  An estimate: the two phases are
         # inferred from the measured trip, not measured on their own.
         max_workers={3: 14, 6: 7, 10: 5},
-        live_words=("From the food bin: one of the four fruit spots not in use (actions 101-104, 0x4343A0), walk "
-                    "to the fruit tree (map area 0x26, x 64-159 y 1880-1919), shake it down (short steps and 1 s "
-                    "poses), the Farming check, take the fruit, walk to the Cooking Pit (area 0x22, x 368-383 "
-                    "y 1848-1863), a 5 s wait, stomp it (hops), take the stomped fruit, walk to a random point of "
-                    "the food bin, a 1 s wait, then 3 food is credited (job event 15, 0x464567). " + _CLOCK),
-        catch_up_words=("None: the dispatcher never offers the fruit while catching up (0x463A30) and no stock drop "
-                        "sets the fruit task 2 (0x46364E); the Cooking Pit bonus adds 5 food x Food "
-                        "Mastery per villager and counted unit on rand(100) < Farming - 25 instead."),
+        # The fruit spots: actions 101-104 (0x4343A0); the tree is map area 0x26 (x 64-159 y 1880-1919), the Cooking
+        # Pit area 0x22 (x 368-383 y 1848-1863); the food is job event 15 (0x464567).  Catch-up: the dispatcher never
+        # offers the fruit (0x463A30), and no stock drop sets the fruit task 2 (0x46364E).
+        live_words=("From the food bin (times in real-life seconds, the same at every speed): claim one of the "
+                    "four fruit spots not in use, "
+                    "walk to the fruit tree, shake it down (short steps and 1 s poses), the Farming check, take the "
+                    "fruit, walk to the Cooking Pit, a 5 s wait, stomp it (hops), take the stomped fruit, walk to a "
+                    "random point of the food bin, a 1 s wait, then 3 food is added. " + _CLOCK_AGAIN),
+        catch_up_words=("While catching up there are no fruit trips: the game never sends a farmer to the fruit then, "
+                        "and nothing in the stock game gives a villager the fruit as its task. Instead the Cooking Pit "
+                        "bonus adds 5 food x Food Mastery for each villager each counted age unit, on a (Farming - 25) "
+                        "in 100 chance."),
         verified="code",
-        extra=("When the stew pot waits for ingredients as the trip is queued (0x4349A3: 0x42DDA0 on the pot "
-               "0x4D76D8), the stomped fruit goes into the stew (action 0x90) and no food is credited.",
+        # The stew: 0x4349A3 asks 0x42DDA0 on the pot 0x4D76D8; the fruit goes in by action 0x90.
+        extra=("When the stew pot is waiting for an ingredient as the trip starts, the stomped fruit goes into the "
+               "stew and no food is added.",
                "An elder takes 331.65 s (320.96-341.98); a villager who likes running 88.77 s (86.95-89.99).",
                "A failed Farming check ends the trip at the tree with nothing: 71.79 s on average from the bin "
                "(42 of 200 trips at Farming 0).",
-               "A task 2 written into a save would bring the fruit even while catching up (the gate path skips "
-               "the catch-up refusal): 3 food a turn the gate passes.",
-               "The Cooking Pit bonus (catch-up only, 0x468A7A-0x468AC5): after each counted unit's job turns, 5 food "
-               "x Food Mastery (7 at level 2, 10 at 3) for each villager who had them, on rand(100) < Farming - 25: "
-               "3.75 food a unit at Farming 100, 1.75 at 60, none at 25 or less; its health "
-               "is not checked.",
+               # The fruit task is task 2; the task gate skips the catch-up refusal.  The bonus: 0x468A7A-0x468AC5.
+               "A fruit task written into a save by hand would bring the fruit even while catching up (a task skips "
+               "the catch-up rule): 3 food each turn the villager does its task.",
+               "The Cooking Pit bonus (catch-up only): after each counted unit's job turns, 5 food x Food Mastery (7 "
+               "at level 2, 10 at 3) for each villager who had them, on a (Farming - 25) in 100 chance: 3.75 food a "
+               "unit at Farming 100, 1.75 at 60, none at 25 or less; its health is not checked.",
                "Live, with the game's own scheduler (no other farming offered): " + _cycle("fruit stomps") + "."),
     ),
 )
