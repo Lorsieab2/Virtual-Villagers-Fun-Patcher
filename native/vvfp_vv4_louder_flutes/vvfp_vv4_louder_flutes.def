@@ -1,0 +1,5 @@
+LIBRARY "VVFP VV4 Louder Flutes"
+EXPORTS
+    VvfpStartup
+    VvfpLouderFlutesInstalled
+    VvfpLouderFlutesScaled

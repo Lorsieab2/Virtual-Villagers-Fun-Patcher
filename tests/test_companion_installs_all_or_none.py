@@ -370,6 +370,14 @@ CASES = [
     Case("Push Clouds", "assets/push_clouds/VVFP Push Clouds.dll", (3,),
          lambda g: [f"vv{g}_push_overview_clouds"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpPushCloudsInstalled"))[1]),
+    # Louder Wind Flutes (The Tree of Life): the sound loader's call of FSOUND_Sample_Load (fmod.dll stood in for:
+    # its functions answer from the fake module, as GetProcAddress does here).
+    Case("Louder Wind Flutes", "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll", (4,),
+         lambda g: [f"vv{g}_louder_wind_flutes"],
+         lambda m, g: (m.api_handlers.__setitem__(
+             "GetModuleHandleA",
+             lambda p: ((FAKE_MODULE if p.cstring(p.arg(0)).lower() == "fmod.dll" else 0), 4)),
+             m.export("VvfpStartup", g, 0), m.export("VvfpLouderFlutesInstalled"))[2]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

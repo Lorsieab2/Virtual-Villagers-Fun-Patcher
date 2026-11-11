@@ -525,8 +525,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     event_at = None if paused else real(EVENT_NEXT)
     gm.with_due(out, "Next growth:", growth_at, "refill")
     multiplier = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
-    collectibles, complete = life.collectible_lines(village, life.COLLECTIBLE_PAY[4])
-    bonus = None if complete is None else 5 * complete + (5 if complete == 4 else 0)
+    collectibles, _ = life.collectible_lines(village, life.COLLECTIBLE_PAY[4])
     puzzles = []
     for pid, name in PUZZLE_NAMES.items():
         progress = _i32(data, PUZZLE_ENTRIES + 8 * pid)
@@ -669,7 +668,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         parents_from=18, sick_loss=(0.61, 0.19),
         sick_end="Time never cures a sickness except on Easy (25%); a healer or a healing stew does.",
         collectibles=collectibles,
-        limit=life.limit_words(village, bonus, "5 for each complete collection, 25 with all four"),
+        limit=life.limit_words(village, life.later_sets(village)),
         puzzles=puzzles,
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
                    "eaten, 0x46848B); on Medium at 8,000 or more, or "
