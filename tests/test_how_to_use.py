@@ -41,7 +41,7 @@ CONTROLS = {
     "open_vanilla_folder", "open_modified_folder", "open_game_folder",
     "back_up_saves", "restore_saves", "backups", "rename_tribe", "check_logs", "repair_logs",
     "check_logs_automatically", "check_for_updates", "family_tree_maker", "village_matchmaker",
-    "game_mechanics", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
+    "game_mechanics", "stew_recipes", "copy_player_slot", "picture_studio", "translations", "unicode_font", "unicode_font_tool", "game_text", "tech_cost_multiplier", "meal_multiplier", "sickness_multiplier",
 }
 
 # Words a player never sees in the patcher or the game.

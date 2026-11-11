@@ -46,6 +46,7 @@ import vv_vv2_totems
 import vv_genealogy
 import vv_genealogy_window
 import vv_game_mechanics_window
+import vv_stew_recipes_window
 import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
@@ -2142,6 +2143,16 @@ class App(tk.Tk):
             command=lambda: vv_picture_studio.open_picture_studio(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "picture_studio").pack(side="left", padx=(2, 0))
+        # Stew Recipes (the owner, 2026-11-10: "Separate window"): every cauldron recipe of VV2-VV4, in its own
+        # window -- on a row of its own, so the full row above still fits the 820-pixel minimum width (Codex, #758).
+        stew_tools = ttk.Frame(box)
+        stew_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            stew_tools,
+            text="Stew Recipes...",
+            command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
+        ).pack(side="left")
+        self._help_button(stew_tools, "stew_recipes").pack(side="left", padx=(2, 0))
         slot_tools = ttk.Frame(box)
         slot_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(

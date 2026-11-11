@@ -19,7 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 HELPER = "scrollable_frame"
 HELPER_MODULE = "vv_tree_editor_tools.py"
-WINDOW_MODULES = ["vv_fun_patcher_gui.py", "vv_genealogy_window.py", "vv_game_mechanics_window.py", HELPER_MODULE]
+WINDOW_MODULES = ["vv_fun_patcher_gui.py", "vv_genealogy_window.py", "vv_game_mechanics_window.py",
+                  "vv_stew_recipes_window.py", HELPER_MODULE]
 NO_TK = 3
 
 # file::enclosing function (Class.method, nested as outer.inner), or file::ClassName for a
@@ -57,6 +58,9 @@ EXEMPT = {
         "resizable: the pickers keep their height, the page is a Text box with its own scroll bar that "
         "takes the rest, and a minimum size keeps the pickers and buttons on screen "
         "(tests/test_game_mechanics.py builds it)",
+    "vv_stew_recipes_window.py::open_stew_recipes":
+        "resizable: the intro and Close keep their height, each tab's page is a Text box with its own scroll bar that "
+        "takes the rest, and a minimum size keeps them on screen (tests/test_stew_recipes.py builds it)",
     "vv_tree_editor_tools.py::choose_font":
         "a font list (Text) with its own scroll bar; the search box and buttons sit around it",
 }
