@@ -1411,6 +1411,16 @@
         "It only reads: nothing is changed, so the game may be running (it shows the save as it was last written)."
       ]
     },
+    "stew_recipes": {
+      "title": "Stew Recipes",
+      "guide": [
+        "Every stew the cauldron makes in The Lost Children, The Secret City and The Tree of Life, one tab each.",
+        "Each recipe lists its herbs by the names the game shows, the water it takes, and what happens when a villager eats it.",
+        "The Lost Children's plants have no names in the game, so the patcher names them by colour.",
+        "It also says which stews solve puzzles and what else they need, how much food a stew takes, and whether a stew can kill.",
+        "It reads nothing from your saves and changes nothing. A line in red marked UNCONFIRMED is one the game's code does not settle."
+      ]
+    },
     "picture_studio": {
       "title": "Picture Studio",
       "guide": [

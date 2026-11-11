@@ -1,12 +1,14 @@
-"""The Stew Recipes page (src/vv_game_mechanics_stews.py): a page of its own on The Lost Children's, The Secret
-City's and The Tree of Life's tabs only, every recipe with its herbs, its water and what happens, and every table
-pinned to the stock executables' own bytes -- The Lost Children's cook routine RUN in the emulator for every herb
-mix, the other games' recipe registers, effect switches, herb names and water read from their code."""
+"""Stew Recipes (src/vv_stew_recipes.py, src/vv_stew_recipes_window.py): a window of its own on the Tools tab with a
+tab for The Lost Children, The Secret City and The Tree of Life only (Game Mechanics is not changed), every recipe
+with its herbs, its water and what happens, and every table pinned to the stock executables' own bytes -- The Lost
+Children's cook routine RUN in the emulator for every herb mix, the other games' recipe registers, effect switches,
+herb names, water, food and puzzles read from their code."""
 from __future__ import annotations
 
 import itertools
 import re
 import struct
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -18,8 +20,8 @@ sys.path.insert(0, str(ROOT / "tests"))
 import island_event_exe as exe  # noqa: E402
 import vv_game_mechanics as gm  # noqa: E402
 import vv_game_mechanics_counts as counts  # noqa: E402
-import vv_game_mechanics_stews as stews  # noqa: E402
-import vv_game_mechanics_window as window  # noqa: E402
+import vv_stew_recipes as stews  # noqa: E402
+import vv_stew_recipes_window as window  # noqa: E402
 
 try:
     from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_HOOK_MEM_WRITE, UC_MODE_32, Uc
@@ -27,6 +29,8 @@ try:
     HAVE_UNICORN = True
 except ImportError:  # pragma: no cover - optional analysis tool
     HAVE_UNICORN = False
+
+NO_TK = 3
 
 
 def recipes(game: int) -> list[tuple[gm.Fact, list[gm.Fact]]]:
@@ -44,49 +48,93 @@ def quoted(text: str) -> list[str]:
     return re.findall(r"\"([^\"]+)\"", text)
 
 
-class Page(unittest.TestCase):
+def recipe(game: int, start: str) -> tuple[gm.Fact, list[gm.Fact]]:
+    return next(r for r in recipes(game) if r[0].text.startswith(start))
+
+
+TK_CHILD = r"""
+import sys, tkinter
+sys.path.insert(0, sys.argv[1])
+import vv_stew_recipes_window as w
+try:
+    root = tkinter.Tk()
+except tkinter.TclError as exc:
+    print(exc, file=sys.stderr)
+    sys.exit(3)
+root.withdraw()
+window = w.open_stew_recipes(root, 3)
+window.update()
+notebook = window.stew_notebook
+print(window.resizable() == (True, True), notebook.index("end"), notebook.index(notebook.select()))
+print("|".join(notebook.tab(i, "text") for i in range(notebook.index("end"))))
+for number, box in window.stew_tabs.items():
+    text = box.get("1.0", "end")
+    print(number, bool(box.cget("yscrollcommand")), box.cget("state"), len(box.tag_ranges("unconfirmed")) > 0,
+          text.startswith(w.page_text(number)[:40]))
+root.destroy()
+"""
+
+
+class Window(unittest.TestCase):
+    """The owner, 2026-11-10: "Separate window" -- Stew Recipes is its own tool, not part of Game Mechanics."""
+
     def test_only_the_lost_children_secret_city_and_tree_of_life_have_it(self) -> None:
         self.assertEqual(stews.GAMES, (2, 3, 4))
+        self.assertEqual([n for n, _name in window.GAMES], [2, 3, 4])
         for game in (1, 5):
             self.assertEqual(stews.facts(game), [])
-            facts = [gm.Fact(gm.ITEMS, "x", gm.CODE)]
-            self.assertIs(stews.with_recipes(facts, game), facts)
         for game in stews.GAMES:
             facts = stews.facts(game)
             self.assertTrue(facts)
             self.assertEqual({fact.group for fact in facts}, {stews.GROUP})
-            self.assertTrue(all(fact.confirmed for fact in facts), game)
+            text = window.page_text(game)
+            self.assertFalse(text.startswith(stews.GROUP))
+            self.assertTrue(text.startswith(gm.BULLET))
 
-    def test_it_is_a_page_of_its_own_after_the_items(self) -> None:
-        self.assertNotIn(stews.GROUP, gm.GROUPS)
-        page = [gm.Fact("Refills", "a"), gm.Fact(gm.ITEMS, "b"), gm.Fact(gm.ITEMS, "c"), gm.Fact("Other", "d")]
-        out = stews.with_recipes(page, 4)
-        n = len(stews.facts(4))
-        self.assertEqual(out[:3], page[:3])
-        self.assertEqual({f.group for f in out[3:3 + n]}, {stews.GROUP})
-        self.assertEqual(out[3 + n:], page[3:])
-        self.assertEqual(stews.with_recipes([gm.Fact("Other", "d")], 2)[1].group, stews.GROUP)
-
-    def test_the_window_shows_it_with_a_link(self) -> None:
-        for game in (1, 2, 3, 4, 5):
-            text = window.general_text(game)
-            lines = text.split("\n")
-            self.assertEqual(stews.GROUP in lines, game in stews.GAMES, game)
-            if game in stews.GAMES:
-                self.assertLess(lines.index(gm.ITEMS), lines.index(stews.GROUP))
+    def test_game_mechanics_is_not_changed(self) -> None:
+        import vv_game_mechanics_window as mechanics
         source = (ROOT / "src" / "vv_game_mechanics_window.py").read_text(encoding="utf-8")
-        self.assertIn("if line in gm.GROUPS or line == stews.GROUP:", source)   # the heading gets its link
+        self.assertNotIn("stew", source.lower().replace("stew pot", ""))
+        self.assertNotIn(stews.GROUP, gm.GROUPS)
+        for game in (2, 3, 4):
+            self.assertNotIn("\n" + stews.GROUP + "\n", mechanics.general_text(game))
 
+    def test_a_button_on_the_tools_tab_with_its_guide(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn('text="Stew Recipes...",', source)
+        self.assertIn("vv_stew_recipes_window.open_stew_recipes(self, None)", source)
+        self.assertIn('self._help_button(genealogy_tools, "stew_recipes")', source)
+        import json
+        guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))["controls"]
+        self.assertEqual(guide["stew_recipes"]["title"], "Stew Recipes")
+
+    def test_the_window_opens_with_three_tabs(self) -> None:
+        run = subprocess.run([sys.executable, "-c", TK_CHILD, str(ROOT / "src")], capture_output=True, text=True,
+                             timeout=120)
+        if run.returncode == NO_TK:
+            self.skipTest(f"no Tk display: {run.stderr.strip()}")
+        self.assertEqual(run.returncode, 0, run.stderr)
+        lines = run.stdout.strip().splitlines()
+        self.assertEqual(lines[0], "True 3 1")                               # opened at The Secret City
+        self.assertEqual(lines[1], "The Lost Children|The Secret City|The Tree of Life")
+        for row in lines[2:]:
+            number, scrolls, state, red, same = row.split()
+            self.assertEqual((scrolls, state, red, same), ("True", "disabled", "True", "True"), row)
+
+
+class Page(unittest.TestCase):
     def test_every_recipe_has_its_herbs_water_and_effect(self) -> None:
         for game, expected in ((2, 18), (3, len({p for *_, p in counts.VV3_COMBOS}) + 7), (4, 14)):
             found = recipes(game)
             self.assertEqual(len(found), expected, game)
             for title, subs in found:
                 with self.subTest(game=game, recipe=title.text):
-                    self.assertEqual([s.text.split(": ", 1)[0] + ": " for s in subs],
+                    self.assertEqual([s.text.split(": ", 1)[0] + ": " for s in subs[:3]],
                                      [stews.HERBS_LINE, stews.WATER_LINE, stews.DOES_LINE])
-                    self.assertTrue(all(len(s.text.split(": ", 1)[1]) > 3 for s in subs))
-                    self.assertTrue(title.text)
+                    self.assertTrue(all(len(s.text.split(": ", 1)[1]) > 3 for s in subs[:3]))
+                    self.assertTrue(all(s.text.startswith((stews.KILL_LINE, stews.PUZZLE_LINE, stews.REHEAT_LINE))
+                                        for s in subs[3:]))
+                    self.assertTrue(all(s.confirmed for s in subs[:3]))
 
     def test_the_water_is_said_for_every_recipe(self) -> None:
         for title, subs in recipes(2):
@@ -104,6 +152,62 @@ class Page(unittest.TestCase):
             self.assertNotIn("{He/She}", text)
             self.assertFalse(re.search(r"\b[0-9A-F]{6}\b", text), game)
             self.assertLessEqual(max(len(word) for word in text.split()), 40)     # word-wraps in the window
+            self.assertFalse(re.search(r"what it (is|was) doing", text))           # villagers are never "it"
+
+    def test_food_is_said_on_every_page(self) -> None:
+        self.assertIn("every stew takes 10 food", gm.render(stews.facts(2)))
+        self.assertIn("potions take no food", gm.render(stews.facts(3)))
+        vv4 = gm.render(stews.facts(4))
+        self.assertIn("takes 10 food from the store", vv4)
+        self.assertIn("the Grand Feast two (20 food)", vv4)
+        self.assertFalse(re.search(r"heat", vv4))              # the food count is not heat (re-traced)
+
+    def test_what_kills_and_what_is_unconfirmed(self) -> None:
+        """Making a villager sick can kill (the code); the health floors stay UNCONFIRMED (the owner, 2026-11-10:
+        "I could swear I killed villagers with just the stews")."""
+        for game, sick, floored in ((2, "Makes the eater sick", ("Nasty", "Burns")),
+                                    (3, "\"That potion was awful.\"", ("\"Oh, it burns!\"",
+                                                                       "\"He or she has a stomachache.\"",
+                                                                       "\"Yikes!\""))):
+            _t, subs = recipe(game, sick)
+            kill = [s for s in subs if s.text.startswith(stews.KILL_LINE)]
+            self.assertEqual(len(kill), 1)
+            self.assertTrue(kill[0].confirmed)
+            self.assertIn("can kill a villager who is not cured", kill[0].text)
+            for start in floored:
+                _t, subs = recipe(game, start)
+                kill = [s for s in subs if s.text.startswith(stews.KILL_LINE)]
+                self.assertEqual(len(kill), 1, start)
+                self.assertFalse(kill[0].confirmed, start)                       # shown UNCONFIRMED
+                self.assertIn("players have seen villagers die", kill[0].text)
+                self.assertNotIn("never below", subs[2].text)
+            self.assertIn("UNCONFIRMED  " + stews.KILL_LINE, gm.render(stews.facts(game)))
+        self.assertIn("None of these stews takes away health or makes anyone sick.", gm.render(stews.facts(4)))
+
+    def test_children_play(self) -> None:
+        title, subs = recipe(2, "Sweet smell")
+        self.assertEqual(title.text, "Sweet smell: makes children play")
+        self.assertIn("plays (dancing, jumping or running away, equally likely)", subs[2].text)
+
+    def test_stews_for_puzzles(self) -> None:
+        for game, names in ((2, ("The Stew", "The Sunken Gong Piece")), (3, ("The Sharks",)),
+                            (4, ("The Grand Feast", "Honoring the Tree", "Soap Invented", "Cloth Invented"))):
+            summary = next(f.text for f in stews.facts(game) if f.text.startswith("Stews for puzzles:"))
+            for name in names:
+                self.assertIn(name, summary)
+        self.assertTrue(recipe(2, "Puzzle: The Sunken Gong Piece")[0].confirmed)
+        for start in ("Puzzle: The Sharks", "Puzzle: The Grand Feast", "Puzzle: Honoring the Tree"):
+            game = 3 if "Sharks" in start else 4
+            for _t, subs in [r for r in recipes(game) if r[0].text.startswith(start)]:
+                self.assertTrue(any(s.text.startswith(stews.PUZZLE_LINE) and s.confirmed for s in subs), start)
+        _t, feast = recipe(4, "Puzzle: The Grand Feast")
+        words = " ".join(s.text for s in feast)
+        for need in ("one hot rock", "20 food", "blackberries", "a fish", "fruit", "a mushroom",
+                     "nobody has to eat it"):
+            self.assertIn(need, words)
+        self.assertTrue(any(not s.confirmed and "spicy, sweet and sweet" in s.text for s in feast))
+        _t, honor = recipe(4, "Puzzle: Honoring the Tree")
+        self.assertIn("20 villagers", " ".join(s.text for s in honor))
 
     def test_every_mix_is_listed_once(self) -> None:
         mixes = [m for ms in stews.VV2_RECIPES.values() for m in ms]
@@ -385,6 +489,60 @@ class TreeOfLife(unittest.TestCase):
         self.assertEqual(recipe[11], (0x22,) * 3)                           # pulpy vines
         # Each hot rock adds 10 heat.
         self.assertEqual(self.exe.instruction(0x42EAA7), "add dword ptr [esi + 0xb18], 0xa")
+
+
+class WhatTheCodeDoes(unittest.TestCase):
+    """The instructions behind the kill, food, boiling and puzzle lines (the owner's play outranks the floors, which
+    the page therefore shows UNCONFIRMED: these pin only what the code does)."""
+
+    def check(self, game: int, pins) -> None:
+        if not exe.available(game):
+            self.skipTest("the stock exe or capstone is missing")
+        image = exe.exe(game)
+        for address, instruction in pins:
+            self.assertEqual(image.instruction(address), instruction, (game, hex(address)))
+
+    def test_the_lost_children(self) -> None:
+        self.check(2, (
+            (0x4610AF, "mov dword ptr [edx + edi + 0x53c], 1"),       # stew 2: the eater falls sick
+            (0x461174, "cmp ecx, 3"), (0x46117B, "mov dword ptr [eax], 3"),   # stew 4: stopped at 3
+            (0x4614F4, "cmp eax, 3"), (0x4614FB, "mov dword ptr [esi], 3"),   # stew 18: stopped at 3
+            (0x42602B, "cmp eax, 4"), (0x426034, "cmp eax, 2"), (0x42603D, "cmp eax, 0x12"),   # not The Stew
+            (0x426056, "mov byte ptr [esi + 0x2e7a8], 1"),              # The Stew solved
+            (0x45ADB1, "cmp eax, 0xa"), (0x462372, "add dword ptr [eax + 0x2eaa4], -0xa"),   # 10 food
+            (0x46114E, "mov dword ptr [ecx + 0x3045c], edx"),           # stew 5 keeps its eater
+            (0x430029, "cmp dword ptr [esi + 0x3045c], edi"),           # ... whom the pond lets dive
+        ))
+
+    def test_the_secret_city(self) -> None:
+        self.check(3, ((0x426CB9, "cmp ebx, 2"), (0x426CBE, "mov ebx, 2")))   # a potion's loss stopped at 2
+
+    def test_the_tree_of_life(self) -> None:
+        self.check(4, (
+            (0x46ED53, "cmp eax, 0xa"), (0x46ED66, "push -0xa"),        # the food bin: 10 or more, takes 10
+            (0x42E0CE, "push 6"),                                       # ... carried into the stew as item 6
+            (0x42EAA2, "cmp ecx, 6"), (0x42EAA7, "add dword ptr [esi + 0xb18], 0xa"),   # +10 to the stew's count
+            (0x42DC9E, "cmp eax, 0xa"), (0x42DCA8, "cmp eax, 0x14"),    # ready at 10, the feast at 20
+            (0x42F981, "push 0x34"),                                    # the hot rock (item 0x34) ...
+            (0x42F4A0, "push 2"), (0x42F4AC, "push 0x18"),              # ... boils the pot (Boiling Water)
+            (0x42EEDC, "push 0xa"),                                     # the feast made: The Grand Feast
+            (0x4366EC, "cmp dword ptr [esp], 0x14"), (0x4366F2, "push 0xd"),   # 20 honoring: Honoring the Tree
+            (0x46F8AC, "call 0x42dde0"), (0x43332C, "call 0x42dd80"),   # blackberries, a fish ...
+            (0x4349A8, "call 0x42dda0"), (0x413233, "call 0x42dd60"),   # ... fruit, a mushroom for the feast
+        ))
+        image = exe.exe(4)
+        # Which item sets which feast flag: the pot's drop switch 0x42EABE (byte table 0x42EB4C -> 0x42EB38).
+        flags = {}
+        for item in range(0x79):
+            case = image.raw[image.off(0x42EB4C + item)]
+            target = image.u32(0x42EB38 + 4 * case)[0]
+            if target != 0x42EB2E:
+                flags[item] = image.instruction(target)
+        self.assertEqual(flags, {0x00: "mov byte ptr [esi + 0xb1d], 1", 0x37: "mov byte ptr [esi + 0xb1f], 1",
+                                 0x38: "mov byte ptr [esi + 0xb1e], 1", 0x76: "mov byte ptr [esi + 0xb1c], 1",
+                                 0x77: "mov byte ptr [esi + 0xb1c], 1", 0x78: "mov byte ptr [esi + 0xb1c], 1"})
+        self.assertEqual(exe.text(4, 0x197), "Adding to the stew")
+        self.assertEqual(exe.text(4, 0x196), "Taking a hot rock to the pot")
 
 
 if __name__ == "__main__":
