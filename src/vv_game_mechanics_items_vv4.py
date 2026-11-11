@@ -65,7 +65,7 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_food_pays_like_earlier_games", "vv4_preferred_job_graves", "vv4_harder_fishing_unlock",
                          "vv4_collectible_spawn_like_vv3",
                          "vv4_sickness_multiplier", "vv4_sickness_like_vv3",
-                         "vv4_yellow_fruit_trees_limited",
+                         "vv4_yellow_fruit_trees_limited", "vv4_yellow_fruit_refills_partially",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"

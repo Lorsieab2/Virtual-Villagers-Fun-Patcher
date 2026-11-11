@@ -69,10 +69,11 @@ BASE = 1_000_000
 @functools.lru_cache(maxsize=None)
 def render(mode: str, expanded: bool = False) -> bytes:
     """The public catalog of The Secret City (the two schedules ship no executable bytes, so
-    the image is the same with either; the companion is mapped beside it)."""
+    the image is the same with either; the companion is mapped beside it), without All Fruit
+    Trees Refill to Full, whose refills tests/test_vv3_fruit_trees_refill_to_full.py covers."""
     build = {b.id: b for b in patcher.load_builds()}["vv3"]
     ids = [p.id for p in [alt for alt in patcher.load_public_fun_patches() if alt.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS]
-           if p.game_id == "vv3" and p.id not in (TOGETHER, TURNS)
+           if p.game_id == "vv3" and p.id not in (TOGETHER, TURNS, "vv3_fruit_trees_refill_to_full")
            and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)]
     data, _ = patcher.render_patched_bytes(both_factions.stock_exe(), build, mode, ids)
     return bytes(data)

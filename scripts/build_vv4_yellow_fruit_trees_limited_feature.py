@@ -1,4 +1,5 @@
-"""Write "Yellow Fruit Trees are No Longer Unlimited" (The Tree of Life) -- data/vv4_yellow_fruit_trees_limited_feature.json.
+"""Write "Yellow Fruit Trees are No Longer Unlimited" (The Tree of Life) -- data/vv4_yellow_fruit_trees_limited_feature.json
+-- and "Yellow Breadfruit Refills Partially Every Time", which needs it -- data/vv4_yellow_fruit_refills_partially_feature.json.
 
 The owner (2026-11-08): the Cooking Pit's yellow fruit tree gets a limited supply -- at most 1,000 fruit, refilled to
 full every 40 age units, like A New Home's and The Lost Children's crops; 3 fruit for each trip's food (and each
@@ -39,6 +40,16 @@ ART_SIZE, ART_X, ART_Y = 256, 0, 1664     # MapX0Y3.jpg is tile (0, 3) at (0, 15
 SIDECAR = ("Virtual Villagers Fun Patcher\\Save <S>\\Data\\Fruit Trees\\"
            "Virtual Villagers 4 Yellow Fruit Tree - Save <S>.dat")
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
+
+# Yellow Breadfruit Refills Partially Every Time (the owner, 2026-11-11): with the limited tree, refill at The Secret
+# City's pace -- every 30 age units (3 hours on Normal) the tree gains floor(units x 37 / 10), 111, up to 1,000 --
+# instead of to full every 40.  The same companion does it (FS_PARTIAL_* in its source) while the row's one file, the
+# flag below, is in the patcher's folder; the row needs the limited tree (its dependency) and ships no code.
+PARTIAL_ID = "vv4_yellow_fruit_refills_partially"
+PARTIAL_NAME = "Yellow Breadfruit Refills Partially Every Time"
+PARTIAL_FLAG = "VVFP VV4 Fruit Partial Refill.txt"
+PARTIAL_UNITS, PARTIAL_PER_10_UNITS = 30, 37
+PARTIAL_GAIN = PARTIAL_UNITS * PARTIAL_PER_10_UNITS // 10        # 111
 
 # (VA, stock bytes, the routine) -- each a jump to the companion's stub, nops after it.
 SITES = (
@@ -130,7 +141,10 @@ def description() -> str:
         "The yellow fruit tree of the Cooking Pit no longer gives fruit without end. It holds at most 1,000 fruit "
         "and is refilled to full every 40 age units (4 hours of play on Normal speed, 2 on Fast, 6 hours 40 "
         "minutes on Slow), counted as the game counts its villagers' ages, so time away (as far as the game "
-        "counts it) and Time Warp count too -- like A New Home's and The Lost Children's crops. Each fruit trip "
+        "counts it) and Time Warp count too -- like A New Home's and The Lost Children's crops. "
+        f"**With \"{PARTIAL_NAME}\" ticked too, it is not refilled to full: it gains {PARTIAL_GAIN} fruit every "
+        f"{PARTIAL_UNITS} age units (3 hours on Normal), up to 1,000, as The Secret City's fruit trees do.** "
+        "Each fruit trip "
         "takes 3 fruit when its food is put in the food bin, and a stomped fruit that goes into the stew takes "
         "3 when it is put in the pot; a failed Farming check or an interrupted trip takes nothing. While catching "
         "up, each Cooking Pit bonus takes 5 fruit, and pays nothing when fewer than 5 are left. With fewer than 3 "
@@ -212,7 +226,10 @@ def row(dll_sha: str) -> dict:
             "processed, re-chosen when it is no longer alive -- health 0 or the death flag +0x1CC7, buried "
             "or not -- or its record changes) counts; at 40 the tree is set to 1,000 "
             "and the count starts again. This is live and catch-up alike, so time away as the game's aging "
-            "counts it (it clamps a long absence) and Time Warp both count.",
+            "counts it (it clamps a long absence) and Time Warp both count. With " + PARTIAL_ID + " (its file "
+            f"\"{PARTIAL_FLAG}\" in the patcher's folder when the game starts) the count goes to {PARTIAL_UNITS} "
+            f"instead and the tree gains floor(count x {PARTIAL_PER_10_UNITS} / 10) -- {PARTIAL_GAIN} -- up to "
+            "1,000.",
             "A Custom Island Event's \"Refill the food sources\" (VVFP Story Upgrades.dll, c4_refill) calls this "
             "companion's export VvfpYellowFruitRefill (found with GetProcAddress; nothing when this companion is "
             "not loaded): the tree is set to 1,000 for the village on screen (read from its file first when the "
@@ -297,6 +314,66 @@ def row(dll_sha: str) -> dict:
     }
 
 
+def partial_description() -> str:
+    return (
+        f"With \"{NAME}\", the Cooking Pit's yellow fruit tree is no longer refilled to full every 4 hours: it "
+        f"refills at The Secret City's pace instead, gaining {PARTIAL_GAIN} fruit every 3 hours of play on Normal "
+        "speed (1 hour 30 minutes on Fast, 5 hours on Slow), up to 1,000 -- 37 fruit an hour, as The Secret City's "
+        "fruit trees gain. The time is counted as the game counts its villagers' ages, so time away (as far as the "
+        "game counts it) and Time Warp count too, in proportion. No technology changes the amount. The "
+        f"breadfruit island event (+{EVENT_GAIN}), a Custom Island Event's refill (to 1,000), the fruit each trip "
+        "and bonus takes, the refusals at an empty tree and the trees' pictures of the fruit left are unchanged. "
+        f"**Needs \"{NAME}\": ticking this patch ticks it too, and unticking that one unticks this one.** "
+        "**Off by default, and off in Owner's Defaults.** **Unverified in play: the effect has not been tested "
+        f"live.** The patch adds one small file, \"{PARTIAL_FLAG}\", to the patcher's folder, which tells "
+        f"\"{DLL_NAME}\" to refill this way; the save and the tree's own file are kept as before."
+    )
+
+
+def partial_row() -> dict:
+    return {
+        "id": PARTIAL_ID,
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
+        "game_id": "vv4",
+        "name": PARTIAL_NAME,
+        "description": partial_description(),
+        "output_tag": "Breadfruit Refills Partially",
+        "dependencies": [ID],
+        "behavior_changes": [
+            f"\"{DLL_NAME}\" (the {ID} row's companion) checks at start (VvfpStartup) whether \"{PARTIAL_FLAG}\" "
+            "is in the patcher's folder (GetFileAttributesW, by full path from the executable's own; the contents "
+            "are never read). When it is, the tree's refill count (one per age unit the life tick 0x468430 "
+            f"processes for the reference villager, at 0x468AD6) refills at {PARTIAL_UNITS} instead of 40: the tree "
+            f"gains floor(count x {PARTIAL_PER_10_UNITS} / 10) fruit -- {PARTIAL_GAIN} at {PARTIAL_UNITS} -- up "
+            "to 1,000, and the count starts again. That is The Secret City's fruit-tree refill (0x434760 in its "
+            "executable: floor(elapsed x 37 / 3600) once 10,800 game seconds have passed), an age unit being 360 "
+            "game seconds (40 are 4 hours on Normal). A count of 30 to 39 kept by the refill to full (a file "
+            "written without this row) is paid in proportion at the next unit.",
+        ],
+        "explicit_non_changes": [
+            "No executable byte is patched and no code is added: the row's only file is the flag; the companion and "
+            f"its sites are the {ID} row's.",
+            "The tree's file keeps its format (the count since the last refill is below 40 either way), so the "
+            "patch can be ticked or unticked at any time; the save is never written.",
+            "The fruit taken by trips, stews and catch-up bonuses, the refusals, the dispatcher, the island "
+            "event's +350, a Custom Island Event's refill to 1,000, the pictures and the click readout are "
+            f"unchanged. No technology changes the {PARTIAL_GAIN}: Food Mastery multiplies the food paid, never "
+            "the fruit.",
+        ],
+        "evidence_status": ("implemented in the companion's source; the refill emulated with and without the flag "
+                            "(on time, after a long absence, at the cap, a count carried over from the refill to "
+                            "full) in tests/test_vv4_yellow_fruit_refills_partially.py; runtime/player confirmation "
+                            "pending"),
+        "companion_files": [
+            {"source": f"assets/fruit_supply/{PARTIAL_FLAG}", "destination": PARTIAL_FLAG,
+             "sha256": sha(ROOT / "assets" / "fruit_supply" / PARTIAL_FLAG)},
+        ],
+        "patches": [],
+    }
+
+
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest().upper()
 
@@ -307,6 +384,9 @@ def main() -> None:
                         str(ROOT / "scripts" / "build_vvfp_vv4_fruit_supply.ps1")], check=True)
     out = ROOT / "data" / f"{ID}_feature.json"
     out.write_text(json.dumps(row(sha(DLL)), indent=2) + "\n", encoding="utf-8", newline="\n")
+    print("wrote", out.relative_to(ROOT))
+    out = ROOT / "data" / f"{PARTIAL_ID}_feature.json"
+    out.write_text(json.dumps(partial_row(), indent=2) + "\n", encoding="utf-8", newline="\n")
     print("wrote", out.relative_to(ROOT))
 
 

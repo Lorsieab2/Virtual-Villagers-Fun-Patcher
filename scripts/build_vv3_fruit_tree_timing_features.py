@@ -38,7 +38,9 @@ COMMON_TAIL = (
     "Warp pay the same fruit as the stock game. The save keeps every tree's own stock refill "
     "time, so without this patch the trees simply go back to their own times, with nothing lost; "
     "the patch's schedule is kept in its own file in the save's folder (" + SIDECAR + ") and "
-    "Start Over deletes it."
+    "Start Over deletes it. **With \"All Fruit Trees Refill to Full\" ticked too, each of this "
+    "patch's refills fills the tree to 1,000 instead of adding the stock amount (a tree that "
+    "refills early is filled early).**"
 )
 
 
@@ -76,15 +78,15 @@ TURNS_LEAD = (
 BEHAVIOUR_COMMON = [
     "The fruit trees' update 0x434760 (vtable 0x49D1D0 slot 8, run by the world objects' update 0x435880, live and after catch-up and Time Warp): its refill loop (0x43478A..0x43481A) is replaced by the companion's pass, which goes on to the stock tail at 0x43481B (the planting-puzzle check and the removal of dead trees, 0x43487F, unchanged).",
     "The pass keeps every tree's own stock timer (record +0x28) exactly as the stock loop moves it -- set to now whenever it is at least the interval old -- so the save holds the timers the game without this patch would hold.",
-    "The fruit follows the patch's schedule: each tree has the time its fruit is paid up to and the moment of its next refill. At that moment it gains floor((now - paid up to) x factor / 3600), the stock formula with the stock factor (37, or the immediate at 0x4347CE at Nature 1 or more: 42, or 56 with the Nature patch), and both move on (paid up to = now, next = now + the interval: 10,800 s, or 8,100 s at Nature 1 or more with the Nature patch, whose test at 0x4347AA the companion recognises). Every tree's fruit is held to 1,000 on every pass, as the stock loop does.",
+    "The fruit follows the patch's schedule: each tree has the time its fruit is paid up to and the moment of its next refill. At that moment it gains floor((now - paid up to) x factor / 3600), the stock formula with the stock factor (37, or the immediate at 0x4347CE at Nature 1 or more: 42, or 56 with the Nature patch), and both move on (paid up to = now, next = now + the interval: 10,800 s, or 8,100 s at Nature 1 or more with the Nature patch, whose test at 0x4347AA the companion recognises). Every tree's fruit is held to 1,000 on every pass, as the stock loop does. With \"All Fruit Trees Refill to Full\" (vv3_fruit_trees_refill_to_full) the 7 bytes at 0x4347EB are its mov eax,0x3E8 / nop / nop instead of the stock add, and the companion then sets the tree's fruit to 1,000 at each refill instead of adding the stock share.",
     "A tree the companion has not seen (newly planted, or every tree of a save without a matching entry) starts from its own stock timer and joins the schedule; a removed tree leaves it (trees are matched by position, planted time and kind, so the list closing up does not mix them).",
     "Saving (0x433EC0, before the stock saver): the schedule is written to \"" + SIDECAR + "\" with an FNV-1a 64 fingerprint of the trees' saved bytes (header, records, count), the last 16 saves kept, written atomically (a temporary file moved over it). Loading (0x433E40, after the stock loader): only the entry written with exactly these trees by this same patch is used; otherwise every tree starts from its stock timer.",
 ]
 
 NON_CHANGES_COMMON = [
-    "This row changes no executable bytes: the companion verifies the stock bytes at its three sites (0x43478A, 0x433E40, 0x433EC0) and that the interval test and factors are the stock ones or the Nature patch's exactly, and writes its detours at run time, all together or none; a different build of the game installs nothing.",
+    "This row changes no executable bytes: the companion verifies the stock bytes at its three sites (0x43478A, 0x433E40, 0x433EC0) and that the interval test and factors are the stock ones or the Nature patch's exactly and the refill's add (0x4347EB) the stock one or All Fruit Trees Refill to Full's exactly, and writes its detours at run time, all together or none; a different build of the game installs nothing.",
     "The save is stock: the trees' records, their stock timers included, are written by the stock saver; without the companion the stock loop continues from those timers.",
-    "No tree earns fruit faster than the stock rate: the amount is the stock formula for the time since its own last refill, and the 1,000 cap is unchanged.",
+    "No tree earns fruit faster than the stock rate: the amount is the stock formula for the time since its own last refill (or, with All Fruit Trees Refill to Full, the tree filled to 1,000, as that patch's own refill does), and the 1,000 cap is unchanged.",
     "Planting (0x4349FD), the 8-hour growth (0x434030), the pickable checks, the island event refill (0x415AD0) and the fruit job are unchanged.",
     "Nothing is written to a villager record.",
 ]

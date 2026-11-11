@@ -54,6 +54,11 @@ FRUIT_FULL, FRUIT_TRIP, FRUIT_BONUS, FRUIT_REFILL_UNITS = 1000, 3, 5, 40
 FRUIT_SAVES = "Virtual Villagers Fun Patcher"
 FRUIT_FILE = "Data\\Fruit Trees\\Virtual Villagers 4 Yellow Fruit Tree - Save {slot}.dat"
 FRUIT_MAGIC = 0x46345656            # 'V' 'V' '4' 'F'
+# Yellow Breadfruit Refills Partially Every Time (needs the patch above; the same companion, FS_PARTIAL_*): every 30
+# age units the tree gains floor(units x 37 / 10) -- 111 -- up to 1,000, The Secret City's fruit-tree pace.
+PARTIAL = "vv4_yellow_fruit_refills_partially"
+FRUIT_PARTIAL_UNITS, FRUIT_PARTIAL_PER_10_UNITS = 30, 37
+FRUIT_PARTIAL_GAIN = FRUIT_PARTIAL_UNITS * FRUIT_PARTIAL_PER_10_UNITS // 10     # 111
 
 # The recipes 0x42ECF0 (herbs 0x1F spicy, 0x20 sweet, 0x21 soapy, 0x22 pulpy vines) and what each stew does, the
 # stew's effect switch 0x41DEE0 (CPotion, vtable 0x48D5C4): 5 sends the villager "Burping up soap bubbles"
@@ -360,12 +365,18 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                            "village already has still count"))
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
-    every_refill = life.every_real(FRUIT_REFILL_UNITS * 360, speed_value).removeprefix("every ")
+    # With Yellow Breadfruit Refills Partially Every Time the tree gains 111 every 30 units instead of filling every 40.
+    partial = fruit_patch is True and village.has(PARTIAL) is True
+    refill_units = FRUIT_PARTIAL_UNITS if partial else FRUIT_REFILL_UNITS
+    every_refill = life.every_real(refill_units * 360, speed_value).removeprefix("every ")
+    refill_rule = (f"gaining {FRUIT_PARTIAL_GAIN} fruit every {FRUIT_PARTIAL_UNITS} age units (with \"Yellow "
+                   "Breadfruit Refills Partially Every Time\")" if partial else
+                   f"refilled to full every {FRUIT_REFILL_UNITS} age units")
     if fruit_patch is not False:
         add("Food sources", gm.patch_words(
             village, YELLOW_FRUIT,
-            f"the yellow fruit tree holds at most {FRUIT_FULL:,} fruit, refilled to full every {FRUIT_REFILL_UNITS} "
-            f"age units ({every_refill}; time away as the game counts it and Time Warp count too); "
+            f"the yellow fruit tree holds at most {FRUIT_FULL:,} fruit, {refill_rule} "
+            f"({every_refill}; time away as the game counts it and Time Warp count too); "
             f"a fruit trip takes {FRUIT_TRIP} fruit when its food goes in the food bin (Food Mastery multiplies "
             f"the food, not the fruit taken), a stomped fruit put in the stew takes {FRUIT_TRIP}, a catch-up "
             f"Cooking Pit bonus takes {FRUIT_BONUS} and pays nothing with fewer left; with fewer than {FRUIT_TRIP} "
@@ -382,12 +393,14 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     f"the tree is full ({FRUIT_FULL:,} fruit) when the village is next played.",
                     gm.SAVE)
             else:
-                left = FRUIT_REFILL_UNITS - supply[1]
+                left = max(1, refill_units - supply[1])
                 shown = fruit_shown(supply[0])
+                next_refill = (f"gains {fruit_partial_gain(supply[1] + left)} fruit (up to {FRUIT_FULL:,})"
+                               if partial else "refilled to full")
                 add("Food sources", f"The yellow fruit tree's supply (the patch's file, as of the last save): "
                                     f"{supply[0]:,} of {FRUIT_FULL:,} fruit left"
                                     + (f" (the trees show: {shown})" if shown else "")
-                                    + f"; refilled to full after {left} more "
+                                    + f"; {next_refill} after {left} more "
                                     f"age units ({gm.duration(gm.real_seconds(left * 360, speed_value))} of play on "
                                     f"{on} speed).", gm.SAVE)
 
@@ -402,7 +415,16 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                       f"every {FRUIT_REFILL_UNITS} age units ({every_refill}), counted "
                                       "as the game counts its villagers' ages, live, while catching up and with "
                                       "Time Warp; a Custom Island Event that refills the food sources also fills "
-                                      "it to full (the 40-unit count runs on)"))
+                                      "it to full (the 40-unit count runs on)") if not partial else (
+            f"The yellow fruit tree gains {FRUIT_PARTIAL_GAIN} fruit every {FRUIT_PARTIAL_UNITS} age units "
+            f"({every_refill}), up to {FRUIT_FULL:,} (\"Yellow Fruit Trees are No Longer Unlimited\" with \"Yellow "
+            "Breadfruit Refills Partially Every Time\": The Secret City's 37 fruit an hour), counted as the game "
+            "counts its villagers' ages, live, while catching up and with Time Warp, so time away pays in "
+            "proportion; no technology changes it. A Custom Island Event that refills the food sources fills it to "
+            "full (the count runs on)."))
+    if fruit_patch is True and village.has(PARTIAL) is None:
+        add("Refills", gm.patch_words(village, PARTIAL, f"the yellow fruit tree gains {FRUIT_PARTIAL_GAIN} fruit "
+                                      f"every {FRUIT_PARTIAL_UNITS} age units instead of being refilled to full"))
 
     # -- Mushrooms / Collectibles --------------------------------------------------------
     # The appearance: 0x413EE0 (at most 2 at a time, 0x413EFA); a mushroom when rand(100) < 30, or always in rain
@@ -594,18 +616,20 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         paying = sum(1 for f in known if f > 25)
         limited = ""
         if fruit_patch is True:
-            # 1,000 fruit every 40 age units at 5 a bonus: at most 200 bonuses a refill, 5 a unit on average.
-            cap = FRUIT_FULL / FRUIT_BONUS / FRUIT_REFILL_UNITS * food_each
+            # 1,000 fruit every 40 age units at 5 a bonus: at most 200 bonuses a refill, 5 a unit on average (with the
+            # partial refill 111 every 30 units: 3.7 fruit a unit).
+            gives, every = (FRUIT_PARTIAL_GAIN, FRUIT_PARTIAL_UNITS) if partial else (FRUIT_FULL, FRUIT_REFILL_UNITS)
+            cap = gives / FRUIT_BONUS / every * food_each
             if total > cap:
                 limited = (f" With Yellow Fruit Trees are No Longer Unlimited each bonus takes {FRUIT_BONUS} fruit "
-                           f"and the tree gives {FRUIT_FULL:,} every {FRUIT_REFILL_UNITS} age units, so at most "
+                           f"and the tree gives {gives:,} every {every} age units, so at most "
                            f"{cap:,.1f} food a unit on average, not {total:,.1f}"
                            + (f" (now {supply[0]:,} fruit left)" if supply is not None else "") + ".")
                 total = cap
             else:
                 limited = (f" With Yellow Fruit Trees are No Longer Unlimited each bonus takes {FRUIT_BONUS} fruit; "
-                           f"this village's bonuses fit in the tree's {FRUIT_FULL:,} fruit every "
-                           f"{FRUIT_REFILL_UNITS} age units.")
+                           f"this village's bonuses fit in the tree's {gives:,} fruit every "
+                           f"{every} age units.")
         return total, (
             f"The Cooking Pit while catching up (it is restored): after each counted age unit's job turns, every "
             f"villager who had them (aged 14 or more, not sick or pregnant; all but the last 2 units) adds {food_each} "
@@ -646,7 +670,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                 fruit -= bonuses * FRUIT_BONUS
                 paid += bonuses
             since += 1
-            if since >= FRUIT_REFILL_UNITS:
+            if partial and since >= FRUIT_PARTIAL_UNITS:
+                since, fruit = 0, min(float(FRUIT_FULL), fruit + fruit_partial_gain(since))
+            elif not partial and since >= FRUIT_REFILL_UNITS:
                 since, fruit = 0, float(FRUIT_FULL)
         return credited - naive + (fruit - start) * ctx.mastery, paid * food_each
 
@@ -661,16 +687,20 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              verified=False)]
                       if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else [])
                 + ([life.Source("The Cooking Pit fruit", supply[0] if supply is not None else FRUIT_FULL, FRUIT_FULL,
-                                FRUIT_FULL / FRUIT_REFILL_UNITS, None,
-                                f"refilled to {FRUIT_FULL:,} every {FRUIT_REFILL_UNITS} age units "
-                                f"({life.every_real(FRUIT_REFILL_UNITS * 360, speed_value)}); a fruit trip takes "
+                                (FRUIT_PARTIAL_GAIN if partial else FRUIT_FULL) / refill_units, None,
+                                (f"+{FRUIT_PARTIAL_GAIN}" if partial else f"refilled to {FRUIT_FULL:,}")
+                                + f" every {refill_units} age units "
+                                f"({life.every_real(refill_units * 360, speed_value)}); a fruit trip takes "
                                 f"{FRUIT_TRIP} for its {FRUIT_TRIP} food, and a trip can start only while one of the "
                                 "pit's 4 fruit spots is free",
-                                verified=gm.CODE, step=FRUIT_FULL,
-                                interval=gm.real_seconds(FRUIT_REFILL_UNITS * 360, speed_value),
+                                verified=gm.CODE, step=FRUIT_PARTIAL_GAIN if partial else FRUIT_FULL,
+                                interval=gm.real_seconds(refill_units * 360, speed_value),
                                 first_in=gm.real_seconds(
-                                    (FRUIT_REFILL_UNITS - (supply[1] if supply is not None else 0)) * 360,
+                                    max(1, refill_units - (supply[1] if supply is not None else 0)) * 360,
                                     speed_value),
+                                **({"first_step": fruit_partial_gain(
+                                    max(refill_units, (supply[1] if supply is not None else 0) + 1))}
+                                   if partial else {}),
                                 rule=gm.CODE)] if pit and fruit_patch is True else [])
                 + ([life.Source("The Cooking Pit fruit", None, unlimited=True,
                                 # The fruit spots: 0x4343A0.
@@ -718,6 +748,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=base))
     return out
+
+
+def fruit_partial_gain(units: int) -> int:
+    """The fruit a partial refill adds after `units` age units (the companion's floor(units x 37 / 10)), before the
+    1,000 cap."""
+    return units * FRUIT_PARTIAL_PER_10_UNITS // 10
 
 
 def fruit_supply_file(village: gm.Village) -> Path:

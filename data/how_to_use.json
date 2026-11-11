@@ -290,6 +290,14 @@
       ]
     },
     {
+      "ids": ["vv4_yellow_fruit_refills_partially"],
+      "guide": [
+        "Off by default and in Owner's Defaults. Needs Yellow Fruit Trees are No Longer Unlimited (ticking this ticks it).",
+        "The yellow fruit tree no longer refills to full every 4 hours: it gains 111 fruit every 3 hours on Normal speed, up to 1,000, as The Secret City's fruit trees do.",
+        "Time away and Time Warp count in proportion. The breadfruit island event (+350) and a Custom Island Event's refill to 1,000 work as before."
+      ]
+    },
+    {
       "ids": ["vv4_louder_wind_flutes"],
       "guide": [
         "On by default. The wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so you hear them over the music.",
@@ -795,6 +803,15 @@
         "All the fruit trees refill at the same moment: when the first one is due, the others refill with it.",
         "Each tree still gets the normal amount for its own time, so the trees give as much fruit as before.",
         "Cannot be ticked with Fruit Trees Take Turns Refilling: tick only one.",
+        "Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv3_fruit_trees_refill_to_full"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Every fruit tree refill fills the tree to 1,000 instead of adding 111 (126 with Nature).",
+        "The trees still refill every 3 hours (2 hours 15 minutes at Nature level 1 with Nature Level 1 Actually Replenishes Food Sources Faster).",
+        "Works with All Fruit Trees Refill at the Same Time and Fruit Trees Take Turns Refilling: their refills fill the trees too.",
         "Nothing to click. Not yet tested in play."
       ]
     },
