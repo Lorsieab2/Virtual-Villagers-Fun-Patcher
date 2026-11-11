@@ -46,6 +46,11 @@ GAME_DIR = "C:\\Games\\Virtual Villagers\\"
 PATCHER_FILES = "Virtual Villagers Fun Patcher Files\\"
 # The fake kernel32 module the stub finds with GetModuleHandleA.
 KERNEL32_BASE = 0x7B000000
+# The game's sound library: every game imports fmod.dll directly, so Windows has loaded it before any of the
+# game's code runs, and a companion may look it up with GetModuleHandleA (Louder Wind Flutes reads four FMOD
+# functions' addresses there).  Its functions are stubs that pop their stdcall arguments ("_Name@N") and are
+# never called before WinMain.
+FMOD_BASE = 0x7B100000
 # The thread information block (fs) and the descriptor table that maps it.
 TEB = 0x7FFDE000
 GDT = 0x00030000
@@ -121,7 +126,9 @@ class StartupMachine:
         self._next_stub = STUBS
         mu.mem_map(STUBS, 0x10000)
         mu.mem_map(KERNEL32_BASE, 0x1000)
+        mu.mem_map(FMOD_BASE, 0x1000)
         self.kernel32_stubs: dict[str, int] = {}
+        self.fmod_stubs: dict[str, int] = {}
         self.load_flags: list[tuple[int, int]] = []
         self.modules: dict[str, Module] = {}
         self._next_base = MODULE_BASE
@@ -283,6 +290,10 @@ class StartupMachine:
                 self.calls.append((name, text, False))
                 ret(KERNEL32_BASE)
                 return
+            if name.startswith("GetModuleHandle") and text.lower() == "fmod.dll":
+                self.calls.append((name, text, False))
+                ret(FMOD_BASE)
+                return
             base_name = text.replace("/", "\\").split("\\")[-1]
             # A load counts only by its full path in the patcher's folder,
             # exactly as Windows would find the file there (the ANSI API's
@@ -311,6 +322,20 @@ class StartupMachine:
                 self.stub_names[stub] = proc
                 self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", STDCALL[proc]))
                 self.kernel32_stubs[proc] = stub
+            ret(stub)
+        elif name == "GetProcAddress" and arg(0) == FMOD_BASE:
+            proc = cstr(arg(1))
+            self.calls.append((name, "fmod.dll", proc))
+            if "@" not in proc:
+                ret(0)
+                return
+            stub = self.fmod_stubs.get(proc)
+            if stub is None:
+                stub = self._next_stub
+                self._next_stub += 16
+                self.stub_names[stub] = "fmod.dll!" + proc
+                self.mu.mem_write(stub, b"\xC2" + struct.pack("<H", int(proc.rsplit("@", 1)[1])))
+                self.fmod_stubs[proc] = stub
             ret(stub)
         elif name == "GetProcAddress":
             module = self.module_at(arg(0))
