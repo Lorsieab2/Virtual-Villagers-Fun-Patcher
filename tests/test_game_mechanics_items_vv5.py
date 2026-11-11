@@ -211,14 +211,14 @@ class Pinned(unittest.TestCase):
         self.assertIn("With the patcher (\"Enable Origins-Exclusive Features\", on by default)", text)
         self.assertIn("With the patcher (\"Story / Cheat Upgrades\", on by default)", text)
         # The settled rules: Grant Youth delays a pregnant villager's birth (described, not fixed).
-        self.assertIn("the birth comes that much later (0x41FEB0)", text)
+        self.assertIn("the birth comes that much later.", text)
 
     def test_key_numbers(self) -> None:
         text = gm.render(items.item_facts())
         for words in ("÷ 11", "÷ 9", "÷ 7 (catching up ÷ 5)", "5.25%", "1.75%", "a brown mushroom 6 becomes 9",
                       "a red one 70", "0.281% (1 in 356)", "0.171% (1 in 585)", "0.0641% (1 in 1,560)",
-                      "34.03% at skill 0", "takes 5,000 tech points (0x46CEC7)", "0 to 28, 0x419CE0",
-                      "fixes it 70% of the time (0x463F47)", "every mushroom picked up"):
+                      "34.03% at skill 0", "changing clothes takes 5,000 tech points", "29 outfits (0 to 28)",
+                      "fixes it 70% of the time;", "every mushroom picked up"):
             self.assertIn(words, text)
 
     def test_default_off_matches_the_patcher(self) -> None:
