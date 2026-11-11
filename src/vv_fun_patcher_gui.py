@@ -53,8 +53,8 @@ import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
 from vv_scrollbars import fill_or_keep_width, horizontal_bar, page_width, scroll_sideways, scrolled_listbox, shifted
 
-# The main window's usual width. At it and wider the page fills the window; a window made narrower
-# keeps the page at this width and scrolls sideways (the owner, 2026-11-11).
+# The main window's usual width. Its page needs no more than this (rows wrap or flow), so at it and
+# wider there is no sideways bar; a window made narrower scrolls sideways (the owner, 2026-11-11).
 DEFAULT_WINDOW_WIDTH = 940
 
 # Link colours: the resting blue and the hover red.
@@ -1518,7 +1518,7 @@ class App(tk.Tk):
             self._help_button(
                 mode_choice, vv_how_to_use.mode_key(mode.id), mode.name
             ).pack(side="left", padx=(4, 0))
-            ttk.Label(mode_box, text=mode.description, wraplength=650).grid(
+            ttk.Label(mode_box, text=mode.description, wraplength=620).grid(
                 row=row, column=1, sticky="w", pady=3
             )
         self.mode_detail_var = tk.StringVar()
@@ -1559,52 +1559,68 @@ class App(tk.Tk):
         self._help_button(fun_actions, "deselect_all").pack(side="left", padx=(2, 0))
         # The owner: "put a button to easily tick and untick certain patches in all 5 games.
         # like in a separate settings menu."  On a row of its own: beside the four buttons above,
-        # the row is wider than the window.
+        # the row is wider than the window.  Its five settings (each with its "?") flow onto as many
+        # lines as the window needs, like words in a paragraph: on one line they were about 1,270
+        # pixels wide, so at the usual 940-pixel window the sliders were cut off (the owner, 2026-11-11).
         fun_settings = ttk.Frame(mode_box)
-        fun_settings.grid(row=fun_row + 2, column=1, sticky="w", pady=(0, 5))
+        fun_settings.grid(row=fun_row + 2, column=1, sticky="ew", pady=(0, 5))
+        selection_group = ttk.Frame(fun_settings)
+        selection_group.pack(side="left", padx=(0, 16))
         ttk.Button(
-            fun_settings,
+            selection_group,
             text="Patch Selection Settings...",
             command=self._open_patch_selection_settings,
         ).pack(side="left")
-        self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
+        self._help_button(selection_group, "patch_selection_settings").pack(side="left", padx=(2, 0))
         # Use Unicode Font (overrides in-game fonts): the typeface it draws with (the owner, 2026-11-01:
         # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.
-        ttk.Label(fun_settings, text="Unicode Font:").pack(side="left", padx=(16, 4))
+        font_group = ttk.Frame(fun_settings)
+        font_group.pack(side="left", padx=(0, 16))
+        ttk.Label(font_group, text="Unicode Font:").pack(side="left", padx=(0, 4))
         self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
         try:
             families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
         except tk.TclError:
             families = [UNICODE_FONT_DEFAULT_FACE]
-        unicode_font_box = ttk.Combobox(fun_settings, textvariable=self.unicode_font_var, values=families, width=28)
+        unicode_font_box = ttk.Combobox(font_group, textvariable=self.unicode_font_var, values=families, width=28)
         unicode_font_box.pack(side="left")
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
-        self._help_button(fun_settings, "unicode_font").pack(side="left", padx=(2, 0))
+        self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
         # 2-10x Tech Cost: the multiplier, a slider of whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="2-10x Tech Cost:").pack(side="left", padx=(16, 4))
+        tech_cost_group = ttk.Frame(fun_settings)
+        tech_cost_group.pack(side="left", padx=(0, 16))
+        ttk.Label(tech_cost_group, text="2-10x Tech Cost:").pack(side="left", padx=(0, 4))
         self.tech_cost_scale = tk.Scale(
-            fun_settings, variable=self.tech_cost_var, orient="horizontal",
+            tech_cost_group, variable=self.tech_cost_var, orient="horizontal",
             from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.tech_cost_scale.pack(side="left")
-        self._help_button(fun_settings, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(tech_cost_group, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
         # Hungrier Villagers: the meal multiplier, whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="Hungrier Villagers:").pack(side="left", padx=(16, 4))
+        meal_group = ttk.Frame(fun_settings)
+        meal_group.pack(side="left", padx=(0, 16))
+        ttk.Label(meal_group, text="Hungrier Villagers:").pack(side="left", padx=(0, 4))
         self.meal_scale = tk.Scale(
-            fun_settings, variable=self.meal_var, orient="horizontal",
+            meal_group, variable=self.meal_var, orient="horizontal",
             from_=MEAL_MULTIPLIER_RANGE[0], to=MEAL_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.meal_scale.pack(side="left")
-        self._help_button(fun_settings, "meal_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(meal_group, "meal_multiplier").pack(side="left", padx=(2, 0))
         # 2-10x Sickness: whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="2-10x Sickness:").pack(side="left", padx=(16, 4))
+        sickness_group = ttk.Frame(fun_settings)
+        sickness_group.pack(side="left")
+        ttk.Label(sickness_group, text="2-10x Sickness:").pack(side="left", padx=(0, 4))
         self.sickness_scale = tk.Scale(
-            fun_settings, variable=self.sickness_var, orient="horizontal",
+            sickness_group, variable=self.sickness_var, orient="horizontal",
             from_=SICKNESS_MULTIPLIER_RANGE[0], to=SICKNESS_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.sickness_scale.pack(side="left")
-        self._help_button(fun_settings, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(sickness_group, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
+        # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
+        vv_genealogy_window.flow_row(fun_settings, natural=False)
+        self.fun_settings_row = fun_settings
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -1695,7 +1711,7 @@ class App(tk.Tk):
         ttk.Label(
             status_box,
             textvariable=self.status_var,
-            wraplength=870,
+            wraplength=850,
             justify="left",
         ).pack(anchor="w")
         self.open_button = ttk.Button(
@@ -1772,12 +1788,13 @@ class App(tk.Tk):
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
 
     def _fit_content_width(self, width: int) -> None:
-        """The page fills the window at its usual size and wider, exactly as before. In a window made
-        narrower than that, the page keeps the usual width (or less, if it needs less) and the
-        horizontal bar reaches the rest -- before, it was squeezed to the window and controls past
-        the edge could not be reached (the owner, 2026-11-11)."""
-        least = DEFAULT_WINDOW_WIDTH - self.content_scrollbar.winfo_reqwidth()
-        wanted = page_width(width, self.content_frame.winfo_reqwidth(), least)
+        """The page fills a window at least as wide as it needs -- the usual 940-pixel window and
+        wider, as before. In a narrower window it keeps the width it needs (its requested width:
+        every row that does not wrap, at full width) and the horizontal bar reaches the rest --
+        before, it was squeezed to the window and controls past the edge could not be reached (the
+        owner, 2026-11-11). Its rows that could be wider than the usual window flow onto more lines
+        (the settings row) or wrap within it, so the page needs no more than the usual window."""
+        wanted = page_width(width, self.content_frame.winfo_reqwidth())
         if str(self.content_canvas.itemcget(self.content_window, "width")) != str(wanted):
             self.content_canvas.itemconfigure(self.content_window, width=wanted)
 

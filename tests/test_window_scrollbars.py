@@ -232,6 +232,18 @@ third.geometry(f"{tools.ScrollingTab.LEAST - 200}x300")
 settle_tab()
 result.update(tab_narrow=[tab_canvas.winfo_width(), tab.winfo_width(), bool(tab_bar.winfo_ismapped())],
               tab_req=tab.winfo_reqwidth(), tab_least=tools.ScrollingTab.LEAST)
+# A row of controls that does not wrap, wider than LEAST: the page is never held narrower than it, so the
+# bar reaches its last control (Codex, #762).
+row = ttk.Frame(tab)
+row.pack(anchor="w")
+for n in range(8):
+    ttk.Button(row, text=f"Button {n}").pack(side="left")
+last = row.winfo_children()[-1]
+settle_tab()
+settle_tab()
+result.update(row_req=row.winfo_reqwidth(), row_tab_width=tab.winfo_width(),
+              last_whole=last.winfo_width() >= last.winfo_reqwidth() - 1,
+              last_inside=last.winfo_rootx() + last.winfo_width() <= tab.winfo_rootx() + tab.winfo_width())
 root.destroy()
 print(json.dumps(result))
 """
@@ -395,6 +407,11 @@ class WindowScrollbars(unittest.TestCase):
         self.assertFalse(bar_shown, result)
         canvas_width, tab_width, bar_shown = result["tab_narrow"]
         self.assertLessEqual(tab_width, result["tab_least"], result)
+        # ... but never narrower than a row that does not wrap: its last control stays whole and reachable.
+        self.assertGreater(result["row_req"], result["tab_least"], result)
+        self.assertGreaterEqual(result["row_tab_width"], result["row_req"], result)
+        self.assertTrue(result["last_whole"], result)
+        self.assertTrue(result["last_inside"], result)
         self.assertLess(canvas_width, tab_width, result)
         self.assertTrue(bar_shown, result)
 

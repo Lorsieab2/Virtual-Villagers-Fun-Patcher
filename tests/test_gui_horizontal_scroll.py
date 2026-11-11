@@ -51,11 +51,54 @@ canvas, page, bar = app.content_canvas, app.content_frame, app.content_xbar
 sections = next(w for w in walk(app) if isinstance(w, ttk.Notebook)
                 and any(w.tab(t, "text") == "Tools" for t in w.tabs()))
 tools = next(sections.nametowidget(t) for t in sections.tabs() if sections.tab(t, "text") == "Tools")
+settle()
+
+
+def cut_at_usual_size():
+    # Every control on the shown tab lies inside the visible canvas, at its full width, and none is
+    # dropped for lack of room (a label's words may wrap; a typing box may narrow to its line).
+    right_edge = canvas.winfo_rootx() + canvas.winfo_width()
+    found = []
+    for widget in walk(page):
+        if widget.winfo_children():
+            continue
+        what = f"{widget.winfo_class()} {str(widget.cget('text'))[:40] if 'text' in widget.keys() else ''!r}"
+        if not widget.winfo_ismapped():
+            master = widget.master
+            if widget.winfo_manager() and master.winfo_ismapped() and not isinstance(master, ttk.Notebook):
+                found.append(f"{what}: dropped for lack of room")
+            continue
+        if widget.winfo_rootx() + widget.winfo_width() > right_edge + 1:
+            found.append(f"{what}: past the window's right edge")
+        elif (widget.winfo_width() < widget.winfo_reqwidth() - 1
+              and widget.winfo_class() not in ("TEntry", "Entry", "TCombobox")):
+            found.append(f"{what}: squeezed {widget.winfo_width()} < {widget.winfo_reqwidth()}")
+    return found
+
+
+# The usual size: every tab (each of the Patches tab's own tabs too) shows every control whole.
+usual_cut, tabs_checked = {}, []
+for book in [w for w in walk(page) if isinstance(w, ttk.Notebook)]:
+    for tab in book.tabs():
+        holder = book
+        while holder is not page:                   # show the tab, and every tab it sits in
+            parent = holder.master
+            if isinstance(parent, ttk.Notebook):
+                parent.select(holder)
+            holder = parent
+        book.select(tab)
+        settle()
+        name = book.tab(tab, "text")
+        tabs_checked.append(name)
+        found = cut_at_usual_size()
+        if found:
+            usual_cut[name] = found
 sections.select(tools)
 settle()
 # The usual size: the page fills the window, no sideways bar.
 result = {"usual_window": app.winfo_width(), "usual_canvas": canvas.winfo_width(),
-          "usual_page": page.winfo_width(), "usual_bar": bool(bar.winfo_ismapped())}
+          "usual_page": page.winfo_width(), "usual_bar": bool(bar.winfo_ismapped()),
+          "usual_cut": usual_cut, "tabs_checked": tabs_checked}
 app.geometry("820x520")
 settle()
 region = [float(v) for v in str(canvas.cget("scrollregion")).split()]
@@ -126,6 +169,14 @@ class MainWindowScrollsSideways(unittest.TestCase):
         r = self.result
         self.assertEqual(r["usual_page"], r["usual_canvas"], r)
         self.assertFalse(r["usual_bar"], r)
+
+    def test_every_control_on_every_tab_shows_whole_at_the_usual_size(self) -> None:
+        # The owner (2026-11-11): the Patches tab's settings row (Patch Selection Settings, Unicode Font
+        # and the three sliders) ran past the usual 940-pixel window; it flows onto more lines now.
+        r = self.result
+        for name in ("Patches", "Tools", "One Game", "All 5 Games", "A New Home", "New Believers"):
+            self.assertIn(name, r["tabs_checked"])
+        self.assertEqual(r["usual_cut"], {})
 
     def test_every_tool_control_is_reachable_at_the_minimum_width(self) -> None:
         r = self.result
