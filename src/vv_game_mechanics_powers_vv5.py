@@ -23,6 +23,7 @@ from __future__ import annotations
 import struct
 
 import vv_game_mechanics as gm
+from vv_game_mechanics_chances import below, chance
 
 POWERS = "God powers"
 ENERGY, ENERGY_CAP = 0x17D74, 0x17D70          # FILE offsets (manager +0x17D64 / +0x17D60)
@@ -246,9 +247,10 @@ EFFECTS = (
 SPIRITUALITY = (
     ("Spirituality (the tech, levels 1 to 3; the game: \"Training your villagers in spirituality increases your "
      "maximum divine energy, allows statue upgrades and influences heathens to believe.\") does four things:"),
-    # The Faith drift's roll 0x468112.
-    "Faith: each age unit every believer gains 1 Faith 10%, 20% or 30% of the time at level 1, 2 or 3, one of the "
-    "Faith drift's rolls (see Faith).",
+    # The Faith drift's roll 0x468112: rand(100) (0x403660, rand() % 100) < 10, 20 or 30 at level 1, 2 or 3
+    # (0x468155, 0x468146, 0x468137), so 3,280, 6,560 or 9,840 of the 32,768 values.
+    f"Faith: each age unit every believer gains 1 Faith {chance(below(100, 10))}, {chance(below(100, 20))} or "
+    f"{chance(below(100, 30))} of the time at level 1, 2 or 3, one of the Faith drift's rolls (see Faith).",
     # The cap 0x425071, 0x425085.
     "The Divine Energy cap: +50 at level 2 and +50 more at level 3.",
     # The statue's upgrades 0x432350.

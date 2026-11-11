@@ -102,7 +102,8 @@ CHANCE_LINES = (
      "speed; the pause pushes it on), and its tutorial mushroom lies 1 minute 40 real-life seconds (real time).",
      gm.CODE),
     # The Golden Child's timer (0x447A14..0x447A57): the full rule is in GOLDEN_CHILD_LINES.
-    ("The Golden Child's cave timer: 36 real-life hours after his birth, at any speed; see Golden Child.", gm.RUNNING),
+    ("The Golden Child's cave timer: 35 to 36 real-life hours after his birth, at any speed; see Golden Child.",
+     gm.RUNNING),
 )
 # Conception, births, health, sickness and the skill check's odds are under Chances and Births and gender; the
 # Other group keeps only what those groups do not give.
@@ -257,12 +258,15 @@ GOLDEN_CHILD_LINES = (
      "He can be picked up and dropped like anyone, and dropped on a job he does it like anyone, with its injuries "
      "(2% of trips).", gm.CODE),
     # 0x447A14..0x447A57; the clock 0x402F70 is the computer's time less the save's base (difftime, 0x44B6FE).
-    (f"The 36-hour action is the Cave Opening. From {CAVE_WAIT_HOURS} real hours after his birth (real time, at any "
-     "speed, paused or closed), while the cave is "
+    # The birth hour: 0x4242A1..0x4242AD writes (clock - [0x9E1C]) / 3600, rounded down, to [0x9E80]; 0x4242BC..
+    # 0x4242C0 writes 1 in its place when that is 0 (bl = 1).  The cave test 0x447A21..0x447A40: the same whole hours
+    # now >= [0x9E80] + 36 (0x447A3B add eax, 0x24; 0x447A40 jb).  So the wait is 35 to 36 hours (36 to 37 from hour 0).
+    (f"The 36-hour action is the Cave Opening. It can start 35 to 36 real-life hours after his birth (36 to 37 if he "
+     "was born in the village's first hour), counted in real time: at any speed, paused or closed. From then, while the cave is "
      f"still shut, each time he picks what to do there is a {_pc(P_TIMER)} chance (34% x 84% x 79%) that he walks to "
-     "the giant boulder (\"Unblocking the Cave\") and opens the cave. Exactly: the whole hours since the village was "
-     "started must reach his birth hour (the Puzzles screen's) plus 36, so it starts 35 to 36 real-life hours after his "
-     "birth (36 to 37 if he was born in the village's first hour).", gm.RUNNING),
+     "the giant boulder (\"Unblocking the Cave\") and opens the cave. Why not exactly 36: the game counts whole hours "
+     "since the village was started, and the count must reach his birth hour (the Puzzles screen's) plus "
+     f"{CAVE_WAIT_HOURS}.", gm.RUNNING),
     ("The 36 hours are real hours on the computer's clock (real time): 36 hours on Slow, Normal and Fast alike "
      "(10.8, 18 or 36 villager years, though he never ages). They count while the game is paused or closed; the "
      "catch-up when the game loads does nothing for him; each Origins Time Warp moves the clock on 12 hours on Fast "
