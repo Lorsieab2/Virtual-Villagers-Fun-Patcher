@@ -236,9 +236,15 @@ class PageLines(unittest.TestCase):
 
     def test_the_other_pages_agree(self) -> None:
         src = (ROOT / "src" / "vv_game_mechanics_catchup.py").read_text(encoding="utf-8")
-        self.assertIn("Heathen children included, learns from the Nursery School teacher", src)
-        self.assertIn("a skill drawn 1 in 6 while", src)
-        self.assertIn("a skill drawn 1 in 5 while", src)
+        away = {}
+        for game in (4, 5):
+            lines: list = []
+            catchup._nursery(lines, game)                  # the Time away (catch-up) group's Nursery School lines
+            away[game] = " ".join(f.text for f in lines)
+        self.assertIn("Heathen children included, learns from the Nursery School teacher", away[5])
+        self.assertIn("a skill drawn 1 in 6 while", away[5])
+        self.assertIn("a skill drawn 1 in 5 while", away[4])
+        self.assertNotIn("Heathen", away[4])
         self.assertNotIn("half the time all to the child's highest skill", src)
         names5 = {e.name: e for e in items5.entries()}
         self.assertIn("Heathen children included", names5["The Nursery School"].text)

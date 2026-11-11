@@ -153,7 +153,9 @@ class ThePage(unittest.TestCase):
                 lines = [f.text for f in vitals if " alone: while catching up" in f.text]
                 self.assertTrue(lines)
                 for text in lines:
-                    self.assertRegex(text, r" alone: while catching up, [\d,]+ farmers? \(one brings")
+                    self.assertRegex(text, r" alone: while catching up, [\d,]+ farmers?[;.]")
+                    self.assertRegex(text, r"\. One farmer brings [\d,.]+ food each counted age unit while "
+                                           r"catching up \(\d+ job turns x ")
                     # Each source says whether it can feed the village on its own, by its regrowth.
                     self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone|cannot feed "
                                            r"the village alone)")
@@ -171,8 +173,8 @@ class ThePage(unittest.TestCase):
         eaten = float(re.search(r"eats ([\d,.]+) food each counted age unit", header).group(1).replace(",", ""))
         checked = 0
         for f in facts:
-            found = re.search(r"alone: while catching up, ([\d,]+) farmers? \(one brings ([\d,.]+) food each "
-                              r"counted age unit", f.text)
+            found = re.search(r"alone: while catching up, ([\d,]+) farmers?[;.].*\. One farmer brings ([\d,.]+) food "
+                              r"each counted age unit", f.text)
             if found:
                 need, brought = int(found.group(1).replace(",", "")), float(found.group(2).replace(",", ""))
                 # Both figures are shown rounded to 0.1: the count lies between the two roundings' answers.
