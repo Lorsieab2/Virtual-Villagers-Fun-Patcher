@@ -223,8 +223,15 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", UNCONFIRMED),
         Entry(PUZZLE, "The Cooking Pit", (
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "
-            "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each adult "
-            "assigned to the fruit, or (Farming - 25)% of the others, adds 5 food per age unit."), VERIFIED_C),
+            "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each villager "
+            "aged 14 or more and not sick or pregnant adds 5 food (before Food Mastery) each age unit, except the "
+            "last 2, on a (Farming - 25) in 100 chance (never at Farming 25 or less)."), VERIFIED_C,
+              # The bonus 0x468A7A: task 2 (+0x1C54, 0x468A8A) always pays; no stock code and no patch writes 2
+              # there (the fruit drop 0x4343A0 writes only 0, at 0x434478).  The gate 0x468A24..0x468A46: more than
+              # 2 units behind, not sick (+0x1C48), not pregnant (+0x1C4C, the conception age), shown age 280+.
+              (("DEAD (never runs): the code always pays the bonus to a villager whose task is the fruit, but "
+                "nothing gives a villager that task, in the game or with the patcher's patches: dropping one on "
+                "the fruit sets no task. Only a hand-edited save could.", VERIFIED_C),)),
         Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", UNCONFIRMED,
               # The vines' drop 0x436D40 (the Clothing Hut test at 0x436D74); the hut's label 0x46F62F.
               (("It needs the Clothing Hut finished: before that a villager dropped on the tough vines says \"Don't "
@@ -273,10 +280,12 @@ def _puzzles() -> list[Entry]:
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
-            "minutes, every 23 to 25 once the tree is decorated (whether real time or on the game's clock: the line below); it changes nothing."),
+            "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
             VERIFIED_E,
-            (("The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on the game's "
-              "clock was not traced.", UNCONFIRMED),)),
+            # The timer: the scene update 0x43F750 on 0x403750 (time()), 0x43FEA9..0x43FED6 (vv_game_mechanics_vv4.py).
+            (("The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are the same "
+              "at Fast, Normal and Slow. It does not fly while the game is paused; if its time came during a pause, "
+              "it flies as soon as the game runs again.", VERIFIED_C),)),
     ]
 
 

@@ -255,15 +255,20 @@ TRIPS: tuple[Trip, ...] = (
         # The fruit spots: actions 101-104 (0x4343A0); the tree is map area 0x26 (x 64-159 y 1880-1919), the Cooking
         # Pit area 0x22 (x 368-383 y 1848-1863); the food is job event 15 (0x464567).  Catch-up: the dispatcher never
         # offers the fruit (0x463A30), and no stock drop sets the fruit task 2 (0x46364E).
+        # The queue 0x4346F0: a 3 s animation (step 43, 0x469EC0(3)), the check (step 9), a 3 s wait (step 14,
+        # 0x4348C5), the fruit taken (item 0x36), a 1 s pose (0x4348E9), the walk to the pit, a 5 s wait (0x434915),
+        # the hops, a 3 s wait (0x43497F), the stomped fruit taken (item 0x37), the walk to the bin, a 1 s wait
+        # (0x434A0F), the job event 15.
         live_words=("From the food bin (times in real-life seconds, the same at every speed): claim one of the "
                     "four fruit spots not in use, "
-                    "walk to the fruit tree, shake it down (short steps and 1 s poses), the Farming check, take the "
-                    "fruit, walk to the Cooking Pit, a 5 s wait, stomp it (hops), take the stomped fruit, walk to a "
-                    "random point of the food bin, a 1 s wait, then 3 food is added. " + _CLOCK_AGAIN),
+                    "walk to the fruit tree, shake it down (short steps and 1 s poses, then a 3 s animation), the "
+                    "Farming check, a 3 s wait, take the fruit, a 1 s wait, walk to the Cooking Pit, a 5 s wait, "
+                    "stomp it (hops), a 3 s wait, take the stomped fruit, walk to a random point of the food bin, a "
+                    "1 s wait, then 3 food is added. " + _CLOCK_AGAIN),
         catch_up_words=("While catching up there are no fruit trips: the game never sends a farmer to the fruit then, "
-                        "and nothing in the stock game gives a villager the fruit as its task. Instead the Cooking Pit "
-                        "bonus adds 5 food x Food Mastery for each villager each counted age unit, on a (Farming - 25) "
-                        "in 100 chance."),
+                        "and nothing in the game or the patcher's patches gives a villager the fruit as its task. "
+                        "Instead the Cooking Pit bonus adds 5 food x Food Mastery for each villager aged 14 or more and "
+                        "not sick or pregnant, each counted age unit, on a (Farming - 25) in 100 chance."),
         verified="code",
         # The stew: 0x4349A3 asks 0x42DDA0 on the pot 0x4D76D8; the fruit goes in by action 0x90.
         extra=("When the stew pot is waiting for an ingredient as the trip starts, the stomped fruit goes into the "

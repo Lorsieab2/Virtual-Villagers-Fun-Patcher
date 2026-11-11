@@ -294,12 +294,21 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored): a trip brings 3 food and takes "
                         "about 162 real-life seconds at every speed. Before the pit is restored a villager dropped on "
                         "the tree only finds the fruit needs cooking.", gm.CODE)
+    # The trip's queue (0x4346F0, spot 1; the others alike): the shake (1 s poses: step 2 0x468EE0, step 10
+    # 0x469280; then a 3 s animation, step 43 0x469EC0(3)), the Farming check (step 9 0x469220), a 3 s wait (step 14
+    # 0x4693B0(3) at 0x4348C5), the fruit taken (step 17 item 0x36), a 1 s pose (0x4348E9), the walk to the pit
+    # (area 0x22), "Cooking fruit in an earthen oven" (0x23F), a 5 s wait (0x434915), the hops, a 3 s wait
+    # (0x43497F), then "Carrying fruit to the food bin" (0x240): the stomped fruit taken (step 17 item 0x37), the walk
+    # to the food bin (area 8), a 1 s wait (0x434A0F) and the job event 15 (the food, step 19).  Steps 2, 10, 14 and
+    # 43 are waits: their seconds (+0x54) get the clock 0x403750 added when they start (0x46A072, 0x46A17D, 0x46A201,
+    # 0x46A3B4) and end through 0x46A000.
     out.append(gm.Fact("Food sources", (
-        "How a trip goes (waits in real-life seconds): it claims one of the pit's 4 fruit spots (all 4 taken: \"There "
-        "is no more room in the cooking pit!\" and the villager gives up), shakes fruit down, the Farming check "
-        "((Farming + 34) in 100; a failure ends it with nothing), carries the fruit to the pit, a 5 s wait, stomps it "
-        "in its cooking hole, a 3 s wait, then walks it to the food bin. If the stew pot is waiting for an ingredient "
-        "the fruit goes into the stew instead."), gm.CODE, True))
+        "How a trip goes (waits in real-life seconds, the same at every speed): it claims one of the pit's 4 fruit "
+        "spots (all 4 taken: \"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit "
+        "down (1 s poses, then a 3 s animation), the Farming check ((Farming + 34) in 100; a failure ends it with "
+        "nothing), a 3 s wait, takes the fruit, a 1 s wait, carries it to the pit, a 5 s wait, stomps it in its "
+        "cooking hole, a 3 s wait, takes the stomped fruit, walks it to the food bin, a 1 s wait, then 3 food is "
+        "added. If the stew pot is waiting for an ingredient the fruit goes into the stew instead."), gm.CODE, True))
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
                         "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "
@@ -308,8 +317,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
     add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
                         "Cooking Pit is restored, after each counted age unit's job turns (all but the last 2) every "
-                        "villager who had job turns (aged 14 or more, not sick) adds 5 food x Food Mastery (5, 7 or "
-                        "10) on a (Farming - 25) in 100 chance, whatever its job, with no walking and no spot limit: 3.75 "
+                        "villager who had job turns (aged 14 or more, not sick or pregnant) adds 5 food x Food "
+                        "Mastery (5, 7 or 10) on a (Farming - 25) in 100 chance, whatever its job, with no walking and "
+                        "no spot limit: 3.75 "
                         "food a unit at Farming 100, 1.75 at 60, nothing at 25 or less (Food Mastery 1); children add "
                         "nothing. Each villager eats 2, so it carries a tribe of high-Farming adults but not a large "
                         "one of children and low-Farming villagers.", gm.CODE)
@@ -446,10 +456,16 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Collectibles", (
             f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
             f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
-    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes (every 23 to 25 "
-                        "once Decorate Tree is done; whether real time or on the game's clock: the next line); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
-                        "the game's clock was not traced.", False)
+    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes, the same at "
+                        "every speed (every 23 to 25 once Decorate Tree is done); it changes nothing.", gm.RUNNING)
+    # The scene update 0x43F750: skipped while paused (0x43FDDA, the game clock 0x4D6F18's rate 0); now = 0x403750
+    # (0x43FDEA: whole real-life seconds from time(), not the game clock); with more than 2 tree stages (0x41F570,
+    # 0x43FE87) and now past the timer game+0x170EC (0x43FE95) the bird flies (0x42C5F0, image 0x12F
+    # hummingbirdstrip.png) and the timer becomes now + 180 + rand(120) (0x43FEA9, 0x43FEB0), + 1,200 once
+    # Decorating the Tree (puzzle 15) is solved (0x43FECA, 0x43FED6).  The timer is not one the game clock rescales.
+    add("Collectibles", "The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are "
+                        "the same at Fast, Normal and Slow. It does not fly while the game is paused; if its time "
+                        "came during a pause, it flies as soon as the game runs again.", gm.CODE)
     # The room check 0x468350: +5 for each complete set (0x4143F0), 20 made 25 (0x4683AA).
     add("Collectibles", "Fog comes with the weather and with island events (see Island events). Each complete "
                         "collection raises the population limit by 5, and all four by 25.",
