@@ -131,6 +131,8 @@ FILES = [
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
+    # Louder Wind Flutes (The Tree of Life): the wind flute sounds 2.5 times louder.
+    "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -295,6 +297,7 @@ FILES = [
     "data/vv4_sickness_like_vv3_feature.json",
     "data/vv5_sickness_like_vv3_feature.json",
     "data/vv4_yellow_fruit_trees_limited_feature.json",
+    "data/vv4_louder_wind_flutes_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.

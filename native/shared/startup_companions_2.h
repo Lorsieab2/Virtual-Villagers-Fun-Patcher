@@ -49,6 +49,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
        Appearance mask (the Origins companion's mask table). */
     "VVFP Heathens Keep Masks.dll",
+    /* Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made 2.5 times louder as they load. */
+    "VVFP VV4 Louder Flutes.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
