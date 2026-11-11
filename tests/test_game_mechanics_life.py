@@ -308,7 +308,7 @@ class Vitals(unittest.TestCase):
                     struct.pack_into("<i", data, life.DIFFICULTY_AT[game], level)
                     facts = page(self, game, data)
                     vitals = texts(facts, life.VITALS)
-                    self.assertIn(f"difficulty {name};", vitals)
+                    self.assertIn(f"difficulty {name}.", vitals)
                     self.assertIn(f"That is {per_unit} food a villager each age unit now", vitals)
 
     def test_medium_eats_more_only_above_its_threshold(self) -> None:
@@ -389,16 +389,17 @@ class Vitals(unittest.TestCase):
                 eaten, refilled, net = n(m.group(1)), n(m.group(2)), int(m.group(3).replace(",", ""))
                 self.assertGreater(refilled, 0)
                 self.assertLessEqual(abs(net - (refilled - eaten)), 1)
-                m = re.search(rf"over 8 real-life hours of play: about {number} \(eating, plus staying above {number}\); net of "
-                              rf"the {number} the sources refill in that time and the {number} already on them, about "
-                              rf"{number} from storage", vitals)
+                m = re.search(rf"over 8 real-life hours of play on \w+ speed: about {number} from storage, which holds "
+                              rf"[\d,]+ \([^)]*\)\. That is about {number} in all \(the eating, plus staying above "
+                              rf"{number}\), less the {number} the sources refill in that time and the {number} already "
+                              r"on them\.", vitals)
                 self.assertIsNotNone(m, vitals)
-                gross, _low, credit, on, need = (n(m.group(k)) for k in range(1, 6))
+                need, gross, _low, credit, on = (n(m.group(k)) for k in range(1, 6))
                 self.assertLessEqual(abs(credit - 8 * refilled), 8)
                 self.assertLessEqual(abs(need - max(0, gross - credit - on)), 2)
                 self.assertIn("they count here once farmers pick them", vitals)
-                self.assertRegex(vitals, r"Closed for 24 real-life hours: .*about [\d,]+ on the sources \(each stops at its "
-                                         r"limit\); net change about [+-][\d,]+ once that is picked\.")
+                self.assertRegex(vitals, r"Closed for 24 real-life hours: net change about [+-][\d,]+ food once the "
+                                         r"refills are picked\. .*about [\d,]+ on the sources \(each stops at its limit\)")
                 self.assertRegex(vitals, r"To fill the gap of about [\d,]+ food per real-life hour|The refills cover the eating")
 
     def fill(self, facts, name: str) -> gm.Fact:
