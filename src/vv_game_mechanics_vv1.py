@@ -145,10 +145,9 @@ HIDDEN_LINES = (
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
     # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
-    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  The walk step's address
-    # stays visible: tests/test_game_mechanics_code_vs_observation.py wants the code side to cite one.
-    ("In the game's code the dislike of running is read in one place only (the walk step 0x43CCF0), the speed of "
-     "a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
+    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  "In one place only": the
+    # walk step 0x43CCF0.
+    ("In the game's code the dislike of running is read in one place only, the speed of a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
      "is read, so on that walk an adult who dislikes running moves exactly as one who neither likes nor dislikes "
      "it.", gm.CODE),
     # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
