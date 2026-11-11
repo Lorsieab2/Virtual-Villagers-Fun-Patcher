@@ -1221,7 +1221,7 @@ def _sections(exe: bytes) -> tuple[int, list[tuple[str, int, int, int, int]]] | 
         out = []
         for n in range(count):
             at = table + 40 * n
-            name = exe[at:at + 8].rstrip(b"\0").decode("latin-1")
+            name = exe[at:at + 8].rstrip(b"\0").decode("ascii", "replace")     # a PE section name, not game text
             vsize, rva, rsize, raw = struct.unpack_from("<IIII", exe, at + 8)
             out.append((name, rva, vsize, raw, rsize))
         return base, out
