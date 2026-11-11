@@ -1513,7 +1513,7 @@
         {
           "source": "assets/easier_healing/VVFP VV1 Easier Healing.dll",
           "destination": "VVFP VV1 Easier Healing.dll",
-          "sha256": "C61C022FDD24837CDB34A7EE0B3DD819188530D986A1F58D5459CB1E6AAAAAA7"
+          "sha256": "E1950F9E45ECE8B44C5BDBC760EFFA170EAC26D39DABC4D9CA91E76BD4446909"
         }
       ],
       "runtime_detours": [
@@ -1576,7 +1576,7 @@
         {
           "source": "assets/research_at_max/VVFP VV1 Research At Max.dll",
           "destination": "VVFP VV1 Research At Max.dll",
-          "sha256": "0D043B7EDAC0919CBB70D50AAB3BA5696EC78FF8D856560297A315836F8EF098"
+          "sha256": "1217536DEB592082DE3C5834620F72EB3D9C43A9ADA9A9486F76CA3F09D4B134"
         }
       ],
       "runtime_detours": [
@@ -2086,17 +2086,17 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
+          "sha256": "60B965E4ED680E9DCE076CFB38003C371B7B338D4572EA0334079B1DE6B3475A"
         },
         {
           "source": "assets/golden_child_safe/VVFP VV1 Golden Child Safe.dll",
           "destination": "VVFP VV1 Golden Child Safe.dll",
-          "sha256": "AA42E9393AC1AD8F04BC2A592F61EA7C61F619C4667E9F0DCCAA51F445B6E5E0"
+          "sha256": "026DC084B95119085F48B8E73F3EE60C0E951FA4D2BAF24770A0EEE38D632107"
         },
         {
           "source": "assets/keep_carried/VVFP Keep Carried.dll",
           "destination": "VVFP Keep Carried.dll",
-          "sha256": "15F2566752260CF284125FEE886AD05828AF0154CFBC8439911DF1C137349472"
+          "sha256": "D3316EE51298ECCE0AF35F176220B12C15368D7F4B3F042A69DE87D9490FE996"
         }
       ],
       "runtime_detours": [
@@ -2685,12 +2685,12 @@
         {
           "source": "assets/appearance_rolls/VVFP Appearance Rolls.dll",
           "destination": "VVFP Appearance Rolls.dll",
-          "sha256": "2445E6ABEDEB4A0999D58BDD37C315BCC23AC1428F9F484C77B6162A4DE1A03D"
+          "sha256": "25F95BB3FC12114BAB74141FD0026D5BEA4F5429F4E7A86B170DFDC66DCE8585"
         },
         {
           "source": "assets/stuck_walks/VVFP Stuck Walks.dll",
           "destination": "VVFP Stuck Walks.dll",
-          "sha256": "2F4A53395BADEAC41DD37629651D366A8CB3BDC43D915FB381385DD8AC0611B0"
+          "sha256": "7CE1E841F937CE8DAD2F721BB550D57466F457C50FDC0EBCDD5FFAB116BED3A7"
         }
       ],
       "runtime_detours": [
@@ -2813,12 +2813,12 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
+          "sha256": "60B965E4ED680E9DCE076CFB38003C371B7B338D4572EA0334079B1DE6B3475A"
         },
         {
           "source": "assets/keep_carried/VVFP Keep Carried.dll",
           "destination": "VVFP Keep Carried.dll",
-          "sha256": "15F2566752260CF284125FEE886AD05828AF0154CFBC8439911DF1C137349472"
+          "sha256": "D3316EE51298ECCE0AF35F176220B12C15368D7F4B3F042A69DE87D9490FE996"
         }
       ],
       "runtime_detours": [
@@ -3138,17 +3138,17 @@
         {
           "source": "assets/speed_timers/VVFP Speed Change Timers.dll",
           "destination": "VVFP Speed Change Timers.dll",
-          "sha256": "8946DAD5F8E84A38EDE8334D80E6349A06208D883A28AB8509005F4927468F37"
+          "sha256": "60B965E4ED680E9DCE076CFB38003C371B7B338D4572EA0334079B1DE6B3475A"
         },
         {
           "source": "assets/appearance_rolls/VVFP Appearance Rolls.dll",
           "destination": "VVFP Appearance Rolls.dll",
-          "sha256": "2445E6ABEDEB4A0999D58BDD37C315BCC23AC1428F9F484C77B6162A4DE1A03D"
+          "sha256": "25F95BB3FC12114BAB74141FD0026D5BEA4F5429F4E7A86B170DFDC66DCE8585"
         },
         {
           "source": "assets/keep_carried/VVFP Keep Carried.dll",
           "destination": "VVFP Keep Carried.dll",
-          "sha256": "15F2566752260CF284125FEE886AD05828AF0154CFBC8439911DF1C137349472"
+          "sha256": "D3316EE51298ECCE0AF35F176220B12C15368D7F4B3F042A69DE87D9490FE996"
         }
       ],
       "runtime_detours": [
@@ -4266,7 +4266,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
+          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4454,7 +4454,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
+          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4537,7 +4537,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
+          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -4620,7 +4620,7 @@
         {
           "source": "assets/golden_mushroom/VVFP Golden Mushroom.dll",
           "destination": "VVFP Golden Mushroom.dll",
-          "sha256": "03CA2538FBBC02D775DB505CE422C5FD299C4FE5AEB84FAA48485D38E7C281A1"
+          "sha256": "8D2C267A5E97326807431427FA7685873E0C799E5781A753F2CA70AFB9BA39C4"
         },
         {
           "source": "assets/golden_mushroom/golden_mushroom.png",
@@ -5073,12 +5073,12 @@
         {
           "source": "assets/appearance_rolls/VVFP Appearance Rolls.dll",
           "destination": "VVFP Appearance Rolls.dll",
-          "sha256": "2445E6ABEDEB4A0999D58BDD37C315BCC23AC1428F9F484C77B6162A4DE1A03D"
+          "sha256": "25F95BB3FC12114BAB74141FD0026D5BEA4F5429F4E7A86B170DFDC66DCE8585"
         },
         {
           "source": "assets/keep_carried/VVFP Keep Carried.dll",
           "destination": "VVFP Keep Carried.dll",
-          "sha256": "15F2566752260CF284125FEE886AD05828AF0154CFBC8439911DF1C137349472"
+          "sha256": "D3316EE51298ECCE0AF35F176220B12C15368D7F4B3F042A69DE87D9490FE996"
         }
       ],
       "runtime_detours": [

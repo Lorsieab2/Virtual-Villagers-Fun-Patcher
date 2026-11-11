@@ -33,12 +33,12 @@
     {
       "source": "assets/parentage/VVFP VV1 Parentage.dll",
       "destination": "VVFP VV1 Parentage.dll",
-      "sha256": "7C1F8AA9EED32BA1B6BB51C95F70AB3CC20318EBADA75649527373C4D293BBB4"
+      "sha256": "B2158BFC90A93CECAB2970AF2BBE6CEA75CE656232DC83E431714460CE0E436D"
     },
     {
       "source": "assets/number_names/VVFP Number Names.dll",
       "destination": "VVFP Number Names.dll",
-      "sha256": "4496E5CDB4807F3F04F64610B5667D22D7C9B4C037ED96491B479707510A0FA6"
+      "sha256": "90117B4AA43F43F514DC524AF7189E62DB8BD35F61C442CBBB6F3F6EACFAC067"
     }
   ],
   "patches": []

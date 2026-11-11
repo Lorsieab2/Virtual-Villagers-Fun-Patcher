@@ -23,7 +23,7 @@
     {
       "source": "assets/copy_paste/VVFP Copy and Paste.dll",
       "destination": "VVFP Copy and Paste.dll",
-      "sha256": "AAF319FE13794BF8B0414259038741614565F836864AE4EFA44CA63667666B3D"
+      "sha256": "9B4440D8F7CB3916D4BE7E610F6E54E67C410A612F64DB0259D814D39D4F4389"
     }
   ],
   "patches": [],

@@ -26,7 +26,7 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "DE015EB8DA79F15BB50E405C93022CF4D4117EA2E711159096A198D78D2F0F10",
+    "sha256": "04319C5F6752D31D69C47464F9AC1F6AEDA795BF894E3B8B097220C0695DFEB2",
     "size": 1891840
   },
   "dependency": "vv5_enable_origins_exclusive_features",
