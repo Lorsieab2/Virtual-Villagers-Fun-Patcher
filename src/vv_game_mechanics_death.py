@@ -549,11 +549,15 @@ def _bodies_lines(village: gm.Village, add, base: int, speed_value: int, stamp: 
                 "buried first.", gm.SAVE, due=float(due), due_kind="due")
 
 
-# Every game: the removal test is (real now - stamp) / 60 / the speed >= 240 (addresses above each game's block).
+# Every game: the removal test is (real now - stamp) / 60 / the speed >= 240, the speed read at the check itself
+# (VV1 0x42E99C div [0xA318], VV2 0x43B766 div [+0x2EB08], VV3 0x45F437 div [+0x12F20], VV4 0x4664A7 div
+# [+0x17110], VV5 0x46FEE3 div [+0x17D7C]; each then cmp eax, 0xF0): the whole wait since the death is measured at
+# the speed the game is on when it checks, not the speed at the death.  Paused adds 999 to the speed value.
 REMOVAL = ("A body nobody buries is removed with no grave 12 real-life hours after the death on Fast, 24 on Normal or "
-           "40 on Slow, at the game's speed then (240 age units, 12 villager years). Paused time and time with "
-           "the game closed count too, so a body left when the game was closed can be gone as soon as it is next "
-           "played. While the game is paused, no body is removed.")
+           "40 on Slow (240 age units, 12 villager years), counted at whatever speed the game is on when it checks, "
+           "not the speed at the death: a body left 13 real-life hours on Slow is removed once the game is set to "
+           "Fast. Paused time and time with the game closed count too, so a body left when the game was closed can "
+           "be gone as soon as it is next played. While the game is paused, no body is removed.")
 
 
 def _early(village: gm.Village, medicine: int | None, speed_value: int, base: int,
