@@ -91,22 +91,26 @@ ROLLS = (
           "Parenting: at Parenting 50, " + _conceive(50, 1) + ", " + _conceive(50, 2) + " or " + _conceive(50, 3)
           + " at Medicine 1, 2 or 3; at Parenting 100, " + _conceive(100, 1) + ", " + _conceive(100, 2) + " or "
           + _conceive(100, 3) + ".",
-          "The village's very first conception is certain (the game's tip not yet shown skips the roll). A woman of "
-          "50 or older never conceives (0x460E67)."),
+          # A woman of 50 or older never conceives: 0x460E67.
+          "The village's very first conception is certain (while the game's tip about it has not been shown, the "
+          "roll is skipped). A woman of 50 or older never conceives."),
          group=BIRTHS),
     Roll("How many babies: a pregnancy brings one baby, except at Medicine level 3: then a multiple birth comes {0} "
          "of the time, and of those {1} are triplets, so " + chance(_TWINS) + " twins and " + chance(_TRIPLETS)
          + " triplets.",
          (Check(0x45E893, 100, 7, "jge", take=False), Check(0x45E8B3, 100, 0x19, "jge", take=False)),
+         # The birth: 0x4687F2.
          ("The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 real-life "
-          "hours 3 minutes, 4 real-life hours 6 minutes or 6 real-life hours 50 minutes of play on Fast, Normal or Slow (0x4687F2).",),
+          "hours 3 minutes, 4 real-life hours 6 minutes or 6 real-life hours 50 minutes of play on Fast, Normal or "
+          "Slow.",),
          group=BIRTHS),
+    # The sex roll: the villager set-up 0x465D00; the lopsided rule: 0x468809, 0x468300.
     Roll("Boy or girl: each first baby of a pregnancy, and any villager the game makes without a sex given, is a boy "
-         "{0} of the time and a girl " + chance(_not(_MALE)) + " (0x465D00).",
+         "{0} of the time and a girl " + chance(_not(_MALE)) + ".",
          (Check(0x465D0A, 100, 0x31, "jg", take=False),),
          ("With 6 or fewer villagers a baby's sex is not rolled when the living villagers are lopsided: when one sex "
-          "has more and the other has 2 or fewer, the baby is of the sex that has more (0x468809, 0x468300); otherwise "
-          "it is rolled as above.",
+          "has more and the other has 2 or fewer, the baby is of the sex that has more; otherwise it is rolled as "
+          "above.",
           "A twin or triplet is a copy of the first baby: the same sex, head and body; only its name is picked again."),
          group=BIRTHS),
 )

@@ -762,7 +762,7 @@ class RenderedPageTests(unittest.TestCase):
                     want = f"{price:,} tech points normally, {5 * price:,} with \"2-10x Tech Cost\" (x5)"
                     self.assertTrue(any(t.startswith(f"{name} level {level}") and want in t for t in texts),
                                     (name, level))
-                self.assertTrue(any("costs 5 times its stock price, the multiplier read from the game's executable"
+                self.assertTrue(any("costs 5 times its normal price, the multiplier read from the game's executable"
                                     in t for t in texts))
                 catch_up = [t for t in texts if " tech points normally, " in t and "still needed" in t
                             or (" tech points normally, " in t and "can be bought now" in t)]

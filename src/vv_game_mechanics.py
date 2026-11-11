@@ -237,7 +237,7 @@ PAUSED_NOTE = "The game was saved paused: nothing refills or grows until it is u
 # The clock key has a group of its own, third on every tab (the owner, 2026-10-27), on a save's page and a general one.
 TIME_UNITS = "Time and units"
 GAME_TIME, REAL_TIME = "the game's clock", "real time"
-AGES = "Ages and age units here run on the game's clock (see Time and units)."
+AGES = "Ages run on the game's clock (see Time and units)."
 SAME_EVERY_SPEED = "the same at every speed"
 # What names a line's clock (the test pins the same phrasings): game time; a real-life length at a named speed (the
 # page's form for game time); real time; or the pointer to Time and units.
@@ -285,20 +285,19 @@ def time_units_lines(group: str, speed_value: int, verified_clocks: bool | str =
     return [
         Fact(group, (
             "Time and units: every date and countdown on this page is real-life time (the clock on the wall), and "
-            "every timer says which clock it runs on. A timer on the game's clock follows the speed: its real-life length "
-            "depends on the speed (Fast runs it twice as fast as Normal, Slow at 0.6 times), it stands still while "
-            "the game is paused, and while the game is closed it counts only as far as time away counts (see Time "
-            "away (catch-up)) unless the line says otherwise. Real time is the computer's clock: real-life minutes, "
-            f"{SAME_EVERY_SPEED}, and each such line says whether it runs while the game is paused or closed."),
+            "each timer names the clock it runs on. A timer on the game's clock follows the speed (Fast runs it "
+            "twice as fast as Normal, Slow at 0.6 times); it stands still while the game is paused, and while the "
+            "game is closed it counts only as far as time away counts (see Time away (catch-up)) unless the line "
+            f"says otherwise. Real time is the computer's clock: real-life minutes, {SAME_EVERY_SPEED}; each such "
+            "line says whether it runs while the game is paused or closed."),
             verified_clocks),
         Fact(group, (
-            f"The villagers' own clock counts age units, on the game's clock: an age unit is 3, 6 or 10 real-life minutes on "
-            f"Fast, Normal or Slow speed ({duration(unit)} now, on {speed_name(speed)}), and a villager year is 20 "
-            f"age units (1 hour, 2 hours or 3 hours 20 minutes of real-life play on Fast, Normal or Slow; "
-            f"{duration(20 * unit)} now), so Fast runs the villagers' time twice as fast as Normal and Slow at 0.6 "
-            "times. Every age, villager year and age unit on this page runs on the game's clock. Villagers work from 14 "
-            "villager "
-            "years (280 age units) and can have children from 18 (360)."), verified_units, sub=True)]
+            f"Age units: the villagers' ages count in age units, on the game's clock: an age unit is 3, 6 or 10 "
+            f"real-life minutes on Fast, Normal or Slow speed ({duration(unit)} now, on {speed_name(speed)}). A "
+            f"villager year is 20 age units: 1 hour, 2 hours or 3 hours 20 minutes of real-life play on Fast, Normal "
+            f"or Slow ({duration(20 * unit)} now). Every age, villager year and age unit on this page runs on the "
+            "game's clock. Villagers work from 14 villager years (280 age units) and can have children from 18 "
+            "(360)."), verified_units, sub=True)]
 # The owner (2026-10-24), The Lost Children to New Believers: the fire burns down while the game is closed when the
 # save was left unpaused, and not when it was saved paused.
 FIRE_CLOSED = ("While the game is closed the fire keeps burning down if the save was left unpaused; saved paused, "
@@ -358,13 +357,14 @@ def warp_dates_note(village: "Village", group: str, what: str) -> "Fact | None":
         return None
     which = ("This game has the patcher's Time Warp" if any(state is True for state in states)
              else "If this game has the patcher's Time Warp (whether it does could not be told)")
+    # Each warp moves the clock on by moving the clock's start (its epoch) back (WARP_IDS above).
     return Fact(group, (
-        f"{which}: each Time Warp (and each step of Choose Time Skip Amount) moves the game's clock on by its "
-        "real-life length (12 hours on Fast or Normal, 10 on Slow) by moving the clock's start back, and "
-        f"{what} read on that clock. A date from before a Time Warp is therefore earlier than the real moment by "
-        "the total length of the Time Warps made after it; the save keeps no count of them, so the real date "
-        "cannot be worked out from it. A date after the last Time Warp, the last save and the timers still to "
-        "come are real."), CODE)
+        f"{which}: {what} counted from the start of the save's clock, and each Time Warp (and each step of Choose "
+        "Time Skip Amount) moves that start back by its real-life length (12 hours on Fast or Normal, 10 on Slow). "
+        "So a date from "
+        "before a Time Warp reads earlier than it really was, by the total length of the Time Warps made after it; "
+        "the save keeps no count of them, so the real date cannot be worked out. Dates after the last Time Warp, "
+        "the last save and the timers still to come are real."), CODE)
 
 
 # ---------------------------------------------------------------------------
@@ -407,12 +407,12 @@ def old_age_line(thresholds: str, hundred: str, extra: str = "", who: str = "vil
     odds = "; ".join(f"{years} year{'s' if years > 1 else ''} over {chances.chance(chances.below(100, 10 * years))}"
                      for years in (1, 2, 5, 7))
     return Fact(DEATH, (
-        f"Old age: on each birthday (every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours "
-        f"20 minutes on Slow) past {thresholds}, a death roll: the {who} dies when a roll of 0 to 99 is under 10 x "
-        f"the years over, so the chance is 10% for each year over ({odds}; 100% from 10 years over, at "
-        f"{hundred}). The roll follows a hidden processed age: time away adds to the age shown in the game, "
-        "logs and graves at once, and the processed age is stepped up to it one age unit at a time within that same "
-        "update, so every birthday of the time away gets its roll before the village is drawn again."
+        f"Old age: on each birthday past {thresholds}, a death roll: the {who} dies when a roll of 0 to 99 is under "
+        f"10 x the years over, so the chance is 10% for each year over ({odds}; 100% from 10 years over, at "
+        f"{hundred}). A birthday comes every 20 age units: 1 real-life hour on Fast, 2 on Normal, 3 real-life hours "
+        "20 minutes on Slow. After time away every missed birthday still gets its roll: the age shown in the game, "
+        "logs and graves jumps at once, and a hidden second age (the processed age, which the roll follows) catches "
+        "up to it one age unit at a time in that same update, before the village is drawn again."
         + (f" {extra}" if extra else "")), RUNNING)
 
 
@@ -465,12 +465,12 @@ def starvation_lines(village: "Village", delta: int, basis: str, totem_colour: b
         if not 0 <= villager.at - delta <= len(village.data) - 4:
             continue
         number = struct.unpack_from("<i", village.data, villager.at - delta)[0]
-        words = ("every age unit without food costs 1 health" if number % 6 == 0 else
-                 "escapes the health loss on 24% of age units without food (never on Hard)")
+        words = ("loses 1 health every age unit" if number % 6 == 0 else
+                 "escapes the 1-health loss on 24% of age units (never on Hard)")
         if number % 2:
             words += "; at 20 health or less, regains 1 after a loss 31% of the time"
         colour = f" (totem colour {number % 8})" if totem_colour else ""
-        out.append(Fact(HIDDEN, f"{villager.name}: hidden number {number}{colour} -- {words}.", basis))
+        out.append(Fact(HIDDEN, f"{villager.name}: hidden number {number}{colour}. With no food it {words}.", basis))
     return out
 
 
@@ -512,14 +512,15 @@ def time_away(village: "Village", last: float, speed_value: int, paused_words: s
     full = limits["full"].get(speed, limits["full"][NORMAL])
     band, band_end, over = limits["band"], limits["band_end"], limits["over"]
     if full == band:
-        rule = f"counts in full up to {duration(full, exact=True)}, and as that up to {duration(band_end)}"
+        rule = f"from then up to {duration(band_end)} it counts as that"
     else:
-        rule = (f"counts in full up to {duration(full, exact=True)}; from then to {duration(band_end)} it counts as "
-                f"{duration(band, exact=True)}" + (" -- more than the time away, while that is under it" if band > full else ""))
+        rule = (f"from then up to {duration(band_end)} it counts as {duration(band, exact=True)}"
+                + (" (more than the time away, while that is under it)" if band > full else ""))
     out.append(Fact(TIME_AWAY, (
-        f"On {speed_name(speed)} speed time away {rule}; past that as {duration(over)}, however long the game was "
-        "closed" + (f" ({over / unit_seconds:g} years on {speed_name(speed)} speed)." if unit_seconds else ".")
-        + " A save left paused gets none."), CLAMP))
+        f"Time away limits on {speed_name(speed)} speed: up to {duration(full, exact=True)} closed counts in full; "
+        f"{rule}; longer counts as {duration(over)}"
+        + (f" ({over / unit_seconds:g} villager years on {speed_name(speed)} speed)" if unit_seconds else "")
+        + ", however long the game was closed. A save left paused gets none."), CLAMP))
     return out
 
 
@@ -760,10 +761,10 @@ def golden_lines(feature: str, per_hour: float, speed_value: int, rate_words: st
     rule = golden_line(feature, f"{wait['years']:.1f} real-life years of playing").split(" At this game's")[0]
     return [
         Fact(group, rule, RUNNING),
-        Fact(group, (f"Estimate: at this game's mushroom rate ({rate_words}: about {per_hour:g} random mushrooms an hour "
-                     f"of real-life play), one Golden Mushroom appears on average once in about {wait['years']:.1f} "
-                     f"real-life years of playing ({playing}), at {speed} speed{paused} -- "
-                     f"about {rounded(wait['hours'])} real-life hours."), False, sub=True),
+        Fact(group, (f"Estimate: one Golden Mushroom appears on average once in about {wait['years']:.1f} real-life "
+                     f"years of playing (about {rounded(wait['hours'])} real-life hours, {playing}), at {speed} "
+                     f"speed{paused}. This game's mushroom rate: about {per_hour:g} random mushrooms an hour of "
+                     f"real-life play: {rate_words}."), False, sub=True),
         Fact(group, (f"Estimate: if a full game playthrough takes {PLAYTHROUGH_DAYS} real-life days of play "
                      f"({PLAYTHROUGH_DAYS * 24} real-life hours with the game running), it takes around "
                      f"{rounded(wait['playthroughs'])} playthroughs on average to see one Golden Mushroom; "

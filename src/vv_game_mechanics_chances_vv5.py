@@ -32,7 +32,7 @@ def _conceive(parenting: int, medicine: int) -> str:
 
 # New Believers has no Golden Child, and its arrivals are island events' (the shared note says otherwise).
 NOTES = {BIRTHS: ("Births: how many babies a pregnancy brings and whether each is a boy or a girl, exactly from the "
-                  "game's own code. Villagers who arrive instead (Barrel O' Babies!, Chutes Without Ladders, News From "
+                  "game's code. Villagers who arrive instead (Barrel O' Babies!, Chutes Without Ladders, News From "
                   "Another Tribe) are under Island events.")}
 
 _MULTI = below(100, 7)                     # a multiple birth at Medicine 3 (0x465EE3)
@@ -48,18 +48,21 @@ ROLLS = (
          "and one who does not eat loses 1 health {1} of the time.",
          (Check(0x472D74, 100, 0x32, "jl"), Check(0x472D83, 100, 0x1E, "jge", take=False),
           Check(0x472DE2, 100, 0x4B, "jg", take=False)),
+         # The extra Divine Energy is added at 0x472DD2, before the roll.
          ("Eating 2 more: on Medium with 8,000 food or more, and on Hard at any amount, each believer eats 2 more "
           "{2} of the time; never on Easy. On every such age unit, whether or not the 2 more are eaten, the "
-          "believer also adds 1 more Divine Energy (0x472DD2, before the roll).",)),
+          "believer also adds 1 more Divine Energy.",)),
     Roll("Starving: " + AGE_UNIT + ", with no food left each believer loses 1 health {0} of the time.",
          (Check(0x472E0A, 100, 0x4B, "jle"), Check(0x472E88, 100, 0x1E, "jg", take=False)),
          ("On Hard, and for a believer whose hidden name number is a multiple of 6, the loss comes every age unit.",
           "After that loss, a believer at 20 health or less whose hidden number is odd (and not a multiple of 6) "
           "regains 1 health {1} of the time.")),
     Roll("A sick believer's health: " + AGE_UNIT + ", a sick believer loses 1 health {0} of the time while above 20 "
+         # The Easy roll 0x472F8A runs the sickness roll half the time; on Easy that roll answers "not sick" half the
+         # time (0x465F61).
          "health, and only " + chance(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less. "
-         "Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (the Easy roll 0x472F8A runs the "
-         "sickness roll half the time, and on Easy it answers \"not sick\" half the time, 0x465F61).",
+         "Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (half the time the game makes a "
+         "sickness roll, and on Easy that roll says \"not sick\" half the time).",
          (Check(0x472EA8, 100, 0x3C, "jg", take=False), Check(0x472EBD, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a believer who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the fire burning on a second "
@@ -103,27 +106,31 @@ ROLLS = (
           "Parenting: at Parenting 50, " + _conceive(50, 1) + ", " + _conceive(50, 2) + " or " + _conceive(50, 3)
           + " at Medicine 1, 2 or 3; at Parenting 100, " + _conceive(100, 1) + ", " + _conceive(100, 2) + " or "
           + _conceive(100, 3) + ".",
-          "The village's very first conception is certain (the game's tip 40 not yet shown skips the food refusal "
-          "and the roll). A woman of 50 or older never conceives (0x468BC9)."),
+          # The age test is at 0x468BC9.
+          "The village's very first conception is certain (until the game's tutorial tip 40 has been shown, the "
+          "food refusal and the roll are skipped). A woman of 50 or older never conceives."),
          group=BIRTHS),
     Roll("How many babies: a pregnancy brings one baby, except at Medicine level 3: then a multiple birth comes {0} "
          "of the time, and of those {1} are triplets, so " + chance(_TWINS) + " twins and " + chance(_TRIPLETS)
-         + " triplets (0x465ED7).",
+         + " triplets.",  # 0x465ED7
          (Check(0x465EE3, 100, 7, "jge", take=False), Check(0x465F03, 100, 0x19, "jge", take=False)),
+         # The birth is at 0x4730BA; the patcher's safety fixes at file offsets 0x65F10, 0x65F23, 0x730AF.
          ("The babies are born on the 41st age unit after conception (2 villager years and 1 age unit): 2 real-life "
-          "hours 3 minutes, 4 real-life hours 6 minutes or 6 real-life hours 50 minutes of play on Fast, Normal or Slow (0x4730BA).",
+          "hours 3 minutes, 4 real-life hours 6 minutes or 6 real-life hours 50 minutes of play on Fast, Normal or "
+          "Slow.",
           "In a game written by the patcher, twins or triplets are kept only while 2 or 3 villager records are free "
           "(Heathens, bodies and babies still owed counted), and a birth waits, the pregnancy kept, until the whole "
-          "litter fits (the patcher's safety fixes at 0x65F10, 0x65F23, 0x730AF); the stock game makes the litter "
-          "anyway, and a baby that finds no free record of the 150 is lost."),
+          "litter fits (the patcher's safety fixes). The normal game makes the litter anyway, and a baby that finds "
+          "no free record of the 150 is lost."),
          group=BIRTHS),
     Roll("Boy or girl: each first baby of a pregnancy, and any villager the game makes without a sex given, is a boy "
-         "{0} of the time and a girl " + chance(_not(_MALE)) + " (0x46F5E0).",
+         "{0} of the time and a girl " + chance(_not(_MALE)) + ".",  # the sex roll 0x46F5E0
          (Check(0x46F5EA, 100, 0x31, "jg", take=False),),
+         # The lopsided test 0x4730D8, 0x472B80; the copy 0x4687F0, 0x4688DC.
          ("With 6 or fewer believers a baby's sex is not rolled when the living villagers (Heathens included) are "
-          "lopsided: when one sex has more and the other has 2 or fewer, the baby is of the sex that has more "
-          "(0x4730D8, 0x472B80); otherwise it is rolled as above.",
-          "A twin or triplet is a copy of the first baby (0x4687F0, 0x4688DC): the same sex, head, body and Faith; "
-          "only its name is picked again when it came out the same."),
+          "lopsided: when one sex has more and the other has 2 or fewer, the baby is of the sex that has more; "
+          "otherwise it is rolled as above.",
+          "A twin or triplet is a copy of the first baby: the same sex, head, body and Faith; only its name is "
+          "picked again when it came out the same."),
          group=BIRTHS),
 )

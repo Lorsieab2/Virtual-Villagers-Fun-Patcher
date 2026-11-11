@@ -64,81 +64,98 @@ def _keys() -> list[Entry]:
     spots = "; ".join(f"{key} {x}, {y}" for key, (x, y) in SPOTS.items())
     return [
         hidden.translator_entry(PUMP[0]),
+        # The village's character slot 0x443290 adds 999 to the speed (state +0x17D7C).
         Entry(KEY, "Space (village screen)", (
-            "pauses: the game's speed value goes up by 999 (0x443290; the speed at state +0x17D7C), which stops the "
-            "game's clock. Space again takes the 999 off and the game runs at the speed it had (a value of exactly 999 "
-            "comes back as Normal), and clears the message bar"), C),
+            "pauses: the game's speed value goes up by 999, which stops the game's clock. Space again takes the 999 "
+            "off and the game runs at the speed it had (a value of exactly 999 comes back as Normal), and clears the "
+            "message bar"), C),
+        # 0x443290 -> 0x47B740, kept inside the map.
         Entry(KEY, "1 to 9 (village screen)", (
-            "send the view to nine spots laid out like a keypad (7 8 9 along the top, 1 2 3 along the bottom; "
-            f"0x443290 -> 0x47B740, kept inside the map): {spots}"), C),
+            "send the view to nine spots laid out like a keypad (7 8 9 along the top, 1 2 3 along the bottom; kept "
+            f"inside the map): {spots}"), C),
+        # 0x443290 hands the button's number -- 6, 1, 5, 7 and 4 -- to the screen's button slot 0x4463F0.
         Entry(KEY, "C, D, M, P and T (village screen)", (
-            "the same as clicking the screen's own buttons: C Collections, D Detail, M Map, P Puzzles and T Tech "
-            "(0x443290 hands the button's number -- 6, 1, 5, 7 and 4 -- to the screen's button slot 0x4463F0). Capital "
-            "and small letters work alike"), C),
+            "the same as clicking the screen's own buttons: C Collections, D Detail, M Map, P Puzzles and T Tech. "
+            "Capital and small letters work alike"), C),
+        # The key slot 0x443540; the armed power is 0x51D5A4 (the God Powers' +0xDC, -1 for none).
         Entry(KEY, "Esc (village screen)", (
             "the same as the Menu button, unless a God Power is armed on the pointer: then Esc only puts the power "
-            "down (nothing is cast or spent) and stops the view's glide, and the next Esc opens the Menu (0x443540; "
-            "the armed power is 0x51D5A4, the God Powers' +0xDC, -1 for none)"), C, subs=(
-                ("No power is armed when the game starts: the game's own start-up sets it to none before anything else "
-                 "runs (0x420192, from 0x493D20), so the first Esc opens the Menu. Only these set it: a mouse button's "
-                 "release (0x420611: the power whose button was pressed and released there, or none), casting it or clicking its button again (0x423547), and Esc "
-                 "(0x44356F).", C),
+            "down (nothing is cast or spent) and stops the view's glide, and the next Esc opens the Menu"), C, subs=(
+                # The start-up 0x420192 (from 0x493D20); the release 0x420611; a cast or a second click 0x423547; Esc
+                # 0x44356F.
+                ("No power is armed when the game starts: the game's start-up sets it to none before anything else "
+                 "runs, so the first Esc opens the Menu. Only these set it: a mouse button's release (the power whose "
+                 "button was pressed and released there, or none), casting it or clicking its button again, and "
+                 "Esc.", C),
+                # The wait is at 0x442708.
                 ("While a power is armed, a due island event waits; it is tried on the village's next update after "
-                 "the power is cast or put down (0x442708).", C))),
+                 "the power is cast or put down.", C))),
+        # The key slot 0x443540; the counter at the screen's +0x104.
         Entry(KEY, "F8 (village screen)", (
-            f"shows the game's own text strings one at a time in the message bar, the next one each press: string "
+            f"shows the game's text strings one at a time in the message bar, the next one each press: string "
             f"{STRINGS_FIRST} plus a counter that goes up by one a press and starts again after {STRINGS_COUNT} "
-            "strings (0x443540; the counter at the screen's +0x104). Nothing else changes: a developer's string "
-            "viewer left in the game, with no switch in front of it"), C),
+            "strings. Nothing else changes: a developer's string viewer left in the game, with no switch in front of "
+            "it"), C),
+        # The step value is the screen's +0x50; the only test is D's own (0x4433CC); F6 and F7 are not in 0x443540.
         Entry(KEY, "C then D (village screen)", (
-            "C sets the screen's step value (+0x50) to 1 and D with it at 1 sets it to 2, as in The Tree of Life's "
-            "cheat, but nothing reads the 2: the only test of the value is D's own (0x4433CC), and F6 and F7 are not "
-            "handled at all (0x443540). The cheat itself was removed; C and D only open Collections and Detail"), C,
+            "C sets a hidden value of the screen to 1 and D, with it at 1, sets it to 2, as in The Tree of Life's "
+            "cheat, but nothing reads the 2: the only test of the value is D's own, and F6 and F7 are not handled at "
+            "all. The cheat itself was removed; C and D only open Collections and Detail"), C,
               dead=True),
+        # Tested in 0x443290.
         Entry(KEY, "E, F, W, g, B, ' ; [ and ] (village screen)", (
-            "tested and do nothing (0x443290): E, F and W (capital or small) are taken as handled, a small g (not a "
-            "capital) sets the step value above to 0, and B, ', ;, [ and ] are passed on"), C),
+            "tested and do nothing: E, F and W (capital or small) are taken as handled, a small g (not a capital) "
+            "sets the hidden value above to 0, and B, ', ;, [ and ] are passed on"), C),
+        # Game state 0 from 0x441BD0, 0x449C60, 0x448F50; Collections, the Mausoleum and Tech share 0x441390.
         Entry(KEY, "F1 (help, splash, Puzzles and Milestones, Collections, the Mausoleum, Tech)", (
-            "the help pictures, the splash and Puzzles jump straight into the village (game state 0: 0x441BD0, "
-            "0x449C60, 0x448F50); on Collections, the Mausoleum and Tech F1 is the same as Esc (0x441390)"), C),
+            "the help pictures, the splash and Puzzles jump straight into the village; on Collections, the Mausoleum "
+            "and Tech F1 is the same as Esc"), C),
+        # 0x448F50 -> 0x4083A0.
         Entry(KEY, "F3 (Puzzles and Milestones)", (
-            "flips one setting of the game's drawing object each press (0x448F50 -> 0x4083A0)"), C, subs=(
+            "flips one setting of the game's drawing each press"), C, subs=(
                 ("What the setting changes on screen is not confirmed.", U),)),
+        # The slots 0x441390, 0x448F50, 0x447C90, 0x44B530, 0x43D3E0.
         Entry(KEY, "Esc (Collections, the Mausoleum, Tech, Puzzles, the Map, Villager Detail, Trophies, Adoption)", (
-            "the same as the screen's own way back (0x441390, 0x448F50, 0x447C90, 0x44B530, 0x43D3E0)"), C),
+            "the same as the screen's own way back"), C),
+        # 0x449C60 moves on to game state 24.
         Entry(KEY, "Any typed character (the splash pictures)", (
-            "shows the next splash picture, and after the last one moves on to game state 24 (0x449C60). Esc and the "
-            "other keys that are not characters do not"), C),
+            "shows the next splash picture, and after the last one moves on to the next screen. Esc and the other "
+            "keys that are not characters do not"), C),
+        # The message box 0x419B00; the Change Player box 0x418AC0.
         Entry(KEY, "Enter and Esc (pop-up boxes)", (
-            "in a message box or the name box's dialog Enter is the first button and Esc the second (0x419B00); in the "
-            "Change Player box either key closes it (0x418AC0)"), C),
+            "in a message box or the name box's dialog Enter is the first button and Esc the second; in the Change "
+            "Player box either key closes it"), C),
+        # The text box 0x40DC40; the event pump 0x4047C0 never makes characters 13 or 9.
         Entry(KEY, "Typing in a name box", (
             "a typed character from 32 to 255 is added (a number box takes only 0 to 9, and \"-\" first), Backspace "
-            "takes the last one off, and while the box is active it takes every key but Esc and does nothing with it "
-            "(0x40DC40)"), C, subs=(
-                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character (13 or 9): the event pump "
-                 "never makes those characters (0x4047C0).", C),)),
+            "takes the last one off, and while the box is active it takes every key but Esc and does nothing with "
+            "it"), C, subs=(
+                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character (13 or 9): the game never "
+                 "passes those characters on.", C),)),
         Entry(KEY, "Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4 to F7, F9 and F10", (
             "no screen of New Believers reacts to them (no input slot tests them)"), C),
+        # theMainScene passes a type-7 event to 0x443600.
         Entry(KEY, "Event type 7 (village screen)", (
-            "theMainScene passes a type-7 event to 0x443600, which returns at once; nothing makes type-7 events (the "
-            "event pump makes characters and keys only)"), C, dead=True),
+            "the village screen hands a seventh kind of input event to a routine that returns at once; nothing makes "
+            "such events (the game makes only characters and keys)"), C, dead=True),
         Entry(KEY, "Store screens: no redraw or reroll key", (
-            "no key or click redraws, refreshes or rerolls what New Believers offers. Its Tech screen (CTechScene) "
-            "offers a fixed list at fixed prices; its input and button slots "
-            "(0x441390, 0x4415F0) draw no random number (0x403660) and test only Esc and F1 (above)."
-            " The screen's mouse slot 0x4413C0 draws random numbers only to scatter 8 sparkles over an icon the player can afford while the pointer moves onto it (rand(70) twice a sparkle); a click there opens that icon's description box; nothing it offers changes."
-            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
-            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
-            "Windows' own dialog keys work there; their lists are fixed"), C),
+            # The Tech screen is CTechScene.  "draw no random number": in the game's code its input and button slots
+            # 0x441390 and 0x4415F0 (STORE_SLOTS) never call the random-number routine 0x403660 (RAND);
+            # tests/hidden_checks.py reads them.  The sparkles: the screen's mouse slot 0x4413C0, rand(70) twice a
+            # sparkle.  The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or key-state code.
+            "no key or click redraws, refreshes or rerolls what New Believers offers. Its Tech screen offers a fixed "
+            "list at fixed prices; its keys and buttons draw no random number and test only Esc and F1 (above). "
+            "The mouse draws random numbers there only to scatter 8 sparkles over an icon the player can afford while "
+            "the pointer moves onto it; a click there opens that icon's description box; nothing it offers changes. "
+            "The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with no key "
+            "handling of their own, so only Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 
 def _codes() -> list[Entry]:
     return [
-        Entry(CODE, "Typed codes and name cheats", (
-            "none: C then D is left without its cheat (above), and the name boxes only store what is typed "
-            "(0x40DC40)"), C, subs=(
+        Entry(CODE, "Typed codes and name cheats", (       # the name box 0x40DC40
+            "none: C then D is left without its cheat (above), and the name boxes only store what is typed"), C, subs=(
                 ("The developer-leftover search of 2026-10-11 (static) also found no comparison of a typed name with "
                  "any fixed word, no command-line switch and no date-based event.", U),)),
     ]
@@ -146,16 +163,19 @@ def _codes() -> list[Entry]:
 
 def _clicks() -> list[Entry]:
     return [
+        # The village's mouse-down 0x445A60; the loading screen 0x441D30.
         Entry(CLICK, "No tip spot in the stock game", (
-            "New Believers' village has no spot that shows a random tip: its mouse-down (0x445A60) picks no random "
-            "tip, and the loading screen (0x441D30) is the stock game's only random-tip picker; the patcher's "
-            "\"Clickable Tips\" adds one (see Patcher)"), C),
+            "New Believers' village has no spot that shows a random tip: a click there picks no random tip, and the "
+            "loading screen is the normal game's only random-tip picker; the patcher's \"Clickable Tips\" adds one "
+            "(see Patcher)"), C),
+        # 0x445A60: tips 678, 680 and 682.
         Entry(CLICK, "Clicking villagers in the tutorial (village)", (
             "while the tutorial's steps are armed, clicking a Heathen in a blue, orange or red mask shows that step's "
-            "tip about them (0x445A60: tips 678, 680 and 682)"), C),
+            "tip about them (tips 678, 680 and 682)"), C),
+        # The ground click runs 0x443AC0 with the spot.
         Entry(CLICK, "Places that show their state (village)", (
-            "the ground click runs 0x443AC0 with the spot, which can write a collection count (\" of \", \"pieces of "
-            "lab equipment collected\"); which places and lines it covers was not traced"), U),
+            "a click on the ground can write a collection count (\" of \", \"pieces of lab equipment collected\"); "
+            "which places and lines it covers was not traced"), U),
     ]
 
 
@@ -179,11 +199,14 @@ def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
             f"the loading screen shows one of the first {LOADING_COUNT} random tips, picked once when it is built "
-            f"(0x441D30: rand({LOADING_COUNT}) + {RANDOM_BASE}, each 1 in {LOADING_COUNT}); the tutorial (eTTip) and "
-            "milestone (eTip) pop-ups are asked for by number (0x44E730; whether one is still to show is tested by "
-            "0x44E840)"), C, subs=(
-                ("The game seeds its random numbers from the computer's clock when it starts (0x402F70 -> srand), so "
-                 "the loading screen's tip differs from run to run.", C),
+            # The loading screen 0x441D30: rand(30) + 1121 (LOADING_COUNT, RANDOM_BASE; tests/hidden_checks.py
+            # PICKERS); the pop-ups are asked for through 0x44E730, and whether one is still to show is tested by
+            # 0x44E840.
+            f"(each 1 in {LOADING_COUNT}); the tutorial (eTTip) and milestone "
+            "(eTip) pop-ups are asked for by number"), C, subs=(
+                # 0x402F70 -> srand.
+                ("The game seeds its random numbers from the computer's clock when it starts, so the loading screen's "
+                 "tip differs from run to run.", C),
                 ("Random tips 31 to 50: no stock code was found asking for them; the patcher's \"Clickable Tips\" "
                  "shows all 50.", U),
                 ("Whether each pop-up shows once a village is not traced.", U),
@@ -207,27 +230,32 @@ def _tips() -> list[Entry]:
 
 def _patcher() -> list[Entry]:
     return [
+        # The patch's hook in the village's mouse-down 0x4463AD; the main scene places the Puzzles button at 105, 690
+        # (0x444630); the tip is string 0x461 + the processor's time-stamp counter modulo 50
+        # (scripts/build_vv5_clickable_tips.py).
         Entry(PATCHER, "The tip vine (village screen)", (
-            "a left click on the village screen on the spot the patch's hook tests in the village's own mouse-down "
-            "(0x4463AD: 164 to 194 across, 729 to 757 down, just below the Puzzles button the main scene places at "
-            "105, 690 (0x444630)) plays the hou.ogg chime and shows one of all 50 random tips in the message bar "
-            "(0x461 + the processor's time-stamp counter modulo 50, each tip about 1 in 50 a click, any tip can come "
-            "again; the bar's own timer hides it; the click then goes on to the village as before; "
-            "scripts/build_vv5_clickable_tips.py)"), C, feature=CLICKABLE_TIPS,
-              subs=(("Across and down are the game's own: the button-down case asks SDL_GetMouseState for x and y "
-                     "(0x404A4F) and queues them in that order (0x404A54..0x404A61), and the village scene's slot "
-                     "hands them on in that order (0x4463AD..0x4463B7), where the hook tests x for 164 to 194 and y "
-                     "for 729 to 757 (emulated in tests/test_vv5_clickable_tips.py).", C),
-                    ("Only the village screen: the hook is in the village scene's own input slot (0x446370, named "
-                     "only by its vtable 0x49A2F8), which the game's event queue (0x402160) calls only while that "
-                     "screen is shown and no pop-up in front has taken the click; the village's buttons hide it "
-                     "before another screen opens (Menu 0x443683, Detail 0x443837, Tech 0x44386D, Map 0x4438DD, "
-                     "Collections 0x44395D, Trophies 0x4439CD, Puzzles 0x443A3D). Before v1.35.85 the hook sat in "
-                     "the game's one event loop (0x404A5C) and the same spot of any screen gave a tip and the "
-                     "chime.", C))),
+            "a left click on the village screen at 164 to 194 across and 729 to 757 down, just below the Puzzles "
+            "button, plays the hou.ogg chime and shows one of all 50 random tips in the message bar (each tip about "
+            "1 in 50 a click; any tip can come again). The bar's own timer hides it, and the click then goes on to "
+            "the village as before"), C, feature=CLICKABLE_TIPS,
+              # The button-down case asks SDL_GetMouseState for x and y (0x404A4F) and queues them in that order
+              # (0x404A54..0x404A61); the village scene's slot hands them on in that order (0x4463AD..0x4463B7)
+              # (emulated in tests/test_vv5_clickable_tips.py).
+              subs=(("Across and down are the game's own: the game reads the mouse's x and y and passes them on in "
+                     "that order to the village screen, where the patch tests x for 164 to 194 and y for 729 to "
+                     "757.", C),
+                    # The village scene's input slot 0x446370 (vtable 0x49A2F8), called by the event queue 0x402160;
+                    # the buttons hide it at Menu 0x443683, Detail 0x443837, Tech 0x44386D, Map 0x4438DD,
+                    # Collections 0x44395D, Trophies 0x4439CD, Puzzles 0x443A3D; the old hook was in the event loop
+                    # 0x404A5C.
+                    ("Only the village screen: the patch sits in the village screen's own click handling, which the "
+                     "game runs only while that screen is shown and no pop-up in front has taken the click; the "
+                     "village's buttons hide it before another screen opens. Before v1.35.85 the patch sat where "
+                     "the game reads every click, and the same spot of any screen gave a tip and the chime.", C))),
+        # native/vvfp_difficulty.
         Entry(PATCHER, "Difficulty (Options dialog)", (
             "puts back the Difficulty choice -- Easy, Normal or Hard -- in the Options dialog, directly above Game "
-            "Speed (native/vvfp_difficulty)"), C, feature=DIFFICULTY),
+            "Speed"), C, feature=DIFFICULTY),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
               C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),

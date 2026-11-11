@@ -139,11 +139,12 @@ PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_
 def _tech_entries() -> list[Entry]:
     p = faith._p
     sick = (chance(at_most(1440, 3)), chance(at_most(2460, 3)), chance(at_most(5400, 2)))
+    # Every level set to 1 by 0x423590; the price table 0x4CA3B4; the purchase 0x44167F-0x4416B4.
     out = [Entry(TECH, "The Tech screen", "tech points", (
-        "every one of the six technologies starts at level 1 in a new village (0x423590) and goes up to level 3. Each "
-        "level is bought with tech points, the price in the game's own table (0x4CA3B4); with fewer tech points the "
-        "purchase is refused and nothing is spent, otherwise the price is taken at once and the level goes up by 1 "
-        "(0x44167F-0x4416B4). At level 3 the game shows \"Fully Researched\" and nothing more can be bought. Three island "
+        "every one of the six technologies starts at level 1 in a new village and goes up to level 3. Each level is "
+        "bought with tech points at the price the game lists. With fewer tech points the purchase is refused and "
+        "nothing is spent; otherwise the price is taken at once and the level goes up by 1. At level 3 the game "
+        "shows \"Fully Researched\" and nothing more can be bought. Three island "
         "events can also raise a level for free, each on one of its two choices: You're Doing It Wrong! and The "
         "Advanced Artifacts (Science, 49.95% of the time) and The Migrating Fruit Bats (Food Mastery, every time) "
         "(see Island events)."), VERIFIED_C)]
@@ -154,8 +155,8 @@ def _tech_entries() -> list[Entry]:
                 "twice that on Fast and 0.6 of it on Slow; while catching up {1} at any speed (see Tech points and "
                 "effects).", ()),
             2: ("research gives the Research skill {0} (catching up {1}).",
-                (("The Clothing Hut's site appears once Science is above 1 (its reveal 0x4357FC, run by the buildings' "
-                  "update 0x434BF0).", VERIFIED_C),
+                # The reveal 0x4357FC, run by the buildings' update 0x434BF0.
+                (("The Clothing Hut's site appears once Science is above 1.", VERIFIED_C),
                  ("The Advanced Artifacts island event needs Science exactly at level 2; You're Doing It Wrong! needs it "
                   "below 2 (see Island events).", VERIFIED_E))),
             3: ("research gives the Research skill {0} (catching up {1}).", ()),
@@ -167,9 +168,10 @@ def _tech_entries() -> list[Entry]:
                 f"always one baby; at Parenting 50 an embrace conceives {_conceive(50, 1)} of the time.", ()),
             2: (f"falling sick {sick[1]} an age unit; old from 58 years; old-age rolls past 63; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 2)} of the time.",
+                # The study tests 0x47998F, 0x46BDED; the drop handler registered at 0x47A9AB.
                 (("Dropping a villager on the medicine spot to study needs Medicine 2, and a studying villager keeps the "
-                  "task only with Healing 6 or more (0x47998F, 0x46BDED); the drop handler is registered (0x47A9AB) but "
-                  "its call from the drop was not traced.", UNCONFIRMED),)),
+                  "task only with Healing 6 or more. The code that reacts to that drop was found, but not how the drop "
+                  "reaches it.", UNCONFIRMED),)),
             3: (f"falling sick {sick[2]} an age unit; old from 66 years; old-age rolls past 71; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 3)} of the time; a believer who is not sick passes the regain-health "
                 f"check (+1 health) every age unit while there is food (see Chances); and a pregnancy brings twins "
@@ -181,30 +183,34 @@ def _tech_entries() -> list[Entry]:
                 f"on a roll of 0 to 99 at or under the skill + 33: {chance(below(100, 34))} at skill 0.", ()),
             2: (f"the skill check gets 15 more: skill + 48 or under, {chance(below(100, 49))} at skill 0.", ()),
             3: (f"the skill check gets 30 more: skill + 63 or under, {chance(below(100, 64))} at skill 0.",
-                (("The Nursery School's site appears once Learning is above 2 (its reveal 0x4358BC).", VERIFIED_C),)),
+                # The reveal 0x4358BC.
+                (("The Nursery School's site appears once Learning is above 2.", VERIFIED_C),)),
         },
         "Construction": {
             1: ("only Hut 1's site is open; Hut 2 and Hut 3 do not appear yet, so the tribe cannot grow past 16 "
                 "believers (the babies they carry counted) until Construction 2 and Hut 2.", ()),
-            2: ("Hut 2's site appears (0x4356FC); the Tribute Statue's second stage can be worked on once Spirituality "
-                "is at level 2 too (0x432350).", ()),
-            3: ("Hut 3's site appears (0x43576C); the Tribute Statue's third stage can be worked on once Spirituality "
-                "is at level 3 too.", ()),
+            # Hut 2's reveal 0x4356FC, Hut 3's 0x43576C; the statue's stages 0x432350.
+            2: ("Hut 2's site appears; the Tribute Statue's second stage can be worked on once Spirituality is at "
+                "level 2 too.", ()),
+            3: ("Hut 3's site appears; the Tribute Statue's third stage can be worked on once Spirituality is at "
+                "level 3 too.", ()),
         },
         "Food Mastery": {
             1: ("every food gain is stored as it is.", ()),
-            2: ("every food gain is raised by half, rounded down (0x41EB5B): a brown mushroom 6 becomes 9, a red one 35 "
-                "becomes 52; losses are not changed.", ()),
-            3: ("every food gain is doubled (0x41EB62): a brown mushroom 12, a red one 70; losses are not changed.", ()),
+            # The food-gain multiplier: x1.5 at 0x41EB5B, x2 at 0x41EB62.
+            2: ("every food gain is raised by half, rounded down: a brown mushroom 6 becomes 9, a red one 35 becomes "
+                "52; losses are not changed.", ()),
+            3: ("every food gain is doubled: a brown mushroom 12, a red one 70; losses are not changed.", ()),
         },
         "Spirituality": {
+            # The Devotion gain 0x46BC89; the cap 0x425071 and 0x425085; the statue's stages 0x432350.
             1: (f"each {AGE_UNIT} every believer gains 1 Faith {p(10)} of the time from this roll (see Faith and "
-                "Heathens); every successful Devotion skill check gains 1 more Devotion (0x46BC89).", ()),
-            2: (f"Faith +1 {p(20)} of the time each age unit; the Divine Energy cap +50 (0x425071); the Tribute "
-                "Statue's second stage can be worked on with Construction 2 (0x432350); every successful Devotion "
-                "skill check gains 2 more Devotion (0x46BC89).", ()),
-            3: (f"Faith +1 {p(30)} of the time each age unit; the Divine Energy cap +50 more (0x425085); the statue's "
-                "third stage with Construction 3; every successful Devotion check gains 3 more Devotion.", ()),
+                "Heathens); every successful Devotion skill check gains 1 more Devotion.", ()),
+            2: (f"Faith +1 {p(20)} of the time each age unit; the Divine Energy cap +50; the Tribute Statue's second "
+                "stage can be worked on with Construction 2; every successful Devotion skill check gains 2 more "
+                "Devotion.", ()),
+            3: (f"Faith +1 {p(30)} of the time each age unit; the Divine Energy cap +50 more; the statue's third "
+                "stage with Construction 3; every successful Devotion check gains 3 more Devotion.", ()),
         },
     }
     for tid, name, two, three in TECHS:
@@ -243,19 +249,23 @@ POWER_WORDS = {
     "Tempest": "a full-strength storm (weather 5) for one weather spell; while it rains every random spawn is a "
                "mushroom; with The Lake not started and the weather level above 50, The Lake gets 1 of its 2 points "
                "120 real-life seconds later (real time).",
+    # The Heathens' fog test 0x476260.
     "Fog of Doom": "thick fog for 2 real-life minutes (real time, at every speed, paused or not); while it lasts Heathens "
-                   "do not see believers, so none is chased away or scared off (0x476260), and the tribe's villagers "
+                   "do not see believers, so none is chased away or scared off, and the tribe's villagers "
                    "are drawn faded; mushrooms and collectibles appear twice as often (36 in 32,768 each update "
                    "instead of 18).",
+    # The age credit 0x470051; the action divisor 0x4735AB; the step loop 0x471EF9.
     "Time Warp": "for 5 real-life minutes (real time, paused or not) the target gains 6, 3 or 2 age units each "
-                 "real-life minute on Fast, Normal or Slow (20 ÷ the speed value, 0x470051), 18, 18 or 20 times "
-                 "as fast: 24 to 43, 12 to 31 or 8 to 28 age units in all; each timed action lasts a tenth as long "
-                 "and each update moves the target 10 steps (0x4735AB, 0x471EF9); not saved, ended by quitting.",
+                 "real-life minute on Fast, Normal or Slow (20 ÷ the speed value), 18, 18 or 20 times as fast: 24 "
+                 "to 43, 12 to 31 or 8 to 28 age units in all; each timed action lasts a tenth as long and each "
+                 "update moves the target 10 steps; not saved, ended by quitting.",
     "Revive": "a dead villager still lying on the island comes back with 100 health after 4 real-life seconds (real time); cast "
               "on the dry lake bed with The Lake not started, The Lake gets 1 of its 2 points.",
     "Grant Youth": "a living believer of 14 or more is brought back to 5 years old (100 age units), 3 age units each "
                    "update; skills, likes and Faith are kept. A pregnant villager stays pregnant, but the time she had "
-                   "already carried is counted backwards, so the birth comes that much later (0x41FEB0).",
+                   "already carried is added on instead of taken off: the baby comes after a full pregnancy (41 "
+                   "age units) plus the time she had already carried, not when she gets back to the age she was when "
+                   "she conceived (see God powers for an example).",  # 0x41FEB0; the arithmetic: God powers' comment
     "Earthquake": "every living villager but the six special roles (the Heathen Doctor, Heathen Chief, Heathen "
                   "Master Scientist, Heathen Master Builder, Heathen Master Farmer and Heathen Mommy, and the Retired "
                   "Chief, who keeps the Heathen Chief's role; see God powers) gains 2 to 8 Faith (a Heathen above 0 "
@@ -272,8 +282,9 @@ def _power_entries() -> list[Entry]:
         "Blessings Day Celebration island event fills it to the cap. The cap is 5 x (believers + the babies they carry "
         "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000; a power "
         "can be cast whenever the Divine Energy is at least its cost (see God powers)."), VERIFIED_E,
-        (("A set-up routine sets the cap to 50 and adds 50 Divine Energy (0x425DA6); that it is the new village's "
-          "start was not traced.", UNCONFIRMED),))]
+        # The set-up routine is at 0x425DA6.
+        (("Some code of the game's sets the cap to 50 and adds 50 Divine Energy; that this is the new village's start "
+          "was not traced.", UNCONFIRMED),))]
     for name, cost, _ in powers.TABLE:
         out.append(Entry(POWER, name, f"{cost:,} Divine Energy",
                          POWER_WORDS[name] + " Every number and its source: God powers.", VERIFIED_E))
@@ -288,39 +299,47 @@ def _puzzle_entries() -> list[Entry]:
     p = faith._p
     return [
         Entry(PUZZLE, "The Sick Heathen", "cure the sick Heathen Doctor", (
-            "a healer's successful cure sets the Heathen Doctor's Faith to 25 to 59, each equally likely (0x468CFB), "
-            "so the Doctor joins the tribe as a believer."), VERIFIED_E),
+            "a healer's successful cure sets the Heathen Doctor's Faith to 25 to 59, each equally likely, so the "
+            "Doctor joins the tribe as a believer."), VERIFIED_E),  # the cure 0x468CFB
         Entry(PUZZLE, "The Prison Break", "30 successful \"Making a granary out of the fence\" building actions", (
-            "the bamboo fence becomes the food bin (0x438BB3: +1 a successful action, done at 30). Until then no "
-            "villager gathers food on their own: noni picking, crop harvests and fishing all need it (0x46C583)."),
+            # +1 a successful action, done at 30 (0x438BB3); the food jobs need the bin (0x46C583).
+            "the bamboo fence becomes the food bin. Until then no villager gathers food on their own: noni picking, "
+            "crop harvests and fishing all need it."),
          VERIFIED_C),
         Entry(PUZZLE, "The Hungry Totem", "villagers dismantle it (\"Dismantling the Hungry Totem\")", (
-            "while the game catches up time away, noni is picked only once this totem is down (0x46C5B5); in play "
-            "noni is picked once the food bin is built."), VERIFIED_C,
+            # The catch-up test 0x46C5B5.
+            "while the game catches up time away, noni is picked only once this totem is down; in play noni is "
+            "picked once the food bin is built."), VERIFIED_C,
               (("How many dismantling actions it takes was not traced.", UNCONFIRMED),
-               ("The game keeps the time it was solved at, as for every puzzle (Advance 0x43AF80), but in the base "
-                "game the Puzzles screen always says \"Completed in 0 hours\" for it: its branch jumps past the step "
-                "that keeps the time it reads (0x44917C to 0x449075, past 0x449073). "
+               # The solve time is kept by Advance 0x43AF80; the Puzzles screen's branch jumps 0x44917C -> 0x449075,
+               # past 0x449073.
+               ("The game keeps the time it was solved at, as for every puzzle, but in the normal game the Puzzles "
+                "screen always says \"Completed in 0 hours\" for it: the screen skips the step that reads the kept "
+                "time. "
                 f"{_feature('vv5_fix_vanilla_bugs')}: the screen shows the kept hours, for a village that solved it "
                 "before the patch too.", VERIFIED_C))),
         Entry(PUZZLE, "The Knowing Totem", "villagers dismantle it (\"Dismantling the Knowing Totem\")", (
-            "opens the lab: while catching up, research is done only once it is down (0x46C75E); the second "
+            # The catch-up test 0x46C75E.
+            "opens the lab: while catching up, research is done only once it is down; the second "
             "collectible set (the lab gear) can appear only from then on; The Pesky Critter island event becomes "
             "possible."), VERIFIED_C,
               (("How many dismantling actions it takes was not traced.", UNCONFIRMED),)),
         Entry(PUZZLE, "The Hydroponic Farm", "30 points, from the aqueduct repair", (
             "the farm's crops are refilled to 800 every 40 age units (2 hours, 4 hours or 6 hours 40 minutes of "
             "real-life play on Fast, Normal or Slow) and a harvest gives 10, 7 or 4 food (7 while catching up), before "
+            # The +80 Faith at 0x439E35.
             "Food Mastery; Hand of Bloom on the field fills the crops at once; solving it adds 80 Faith to the Heathen "
-            "Master Farmer (0x439E35); the Army Ants!, Aphid Infestation! and The River Breaks Its Banks events "
+            "Master Farmer; the Army Ants!, Aphid Infestation! and The River Breaks Its Banks events "
             "become possible. The Earthquake takes 1 of the 30 points from an unfinished farm."), VERIFIED_E,
-              (("The repair is \"Directing aqueduct repair\", which only a master of Research (88 or more) is kept on "
-                "(0x46BE38), and \"Repairing aqueduct\"; how many points each action gives was not traced.",
+              # The Research master test 0x46BE38.
+              (("The repair is \"Directing aqueduct repair\", which only a master of Research (88 or more) is kept on, "
+                "and \"Repairing aqueduct\"; how many points each action gives was not traced.",
                 UNCONFIRMED),)),
         Entry(PUZZLE, "The Buried Mausoleum", "villagers restore it (\"Restoring the mausoleum\")", (
+            # The burial pick 0x46F130; the Earthquake's +50 at 0x43C9C0.
             "the dead are buried from then on: with a body waiting, an idle villager buries it 25% of the time, and "
-            "one with Healing 50 or more 70% of the rest (0x46F130). The Earthquake adds 50 of the 1,000 restoring "
-            "points it needs (0x43C9C0)."), VERIFIED_C),
+            "one with Healing 50 or more 70% of the rest. The Earthquake adds 50 of the 1,000 restoring points it "
+            "needs."), VERIFIED_C),
         Entry(PUZZLE, "The Blocking Totem", "villagers dismantle it (\"Dismantling the Blocking Totem\")", (
             "the game's tip says the mausoleum can then be dug out; the code that ties the two was not traced."),
          UNCONFIRMED),
@@ -331,12 +350,14 @@ def _puzzle_entries() -> list[Entry]:
             "not traced."), UNCONFIRMED),
         Entry(PUZZLE, "The Lake", "2 points", (
             "1 point from a Tempest cast while The Lake has none and the weather level is above 50 (it comes 120 "
-            "real-life seconds later, real time), 1 from Revive cast on the dry lake bed (0x43C7E0, 0x4233DD). Solved, the lake "
-            "has fish: a fishing trip gives 4 food a fish, before Food Mastery (0x46D790), and nothing runs out."),
+            # The points 0x43C7E0, 0x4233DD; the fish 0x46D790.
+            "real-life seconds later, real time), 1 from Revive cast on the dry lake bed. Solved, the lake has fish: a "
+            "fishing trip gives 4 food a fish, before Food Mastery, and nothing runs out."),
          VERIFIED_E),
         Entry(PUZZLE, "The Pain Totem", "a Lightning Strike on it, then villagers take it down", (
-            "villagers work on taking it down only during the 75 real-life seconds (real time) after each strike on it (0x43A0C0). "
-            "Solved, healers with nobody to cure study medicine on their own (0x46CD24)."), VERIFIED_E),
+            # The strike's window 0x43A0C0; the healers' studying 0x46CD24.
+            "villagers work on taking it down only during the 75 real-life seconds (real time) after each strike on "
+            "it. Solved, healers with nobody to cure study medicine on their own."), VERIFIED_E),
         Entry(PUZZLE, "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", (
             "the game's tip says the warm springs become the villagers'; what changes in play was not traced."),
          UNCONFIRMED),
@@ -346,26 +367,29 @@ def _puzzle_entries() -> list[Entry]:
         Entry(PUZZLE, "The Tribute Statue", "three building stages", (
             f"each stage raises the Divine Energy cap: +50 at the first, +50 more at the second, +100 once solved; "
             f"each age unit every believer gains 1 Faith {p(10)} of the time at the first stage, {p(20)} at the second "
+            # The stages' tests 0x432350; Honoring offered from the first stage at 0x46CDB6.
             f"and {p(30)} once solved. The second stage needs Construction and Spirituality both at 2 or more, the "
-            "third both at 3 (0x432350). From the first stage villagers choose Honoring as a job (0x46CDB6)."),
+            "third both at 3. From the first stage villagers choose Honoring as a job."),
          VERIFIED_E,
-              (("Polishing the finished statue: work event 40 adds 1 Divine Energy (0x46DA1B); which action queues "
-                "that event was not traced.", UNCONFIRMED),
+              # Work event 40 at 0x46DA1B.
+              (("Polishing the finished statue: a work step of the game's adds 1 Divine Energy; which action starts "
+                "it was not traced.", UNCONFIRMED),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
                 "or Honors, 50% each, whatever their skills; one who carries the job on alone keeps the 50/50 only when "
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
         Entry(PUZZLE, "The Blind Totem", "villagers make and install a golden eye (panning, smelting, installing)", (
             "until it is solved no God power can be cast on the island's north-east corner (world x past 1,815 and y "
-            "above 445): the game says \"Your vision and power are blocked here!\" (0x4234C8)."), VERIFIED_E),
+            "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E),  # 0x4234C8
         Entry(PUZZLE, "The Heathen Chief", "four necklace pieces brought to the Chief", (
-            "the Heathen Chief's Faith is set to 100 (0x4360EE), so the Chief joins the tribe."), VERIFIED_E,
+            "the Heathen Chief's Faith is set to 100, so the Chief joins the tribe."), VERIFIED_E,  # 0x4360EE
               (("The pieces are the scientist's, the doctor's, the farmer's and the builder's (the game's own action "
                 "names); where each is found was not traced.", UNCONFIRMED),)),
         Entry(PUZZLE, "The Heathen Parent", "convert the Heathen Mommy", (
             f"{_feature('vv5_heathen_mommy_puzzle')} only: a new village's Heathen Mommy carries one baby, and solving "
-            "her puzzle sets her Faith to 50 to 59, each equally likely, which brings her into the tribe (0x43979C); it "
-            "is the 17th puzzle on the Puzzles screen. Without the patch the Puzzles screen stops after puzzle 16 "
-            "(0x44974C)."), VERIFIED_E),
+            # Her Faith set at 0x43979C; the Puzzles screen's count 0x44974C.
+            "her puzzle sets her Faith to 50 to 59, each equally likely, which brings her into the tribe; it is the "
+            "17th puzzle on the Puzzles screen. Without the patch the Puzzles screen stops after puzzle 16."),
+         VERIFIED_E),
     ]
 
 
@@ -374,38 +398,42 @@ def _puzzle_entries() -> list[Entry]:
 # ---------------------------------------------------------------------------
 
 def _building_entries() -> list[Entry]:
+    # The builders' site test 0x46C791-0x46CA80; the points added one at a time at 0x434D9B.
     build = ("Builders only work on a site that already has some progress (more than 1%), so the player drops the "
-             "first builder on it (0x46C791-0x46CA80); every successful Building skill check adds the points one at a "
-             "time (0x434D9B).")
+             "first builder on it; every successful Building skill check adds the points one at a time.")
     h1, h2, h3 = (BUILDING_CLASSES[n] for n in (19, 20, 21))
     clothing, shack, nursery = (BUILDING_CLASSES[n] for n in (22, 23, 24))
     return [
         Entry(BUILDING, "Hut 1", f"{h1[2]:,} points, {h1[3]} a successful build action ({_actions(h1[2], h1[3])} "
                                  "actions)", (
-            "the tribe can grow to 10 believers or more (the babies they carry counted) only with it built: the room "
-            "check refuses a pregnancy at 10 to 16 believers without it (0x472C74). " + build), VERIFIED_C),
+            # The room check 0x472C74.
+            "the tribe can grow to 10 believers or more (the babies they carry counted) only with it built: without "
+            "it a pregnancy is refused at 10 to 16 believers. " + build), VERIFIED_C),
         Entry(BUILDING, "Hut 2", f"{h2[2]:,} points, {h2[3]} a successful build action ({_actions(h2[2], h2[3])} "
                                  "actions)", (
-            "needed for 17 believers or more (0x472C65); its site appears only at Construction 2 (0x4356FC)."),
+            # The room check 0x472C65; the reveal 0x4356FC.
+            "needed for 17 believers or more; its site appears only at Construction 2."),
          VERIFIED_C),
         Entry(BUILDING, "Hut 3", f"{h3[2]:,} points, {h3[3]} a successful build action ({_actions(h3[2], h3[3]):,} "
                                  "actions)", (
-            "needed for 35 believers or more (0x472C56); its site appears only at Construction 3 (0x43576C). The "
-            "overall limit is 90 believers, 95 with one collection completed, 105 with both (0x472BDC)."), VERIFIED_C),
+            # The room check 0x472C56, the limit 0x472BDC; the reveal 0x43576C.
+            "needed for 35 believers or more; its site appears only at Construction 3. The overall limit is 90 "
+            "believers, 95 with one collection completed, 105 with both."), VERIFIED_C),
         Entry(BUILDING, "The Clothing Hut", f"{clothing[2]:,} points, {clothing[3]} a successful build action "
                                             f"({_actions(clothing[2], clothing[3])} actions)", (
-            "its site appears at Science 2 (0x4357FC). Built, a villager dropped on it changes clothes (its own "
-            "entry)."), VERIFIED_C),
+            "its site appears at Science 2. Built, a villager dropped on it changes clothes (its own entry)."),
+         VERIFIED_C),  # the reveal 0x4357FC
         Entry(BUILDING, "The Love Shack", f"{shack[2]:,} points, {shack[3]} a successful build action "
                                           f"({_actions(shack[2], shack[3])} actions)", (
-            "no baby is conceived in play until it is built: the embrace refuses without it (0x468A69). Time away "
-            "does not need it (see Time away (catch-up))."), VERIFIED_C),
+            "no baby is conceived in play until it is built: the embrace is refused without it. Time away does not "
+            "need it (see Time away (catch-up))."), VERIFIED_C),  # the embrace's test 0x468A69
         Entry(BUILDING, "The Nursery School", f"{nursery[2]:,} points, {nursery[3]} a successful build action "
                                               f"({_actions(nursery[2], nursery[3])} actions)", (
-            "its site appears at Learning 3 (0x4358BC). Built, a villager dropped on it with at least 3 of the six "
-            "skills at 50 or more becomes the teacher (0x43A990, 0x43AA06), and every age unit the teacher's lesson "
-            "raises every child's skills, Heathen children included: a lesson spread over all six skills gives each "
-            "a fifth of the lesson, six fifths in all (0x425FDF); the rule is under Tech points and effects."),
+            # The reveal 0x4358BC; the teacher 0x43A990, 0x43AA06; the fifth 0x425FDF.
+            "its site appears at Learning 3. Built, a villager dropped on it with at least 3 of the six skills at 50 or "
+            "more becomes the teacher, and every age unit the teacher's lesson raises every child's skills, Heathen "
+            "children included: a lesson spread over all six skills gives each a fifth of the lesson, six fifths in "
+            "all; the rule is under Tech points and effects."),
          VERIFIED_C,
               ((f"{_feature('vv5_vv4_nursery_divisor_parity')}: a spread lesson gives each of the six skills a sixth, "
                 "exactly one lesson in all; lessons on the strongest skill are unchanged.", VERIFIED_C),)),
@@ -417,9 +445,10 @@ def _building_entries() -> list[Entry]:
          VERIFIED_E,
               (("Which of the three actions gives each of the 3 points was not traced.", UNCONFIRMED),)),
         Entry(BUILDING, "Fixing a hut (the repair)", "free; a builder's own job", (
-            "offered only once Huts 1 to 3 and the Clothing Hut are all built (0x46C9E6): the builder examines one of "
-            "the three huts, picked at random, and fixes it 70% of the time (0x463F47); the fix ends with a Building "
-            "skill check that trains Building."), VERIFIED_C,
+            # Offered at 0x46C9E6; the 70% at 0x463F47.
+            "offered only once Huts 1 to 3 and the Clothing Hut are all built: the builder examines one of the three "
+            "huts, picked at random, and fixes it 70% of the time; the fix ends with a Building skill check that "
+            "trains Building."), VERIFIED_C,
               ((f"{_feature('vv5_builders_fix_huts')}: about three times in four a builder builds first, and with no "
                 "project to work on examines and fixes a built hut even before every hut stands.", VERIFIED_C),
                (f"{_feature('vv5_builders_and_healers_work_first')}: builders and healers try their own work first about "
@@ -455,17 +484,20 @@ def _item_entries() -> list[Entry]:
             "Completing the set raises the believers' limit by 5. Once the Knowing Totem is down, half of the "
             "collectibles that appear are from each set."), VERIFIED_E),
         Entry(ITEM, "A change of clothes", "5,000 tech points, at the built Clothing Hut", (
-            "the villager's clothes-changing task (work event 90, queued at 0x45CF5F) takes 5,000 tech points "
-            "(0x46CEC7) and opens the outfit chooser: its arrows step the villager's body through the game's 29 outfits "
-            "(0 to 28, 0x419CE0); one of its buttons puts the old outfit back and returns the 5,000 (0x419E77). With "
-            "fewer than 5,000 tech points the villager is \"Confused\" and nothing is spent (0x46CE93)."), VERIFIED_C),
+            # Work event 90, queued at 0x45CF5F, takes the 5,000 at 0x46CEC7; the chooser steps the body 0 to 28
+            # (0x419CE0); its fourth button returns the 5,000 (0x419E77); too few points at 0x46CE93.
+            "changing clothes takes 5,000 tech points and opens the outfit chooser: its arrows step the villager's "
+            "body through the game's 29 outfits (0 to 28); one of its buttons puts the old outfit back and returns "
+            "the 5,000. With fewer than 5,000 tech points the villager is \"Confused\" and nothing is spent."),
+         VERIFIED_C),
         # The same snack as The Tree of Life's (0x46438D there), found in New Believers 2026-10-27: the "Eating" action
         # 0x457D30 (registered as action 0x33 at 0x4641AF; its name, string 0x4C4) queues work event 0x57 (0x457DBB),
         # which the work-event dispatcher 0x46CE60 (table 0x46DEB0, entry 76) sends to 0x46CEF6.
         Entry(ITEM, "A snack at the food bin", "free; a villager who goes \"Eating\"", (
-            "a villager below 100 health (0x46CEFC) while the food bin holds food (0x46CF09) regains 1 health 50% of "
-            "the time (a roll of 0 to 99 under 50, 0x46CF16..0x46CF35), and the bin loses 1 food either way "
-            "(0x46CF48, the food adder 0x41EB40)."), VERIFIED_C),
+            # The health test 0x46CEFC, the food test 0x46CF09, the roll 0x46CF16..0x46CF35 (rand(100) < 50), the
+            # food taken 0x46CF48 through the food adder 0x41EB40.
+            "a villager below 100 health while the food bin holds food regains 1 health 50% of the time, and the bin "
+            "loses 1 food either way."), VERIFIED_C),
         Entry(ITEM, "Tech points", "how they are earned", (
             "research (Science level 1 to 3 above), the lab gear, the fire, duplicate lab gear and island events; "
             "they are spent on the technologies and a change of clothes."), VERIFIED_E),
@@ -481,20 +513,19 @@ def _item_entries() -> list[Entry]:
 ORIGINS_TECH = (
     ("Time Warp", 50_000, "the village moves on 12, 6 or 3 villager years on Fast, Normal or Slow speed (one 12-hour "
                           "real-life clock jump on Fast or Normal, 10 hours on Slow), each villager's age credited as "
-                          "the game's own aging does; refused, nothing spent, while paused or with nobody alive."),
+                          "the game's ageing does; refused, nothing spent, while paused or with nobody alive."),
     ("Island Event", 30_000, "makes the next island event due now; the game picks it as usual. One at a time: refused, "
                              "nothing spent, while an Island Event or Barrel of Babies is waiting."),
-    ("Barrel of Babies", 75_000, "after the Tech screen closes, the game's own Barrel O' Babies! event comes (up to 3 "
+    ("Barrel of Babies", 75_000, "after the Tech screen closes, the game's Barrel O' Babies! event comes (up to 3 "
                                  "children). Refused, nothing spent, without room for 3 more villagers."),
     ("Tech Point Doubler", 500_000, "doubles every tech point research earns (the base, the lab gear bonus and the "
                                     "fire's +1); island events and duplicate lab gear are not doubled. Removable for "
                                     "free (no refund) and buyable again; not sold with 256 Villagers "
                                     "(Experimental)."),
-    ("Food Point Doubler", 500_000, "doubles the food of every mushroom picked up, after Food Mastery (the one food "
-                                    "gain it lets through returns to 0x414970, the mushroom pickup that also counts "
-                                    "Mushrooms Found); noni picks, crop harvests, fishing and island events are not "
-                                    "doubled. Removable for free (no refund) and buyable again; not sold with 256 "
-                                    "Villagers (Experimental)."),
+    # The one food gain it lets through returns to 0x414970, the mushroom pickup that also counts Mushrooms Found.
+    ("Food Point Doubler", 500_000, "doubles the food of every mushroom picked up, after Food Mastery; noni picks, "
+                                    "crop harvests, fishing and island events are not doubled. Removable for free (no "
+                                    "refund) and buyable again; not sold with 256 Villagers (Experimental)."),
     ("Full Heal / Cure All", 30_000, "every living believer is cured of sickness and set to 100 health; each cure "
                                      "counts in People Cured. Heathens are skipped."),
     ("Complete All Collections", 1_000_000, "marks all 48 collectibles found and earns the collection goals still "
@@ -547,7 +578,7 @@ def _patcher_entries() -> list[Entry]:
     out.append(Entry(PATCHER, "Story / Cheat Upgrades", "0 tech points", (
         f"{_feature(STORY)}: every Origins upgrade above costs 0 tech points, and the Tech screen's Upgrades add Choose "
         "Time Skip Amount (1 to 72 villager years, run as Time Warps one after another), Pick Island Event (the chosen "
-        "event happens if its own condition holds, with the game's own odds) and Custom Island Event."), VERIFIED_C,
+        "event happens if its own condition holds, with the game's odds) and Custom Island Event."), VERIFIED_C,
         ((f"{_feature(STORY_COST)}: the Origins upgrades keep their prices, Pick Island Event and Custom Island Event "
           "cost 30,000 tech points each, and Choose Time Skip Amount 50,000, taken once when the skip starts; ticking "
           "Story / Cheat Upgrades ticks this too.", VERIFIED_C),)))

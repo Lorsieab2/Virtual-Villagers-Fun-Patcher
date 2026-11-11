@@ -27,7 +27,7 @@ PAIRS = (
      "The owner sees a brewed potion's time follow the game speed", gm.OWNER),
     # The Lovers: the picker's adult class 360..999 (0x45D460) vs the owner's teenager.
     (3, "Island events",
-     "In the game's code both picks use the picker's adult class, 360 to 999 age units", gm.RUNNING,
+     "In the game's code both picks come only from adults of 360 to 999 age units", gm.RUNNING,
      "The owner has seen The Lovers choose a teenager (14 to 17 villager years) while playing.", gm.OWNER),
     (3, "Island events",
      "A teenager, in the game's code: as for her gift, the game's own draw never chooses one", gm.RUNNING,
@@ -37,10 +37,10 @@ PAIRS = (
      "Breeding age: no villager under 18 has children, but the owner has seen The Lovers", gm.OWNER),
     # New Believers: The Missing Kids marks a Heathen child sick (0x4161D1) vs the owner's "never fall sick".
     (5, "Island events",
-     "In the game's code \"Yell for help\" marks the Heathen child sick too (0x4161D1)", gm.RUNNING,
+     "In the game's code \"Yell for help\" marks the Heathen child sick too", gm.RUNNING,
      "The owner: Heathens never fall sick in play.", gm.OWNER),
     (5, "Faith and Heathens",
-     "Heathens: the life tick skips them (0x472CB7)", gm.RUNNING,
+     "Heathens, in the game's code: they are skipped by the villagers' age-unit update", gm.RUNNING,
      "The owner: Heathens never fall sick in play.", gm.OWNER),
     (5, "Death and graves",
      "In the game's code a Heathen can be marked sick: The Missing Kids", gm.CODE,
@@ -82,13 +82,14 @@ class BothSidesAreWritten(unittest.TestCase):
         for game, group, code, code_label, _seen, _label in PAIRS:
             with self.subTest(game=game, code=code):
                 text = self._one(game, group, code, code_label).text
-                if "0x" not in text:     # the Hidden villager stats Lovers line cites its addresses in the comment
-                    self.assertIn("The Lovers in the game's code", text)
+                if "0x" not in text:     # lines that cite their addresses in a code comment name the code instead
+                    self.assertRegex(text, r"^(The game |In the game's code|A teenager, in the game's code|"
+                                           r"The Lovers in the game's code|Heathens, in the game's code)")
 
     def test_vv1_running_keeps_the_untraced_step_unconfirmed(self) -> None:
         # Step 1 of the step dispatcher (0x43CBD0) sets the running speed under 14 with no dislike read; what
         # queues it is not traced, so the line stays UNCONFIRMED.
-        self._one(1, "Hidden villager stats", "Another movement step (0x43CBD0) gives every villager under 14", False)
+        self._one(1, "Hidden villager stats", "Another movement step gives every villager under 14", False)
 
     def test_vv3_autosave_and_the_live_run_are_both_written(self) -> None:
         # The code: the per-frame update 0x427720 runs the save check 0x427DD0 at 0x427B40, every 600 seconds of
@@ -99,7 +100,7 @@ class BothSidesAreWritten(unittest.TestCase):
                                                          "new save")]
         self.assertEqual(len(seen), 1)
         self.assertIs(lines[seen[0]], False)                       # UNCONFIRMED: the run is not explained
-        self.assertIn("0x427DD0", seen[0])
+        self.assertIn("the game's code saves every 10 real-life minutes at every speed (Autosave above)", seen[0])
         self.assertIn("Autosave: while the game is open it checks the computer's clock on every frame",
                       gm.autosave_line(3))
 

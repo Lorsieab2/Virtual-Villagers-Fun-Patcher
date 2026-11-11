@@ -69,11 +69,12 @@ ROLLS = (
           "a multiple of 6, the loss comes every age unit.",
           "After that loss, a villager at 20 health or less whose hidden number is odd regains 1 health {1} of the "
           "time.")),
+    # The "1 age unit in 4" on Easy: the Easy roll 0x460280 runs the sickness roll half the time, and on Easy that roll
+    # answers "not sick" half the time (0x455C12).
     Roll("A sick villager's health: " + AGE_UNIT + ", a sick villager loses 1 health {0} of the time while above 20 "
          "health, and only " + _ch(times(at_most(100, 60), at_most(100, 30))) + " of age units at 20 or less ({0} "
-         "times {1}). Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (the Easy roll "
-         "0x460280 runs the sickness roll half the time, and on Easy it answers \"not sick\" half the time, "
-         "0x455C12).",
+         "times {1}). Otherwise sickness ends only on Easy, by itself on about 1 age unit in 4 (on Easy the "
+         "sickness roll is made only half the time, and then answers \"not sick\" half the time).",
          (Check(0x46017D, 100, 0x3C, "jg", take=False), Check(0x460195, 100, 0x1E, "jg", take=False))),
     Roll("Regaining health: " + AGE_UNIT + ", a villager who is not sick, while there is food, passes the health check "
          "{0} of the time; failing that, it passes on Easy, at Medicine level 3, and with the fire burning on a second "
@@ -90,8 +91,9 @@ ROLLS = (
          (Check(0x455CD7, 1440, None, "jg"), Check(0x455CBB, 2460, None, "jg"), Check(0x455C9F, 5400, None, "jg"),
           Check(0x455D02, 1000, 0x0E, "jle"), Check(0x460282, 100, 0x32, "jl"), Check(0x455C14, 100, 0x32, "jge")),
          (f"Medicine 1: {_sick(1, 1)} with the fire burning or Aromatherapy solved, {_sick(1, 2)} with neither.",
+          # A new village's Medicine 1: 0x426F40.
           f"Medicine 2: {_sick(2, 1)} or {_sick(2, 2)}. Medicine 3: {_sick(3, 1)} or {_sick(3, 2)}. A village "
-          "starts at Medicine 1 (0x426F40).",
+          "starts at Medicine 1.",
           f"On Hard: with both the fire burning and Aromatherapy solved, the first figure; with one of the two, the "
           f"second; with neither, {_sick(1, 3)}, {_sick(2, 3)} or {_sick(3, 3)} at Medicine 1, 2 or 3.",
           "An elderly villager (42 years plus 8 for each Medicine level: 50, 58 or 66) who escapes that roll has "
@@ -122,15 +124,15 @@ ROLLS = (
           "under 50 ({1}) and a second is at or above the skill."),
          feature="vv3_learning_never_fails",
          patched="every Farming, Building, Research, Healing and Parenting skill test succeeds; the skill gains are "
-                 "the game's own."),
+                 "unchanged."),
     # The empty-queue wait 0x45C49C: a deadline of the clock 0x403330 + 1, then the decision 0x45BFE0.  The sweep
     # 0x45C990 (every villager, up to 10 decisions each, 0x45C360) runs at 0x46853D only when the clock reaches
     # [game+0x12FCC], which the 2-second step (0x46865F), the pause (0x46850D) and the sweep set to the clock + 40.
-    Roll("Deciding what to do: a villager with nothing to do decides once each whole real-life second (real time, "
-         "at any speed); each decision goes on to look for something to do only {0} of the time (a roll of 0 to 99 "
-         "above 65), except for the Tribal Chief, who always does. The sweep that has every villager decide again "
-         "(up to 10 tries each) runs only when 40 real-life seconds pass without the village's 2-second step, "
-         "which pushes it 40 real-life seconds ahead each time, so not in normal play.",
+    Roll("Deciding what to do: a villager with nothing to do decides once each whole real-life second, at any speed; "
+         "each decision goes on to look for something to do only {0} of the time (a roll of 0 to 99 above 65), "
+         "except for the Tribal Chief, who always does. The sweep that has every villager decide again (up to 10 "
+         "tries each) runs only when 40 real-life seconds pass without the village's 2-second step, which pushes it "
+         "40 real-life seconds ahead each time, so not in normal play.",
          (Check(0x45C0BC, 100, 0x41, "jg"),)),
     Roll("Choosing a job, at each try to look for something to do: a villager who does not like work takes no job {0} of the time; one who dislikes "
          "work takes none a further {1} of the time.",
@@ -155,36 +157,43 @@ ROLLS = (
     # waiting kind +4, its end +8 (game clock 0x5825D4), its start +0xC, the strength then +0x10, the strength +0x14
     # (0x4B86D8).  Kinds: 0 clear, 1 only from the roll below, 2 rain (Rainy Season 0x4150D0), 3 storm (the Omen
     # 0x4166B2), 4 fog (the Fog events 0x414E50 / 0x414E90, Thick as Pea Soup 0x4151E0, the Cold Snap 0x415110).
-    Roll("The weather: when a spell of weather ends (0x41FEE4), a clear sky is followed by one of the other four kinds "
-         "-- kind 1, rain, a storm or fog, 1 in 4 each (a roll of 0 to 4, made again while it comes up clear) -- and "
-         "any other weather by a clear sky; a kind an island event or puzzle has set comes instead (30 real-life "
-         "seconds after it is set on Normal speed, 0x41F990).",
+    # The spell's end 0x41FEE4; a kind set by an island event or puzzle comes 30 seconds later (0x41F990).
+    Roll("The weather: when a spell of weather ends, a clear sky is followed by one of the other four kinds -- kind 1, "
+         "rain, a storm or fog, 1 in 4 each (a roll of 0 to 4, made again while it comes up clear) -- and any other "
+         "weather by a clear sky. A kind an island event or puzzle has set comes instead, 30 real-life seconds after "
+         "it is set on Normal speed.",
          (Check(0x41FF52, 5), Check(0x41FC4E, None), Check(0x41FCE9, 100, push=0x41FCC6),
           Check(0x45BA42, 100, 0x4B, "jge", take=False)),
+         # The length 0x41FC4E; the first-tree rule 0x41FC0F, 0x41FF62.
          ("A clear sky lasts 15 to 30 real-life minutes on Normal speed (7.5 to 15 on Fast, 25 to 50 on Slow), any "
-          "other weather 3 to 6 (1.5 to 3 on Fast, 5 to 10 on Slow), each whole second of the range equally likely "
-          "(0x41FC4E); while the first fruit tree is grown (planted 8 real-life hours ago on Normal) and no second one is "
-          "planted, each lasts its shortest and a clear sky is always followed by rain (0x41FC0F, 0x41FF62).",
+          "other weather 3 to 6 (1.5 to 3 on Fast, 5 to 10 on Slow), each whole second of the range equally likely. "
+          "While the first fruit tree is grown (planted 8 real-life hours ago on Normal) and no second one is "
+          "planted, each lasts its shortest and a clear sky is always followed by rain.",
+          # 0x41FCC0, 0x41FA30
           "A new village starts clear; " + _ch(below(100, 20)) + " of the time instead the kind the real-life "
-          "clock's minute gives (its remainder by 5, 1 to 4) comes 30 real-life seconds later on Normal speed (0x41FCC0, 0x41FA30).",
+          "clock's minute gives (its remainder by 5, 1 to 4) comes 30 real-life seconds later on Normal speed.",
+          # Growing 0x41FE31, falling 0x41FE0E; set to 100 by the Tsunami 0x414B3E and the Omen 0x4166FF -> 0x41F9B0.
           "The weather's strength (0 to 100), on Normal speed: in rain or a storm it grows 5 every 6 real-life seconds "
           "from what it was when the rain began, up to 100 -- from 0, above 20 after 26 real-life seconds, 50 after "
-          "60, above 50 after 62, 100 after 120 (0x41FE31) -- and in any other weather it falls 5 every 12 real-life "
-          "seconds, down to 0 (100 to 0 in 240; 0x41FE0E). On Fast every one of these times is half as long, on "
-          "Slow 1 2/3 times as long (the game's clock, paused time not counted). The Tsunami and a storm from The Omen in the Clouds set it to 100 at once "
-          "(0x414B3E, 0x4166FF -> 0x41F9B0); a new village starts at 0.",
+          "60, above 50 after 62, 100 after 120 -- and in any other weather it falls 5 every 12 real-life seconds, "
+          "down to 0 (100 to 0 in 240). On Fast every one of these times is half as long, on Slow 1 2/3 times as "
+          "long (the game's clock, paused time not counted). The Tsunami and a storm from The Omen in the Clouds set "
+          "it to 100 at once; a new village starts at 0.",
+          # The pastime pick 0x45B9B0; "Getting out of the rain" 0x41FE4E; the water-side pastimes 0x4598D0; the lift
+          # 0x435C26; the seesaw 0x45BBF9; the stop when rain ends 0x41FF0E.
           "What the strength changes: above 20 every mushroom-or-collectible is a mushroom, and above 50 a second "
-          "spawn roll is made (the mushroom line below); in rain or a storm at 50 or more the heavy-rain stop below, "
-          "and a villager's pastime pick (0x45B9B0) is \"Playing in puddles\" {3} of the time; in rain or a storm "
-          "above 30 every villager standing idle, \"Unsure what to do\" or \"Not feeling well\" goes \"Getting out "
-          "of the rain\" (0x41FE4E); after it, while the strength is above 5 and no rain or storm falls, two of the "
-          "six water-side pastimes (0x4598D0) are \"Cleaning up after the rain\" instead of \"Washing the laundry\" "
-          "and \"Washing face\"; with The Lift solved the lift's height follows it, (strength - 20) x 8 "
-          "/ 100 from 0 to 7, carrying a villager \"Standing on the lift\" (0x435C26), and \"Playing seesaw\" is "
-          "picked only at strength 0 with nobody on the lift (0x45BBF9). When rain or a storm ends, villagers "
-          "\"Drinking rain\", \"Getting out of the rain\" or \"Playing in puddles\" stop (0x41FF0E).",
-          "Above 50 the scene also draws one more picture and sets one scene object's look (0x429269, 0x4210DA); "
-          "what they show was not seen."),
+          "spawn roll is made (the mushroom line below). In rain or a storm at 50 or more: the heavy-rain stop below, "
+          "and a villager's pastime is \"Playing in puddles\" {3} of the time. In rain or a storm above 30 every "
+          "villager standing idle, \"Unsure what to do\" or \"Not feeling well\" goes \"Getting out of the rain\". "
+          "After it, while the strength is above 5 and no rain or storm falls, two of the six water-side pastimes are "
+          "\"Cleaning up after the rain\" instead of \"Washing the laundry\" and \"Washing face\". With The Lift "
+          "solved the lift's height follows it, (strength - 20) x 8 / 100 from 0 to 7, carrying a villager "
+          "\"Standing on the lift\", and \"Playing seesaw\" is picked only at strength 0 with nobody on the lift. "
+          "When rain or a storm ends, villagers \"Drinking rain\", \"Getting out of the rain\" or \"Playing in "
+          "puddles\" stop.",
+          # 0x429269, 0x4210DA
+          "Above 50 the scene also draws one more picture and sets one scene object's look; what they show was not "
+          "seen."),
          sub_verified=(gm.RUNNING, gm.RUNNING, gm.RUNNING, gm.RUNNING, False)),
     Roll("Heavy rain: in rain or a storm of strength 50 or more (the weather line above), a worker who neither likes "
          "nor dislikes rain stops working {0} of the time (rain-lovers go to drink the rain, rain-haters get out of "
@@ -270,9 +279,9 @@ ROLLS = (
           + _conceive(50, 1) + " at Medicine 1.",
           "The fertility potion takes 50 more off the roll (" + _conceive(50, 1, 50) + " at Parenting 50 and "
           "Medicine 1), the strong one 100 (" + _conceive(50, 1, 100) + ").",
+          # The Parenting rise at conception: 0x455AC5.
           "A woman of 50 or older never conceives. The village's very first conception skips the food refusal and "
-          "this roll. A conception raises the mother's Parenting by a tenth of what it lacks of 100, at least 5 "
-          "(0x455AC5).",
+          "this roll. A conception raises the mother's Parenting by a tenth of what it lacks of 100, at least 5.",
           "No pregnancy starts once the population, babies on the way included, reaches 90 + 5 for each complete "
           "collection (25 for all four) + 10 at Magic 3, or without room in the huts: 10 people or more need one "
           "finished hut, 17 two, 35 three."),
@@ -303,7 +312,7 @@ ROLLS = (
           "The baby's one starting skill is the mother's best skill (the father's " + _ch(below(50, 1)) + " of the "
           # A chosen Parenting is stored as no skill (0x455B1C; the line in Hidden villager stats has the chain).
           "time) at 5 to 7, or 4 to 6 when both parents' best skill is the same one; when that skill is Parenting "
-          "the baby starts with no skill at all (0x455B1C)."),
+          "the baby starts with no skill at all."),
          group=BIRTHS),
     Roll("Other new villagers: Another One of Those Barrels brings 3 children of 10 years (the second and third only "
          "while there is room), each a boy or a girl exactly half the time, with one skill at 5 to 9.",

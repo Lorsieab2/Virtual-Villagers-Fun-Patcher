@@ -65,13 +65,14 @@ HIDDEN_LINES = (
      '7 at skill 0, then doubled for a villager who likes learning and halved for one who dislikes it; how often '
      'the check succeeds, liked or disliked, is under Chances.', gm.RUNNING),
     ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
-     "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the stock game's own behaviour.", gm.RUNNING),
+     "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the normal game's behaviour.", gm.RUNNING),
     ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
      'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
      'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),
+    # Running: liked 300 at 0x4659BF; disliked 40 at 0x465A06.
     ('Rain: a villager who likes it drinks the rain 98.7% of the time (12% otherwise); one who dislikes it gets '
-     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (100 otherwise, 0x4659BF); disliked, 40 (0x465A06), '
-     'except when fleeing. Jumping: liked, Dancing becomes a 30-jump dance; disliked, jump steps are skipped.',
+     'out of the rain 98.7% of the time. Running: liked, a walk at speed 300 (100 otherwise); disliked, 40, except '
+     'when fleeing. Jumping: liked, Dancing becomes a 30-jump dance; disliked, jump steps are skipped.',
      gm.RUNNING),
     ('Dancing, disliked: no dancing or rain dancing, and no dance moves at celebrations. Laundry: liked 53% of the '
      'time (12.3% otherwise), disliked never. Swimming, disliked: no swimming, pools, lake or waterfall; the '
@@ -117,23 +118,28 @@ PUDDLES = "vv5_puddles_by_the_lake"
 # (0x414DDA).  No stock code starts "Reflecting" (behaviour 29, 0x457E90).
 HOVEL_MEMORIAL = "vv5_hovel_memorial_actions"
 HONORING_LINE = (
+    # The rolls at 0x46B0F0 (rand(100) > 70, rand(3) = 0, rand(100) < 50); the walks 0x4595B0.
     "In the code: on an ordinary day an adult with nothing else to do, with 8,000 food or more stored, goes "
-    "\"Honoring the dead\" when a grave exists and the rolls pass (0x46B0F0: rand(100) above 70, then 1 in 3, then 1 "
-    "in 2): first for flowers, then three walks to the graves (0x4595B0). The Day of Honor island event sends "
-    "everyone. Nothing in the game itself starts \"Reflecting\" (only a Custom Island Event does).")
+    "\"Honoring the dead\" when a grave exists and three rolls pass (a roll of 0 to 99 above 70, then 1 in 3, then "
+    "1 in 2): first for flowers, then three walks to the graves. The Day of Honor island event sends everyone. "
+    "Nothing in the game itself starts \"Reflecting\" (only a Custom Island Event does).")
 PUDDLE_LINES = (
     ("Children go \"Playing in puddles\" in the dry lake bed when it rains; once the lake bed is full of water they "
      "no longer do, because they cannot swim.", gm.OWNER),
-    ("In the code: \"Playing in puddles\" (0x45FFF0) starts (0x46E4F7) 75 times in 100 when the rain level is 50 "
-     "or more, it is raining and The Lake holds no water (0x43C5D0); the child walks five times to a random point "
-     "of the lake bed's puddles (area 0x6A, 1,479 spots, 0x4744C0) and plays there. The game's own point picker "
-     "0x477B90 only ever takes the first 1,024 spots of an area.", gm.CODE),
+    # "Playing in puddles" is 0x45FFF0, started at 0x46E4F7; The Lake's water test 0x43C5D0; the puddles are walk area
+    # 0x6A (1,479 spots, 0x4744C0); the point picker 0x477B90 takes only the first 1,024 spots of an area.
+    ("In the code: \"Playing in puddles\" starts 75 times in 100 when the rain level is 50 or more, it is raining "
+     "and The Lake holds no water. The child walks five times to a random point of the lake bed's puddles (1,479 "
+     "spots) and plays there. The game's point picker only ever takes the first 1,024 spots of an area.", gm.CODE),
+    # The child-activity pick 0x469DC0 (one pick in 6) or the scheduler 0x46EFB2 starts 0x454200; the lake bed is walk
+    # area 0x69; "Looking for bits of fish" 0x454130.
     ("\"Excited about the puddles\" is a different action with the same rain and water rule: a child's pastime "
-     "(0x469DC0, one pick in 6) or the scheduler (0x46EFB2) starts it (0x454200), three walks to the lake bed "
-     "(area 0x69); with water in the lake, or without rain, those choosers pick \"Chasing fish\" instead "
-     "(\"Looking for bits of fish\" before The Lake is solved, 0x454130).", gm.CODE),
-    ("\"Playing in the dirt\" (0x45ED40) takes six steps to random points of a strip 236..453 by 442..475 that runs "
-     "from the rainbow totem's side down across the river (0x4745A0 at 0x45ED99).", gm.CODE),
+     "(one pick in 6) or the game's scheduling starts it, three walks to the lake bed. With water in the lake, "
+     "or without rain, the child goes \"Chasing fish\" instead (\"Looking for bits of fish\" before The Lake is "
+     "solved).", gm.CODE),
+    # "Playing in the dirt" is 0x45ED40; its points come from 0x4745A0 at 0x45ED99.
+    ("\"Playing in the dirt\" takes six steps to random points of a strip 236..453 by 442..475 that runs from the "
+     "rainbow totem's side down across the river.", gm.CODE),
 )
 DIRT_SPOT = "vv5_playing_in_the_dirt_spot"
 # The audit of 2026-10-25: "104 rolls are verified" was a count nobody could check, Spreading the Word's line
@@ -141,7 +147,8 @@ DIRT_SPOT = "vv5_playing_in_the_dirt_spot"
 # the God Power spell timers repeated God powers (the game calls Revive "Revive", not "Reanimate").
 CHANCE_EXTRA = (
     # 2,368 calls and jumps to rand 0x403660 in the stock exe's code section, counted 2026-10-25.
-    ('The game asks its random-number routine (0x403660) from 2,368 places in its code. The rolls on this page '
+    # rand is 0x403660.
+    ('The game asks its random-number routine from 2,368 places in its code. The rolls on this page '
      'are the ones that decide food, health, sickness, Faith, births, deaths, skills, island events, collectibles '
      'and God Powers; the others (where villagers walk, how long they wait or animate, which sound or voice plays, '
      'which child or leisure action is picked) were not traced one by one, so it is not proven that none of them '
@@ -220,8 +227,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     def levels(amount: int) -> str:
         return f"{amount} -> {amount + amount // 2} -> {amount * 2}"
     mastery = max(1, [_i32(data, LEVELS + 4 * k) for k in range(5)][FOOD_MASTERY])
+    # The boost is the food adder 0x41EB40.
     add("Food sources", "Food Mastery (a technology) boosts the food every source brings into storage, at the moment "
-                        "it is credited (0x41EB40): level 2 adds half (rounded down), level 3 doubles it. The "
+                        "it is credited: level 2 adds half (rounded down), level 3 doubles it. The "
                         "sources' own regrowth (the noni on the bushes, the crops) is not boosted. Each gain at Food "
                         f"Mastery level 1 -> 2 -> 3" + ("" if village.general else f" (this village is at level {mastery})")
                         + ": a noni pick " + ("" if village.general else f"now {levels(max(2, noni // 100))}, ")
@@ -249,9 +257,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                      "in 32,768; in fog 36 in 32,768, and while the weather level is above 50 a second roll of 18 in "
                      "32,768 comes on top. 30% of what appears are mushrooms, and all of it while it rains or the "
                      "weather level is above 20: brown 92% worth 6 food, red (rare) 8% worth 35 (before Food Mastery), "
-                     "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds (real time, the "
-                     "same at every speed: 90 seconds on the computer's clock, 0x41441B) of "
-                     "real-life time.", gm.RUNNING)
+                     "counted when they reach the food bin. Unpicked, a thing is gone after 1 minute 30 seconds (real "
+                     "time, the same at every speed: 90 seconds on the computer's clock).", gm.RUNNING)  # 0x41441B
     # The Secret City's roll is the same (0x42DD6D..0x42DD98): the owner asked for VV4's to match it (2026-11-08).
     add("Mushrooms", "Apart from fog's doubling, this is exactly The Secret City's timing (3 in 6,000 each update, a "
                      "second 3 in 6,000 above weather strength 50, at most 2 out at once), so New Believers needs no "
@@ -295,11 +302,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Tech points and effects", (      # its own line: the general page drops the amounts line above
         f"Divine Energy: each believer adds 1 every age unit ({life.every_real(UNIT, speed_value)}), 4 at Devotion 50 or more, 9 at 88 or more (1 more at 8,000 food on Medium, "
         "or on Hard). Honoring adds 3, 7 at Devotion 50 or more, or 12 at 88 or more, on three Honorings in four, "
-        "and on the fourth only if the Devotion check succeeds. The cap is 5 x (believers + the babies they carry + "
-        "2), +50 once the Tribute Statue reaches its first stage and +50 more at its second, +100 once The Tribute "
-        "Statue is solved, +50 at Spirituality 2 and +50 more at 3, and +3 for each piece of the first collectible "
-        "set owned while it is incomplete (69 with 23 pieces), then a flat +90 once all 24 are owned (the 24th "
-        "piece adds 21), at most 1,000."), gm.RUNNING)
+        "and on the fourth only if the Devotion check succeeds."), gm.RUNNING)
+    out.append(gm.Fact("Tech points and effects", (
+        # A sub-line, not "The cap: ...": the general page drops a "<Name>: <number>" line as a save's amount.
+        "The Divine Energy cap is 5 x (believers + the babies they carry + 2), +50 once the Tribute Statue reaches "
+        "its first stage and +50 more at its second, +100 once The Tribute Statue is solved, +50 at Spirituality 2 "
+        "and +50 more at 3, and +3 for each piece of the first collectible set owned while it is incomplete (69 with 23 pieces), "
+        "then a flat +90 once all 24 are owned (the 24th piece adds 21); at most 1,000."), gm.RUNNING, True))
     out.extend(nursery.lines(village, 5))       # the Nursery School and why children or Heathens gain skills
     out.extend(powers.lines(village))
 
@@ -343,9 +352,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in PUDDLE_LINES:
         add("Other", line, ok)
     if village.has("vv5_fix_vanilla_bugs") is True:
+        # The patch's picker 0x494E80 keeps a uniform sample of every cell.
         add("Other", "With Fix Vanilla Game Bugs: \"Playing in puddles\" spots come from all 1,479 of its "
-                     "spots, each equally likely (the picker keeps a uniform sample of every cell, 0x494E80); every "
-                     "other walk to an area, fishing and \"Excited about the puddles\" included, picks as stock.",
+                     "spots, each equally likely; every other walk to an area, fishing and \"Excited about the "
+                     "puddles\" included, picks as in the normal game.",
             gm.CODE)
     add("Other", HONORING_LINE, gm.CODE)
     if village.has(HOVEL_MEMORIAL) is not False:
@@ -362,12 +372,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     "and changes nothing by itself"))
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
+            # The patch's shore picker 0x494E00; the dirt's 0x494E44.
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
                               "random point of the lake's north-west sandy shore, never in the water, between the "
-                              "lake's west tip and the rocks with the red flower (0x494E00); before The Lake has "
-                              "water, nothing changes. \"Playing in the dirt\" goes to that same shore always, "
-                              "before and after The Lake has water: each of its six steps to a random point along "
-                              "it (0x494E44)"), gm.CODE)
+                              "lake's west tip and the rocks with the red flower; before The Lake has water, nothing "
+                              "changes. \"Playing in the dirt\" goes to that same shore always, before and after The "
+                              "Lake has water: each of its six steps to a random point along it"), gm.CODE)
     if village.has(DIRT_SPOT) is not False:
         add("Other", gm.patch_words(
             village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
@@ -384,7 +394,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The Last Heathen's hovel cover: 0x4370E0 draws image 0x1B once project 25 is done, top-left (0x6A9, 0x5B3);
     # Fix Vanilla Bugs moves it to (0x6A6, 0x5B9) and names the owner's picture (tests/test_vv5_hovel_cover.py).
     add(gm.PUZZLES, "The Last Heathen: once it is solved, the game covers the old Heathen camp on the island map with "
-                    "the picture hovel_cover.png, its top-left corner at (1705, 1459) (0x4370E0).", gm.CODE)
+                    "the picture hovel_cover.png, its top-left corner at (1705, 1459).", gm.CODE)  # drawn by 0x4370E0
     out.append(gm.Fact(gm.PUZZLES, gm.patch_words(
         village, "vv5_fix_vanilla_bugs", "the cover is drawn at (1702, 1465), 3 pixels left and 6 lower, where it "
         "meets the map's own tiles, in the owner's redrawn picture vvfp_hovel.png (art by Lorsieab2); the game's own "

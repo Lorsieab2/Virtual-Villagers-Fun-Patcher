@@ -69,73 +69,89 @@ def _keys() -> list[Entry]:
     spots = "; ".join(f"{key} {x}, {y}" for key, (x, y) in SPOTS.items())
     return [
         hidden.translator_entry(PUMP[0]),
+        # The village screen's character slot 0x4662F0; the speed at state +0x12F20.
         Entry(KEY, "Space (village screen)", (
-            "pauses: the game's speed value goes up by 999 (0x4662F0; the speed at state +0x12F20), which stops the "
-            "game's clock. Space again takes the 999 off and the game runs at the speed it had, and clears the message "
-            "bar"), C),
+            "pauses: the game's speed value goes up by 999, which stops the game's clock. Space again takes the 999 "
+            "off, so the game runs at the speed it had, and clears the message bar"), C),
+        # 0x4662F0 -> 0x423870 (kept inside the map).
         Entry(KEY, "1 to 9 (village screen)", (
-            "send the view to nine spots laid out like a keypad (7 8 9 along the top, 1 2 3 along the bottom; "
-            f"0x4662F0 -> 0x423870, kept inside the map): {spots}"), C),
+            "send the view to nine spots laid out like a keypad (7 8 9 along the top, 1 2 3 along the bottom; kept "
+            f"inside the map): {spots}"), C),
+        # 0x4662F0 and 0x4665B0 hand the button's number (4, 1, 3, 5, 2 and 0) to the screen's button slot.
         Entry(KEY, "C, D, M, P, T and Esc (village screen)", (
             "the same as clicking the screen's own buttons: C Collections, D Detail, M Map, P Puzzles, T Tech and Esc "
-            "Menu (0x4662F0 and 0x4665B0 hand the button's number -- 4, 1, 3, 5, 2 and 0 -- to the screen's button "
-            "slot). Capital and small letters work alike"), C),
+            "Menu. Capital and small letters work alike"), C),
+        # The value is the village screen's +0x40, set in 0x4662F0.
         Entry(KEY, "F then W (village screen)", (
-            "no effect was found. F flips a value of the village screen (+0x40) between 0 and 1, W with it at 1 sets "
-            "it to 2, and any other unlisted character sets it back to 0 (0x4662F0); no code of the village screen "
-            "was found reading the value"), U, subs=(
+            "no effect was found. F flips a value of the village screen between 0 and 1, W with it at 1 sets it to "
+            "2, and any other unlisted character sets it back to 0; no code of the village screen was found reading "
+            "the value"), U, subs=(
                 ("Seen by the owner (2026-10-11): F then W, then the F keys, did nothing visible.", O),)),
+        # 0x4662F0
         Entry(KEY, "' ; [ and ] (village screen)", (
-            "the village screen tests them and does nothing with them (0x4662F0); unlike other characters they leave "
-            "the F then W value alone"), C),
+            "the village screen tests them and does nothing with them; unlike other characters they leave the F then "
+            "W value alone"), C),
+        # Game state 0: 0x465C90 (the help pictures), 0x46C910 (the splash); the shared slot 0x464D60.
         Entry(KEY, "F1 (the help pictures, the splash, the three screens of the shared slot)", (
-            "the help pictures and the splash jump straight into the village (game state 0: 0x465C90, 0x46C910); on the "
-            "three screens of the shared slot (0x464D60) F1 is the same as Esc"), C),
+            "the help pictures and the splash jump straight into the village; on the three screens that share one "
+            "input slot F1 is the same as Esc"), C),
+        # 0x464D60, 0x46B950, 0x46CAF0
         Entry(KEY, "Esc (the shared slot's three screens, Map, Villager Detail)", (
-            "the same as the screen's own way back (0x464D60, 0x46B950, 0x46CAF0)"), C, subs=(
-                ("Which three screens share 0x464D60 is not read here; in The Tree of Life and New Believers that slot "
-                 "serves Collections, the Mausoleum and Tech.", U),)),
+            "the same as the screen's own way back"), C, subs=(
+                # The shared slot is 0x464D60.
+                ("Which three screens share that input slot is not read here; in The Tree of Life and New Believers "
+                 "that slot serves Collections, the Mausoleum and Tech.", U),)),
+        # Game state 20: 0x46C910.
         Entry(KEY, "Any typed character (the splash pictures)", (
-            "shows the next splash picture, and after the last one moves on to game state 20 (0x46C910). Esc and the "
-            "other keys that are not characters do not"), C),
+            "shows the next splash picture, and after the last one moves on. Esc and the other keys that are not "
+            "characters do not"), C),
+        # Two buttons 0x41C310, one button 0x41AC90.
         Entry(KEY, "Enter and Esc (pop-up boxes)", (
-            "in a two-button box Enter is the first button and Esc the second (0x41C310); in a one-button box either "
-            "key closes it (0x41AC90)"), C),
+            "in a two-button box Enter is the first button and Esc the second; in a one-button box either key closes "
+            "it"), C),
+        # The name box 0x40D4A0; the event pump 0x404220 never makes characters 13 or 9.
         Entry(KEY, "Typing in a name box", (
             "a typed character from 32 to 255 is added (a number box takes only 0 to 9, and \"-\" first), Backspace "
-            "takes the last one off, and while the box is active it takes every key but Esc and does nothing with it "
-            "(0x40D4A0)"), C, subs=(
-                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character (13 or 9): the event pump "
-                 "never makes those characters (0x404220).", C),)),
+            "takes the last one off, and while the box is active it takes every key but Esc and does nothing with "
+            "it"), C, subs=(
+                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character (13 or 9): the game never "
+                 "receives those characters.", C),)),
         Entry(KEY, "F3 and the keys not listed", (
             "no live screen of The Secret City tests F3, Tab, the arrows, Page Up, Page Down, Home, End, Insert, "
             "Delete, F2 or F4 to F10 (only the dead editors below do)"), C),
+        # The input slots: the behaviour-script editor 0x42A120, 0x42A570; the content map editor 0x42BEB0, 0x42BD60;
+        # the waypoint editor 0x42C000, 0x42C120, 0x42CAB0.  The editor objects 0x58C548, 0x58ED24, 0x58ED9C are
+        # touched only by their static constructors (0x47AEA0, 0x47AEB0, 0x47AEE0), their own code and 0x42CA60,
+        # which nothing calls.
         Entry(KEY, "The developer's three editors (behaviour scripts, the content map, waypoints)", (
-            "their keys -- the behaviour-script editor's - 0 = G [ ] a b c d e g h i p s t and Tab (0x42A120, "
-            "0x42A570), the content map editor's + - ) 4 G b h m o r, B, Tab, Up, Down, Insert, Delete and F4 (0x42BEB0, "
-            "0x42BD60), the waypoint editor's Tab, Insert, Delete and F4 to F9 (0x42C000, 0x42C120, 0x42CAB0) -- never "
-            "reach them: the three editor objects (0x58C548, 0x58ED24, 0x58ED9C) are touched only by their static "
-            "constructors (0x47AEA0, 0x47AEB0, 0x47AEE0), by their own code and by 0x42CA60, which nothing calls; no "
-            "screen hands them input"), C, dead=True),
+            "their keys -- the behaviour-script editor's - 0 = G [ ] a b c d e g h i p s t and Tab, the content map "
+            "editor's + - ) 4 G b h m o r, B, Tab, Up, Down, Insert, Delete and F4, the waypoint editor's Tab, Insert, "
+            "Delete and F4 to F9 -- never reach them: the three editors are set up when the program starts and "
+            "never used after (only their own code and one routine that nothing calls touch them); no screen hands "
+            "them input"), C, dead=True),
+        # The type-7 handler 0x42CAD0.
         Entry(KEY, "Event type 7 (village screen)", (
-            "the village screen passes a type-7 event to 0x42CAD0, which returns at once; nothing makes type-7 events "
-            "(the event pump makes characters and keys only)"), C, dead=True),
+            "the village screen passes a type-7 event to a routine that returns at once; nothing makes type-7 events "
+            "(the game receives only characters and keys)"), C, dead=True),
         Entry(KEY, "Store screens: no redraw or reroll key", (
-            "no key or click redraws, refreshes or rerolls what The Secret City offers. Its Tech screen and the two screens that share its input slot each "
-            "offers a fixed list at fixed prices; its input, mouse and button slots "
-            "(0x462A70, 0x4633A0, 0x463770, 0x464230, 0x464D60, 0x464D90, 0x465640) draw no random number (0x4032D0) and test only Esc and F1 (above)."
-            ""
-            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
-            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
+            # "draw no random number": in the game's code the slots 0x462A70, 0x4633A0, 0x463770, 0x464230,
+            # 0x464D60, 0x464D90 and 0x465640 (STORE_SLOTS) never call the random-number routine 0x4032D0 (RAND);
+            # tests/hidden_checks.py reads them.  The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or
+            # key-state code.
+            "no key or click redraws, refreshes or rerolls what The Secret City offers. Its Tech screen and the two "
+            "screens that share its key handling each offer a fixed list at fixed prices; their keys, mouse and "
+            "buttons draw no random number and test only Esc and F1 (above). The patcher's Origins Upgrades, "
+            "Villager Upgrades and Story / Cheat menus are Windows dialogs with no key handling of their own, so only "
             "Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 
 def _codes() -> list[Entry]:
     return [
+        # The name boxes: 0x40D4A0.
         Entry(CODE, "Typed codes and name cheats", (
             "none in play. Outside the name boxes a typed letter is a single key (above), and the name boxes only "
-            "store what is typed (0x40D4A0)"), C, subs=(
+            "store what is typed"), C, subs=(
                 ("The developer-leftover search of 2026-10-11 (static) also found no comparison of a typed name with "
                  "any fixed word, no command-line switch and no date-based event.", U),)),
     ]
@@ -155,30 +171,34 @@ _PLACE_LINES = ("Time remaining for fire:", "The bath needs some repair.", "Perc
 def _clicks() -> list[Entry]:
     x0, y0, x1, y1 = SPOT
     return [
+        # The village's mouse slot 0x46A3D0.  rand(50) + 1050 is the tip's string number (RANDOM_COUNT, RANDOM_BASE;
+        # tests/hidden_checks.py PICKERS).
         Entry(CLICK, "The tip spot (village screen)", (
             f"the spot from {x0} to {x1} across and {y0} to {y1} down on the 800 x 600 screen (A New Home's mask spot). "
             f"Each press of the left button on it plays a sound (95) and shows one of all {RANDOM_COUNT} random tips "
-            f"(below) in the message bar: rand({RANDOM_COUNT}) + {RANDOM_BASE}, each tip 1 in {RANDOM_COUNT} a click, "
-            "any tip can come again, nothing is remembered (0x46A3D0)"), C, subs=(
+            f"(below) in the message bar: each tip 1 in {RANDOM_COUNT} a click, "
+            "any tip can come again, nothing is remembered"), C, subs=(
                 ("What is drawn on that spot was not checked.", U),)),
+        # 0x46A3D0 -> 0x46A350 -> 0x469A60 (which place gives which line, and area 34's pop-up, are in 0x469A60).
         Entry(CLICK, "Places that show their state (village)", (
             "a click on the ground (not on a villager, nor on something to pick up) writes one of these lines in the "
-            "message bar, chosen by the place clicked and its state (0x46A3D0 -> 0x46A350 -> 0x469A60); the %d marks "
-            "are the game's figures"), C,
+            "message bar, chosen by the place clicked and its state; the %d marks are the game's figures"), C,
               subs=tuple((f"\"{line}\"", C) for line in _PLACE_LINES) + (
-                  ("Which place gives which line, and the conditions, are in 0x469A60 and not written out here.", U),
-                  ("One place (area 34), when its condition holds, plays a sound (133) and opens a pop-up instead "
-                   "(0x469A60); what the pop-up is was not identified.", U))),
+                  ("Which place gives which line, and the conditions, are in the game's code and not written out "
+                   "here.", U),
+                  ("One place (area 34), when its condition holds, plays a sound (133) and opens a pop-up instead; "
+                   "what the pop-up is was not identified.", U))),
     ]
 
 
 def _tips() -> list[Entry]:
     return [
+        # The loading screen 0x465E30: rand(30) + 1050 (LOADING_COUNT, RANDOM_BASE); the tip pop-ups 0x436E60.
         Entry(TIP, "Where the tips appear", (
             f"the loading screen shows one of the first {LOADING_COUNT} random tips, picked once when it is built "
-            f"(0x465E30: rand({LOADING_COUNT}) + {RANDOM_BASE}, each 1 in {LOADING_COUNT}); the tip spot shows any of "
-            f"all {RANDOM_COUNT} (above); the tutorial (eTTip) and milestone (eTip) pop-ups are asked for by number "
-            "(0x436E60)"), C, subs=(
+            f"(each 1 in {LOADING_COUNT}); the tip spot shows any of all "
+            f"{RANDOM_COUNT} (above); the tutorial (eTTip) and milestone (eTip) pop-ups are asked for by number"), C,
+              subs=(
                 ("Whether each pop-up shows once a village, and how the tutorial question arms them, is not traced.",
                  U),)),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (eRandomTip1 to 50; the loading screen draws from the first "

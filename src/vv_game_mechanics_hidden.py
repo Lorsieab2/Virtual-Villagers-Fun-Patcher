@@ -108,13 +108,16 @@ def facts(entries, default_off: frozenset[str] = frozenset(), village: gm.Villag
 
 
 def translator_entry(pump: int) -> Entry:
-    """The keys the game hears at all (the same pump in all five games)."""
+    """The keys the game hears at all (the same pump in all five games).  `pump` is the game's SDL event pump (each
+    module's PUMP; tests/hidden_checks.py reads from it the 23 keys this line names); it backs the whole line and is
+    kept out of the visible text."""
+    # The pump (`pump`) turns the 23 keys into command events and typed characters into character events; Alt+F4
+    # sets the same quit flag as closing the window (VV1 +0x1D).
     return Entry(KEY, "Which keys reach the game", (
-        f"the program's event pump ({pump:#x}) hands on Esc, Tab, Enter, the four arrows, Page Up, Page Down, Home, End, "
-        "Insert, Delete and F1 to F10 as keys, and every typed character (letters, digits, Space, punctuation; "
-        "Backspace too) as a character; F11, F12 and every other key are ignored. Alt+F4 ends the program the same way "
-        "as closing its window (it sets the same quit flag). The mouse passes only the left button: right, middle and "
-        "wheel clicks do nothing anywhere"), C)
+        "Esc, Tab, Enter, the four arrows, Page Up, Page Down, Home, End, Insert, Delete and F1 to F10 reach the game "
+        "as keys, and every typed character (letters, digits, Space, punctuation; Backspace too) as a character; "
+        "F11, F12 and every other key are ignored. Alt+F4 ends the program the same way as closing its window. The "
+        "mouse passes only the left button: right, middle and wheel clicks do nothing anywhere"), C)
 
 
 def tip_lines(tips, verified_for, note_for) -> tuple[tuple[str, bool | str], ...]:
@@ -128,9 +131,11 @@ def tip_lines(tips, verified_for, note_for) -> tuple[tuple[str, bool | str], ...
 
 
 def sites_note(sites) -> str:
+    """A tip's note: how many places in the game's code ask for it by number.  The addresses themselves stay in
+    each module's POPUP_TIPS (the tip's third field), out of the visible text."""
     if not sites:
         return ""
-    return "asked for at " + ", ".join(f"{site:#x}" for site in sites)
+    return "asked for in 1 place" if len(sites) == 1 else f"asked for in {len(sites)} places"
 
 
 # Copy and Paste in Text Boxes (all five games, on by default): the same keys in every game.  Emulated from each
@@ -139,14 +144,15 @@ COPY_PASTE_SITES = {1: 0x4039D6, 2: 0x403C66, 3: 0x404286, 4: 0x4048A6, 5: 0x404
 
 
 def copy_paste_entry(game: int) -> Entry:
+    # "The keys never reach the game": the companion (native/vvfp_copy_paste) detours the game's SDL_KEYDOWN case at
+    # COPY_PASTE_SITES[game] and goes on with the next event.
     return Entry(PATCHER, "Ctrl+V, Shift+Insert, Ctrl+C, Ctrl+Insert, Ctrl+X (any text box)", (
         "while a text box has typing focus (a new village's tribe name, a villager's name on the Details screen, "
         "...): Ctrl+V or Shift+Insert pastes the Windows clipboard's text at the end (the boxes have no movable "
-        "caret), Ctrl+C or Ctrl+Insert copies the box's whole text, Ctrl+X cuts it. Pasted text keeps the box's "
-        "filter and length limit and is cut before the first character that does not fit; line breaks and tabs "
-        "become spaces, and characters the game cannot show are left out (with Render Unicode with In-Game Fonts or "
-        "Use Unicode Font, "
-        "every character they let you type; with neither, plain English letters and signs). Ctrl+A does nothing. The "
-        f"keys never reach the game (its SDL_KEYDOWN case, 0x{COPY_PASTE_SITES[game]:06X}, goes on with the next "
-        "event); with no box focused they reach the game as before (native/vvfp_copy_paste)"), E,
+        "cursor), Ctrl+C or Ctrl+Insert copies the box's whole text, Ctrl+X cuts it. Pasted text follows the box's "
+        "rules on which characters it takes and how many, and is cut before the first character that does not fit; "
+        "line breaks and tabs become spaces, and characters the game cannot show are left out (with Render Unicode "
+        "with In-Game Fonts or Use Unicode Font, every character they let you type; with neither, plain English "
+        "letters and signs). Ctrl+A does nothing. "
+        "These keys never reach the game itself; with no text box focused they reach the game as before"), E,
         feature=f"vv{game}_copy_paste")

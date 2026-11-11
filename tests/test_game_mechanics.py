@@ -363,7 +363,7 @@ class BrewedPotion(unittest.TestCase):
                     f"A brewed potion: the pot's on-screen countdown starts at {shows} on {gm.speed_name(speed)} "
                     "speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with the speed), and "
                     "the potion is gone when it reaches 0:00 -- 5 real-life minutes after it was brewed at every "
-                    "speed, by the computer's clock (0x430E60, 0x430F10)."))     # the owner, 2026-10-27: "put both"
+                    "speed, by the computer's clock."))     # the owner, 2026-10-27: "put both" (0x430E60, 0x430F10)
                 # Traced on the game's live code and seen by the owner: no UNCONFIRMED.
                 self.assertTrue(all(f.confirmed for f in potion))
                 text = gm.render(facts)
@@ -758,7 +758,7 @@ class EveryGame(unittest.TestCase):
 
         text = render(-1_162_256, 1, 3)
         self.assertIn("Fish: no limit, as Sustainable Fishing is solved; a trip brings 8 on Normal speed", text)
-        self.assertIn("The game's own fish count is -1,162,256", text)
+        self.assertIn("The game's fish count is -1,162,256", text)
         self.assertNotIn("-1,162,256 (they never grow back)", text)
         self.assertIn("fishing adds without limit", text)
         self.assertRegex(text, r"Fish alone: while catching up, .*It never runs out")   # the Farmers needed line for the sea
