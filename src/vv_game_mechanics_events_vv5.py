@@ -51,9 +51,13 @@ RULES = (
          "than women; Heathens counted) or there are fewer than 3 believers, 6% of events (a 15% roll, then a 40% "
          "one) become Chutes Without Ladders, even without room."),
     # 0x472BDC-0x472C49: +5 for one completed set, and 10 becomes 15 for both (0x472C04).
-    Line("Room for new villagers (the room check 0x472BD0): believers plus the babies they carry below 90, below 95 "
-         "with one of the two collections completed and below 105 with both; and a population of 10 to 16 needs 1 "
-         "rebuilt hut, 17 to 34 needs 2, 35 or more all 3. Heathens are not counted."),
+    # The room check 0x472BD0: 0x4713F0's believers against 90 + 5 for each set of 24 0x414690 finds complete
+    # (0x68 the first, 0x50 the second), 10 made 15 (0x472C04); then the huts (0x472C56..: 35, 17 and 10).
+    Line("Room for new villagers: there is room while the believers plus the babies they "
+         "carry are fewer than the population limit -- in the normal game 90, plus 5 for each complete collectible "
+         "set (all 24 pieces), 15 with both; Heathens are not counted; this village's limit is under Vital "
+         "statistics -- and the huts allow it: a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, 35 "
+         "or more all 3."),
     Line(f"Weather an event brings lasts like any other weather: {WEATHER}."),
     Line("A loss of food or tech points takes no more than there is. Skills stop at 0 and 100; Faith at -100 and "
          "100. A believer whose Faith falls to 0 or less becomes a Heathen; a Heathen above 0 joins the tribe (see "

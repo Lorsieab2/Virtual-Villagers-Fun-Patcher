@@ -510,7 +510,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
         collectibles=life.collectible_lines(village, life.COLLECTIBLE_PAY[5])[0],
-        limit=life.limit_words(village, None, "up to 15 for collections"),
+        limit=life.limit_words(village, life.later_sets(village)),
         puzzles=puzzles,
         food_words="2 food a believer every age unit (Heathens skip it), less at 500 or less and 2 more 76% of the "
                    "time on Medium at 8,000 or more and on Hard (the exact odds: Chances).",

@@ -1174,58 +1174,247 @@ def closed_refills(ctx: Context, seconds: float) -> float:
 # The population limit and the collectibles
 # ---------------------------------------------------------------------------
 
-# Each game's base cap before collections (data/builds.json's patch modes and docs/max-population-research.md).
-STOCK_BASE = {1: 90, 2: 90, 3: 90, 4: 90, 5: 90}
-PROGRESSION_BASE = {1: 256, 2: 231, 3: 115, 4: 125, 5: 135}
+# Each game's room check (its population predicate), read from the stock exes (research/stock-executables;
+# docs/max-population-research.md):
+#   VV1 0x43A1A0: the population below 90 (cmp eax, 0x5A at 0x43A1AE); A New Home has no collections.  Then the
+#       huts: 15, 25 and 50 people need the first, second and third (0x43A1B7..0x43A1F7).
+#   VV2 0x44B310: 90 plus 5 for each complete collection (0x426120 with 0, 12, 24, 36: all 12 found bytes), 20 made
+#       25 (0x44B378: all four).
+#   VV3 0x45FE30: the same with 0x42DE40 (ids 0x34, 0x40, 0x4C, 0x58: 0x42D720 counts all 12 pieces of the set),
+#       20 made 25 (0x45FE8C), and 10 more at Magic (tech 6) level 3 or more (0x45FE96..0x45FEA7).
+#   VV4 0x468350: the same with 0x4143F0 (ids 0x46, 0x52, 0x5E, 0x6A: all 12 pieces), 20 made 25 (0x4683AA).
+#   VV5 0x472BD0: 90 plus 5 for each complete set of 24 (0x414690 with 0x68, the first set, and 0x50, the second:
+#       0x413F50 counts all 24 pieces), 10 made 15 (0x472C04); it counts believers and the babies they carry
+#       (0x4713F0).
+# The collectible block (COLLECTIBLES_AT) starts at the lowest id (VV3 0x34: 0x42D460 copies from +0xE0, which
+# 0x42D720 reads as +0x10 + id x 4; VV4 0x46; VV5 0x50: 0x413B80 copies from +0x770 = +0x630 + 0x50 x 4), so a
+# set's counts are its 12 (or 24) dwords in id order.
+ROOM_CHECK = {1: 0x43A1A0, 2: 0x44B310, 3: 0x45FE30, 4: 0x468350, 5: 0x472BD0}
+STOCK_BASE = 90
+NORMAL_RULE = {
+    1: "90 (A New Home has no collections)",
+    2: "90, plus 5 for each complete collection, 25 with all four",
+    3: "90, plus 5 for each complete collection, 25 with all four, and 10 more at Magic level 3",
+    4: "90, plus 5 for each complete collection, 25 with all four",
+    5: "90, plus 5 for each complete collectible set, 15 with both",
+}
+# The patcher's population modes (data/builds.json patch_modes and each game's variants; the 256 Villagers
+# builds' mode_rows in data/vv<N>_population_256_feature.json).  Collection Progression's base, to which the
+# same collection (and VV3 Magic) bonus is added: in the 150-villager builds VV2 231 (0x4B3F2: add edi, 0xE7),
+# VV3 115 (0x45FEE3: 0x5A made 0x73), VV4 125 (0x4683F1: 0x5A made 0x7D), VV5 135 (the cave 0x94500: add esi,
+# 0x87); in the 256 builds VV3 221 and VV4 231 (cp_add in the .vv256 code page: add esi, 0xDD / 0xE7) and VV5 241
+# (the cave 0x94500: add esi, 0xF1).  Immediate Fixed sets the bonus to 60 (150) or 166 (256) before the +90.
+# A New Home's two modes are the same bytes: a flat 256.
+MODE_NAMES = {"stock": "No Population Increase", "collection_progression": "Collection Progression Max Pop",
+              "immediate_fixed": "Immediate Fixed Max Pop"}
+PROGRESSION_BASE = {2: 231, 3: 115, 4: 125, 5: 135}
+PROGRESSION_BASE_256 = {3: 221, 4: 231, 5: 241}
 POP_256 = {3: "vv3_population_256", 4: "vv4_population_256", 5: "vv5_population_256"}
+EITHER = "either"                 # Collection Progression or Immediate Fixed: the same bytes (A New Home)
 
 
-def population_mode(village: gm.Village) -> str | None:
-    """Which of the patcher's population modes the game's exe has ("stock", "collection_progression",
-    "immediate_fixed"), from its own bytes at the places data/builds.json records; None when the exe is not
-    known or none matches."""
-    if village.exe is None:
-        return None
+def _data_json(name: str) -> dict:
+    import json
+    return json.loads((Path(__file__).resolve().parents[1] / "data" / name).read_text(encoding="utf-8"))
+
+
+def _sections(exe: bytes) -> tuple[int, list[tuple[str, int, int, int, int]]] | None:
+    """(image base, [(name, rva, virtual size, file offset, file size)]) of a PE file, or None."""
     try:
-        import json
-        builds = json.loads((Path(__file__).resolve().parents[1] / "data" / "builds.json").read_text(encoding="utf-8"))
-        game = next(g for g in builds["games"] if g["id"] == f"vv{village.game}")
-        exe = Path(village.exe).read_bytes()
-    except (OSError, ValueError, StopIteration, KeyError):
+        pe = struct.unpack_from("<I", exe, 0x3C)[0]
+        if exe[pe:pe + 4] != b"PE\0\0":
+            return None
+        count, = struct.unpack_from("<H", exe, pe + 6)
+        optional, = struct.unpack_from("<H", exe, pe + 20)
+        base, = struct.unpack_from("<I", exe, pe + 24 + 28)
+        table = pe + 24 + optional
+        out = []
+        for n in range(count):
+            at = table + 40 * n
+            name = exe[at:at + 8].rstrip(b"\0").decode("ascii", "replace")     # a PE section name, not game text
+            vsize, rva, rsize, raw = struct.unpack_from("<IIII", exe, at + 8)
+            out.append((name, rva, vsize, raw, rsize))
+        return base, out
+    except struct.error:
         return None
-    for mode in ("immediate_fixed", "collection_progression"):
-        patches = game["variants"].get(mode, {}).get("patches") or []
-        if patches and all(exe[int(p["offset"], 16):int(p["offset"], 16) + len(bytes.fromhex(p["after"]))]
-                           == bytes.fromhex(p["after"]) for p in patches):
-            return mode
-    patches = game["variants"].get("collection_progression", {}).get("patches") or []
-    if patches and all(exe[int(p["offset"], 16):int(p["offset"], 16) + len(bytes.fromhex(p["before"]))]
-                       == bytes.fromhex(p["before"]) for p in patches):
-        return "stock"
-    return None
 
 
-def limit_words(village: gm.Village, bonus: int | None, bonus_words: str, stock_extra: str = "") -> tuple[str, bool | str]:
-    """The population limit's words: the mode the exe has, the 256 Villagers patch, and the collection bonus when
-    the save tells it (`bonus`, points), else the rule (`bonus_words`)."""
-    # The normal game's limit first, then what a patch in this game makes of it (the owner, 2026-10-24).
-    game = village.game
-    mode = population_mode(village)
-    stock = (f"{STOCK_BASE[game]} plus {bonus} for collections, so {STOCK_BASE[game] + bonus}" if bonus is not None
-             else f"{STOCK_BASE[game]} plus {bonus_words}")
-    normal = f"the limit in the normal game is {stock}{stock_extra}"
+def _matches(exe: bytes, rows: list[dict], key: str) -> bool:
+    for row in rows:
+        at, want = int(row["offset"], 16), bytes.fromhex(row[key])
+        if exe[at:at + len(want)] != want:
+            return False
+    return True
+
+
+def exe_population_mode(exe: bytes, game: int) -> tuple[str | None, bool]:
+    """(the population mode, whether it is a 256 Villagers build), read from the exe's own bytes.  The mode is
+    "stock" (No Population Increase, or an exe the patcher never changed), "collection_progression",
+    "immediate_fixed", EITHER (A New Home, whose two are the same bytes), or None when the bytes match none.
+
+    A 256 Villagers build is the one with the .vv256 section; its cap code is the feature's own mode_rows (the
+    150-villager modes' bytes in data/builds.json are not in it: Immediate Fixed writes 166, not 60, and Collection
+    Progression calls cp_add in the .vv256 code page instead of changing the add), and Collection Progression's
+    code page is checked where it differs from the stock page."""
+    sections = _sections(exe)
+    names = {s[0] for s in sections[1]} if sections else set()
     big = POP_256.get(game)
-    if big and village.has(big):
-        return (f"{normal}. With the patcher's \"{gm.feature_name(big)}\" (in this game): up to 256", False)
-    if mode == "immediate_fixed":
-        cap = 256 if game <= 2 else 150
-        return f"{normal}. With the patcher's Immediate Fixed Max Pop (in this game's exe): {cap}", gm.SAVE
-    if mode == "collection_progression":
-        base, top = PROGRESSION_BASE[game], 256 if game <= 2 else 150
-        cap = (f"{min(top, base + bonus)}" if bonus is not None else f"{base} plus {bonus_words}, up to {top}")
-        return f"{normal}. With the patcher's Collection Progression Max Pop (in this game's exe): {cap}", False
-    known = "" if mode == "stock" else " (which population mode the exe has is not known)"
-    return f"{normal}{known}", False
+    if big:
+        spec = _data_json(f"vv{game}_population_256_feature.json")["population_256"]
+        if spec["layout"]["section_name"] in names:
+            rows = {mode: list(spec["mode_rows"].get(mode) or []) for mode in ("collection_progression",
+                                                                             "immediate_fixed")}
+            stock_page = bytes.fromhex(spec["code_pages"]["stock"]["hex"])
+            page_va = int(spec["layout"]["code_page_va"], 16)
+            for mode in rows:
+                page = bytes.fromhex(spec["code_pages"][mode]["hex"])
+                differ = [n for n in range(len(page)) if page[n] != stock_page[n]]
+                if differ and sections:
+                    page_rva = page_va + differ[0] - sections[0]          # code_page_va is a VA (cp_add's call)
+                    at = next((raw + page_rva - rva for _, rva, vsize, raw, rsize in sections[1]
+                               if rva <= page_rva < rva + min(vsize, rsize)), None)
+                    if at is None:
+                        return None, True
+                    chunk = page[differ[0]:differ[-1] + 1].hex()
+                    rows[mode].append({"offset": hex(at), "before": stock_page[differ[0]:differ[-1] + 1].hex(),
+                                       "after": chunk})
+            found = [mode for mode in ("immediate_fixed", "collection_progression") if _matches(exe, rows[mode], "after")]
+            if len(found) == 1:
+                return found[0], True
+            if not found and all(_matches(exe, rows[mode], "before") for mode in rows):
+                return "stock", True
+            return None, True
+    try:
+        variants = next(g for g in _data_json("builds.json")["games"] if g["id"] == f"vv{game}")["variants"]
+    except (StopIteration, KeyError):
+        return None, False
+    rows = {mode: variants.get(mode, {}).get("patches") or [] for mode in ("collection_progression", "immediate_fixed")}
+    found = [mode for mode in ("immediate_fixed", "collection_progression") if rows[mode] and _matches(exe, rows[mode], "after")]
+    if len(found) == 2:
+        return (EITHER, False) if rows["immediate_fixed"] == rows["collection_progression"] else (None, False)
+    if found:
+        return found[0], False
+    if all(_matches(exe, rows[mode], "before") for mode in rows):
+        return "stock", False
+    return None, False
+
+
+def population_mode(village: gm.Village) -> tuple[str | None, bool | None]:
+    """exe_population_mode for the village's game exe; (None, whether 256 Villagers is listed as in the game, or
+    None) when its exe was not found or could not be read."""
+    if village.exe is not None:
+        try:
+            return exe_population_mode(Path(village.exe).read_bytes(), village.game)
+        except (OSError, ValueError, KeyError):
+            pass
+    big = POP_256.get(village.game)
+    return None, (village.has(big) if big else False)
+
+
+def collection_bonus(complete: int, sets: int) -> int:
+    """5 for each complete collection, and 5 more with all of them (25 with four, 15 with two)."""
+    return 5 * complete + (5 if sets and complete == sets else 0)
+
+
+def later_sets(village: gm.Village) -> list[tuple[str | None, int, int]] | None:
+    """The Secret City's, The Tree of Life's and New Believers' collections as (name, pieces owned, pieces), in
+    the room check's terms (see ROOM_CHECK); None on the general page or when the counts are not read."""
+    counts = None if village.general else collectible_counts(village)
+    if counts is None:
+        return None
+    owned = lambda part: sum(1 for c in part if c > 0)  # noqa: E731
+    if village.game == 5:
+        return [("the first set", owned(counts[24:48]), 24), ("the second set", owned(counts[0:24]), 24)]
+    names = VV4_SETS if village.game == 4 else (None,) * 4
+    return [(name, owned(counts[12 * k:12 * k + 12]), 12) for k, name in enumerate(names)]
+
+
+def _count_words(n: int, sets: int) -> str:
+    return "none" if n == 0 else ("all four" if sets == 4 else "both") if n == sets else str(n)
+
+
+def limit_words(village: gm.Village, sets: list[tuple[str | None, int, int]] | None, magic: int | None = None,
+                extra: str = "") -> tuple[str, bool | str]:
+    """The Population limit line: the limit this game's exe gives the village (its population mode, read from the
+    exe's bytes, and 256 Villagers), then the normal game's rule with this village's collections.  `sets`: each
+    collection as (name or None, pieces owned, pieces), [] for none, None when not read; `magic`: The Secret City's
+    Magic level (None when not read); `extra`: a last sentence."""
+    game = village.game
+    rule = NORMAL_RULE[game]
+    tail = f" {extra}" if extra else ""
+    if village.general:
+        return f"Population limit: in the normal game {rule}.{tail}".rstrip("."), gm.CODE
+    # The village's own collections, as the room check counts them.
+    bonus, state = None, ""
+    if sets is not None:
+        complete = sum(1 for _, owned, size in sets if owned >= size)
+        if game != 3 or magic is not None:
+            bonus = collection_bonus(complete, len(sets)) + (10 if game == 3 and magic >= 3 else 0)
+        if sets:
+            if all(name for name, _, _ in sets):
+                pieces = ", ".join(f"{name} {owned}" for name, owned, _ in sets) + f" of {sets[0][2]}"
+            else:
+                pieces = ", ".join(str(owned) for _, owned, _ in sets[:-1]) + f" and {sets[-1][1]} of {sets[0][2]} pieces"
+            state = f"; this village has {_count_words(complete, len(sets))} complete ({pieces})"
+            if game == 3:
+                state += (f" and Magic at level {magic}" if magic is not None else
+                          " and Magic is Both Factions' second faction, whose level the save does not hold")
+            if bonus is not None:
+                state += f", so {STOCK_BASE + bonus}"
+    normal_words = f"{rule}{state}"
+    mode, big = population_mode(village)
+    with_big = " with 256 Villagers" if big else ""
+    if mode is None:
+        why = ("which of the patcher's population modes this game's exe has could not be read" if village.exe
+               is not None else "this game's exe was not found, so its population mode is not known")
+        return (f"Population limit: not known ({why}). In the normal game it would be {normal_words}.{tail}"
+                .rstrip("."), False)
+    if mode == "stock":
+        what = (f"No Population Increase with 256 Villagers, which keeps the normal game's limit and only makes the "
+                f"villager table larger" if big else "the normal game's; this game's exe does not change it")
+        if bonus is None:
+            words = f"{rule} ({what}){state}"
+        elif state:
+            words = f"{STOCK_BASE + bonus} ({what}). The rule: {normal_words}"
+        else:                                     # A New Home: no collections
+            words = f"{STOCK_BASE + bonus} ({what}; A New Home has no collections)"
+        return f"Population limit: {words}.{tail}".rstrip("."), gm.CODE
+    top = 256 if big or game <= 2 else 150
+    if mode in (EITHER, "immediate_fixed") or game == 1:
+        name = ("Collection Progression or Immediate Fixed Max Pop, which are the same in A New Home"
+                if game == 1 else MODE_NAMES["immediate_fixed"] + with_big)
+        head = f"{top} ({name})"
+    else:
+        base = (PROGRESSION_BASE_256 if big else PROGRESSION_BASE)[game]
+        bonus_name = "collection and Magic bonus" if game == 3 else "collection bonus"
+        head = (f"{base + bonus} ({MODE_NAMES[mode]}{with_big}: {base} plus the {bonus_name}, {top} at most)"
+                if bonus is not None else f"{base} plus the {bonus_name}, {top} at most ({MODE_NAMES[mode]}{with_big})")
+    if game == 5:
+        head += (". In this mode the check counts every villager record in use, Heathens and bodies not yet buried "
+                 "included, plus the babies being carried")
+    return (f"Population limit: {head}. In the normal game it would be {normal_words}.{tail}".rstrip("."), gm.CODE)
+
+
+def room_words(village: gm.Village) -> str | None:
+    """The room checks' line for this game's exe when a patcher mode changes the limit (the Island events' Room
+    for new villagers), or None for the normal game's limit, an unknown mode and the general page."""
+    if village.general:
+        return None
+    mode, big = population_mode(village)
+    if mode in (None, "stock"):
+        return None
+    game = village.game
+    top = 256 if big or game <= 2 else 150
+    if mode in ("immediate_fixed", EITHER):
+        limit = f"{top}"
+    else:
+        base = (PROGRESSION_BASE_256 if big else PROGRESSION_BASE)[game]
+        limit = (f"{base} plus the same collection{' and Magic' if game == 3 else ''} bonus, {top} at most")
+    counted = ("; the check then counts every villager record in use, Heathens and bodies not yet buried included, "
+               "plus the babies being carried" if game == 5 else "")
+    name = MODE_NAMES.get(mode, "Collection Progression or Immediate Fixed Max Pop")
+    return (f"In this game's exe ({name}{' with 256 Villagers' if big else ''}) the limit is instead {limit}"
+            f"{counted}; the huts are the same as in the normal game.")
 
 
 # The later games' collectibles: the item manager's 51 dwords the save writer copies first (VV3 0x42D460, VV4

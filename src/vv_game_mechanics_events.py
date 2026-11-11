@@ -33,6 +33,7 @@ from dataclasses import dataclass, field
 import vv_game_mechanics as gm
 
 GROUP = "Island events"
+ROOM = "Room for new villagers"           # a rule line the exe's population mode adds to (life.room_words)
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,11 @@ def event_facts(village: gm.Village, rules=(), events=(), extra=()) -> list[gm.F
         line = _line(item)
         if shown(line.only_with):
             out.append(gm.Fact(GROUP, line.text, line.verified, sub=line.sub))
+            if line.text.startswith(ROOM):
+                import vv_game_mechanics_life as life       # the limit this game's exe gives (its population mode)
+                words = life.room_words(village)
+                if words:
+                    out.append(gm.Fact(GROUP, words, gm.CODE, sub=True))
     for event in tuple(events) + tuple(extra):
         if not shown(event.only_with):
             continue

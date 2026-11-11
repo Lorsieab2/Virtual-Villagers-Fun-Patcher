@@ -897,8 +897,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         parents_from=18, sick_loss=(0.6106, 0.1895),
         sick_end="A healer cures a sick villager at Healing + 34%.",
         collectibles=life.collectible_lines(village, life.COLLECTIBLE_PAY[3])[0],
-        limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
-                                              "level 3"),
+        # The room check's Magic bonus reads the save's tech 6 (0x45FE96); with Both Factions keeping Magic as the
+        # second faction (its level outside the save) it is not known here.
+        limit=life.limit_words(village, life.later_sets(village),
+                               None if level[MAGIC] < 3 and (second_faction(village.folder, village.slot, buf)
+                                                             or (None,))[0] == MAGIC else level[MAGIC]),
         puzzles=puzzles, village_extra=village_extra,
         # The meal: 0x460040.
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "

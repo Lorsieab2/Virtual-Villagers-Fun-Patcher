@@ -426,8 +426,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # Last Names reads them, the record layouts of the people and clocks (all function-level).
             ("vv_game_mechanics_death", {"vv_game_mechanics", "vv_graves", "vv_last_names",
                                          "vv_game_mechanics_life"}),
-            # The Island events catalogs: the shared renderer, and each game's events.
-            ("vv_game_mechanics_events", {"vv_game_mechanics"}),
+            # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
+            # and each game's events.
+            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
               for n in (1, 2, 3, 4, 5)),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
