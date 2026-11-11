@@ -492,7 +492,9 @@ def _context(village: gm.Village, data: bytes, speed_value: int, regrow_at: floa
         medicine=level[MEDICINE_LEVEL], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71},
         parents_from=18, sick_loss=(0.61, 0.19),
         collectibles=[(collectible_words, gm.SAVE)],
-        limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four"),
+        # The room check 0x44B310 counts a collection complete when all 12 found bytes are set (0x426120).
+        limit=life.limit_words(village, None if found is None or village.general
+                               else [(name, n, 12) for name, n in zip(COLLECTIONS, found)]),
         food_words="2 food a villager every age unit; on Medium above 4,000 food, or on Hard, 2 more 76% of the "
                    "time; never more on Easy.",
         farmer_words=("The birds: the field's crops count for nothing here, as the birds eat each regrowth's crops."

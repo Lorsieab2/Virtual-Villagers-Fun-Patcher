@@ -577,9 +577,9 @@ def _context(village: gm.Village, data: bytes, epoch: int, speed_value: int, lev
         medicine=level[3], elderly_from={1: 50, 2: 58, 3: 66}, old_age_from={1: 55, 2: 63, 3: 71}, parents_from=18,
         sick_loss=(0.71, 0.22),
         collectibles=[("Collectibles: A New Home has none; mushrooms are its only random pickup.", gm.RUNNING)],
-        limit=life.limit_words(village, None, "nothing for collections (A New Home has none)",
-                               "; babies also need room: 15 people or more need the first hut, 25 the second, 50 "
-                               "the third"),
+        # The room check 0x43A1A0: below the limit, then the huts (0x43A1B7..0x43A1F7), in every mode.
+        limit=life.limit_words(village, [], extra="In every mode babies also need room in the huts: 15 people or "
+                                                  "more need the first hut, 25 the second, 50 the third."),
         food_words="2 food a villager every age unit; on Medium above 2,000 food, or on Hard, 2 more 76% of the "
                    "time; never more on Easy.",
         trips=[("berry picks", max(2, bush // 130), "Berry bush"),
