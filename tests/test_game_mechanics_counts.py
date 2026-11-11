@@ -292,8 +292,8 @@ class GoldenEstimate(unittest.TestCase):
         self.assertIn("Golden Mushroom instead", facts[0].text)
         self.assertFalse(facts[1].confirmed)
         self.assertFalse(facts[2].confirmed)
-        self.assertIn("about 6.3 real-life years of playing (the game open and running, not paused), at Normal speed",
-                      facts[1].text)
+        self.assertIn("about 6.3 real-life years of playing (about 55,600 real-life hours, the game open and running, "
+                      "not paused), at Normal speed", facts[1].text)
         self.assertIn("about 55,600 real-life hours", facts[1].text)
         self.assertIn("7 real-life days of play", facts[2].text)
         self.assertIn("around 331 playthroughs on average", facts[2].text)

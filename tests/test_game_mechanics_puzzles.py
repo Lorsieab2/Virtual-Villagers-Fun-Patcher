@@ -209,11 +209,12 @@ class TimeWarpDates(Pages):
                 for note in notes:
                     self.assertTrue(note.confirmed)
                     self.assertIn("12 hours on Fast or Normal, 10 on Slow", note.text)
-                    self.assertIn("earlier than the real moment by the total length of the Time Warps made after "
-                                  "it", note.text)
+                    self.assertIn("reads earlier than it really was, by the total length of the Time Warps made "
+                                  "after it", note.text)
                     self.assertIn("the last save and the timers still to come are real", note.text)
                 # The note follows the line it explains.
-                self.assertIn("the village's start date is read on that clock", after[self.start(after) + 1].text)
+                self.assertIn("the village's start date is counted from the start of the save's clock, and each Time "
+                              "Warp", after[self.start(after) + 1].text)
 
     def test_no_note_without_the_time_warp(self) -> None:
         for game in range(1, 6):
