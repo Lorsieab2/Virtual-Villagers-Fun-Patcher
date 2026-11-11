@@ -111,10 +111,11 @@ def _keys() -> list[Entry]:
             "no screen of The Lost Children reacts to them (no screen's key handling tests them)"), C),
         Entry(KEY, "Store screens: no redraw or reroll key", (
             # The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or key-state code.
+            # "draw no random number": in the game's code the Tech screen's slots 0x441D80, 0x443770 and 0x4437C0
+            # (STORE_SLOTS) never call the random-number routine 0x4031A0 (RAND); tests/hidden_checks.py reads them.
             "no key or click redraws, refreshes or rerolls what The Lost Children offers. Its Tech screen offers a "
             "fixed list at fixed prices; its keys, mouse and buttons draw no random number and test only Esc and F1 "
-            "(above; in the game's code its slots 0x441D80, 0x443770 and 0x4437C0 never call the random-number "
-            "routine (0x4031A0)). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are "
+            "(above). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are "
             "Windows dialogs with no key handling of their own, so only Windows' own dialog keys work there; their "
             "lists are fixed"), C),
     ]
@@ -138,9 +139,8 @@ def _clicks() -> list[Entry]:
         Entry(CLICK, "The mask (village screen)", (
             f"the spot from {x0} to {x1} across and {y0} to {y1} down on the 800 x 600 screen. Each press of the left "
             f"button on it plays a sound (73) and shows one of all {RANDOM_COUNT} random tips (below) in the message "
-            # The mouse slot 0x4308D0, shown by 0x42C230.
-            f"line: each tip 1 in {RANDOM_COUNT} a click (the game's code: rand({RANDOM_COUNT}) + {RANDOM_BASE}), any "
-            "tip can come again, nothing is remembered"), C, subs=(
+            # The mouse slot 0x4308D0, shown by 0x42C230: rand(50) + 742 (RANDOM_COUNT, RANDOM_BASE).
+            f"line: each tip 1 in {RANDOM_COUNT} a click, any tip can come again, nothing is remembered"), C, subs=(
                 # rand(100) <= 10 in 0x4308D0: two effects of type 4 at 168, 514 and 193, 505.
                 ("Moving the mouse over the mask: each movement has an 11% chance of starting two of the game's "
                  "short screen effects beside it; what they look like is not confirmed.", C),
@@ -172,9 +172,9 @@ def _clicks() -> list[Entry]:
 def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
-            # The loading screen 0x429530; the tip pop-ups 0x4257A0.
+            # The loading screen 0x429530: rand(30) + 742 (LOADING_COUNT, RANDOM_BASE); the tip pop-ups 0x4257A0.
             f"the loading screen shows one of the first {LOADING_COUNT} random tips, picked once when it is built "
-            f"(each 1 in {LOADING_COUNT}; the game's code: rand({LOADING_COUNT}) + {RANDOM_BASE}); the mask shows any "
+            f"(each 1 in {LOADING_COUNT}); the mask shows any "
             f"of all {RANDOM_COUNT} (above); the tutorial and milestone pop-ups are asked for by number"), C, subs=(
                 ("So tips 31 to 50, among them \"You can zip around the island with your keypad.\" (786), come only "
                  "from the mask.", C),

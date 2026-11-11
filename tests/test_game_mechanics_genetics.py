@@ -102,7 +102,8 @@ class GreyHair(unittest.TestCase):
                 if lines:
                     self.assertIn("Young always draws the young head and Old always the old, grey head", lines[0])
                     self.assertIn("The head value itself never changes", lines[0])
-                    self.assertIn(genetics.HEAD_LOOK_SITES[game], lines[0])
+                    self.assertIn("The look is kept in the patcher's own file for the save", lines[0])
+                    self.assertNotRegex(lines[0], r"0x[0-9A-Fa-f]")       # the sites stay in HEAD_LOOK_SITES
                 village = gm.Village(Path("."), game, 1, Path("x.ldw"), b"", frozenset(), 1_700_000_000,
                                      general=True)
                 self.assertFalse([f for f in genetics.facts(village) if "head look" in f.text])
@@ -138,7 +139,9 @@ class Rules(unittest.TestCase):
                 self.assertIn("31.83%", text)
                 self.assertIn("0.17%", text)
                 self.assertIn("63.5%", text)
-                self.assertIn(genetics._LATER[game]["creator"], text)
+                self.assertIn("The mother's head is the one she has at the birth; the father's is the one the game "
+                              "copied onto her at the conception.", text)
+                self.assertIn(game, genetics._LATER)                    # the code behind it, kept out of the text
                 self.assertIn("30 heads (0 to 29) and 30 bodies (0 to 29)", text)
 
     def test_the_odds_add_up(self) -> None:
@@ -166,7 +169,7 @@ class Rules(unittest.TestCase):
                     self.assertNotIn("Joey", genetics_text(game))
                     self.assertIn("father \"Unknown\" (the owner). He is a name only, not a villager",
                                   genetics_text(game))
-                    self.assertIn("head 2 and body 2 (0x465E00)", genetics_text(game))
+                    self.assertIn("as the father's name, head 2 and body 2, so her baby's head", genetics_text(game))
                 self.assertIn("changes a villager's head after it is made", genetics_text(game))
         for game in (1, 3, 4, 5):
             self.assertNotIn("fixed lists", genetics_text(game))
@@ -184,6 +187,14 @@ class Rules(unittest.TestCase):
 class Patches(unittest.TestCase):
     def village(self, game: int, installed) -> gm.Village:
         return gm.Village(Path("."), game, 1, Path("x.ldw"), b"", installed, 1_700_000_000, general=True)
+
+    def test_no_address_is_shown(self) -> None:
+        """The code addresses behind each line are comments and data (_LATER, HEAD_LOOK_SITES, ...), not text."""
+        for game in range(1, 6):
+            with self.subTest(game=game):
+                text = gm.render(genetics.facts(self.village(game, frozenset(gm.feature_ids(f"vv{game}_")))))
+                self.assertIn("With the patcher's", text)
+                self.assertNotRegex(text, r"0x[0-9A-Fa-f]|\.dll\b|\.png\b")
 
     def test_a_patch_is_named_only_when_in_the_game(self) -> None:
         for game in range(1, 6):
@@ -279,7 +290,7 @@ class PatchLines(unittest.TestCase):
         for game in (1, 3):
             with self.subTest(game=game):
                 lines = self.text(game, frozenset({f"vv{game}_fix_vanilla_bugs"}))
-                self.assertFalse(any("Appearance Rolls" in t for t in lines))
+                self.assertFalse(any(t.startswith("With the patcher's \"Fix Vanilla Bugs\"") for t in lines))
 
 
 class StockCode(unittest.TestCase):

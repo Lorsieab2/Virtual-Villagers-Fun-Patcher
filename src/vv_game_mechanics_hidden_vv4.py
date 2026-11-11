@@ -132,13 +132,15 @@ def _keys() -> list[Entry]:
             "the village screen hands a type-7 event to a routine that returns at once, and nothing makes type-7 "
             "events (the game makes only typed characters and keys)"), C, dead=True),    # theMainScene -> 0x4409D0
         Entry(KEY, "Store screens: no redraw or reroll key", (
-            "no key or click redraws, refreshes or rerolls what The Tree of Life offers. Its Tech screen (CTechScene) "
-            "offers a fixed list at fixed prices; its input, mouse and button slots "
-            "(0x43C7D0, 0x43E9F0) draw no random number (0x4036D0) and test only Esc and F1 (above)."
-            ""
-            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
-            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
-            "Windows' own dialog keys work there; their lists are fixed"), C),
+            # The Tech screen is CTechScene.  "draw no random number": in the game's code its input, mouse and button
+            # slots 0x43C7D0 and 0x43E9F0 (STORE_SLOTS) never call the random-number routine 0x4036D0 (RAND);
+            # tests/hidden_checks.py reads them.  The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or
+            # key-state code.
+            "no key or click redraws, refreshes or rerolls what The Tree of Life offers. Its Tech screen offers a "
+            "fixed list at fixed prices; its keys, mouse and buttons draw no random number and test only Esc and F1 "
+            "(above). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs "
+            "with no key handling of their own, so only Windows' own dialog keys work there; their lists are fixed"),
+              C),
     ]
 
 
@@ -158,8 +160,9 @@ def _clicks() -> list[Entry]:
         Entry(CLICK, "The tip spot (village screen)", (
             f"the spot from {x0} to {x1} across and {y0} to {y1} down on the 800 x 600 screen (A New Home's mask spot). "
             f"Each press of the left button on it plays a sound (95) and shows one of all {RANDOM_COUNT} random tips "
-            f"(below) in the message bar: rand({RANDOM_COUNT}) + {RANDOM_BASE}, each tip 1 in {RANDOM_COUNT} a click, "
-            "any tip can come again, nothing is remembered"), C, subs=(       # the mouse-down 0x442650
+            f"(below) in the message bar: each tip 1 in {RANDOM_COUNT} a click, "
+            # The mouse-down 0x442650: rand(50) + 1025 (RANDOM_COUNT, RANDOM_BASE; tests/hidden_checks.py PICKERS).
+            "any tip can come again, nothing is remembered"), C, subs=(
                 ("What is drawn on that spot was not checked.", U),)),
         # 0x442650 -> 0x440A70, map areas 77 to 80; the condition before it: the area at the click (0x46C3D0) and
         # 0x41DBC0.
@@ -178,7 +181,8 @@ def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
             f"the loading screen shows one of all {RANDOM_COUNT} random tips, picked once when it is built "
-            f"(rand({LOADING_COUNT}) + {RANDOM_BASE}: each 1 in {LOADING_COUNT}); the tip spot shows any of them too "
+            # The loading screen 0x43F180: rand(50) + 1025 (LOADING_COUNT, RANDOM_BASE).
+            f"(each 1 in {LOADING_COUNT}); the tip spot shows any of them too "
             "(above); the tutorial (eTTip) and milestone (eTip) pop-ups are asked for by number"), C, subs=(
                 # The loading screen 0x43F180; the pop-ups 0x44B890 (whether one is still to show: 0x44B9A0).
                 ("Whether each pop-up shows once a village, and how \"Do you need help getting started?\" arms them, "
