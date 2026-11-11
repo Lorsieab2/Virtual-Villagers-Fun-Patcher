@@ -43,6 +43,21 @@ class GodPowers(unittest.TestCase):
         self.assertEqual(patched[0].verified, gm.CODE)
         self.assertIn("256 Villagers (Experimental)", gm.feature_name("vv5_population_256"))
 
+    def test_spirituality_faith_gain_is_exact(self) -> None:
+        # rand() % 100 < 10, 20 or 30 over 32,768 values: 3,280, 6,560, 9,840 (the Faith page's figures).
+        line = next(s for s in powers.SPIRITUALITY if s.startswith("Faith:"))
+        self.assertIn("gains 1 Faith 10.01%, 20.02% or 30.03% of the time at level 1, 2 or 3", line)
+        sys.path.insert(0, str(ROOT / "tests"))
+        import island_event_exe as exe
+        if not exe.available(5):
+            self.skipTest("the stock New Believers exe or capstone/pefile is absent")
+        code = exe.exe(5)
+        for at, threshold in ((0x468155, 0xA), (0x468146, 0x14), (0x468137, 0x1E)):
+            self.assertEqual(code.instruction(at), f"cmp eax, {threshold:#x}")
+            self.assertEqual(code.instruction(at - 0xA), "push 0x64")              # rand(100)
+        self.assertEqual(code.instruction(0x468158), "jge 0x46815d")             # below: +1 Faith
+        self.assertEqual(code.instruction(0x403678), "idiv esi")                 # rand(n) is rand() % n
+
     def test_only_revive_is_touched_by_a_patch(self) -> None:
         """No row of the patcher's catalog names a God Power, its handler, table or costs, or Divine Energy, except
         Revive's (the game's Reanimate) record rows -- what the "Stock or patched" line says."""

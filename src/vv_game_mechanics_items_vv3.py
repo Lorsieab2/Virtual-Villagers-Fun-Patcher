@@ -136,21 +136,26 @@ def _level(name: str, level: int, text: str, verified: bool | str = VERIFIED_C,
 def _techs() -> list[Entry]:
     blow = {lvl: chance(at_most(100, 15 * (3 - lvl))) for lvl in (1, 2, 3)}
     sup = {lvl: _ch(25 * lvl) for lvl in (1, 2, 3)}
+    # The speed step (0x4592B2..0x45939D): n / (the clock's rate x float 1/6), cut to a whole number (0x46EF58): 2n - 1
+    # on Fast, n - 1 on Normal, 0.6n (1 less when whole) on Slow, 0 stays 0.  So the first paying Research is d on
+    # Fast and 2d on Normal and Slow; catch-up skips the step (0x4592AC), so there it is c.  The bonuses after it
+    # (0x4593A4..0x459435) are added on top.
     research = ("Each successful research session pays the researcher's Research skill ÷ {d}, rounded down, then "
-                "scaled by the game speed (the exact rounding: Tech points and effects) -- nothing from the skill "
-                "below Research {d}; while the game catches up time away ÷ {c} at every speed. The shorter research "
-                "walk (a 7 to 11 wait, not 10 to 19) is taken {p}% of the time; both end in the same skill test and "
-                "payout.")
-    sick = ("Falling sick, rolled each age unit (3, 6 or 10 real-life minutes on Fast, Normal or Slow) for each "
-            "healthy villager: {odds}, where m is 1 while the campfire burns or Aromatherapy is solved and 2 otherwise "
-            "(Chances, Falling sick). A villager is elderly from {old} years (a further 1.5% chance of falling sick each "
-            "age unit, and health coming back only 20% as often); the old-age death rolls start at {death} years. "
-            "Conception at Parenting P: (P + {p}) in 300 (Births and gender).")
+                "scaled by the game speed (Tech points and effects has the exact rounding); while catching up time "
+                "away, ÷ {c} at every speed. Before the Magic, potion and fire bonuses, a session pays nothing below "
+                "Research {d} on Fast speed, below Research {d2} on Normal or Slow speed, and below Research {c} "
+                "while catching up. The shorter of the two research walks (a wait of 7 to 11 instead of 10 to 19) is "
+                "taken {p}% of the time; both end in the same skill test and payout.")
+    sick = ("Falling sick: {odds} each age unit (3, 6 or 10 real-life minutes on Fast, Normal or Slow) for each "
+            "healthy villager, where m is 1 while the campfire burns or Aromatherapy is solved, otherwise 2 (Chances, "
+            "Falling sick). Elderly from {old} years: a further 1.5% chance of falling sick each age unit, and health "
+            "comes back only 20% as often. Old-age death rolls start at {death} years. Conception at Parenting P: "
+            "(P + {p}) in 300 (Births and gender).")
     confused = ("the villager is \"Confused\" and the game shows its tip that villagers sometimes need more "
                 "advanced technology")
-    supervise = ("The Tribal Chief's supervision pays when a roll of 0 to 99 is under 25 x Leadership: {s} of the "
-                 "time -- a third more fish and fruit, half as much honey again, 1 more build unit, a quarter more "
-                 "research (Chances, The Tribal Chief's supervision). Grant Food gives {food} food.")
+    supervise = ("The Tribal Chief's supervision pays {s} of the time (a roll of 0 to 99 under 25 x Leadership): a "
+                 "third more fish and fruit, half as much honey again, 1 more build unit, a quarter more research "
+                 "(Chances, The Tribal Chief's supervision). Grant Food gives {food} food.")
     return [
         Entry(TECH, "The Tech screen", (
             "each technology is bought one level at a time with tech points on the Tech screen; the price of the next "
@@ -159,9 +164,9 @@ def _techs() -> list[Entry]:
             "at 0. Without enough tech points the game says \"You don't have enough tech points!\" and nothing is "
             "taken. Each level below is what that level gives."), VERIFIED_C),
         # Science (0): the research payout 0x459196 (vv_game_mechanics_vv3, Tech points and effects); the walk 0x44867A.
-        _level("Science", 1, research.format(d=11, c=7, p=85)),
-        _level("Science", 2, research.format(d=9, c=7, p=70)),
-        _level("Science", 3, research.format(d=7, c=5, p=55)),
+        _level("Science", 1, research.format(d=11, d2=22, c=7, p=85)),
+        _level("Science", 2, research.format(d=9, d2=18, c=7, p=70)),
+        _level("Science", 3, research.format(d=7, d2=14, c=5, p=55)),
         # Medicine (1): sickness 0x455C00, old age 0x4602C1, conception 0x4586E1, twins 0x455B77, study 0x45B69E.
         _level("Medicine", 1, sick.format(odds="(3m + 1) in 1,440", old=50, death=55, p=1) + " A healer with "
                "nobody sick to cure does nothing."),
@@ -196,15 +201,14 @@ def _techs() -> list[Entry]:
                "Collectible (Technologies, items and buildings)."),
         # Nature (5): 0x4347C3 (fruit factor), 0x420BB9 (the Pitcher Plant art), 0x4601C4 (read, not used).
         _level("Nature", 1, (
-            "The Faction of Nature (Choosing a faction). A fruit tree's refill counts 42 fruit instead of 37 per "
-            "real-life hour on Normal speed (per 30 minutes on Fast, per 1 hour 40 minutes on Slow) -- 126 fruit every "
-            "3 real-life hours on Normal speed (1 hour 30 minutes on Fast, 5 hours on Slow) instead of 111; the honey "
-            "is not changed."), VERIFIED_C,
-            ((patch("vv3_nature_honey_refill") + ": the fruit trees refill every 2 hours 15 minutes of real-life play "
-              "on Normal speed with 56 fruit per real-life hour on Normal speed (the same 126 fruit a refill), and the "
-              "honey every 45 minutes instead of every hour (on Normal speed), gaining 84 for every 27 hours 45 "
-              "minutes of real-life play on Normal speed (3.03 per real-life hour on Normal speed) instead of 2 per "
-              "real-life hour (Refills).", VERIFIED_E),)),
+            "The Faction of Nature (Choosing a faction). Fruit trees refill with 126 fruit every 3 real-life hours on "
+            "Normal speed (1 hour 30 minutes on Fast, 5 hours on Slow) instead of 111: a refill counts 42 fruit "
+            "instead of 37 per real-life hour on Normal speed (per 30 minutes on Fast, per 1 hour 40 minutes on "
+            "Slow). The honey is not changed."), VERIFIED_C,
+            ((patch("vv3_nature_honey_refill") + ": on Normal speed, the fruit trees refill every 2 hours 15 minutes "
+              "of real-life play, counting 56 fruit per real-life hour (the same 126 fruit a refill); the honey grows "
+              "every 45 real-life minutes instead of every hour, gaining 84 for every 27 hours 45 minutes of real-life "
+              "play (3.03 per real-life hour) instead of 2 per real-life hour (Refills).", VERIFIED_E),)),
         _level("Nature", 2, "The Pitcher Plant grows by the Alchemy Lab, a herb for potions (Technologies, items and "
                             "buildings)."),
         _level("Nature", 3, (
@@ -406,11 +410,11 @@ def _items() -> list[Entry]:
             "potions below. The brew blows up " + chance(at_most(100, 30)) + ", " + chance(at_most(100, 15))
             + " or " + chance(at_most(100, 0)) + " of the time at Alchemy 1, 2 or 3 (Technologies, Alchemy), costing "
             "the villager tending it 30 to 69 health."), VERIFIED_E,
-            (("The game spoils a brewed potion 5 real-life minutes after it is brewed, the same at every speed: its "
-              "deadline is the computer's clock + 300 seconds (0x430E60, checked by the pot's update 0x430F10). The pot's "
-              "on-screen countdown shows that time on the game's clock -- it starts at 5:00, 2:30 or 8:20 on Normal, Fast "
-              "or Slow (Tech points and effects) -- and reaches 0:00 when the potion spoils. The save does not keep the "
-              "pot.", VERIFIED_C),
+            # The deadline is the computer's clock + 300 seconds (0x430E60), checked by the pot's update 0x430F10.
+            (("The game spoils a brewed potion 5 real-life minutes after it is brewed, the same at every speed (it "
+              "goes by the computer's clock). The pot's on-screen countdown shows that time on the game's clock -- it "
+              "starts at 5:00, 2:30 or 8:20 on Normal, Fast or Slow (Tech points and effects) -- and reaches 0:00 when "
+              "the potion spoils. The save does not keep the pot.", VERIFIED_C),
              ("The owner sees a brewed potion's time follow the game speed (the countdown shown changes with it).",
               gm.OWNER),
              ("The pot can be emptied by dropping a villager on the table with 3 herbs: the brewed potion is thrown "
@@ -431,10 +435,17 @@ def _items() -> list[Entry]:
     out += _potions()
     sup = _ch(25)
     out += [
+        # Two thresholds: the work dispatcher (0x45AF9A) and the remembered-site continuation (0x45ADEA) only take a
+        # tree with 10 or more fruit (cmp eax, 0xa); a villager dropped on the trees (region 0x18's handler 0x4224D0)
+        # is sent to pick with no fruit check; the pick itself (0x4348F0, also in catch-up) needs 5 or more
+        # (0x434982: cmp [tree], 5), else the reaction 0x72 and the site is forgotten (0x4349C4..0x4349D5).
         Entry(ITEM, "Fruit", (
             "picking brings 7, 3 or 2 food on Fast, Normal or Slow (4 while catching up), a third more when the "
-            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit and is picked "
-            "only with 10 or more (Food sources, Refills)."), VERIFIED_C,
+            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit (Food sources, "
+            "Refills). The game sends a farmer to a tree by itself only while the tree holds 10 or more fruit. A "
+            "villager the player drops on a tree that is ready to pick goes to pick it at any count. The pick "
+            "itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets the tree."),
+            VERIFIED_C,
             ((patch("vv3_fruit_harvested_at_food_bin") + ": the fruit leaves the tree, and the food is added, only "
               "when the villager puts it in the food bin.", UNCONFIRMED),
              (patch("vv3_fruit_trees_refill_together") + ": every tree refills when the first one is due; over time "
@@ -511,12 +522,13 @@ def _items() -> list[Entry]:
             "a villager dropped on the burning campfire with wood starts its 20 hours of the game's clock over: 10, 20 or 33 hours 20 minutes of "
             "real-life play on Fast, Normal or Slow (The campfire)."),
             VERIFIED_C),
+        # Each trip sets a timer 600 seconds ahead on the game's clock (0x433BCA -> 0x426790).
         Entry(ITEM, "Water for the Ash Key", (
-            "after the campfire's 61 hours of burning (on the game's clock: 30 hours 30 minutes on Fast, 61 hours on "
-            "Normal or 101 hours 40 minutes on Slow of real-life play), 12 trips of water; the 4th puts a lit fire out, "
-            "and while it burns 10 minutes between trips starts the count again (also on the game's clock: 5, 10 or 16 "
-            "minutes 40 seconds of real-life play on Fast, Normal or Slow, 0x433BCA -> 0x426790) (Hidden villager "
-            "stats)."), VERIFIED_E),
+            "once the campfire has burned 61 hours in all on the game's clock (30 hours 30 minutes, 61 hours or 101 "
+            "hours 40 minutes of real-life play on Fast, Normal or Slow), 12 trips of water. The 4th trip puts a lit "
+            "fire out; while it burns, 10 minutes between trips on the game's clock (5, 10 or 16 minutes 40 "
+            "seconds of real-life play on Fast, Normal or Slow) starts the count again (Hidden villager stats)."),
+            VERIFIED_E),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below 100 health eats 1 food and regains 1 health " + _ch(50) + " of the time (Chances)."),
             VERIFIED_C),
@@ -544,10 +556,10 @@ def _patcher() -> list[Entry]:
         ("Time Warp", f"{o}: {_tp(50_000)} on the Tech screen's Origins upgrades. The village's clock moves on by 12 "
                       "real-life hours on Fast or Normal and 10 on Slow, so the villagers live 12, 6 or 3 years on "
                       "Fast, Normal or Slow at once (Time away); refused while paused.", gm.CLAMP),
-        ("Island Event", f"{o}: {_tp(30_000)}: the game's own island event chooser picks and runs an event a few "
+        ("Island Event", f"{o}: {_tp(30_000)}: the game's island event chooser picks and runs an event a few "
                          "real-life seconds after the Tech screen closes; one at a time. Its awards are never "
-                         "doubled, and it does not move when the game's own next island event comes.", UNCONFIRMED),
-        ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's own barrel island event, \"Another One of Those "
+                         "doubled, and it does not move when the game's next island event comes.", UNCONFIRMED),
+        ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event, \"Another One of Those "
                              "Barrels\": 3 children of 10 years, each a boy or a girl half the time, with one skill "
                              "at 5 to 9; refused, with nothing taken, without room for all three.", UNCONFIRMED),
         ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive tech-point gain "
@@ -586,10 +598,10 @@ def _patcher() -> list[Entry]:
         ("Set Age to 18", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 18.",
          UNCONFIRMED),
         ("Change Appearance", f"{o}: {_tp(5_000)} on the Villager Details screen: that villager's head and body "
-                              "are chosen from the game's own art.", UNCONFIRMED),
+                              "are chosen from the game's art.", UNCONFIRMED),
         ("Pick Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{gm.feature_name(STORY_COST)}\" ticked, "
                               "as it is by default with it): the player picks which stock island event comes, and "
-                              "how it turns out, from the game's own list; it runs through the game's own island "
+                              "how it turns out, from the game's list; it runs through the game's island "
                               "event code.", UNCONFIRMED),
         ("Custom Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{gm.feature_name(STORY_COST)}\" "
                                 "ticked): an island event the player writes -- food, tech points, new villagers and "
@@ -607,7 +619,7 @@ def _patcher() -> list[Entry]:
     out += [Entry(PATCHER, name, text, ok) for name, text, ok in rows]
     out.append(Entry(PATCHER, "Learning Skills Never Fails", (
         patch("vv3_learning_never_fails") + ": every Farming, Building, Research, Healing and Parenting skill test "
-        "succeeds; the skill gains and everything else are the game's own (stock: the test passes at the skill + 34% "
+        "succeeds; the skill gains and everything else stay as in the stock game (stock: the test passes at the skill + 34% "
         "for a villager neutral about learning)."), UNCONFIRMED))
     return out
 

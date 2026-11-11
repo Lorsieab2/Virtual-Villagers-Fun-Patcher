@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
 
+import island_event_exe as exe  # noqa: E402
 import vv_game_mechanics as gm  # noqa: E402
 import vv_game_mechanics_life as life  # noqa: E402
 import vv_game_mechanics_vv1 as vv1  # noqa: E402
@@ -45,8 +46,8 @@ class GoldenChild(unittest.TestCase):
         text = gm.render(facts)
         self.assertNotIn("special action", text)
         # Real-life wording (the 2026-10-25 audit: every time says real-life or in-game).
-        self.assertIn("The Golden Child's cave timer: 36 real-life hours after his birth, at any speed; see Golden "
-                      "Child.", text)
+        self.assertIn("The Golden Child's cave timer: 35 to 36 real-life hours after his birth, at any speed; see "
+                      "Golden Child.", text)
         self.assertIn("The 36-hour action is the Cave Opening.", text)
 
     def test_the_chances_follow_the_rolls(self) -> None:
@@ -60,8 +61,10 @@ class GoldenChild(unittest.TestCase):
 
     def test_every_time_says_real_or_game_time(self) -> None:
         rules = "\n".join(line for line, _ok in vv1.GOLDEN_CHILD_LINES)
-        self.assertIn("36 real hours after his birth", rules)
-        self.assertIn("36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 game years", rules)
+        self.assertIn("It can start 35 to 36 real-life hours after his birth (36 to 37 if he was born in the "
+                      "village's first hour), counted in real time: at any speed, paused or closed.", rules)
+        self.assertNotIn("From 36 real hours", rules)              # the two sentences once disagreed
+        self.assertIn("36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 villager years", rules)
         self.assertIn("12 hours on Fast or Normal and 10 hours on Slow", rules)
 
     def test_only_the_unproven_lines_are_unconfirmed(self) -> None:
@@ -128,6 +131,19 @@ class GoldenChild(unittest.TestCase):
     def test_the_general_page_keeps_the_rules_only(self) -> None:
         facts = [f for f in gm.general(1) if f.group == gm.GOLDEN_CHILD]
         self.assertEqual([f.text for f in facts], [line for line, _ok in vv1.GOLDEN_CHILD_LINES])
+
+    @unittest.skipUnless(exe.available(1), "the stock A New Home exe or capstone/pefile is absent")
+    def test_the_wait_is_35_to_36_hours_in_the_exe(self) -> None:
+        code = exe.exe(1)
+        # The birth hour: whole hours since the village was started, 0 written as 1.
+        self.assertEqual(code.instruction(0x4242AA), "shr edx, 0xb")            # x 0x91A2B3C5 >> 43: / 3600
+        self.assertEqual(code.instruction(0x4242AD), "mov dword ptr [ebp + 0x9e80], edx")
+        self.assertEqual(code.instruction(0x4242BC), "test ecx, ecx")
+        self.assertEqual(code.instruction(0x4242C0), "mov dword ptr [eax + 0x9e80], ebx")
+        # The cave test: the whole hours now must reach the birth hour + 36.
+        self.assertEqual(code.instruction(0x447A38), "shr edx, 0xb")
+        self.assertEqual(code.instruction(0x447A3B), "add eax, 0x24")
+        self.assertEqual(code.instruction(0x447A40), "jb 0x447a5c")
 
     def test_only_a_new_home_has_the_subsection(self) -> None:
         for game in range(2, 6):

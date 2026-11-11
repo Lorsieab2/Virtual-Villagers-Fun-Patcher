@@ -60,8 +60,9 @@ def _buy(tech: str, level: int) -> str:
 
 # Level 1 of each technology, its own entry like The Secret City's to New Believers' (the owner, 2026-10-27: "Same
 # between the virtual villagers games"): what a new village has before anything is bought.  Every line restates, for
-# level 1, a reading cited under that technology's level 2 and 3 below.
-LEVEL_ONE = "a new village's level, no price (every technology starts at 1, 0x41C43E..0x41C45C)."
+# level 1, a reading cited under that technology's level 2 and 3 below.  "a new village's level": every technology
+# starts at 1 (0x41C43E..0x41C45C), as The Secret City's line words it.
+LEVEL_ONE = "a new village's level, no price."
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -82,9 +83,10 @@ TECHNOLOGIES = (
     )),
     Entry(TECH, "Farming level 1", (
         (LEVEL_ONE, C),
-        # 0x4472EB (the farmers' switch on Farming): level 1 picks the berry bush only.
-        ("Farmers pick only the berry bush (Food sources); the crop field never refills (0x42EC16) and a villager "
-         "dropped on the field does not plant or harvest (0x424BCC).", C),
+        # 0x4472EB (the farmers' switch on Farming): level 1 picks the berry bush only.  "never refills": the
+        # regrowth's Farming test 0x42EC16; "does not plant or harvest": the field drop 0x424BCC.
+        ("Farmers pick only the berry bush (Food sources); the crop field never refills and a villager dropped on "
+         "the field does not plant or harvest.", C),
         # 0x4241D6: Farming > 2 for fishing; otherwise "Going swimming".
         ("A villager dropped in the sea only goes swimming, beach cleaned or not.", C),
     )),
@@ -528,25 +530,27 @@ ITEMS = (
 # 1,000,000 and 450,000 immediates (data/vv1_story_cheat_upgrades_feature.json, runtime_detours); the rows'
 # names: native/vv1_origins_icons/vv1_origins_icons.c (vv1_tech_row_name, vv1_detail_row_name).
 # ---------------------------------------------------------------------------------------------------------------
-def _origins(row: str, price: int, where: str, effect: str) -> str:
-    return (f"With the patcher (Enable Origins Tech, Details, and Village-Wide Upgrades, on by default): \"{row}\" on "
-            f"the {where}, {price:,} tech points (0 with Story / Cheat Upgrades and its cost row unticked): {effect}")
+def _origins(row: str, price: int, where: str, effect: str, sub: bool = False) -> str:
+    """One Origins row; a sub-line (`sub`) leaves out the patch's name, which its entry's first line gives."""
+    words = (f"\"{row}\" on the {where}, {price:,} tech points (0 with Story / Cheat Upgrades and its cost row "
+             f"unticked): {effect}")
+    return words if sub else ("With the patcher (Enable Origins Tech, Details, and Village-Wide Upgrades, on by "
+                              "default): " + words)
 
 
 ORIGINS = (
     Entry(PATCHER, "Origins: Time Warp", (
-        (_origins("Time Warp", 50_000, "Tech screen's Upgrades", "moves the village on 12 game years on Fast, 6 on "
-                  "Normal and 3 on Slow (12, 12 and 10 hours of real-life time), the time replayed by the game's own "
+        (_origins("Time Warp", 50_000, "Tech screen's Upgrades", "moves the village on 12 villager years on Fast, 6 "
+                  "on Normal and 3 on Slow (12, 12 and 10 hours of real-life time), the time replayed by the game's "
                   "catch-up; refused while paused."), gm.CLAMP),
     )),
     Entry(PATCHER, "Origins: Island Event", (
-        (_origins("Island Event", 30_000, "Tech screen's Upgrades", "queues one of the game's own island events, "
-                  "chosen by the game as usual; one at a time, and the game's own island event timer is not "
-                  "changed."), C),
+        (_origins("Island Event", 30_000, "Tech screen's Upgrades", "queues one of the game's island events, chosen "
+                  "by the game as usual; one at a time, and the game's island event timer is not changed."), C),
     )),
     Entry(PATCHER, "Origins: Barrel of Babies", (
-        (_origins("Barrel of Babies", 75_000, "Tech screen's Upgrades", "the game's own Barrel O` Babies event at "
-                  "strength 10: three toddlers; only while the village has room for three (an unburied body still "
+        (_origins("Barrel of Babies", 75_000, "Tech screen's Upgrades", "the game's Barrel O` Babies event at strength "
+                  "10: three toddlers; only while the village has room for three (an unburied body still "
                   "takes a place)."), C),
     )),
     Entry(PATCHER, "Origins: Tech Point Doubler and Food Point Doubler", (
@@ -567,26 +571,26 @@ ORIGINS = (
         (_origins("Equal Division of Labor (Includes Parenting) / (No Parenting)", 1_000_000, "Tech screen's "
                   "Upgrades", "splits the village evenly across the jobs, men and women balanced in each, each "
                   "villager to the job of its most-progressed skill while that job has room; the Golden Child is "
-                  "skipped."), C),
+                  "skipped.", sub=True), C),
         (_origins("Clear All Skill Preferences", 500_000, "Tech screen's Upgrades", "unticks every villager's job "
-                  "checkmark; no skill changes."), C),
+                  "checkmark; no skill changes.", sub=True), C),
         (_origins("Check Highest Skill (Includes Parenting) / (No Parenting)", 1_000_000, "Tech screen's Upgrades",
                   "ticks each villager's most-progressed skill (ties to the first of Farming, Building, Research, "
-                  "Healing, Parenting); a villager with no progress keeps its checkmark."), C),
+                  "Healing, Parenting); a villager with no progress keeps its checkmark.", sub=True), C),
         (_origins("Change Appearance for All", 450_000, "Tech screen's Upgrades", "sets the head, body or Heathen "
-                  "mask of every villager at once."), C),
+                  "mask of every villager at once.", sub=True), C),
     )),
     Entry(PATCHER, "Origins: Villager Details rows", (
         (_origins("Grant Youth", 50_000, "Villager Details screen", "makes the villager shown 35 years younger (700 "
                   "age units), never under 5 years."), U),
         (_origins("Grant Full Mastery", 100_000, "Villager Details screen", "sets the villager's five skills to 100; its "
-                  "job checkmark is kept, or Farming is ticked when it has none."), C),
+                  "job checkmark is kept, or Farming is ticked when it has none.", sub=True), C),
         (_origins("Grant Running", 40_000, "Villager Details screen", "adds running to the villager's likes (and "
-                  "removes it from its dislikes); refused, free, when all its like slots are full."), C),
+                  "removes it from its dislikes); refused, free, when all its like slots are full.", sub=True), C),
         (_origins("Set Age to 18", 50_000, "Villager Details screen", "sets the villager's age to 18 years (360 age "
-                  "units), moving a pregnancy's timing with it."), C),
+                  "units), moving a pregnancy's timing with it.", sub=True), C),
         (_origins("Change Appearance", 5_000, "Villager Details screen", "picks the villager's head, body or Heathen "
-                  "mask."), C),
+                  "mask.", sub=True), C),
     )),
     Entry(PATCHER, "Story / Cheat Upgrades", (
         ("With the patcher (Story / Cheat Upgrades, on by default; needs the Origins upgrades): every Origins "
@@ -594,7 +598,7 @@ ORIGINS = (
          "default) is unticked.", C),
         ("Pick Island Event (0, or 30,000 tech points): choose which of 40 island events comes next and, where the "
          "event rolls for it, how it turns out (its result, every amount, who it hits, its strength 1 to 10); the "
-         "game's own event code runs it. One pending event at a time.", C),
+         "game's event code runs it. One pending event at a time.", C),
         ("Custom Island Event (0, or 30,000 tech points): an event you write: food and tech points added, taken or "
          "set to 0, the berry bush and crops refilled, new villagers, deaths, sickness, pregnancies, likes, looks, "
          "skills, titles, masks and villager actions, or a question with two choices and up to four outcomes each "

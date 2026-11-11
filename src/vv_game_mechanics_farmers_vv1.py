@@ -128,10 +128,10 @@ def _span(low: float, high: float) -> dict[int, tuple[float, float]]:
     return {speed: (low, high) for speed in SPEEDS}
 
 
+# "not saved": the trip's step queue lies outside the saved part of the villager's record.
 _CLOCK = ("Real-life time, the same at Fast, Normal and Slow (nothing in the walk or the waits reads the speed); "
-          "while paused the villagers stand still, and a wait whose moment passes during the pause ends on the first "
-          "frame after it. A trip in progress is not saved (the step queue is outside the saved part of the record), "
-          "so closing the game loses it.")
+          "while paused the villagers stand still, and a wait that runs out during the pause ends as soon as the "
+          "game is unpaused. A trip in progress is not saved, so closing the game loses it.")
 
 TRIPS: tuple[Trip, ...] = (
     Trip(
@@ -143,13 +143,17 @@ TRIPS: tuple[Trip, ...] = (
         success_offset=31,
         live_words=("From the food bin: walk to the bush (one of two spots), wait 5-7 s and 2 s, the Farming check, "
                     "wait 5-9 s, walk back to the food bin, wait 2 s, then the berries are credited. " + _CLOCK),
-        catch_up_words=("Each job turn that chooses Farming runs one pick at once (0x42E790 -> 0x4472C0 -> 0x441E10 -> "
-                        "0x446C70): the Farming check, then the bush / 130, at least 2 (0x43AD62), as live."),
+        # The job turn 0x42E790 -> the dispatcher 0x4472C0 -> berries 0x441E10, played at once by 0x446C70; the
+        # reward 0x43AD62 (the bush / 130, at least 2).
+        catch_up_words=("Each job turn that chooses Farming runs one pick at once: the Farming check, then the bush "
+                        "÷ 130 (at least 2), as live."),
         verified="code",
-        extra=("An elder (walking at 40) takes 216.99 s (204.96-237.96); a villager who likes running (300) "
+        # The walking speeds: an elder 40, one who likes running 300 (an adult 100).  The berries' dislike test:
+        # 0x441E3C.
+        extra=("An elder (who walks slowly) takes 216.99 s (204.96-237.96); a villager who likes running "
                "46.49 s (41.94-51.94).",
                "A failed Farming check ends the trip near the bush with nothing: 52.90 s on average from the bin.",
-               "A villager who dislikes berries or bushes refuses 75 in 100 (0x441E3C).",
+               "A villager who dislikes berries or bushes refuses 75 in 100.",
                "Live, with the game's own scheduler: 107.9 s per paying trip at Farming 100, 118.5 at 50, 122.6 at "
                "20 (LIVE_CYCLE)."),
     ),
@@ -163,14 +167,14 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: walk to one of the field's 4 rows (in one of 3 sections), 4 stops along it "
                     "with a 3 s wait at each, the Farming check, walk back to the food bin (26% of trips by a "
                     "waypoint), wait 1 s, then 7 food is credited. " + _CLOCK),
+        # The harvest's reward 0x43AEC5 (7 food, taken from the field); an empty field only waters (0x443A43).
         catch_up_words=("Each job turn that chooses Farming runs one harvest at once: the Farming check, then 7 food "
-                        "taken from the field (0x43AEC5), as live. An empty field: no reward (the job then only "
-                        "waters, 0x443A43)."),
+                        "taken from the field, as live. An empty field: no food (the job then only waters)."),
         verified="code",
+        # "gave up": the walk's detour limit 0x43DFE9 -> 0x43DFEE (15 a job).  The turnips' dislike test: 0x443A1E.
         extra=("An elder takes 188.87 s (138.93-234.89); a villager who likes running 39.83 s (34.91-44.91), but 37 "
-               "of its 110 trips from the bin used up their 15 detours and gave up (0x43DFE9 -> 0x43DFEE) with "
-               "nothing.",
-               "A villager who dislikes turnips refuses 75 in 100 (0x443A1E).",
+               "of its 110 trips from the bin got stuck walking around obstacles and gave up with nothing.",
+               "A villager who dislikes turnips refuses 75 in 100.",
                "Live, with the game's own scheduler: 98.6 s per paying trip at Farming 100, 115.2 at 50, 118.0 at 20 "
                "(LIVE_CYCLE)."),
     ),
@@ -181,13 +185,15 @@ TRIPS: tuple[Trip, ...] = (
         live_span=_span(47.88, 121.87),
         catch_up_trips_per_turn=FARMING_CHOSEN,
         success_offset=31,
-        live_words=("From the food bin: two walks to a fishing spot (the near shore x 81-330 or the far one x "
-                    "1308-1635) with a 1 s wait at each, the Farming check, walk up the beach and back to the food "
-                    "bin (26% of trips by one more waypoint), wait 1 s, then 9 food is credited. A villager who "
-                    "dislikes fish always refuses (0x43F45B). " + _CLOCK),
+        # The two spots: the near shore x 81-330 or the far one x 1308-1635 (map pixels).  The fish dislike test:
+        # 0x43F45B.  The catch-up rewards: 9 food 0x43AF34, the crab 0x43AF86.
+        live_words=("From the food bin: two walks to a fishing spot (the near shore or the far one) with a 1 s "
+                    "wait at each, the Farming check, walk up the beach and back to the food bin (26% of trips by "
+                    "one more waypoint), wait 1 s, then 9 food is credited. A villager who dislikes fish always "
+                    "refuses. " + _CLOCK),
         catch_up_words=("Each job turn that chooses Farming and fishing runs one catch at once: the Farming check, "
-                        "then 9 food (0x43AF34); with Farming 90 or more 21 in 100 are a crab, 55 food with no "
-                        "check (0x43AF86). No walk, so no catch-up trip is lost at the map's edge."),
+                        "then 9 food; with Farming 90 or more 21 in 100 are a crab, 55 food with no check. No walk, "
+                        "so no catch-up trip is lost at the map's edge."),
         verified="code",
         extra=("A crab (Farming 90 or more, 21 in 100, 55 food): 104.05 s (91.91-117.91), then a 10 s "
                "celebration before the next trip.",

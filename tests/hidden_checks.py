@@ -148,8 +148,15 @@ class HiddenChecks:
         import hidden_keys_exe as keys
         start, end = self.MODULE.PUMP
         self.assertEqual(keys.commands_made(self.GAME, start, end), frozenset(hidden.COMMAND_KEYS))
-        self.assertEqual(self.entries()[0].name, "Which keys reach the game")
-        self.assertIn(f"{start:#x}", self.entries()[0].text)
+        # The pump's address is the module's PUMP (read above); the page names the keys, not the address.
+        first = self.entries()[0]
+        self.assertEqual(first.name, "Which keys reach the game")
+        self.assertNotRegex(first.text, r"0x[0-9A-Fa-f]")
+        for key in hidden.COMMAND_KEYS.values():
+            if not re.fullmatch(r"F\d+|.* arrow", key):
+                self.assertIn(key, first.text)
+        self.assertIn("the four arrows", first.text)
+        self.assertIn("F1 to F10", first.text)
 
     def test_every_tip_is_quoted(self) -> None:
         self.need_exe()
@@ -182,21 +189,30 @@ class HiddenChecks:
     def test_the_tip_pickers(self) -> None:
         self.need_exe()
         import hidden_keys_exe as keys
+        m = self.MODULE
+        counts = {m.RANDOM_COUNT, getattr(m, "LOADING_COUNT", m.RANDOM_COUNT)}
+        text = gm.render(m.hidden_facts())
         for start, end, n, base in self.PICKERS:
             with self.subTest(picker=hex(start)):
                 self.assertIn((n, base), keys.random_picks(self.GAME, start, end))
-                self.assertIn(f"rand({n}) + {base}", gm.render(self.MODULE.hidden_facts()))
+                # The draw is the module's own data (RANDOM_BASE numbers the first of RANDOM_TIPS); the page gives
+                # its odds in plain words, not the code's "rand(n) + base".
+                self.assertEqual(base, m.RANDOM_BASE)
+                self.assertIn(n, counts)
+                self.assertRegex(text, rf"\beach (tip )?1 in {n}\b")
+                self.assertNotIn(f"rand({n})", text)
 
     def test_no_store_slot_rerolls(self) -> None:
         """The store-like screens' slots draw no random number, so nothing there can redraw what is offered."""
         self.need_exe()
-        listed = " ".join(e.text for e in self.entries() if e.name == "Store screens: no redraw or reroll key").lower()
-        self.assertIn(f"({self.MODULE.RAND:#x})", listed)
+        listed = " ".join(e.text for e in self.entries() if e.name == "Store screens: no redraw or reroll key")
+        self.assertIn("draw no random number", listed)
+        self.assertNotRegex(listed, r"0x[0-9A-Fa-f]")       # the slots and the routine are the module's data
+        self.assertTrue(self.MODULE.STORE_SLOTS)
         for start, end in self.MODULE.STORE_SLOTS:
             with self.subTest(slot=hex(start)):
                 calls = [o for _a, m, o in exe_reader.exe(self.GAME).disasm(start, end) if m == "call"]
                 self.assertNotIn(f"{self.MODULE.RAND:#x}", calls)
-                self.assertIn(f"{start:#x}", listed)
 
     def test_the_tip_spot(self) -> None:
         if self.SPOT is None:

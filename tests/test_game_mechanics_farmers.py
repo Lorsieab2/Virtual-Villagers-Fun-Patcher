@@ -153,7 +153,9 @@ class ThePage(unittest.TestCase):
                 lines = [f.text for f in vitals if " alone: while catching up" in f.text]
                 self.assertTrue(lines)
                 for text in lines:
-                    self.assertRegex(text, r" alone: while catching up, [\d,]+ farmers? \(one brings")
+                    self.assertRegex(text, r" alone: while catching up, [\d,]+ farmers?[;.]")
+                    self.assertRegex(text, r"\. One farmer brings [\d,.]+ food each counted age unit while "
+                                           r"catching up \(\d+ job turns x ")
                     # Each source says whether it can feed the village on its own, by its regrowth.
                     self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone|cannot feed "
                                            r"the village alone)")
@@ -171,8 +173,8 @@ class ThePage(unittest.TestCase):
         eaten = float(re.search(r"eats ([\d,.]+) food each counted age unit", header).group(1).replace(",", ""))
         checked = 0
         for f in facts:
-            found = re.search(r"alone: while catching up, ([\d,]+) farmers? \(one brings ([\d,.]+) food each "
-                              r"counted age unit", f.text)
+            found = re.search(r"alone: while catching up, ([\d,]+) farmers?[;.].*\. One farmer brings ([\d,.]+) food "
+                              r"each counted age unit", f.text)
             if found:
                 need, brought = int(found.group(1).replace(",", "")), float(found.group(2).replace(",", ""))
                 # Both figures are shown rounded to 0.1: the count lies between the two roundings' answers.
@@ -232,7 +234,7 @@ class WalkAndRedecisionClaims(unittest.TestCase):
         vv4 = " ".join(f.text for f in self.general[4])
         self.assertIn("walks at speed 300 (100 otherwise) and one who dislikes it at 40", vv4)
         self.assertIn("30.3 pixels a real-life second at 100, 3 times that at 300 and 0.4 times at 40", vv4)
-        self.assertIn("a walk at speed 300 (100 otherwise, 0x4659BF); disliked, 40 (0x465A06)",
+        self.assertIn("a walk at speed 300 (100 otherwise); disliked, 40, except when fleeing",
                       " ".join(f.text for f in self.general[5]))
 
     def test_the_sweep_is_never_every_40_seconds(self) -> None:

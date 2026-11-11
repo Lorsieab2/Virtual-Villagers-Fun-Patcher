@@ -13,7 +13,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "tests"))
 
+import island_event_exe as exe  # noqa: E402
 import vv_game_mechanics as gm  # noqa: E402
 import vv_game_mechanics_death as death  # noqa: E402
 import vv_graves  # noqa: E402
@@ -168,6 +170,35 @@ class StockCodeVV3(StockCode):
         self.assertEqual(self.at(0x45C191, 3), bytes.fromhex("83F819"))          # 25%
         self.assertEqual(self.at(0x45D9CD, 4), bytes.fromhex("3BC57D03"))        # the Tsunami's roll
         self.assertEqual(self.at(0x45D9D1, 3), bytes.fromhex("C60600"))          # ...clears presence
+
+
+class RemovalSpeed(unittest.TestCase):
+    """The body removal divides the whole wait since the death by the speed read at the check, in all five games."""
+
+    # game: (the div by the speed the game is on now, the 240 age units test after it)
+    CHECKS = {1: (0x42E99C, "div dword ptr [ecx + 0xa318]", 0x42E9A2),
+              2: (0x43B766, "div dword ptr [ecx + 0x2eb08]", 0x43B76C),
+              3: (0x45F437, "div dword ptr [ecx + 0x12f20]", 0x45F43D),
+              4: (0x4664A7, "div dword ptr [ecx + 0x17110]", 0x4664AD),
+              5: (0x46FEE3, "div dword ptr [ecx + 0x17d7c]", 0x46FEE9)}
+
+    def test_the_text_says_the_speed_at_the_check(self) -> None:
+        self.assertIn("counted at whatever speed the game is on when it checks, not the speed at the death",
+                      death.REMOVAL)
+        self.assertNotIn("speed then", death.REMOVAL)
+        self.assertIn("While the game is paused, no body is removed.", death.REMOVAL)
+        for game in self.CHECKS:
+            with self.subTest(game=game):
+                self.assertIn(death.REMOVAL, [f.text for f in gm.general(game, now=NOW) if f.group == gm.DEATH])
+
+    def test_the_exe_divides_by_the_current_speed(self) -> None:
+        for game, (div, words, cmp) in self.CHECKS.items():
+            with self.subTest(game=game):
+                if not exe.available(game):
+                    self.skipTest(f"the stock exe of game {game} or capstone/pefile is absent")
+                code = exe.exe(game)
+                self.assertEqual(code.instruction(div), words)
+                self.assertEqual(code.instruction(cmp), "cmp eax, 0xf0")
 
 
 if __name__ == "__main__":

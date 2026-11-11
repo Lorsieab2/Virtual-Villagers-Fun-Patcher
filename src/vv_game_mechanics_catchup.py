@@ -77,6 +77,52 @@ def _patch(village: gm.Village, feature: str, normal: str, patched: str) -> gm.F
     return gm.Fact(G, f"{normal} The patcher's \"{gm.feature_name(feature)}\" {state}: {patched}", CODE)
 
 
+def _how_counts(only: str = "", extra: str = "") -> str:
+    """The "How it counts" line every game shares (the clamp and the ageing; each game's addresses are in its
+    function's docstring).  `only`: who ages, when not everyone; `extra`: who is skipped."""
+    return ("How it counts: each villager keeps its own store of time not yet counted. Every update adds the "
+            "real-life time since that villager's last update, then cuts the store to the limits above; time cut off "
+            "is lost and never counted later. " + only + "Each whole age unit of counted time (3, 6 or 10 real-life "
+            "minutes on Fast, Normal or Slow) is added to the age shown at once; the rest is kept for the next "
+            "update." + extra)
+
+
+def _stepped(who: str) -> str:
+    """The "How it is stepped through" line every game shares (the life loop, repeated until no one is behind)."""
+    return ("How it is stepped through: all of the catch-up happens in the first update after the village loads, "
+            f"before the next picture is drawn. In that update the game takes every {who} through the counted age "
+            "units one at a time, repeating until no one is behind. How many real-life seconds that takes depends on "
+            f"the computer (one pass of the life rules per {who} per age unit, plus the job turns below).")
+
+
+def _island_events(paused: str, after: str) -> str:
+    """The Island events line every game shares: real time, paused, and what happens once it is next played."""
+    return ("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole "
+            f"time closed counts; while the game is paused it stands still ({paused}). {after}")
+
+
+# The Nursery School while catching up, by game: (the tick that runs it, who learns, the teacher's skills).
+_NURSERY = {5: ("noni regrowth", "each child under 14, Heathen children included,", "six"),
+            4: ("world tick", "each child under 14 who is not a ghost", "five")}
+
+
+def _nursery(out: list[gm.Fact], game: int) -> None:
+    """The Nursery School lines (The Tree of Life, New Believers): the live rule run for the whole time closed."""
+    tick, who, skills = _NURSERY[game]
+    out.append(gm.Fact(G, f"Nursery School: {who} learns from the Nursery School teacher for the WHOLE time closed, "
+                          f"with no limit: the teacher's {skills} skills added together ÷ 240 for each real-life hour "
+                          "closed, at any speed. This is the live rule (see Tech points and effects); it runs before "
+                          "the time away is added to the ages, so a child who turns 14 during it learns for all of it.",
+                       CODE))
+    drawn = {"six": 6, "five": 5}[skills]
+    out.append(gm.Fact(G, f"How it is worked out: one lesson for every missed {tick} (one per age unit of the time "
+                          f"closed). A lesson is the teacher's {skills} skills, each cut to its whole number, added "
+                          "together x the speed value (3, 6 or 10) ÷ 14,400. One 50-in-100 roll for every child "
+                          "together: either all of it goes to the child's top skill if that skill's whole number is "
+                          f"below 50 (a skill drawn 1 in {drawn} while every skill is 0; at 50 or more, nothing), or a "
+                          "fifth of it to every skill whose whole number is below 50.", CODE, True))
+
+
 def _limits_words(speed: int) -> tuple[int, int, int, int]:
     limits = gm.AWAY_LIMITS[5]
     return limits["full"][speed], limits["band"], limits["band_end"], limits["over"]
@@ -210,34 +256,28 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         return []
     out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+    sub = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok, True))  # noqa: E731
 
     # How it is counted and stepped through.
-    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
-        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
-        "never counted later. Only believers then age: the counted time ÷ the length of an age unit (3, 6 or 10 "
-        "real-life minutes on Fast, Normal or Slow) is added to the age shown at once, and what is left under one "
-        "age unit is kept for the next update.")
-    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
-        "every believer, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. How many real-life seconds "
-        "it takes depends on the computer (one pass of the life rules per believer per age unit, "
-        "plus the job turns below).")
-    add("Each counted age unit, for each believer, exactly as in live play: Faith rises or falls, Divine Energy is "
-        "earned, food is eaten, health is regained or lost, sickness may start, the old-age death roll is made at "
-        "each birthday past the limit, and babies due are born (twins and triplets as live). The ages shown, logs "
-        "and graves therefore jump at once, and every death, birth and Heathen of the time away happens in that "
-        "first update.")
-    add("Work: for every counted age unit except the last 2, each believer aged 14 or more (by the age shown after "
-        "the time away is added) who is not sick, not pregnant or nursing and has 20 health or more gets 4 job "
-        "turns. A job turn uses the game's own job choice, and a job the player gave keeps going; walks become "
-        "instant moves, and the skill checks, the work's food, tech points and Divine Energy, and the building "
-        "steps all run, while every other step (animations, waits, talk, play, rest) is skipped. Live play has no "
-        "job turns of this kind: villagers walk and work in real time.")
-    add("Food while catching up: at 250 food or less a believer with Farming 20 or more farms first, as in live "
-        "play, but nobody stops to be \"Worried about food\". A crop harvest gives 7 food at any speed (live: 10, 7 "
-        "or 4 on Fast, Normal or Slow). The game's own job choice sends a believer to the noni only once the "
-        "granary is made and The Hungry Totem is solved (live: the granary alone); a believer the player dropped on "
-        "the noni bushes keeps picking them without the totem (0x46BE86). Fishing gives 4 food, as live.")
+    add(_how_counts("Only believers age. "))
+    add(_stepped("believer"))
+    add("Each counted age unit, every believer lives it exactly as in live play: Faith rises or falls, Divine Energy "
+        "is earned, food is eaten, health is regained or lost, sickness may start, the old-age death roll is made at "
+        "each birthday past the limit, and babies due are born (twins and triplets as live). So the ages shown, logs "
+        "and graves jump at once: every death, birth and new Heathen of the time away happens in that first update.")
+    add("Work: each believer aged 14 or more who is not sick, not pregnant or nursing and has 20 health or more gets "
+        "4 job turns for every counted age unit except the last 2 (its age as shown after the time away is added). "
+        "Live play has no job turns of this kind: villagers walk and work in real time.")
+    sub("In a job turn the believer does what the game's job choice picks, or keeps on with a job the player gave. "
+        "Walks become instant moves; the skill checks, the work's food, tech points and Divine Energy, and the "
+        "building steps all run; every other step (animations, waits, talk, play, rest) is skipped.")
+    add("Food while catching up: a crop harvest gives 7 food at any speed (live: 10, 7 or 4 on Fast, Normal or "
+        "Slow); fishing gives 4, as live. At 250 food or less a believer with Farming 20 or more farms first, as in "
+        "live play, but nobody stops to be \"Worried about food\".")
+    # The player's noni task carries on without The Hungry Totem: 0x46BE86.
+    sub("Noni: the game's job choice sends a believer to the noni only once the granary is made and The Hungry Totem "
+        "is solved (live: the granary alone); a believer the player dropped on the noni bushes keeps picking them "
+        "without the totem.")
     if village.has("vv5_food_pays_like_earlier_games") is not False:
         add(gm.patch_words(village, "vv5_food_pays_like_earlier_games",
                            "a noni pick gives 4 food while catching up, at any speed (live: 7, 3 or 2 on Fast, "
@@ -247,11 +287,13 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
         "÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) is skipped, but the 2% chance "
         "of losing 0 to 9 health on each research success stays, as in live play.")
     add("Babies while catching up: a believer whose job choice is Children tries on 6 job turns in 100, if the "
-        "population limit allows; the partner search is the live one (opposite sex, both 18 or more, the partner "
-        "under 50 and not sick, pregnant or nursing). A baby is conceived when rand(300) + 50 - 50 x Medicine "
-        "level is at most the Parenting skill (17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or 3). Unlike live "
-        "play there is no embrace skill check, no Love Shack needed, no refusal when food is low, the village's "
-        "first conception is not certain, and a woman of 50 or more who starts it can still conceive.")
+        "population limit allows. Unlike live play there is no embrace skill check, no Love Shack needed, no refusal "
+        "when food is low, the village's first conception is not certain, and a woman of 50 or more who starts it "
+        "can still conceive.")
+    # The conception roll: rand(300) + 50 - 50 x Medicine <= Parenting (0x46E094-0x46E0C8).
+    sub("How it is worked out: the partner search is the live one (opposite sex, both 18 or more, the partner under "
+        "50 and not sick, pregnant or nursing). A baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the "
+        "Medicine level, is at most the Parenting skill: 17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or 3.")
     add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
         "medicine also fails half the cures), and People Cured goes up even when the cure fails (live: only on a "
         "success).")
@@ -262,37 +304,31 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     add("Heathens while catching up: they never age, eat or work, and their Faith does not change; a believer whose "
         "Faith falls to 0 during the catch-up becomes a Heathen then and stops ageing.", CODE)
     # The owner's "Heathens never age, while catching up or otherwise" stood here too, word for word the line above.
-    add("Nursery School: for every missed noni regrowth (one per age unit of the WHOLE time closed, with no limit) "
-        "each child under 14, Heathen children included, learns from the Nursery School teacher: the teacher's six "
-        "skills, each cut to its whole number, added together x the speed value (3, 6 or 10) ÷ 14,400 (the "
-        "teacher's total ÷ 240 per real-life hour closed, at any speed); one 50-in-100 roll for every child together: either "
-        "all of it to the child's top skill if that skill's whole number is below 50 (a skill drawn 1 in 6 while "
-        "every skill is 0; at 50 or more, nothing), or a fifth of it to every skill whose whole number is below 50. "
-        "This is the live rule (see Tech points and effects), run for the whole time closed; it runs before the "
-        "time away is added to the ages, so a child who turns 14 during it learns for all of it.")
+    _nursery(out, 5)
     # New Believers: a patch's value only when the current exe has it (the audit brief, 2026-10-25); unknown or out,
     # the stock rule above is the whole story.
     def _patch_vv5(village: gm.Village, feature: str, normal: str, patched: str) -> gm.Fact | None:
         return _patch(village, feature, normal, patched) if village.has(feature) is True else None
 
-    nursery = _patch_vv5(village, VV5_NURSERY, "Normally the spread share is a fifth.",
+    nursery = _patch_vv5(village, VV5_NURSERY, "Normally a lesson spread over the skills gives each a fifth.",
                          "a sixth instead, one for each of the six skills.")
     if nursery:
         out.append(nursery)
     add("Noni and crops: every missed noni regrowth (+2 each age unit) and crop refill (to 800 every 40 age units, "
         "once the Hydroponic Farm is built) of the WHOLE time closed is added when it is next played, with no "
         "limit: noni stop at 1,000, crops at 800.")
-    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
-        "closed counts; while the game is paused it stands still (moved on by the paused time, 0x425E45-0x425E7E). If "
-        "an event came due while the game was closed it happens once when the village is next played, and the next "
-        "one is set 8 to 15 whole real-life hours after that (30 real-life minutes while no event has been seen yet).")
+    # The pause moves the timer on by the paused time: 0x425E45-0x425E7E.
+    add(_island_events("the game moves it on by the paused time",
+                       "If an event came due while the game was closed it happens once when the village is next "
+                       "played, and the next one comes 8 to 15 whole real-life hours after that (30 real-life minutes "
+                       "while no event has been seen yet)."))
     add("Mushrooms and collectibles: none appear for the time closed. The appearance roll (18 in 32,768) is made "
         "once per update of the village, so the catch-up's one update gives one roll, like any other update.",
         RUNNING)
-    add("The fire and the weather follow the game's own clock, which keeps running while the game is closed "
-        "unpaused: the fire burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or Slow) "
-        "and a weather spell ends, by the whole time closed, not only the counted part; saved paused, the fire "
-        "does not burn down until the game is unpaused.", OWNER)   # the owner, 2026-10-25, and the code (RUNNING)
+    add("The fire and the weather follow the game's clock, which keeps running while the game is closed unpaused: "
+        "the fire burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or Slow) and a weather "
+        "spell ends by the whole time closed, not only the counted part. Saved paused, the fire does not burn down "
+        "until the game is unpaused.", OWNER)   # the owner, 2026-10-25, and the code (RUNNING)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
     add("The Time Warp God Power (500 Divine Energy) speeds up ageing for 5 real-life minutes (real time, the same "
@@ -301,7 +337,7 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
 
     # The patches that change a catch-up rule (stock rule first).
     for fact in (
-        _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a builder (while it has hut work), a healer, or a believer whose job is "
                "Devotion (when Honoring is allowed) does that job first; at 250 food or less a believer with "
                "Farming 20 or more still farms first."),
@@ -364,31 +400,29 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         return []
     out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+    sub = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok, True))  # noqa: E731
 
-    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
-        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
-        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
-        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
-        "next update. The mausoleum's ghosts are skipped: they never age, eat or work.")
-    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
-        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. How many real-life seconds "
-        "it takes depends on the computer (one pass of the life rules per villager per age unit, "
-        "plus the job turns below).")
-    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
-        "lost, sickness may start (and on Easy may clear), the old-age death roll is made at each birthday past "
-        "the limit, and babies due are born (twins and triplets as live). The ages shown, logs and graves "
-        "therefore jump at once, and every death and birth of the time away happens in that first update.")
-    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
-        "the time away is added) who is not sick, not pregnant or nursing and has 20 health or more gets 4 job "
-        "turns. A job turn uses the game's own job choice, and a job the player gave keeps going; walks become "
-        "instant moves, and the skill checks, the work's food and tech points and the building steps all run, "
-        "while every other step (animations, waits, talk, play, rest) is skipped. Live play has no job turns of "
-        "this kind: villagers walk and work in real time.")
-    add("The Cooking Pit while catching up: once the Cooking Pit is restored, after its 4 job turns each such villager "
-        "also gets 5 food (times Food Mastery) and a Farming skill check, if its player-given task is the game's farming task 2 "
-        "(one of its seven farming tasks), or else with a chance of (Farming - 25) in 100. In live play fruit comes only from villagers shaking it "
-        "down, 3 food a load, and that is never chosen while catching up.")
+    add(_how_counts(extra=" The mausoleum's ghosts are skipped: they never age, eat or work."))
+    add(_stepped("villager"))
+    add("Each counted age unit, every villager lives it exactly as in live play: food is eaten, health is regained "
+        "or lost, sickness may start (and on Easy may clear), the old-age death roll is made at each birthday past "
+        "the limit, and babies due are born (twins and triplets as live). So the ages shown, logs and graves jump at "
+        "once: every death and birth of the time away happens in that first update.")
+    add("Work: each villager aged 14 or more who is not sick, not pregnant or nursing and has 20 health or more gets "
+        "4 job turns for every counted age unit except the last 2 (its age as shown after the time away is added). "
+        "Live play has no job turns of this kind: villagers walk and work in real time.")
+    sub("In a job turn the villager does what the game's job choice picks, or keeps on with a job the player gave. "
+        "Walks become instant moves; the skill checks, the work's food and tech points, and the building steps all "
+        "run; every other step (animations, waits, talk, play, rest) is skipped.")
+    # The Cooking Pit bonus 0x468A7A-0x468AC5, inside the job turns' gate 0x468A24..0x468A46 (not sick +0x1C48, not
+    # pregnant +0x1C4C, shown age 280+; health is not checked).  Task 2 (+0x1C54 = 2, 0x468A8A) always pays, but no
+    # stock code and no patch sets it (tests/test_game_mechanics_farmers_vv4.py).
+    add("The Cooking Pit while catching up: once the Cooking Pit is restored, after the job turns each villager "
+        "aged 14 or more and not sick or pregnant (whatever its health) gets 5 food (times Food Mastery) and a "
+        "Farming skill check on a (Farming - 25) in 100 chance. In live play fruit comes only from villagers shaking "
+        "it down, 3 food a load, and that is never chosen while catching up.")
+    sub("DEAD (never runs): the bonus always pays a villager whose task is the fruit, but nothing gives a villager "
+        "that task, in the game or with the patcher's patches: dropping one on the fruit sets no task.")
     add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
         "play, but nobody stops to be \"Worried about food\". Blackberry picking (the bush ÷ 100, at least 2) and "
         "fishing (4 food) give what they give live.")
@@ -400,47 +434,41 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
         "every speed (live: ÷ 11, ÷ 9 or ÷ 7, times 2 on Fast and 0.6 on Slow). The 10% lab accident (sparks only) "
         "is skipped, but the 2% chance of losing 0 to 9 health on each research success stays, as in live play.")
     add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100; the "
-        "partner search is the live one (opposite sex, both 18 or more, the partner under 50 and not sick or "
-        "pregnant), and the population limit and huts apply as live. A baby is conceived when rand(300) + 50 - "
-        "50 x Medicine level is at most the Parenting skill (17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or "
-        "3). Unlike live play there is no embrace skill check, no Love Shack needed, no refusal when food is low, "
-        "the village's first embrace does not skip the roll, and a woman of 50 or more who starts it can still "
-        "conceive.")
+        "population limit and huts apply as live. Unlike live play there is no embrace skill check, no Love Shack "
+        "needed, no refusal when food is low, the village's first embrace does not skip the roll, and a woman of 50 "
+        "or more who starts it can still conceive.")
+    # The conception roll: rand(300) + 50 - 50 x Medicine <= Parenting (the step resolver's step 15, 0x464FF8).
+    sub("How it is worked out: the partner search is the live one (opposite sex, both 18 or more, the partner under "
+        "50 and not sick or pregnant). A baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the Medicine "
+        "level, is at most the Parenting skill: 17%, 33% or 50% at Parenting 50 and Medicine 1, 2 or 3.")
     add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
         "medicine also fails half the cures), and People Cured goes up even when the cure fails (live: only "
         "on a success).")
     add("Building while catching up: the build steps run, with the walk to the site turned into an instant move, "
         "so huts and the other buildings advance as in live play.")
-    add("Nursery School: for every missed world tick (one per age unit of the WHOLE time closed, with no limit) "
-        "each child under 14 who is not a ghost learns from the Nursery School teacher: the teacher's five skills, "
-        "each cut to its whole number, added together x the speed value (3, 6 or 10) ÷ 14,400 (the teacher's total "
-        "÷ 240 per real-life hour closed, at any speed); one 50-in-100 roll for every child together: either all of it to the "
-        "child's top skill if that skill's whole number is below 50 (a skill drawn 1 in 5 while every skill is 0; "
-        "at 50 or more, nothing), or a fifth of it to every skill whose whole number is below 50. This is the live "
-        "rule (see Tech points and effects), run for the whole time closed; it runs before the time away is added "
-        "to the ages, so a child who turns 14 during it learns for all of it.")
+    _nursery(out, 4)
     add("Blackberries and the stream: every missed world tick of the WHOLE time closed is added when it is next "
         "played, with no limit: +2 blackberries each (up to 1,000) and 2% more of the stream's debris.")
-    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
-        "closed counts; while the game is paused it stands still (moved on by the paused time, 0x42034A-0x42036F). If "
-        "an event came due while the game was closed it happens once when the village is next played, and the next "
-        "one is set 8 to 15 whole real-life hours after that (30 real-life minutes while no event has been seen yet).",
-        RUNNING)
+    # The pause moves the timer on by the paused time: 0x42034A-0x42036F.
+    add(_island_events("the game moves it on by the paused time",
+                       "If an event came due while the game was closed it happens once when the village is next "
+                       "played, and the next one comes 8 to 15 whole real-life hours after that (30 real-life minutes "
+                       "while no event has been seen yet)."), RUNNING)
     add("Ghost visits (the Mausoleum Mural Collection complete): their timer (50 to 58 real-life minutes, real time, "
         "the same at every speed) is not caught up. When the village is next played more than 1 real-life hour after a "
         "visit was due, the timer is reset to 0 to 8 real-life minutes and no ghost comes for the time closed.",
         RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed. The appearance rolls are made once per update "
         "of the village, so the catch-up's one update gives one set of rolls, like any other update.", RUNNING)
-    add("The fire and the weather follow the game's own clock, which keeps running while the game is closed "
-        "unpaused: the Fire Pit burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or "
-        "Slow) and a weather spell, fog included, ends, by the whole time closed, not only the counted part.")
+    add("The fire and the weather follow the game's clock, which keeps running while the game is closed unpaused: "
+        "the Fire Pit burns down (10, 20 or 33 hours 20 minutes of real-life time on Fast, Normal or Slow) and a "
+        "weather spell, fog included, ends by the whole time closed, not only the counted part.")
     add("The campfire keeps burning down while the game is closed, when the save was left unpaused.", OWNER)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
 
     for fact in (
-        _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
                "food or less a villager with Farming 20 or more still farms first."),
         _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "
@@ -448,8 +476,9 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
         _patch(village, VV4_HARDER_FISHING, "Normally a builder in a job turn can go on fixing piers the player "
                                             "has started, and a villager away fixing them carries on.",
+               # The Building dispatcher's option 6 (0x463DD8) and the task-30 continuation (0x46385B).
                "below Construction level 3 no builder is sent to the piers and one who was fixing them stops, in "
-               "job turns too (the Building dispatcher's option 6 0x463DD8, the task-30 continuation 0x46385B)."),
+               "job turns too."),
         _patch(village, VV4_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
     ):
@@ -498,27 +527,20 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
         return []
     out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+    sub = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok, True))  # noqa: E731
 
-    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
-        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
-        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
-        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
-        "next update.")
-    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
-        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. How many real-life seconds "
-        "it takes depends on the computer (one pass of the life rules per villager per age unit, "
-        "plus the job turns below).")
-    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
-        "lost, sickness may start, the old-age death roll is made at each birthday past the limit, and babies due "
-        "are born (twins and triplets as live). The ages shown, logs and graves therefore jump at once, and every "
-        "death and birth of the time away happens in that first update.")
-    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
-        "the time away is added) who is not sick, not pregnant or nursing and has 20 health or more gets 4 job "
-        "turns; the Tribal Chief gets none. A job turn uses the game's own job choice, and a job the player gave "
-        "keeps going; walks become instant moves, and the skill checks, the work's food and tech points and the "
-        "building steps all run, while every other step (animations, waits, talk, play, rest) is skipped. Live "
-        "play has no job turns of this kind: villagers walk and work in real time.")
+    add(_how_counts())
+    add(_stepped("villager"))
+    add("Each counted age unit, every villager lives it exactly as in live play: food is eaten, health is regained "
+        "or lost, sickness may start, the old-age death roll is made at each birthday past the limit, and babies due "
+        "are born (twins and triplets as live). So the ages shown, logs and graves jump at once: every death and "
+        "birth of the time away happens in that first update.")
+    add("Work: each villager aged 14 or more who is not sick, not pregnant or nursing and has 20 health or more gets "
+        "4 job turns for every counted age unit except the last 2 (its age as shown after the time away is added); "
+        "the Tribal Chief gets none. Live play has no job turns of this kind: villagers walk and work in real time.")
+    sub("In a job turn the villager does what the game's job choice picks, or keeps on with a job the player gave. "
+        "Walks become instant moves; the skill checks, the work's food and tech points, and the building steps all "
+        "run; every other step (animations, waits, talk, play, rest) is skipped.")
     add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
         "play, but nobody stops to be \"Worried about food\". Fruit and honey give 4 food a pick at any speed (live: "
         "7, 3 or 2 on Fast, Normal or Slow), fishing 8 (live: 11, 8 or 5).")
@@ -526,11 +548,12 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
         "same at every speed (live: ÷ 5, ÷ 11, ÷ 9 or ÷ 7, scaled by the speed). The 2% chance of losing 0 to 9 "
         "health on each research success happens while catching up too.")
     add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100; the "
-        "partner search is the live one (opposite sex, both 18 to 49, the partner not sick, and neither pregnant "
-        "or nursing), and the population limit and huts apply as live. A baby is conceived when rand(300) + 50 - "
-        "50 x Medicine level is at most the Parenting skill. Unlike live play there is no embrace skill check, no "
-        "refusal when food is low, no fertility potion bonus, and the village's first conception does not skip "
-        "the roll.")
+        "population limit and huts apply as live. Unlike live play there is no embrace skill check, no refusal when "
+        "food is low, no fertility potion bonus, and the village's first conception does not skip the roll.")
+    # The conception roll: rand(300) + 50 - 50 x Medicine <= Parenting (0x45B7EB-0x45B8C9).
+    sub("How it is worked out: the partner search is the live one (opposite sex, both 18 to 49, the partner not "
+        "sick, and neither pregnant or nursing). A baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the "
+        "Medicine level, is at most the Parenting skill.")
     add("Healing while catching up: a cure is the healer's Healing skill check alone (live: a healer who dislikes "
         "medicine also fails half the cures), and People Cured goes up even when the cure fails (live: only on a "
         "success).")
@@ -549,10 +572,10 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
     # The scheduler 0x468727 on the wall clock: nothing resets it when the game starts (an earlier line said the
     # first event of each start sets the next 30 minutes later; the 30 minutes follow only the village's first event
     # ever, 0x468899, as Island events says).
-    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
-        "closed counts; while the game is paused it stands still (pushed back by the paused time). If an event came due "
-        "while the game was closed it happens once when the village is next played, and the next comes 8 to 15 whole "
-        "real-life hours after it (30 real-life minutes after the village's first event ever).", RUNNING)
+    add(_island_events("the next event is pushed back by the paused time",
+                       "If an event came due while the game was closed it happens once when the village is next "
+                       "played, and the next comes 8 to 15 whole real-life hours after it (30 real-life minutes after "
+                       "the village's first event ever)."), RUNNING)
     add("The Tribal Chief's powers: their 23-hour wait runs on real time (23 real-life hours, the same at every "
         "speed, paused or not), so the time closed counts in full.",
         RUNNING)
@@ -563,7 +586,7 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
         "graves).")
 
     for fact in (
-        _patch(village, VV3_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch(village, VV3_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
                "food or less a villager with Farming 20 or more still farms first."),
         _patch(village, VV3_FIX_HUTS, "Normally a builder in a job turn joins only a site already 2% or more "
@@ -624,25 +647,19 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
         return []
     out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+    sub = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok, True))  # noqa: E731
 
-    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
-        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
-        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
-        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
-        "next update. The Esteemed Elder totems are skipped: they never age.")
-    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
-        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. How many real-life seconds it takes depends on "
-        "the computer (one pass of the life rules per villager per age unit, plus the job turns below).")
-    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
-        "lost, sickness may start, the old-age death roll is made at each birthday past the limit, and nursed "
-        "babies grow into children. The ages shown, logs and graves therefore jump at once, and every death and "
-        "birth of the time away happens in that first update.")
-    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
-        "the time away is added) who is not sick, not nursing and has 20 health or more gets 4 job turns. A job "
-        "turn uses the game's own job choice, and a job the player gave keeps going; every walk and wait is "
-        "skipped and the skill checks and the work's payoffs run at once. Live play has no job turns of this kind: "
-        "villagers walk and work in real time.")
+    add(_how_counts(extra=" The Esteemed Elder totems are skipped: they never age."))
+    add(_stepped("villager"))
+    add("Each counted age unit, every villager lives it exactly as in live play: food is eaten, health is regained "
+        "or lost, sickness may start, the old-age death roll is made at each birthday past the limit, and nursed "
+        "babies grow into children. So the ages shown, logs and graves jump at once: every death and birth of the "
+        "time away happens in that first update.")
+    add("Work: each villager aged 14 or more who is not sick, not nursing and has 20 health or more gets 4 job turns "
+        "for every counted age unit except the last 2 (its age as shown after the time away is added). Live play has "
+        "no job turns of this kind: villagers walk and work in real time.")
+    sub("In a job turn the villager does what the game's job choice picks, or keeps on with a job the player gave. "
+        "Every walk and wait is skipped; the skill checks and the work's payoffs run at once.")
     add("Food while catching up: a successful trip brings 4 coconuts, 7 crops or 8 fish at any speed (live: the "
         "same on Normal, 8, 10 or 11 on Fast and 2, 4 or 5 on Slow).")
     add("Research while catching up: a success gives the skill ÷ 7, ÷ 6 or ÷ 4 at Science 1, 2 or 3, the same at "
@@ -653,20 +670,25 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     add("Building while catching up: each successful try on the three huts, the Hospital, the Dam, the Vine Wall or "
         "the thorns of the Overgrown Gong Piece adds 1 point less (1 instead of 2; 2 instead of 3 at Building 88 on "
         "the last three); the Ancient Mosaic, the broken starting hut and the Sewing Hut add the same as in live play.")
-    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100. The try "
-        "goes through the whole village twice and does not stop at a conception: with each villager of the other "
-        "sex (both 18 or more, the woman under 50, neither sick or nursing) it is refused 34 times in 100 when food "
-        "is under 300, then needs the initiator's Parenting check, then a baby is conceived when rand(300) + 50 - "
-        "50 x Medicine level is at most the Parenting skill, as long as the population limit and huts allow. So "
-        "one man's job turn can make several women mothers. Each baby gets 10 to 19 points in one parent's best "
-        "skill (live: 5 to 7, or 4 to 11 by Culture level when both parents' best skill is the same); live, "
-        "the partner found must be under 50 whatever the sex.")
-    add("Healing while catching up: a cure step checks the healer's Healing once for every villager and cures "
-        "every sick villager (not the healer) whose check passes, so one job turn can cure the whole village, and "
-        "each passed check trains Healing (live: one patient, after one Healing check). A Healing skill step "
-        "(healing work, or studying a plant) gets no check of its own: only a chance of the healer's Healing in "
-        "1,500 sends it looking for the first sick villager whose check passes. So a healer learns almost no "
-        "Healing from its practice while catching up, and plant study does not continue.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, and one "
+        "man's job turn can make several women mothers: the try goes through the whole village twice and does not "
+        "stop at a conception. Each baby gets 10 to 19 points in one parent's best skill (live: 5 to 7, or 4 to 11 by "
+        "Culture level when both parents' best skill is the same).")
+    # The embrace scan 0x464847-0x464A4E (and again from 0x464A54): the refusal 0x46490C, the Parenting check
+    # 0x46493A, rand(300) + 50 - 50 x Medicine <= Parenting 0x464947-0x464974.
+    sub("How it is worked out: with each villager of the other sex (both 18 or more, the woman under 50, neither "
+        "sick or nursing) the try is refused 34 times in 100 when food is under 300, then needs the initiator's "
+        "Parenting check, then a baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the Medicine level, "
+        "is at most the Parenting skill, as long as the population limit and huts allow. Live, the partner found "
+        "must be under 50 whatever the sex.")
+    add("Healing while catching up: one job turn can cure the whole village. A cure step checks the healer's Healing "
+        "once for every villager and cures every sick villager (not the healer) whose check passes, and each passed "
+        "check trains Healing (live: one patient, after one Healing check).")
+    # A Healing step's scan: rand(1500) < Healing (0x4646D7), then the first sick villager whose check passes
+    # (0x464700-0x46477A).
+    sub("But a Healing skill step (healing work, or studying a plant) gets no check of its own: only a chance of the "
+        "healer's Healing in 1,500 sends it looking for the first sick villager whose check passes. So a healer "
+        "learns almost no Healing from its practice while catching up, and plant study does not continue.")
     for fact in (
         _patch(village, VV2_FIX_VANILLA, "That is the stock game.",
                "a healer's Healing practice (healing work, or studying a plant) runs while catching up as in live "
@@ -683,9 +705,9 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     add("Regrowth: every coconut and crop regrowth missed while the game was closed is added when it is next "
         "played, with no limit on how many: coconuts stop at 1,500, crops at 800.", RUNNING)
     add("A stew cooking when the game is closed is lost: the save does not keep the pot.", SAVE)
-    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
-        "closed counts; while the game is paused it stands still (pushed back by the paused time). If an event came "
-        "due while the game was closed it happens once when the village is next played.", RUNNING)
+    add(_island_events("the next event is pushed back by the paused time",
+                       "If an event came due while the game was closed it happens once when the village is next "
+                       "played."), RUNNING)
     add("The Gong of Wonder's 24-hour rest runs on real time (24 real-life hours, the same at every speed), so the "
         "time closed counts in full, paused or not.", RUNNING)
     add("Mushrooms and collectibles: none appear for the time closed; they appear only on live updates of the "
@@ -695,7 +717,7 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
         "graves).")
 
     for fact in (
-        _patch(village, VV2_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch(village, VV2_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first."),
         _patch(village, VV2_FIX_HUTS, "Normally a builder in a job turn follows the game's own building "
                                       "choice.",
@@ -762,39 +784,38 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
         return []
     out, speed_value = done
     add = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok))  # noqa: E731
+    sub = lambda text, ok=CODE: out.append(gm.Fact(G, text, ok, True))  # noqa: E731
 
-    add("How it counts: each villager keeps its own clock. Every update the real-life time since that villager's "
-        "last update is added to its uncounted time, then cut to the limits above; what is cut off is lost and "
-        "never counted later. The counted time ÷ the length of an age unit (3, 6 or 10 real-life minutes on Fast, "
-        "Normal or Slow) is added to the age shown at once, and what is left under one age unit is kept for the "
-        "next update.")
+    add(_how_counts())
     add("The Golden Child counts no time away: every update sets him back to 5 years with nothing pending, so he "
         "is always five, and he gets no job turns (see Golden Child).")
-    add("How it is stepped through: in that same update the game runs the counted age units one at a time for "
-        "every villager, over and over until no one is behind, so all of the catch-up happens in the first update "
-        "after the village loads, before the next picture is drawn. How many real-life seconds it takes depends on "
-        "the computer (one pass of the life rules per villager per age unit, plus the job turns below).")
-    add("Each counted age unit, for each villager, exactly as in live play: food is eaten, health is regained or "
-        "lost, sickness may start, the old-age death roll is made at each birthday past the limit, and babies due "
-        "are born (twins and triplets as live). The ages shown, logs and graves therefore jump at once, and every "
-        "death and birth of the time away happens in that first update.")
-    add("Work: for every counted age unit except the last 2, each villager aged 14 or more (by the age shown after "
-        "the time away is added) who is not sick, not pregnant and has 20 health or more gets 5 job turns. A job "
-        "turn uses the game's own job choice; the walks and waits are skipped and the skill checks and the work's "
-        "payoffs run at once. A New Home has no catch-up rates of its own: berries, crops, fish and research pay "
-        "what they pay live. Live play has no job turns of this kind: villagers walk and work in real time.")
-    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100. The try "
-        "goes through the whole village twice and does not stop at a conception: with each villager of the other "
-        "sex (both 18 or more, not sick or pregnant; no upper age for either) it is refused 74 times in 100 below "
-        "400 food, then needs the initiator's Parenting check, then a baby is conceived when rand(300) is at most "
-        "Parenting - 50 + 50 x Fertility level, as long as the population limit and huts allow. So one man's job "
-        "turn can make several women pregnant (live: the lowest-numbered partner only, after walking to them).")
-    add("Healing while catching up: a cure step checks the healer's Healing ((Healing + 31) in 100) once for every "
-        "villager and cures every sick villager of 14 or more whose check passes, so one job turn can cure all the "
-        "sick adults (live: one patient of any age). A Healing skill step (healing work, or studying the medical "
-        "cactus) gets no check of its own: only a chance of the healer's Healing in 1,500 sends it looking for a "
-        "sick adult to cure. So a healer learns almost no Healing from its practice while catching up, and sick "
-        "children are not cured.")
+    add(_stepped("villager"))
+    add("Each counted age unit, every villager lives it exactly as in live play: food is eaten, health is regained "
+        "or lost, sickness may start, the old-age death roll is made at each birthday past the limit, and babies due "
+        "are born (twins and triplets as live). So the ages shown, logs and graves jump at once: every death and "
+        "birth of the time away happens in that first update.")
+    add("Work: each villager aged 14 or more who is not sick, not pregnant and has 20 health or more gets 5 job turns "
+        "for every counted age unit except the last 2 (its age as shown after the time away is added). Live play has "
+        "no job turns of this kind: villagers walk and work in real time.")
+    sub("In a job turn the villager does what the game's job choice picks; the walks and waits are skipped, and the "
+        "skill checks and the work's payoffs run at once. A New Home has no catch-up rates of its own: berries, "
+        "crops, fish and research pay what they pay live.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, and one "
+        "man's job turn can make several women pregnant: the try goes through the whole village twice and does not "
+        "stop at a conception (live: the lowest-numbered partner only, after walking to them).")
+    # The embrace, opcode 9 of 0x446C70: two scans 0x446E70-0x44704F and 0x447055-0x447256; the refusal
+    # 0x446F26/0x447118; the Parenting check and rand(300) <= Parenting - 50 + 50 x Fertility 0x446F5B/0x44715C.
+    sub("How it is worked out: with each villager of the other sex (both 18 or more, not sick or pregnant; no upper "
+        "age for either) the try is refused 74 times in 100 below 400 food, then needs the initiator's Parenting "
+        "check, then a baby is conceived when a roll of 0 to 299 is at most Parenting - 50 + 50 x the Fertility "
+        "level, as long as the population limit and huts allow.")
+    add("Healing while catching up: one job turn can cure all the sick adults (live: one patient of any age). A cure "
+        "step checks the healer's Healing ((Healing + 31) in 100) once for every villager and cures every sick "
+        "villager of 14 or more whose check passes.")
+    # A Healing step: opcode 6, rand(1500) < Healing (0x446CCF); the cure step: opcode 17 (0x446DD0-0x446E65).
+    sub("But a Healing skill step (healing work, or studying the medical cactus) gets no check of its own: only a "
+        "chance of the healer's Healing in 1,500 sends it looking for a sick adult to cure. So a healer learns almost "
+        "no Healing from its practice while catching up, and sick children are not cured.")
     for fact in (
         _patch(village, VV1_FIX_VANILLA, "That is the stock game.",
                "a healer's Healing practice (healing work, or studying the medical cactus) runs while catching up as "
@@ -814,15 +835,13 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
             out.append(fact)
     add("Regrowth: every regrowth missed while the game was closed is added when it is next played, with no limit "
         "on how many: the berry bush has no cap, the crop field stops at 800.", RUNNING)
-    add("Island events: their timer runs on real time (real-life hours, the same at every speed), so the whole time "
-        "closed counts; while the game is paused it stands still (the pause pushes it on). After time away at most "
-        "one event happens.", RUNNING)
+    add(_island_events("the pause pushes it on", "After time away at most one event happens."), RUNNING)
     add("Mushrooms: none appear for the time closed; they are not saved and appear only on live updates (a "
         "2-in-120 roll every 2 real-life seconds while none is out, at every speed, paused or not).", RUNNING)
     add("Graves: the whole time closed counts toward a body's removal, not only the counted part (see Death and "
         "graves).")
     for fact in (
-        _patch(village, VV1_WORK_FIRST, "Normally every job turn uses the game's own choice.",
+        _patch(village, VV1_WORK_FIRST, "Normally every job turn uses the game's job choice.",
                "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first."),
         _patch(village, VV1_FIX_HUTS, "Normally a builder in a job turn follows the game's own building choice.",
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),

@@ -130,16 +130,19 @@ class VillageCounts(unittest.TestCase):
         import os
         os.utime(log, (NOW, NOW))
         body = texts(page.facts())
-        self.assertIn(f"Mushrooms Found: {mushrooms:,} (mushrooms picked; the save and the patcher's log agree).", body)
+        # The save and the log agree on a row is said once, in the header, and the row carries no tag.
+        self.assertIn("Where both keep a row they agree, unless the row says otherwise; rows marked \"patcher only\" "
+                      "are kept only in the patcher's log.", body)
+        self.assertIn(f"Mushrooms Found: {mushrooms:,} (mushrooms picked).", body)
         self.assertIn(f"Tech Points Earned: the save holds {tech:,}; the patcher's Village Statistics log says "
                       f"{tech + 5:,}", body)
         self.assertIn("Real Hours Played: 41 (real-life hours since the village was founded", body)
         self.assertIn("Villagers Buried: 7 (", body)
-        self.assertIn("Chiefs Robed: 2 (", body)
+        self.assertIn("Chiefs Robed: 2 (villagers robed Tribal Chief, each once for life; patcher only).", body)
         self.assertIn("Stews Found: 9 (", body)
-        self.assertIn("Puzzles Solved: 0 out of 16 (puzzles solved; the save and the patcher's log agree)", body)
-        self.assertIn("Village Elders: not shown: only the patcher's Village Statistics log gives it, and its log for "
-                      "this save has no such row.", body)
+        self.assertIn("Puzzles Solved: 0 out of 16 (puzzles solved).", body)
+        self.assertIn("Village Elders: not shown (only the patcher's log keeps it, and its log for this save has no "
+                      "such row).", body)
         self.assertIn(log.name, body)
 
     def test_counts_read_from_the_save_or_logs_carry_no_label(self) -> None:
@@ -222,6 +225,9 @@ class VillageCounts(unittest.TestCase):
         facts = page.facts()
         body = texts(facts)
         self.assertIn("Heathens now: 29 outside the tribe, never counted", body)
+        # Said once for every statistics row, in the Village Statistics header (it stood on each row).
+        self.assertEqual(body.count("These rows count believers only: Heathens never count unless they are in the "
+                                    "tribe."), 1)
         self.assertIn("Heathen Chief: Nui (Faith -94).", body)
         self.assertIn("Heathen Mommy: Java (Faith -25).", body)
         self.assertNotIn("male 16,400 times", body)
@@ -286,8 +292,8 @@ class GoldenEstimate(unittest.TestCase):
         self.assertIn("Golden Mushroom instead", facts[0].text)
         self.assertFalse(facts[1].confirmed)
         self.assertFalse(facts[2].confirmed)
-        self.assertIn("about 6.3 real-life years of playing (the game open and running, not paused), at Normal speed",
-                      facts[1].text)
+        self.assertIn("about 6.3 real-life years of playing (about 55,600 real-life hours, the game open and running, "
+                      "not paused), at Normal speed", facts[1].text)
         self.assertIn("about 55,600 real-life hours", facts[1].text)
         self.assertIn("7 real-life days of play", facts[2].text)
         self.assertIn("around 331 playthroughs on average", facts[2].text)

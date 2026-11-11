@@ -257,10 +257,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     trip = f"a trip brings {(11, 8, 5)[pick]} on {on} speed (8 while catching up)."
     if fishing_unlimited:
         add("Food sources", f"Fish: no limit, as Sustainable Fishing is solved; {trip}", gm.RUNNING)
-        out.append(gm.Fact("Food sources", f"The game's own fish count is {fish:,}: it started at 2,200, 1,100 or "
-                                           "550 by difficulty, never grows back, and every catch still takes from "
-                                           "it. Below 0 it only means the first fish were used up long ago; every "
-                                           "check in the game only asks whether it is above 0, so it does no harm.", gm.SAVE, sub=True))
+        out.append(gm.Fact("Food sources", f"The game's fish count is {fish:,}: it started at 2,200, 1,100 or 550 "
+                                           "by difficulty, never grows back, and every catch still takes from it. "
+                                           "Below 0 it only means the first fish were used up long ago; every check "
+                                           "in the game only asks whether it is above 0, so it does no harm.",
+                           gm.SAVE, sub=True))
     elif fishing_solved and fish <= 0:
         add("Food sources", f"Fish: {fish:,}; Sustainable Fishing is solved, but at Farming level 1 villagers fish "
                             "only while the count is above 0. From Farming level 2 they fish with no limit.", gm.SAVE)
@@ -325,12 +326,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.general:
         # The general page has no Village counts group (gm.general leaves counts.facts out), so the elder rules
         # stand here; a save's page keeps its one copy under Village counts (counts.vv2_lines).
+        # The elder pass 0x44D4C0 and the totem 0x44D190; the limit of 50 at 0x44D4D1, 0x44D54C.
         add("Tech points and effects", "Esteemed Elders: about every 2 real-life seconds while the game runs, any "
                                        "living villager who is not yet an elder and has 3 of the 5 skills at 88 or "
-                                       "more becomes one and gets a totem (0x44D4C0, 0x44D190); no dice roll, no age "
-                                       "condition, the same at every speed.", gm.RUNNING)
-        add("Tech points and effects", "Normal game: at most 50 totems (0x44D4D1, 0x44D54C): with 50 standing no new "
-                                       "elder is made, and each totem takes one of the 256 villager records.",
+                                       "more becomes one and gets a totem; no dice roll, no age condition, the same "
+                                       "at every speed.", gm.RUNNING)
+        add("Tech points and effects", "Normal game: at most 50 totems: with 50 standing no new elder is made, and "
+                                       "each totem takes one of the 256 villager records.",
             gm.RUNNING)
     else:
         add("Tech points and effects", "Esteemed Elders and their totems: see Village counts.", gm.RUNNING)
@@ -367,18 +369,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
 
     # -- Other ---------------------------------------------------------------------------
     # The fuel (0x4624CF..0x46253F): only on a fire still burning, its end becomes the clock + 0x8CA0, 0x11940 or
-    # 0x23280 seconds (Fast, any other speed, Slow); a cold pit is left alone.
+    # 0x23280 seconds (Fast, any other speed, Slow); a cold pit is left alone.  "Its end is a moment on the game's
+    # clock of real seconds": the clock 0x403200; the speed change and the pause: 0x43B5A0.
     fire = real(FIRE_END)
     add("Other", ("The fire " + (f"burns until {gm.when(fire)}" if fire > village.now and not paused else
                                  ("was burning when it was saved" if paused and _i32(data, FIRE_END) > _i32(data, LAST_TICK)
                                   else "is out"))
                   + f"; a lit fire burns {gm.duration(FIRE_HOURS[speed] * 3600)} of real-life time on {on} speed "
-                    "(10, 20 or 40 hours on Fast, Normal or Slow: the length is set by the speed it is lit or fuelled at, "
-                    "0x4624CF), fuel on a burning fire fills it to that again, and fuel does not light a cold pit. "
-                    "Its end is a moment on the game's real-seconds clock (0x403200), so it burns down while the "
-                    "game is closed; a speed change rescales what is left by the new speed ÷ the old (from Normal "
-                    "to Slow 20 hours left become 33 hours 20 minutes, not 40), and a pause pushes it on by the "
-                    "paused time (0x43B5A0)."), gm.RUNNING)
+                    "(10, 20 or 40 hours on Fast, Normal or Slow: the length is set by the speed it is lit or "
+                    "fuelled at), fuel on a burning fire fills it to that again, and fuel does not light a cold pit. "
+                    "Its end is a fixed moment on the computer's clock, so it burns down while the game is closed "
+                    "too; a speed change rescales what is left by the new speed ÷ the old (from Normal to Slow 20 "
+                    "hours left become 33 hours 20 minutes, not 40), and a pause pushes it on by the paused time."),
+        gm.RUNNING)
     add("Other", gm.FIRE_OUT, gm.OWNER)
     # The Lost Children's island events (the island-event conditions report, VV2 part): none reads or ends the fire.
     # Checked 2026-10-25: the fire's end +0x2EAC4 is written only by the new village (0x4251F8), its own expiry
@@ -391,10 +394,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # in the same place (tests/test_vv2_overview_map_fire.py).
     add("Other", "While the fire burns, the Overview Map shows it in the stone fire pit as the first picture of the "
                  "fire only, never moving, drawn once for every object on the map, so its soft glow piles up into "
-                 "a solid yellow blob (0x41C143).", gm.CODE)
+                 "a solid yellow blob.", gm.CODE)
     out.append(gm.Fact("Other", gm.patch_words(
         village, "vv2_fix_vanilla_bugs", "it is drawn once, in the same place and size, flickering through the "
-        "village fire's own 7 pictures, a new one every 231 milliseconds as in the village view"), gm.CODE, True))
+        "village fire's 7 pictures, a new one every 231 milliseconds as in the village view"), gm.CODE, True))
     add("Other", STEW_POT_LINE, gm.RUNNING)
     add("Other", STEW_EFFECT_LINE, gm.RUNNING)
     # An unburied body's removal is under Death and graves (it stood here too).
