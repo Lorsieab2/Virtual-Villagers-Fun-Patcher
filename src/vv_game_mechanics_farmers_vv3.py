@@ -129,7 +129,8 @@ SOURCE_RULES = (
     "A villager keeps at its remembered site 80 times in 100 (48 with 8,000 food or more; always if it likes work) "
     "before the chooser is asked again: a fruit pick remembers its tree, a honey take the hive, and dropping the "
     "villager on the sea remembers the sea (fishing itself does not).",
-    "At 250 food or less a villager with Farming 20 or more farms first (live 0x45C229, catch-up 0x45BF9F).",
+    # live 0x45C229, catch-up 0x45BF9F
+    "At 250 food or less a villager with Farming 20 or more farms first.",
 )
 
 # Trip lengths measured (real-life seconds; trips that paid, each starting where the last ended, at the food bin),
@@ -179,11 +180,13 @@ def _span(low: float, high: float) -> dict[int, tuple[float, float]]:
     return {speed: (low, high) for speed in SPEEDS}
 
 
+# Loading clears every villager's queue: 0x428A5A -> 0x45C990 -> 0x45C360 (a new job is chosen, its first 0 to 4 steps
+# are applied at once, then the queue is cleared again).  "Stand still while paused": their update stops at speed value
+# 999 or more (0x468B59).
 _CLOCK = ("Real-life time, the same at Fast, Normal and Slow (nothing in the walk or the waits reads the speed). While "
-          "paused the villagers stand still (their update stops at speed value 999 or more), and a wait whose second "
-          "passes during the pause ends on the first frame after it. Loading the village clears every villager's "
-          "queue (0x428A5A -> 0x45C990 -> 0x45C360: a new job is chosen, its first 0 to 4 steps are applied at once, "
-          "then the queue is cleared again), so a trip in progress when the game closes is lost.")
+          "paused the villagers stand still, and a wait whose second passes during the pause ends on the first frame "
+          "after it. Loading the village clears every villager's plans, so a trip in progress when the game closes "
+          "is lost.")
 
 _FRUIT = Trip(
     key="fruit picks",
@@ -197,14 +200,16 @@ _FRUIT = Trip(
     live_words=("From the food bin: walk to the tree, wait 5 s, the Farming check, pick: the fruit is credited at the "
                 "tree (21.30 s on average from the bin, 14.26 to 27.65); then walk back to the food bin and let go. "
                 "The nearest tree takes 27.59 s, the middle one 37.10, the far one 46.71. " + _CLOCK),
-    catch_up_words=("Each job turn that farms runs one pick at once (0x45BF00 -> 0x44BF00 -> 0x45B790): the Farming "
-                    "check, then 4 food taken from the tree (0x434ABB). A farmer remembering a tree keeps at it 80 "
-                    "turns in 100 and the chooser gives Farming on the rest: 0.966192 trips a turn."),
+    # The turn 0x45BF00 -> the pick 0x44BF00 -> the instant runner 0x45B790; the 4 food 0x434ABB.
+    catch_up_words=("While catching up, each job turn that farms runs one pick at once: the Farming check, then 4 "
+                    "food taken from the tree. A farmer remembering a tree keeps at it 80 turns in 100 and the chooser "
+                    "gives Farming on the rest: 0.966192 trips a turn."),
     verified="code",
-    extra=("A villager who likes running (300) takes 16.33 s (12.84-20.59); an elder or a villager who dislikes "
-           "running (40) 83.82 s (56.46-111.01).",
-           "A tree under 5 fruit is not picked (0x434982: the reaction 0x72 instead, and the site is forgotten); the "
-           "dispatcher only sends farmers to trees with 10 or more.",
+    # Under 5 fruit: 0x434982 (the reaction 0x72 instead, and the site is forgotten).
+    extra=("A villager who likes running (speed 300) takes 16.33 s (12.84-20.59); an elder or a villager who "
+           "dislikes running (speed 40) 83.82 s (56.46-111.01).",
+           "A tree under 5 fruit is not picked (the villager reacts instead and forgets the tree); the dispatcher "
+           "only sends farmers to trees with 10 or more.",
            "Live, with the game's own scheduler: 42.3 s per paying pick at Farming 100, 48.5 at 50, 57.0 at 20 "
            "(LIVE_CYCLE)."),
 )
@@ -224,13 +229,15 @@ TRIPS: tuple[Trip, ...] = (
                     "take the honey, wait 3 s, walk back down by three set points to a fourth in the bin, wait 3 s, "
                     "let go: the honey is credited then, at the bin. 1 trip in 12 ends just below the bin and brings "
                     "nothing. " + _CLOCK),
-        catch_up_words=("Each job turn that farms runs one honey trip at once: the Farming check, then 4 food taken "
-                        "from the hive (0x431BE8) when the villager is teleported into the bin (11 turns in 12)."),
+        # The 4 food: 0x431BE8.
+        catch_up_words=("While catching up, each job turn that farms runs one honey trip at once: the Farming check, "
+                        "then 4 food taken from the hive when the villager is moved straight into the bin (11 turns "
+                        "in 12)."),
         verified="code",
-        extra=("Only 11 trips in 12 pay, live and while catching up (the last point's y is 0x4F5 + rand(12); y 1280 "
-               "is outside the bin): multiply the food by 11/12.",
-               "The hive gives honey only while it holds 10 or more (0x4317F0); the dispatcher sends farmers only "
-               "above 10.",
+        # The last point's y is 0x4F5 + rand(12) (0x446F31); y 1280 is outside the bin.  The 10: 0x4317F0.
+        extra=("Only 11 trips in 12 pay, live and while catching up (the last walk ends just below the bin 1 time in "
+               "12): multiply the food by 11/12.",
+               "The hive gives honey only while it holds 10 or more; the dispatcher sends farmers only above 10.",
                "A villager who likes running takes 43.52 s (43.0-44.02); an elder or one who dislikes running 201.74 "
                "s (197.01-207.01).",
                "Live, with the game's own scheduler: 105.5 s per paying trip at Farming 100, 110.0 at 50, 117.8 at "
@@ -248,13 +255,15 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: three walks along the shore with a short cast at each, the Farming check, walk "
                     "back to the food bin, let go: the catch is credited then, at the bin. A fisher with Farming 88 "
                     "or more lands a crab, 55 food, on 10 catches in 100 (the same trip, 115.06 s). " + _CLOCK),
-        catch_up_words=("Each job turn that farms runs one fishing trip at once: the Farming check, then 8 food "
-                        "(0x458E90), or the crab's 55 with Farming 88 or more on rand(100) < 10; the walk to the bin "
-                        "is left out (0x4535C2)."),
+        # The 8 food 0x458E90; the crab rand(100) < 10 (0x4535A2); the walk to the bin skipped at 0x4535C2.
+        catch_up_words=("While catching up, each job turn that farms runs one fishing trip at once: the Farming check, "
+                        "then 8 food, or the crab's 55 with Farming 88 or more on 10 catches in 100; the walk to the "
+                        "bin is left out."),
         verified="code",
+        # 0x45B04A
         extra=("A villager who likes running takes 42.70 s (39.01-48.97); an elder or one who dislikes running "
                "276.80 s (252.98-314.99).",
-               "A villager who dislikes fish, the ocean or swimming runs off 60 times in 100 (0x45B04A).",
+               "A villager who dislikes fish, the ocean or swimming runs off 60 times in 100.",
                "Live, with the game's own scheduler: 120.3 s per paying trip at Farming 100 (crabs included), 127.4 "
                "at 50, 141.2 at 20 (LIVE_CYCLE)."),
     ),

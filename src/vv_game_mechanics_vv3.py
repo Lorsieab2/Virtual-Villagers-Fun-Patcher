@@ -126,8 +126,8 @@ HIDDEN_LINES = (
      'smarter" makes the test just as easy but does not change the gain; disliking learning makes the test harder '
      'and the gain half as big. The exact chances and gains are under Chances (The skill test).', gm.CODE),
     # 0x45A554: a failed Parenting test gives +4 when Parenting is above 0; the other skills only at exactly 0.
-    ("Parenting is the exception: any failed try while Parenting is above 0 gives 4 (the stock game's own "
-     'rule).', gm.RUNNING),
+    ("Parenting is the exception: a failed try gains 4 Parenting whenever Parenting is above 0 (the other skills "
+     "gain 4 from a failure only at exactly 0); a stock game rule.", gm.RUNNING),
     # The job chooser 0x459730: rand(100) < 15 and work not liked -> no job (0x459746); work disliked -> rand(100) <
     # 70 -> no job (0x459783).  The earlier "76% ... (21% otherwise, at Farming 60)" and "35%" (the try is 34 values
     # in 100, 33.94%: Chances) did not follow from it; the 86% preference is in Chances.
@@ -165,10 +165,11 @@ HIDDEN_LINES = (
     # 51% and "10% (14%, 21%)": wrong, and the same rules are in Chances.
     ('Health lost while sick and health coming back, for the young and the elderly: Chances (A sick villager\'s '
      'health, Regaining health).', gm.CODE),
-    # The fire 0x5946D8: lit or refuelled with a 72,000-game-second timer (0x433A33, 0x433AF5) on the game clock.
+    # The fire 0x5946D8: lit or refuelled with a 72,000-game-second timer (0x433A33 the burn, 0x433AF5 the wood) on
+    # the game clock.
     ('The campfire burns 20 hours of the game\'s clock: 10, 20 or 33 hours 20 minutes of real-life play on Fast, '
-     'Normal or Slow (0x433A33); it stops while paused, and wood on a burning fire fills it again (0x433AF5). What a '
-     'burning fire changes is under Chances (Regaining health, Falling sick, Research).', gm.CODE),
+     'Normal or Slow; it stops while paused, and wood on a burning fire fills it again. What a burning fire changes '
+     'is under Chances (Regaining health, Falling sick, Research).', gm.CODE),
     # The owner (2026-10-24): the fire runs out when its timer expires; rain and the weather do not affect it (an
     # earlier line here said rain and the Omen stopped it being lit: false).  Its timer is a real-time deadline the
     # game clock 0x5825D4 shifts by the time paused and rescales at a speed change (0x426630, src/vv_save_clock.py),
@@ -192,13 +193,13 @@ HIDDEN_LINES = (
      "knife or he gives the flowers, both gain 25 Parenting and she conceives at once when there is room for a "
      "baby, with no conception roll and no age check of its own. Every other embrace needs both villagers 18 "
      "or older.", gm.RUNNING),
-    ('The Ash Key: no timer and no chance. The fire must have burned 61 hours of real-life play on Normal speed in '
-     "all (30.5 on Fast, 101.7 on Slow; on the game's clock): a burnout counts its whole burn, "
-     'wood added counts the time burned so far, water counts nothing, paused time nothing. Then 12 trips of water '
-     '(the 4th puts a lit fire out; while it burns, 10 minutes between trips starts the count again -- 10 minutes '
-     "on the game's clock, 5, 10 or 16 minutes 40 seconds of real-life play on Fast, Normal or Slow: each trip "
-     "sets a timer 600 seconds ahead on the game's clock, 0x433BCA -> 0x426790); then, with the fire "
-     "out, a villager dropped on the key's spot finds it.", gm.RUNNING),
+    # Each water trip sets a timer 600 seconds ahead on the game's clock (0x433BCA -> 0x426790).
+    ('The Ash Key: no timer and no chance. First the fire must have burned 61 hours of real-life play on Normal '
+     "speed in all (30.5 on Fast, 101.7 on Slow; on the game's clock): a burnout counts its whole burn, wood added "
+     'counts the time burned so far, water counts nothing, paused time nothing. Then 12 trips of water: the 4th puts '
+     "a lit fire out, and while it burns, 10 minutes on the game's clock between trips (5, 10 or 16 minutes 40 "
+     "seconds of real-life play on Fast, Normal or Slow) starts the count again. Then, with the fire out, a villager "
+     "dropped on the key's spot finds it.", gm.RUNNING),
 )
 
 
@@ -499,8 +500,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         if alt:
             out.append(gm.Fact("Refills", "Fruit trees otherwise: " + "; ".join(alt) + ".", gm.CODE))
     out.append(gm.Fact("Refills", (
-        f"A new tree can be picked {gm.duration(gm.real_seconds(READY, clock.runs_at))} after it is planted, on "
-        f"{gm.speed_name(clock.runs_at)} speed."), gm.RUNNING))
+        f"A new tree can be picked {gm.duration(gm.real_seconds(READY, clock.runs_at))} of real-life play after it is "
+        f"planted, on {gm.speed_name(clock.runs_at)} speed."), gm.RUNNING))
     honey_every = HONEY_PATCHED if faster else HONEY_EVERY
     honey_gain = ((honey_every * 84) // 99900) if faster else ((honey_every * 2) // 3600)
     honey_due = honey_at + honey_every
@@ -608,12 +609,13 @@ BLOW_LINE = ("Brewing a potion blows up {blow} of the time at this village's Alc
 # "a roll of 300", "17%, 33%, 51%", "the hospital project", "Easy halves these" and "on Normal difficulty", all wrong
 # against the code: rand(300) at 0x4586E1; 17.12%, 33.8%, 50.44%, 67.07%; the fire or Aromatherapy, 0x455C00; Easy
 # rolls only 24.95% of age units, 0x460282 and 0x455C14; the game's word is "Medium").
+# An effect's end is a moment on the computer's clock 0x403330, so paused time counts too.
 POTION_EFFECTS_LINE = (
-    "Potion effects are kept 10 real-life minutes (real time, the same at every speed: the end is a moment on the "
-    "computer's clock, 0x403330, so paused time counts too, and saving ends every effect) (feels smarter, scientific clarity, hiccups, much healthier, feels "
+    "Potion effects last 10 real-life minutes (feels smarter, scientific clarity, hiccups, much healthier, feels "
     "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
     "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
-    "ocean) or not at all (the rest, such as curing sickness, which happen at once).")
+    "ocean) or not at all (the rest, such as curing sickness, which happen at once). The times are real time, the "
+    "same at every speed and counting while paused; saving ends every effect.")
 HERBS_LINE = (
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.")
@@ -630,11 +632,12 @@ CHANCE_LINES = (
     ("About 2,000 more random rolls inside villager actions (walking, timing, animation, speech), and about 650 "
      "more in the game update, the drop handlers, the island events' animations, the screens and the world "
      "objects: not individually worked out.", False),
+    # The weather's lengths: 0x41FB40.
     ("Timers: the game's clock runs 2 times, 1 time or 0.6 times real time on Fast, Normal or Slow, and stops while "
      "paused; an age unit is 3, 6 or 10 real-life minutes, a villager year 1 hour, 2 hours or 3 hours 20 minutes "
      "of real life; a birth 41 age units; a planted fruit tree can be picked after 4, 8 or 13 hours 20 minutes of "
      "real life; an item lies 90 real-life seconds (still counting while paused, when no new ones appear); a clear "
-     "sky lasts 15 to 30 real-life minutes on Normal speed and any other weather 3 to 6 (0x41FB40).", True),
+     "sky lasts 15 to 30 real-life minutes on Normal speed and any other weather 3 to 6.", True),
     # (The brewed potion's countdown is under Tech points and effects; the 40-second re-decision under Chances; the
     # fire's 20 game hours, 0x433A33, under Hidden villager stats.)  0x427DD0 calls 0x427D90, which saves the
     # settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have passed.  It is called at
@@ -645,10 +648,10 @@ CHANCE_LINES = (
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".
+    # The code: the per-frame update 0x427720 runs the save check 0x427DD0 at 0x427B40.
     ("Seen in a live run of the game made for the Game Mechanics audit: a village played for 30 minutes of real "
-     "time left no new save, while the game's code saves every 10 real-life minutes at every speed (Autosave above: the per-frame update "
-     "0x427720 runs the save check 0x427DD0 at 0x427B40). What that run did differently was not recorded, so the "
-     "difference is not explained.", False),
+     "time left no new save, while the game's code saves every 10 real-life minutes at every speed (Autosave "
+     "above). What that run did differently was not recorded, so the difference is not explained.", False),
 )
 
 
@@ -666,10 +669,11 @@ POTION_COUNTDOWN = {gm.FAST: "2:30", gm.NORMAL: "5:00", gm.SLOW: "8:20"}
 
 
 def potion_line(speed: int) -> str:
+    # The real-life 5 minutes: the deadline 0x430E60, the spoil check 0x430F10.
     return (f"A brewed potion: the pot's on-screen countdown starts at {POTION_COUNTDOWN[speed]} on "
             f"{gm.speed_name(speed)} speed (5:00 on Normal, 2:30 on Fast, 8:20 on Slow: what it shows changes with "
             "the speed), and the potion is gone when it reaches 0:00 -- 5 real-life minutes after it was brewed at "
-            "every speed, by the computer's clock (0x430E60, 0x430F10).")
+            "every speed, by the computer's clock.")
 
 
 # "That villager can't drink another potion so soon." (string 0x1A7, eSayCantDrinkAgain; the text at 0x49B9CC)
@@ -682,11 +686,11 @@ def potion_line(speed: int) -> str:
 # effects first (0x45EF9C calls 0x455DD0 for each villager), so no save holds one to count down.
 CANT_DRINK_LINE = (
     "\"That villager can't drink another potion so soon.\" is the game's answer when the rule above refuses a "
-    "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of "
-    "its own; it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, real time, as the effect "
-    "line says), for that villager and that effect only, so other villagers, and other potions while under 4 "
-    "effects, can still be drunk. Saving the game ends every villager's potion effects, so time away never "
-    "carries one over and a save holds none to count down.")
+    "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of its "
+    "own: it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, real time), and only "
+    "for that villager and that effect, so other villagers can still drink it, and that villager other potions "
+    "while under 4 effects. Saving the game ends every villager's potion effects, so time away never carries one "
+    "over and a save holds none to count down.")
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
@@ -711,8 +715,8 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     pick = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]
     add("Food sources", f"Food in storage: {_i32(buf, FOOD):,}.", gm.SAVE)
     add("Food sources", f"Picking fruit or honey brings {pick} on {on} speed (7, 3 or 2 on Fast, Normal or Slow, by "
-                        "the game's own rounding; 4 while catching up); the hive gives honey only while it holds 10 "
-                        "or more.", gm.CODE)
+                        "the game's rounding; 4 while catching up); the hive gives honey only while it holds 10 or "
+                        "more.", gm.CODE)
     # Fishing 0x458E81: 11 on Fast, 5 on Slow, 8 otherwise and while catching up (0x458E90..0x458EBA).
     add("Food sources", f"Fishing brings { {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] } on {on} speed (11, 8 or "
                         "5 on Fast, Normal or Slow; 8 while catching up).", gm.CODE)
@@ -770,14 +774,14 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         speed_words = {gm.FAST: "then doubled less 1 on Fast speed",
                        gm.NORMAL: "then less 1 on Normal speed",
                        gm.SLOW: "then times 0.6 rounded down on Slow speed, 1 less when that is a whole number"}[speed]
-        speed_words += " (0 stays 0), by the game's own rounding"
+        speed_words += " (0 stays 0), by the game's rounding"
         bonus = ("; then 1 more at Magic level 1 or higher, and 1 more for a researcher with the potion effect "
                  "\"scientific clarity\"")
     add("Tech points and effects", (
         f"Research: a successful session at Science level {sci} gives the Research skill ÷ {divisor}, rounded down, "
-        f"{speed_words}" + bonus + "; a supervising Tribal Chief adds a share (Chances, The Tribal Chief's "
-        f"supervision); a burning fire adds 1 on 10% of sessions; while catching up ÷ {catch} at every speed, with "
-        "no speed rounding (Time away)."), gm.CODE)
+        f"{speed_words}" + bonus + ". A supervising Tribal Chief adds a share (Chances, The Tribal Chief's "
+        f"supervision), and a burning fire adds 1 on 10% of sessions. While catching up: ÷ {catch} at every speed, "
+        "with no speed rounding (Time away)."), gm.CODE)
     blow = at_most(100, 15 * (3 - level[ALCHEMY])) if level[ALCHEMY] <= 3 else 0
     add("Tech points and effects", BLOW_LINE.format(blow=chance(blow), alchemy=level[ALCHEMY]), gm.RUNNING)
     add("Tech points and effects", potion_line(speed), gm.RUNNING)
@@ -788,11 +792,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     # difficulty" (the game's word is Medium, 0x49BD74), "on Hard always" (it is 76.05% there too) and "1 or 2 health
     # about two times in three" without food (it is the 15% skip loss plus 76.05%, every unit on Hard or for a hidden
     # number that is a multiple of 6: 0x4600DD..0x460114).
-    add("Food earned", f"Each villager eats 2 food every {gm.duration(60 * speed)} on {on} speed "
-                       f"({2 * 3600 / (60 * speed):g} an hour) while there is more than 500, and on Medium at 8,000 "
-                       "food or more or on Hard at any amount 2 more on 76% of age units (never on Easy). Skipped "
-                       "meals at 500 or less and the health lost without food: Chances (Eating, Starving).",
-        gm.CODE)
+    add("Food earned", f"Each villager eats 2 food every age unit ({gm.duration(60 * speed)} of real-life play on "
+                       f"{on} speed, {2 * 3600 / (60 * speed):g} food per real-life hour) while there is more than "
+                       "500; on Medium at 8,000 food or more, and on Hard at any amount, 2 more on 76% of age units "
+                       "(never on Easy). Skipped meals at 500 or less and the health lost without food: Chances "
+                       "(Eating, Starving).", gm.CODE)
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
@@ -818,9 +822,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
     if level[5] >= 3 or nature >= 3 or village.has(MORTALITY) is True:
+        # A new village's Medicine 1: 0x426F40 (here and in the old-age line below).
         extra = gm.patch_words(village, MORTALITY, "at Nature level 3 the rolls start 7 years later (62, 70 "
-                                                   "or 78 years; Medicine starts at 1, 0x426F40)")
-    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1 to 3; a village starts at Medicine 1, 0x426F40)", "65, 73 or 81 years", extra))
+                                                   "or 78 years; Medicine starts at 1)")
+    out.append(gm.old_age_line("55, 63 or 71 years (Medicine 1 to 3; a village starts at Medicine 1)",
+                               "65, 73 or 81 years", extra))
     for line, ok in HIDDEN_LINES:
         add(gm.HIDDEN, line, ok)
     burned, water = _i32(buf, FIRE_BURNED), _i32(buf, FIRE_WATER)
@@ -894,9 +900,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         limit=life.limit_words(village, None, "5 for each complete collection, 25 with all four, and 10 at Magic "
                                               "level 3"),
         puzzles=puzzles, village_extra=village_extra,
+        # The meal: 0x460040.
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
-                   "eaten, 0x460040); on Medium at 8,000 or more, and "
-                   "on Hard at any amount, 2 more 76% of the time; never more on Easy.",
+                   "eaten); on Medium at 8,000 or more, and on Hard at any amount, 2 more 76% of the time; never more "
+                   "on Easy.",
         # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved; the sea always.
         trips=[("fruit picks", pick_food if any(s.name.startswith("Tree ") for s in srcs) else 0, "Tree "),
                ("honey picks", pick_food if _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1 else 0, "Honey"),

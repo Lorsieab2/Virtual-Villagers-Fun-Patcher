@@ -27,7 +27,7 @@ PAIRS = (
      "The owner sees a brewed potion's time follow the game speed", gm.OWNER),
     # The Lovers: the picker's adult class 360..999 (0x45D460) vs the owner's teenager.
     (3, "Island events",
-     "In the game's code both picks use the picker's adult class, 360 to 999 age units", gm.RUNNING,
+     "In the game's code both picks come only from adults of 360 to 999 age units", gm.RUNNING,
      "The owner has seen The Lovers choose a teenager (14 to 17 villager years) while playing.", gm.OWNER),
     (3, "Island events",
      "A teenager, in the game's code: as for her gift, the game's own draw never chooses one", gm.RUNNING,
@@ -82,7 +82,13 @@ class BothSidesAreWritten(unittest.TestCase):
         for game, group, code, code_label, _seen, _label in PAIRS:
             with self.subTest(game=game, code=code):
                 text = self._one(game, group, code, code_label).text
-                if "0x" not in text:     # the Hidden villager stats Lovers line cites its addresses in the comment
+                if game == 3:
+                    # The Secret City's page cites its addresses in code comments beside each line (the clarity
+                    # rewrite, 2026-11-10); the line itself still says it is the game's code.
+                    self.assertNotIn("0x", text)
+                    self.assertRegex(text, r"^(The game |In the game's code|A teenager, in the game's code|"
+                                           r"The Lovers in the game's code)")
+                elif "0x" not in text:
                     self.assertIn("The Lovers in the game's code", text)
 
     def test_vv1_running_keeps_the_untraced_step_unconfirmed(self) -> None:
@@ -99,7 +105,7 @@ class BothSidesAreWritten(unittest.TestCase):
                                                          "new save")]
         self.assertEqual(len(seen), 1)
         self.assertIs(lines[seen[0]], False)                       # UNCONFIRMED: the run is not explained
-        self.assertIn("0x427DD0", seen[0])
+        self.assertIn("the game's code saves every 10 real-life minutes at every speed (Autosave above)", seen[0])
         self.assertIn("Autosave: while the game is open it checks the computer's clock on every frame",
                       gm.autosave_line(3))
 
