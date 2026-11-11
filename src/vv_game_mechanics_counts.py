@@ -64,8 +64,8 @@ EXTRA = {1: (), 2: ("Special Stews Found", "Total Stews Found"), 3: ("Chiefs Rob
          4: ("Debris Cleared", "Stews Found"), 5: ("Heathens Converted",)}
 # What each row counts, in plain words with its unit (the owner: real-life or in-game, never a bare unit).
 MEANING = {
-    "Real Hours Played": "real-life hours since the village was founded (the games' own formula, not the time "
-                         "the game was open)",
+    "Real Hours Played": "real-life hours since the village was founded, by the games' formula, not the time "
+                         "the game was open",
     "Food Gathered": "food brought in",
     "Tech Points Earned": "tech points earned",
     "People Cured": "villagers cured",
@@ -77,7 +77,7 @@ MEANING = {
     "Babies Made": "babies, counted at conception as the game counts them",
     "Twins Birthed": "twin births, +1 for each pair",
     "Triplets Birthed": "triplet births, +1 for each set",
-    "Villagers Buried": "skeletons buried, each villager once (deaths with no burial are not counted)",
+    "Villagers Buried": "skeletons buried, each villager once; deaths with no burial are not counted",
     "Puzzles Solved": "puzzles solved",
     "Special Stews Found": "stew recipes cooked for the first time (the game's own count, 18 recipes)",
     "Total Stews Found": "different herb combinations cooked into a stew",
@@ -87,8 +87,6 @@ MEANING = {
     "Heathens Converted": "Heathens brought into the tribe: the Heathen Chief and each Red, Purple, Blue or Orange "
                           "Mask +1, the Heathen Mommy +2",
 }
-NO_HEATHENS = {"Highest Population", "Village Elders", "Oldest Villager", "Babies Made", "Twins Birthed",
-               "Triplets Birthed", "Villagers Buried", "People Cured", "Food Gathered", "Mushrooms Found"}
 _ROW = re.compile(r"^([A-Za-z' ]+): (-?\d+)(?: out of (\d+))?\s*$")
 
 
@@ -147,10 +145,14 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
     log = statistics_log(village)
     data = village.data
     fields = SAVE_ROWS[village.game]
+    # New Believers: said once here, not on every row (the owner: Heathens never count in statistics).
+    believers = (" These rows count believers only: Heathens never count unless they are in the tribe."
+                 if village.game == 5 else "")
     if log is None:
         out.append(gm.Fact(COUNTS, (
-            "The patcher's Village Statistics log for this save was not found (it is written after each save by "
-            "the patcher's Village Statistics patch); the rows below that only it keeps are not shown."), gm.SAVE))
+            "Village Statistics: the patcher's Village Statistics log for this save was not found (the patcher's "
+            "Village Statistics patch writes it after each save), so the rows below are read from the save, and the "
+            "rows only that log keeps are not shown." + believers), gm.SAVE))
     else:
         behind = ""
         try:
@@ -159,9 +161,11 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
                           "behind the save.")
         except OSError:
             pass
-        out.append(gm.Fact(COUNTS, f"Village Statistics (the patcher's log {log.path.name}, last written "
-                                   f"{gm.when(log.written)}; the game's own fields read from the save beside it)."
-                                   + behind, gm.SAVE))
+        # Said once here instead of on every row: the rows both keep agree unless a row says "They disagree".
+        out.append(gm.Fact(COUNTS, f"Village Statistics: read from the save and from the patcher's log "
+                                   f"{log.path.name} (last written {gm.when(log.written)}). Where both keep a row "
+                                   "they agree, unless the row says otherwise; rows marked \"patcher only\" are kept "
+                                   "only in the patcher's log." + behind + believers, gm.SAVE))
     page_puzzles = _puzzles_from_page(facts)
     for row in COMMON + EXTRA[village.game]:
         logged = log.rows.get(row) if log else None
@@ -175,25 +179,24 @@ def statistics_lines(village: gm.Village, facts: list[gm.Fact]) -> list[gm.Fact]
         meaning = MEANING[row]
         if row == "Mushrooms Found" and village.has(GOLDEN.format(game=village.game)) is True:
             meaning += ", a Golden Mushroom counting as one"       # named only with its patch in the game
-        if village.game == 5 and row in NO_HEATHENS:
-            meaning += "; believers only, Heathens never count unless in the tribe"
         lead = f"{row}: "
+        puzzles = "; as the Puzzles list below" if row == "Puzzles Solved" else ""
         if saved_words is not None and logged is not None:
             same = (saved_pair[0] == logged[0]) and (saved_pair[1] is None or logged[1] is None or saved_pair[1] == logged[1])
-            if same:
-                text = f"{lead}{_value(row, *logged)} ({meaning}; the save and the patcher's log agree)."
+            if same:                                # the header says the save and the log agree
+                text = f"{lead}{_value(row, *logged)} ({meaning})."
             else:
                 text = (f"{lead}the save holds {saved_words}; the patcher's Village Statistics log says "
                         f"{_value(row, *logged)} ({meaning}). They disagree: the log is written at each save, so "
                         "one of them is from another moment.")
         elif saved_words is not None:
-            source = "the Puzzles list below, from the save" if row == "Puzzles Solved" else "the save"
-            text = f"{lead}{saved_words} ({meaning}; from {source})."
+            source = "" if log is None else "; from the save, the patcher's log has no such row"
+            text = f"{lead}{saved_words} ({meaning}{puzzles}{source})."
         elif logged is not None:
-            text = f"{lead}{_value(row, *logged)} ({meaning}; kept by the patcher, from its log)."
+            text = f"{lead}{_value(row, *logged)} ({meaning}; patcher only)."
         else:
-            text = (f"{lead}not shown: only the patcher's Village Statistics log gives it, and its log for this save "
-                    + ("was not found." if log is None else "has no such row."))
+            text = (f"{lead}not shown (only the patcher's log keeps it"
+                    + (")." if log is None else ", and its log for this save has no such row)."))
         out.append(gm.Fact(COUNTS, text, gm.SAVE, sub=True))
     return out
 
@@ -215,8 +218,8 @@ def vv1_lines(village: gm.Village) -> list[gm.Fact]:
     golden = [p for p in (everyone or []) if p.golden]
     if golden:
         for p in golden:
-            out.append(gm.Fact(COUNTS, f"The Golden Child: born; {p.name}, age 5 villager years (100 age units), as "
-                                       "always: he is born at 5 and stays 5.", gm.SAVE))
+            out.append(gm.Fact(COUNTS, f"The Golden Child: born; {p.name}, age 5 villager years (100 age units). He "
+                                       "is always born at 5 and stays 5.", gm.SAVE))
     elif solved:
         out.append(gm.Fact(COUNTS, "The Golden Child: born (The Golden Child puzzle is solved), but he is not among "
                                    "the living villagers in this save.", gm.SAVE))
@@ -236,12 +239,14 @@ def vv2_lines(village: gm.Village) -> list[gm.Fact]:
     data = village.data
     out: list[gm.Fact] = []
     found = [r for r in range(1, VV2_RECIPES + 1) if VV2_RECIPE_FLAGS + r < len(data) and data[VV2_RECIPE_FLAGS + r]]
+    # "the first time it is cooked": the cook routine 0x425B90 sets the recipe's byte (0x4260A5, 0x4260D4) and counts
+    # Special Stews Found then.
     out.append(gm.Fact(COUNTS, (
         f"Stew recipes discovered: {len(found)} of {VV2_RECIPES}"
         + (f" (the game's recipe numbers {', '.join(map(str, found))})" if found else "")
-        + ". The game gives its stews no names: it tells them apart only by what a stew does when eaten (\"This "
-        "delicious stew is very filling.\", ...). The cook routine 0x425B90 sets a recipe's byte the first time it is "
-        "cooked (0x4260A5, 0x4260D4) and counts Special Stews Found then."), gm.SAVE))
+        + ". A recipe is discovered, and Special Stews Found goes up by 1, the first time it is cooked. The game "
+        "gives its stews no names: it tells them apart only by what a stew does when eaten (\"This delicious stew is "
+        "very filling.\", ...)."), gm.SAVE))
     # The Esteemed Elders and their totems (src/vv_vv2_totems.py, src/vv_vv2_totem_store.py).
     try:
         living = ln._entries(2, data)
@@ -274,14 +279,17 @@ def vv2_lines(village: gm.Village) -> list[gm.Fact]:
         where = (f"; {len(stored)} of them kept in the patcher's ElderTotems.dat, outside the save" if stored else "")
         out.append(gm.Fact(COUNTS, f"Totems standing now: {len(names)}" + (f" ({', '.join(names)})" if names else "")
                                    + where + ".", gm.SAVE))
+    # The check: the world tick 0x43B690 into the elder pass 0x44D4C0; the totem 0x44D190; Village Elders +1 at
+    # 0x44D55F.
     out.append(gm.Fact(COUNTS, (
-        "How a villager becomes an Esteemed Elder: about every 2 real-life seconds while the game runs (the world tick "
-        "0x43B690 into the elder pass 0x44D4C0), any living villager who is not yet an elder and has 3 of the 5 skills "
-        "at 88 or more becomes one and gets a totem (0x44D190; Village Elders +1 at 0x44D55F). No dice roll, no "
-        "age condition, the same at every speed; the first totem solves The Elder Totem."), gm.RUNNING))
+        "How a villager becomes an Esteemed Elder: any living villager who is not yet an elder and has 3 of the 5 "
+        "skills at 88 or more becomes one and gets a totem, and Village Elders goes up by 1. The game checks about every 2 "
+        "real-life seconds while it runs, the same at every speed. No dice roll and no age condition; the first totem "
+        "solves The Elder Totem."), gm.RUNNING))
     has = village.has("vv2_totems_out_of_entries")
-    words = (f"Normal game: at most 50 totems (0x44D4D1, 0x44D54C): with 50 standing no new elder is made, and each "
-             "totem takes one of the 256 villager records.")
+    # The 50-totem limit: 0x44D4D1, 0x44D54C.
+    words = ("Normal game: at most 50 totems: with 50 standing no new elder is made, and each totem takes one of the "
+             "256 villager records.")
     if has:
         words += (f" With \"{gm.feature_name('vv2_totems_out_of_entries')}\" (in this game): totems take no record and "
                   "there is no limit.")
@@ -329,62 +337,66 @@ VV3_HERBS = {0x1F: "Tiger Lily", 0x20: "Cactus", 0x21: "Lotus", 0x22: "Black Orc
 # effect is kept is the deadline the switch writes (0x403330 real-life seconds; 600 or 300; 1 = at once; 0 = no
 # deadline), and a villager cannot drink a potion whose effect is still kept (0x4583A0).  Health losses stop at 2
 # (0x426CB6 -> 0x462670); "18 or older" is 360 age units (0x426A58, 0x426AE7, 0x426C7F: younger, nothing happens and
-# nothing is said).  Actions are named by the status their handler shows.
+# nothing is said).  Actions are named by the status their handler shows.  The addresses behind each effect are in
+# the comment on its line (the page shows only the words).
 VV3_POTIONS = {
     0: ("Nasty! It's bitter.", "nothing happens"),
-    1: ("Oh no, hiccups!", "a puff of the game's effect 7 at the villager (0x429400), nothing else"),
+    1: ("Oh no, hiccups!", "a puff of one of the game's visual effects at the villager, nothing else"),  # effect 7, 0x429400
     2: ("Oh, it burns!", "3 to 6 health lost, never below 2"),
-    3: ("{He/She} feels smarter.", "for 10 real-life minutes (real time) skill tries succeed at skill + 66% instead of + 33% "
-                                  "(0x45A300)"),
-    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes (real time) each research session pays 1 more tech point "
-                                           "(0x4593FB)"),
+    3: ("{He/She} feels smarter.", "for 10 real-life minutes at any speed, skill tries succeed at skill + 66% instead "
+                                  "of + 33%"),                                                     # 0x45A300
+    4: ("{He/She} has scientific clarity.", "for 10 real-life minutes at any speed, each research session pays 1 more "
+                                           "tech point"),                                          # 0x4593FB
     5: ("{He/She} feels better.", "cured of sickness"),
     6: ("Must exercise!", "goes \"Doing exercise\""),
-    7: ("Whee! What a fun potion!", "picks a pastime at once (0x45B9B0; 16.02% of the time none)"),
+    7: ("Whee! What a fun potion!", "picks a pastime at once (16.02% of the time none)"),            # 0x45B9B0
     8: ("{He/She} feels woozy.", "goes \"Feeling faint\""),
     9: ("{He/She} feels much healthier!", "25 to 59 health back (with stored food under 100: \"This potion works better "
-                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes (real time)"),
+                                         "when the tribe is eating well.\" and 5 to 14); kept 10 real-life minutes at "
+                                         "any speed"),
     10: ("{He/She} has happy feet!", "goes \"Dancing\" (not a villager who dislikes dancing)"),
-    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes (real time) (0x426A39; undone "
-                                            "0x426F17)"),
-    12: ("{He/She} feels romantic!", "18 or older: goes to embrace a partner the game finds (0x45AF00 -> 0x45CE00), "
-                                    "when there is one"),
+    11: ("{He/She} feels light and springy!", "jumps 4 times as high for 5 real-life minutes at any speed"),
+                                                                                    # 0x426A39; undone 0x426F17
+    12: ("{He/She} feels romantic!", "18 or older: goes to embrace a partner the game finds, when there is one"),
+                                                                                    # 0x45AF00 -> 0x45CE00
     13: ("{He/She} is freezing!", "goes \"Trying to get warm\""),
     14: ("{He/She} is way too hot!", "goes \"Trying to cool off\""),
     15: ("{He/She} suddenly feels very hungry!", "goes \"Eating\""),
     16: ("{He/She} is all itchy!", "goes \"Itchy\""),
-    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes (real time) conception's roll is 50 easier (0x458682)"),
-    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes (real time), every time the villager picks what to do next "
-                           "(0x45C023)"),
+    17: ("{He/She} feels fertile.", "18 or older: for 5 real-life minutes at any speed, conception's roll is 50 "
+                                   "easier"),                                                      # 0x458682
+    18: ("Oh no, hiccups!", "\"Hic!\" now and, for 10 real-life minutes at any speed, every time the villager picks "
+                           "what to do next"),                                                     # 0x45C023
     19: ("{He/She} feels better.", "10 to 14 health back (with stored food under 100: \"This potion works better when "
-                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes (real time)"),
+                                  "the tribe is eating well.\" and 2 to 6); kept 10 real-life minutes at any speed"),
     20: ("{He/She} has a stomachache.", "5 to 9 health lost, never below 2"),
     21: ("That potion was awful.", "falls sick"),
     22: ("...can't move...", "goes \"Paralyzed\""),
     23: ("{He/She} has got to go!", "goes \"Nature is calling!\""),
-    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes (real time) (0x4572D9, "
-                                          "0x45760B)"),
+    24: ("Is everyone else slowing down?", "walks at speed 300 (100 usually) for 5 real-life minutes at any speed"),
+                                                                                    # 0x4572D9, 0x45760B
     25: ("{He/She} feels kind of down.", "goes \"A little bit lonely\""),
     26: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit"),
     27: ("(nothing is said)", "goes \"Carrying vial to ocean\"; kept with no time limit; this vial is the one The Sharks "
-                             "puzzle answers (0x4365C7)"),
+                             "puzzle answers"),                                            # 0x4365C7
     28: ("So sleepy...", "goes \"Needs to lie down\""),
     29: ("{He/She} feels a trance coming on.", "goes \"Having an epiphany\""),
-    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes (real time) conception's roll is 100 easier "
-                                        "(0x458699)"),
+    30: ("{He/She} feels very fertile.", "18 or older: for 5 real-life minutes at any speed, conception's roll is 100 "
+                                        "easier"),                                                 # 0x458699
     31: ("Yikes!", "35 to 69 health lost, never below 2"),
     32: ("Yummy!", "nothing happens"),
-    33: ("Whoa!", "moved at once to another spot (0x4230C0)"),
+    33: ("Whoa!", "moved at once to another spot"),                                   # 0x4230C0
     34: ("{He/She} feels tired...", "goes \"Needs to sit down\""),
     35: ("{He/She} feels a trance coming on.", "goes \"In a trance\""),
-    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes (real time), every time the villager picks what "
-                          "to do next (0x45C073)"),
-    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes (real time), every time the villager picks "
-                             "what to do next (0x45C09A)"),
-    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes (real time), every time the villager "
-                                            "picks what to do next (0x45C04C)"),
+    36: ("Stinky breath!", "\"Stinky breath!\" now and, for 10 real-life minutes at any speed, every time the villager "
+                          "picks what to do next"),                                        # 0x45C073
+    37: ("That tasted soapy", "\"That tasted soapy\" now and, for 10 real-life minutes at any speed, every time the "
+                             "villager picks what to do next"),                            # 0x45C09A
+    38: ("Blannesamagawa loomajoobamooga!!", "the same words now and, for 10 real-life minutes at any speed, every time "
+                                            "the villager picks what to do next"),         # 0x45C04C
     39: ("Who turned out the lights?!", "goes \"Who turned out the lights?!\""),
-    40: ("Something smells YUMMY!", "every living villager under 14 who is free walks to the pot and says \"Something smells YUMMY!\" too; adults never go (0x45E0C0 -> 0x45DDE0, flag 1)"),
+    40: ("Something smells YUMMY!", "every living villager under 14 who is free walks to the pot and says \"Something "
+                                   "smells YUMMY!\" too; adults never go"),        # 0x45E0C0 -> 0x45DDE0, flag 1
 }
 
 
@@ -407,18 +419,19 @@ def vv3_lines(village: gm.Village) -> list[gm.Fact]:
         known = [k for k in range(VV3_RECIPES) if village.data[book + k] == 1]
         combos = "; ".join(" + ".join(VV3_HERBS[h] for h in VV3_COMBOS[k][:3]) + " -> " + vv3_potion(VV3_COMBOS[k][3])
                            for k in known)
+        # The book: one byte a combination, set the first time a brew of it does not blow up (0x430AAC -> 0x430510)
+        # and saved (0x430110; file offset 0x120BA); each potion's effect is the switch 0x4268F0's (VV3_POTIONS).
         out.append(gm.Fact(COUNTS, (
             f"Potion recipes discovered: {len(known)} of the {VV3_RECIPES} herb combinations"
-            + (f" ({combos})" if known else "") + ". The Alchemy Lab's book keeps one byte for each combination, set "
-            "the first time a brew of it does not blow up (0x430AAC -> 0x430510) and saved (0x430110; file offset "
-            "0x120BA). A potion has no name in the game: it is shown by what the drinker says, and its effect is the "
-            "game's own (0x4268F0)."), gm.SAVE))
+            + (f" ({combos})" if known else "") + ". A combination is discovered the first time a brew of it does "
+            "not blow up; the Alchemy Lab's book keeps that in the save. A potion has no name in the game: it is "
+            "known by what the drinker says."), gm.SAVE))
     else:
         out.append(gm.Fact(COUNTS, "Potion recipes discovered: the Alchemy Lab's book could not be read from this "
                                    "save.", gm.SAVE))
     out.append(gm.Fact(COUNTS, (
-        "Every successful cauldron product, a potion included, is a stew for the patcher's Stews Found above."),
-        gm.RUNNING, sub=True))
+        "Every brew that comes out of the cauldron without blowing up, potions included, counts as a stew in the "
+        "patcher's Stews Found above."), gm.RUNNING, sub=True))
     out.append(gm.Fact(COUNTS, "Potions brewed, counted one by one: not kept by the game's statistics or the patcher.",
                        False))
     return out
@@ -443,28 +456,28 @@ def vv4_lines(village: gm.Village) -> list[gm.Fact]:
         return progress is not None and progress >= vv4.PUZZLE_THRESHOLDS.get(pid, 1)
 
     done = [name for pid, name in VV4_TREE_PUZZLES.items() if solved(pid)]
+    # 0x41F570 counts the puzzles 1, 12, 13, 14 and 15; the tree's art is tree-state-00 to 05.
     out.append(gm.Fact(COUNTS, (
-        f"The Tree of Life: stage {len(done)} of 5 -- one stage for each of The Stream, Pruning, Honoring, Purify and "
-        "Decorating solved (0x41F570 counts the puzzles 1, 12, 13, 14 and 15; the tree's art tree-state-00 to 05)"
-        + (f"; solved: {', '.join(done)}." if done else "; none solved yet.")), gm.RUNNING))
+        f"The Tree of Life: stage {len(done)} of 5 (one stage for each of The Stream, Pruning, Honoring, Purify and "
+        "Decorating solved)" + (f"; solved: {', '.join(done)}." if done else "; none solved yet.")), gm.RUNNING))
     levels = [_i32(data, VV4_TECHS + 4 * k) for k in range(6)]
     if None not in levels:                         # the levels every Tree of Life rule on this page reads
         out.append(gm.Fact(COUNTS, "Tech levels: " + "; ".join(f"{n} {v}" for n, v in zip(VV4_TECH_NAMES, levels))
                                    + " (tech points are one shared pool, not kept by area).", gm.SAVE))
     blocked = _i32(data, VV4_STREAM_BLOCKED)
     if blocked is not None and 0 <= blocked <= 100:
-        out.append(gm.Fact(COUNTS, f"The stream: {blocked}% obstructed (the game's \"Stream obstruction percentage\"; "
-                                   "where the save keeps it was matched on the owner's saves, not traced in the "
-                                   "game's save code).", False))
+        out.append(gm.Fact(COUNTS, f"The stream: {blocked}% obstructed (the game's \"Stream obstruction "
+                                   "percentage\"). Where the save keeps it was found by comparing the owner's saves, "
+                                   "not traced in the game's code.", False))
     if VV4_CLOTH < len(data):
         soap, cloth, tools = data[VV4_SOAP], data[VV4_CLOTH], _i32(data, VV4_TOOLS)
-        out.append(gm.Fact(COUNTS, f"On hand: {soap} soap bars, {cloth} cloth bolts, {tools} cutting tools (where the "
-                                   "save keeps them was matched on the owner's saves, not traced in the game's save "
-                                   "code).", False))
-    out.append(gm.Fact(COUNTS, "Stews made, one by one: the patcher's Stews Found above counts the different ones "
-                               "(cloth pulp and soap brews are stews too); the game's recipe book marks a recipe when it "
-                               "is looked up, before the brew can still fail, so it is no count of stews made.",
-                       gm.RUNNING))
+        out.append(gm.Fact(COUNTS, f"On hand: {soap} soap bars, {cloth} cloth bolts, {tools} cutting tools. Where the "
+                                   "save keeps them was found by comparing the owner's saves, not traced in the "
+                                   "game's code.", False))
+    out.append(gm.Fact(COUNTS, "Stews made, counted one by one: the patcher's Stews Found above counts only the "
+                               "different ones (cloth pulp and soap brews are stews too). The game's recipe book is "
+                               "no count of stews made either: it marks a recipe when it is looked up, before the "
+                               "brew can still fail.", gm.RUNNING))
     out.append(gm.Fact(COUNTS, "Barrel of Babies opened: not kept by the game or the patcher.", False))
     return out
 
@@ -510,24 +523,28 @@ def vv5_lines(village: gm.Village) -> list[gm.Fact]:
             out.append(gm.Fact(COUNTS, f"{label}: {', '.join(groups[label])}.", gm.SAVE, sub=True))
     if retired:
         out.append(gm.Fact(COUNTS, f"Retired Heathen Chief in the tribe: {', '.join(retired)}.", gm.SAVE, sub=True))
+    # "keeps no mark": joining the tribe sets the role to 0 (0x466966), except the Chief's 13.
     out.append(gm.Fact(COUNTS, (
-        "Converted so far: the patcher's Heathens Converted row above. The game itself keeps no count of conversions, "
-        "nor of Heathens born, arrived, died or left, and no date of a conversion; a converted Heathen other than the "
-        "Chief keeps no mark of it (0x466966 sets the role to 0)."), gm.RUNNING, sub=True))
+        "Converted so far: the patcher's Heathens Converted row above. The game keeps no count of conversions, nor of "
+        "Heathens born, arrived, died or left, and no date of a conversion; a converted Heathen other than the Chief "
+        "keeps no mark of it."), gm.RUNNING, sub=True))
+    # An ordinary Heathen's role number (0 to 11, 18) is only its spot, picked at random among the unsolved puzzles'
+    # spots (0x469F20).
     out.append(gm.Fact(COUNTS, (
-        "Heathen camps: the game models none; an ordinary Heathen's role number (0 to 11, 18) is only the spot it "
-        "stays at, picked at random among the unsolved puzzles' spots (0x469F20)."), gm.RUNNING, sub=True))
+        "Heathen camps: the game has none; an ordinary Heathen just stays at a spot by one of the unsolved puzzles, "
+        "picked at random."), gm.RUNNING, sub=True))
     # How a Heathen converts, preaching and the other Faith changes are said once, under Faith and Heathens (the
     # audit of 2026-10-25: this line repeated them).
     out.append(gm.Fact(COUNTS, "Conversion, preaching and every other change of Faith: see Faith and Heathens.",
                        gm.RUNNING, sub=True))
     if village.has(HEATHEN_MOMMY):
+        # No sex given: the creator 0x46FD20 is called with sex -1, so 0x468534 leaves it; the new-villager roll
+        # 0x46F5E0 then takes the C rand value modulo 100, 49 or less male (16,400 of the 32,768 values).
         out.append(gm.Fact(COUNTS, (
             f"The Heathen Mommy (with \"{gm.feature_name(HEATHEN_MOMMY)}\", in this game): she is made with no sex "
-            "given (the creator 0x46FD20 with sex -1, so 0x468534 leaves it), and the game's own villager roll "
-            "decides it (0x46F5E0: the C rand value modulo 100, 49 or less is male): male 16,400 times in 32,768 (50.05%), female "
-            "49.95%. A male Heathen Mommy is the game's own doing, as intended, not a fault. Her conversion counts +2 "
-            "in Heathens Converted."), gm.RUNNING, sub=True))
+            "given, so the game's usual roll for a new villager decides it: male 16,400 times in 32,768 (50.05%), "
+            "female 49.95%. A male Heathen Mommy is the game's doing, as intended, not a fault. Her conversion counts "
+            "+2 in Heathens Converted."), gm.RUNNING, sub=True))
     return out
 
 
@@ -563,10 +580,11 @@ def collectible_lines(village: gm.Village, group: str) -> list[gm.Fact]:
 def golden_finds(village: gm.Village) -> list[gm.Fact]:
     if village.has(GOLDEN.format(game=village.game)) is not True:
         return []
+    # The patcher's code: native/vvfp_golden_mushroom (it keeps no record of a find).
     return [gm.Fact(COUNTS, (
-        "Golden Mushrooms found: not kept. The patcher's Golden Mushroom code (native/vvfp_golden_mushroom) writes no "
-        "record of a find, and the game counts it only inside Mushrooms Found, as a mushroom, so neither how many "
-        "nor when the first one was found can be told."), gm.RUNNING)]
+        "Golden Mushrooms found: not kept. The patcher's Golden Mushroom writes no record of a find, and the game "
+        "counts one only inside Mushrooms Found, as a mushroom, so neither how many were found nor when the first "
+        "one was can be told."), gm.RUNNING)]
 
 
 GAME_LINES = {1: vv1_lines, 2: vv2_lines, 3: vv3_lines, 4: vv4_lines, 5: vv5_lines}

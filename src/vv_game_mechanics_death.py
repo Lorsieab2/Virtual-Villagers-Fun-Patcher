@@ -253,13 +253,13 @@ LATER = {
                 "Bed Bugs (\"Let it go\": 15 health), You're Doing It Wrong! (\"Teach them to reduce explosions.\" "
                 "when it explodes: 10 to 29), The Missing Kids (\"Yell for help\": the believer child loses 5 and "
                 "falls sick) and The Cracked Mask (\"Attempt to fix the mask\": 20 to 30). The Bed Bugs' \"Search for "
-                "the bugs all night\" takes 5 only above 6 health, so it never kills, and it sets no sickness "
-                "(0x4156E7-0x415725)."),
+                "the bugs all night\" takes 5 only above 6 health, so it never kills, and it sets no sickness."),
+        # (The Bed Bugs' night search sets no sickness: 0x4156E7-0x415725.)
         burial_needs="Nobody buries anyone before The Buried Mausoleum is solved. After that, when",
         buriers=" Heathens never bury.",
         skills="Farming, Parenting, Healing, Research, Building, Devotion",
         jobs="Farmer, Parent, Doctor, Scientist, Builder or Devotee",
-        apprentice=" (no \"Apprentice\": a child's grave (under 14 years) shows the same ranks as an adult's)",
+        apprentice="; there is no \"Apprentice\": a child's grave, under 14 years, shows the same ranks as an adult's",
         elder=("with three or more skills at 88 or more, \"Esteemed Elder\" (the Retired Chief gets \"Retired "
                "Chief\" once The Heathen Chief is solved)"),
         farmer="Child of the Earth", default="a Devotee or a villager with no skill, \"Respected Citizen\"",
@@ -284,9 +284,9 @@ LATER = {
         buriers="",
         skills="Farming, Parenting, Healing, Research, Building",
         jobs="Farmer, Parent, Doctor, Scientist or Builder",
-        apprentice=(" (under 14 years, \"Apprentice\" instead of the rank, whatever the skill: \"Apprentice "
-                    "Farmer\", \"Apprentice Parent\", \"Apprentice Doctor\", \"Apprentice Scientist\" or "
-                    "\"Apprentice Builder\")"),
+        apprentice=("; under 14 years it is \"Apprentice\" instead, whatever the skill: \"Apprentice Farmer\", "
+                    "\"Apprentice Parent\", \"Apprentice Doctor\", \"Apprentice Scientist\" or \"Apprentice "
+                    "Builder\""),
         elder="with all five skills at 88 or more, \"Scholar\"",
         farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
     ),
@@ -305,7 +305,7 @@ LATER = {
         buriers="",
         skills="Farming, Parenting, Healing, Research, Building",
         jobs="Farmer, Parent, Doctor, Scientist or Builder",
-        apprentice=" (no \"Apprentice\": a child's grave (under 14 years) shows the same ranks as an adult's)",
+        apprentice="; there is no \"Apprentice\": a child's grave, under 14 years, shows the same ranks as an adult's",
         elder=("the Tribal Chief, \"Wise and Beloved Chief\"; with three or more skills at 88 or more, \"Esteemed "
                "Elder\""),
         farmer="Child Of the Earth", default="a villager with no skill, \"Respected Citizen\"",
@@ -314,6 +314,9 @@ LATER = {
 
 
 APPRENTICE_ROW = "vv{}_apprentice_graves"
+# Every game (the Old age line explains the hidden processed age).
+AGE_AT_DEATH = ("Age at Death: the age the villager showed when they died (ages stop at death). After time away it "
+                "can be higher than the hidden processed age the old-age roll follows (see Old age).")
 
 
 def apprentice_line(village: gm.Village, jobs: str) -> str:
@@ -345,16 +348,17 @@ def preferred_line(village: gm.Village) -> str:
     """Every game: "Checked Skill Preferences are listed as Jobs on Graves" (the owner: "self-explanatory, except
     when a title overrides it")."""
     game = village.game
-    epitaph = ("the Cause of Death companion's epitaph follows that job" if game == 1
+    epitaph = ("the epitaph the patcher's Cause of Death patch gives follows that job" if game == 1
                else "the epitaph is picked by that job")
+    titles = ("" if game == 1 else "Titles still win: ") + PREFERRED_TITLES[game]
     return "Job with a skill preference: " + gm.patch_words(
         village, PREFERRED_ROW.format(game),
-        "a villager who dies with a skill preference checked on the Villager Details screen gets the grave Job of "
-        "that skill, with that skill's value for the rank (Untrained below 20, Apprentice for a child where the "
-        f"game draws it); with none, the highest skill as above; {epitaph}; titles still win: "
-        f"{PREFERRED_TITLES[game]}. Graves made before keep what they were given; Repair Saves & Logs rewrites "
-        "them (and their Deaths log lines) where the save still holds the villager's preference at death. Epitaphs "
-        "are matched in English, so a grave whose epitaph a translated game wrote keeps it")
+        "a villager who dies with a skill preference checked on the Villager Details screen gets that skill as "
+        "their grave Job, ranked by that skill's value (Untrained below 20, Apprentice for a child where the game "
+        f"shows Apprentice); with no preference, the highest skill as above. {epitaph[0].upper()}{epitaph[1:]}. "
+        f"{titles}. Graves made before keep what they were given; Repair Saves & "
+        "Logs rewrites them, and their Deaths log lines, where the save still holds the villager's preference at "
+        "death. Epitaphs are matched in English, so a grave whose epitaph a translated game wrote keeps it")
 
 
 def _later(village: gm.Village, medicine: int | None, speed_value: int, base: int,
@@ -399,9 +403,10 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
             "them; a Heathen grave is never made.", gm.OWNER)
         # The code beside the owner's word (the owner, 2026-10-27: where they differ, write both): The Missing Kids
         # sets a Heathen child's sick flag (0x416203), and the life tick 0x472C90 skips Heathens (0x472CB7).
+        # The sick mark: 0x4161D1; the life tick's skip: 0x472CB7.
         add("In the game's code a Heathen can be marked sick: The Missing Kids' \"Yell for help\" marks the Heathen "
-            "child sick (0x4161D1). The life tick skips every Heathen (0x472CB7), so the mark costs no health and no "
-            "Heathen dies of Disease.", sub=True)
+            "child sick. But the game's update for age, food and health skips every Heathen, so the mark costs no health and no Heathen "
+            "dies of Disease.", sub=True)
     if game == 3:
         add("Leaving without dying: The Tsunami sweeps away every living villager with a 15% chance each: they "
             "vanish, with no body and no grave (its chance is under Island events).")
@@ -414,13 +419,10 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
             "their old-age rolls come (see God powers).")
     # Bodies
     add(f"A body lies where the villager died until a {who} buries it (\"Burying the dead\") or the game removes it. "
-        f"{c['burial_needs']}{' a' if game != 3 else ''} {who} of 14 or more who is not sick or carrying picks something to do, 34% of the "
-        "picks look for a body: they go to bury the lowest-numbered one 25% of the time, or 77.5% of the time with "
-        f"Healing 50 or more.{c['buriers']}")
-    add("A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
-        "passed since the death at the game's speed then: 12 real-life hours on Fast, 24 on Normal, 40 on Slow. "
-        "Time paused and time with the game closed count, so a body left when the game was closed can be gone as "
-        "soon as it is next played; while paused, none is removed.")
+        f"{c['burial_needs']}{' a' if game != 3 else ''} {who} of 14 or more who is not sick and not carrying babies "
+        "picks something to do, 34% of the picks look for a body: they go to bury the first one in the game's list "
+        f"25% of the time, or 77.5% of the time with Healing 50 or more.{c['buriers']}")
+    add(REMOVAL)
     if not village.general:
         found = bodies(village)
         if not found:
@@ -442,13 +444,12 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
     if game == 3:
         add("Only the first 50 graves of the Roster of the Dead get a gravestone, and only a gravestone has an "
             "epitaph: graves 51 to 500 have none.")
-    add("Age at Death: the age the villager showed when they died (ages stop at death). It can be higher than "
-        "the hidden processed age the old-age roll follows, after time away.")
-    add("Cause of Death: the game's own, kept from the moment health reached 0 (above), shown on the grave in "
+    add(AGE_AT_DEATH)
+    add("Cause of Death: the game's cause, kept from the moment health reached 0 (above), shown on the grave in "
         "those words.")
-    add(f"Job: the villager's highest skill (on a tie the first of {c['skills']}), shown \"Untrained\" below 20 or "
-        "with every skill at 0, else \"Trainee\" below 50, \"Adept\" below 88, \"Master\" from 88"
-        f"{c['apprentice']}, with {c['jobs']}.")
+    add(f"Job: {c['jobs']}, by the villager's highest skill (on a tie the first of {c['skills']}). The rank is "
+        "\"Untrained\" below 20 or with every skill at 0, else \"Trainee\" below 50, \"Adept\" below 88, \"Master\" "
+        f"from 88{c['apprentice']}.")
     if game in (3, 5):
         add(apprentice_line(village, c["jobs"]))
     add("Epitaph, chosen once at the burial: under 18 years, \"Curious and Playful\" or \"Loving and Special\" (50% "
@@ -548,10 +549,11 @@ def _bodies_lines(village: gm.Village, add, base: int, speed_value: int, stamp: 
                 "buried first.", gm.SAVE, due=float(due), due_kind="due")
 
 
-REMOVAL = ("A body nobody buries is removed with no grave once 240 age units (12 villager years) of real time have "
-           "passed since the death at the game's speed then: 12 real-life hours on Fast, 24 on Normal, 40 on Slow. "
-           "Time paused and time with the game closed count, so a body left when the game was closed can be gone as "
-           "soon as it is next played; while paused, none is removed.")
+# Every game: the removal test is (real now - stamp) / 60 / the speed >= 240 (addresses above each game's block).
+REMOVAL = ("A body nobody buries is removed with no grave 12 real-life hours after the death on Fast, 24 on Normal or "
+           "40 on Slow, at the game's speed then (240 age units, 12 villager years). Paused time and time with "
+           "the game closed count too, so a body left when the game was closed can be gone as soon as it is next "
+           "played. While the game is paused, no body is removed.")
 
 
 def _early(village: gm.Village, medicine: int | None, speed_value: int, base: int,
@@ -616,20 +618,19 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
     if game == 1:
         add("A body lies where the villager died until a villager buries it (\"Burying the dead\") or the game "
             "removes it. Nobody buries anyone before The Cemetery is solved. After that, when a villager of 14 or more "
-            "who is not sick or carrying picks something to do, 34% of the picks look for a body, and then they "
-            "always go to bury it.")
+            "who is not sick and not carrying babies picks something to do, 34% of the picks look for a body, and "
+            "then they always go to bury it.")
     else:
         add("A body lies where the villager died until a villager buries it (\"Burying the dead\") or the game "
-            "removes it. When a villager of 14 or more who is not sick or carrying picks something to do, 34% of the "
-            "picks look for a body: they go to bury it 25% of the time, or 77.5% of the time with Healing 50 or "
-            "more.")
+            "removes it. When a villager of 14 or more who is not sick and not carrying babies picks something to "
+            "do, 34% of the picks look for a body: they go to bury it 25% of the time, or 77.5% of the time with "
+            "Healing 50 or more.")
     add(REMOVAL)
     _bodies_lines(village, add, base, speed_value, EARLY_STAMP[game])
     add("A burial takes the first free grave of 50; with all 50 used it still takes the body but makes no grave. "
         "The game treats a grave whose age is 0 as free, so a villager buried at age 0 loses their grave to the "
         "next burial. Nothing else removes a grave.")
-    add("Age at Death: the age the villager showed when they died (ages stop at death). It can be higher than "
-        "the hidden processed age the old-age roll follows, after time away.")
+    add(AGE_AT_DEATH)
     master = 90 if game == 1 else 88
     jobs = "Farmer, Parent, Scientist, Builder or Doctor" if game == 1 else "Farmer, Parent, Doctor, Scientist or Builder"
     add(f"Job: the villager's best skill, shown \"Untrained\" below 20, else \"Trainee\" below 50, \"Adept\" below "
@@ -659,8 +660,7 @@ def _early(village: gm.Village, medicine: int | None, speed_value: int, base: in
         add("The Golden Child's grave: the normal game shows his best skill like anyone's; with every skill at 100 "
             "that is \"Master Parent\" (Parenting comes first among tied skills). " + gm.patch_words(
                 village, APPRENTICE_ROW.format(1), "with \"" + gm.feature_name(cod) + "\" too, his grave says "
-                "\"Golden Child\" under Job (the game's own words, as his villager panel shows them) and so does "
-                "his Death record; that patch always gives him one of the two child epitaphs, \"Curious and "
+                "\"Golden Child\" under Job (the words his villager panel shows) and so does his Death record; that patch always gives him one of the two child epitaphs, \"Curious and "
                 "Playful\" or \"Loving and Special\" (50% each)"))
     add(preferred_line(village))
     if game == 2:
@@ -725,16 +725,19 @@ def sickness_patch_facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(slider) is not False:
         n = sickness_multiplier_in_game(village) if village.has(slider) is True else None
         out.append(gm.Fact(DEATH, gm.patch_words(village, slider, (
-            f"every natural chance of falling sick is {f'{n} times' if n else '2 to 10 times (the slider)'} as large: "
-            "each Medicine level's roll and the old villagers' extra roll, at every difficulty, and Sickness works "
-            "like VV1-3's rolls when the game has it; Medicine, the fire, Easy's cures, healers and events are "
-            "unchanged")), gm.CODE))
+            f"every natural chance of falling sick is "
+            f"{f'{n} times as large' if n else '2 to 10 times as large (the number set on its slider)'}: each "
+            "Medicine level's roll and the old villagers' extra roll, at every difficulty"
+            # (Only The Tree of Life and New Believers have "Sickness works like VV1-3".)
+            + (f", and the rolls of \"{gm.feature_name(f'vv{game}_sickness_like_vv3')}\" when the game has that too"
+               if game in (4, 5) else "")
+            + ". Medicine, the fire, Easy's cures, healers and events are unchanged")), gm.CODE))
     like = f"vv{game}_sickness_like_vv3"
     if game in (4, 5) and village.has(like) is not False:
         fire = "the Fire Pit" if game == 4 else "the fire"
         out.append(gm.Fact(DEATH, gm.patch_words(village, like, (
-            f"villagers fall sick as in The Secret City: the chance is doubled while {fire} is out, and on Hard one "
-            f"step more (twice with {fire} burning, three times with it out); by Medicine level 1, 2, 3 that is "
-            "3, 3, 2 x the step in 1,440, 2,460, 5,400; The Secret City's Aromatherapy, which cancels the fire's "
-            "part there, is not in this game")), gm.CODE))
+            f"villagers fall sick as in The Secret City: the chance is 3 in 1,440, 3 in 2,460 or 2 in 5,400 at "
+            f"Medicine level 1, 2 or 3, doubled while {fire} is out, and on Hard one step more (twice with {fire} "
+            "burning, three times with it out). The Secret City's Aromatherapy, which cancels the fire's part there, "
+            "is not in this game")), gm.CODE))
     return out

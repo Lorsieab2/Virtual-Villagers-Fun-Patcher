@@ -91,78 +91,67 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
     best = 100 * n
     half = 50 * n
     listed = ", ".join(names)
-    a = {
-        "drop": "0x43AA30" if vv5 else "0x4376E0",
-        "check": "0x43A990" if vv5 else "0x437620",
-        "build": "0x43AB00" if vv5 else "0x4377BC",
-        "solve": "0x43A9E9" if vv5 else "0x437679",
-        "job": "0x43AA06" if vv5 else "0x4376B4",
-        "old": "0x43A830 -> 0x473440" if vv5 else "0x4374C0 -> 0x468C60",
-        "done": ("0x43A7D0, the celebration 0x470810 -> 0x45B690" if vv5
-                 else "0x437470, the celebration 0x466BF0 -> 0x453F50"),
-        "tip": "0x43A7F0" if vv5 else "0x43748A",
-        "tick": ("the noni tick 0x425E30, which the village's update calls at 0x4425C0" if vv5
-                 else "the world tick 0x420330"),
-        "teacher": "0x471BB0" if vv5 else "0x467C50",
-        "total": "0x475670" if vv5 else "0x46ACD0",
-        "math": "0x425FA7-0x425FC1" if vv5 else "0x420418-0x420435",
-        "roll": "0x425FC5" if vv5 else "0x420439",
-        "child": "0x426001-0x42600E" if vv5 else "0x42046D-0x420487",
-        "nothing": "0x426056" if vv5 else "0x4204CF",
-        "spread": "0x425FDF, 0x42606A-0x426095" if vv5 else "0x420453, 0x4204E3-0x42050C",
-        "top": "0x4755C0" if vv5 else "0x46AC20",
-        "draw": "0x42603B" if vv5 else "0x4204B4",
-        "add": "0x475730" if vv5 else "0x46AD80",
-    }
-    puzzle = "milestone (not on the Puzzles screen; " if vv5 else "puzzle ("
+    # The code behind each line below, New Believers first, The Tree of Life in brackets:
+    #   the teacher: the drop 0x43AA30 [0x4376E0] -> the check 0x43A990 [0x437620]; job 8 set at 0x43AA06 [0x4376B4];
+    #     building 0x43AB00 [0x4377BC]; the solve 0x43A9E9 [0x437679]; a new teacher clears the old one's action
+    #     queue 0x43A830 -> 0x473440 [0x4374C0 -> 0x468C60]; Heathens cannot be picked up 0x445F32; the teacher pick
+    #     0x471BB0 has no Heathen test;
+    #   solving: 0x43A7D0, the celebration 0x470810 -> 0x45B690, the tip 0x43A7F0 [0x437470, 0x466BF0 -> 0x453F50,
+    #     0x43748A];
+    #   the lesson: the noni tick 0x425E30, called by the village's update at 0x4425C0 [the world tick 0x420330]; the
+    #     teacher 0x471BB0 [0x467C50]; the total 0x475670 [0x46ACD0]; the sum 0x425FA7-0x425FC1 [0x420418-0x420435];
+    #   the roll 0x425FC5 [0x420439]; the child test 0x426001-0x42600E [0x42046D-0x420487]; nothing at 50 or more
+    #     0x426056 [0x4204CF]; the spread 0x425FDF, 0x42606A-0x426095 [0x420453, 0x4204E3-0x42050C]; with the
+    #     divisor patch 0x425FDF reads a private 6.0;
+    #   the top skill 0x4755C0 [0x46AC20]; the draw while all are 0 0x42603B [0x4204B4]; Fix Vanilla Bugs' tie-break
+    #     0x42602F -> 0x4264C3, chained through the padding to 0x4295F2 [0x4204A8 -> 0x420313 -> 0x423972], the
+    #     routine's other callers unchanged;
+    #   skills are 32-bit floats kept 0 to 100 by the adder 0x475730 [0x46AD80].
+    puzzle = "milestone (it is not on the Puzzles screen)" if vv5 else "puzzle"
     count = "six" if vv5 else "five"
     crowd = "the believers" if vv5 else "the villagers"
     add(f"Nursery School, the teacher: the player drops a villager on the finished Nursery School; with at least 3 "
-        f"of the {count} skills at 50 or more (whole numbers) that villager becomes the teacher (job 8, {a['job']}), "
-        f"otherwise they say \"Not enough skills to teach!\" ({a['drop']} -> {a['check']}). On the unfinished "
-        f"building they build it instead ({a['build']}). The first teacher also solves The Nursery School {puzzle}"
-        f"{a['solve']}). A new teacher interrupts the one teaching now ({a['old']}: only the action queue is "
-        "cleared, the old teacher's job is left as it is).")
+        f"of the {count} skills at 50 or more (whole numbers) that villager becomes the teacher, otherwise they say "
+        "\"Not enough skills to teach!\". Dropped on the unfinished building, they build it instead. The first "
+        f"teacher also solves The Nursery School {puzzle}. A new teacher interrupts the one teaching now, but only "
+        "stops what they are doing: the old teacher's job is left as it is.")
     if vv5:
-        add("Heathens cannot be picked up (\"You cannot touch heathens because they do not believe in you.\", "
-            "0x445F32), so the player can never make a Heathen the teacher. The teacher pick 0x471BB0 has no Heathen "
-            "test, so a teacher who becomes a Heathen would go on teaching if the job stays the Nursery School; "
-            "whether it stays was not traced.", False, True)
+        add("Heathens cannot be picked up (\"You cannot touch heathens because they do not believe in you.\"), so "
+            "the player can never make a Heathen the teacher. The game's pick of the teacher has no Heathen test, so "
+            "a teacher who becomes a Heathen would go on teaching if the job stays the Nursery School; whether it "
+            "stays was not traced.", False, True)
     add(f"Solving The Nursery School gives no skill: {crowd} stop to celebrate (\"Celebrating\") and the tip "
-        f"\"The Nursery School ... This will help them raise smarter children.\" shows ({a['done']}, the tip "
-        f"{a['tip']}). The lessons below start with the first teacher and go on with no end, as long as someone has "
-        "the Nursery School as their job.")
-    add(f"Nursery School, the lesson: once every age unit (3, 6 or 10 real-life minutes on Fast, Normal or Slow; "
-        f"{a['tick']}; paused, none), the game picks a villager whose job is the Nursery School, one at random when "
-        f"there are several ({a['teacher']}); with none there is no lesson. The lesson is the teacher's {count} "
-        f"skills, each cut to its whole number, added up (0 to {best:,}, {a['total']}) x the speed value (3, 6 or 10) "
-        f"÷ 14,400 ({a['math']}).")
+        "\"The Nursery School ... This will help them raise smarter children.\" shows. The lessons below start with "
+        "the first teacher and go on with no end, as long as someone has the Nursery School as their job.")
+    add("Nursery School, the lesson: once every age unit (3, 6 or 10 real-life minutes on Fast, Normal or Slow; none "
+        "while paused), the game picks a villager whose job is the Nursery School, one at random when there are "
+        f"several; with none there is no lesson. The lesson is the teacher's {count} skills, each cut to its whole "
+        f"number and added up (0 to {best:,}), x the speed value (3, 6 or 10) ÷ 14,400.")
     if vv5:
-        who = ("every child under 14 villager years (under 280 age units; Heathen children included, as the child "
-               f"test has no Heathen test, {a['child']})")
+        who = ("every child under 14 villager years (under 280 age units; Heathen children included, as the game's "
+               "child test has no Heathen test)")
     else:
-        who = f"every child under 14 villager years (under 280 age units) who is not a ghost ({a['child']})"
+        who = "every child under 14 villager years (under 280 age units) who is not a ghost"
     whole = ", Devotion included: six fifths in all" if vv5 else ": exactly one lesson in all"
-    add(f"One roll for the whole age unit, 50 in 100 ({a['roll']}): {who} gets either the whole "
-        f"lesson in its top skill, only if that skill's whole number is below 50 (at 50 or more that child gets "
-        f"nothing that age unit, {a['nothing']}), or a fifth of the lesson in every skill whose whole number is "
-        f"below 50 ({a['spread']}){whole}.")
+    add(f"Who gets the lesson: one 50-in-100 roll each age unit, for all the children together. Either {who} gets "
+        "the whole lesson in its top skill, only if that skill's whole number is below 50 (at 50 or more that child "
+        "gets nothing that age unit), or (a spread age unit) each gets a fifth of the lesson in every skill whose whole number is below "
+        f"50{whole}.")
     if vv5 and village.has(VV5_NURSERY) is True:
         add(f"With \"{gm.feature_name(VV5_NURSERY)}\" (in this game): a sixth instead of a fifth, exactly one lesson "
-            "in all (0x425FDF reads a private 6.0).", gm.CODE, True)
-    add(f"The top skill ({a['top']}): the game walks {listed} and takes a skill whenever it is above the whole number "
-        f"of the one taken so far, so among skills with the same whole number the last one that has any fraction "
-        f"wins ({names[-1]} over all the others); while every skill is 0 a skill is drawn for that child, each 1 in "
-        f"{n} ({a['draw']}).")
+            "in all.", gm.CODE, True)
+    add(f"The top skill: the game goes through {listed} in that order and takes a skill whenever it is above the "
+        "whole number of the one taken so far, so among skills with the same whole number the last one that has any "
+        f"fraction wins ({names[-1]} over all the others); while every skill is 0 a skill is drawn for that child, "
+        f"each 1 in {n}.")
     fix = f"vv{game}_fix_vanilla_bugs"
-    tie = ("0x42602F -> the tie-breaker at 0x4264C3, chained through the padding to 0x4295F2" if vv5 else
-           "0x4204A8 -> the tie-breaker at 0x420313, chained through the padding to 0x423972")
-    add(gm.patch_words(village, fix, f"skills with the same whole number tie and the tie is broken at random, each "
-                                     f"tied skill equally likely ({tie}; the routine's other callers are unchanged); "
-                                     f"the 50 test, the 50-in-100 roll, the spread and the amounts stay as above"),
+    add(gm.patch_words(village, fix, "skills with the same whole number tie and the tie is broken at random, each "
+                                     "tied skill equally likely (the game's other uses of the top skill are "
+                                     "unchanged); the 50 test, the 50-in-100 roll, the spread and the amounts stay as "
+                                     "above"),
         gm.CODE, True)
-    add(f"Skills keep their fractions (32-bit floats, nothing is rounded away) and stay 0 to 100 ({a['add']}); the 50 "
-        f"test is on the whole number before the lesson is added, so a skill can end a little above 50 (49.9 + "
+    add("Skills keep their fractions (nothing is rounded away) and stay 0 to 100; the 50 test is on the whole number "
+        "before the lesson is added, so a skill can end a little above 50 (49.9 + "
         f"{_n(lesson(100 * n, gm.SLOW))} = {_n(49.9 + lesson(100 * n, gm.SLOW))} on Slow with a {100 * n:,} teacher).")
     top6 = average_top_per_hour(best)
     oth6 = average_other_per_hour(best)
@@ -186,36 +175,39 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
     last = names[-1]
     if vv5:
         add("Why children or Heathens gain skills (the code's answer):")
-        add("A Heathen child gains Devotion: the lesson's child test has no Heathen test, and Heathens never age (the "
-            "life tick skips them, 0x472CB7), so a Heathen child stays under 14 and keeps getting lessons with no end "
-            "until its skills reach 50. While every skill of a child is below a whole 1 they all count as tied and "
-            "the tie goes to the last, Devotion, so once Devotion is above 0 (a spread age unit gives it a fifth) "
-            "Devotion gets the whole lessons, unless the skill drawn at the child's first lesson reaches a whole 1 "
-            "first. Emulated with the game's own code (400 children from 0, a 600 teacher): Devotion became the "
-            "trained skill for 394, 371 and 341 of them on Fast, Normal and Slow. The same happens to a believer "
-            "child whose skills are all below 1.", gm.CODE, True)
+        # Heathens never age: the life tick skips them (0x472CB7).
+        add("A Heathen child gains Devotion: the lesson's child test has no Heathen test, and Heathens never age, so "
+            "a Heathen child stays under 14 and keeps getting lessons with no end until its skills reach 50. While "
+            "every skill of a child is below a whole 1 they all count as tied and the tie goes to the last, Devotion, "
+            "so once Devotion is above 0 (a spread age unit gives it a fifth) Devotion gets the whole lessons, unless "
+            "the skill drawn at the child's first lesson reaches a whole 1 first. Emulated with the game's code (400 "
+            "children from 0, a 600 teacher): Devotion became the trained skill for 394, 371 and 341 of them on Fast, "
+            "Normal and Slow. The same happens to a believer child whose skills are all below 1.", gm.CODE, True)
         add(gm.patch_words(village, fix, "a tie goes to any of the tied skills, each equally likely, so a child from 0 "
                                          "is trained in each skill about 1 in 6 times (emulated, 400 children: "
                                          "Devotion 85, 62 and 57 of them on Fast, Normal and Slow)"), gm.CODE, True)
         add("Village children gain in all six skills at once: on the spread age units (half of them, one roll for "
             "every child together) each child gets a fifth of the lesson in every skill whose whole number is below "
-            "50 (0x42606A-0x426095).", gm.CODE, True)
+            "50.", gm.CODE, True)
         add("The Nursery School's completion is not a skill gain: it only makes the believers celebrate; it is the "
             "first teacher who starts the lessons, at the same drop.", gm.CODE, True)
-        add("A Retired Heathen Chief's joining gives no skill: joining the tribe (0x4668B0, from the Faith setter "
-            "0x467F90 when Faith rises above 0) makes everyone celebrate, keeps the Chief's role (0x466966; every "
-            "other role is cleared) and clears the Heathen flag (0x466880), and reads or writes no skill. The Heathen "
-            "Chief is made with all six skills at 100 (0x424D87-0x424DAF, from the new village's set-up 0x4259D0 at "
-            "0x425DBB) and keeps them; as a believer he can be picked up (the pick-up refuses only Heathens, "
-            "0x445F32), so dropped on the finished Nursery School he is a teacher with the highest total, 600, "
-            "and every child's lessons are the largest the game gives (2.5 a real-life hour, at every speed).",
+        # Joining: 0x4668B0, from the Faith setter 0x467F90 when Faith rises above 0; the role kept 0x466966; the
+        # Heathen flag cleared 0x466880.  The Chief's skills: 0x424D87-0x424DAF, from the new village's set-up
+        # 0x4259D0 at 0x425DBB.  The pick-up refuses only Heathens: 0x445F32.
+        add("A Retired Heathen Chief's joining gives no skill: joining the tribe makes everyone celebrate, keeps the "
+            "Chief's role (every other role is cleared) and clears the Heathen flag, and reads or writes no skill. "
+            "The Heathen Chief is made with all six skills at 100 when the village is set up, and keeps them; as a "
+            "believer he can be picked up (only Heathens cannot be), so dropped on the finished Nursery School he is "
+            "a teacher with the highest total, 600, and every child's lessons are the largest the game gives (2.5 a "
+            "real-life hour, at every speed).", gm.CODE, True)
+        # The Earthquake's Faith: rand(7) + 2 at 0x41F78F.
+        add("The Earthquake gives no skill: it adds 2 to 8 Faith to every villager but the six special roles; a "
+            "Heathen whose Faith rises above 0 joins the tribe through the same join, which changes no skill, however "
+            "many times it is cast. A Heathen child who joins keeps the skills the Nursery School gave it, starts "
+            "ageing like every believer and has its last lesson before its 14th birthday.", gm.CODE, True)
+        # The lesson's age test: 0x42600E.
+        add("An adult Heathen (14 or more) gets no lessons: the lesson's age test leaves out everyone 14 or older.",
             gm.CODE, True)
-        add("The Earthquake gives no skill: it adds 2 to 8 Faith (rand(7) + 2, 0x41F78F) to every villager but the "
-            "six special roles; a Heathen whose Faith rises above 0 joins the tribe through the same join, which "
-            "changes no skill, however many times it is cast. A Heathen child who joins keeps the skills the Nursery "
-            "School gave it, starts ageing like every believer and has its last lesson before its 14th birthday.",
-            gm.CODE, True)
-        add("An adult Heathen (14 or more) gets no lessons (the age test 0x42600E).", gm.CODE, True)
         add("The owner (in play): Heathens, child Heathens most of all, sometimes gain Devotion at random, and "
             "village children sometimes gain in all six skills, seen around the Nursery School's completion, a "
             "Retired Heathen Chief's conversion or repeated Earthquakes.", gm.OWNER, True)
@@ -224,14 +216,14 @@ def lines(village: gm.Village, game: int) -> list[gm.Fact]:
         add(f"While every skill of a child is below a whole 1 they all count as tied and the tie goes to the last, "
             f"{last}, so once {last} is above 0 (a spread age unit gives it a fifth) {last} gets the whole lessons, "
             "unless the skill drawn at the child's first lesson reaches a whole 1 first. Emulated with the game's "
-            f"own code (400 children from 0, a 500 teacher): {last} became the trained skill for 398, 385 and 357 of "
+            f"code (400 children from 0, a 500 teacher): {last} became the trained skill for 398, 385 and 357 of "
             "them on Fast, Normal and Slow.", gm.CODE, True)
         add(gm.patch_words(village, fix, "a tie goes to any of the tied skills, each equally likely, so a child from 0 "
                                          "is trained in each skill about 1 in 5 times (emulated, 400 children: "
                                          "Building 90, 80 and 87 of them on Fast, Normal and Slow)"), gm.CODE, True)
         add("Children gain in all five skills at once: on the spread age units (half of them, one roll for every "
-            "child together) each child gets a fifth of the lesson in every skill whose whole number is below 50 "
-            "(0x4204E3-0x42050C).", gm.CODE, True)
+            "child together) each child gets a fifth of the lesson in every skill whose whole number is below "
+            "50.", gm.CODE, True)
         add("The Nursery School's completion is not a skill gain: it only makes the villagers celebrate; it is "
             "the first teacher who starts the lessons, at the same drop.", gm.CODE, True)
     return out
