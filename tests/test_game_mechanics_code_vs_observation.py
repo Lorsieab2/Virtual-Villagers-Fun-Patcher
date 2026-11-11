@@ -37,10 +37,10 @@ PAIRS = (
      "Breeding age: no villager under 18 has children, but the owner has seen The Lovers", gm.OWNER),
     # New Believers: The Missing Kids marks a Heathen child sick (0x4161D1) vs the owner's "never fall sick".
     (5, "Island events",
-     "In the game's code \"Yell for help\" marks the Heathen child sick too (0x4161D1)", gm.RUNNING,
+     "In the game's code \"Yell for help\" marks the Heathen child sick too", gm.RUNNING,
      "The owner: Heathens never fall sick in play.", gm.OWNER),
     (5, "Faith and Heathens",
-     "Heathens: the life tick skips them (0x472CB7)", gm.RUNNING,
+     "Heathens, in the game's code: they are skipped by the villagers' age-unit update", gm.RUNNING,
      "The owner: Heathens never fall sick in play.", gm.OWNER),
     (5, "Death and graves",
      "In the game's code a Heathen can be marked sick: The Missing Kids", gm.CODE,
@@ -82,8 +82,8 @@ class BothSidesAreWritten(unittest.TestCase):
         for game, group, code, code_label, _seen, _label in PAIRS:
             with self.subTest(game=game, code=code):
                 text = self._one(game, group, code, code_label).text
-                if "0x" not in text:     # the Hidden villager stats Lovers line cites its addresses in the comment
-                    self.assertIn("The Lovers in the game's code", text)
+                if "0x" not in text:     # lines that cite their addresses in the comment name the code instead
+                    self.assertRegex(text, r"The Lovers in the game's code|^In the game's code|^Heathens, in the game's code")
 
     def test_vv1_running_keeps_the_untraced_step_unconfirmed(self) -> None:
         # Step 1 of the step dispatcher (0x43CBD0) sets the running speed under 14 with no dislike read; what

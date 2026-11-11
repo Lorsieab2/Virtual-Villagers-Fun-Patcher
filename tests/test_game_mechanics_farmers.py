@@ -232,7 +232,7 @@ class WalkAndRedecisionClaims(unittest.TestCase):
         vv4 = " ".join(f.text for f in self.general[4])
         self.assertIn("walks at speed 300 (100 otherwise) and one who dislikes it at 40", vv4)
         self.assertIn("30.3 pixels a real-life second at 100, 3 times that at 300 and 0.4 times at 40", vv4)
-        self.assertIn("a walk at speed 300 (100 otherwise, 0x4659BF); disliked, 40 (0x465A06)",
+        self.assertIn("a walk at speed 300 (100 otherwise); disliked, 40, except when fleeing",
                       " ".join(f.text for f in self.general[5]))
 
     def test_the_sweep_is_never_every_40_seconds(self) -> None:
