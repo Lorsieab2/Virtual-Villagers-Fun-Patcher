@@ -30,6 +30,7 @@ from tkinter import filedialog, messagebox, ttk
 
 import vv_picture_image as pi
 import vv_pictures_common as common
+from vv_scrollbars import horizontal_bar
 
 TITLE = "Picture Studio"
 GAMES = dict(common.TITLES)
@@ -484,6 +485,7 @@ class PictureStudio:
         self.save_tree.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self.save_tree.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.save_tree)
         right = ttk.Frame(tab)
         right.pack(side="left", fill="y")
         self.save_preview = self._preview_pane(right)

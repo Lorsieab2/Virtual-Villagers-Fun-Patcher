@@ -17,6 +17,7 @@ import vv_backup_details as details
 import vv_save_backup
 import vv_tool_fonts
 import vv_tribe_rename
+from vv_scrollbars import horizontal_bar
 
 TITLE = "Backups"
 WIDTH, HEIGHT = 900, 640
@@ -92,6 +93,7 @@ def show_backup_details(parent, game=None, save_folder: Path | None = None, back
     listbox.configure(yscrollcommand=list_bar.set)
     list_bar.pack(side="right", fill="y")
     listbox.pack(side="left", fill="both", expand=True)
+    horizontal_bar(listbox)                     # a long backup name scrolls sideways
     body = ttk.Frame(paned)
     text = vv_tool_fonts.tool_text(body, wrap="word", height=8, relief="flat", padx=8, pady=6)
     text_bar = ttk.Scrollbar(body, orient="vertical", command=text.yview)

@@ -51,6 +51,7 @@ import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
+from vv_scrollbars import fill_or_keep_width, horizontal_bar, scroll_sideways, scrolled_listbox, shifted
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -1415,8 +1416,11 @@ class App(tk.Tk):
         self.content_canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
         self.content_canvas.pack(side="left", fill="both", expand=True)
+        # Content wider than the window keeps its width; this bar (shown only then) reaches the rest.
+        self.content_xbar = horizontal_bar(self.content_canvas)
 
         outer = ttk.Frame(self.content_canvas, padding=18)
+        self.content_frame = outer
         self.content_window = self.content_canvas.create_window(
             (0, 0),
             window=outer,
@@ -1755,10 +1759,20 @@ class App(tk.Tk):
             self.status_var.set(f"Could not open update link: {exc}")
 
     def _content_resized(self, _event: tk.Event) -> None:
+        self._fit_content_width(self.content_canvas.winfo_width())
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
 
     def _viewport_resized(self, event: tk.Event) -> None:
-        self.content_canvas.itemconfigure(self.content_window, width=event.width)
+        self._fit_content_width(event.width)
+        self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
+
+    def _fit_content_width(self, width: int) -> None:
+        """The page fills a window at least as wide as it; in a narrower one it keeps its own
+        width (0: the page's requested width) and the horizontal bar reaches the rest -- before,
+        it was squeezed to the window and controls past the edge could not be reached (the owner, 2026-11-11)."""
+        wanted = width if width >= self.content_frame.winfo_reqwidth() else 0
+        if str(self.content_canvas.itemcget(self.content_window, "width")) != str(wanted):
+            self.content_canvas.itemconfigure(self.content_window, width=wanted)
 
     def _scroll_content(self, event: tk.Event) -> str | None:
         """The wheel scrolls only the window under the pointer -- the topmost there -- never one
@@ -1772,10 +1786,12 @@ class App(tk.Tk):
             return "break"
         top = under.winfo_toplevel()
         direction = -1 if event.delta > 0 else 1
+        sideways = shifted(event)                       # Shift + wheel scrolls sideways
         # A patch list scrolls first, in the main window too: its widgets belong
         # to this window, so the dialog branch below never sees them.  At the end
-        # of the list the wheel falls through and the page scrolls.
-        listing = under
+        # of the list the wheel falls through and the page scrolls.  It only
+        # scrolls up and down, so Shift + wheel goes straight to the page.
+        listing = None if sideways else under
         while listing is not None and not isinstance(listing, VirtualList):
             listing = listing.master
         if listing is not None:
@@ -1795,7 +1811,10 @@ class App(tk.Tk):
             while widget is not None and widget is not top:
                 if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
                     return "break"              # scrolls itself (its own class binding)
-                if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
+                if sideways and isinstance(widget, tk.Canvas) and str(widget.cget("xscrollcommand")):
+                    scroll_sideways(widget, event)
+                    return "break"
+                if not sideways and isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
                     widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
                     return "break"
                 widget = widget.master
@@ -1806,6 +1825,11 @@ class App(tk.Tk):
         except tk.TclError:
             pass
         bounds = self.content_canvas.bbox("all")
+        if sideways:
+            if not bounds or bounds[2] - bounds[0] <= self.content_canvas.winfo_width():
+                return None
+            scroll_sideways(self.content_canvas, event)
+            return "break"
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
         self.content_canvas.yview_scroll(direction, "units")
@@ -3101,6 +3125,7 @@ class App(tk.Tk):
         confirmation_canvas.configure(yscrollcommand=confirmation_scrollbar.set)
         confirmation_scrollbar.pack(side="right", fill="y")
         confirmation_canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(confirmation_canvas)
 
         frame = ttk.Frame(confirmation_canvas, padding=16)
         confirmation_window = confirmation_canvas.create_window(
@@ -3108,21 +3133,12 @@ class App(tk.Tk):
             window=frame,
             anchor="nw",
         )
-        frame.bind(
-            "<Configure>",
-            lambda _event: confirmation_canvas.configure(
-                scrollregion=confirmation_canvas.bbox("all")
-            ),
-        )
-        confirmation_canvas.bind(
-            "<Configure>",
-            lambda event: confirmation_canvas.itemconfigure(
-                confirmation_window,
-                width=event.width,
-            ),
-        )
+        fill_or_keep_width(confirmation_canvas, confirmation_window, frame)
 
         def scroll_confirmation(event: tk.Event) -> str:
+            if shifted(event):
+                scroll_sideways(confirmation_canvas, event)
+                return "break"
             direction = -1 if event.delta > 0 else 1
             confirmation_canvas.yview_scroll(direction, "units")
             return "break"
@@ -3657,8 +3673,9 @@ class App(tk.Tk):
             wraplength=700,
             justify="left",
         ).pack(anchor="w", pady=(4, 8))
-        listbox = tk.Listbox(frame, width=110, height=12, exportselection=False)
-        listbox.pack(fill="both", expand=True)
+        # The backups list scrolls both ways (the owner, 2026-11-11: scroll bars everywhere).
+        backups_box, listbox = scrolled_listbox(frame, width=110, height=12, exportselection=False)
+        backups_box.pack(fill="both", expand=True)
         details = ttk.Label(frame, text="", wraplength=700, justify="left")
         details.pack(anchor="w", pady=(6, 0))
         scope = tk.StringVar(value="whole")
@@ -3938,8 +3955,8 @@ class App(tk.Tk):
         folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
         folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
         ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
-        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
-        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        slot_box, slot_list = scrolled_listbox(frame, height=5, width=60, exportselection=False)
+        slot_box.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
         ttk.Label(frame, text="New name:").grid(row=4, column=0, sticky="w", pady=(8, 0))
         name_entry = ttk.Entry(frame, textvariable=name_var, width=36)
         name_entry.grid(row=4, column=1, sticky="w", pady=(8, 0))
@@ -4186,8 +4203,8 @@ class App(tk.Tk):
         folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
         folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
         ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
-        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
-        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        slot_box, slot_list = scrolled_listbox(frame, height=5, width=60, exportselection=False)
+        slot_box.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
         ttk.Label(
             frame, textvariable=problem_var, foreground="#a01010",
             wraplength=560, justify="left",
@@ -5933,6 +5950,7 @@ class App(tk.Tk):
         resort()
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         buttons = ttk.Frame(frame, padding=12)
         buttons.pack(side="bottom", anchor="w")
 
@@ -6334,6 +6352,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(canvas)
         values: dict = {}
         labels: list = []                       # (the row's label, the villager's own_key)
         row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
@@ -6473,6 +6492,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         chosen: dict[str, tk.StringVar] = {}
         for row, (kind, question) in enumerate(questions):
             ttk.Label(inner, text=f"{kind.label}: {question.text}", wraplength=640,
@@ -6641,6 +6661,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         dont = vv_graves.DONT_KNOW
         ttk.Label(inner, wraplength=720, justify="left", text=(
             "Each grave in the save is compared with its Death record, the patcher's grave files, the "

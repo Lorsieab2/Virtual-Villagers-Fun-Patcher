@@ -21,6 +21,7 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 import vv_font_glyphs as vfg
+from vv_scrollbars import horizontal_bar
 
 TITLE = "Unicode Font"
 DEFAULT_FACE = "Segoe UI"
@@ -435,6 +436,7 @@ class UnicodeFontWindow:
         self.face_list.configure(yscrollcommand=scroll.set)
         self.face_list.pack(side="left", fill="y")
         scroll.pack(side="left", fill="y")
+        horizontal_bar(self.face_list)          # a long font name scrolls sideways
         self.face_list.bind("<<ListboxSelect>>", lambda _e: self.face_picked())
         ttk.Button(left, text="Choose a font file...", command=self.choose_file).pack(anchor="w", pady=(6, 0))
         ttk.Button(left, text="Segoe UI (the default)", command=lambda: self.set_face(DEFAULT_FACE)).pack(

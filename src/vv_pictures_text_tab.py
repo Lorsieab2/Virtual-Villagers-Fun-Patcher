@@ -10,6 +10,7 @@ from tkinter import colorchooser, ttk
 
 import vv_picture_image as pi
 import vv_pictures_text as text
+from vv_scrollbars import horizontal_bar
 
 PREVIEW_W, PREVIEW_H = 560, 300
 LABELLED = 80          # the first search results are labelled (game) / (patcher-made) / (drawn by Windows: ...)
@@ -148,6 +149,7 @@ class TextTab:
         self.text_box.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self.text_box.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.text_box)           # its lines do not wrap
         self.text_box.insert("1.0", SAMPLE)
         self.text_box.bind("<<Modified>>", self._modified)
         buttons = ttk.Frame(left)
@@ -447,6 +449,7 @@ class CharacterPicker:
         self.results.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self.results.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.results)
         self.results.bind("<Double-Button-1>", lambda _e: self.insert_selected())
         self.results.bind("<Return>", lambda _e: self.insert_selected())
         self.found: list[str] = []

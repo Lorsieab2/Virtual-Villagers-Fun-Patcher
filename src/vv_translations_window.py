@@ -46,6 +46,7 @@ import vv_copy_slot_window
 import vv_translation_format as fmt
 import vv_translations as tr
 import vv_translations_github
+from vv_scrollbars import horizontal_bar
 
 TITLE = "Translations"
 SETTINGS_KEY = "translations"           # the patcher's local settings: {"vv3": {"file": ..., "folders": [...]}}
@@ -962,6 +963,7 @@ class Editor:
         self.tree.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.tree)
         self.tree.bind("<<TreeviewSelect>>", self._selected)
         panes.add(upper, weight=3)
 
@@ -1328,6 +1330,7 @@ def ask_language(parent) -> tuple[str, str] | None:
     listbox.configure(yscrollcommand=bar.set)
     bar.pack(side="right", fill="y")
     listbox.pack(side="left", fill="both", expand=True)
+    horizontal_bar(listbox)
     for label in language_labels():
         listbox.insert("end", label)
     other = ttk.Frame(frame)
@@ -1411,13 +1414,20 @@ class DownloadDialog:
         frame = ttk.Frame(top, padding=12)
         frame.pack(fill="both", expand=True)
         ttk.Label(frame, text=DOWNLOAD_NOTE, wraplength=620, justify="left").pack(anchor="w")
-        self.tree = ttk.Treeview(frame, columns=("language", "credit", "changed", "status"), show="headings",
+        # The list scrolls both ways (the owner, 2026-11-11: scroll bars everywhere).
+        holder = ttk.Frame(frame)
+        holder.pack(fill="both", expand=True, pady=(8, 0))
+        self.tree = ttk.Treeview(holder, columns=("language", "credit", "changed", "status"), show="headings",
                                  selectmode="extended", height=12)
         for column, text, width in (("language", "Language", 170), ("credit", "Credit", 200),
                                     ("changed", "Last changed", 110), ("status", "Status", 160)):
             self.tree.heading(column, text=text)
             self.tree.column(column, width=width, anchor="w")
-        self.tree.pack(fill="both", expand=True, pady=(8, 0))
+        tree_bar = ttk.Scrollbar(holder, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=tree_bar.set)
+        tree_bar.pack(side="right", fill="y")
+        self.tree.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.tree)
         for key in ("<Control-a>", "<Control-A>"):
             self.tree.bind(key, self.select_all)
         self.status_var = tk.StringVar(master=top)
@@ -1548,6 +1558,7 @@ class TranslationsWindow:
         self.file_list.configure(yscrollcommand=scroll.set)
         self.file_list.pack(side="left", fill="both", expand=True)
         scroll.pack(side="left", fill="y")
+        horizontal_bar(self.file_list)
         for key in ("<Control-a>", "<Control-A>"):
             self.file_list.bind(key, self.select_all)
         self.file_list.bind("<Delete>", lambda _e: self.delete())

@@ -39,6 +39,7 @@ import vv_game_mechanics as gm
 import vv_save_backup
 import vv_tool_fonts
 import vv_tribe_rename
+from vv_scrollbars import scrolled_listbox
 
 TITLE = gm.TITLE
 INTRO = ("For the curious: the hidden rules of each game -- its food sources, refills and more -- worked out from "
@@ -308,8 +309,8 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
     browse = ttk.Button(pickers, text="Browse...")
     browse.grid(row=0, column=2, sticky="w", padx=(6, 0), pady=2)
     ttk.Label(pickers, text="Tribe:").grid(row=1, column=0, sticky="nw", pady=(4, 0))
-    slot_list = tk.Listbox(pickers, height=3, width=60, exportselection=False)
-    slot_list.grid(row=1, column=1, columnspan=2, sticky="we", pady=(4, 2))
+    slot_box, slot_list = scrolled_listbox(pickers, height=3, width=60, exportselection=False)
+    slot_box.grid(row=1, column=1, columnspan=2, sticky="we", pady=(4, 2))
     pickers.columnconfigure(1, weight=1)
     status = ttk.Label(tab, text="", justify="left", wraplength=MIN_WIDTH - 60)
     status.pack(fill="x", anchor="w", pady=(4, 0))
