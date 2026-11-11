@@ -1,15 +1,16 @@
-"""Game Mechanics: the Stew Recipes page of The Lost Children (VV2), The Secret City (VV3) and The Tree of Life (VV4).
+"""Stew Recipes: every stew the cauldron makes in The Lost Children (VV2), The Secret City (VV3) and The Tree of Life
+(VV4) -- the herbs by their in-game names, the water and what happens.
 
 The owner, 2026-11-10: "for VV2, VV3 and VV4: I want separate pages for Stew Recipes. the ingame names of each herb,
-fresh or salt water and their effects" -- "in Game mechanics".  A group of its own, GROUP, on those three tabs only,
-right after "Technologies, items and buildings"; the window adds it (src/vv_game_mechanics_window.py: page and
-general_text call with_recipes) and gives it a link like every other group.  Anything from the cauldron is a stew
-(the owner's rule), so soap, cloth pulp, the potions and the failed mixes are recipes here too; in The Tree of Life
-the pulpy vines are a herb like the others.
+fresh or salt water and their effects"; then, asked whether it belongs in Game Mechanics: "Separate window".  So it
+is a tool of its own (src/vv_stew_recipes_window.py), one tab per game; Game Mechanics is not changed.  Anything from
+the cauldron is a stew (the owner's rule), so soap, cloth pulp, the potions and the failed mixes are recipes here
+too; in The Tree of Life the pulpy vines are a herb like the others.
 
 Every line is read from the stock executables (research/stock-executables), the addresses in the comments beside
-each table; the visible text has none.  tests/test_game_mechanics_stews.py pins every table to the exe bytes (and
-runs The Lost Children's cook routine for every herb mix).  Read only.
+each table; the visible text has none.  tests/test_stew_recipes.py pins every table to the exe bytes (and runs The
+Lost Children's cook routine for every herb mix).  Where the owner's play disagrees with the code (the health floors:
+"I could swear I killed villagers with just the stews"), the line says so and carries UNCONFIRMED.  Read only.
 """
 from __future__ import annotations
 
@@ -21,15 +22,37 @@ GROUP = "Stew Recipes"
 GAMES = (2, 3, 4)
 C, E = gm.CODE, gm.RUNNING
 
-HERBS_LINE, WATER_LINE, DOES_LINE = "Herbs: ", "Water: ", "What happens: "
+HERBS_LINE, WATER_LINE, DOES_LINE, KILL_LINE = "Herbs: ", "Water: ", "What happens: ", "Can it kill? "
+# Can it kill?  A stew that makes the eater sick: yes -- a sick villager loses 1 health on 61% of age units (19% at 20
+# health or less) until cured and dies at 0 (VV2 aging step 0x43B690, 0x43BC0E; VV3 life tick 0x460030 the same rules;
+# src/vv_game_mechanics_death.py).  A stew that takes health: the code stops it at a floor (VV2 3: 0x461174,
+# 0x4614F4; VV3 2: 0x426CB6 -> 0x462670, 0x426C9F), but the owner has seen villagers die from the stews alone
+# (2026-11-10), so that line is UNCONFIRMED.
+SICK_KILLS = ("Yes: a sick villager keeps losing health until cured, so this {thing} can kill a villager who is "
+              "not cured.", C)
+FLOOR = ("The game's code seems to stop this {thing} at {floor} health, so it would not kill on its own, but "
+         "players have seen villagers die from these {things} alone.", False)
 
 
-def _recipe(title: str, herbs: str, water: str, does: str, ok=C) -> list[gm.Fact]:
-    """One recipe as a small table: its title (what it does, in short), then its herbs, its water and what happens."""
-    return [gm.Fact(GROUP, title, ok),
-            gm.Fact(GROUP, HERBS_LINE + herbs, ok, sub=True),
-            gm.Fact(GROUP, WATER_LINE + water, ok, sub=True),
-            gm.Fact(GROUP, DOES_LINE + does, ok, sub=True)]
+def _kill(words: tuple, **names) -> tuple:
+    return words[0].format(**names), words[1]
+
+
+PUZZLE_LINE, REHEAT_LINE = "Puzzle: ", "Reheat: "
+
+
+def _recipe(title: str, herbs: str, water: str, does: str, ok=C, kill=None, extra=()) -> list[gm.Fact]:
+    """One recipe as a small table: its title (what it does, in short), then its herbs, its water and what happens,
+    for a stew that harms whether it can kill (`kill`: its words and their label), then any `extra` lines (each its
+    words and label: a puzzle's requirements, reheating)."""
+    out = [gm.Fact(GROUP, title, ok),
+           gm.Fact(GROUP, HERBS_LINE + herbs, ok, sub=True),
+           gm.Fact(GROUP, WATER_LINE + water, ok, sub=True),
+           gm.Fact(GROUP, DOES_LINE + does, ok, sub=True)]
+    if kill is not None:
+        out.append(gm.Fact(GROUP, KILL_LINE + kill[0], kill[1], sub=True))
+    out += [gm.Fact(GROUP, words, label, sub=True) for words, label in extra]
+    return out
 
 
 def _mixes(triples, name) -> str:
@@ -116,7 +139,7 @@ VV2_STEWS = (   # (stew number, title, what happens)
      + CALLED.format(odds="1 time in 5")),
     (3, "Cures sickness",
      "\"The spicy stew clears your villager's nose and throat.\" The eater is cured of sickness."),
-    (5, "Lets a villager dive for the Sunken Gong Piece",
+    (5, "Puzzle: The Sunken Gong Piece -- lets a villager dive for it",
      "\"Strange stew... your villager feels no need to breathe!\" The game remembers who ate it (only the last one "
      "to eat it): that villager, dropped on the pond while the Sunken Gong Piece is still down there, goes "
      "\"Retrieving something from the pond\"."),
@@ -141,19 +164,42 @@ VV2_STEWS = (   # (stew number, title, what happens)
      "\"Thirsty! So thirsty!\" The eater goes \"Getting a drink\"."),
     (13, "Very spicy: makes the eater thirsty",
      "\"This stew is very, very spicy!\" The eater takes a short step, then goes \"Getting a drink\"."),
-    (14, "Sweet smell: children go wild",
-     "\"This stew gives off a very sweet smell.\" A child under 14 goes \"Jumpy!\", \"Running away\" or "
-     "\"Dancing\" (1 in 3 each); an adult gets nothing more. " + CALLED.format(odds="9 times in 10")),
+    (14, "Sweet smell: makes children play",
+     "\"This stew gives off a very sweet smell.\" A child under 14 who eats it plays (dancing, jumping or running "
+     "away, equally likely); an adult nothing more. " + CALLED.format(odds="9 times in 10")),
     (8, "Sends the eater to the bathroom",
      "\"The stew made your villager have to go to the bathroom.\" The eater goes \"Nature is calling!\"."),
     (4, "Nasty: loses 1 health",
-     "\"This stew is nasty. It really isn't edible.\" The eater loses 1 health (never below 3), stops what they were "
+     "\"This stew is nasty. It really isn't edible.\" The eater loses 1 health, stops what they were "
      "doing and goes \"Shaking head\"."),
     (2, "Makes the eater sick",
      "\"The stew made your villager very ill.\" The eater falls sick."),
     (18, "Burns: loses 15 to 39 health",
-     "\"It burns! This foul stew is very harmful.\" The eater loses 15 to 39 health (never below 3)."),
+     "\"It burns! This foul stew is very harmful.\" The eater loses 15 to 39 health."),
 )
+
+
+# Stew 2 makes the eater sick; stews 4 and 18 take health, stopped at 3 in the code (0x461174, 0x4614F4).
+VV2_KILLS = {2: _kill(SICK_KILLS, thing="stew"),
+             4: _kill(FLOOR, thing="stew", floor=3, things="stews"),
+             18: _kill(FLOOR, thing="stew", floor=3, things="stews")}
+
+
+# The puzzles.  The Stew: the cook routine solves it (+0x2E7A8, 0x426056) with the first stew cooked that is not 4, 2
+# or 18 (0x42602B..0x426040).  The Sunken Gong Piece: the pond's drop (0x430012..0x43002F) sends the villager kept by
+# stew 5 (+0x3045C) to dive (0x450D50) while the piece is not found (+0x2E7C8) and a third flag +0x2E970 is clear --
+# what sets +0x2E970 was not found in the code, hence UNCONFIRMED.
+VV2_PUZZLES = {
+    5: [(PUZZLE_LINE + "The Sunken Gong Piece. One villager is enough: the last villager to eat this stew, dropped "
+         "on the pond, dives and brings it up. It works only while the piece is still down there (once it is found, "
+         "the stew does nothing more for the pond).", C),
+        (PUZZLE_LINE + "The game also checks one more condition there whose meaning was not found in the code.",
+         False)],
+}
+VV2_SUMMARY = (
+    "Stews for puzzles: The Stew -- the first stew you cook solves it, unless it is one of the three harmful ones "
+    "(\"Makes the eater sick\", \"Nasty\" or \"Burns\"), which do not count. The Sunken Gong Piece -- the breathing "
+    "stew (\"Lets a villager dive for it\" below): one villager who ate it, dropped on the pond.")
 
 
 def _vv2_name(herb: int) -> str:
@@ -175,6 +221,11 @@ def vv2_facts() -> list[gm.Fact]:
             "these goes in, and every villager dropped on the pot in the next 15 real-life minutes eats it. The "
             "water is always fresh water, fetched from the pond at the foot of the waterfall: no stew here takes "
             "salt water."), C),
+        # The effect switch 0x461040 touches no food (+0x2EAA4 is never read or written there).
+        gm.Fact(GROUP, (
+            "Food: every stew takes 10 food from the store when the food goes in, and the store must hold more than "
+            "10. Eating a stew takes no food and gives only what its recipe says below."), C),
+        gm.Fact(GROUP, VV2_SUMMARY, C),
         gm.Fact(GROUP, (
             "The herbs: the names below are the patcher's own, after each plant's colour; the game calls every "
             "one \"the strange plant\" (pointing at any of them says \"... sees the strange plant.\"). A plant goes "
@@ -183,7 +234,8 @@ def vv2_facts() -> list[gm.Fact]:
     ]
     out += [gm.Fact(GROUP, f"{name}: {where}.", C, sub=True) for name, where, _place, _spot in VV2_HERBS.values()]
     for stew, title, does in VV2_STEWS:
-        out += _recipe(title, _mixes(VV2_RECIPES[stew], _vv2_name), VV2_WATER, does, E)
+        out += _recipe(title, _mixes(VV2_RECIPES[stew], _vv2_name), VV2_WATER, does, E, VV2_KILLS.get(stew),
+                       VV2_PUZZLES.get(stew, ()))
     return out
 
 
@@ -200,6 +252,10 @@ def vv2_facts() -> list[gm.Fact]:
 # Plant, a Berry Plant and a third herb make these potions (docs/vv3-both-factions.md).
 VV3_BOTH = ((0x1F, 0x07), (0x20, 0x23), (0x21, 0x26), (0x22, 0x16), (0x23, 0x19), (0x24, 0x21), (0x25, 0x28))
 VV3_WATER = "none (the alchemy pot takes only the 3 herbs)"
+# Potion 21 makes the drinker sick; 2, 20 and 31 take health, stopped at 2 in the code (their words below drop the
+# shared "never below 2", which the owner's play does not confirm).
+VV3_KILLS = {21: _kill(SICK_KILLS, thing="potion"),
+             **{p: _kill(FLOOR, thing="potion", floor=2, things="potions") for p in (2, 20, 31)}}
 # The addresses the shared potion words carry in brackets, left out of this page's visible text (a bracket's other
 # words are kept: "(0x45B9B0; 16.02% of the time none)" reads "(16.02% of the time none)").
 _BRACKET = re.compile(r"\s*\(([^()]*)\)")
@@ -216,6 +272,17 @@ def _plain(text: str) -> str:
     return gm.tidy(_BRACKET.sub(keep, text))
 
 
+# The Sharks: either shark vial (26 or 27) kept by its drinker ("Carrying vial to ocean", no time limit), at the
+# Diving Rock (0x436580; 0x4365C7 for 27), solves it; the puzzle's threshold is 1 (vv_game_mechanics_vv3
+# PUZZLE_THRESHOLDS[10]).  Every potion needs The Alchemy Lab restored first (vv_game_mechanics_items_vv3).
+SHARKS = (PUZZLE_LINE + "The Sharks. One villager is enough: the one who drinks it carries the vial, and taking it "
+          "to the Diving Rock solves it.", C)
+VV3_PUZZLES = {26: [SHARKS], 27: [SHARKS]}
+VV3_SUMMARY = ("Stews for puzzles: The Sharks -- either shark vial (potion 26: Rose + Rose + Berry Plant; potion 27: "
+               "Black Orchid + Black Orchid + Pitcher Plant): one villager drinks it and carries the vial to the "
+               "Diving Rock. No potion can be made before The Alchemy Lab is restored.")
+
+
 def _vv3_potion(product: int) -> tuple[str, str]:
     """A potion's title (what the drinker says: the game names a potion by nothing else) and what happens."""
     import vv_game_mechanics_counts as counts
@@ -223,9 +290,11 @@ def _vv3_potion(product: int) -> tuple[str, str]:
     say, does = counts.VV3_POTIONS[product]
     say = say.replace("{He/She}", "He or she")
     title = "A potion that says nothing" if say.startswith("(") else f"\"{say}\""
+    if product in VV3_PUZZLES:
+        title = f"Puzzle: The Sharks -- {title[0].lower()}{title[1:]}"
     if product in VV3_PLAIN:
         return title, VV3_PLAIN[product]
-    does = items.POTION_FIXES.get(product, does)
+    does = items.POTION_FIXES.get(product, does).replace(", never below 2", "")
     return title, _plain(does[0].upper() + does[1:] + ".")
 
 
@@ -244,20 +313,28 @@ def vv3_facts() -> list[gm.Fact]:
             "blows up " + chance(at_most(100, 30)) + ", " + chance(at_most(100, 15)) + " or "
             + chance(at_most(100, 0)) + " of the time at Alchemy level 1, 2 or 3. A villager dropped on the pot "
             "drinks the potion; the potion has no name in the game, only what the drinker says."), C),
+        # Neither the alchemy pot's code (0x42F000..0x431400) nor the effect switch 0x4268F0 writes the food store
+        # 0x582490 (the switch only compares it with 100, 0x4269EE / 0x426B04).
+        gm.Fact(GROUP, (
+            "Food: potions take no food, and drinking one takes none; two healing potions heal less while the "
+            "village has under 100 food (below)."), C),
+        gm.Fact(GROUP, VV3_SUMMARY, C),
     ]
     by_potion: dict[int, list[tuple[int, int, int]]] = {}
     for a, b, c, product in counts.VV3_COMBOS:
         by_potion.setdefault(product, []).append(tuple(sorted((a, b, c))))
     for product in sorted(by_potion):
         title, does = _vv3_potion(product)
-        out += _recipe(f"{title} (potion {product})", _mixes(by_potion[product], herbs.get), VV3_WATER, does)
+        out += _recipe(f"{title} (potion {product})", _mixes(by_potion[product], herbs.get), VV3_WATER, does,
+                       kill=VV3_KILLS.get(product), extra=VV3_PUZZLES.get(product, ()))
     out.append(gm.Fact(GROUP, (
         f"With the patcher's \"{gm.feature_name('vv3_both_factions')}\" (on by default) both the Pitcher Plant and "
         "the Berry Plant grow, and these 7 mixes of both make a potion too:"), C))
     for third, product in VV3_BOTH:
         title, does = _vv3_potion(product)
         out += _recipe(f"{title} (potion {product})",
-                       " + ".join(herbs[h] for h in sorted((0x24, 0x25, third))), VV3_WATER, does)
+                       " + ".join(herbs[h] for h in sorted((0x24, 0x25, third))), VV3_WATER, does,
+                       kill=VV3_KILLS.get(product))
     return out
 
 
@@ -293,19 +370,43 @@ FAILED_SALT, FAILED_FRESH = 12, 13
 # 13 say 0x1F8.  Jobs 0x87, 0x88, 0x93 and 0xA0 start with "Something smells YUMMY!" (0x457220, 0x457320, 0x4573B0,
 # 0x42E330).  10 and 11 are not eaten: the pot's drop (0x42E748..0x42E770) gives job 0x77 "Stacking soap" for 10 and
 # 0x7B "Spreading cloth pulp" for 11, and pointing at the pot says "Soap is ready to stack." / "Pulp for cloth is
-# ready." (0x42E580..0x42E5B1).  Heat (0x42DC80): 10 or more for a stew, 20 and the 4 feast items for 4 (The Grand
-# Feast, solved at 0x42EEDC), none for 10 and 11; each hot rock adds 10 (0x42EAA7).
+# ready." (0x42E580..0x42E5B1).
+# Boiling and food (re-traced 2026-11-10; the older pages call the +0xB1C count "heat", which it is not):
+#   * A hot rock (job "Taking a hot rock to the pot", 0x42F920, carrying item 0x34) dropped on the pot's boiling-water
+#     object (0x42F4A0) makes the pot boil: state 0x18 for 600 game-clock seconds (0x46D530) and one step of Boiling
+#     Water (Advance 2).  The pot takes anything only while it boils (0x42EA61; else "The pot needs boiling water.",
+#     string 0x234); the water fills (0x42F74A, 0x42F849) end the boiling, making a stew ends it (0x42EE5F), and an
+#     unfinished Grand Feast boils again after each thing added (0x42EE1D).  When it ends with a stew unfinished the
+#     pot says "The pot contains a cold unfinished stew."
+#   * Food: a villager dropped on the food bin while the pot boils (0x46ED4A..0x46ED85: 10 food or more in store)
+#     takes 10 food from the store (0x41D920(-10)) and carries item 6 to the pot ("Adding to the stew", job 0x85,
+#     0x42E090), which adds 10 to the count +0xB1C (0x42EAA7).  0x42DC80: a stew is ready at 10 (one trip), the Grand
+#     Feast at 20 (two trips) with its 4 items; soap and cloth pulp (10, 11) at once; failing, the pot says "This stew
+#     needs something nutritious!" (0x42EE30, string 0x1E9).
+#   * Remaking: a food trip while the pot boils with a stew ready makes the same stew again (0x42EAF1 -> 0x42EDE0)
+#     and starts its 5 real-life minutes over; nothing excludes a recipe.  The owner: "VV4 stews can be reheated with
+#     another hot rock if they go cold (applies to certain stews only)" -- which stews the owner means is not settled
+#     by the code, so the per-recipe line is UNCONFIRMED.
+#   * The Grand Feast's 4 items (0x42EABE, table 0x42EB4C -> 0x42EB38) and who brings them: blackberries (item 0,
+#     +0xB21: a villager dropped on the bush while the pot wants them, 0x46F8AC), a fish (item 0x38, +0xB22: the
+#     fishing trip, 0x43332C), fruit (item 0x37, +0xB23: "Carrying fruit to the cooking pot", 0x4349A8 and three more)
+#     and a mushroom (items 0x76..0x78, +0xB20: the pick-up 0x413233; the three items above the 48 collectables).  The
+#     feast is solved when it is made (0x42EEDC: Advance 0xA, threshold 1), before anyone eats it.
+#   * Honoring the Tree: 0x4366D0 (vtable 0x48E8F4) counts the villagers on job 0x8F "Honoring the tree" (0x4678F0)
+#     and advances puzzle 13 (threshold 1) at 20 or more (0x4366EC); job 0x8F comes from the sweet x3 stew (0x41E040).
+#   * Soap Invented / Cloth Invented: 0x43A2D0 adds 3 bars of soap and advances puzzle 3; 0x4368B6 adds 3 cloth and
+#     advances puzzle 7 -- their link to the soap stacking (job 0x77) and the pulp (job 0x7B) was not traced.
+FOOD_TRIP, FEAST_FOOD = 10, 20
 VV4_STEWS = {   # product: (title, what happens)
     8: ("Heals 25 to 59 health",
         "\"He or she feels much healthier!\" The eater gains 25 to 59 health; while the village has under 100 food, "
         "only 5 to 14, and the game says \"This stew works better when the tribe is eating well.\" That villager "
         "cannot eat this stew again for 10 real-life minutes."),
-    4: ("The Grand Feast",
-        "Needs a well-cooked pot (20 heat, 2 hot rocks) and the 4 feast items added; then \"It's a grand feast!\": "
-        "the whole village drops what they are doing and goes \"Something smells YUMMY!\", and it solves the Grand "
-        "Feast puzzle."),
-    6: ("Honors the Tree of Life",
-        "\"This smells like flowers!\" The eater goes \"Honoring the tree\" (the Honoring the Tree puzzle)."),
+    4: ("Puzzle: The Grand Feast",
+        "\"It's a grand feast!\" Whoever eats it, the whole village drops what they are doing and goes \"Something "
+        "smells YUMMY!\"."),
+    6: ("Puzzle: Honoring the Tree -- sends the eater to honor the tree",
+        "\"This smells like flowers!\" The eater goes \"Honoring the tree\"."),
     1: ("Calls everyone 14 or older to the pot",
         "\"Yummy!\" Every villager aged 14 or older drops what they are doing and goes \"Something smells YUMMY!\"."),
     3: ("Calls the whole village to the pot",
@@ -324,15 +425,38 @@ VV4_STEWS = {   # product: (title, what happens)
         "this stew again for 10 real-life minutes."),
     10: ("Makes soap",
          "Not eaten: the pot says \"Soap is ready to stack.\", and a villager dropped on it goes \"Stacking "
-         "soap\". Needs no hot rock."),
+         "soap\". Needs no food."),
     11: ("Makes cloth pulp",
          "Not eaten: the pot says \"Pulp for cloth is ready.\", and a villager dropped on it goes \"Spreading cloth "
-         "pulp\". Needs no hot rock."),
+         "pulp\". Needs no food."),
     FAILED_FRESH: ("Nasty (any other mix in fresh water)", "\"Nasty! It's bitter.\" Nothing else happens."),
     FAILED_SALT: ("Too salty (any other mix in salt water)", "\"Too salty! It's disgusting.\" Nothing else happens."),
 }
 VV4_ORDER = (8, 4, 6, 1, 3, 7, 0, 2, 5, 9, 10, 11, FAILED_FRESH, FAILED_SALT)
 VV4_WATER = {FRESH: "fresh water", SALT: "salt water"}
+FEAST_ITEMS = ("blackberries", "a fish", "fruit (\"Carrying fruit to the cooking pot\")", "a mushroom")
+VV4_PUZZLES = {
+    4: [(PUZZLE_LINE + "The Grand Feast. It needs, all while the pot boils: one hot rock to make it boil, 20 food "
+         "from the food bin (two trips of 10), and one each of " + ", ".join(FEAST_ITEMS[:-1]) + " and "
+         + FEAST_ITEMS[-1] + ", each brought to the pot by a villager dropped on that food while the pot wants it. "
+         "When its 3 herbs are in but the rest is not, the pot boils for another 10 minutes of the game's clock. "
+         "The puzzle is solved the moment the feast is made: nobody has to eat it.", C),
+        (PUZZLE_LINE + "The game's recipe table gives the Grand Feast's herbs as spicy, sweet and soapy; the owner "
+         "remembers spicy, sweet and sweet. Not yet settled.", False)],
+    6: [(PUZZLE_LINE + "Honoring the Tree. It is solved when 20 villagers are \"Honoring the tree\" at the same "
+         "time; each of them must have eaten this stew (a villager counts once, while honoring).", C)],
+    10: [(PUZZLE_LINE + "Soap Invented: stacking a batch gives 3 bars of soap and counts for it (the link from "
+          "stacking to the puzzle was not traced in the code).", False)],
+    11: [(PUZZLE_LINE + "Cloth Invented: the cloth made from the pulp gives 3 bolts and counts for it (the link "
+          "from the pulp to the puzzle was not traced in the code).", False)],
+}
+VV4_SUMMARY = (
+    "Stews for puzzles: The Grand Feast (spicy, sweet and soapy, 20 food and the 4 feast foods; solved when it is "
+    "made); Honoring the Tree (3 sweet-smelling plants; 20 villagers who ate it honoring at the same time); and, "
+    "UNCONFIRMED, soap for Soap Invented and cloth pulp for Cloth Invented.")
+REHEAT = (REHEAT_LINE + "in the game's code, every recipe can be made again: another hot rock makes the pot boil, "
+          "and food added then makes the same stew again with a fresh 5 minutes. The owner remembers only certain "
+          "stews reheating.", False)
 
 
 def vv4_facts() -> list[gm.Fact]:
@@ -344,8 +468,21 @@ def vv4_facts() -> list[gm.Fact]:
             "cuts are the same herb."), C),
         gm.Fact(GROUP, (
             "How a stew is made: the pot is filled with fresh water or salt water (\"Filling a pot with fresh "
-            "water\" / \"... salt water\"), 3 herbs go in, in any order, and hot rocks heat it: each hot rock adds "
-            "10 heat, and a stew is ready at 10. The game's own tip: \"Only fresh water stews are edible.\""), C),
+            "water\" / \"... salt water\"), then one hot rock makes it boil (\"Taking a hot rock to the pot\"). The "
+            "pot takes herbs and food only while it boils: 10 minutes of the game's clock (10 real-life minutes on "
+            "Normal speed, 5 on Fast, 16 minutes 40 seconds on Slow). If that runs out first, the unfinished stew "
+            "goes cold (\"The pot contains a cold unfinished stew.\") until another hot rock makes it boil again. "
+            "3 herbs go in, in any order. The game's own tip: \"Only fresh water stews are edible.\""), C),
+        gm.Fact(GROUP, (
+            "Food: a villager dropped on the food bin while the pot boils takes 10 food from the store into the "
+            "stew (\"Adding to the stew\"; the store needs at least 10). Every stew needs one such trip (10 food) "
+            "before it is ready (\"This stew needs something nutritious!\" until then), the Grand Feast two (20 "
+            "food); soap and cloth pulp need none. Eating a stew takes no food and gives only what its recipe says "
+            "below."), C),
+        gm.Fact(GROUP, VV4_SUMMARY, C),
+        # The effect switch 0x41DEE0: its only health call is the healing stew's (0x41DF69, an addition), and no
+        # case sets the sickness flag +0x1C48.
+        gm.Fact(GROUP, "None of these stews takes away health or makes anyone sick.", C),
     ]
     for product in VV4_ORDER:
         title, does = VV4_STEWS[product]
@@ -357,23 +494,10 @@ def vv4_facts() -> list[gm.Fact]:
             mix, water_words = "any other 3 (pulpy vines in fresh water always end here)", VV4_WATER[FRESH]
         else:
             mix, water_words = "any 3 but 3 soapy-smelling plants or 3 pulpy vines", VV4_WATER[SALT]
-        out += _recipe(title, mix, water_words, does)
+        out += _recipe(title, mix, water_words, does, extra=[*VV4_PUZZLES.get(product, ()), REHEAT])
     return out
 
 
 def facts(game: int) -> list[gm.Fact]:
     """The Stew Recipes group of one game: The Lost Children, The Secret City and The Tree of Life only."""
     return {2: vv2_facts, 3: vv3_facts, 4: vv4_facts}.get(game, list)()
-
-
-def with_recipes(found: list[gm.Fact], game: int) -> list[gm.Fact]:
-    """A page's facts with the Stew Recipes group put right after Technologies, items and buildings (at the end
-    when the page has none).  Any other game's page is returned as it is."""
-    extra = facts(game)
-    if not extra:
-        return found
-    at = len(found)
-    for n, fact in enumerate(found):
-        if fact.group == gm.ITEMS:
-            at = n + 1
-    return found[:at] + extra + found[at:]

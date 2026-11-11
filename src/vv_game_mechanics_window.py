@@ -36,7 +36,6 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 
 import vv_game_mechanics as gm
-import vv_game_mechanics_stews as stews
 import vv_save_backup
 import vv_tool_fonts
 import vv_tribe_rename
@@ -78,9 +77,7 @@ def page(folder: Path, game: int, slot: int, game_folders: list[Path], exe: Path
     """The page for one save slot and its countdowns; a save or file it cannot read is said on the page."""
     now = clock() if now is None else now
     try:
-        # The Stew Recipes page (VV2-VV4, src/vv_game_mechanics_stews.py) after Technologies, items and buildings.
-        return gm.render_live(stews.with_recipes(gm.read(folder, game, slot, game_folders, now=now, exe=exe), game),
-                              now)
+        return gm.render_live(gm.read(folder, game, slot, game_folders, now=now, exe=exe), now)
     except Exception as exc:  # noqa: BLE001 -- shown, never fatal: the window only reads
         return f"The game mechanics could not be read ({exc}). Nothing was changed.", []
 
@@ -93,7 +90,7 @@ def page_text(folder: Path, game: int, slot: int, game_folders: list[Path]) -> s
 def general_text(game: int) -> str:
     """A game's general rules, when no save of it is found."""
     try:
-        return gm.GENERAL_NOTE + "\n\n" + gm.render(stews.with_recipes(gm.general(game, clock()), game))
+        return gm.GENERAL_NOTE + "\n\n" + gm.render(gm.general(game, clock()))
     except Exception as exc:  # noqa: BLE001 -- shown, never fatal
         return f"The game mechanics could not be shown ({exc})."
 
@@ -380,7 +377,7 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
         box.insert("1.0", text)
         found: list[str] = []
         for number, line in enumerate(text.split("\n"), 1):
-            if line in gm.GROUPS or line == stews.GROUP:
+            if line in gm.GROUPS:
                 box.tag_add("group", f"{number}.0", f"{number}.end")
                 box.mark_set(f"group:{line}", f"{number}.0")
                 found.append(line)
