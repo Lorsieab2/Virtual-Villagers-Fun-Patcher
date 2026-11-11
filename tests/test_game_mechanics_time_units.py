@@ -203,8 +203,8 @@ class SettledClocks(unittest.TestCase):
 
     def test_the_vv3_ash_key_trips_are_on_the_games_clock(self) -> None:
         # Each water trip sets a timer 600 seconds ahead through 0x426790 (wall now + seconds x rate / 6).
-        self.assertIn("10 minutes on the game's clock, 5, 10 or 16 minutes 40 seconds of real-life play on Fast, Normal "
-                      "or Slow", self.text["general 3"])
+        self.assertIn("10 minutes on the game's clock between trips (5, 10 or 16 minutes 40 seconds of real-life play "
+                      "on Fast, Normal or Slow)", self.text["general 3"])
 
 
 if __name__ == "__main__":
