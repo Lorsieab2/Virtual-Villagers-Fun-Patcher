@@ -313,6 +313,29 @@ class Potions(unittest.TestCase):
         self.assertIn("the sharks leave", by_name[items._potion_name(27)])
         self.assertIn("charmed", by_name[items._potion_name(26)])
 
+    def test_feels_smarter_is_skill_plus_67_percent(self) -> None:
+        """The skill test 0x45A2C0: push 3 / 0x455E10 (effect 3) at 0x45A2F7..0x45A300 picks mov edi, 0x42 (66,
+        0x45A31B) over 0x21 or 0x10 (33 or 16, 0x45A311..0x45A314); then rand(100) at 0x45A342, cmp eax, ebp (skill +
+        edi), jle passes.  rand(100) is the C library's rand() % 100 (0x4032E1..0x4032E7), rand() 15 bits."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        self.assertEqual(code(0x45A2F7, 2), bytes.fromhex("6a03"))
+        self.assertEqual(code(0x45A311, 6), bytes.fromhex("83e0ef83c021"))       # and eax, -17; add eax, 33
+        self.assertEqual(code(0x45A31B, 5), bytes.fromhex("bf42000000"))         # mov edi, 66
+        self.assertEqual(code(0x45A340, 2), bytes.fromhex("6a64"))               # push 100
+        self.assertEqual(code(0x45A34C, 4), bytes.fromhex("3bc50f8e"))           # cmp eax, ebp; jle (pass)
+        self.assertEqual(code(0x46F3F5, 5), bytes.fromhex("25ff7f0000"))         # rand(): and eax, 0x7FFF
+        passes = lambda offset, skill: sum(1 for v in range(32768) if v % 100 <= skill + offset)  # noqa: E731
+        self.assertEqual(f"{passes(66, 0) / 32768:.2%}", "67.07%")
+        self.assertEqual(f"{passes(33, 0) / 32768:.2%}", "34.03%")
+        self.assertEqual(min(s for s in range(101) if passes(66, s) == 32768), 33)
+        does = counts.VV3_POTIONS[3][1]
+        self.assertIn("every skill test passes at the skill + 67% instead of + 34% (+ 17% for a villager who "
+                      "dislikes learning; one who likes learning already has + 67%): 67.07% instead of 34.03% at "
+                      "skill 0, and every time from skill 33", does)
+        self.assertNotIn("+ 66%", does)
+        self.assertIn(does, {e.name: e.text for e in items.entries()}[items._potion_name(3)])
+
 
 class Patcher(unittest.TestCase):
     def test_every_setting_is_a_patch_the_patcher_knows(self) -> None:
