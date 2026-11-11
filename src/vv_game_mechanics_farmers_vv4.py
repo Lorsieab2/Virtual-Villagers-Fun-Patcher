@@ -266,9 +266,9 @@ TRIPS: tuple[Trip, ...] = (
                     "stomp it (hops), a 3 s wait, take the stomped fruit, walk to a random point of the food bin, a "
                     "1 s wait, then 3 food is added. " + _CLOCK_AGAIN),
         catch_up_words=("While catching up there are no fruit trips: the game never sends a farmer to the fruit then, "
-                        "and nothing in the stock game gives a villager the fruit as its task. Instead the Cooking Pit "
-                        "bonus adds 5 food x Food Mastery for each villager each counted age unit, on a (Farming - 25) "
-                        "in 100 chance."),
+                        "and nothing in the game or the patcher's patches gives a villager the fruit as its task. "
+                        "Instead the Cooking Pit bonus adds 5 food x Food Mastery for each villager aged 14 or more and "
+                        "not sick or pregnant, each counted age unit, on a (Farming - 25) in 100 chance."),
         verified="code",
         # The stew: 0x4349A3 asks 0x42DDA0 on the pot 0x4D76D8; the fruit goes in by action 0x90.
         extra=("When the stew pot is waiting for an ingredient as the trip starts, the stomped fruit goes into the "

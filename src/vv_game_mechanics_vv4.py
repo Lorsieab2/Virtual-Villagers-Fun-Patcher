@@ -317,8 +317,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                         "random among those open, and one who dislikes fruit runs away 60 times in 100.", gm.CODE)
     add("Food sources", "While catching up nobody is sent to the fruit and no fruit trip runs. Instead, once The "
                         "Cooking Pit is restored, after each counted age unit's job turns (all but the last 2) every "
-                        "villager who had job turns (aged 14 or more, not sick) adds 5 food x Food Mastery (5, 7 or "
-                        "10) on a (Farming - 25) in 100 chance, whatever its job, with no walking and no spot limit: 3.75 "
+                        "villager who had job turns (aged 14 or more, not sick or pregnant) adds 5 food x Food "
+                        "Mastery (5, 7 or 10) on a (Farming - 25) in 100 chance, whatever its job, with no walking and "
+                        "no spot limit: 3.75 "
                         "food a unit at Farming 100, 1.75 at 60, nothing at 25 or less (Food Mastery 1); children add "
                         "nothing. Each villager eats 2, so it carries a tribe of high-Farming adults but not a large "
                         "one of children and low-Farming villagers.", gm.CODE)

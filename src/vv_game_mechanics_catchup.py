@@ -414,12 +414,15 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
     sub("In a job turn the villager does what the game's job choice picks, or keeps on with a job the player gave. "
         "Walks become instant moves; the skill checks, the work's food and tech points, and the building steps all "
         "run; every other step (animations, waits, talk, play, rest) is skipped.")
-    # The Cooking Pit bonus 0x468A7A-0x468AC5 (task 2 is the fruit: tests/test_game_mechanics_farmers_vv4.py).
-    add("The Cooking Pit while catching up: once the Cooking Pit is restored, each villager who had job turns also "
-        "gets 5 food (times Food Mastery) and a Farming skill check after them: always if its task is the farming "
-        "task for the fruit (task 2 of the game's seven farming tasks), otherwise with a chance of (Farming - 25) in "
-        "100. In live play fruit comes only from villagers shaking it down, 3 food a load, and that is never chosen "
-        "while catching up.")
+    # The Cooking Pit bonus 0x468A7A-0x468AC5, inside the job turns' gate 0x468A24..0x468A46 (not sick +0x1C48, not
+    # pregnant +0x1C4C, shown age 280+; health is not checked).  Task 2 (+0x1C54 = 2, 0x468A8A) always pays, but no
+    # stock code and no patch sets it (tests/test_game_mechanics_farmers_vv4.py).
+    add("The Cooking Pit while catching up: once the Cooking Pit is restored, after the job turns each villager "
+        "aged 14 or more and not sick or pregnant (whatever its health) gets 5 food (times Food Mastery) and a "
+        "Farming skill check on a (Farming - 25) in 100 chance. In live play fruit comes only from villagers shaking "
+        "it down, 3 food a load, and that is never chosen while catching up.")
+    sub("DEAD (never runs): the bonus always pays a villager whose task is the fruit, but nothing gives a villager "
+        "that task, in the game or with the patcher's patches: dropping one on the fruit sets no task.")
     add("Food while catching up: at 250 food or less a villager with Farming 20 or more farms first, as in live "
         "play, but nobody stops to be \"Worried about food\". Blackberry picking (the bush ÷ 100, at least 2) and "
         "fishing (4 food) give what they give live.")

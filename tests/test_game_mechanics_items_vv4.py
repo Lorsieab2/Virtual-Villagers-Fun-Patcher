@@ -42,7 +42,7 @@ PINS = (
     ("puzzle", "Soap Invented", "U", ""),
     ("puzzle", "The Butterflies", "U", ""),
     ("puzzle", "The Frog Rescue", "U", ""),
-    ("puzzle", "The Cooking Pit", "C", ""),
+    ("puzzle", "The Cooking Pit", "C", "C"),          # the fruit task's bonus: DEAD (2026-11-10)
     ("puzzle", "Cloth Invented", "U", "CCOE"),
     ("puzzle", "The Nursery School", "U", ""),
     ("puzzle", "The Mossy Rocks", "E", ""),
