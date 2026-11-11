@@ -260,7 +260,13 @@ VV3_KILLS = {21: _kill(SICK_KILLS, thing="potion"),
 # words are kept: "(0x45B9B0; 16.02% of the time none)" reads "(16.02% of the time none)").
 _BRACKET = re.compile(r"\s*\(([^()]*)\)")
 # Potion 1's shared words name the game's particle effect by its number; in a player's words it is a small puff.
-VV3_PLAIN = {1: "A small puff appears at the villager; nothing else happens."}
+# Potion 3 ("feels smarter"): the skill test 0x45A2C0 passes when rand(100) <= skill + 33 (0x45A342..0x45A34E), and
+# effect 3 (0x455E10 at 0x45A300) makes it + 66 (0x45A31B), over the dislike's + 16 (0x45A309); rand(100) is rand() %
+# 100 over 32,768 values (0 to 67 come 328 times, 68 to 99 327 times).  The shared words said "+ 66% instead of + 33%".
+VV3_PLAIN = {1: "A small puff appears at the villager; nothing else happens.",
+             3: ("For 10 real-life minutes at any speed, every skill test passes at the skill + 67% instead of + 34% "
+                 "(+ 17% for a villager who dislikes learning; one who likes learning already has + 67%): 67.07% "
+                 "instead of 34.03% at skill 0, and every time from skill 33.")}
 
 
 def _plain(text: str) -> str:

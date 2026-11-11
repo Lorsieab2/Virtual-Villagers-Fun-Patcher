@@ -530,6 +530,21 @@ class WhatTheCodeDoes(unittest.TestCase):
     def test_the_secret_city(self) -> None:
         self.check(3, ((0x426CB9, "cmp ebx, 2"), (0x426CBE, "mov ebx, 2")))   # a potion's loss stopped at 2
 
+    def test_feels_smarter_is_skill_plus_67_percent(self) -> None:
+        """Potion 3: the skill test passes on rand(100) <= skill + 66 instead of + 33, so the chance is the skill +
+        67% instead of + 34% (rand() % 100 over 32,768 values)."""
+        self.check(3, ((0x45A2F7, "push 3"), (0x45A314, "add eax, 0x21"), (0x45A31B, "mov edi, 0x42"),
+                       (0x45A340, "push 0x64"), (0x45A34C, "cmp eax, ebp")))
+        passes = lambda offset, skill: sum(1 for v in range(32768) if v % 100 <= skill + offset)  # noqa: E731
+        self.assertEqual((f"{passes(66, 0) / 32768:.2%}", f"{passes(33, 0) / 32768:.2%}"), ("67.07%", "34.03%"))
+        self.assertEqual(min(s for s in range(101) if passes(66, s) == 32768), 33)
+        _t, subs = recipe(3, "\"He or she feels smarter.\"")
+        text = " ".join(s.text for s in subs)
+        self.assertIn("every skill test passes at the skill + 67% instead of + 34% (+ 17% for a villager who "
+                      "dislikes learning; one who likes learning already has + 67%): 67.07% instead of 34.03% at "
+                      "skill 0, and every time from skill 33.", text)
+        self.assertNotIn("+ 66%", gm.render(stews.facts(3)))
+
     def test_the_tree_of_life(self) -> None:
         self.check(4, (
             (0x46ED53, "cmp eax, 0xa"), (0x46ED66, "push -0xa"),        # the food bin: 10 or more, takes 10
