@@ -23,7 +23,7 @@
     {
       "source": "assets/skip_intro/VVFP Skip Intro.dll",
       "destination": "VVFP Skip Intro.dll",
-      "sha256": "BB1D4B28818BA58981A14D9D306404FE76985CD904D1660970C216A263212C2C"
+      "sha256": "2F1A6D6E414677BCA85232F8EFBEAD8EBAD8887C14DBC4303696F2BC237BDE5A"
     }
   ],
   "patches": [],
