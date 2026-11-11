@@ -326,6 +326,10 @@ COLLECTIBLE_SPAWN_FEATURE_PATHS = (ROOT / "data" / "vv4_collectible_spawn_like_v
 # Pit's fruit tree holds 1,000 fruit, refilled every 40 age units, kept in a per-save file; companion only, "VVFP VV4
 # Fruit Supply.dll", started by VVFP Startup.dll from its second word; scripts/build_vv4_yellow_fruit_trees_limited_feature.py.
 YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_feature.json",)
+# Louder Wind Flutes (The Tree of Life; on by default): the three wind flute sounds 2.5 times louder as the game loads
+# them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
+# scripts/build_vv4_louder_wind_flutes_feature.py.
+LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4189,7 +4193,8 @@ def _load_fun_patch_records(
                          + SICKNESS_FEATURE_PATHS
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
-                         + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS):
+                         + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
+                         + LOUDER_FLUTES_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12713,7 +12718,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "C5C7A7160BC35D28D23427B691E9BADEF147188B8CAA721E76CE857A0F7BB9A4",
+    "sha256": "C943A01C693155AB0137654504DE1E2460640BE6C6DBCADD49700A0FD0567205",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12805,6 +12810,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "VVFP Heathens Keep Masks.dll",
+    # Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made 2.5 times louder as they load.
+    "VVFP VV4 Louder Flutes.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
