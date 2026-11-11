@@ -456,10 +456,16 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.append(gm.Fact("Collectibles", (
             f"This village: {found} of the 12 Wind Flute pieces found, so in fog the first roll's chance is "
             f"{6 * 4 * (found // 2)} in 32,768 each update."), gm.SAVE, True))
-    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes (every 23 to 25 "
-                        "once Decorate Tree is done; whether real time or on the game's clock: the next line); it changes nothing.", gm.RUNNING)
-    add("Collectibles", "The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on "
-                        "the game's clock was not traced.", False)
+    add("Collectibles", "With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life minutes, the same at "
+                        "every speed (every 23 to 25 once Decorate Tree is done); it changes nothing.", gm.RUNNING)
+    # The scene update 0x43F750: skipped while paused (0x43FDDA, the game clock 0x4D6F18's rate 0); now = 0x403750
+    # (0x43FDEA: whole real-life seconds from time(), not the game clock); with more than 2 tree stages (0x41F570,
+    # 0x43FE87) and now past the timer game+0x170EC (0x43FE95) the bird flies (0x42C5F0, image 0x12F
+    # hummingbirdstrip.png) and the timer becomes now + 180 + rand(120) (0x43FEA9, 0x43FEB0), + 1,200 once
+    # Decorating the Tree (puzzle 15) is solved (0x43FECA, 0x43FED6).  The timer is not one the game clock rescales.
+    add("Collectibles", "The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are "
+                        "the same at Fast, Normal and Slow. It does not fly while the game is paused; if its time "
+                        "came during a pause, it flies as soon as the game runs again.", gm.CODE)
     # The room check 0x468350: +5 for each complete set (0x4143F0), 20 made 25 (0x4683AA).
     add("Collectibles", "Fog comes with the weather and with island events (see Island events). Each complete "
                         "collection raises the population limit by 5, and all four by 25.",

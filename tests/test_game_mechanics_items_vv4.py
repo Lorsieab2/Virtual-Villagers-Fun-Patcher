@@ -51,7 +51,7 @@ PINS = (
     ("puzzle", "Pruning the Tree", "E", "U"),
     ("puzzle", "Honoring the Tree", "E", ""),
     ("puzzle", "Purify Tree", "E", "U"),
-    ("puzzle", "Decorating the Tree", "E", "U"),     # the hummingbird's clock, not traced (2026-10-27)
+    ("puzzle", "Decorating the Tree", "E", "C"),     # the hummingbird's clock: real time (traced 2026-11-10)
     ("building", "Building in general", "E", "UC"),
     ("building", "Hut 1", "C", ""),
     ("building", "Hut 2", "E", "U"),

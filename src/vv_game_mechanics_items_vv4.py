@@ -280,10 +280,12 @@ def _puzzles() -> list[Entry]:
             (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
-            "minutes, every 23 to 25 once the tree is decorated (whether real time or on the game's clock: the line below); it changes nothing."),
+            "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
             VERIFIED_E,
-            (("The hummingbird's 3 to 5 (23 to 25) real-life minutes: whether they are real time or on the game's "
-              "clock was not traced.", UNCONFIRMED),)),
+            # The timer: the scene update 0x43F750 on 0x403750 (time()), 0x43FEA9..0x43FED6 (vv_game_mechanics_vv4.py).
+            (("The hummingbird's minutes are real time: its timer runs on the computer's clock, so they are the same "
+              "at Fast, Normal and Slow. It does not fly while the game is paused; if its time came during a pause, "
+              "it flies as soon as the game runs again.", VERIFIED_C),)),
     ]
 
 
