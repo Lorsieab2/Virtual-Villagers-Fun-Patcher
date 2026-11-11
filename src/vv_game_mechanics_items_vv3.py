@@ -435,10 +435,17 @@ def _items() -> list[Entry]:
     out += _potions()
     sup = _ch(25)
     out += [
+        # Two thresholds: the work dispatcher (0x45AF9A) and the remembered-site continuation (0x45ADEA) only take a
+        # tree with 10 or more fruit (cmp eax, 0xa); a villager dropped on the trees (region 0x18's handler 0x4224D0)
+        # is sent to pick with no fruit check; the pick itself (0x4348F0, also in catch-up) needs 5 or more
+        # (0x434982: cmp [tree], 5), else the reaction 0x72 and the site is forgotten (0x4349C4..0x4349D5).
         Entry(ITEM, "Fruit", (
             "picking brings 7, 3 or 2 food on Fast, Normal or Slow (4 while catching up), a third more when the "
-            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit and is picked "
-            "only with 10 or more (Food sources, Refills)."), VERIFIED_C,
+            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit (Food sources, "
+            "Refills). The game sends a farmer to a tree by itself only while the tree holds 10 or more fruit. A "
+            "villager the player drops on a tree that is ready to pick goes to pick it at any count. The pick "
+            "itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets the tree."),
+            VERIFIED_C,
             ((patch("vv3_fruit_harvested_at_food_bin") + ": the fruit leaves the tree, and the food is added, only "
               "when the villager puts it in the food bin.", UNCONFIRMED),
              (patch("vv3_fruit_trees_refill_together") + ": every tree refills when the first one is due; over time "

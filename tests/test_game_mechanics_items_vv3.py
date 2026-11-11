@@ -246,6 +246,27 @@ class TheGamesOwnTables(unittest.TestCase):
                           f"or Slow speed, and below Research {c} while catching up", names[f"Science level {level}"])
             self.assertNotIn("(nothing below", names[f"Science level {level}"])
 
+    def test_the_fruit_trees_two_thresholds(self) -> None:
+        """The dispatcher (0x45AF9A) and the remembered-site continuation (0x45ADEA) take a tree at 10 or more fruit;
+        the drop handler 0x4224D0 (region 0x18, 0x422BC3) queues the pick (action 0x7D, 0x422585) with no count
+        check; the pick 0x4348F0 refuses a tree under 5 (0x434982)."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        for at in (0x45AF9A, 0x45ADEA):
+            self.assertEqual(code(at, 5), bytes.fromhex("83f80a7c14"))             # cmp eax, 10; jl skip
+        self.assertEqual(code(0x434982, 6), bytes.fromhex("833cc6057c3c"))         # cmp [esi + eax*8], 5; jl
+        self.assertEqual(code(0x422BC3, 7), b"\x68" + struct.pack("<I", 0x4224D0) + b"\x6a\x18")
+        self.assertEqual(code(0x422585, 2), bytes.fromhex("6a7d"))
+        for at in range(0x4224D0, 0x4225C2 - 4):                                   # no call of the fruit count
+            if code(at, 1) == b"\xe8":
+                self.assertNotEqual(at + 5 + struct.unpack("<i", code(at + 1, 4))[0], 0x434100)
+        fruit = {e.name: e.text for e in items.entries()}["Fruit"]
+        self.assertIn("The game sends a farmer to a tree by itself only while the tree holds 10 or more fruit. A "
+                      "villager the player drops on a tree that is ready to pick goes to pick it at any count. The "
+                      "pick itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets "
+                      "the tree.", fruit)
+        self.assertNotIn("is picked only with 10 or more", fruit)
+
     def test_each_collection_against_the_exe(self) -> None:
         """Each collection has its own entry: the pickup's completion message for each 12-kind range (tips 720 to 723,
         in the order Turtle Shell, Coral, Tablet, Feather), the rarity ranges, and the room check's 5 a collection
