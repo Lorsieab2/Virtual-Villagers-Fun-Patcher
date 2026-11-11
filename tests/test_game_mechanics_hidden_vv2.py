@@ -25,7 +25,7 @@ class Hidden2(HiddenChecks, unittest.TestCase):
         ('key', '1 to 9 (village screen)', C, ()),
         ('key', 'C, D, M, P, T and Esc (village screen)', C, ()),
         ('key', 'F1 (Collections, the help pictures, the intro pages, Puzzles and Milestones, the splash, Tech)', C, ()),
-        ('key', 'F3 (Collections, the help pictures, the intro page 0x429430, Puzzles and Milestones)', C, (U,)),
+        ('key', 'F3 (Collections, the help pictures, one of the intro pages, Puzzles and Milestones)', C, (U,)),
         ('key', 'Esc (Collections, Map, Puzzles and Milestones, Tech, Villager Detail)', C, ()),
         ('key', 'Any typed character (the splash pictures)', C, ()),
         ('key', 'Any typed character (the intro pages and the gamewin_bg.jpg screen)', C, (U,)),

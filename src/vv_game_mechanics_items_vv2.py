@@ -38,8 +38,9 @@ def _buy(tech: str, level: int) -> str:
 
 # Level 1 of each technology, its own entry like The Secret City's to New Believers' (the owner, 2026-10-27: "Same
 # between the virtual villagers games"): what a new village has before anything is bought.  Every line restates, for
-# level 1, a reading cited under that technology's level 2 and 3 below.
-LEVEL_ONE = "a new village's level, no price (every technology is set to 1 for a new village, 0x425229)."
+# level 1, a reading cited under that technology's level 2 and 3 below.  "a new village's level": every technology
+# is set to 1 for a new village (0x425229), as The Secret City's line words it.
+LEVEL_ONE = "a new village's level, no price."
 
 TECHNOLOGIES = (
     Entry(TECH, "Every technology", (
@@ -88,8 +89,8 @@ TECHNOLOGIES = (
         # 0x415FF5 (spawn: rand(100) < Exploration + 4 each 2 s), 0x4154B8 (mushroom below 65 - 15 x Exploration),
         # 0x415D99 (rare below 2 x Exploration + 2, uncommon below 2 x Exploration + 14).
         ("Something appears on the ground 6% of each 2-second check instead of 5% (about 33 real-life seconds' "
-         "wait instead of 40; real time, at every speed, paused too); 35% of them are mushrooms instead of 50%; a collectible is rare 6% of the time "
-         "instead of 4% (uncommon 12%). Exact odds under Chances.", C),
+         "wait instead of 40; real time, at every speed, paused too); 35% of them are mushrooms instead of 50%; a "
+         "collectible is rare 6% of the time instead of 4% (uncommon 12%). Exact odds under Chances.", C),
         # 0x42F6F2 (a drop at Exploration >= 2 places a picture 30% of the time while +0x2E8A8 and +0x2E8A4 are 0),
         # 0x419C20, 0x41C7D4, 0x424AA9, callbacks 42/43 (+0x2E8A8 set, +0x2E8A4 + 1).
         ("Level 2 also opens something the game keeps two values for (a flag and a count) that a drop at level 2 "
@@ -97,8 +98,8 @@ TECHNOLOGIES = (
     )),
     Entry(TECH, "Exploration level 3", (
         (_buy("Exploration", 3), C),
-        ("Something appears 7% of each check (about 29 real-life seconds' wait; real time, the same at every speed, paused too); 20% of them are mushrooms; a "
-         "collectible is rare 8% of the time (uncommon 12%).", C),
+        ("Something appears 7% of each check (about 29 real-life seconds' wait; real time, the same at every "
+         "speed, paused too); 20% of them are mushrooms; a collectible is rare 8% of the time (uncommon 12%).", C),
     )),
     Entry(TECH, "Science level 1", (
         (LEVEL_ONE, C),
@@ -376,7 +377,8 @@ STEW_EFFECTS = (
     "2: the eater falls sick.",
     "3: the eater's sickness is cured.",
     "4: -1 health (never below 3), and the eater stops what it was doing.",
-    "5: the game remembers the eater (+0x3045C, read by two drops); what that changes was not traced.",
+    # 5: the eater is kept at +0x3045C, read by two drop routines.
+    "5: the game remembers who ate it (two drop actions read it); what that changes was not traced.",
     "6: the eater goes \"Exercising\" (Building practice).",
     "7: the eater goes \"Relaxing\".",
     "8: \"Nature is calling!\"",
@@ -395,9 +397,10 @@ STEW_EFFECTS = (
 
 ITEMS = (
     Entry(ITEM, "Mushrooms", (
-        ("Brown mushroom 6 food; red (rare) mushroom 35 food, 1 in 10 of them. Something appears every 2-second "
-         "check 5%, 6% or 7% of the time at Exploration 1, 2, 3, 50%, 35% or 20% of them mushrooms; the check every 2 real-life seconds and "
-         "the 75 real-life seconds it lies are real time, at every speed, paused too; only a child under 14 dropped on it picks it up (Mushrooms).", E),
+        ("Brown mushroom 6 food; red (rare) mushroom 35 food, 1 in 10 of them. Every 2 real-life seconds "
+         "something appears 5%, 6% or 7% of the time at Exploration 1, 2, 3, and 50%, 35% or 20% of what appears "
+         "are mushrooms; it lies 75 real-life seconds (both real time, at every speed, paused too). Only a child "
+         "under 14 dropped on it picks it up (Mushrooms).", E),
         ("With the patcher (Super-Secret Golden Mushroom, off by default): 1 in 1,000,000 of them is a Golden "
          "Mushroom worth 100 food.", E),
         ("With the patcher (VV1 Mushroom/Collectible Duplication Cheat, off by default): several children can be "
@@ -412,19 +415,20 @@ ITEMS = (
     )),
     # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The pieces:
     # one found byte each at state 0x2E720 + piece, 12 a collection in the order 0, 12, 24, 36 (0x426120); the
-    # pickup's completion messages 0x4634B3..0x46360E (each shown once, flags +0x20F..+0x213); the room check
-    # 0x44B310 (+5 for each complete collection, 0x44B32E..0x44B375; 20 made 25 at 0x44B378).
+    # pickup's completion messages 0x4634B3..0x46360E (each shown once, flags +0x20F..+0x213: Butterfly 0x4634DB,
+    # Shell 0x463515, Beetle 0x46354F, Pebble 0x463589); the room check 0x44B310 (+5 for each complete collection,
+    # 0x44B32E..0x44B375; 20 made 25 at 0x44B378).
     *(Entry(ITEM, f"{name} Collection", (
         (f"pieces {first + 1} to {first + 12} of the 48: 12 pieces (4 common, 4 uncommon, 4 rare); {opens}; only a "
          "child under 14 dropped on one picks it up, and the collection is drawn at random among the open ones "
          "(Chances).", E),
         (f"Completing it raises the population limit by 5; the game says \"{name} Collection ... Your village "
-         f"population maximum is increased by 5.\" ({message}).", C),
-    )) for name, first, opens, message in (
-        ("Butterfly", 0, "it can appear from a new village on", "0x4634DB"),
-        ("Shell", 12, "it can appear from a new village on", "0x463515"),
-        ("Beetle", 24, "it appears only once The Overgrown Gong Piece is solved", "0x46354F"),
-        ("Pebble", 36, "it appears only once The Dam is built", "0x463589"))),
+         "population maximum is increased by 5.\"", C),
+    )) for name, first, opens in (
+        ("Butterfly", 0, "it can appear from a new village on"),
+        ("Shell", 12, "it can appear from a new village on"),
+        ("Beetle", 24, "it appears only once The Overgrown Gong Piece is solved"),
+        ("Pebble", 36, "it appears only once The Dam is built"))),
     Entry(ITEM, "All four collections", (
         # 0x44B378..0x44B37D: four complete collections count 25, not 20; 0x4635A7..0x46360E: the message, once.
         ("with all four complete the population limit is 25 higher (90 + 25 = 115); the fourth collection adds 10 "
@@ -434,11 +438,13 @@ ITEMS = (
          "10!\": the two messages say 15 for a rise of 10 (the code's figure is the one above).", C),
     )),
     Entry(ITEM, "Stews", (
-        ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes (real time, the same at every speed, paused too) "
-         "(Other). Every villager who eats from it in that time gets its effect, once, at the moment it eats.", E),
+        ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes "
+         "(real time, the same at every speed, paused too; Other). Every villager who eats from it in that time "
+         "gets its effect, once, at the moment it eats.", E),
         ("Adding food to the stew uses food; there are 18 stews, each told apart only by what it does.", C),
         # 0x461040, table 0x461510.
-        ("What each stew does, by the game's own stew number: " + " ".join(STEW_EFFECTS), C),
+        ("What each stew does, by the game's stew number (one line each below):", C),
+        *((f"Stew {effect}", C) for effect in STEW_EFFECTS),
         ("Which ingredients make which stew number was not traced.", U),
     )),
     Entry(ITEM, "A snack (the food store)", (
@@ -455,8 +461,8 @@ ITEMS = (
          "and never past 50.", C),
     )),
     Entry(ITEM, "The Gong of Wonder", (
-        ("Whole once its four pieces are found; rung by a villager dropped on it, then rests 24 real-life hours (real time, the same at every speed, paused or closed); "
-         "its results are under Island events.", E),
+        ("Whole once its four pieces are found; rung by a villager dropped on it, then rests 24 real-life hours "
+         "(real time, the same at every speed, paused or closed); its results are under Island events.", E),
         ("With the patcher (Gong of Wonder Coconuts Fix, on by default): a coconut result adds 30 to the coconut "
          "trees instead of setting them to 30.", C),
     )),
@@ -467,27 +473,29 @@ ITEMS = (
 )
 
 
-def _origins(row: str, price: int, where: str, effect: str) -> str:
-    return (f"With the patcher (Enable Origins Tech, Details, and Village-Wide Upgrades, on by default): \"{row}\" on "
-            f"the {where}, {price:,} tech points (0 with Story / Cheat Upgrades and its cost row unticked): {effect}")
+def _origins(row: str, price: int, where: str, effect: str, sub: bool = False) -> str:
+    """One Origins row; a sub-line (`sub`) leaves out the patch's name, which its entry's first line gives."""
+    words = (f"\"{row}\" on the {where}, {price:,} tech points (0 with Story / Cheat Upgrades and its cost row "
+             f"unticked): {effect}")
+    return words if sub else ("With the patcher (Enable Origins Tech, Details, and Village-Wide Upgrades, on by "
+                              "default): " + words)
 
 
 # Prices: native/vv2_origins_icons/vv2_origins_icons.c (vv2_tech_action_costs, vv2_detail_action_costs) and
 # data/vv2_origins_feature.json.
 ORIGINS = (
     Entry(PATCHER, "Origins: Time Warp", (
-        (_origins("Time Warp", 50_000, "Tech screen's Upgrades", "moves the village on 12 game years on Fast, 6 on "
-                  "Normal and 3 on Slow (12, 12 and 10 hours of real-life time), replayed by the game's own "
+        (_origins("Time Warp", 50_000, "Tech screen's Upgrades", "moves the village on 12 villager years on Fast, 6 "
+                  "on Normal and 3 on Slow (12, 12 and 10 hours of real-life time), replayed by the game's "
                   "catch-up; refused while paused."), gm.CLAMP),
     )),
     Entry(PATCHER, "Origins: Island Event", (
-        (_origins("Island Event", 30_000, "Tech screen's Upgrades", "queues one of the game's own island events, "
-                  "which comes a few real-life seconds after the Tech screen closes; while one is pending the row "
-                  "reads \"Why not?\" and cannot be bought again. The game's own island event timer is not "
-                  "changed."), C),
+        (_origins("Island Event", 30_000, "Tech screen's Upgrades", "queues one of the game's island events, which "
+                  "comes a few real-life seconds after the Tech screen closes; while one is pending the row reads "
+                  "\"Why not?\" and cannot be bought again. The game's island event timer is not changed."), C),
     )),
     Entry(PATCHER, "Origins: Barrel of Babies", (
-        (_origins("Barrel of Babies", 75_000, "Tech screen's Upgrades", "the game's own Barrel O' Babies with 3 "
+        (_origins("Barrel of Babies", 75_000, "Tech screen's Upgrades", "the game's Barrel O' Babies with 3 "
                   "toddlers, queued like the Island Event; refused, free, without room for them (an unburied body "
                   "still takes a place)."), C),
     )),
@@ -506,36 +514,38 @@ ORIGINS = (
                   "with a free like slot (a running dislike removed); every villager's five skills set to 100; "
                   "every villager's age set to 18 years."), U),
         (_origins("Complete All Collections / Reset All Collections", 1_000_000, "Tech screen's Upgrades", "marks "
-                  "all 48 pieces found, or none."), U),
+                  "all 48 pieces found, or none.", sub=True), U),
         (_origins("Equal Division of Labor (Includes Parenting) / (No Parenting)", 1_000_000, "Tech screen's "
                   "Upgrades", "splits the village evenly across the jobs, men and women balanced in each, each "
-                  "villager to the job of its most-progressed skill while that job has room."), C),
+                  "villager to the job of its most-progressed skill while that job has room.", sub=True), C),
         (_origins("Clear All Skill Preferences", 500_000, "Tech screen's Upgrades", "unticks every villager's job "
-                  "checkmark; no skill changes."), C),
+                  "checkmark; no skill changes.", sub=True), C),
         (_origins("Check Highest Skill (Includes Parenting) / (No Parenting)", 1_000_000, "Tech screen's Upgrades",
                   "ticks each villager's most-progressed skill (ties to the first of Farming, Building, Research, "
-                  "Healing, Parenting); a villager with no progress keeps its checkmark."), C),
+                  "Healing, Parenting); a villager with no progress keeps its checkmark.", sub=True), C),
         (_origins("Change Appearance for All", 450_000, "Tech screen's Upgrades", "sets the head, body or Heathen "
-                  "mask (Blue, Orange, Red, Purple or Chief) of every villager at once."), C),
+                  "mask (Blue, Orange, Red, Purple or Chief) of every villager at once.", sub=True), C),
     )),
     Entry(PATCHER, "Origins: Villager Details rows", (
         (_origins("Grant Youth", 50_000, "Villager Details screen", "makes the villager shown 35 years younger (700 "
                   "age units), never under 5 years."), U),
         (_origins("Grant Full Mastery", 100_000, "Villager Details screen", "sets the villager's five skills to "
-                  "100."), U),
-        (_origins("Grant Running", 40_000, "Villager Details screen", "adds running to the villager's likes."), U),
-        (_origins("Set Age to 18", 50_000, "Villager Details screen", "sets the villager's age to 18 years."), U),
+                  "100.", sub=True), U),
+        (_origins("Grant Running", 40_000, "Villager Details screen", "adds running to the villager's likes.",
+                  sub=True), U),
+        (_origins("Set Age to 18", 50_000, "Villager Details screen", "sets the villager's age to 18 years.",
+                  sub=True), U),
         (_origins("Change Appearance", 5_000, "Villager Details screen", "picks the villager's head, body or Heathen "
-                  "mask."), C),
+                  "mask.", sub=True), C),
     )),
     Entry(PATCHER, "Story / Cheat Upgrades", (
         ("With the patcher (Story / Cheat Upgrades, on by default; needs the Origins upgrades): every Origins "
          "upgrade costs 0 tech points only while Story / Cheat Upgrades cost Tech Points (ticked with it, and on by "
          "default) is unticked.", C),
         ("Pick Island Event (0, or 30,000 tech points): choose which island event comes next (59 with Restore "
-         "Missing Island Events, 56 without) and, where the event rolls for it, how it turns out; the game's own "
-         "event code runs it.", C),
-        ("Custom Island Event (0, or 30,000 tech points): an event you write, with the changes the game's own code "
+         "Missing Island Events, 56 without) and, where the event rolls for it, how it turns out; the game's event "
+         "code runs it.", C),
+        ("Custom Island Event (0, or 30,000 tech points): an event you write, with the changes the game's code "
          "supports, the fish and the field's protection from birds included.", C),
         ("Pick Gong of Wonder Outcome (0, or 30,000 tech points): choose the Gong's result; refused, free, while the "
          "Gong is not whole.", C),

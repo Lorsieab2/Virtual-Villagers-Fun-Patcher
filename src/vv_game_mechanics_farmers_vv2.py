@@ -156,10 +156,11 @@ def _cycle(key: str) -> str:
             f"{c[20]:g} at 20 (LIVE_CYCLE).")
 
 
+# "not saved": the step queue, record +0x4C, is outside the part of the record a save keeps (0x44B640: +0x524..
+# +0x7FF and the name).
 _CLOCK = ("Real-life time, the same at Fast, Normal and Slow (nothing in the walk or the waits reads the speed); "
-          "while paused the villagers stand still, and a wait whose moment passes during the pause ends on the first "
-          "frame after it. A trip in progress is not saved (the step queue, record +0x4C, is outside the part of the "
-          "record a save keeps, 0x44B640: +0x524..+0x7FF and the name), so closing the game loses it.")
+          "while paused the villagers stand still, and a wait that runs out during the pause ends as soon as the "
+          "game is unpaused. A trip in progress is not saved, so closing the game loses it.")
 
 TRIPS: tuple[Trip, ...] = (
     Trip(
@@ -174,12 +175,16 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: walk to the coconut tree and to one of its 3 picking spots, the Farming "
                     "check, climb and pick, walk back to the food bin, wait 3 s, then the coconuts are credited "
                     "(8, 4 or 2 on Fast, Normal or Slow). " + _CLOCK),
-        catch_up_words=("Each job turn that chooses Farming and coconuts runs one trip at once (0x43B4D0 -> 0x45FBF0 "
-                        "-> 0x456F70 -> 0x464680): the Farming check, then 4 food at any speed (0x463170)."),
+        # The job turn 0x43B4D0 -> 0x45FBF0 -> the coconuts 0x456F70, played at once by 0x464680; the reward
+        # 0x463170.
+        catch_up_words=("Each job turn that chooses Farming and coconuts runs one trip at once: the Farming check, "
+                        "then 4 food at any speed."),
         verified="code",
-        extra=("A villager who likes running (300) takes 63.37 s (60.95-65.97); an elder or a villager who dislikes "
-               "running (40) 271.42 s (261.95-294.99).",
-               "A villager who dislikes coconuts or heights refuses 75 in 100 (0x456F94).",
+        # Walking speeds: 300 liking running, 40 an elder or disliking it (100 otherwise); the dislike test
+        # 0x456F94.
+        extra=("A villager who likes running takes 63.37 s (60.95-65.97); an elder or a villager who dislikes "
+               "running (both walk slowly) 271.42 s (261.95-294.99).",
+               "A villager who dislikes coconuts or heights refuses 75 in 100.",
                _cycle("coconut trips")),
     ),
     Trip(
@@ -194,13 +199,14 @@ TRIPS: tuple[Trip, ...] = (
         live_words=("From the food bin: walk to one of the field's 4 rows, 4 stops along it with a 3 s wait at "
                     "each, the Farming check, walk back to the food bin (26 in 100 by a waypoint), then the crops "
                     "are credited (10, 7 or 4 on Fast, Normal or Slow). " + _CLOCK),
+        # The reward 0x46322E; the empty-field job 0x45D280; the dislike test 0x459400.
         catch_up_words=("Each job turn that chooses Farming and the field runs one harvest at once: the Farming "
-                        "check, then 7 food at any speed taken from the field (0x46322E). An empty field: the "
-                        "empty-field job instead (0x45D280), no food."),
+                        "check, then 7 food at any speed taken from the field. An empty field: the empty-field job "
+                        "instead, no food."),
         verified="code",
         extra=("A villager who likes running takes 24.75 s (21.88-29.90); an elder or a villager who dislikes "
                "running 76.85 s (60.88-117.91).",
-               "A villager who dislikes turnips or vegetables refuses 75 in 100 (0x459400).",
+               "A villager who dislikes turnips or vegetables refuses 75 in 100.",
                _cycle("crop trips")),
     ),
     Trip(
@@ -214,18 +220,18 @@ TRIPS: tuple[Trip, ...] = (
         success_offset=SUCCESS_OFFSET,
         live_words=("From the food bin: three walks to spots along the shore with a 1 s wait at each, the Farming "
                     "check, walk up the beach and back to the food bin, wait 1 s, then the fish are credited (11, 8 "
-                    "or 5 on Fast, Normal or Slow). A villager who dislikes fish always refuses (0x4507AB). "
-                    + _CLOCK),
+                    "or 5 on Fast, Normal or Slow). A villager who dislikes fish always refuses. " + _CLOCK),
+        # The fish dislike test 0x4507AB; the rewards 0x4632DB (8 food) and 0x463362 (the big catch); fished out
+        # 0x4507F9.
         catch_up_words=("Each job turn that chooses Farming and fishing runs one catch at once: the Farming check, "
-                        "then 8 food at any speed (0x4632DB); with Farming 88 or more 10 in 100 are the big catch, "
-                        "55 food (0x463362)."),
+                        "then 8 food at any speed; with Farming 88 or more 10 in 100 are the big catch, 55 food."),
         verified="code",
         extra=("Big catch (Farming 88 or more, 10 in 100, after the Farming check): 55 food at any speed, live and "
                "catching up; 122.06 s (109.89-133.91).",
                "A villager who likes running takes 45.70 s (43.89-52.90); an elder or a villager who dislikes "
                "running 295.90 s (263.90-321.88).",
                "Fished out (no fish and Sustainable Fishing not solved): the trip walks to the shore and brings "
-               "nothing (0x4507F9).",
+               "nothing.",
                _cycle("fishing trips")),
     ),
 )

@@ -758,7 +758,7 @@ class EveryGame(unittest.TestCase):
 
         text = render(-1_162_256, 1, 3)
         self.assertIn("Fish: no limit, as Sustainable Fishing is solved; a trip brings 8 on Normal speed", text)
-        self.assertIn("The game's own fish count is -1,162,256", text)
+        self.assertIn("The game's fish count is -1,162,256", text)
         self.assertNotIn("-1,162,256 (they never grow back)", text)
         self.assertIn("fishing adds without limit", text)
         self.assertRegex(text, r"Fish alone: while catching up, .*It never runs out")   # the Farmers needed line for the sea

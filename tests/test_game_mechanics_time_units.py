@@ -188,7 +188,7 @@ class SettledClocks(unittest.TestCase):
         self.assertIn("a glow for 4 real-life minutes (240 seconds; real time, the same at every speed", self.text["vv4-huttest-1"])
         self.assertIn("1 minute 30 seconds (real time, the same at every speed: 90 seconds on the computer's clock",
                       self.text["general 5"])
-        self.assertIn("for 30 real-life seconds (real time: 30 seconds on the clock 0x403200)", self.text["general 2"])
+        self.assertIn("for 30 real-life seconds (real time); no amount", self.text["general 2"])
 
     def test_unproven_clocks_say_so(self) -> None:
         # Each in a line of its own, so the label stands beside it (a confirmed line never carries the word).
