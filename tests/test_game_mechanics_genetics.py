@@ -272,10 +272,8 @@ class PatchLines(unittest.TestCase):
             return [f.text for f in genetics.facts(village)]
 
     def test_the_fix_line_follows_the_normal_rule_only_with_the_row(self) -> None:
-        wanted = {2: "a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29",
-                  4: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too",
-                  5: "a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too"}
-        normal = {2: "a man any of 0 to 28", 4: "body 29 is never given at birth", 5: "body 29 is never given at birth"}
+        wanted = {2: "a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29"}
+        normal = {2: "a man any of 0 to 28"}
         for game, line in wanted.items():
             with self.subTest(game=game):
                 fix = f"vv{game}_fix_vanilla_bugs"
@@ -285,6 +283,29 @@ class PatchLines(unittest.TestCase):
                 self.assertEqual(len(at), 1)
                 self.assertTrue(lines[at[0]].startswith("With the patcher's \"Fix Vanilla Bugs\" (in this game): "))
                 self.assertLess(next(i for i, t in enumerate(lines) if normal[game] in t), at[0])
+
+    def test_the_body_line_itself_gives_body_29_with_the_fix(self) -> None:
+        """The Tree of Life and New Believers (the owner, 2026-11-10): with Fix Vanilla Bugs the one body line says
+        0 to 29, body 29 included, and no second line contradicts it; without the fix (or not known) the normal
+        game's 0 to 28."""
+        for game in (4, 5):
+            with self.subTest(game=game):
+                fix = f"vv{game}_fix_vanilla_bugs"
+                lines = self.text(game, frozenset({fix}))
+                body = [t for t in lines if t.startswith("The body is never inherited")]
+                self.assertEqual(len(body), 1)
+                self.assertIn("any body 0 to 29, 1 chance in 30 each, body 29 included (with the patcher's "
+                              "\"Fix Vanilla Bugs\"; the normal game stops at 28 and never gives body 29)", body[0])
+                for who in ("every newborn", "twin and triplet", "Barrel of Babies baby", "arrival",
+                            "new village's villager"):
+                    self.assertIn(who, body[0])
+                self.assertFalse(any("body 29 is never given at birth" in t for t in lines))
+                self.assertFalse(any(t.startswith("With the patcher's \"Fix Vanilla Bugs\"") for t in lines))
+                for patches in (frozenset(), None):
+                    stock = self.text(game, patches)
+                    self.assertTrue(any("any body 0 to 28, 1 chance in 29 each; body 29 is never given at birth"
+                                        in t for t in stock))
+                    self.assertFalse(any("body 29 included" in t for t in stock))
 
     def test_a_new_home_and_the_secret_city_have_no_fix_line(self) -> None:
         for game in (1, 3):

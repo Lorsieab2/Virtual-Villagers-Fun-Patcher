@@ -66,15 +66,15 @@ APPEARANCE_ROLLS = {
     # VV2: "VVFP Appearance Rolls.dll" at 0x4395ED and 0x43968F (the green vial's man's roll).
     2: ("a man who drinks \"A Mysterious Vial\" (the green liquid) gets any head 0 to 29, 1 chance in 30 each, "
         "as a woman does, so head 29 can come from the drink too."),
-    # VV4: "VVFP Appearance Rolls.dll" at 0x45F2AE (the creator's body roll).
-    4: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
-        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
-        "the same way."),
-    # VV5: "VVFP Appearance Rolls.dll" at 0x4685B3 (the creator's body roll).
-    5: ("a new villager's body is any of 0 to 29, 1 chance in 30 each, so body 29 is given too -- at a birth, to "
-        "twins and triplets (copies of the first baby) and to every arrival and new village's villager, all made "
-        "the same way."),
 }
+# The Tree of Life and New Believers: "VVFP Appearance Rolls.dll" turns the creator's body roll rand(29) into rand(30)
+# at run time (VV4 0x45F2AE, VV5 0x4685B3).  That creator makes every newborn, twin and triplet, Barrel of Babies
+# baby, island-event or canoe arrival and new village's villager, so with the fix the body line itself gives the
+# answer (the owner, 2026-11-10) instead of a second line contradicting the normal game's.
+FIXED_BODY = (4, 5)
+FIXED_BODY_WORDS = ("The body is never inherited: any body 0 to 29, 1 chance in 30 each, body 29 included (with the "
+                    "patcher's \"{fix}\"; the normal game stops at 28 and never gives body 29) -- for every newborn, "
+                    "twin and triplet, Barrel of Babies baby, arrival and new village's villager.")
 
 # The later games' creator, its head roll and its body roll, the birth's call, and the twin copy: the code behind
 # _later()'s head, body and twins lines (kept here, out of the visible text; the body's count is used).
@@ -196,7 +196,8 @@ def _vv1() -> list[gm.Fact]:
     ]
 
 
-def _later(game: int) -> list[gm.Fact]:
+def _later(game: int, fixed_body: bool = False) -> list[gm.Fact]:
+    """`fixed_body`: Fix Vanilla Bugs is in this game and gives body 29 (FIXED_BODY)."""
     f = gm.Fact
     body_n = _LATER[game]["body"][1]
     out = [
@@ -214,9 +215,10 @@ def _later(game: int) -> list[gm.Fact]:
         f(GENETICS, ("A father or mother with head 0 counts as head 0 in that sum; only when both parents' heads "
                      "and bodies are all 0 is the head picked from 0 to 29 every time."), gm.RUNNING),
         # The body roll and the twin copy: _LATER[game]["body"][0] and _LATER[game]["twin"].
-        f(GENETICS, ("The body is never inherited: any body 0 to "
-                     + ("29, 1 chance in 30 each." if body_n == 30 else
-                        "28, 1 chance in 29 each; body 29 is never given at birth.")), gm.RUNNING),
+        f(GENETICS, FIXED_BODY_WORDS.format(fix=gm.feature_name(FIX.format(game))) if fixed_body else
+          ("The body is never inherited: any body 0 to "
+           + ("29, 1 chance in 30 each." if body_n == 30 else
+              "28, 1 chance in 29 each; body 29 is never given at birth.")), gm.RUNNING),
         f(GENETICS, ("Twins and triplets: the second and third babies copy the first baby's head and body, so they "
                      "always look alike."), gm.RUNNING),
     ]
@@ -338,5 +340,6 @@ def _villagers(village: gm.Village) -> list[gm.Fact]:
 
 def facts(village: gm.Village) -> list[gm.Fact]:
     """The Genetics group for one save (or, with village.general, the game's general rules)."""
-    rules = _vv1() if village.game == 1 else _later(village.game)
+    fixed = village.game in FIXED_BODY and village.has(FIX.format(village.game)) is True
+    rules = _vv1() if village.game == 1 else _later(village.game, fixed)
     return rules + _patch_lines(village) + _villagers(village)
