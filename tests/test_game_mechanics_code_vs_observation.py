@@ -88,7 +88,7 @@ class BothSidesAreWritten(unittest.TestCase):
     def test_vv1_running_keeps_the_untraced_step_unconfirmed(self) -> None:
         # Step 1 of the step dispatcher (0x43CBD0) sets the running speed under 14 with no dislike read; what
         # queues it is not traced, so the line stays UNCONFIRMED.
-        self._one(1, "Hidden villager stats", "Another movement step (0x43CBD0) gives every villager under 14", False)
+        self._one(1, "Hidden villager stats", "Another movement step gives every villager under 14", False)
 
     def test_vv3_autosave_and_the_live_run_are_both_written(self) -> None:
         # The code: the per-frame update 0x427720 runs the save check 0x427DD0 at 0x427B40, every 600 seconds of

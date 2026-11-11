@@ -61,7 +61,7 @@ class GoldenChild(unittest.TestCase):
     def test_every_time_says_real_or_game_time(self) -> None:
         rules = "\n".join(line for line, _ok in vv1.GOLDEN_CHILD_LINES)
         self.assertIn("36 real hours after his birth", rules)
-        self.assertIn("36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 game years", rules)
+        self.assertIn("36 hours on Slow, Normal and Fast alike (10.8, 18 or 36 villager years", rules)
         self.assertIn("12 hours on Fast or Normal and 10 hours on Slow", rules)
 
     def test_only_the_unproven_lines_are_unconfirmed(self) -> None:
