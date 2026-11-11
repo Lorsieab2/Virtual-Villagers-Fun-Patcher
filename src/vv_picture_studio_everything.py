@@ -20,6 +20,7 @@ from tkinter import filedialog, ttk
 
 import vv_picture_image as pi
 import vv_pictures_assets as pa
+from vv_scrollbars import horizontal_bar
 
 TAB_TITLE = "Everything"
 ALL_CATEGORIES = "Every category"
@@ -63,6 +64,7 @@ class EverythingTab:
         self.tree.configure(yscrollcommand=scroll.set)
         scroll.pack(side="right", fill="y")
         self.tree.pack(side="left", fill="both", expand=True)
+        horizontal_bar(self.tree)
         self.tree.bind("<<TreeviewSelect>>", lambda _e: self._select())
         right = ttk.Frame(self.frame)
         right.pack(side="left", fill="y")

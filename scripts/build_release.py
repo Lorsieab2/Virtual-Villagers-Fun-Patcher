@@ -481,6 +481,8 @@ FILES = [
     "src/vv_game_mechanics_window.py",
     # The tool windows' fonts (the VF1 patcher's), shared by every Tools tab window.
     "src/vv_tool_fonts.py",
+    # The horizontal scroll bars every window's scrolling areas share.
+    "src/vv_scrollbars.py",
     "src/vv_game_mechanics.py",
     "src/vv_game_mechanics_vv1.py",
     "src/vv_game_mechanics_vv2.py",

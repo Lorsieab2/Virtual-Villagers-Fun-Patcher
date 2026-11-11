@@ -51,6 +51,11 @@ import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
+from vv_scrollbars import fill_or_keep_width, horizontal_bar, page_width, scroll_sideways, scrolled_listbox, shifted
+
+# The main window's usual width. Its page needs no more than this (rows wrap or flow), so at it and
+# wider there is no sideways bar; a window made narrower scrolls sideways (the owner, 2026-11-11).
+DEFAULT_WINDOW_WIDTH = 940
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -1258,7 +1263,7 @@ class App(tk.Tk):
         if sys.platform == "win32":             # dialogs hold the patcher the Windows way (_hold)
             tk.Misc.grab_set, tk.Misc.grab_release = _hold, _release
         self.title("Virtual Villagers Fun Patcher")
-        self.geometry("940x760")
+        self.geometry(f"{DEFAULT_WINDOW_WIDTH}x760")
         self.minsize(820, 520)
         self.island_source = tk.PhotoImage(file=ROOT / "assets" / "Island.png")
         self.island_inline = self.island_source.subsample(
@@ -1414,9 +1419,13 @@ class App(tk.Tk):
         )
         self.content_canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
+        self.content_scrollbar = scrollbar
         self.content_canvas.pack(side="left", fill="both", expand=True)
+        # Content wider than the window keeps its width; this bar (shown only then) reaches the rest.
+        self.content_xbar = horizontal_bar(self.content_canvas)
 
         outer = ttk.Frame(self.content_canvas, padding=18)
+        self.content_frame = outer
         self.content_window = self.content_canvas.create_window(
             (0, 0),
             window=outer,
@@ -1509,7 +1518,7 @@ class App(tk.Tk):
             self._help_button(
                 mode_choice, vv_how_to_use.mode_key(mode.id), mode.name
             ).pack(side="left", padx=(4, 0))
-            ttk.Label(mode_box, text=mode.description, wraplength=650).grid(
+            ttk.Label(mode_box, text=mode.description, wraplength=620).grid(
                 row=row, column=1, sticky="w", pady=3
             )
         self.mode_detail_var = tk.StringVar()
@@ -1550,52 +1559,68 @@ class App(tk.Tk):
         self._help_button(fun_actions, "deselect_all").pack(side="left", padx=(2, 0))
         # The owner: "put a button to easily tick and untick certain patches in all 5 games.
         # like in a separate settings menu."  On a row of its own: beside the four buttons above,
-        # the row is wider than the window.
+        # the row is wider than the window.  Its five settings (each with its "?") flow onto as many
+        # lines as the window needs, like words in a paragraph: on one line they were about 1,270
+        # pixels wide, so at the usual 940-pixel window the sliders were cut off (the owner, 2026-11-11).
         fun_settings = ttk.Frame(mode_box)
-        fun_settings.grid(row=fun_row + 2, column=1, sticky="w", pady=(0, 5))
+        fun_settings.grid(row=fun_row + 2, column=1, sticky="ew", pady=(0, 5))
+        selection_group = ttk.Frame(fun_settings)
+        selection_group.pack(side="left", padx=(0, 16))
         ttk.Button(
-            fun_settings,
+            selection_group,
             text="Patch Selection Settings...",
             command=self._open_patch_selection_settings,
         ).pack(side="left")
-        self._help_button(fun_settings, "patch_selection_settings").pack(side="left", padx=(2, 0))
+        self._help_button(selection_group, "patch_selection_settings").pack(side="left", padx=(2, 0))
         # Use Unicode Font (overrides in-game fonts): the typeface it draws with (the owner, 2026-11-01:
         # "a font picker defaulting to Segoe UI").  Written beside the companion at the next patch.
-        ttk.Label(fun_settings, text="Unicode Font:").pack(side="left", padx=(16, 4))
+        font_group = ttk.Frame(fun_settings)
+        font_group.pack(side="left", padx=(0, 16))
+        ttk.Label(font_group, text="Unicode Font:").pack(side="left", padx=(0, 4))
         self.unicode_font_var = tk.StringVar(value=UNICODE_FONT_DEFAULT_FACE)
         try:
             families = sorted({f for f in tkfont.families(self) if f and not f.startswith("@")}, key=str.casefold)
         except tk.TclError:
             families = [UNICODE_FONT_DEFAULT_FACE]
-        unicode_font_box = ttk.Combobox(fun_settings, textvariable=self.unicode_font_var, values=families, width=28)
+        unicode_font_box = ttk.Combobox(font_group, textvariable=self.unicode_font_var, values=families, width=28)
         unicode_font_box.pack(side="left")
         unicode_font_box.bind("<<ComboboxSelected>>", lambda _e: self._unicode_font_changed())
         unicode_font_box.bind("<FocusOut>", lambda _e: self._unicode_font_changed())
-        self._help_button(fun_settings, "unicode_font").pack(side="left", padx=(2, 0))
+        self._help_button(font_group, "unicode_font").pack(side="left", padx=(2, 0))
         # 2-10x Tech Cost: the multiplier, a slider of whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="2-10x Tech Cost:").pack(side="left", padx=(16, 4))
+        tech_cost_group = ttk.Frame(fun_settings)
+        tech_cost_group.pack(side="left", padx=(0, 16))
+        ttk.Label(tech_cost_group, text="2-10x Tech Cost:").pack(side="left", padx=(0, 4))
         self.tech_cost_scale = tk.Scale(
-            fun_settings, variable=self.tech_cost_var, orient="horizontal",
+            tech_cost_group, variable=self.tech_cost_var, orient="horizontal",
             from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.tech_cost_scale.pack(side="left")
-        self._help_button(fun_settings, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(tech_cost_group, "tech_cost_multiplier").pack(side="left", padx=(2, 0))
         # Hungrier Villagers: the meal multiplier, whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="Hungrier Villagers:").pack(side="left", padx=(16, 4))
+        meal_group = ttk.Frame(fun_settings)
+        meal_group.pack(side="left", padx=(0, 16))
+        ttk.Label(meal_group, text="Hungrier Villagers:").pack(side="left", padx=(0, 4))
         self.meal_scale = tk.Scale(
-            fun_settings, variable=self.meal_var, orient="horizontal",
+            meal_group, variable=self.meal_var, orient="horizontal",
             from_=MEAL_MULTIPLIER_RANGE[0], to=MEAL_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.meal_scale.pack(side="left")
-        self._help_button(fun_settings, "meal_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(meal_group, "meal_multiplier").pack(side="left", padx=(2, 0))
         # 2-10x Sickness: whole numbers 2 to 10 (only used with that row ticked).
-        ttk.Label(fun_settings, text="2-10x Sickness:").pack(side="left", padx=(16, 4))
+        sickness_group = ttk.Frame(fun_settings)
+        sickness_group.pack(side="left")
+        ttk.Label(sickness_group, text="2-10x Sickness:").pack(side="left", padx=(0, 4))
         self.sickness_scale = tk.Scale(
-            fun_settings, variable=self.sickness_var, orient="horizontal",
+            sickness_group, variable=self.sickness_var, orient="horizontal",
             from_=SICKNESS_MULTIPLIER_RANGE[0], to=SICKNESS_MULTIPLIER_RANGE[-1], resolution=1,
             length=120, showvalue=True, command=lambda _value: self._save_settings())
         self.sickness_scale.pack(side="left")
-        self._help_button(fun_settings, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        self._help_button(sickness_group, "sickness_multiplier").pack(side="left", padx=(2, 0))
+        # Each setting stays whole (its label, box or slider and "?" together) and goes to the next line
+        # when it no longer fits; the row asks only for its widest setting, so it never widens the page.
+        vv_genealogy_window.flow_row(fun_settings, natural=False)
+        self.fun_settings_row = fun_settings
         # The owner's rule: under every description, in bold, which other
         # patches must be on for this one (and which need this one).
         requirement_font = tkfont.nametofont("TkDefaultFont").copy()
@@ -1686,7 +1711,7 @@ class App(tk.Tk):
         ttk.Label(
             status_box,
             textvariable=self.status_var,
-            wraplength=870,
+            wraplength=850,
             justify="left",
         ).pack(anchor="w")
         self.open_button = ttk.Button(
@@ -1755,10 +1780,23 @@ class App(tk.Tk):
             self.status_var.set(f"Could not open update link: {exc}")
 
     def _content_resized(self, _event: tk.Event) -> None:
+        self._fit_content_width(self.content_canvas.winfo_width())
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
 
     def _viewport_resized(self, event: tk.Event) -> None:
-        self.content_canvas.itemconfigure(self.content_window, width=event.width)
+        self._fit_content_width(event.width)
+        self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
+
+    def _fit_content_width(self, width: int) -> None:
+        """The page fills a window at least as wide as it needs -- the usual 940-pixel window and
+        wider, as before. In a narrower window it keeps the width it needs (its requested width:
+        every row that does not wrap, at full width) and the horizontal bar reaches the rest --
+        before, it was squeezed to the window and controls past the edge could not be reached (the
+        owner, 2026-11-11). Its rows that could be wider than the usual window flow onto more lines
+        (the settings row) or wrap within it, so the page needs no more than the usual window."""
+        wanted = page_width(width, self.content_frame.winfo_reqwidth())
+        if str(self.content_canvas.itemcget(self.content_window, "width")) != str(wanted):
+            self.content_canvas.itemconfigure(self.content_window, width=wanted)
 
     def _scroll_content(self, event: tk.Event) -> str | None:
         """The wheel scrolls only the window under the pointer -- the topmost there -- never one
@@ -1772,10 +1810,12 @@ class App(tk.Tk):
             return "break"
         top = under.winfo_toplevel()
         direction = -1 if event.delta > 0 else 1
+        sideways = shifted(event)                       # Shift + wheel scrolls sideways
         # A patch list scrolls first, in the main window too: its widgets belong
         # to this window, so the dialog branch below never sees them.  At the end
-        # of the list the wheel falls through and the page scrolls.
-        listing = under
+        # of the list the wheel falls through and the page scrolls.  It only
+        # scrolls up and down, so Shift + wheel goes straight to the page.
+        listing = None if sideways else under
         while listing is not None and not isinstance(listing, VirtualList):
             listing = listing.master
         if listing is not None:
@@ -1795,7 +1835,10 @@ class App(tk.Tk):
             while widget is not None and widget is not top:
                 if isinstance(widget, (tk.Listbox, tk.Text, ttk.Treeview)):
                     return "break"              # scrolls itself (its own class binding)
-                if isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
+                if sideways and isinstance(widget, tk.Canvas) and str(widget.cget("xscrollcommand")):
+                    scroll_sideways(widget, event)
+                    return "break"
+                if not sideways and isinstance(widget, tk.Canvas) and str(widget.cget("yscrollcommand")):
                     widget.yview_scroll(-1 if event.delta > 0 else 1, "units")
                     return "break"
                 widget = widget.master
@@ -1806,6 +1849,11 @@ class App(tk.Tk):
         except tk.TclError:
             pass
         bounds = self.content_canvas.bbox("all")
+        if sideways:
+            if not bounds or bounds[2] - bounds[0] <= self.content_canvas.winfo_width():
+                return None
+            scroll_sideways(self.content_canvas, event)
+            return "break"
         if not bounds or bounds[3] <= self.content_canvas.winfo_height():
             return None
         self.content_canvas.yview_scroll(direction, "units")
@@ -3101,6 +3149,7 @@ class App(tk.Tk):
         confirmation_canvas.configure(yscrollcommand=confirmation_scrollbar.set)
         confirmation_scrollbar.pack(side="right", fill="y")
         confirmation_canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(confirmation_canvas)
 
         frame = ttk.Frame(confirmation_canvas, padding=16)
         confirmation_window = confirmation_canvas.create_window(
@@ -3108,21 +3157,12 @@ class App(tk.Tk):
             window=frame,
             anchor="nw",
         )
-        frame.bind(
-            "<Configure>",
-            lambda _event: confirmation_canvas.configure(
-                scrollregion=confirmation_canvas.bbox("all")
-            ),
-        )
-        confirmation_canvas.bind(
-            "<Configure>",
-            lambda event: confirmation_canvas.itemconfigure(
-                confirmation_window,
-                width=event.width,
-            ),
-        )
+        fill_or_keep_width(confirmation_canvas, confirmation_window, frame)
 
         def scroll_confirmation(event: tk.Event) -> str:
+            if shifted(event):
+                scroll_sideways(confirmation_canvas, event)
+                return "break"
             direction = -1 if event.delta > 0 else 1
             confirmation_canvas.yview_scroll(direction, "units")
             return "break"
@@ -3657,8 +3697,9 @@ class App(tk.Tk):
             wraplength=700,
             justify="left",
         ).pack(anchor="w", pady=(4, 8))
-        listbox = tk.Listbox(frame, width=110, height=12, exportselection=False)
-        listbox.pack(fill="both", expand=True)
+        # The backups list scrolls both ways (the owner, 2026-11-11: scroll bars everywhere).
+        backups_box, listbox = scrolled_listbox(frame, width=110, height=12, exportselection=False)
+        backups_box.pack(fill="both", expand=True)
         details = ttk.Label(frame, text="", wraplength=700, justify="left")
         details.pack(anchor="w", pady=(6, 0))
         scope = tk.StringVar(value="whole")
@@ -3938,8 +3979,8 @@ class App(tk.Tk):
         folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
         folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
         ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
-        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
-        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        slot_box, slot_list = scrolled_listbox(frame, height=5, width=60, exportselection=False)
+        slot_box.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
         ttk.Label(frame, text="New name:").grid(row=4, column=0, sticky="w", pady=(8, 0))
         name_entry = ttk.Entry(frame, textvariable=name_var, width=36)
         name_entry.grid(row=4, column=1, sticky="w", pady=(8, 0))
@@ -4186,8 +4227,8 @@ class App(tk.Tk):
         folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
         folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
         ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
-        slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
-        slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+        slot_box, slot_list = scrolled_listbox(frame, height=5, width=60, exportselection=False)
+        slot_box.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
         ttk.Label(
             frame, textvariable=problem_var, foreground="#a01010",
             wraplength=560, justify="left",
@@ -5933,6 +5974,7 @@ class App(tk.Tk):
         resort()
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         buttons = ttk.Frame(frame, padding=12)
         buttons.pack(side="bottom", anchor="w")
 
@@ -6334,6 +6376,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(canvas)
         values: dict = {}
         labels: list = []                       # (the row's label, the villager's own_key)
         row_widgets: list[list] = []            # each villager's row of widgets, moved together by Sort by
@@ -6473,6 +6516,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         chosen: dict[str, tk.StringVar] = {}
         for row, (kind, question) in enumerate(questions):
             ttk.Label(inner, text=f"{kind.label}: {question.text}", wraplength=640,
@@ -6641,6 +6685,7 @@ class App(tk.Tk):
         canvas.configure(yscrollcommand=bar.set)
         canvas.pack(side="left", fill="both", expand=True)
         bar.pack(side="right", fill="y")
+        horizontal_bar(canvas)
         dont = vv_graves.DONT_KNOW
         ttk.Label(inner, wraplength=720, justify="left", text=(
             "Each grave in the save is compared with its Death record, the patcher's grave files, the "

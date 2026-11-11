@@ -33,6 +33,7 @@ from tkinter import filedialog, font as tkfont, messagebox, ttk
 import vv_family_tree as ft
 import vv_gdiplus
 import vv_tool_fonts
+from vv_scrollbars import fill_or_keep_width, horizontal_bar, scroll_sideways, shifted
 
 SELECT = "#1f6fd1"
 CLIP_MARK = "VVFP Family Tree Maker sticker:"
@@ -124,7 +125,14 @@ def clipboard_files_and_picture() -> tuple[list[Path], bytes | None]:
 
 
 class ScrollingTab(ttk.Frame):
-    """A notebook page that scrolls when its controls are taller than the window."""
+    """A notebook page that scrolls when its controls are taller than the window, and sideways when
+    its panel is made narrower than the page needs."""
+
+    # The page's width at the Family Tree Maker's usual panel (about 600 pixels; its canvas is about
+    # 558 wide): at that width and wider the page fills the panel and its labels and rows wrap to it,
+    # as before. A narrower panel keeps the page at this width (or less, if it needs less), with a
+    # horizontal bar to reach the rest.
+    LEAST = 540
 
     def __init__(self, notebook: ttk.Notebook, text: str) -> None:
         outer = ttk.Frame(notebook)
@@ -134,17 +142,24 @@ class ScrollingTab(ttk.Frame):
         canvas.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(canvas)
         super().__init__(canvas, padding=8)
         window = canvas.create_window(0, 0, window=self, anchor="nw")
-        self.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.bind("<Configure>", lambda e: canvas.itemconfigure(window, width=e.width))
+        fill_or_keep_width(canvas, window, self, least=self.LEAST)
         # The wheel scrolls this page while the pointer is over it; leaving gives back whatever the
-        # wheel did before (the patcher's window scrolls with it -- Codex, #555).
+        # wheel did before (the patcher's window scrolls with it -- Codex, #555). Shift + wheel
+        # scrolls it sideways.
         before: dict[str, str] = {}
+
+        def wheel(event) -> None:
+            if shifted(event):
+                scroll_sideways(canvas, event)
+            else:
+                canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
         def enter(_event) -> None:
             before["wheel"] = canvas.bind_all("<MouseWheel>")
-            canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(-1 * (e.delta // 120), "units"))
+            canvas.bind_all("<MouseWheel>", wheel)
 
         def leave(_event) -> None:
             canvas.unbind_all("<MouseWheel>")
@@ -157,31 +172,39 @@ class ScrollingTab(ttk.Frame):
 
 def scrollable_frame(window: tk.Toplevel, padding: int = 0) -> ttk.Frame:
     """The frame a window's controls go in. The content scrolls with a vertical scroll bar once it is
-    taller than the screen allows; the wheel scrolls it while the pointer is over the window. The
-    window's own size is the content's requested size, as before, capped at the screen."""
+    taller than the screen allows, and sideways with a horizontal one (shown only then) once it is
+    wider than the window; the wheel scrolls it while the pointer is over the window, Shift + wheel
+    sideways. The window's own size is the content's requested size, as before, capped at the screen."""
     canvas = tk.Canvas(window, highlightthickness=0, borderwidth=0,
                        background=ttk.Style(window).lookup("TFrame", "background"))
     bar = ttk.Scrollbar(window, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=bar.set)
     bar.pack(side="right", fill="y")
     canvas.pack(side="left", fill="both", expand=True)
+    horizontal_bar(canvas)
     frame = ttk.Frame(canvas, padding=padding)
     item = canvas.create_window((0, 0), window=frame, anchor="nw")
 
     def fit(_event=None) -> None:
-        canvas.configure(scrollregion=canvas.bbox("all"))
         height = min(frame.winfo_reqheight(), window.winfo_screenheight() - 160)
-        canvas.configure(width=frame.winfo_reqwidth(), height=height)
+        width = min(frame.winfo_reqwidth(), window.winfo_screenwidth() - 80)
+        canvas.configure(width=width, height=height)
 
     def wheel(event) -> str:
         # Text, Listbox and Canvas scroll themselves (their class binding has run already); the
         # window's own wheel then stops here, so the patcher's page behind it does not scroll too.
+        # Shift + wheel scrolls the window sideways.
         if not isinstance(getattr(event, "widget", None), (tk.Text, tk.Listbox, tk.Canvas)):
-            canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
+            if shifted(event):
+                scroll_sideways(canvas, event)
+            else:
+                canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
         return "break"
 
-    frame.bind("<Configure>", fit)
-    canvas.bind("<Configure>", lambda e: canvas.itemconfigure(item, width=e.width))
+    # The content fills a window wider than it; in a narrower one it keeps its own width and the
+    # horizontal bar reaches the rest.
+    fill_or_keep_width(canvas, item, frame)
+    frame.bind("<Configure>", fit, add="+")
     window.bind("<MouseWheel>", wheel)
     return frame
 
@@ -208,6 +231,7 @@ def choose_font(parent, fonts: list[str], current: str) -> str | None:
     text.configure(yscrollcommand=bar.set)
     bar.pack(side="right", fill="y")
     text.pack(side="left", fill="both", expand=True)
+    horizontal_bar(text)
     text.tag_configure("pick", background="#cfe3ff")
     shown: list[str] = []
     result = {"font": current}

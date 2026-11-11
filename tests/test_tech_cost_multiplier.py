@@ -814,7 +814,7 @@ class SliderTests(unittest.TestCase):
         self.assertIn("from_=TECH_COST_MULTIPLIER_RANGE[0], to=TECH_COST_MULTIPLIER_RANGE[-1], resolution=1", body)
         self.assertEqual((patcher.TECH_COST_MULTIPLIER_RANGE[0], patcher.TECH_COST_MULTIPLIER_RANGE[-1]), (2, 10))
         self.assertIn("self.tech_cost_var = tk.IntVar(value=TECH_COST_MULTIPLIER_DEFAULT)", source)
-        self.assertIn('self._help_button(fun_settings, "tech_cost_multiplier")', source)
+        self.assertIn('self._help_button(tech_cost_group, "tech_cost_multiplier")', source)
 
     def test_it_is_saved_and_restored(self):
         source = self.gui_source()

@@ -44,6 +44,7 @@ import vv_save_backup
 import vv_tribe_rename
 import vv_villager_info
 from vv_tree_editor_tools import BOLD_ROLES, CanvasTools, ScrollingTab, picture_scene, panel_colour, scrollable_frame
+from vv_scrollbars import horizontal_bar, scrolled_listbox
 
 SELECT = "#1f6fd1"
 OUTSIDE = "#9a9a9a"                     # the canvas around the page
@@ -524,8 +525,8 @@ def pick_village(app, build, title: str, intro: str, go_text: str, on_go, ask_ga
     folder_box = ttk.Combobox(frame, textvariable=folder_var, state="readonly", width=48)
     folder_box.grid(row=2, column=1, columnspan=2, sticky="we", pady=2)
     ttk.Label(frame, text="Tribe:").grid(row=3, column=0, sticky="nw", pady=(4, 0))
-    slot_list = tk.Listbox(frame, height=5, width=60, exportselection=False)
-    slot_list.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
+    slot_box, slot_list = scrolled_listbox(frame, height=5, width=60, exportselection=False)
+    slot_box.grid(row=3, column=1, columnspan=2, sticky="we", pady=(4, 2))
     row = 4
     if ask_game_folder:
         ttk.Label(frame, text="Game folder (for the faces):").grid(row=row, column=0, sticky="w")
@@ -1538,8 +1539,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         marks.bind("<<ComboboxSelected>>", custom)
         ttk.Button(row, text="Add", command=self._add_preset_mark).pack(side="left", padx=(6, 0))
         ttk.Label(tab, text="Your marks (in Key order):").pack(anchor="w", pady=(10, 0))
-        self.marks_list = tk.Listbox(tab, height=8, exportselection=False)
-        self.marks_list.pack(fill="both", expand=True, pady=(2, 4))
+        marks_box, self.marks_list = scrolled_listbox(tab, height=8, exportselection=False)
+        marks_box.pack(fill="both", expand=True, pady=(2, 4))
         for text, command in (("New mark...", self._add_mark), ("Rename...", self._rename_mark),
                               ("Change colour...", self._recolour_mark), ("Delete", self._remove_mark),
                               ("Move up", lambda: self._move_mark(-1)), ("Move down", lambda: self._move_mark(1))):
@@ -2172,8 +2173,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         box.pack(fill="x", pady=(12, 0))
         ttk.Label(box, text="Right-click anything on the tree to delete it.  Restore it here:",
                   wraplength=300, justify="left").pack(anchor="w")
-        self.hidden_list = tk.Listbox(box, height=5, exportselection=False, selectmode="extended")
-        self.hidden_list.pack(fill="x", pady=(4, 4))
+        hidden_box, self.hidden_list = scrolled_listbox(box, height=5, exportselection=False, selectmode="extended")
+        hidden_box.pack(fill="x", pady=(4, 4))
         row = ttk.Frame(box)
         row.pack(anchor="w")
         ttk.Button(row, text="Restore", command=self._restore_hidden).pack(side="left")
@@ -3213,6 +3214,7 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         canvas.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
+        horizontal_bar(canvas)
         rows = ttk.Frame(canvas)
         canvas.create_window(0, 0, window=rows, anchor="nw")
         rows.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
@@ -6160,10 +6162,17 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         window.title("Family Tree Maker: the controls")
         window.transient(self)
         frame = scrollable_frame(window, padding=8)
-        box = tk.Text(frame, width=96, height=44, wrap="none", font=("Consolas", 10))
+        # The controls' lines do not wrap: the box scrolls both ways.
+        holder = ttk.Frame(frame)
+        holder.pack(fill="both", expand=True, padx=8, pady=8)
+        box = tk.Text(holder, width=96, height=44, wrap="none", font=("Consolas", 10))
         box.insert("1.0", CONTROLS)
         box.configure(state="disabled")
-        box.pack(fill="both", expand=True, padx=8, pady=8)
+        box_bar = ttk.Scrollbar(holder, orient="vertical", command=box.yview)
+        box.configure(yscrollcommand=box_bar.set)
+        box_bar.pack(side="right", fill="y")
+        box.pack(side="left", fill="both", expand=True)
+        horizontal_bar(box)
         ttk.Button(frame, text="Close", command=window.destroy).pack(pady=(0, 8))
 
     def _close(self) -> None:

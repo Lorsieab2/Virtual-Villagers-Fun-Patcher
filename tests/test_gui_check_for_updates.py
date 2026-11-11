@@ -177,6 +177,8 @@ class ReleasesLinkTests(unittest.TestCase):
                # Backups (the owner, 2026-11-09): each backup's vital statistics and its window.
                "vv_backup_details", "vv_backup_details_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
+               # The horizontal scroll bars every window's scrolling areas share (the owner, 2026-11-11).
+               "vv_scrollbars",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
@@ -470,8 +472,10 @@ class ReleasesLinkTests(unittest.TestCase):
                     imported.add(node.module.split(".")[0])
             with self.subTest(module=module):
                 # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
-                # every byte kept.  vv_game_text imports only the standard library.
-                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import - {"vv_game_text", "vv_unicode18"},
+                # every byte kept.  vv_game_text imports only the standard library.  Any window may use the
+                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).
+                self.assertEqual(imported - set(sys.stdlib_module_names) - may_import
+                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars"},
                                  set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
@@ -481,6 +485,12 @@ class ReleasesLinkTests(unittest.TestCase):
         # The games' text rule reads Unicode 18.0 (v1.35.90), which imports only the standard library.
         self.assertEqual(own_imports - set(sys.stdlib_module_names), {"vv_unicode18"})
         tree = ast.parse((ROOT / "src" / "vv_unicode18.py").read_text(encoding="utf-8"))
+        own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
+                       for alias in node.names}
+        own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)
+                        if isinstance(node, ast.ImportFrom) and node.module and node.level == 0}
+        self.assertEqual(own_imports - set(sys.stdlib_module_names), set())
+        tree = ast.parse((ROOT / "src" / "vv_scrollbars.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)
                        for alias in node.names}
         own_imports |= {node.module.split(".")[0] for node in ast.walk(tree)
