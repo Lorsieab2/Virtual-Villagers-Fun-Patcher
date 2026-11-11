@@ -50,13 +50,13 @@ def _mixes(triples, name) -> str:
 # (the completion switch 0x461B10, table 0x4642F4: 0x462033, 0x46215B, 0x4620C7, 0x4621EF, 0x46226E, 0x4622ED).
 # Where each grows: the spot the study walks to (the first walk of each study routine above), on the island map
 # (Images/MapX0Y0..MapX3Y3.jpg, 512-pixel tiles), (x, y).
-VV2_HERBS = {
-    0x30: ("Rock plant", "top middle, by the grey rocks beside the big stone face", 0x25, (969, 186)),
-    0x31: ("Waterfall plant", "top right, the dark flowers above the waterfall", 0x26, (1538, 382)),
-    0x32: ("Beach plant", "top left corner, by the rocks above the beach", 0x24, (139, 118)),
-    0x33: ("South plant", "bottom middle, the orange flower at the bottom edge", 0x27, (889, 1617)),
-    0x34: ("North plant", "along the top edge, right of the big stone face", 0x28, (1286, 70)),
-    0x35: ("Mosaic plant", "bottom right, the red flower beside the mosaic ruins", 0x29, (1611, 1391)),
+VV2_HERBS = {   # the patcher's names, by each plant's colour on the island map (the owner, 2026-11-10)
+    0x30: ("Dark blue flower", "top middle, by the grey rocks beside the big stone face", 0x25, (969, 186)),
+    0x31: ("Purple-black flower", "top right, the row of flowers above the waterfall", 0x26, (1538, 382)),
+    0x32: ("Brown pitcher plant", "top left corner, by the rocks above the beach", 0x24, (139, 118)),
+    0x33: ("Orange flower", "bottom middle, at the bottom edge", 0x27, (889, 1617)),
+    0x34: ("Light blue flower", "along the top edge, right of the big stone face", 0x28, (1286, 70)),
+    0x35: ("Red flower", "bottom right, beside the mosaic ruins", 0x29, (1611, 1391)),
 }
 # The cook routine 0x425B90 (called when the last ingredient goes in) counts each herb in the pot's three slots
 # (0x425B60: the order does not matter) and sets the stew +0x3044C; every one of the 56 mixes, run in the emulator
@@ -176,7 +176,7 @@ def vv2_facts() -> list[gm.Fact]:
             "water is always fresh water, fetched from the pond at the foot of the waterfall: no stew here takes "
             "salt water."), C),
         gm.Fact(GROUP, (
-            "The herbs: the names below are the patcher's own, after where each plant grows; the game calls every "
+            "The herbs: the names below are the patcher's own, after each plant's colour; the game calls every "
             "one \"the strange plant\" (pointing at any of them says \"... sees the strange plant.\"). A plant goes "
             "into a stew only once your villagers understand it; until then a villager dropped on it studies it "
             "(\"Studying strange plant\")."), C),

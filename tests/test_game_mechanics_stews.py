@@ -119,6 +119,21 @@ class Page(unittest.TestCase):
         self.assertEqual(set(stews.VV4_STEWS),
                          {p for _h, p, _w in stews.VV4_RECIPES} | {stews.FAILED_FRESH, stews.FAILED_SALT})
 
+    def test_the_vv2_herbs_are_named_by_colour(self) -> None:
+        """The owner, 2026-11-10: each strange plant by its colour, the same name in the list and every recipe."""
+        names = {herb: name for herb, (name, *_rest) in stews.VV2_HERBS.items()}
+        self.assertEqual(names, {0x30: "Dark blue flower", 0x31: "Purple-black flower", 0x32: "Brown pitcher plant",
+                                 0x33: "Orange flower", 0x34: "Light blue flower", 0x35: "Red flower"})
+        page = gm.render(stews.facts(2))
+        self.assertIn("the patcher's own", page)
+        self.assertIn("the game calls every one \"the strange plant\"", page)
+        for name in names.values():
+            self.assertIn(f"{name}: ", page)
+        for _title, subs in recipes(2):
+            for mix in subs[0].text.removeprefix(stews.HERBS_LINE).split("; "):
+                self.assertEqual(len(mix.split(" + ")), 3)
+                self.assertTrue(set(mix.split(" + ")) <= set(names.values()), mix)
+
     def test_the_vv3_both_faction_recipes_are_the_companions(self) -> None:
         source = (ROOT / "native" / "vvfp_vv3_both_factions" / "vvfp_vv3_both_factions.c")
         if not source.exists():
