@@ -211,7 +211,8 @@ class Pinned(unittest.TestCase):
         self.assertIn("With the patcher (\"Enable Origins-Exclusive Features\", on by default)", text)
         self.assertIn("With the patcher (\"Story / Cheat Upgrades\", on by default)", text)
         # The settled rules: Grant Youth delays a pregnant villager's birth (described, not fixed).
-        self.assertIn("the birth comes that much later.", text)
+        self.assertIn("the baby comes after a full pregnancy (41 age units) plus the time she had already carried",
+                      text)
 
     def test_key_numbers(self) -> None:
         text = gm.render(items.item_facts())

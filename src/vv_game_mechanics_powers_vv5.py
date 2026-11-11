@@ -201,13 +201,21 @@ EFFECTS = (
       "On the dry lake bed while The Lake is unsolved, no target is needed: with no progress yet The Lake gets 1 of "
       "its 2 points; once it has progress, a Revive there gives none.")),
     # Grant Youth: 0x41FDC0, 3 age units an update at 0x41FDDC; the refusals 0x42330D; the pregnancy 0x41FEB0.
+    # The pregnancy: its stamp +0x1C4C is the processed age (+0x1C3C) at conception and the birth comes when the
+    # processed age passes stamp + 40 (0x4730BA..0x4730BF), so a pregnancy is 41 age units (the Details time left,
+    # 0x44B123, is (stamp - processed + 41) units).  Grant Youth's end (0x41FE94..0x41FECC) sets the processed age to
+    # 100 - (age at the cast - processed) and the stamp to processed - stamp + 100, so the time still to go becomes
+    # 41 + the time already carried instead of 41 - it.  The owner (2026-11-10): describe it, never fix it.
     (9, "makes a living believer of 14 or more 5 years old (age 100 age units), counting the age down by 3 age units "
         "at every update of the village until it gets there. Refused, nothing spent: under 14 \"This villager is "
         "already full of youth.\", a Heathen \"You cannot grant youth to heathens.\", the dead \"You cannot grant "
         "youth to corpses.\"",
-     ("A pregnant villager stays pregnant, but the time she had already carried is counted backwards, so the birth "
-      "comes that much later than from a fresh pregnancy (the normal game's arithmetic). Skills, likes and Faith "
-      "are kept.",)),
+     ("A pregnant villager stays pregnant, but the time she had already carried is added on instead of taken off "
+      "(the normal game's arithmetic): the baby comes after a full pregnancy (41 age units) plus the time she had "
+      "already carried. For example, on Normal speed (an age unit is about 6 real-life minutes), a mother 30 age "
+      "units along (about 3 hours) would have had her baby in 11 units (about 1 hour); after Grant Youth she is 5 "
+      "years old and the baby comes in 71 units (about 7 hours), when she is about 8½ years old (171 age "
+      "units) -- not when she gets back to the age she was when she conceived. Skills, likes and Faith are kept.",)),
     # Earthquake: rand(7) + 2 at 0x41F78F, which skips roles 12 to 17; the preaching wait 0x41F7B8.
     (10, "every living villager's Faith goes up by 2 to 8 (each amount equally likely), except the six special roles "
          "below. A Heathen whose Faith rises above 0 joins the tribe; every Heathen it reaches cannot be preached to "

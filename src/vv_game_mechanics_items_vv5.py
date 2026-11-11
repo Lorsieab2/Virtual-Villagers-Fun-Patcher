@@ -263,7 +263,9 @@ POWER_WORDS = {
               "on the dry lake bed with The Lake not started, The Lake gets 1 of its 2 points.",
     "Grant Youth": "a living believer of 14 or more is brought back to 5 years old (100 age units), 3 age units each "
                    "update; skills, likes and Faith are kept. A pregnant villager stays pregnant, but the time she had "
-                   "already carried is counted backwards, so the birth comes that much later.",  # 0x41FEB0
+                   "already carried is added on instead of taken off: the baby comes after a full pregnancy (41 "
+                   "age units) plus the time she had already carried, not when she gets back to the age she was when "
+                   "she conceived (see God powers for an example).",  # 0x41FEB0; the arithmetic: God powers' comment
     "Earthquake": "every living villager but the six special roles (the Heathen Doctor, Heathen Chief, Heathen "
                   "Master Scientist, Heathen Master Builder, Heathen Master Farmer and Heathen Mommy, and the Retired "
                   "Chief, who keeps the Heathen Chief's role; see God powers) gains 2 to 8 Faith (a Heathen above 0 "

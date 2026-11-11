@@ -70,9 +70,11 @@ EVENTS = (
     # -- Single-result events -------------------------------------------------------------------------
     # The Creeping Mold: 0x414A30.
     Event("The Creeping Mold", "always possible", ("The stored food loses 100.",)),
-    # The Allergy Season: 0x414A70.
+    # The Allergy Season: 0x414A70 gives every villager action 0x40 (registered at 0x464251 -> handler 0x45AE50),
+    # which plays the sneeze sound (play id 0x11, femsneeze.ogg, via 0x4CDB90 + id x 16) again and again with
+    # short pauses.
     Event("The Allergy Season", "always possible", (
-        "Every villager plays a hay-fever action; nothing else changes.",)),
+        "Every villager sneezes several times; nothing else changes.",)),
     # Isola Day Celebration: 0x414AC0.
     Event("Isola Day Celebration", "always possible", (
         "The village celebrates; nothing else changes.",)),
