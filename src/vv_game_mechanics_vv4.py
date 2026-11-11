@@ -294,12 +294,21 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Food sources", "The yellow fruit tree (once The Cooking Pit is restored): a trip brings 3 food and takes "
                         "about 162 real-life seconds at every speed. Before the pit is restored a villager dropped on "
                         "the tree only finds the fruit needs cooking.", gm.CODE)
+    # The trip's queue (0x4346F0, spot 1; the others alike): the shake (1 s poses: step 2 0x468EE0, step 10
+    # 0x469280; then a 3 s animation, step 43 0x469EC0(3)), the Farming check (step 9 0x469220), a 3 s wait (step 14
+    # 0x4693B0(3) at 0x4348C5), the fruit taken (step 17 item 0x36), a 1 s pose (0x4348E9), the walk to the pit
+    # (area 0x22), "Cooking fruit in an earthen oven" (0x23F), a 5 s wait (0x434915), the hops, a 3 s wait
+    # (0x43497F), then "Carrying fruit to the food bin" (0x240): the stomped fruit taken (step 17 item 0x37), the walk
+    # to the food bin (area 8), a 1 s wait (0x434A0F) and the job event 15 (the food, step 19).  Steps 2, 10, 14 and
+    # 43 are waits: their seconds (+0x54) get the clock 0x403750 added when they start (0x46A072, 0x46A17D, 0x46A201,
+    # 0x46A3B4) and end through 0x46A000.
     out.append(gm.Fact("Food sources", (
-        "How a trip goes (waits in real-life seconds): it claims one of the pit's 4 fruit spots (all 4 taken: \"There "
-        "is no more room in the cooking pit!\" and the villager gives up), shakes fruit down, the Farming check "
-        "((Farming + 34) in 100; a failure ends it with nothing), carries the fruit to the pit, a 5 s wait, stomps it "
-        "in its cooking hole, a 3 s wait, then walks it to the food bin. If the stew pot is waiting for an ingredient "
-        "the fruit goes into the stew instead."), gm.CODE, True))
+        "How a trip goes (waits in real-life seconds, the same at every speed): it claims one of the pit's 4 fruit "
+        "spots (all 4 taken: \"There is no more room in the cooking pit!\" and the villager gives up), shakes fruit "
+        "down (1 s poses, then a 3 s animation), the Farming check ((Farming + 34) in 100; a failure ends it with "
+        "nothing), a 3 s wait, takes the fruit, a 1 s wait, carries it to the pit, a 5 s wait, stomps it in its "
+        "cooking hole, a 3 s wait, takes the stomped fruit, walks it to the food bin, a 1 s wait, then 3 food is "
+        "added. If the stew pot is waiting for an ingredient the fruit goes into the stew instead."), gm.CODE, True))
     add("Food sources", "The fruit never runs out (nothing counts it). The 4 spots limit only the start of a trip, and "
                         "a spot frees itself 45 seconds on the game's clock after it is claimed (22.5, 45 or 75 real-life "
                         "seconds on Fast, Normal or Slow) even while its villager is still busy, so more than 4 can be "

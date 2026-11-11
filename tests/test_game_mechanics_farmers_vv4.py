@@ -107,6 +107,61 @@ class ModuleTests(unittest.TestCase):
                     self.assertLess(abs(halves[0] - halves[1]) / vv4.LIVE_CYCLE[key][farming], 0.017)
 
 
+try:
+    import island_event_exe as iee  # noqa: E402
+    HAVE_STATIC = iee.available(4)
+except ImportError:                  # pefile or capstone missing
+    iee, HAVE_STATIC = None, False
+
+
+def _page_text() -> str:
+    import vv_game_mechanics as gm
+    return "\n".join(f.text for f in gm.general(4))
+
+
+class FruitTripWordsTests(unittest.TestCase):
+    """The fruit trip's waits, said the same way on the Food sources line and in Farmers needed (the 2026-11-10 fix:
+    one line had the 3 s wait after the stomp and not the 1 s at the food bin, the other the reverse)."""
+
+    WAITS = ("a 3 s wait, take the fruit, a 1 s wait, walk to the Cooking Pit, a 5 s wait, stomp it (hops), a 3 s "
+             "wait, take the stomped fruit, walk to a random point of the food bin, a 1 s wait, then 3 food is added.")
+
+    def test_both_lines_give_the_same_waits(self):
+        fruit = next(t for t in farmers.game_trips(4)[1] if t.key == "fruit stomps")
+        self.assertIn("(short steps and 1 s poses, then a 3 s animation), the Farming check, " + self.WAITS,
+                      fruit.live_words)
+        self.assertIn("down (1 s poses, then a 3 s animation), the Farming check ((Farming + 34) in 100; a failure "
+                      "ends it with nothing), a 3 s wait, takes the fruit, a 1 s wait, carries it to the pit, a 5 s "
+                      "wait, stomps it in its cooking hole, a 3 s wait, takes the stomped fruit, walks it to the food "
+                      "bin, a 1 s wait, then 3 food is added.", _page_text())
+        self.assertIn("How a trip goes (waits in real-life seconds, the same at every speed)", _page_text())
+
+    @unittest.skipUnless(HAVE_STATIC, "the stock Tree of Life executable (or pefile / capstone) is not present")
+    def test_the_waits_are_the_trips_own_queue(self):
+        exe = iee.exe(4)
+        # The wait builder 0x4693B0 queues step 14 with its seconds at +0x54; the step's start adds the clock 0x403750.
+        self.assertEqual(exe.instruction(0x4693DA), "mov dword ptr [esp + 0x64], 0xe")
+        self.assertEqual(exe.instruction(0x46A208), "call 0x403750")
+        self.assertEqual(exe.instruction(0x46A213), "add dword ptr [esi + 0x54], eax")
+        # The 3 s animation at the tree (step 43, 0x469EC0(3)).
+        self.assertEqual([exe.instruction(a) for a in (0x434820, 0x434824)], ["push 3", "call 0x469ec0"])
+        # In 0x4346F0: 3 s after the Farming check, 1 s pose, 5 s at the pit, 3 s after the hops, 1 s at the bin.
+        for push, call, seconds in ((0x4348C5, 0x4348C9, 3), (0x434915, 0x434919, 5), (0x43497F, 0x434983, 3),
+                                    (0x434A0F, 0x434A13, 1)):
+            with self.subTest(at=hex(push)):
+                self.assertEqual(exe.instruction(push), f"push {seconds}")
+                self.assertEqual(exe.instruction(call), "call 0x4693b0")
+        self.assertEqual([exe.instruction(a) for a in (0x4348E9, 0x4348EB, 0x4348EF)],
+                         ["push 0", "push 1", "call 0x468ee0"])          # the 1 s pose (step 2) after taking it
+        # The order: the check (step 9), the fruit taken (17, item 0x36), the pit's wait, the hops, the stomped fruit
+        # taken (17, item 0x37), the walk to the food bin (area 8), the food (job event 15).
+        self.assertEqual(exe.instruction(0x434836), "call 0x469220")
+        self.assertEqual([exe.instruction(a) for a in (0x4348D7, 0x4348DB)], ["push 0x36", "call 0x4697c0"])
+        self.assertEqual([exe.instruction(a) for a in (0x4349F9, 0x4349FD)], ["push 0x37", "call 0x4697c0"])
+        self.assertEqual([exe.instruction(a) for a in (0x434A06, 0x434A0A)], ["push 8", "call 0x468fc0"])
+        self.assertEqual([exe.instruction(a) for a in (0x434A1F, 0x434A23)], ["push 0xf", "call 0x469990"])
+
+
 @unittest.skipUnless(HAVE, NO_EXE)
 class LiveTripTests(unittest.TestCase):
     def test_a_trip_is_the_same_at_every_speed(self):
