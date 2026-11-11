@@ -49,7 +49,7 @@ RULES = (
          "Barrel...of Babies!, even without its condition (0x4180A5)."),
     # The room check 0x468350: 0x467610's count against 90 + 5 for each set 0x4143F0 finds complete (all 12
     # pieces), 20 made 25 (0x4683AA); then the huts (0x4683FC..: 35, 17 and 10 against projects 0x13-0x15).
-    Line("Room for new villagers (the room check 0x468350): there is room while the villagers plus the babies being "
+    Line("Room for new villagers: there is room while the villagers plus the babies being "
          "carried are fewer than the population limit -- in the normal game 90, plus 5 for each complete collection "
          "(all 12 pieces), 25 with all four; this village's limit is under Vital statistics -- and the huts allow "
          "it: a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, 35 or more all 3."),

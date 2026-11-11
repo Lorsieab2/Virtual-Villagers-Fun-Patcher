@@ -49,7 +49,7 @@ RULES = (
     # 0x472BDC-0x472C49: +5 for one completed set, and 10 becomes 15 for both (0x472C04).
     # The room check 0x472BD0: 0x4713F0's believers against 90 + 5 for each set of 24 0x414690 finds complete
     # (0x68 the first, 0x50 the second), 10 made 15 (0x472C04); then the huts (0x472C56..: 35, 17 and 10).
-    Line("Room for new villagers (the room check 0x472BD0): there is room while the believers plus the babies they "
+    Line("Room for new villagers: there is room while the believers plus the babies they "
          "carry are fewer than the population limit -- in the normal game 90, plus 5 for each complete collectible "
          "set (all 24 pieces), 15 with both; Heathens are not counted; this village's limit is under Vital "
          "statistics -- and the huts allow it: a population of 10 to 16 needs 1 rebuilt hut, 17 to 34 needs 2, 35 "
