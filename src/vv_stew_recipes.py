@@ -384,9 +384,10 @@ FAILED_SALT, FAILED_FRESH = 12, 13
 #     Feast at 20 (two trips) with its 4 items; soap and cloth pulp (10, 11) at once; failing, the pot says "This stew
 #     needs something nutritious!" (0x42EE30, string 0x1E9).
 #   * Remaking: a food trip while the pot boils with a stew ready makes the same stew again (0x42EAF1 -> 0x42EDE0)
-#     and starts its 5 real-life minutes over; nothing excludes a recipe.  The owner: "VV4 stews can be reheated with
-#     another hot rock if they go cold (applies to certain stews only)" -- which stews the owner means is not settled
-#     by the code, so the per-recipe line is UNCONFIRMED.
+#     and starts its 5 real-life minutes over; nothing excludes a recipe.  The owner, shown this: "All stews".
+#   * The ready check 0x42DC80: soap (10) and cloth pulp (11) are ready at once; every other product -- the fresh-
+#     water stews, the failed fresh mix (13) and the failed salt mix "Too salty" (12) -- needs the count at 10 or
+#     more (one food trip), the Grand Feast (4) at 20 with its four items.
 #   * The Grand Feast's 4 items (0x42EABE, table 0x42EB4C -> 0x42EB38) and who brings them: blackberries (item 0,
 #     +0xB21: a villager dropped on the bush while the pot wants them, 0x46F8AC), a fish (item 0x38, +0xB22: the
 #     fishing trip, 0x43332C), fruit (item 0x37, +0xB23: "Carrying fruit to the cooking pot", 0x4349A8 and three more)
@@ -440,9 +441,11 @@ VV4_PUZZLES = {
          "from the food bin (two trips of 10), and one each of " + ", ".join(FEAST_ITEMS[:-1]) + " and "
          + FEAST_ITEMS[-1] + ", each brought to the pot by a villager dropped on that food while the pot wants it. "
          "When its 3 herbs are in but the rest is not, the pot boils for another 10 minutes of the game's clock. "
-         "The puzzle is solved the moment the feast is made: nobody has to eat it.", C),
-        (PUZZLE_LINE + "The game's recipe table gives the Grand Feast's herbs as spicy, sweet and soapy; the owner "
-         "remembers spicy, sweet and sweet. Not yet settled.", False)],
+         "The puzzle is solved the moment the feast is made: nobody has to eat it.", C)],
+    # The owner (2026-11-10), shown that the recipe table gives the feast spicy + sweet + soapy and spicy + sweet +
+    # sweet the "Yummy!" whole-village stew: "Code's recipe".
+    3: [(PUZZLE_LINE + "None: this stew calls the whole village like the Grand Feast does, but only spicy + sweet + "
+         "soapy with the feast foods solves The Grand Feast.", C)],
     6: [(PUZZLE_LINE + "Honoring the Tree. It is solved when 20 villagers are \"Honoring the tree\" at the same "
          "time; each of them must have eaten this stew (a villager counts once, while honoring).", C)],
     10: [(PUZZLE_LINE + "Soap Invented: stacking a batch gives 3 bars of soap and counts for it (the link from "
@@ -454,9 +457,10 @@ VV4_SUMMARY = (
     "Stews for puzzles: The Grand Feast (spicy, sweet and soapy, 20 food and the 4 feast foods; solved when it is "
     "made); Honoring the Tree (3 sweet-smelling plants; 20 villagers who ate it honoring at the same time); and, "
     "UNCONFIRMED, soap for Soap Invented and cloth pulp for Cloth Invented.")
-REHEAT = (REHEAT_LINE + "in the game's code, every recipe can be made again: another hot rock makes the pot boil, "
-          "and food added then makes the same stew again with a fresh 5 minutes. The owner remembers only certain "
-          "stews reheating.", False)
+# The owner (2026-11-10), shown that the code lets every recipe be made again: "All stews" -- said once, in "How a
+# stew is made", not under every recipe.
+REHEAT = ("Reheating: every stew can be reheated. When a stew has gone cold, another hot rock makes the pot boil "
+          "again, and food added then makes the same stew again, ready for another 5 minutes.")
 
 
 def vv4_facts() -> list[gm.Fact]:
@@ -473,12 +477,13 @@ def vv4_facts() -> list[gm.Fact]:
             "Normal speed, 5 on Fast, 16 minutes 40 seconds on Slow). If that runs out first, the unfinished stew "
             "goes cold (\"The pot contains a cold unfinished stew.\") until another hot rock makes it boil again. "
             "3 herbs go in, in any order. The game's own tip: \"Only fresh water stews are edible.\""), C),
+        gm.Fact(GROUP, REHEAT, C),
         gm.Fact(GROUP, (
-            "Food: a villager dropped on the food bin while the pot boils takes 10 food from the store into the "
-            "stew (\"Adding to the stew\"; the store needs at least 10). Every stew needs one such trip (10 food) "
-            "before it is ready (\"This stew needs something nutritious!\" until then), the Grand Feast two (20 "
-            "food); soap and cloth pulp need none. Eating a stew takes no food and gives only what its recipe says "
-            "below."), C),
+            "Food: every fresh-water stew needs 10 food (the Grand Feast 20) before it is ready (\"This stew needs "
+            "something nutritious!\" until then): a villager dropped on the food bin while the pot boils takes 10 "
+            "food from the store into the stew (\"Adding to the stew\"; the store needs at least 10). Salt water "
+            "needs no food for soap or cloth pulp; only a wrong salt-water mix (\"Too salty\") asks for 10 food. "
+            "Eating a stew takes no food and gives only what its recipe says below."), C),
         gm.Fact(GROUP, VV4_SUMMARY, C),
         # The effect switch 0x41DEE0: its only health call is the healing stew's (0x41DF69, an addition), and no
         # case sets the sickness flag +0x1C48.
@@ -494,7 +499,7 @@ def vv4_facts() -> list[gm.Fact]:
             mix, water_words = "any other 3 (pulpy vines in fresh water always end here)", VV4_WATER[FRESH]
         else:
             mix, water_words = "any 3 but 3 soapy-smelling plants or 3 pulpy vines", VV4_WATER[SALT]
-        out += _recipe(title, mix, water_words, does, extra=[*VV4_PUZZLES.get(product, ()), REHEAT])
+        out += _recipe(title, mix, water_words, does, extra=list(VV4_PUZZLES.get(product, ())))
     return out
 
 

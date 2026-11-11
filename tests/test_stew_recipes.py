@@ -159,7 +159,7 @@ class Page(unittest.TestCase):
         self.assertIn("potions take no food", gm.render(stews.facts(3)))
         vv4 = gm.render(stews.facts(4))
         self.assertIn("takes 10 food from the store", vv4)
-        self.assertIn("the Grand Feast two (20 food)", vv4)
+        self.assertIn("(the Grand Feast 20)", vv4)
         self.assertFalse(re.search(r"heat", vv4))              # the food count is not heat (re-traced)
 
     def test_what_kills_and_what_is_unconfirmed(self) -> None:
@@ -205,7 +205,20 @@ class Page(unittest.TestCase):
         for need in ("one hot rock", "20 food", "blackberries", "a fish", "fruit", "a mushroom",
                      "nobody has to eat it"):
             self.assertIn(need, words)
-        self.assertTrue(any(not s.confirmed and "spicy, sweet and sweet" in s.text for s in feast))
+        # The owner chose the code's recipe (2026-11-10): no open question is left on the feast, and the spicy +
+        # sweet + sweet stew says it does not solve it.
+        self.assertTrue(all(s.confirmed for s in feast))
+        _t, yummy = recipe(4, "Calls the whole village to the pot")
+        self.assertIn("only spicy + sweet + soapy", " ".join(s.text for s in yummy))
+        # Reheating is said once, for every stew (the owner: "All stews"), not under each recipe.
+        vv4 = [f.text for f in stews.facts(4)]
+        self.assertEqual(sum("Reheating: every stew can be reheated" in t for t in vv4), 1)
+        self.assertFalse(any(t.startswith(stews.REHEAT_LINE) for t in vv4))
+        # Food: fresh water always; salt water only for the failed "Too salty" mix (0x42DC80).
+        food = next(t for t in vv4 if t.startswith("Food:"))
+        for need in ("every fresh-water stew needs 10 food", "Grand Feast 20", "no food for soap or cloth pulp",
+                     "\"Too salty\") asks for 10 food"):
+            self.assertIn(need, food)
         _t, honor = recipe(4, "Puzzle: Honoring the Tree")
         self.assertIn("20 villagers", " ".join(s.text for s in honor))
 
