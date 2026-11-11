@@ -51,7 +51,11 @@ import vv_picture_studio
 import vv_unicode_font
 import vv_tool_fonts
 from vv_tree_editor_tools import scrollable_frame
-from vv_scrollbars import fill_or_keep_width, horizontal_bar, scroll_sideways, scrolled_listbox, shifted
+from vv_scrollbars import fill_or_keep_width, horizontal_bar, page_width, scroll_sideways, scrolled_listbox, shifted
+
+# The main window's usual width. At it and wider the page fills the window; a window made narrower
+# keeps the page at this width and scrolls sideways (the owner, 2026-11-11).
+DEFAULT_WINDOW_WIDTH = 940
 
 # Link colours: the resting blue and the hover red.
 LINK_COLOR = "#0645ad"
@@ -1259,7 +1263,7 @@ class App(tk.Tk):
         if sys.platform == "win32":             # dialogs hold the patcher the Windows way (_hold)
             tk.Misc.grab_set, tk.Misc.grab_release = _hold, _release
         self.title("Virtual Villagers Fun Patcher")
-        self.geometry("940x760")
+        self.geometry(f"{DEFAULT_WINDOW_WIDTH}x760")
         self.minsize(820, 520)
         self.island_source = tk.PhotoImage(file=ROOT / "assets" / "Island.png")
         self.island_inline = self.island_source.subsample(
@@ -1415,6 +1419,7 @@ class App(tk.Tk):
         )
         self.content_canvas.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
+        self.content_scrollbar = scrollbar
         self.content_canvas.pack(side="left", fill="both", expand=True)
         # Content wider than the window keeps its width; this bar (shown only then) reaches the rest.
         self.content_xbar = horizontal_bar(self.content_canvas)
@@ -1767,10 +1772,12 @@ class App(tk.Tk):
         self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
 
     def _fit_content_width(self, width: int) -> None:
-        """The page fills a window at least as wide as it; in a narrower one it keeps its own
-        width (0: the page's requested width) and the horizontal bar reaches the rest -- before,
-        it was squeezed to the window and controls past the edge could not be reached (the owner, 2026-11-11)."""
-        wanted = width if width >= self.content_frame.winfo_reqwidth() else 0
+        """The page fills the window at its usual size and wider, exactly as before. In a window made
+        narrower than that, the page keeps the usual width (or less, if it needs less) and the
+        horizontal bar reaches the rest -- before, it was squeezed to the window and controls past
+        the edge could not be reached (the owner, 2026-11-11)."""
+        least = DEFAULT_WINDOW_WIDTH - self.content_scrollbar.winfo_reqwidth()
+        wanted = page_width(width, self.content_frame.winfo_reqwidth(), least)
         if str(self.content_canvas.itemcget(self.content_window, "width")) != str(wanted):
             self.content_canvas.itemconfigure(self.content_window, width=wanted)
 

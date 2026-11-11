@@ -91,15 +91,25 @@ def scrolled_listbox(parent, **options) -> tuple[ttk.Frame, tk.Listbox]:
     return holder, listbox
 
 
-def fill_or_keep_width(canvas: tk.Canvas, item, inner: tk.Widget) -> None:
-    """A canvas window item that fills a canvas at least as wide as its frame; in a narrower one
-    the frame keeps its own width (item width 0: the frame's requested width) and the canvas
-    scrolls sideways to it, instead of the frame being squeezed and its right side cut off."""
+def page_width(width: int, wanted: int, least: int | None = None) -> int:
+    """The width a scrolling page is laid out at in a canvas `width` wide: the canvas's own width,
+    unless that is narrower than the page needs. The page needs its requested width (`wanted`), or,
+    with `least` (the canvas's width at the window's usual size), no more than that: a label that
+    wraps to its box, or a row that flows onto more lines, asks for its whole unwrapped width, yet
+    fits the usual size, so it still wraps there exactly as before. Only a canvas made narrower than
+    the page needs keeps the page at that width, and its horizontal bar reaches the rest."""
+    need = wanted if least is None else min(wanted, least)
+    return max(width, need)
+
+
+def fill_or_keep_width(canvas: tk.Canvas, item, inner: tk.Widget, least: int | None = None) -> None:
+    """A canvas window item that fills its canvas; in a canvas narrower than the frame needs
+    (page_width), the frame keeps that width and the canvas scrolls sideways to it, instead of
+    the frame being squeezed and its right side cut off."""
 
     def fit(_event=None) -> None:
         try:
-            width = canvas.winfo_width()
-            wanted = width if width >= inner.winfo_reqwidth() else 0
+            wanted = page_width(canvas.winfo_width(), inner.winfo_reqwidth(), least)
             if str(canvas.itemcget(item, "width")) != str(wanted):
                 canvas.itemconfigure(item, width=wanted)
             canvas.configure(scrollregion=canvas.bbox("all"))

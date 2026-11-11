@@ -125,7 +125,14 @@ def clipboard_files_and_picture() -> tuple[list[Path], bytes | None]:
 
 
 class ScrollingTab(ttk.Frame):
-    """A notebook page that scrolls when its controls are taller than the window."""
+    """A notebook page that scrolls when its controls are taller than the window, and sideways when
+    its panel is made narrower than the page needs."""
+
+    # The page's width at the Family Tree Maker's usual panel (about 600 pixels; its canvas is about
+    # 558 wide): at that width and wider the page fills the panel and its labels and rows wrap to it,
+    # as before. A narrower panel keeps the page at this width (or less, if it needs less), with a
+    # horizontal bar to reach the rest.
+    LEAST = 540
 
     def __init__(self, notebook: ttk.Notebook, text: str) -> None:
         outer = ttk.Frame(notebook)
@@ -138,7 +145,7 @@ class ScrollingTab(ttk.Frame):
         horizontal_bar(canvas)
         super().__init__(canvas, padding=8)
         window = canvas.create_window(0, 0, window=self, anchor="nw")
-        fill_or_keep_width(canvas, window, self)
+        fill_or_keep_width(canvas, window, self, least=self.LEAST)
         # The wheel scrolls this page while the pointer is over it; leaving gives back whatever the
         # wheel did before (the patcher's window scrolls with it -- Codex, #555). Shift + wheel
         # scrolls it sideways.

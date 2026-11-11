@@ -207,6 +207,31 @@ listbox.event_generate("<Shift-MouseWheel>", delta=-120, when="now")
 for _ in range(6):
     other.update()
 result["list_shift_x"] = listbox.xview()[0]
+# A tree editor tab page (ScrollingTab) with a label that wraps to its box: at the usual panel width it
+# fills the panel and wraps, as before; a narrower panel keeps the page at that width, with the bar.
+third = tkinter.Toplevel(root)
+book = ttk.Notebook(third)
+book.pack(fill="both", expand=True)
+tab = tools.ScrollingTab(book, "Tab")
+note = ttk.Label(tab, text="words " * 80)
+note.pack(fill="x")
+note.bind("<Configure>", lambda e: note.configure(wraplength=max(120, e.width - 4)))
+tab_canvas = tab.master
+tab_bar = next(w for w in tab_canvas.master.winfo_children() if isinstance(w, vv_scrollbars.AutoScrollbar))
+
+
+def settle_tab():
+    for _ in range(8):
+        third.update()
+
+
+third.geometry(f"{tools.ScrollingTab.LEAST + 120}x300")
+settle_tab()
+result.update(tab_usual=[tab_canvas.winfo_width(), tab.winfo_width(), bool(tab_bar.winfo_ismapped())])
+third.geometry(f"{tools.ScrollingTab.LEAST - 200}x300")
+settle_tab()
+result.update(tab_narrow=[tab_canvas.winfo_width(), tab.winfo_width(), bool(tab_bar.winfo_ismapped())],
+              tab_req=tab.winfo_reqwidth(), tab_least=tools.ScrollingTab.LEAST)
 root.destroy()
 print(json.dumps(result))
 """
@@ -324,7 +349,7 @@ class WindowScrollbars(unittest.TestCase):
         # The notebook pages that scroll (the tree editor's tabs) do the same.
         source = _definition(HELPER_MODULE, "ScrollingTab")
         self.assertIn("horizontal_bar(canvas)", source)
-        self.assertIn("fill_or_keep_width(canvas, window, self)", source)
+        self.assertIn("fill_or_keep_width(canvas, window, self, least=self.LEAST)", source)
         self.assertIn("scroll_sideways(canvas, event)", source)
 
     def test_every_exempt_window_scrolls_sideways_or_says_why_not(self):
@@ -363,6 +388,15 @@ class WindowScrollbars(unittest.TestCase):
         self.assertEqual(result["list_bars_short"], [], result)
         self.assertEqual(result["list_bars_long"], ["horizontal", "vertical"], result)
         self.assertGreater(result["list_shift_x"], 0.0, result)
+        # A tree editor tab: at its usual width the page fills the panel (its label wraps), no bar; narrower,
+        # the page keeps the usual width and the bar shows.
+        canvas_width, tab_width, bar_shown = result["tab_usual"]
+        self.assertEqual(tab_width, canvas_width, result)
+        self.assertFalse(bar_shown, result)
+        canvas_width, tab_width, bar_shown = result["tab_narrow"]
+        self.assertLessEqual(tab_width, result["tab_least"], result)
+        self.assertLess(canvas_width, tab_width, result)
+        self.assertTrue(bar_shown, result)
 
     def test_helper_is_a_canvas_with_a_vertical_scrollbar(self):
         tree = ast.parse((SRC / HELPER_MODULE).read_text(encoding="utf-8"))
