@@ -93,12 +93,11 @@ CHANCE_LINES = (
      "show, and a new villager's name), were counted but not each traced, so it is not proven that none of them "
      "changes food, health, skills, births or deaths.", False),
     ("Timers: an age unit is 3, 6 or 10 real-life minutes on Fast, Normal or Slow (ageing, eating, sickness, health, "
-     "pregnancy, birthdays); regrowth every 2 hours, 4 hours or 6 hours 40 minutes of real-life play, every missed "
-     "one added when the game is next played; island events 12 to 23 real-life hours apart at any speed (Island "
-     "events); the village step every 2 real-life seconds; the idle sweep that has every idle villager decide again "
-     "runs only when 40 real-life seconds (real time) pass without that step, since each step pushes it 40 real-life "
-     "seconds ahead, so not in normal play; a mushroom "
-     "lies 1 real-life minute.", gm.CODE),
+     "pregnancy, birthdays); regrowth every 2 hours, 4 hours or 6 hours 40 minutes of real-life play on Fast, "
+     "Normal or Slow, every missed one added when the game is next played; island events 12 to 23 real-life hours "
+     "apart at any speed (Island events); the village step every 2 real-life seconds; the idle sweep that has every "
+     "idle villager decide again runs only when 40 real-life seconds (real time) pass without that step, since each "
+     "step pushes it 40 real-life seconds ahead, so not in normal play; a mushroom lies 1 real-life minute.", gm.CODE),
     ("A new village's first island event comes 15 real-life minutes after it is made (real time, the same at every "
      "speed; the pause pushes it on), and its tutorial mushroom lies 1 minute 40 real-life seconds (real time).",
      gm.CODE),
@@ -146,13 +145,16 @@ HIDDEN_LINES = (
     # is step 3 of the villager step dispatcher 0x43DEF0 (jump table 0x43DF74 -> 0x43DF1E -> 0x43DF22), run from the
     # game's own drop and walk paths (tests/test_manual_drop_breeding.py).  Step 1 (0x43DF0C -> 0x43CBD0) sets 300
     # for a villager under 14 (0x43CBE4..0x43CBF7) with no like or dislike read; what queues step 1 is not traced.
-    ("In the game's code the dislike of running is read in one place only, the walk's speed (the walk step "
-     "0x43CCF0): a villager under 14 who dislikes running is not given the running speed (0x43CD20..0x43CD2C), and "
-     "from 14 on only a like is read (0x43CD33), so on that walk an adult who dislikes running moves exactly as one "
-     "who neither likes nor dislikes it.", gm.CODE),
-    ("Another movement step (0x43CBD0) gives every villager under 14 the running speed without reading the "
-     "dislike; which actions use that step was not traced, so whether a child who dislikes running ever runs "
-     "through it is not settled.", False),
+    # "not given the running speed": 0x43CD20..0x43CD2C; "only a like is read": 0x43CD33.  The walk step's address
+    # stays visible: tests/test_game_mechanics_code_vs_observation.py wants the code side to cite one.
+    ("In the game's code the dislike of running is read in one place only (the walk step 0x43CCF0), the speed of "
+     "a walk: a villager under 14 who dislikes running is not given the running speed, and from 14 on only a like "
+     "is read, so on that walk an adult who dislikes running moves exactly as one who neither likes nor dislikes "
+     "it.", gm.CODE),
+    # The other step: 0x43CBD0 (step 1 of the dispatcher 0x43DEF0).
+    ("Another movement step gives every villager under 14 the running speed without reading the dislike; which "
+     "actions use that step was not traced, so whether a child who dislikes running ever runs through it is not "
+     "settled.", False),
     ("Disliking work makes 70% of idle picks take no job; disliking medicine passes Healing over half the time. "
      "Fish, disliked: always refuses fishing (\"Running away\"); berries or bushes: refuses foraging 75% of the "
      "time; rocks: refuses clearing the blockage 75%; turnips: skips the crops 75%; drift wood: skips the beach "
@@ -263,20 +265,20 @@ GOLDEN_CHILD_LINES = (
      "started must reach his birth hour (the Puzzles screen's) plus 36, so it starts 35 to 36 real-life hours after his "
      "birth (36 to 37 if he was born in the village's first hour).", gm.RUNNING),
     ("The 36 hours are real hours on the computer's clock (real time): 36 hours on Slow, Normal and Fast alike "
-     "(10.8, 18 or 36 game years, though he never ages). They count while the game is paused or closed; the load-time catch-up does "
-     "nothing for him; each Origins Time Warp moves the clock on 12 hours on Fast or Normal and 10 hours on Slow, which "
-     "counts towards them.", gm.RUNNING),
-    # 0x4479F3, 0x446920, 0x446C48 (see the comment above GOLDEN_CHILD_LINES).
+     "(10.8, 18 or 36 villager years, though he never ages). They count while the game is paused or closed; the "
+     "catch-up when the game loads does nothing for him; each Origins Time Warp moves the clock on 12 hours on Fast "
+     "or Normal and 10 hours on Slow, which counts towards them.", gm.RUNNING),
+    # 0x4479F3, 0x446920, 0x446C48 (see the comment above GOLDEN_CHILD_LINES).  "cuts back to 800": the world
+    # tick's cap 0x42F2C5, run every 2 real-life seconds (0x42345D -> 0x42348C).
     (f"His own acts, at any time from his birth: each time he picks what to do, {_pc(P_SHOW)} a short show where he "
-     f"stands (nothing else happens), and {_pc(P_ACT)} each of: the berry bush +400 (\"The Golden Child magically "
-     "created berries!\"); at Farming level 2 or more the crop field +400 (\"The Golden Child restored the "
-     "crops!\"), which the game cuts back to 800 within 2 real-life seconds (0x42F2C5; real time: the world "
-     "update runs every 2 real-life seconds, 0x42345D -> 0x42348C); +150 food, counted in Food "
-     "Gathered (\"The Golden Child magically created food!\"); every living "
-     "villager stops to dance (one who dislikes dancing only stops) and every sick villager is cured at once, each "
-     "counted in People Cured; and, while the cave is shut, opening the cave with every living villager "
-     "\"Observing\". So the cave can open before the 36 hours. Two in seven of these picks do nothing, one more "
-     "below Farming level 2 and one more once the cave is open.", gm.RUNNING),
+     f"stands (nothing else happens), and {_pc(P_ACT)} each of the five acts on the next line. Two in seven of "
+     "these picks do nothing, one more below Farming level 2 and one more once the cave is open.", gm.RUNNING),
+    ("His five acts: the berry bush +400 (\"The Golden Child magically created berries!\"); at Farming level 2 or "
+     "more the crop field +400 (\"The Golden Child restored the crops!\"), which the game cuts back to 800 within "
+     "2 real-life seconds (real time, at any speed); +150 food, counted in Food Gathered (\"The Golden Child "
+     "magically created food!\"); every living villager stops to dance (one who dislikes dancing only stops) and "
+     "every sick villager is cured at once, each counted in People Cured; and, while the cave is shut, opening the "
+     "cave with every living villager \"Observing\". So the cave can open before the 36 hours.", gm.RUNNING),
     # 0x43ABC4 (effect 1), 0x424635 / 0x4245F1 (drop areas 2 and 18), word 10 "caves".
     ("Opening the cave: the boulder is gone, the Puzzles screen records the hour, and the game's message reads \"The "
      "magical Golden Child moved the giant boulder and opened the cave! Maybe more clues about Isola's mysteries are "
@@ -294,8 +296,9 @@ GOLDEN_CHILD_LINES = (
     ("Only he opens the cave and only he calls the butterflies. If he dies or vanishes first, that village never gets "
      "them: his puzzle cannot be done again.", gm.RUNNING),
     # 0x42EF39: the birth of a pregnancy whose father ([rec+0x394], stored at conception 0x43BC04) is family 199.
-    ("A pregnancy fathered by a family-199 villager would bring a second Golden Child at its birth, beside her own "
-     "baby; he is always 5 and parents must be 18, so the stock game never reaches it.", gm.RUNNING),
+    ("A pregnancy fathered by a villager of family number 199 (the Golden Child's) would bring a second Golden "
+     "Child at its birth, beside her own baby; he is always 5 and parents must be 18, so the stock game never "
+     "reaches it.", gm.RUNNING),
     # Health losses do not check family 199 (HIDDEN_LINES); the island events' villager picks take him like anyone
     # (no family-199 test in their pickers), with the outcomes EVENT_LINES gives.
     ("How he can leave: at 0 health he dies, and health he loses comes back only by eating on the food store or "
@@ -433,10 +436,10 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
                                         "take 2 to 10 times the food (the slider); food never goes below 0"))
+    # The free-time choices 0x446030, case 5.
     add("Food earned", "A villager dropped on the food store goes \"Eating\": it costs 1 food, and below 100 health it "
                        "gives 1 health 50.05% of the time. Adults also go \"Eating\" on their own: when the game sends "
-                       "an adult to its free-time choices, 10.66% of them are a meal while there is food (0x446030, "
-                       "case 5).", gm.CODE)
+                       "an adult to its free-time choices, 10.66% of them are a meal while there is food.", gm.CODE)
     add("Food earned", "The Golden Child has no age-unit meal and never starves (that step skips him); dropped on the "
                        "food store he eats like anyone.", gm.CODE)
 

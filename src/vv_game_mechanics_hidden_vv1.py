@@ -59,61 +59,68 @@ DEFAULT_OFF: frozenset[str] = frozenset()
 def _keys() -> list[Entry]:
     return [
         hidden.translator_entry(PUMP[0]),
+        # Space: the village slot 0x41FDF0 adds 999 to the speed at state +0xA318.
         Entry(KEY, "Space (village screen)", (
-            "pauses: the game's speed value goes up by 999 (0x41FDF0; the speed at state +0xA318), which stops the "
-            "game's clock. Space again takes the 999 off and the game runs at the speed it had (a value of exactly 999 "
-            "comes back as Normal), and clears the message line at the bottom of the screen"), C),
+            "pauses: the game's speed value goes up by 999, which stops the game's clock. Space again takes the "
+            "999 off and the game runs at the speed it had (a value of exactly 999 comes back as Normal), and clears "
+            "the message line at the bottom of the screen"), C),
         Entry(KEY, "D, M, P, T and Esc (village screen)", (
-            "the same as clicking the screen's own buttons: D the Detail button, M Map, P Puzzles, T Tech and Esc Menu "
-            "(0x41FDF0 hands the button's number -- 4, 6, 7, 5 and 3 -- to the screen's button slot, as a click does). "
+            # 0x41FDF0 hands the button's number -- 4, 6, 7, 5 and 3 -- to the screen's button slot, as a click does.
+            "the same as clicking the screen's buttons: D the Detail button, M Map, P Puzzles, T Tech and Esc Menu. "
             "Capital and small letters work alike"), C),
         Entry(KEY, "F7 and F8 (village screen)", (
-            "move the message line at the bottom of the screen (the text box at 496, 575) up by one pixel (F7) or down "
-            "by one pixel (F8) a press, and nothing else (0x41FDF0 -> 0x40C420): a developer's layout key left in "
-            "the game"), C),
+            # The text box at 496, 575; 0x41FDF0 -> 0x40C420.
+            "move the message line at the bottom of the screen up by one pixel (F7) or down by one pixel (F8) a "
+            "press, and nothing else: a developer's layout key left in the game"), C),
         Entry(KEY, "F1 (the splash, the help pictures, the Start / \"?\" screen, Puzzles and Milestones, Tech)", (
-            "jumps straight into the village (game state 1: 0x431700, 0x41E410, 0x41F480, 0x42E420, 0x435A60). There "
-            "is no button for it. On the Start / \"?\" screen of a new village it also skips setting the village's "
-            "start time (docs/known-behaviours-and-non-bugs.md, G10)"), C, subs=(
+            # Game state 1 from the slots 0x431700, 0x41E410, 0x41F480, 0x42E420, 0x435A60; the skipped start time:
+            # docs/known-behaviours-and-non-bugs.md, G10.
+            "jumps straight into the village. There is no button for it. On the Start / \"?\" screen of a new "
+            "village it also skips setting the village's start time"), C, subs=(
                 ("Seen by the owner (2026-10-11): F1 pressed on the \"Lost at sea\" picture did nothing. Which "
                  "screen that picture belongs to was not settled, so the code and this observation are both kept.",
                  O),)),
         Entry(KEY, "F3 (the help pictures, the Start / \"?\" screen, Puzzles and Milestones)", (
-            "flips one setting of the game's drawing object (its byte +0x1F, 0x408290) each press"), C, subs=(
-                ("What the setting changes on screen (read on 2026-10-11 as the game's own pointer against the "
-                 "Windows pointer) is not confirmed.", U),)),
+            # The drawing object's byte +0x1F, flipped by 0x408290.
+            "flips one setting of the game's drawing each press"), C, subs=(
+                ("What the setting changes on screen is not confirmed (on 2026-10-11 it was read as switching "
+                 "between the game's mouse pointer and the Windows one).", U),)),
         Entry(KEY, "Esc (Map, Puzzles and Milestones, Tech, Villager Detail)", (
-            "the same as the screen's own way back (0x429B70, 0x42E420, 0x435A60, 0x449630)"), C),
+            # The slots 0x429B70, 0x42E420, 0x435A60, 0x449630.
+            "the same as the screen's own way back"), C),
+        # The Yes / No box 0x415400; the one-button box 0x4317E0.
         Entry(KEY, "Enter and Esc (pop-up boxes)", (
-            "in a Yes / No box Enter is Yes and Esc is No (0x415400); in a one-button box either key closes it "
-            "(0x4317E0)"), C),
+            "in a Yes / No box Enter is Yes and Esc is No; in a one-button box either key closes it"), C),
         Entry(KEY, "Typing in a name box", (
             "a typed character from 32 to 255 is added (a number box takes only 0 to 9, and \"-\" as the first "
             "character), Backspace takes the last one off, and while the box is active it takes every key but Esc "
-            "and does nothing with it (0x40BE30)"), C, subs=(
-                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character (13 or 9, 0x40B910): the "
-                 "event pump never makes those characters, it hands Enter and Tab on as keys (0x403970).", C),)),
+            "and does nothing with it"), C, subs=(
+                # The name box 0x40BE30; its ending on character 13 or 9 at 0x40B910; the event pump 0x403970.
+                ("DEAD (never runs): the box's own ending on a typed Enter or Tab character: the game never passes "
+                 "those characters to the box, it hands Enter and Tab on as keys.", C),)),
         Entry(KEY, "Tab, the arrows, Page Up, Page Down, Home, End, Insert, Delete, F2, F4, F5, F6, F9 and F10", (
-            "no screen of A New Home reacts to them (no input slot tests them; the patcher's \"Reenable F6 Clothing "
-            "Change Cheat\" adds F6, below)"), C),
+            "no screen of A New Home reacts to them (no screen's key handling tests them; the patcher's "
+            "\"Reenable F6 Clothing Change Cheat\" adds F6, below)"), C),
         Entry(KEY, "Store screens: no redraw or reroll key", (
-            "no key or click redraws, refreshes or rerolls what A New Home offers. Its Tech screen "
-            "offers a fixed list at fixed prices; its input, mouse and button slots "
-            "(0x434070, 0x435A60, 0x435AB0) draw no random number (0x402F10) and test only Esc and F1 (above)."
-            ""
-            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
-            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
-            "Windows' own dialog keys work there; their lists are fixed"), C),
+            # The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or key-state code.
+            "no key or click redraws, refreshes or rerolls what A New Home offers. Its Tech screen offers a fixed "
+            "list at fixed prices; its keys, mouse and buttons draw no random number and test only Esc and F1 "
+            "(above; in the game's code its slots 0x434070, 0x435A60 and 0x435AB0 never call the random-number "
+            "routine (0x402F10)). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are "
+            "Windows dialogs with no key handling of their own, so only Windows' own dialog keys work there; their "
+            "lists are fixed"), C),
     ]
 
 
 def _codes() -> list[Entry]:
     return [
+        # The name box 0x40BE30.
         Entry(CODE, "Typed codes and name cheats", (
             "none. Outside the name boxes a typed letter is a single key (above), and the name boxes only store what "
-            "is typed (0x40BE30)"), C, subs=(
-                ("The developer-leftover search of 2026-10-11 (static) also found no comparison of a typed name with "
-                 "any fixed word, no command-line switch and no date-based event.", U),)),
+            "is typed"), C, subs=(
+                ("A search of the code for developer leftovers (2026-10-11, without running it) also found no "
+                 "comparison of a typed name with any fixed word, no command-line switch and no date-based event.",
+                 U),)),
     ]
 
 
@@ -123,44 +130,48 @@ def _clicks() -> list[Entry]:
         Entry(CLICK, "The mask (village screen)", (
             f"the spot from {x0} to {x1} across and {y0} to {y1} down on the 800 x 600 screen. Each press of the left "
             "button on it shows one of the 30 random tips (below) in the message line at the bottom of the screen: "
-            f"rand(30) + {RANDOM_BASE}, each tip 1 in 30 a click, any tip can come again, nothing is remembered "
-            "(0x424EF0, 0x4256B0; shown by 0x421B40). The first click in a village also queues the tutorial tip \"Click "
-            "the mask to see helpful tips at the bottom of the screen.\" while it is still armed (+0x161, tip 304); "
-            "after that each click also plays a sound (67)"), C, subs=(
-                ("The message line's timer is set 5 real-life seconds on, in real time at every speed and also while "
-                 "paused (0x421B40 sets +0x284 to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program "
-                 "started); that the line is cleared then is not traced.", U),
-                ("Moving the mouse over the mask: each movement has an 11% chance (rand(100) <= 10) of starting two "
-                 "of the game's short effects (type 4) at 168, 514 and 193, 505 (0x424EF0); what they look like is "
-                 "not confirmed.", C),
+            # The mouse slot 0x424EF0 -> the picker 0x4256B0, shown by 0x421B40; the tip's arming flag +0x161.
+            f"each tip 1 in 30 a click (the game's code: rand(30) + {RANDOM_BASE}), any tip can come again, nothing is "
+            "remembered. The first click in a village also queues the tutorial tip \"Click the mask to see helpful "
+            "tips at the bottom of the screen.\" while it is still waiting to be shown (tip 304); after that each "
+            "click also plays a sound (67)"), C, subs=(
+                # 0x421B40 sets +0x284 to 0x402F70 + 5; 0x402F70 counts real-life seconds since the program started.
+                ("The message line's timer is set 5 real-life seconds ahead (real time, the same at every speed, "
+                 "paused too); that the line is cleared then is not traced.", U),
+                # rand(100) <= 10 in 0x424EF0: two effects of type 4 at 168, 514 and 193, 505.
+                ("Moving the mouse over the mask: each movement has an 11% chance of starting two of the game's "
+                 "short screen effects beside it; what they look like is not confirmed.", C),
                 ("The patcher's \"Numeric Keys: Zip Around the Island\" adds a 31st tip to this mask (see Patcher).",
                  C))),
         Entry(CLICK, "The school drum (village)", (
-            "once The School puzzle is complete (+0xA050), a click on the map spot 729 to 757 across and 888 to 936 down "
-            "plays a sound (73) and sends every living child under 14 villager years to school (the drum lesson "
-            "0x444AA0, sole caller 0x425505; docs/vv1-school-lessons-research.md)"), C),
+            # The School's flag +0xA050; the drum lesson 0x444AA0, sole caller 0x425505
+            # (docs/vv1-school-lessons-research.md).
+            "once The School puzzle is complete, a click on the map spot 729 to 757 across and 888 to 936 down "
+            "plays a sound (73) and sends every living child under 14 villager years to school"), C),
         Entry(CLICK, "Places that show their state (village)", (
+            # 0x424EF0 -> 0x421B40, by the place's map area (0x414200).  The values read: area 3 +0xA2F4; areas 4
+            # and 16 +0x9FAC, +0x9FB0; areas 5 and 21 +0x9FD4, +0x9FD8; area 6 +0xA2FC; area 11 +0xA2EC; area 34
+            # +0xA2E4; area 35 +0x9FDC, +0x9FE0.
             "a click on the ground (not on a villager) at one of these places writes a line in the message line at "
-            "the bottom of the screen (0x424EF0 -> 0x421B40, by the place's map area 0x414200)"), C, subs=(
-                ("Area 3: \"Berries remaining:\" and the count (+0xA2F4).", C),
-                ("Areas 4 and 16, while that work has begun and is not finished (+0x9FAC, +0x9FB0): \"Percentage of "
-                 "blockage cleared:\" and its progress x 100 / 350.", C),
-                ("Areas 5 and 21, the same way (+0x9FD4, +0x9FD8): \"Percentage carving progress:\" and its progress "
-                 "x 100 / 1,350.", C),
-                ("Area 6: \"Tech Points : \" and the tech points (+0xA2FC).", C),
-                ("Area 11: \"Food available to villagers.: \" and the food (+0xA2EC).", C),
-                ("Area 34, once its crops have been planted twice or more (+0xA2E4): \"Crops remaining:\" and the "
-                 "crops, or with none left \"Minutes until new crops:\" and the real-life minutes to the next crop.",
+            "the bottom of the screen (the areas are the game's numbers for places on the map)"), C, subs=(
+                ("Area 3: \"Berries remaining:\" and the count.", C),
+                ("Areas 4 and 16, while that work has begun and is not finished: \"Percentage of blockage "
+                 "cleared:\" and its progress x 100 / 350.", C),
+                ("Areas 5 and 21, the same way: \"Percentage carving progress:\" and its progress x 100 / 1,350.",
                  C),
-                ("Area 35, while it is being built (+0x9FDC, +0x9FE0): \"Percentage construction completed:\" and its "
-                 "progress x 100 / 1,000; areas 39, 40 and 41: the same words, progress x 100 / 250, / 400 and / "
-                 "600.", C),
+                ("Area 6: \"Tech Points : \" and the tech points.", C),
+                ("Area 11: \"Food available to villagers.: \" and the food.", C),
+                ("Area 34, once its crops have been planted twice or more: \"Crops remaining:\" and the crops, or "
+                 "with none left \"Minutes until new crops:\" and the real-life minutes to the next crop.", C),
+                ("Area 35, while it is being built: \"Percentage construction completed:\" and its progress x "
+                 "100 / 1,000; areas 39, 40 and 41: the same words, progress x 100 / 250, / 400 and / 600.", C),
                 ("Area 15, where a dropped child shows \"Children can't swim!\": a sound (59) and a splash where it "
                  "was clicked, no line.", C),
                 ("Which place on the map each area is was not drawn out; the messages name the work.", U))),
         Entry(CLICK, "The grid at the map spot 1,233 to 1,533 across and 200 to 350 down (village)", (
+            # 0x420060.
             "a click on a filled square of the 10-wide grid there plays a sound (72) and opens a box with a \"Done\" "
-            "button (0x420060); what the grid is was not identified"), U),
+            "button; what the grid is was not identified"), U),
     ]
 
 
@@ -169,12 +180,14 @@ def _tips() -> list[Entry]:
         Entry(TIP, "Where the tips appear", (
             "A New Home has two kinds: the 30 random tips, shown only by clicking the mask (above; there is no "
             "loading-screen tip: nothing else picks from them), and the tip pop-ups -- the tutorial and the milestone "
-            "pop-ups -- which the game queues by number (0x41C960) and shows one at a time; up to 10 wait, and a tip "
-            "asked for with the queue full is armed again for a later time (+0x31 + its number)"), C, subs=(
-                ("A new village arms the tutorial tips (0x41C755); answering the help question \"Would you like HELP "
-                 "the first time?\" one way switches them off (0x41ECB6; which button does it is not observed).", U),
-                ("Each tutorial step's instruction is queued by 0x41C9A0 when the step before it is shown, while "
-                 "that step is still armed: the tutorial runs in order, each tip once a village.", C))),
+            # The tip queue 0x41C960; a tip's arming flag +0x31 + its number; a new village arms them at 0x41C755;
+            # the help question switches them off at 0x41ECB6; the tutorial's next step 0x41C9A0.
+            "pop-ups -- which the game queues by number and shows one at a time; up to 10 wait, and a tip asked for "
+            "with the queue full is kept for a later time"), C, subs=(
+                ("A new village switches the tutorial tips on; answering the help question \"Would you like HELP "
+                 "the first time?\" one way switches them off (which button does it is not observed).", U),
+                ("Each tutorial step's instruction is queued when the step before it is shown, while that step has "
+                 "not been shown yet: the tutorial runs in order, each tip once a village.", C))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (the mask)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C, lambda tip: "")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
@@ -192,7 +205,7 @@ def _popup_note(tip) -> str:
     if tip[2]:
         return hidden.sites_note(tip[2])
     if tip[0] in CHAINED:
-        return "queued by 0x41C9A0 as the tutorial's next step"
+        return "queued as the tutorial's next step"          # by 0x41C9A0
     return ""
 
 
@@ -203,25 +216,26 @@ def _patcher() -> list[Entry]:
             "along the bottom), a tenth of the remaining distance each update; another number changes course, "
             "dragging the map pulls against the glide while the button is held, letting go of the button (or any "
             "click) ends it, and opening another screen ends it. The top-row digits and, with Num Lock on, the keypad "
-            "work (native/vv1_number_keys). It also adds the tip \"You can zip around the island with your numeric "
-            "keys.\" as tip 549, and the mask then draws from 31 tips (0x4256B0: push 0x1E becomes push 0x1F)"), C,
+            # native/vv1_number_keys; the mask's picker 0x4256B0: push 0x1E becomes push 0x1F.
+            "work. It also adds the tip \"You can zip around the island with your numeric keys.\" as tip 549, and "
+            "the mask then draws from 31 tips"), C,
               feature=NUMBER_KEYS, subs=(
-                ("The tip comes only from the mask: A New Home's only random-tip picker is the mask click (0x4256B0 "
-                 "is in the village's mouse slot 0x424EF0), and its loading screen (built by 0x41F650) shows only "
-                 "\"Loading...\".", C),)),
+                # The picker 0x4256B0 is in the village's mouse slot 0x424EF0; the loading screen is built by 0x41F650.
+                ("The tip comes only from the mask: A New Home's only random-tip picker is the mask click, and its "
+                 "loading screen shows only \"Loading...\".", C),)),
         Entry(PATCHER, "F6 (village screen)", (
             "with a living villager selected, spends 5,000 tech points and puts that villager in the next outfit (0 to "
             "19, then 0 again); with fewer than 5,000 tech points or nobody selected nothing happens and nothing is "
-            "charged (docs/vv1-f6-clothing-research.md)"), C, feature=F6),
+            "charged"), C, feature=F6),                     # docs/vv1-f6-clothing-research.md
         Entry(PATCHER, "Sort By (Villager Detail screen)", (
             "adds a Sort By band under the Age and Gender boxes with Age, Skill and Health; clicking one makes the left "
-            "and right arrows walk the villagers in that order (Age is the default; native/vv1_sort_by)"), C,
+            "and right arrows walk the villagers in that order (Age is the default)"), C,   # native/vv1_sort_by
               feature=SORT_BY),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail); "
             "Esc closes either menu the same way as Cancel"), C, feature=ORIGINS, subs=(
-                ("Esc closing both menus was run for real against the compiled menus "
-                 "(tests/manual/runtime_test_vv1_esc_closes_upgrade_menus.c).", E),)),
+                # tests/manual/runtime_test_vv1_esc_closes_upgrade_menus.c.
+                ("Esc closing both menus was run for real against the compiled menus.", E),)),
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event and Choose Time Skip Amount, and makes every Origins Upgrade "
             "cost 0 tech points"), C, feature=STORY),
