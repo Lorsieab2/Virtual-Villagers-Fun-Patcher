@@ -103,7 +103,10 @@ class Window(unittest.TestCase):
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn('text="Stew Recipes...",', source)
         self.assertIn("vv_stew_recipes_window.open_stew_recipes(self, None)", source)
-        self.assertIn('self._help_button(genealogy_tools, "stew_recipes")', source)
+        # On a row of its own (Codex, #758): the genealogy row is full at the 820-pixel minimum width.
+        self.assertIn('self._help_button(stew_tools, "stew_recipes")', source)
+        self.assertNotIn('self._help_button(genealogy_tools, "stew_recipes")', source)
+        self.assertIn("stew_tools = ttk.Frame(box)", source)
         import json
         guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))["controls"]
         self.assertEqual(guide["stew_recipes"]["title"], "Stew Recipes")

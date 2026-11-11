@@ -2136,13 +2136,6 @@ class App(tk.Tk):
             command=lambda: vv_game_mechanics_window.open_game_mechanics(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "game_mechanics").pack(side="left", padx=(2, 0))
-        # Stew Recipes (the owner, 2026-11-10: "Separate window"): every cauldron recipe of VV2-VV4, in its own window.
-        ttk.Button(
-            genealogy_tools,
-            text="Stew Recipes...",
-            command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
-        ).pack(side="left", padx=(8, 0))
-        self._help_button(genealogy_tools, "stew_recipes").pack(side="left", padx=(2, 0))
         # Picture Studio (the owner, 2026-10-31): the villagers drawn as each game draws them, saved as PNGs.
         ttk.Button(
             genealogy_tools,
@@ -2150,6 +2143,16 @@ class App(tk.Tk):
             command=lambda: vv_picture_studio.open_picture_studio(self, None),
         ).pack(side="left", padx=(8, 0))
         self._help_button(genealogy_tools, "picture_studio").pack(side="left", padx=(2, 0))
+        # Stew Recipes (the owner, 2026-11-10: "Separate window"): every cauldron recipe of VV2-VV4, in its own
+        # window -- on a row of its own, so the full row above still fits the 820-pixel minimum width (Codex, #758).
+        stew_tools = ttk.Frame(box)
+        stew_tools.pack(fill="x", pady=(8, 0))
+        ttk.Button(
+            stew_tools,
+            text="Stew Recipes...",
+            command=lambda: vv_stew_recipes_window.open_stew_recipes(self, None),
+        ).pack(side="left")
+        self._help_button(stew_tools, "stew_recipes").pack(side="left", padx=(2, 0))
         slot_tools = ttk.Frame(box)
         slot_tools.pack(fill="x", pady=(8, 0))
         ttk.Button(
