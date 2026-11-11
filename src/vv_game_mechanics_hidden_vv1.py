@@ -103,10 +103,11 @@ def _keys() -> list[Entry]:
             "\"Reenable F6 Clothing Change Cheat\" adds F6, below)"), C),
         Entry(KEY, "Store screens: no redraw or reroll key", (
             # The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or key-state code.
+            # "draw no random number": in the game's code the Tech screen's slots 0x434070, 0x435A60 and 0x435AB0
+            # (STORE_SLOTS) never call the random-number routine 0x402F10 (RAND); tests/hidden_checks.py reads them.
             "no key or click redraws, refreshes or rerolls what A New Home offers. Its Tech screen offers a fixed "
             "list at fixed prices; its keys, mouse and buttons draw no random number and test only Esc and F1 "
-            "(above; in the game's code its slots 0x434070, 0x435A60 and 0x435AB0 never call the random-number "
-            "routine (0x402F10)). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are "
+            "(above). The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are "
             "Windows dialogs with no key handling of their own, so only Windows' own dialog keys work there; their "
             "lists are fixed"), C),
     ]
@@ -131,7 +132,8 @@ def _clicks() -> list[Entry]:
             f"the spot from {x0} to {x1} across and {y0} to {y1} down on the 800 x 600 screen. Each press of the left "
             "button on it shows one of the 30 random tips (below) in the message line at the bottom of the screen: "
             # The mouse slot 0x424EF0 -> the picker 0x4256B0, shown by 0x421B40; the tip's arming flag +0x161.
-            f"each tip 1 in 30 a click (the game's code: rand(30) + {RANDOM_BASE}), any tip can come again, nothing is "
+            # "1 in 30": the picker draws rand(30) + 519 (RANDOM_COUNT, RANDOM_BASE; tests/hidden_checks.py PICKERS).
+            "each tip 1 in 30 a click, any tip can come again, nothing is "
             "remembered. The first click in a village also queues the tutorial tip \"Click the mask to see helpful "
             "tips at the bottom of the screen.\" while it is still waiting to be shown (tip 304); after that each "
             "click also plays a sound (67)"), C, subs=(

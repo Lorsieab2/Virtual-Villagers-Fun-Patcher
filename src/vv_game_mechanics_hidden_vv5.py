@@ -139,13 +139,16 @@ def _keys() -> list[Entry]:
             "the village screen hands a seventh kind of input event to a routine that returns at once; nothing makes "
             "such events (the game makes only characters and keys)"), C, dead=True),
         Entry(KEY, "Store screens: no redraw or reroll key", (
-            "no key or click redraws, refreshes or rerolls what New Believers offers. Its Tech screen (CTechScene) "
-            "offers a fixed list at fixed prices; its input and button slots "
-            "(0x441390, 0x4415F0) draw no random number (0x403660) and test only Esc and F1 (above)."
-            " The screen's mouse slot 0x4413C0 draws random numbers only to scatter 8 sparkles over an icon the player can afford while the pointer moves onto it (rand(70) twice a sparkle); a click there opens that icon's description box; nothing it offers changes."
-            " The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with "
-            "no key handling of their own (native/ has no WM_KEYDOWN, WM_CHAR or key-state code), so only "
-            "Windows' own dialog keys work there; their lists are fixed"), C),
+            # The Tech screen is CTechScene.  "draw no random number": in the game's code its input and button slots
+            # 0x441390 and 0x4415F0 (STORE_SLOTS) never call the random-number routine 0x403660 (RAND);
+            # tests/hidden_checks.py reads them.  The sparkles: the screen's mouse slot 0x4413C0, rand(70) twice a
+            # sparkle.  The patcher's menus: native/ has no WM_KEYDOWN, WM_CHAR or key-state code.
+            "no key or click redraws, refreshes or rerolls what New Believers offers. Its Tech screen offers a fixed "
+            "list at fixed prices; its keys and buttons draw no random number and test only Esc and F1 (above). "
+            "The mouse draws random numbers there only to scatter 8 sparkles over an icon the player can afford while "
+            "the pointer moves onto it; a click there opens that icon's description box; nothing it offers changes. "
+            "The patcher's Origins Upgrades, Villager Upgrades and Story / Cheat menus are Windows dialogs with no key "
+            "handling of their own, so only Windows' own dialog keys work there; their lists are fixed"), C),
     ]
 
 
@@ -196,9 +199,10 @@ def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
             f"the loading screen shows one of the first {LOADING_COUNT} random tips, picked once when it is built "
-            # The loading screen 0x441D30 (the "rand(30) + 1121" is pinned by tests/hidden_checks.py); the pop-ups
-            # are asked for through 0x44E730, and whether one is still to show is tested by 0x44E840.
-            f"(rand({LOADING_COUNT}) + {RANDOM_BASE}, each 1 in {LOADING_COUNT}); the tutorial (eTTip) and milestone "
+            # The loading screen 0x441D30: rand(30) + 1121 (LOADING_COUNT, RANDOM_BASE; tests/hidden_checks.py
+            # PICKERS); the pop-ups are asked for through 0x44E730, and whether one is still to show is tested by
+            # 0x44E840.
+            f"(each 1 in {LOADING_COUNT}); the tutorial (eTTip) and milestone "
             "(eTip) pop-ups are asked for by number"), C, subs=(
                 # 0x402F70 -> srand.
                 ("The game seeds its random numbers from the computer's clock when it starts, so the loading screen's "
