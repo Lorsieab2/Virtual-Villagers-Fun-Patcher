@@ -518,6 +518,8 @@ FILES = [
     "src/vv_game_mechanics_items_vv4.py",
     "src/vv_game_mechanics_items_vv5.py",
     "src/vv_game_mechanics_parity.py",
+    # The Stew Recipes page (The Lost Children, The Secret City, The Tree of Life), added by the window.
+    "src/vv_game_mechanics_stews.py",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

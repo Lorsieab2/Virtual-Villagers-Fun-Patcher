@@ -195,6 +195,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
+               # The Stew Recipes page (the owner, 2026-11-10), added by the window.
+               "vv_game_mechanics_stews",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
@@ -378,7 +380,8 @@ class ReleasesLinkTests(unittest.TestCase):
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher",  # the patcher's own applied-patch check of the exe (function-level)
                                    "patcher_files"}),  # the patch log's names, read at any path length
-            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
+            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_game_mechanics_stews", "vv_save_backup", "vv_tribe_rename",
+                                          "vv_tool_fonts"}),
             # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
             # files as the log checker reads them (function-level), and each game's renderer.
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common", "vv_pictures_text_tab",
