@@ -182,6 +182,26 @@ EFFECTS = (
       "While the game is paused nobody ages and the age clock's count is emptied, so the paused part of the 5 "
       "real-life minutes (real time) gives no age. The warp is not saved: quitting ends it, so time away (catch-up) "
       "is never warped.",
+      # A known quirk of the normal game, left as it is (the owner, 2026-11-10/11: "a funny quirk in the vanilla
+      # game (which should not be fixed)").  The ager 0x46FE90 adds whole age units to the shown age +0x1B8C at
+      # once (0x46F7F0); the life tick 0x472C90 steps the processed age +0x1C3C one unit at a time and rolls old age
+      # only there (0x472FC6..0x47304A); a dead villager is not aged again (0x46FF63).  Code reading for the
+      # UNCONFIRMED line: the factor +0x1CC8 is not saved (writer 0x465270 / loader 0x466B60 copy +0x1B8C x 0xA8,
+      # +0x1C34 x 0x28, +0x1C5C x 0x1C and fields past +0x1CEC) and the loader 0x46FA20 resets it first (0x465207);
+      # the spells' timers (0x4203C0 from 0x44256E) run before the ageing (0x425E30 from 0x4425C0); reopening pays at
+      # most 86,400 s (0x46FFAB) at factor 1.  The patcher's Origins Time Warp and each Choose Time Skip Amount step
+      # (native/vv5_task9_origins, vv5_time_warp_apply) add years x 20 x the doubled factor (vv5_aging_rate).
+      ("A known quirk of the normal game, left as it is: using Time Warp on an elderly villager can leave their age "
+       "at death listed at extremely high ages (the owner has seen about 145 years).", gm.OWNER),
+      "Why the listed age can be so high: the age shown is added in jumps (each payment of age at once), while old "
+      "age is rolled one birthday at a time behind it. When a jump carries a villager past several birthdays, the "
+      "fatal roll can come at an earlier birthday, but the Details screen and the grave keep the jumped age, since "
+      "a dead villager's age never moves again.",
+      ("How the normal game reaches ages that high was not settled from the code: the warp is not saved, and "
+       "reopening a village adds at most 24, 12 or 7.2 years on Fast, Normal or Slow at the normal speed.", False),
+      "With the patcher's Origins Time Warp or Choose Time Skip Amount used during the warp's 5 real-life minutes, "
+      "the warped villager gets 20 times the skipped years at once (240, 120 or 60 years for one Origins Time Warp "
+      "on Fast, Normal or Slow).",
       # Work event 54 is at 0x46D3F8.
       ("A work step of the game's also sets the factor back to 1; which action starts it was not "
        "traced.", False),
