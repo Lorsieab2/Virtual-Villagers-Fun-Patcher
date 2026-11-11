@@ -225,6 +225,48 @@ class TheGamesOwnTables(unittest.TestCase):
                          bytes.fromhex("813d4426580088130000"))
         self.assertEqual(items.CLOTHES_PRICE, 5_000)
 
+    def test_the_first_paying_research_skill(self) -> None:
+        """Science 1, 2, 3 divide the Research skill by 11, 9, 7 (0x45934D, 0x4592E2, 0x459274: the magic-number
+        divides) and, outside catch-up, divide that by the clock's rate x float 1/6 (0x426580: fild [ecx + 0x20];
+        fmul dword [0x4808A0]) and cut it to a whole number (0x46EF58).  So on Normal (rate 6) and Slow (10) nothing
+        is paid below twice the divisor, on Fast (3) nothing below the divisor."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        self.assertEqual(code(0x426580, 9), bytes.fromhex("db4120d80da0084800"))
+        sixth = struct.unpack("<f", code(0x4808A0, 4))[0]
+        for at, magic, d in ((0x45934D, 0x2E8BA2E9, 11), (0x4592E2, 0x38E38E39, 9), (0x459274, 0x92492493, 7)):
+            self.assertEqual(code(at, 5), b"\xb8" + struct.pack("<I", magic))
+        for at in (0x4592C4, 0x459332, 0x459399):                                  # fdivr dword [esp + 0xc]
+            self.assertEqual(code(at, 4), bytes.fromhex("d87c240c"))
+        names = {e.name: e.text for e in items.entries()}
+        for level, d, c in ((1, 11, 7), (2, 9, 7), (3, 7, 5)):
+            first = {rate: next(s for s in range(1, 200) if int((s // d) / (rate * sixth)) >= 1) for rate in (3, 6, 10)}
+            self.assertEqual(first, {3: d, 6: 2 * d, 10: 2 * d})
+            self.assertIn(f"a session pays nothing below Research {d} on Fast speed, below Research {2 * d} on Normal "
+                          f"or Slow speed, and below Research {c} while catching up", names[f"Science level {level}"])
+            self.assertNotIn("(nothing below", names[f"Science level {level}"])
+
+    def test_the_fruit_trees_two_thresholds(self) -> None:
+        """The dispatcher (0x45AF9A) and the remembered-site continuation (0x45ADEA) take a tree at 10 or more fruit;
+        the drop handler 0x4224D0 (region 0x18, 0x422BC3) queues the pick (action 0x7D, 0x422585) with no count
+        check; the pick 0x4348F0 refuses a tree under 5 (0x434982)."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        for at in (0x45AF9A, 0x45ADEA):
+            self.assertEqual(code(at, 5), bytes.fromhex("83f80a7c14"))             # cmp eax, 10; jl skip
+        self.assertEqual(code(0x434982, 6), bytes.fromhex("833cc6057c3c"))         # cmp [esi + eax*8], 5; jl
+        self.assertEqual(code(0x422BC3, 7), b"\x68" + struct.pack("<I", 0x4224D0) + b"\x6a\x18")
+        self.assertEqual(code(0x422585, 2), bytes.fromhex("6a7d"))
+        for at in range(0x4224D0, 0x4225C2 - 4):                                   # no call of the fruit count
+            if code(at, 1) == b"\xe8":
+                self.assertNotEqual(at + 5 + struct.unpack("<i", code(at + 1, 4))[0], 0x434100)
+        fruit = {e.name: e.text for e in items.entries()}["Fruit"]
+        self.assertIn("The game sends a farmer to a tree by itself only while the tree holds 10 or more fruit. A "
+                      "villager the player drops on a tree that is ready to pick goes to pick it at any count. The "
+                      "pick itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets "
+                      "the tree.", fruit)
+        self.assertNotIn("is picked only with 10 or more", fruit)
+
     def test_each_collection_against_the_exe(self) -> None:
         """Each collection has its own entry: the pickup's completion message for each 12-kind range (tips 720 to 723,
         in the order Turtle Shell, Coral, Tablet, Feather), the rarity ranges, and the room check's 5 a collection
@@ -270,6 +312,29 @@ class Potions(unittest.TestCase):
         self.assertIn("adults never go", by_name[items._potion_name(40)])
         self.assertIn("the sharks leave", by_name[items._potion_name(27)])
         self.assertIn("charmed", by_name[items._potion_name(26)])
+
+    def test_feels_smarter_is_skill_plus_67_percent(self) -> None:
+        """The skill test 0x45A2C0: push 3 / 0x455E10 (effect 3) at 0x45A2F7..0x45A300 picks mov edi, 0x42 (66,
+        0x45A31B) over 0x21 or 0x10 (33 or 16, 0x45A311..0x45A314); then rand(100) at 0x45A342, cmp eax, ebp (skill +
+        edi), jle passes.  rand(100) is the C library's rand() % 100 (0x4032E1..0x4032E7), rand() 15 bits."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        self.assertEqual(code(0x45A2F7, 2), bytes.fromhex("6a03"))
+        self.assertEqual(code(0x45A311, 6), bytes.fromhex("83e0ef83c021"))       # and eax, -17; add eax, 33
+        self.assertEqual(code(0x45A31B, 5), bytes.fromhex("bf42000000"))         # mov edi, 66
+        self.assertEqual(code(0x45A340, 2), bytes.fromhex("6a64"))               # push 100
+        self.assertEqual(code(0x45A34C, 4), bytes.fromhex("3bc50f8e"))           # cmp eax, ebp; jle (pass)
+        self.assertEqual(code(0x46F3F5, 5), bytes.fromhex("25ff7f0000"))         # rand(): and eax, 0x7FFF
+        passes = lambda offset, skill: sum(1 for v in range(32768) if v % 100 <= skill + offset)  # noqa: E731
+        self.assertEqual(f"{passes(66, 0) / 32768:.2%}", "67.07%")
+        self.assertEqual(f"{passes(33, 0) / 32768:.2%}", "34.03%")
+        self.assertEqual(min(s for s in range(101) if passes(66, s) == 32768), 33)
+        does = counts.VV3_POTIONS[3][1]
+        self.assertIn("every skill test passes at the skill + 67% instead of + 34% (+ 17% for a villager who "
+                      "dislikes learning; one who likes learning already has + 67%): 67.07% instead of 34.03% at "
+                      "skill 0, and every time from skill 33", does)
+        self.assertNotIn("+ 66%", does)
+        self.assertIn(does, {e.name: e.text for e in items.entries()}[items._potion_name(3)])
 
 
 class Patcher(unittest.TestCase):

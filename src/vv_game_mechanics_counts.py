@@ -343,8 +343,13 @@ VV3_POTIONS = {
     0: ("Nasty! It's bitter.", "nothing happens"),
     1: ("Oh no, hiccups!", "a puff of one of the game's visual effects at the villager, nothing else"),  # effect 7, 0x429400
     2: ("Oh, it burns!", "3 to 6 health lost, never below 2"),
-    3: ("{He/She} feels smarter.", "for 10 real-life minutes at any speed, skill tries succeed at skill + 66% instead "
-                                  "of + 33%"),                                                     # 0x45A300
+    # The skill test 0x45A2C0 passes when rand(100) <= skill + 33 (0x45A342..0x45A34E); effect 3 (0x455E10 at
+    # 0x45A300) makes it + 66 (0x45A31B), as liking learning does, and overrides disliking it (+ 16, 0x45A309).
+    # rand(100) is rand() % 100 over 32,768 values: 0 to 67 come 328 times, 68 to 99 327 times.
+    3: ("{He/She} feels smarter.", "for 10 real-life minutes at any speed, every skill test passes at the skill + 67% "
+                                  "instead of + 34% (+ 17% for a villager who dislikes learning; one who likes "
+                                  "learning already has + 67%): 67.07% instead of 34.03% at skill 0, and every time "
+                                  "from skill 33 (Chances, The skill test)"),
     4: ("{He/She} has scientific clarity.", "for 10 real-life minutes at any speed, each research session pays 1 more "
                                            "tech point"),                                          # 0x4593FB
     5: ("{He/She} feels better.", "cured of sickness"),

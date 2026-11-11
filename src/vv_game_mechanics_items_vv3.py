@@ -136,10 +136,16 @@ def _level(name: str, level: int, text: str, verified: bool | str = VERIFIED_C,
 def _techs() -> list[Entry]:
     blow = {lvl: chance(at_most(100, 15 * (3 - lvl))) for lvl in (1, 2, 3)}
     sup = {lvl: _ch(25 * lvl) for lvl in (1, 2, 3)}
-    research = ("Each successful research session pays the researcher's Research skill ÷ {d}, rounded down (nothing "
-                "below Research {d}), then scaled by the game speed (Tech points and effects has the exact rounding); "
-                "while catching up time away, ÷ {c} at every speed. The shorter of the two research walks (a wait of "
-                "7 to 11 instead of 10 to 19) is taken {p}% of the time; both end in the same skill test and payout.")
+    # The speed step (0x4592B2..0x45939D): n / (the clock's rate x float 1/6), cut to a whole number (0x46EF58): 2n - 1
+    # on Fast, n - 1 on Normal, 0.6n (1 less when whole) on Slow, 0 stays 0.  So the first paying Research is d on
+    # Fast and 2d on Normal and Slow; catch-up skips the step (0x4592AC), so there it is c.  The bonuses after it
+    # (0x4593A4..0x459435) are added on top.
+    research = ("Each successful research session pays the researcher's Research skill ÷ {d}, rounded down, then "
+                "scaled by the game speed (Tech points and effects has the exact rounding); while catching up time "
+                "away, ÷ {c} at every speed. Before the Magic, potion and fire bonuses, a session pays nothing below "
+                "Research {d} on Fast speed, below Research {d2} on Normal or Slow speed, and below Research {c} "
+                "while catching up. The shorter of the two research walks (a wait of 7 to 11 instead of 10 to 19) is "
+                "taken {p}% of the time; both end in the same skill test and payout.")
     sick = ("Falling sick: {odds} each age unit (3, 6 or 10 real-life minutes on Fast, Normal or Slow) for each "
             "healthy villager, where m is 1 while the campfire burns or Aromatherapy is solved, otherwise 2 (Chances, "
             "Falling sick). Elderly from {old} years: a further 1.5% chance of falling sick each age unit, and health "
@@ -158,9 +164,9 @@ def _techs() -> list[Entry]:
             "at 0. Without enough tech points the game says \"You don't have enough tech points!\" and nothing is "
             "taken. Each level below is what that level gives."), VERIFIED_C),
         # Science (0): the research payout 0x459196 (vv_game_mechanics_vv3, Tech points and effects); the walk 0x44867A.
-        _level("Science", 1, research.format(d=11, c=7, p=85)),
-        _level("Science", 2, research.format(d=9, c=7, p=70)),
-        _level("Science", 3, research.format(d=7, c=5, p=55)),
+        _level("Science", 1, research.format(d=11, d2=22, c=7, p=85)),
+        _level("Science", 2, research.format(d=9, d2=18, c=7, p=70)),
+        _level("Science", 3, research.format(d=7, d2=14, c=5, p=55)),
         # Medicine (1): sickness 0x455C00, old age 0x4602C1, conception 0x4586E1, twins 0x455B77, study 0x45B69E.
         _level("Medicine", 1, sick.format(odds="(3m + 1) in 1,440", old=50, death=55, p=1) + " A healer with "
                "nobody sick to cure does nothing."),
@@ -429,10 +435,17 @@ def _items() -> list[Entry]:
     out += _potions()
     sup = _ch(25)
     out += [
+        # Two thresholds: the work dispatcher (0x45AF9A) and the remembered-site continuation (0x45ADEA) only take a
+        # tree with 10 or more fruit (cmp eax, 0xa); a villager dropped on the trees (region 0x18's handler 0x4224D0)
+        # is sent to pick with no fruit check; the pick itself (0x4348F0, also in catch-up) needs 5 or more
+        # (0x434982: cmp [tree], 5), else the reaction 0x72 and the site is forgotten (0x4349C4..0x4349D5).
         Entry(ITEM, "Fruit", (
             "picking brings 7, 3 or 2 food on Fast, Normal or Slow (4 while catching up), a third more when the "
-            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit and is picked "
-            "only with 10 or more (Food sources, Refills)."), VERIFIED_C,
+            f"supervising chief's roll passes ({sup} at Leadership 1); a tree holds up to 1,000 fruit (Food sources, "
+            "Refills). The game sends a farmer to a tree by itself only while the tree holds 10 or more fruit. A "
+            "villager the player drops on a tree that is ready to pick goes to pick it at any count. The pick "
+            "itself needs 5 or more: under 5 the villager reacts instead, picks nothing and forgets the tree."),
+            VERIFIED_C,
             ((patch("vv3_fruit_harvested_at_food_bin") + ": the fruit leaves the tree, and the food is added, only "
               "when the villager puts it in the food bin.", UNCONFIRMED),
              (patch("vv3_fruit_trees_refill_together") + ": every tree refills when the first one is due; over time "
