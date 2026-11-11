@@ -118,20 +118,27 @@ class GodPowers(unittest.TestCase):
         self.assertIn(b"You used time warp on a child\0", img)
 
     def test_time_warp_very_old_ages(self) -> None:
-        """The owner (2026-11-10): why warped villagers die at very high ages like 145.  The factor +0x1CC8 is not
-        saved and is reset before a load; the spells' timers run before the ageing each update; reopening pays at
-        most 86,400 s at factor 1; the patcher's Origins Time Warp and time skip multiply the years by the doubled
-        factor (20 while warped)."""
+        """The owner (2026-11-10/11): a known quirk of the normal game, left as it is -- Time Warp on an elderly
+        villager can leave their age at death listed at extremely high ages (about 145).  The code shows the jump
+        (shown age paid at once, old age rolled per processed birthday); how the normal game reaches 145 stays
+        UNCONFIRMED (the factor +0x1CC8 is not saved and is reset before a load; the spells' timers run before the
+        ageing; reopening pays at most 86,400 s at factor 1).  The patcher's Origins Time Warp and time skip multiply
+        the years by the doubled factor (20 while warped): a plain fact, nothing changed."""
+        index = [n for n, _, _ in powers.TABLE].index("Time Warp")
+        subs = next(e for e in powers.EFFECTS if e[0] == index)[2]
+        quirk = next(s for s in subs if isinstance(s, tuple) and "known quirk" in s[0])
+        self.assertEqual(quirk[1], gm.OWNER)
+        self.assertIn("left as it is", quirk[0])
+        self.assertIn("about 145 years", quirk[0])
+        how = next(s for s in subs if isinstance(s, tuple) and "not settled" in s[0])
+        self.assertIs(how[1], False)                                          # UNCONFIRMED
         text = self._effect("Time Warp")
+        self.assertIn("the Details screen and the grave keep the jumped age", text)
         units = [86_400 // 60 // speed for speed in (3, 6, 10)]              # reopening, factor 1
         self.assertEqual(units, [480, 240, 144])
-        self.assertIn(f"{units[0] / 20:g}, {units[1] / 20:g} or {units[2] / 20:g} years", text)   # 24, 12 or 7.2
+        self.assertIn(f"{units[0] / 20:g}, {units[1] / 20:g} or {units[2] / 20:g} years", how[0])   # 24, 12 or 7.2
         warped = [years * 20 for years in gm.TIME_WARP_YEARS.values()]
-        self.assertIn(f"{warped[0]}, {warped[1]} or {warped[2]} years on Fast, Normal or Slow", text)
-        medicine2 = (1_100 + 160 * (2 - 1)) // 20                            # 63: rolls from 64, 100% at 73
-        self.assertIn(f"rolls from {medicine2 + 1}, certain by {medicine2 + 10}", text)
-        self.assertIn(f"by {4 * 20} years (4 x 20) to {65 + 4 * 20}", text)
-        self.assertIn("like 145", text)
+        self.assertIn(f"{warped[0]}, {warped[1]} or {warped[2]} years for one Origins Time Warp", text)
         # The patcher's warp and time skip credit years x 20 x the doubled factor (native source, as built).
         source = (ROOT / "native" / "vv5_task9_origins" / "vv5_task9_origins.c").read_text(encoding="utf-8")
         self.assertIn("return rate > 1 ? rate + rate : rate;", source)
