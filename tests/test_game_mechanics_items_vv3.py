@@ -225,6 +225,27 @@ class TheGamesOwnTables(unittest.TestCase):
                          bytes.fromhex("813d4426580088130000"))
         self.assertEqual(items.CLOTHES_PRICE, 5_000)
 
+    def test_the_first_paying_research_skill(self) -> None:
+        """Science 1, 2, 3 divide the Research skill by 11, 9, 7 (0x45934D, 0x4592E2, 0x459274: the magic-number
+        divides) and, outside catch-up, divide that by the clock's rate x float 1/6 (0x426580: fild [ecx + 0x20];
+        fmul dword [0x4808A0]) and cut it to a whole number (0x46EF58).  So on Normal (rate 6) and Slow (10) nothing
+        is paid below twice the divisor, on Fast (3) nothing below the divisor."""
+        data = exe()
+        code = lambda start, size: data.image[start - data.base:start - data.base + size]  # noqa: E731
+        self.assertEqual(code(0x426580, 9), bytes.fromhex("db4120d80da0084800"))
+        sixth = struct.unpack("<f", code(0x4808A0, 4))[0]
+        for at, magic, d in ((0x45934D, 0x2E8BA2E9, 11), (0x4592E2, 0x38E38E39, 9), (0x459274, 0x92492493, 7)):
+            self.assertEqual(code(at, 5), b"\xb8" + struct.pack("<I", magic))
+        for at in (0x4592C4, 0x459332, 0x459399):                                  # fdivr dword [esp + 0xc]
+            self.assertEqual(code(at, 4), bytes.fromhex("d87c240c"))
+        names = {e.name: e.text for e in items.entries()}
+        for level, d, c in ((1, 11, 7), (2, 9, 7), (3, 7, 5)):
+            first = {rate: next(s for s in range(1, 200) if int((s // d) / (rate * sixth)) >= 1) for rate in (3, 6, 10)}
+            self.assertEqual(first, {3: d, 6: 2 * d, 10: 2 * d})
+            self.assertIn(f"a session pays nothing below Research {d} on Fast speed, below Research {2 * d} on Normal "
+                          f"or Slow speed, and below Research {c} while catching up", names[f"Science level {level}"])
+            self.assertNotIn("(nothing below", names[f"Science level {level}"])
+
     def test_each_collection_against_the_exe(self) -> None:
         """Each collection has its own entry: the pickup's completion message for each 12-kind range (tips 720 to 723,
         in the order Turtle Shell, Coral, Tablet, Feather), the rarity ranges, and the room check's 5 a collection
