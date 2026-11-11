@@ -22,6 +22,13 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.95
+
+- **Stew Recipes window** (Tools tab, below Game Mechanics): every stew and potion recipe of The Lost Children, The Secret City and The Tree of Life, from the games' own code. It covers the herbs by their in-game names (The Lost Children's strange plants by their colour), fresh or salt water, what each one does, the puzzle stews and what they need, the food they take, and which ones can kill.
+- **Scroll sideways and up and down everywhere:** every window and scrolling area of the patcher has a sideways scroll bar as well as the up-and-down one; Shift + mouse wheel scrolls sideways.
+- **Louder Wind Flutes** (The Tree of Life, on by default): the wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so they are heard over the music; the game's sound files are never changed.
+- **Game Mechanics:** the population limit line is right for every population mode, 256 Villagers builds included (Immediate Fixed with 256 says 256). Every page is reworded to give the answer first, in plain words, without exe addresses, and nine lines were corrected from the games' code. New Believers documents why a villager given Time Warp can be listed as dying at very high ages (a quirk of the normal game, left as it is).
+
 ## What's new in v1.35.94
 
 - **The yellow fruit trees show how much fruit is left** (The Tree of Life, with Yellow Fruit Trees are No Longer Unlimited; art by Lorsieab2): six pictures, 5, 4, 3, 2, 1 and 0 fruits on each tree, as the tree's 1,000 fruit run down (801-1,000, 601-800, 401-600, 201-400, 1-200, empty). In the village and on the Overview Map; the game's own map is never changed.
