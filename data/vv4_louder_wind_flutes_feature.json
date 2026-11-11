@@ -1,0 +1,37 @@
+{
+  "id": "vv4_louder_wind_flutes",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Louder Wind Flutes",
+  "description": "The wind flutes that play in fog once you have found a Wind Flute (every 60 to 89 seconds of the game's clock while the fog lasts: Flute1 with 1 to 4 flutes found, Flute3 with 5 to 9, Flute5 with 10 to 12) are 2.5 times louder, so they are heard clearly over the music. The game's own flute recordings are much quieter than its music, and the game already plays them at full volume, so the sounds themselves are made louder as the game loads them, without any distortion. Every other sound, the music, the Sound and Music sliders and when the flutes play are unchanged; the game's sound files are never changed. **On by default.** **Needs no other patch.** **Works the same with every other patch and in every population mode.** **Not yet heard in a running game** (checked with the game's own sound library and by emulation of the stock executable). The companion is \"VVFP VV4 Louder Flutes.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Louder Wind Flutes",
+  "dependencies": [],
+  "behavior_changes": [
+    "The sound loader's call of FSOUND_Sample_Load (0x40C4E1 in 0x40C490, every sound effect the game loads) goes to the companion, which makes the same call; when the file is Flute1.ogg, Flute3.ogg or Flute5.ogg and FMOD made a 16-bit signed PCM sample, it locks the whole sample (FSOUND_Sample_Lock), multiplies every sample by 5/2, kept within -32768..32767, and unlocks it: the flutes 2.5 times (+8 dB) louder. Peaks become -1.2, -3.8 and -3.5 dBFS; nothing is clipped."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the one call at run time, only after verifying its stock bytes; FMOD functions missing from the game's fmod.dll mean nothing is installed.",
+    "Every other sound and the music are loaded exactly as before; the volume the game asks for (3.0 x the Sound slider, 0x4AB3A8), when the flutes play (the weather update 0x46BE10) and which flute plays are the game's own. A sample that is not 16-bit signed PCM, or that FMOD does not hand back whole, is left as it is.",
+    "The game's sound files are never changed; nothing is written to a save, a villager record or a file; no text is shown."
+  ],
+  "evidence_status": "the real fmod.dll 3.74 loads each flute as 16-bit stereo signed PCM (mode 0x151) and hands back the whole sample from FSOUND_Sample_Lock, equal within 1 to a decode of the .ogg (a scratch 32-bit probe, 2026-11-10); the companion's install and its scaling are emulated on the rendered executable in tests/test_vv4_louder_wind_flutes.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
+      "destination": "VVFP VV4 Louder Flutes.dll",
+      "sha256": "D6CBC32352439D911A87472F2EB5483D364F4DD18852A634CE123A34978B2C33"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x40C4E1",
+      "stock_bytes": "E8B8440600",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the sound loader 0x40C490's call of FSOUND_Sample_Load (the thunk 0x47099E) goes to the companion, which makes the same call and makes the three wind flute samples 2.5 times louder",
+      "installed_by": "VVFP VV4 Louder Flutes.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

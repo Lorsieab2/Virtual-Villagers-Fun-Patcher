@@ -290,6 +290,14 @@
       ]
     },
     {
+      "ids": ["vv4_louder_wind_flutes"],
+      "guide": [
+        "On by default. The wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so you hear them over the music.",
+        "Only the three flute sounds change; every other sound, the music and the Sound and Music sliders are as before.",
+        "The game's sound files are never changed: the flutes are made louder as the game loads them."
+      ]
+    },
+    {
       "ids": ["vv5_heathen_mommy_puzzle"],
       "guide": [
         "New villages start with the Heathen Mommy: a Heathen mother with a nursing baby.",
