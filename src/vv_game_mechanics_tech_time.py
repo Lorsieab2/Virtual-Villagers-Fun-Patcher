@@ -70,61 +70,63 @@ class Game:
     offset: int                # the Research skill test passes (skill + offset) in 100 at Learning 1
     learning: str | None       # the technology that adds 15 to the test for each level above 1
     fire: bool
-    rule: str                  # the catch-up rule in the game's words, with its addresses
+    rule: str                  # the catch-up rule in plain words (its addresses in the comment above each)
 
 
+# How a session pays while catching up, by game (the page shows only the words; the code behind each):
+#   A New Home: the Research test 0x43D440; the payout 0x43B2DD..0x43B34B, the same as in live play.
+#   The Lost Children: the test 0x44E170; the payout 0x4637AD, 0x463760, 0x463697; the fire's +1 0x4637C5..0x463809
+#     (the fire's end is a real moment, later than the clock 0x403200).
+#   The Secret City: the test 0x45A2C0; the payout 0x45935F, 0x4592F4, 0x459289; Magic's +1 0x4593D5; the fire's +1
+#     0x459410.
+#   The Tree of Life: the test 0x462A80 (Learning read at 0x462AD5); the payout 0x464DEB, 0x464D6B, 0x464CEB; the Lab
+#     Equipment's rand 0x464E5D..0x464E82; the Fire Pit's +1 0x464E87.
+#   New Believers: no research while catching up before The Knowing Totem (0x46C75E, 0x46C775); the test 0x46B270;
+#     the payout 0x46DDED, 0x46DD6D, 0x46DCED; the second set's rand 0x46DE4D..0x46DE77; the fire's +1 0x46DE7C.
 GAMES = {
     1: Game("Science", {1: 7, 2: 5, 3: 3}, 31, None, False,
-            "A New Home: each working adult gets 5 job turns each counted age unit; a session passes the Research "
-            "test (skill + 31) times in 100 (0x43D440) and pays Research ÷ 7, ÷ 5 or ÷ 3 at Science 1, 2 or 3, "
-            "rounded down, as in live play (0x43B2DD..0x43B34B); nothing adds to it."),
+            "A New Home: each working adult gets 5 job turns each counted age unit. A research session passes the "
+            "Research test (skill + 31) times in 100 and pays Research ÷ 7, ÷ 5 or ÷ 3 at Science 1, 2 or 3, "
+            "rounded down, the same as in live play; nothing adds to it."),
     2: Game("Science", {1: 7, 2: 6, 3: 4}, 34, None, True,
-            "The Lost Children: each working adult gets 4 job turns each counted age unit; a session passes the "
-            "Research test (skill + 34) times in 100 (0x44E170) and pays Research ÷ 7, ÷ 6 or ÷ 4 at Science 1, 2 "
-            "or 3 while catching up, rounded down (0x4637AD, 0x463760, 0x463697); while the fire burns, 1 more on "
-            "10% of successes (0x4637C5..0x463809: the fire's end is a real moment, so it counts only while the "
-            "fire still burns when the catch-up runs)."),
+            "The Lost Children: each working adult gets 4 job turns each counted age unit. A research session passes "
+            "the Research test (skill + 34) times in 100 and, while catching up, pays Research ÷ 7, ÷ 6 or ÷ 4 at "
+            "Science 1, 2 or 3, rounded down. While the fire burns, 1 more on 10% of successes; the fire goes out "
+            "at a real-life moment, so this counts only while the fire still burns when the catch-up runs."),
     3: Game("Science", {1: 7, 2: 7, 3: 5}, 34, None, True,
-            "The Secret City: each working adult except the Tribal Chief gets 4 job turns each counted age unit; a "
-            "session passes the Research test (skill + 34) times in 100 (0x45A2C0) and pays Research ÷ 7, ÷ 7 or "
-            "÷ 5 at Science 1, 2 or 3 while catching up, rounded down (0x45935F, 0x4592F4, 0x459289), then 1 more at "
-            "Magic level 1 or more (0x4593D5); while the fire burns, 1 more on 10% of successes (0x459410)."),
+            "The Secret City: each working adult except the Tribal Chief gets 4 job turns each counted age unit. A "
+            "research session passes the Research test (skill + 34) times in 100 and, while catching up, pays "
+            "Research ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, rounded down, then 1 more at Magic level 1 or more; while "
+            "the fire burns, 1 more on 10% of successes."),
     4: Game("Science", {1: 7, 2: 7, 3: 5}, 34, "Learning", True,
-            "The Tree of Life: each working adult gets 4 job turns each counted age unit; a session passes the "
-            "Research test (skill + 34) times in 100 at Learning 1, 15 more for each Learning level above it "
-            "(0x462A80, 0x462AD5), and pays Research ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3 while catching up, "
-            "rounded down (0x464DEB, 0x464D6B, 0x464CEB), then 0 to (Lab Equipment pieces owned - 1) more, each "
-            "equally likely (0x464E5D..0x464E82); while the Fire Pit burns, 1 more on 10% of successes (0x464E87)."),
+            "The Tree of Life: each working adult gets 4 job turns each counted age unit. A research session passes "
+            "the Research test (skill + 34) times in 100 at Learning 1, 15 more for each Learning level above it, "
+            "and, while catching up, pays Research ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, rounded down, then 0 to "
+            "(Lab Equipment pieces owned - 1) more, each equally likely; while the Fire Pit burns, 1 more on 10% of "
+            "successes."),
     5: Game("Science", {1: 7, 2: 7, 3: 5}, 34, "Learning", True,
-            "New Believers: nobody researches while catching up until The Knowing Totem is solved (0x46C75E, "
-            "0x46C775); then each working adult gets 4 job turns each counted age unit; a session passes the "
-            "Research test (skill + 34) times in 100 at Learning 1, 15 more for each Learning level above it "
-            "(0x46B270), and pays Research ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3 while catching up, rounded down "
-            "(0x46DDED, 0x46DD6D, 0x46DCED), then 0 to (half the second collectible set's pieces owned - 1) more, "
-            "each equally likely (0x46DE4D..0x46DE77); while the fire burns, 1 more on 10% of successes "
-            "(0x46DE7C)."),
+            "New Believers: nobody researches while catching up until The Knowing Totem is solved. Then each working "
+            "adult gets 4 job turns each counted age unit. A research session passes the Research test (skill + 34) "
+            "times in 100 at Learning 1, 15 more for each Learning level above it, and, while catching up, pays "
+            "Research ÷ 7, ÷ 7 or ÷ 5 at Science 1, 2 or 3, rounded down, then 0 to (half the second collectible "
+            "set's pieces owned - 1) more, each equally likely; while the fire burns, 1 more on 10% of successes."),
 }
-
-# The code checked for a read of the difficulty (the job choice, the Research test, the payout, the tech-point adder)
-# and the price table, by game.
-DIFFICULTY_CHECKED = {1: ("0x439AE0, 0x43D440, 0x43B2AB, 0x41D120", "0x435AF8"),
-                      2: ("0x449C60, 0x44E170, 0x46361B, 0x426290", "0x44380A"),
-                      3: ("0x459730, 0x45A2C0, 0x45916D, 0x427130", "0x427020"),
-                      4: ("0x461CC0, 0x462A80, 0x464BB0, 0x41E300", "0x41E220"),
-                      5: ("0x46A3C0, 0x46B270, 0x46DB7B, 0x4237B0", "0x4236D0")}
 
 
 def difficulty_line(game: int) -> str:
-    code, prices = DIFFICULTY_CHECKED[game]
+    # Checked for a read of the difficulty (the job choice, the Research test, the payout, the tech-point adder) and
+    # the price table: A New Home 0x439AE0, 0x43D440, 0x43B2AB, 0x41D120, prices 0x435AF8; The Lost Children
+    # 0x449C60, 0x44E170, 0x46361B, 0x426290, prices 0x44380A; The Secret City 0x459730, 0x45A2C0, 0x45916D,
+    # 0x427130, prices 0x427020; The Tree of Life 0x461CC0, 0x462A80, 0x464BB0, 0x41E300, prices 0x41E220; New
+    # Believers 0x46A3C0, 0x46B270, 0x46DB7B, 0x4237B0, prices 0x4236D0.
     return ("Difficulty (Easy, Medium or Hard) changes none of these times: the job choice, the Research test, the "
-            f"payout and the tech-point adder never read it ({code}), and the prices are a fixed table ({prices}; x N "
-            "with \"2-10x Tech Cost\"). "
-            "It changes how much the villagers eat (Food estimates).")
+            "payout and the adding of the points never read it, and the prices are fixed (the game's price table; x N "
+            "with \"2-10x Tech Cost\"). It changes how much the villagers eat (Food estimates).")
 
 
+# The job turn's low-food test: The Secret City 0x45BF00, The Tree of Life 0x465750, New Believers 0x46E985.
 LOW_FOOD = ("At 250 food or less a working adult with Farming 20 or more farms on its job turn before anything "
-            "else (the job turn {at}), so a researcher with Farming 20 or more researches only above 250 food.")
-LOW_FOOD_AT = {3: "0x45BF00", 4: "0x465750", 5: "0x46E985"}
+            "else, so a researcher with Farming 20 or more researches only above 250 food.")
 
 
 def _i32(data: bytes, at: int) -> int:
@@ -449,7 +451,7 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     earns = (f"one earns {now:,.2f} tech points each counted age unit now" if now else
              "nobody researches while catching up until The Knowing Totem is solved, and it is not solved yet")
     add(f"Time needed for next technology (estimates, cheapest first), while catching up, for researchers with "
-        f"Research {RESEARCH_SHOWN} set to Research: {earns} (an age unit is {gm.duration(ctx.unit)} of time away "
+        f"Research skill {RESEARCH_SHOWN} whose skill preference is Research: {earns} (an age unit is {gm.duration(ctx.unit)} of time away "
         f"on {gm.speed_name(ctx.speed)} speed).", True, False)
     nexts = goals(game, levels, ctx.tech, rate, False, both, factor)
     for g in nexts:
@@ -472,16 +474,16 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     add(rule.rule, gm.CODE)
     if multiplied and factor > 1:
         add(gm.patch_words(village, multiplier_feature(game), f"every technology level costs {factor} times its "
-                           "stock price, the multiplier read from the game's executable (the Tech screen shows it, "
+                           "normal price, the multiplier read from the game's executable (the Tech screen shows it, "
                            "refuses a purchase with fewer points and takes it), so the points still needed and every "
                            "time above are worked out from the multiplied prices"), gm.CODE)
     elif multiplied:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its stock "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its normal "
                            "price, but the multiplier could not be read from the game's executable, so the points "
                            "still needed and the times above are for the normal prices: with the patch each is "
                            "larger"), gm.CODE)
     elif unknown:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its stock "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its normal "
                            "price, so the points still needed and the times above, worked out from the normal "
                            "prices, would each be larger"), gm.CODE)
     if rule.fire:
@@ -503,21 +505,22 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
         f"{chosen:.5f} x min(1, (Research + 40) ÷ 100), x the share that pass the Research test x the points a "
         "success pays), rounded up to whole counted age units, plus the last 2 counted age units of each catch-up, "
-        "which give no job turns. A catch-up counts at most the time-away limits: up to "
+        f"which give no job turns. The skill is taken to stay at {RESEARCH_SHOWN}, for every working adult.", True)
+    add("A catch-up counts at most the time-away limits: up to "
         f"{gm.duration(life.full_away(ctx))} closed counts in full on {gm.speed_name(ctx.speed)} speed, longer "
         f"counts {gm.duration(gm.AWAY_LIMITS[game]['band'])} until it is more than "
         f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])}, then {gm.duration(gm.AWAY_LIMITS[game]['over'])}; so "
         "the real-life time closed is the counted time when one closing that long covers it, otherwise more than "
-        f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])} for each catch-up needed. "
-        f"The skill is taken to stay at {RESEARCH_SHOWN}, for every working adult.", True)
+        f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])} for each catch-up needed.", True)
+    # The Secret City: the potion 0x4593F2, the Chief's supervision 0x4593AF; The Tree of Life: the glow 0x464E46.
     add("Not counted: a villager who likes or dislikes learning (a different test), "
-        + {3: "the potion \"scientific clarity\" (+1 for 10 real-life minutes, real time, 0x4593F2) and the "
-              "Tribal Chief's supervision (0x4593AF), ",
-           4: "the Purify Tree's glow (3 times the points for 4 real-life minutes, real time, 0x464E46), "
+        + {3: "the potion \"scientific clarity\" (+1 for 10 real-life minutes, the same at every speed) and the "
+              "Tribal Chief's supervision, ",
+           4: "the Purify Tree's glow (3 times the points for 4 real-life minutes, the same at every speed), "
            }.get(game, "")
         + "the skill gained on each success and tech points that come any other way.", gm.CODE)
     if game >= 3:
-        add(LOW_FOOD.format(at=LOW_FOOD_AT[game]), gm.CODE)
+        add(LOW_FOOD, gm.CODE)
     add(difficulty_line(game), gm.CODE)
     if ctx.paused:
         add("Saved paused: no time away counts until it is unpaused.", gm.SAVE)
