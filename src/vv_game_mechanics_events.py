@@ -17,7 +17,8 @@ does an emulation or the owner's word), False (shown UNCONFIRMED) for an estimat
 
 WORDS.  A choice is the popup's own button text, in quotes; an amount of food or tech points is written with
 thousands separators (so the general rules page keeps it: vv_game_mechanics.general drops a line with a bare
-year-like number); every time says real-life or game time, every age says age units and villager years.
+year-like number); every time names its clock (real-life, or the game's clock), every age says age units and
+villager years.
 
 PATCHES (the owner, 2026-10-24): a patch is named only where it changes an odd or an outcome shown, and only
 when it is in the game's exe (Village.has is True): the normal game's value is the line itself, then

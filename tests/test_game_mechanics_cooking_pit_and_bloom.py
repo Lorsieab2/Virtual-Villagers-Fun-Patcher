@@ -67,7 +67,7 @@ class CookingPit(unittest.TestCase):
     def test_live_fruit_trips_have_a_worker_estimate_and_never_run_out(self) -> None:
         page = render(4, vv4_save(True, False), self.TRIBE)
         self.assertIn("The Cooking Pit fruit alone: while catching up no farmer is sent to it", page)
-        self.assertRegex(page, r"only about \d+ villagers can work it at once on \w+ speed \(an estimate")
+        self.assertRegex(page, r"Only about \d+ villagers can work it at once on \w+ speed \(an estimate")
         self.assertIn("the Cooking Pit fruit never runs out, but live only about 14, 7 or 5", page)
         self.assertNotIn("fishing adds without limit", page)
         self.assertEqual(farmers4.TRIPS[2].key, "fruit stomps")

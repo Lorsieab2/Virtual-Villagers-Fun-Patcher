@@ -128,12 +128,12 @@ class Roll:
         return text.format(*(c.chance for c in self.checks))
 
 
-NOTE = ("Every chance here is exact for the game's own random numbers: each roll takes one of 32,768 equally likely "
-        "values and divides it by the roll's range, so \"below 50 out of 100\" comes 16,400 times in 32,768 (50.05%), "
-        "not exactly 50%. Each was read from the game's own running code; how often it is rolled is given in real-life "
-        "time or per age unit.")
+NOTE = ("Every chance here is exact, read from the game's running code. A roll picks one of 32,768 equally likely "
+        "numbers and keeps the remainder after dividing it by the roll's range, so \"below 50 out of 100\" comes up "
+        "16,400 times in 32,768 (50.05%), not exactly 50%. How often each roll is made is given in real-life time or "
+        "per age unit.")
 BIRTH_NOTE = ("Births: how many babies a pregnancy brings and whether each is a boy or a girl, exactly from the game's "
-              "own code. Every way a villager can be born or arrive is listed.")
+              "code. Every way a villager can be born or arrive is listed.")
 # Only A New Home has a Golden Child; the sentence is not shown for The Secret City, which has none (an inherited
 # rule that cannot happen there is never listed, the owner 2026-10-25).
 GOLDEN_BIRTH = " A Golden Child counts as a birth."

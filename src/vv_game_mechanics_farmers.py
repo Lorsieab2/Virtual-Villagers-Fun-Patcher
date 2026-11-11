@@ -178,24 +178,25 @@ def rule_facts(game: int, basis: str = "running") -> list[tuple[str, str, bool]]
     if not trips:
         return []
     out: list[tuple[str, str, bool]] = [(
-        "Farming trips, measured by running the stock game's own villager update frame by frame (33 ms a frame, "
-        "the game's 30 frames a second) over its real map: each trip's length is real-life time and the same at "
-        "Fast, Normal and Slow; the food a trip brings is under each source. While catching up a farming job turn "
-        f"runs a whole trip at once: {turns} job turns each counted age unit for each working adult.", basis, False)]
+        "Farming trips: a trip takes the same real-life time at Fast, Normal and Slow. Each length below was measured "
+        "by running the stock game's villager update frame by frame over its real map (30 frames a real-life "
+        "second, 33 ms each); the food a trip brings is under each source. While catching up there is no walking: "
+        f"each working adult gets {turns} job turns each counted age unit, and a farming job turn runs a whole trip "
+        "at once.", basis, False)]
     for trip in trips:
         lo, hi = trip.live_span.get(6, (0.0, 0.0))
         cycle = live_cycle(game, trip, 100), live_cycle(game, trip, 50), live_cycle(game, trip, 20)
-        text = (f"{trip.key[0].upper() + trip.key[1:]}: one whole trip, from the food bin and back to it, takes "
+        text = (f"{trip.key[0].upper() + trip.key[1:]}: one whole trip, from the food bin and back, takes "
                 f"{_seconds(trip.live_seconds.get(6, 0.0))} real-life seconds on average ({_seconds(lo)} to "
-                f"{_seconds(hi)}; real time, the same at every speed) for an adult who passes the Farming check")
+                f"{_seconds(hi)}; real time, the same at every speed) for an adult whose Farming check passes")
         if trip.success_offset is not None:
-            text += f", which passes (Farming + {trip.success_offset}) times in 100"
+            text += f"; it passes (Farming + {trip.success_offset}) times in 100"
         text += "."
         if all(cycle):
             text += (f" A farmer left to the game's own choices brings food once every {_seconds(cycle[0])} real-life "
                      f"seconds at Farming 100, {_seconds(cycle[1])} at 50 and {_seconds(cycle[2])} at 20 (failed "
                      "checks, rests and other jobs included).")
-        text += f" Set to it: {trip.job[0].lower() + trip.job[1:]}."
+        text += f" How a villager is set to it: {trip.job[0].lower() + trip.job[1:]}."
         out.append((text, basis, False))          # measured by running the game's own code (gm.RUNNING)
         for words in (trip.live_words, trip.catch_up_words, *trip.extra):
             # The scheduler's figures are in the line above already.
