@@ -254,17 +254,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # (0x5504E..0x550AC) or the PE CheckSum.
     # Re-pinned for Hungrier Villagers (vv3_hungrier_villagers): without it the render equals the pins above; with
     # it exactly 3 bytes differ in every mode, the meal immediates 0x60081 and 0x600C5 and the PE CheckSum byte 0x161.
+    # Re-pinned for All Fruit Trees Refill to Full (vv3_fruit_trees_refill_to_full): without it the render equals the
+    # pins before it (D539EA47..., 3C4A5D42..., 68E8C59C...); with it only 0x347EB..0x347F1 (the refill's add) and the
+    # PE CheckSum (0x160..0x162) differ, in every mode; the length is unchanged.
     "stock": (
-        "D539EA47695DB8D031F68F9E8AB6C195A3B80C204624FF272B7A27C7F3BC9D4B",
-        "D4590D00",
+        "FB106BB033110F991407DBAA000B4D8AFF10B0BA44CFD9B30E2586236B576D7A",
+        "578C0D00",
     ),
     "collection_progression": (
-        "3C4A5D426E5EBD2EFCE4677E96324F41CF1805F984D7F4CB3B2BFB262E4A69E7",
-        "D4720D00",
+        "9E0FEA892524E44C3F676A63C23967641624E8300C36F748E320032C64302C85",
+        "57A50D00",
     ),
     "immediate_fixed": (
-        "68E8C59C5C3F5BFFCC45D55FD616100B34DC501BEC0C125A81F873E79A5966F4",
-        "D2B40D00",
+        "EAB765F85E476FB2990A5199BA6F630C9062624FB5DCEB74B3D96C88F7F39852",
+        "56E70C00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at

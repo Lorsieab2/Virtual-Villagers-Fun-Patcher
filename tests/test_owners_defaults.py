@@ -41,7 +41,9 @@ def _owner_keeps_off(patch_id: str) -> bool:
     # ticked, moves "Playing in the dirt" to the lake shore, and the two untick each other.
     return ("learning_never_fails" in patch_id or patch_id == "vv3_fruit_trees_refill_together"
             or patch_id.endswith("_unicode_font") or patch_id.endswith("_story_cheat_upgrades_cost_tech_points")
-            or patch_id == "vv5_playing_in_the_dirt_spot")
+            or patch_id == "vv5_playing_in_the_dirt_spot"
+            # The owner (2026-11-11): Yellow Breadfruit Refills Partially Every Time is off in Owner's Defaults.
+            or patch_id == "vv4_yellow_fruit_refills_partially")
 
 
 class OwnersDefaultsTests(unittest.TestCase):
