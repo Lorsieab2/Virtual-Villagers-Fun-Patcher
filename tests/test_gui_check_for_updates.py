@@ -197,6 +197,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
+               # More Island Events (the owner, 2026-11-12): the Aspiring Adventurer's text and its page entry.
+               "vv_aspiring_adventurer", "vv_game_mechanics_adventurer",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
@@ -436,8 +438,12 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
             ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
-            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
+            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
+                                                  # More Island Events' The Aspiring Adventurer
+                                                  "vv_game_mechanics_adventurer"})
               for n in (1, 2, 3, 4, 5)),
+            ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_game_mechanics_events"}),
+            ("vv_aspiring_adventurer", set()),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
                                         "vv_game_mechanics_farmers",

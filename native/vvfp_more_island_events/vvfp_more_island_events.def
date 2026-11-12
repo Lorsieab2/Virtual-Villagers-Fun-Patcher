@@ -1,0 +1,8 @@
+LIBRARY "VVFP More Island Events"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpMoreIslandEventsInstalled=_VvfpMoreIslandEventsInstalled@0
+    VvfpAdventurerPossible=_VvfpAdventurerPossible@0
+    VvfpAdventurerEligible=_VvfpAdventurerEligible@4
+    VvfpAdventurerState=_VvfpAdventurerState@4
+    VvfpAdventurerPage=_VvfpAdventurerPage@8

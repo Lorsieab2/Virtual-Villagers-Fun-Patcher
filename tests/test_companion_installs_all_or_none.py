@@ -395,6 +395,10 @@ CASES = [
     Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
          lambda g: [f"vv{g}_fix_vanilla_bugs"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
+    # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
+    Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_more_island_events"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), int(m.export("VvfpMoreIslandEventsInstalled") == g))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),
