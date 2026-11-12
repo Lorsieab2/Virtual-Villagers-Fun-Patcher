@@ -292,6 +292,11 @@ def variants(game: int) -> list[tuple[bytes, list[str] | None]]:
     at each speed and paused, with every patch, none, or not known."""
     out = []
     features = gm.feature_ids(f"vv{game}_")
+    # A patch that replaces another's line (The Secret City's All Fruit Trees Refill to Full: "refilled to 1,000"
+    # instead of "gains N fruit") is also left out once, so the other patches' own lines are covered too.
+    replacing = {"vv3_fruit_trees_refill_to_full"}
+    patch_sets = (None, [], features) + ((([f for f in features if f not in replacing]),)
+                                         if replacing & set(features) else ())
     for path in fixture_saves(game):
         raw = gzip.decompress(path.read_bytes())
         # The people pokes change no patch's line, so they are read with the patches not known only.
@@ -303,7 +308,7 @@ def variants(game: int) -> list[tuple[bytes, list[str] | None]]:
                 for value in (3, 6, 10, 1002, 1005, 1009):
                     speeds.append(data[:offset] + value.to_bytes(4, "little") + data[offset + 4:])
             for each in speeds:
-                for patches in ((None, [], features) if all_patches else (None,)):
+                for patches in (patch_sets if all_patches else (None,)):
                     out.append((each, patches))
     return out
 

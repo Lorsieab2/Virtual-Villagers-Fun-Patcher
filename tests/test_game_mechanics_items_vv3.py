@@ -36,7 +36,7 @@ PINS = (
     ("technology", "Restoration level 3", "C", ""),
     ("technology", "Leadership level 1", "C", ""), ("technology", "Leadership level 2", "C", ""),
     ("technology", "Leadership level 3", "C", ""),
-    ("technology", "Nature level 1", "C", "E"), ("technology", "Nature level 2", "C", ""),
+    ("technology", "Nature level 1", "C", "EE"), ("technology", "Nature level 2", "C", ""),
     ("technology", "Nature level 3", "C", "U"),
     ("technology", "Magic level 1", "C", ""), ("technology", "Magic level 2", "C", ""),
     ("technology", "Magic level 3", "C", ""),

@@ -95,6 +95,10 @@ rule is the same.
 ## 4. Composition
 
 * `vv3_nature_honey_refill`: read, never written; its 8,100 s interval and factor 56 apply.
+* `vv3_fruit_trees_refill_to_full` (All Fruit Trees Refill to Full): its 7 bytes at `0x4347EB`
+  (`mov eax,0x3E8` / `nop` / `nop` in place of the stock add) are read, never written; with them
+  each of the schedule's refills sets the tree to 1,000 instead of adding the stock share. Any
+  other bytes there install nothing.
 * `vv3_fruit_harvested_at_food_bin` (and the rain-lift fix on `fix/vv3-lift-fruit-at-bin`): the
   pick and delivery listeners `0x434A80` / `0x434C30` and `0x434C80` are not touched; they take
   fruit off the trees, which this schedule refills.

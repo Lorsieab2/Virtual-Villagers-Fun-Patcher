@@ -85,6 +85,9 @@ HONEY_GAINS = (0, 2, 6, 20)
 HONEY_PATCHED_GAINS = (2, 3, 9, 30)
 NATURE_PATCH = "vv3_nature_honey_refill"
 NATURE_PATCH_NAME = "Nature Level 1 Actually Replenishes Food Sources Faster"
+# All Fruit Trees Refill to Full (data/builds.json): the refill's add at 0x4347EB becomes mov eax,0x3E8, so a refill
+# sets the tree to 1,000 (the two schedule companions read the same bytes and do the same).
+FULL_PATCH = "vv3_fruit_trees_refill_to_full"
 
 SAVES = "Virtual Villagers Fun Patcher"
 FACTION_FILE = "Data\\Factions\\Virtual Villagers 3 Second Faction - Save {slot}.dat"
@@ -406,7 +409,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     faster = nature >= 1 and patch is True
     interval = REFILL_PATCHED if faster else REFILL
     factor = 56 if faster else (42 if nature >= 1 else 37)
-    per_refill = _gain(interval, factor)
+    # With All Fruit Trees Refill to Full every refill sets the tree to 1,000 (0x4347EB), whatever the time it pays for.
+    to_full = village.has(FULL_PATCH) is True
+    gain = (lambda t: FRUIT_CAP) if to_full else (lambda t: _gain(t, factor))
+    per_refill = gain(interval)
+    refill_words = f"fills it to {FRUIT_CAP:,}" if to_full else f"{per_refill} fruit"
     now = clock.game_now(village.now)
     # A past game second is dated only from the clock's base on; before it the line says how far into the
     # village it was (clock.moment) -- never a date worked back at today's speed, which the speed changes,
@@ -444,21 +451,22 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         due_real = clock.real(due) if not clock.frozen and now < due and clock.dated(due) else None
         sources.append(life.Source(f"Tree {tree.number} ({tree.name})", max(tree.fruit, 0), FRUIT_CAP,
                                    per_refill * 360 / interval if interval else 0.0, due_real,
-                                   f"+{per_refill} {life.every_real(interval, clock.speed)}", verified=gm.SAVE,
+                                   (f"refilled to {FRUIT_CAP:,}" if to_full else f"+{per_refill}")
+                                   + f" {life.every_real(interval, clock.speed)}", verified=gm.SAVE,
                                    **_tree_steps(clock, now, due, timers.interval if scheduled else interval,
-                                                 _gain(timers.interval, factor) if scheduled else per_refill,
-                                                 refilled, lambda t: _gain(t, factor))))
+                                                 gain(timers.interval) if scheduled else per_refill,
+                                                 refilled, gain)))
         if scheduled:
             sub(f"On the patcher's \"{timers.name}\" schedule, read from its file for this save.", gm.SAVE)
         if tree.fruit >= FRUIT_CAP:
             sub("Full; a refill adds nothing until fruit is picked.", gm.CODE)
         elif clock.frozen:
             left = max(0, due - now)
-            sub(f"Next refill ({per_refill} fruit) after {gm.duration(gm.real_seconds(left, clock.runs_at))} more "
+            sub(f"Next refill ({refill_words}) after {gm.duration(gm.real_seconds(left, clock.runs_at))} more "
                 f"of play{' once unpaused' if clock.paused else ''}." if left else
                 f"A refill is due as soon as the game {'is unpaused' if clock.paused else 'is played'}.", gm.CODE)
         elif now >= due:
-            gained = min(_gain(now - refilled, factor), FRUIT_CAP - tree.fruit)
+            gained = min(gain(now - refilled), FRUIT_CAP - tree.fruit)
             sub(f"The next time the village is played it gets {gained} fruit: a refill was due {at(due, at=True)}.",
                 gm.CODE)
         else:
@@ -488,15 +496,22 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     if clock.paused:
         out.append(gm.Fact("Refills", gm.PAUSED_NOTE, gm.CODE))
     out.append(gm.Fact("Refills", (
-        f"Fruit trees: each gains {per_refill} fruit {gm.every(interval, speed)}, up to {FRUIT_CAP}; {nature_words}. "
-        f"{patch_words}"), gm.CODE))
+        (f"Fruit trees: each is refilled to {FRUIT_CAP:,} {gm.every(interval, speed)}; {nature_words}. "
+         if to_full else
+         f"Fruit trees: each gains {per_refill} fruit {gm.every(interval, speed)}, up to {FRUIT_CAP}; {nature_words}. ")
+        + f"{patch_words}"), gm.CODE))
+    if village.has(FULL_PATCH) is not False:
+        out.append(gm.Fact("Refills", gm.patch_words(
+            village, FULL_PATCH, f"every fruit tree refill fills the tree to {FRUIT_CAP:,} instead of adding the "
+            "share for the time since its last refill; the refill times are unchanged"), gm.CODE))
     if not faster:
         alt = []
-        if nature < 1:
+        if nature < 1 and not to_full:
             alt.append(f"at Nature level 1 or more: {_gain(REFILL, 42)} fruit {gm.every(REFILL, speed)}")
         if patch is not False:
-            alt.append(f"with the patch and Nature level 1 or more: {_gain(REFILL_PATCHED, 56)} fruit "
-                       f"{gm.every(REFILL_PATCHED, speed)}")
+            alt.append(f"with the patch and Nature level 1 or more: "
+                       + (f"refilled to {FRUIT_CAP:,}" if to_full else f"{_gain(REFILL_PATCHED, 56)} fruit")
+                       + f" {gm.every(REFILL_PATCHED, speed)}")
         if alt:
             out.append(gm.Fact("Refills", "Fruit trees otherwise: " + "; ".join(alt) + ".", gm.CODE))
     out.append(gm.Fact("Refills", (

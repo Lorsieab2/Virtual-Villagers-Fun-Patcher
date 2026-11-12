@@ -141,6 +141,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
                   # Yellow Fruit Trees are No Longer Unlimited, a Classic VV Difficulty piece (the owner, 2026-11-08).
                   or p == "vv4_yellow_fruit_trees_limited"
+                  # All Fruit Trees Refill to Full (the owner, 2026-11-11: on in Owner's Defaults only) and Yellow
+                  # Breadfruit Refills Partially Every Time (off in Owner's Defaults too).
+                  or p == "vv3_fruit_trees_refill_to_full"
+                  or p == "vv4_yellow_fruit_refills_partially"
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.

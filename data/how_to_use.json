@@ -290,6 +290,14 @@
       ]
     },
     {
+      "ids": ["vv4_yellow_fruit_refills_partially"],
+      "guide": [
+        "Off by default and in Owner's Defaults. Needs Yellow Fruit Trees are No Longer Unlimited (ticking this ticks it).",
+        "The yellow fruit tree no longer refills to full every 4 hours: it gains 111 fruit every 3 hours on Normal speed, up to 1,000, as The Secret City's fruit trees do.",
+        "Time away and Time Warp count in proportion. The breadfruit island event (+350) and a Custom Island Event's refill to 1,000 work as before."
+      ]
+    },
+    {
       "ids": ["vv4_louder_wind_flutes"],
       "guide": [
         "On by default. The wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so you hear them over the music.",
@@ -799,6 +807,15 @@
       ]
     },
     {
+      "ids": ["vv3_fruit_trees_refill_to_full"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Every fruit tree refill fills the tree to 1,000 instead of adding 111 (126 with Nature).",
+        "The trees still refill every 3 hours (2 hours 15 minutes at Nature level 1 with Nature Level 1 Actually Replenishes Food Sources Faster).",
+        "Works with All Fruit Trees Refill at the Same Time and Fruit Trees Take Turns Refilling: their refills fill the trees too.",
+        "Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv3_fruit_trees_take_turns"],
       "guide": [
         "The fruit trees refill one after another, evenly spread: with three trees one refills every hour.",
@@ -1124,8 +1141,9 @@
         "Ticks all but: Learning Skills Never Fails, Manual Drop-Breeding, 256 Villagers, VV1 Mushroom/Collectible Duplication Cheat, Move the \"Playing in the dirt\" Spot,",
         "Super-Secret Golden Mushroom, Fruit Trees Take Turns Refilling, Use Unicode Font (overrides in-game fonts), Checked Skill Preferences are listed as Jobs on Graves,",
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
-        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3,",
+        "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
+        "Yellow Breadfruit Refills Partially Every Time,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors.",
         "Story / Cheat Upgrades comes with its cost row."
       ]
@@ -1136,7 +1154,7 @@
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
-        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
+        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free).",

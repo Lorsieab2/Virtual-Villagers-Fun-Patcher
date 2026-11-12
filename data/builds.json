@@ -1733,6 +1733,29 @@
       ]
     },
     {
+      "id": "vv3_fruit_trees_refill_to_full",
+      "game_id": "vv3",
+      "name": "All Fruit Trees Refill to Full",
+      "description": "Every fruit tree refill fills the tree to 1,000 fruit, instead of adding the stock share for the time since its last refill (111 fruit every 3 hours, 126 at Nature level 1 or more). The refill times are unchanged: a tree still refills 3 hours after its last refill (2 hours 15 minutes at Nature level 1 or more with \"Nature Level 1 Actually Replenishes Food Sources Faster\"), and after time away (catch-up or Time Warp) its next refill fills it too. **Works with \"All Fruit Trees Refill at the Same Time\" and \"Fruit Trees Take Turns Refilling\": their refills fill the trees to 1,000 too, on their own schedule (so a tree that refills early with the others is filled early).** Planting, the 8 hours before a new tree can be picked, picking, \"Fruit Counts When It Reaches the Food Bin\" and the island event that fills the trees are unchanged; the honey is not affected. Nothing new is saved, so without this patch the trees simply go back to the stock refills. Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+      "output_tag": "Fruit Trees Refill to Full",
+      "behavior_changes": [
+        "The fruit trees' refill (0x434760, vtable 0x49D1D0 slot 8, run every frame by the world objects' update 0x435880, live and after catch-up and Time Warp): once a tree's timer is at least the interval old (0x2A30 = 10,800 game seconds; 8,100 at Nature 1 or more with vv3_nature_honey_refill, whose test at 0x4347AA jumps to its cave and back to 0x4347B7), the stock code computes floor((now - timer) x factor / 3600) in edx (0x4347DC..0x4347E9) and adds it to the tree's fruit (0x4347EB mov eax,[edi] / 0x4347ED shr edx,0xB / 0x4347F0 add eax,edx). Those 7 bytes become mov eax,0x3E8 and two NOPs, so the store at 0x4347F7 sets the fruit to 1,000; the timer is set to now (0x4347FE) and the stock 1,000 cap (0x434801) runs as before.",
+        "\"All Fruit Trees Refill at the Same Time\" and \"Fruit Trees Take Turns Refilling\" replace the loop (0x43478A..0x43481A) with their companion's pass: the companion reads the 7 bytes at 0x4347EB and, when they are this patch's, fills each tree to 1,000 at its refill instead of adding the stock share."
+      ],
+      "explicit_non_changes": [
+        "The refill interval and its test (0x4347AA), the Nature factor immediates (0x4347BE, 0x4347CD), the timer update, the cap, planting (0x4349FD), the 8-hour growth (0x434030), the pickable checks, picking, the island event that fills grown trees (0x415AD0), the honey (0x4319B0) and the save format are unchanged. Nothing is written to a villager record or to the save beyond the stock fields the stock code writes."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; the refill loop is emulated stock and patched (Nature 0 and 1, with and without the Nature patch, both fruit-tree timing companions, all three population modes and the 256 Villagers build) in tests/test_vv3_fruit_trees_refill_to_full.py; runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x347EB",
+          "before": "8B07C1EA0B03C2",
+          "after": "B8E80300009090",
+          "purpose": "a tree's refill sets its fruit to 1,000 (mov eax,0x3E8) instead of adding floor(elapsed x factor / 3600) to it"
+        }
+      ]
+    },
+    {
       "id": "vv3_nature_level_three_alters_mortality",
       "game_id": "vv3",
       "name": "Nature Level 3 Actually Alters Mortality",

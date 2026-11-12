@@ -80,7 +80,7 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_super_secret_golden_mushroom", "vv3_manual_drop_breeding_overrides_birth_control",
                          "vv3_population_256", "vv3_fruit_trees_take_turns", "vv3_unicode_font",
                          "vv3_preferred_job_graves", "vv3_tech_cost_multiplier",
-                         "vv3_hungrier_villagers", "vv3_sickness_multiplier"})
+                         "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full"})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv3_origins_village_wide_upgrades"
@@ -208,7 +208,11 @@ def _techs() -> list[Entry]:
             ((patch("vv3_nature_honey_refill") + ": on Normal speed, the fruit trees refill every 2 hours 15 minutes "
               "of real-life play, counting 56 fruit per real-life hour (the same 126 fruit a refill); the honey grows "
               "every 45 real-life minutes instead of every hour, gaining 84 for every 27 hours 45 minutes of real-life "
-              "play (3.03 per real-life hour) instead of 2 per real-life hour (Refills).", VERIFIED_E),)),
+              "play (3.03 per real-life hour) instead of 2 per real-life hour (Refills).", VERIFIED_E),
+             # 0x4347EB: the refill's add becomes mov eax,0x3E8 (data/builds.json vv3_fruit_trees_refill_to_full).
+             (patch("vv3_fruit_trees_refill_to_full") + ": every fruit tree refill fills the tree to 1,000, so "
+              "Nature's larger refill no longer matters; only the shorter wait with the patch above does.",
+              VERIFIED_E))),
         _level("Nature", 2, "The Pitcher Plant grows by the Alchemy Lab, a herb for potions (Technologies, items and "
                             "buildings)."),
         _level("Nature", 3, (

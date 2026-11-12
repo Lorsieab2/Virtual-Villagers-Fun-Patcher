@@ -25,6 +25,8 @@
        tick 0x468430 processes for one living villager (the reference, re-chosen when it dies), at 0x468AD6, which
        every processed unit reaches, live and while catching up (time away, as clamped by the game's own aging, and
        Time Warp alike) -- 4 hours of play on Normal, 2 on Fast, 6 h 40 min on Slow;
+       with "Yellow Breadfruit Refills Partially Every Time" (THE PARTIAL REFILL below) instead every 30 age
+       units it gains The Secret City's share, floor(units x 37 / 10), up to 1,000;
      * a Custom Island Event's "Refill the food sources" fills the tree to 1,000 (VvfpYellowFruitRefill, called by
        VVFP Story Upgrades.dll; no stock island event refills the tree);
      * one more island event, "A Closer Look" about the breadfruit (THE EVENT below), adds FS_EVENT_GAIN fruit;
@@ -91,6 +93,17 @@
    The title is the berry event's own (+0x08, id 0x342 "A Closer Look").  Without this companion slot 19 stays
    NULL, so the event does not exist.
 
+   THE PARTIAL REFILL.  The owner (2026-11-11): "Yellow Breadfruit Refills Partially Every Time"
+   (vv4_yellow_fruit_refills_partially, which needs this patch) refills the tree at The Secret City's pace instead of
+   to full: The Secret City's fruit tree (0x434760 in its executable) gains floor(elapsed x 37 / 3600) fruit, the
+   elapsed time in game seconds, once 10,800 (3 hours) have passed.  An age unit is 360 game seconds here (40 units are 4 hours on Normal), so
+   every FS_PARTIAL_UNITS (30) units the tree gains floor(units x 37 / 10) -- 111 -- up to 1,000.  Units counted
+   while catching up and with Time Warp count the same, so time away pays in proportion, as it does in The
+   Secret City.  A count left over 30 by the full refill (a file written without the partial row, up to 39) is
+   paid in proportion at the next unit.  The row ships no code: its one file, FS_PARTIAL_FLAG in the patcher's
+   folder, tells this companion at start (the patcher removes it with the row); the file's contents are never
+   read.  No technology changes the amount (the owner asked for none).
+
    Sites, all checked stock before anything is written, and written all or none (native/shared/install_sites.h):
      0x46456C  12  the credit's push 3 / food writer call
      0x463A38  11  the dispatcher's "offer the fruit"
@@ -123,6 +136,9 @@
 #define FS_TRIP 3                    /* fruit a food-bin credit or a stewed fruit takes */
 #define FS_BONUS 5                   /* fruit a Cooking Pit bonus takes */
 #define FS_REFILL_UNITS 40           /* age units between refills */
+#define FS_PARTIAL_UNITS 30          /* the partial refill: age units between refills (3 hours on Normal) */
+#define FS_PARTIAL_PER_10_UNITS 37   /* ... and its fruit: floor(units x 37 / 10), The Secret City's 37 an hour */
+#define FS_PARTIAL_FLAG "VVFP VV4 Fruit Partial Refill.txt"
 
 #define FOOD_STORE 0x4D6DD0u
 #define FOOD_ADD 0x41D920u
@@ -212,6 +228,7 @@ static const unsigned char DROP_DONE_STOCK[4] = { 0xB0, 0x01, 0x59, 0xC3 };
 /* ---- the tree --------------------------------------------------------------------------------------------- */
 
 static int g_installed;
+static int g_partial;                /* "Yellow Breadfruit Refills Partially Every Time" is shipped */
 static int g_bound;                  /* the state below is a village's */
 static int g_pending;                /* bound, but its file could not be read yet (locked, a read failed): see
                                         bind_village */
@@ -606,7 +623,14 @@ static void __cdecl on_unit(const unsigned char *rec) {
         if (rec != g_reference) {
             return;
         }
-        if (++g_units >= FS_REFILL_UNITS) {
+        ++g_units;
+        if (g_partial) {
+            if (g_units >= FS_PARTIAL_UNITS) {
+                int gain = g_units * FS_PARTIAL_PER_10_UNITS / 10;
+                g_fruit = g_fruit + gain > FS_FULL ? FS_FULL : g_fruit + gain;
+                g_units = 0;
+            }
+        } else if (g_units >= FS_REFILL_UNITS) {
             g_units = 0;
             g_fruit = FS_FULL;
         }
@@ -1092,8 +1116,8 @@ int __stdcall VvfpYellowFruitInstalled(void) {
 
 /* "Refill the food sources" of a Custom Island Event (VVFP Story Upgrades.dll, story_c4.inc c4_refill, which finds
    this by GetProcAddress and does nothing when this companion is not loaded): the tree is filled to its full 1,000
-   for the village on screen.  Its 40-unit refill clock runs on unchanged.  Nothing is written here: the file is
-   written when the game next saves, with the save (a refill the save never keeps is never kept).  1 when the tree
+   for the village on screen.  Its refill count (40 units, or 30 with the partial refill) runs on unchanged.
+   Nothing is written here: the file is written when the game next saves, with the save (a refill the save never keeps is never kept).  1 when the tree
    was filled, 0 when the sites are not installed or no villager is alive (no village to keep a count for). */
 int __stdcall VvfpYellowFruitRefill(void) {
     int filled = 0;
@@ -1111,10 +1135,30 @@ int __stdcall VvfpYellowFruitRefill(void) {
     return filled;
 }
 
+/* "Yellow Breadfruit Refills Partially Every Time" is shipped: its file is in the patcher's folder (THE PARTIAL
+   REFILL).  Any failure reads as not shipped: the refill to full. */
+static int partial_shipped(void) {
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    DWORD attributes;
+    if (vvfp_exe_relative_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, VVFP_PATCHER_FILES_FOLDER, FS_PARTIAL_FLAG) == 0) {
+        return 0;
+    }
+    attributes = GetFileAttributesW(path);
+    return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0;
+}
+
+/* 1 when "Yellow Breadfruit Refills Partially Every Time" is in effect (for the tests' emulation), else 0. */
+int __stdcall VvfpYellowFruitPartial(void) {
+    return g_partial;
+}
+
 /* Called once by VVFP Startup.dll before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write w[SITES];
     (void)shipped;
+    if (!g_installed && game == FS_GAME) {
+        g_partial = partial_shipped();
+    }
     if (g_installed || game != FS_GAME
         || !holds(TASK_EMPTY, TASK_EMPTY_STOCK, sizeof TASK_EMPTY_STOCK)
         || !holds(DROP_DONE, DROP_DONE_STOCK, sizeof DROP_DONE_STOCK)

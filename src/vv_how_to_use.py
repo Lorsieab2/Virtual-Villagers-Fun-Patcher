@@ -26,7 +26,8 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # Guides stay short: the owner asked for "brief, simple to understand".
 MAX_LINES = 8
 MAX_LINE_CHARS = 180
-MAX_GUIDE_CHARS = 900
+# 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900.
+MAX_GUIDE_CHARS = 1000
 
 
 @dataclass(frozen=True)

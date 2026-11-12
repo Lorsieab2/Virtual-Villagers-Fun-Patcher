@@ -128,6 +128,8 @@ FILES = [
     "assets/fruit_supply/vvfp_fruit_tree_3.png",
     "assets/fruit_supply/vvfp_fruit_tree_4.png",
     "assets/fruit_supply/vvfp_fruit_tree_5.png",
+    # Yellow Breadfruit Refills Partially Every Time (The Tree of Life): its flag file for the fruit companion.
+    "assets/fruit_supply/VVFP VV4 Fruit Partial Refill.txt",
     # Heathens Keep Their Masks When Converted (New Believers): a converting Heathen's mask becomes their Change
     # Appearance mask.
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
@@ -297,6 +299,7 @@ FILES = [
     "data/vv4_sickness_like_vv3_feature.json",
     "data/vv5_sickness_like_vv3_feature.json",
     "data/vv4_yellow_fruit_trees_limited_feature.json",
+    "data/vv4_yellow_fruit_refills_partially_feature.json",
     "data/vv4_louder_wind_flutes_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",

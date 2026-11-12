@@ -325,7 +325,11 @@ COLLECTIBLE_SPAWN_FEATURE_PATHS = (ROOT / "data" / "vv4_collectible_spawn_like_v
 # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life; off by default, in Classic VV Difficulty): the Cooking
 # Pit's fruit tree holds 1,000 fruit, refilled every 40 age units, kept in a per-save file; companion only, "VVFP VV4
 # Fruit Supply.dll", started by VVFP Startup.dll from its second word; scripts/build_vv4_yellow_fruit_trees_limited_feature.py.
-YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_feature.json",)
+YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_feature.json",
+                              # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; off by default and
+                              # in Owner's Defaults): needs the row above; its one file, a flag in the patcher's
+                              # folder, makes the same companion refill 111 every 30 age units instead of to full.
+                              ROOT / "data" / "vv4_yellow_fruit_refills_partially_feature.json")
 # Louder Wind Flutes (The Tree of Life; on by default): the three wind flute sounds 2.5 times louder as the game loads
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
