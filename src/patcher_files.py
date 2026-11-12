@@ -121,6 +121,9 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Change Appearance mask preview, drawn by the Origins
     # companion through GDI+ (vv4_origins_icons.c).
     "Images/vvfp_mask_preview.png",
+    # The Tree of Life's Yellow Breadfruit Refills Partially Every Time: a flag file whose presence beside the
+    # companions tells "VVFP VV4 Fruit Supply.dll" to refill at The Secret City's pace (vvfp_vv4_fruit_supply.c).
+    "VVFP VV4 Fruit Partial Refill.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.

@@ -220,6 +220,12 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # difficulty change in Classic VV Difficulty, off by default (the owner,
     # 2026-11-08); Owner's Defaults ticks it.
     + ["vv4_yellow_fruit_trees_limited"]
+    # All Fruit Trees Refill to Full (The Secret City; the owner, 2026-11-11): off by default, on in Owner's
+    # Defaults, which ticks it like every default-off patch it does not name.
+    + ["vv3_fruit_trees_refill_to_full"]
+    # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; the owner, 2026-11-11): off by default and
+    # off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+    + ["vv4_yellow_fruit_refills_partially"]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -267,6 +273,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-08): Move the "Playing in the dirt" Spot is off by default, in Owner's Defaults and in
     # Select All; Puddle Play Moves to the Lake Shore (on everywhere) moves "Playing in the dirt" to the lake shore.
     + ["vv5_playing_in_the_dirt_spot"]
+    # The owner (2026-11-11): Yellow Breadfruit Refills Partially Every Time is off in Owner's Defaults ("for parity
+    # with the other games"; Owner's Defaults ticks All Fruit Trees Refill to Full in The Secret City instead).
+    + ["vv4_yellow_fruit_refills_partially"]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select

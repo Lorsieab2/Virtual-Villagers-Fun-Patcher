@@ -117,3 +117,5 @@ data/unicode18/*.gz -text
 assets/unicode_fonts/** -text
 assets/unicode_fonts/SOURCES.json text eol=lf
 assets/word_lists/** -text
+# Yellow Breadfruit Refills Partially Every Time's flag file: pinned by raw SHA-256.
+assets/fruit_supply/*.txt -text

@@ -51,7 +51,13 @@
      0x433E40  the loader's first 7 bytes          -> the stock loader, then the file's entry
      0x433EC0  the saver's first 7 bytes           -> the file's entry, then the stock saver
    The interval and the Nature factor are read from the game's own bytes, which must be the
-   stock ones or the patcher's Nature patch exactly; anything else installs nothing. */
+   stock ones or the patcher's Nature patch exactly; anything else installs nothing.
+
+   ALL FRUIT TREES REFILL TO FULL (data/builds.json, vv3_fruit_trees_refill_to_full): the stock
+   loop's add at 0x4347EB (mov eax,[edi] / shr edx,0xB / add eax,edx) becomes mov eax,0x3E8 and
+   two NOPs, so a refill sets the fruit to 1,000.  The pass replaces that loop, so it reads the
+   same 7 bytes: the patch's bytes -> each refill (at `due`) fills the tree to 1,000 instead of
+   adding the stock share; the stock bytes -> the stock share; anything else installs nothing. */
 #ifndef VV3_FRUIT_TIMERS_H
 #define VV3_FRUIT_TIMERS_H
 
@@ -91,6 +97,7 @@
 #define FACTOR_SITE 0x4347BEu     /* mov ebp, 37 */
 #define NATURE_FACTOR_SITE 0x4347CDu  /* mov ebp, 42 (56 with the Nature patch) */
 #define NATURE_CAVE 0x47B380u     /* the Nature patch's interval test */
+#define ADD_SITE 0x4347EBu        /* the refill's add, or All Fruit Trees Refill to Full's mov */
 
 static const unsigned char PASS_STOCK[5] = { 0x8B, 0x46, 0x64, 0x33, 0xDB };
 static const unsigned char LOAD_STOCK[7] = { 0x53, 0x8B, 0x5C, 0x24, 0x08, 0x55, 0x56 };
@@ -106,6 +113,10 @@ static const unsigned char CAVE_NATURE[49] = {
     0x58, 0x8B, 0x4F, 0xF8, 0x7C, 0x08, 0x81, 0xC1, 0xA4, 0x1F, 0x00, 0x00, 0xEB, 0x06, 0x81, 0xC1,
     0x30, 0x2A, 0x00, 0x00, 0x3B, 0xC1, 0x0F, 0x82, 0x55, 0x94, 0xFB, 0xFF, 0xE9, 0x06, 0x94, 0xFB,
     0xFF };
+/* The refill's add (mov eax,[edi] / shr edx,0xB / add eax,edx), and "All Fruit Trees Refill to
+   Full"'s mov eax,0x3E8 / nop / nop. */
+static const unsigned char ADD_STOCK[7] = { 0x8B, 0x07, 0xC1, 0xEA, 0x0B, 0x03, 0xC2 };
+static const unsigned char ADD_FULL[7] = { 0xB8, 0xE8, 0x03, 0x00, 0x00, 0x90, 0x90 };
 
 typedef struct {
     int x, y, planted, kind;      /* who the tree is */
@@ -116,6 +127,7 @@ typedef struct {
 static int installed;
 static unsigned int g_interval[2];   /* below Nature 1, and at Nature 1 or more */
 static unsigned int g_factor[2];
+static int g_fill;                   /* 1: All Fruit Trees Refill to Full is in the game */
 static tree_timer g_tree[TREE_MAX];
 static int g_count = -1;             /* -1: no tree known yet */
 static unsigned int g_laid_out;      /* the interval the dues were laid out with (0: none) */
@@ -233,7 +245,11 @@ static void __cdecl pass(unsigned char *trees) {
             r[3] = (int)now;
         }
         if (now >= g_tree[i].due) {
-            r[5] += (int)(((now - g_tree[i].credit) * factor) / 3600u);
+            if (g_fill) {
+                r[5] = FRUIT_FULL;
+            } else {
+                r[5] += (int)(((now - g_tree[i].credit) * factor) / 3600u);
+            }
             g_tree[i].credit = now;
             g_tree[i].due = now + interval;
             changed = 1;
@@ -550,6 +566,13 @@ static int read_rules(void) {
     } else if (is_bytes(TEST_SITE, TEST_NATURE, sizeof TEST_NATURE)
                && is_bytes(NATURE_CAVE, CAVE_NATURE, sizeof CAVE_NATURE)) {
         g_interval[1] = 8100u;
+    } else {
+        return 0;
+    }
+    if (is_bytes(ADD_SITE, ADD_FULL, sizeof ADD_FULL)) {
+        g_fill = 1;
+    } else if (is_bytes(ADD_SITE, ADD_STOCK, sizeof ADD_STOCK)) {
+        g_fill = 0;
     } else {
         return 0;
     }

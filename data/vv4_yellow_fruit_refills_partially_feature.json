@@ -1,0 +1,30 @@
+{
+  "id": "vv4_yellow_fruit_refills_partially",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Yellow Breadfruit Refills Partially Every Time",
+  "description": "With \"Yellow Fruit Trees are No Longer Unlimited\", the Cooking Pit's yellow fruit tree is no longer refilled to full every 4 hours: it refills at The Secret City's pace instead, gaining 111 fruit every 3 hours of play on Normal speed (1 hour 30 minutes on Fast, 5 hours on Slow), up to 1,000 -- 37 fruit an hour, as The Secret City's fruit trees gain. The time is counted as the game counts its villagers' ages, so time away (as far as the game counts it) and Time Warp count too, in proportion. No technology changes the amount. The breadfruit island event (+350), a Custom Island Event's refill (to 1,000), the fruit each trip and bonus takes, the refusals at an empty tree and the trees' pictures of the fruit left are unchanged. **Needs \"Yellow Fruit Trees are No Longer Unlimited\": ticking this patch ticks it too, and unticking that one unticks this one.** **Off by default, and off in Owner's Defaults.** **Unverified in play: the effect has not been tested live.** The patch adds one small file, \"VVFP VV4 Fruit Partial Refill.txt\", to the patcher's folder, which tells \"VVFP VV4 Fruit Supply.dll\" to refill this way; the save and the tree's own file are kept as before.",
+  "output_tag": "Breadfruit Refills Partially",
+  "dependencies": [
+    "vv4_yellow_fruit_trees_limited"
+  ],
+  "behavior_changes": [
+    "\"VVFP VV4 Fruit Supply.dll\" (the vv4_yellow_fruit_trees_limited row's companion) checks at start (VvfpStartup) whether \"VVFP VV4 Fruit Partial Refill.txt\" is in the patcher's folder (GetFileAttributesW, by full path from the executable's own; the contents are never read). When it is, the tree's refill count (one per age unit the life tick 0x468430 processes for the reference villager, at 0x468AD6) refills at 30 instead of 40: the tree gains floor(count x 37 / 10) fruit -- 111 at 30 -- up to 1,000, and the count starts again. That is The Secret City's fruit-tree refill (0x434760 in its executable: floor(elapsed x 37 / 3600) once 10,800 game seconds have passed), an age unit being 360 game seconds (40 are 4 hours on Normal). A count of 30 to 39 kept by the refill to full (a file written without this row) is paid in proportion at the next unit."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched and no code is added: the row's only file is the flag; the companion and its sites are the vv4_yellow_fruit_trees_limited row's.",
+    "The tree's file keeps its format (the count since the last refill is below 40 either way), so the patch can be ticked or unticked at any time; the save is never written.",
+    "The fruit taken by trips, stews and catch-up bonuses, the refusals, the dispatcher, the island event's +350, a Custom Island Event's refill to 1,000, the pictures and the click readout are unchanged. No technology changes the 111: Food Mastery multiplies the food paid, never the fruit."
+  ],
+  "evidence_status": "implemented in the companion's source; the refill emulated with and without the flag (on time, after a long absence, at the cap, a count carried over from the refill to full) in tests/test_vv4_yellow_fruit_refills_partially.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/fruit_supply/VVFP VV4 Fruit Partial Refill.txt",
+      "destination": "VVFP VV4 Fruit Partial Refill.txt",
+      "sha256": "28A44431C552988779D5B6433639197702E7D8FAAF7D777CCD527936398986A6"
+    }
+  ],
+  "patches": []
+}
