@@ -52,6 +52,11 @@
    "files": ["native/vvfp_island_events/*"]
   },
   {
+   "reason": "A branching Custom Island Event's one Island Events log entry (its Event / Choice header, Changes: none, the test build's page lines): log words, which stay English.",
+   "files": ["native/vvfp_story_upgrades/story_graph.inc"],
+   "functions": ["cg_entry_start", "cg_log_end", "cg_log_write"]
+  },
+  {
    "reason": "The translation file format's own words (plural rule names, header names, game titles to check the @game row): compared with the file, never shown.",
    "files": ["native/vvfp_translations/*"]
   },

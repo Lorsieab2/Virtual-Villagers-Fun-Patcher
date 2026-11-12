@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv3",
   "name": "Write Island Events Log to Text File",
-  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Island Events\\Virtual Villagers 3 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title, and Tribal Chief -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the fruit trees and honey, puzzles solved or unsolved and the weather -- is one record of its own, a \"Village:\" list of old -> new, and an event that changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
+  "description": "Every change an island event makes to a villager is written to a new log, the Island Events log (\"Virtual Villagers Fun Patcher\\Save <slot>\\Logs\\Island Events\\Virtual Villagers 3 Island Events Log 1.txt\"): one numbered record per villager it changed, with the event's title as the game shows it, the answer you picked when it asked, and each change as old -> new -- health, age, sickness, pregnancy, head, body, name, likes, dislikes, every skill, parents, custom title, mask and Special villager title, and Tribal Chief -- \"Gone\" for a villager the event took away, and the sex and age of a villager it brought. What an event changes in the village as a whole -- food, tech points, the fruit trees and honey, puzzles solved or unsolved and the weather -- is one record of its own, a \"Village:\" list of old -> new, and an event that changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old and the new look are the same villager. A branching Custom Island Event from the library (Story / Cheat Upgrades), whose effects come page by page, is ONE record: its title, the answer picked, then every change in page order as \"<name>: <change> <old> -> <new>\", continued across a quit. The records are written when the game saves, like the other logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**",
   "output_tag": "Island Events",
   "needs_on": [
     {
@@ -18,7 +18,8 @@
     "The village's food, tech points, food stores, puzzles and (where the game has one) weather are read just before and just after too; what changed is one \"Island event <n>\" record with a \"Village:\" list, and an event that changes nothing is one record ending \"Changes: none\".",
     "A villager the event brings is named with its sex and its age, in game units and years (\"Age: 340 (17 years old)\").",
     "A head or body change is also an \"Appearance changed\" record in the Births and Conceptions log, ending \"Changed by: <event> (island event)\".",
-    "A new village gets its Island Events log when it is made, like the other logs."
+    "A new village gets its Island Events log when it is made, like the other logs.",
+    "A branching Custom Island Event (Story / Cheat Upgrades, story_graph.inc) brackets each page's own effects through this comparison (VvfpIslandEventsGraphBegin / End) and files the event's one entry when it is over (VvfpIslandEventsGraphWrite): \"Event:\", \"Choice:\", then each change as \"<name>: <Label> <old> -> <new>\" in page order; the game's own bracket around its popups writes nothing for them (VvfpStoryGraphLogged)."
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion detours the routines' first instructions at run time, after verifying them, and installs nothing if any differs.",
@@ -30,7 +31,7 @@
     {
       "source": "assets/island_events/VVFP Island Events.dll",
       "destination": "VVFP Island Events.dll",
-      "sha256": "82277115EC7A2B75C552770DFDC91F6C373AB987259A9F153B29B66F1B701E3C"
+      "sha256": "D1E0BC5932924FF529CA8B96E2813FAF5BEB56DDFB8B7A7BB9F6828629EFB4EE"
     }
   ],
   "runtime_detours": [

@@ -792,8 +792,13 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   the question's earlier pages come first, the result's first page is the
   click's result, every later page an island-event notice. Only the question
   (or the first page) counts in Island Events Seen. The Island Events log
-  writes a record per changed villager headed with the event's title, so a
-  later page's effects appear as more records under the same event title.
+  keeps ONE entry for the event (the owner, 2026-11-12): "Event:", "Choice:",
+  then every change in page order as "<name>: <Label> <old> -> <new>",
+  appended as each page appears (VVFP Island Events.dll's
+  VvfpIslandEventsGraphBegin / End around that page's effects), kept in the
+  run's file so a quit continues the same entry, and filed once when the
+  event is over (VvfpIslandEventsGraphWrite). The game's own bracket around
+  the event's popups writes nothing for them (VvfpStoryGraphLogged).
 - The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
   beside the queue's file (whose layout is unchanged), with when each page's
   effects were made: a quit with the question on screen or between pages

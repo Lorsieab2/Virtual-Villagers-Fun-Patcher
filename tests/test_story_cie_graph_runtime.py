@@ -166,6 +166,13 @@ class Run:
         # The companion's whole tick (the queue's roster checks, a restore) runs past the emulator's default cap.
         self.p.call(self.p.exports["VvfpStoryInstall"], [self.n], limit=20_000_000)
 
+    def log(self, on: int = -1):
+        """The Island Events log stood in for (on 1: each page's lines "  page <k>"): (entries filed, the entry
+        as it is now, the last one filed)."""
+        now, filed = FILE_BUF + 0x60000, FILE_BUF + 0x62000
+        n = self.p.export("VvfpStoryProbeGraphLog", on & 0xFFFFFFFF, now, filed, 0x2000)
+        return n, self.p.cstring(now, 0x2000), self.p.cstring(filed, 0x2000)
+
     def graph_file(self) -> bytes:
         size = self.p.export("VvfpStoryProbeGraphFile", 0, 0)
         if size <= 0:
@@ -556,6 +563,66 @@ class EffectsWaitForTheirPage(unittest.TestCase):
                 self.assertEqual(run.graph_file(), b"", "the save holds it all: the file goes")
                 again = self.restart(game, file, LATE)
                 self.assertIn(again.state()["phase"], (IDLE,), "nothing shown again")
+
+    def test_the_island_events_log_keeps_one_entry_continued_across_a_quit(self):
+        """The owner (2026-11-12): ONE Island Events log entry per branching event -- its title, then every
+        page's changes in page order as they happen -- filed once when the event is over; a quit between pages
+        continues the same entry (a page shown again first takes its own lines back), nothing logged twice; the
+        game's own bracket around each of its popups writes no record of its own (VvfpStoryGraphLogged, once)."""
+        whole = "  Event: Three Gifts\n  page 0\n  page 1\n  page 2\n"
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game, at="straight"):
+                run = self.start(game)
+                run.log(1)
+                run.play(until=1)
+                title = run.p.alloc(32)
+                run.p.write(title, b"Three Gifts\0")
+                self.assertEqual(run.p.export("VvfpStoryGraphLogged", run.n, title), 1, "this popup is the event's")
+                self.assertEqual(run.p.export("VvfpStoryGraphLogged", run.n, title), 0, "...asked once")
+                self.assertEqual(run.log()[:2], (0, "  Event: Three Gifts\n  page 0\n"), "appended as it happens")
+                run.play()
+                self.assertEqual(run.log()[0::2], (1, whole), "one entry, filed once, every page in order")
+                other = run.p.alloc(32)
+                run.p.write(other, b"The Strange Berries\0")
+                self.assertEqual(run.p.export("VvfpStoryGraphLogged", run.n, other), 0, "another event's popup")
+            run = self.start(game)
+            run.log(1)
+            run.play(until=2)
+            t1 = run.seen[0]["tick"]
+            run.tick()
+            file = run.graph_file()
+            self.assertEqual(run.log()[0], 0, "nothing filed mid-run")
+            for save, label in ((LATE, "resumed"), (t1 + 500, "resumed, the save before the second page")):
+                with self.subTest(game=game, at=label):
+                    again = self.restart(game, file, save)
+                    again.log(1)
+                    again.play()
+                    self.assertEqual(again.log()[0::2], (1, whole), "the same entry, continued: nothing twice")
+
+    def test_a_question_s_entry_has_its_choice_and_none_when_nothing_changed(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            run = Run(game)
+            n = int(game[2:])
+            for end, expect_pages in (("H3", 1), ("A7", 0)):
+                h = next(h for h in histories(n) if h.end == end)
+                run.reset()
+                run.rolls(ROLLS)
+                run.force([x for x in h.nodes if x != GRAPH["start"]] + QUIET[1 - h.choice])
+                run.log(1)
+                self.assertIsNone(run.queue())
+                run.play(button=h.choice)
+                count, _now, filed = run.log()
+                label = GRAPH["nodes"]["intro"]["choices"][h.choice]["label"]
+                with self.subTest(game=game, end=end):
+                    self.assertEqual(count, 1)
+                    self.assertTrue(filed.startswith(f"  Event: The Aspiring Adventurer\n  Choice: {label}\n"), filed)
+                    self.assertEqual(filed.count("  page "), expect_pages)
+                    if not expect_pages:
+                        self.assertTrue(filed.endswith("  Changes: none\n"), filed)
 
     def test_a_villager_gone_between_pages_has_only_their_own_effects_skipped(self):
         for game in GAMES:

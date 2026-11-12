@@ -121,3 +121,5 @@ EXPORTS
     VvfpStoryProbeGraphArmNext=_VvfpStoryProbeGraphArmNext@4
     VvfpStoryProbeGraphFile=_VvfpStoryProbeGraphFile@8
     VvfpStoryProbeGraphSession=_VvfpStoryProbeGraphSession@8
+    VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
+    VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16

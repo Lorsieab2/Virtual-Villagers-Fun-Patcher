@@ -109,6 +109,7 @@
 #define CG_MAX_DISPLAYS 96
 #define CG_CAUSE_BYTES 64
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
+#define CG_ENTRY_BYTES 8192
 
 enum { CG_POPUP = 0, CG_QUESTION = 1, CG_BRANCH = 2 };
 enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CGE_STATUS = 6, CGE_HEALTH = 7,
@@ -583,6 +584,12 @@ typedef struct {
     unsigned int identity_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
     char title[CE_TITLE_BYTES];
     unsigned __int64 when;             /* its purchase: only a later save paid for it */
+    /* The Island Events log's ONE entry for the event (the owner, 2026-11-12): "  Event: <title>", "  Choice:
+       <label>", then every change in page order; entry_at[k] is its length before display k's changes. */
+    int entry_len;
+    int entry_head;                    /* the header's length */
+    int entry_at[CG_MAX_DISPLAYS];
+    char entry[CG_ENTRY_BYTES];
 } cg_state;
 
 static cg_state cg;
@@ -1660,6 +1667,119 @@ static void cg_layout_history(const ce_adapter *a, int game, const cg_history *h
     }
 }
 
+/* ---- The Island Events log's one entry ("VVFP Island Events.dll", native/vvfp_island_events) ----------------
+
+   The owner (2026-11-12): ONE entry per branching event -- the title, the "Choice:" line, then every change in page
+   order as it happens.  Each page that makes effects is bracketed through that companion's own comparison
+   (VvfpIslandEventsGraphBegin / End: the same field words, as "  <name>: <Label> <old> -> <new>" lines), appended
+   to the entry the run keeps (cg.entry, in the run's file: a quit continues the same entry, and a page shown again
+   after a restore first takes its own lines back, entry_at), and the entry is filed once, when the event is over
+   (VvfpIslandEventsGraphWrite: held until the next save, as every record).  The game's own bracket around each of
+   these popups writes nothing for it (VvfpStoryGraphLogged).  Without that companion (its row off): nothing. */
+
+typedef int (__stdcall *cg_log_begin_fn)(int game);
+typedef int (__stdcall *cg_log_end_fn)(int game, char *out, int cap);
+typedef int (__stdcall *cg_log_write_fn)(int game, const char *text);
+static int cg_logged;                  /* the game whose last popup was this run's (asked once by the log) */
+
+#ifdef VVFP_TEST
+static int test_graph_log;             /* stands in for the companion: each page's lines "  page <k>" */
+static int test_graph_log_page;
+static char test_graph_entry[CG_ENTRY_BYTES];   /* the entry filed last */
+static int test_graph_entries;          /* ...and how many were filed */
+#endif
+
+static FARPROC cg_log_export(const char *name) {
+    HMODULE module = GetModuleHandleA("VVFP Island Events.dll");
+    return module != NULL ? GetProcAddress(module, name) : NULL;
+}
+
+static void cg_entry_put(const char *text) {
+    int n = lstrlenA(text);
+    if (cg.entry_len + n + 1 < CG_ENTRY_BYTES) {
+        memcpy(cg.entry + cg.entry_len, text, (size_t)n + 1);
+        cg.entry_len += n;
+    }
+}
+
+/* The entry's header: the title, and the button clicked (`label`, or NULL with no question). */
+static void cg_entry_start(const char *label) {
+    char line[CE_TITLE_BYTES + CE_BUTTON_BYTES + 32];
+    cg.entry_len = 0;
+    cg.entry[0] = '\0';
+    wsprintfA(line, "  Event: %s\n", cg.title);
+    cg_entry_put(line);
+    if (label != NULL) {
+        wsprintfA(line, "  Choice: %s\n", label);
+        cg_entry_put(line);
+    }
+    cg.entry_head = cg.entry_len;
+}
+
+static int cg_log_begin(int game) {
+    cg_log_begin_fn begin;
+#ifdef VVFP_TEST
+    if (test_graph_log) {
+        test_graph_log_page = cg.display_next;
+        return 1;
+    }
+#endif
+    begin = (cg_log_begin_fn)(void *)cg_log_export("VvfpIslandEventsGraphBegin");
+    return begin != NULL && begin(game);
+}
+
+static void cg_log_end(int game) {
+    static char lines[4096];
+    cg_log_end_fn end;
+    lines[0] = '\0';
+#ifdef VVFP_TEST
+    if (test_graph_log) {
+        wsprintfA(lines, "  page %d\n", test_graph_log_page);
+        cg_entry_put(lines);
+        return;
+    }
+#endif
+    end = (cg_log_end_fn)(void *)cg_log_export("VvfpIslandEventsGraphEnd");
+    if (end != NULL && end(game, lines, (int)sizeof lines) > 0) {
+        cg_entry_put(lines);
+    }
+}
+
+/* The event is over: its one entry filed ("Changes: none" when it changed nothing, as every event shown is). */
+static void cg_log_write(int game) {
+    cg_log_write_fn write;
+    if (cg.entry_head == 0) {
+        return;                        /* never started (no page made effects through the log) */
+    }
+    if (cg.entry_len == cg.entry_head) {
+        cg_entry_put("  Changes: none\n");
+    }
+#ifdef VVFP_TEST
+    if (test_graph_log) {
+        lstrcpynA(test_graph_entry, cg.entry, sizeof test_graph_entry);
+        ++test_graph_entries;
+        return;
+    }
+#endif
+    write = (cg_log_write_fn)(void *)cg_log_export("VvfpIslandEventsGraphWrite");
+    if (write != NULL) {
+        (void)write(game, cg.entry);
+    }
+}
+
+/* Asked by "VVFP Island Events.dll" as it compares the popup the game just showed: 1 (once) when it was this
+   run's page or question -- its changes are the event's one entry's, never a record of their own. */
+__declspec(dllexport) int __stdcall VvfpStoryGraphLogged(int game, const char *title) {
+    if (cg_logged == 0 || cg_logged != game) {
+        return 0;
+    }
+    if (title != NULL && title[0] != '\0' && lstrcmpA(title, cg.title) != 0) {
+        return 0;                      /* another event's popup */
+    }
+    cg_logged = 0;
+    return 1;
+}
+
 /* The effects display `k` makes, each once: every node of its jobs, in the history's order, the award's state
    and the rolls as the walk left them. */
 static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) {
@@ -1689,7 +1809,14 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
 static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) {
     ce_result r;
     ce_layout l = cg.display_result[k] ? ce_result_layout(a) : cg_notice_layout(a);
+    int logging;
+    cg.entry_at[k] = cg.entry_len;
+    logging = cg.job_count[k] > 0 && cg_log_begin(game);
     cg_make_effects(a, game, k, &r);
+    if (logging) {
+        cg_log_end(game);              /* this page's changes, appended to the event's one entry */
+    }
+    cg_logged = game;                  /* the game's own bracket around this popup is not a record of its own */
     cg_compose(&l, cg.title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
     cg.display_next = k + 1;
 }
@@ -1790,6 +1917,7 @@ static int cg_slot_free(int game) {
    (cg_flush_file), so a crash before that save brings back exactly the pages whose effects the save lacks. */
 static void cg_finish(void) {
     int k;
+    cg_log_write(cg.game);             /* the Island Events log's one entry, now whole */
     cg.phase = CG_IDLE;
     for (k = 0; k < cg.display_count; ++k) {
         if (cg.applied_when[k] != 0) {
@@ -1857,6 +1985,7 @@ static int cg_deliver(int game, char *text, int size, int *counted) {
             cg.walked = 1;
             cg.choice = -1;
             cg_layout_history(a, game, &cg.walk[0], 0);
+            cg_entry_start(NULL);
             cg.phase = CG_CHAIN;
             *counted = 1;
         }
@@ -1905,6 +2034,7 @@ static void cg_begin_question(int game, char *text, int size) {
     }
     cg.phase = CG_ASKED;
     cg.display_count = cg.display_next = cg.display_used = 0;
+    cg_logged = game;                  /* the question's own popup: the entry's, written when the event is over */
     cg_dirty = 1;
 }
 
@@ -1917,6 +2047,13 @@ static int cg_resolve(int game, int button, char *text, int size) {
     }
     cg.choice = button;
     cg_layout_history(a, game, &cg.walk[button], 1);
+    {
+        /* The entry's header: the title and the button clicked, as the game showed it. */
+        static char label[CE_BUTTON_BYTES];
+        const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, cg_g.start) + 12) + button);
+        cg_expand(cg_s(&cg_g, cg_u16(c + 8)), label, CE_BUTTON_BYTES, CG_EXPAND_REAL, a->name_room, -1, 0);
+        cg_entry_start(label);
+    }
     cg.phase = CG_CHAIN;
     if (cg.display_count > 0) {
         cg_show(a, game, 0, text, size);
@@ -2284,6 +2421,12 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
         if (rewind >= 0) {
             cg.gone = cg.gone_at[rewind];
             memcpy(cg.identity, cg.identity_at[rewind], sizeof cg.identity);
+            /* The entry continues from that page: its own lines are taken back, made again as it is shown. */
+            cg.entry_len = cg.question && rewind == 0 ? 0 : cg.entry_at[rewind];
+            if (cg.entry_len == 0) {
+                cg.entry_head = 0;
+            }
+            cg.entry[cg.entry_len] = '\0';
             for (k = rewind; k < cg.display_count; ++k) {
                 cg.applied_when[k] = 0;
             }
@@ -2653,6 +2796,23 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPath(int which, int *out,
         out[i] = h->node[i];
     }
     return h->nodes;
+}
+
+/* The Island Events log stood in for (`on`: each page's lines "  page <k>"); then: the entry as it is now into
+   `now`, the last one filed into `filed` (each up to `cap` bytes), and how many were filed. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphLog(int on, char *now, char *filed, int cap) {
+    if (on >= 0) {
+        test_graph_log = on;
+        test_graph_entries = 0;
+        test_graph_entry[0] = '\0';
+    }
+    if (now != NULL && cap > 0) {
+        lstrcpynA(now, cg.entry, cap);
+    }
+    if (filed != NULL && cap > 0) {
+        lstrcpynA(filed, test_graph_entry, cap);
+    }
+    return test_graph_entries;
 }
 
 /* Display `k`'s text, or NULL. */

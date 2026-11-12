@@ -88,7 +88,10 @@ def row(game: str, sha: str) -> dict:
         + " -- is one record of its own, a \"Village:\" list of old -> new, and an event that "
         "changes nothing still gets its record, \"Changes: none\". A villager whose head or body an event changed "
         "also gets an \"Appearance changed\" record naming the event, so the Family Tree Maker knows the old "
-        "and the new look are the same villager. The records are written when the game saves, like the other "
+        "and the new look are the same villager. A branching Custom Island Event from the library (Story / Cheat "
+        "Upgrades), whose effects come page by page, is ONE record: its title, the answer picked, then every change "
+        "in page order as \"<name>: <change> <old> -> <new>\", continued across a quit. "
+        "The records are written when the game saves, like the other "
         "logs. **Needs Write Births and Conceptions Log to Text File: that patch's DLL writes the records.**"
         + (" **A New Home keeps a villager's parents only with Show Parents in Details Screen on: without it, "
            "parents are not logged.**" if game == "vv1" else "")
@@ -115,6 +118,11 @@ def row(game: str, sha: str) -> dict:
             "A head or body change is also an \"Appearance changed\" record in the Births and Conceptions log, "
             "ending \"Changed by: <event> (island event)\".",
             "A new village gets its Island Events log when it is made, like the other logs.",
+            "A branching Custom Island Event (Story / Cheat Upgrades, story_graph.inc) brackets each page's own "
+            "effects through this comparison (VvfpIslandEventsGraphBegin / End) and files the event's one entry when "
+            "it is over (VvfpIslandEventsGraphWrite): \"Event:\", \"Choice:\", then each change as "
+            "\"<name>: <Label> <old> -> <new>\" in page order; the game's own bracket around its popups writes nothing "
+            "for them (VvfpStoryGraphLogged).",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion detours the routines' first instructions at run time, "
