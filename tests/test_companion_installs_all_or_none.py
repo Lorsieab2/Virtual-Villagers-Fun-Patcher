@@ -382,6 +382,11 @@ CASES = [
     Case("Island Events Scale", "assets/island_events_scale/VVFP Island Events Scale.dll", (1, 4, 5),
          lambda g: [f"vv{g}_island_events_scale_with_population"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandEventsScaleInstalled"))[1]),
+    # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the pick's epilogue and the
+    # end-of-trip award call (VV1), the two jobs' award-step calls (VV2).
+    Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+         (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

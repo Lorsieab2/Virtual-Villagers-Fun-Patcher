@@ -139,6 +139,8 @@ FILES = [
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
+    # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
+    "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",

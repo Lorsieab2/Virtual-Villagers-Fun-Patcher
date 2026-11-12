@@ -54,6 +54,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
        Believers): island-event food and tech amounts scaled by the population or the stores. */
     "VVFP Island Events Scale.dll",
+    /* Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
+       right after the carry step, never again at delivery. */
+    "VVFP Collectibles Stay Collected.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

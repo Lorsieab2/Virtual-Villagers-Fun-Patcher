@@ -406,7 +406,8 @@ ITEMS = (
         ("With the patcher (VV1 Mushroom/Collectible Duplication Cheat, off by default): several children can be "
          "dropped on one mushroom or collectible, and it is multiplied: each of them gets it.", C),
         # The mushroom job 0x45BCA0 queues its award (step 17, callback 39/40) right after the carry step 15
-        # (data/builds.json vv2_collectibles_stay_collected); stock: at the end of the trip.
+        # (data/builds.json vv2_collectibles_stay_collected: "VVFP Collectibles Stay Collected.dll"); stock: at the
+        # end of the trip.
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
          "the moment the child picks it up -- its food and Mushrooms Found, once -- even if the child is moved or "
          "stops before the food bin (in the normal game it counts only at the end of the trip).", C),

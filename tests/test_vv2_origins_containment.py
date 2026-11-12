@@ -58,7 +58,7 @@ REMAINING = {
     "vv2_gong_of_wonder_coconuts_fix",
     # two jumps in the pickup callbacks; owns no Origins bytes
     "vv2_everyone_collects_like_vv1",
-    # its two job builders reordered in place; owns no Origins bytes
+    # companion only (its two job builders' award calls, at run time); owns no Origins bytes
     "vv2_collectibles_stay_collected",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
