@@ -602,18 +602,21 @@ int main(void) {
             const char *at_research, *at_gone;
             slot(1)[present] = 1;
             slot(2)[present] = 1;
+            /* With Last Names on, the record's own name field holds the full name: that is the name printed. */
+            memset(slot(0) + layout.name, 0, 16);
+            put_name(slot(0), layout.name, "Kahu Kalahuna");
             g_outs = 0;
             CHECK(VvfpIslandEventsGraphBegin(g_harness_game) == 1, "a branching event's page: the village taken");
             gain_research_once(research->offset, skills_float);
             slot(2)[present] = 0;
             CHECK(VvfpIslandEventsGraphEnd(g_harness_game, lines, (int)sizeof lines) > 0 && g_outs == 0,
                   "...its changes come back as the entry's lines, no record of their own");
-            _snprintf(want, sizeof want, "  %s: Research ", (const char *)slot(0) + layout.name);
+            _snprintf(want, sizeof want, "  %s: Research ", "Kahu Kalahuna");
             want[sizeof want - 1] = '\0';
             at_research = strstr(lines, want);
             at_gone = strstr(lines, "  Tavi: Gone\n");
             CHECK(at_research != NULL && at_gone != NULL && at_research < at_gone && strstr(lines, "Event:") == NULL,
-                  "...\"<name>: Research <old> -> <new>\" then \"Tavi: Gone\", in record order");
+                  "...\"Kahu Kalahuna: Research <old> -> <new>\" (the full name) then \"Tavi: Gone\", in record order");
             slot(2)[present] = 1;
             g_graph_logged = stub_logged;
             g_story_logs = 1;

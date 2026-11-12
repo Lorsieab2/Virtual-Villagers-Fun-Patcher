@@ -166,6 +166,13 @@ class Run:
         # The companion's whole tick (the queue's roster checks, a restore) runs past the emulator's default cap.
         self.p.call(self.p.exports["VvfpStoryInstall"], [self.n], limit=20_000_000)
 
+    def sent(self):
+        """(times the entry was handed to the log, the entry last handed over, its `disk`, its `final`)."""
+        text, info = FILE_BUF + 0x64000, FILE_BUF + 0x66000
+        n = self.p.export("VvfpStoryProbeGraphSent", text, 0x2000, info)
+        disk, final = struct.unpack("<2i", self.p.read(info, 8))
+        return n, self.p.cstring(text, 0x2000), disk, final
+
     def log(self, on: int = -1):
         """The Island Events log stood in for (on 1: each page's lines "  page <k>"): (entries filed, the entry
         as it is now, the last one filed)."""
@@ -582,6 +589,8 @@ class EffectsWaitForTheirPage(unittest.TestCase):
                 self.assertEqual(run.p.export("VvfpStoryGraphLogged", run.n, title), 1, "this popup is the event's")
                 self.assertEqual(run.p.export("VvfpStoryGraphLogged", run.n, title), 0, "...asked once")
                 self.assertEqual(run.log()[:2], (0, "  Event: Three Gifts\n  page 0\n"), "appended as it happens")
+                self.assertEqual(run.sent(), (1, "  Event: Three Gifts\n  page 0\n", -1, 0),
+                                 "...and handed to the log at once (its held record, for the next save)")
                 run.play()
                 self.assertEqual(run.log()[0::2], (1, whole), "one entry, filed once, every page in order")
                 other = run.p.alloc(32)
@@ -594,10 +603,17 @@ class EffectsWaitForTheirPage(unittest.TestCase):
             run.tick()
             file = run.graph_file()
             self.assertEqual(run.log()[0], 0, "nothing filed mid-run")
+            held = {LATE: "  Event: Three Gifts\n  page 0\n  page 1\n", t1 + 500: "  Event: Three Gifts\n  page 0\n"}
             for save, label in ((LATE, "resumed"), (t1 + 500, "resumed, the save before the second page")):
                 with self.subTest(game=game, at=label):
-                    again = self.restart(game, file, save)
-                    again.log(1)
+                    again = Run(game)
+                    again.log(1)                         # the log is there as the run is put back
+                    again.p.export("VvfpStoryProbeQueueSession", 0, 0, save, 0)
+                    again.p.write(FILE_BUF, file)
+                    again.p.export("VvfpStoryProbeGraphSession", FILE_BUF, len(file))
+                    again.tick()
+                    self.assertEqual(again.sent(), (1, held[save], len(held[save]), 0),
+                                     "the log is told what the save's log holds of the entry: the same entry goes on")
                     again.play()
                     self.assertEqual(again.log()[0::2], (1, whole), "the same entry, continued: nothing twice")
 

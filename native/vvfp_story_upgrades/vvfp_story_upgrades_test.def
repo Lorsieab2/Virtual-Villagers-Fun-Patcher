@@ -123,3 +123,4 @@ EXPORTS
     VvfpStoryProbeGraphSession=_VvfpStoryProbeGraphSession@8
     VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
+    VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12

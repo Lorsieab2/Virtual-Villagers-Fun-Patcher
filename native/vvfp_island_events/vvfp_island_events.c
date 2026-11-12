@@ -973,14 +973,27 @@ int __stdcall VvfpIslandEventsGraphEnd(int game, char *out, int cap) {
     return (int)g_graph_used;
 }
 
-/* The event is over: its one entry ("  Event: ...\n  Choice: ...\n" and every change), filed in the Island Events
-   log as a village-wide record is (VVFP Parentage Export.dll WriteVillageEventRecord: held until the next save,
-   like every record).  1 when handed over. */
-int __stdcall VvfpIslandEventsGraphWrite(int game, const char *text) {
-    if (g_layout == NULL || game != g_game || text == NULL || text[0] == '\0' || village_writer() == NULL) {
+/* The event's one entry as it is now ("  Event: ...\n  Choice: ...\n" and every change so far), handed to
+   "VVFP Parentage Export.dll" (WriteVillageEventEntry): its held record is replaced each time, and each save writes
+   what it has gained onto the same entry, so the log matches the save at every save.  `key` names the event,
+   `disk` is what the last save's log holds of it (for a run put back after a reload), `final` 1 when it is over.
+   1 when handed over. */
+typedef int (__stdcall *write_event_entry_fn)(int, int, const char *, int, int);
+
+int __stdcall VvfpIslandEventsGraphWrite(int game, int key, const char *text, int disk, int final) {
+    static write_event_entry_fn entry_writer;
+    static int looked;
+    if (g_layout == NULL || game != g_game || text == NULL || text[0] == '\0') {
         return 0;
     }
-    return village_writer()(game, text);
+    if (!looked && entry_writer == NULL) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        looked = 1;
+        if (module != NULL) {
+            entry_writer = (write_event_entry_fn)(void *)GetProcAddress(module, "WriteVillageEventEntry");
+        }
+    }
+    return entry_writer != NULL && entry_writer(game, key, text, disk, final);
 }
 
 /* Called once by "VVFP Startup.dll" as the game opens. */

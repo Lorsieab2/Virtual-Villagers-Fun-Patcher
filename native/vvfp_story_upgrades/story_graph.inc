@@ -589,6 +589,7 @@ typedef struct {
     int entry_len;
     int entry_head;                    /* the header's length */
     int entry_at[CG_MAX_DISPLAYS];
+    int sent_len[CG_MAX_DISPLAYS];     /* the entry's length handed to the log at display k (0: none) */
     char entry[CG_ENTRY_BYTES];
 } cg_state;
 
@@ -1284,6 +1285,7 @@ static int cg_add_display(const char *text, int result, int villager) {
     cg.job_first[k] = 0;
     cg.job_count[k] = 0;
     cg.applied_when[k] = 0;
+    cg.sent_len[k] = 0;
     cg.display_count = k + 1;
     return k;
 }
@@ -1673,20 +1675,25 @@ static void cg_layout_history(const ce_adapter *a, int game, const cg_history *h
    order as it happens.  Each page that makes effects is bracketed through that companion's own comparison
    (VvfpIslandEventsGraphBegin / End: the same field words, as "  <name>: <Label> <old> -> <new>" lines), appended
    to the entry the run keeps (cg.entry, in the run's file: a quit continues the same entry, and a page shown again
-   after a restore first takes its own lines back, entry_at), and the entry is filed once, when the event is over
-   (VvfpIslandEventsGraphWrite: held until the next save, as every record).  The game's own bracket around each of
-   these popups writes nothing for it (VvfpStoryGraphLogged).  Without that companion (its row off): nothing. */
+   after a restore first takes its own lines back, entry_at), and the entry so far is handed over after each page
+   (VvfpIslandEventsGraphWrite -> the Parentage Export's WriteVillageEventEntry: a held record REPLACED each time,
+   whose next save writes what it has gained onto the same on-disk entry), so the log matches the save at every
+   save; the event's end closes it.  A run put back after a reload tells the log what the save's log already holds
+   (sent_len).  The game's own bracket around each of these popups writes nothing for it (VvfpStoryGraphLogged).
+   Without that companion (its row off): nothing. */
 
 typedef int (__stdcall *cg_log_begin_fn)(int game);
 typedef int (__stdcall *cg_log_end_fn)(int game, char *out, int cap);
-typedef int (__stdcall *cg_log_write_fn)(int game, const char *text);
+typedef int (__stdcall *cg_log_write_fn)(int game, int key, const char *text, int disk, int final);
 static int cg_logged;                  /* the game whose last popup was this run's (asked once by the log) */
 
 #ifdef VVFP_TEST
 static int test_graph_log;             /* stands in for the companion: each page's lines "  page <k>" */
 static int test_graph_log_page;
-static char test_graph_entry[CG_ENTRY_BYTES];   /* the entry filed last */
-static int test_graph_entries;          /* ...and how many were filed */
+static char test_graph_entry[CG_ENTRY_BYTES];   /* the entry handed over as final, last */
+static int test_graph_entries;          /* ...and how many times */
+static char test_graph_sent[CG_ENTRY_BYTES];    /* the entry handed over last (any) */
+static int test_graph_sent_disk, test_graph_sent_final, test_graph_sends;
 #endif
 
 static FARPROC cg_log_export(const char *name) {
@@ -1745,26 +1752,47 @@ static void cg_log_end(int game) {
     }
 }
 
-/* The event is over: its one entry filed ("Changes: none" when it changed nothing, as every event shown is). */
-static void cg_log_write(int game) {
+/* The entry as it is now, handed to the log (VvfpIslandEventsGraphWrite -> the Parentage Export's
+   WriteVillageEventEntry): its held record replaced, so the next save writes what it has gained onto the same
+   entry -- the log matches the save at every save.  `disk`: what the last save's log holds of it (a run put back
+   after a reload; -1 when the log already knows), `final` 1 when the event is over. */
+static int cg_log_key(void) {
+    return (int)((unsigned int)cg.when & 0x7FFFFFFFu) | 1;
+}
+
+static void cg_log_send(int game, int disk, int final) {
     cg_log_write_fn write;
     if (cg.entry_head == 0) {
-        return;                        /* never started (no page made effects through the log) */
-    }
-    if (cg.entry_len == cg.entry_head) {
-        cg_entry_put("  Changes: none\n");
+        return;                        /* not started (no answer yet) */
     }
 #ifdef VVFP_TEST
     if (test_graph_log) {
-        lstrcpynA(test_graph_entry, cg.entry, sizeof test_graph_entry);
-        ++test_graph_entries;
+        lstrcpynA(test_graph_sent, cg.entry, sizeof test_graph_sent);
+        test_graph_sent_disk = disk;
+        test_graph_sent_final = final;
+        ++test_graph_sends;
+        if (final) {
+            lstrcpynA(test_graph_entry, cg.entry, sizeof test_graph_entry);
+            ++test_graph_entries;
+        }
         return;
     }
 #endif
     write = (cg_log_write_fn)(void *)cg_log_export("VvfpIslandEventsGraphWrite");
     if (write != NULL) {
-        (void)write(game, cg.entry);
+        (void)write(game, cg_log_key(), cg.entry, disk, final);
     }
+}
+
+/* The event is over: its one entry closed ("Changes: none" when it changed nothing, as every event shown is). */
+static void cg_log_write(int game) {
+    if (cg.entry_head == 0) {
+        return;
+    }
+    if (cg.entry_len == cg.entry_head) {
+        cg_entry_put("  Changes: none\n");
+    }
+    cg_log_send(game, -1, 1);
 }
 
 /* Asked by "VVFP Island Events.dll" as it compares the popup the game just showed: 1 (once) when it was this
@@ -1814,7 +1842,11 @@ static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) 
     logging = cg.job_count[k] > 0 && cg_log_begin(game);
     cg_make_effects(a, game, k, &r);
     if (logging) {
-        cg_log_end(game);              /* this page's changes, appended to the event's one entry */
+        cg_log_end(game);              /* this page's changes, appended to the event's one entry ... */
+        if (cg.display_next + 1 < cg.display_count || cg.phase != CG_CHAIN) {
+            cg_log_send(game, -1, 0);  /* ... and the entry so far held for the next save (the last page's: final) */
+            cg.sent_len[k] = cg.entry_len;
+        }
     }
     cg_logged = game;                  /* the game's own bracket around this popup is not a record of its own */
     cg_compose(&l, cg.title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
@@ -1918,6 +1950,9 @@ static int cg_slot_free(int game) {
 static void cg_finish(void) {
     int k;
     cg_log_write(cg.game);             /* the Island Events log's one entry, now whole */
+    if (cg.display_count > 0 && cg.entry_head > 0) {
+        cg.sent_len[cg.display_count - 1] = cg.entry_len;
+    }
     cg.phase = CG_IDLE;
     for (k = 0; k < cg.display_count; ++k) {
         if (cg.applied_when[k] != 0) {
@@ -2429,6 +2464,7 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
             cg.entry[cg.entry_len] = '\0';
             for (k = rewind; k < cg.display_count; ++k) {
                 cg.applied_when[k] = 0;
+                cg.sent_len[k] = 0;
             }
             if (cg.question && rewind == 0) {
                 cg.phase = CG_ASKED;
@@ -2445,6 +2481,19 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     }
     if (cg.phase == CG_ASKED) {
         cg.display_count = cg.display_next = 0;   /* asked again, with the same histories */
+    }
+    {
+        /* The log is told what of the entry this save already holds: the entry as it was handed over at the last
+           page before the save, so the next save continues that same entry (append_event_entry). */
+        int k, disk = 0;
+        for (k = 0; k < cg.display_count && k < CG_MAX_DISPLAYS; ++k) {
+            if (cg.sent_len[k] > disk) {
+                disk = cg.sent_len[k];
+            }
+        }
+        if (cg.entry_head > 0) {
+            cg_log_send(game, disk, 0);
+        }
     }
     if (!ce_armed && !ce_asked) {
         /* The display due at the quit, again: the save's timer is due for the first one; every later one is made
@@ -2805,6 +2854,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphLog(int on, char *now, ch
         test_graph_log = on;
         test_graph_entries = 0;
         test_graph_entry[0] = '\0';
+        test_graph_sends = 0;
+        test_graph_sent[0] = '\0';
     }
     if (now != NULL && cap > 0) {
         lstrcpynA(now, cg.entry, cap);
@@ -2813,6 +2864,19 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphLog(int on, char *now, ch
         lstrcpynA(filed, test_graph_entry, cap);
     }
     return test_graph_entries;
+}
+
+/* The entry as last handed to the log (into `out`, `cap` bytes), with out_info[0] its `disk`, [1] `final`; how
+   many times it was handed over. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeGraphSent(char *out, int cap, int *out_info) {
+    if (out != NULL && cap > 0) {
+        lstrcpynA(out, test_graph_sent, cap);
+    }
+    if (out_info != NULL) {
+        out_info[0] = test_graph_sent_disk;
+        out_info[1] = test_graph_sent_final;
+    }
+    return test_graph_sends;
 }
 
 /* Display `k`'s text, or NULL. */

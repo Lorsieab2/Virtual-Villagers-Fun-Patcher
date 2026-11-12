@@ -795,9 +795,16 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   keeps ONE entry for the event (the owner, 2026-11-12): "Event:", "Choice:",
   then every change in page order as "<name>: <Label> <old> -> <new>",
   appended as each page appears (VVFP Island Events.dll's
-  VvfpIslandEventsGraphBegin / End around that page's effects), kept in the
-  run's file so a quit continues the same entry, and filed once when the
-  event is over (VvfpIslandEventsGraphWrite). The game's own bracket around
+  VvfpIslandEventsGraphBegin / End around that page's effects). The log
+  matches the save at every save: the entry so far is handed to the log after
+  each page (VvfpIslandEventsGraphWrite -> the Parentage Export's
+  WriteVillageEventEntry), a held record replaced each time, and each save
+  writes what it has gained onto the same entry, append-only -- its first part
+  a numbered "Island event <n>" left open, later parts only their new lines
+  right after it (or, if another record came between, a marked
+  "(continued) Island event <n>", never numbered), closed when the event is
+  over. The run's file remembers what each save's log holds, so a quit and a
+  reload continue the same entry, nothing twice. The game's own bracket around
   the event's popups writes nothing for them (VvfpStoryGraphLogged).
 - The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
   beside the queue's file (whose layout is unchanged), with when each page's

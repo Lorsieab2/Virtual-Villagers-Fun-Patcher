@@ -4,4 +4,4 @@ EXPORTS
     VvfpIslandEventOpen=_VvfpIslandEventOpen@0
     VvfpIslandEventsGraphBegin=_VvfpIslandEventsGraphBegin@4
     VvfpIslandEventsGraphEnd=_VvfpIslandEventsGraphEnd@12
-    VvfpIslandEventsGraphWrite=_VvfpIslandEventsGraphWrite@8
+    VvfpIslandEventsGraphWrite=_VvfpIslandEventsGraphWrite@20
