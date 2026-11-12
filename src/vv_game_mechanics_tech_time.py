@@ -432,11 +432,14 @@ def glance(ctx, everyone) -> str | None:
     head = f"Next technology (the cheapest): {g.name} level {g.level}, {g.cost:,} tech points"
     if g.needed <= 0:
         return head + ". You have enough to buy it now."
-    adults = max(1, workers(everyone or []))
     if math.isinf(g.units):
         return head + f". You need {g.needed:,} more, and nobody earns tech points while the game is closed yet."
-    return (head + f". You need {g.needed:,} more: about {gm.duration(g.units / adults * ctx.unit)} with the game "
-            f"closed, if all {adults} working adult{'s' if adults != 1 else ''} research.")
+    adults = workers(everyone or [])
+    if adults <= 0:
+        return head + f". You need {g.needed:,} more, and nobody can research now (no working adult)."
+    # The real closed time, with the catch-up limits and its 2 non-working units (closed_words, as the lines below).
+    return (head + f". You need {g.needed:,} more, if all {adults} working adult{'s' if adults != 1 else ''} "
+            f"research: {closed_words(ctx, g.units / adults)}.")
 
 
 def lines(ctx, everyone) -> list[gm.Fact]:

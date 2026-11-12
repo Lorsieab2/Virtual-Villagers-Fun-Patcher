@@ -3386,6 +3386,54 @@
           "purpose": "Overview Map water, the map's overlay list 0x41C5B0 (only caller 0x44542B): its pictures' whole percent is rounded the same way (21 instead of 20), so they match the queued sprites; the instructions after it are the base game's own"
         },
         {
+          "offset": "0x6D3F8",
+          "before": "689A000000",
+          "after": "688F010000",
+          "purpose": "Frogs after The Frog Rescue (the world refresh 0x46D090): the frog that leaps right (effect 0x1B, frogstrip1) is placed at x 0x310 + rand(0x18F) = 784..1182 instead of 0x405 + rand(0x9A) = 1029..1182: the rand range"
+        },
+        {
+          "offset": "0x6D406",
+          "before": "81C605040000",
+          "after": "81C610030000",
+          "purpose": "Frogs after The Frog Rescue: the frog that leaps right (effect 0x1B, frogstrip1), its x start 0x405 -> 0x310"
+        },
+        {
+          "offset": "0x6D440",
+          "before": "68B8000000",
+          "after": "6886010000",
+          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), x 0x2E8 + rand(0x186) = 744..1133 instead of 0x3B6 + rand(0xB8) = 950..1133: the rand range"
+        },
+        {
+          "offset": "0x6D44E",
+          "before": "81C6B6030000",
+          "after": "81C6E8020000",
+          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), its x start 0x3B6 -> 0x2E8"
+        },
+        {
+          "offset": "0x6D488",
+          "before": "68B8000000",
+          "after": "6886010000",
+          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same rand range as the first"
+        },
+        {
+          "offset": "0x6D496",
+          "before": "81C6B6030000",
+          "after": "81C6E8020000",
+          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same x start as the first"
+        },
+        {
+          "offset": "0xB9F0C",
+          "before": "09",
+          "after": "0C",
+          "purpose": "The frog leap effect 0x1B (effect table 0x4B9D58, 16 bytes a type: image, frames, ...): 12 frames instead of 9, as frogstrip1.png draws (13 columns, the last empty), so the splash ripple plays to its end (read by the effect maker 0x41CF16)"
+        },
+        {
+          "offset": "0xB9F1C",
+          "before": "09",
+          "after": "0C",
+          "purpose": "The frog leap effect 0x1C: 12 frames instead of 9, as frogstrip2.png draws, so its splash ripple plays to its end"
+        },
+        {
           "offset": "0x204A8",
           "before": "E873A70400",
           "after": "E866FEFFFF",
@@ -3474,54 +3522,6 @@
           "before": "CCCCCCCCCCCCCCCCCCCC",
           "after": "0F8C1EE3FFFF61C20400",
           "purpose": "Nursery School top skill, tie-breaker piece 14 of 14 at 0x423972, in the int3 padding between functions (an int3 left on each side; no other row uses it; never a branch target), chained to the next by a jump: together, pushad; the stock 0x46AC20, whose -1 is returned as is; the whole number of its pick (0x471630), the highest among the 5 skills; one of the skills with it, each equally likely (rand(k) == 0 for the k-th, 0x4036D0); popad; ret 4"
-        },
-        {
-          "offset": "0x6D3F8",
-          "before": "689A000000",
-          "after": "688F010000",
-          "purpose": "Frogs after The Frog Rescue (the world refresh 0x46D090): the frog that leaps right (effect 0x1B, frogstrip1) is placed at x 0x310 + rand(0x18F) = 784..1182 instead of 0x405 + rand(0x9A) = 1029..1182: the rand range"
-        },
-        {
-          "offset": "0x6D406",
-          "before": "81C605040000",
-          "after": "81C610030000",
-          "purpose": "Frogs after The Frog Rescue: the frog that leaps right (effect 0x1B, frogstrip1), its x start 0x405 -> 0x310"
-        },
-        {
-          "offset": "0x6D440",
-          "before": "68B8000000",
-          "after": "6886010000",
-          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), x 0x2E8 + rand(0x186) = 744..1133 instead of 0x3B6 + rand(0xB8) = 950..1133: the rand range"
-        },
-        {
-          "offset": "0x6D44E",
-          "before": "81C6B6030000",
-          "after": "81C6E8020000",
-          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), its x start 0x3B6 -> 0x2E8"
-        },
-        {
-          "offset": "0x6D488",
-          "before": "68B8000000",
-          "after": "6886010000",
-          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same rand range as the first"
-        },
-        {
-          "offset": "0x6D496",
-          "before": "81C6B6030000",
-          "after": "81C6E8020000",
-          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same x start as the first"
-        },
-        {
-          "offset": "0xB9F0C",
-          "before": "09",
-          "after": "0C",
-          "purpose": "The frog leap effect 0x1B (effect table 0x4B9D58, 16 bytes a type: image, frames, ...): 12 frames instead of 9, as frogstrip1.png draws (13 columns, the last empty), so the splash ripple plays to its end (read by the effect maker 0x41CF16)"
-        },
-        {
-          "offset": "0xB9F1C",
-          "before": "09",
-          "after": "0C",
-          "purpose": "The frog leap effect 0x1C: 12 frames instead of 9, as frogstrip2.png draws, so its splash ripple plays to its end"
         }
       ]
     },
@@ -4413,7 +4413,7 @@
       "id": "vv5_collectibles_stay_collected",
       "game_id": "vv5",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
-      "description": "A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (Divine Energy or tech points for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+      "description": "A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (the reward for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
       "output_tag": "Collectibles Stay Collected",
       "behavior_changes": [
         "The item listener's release (0x4146B0, run once when a child's carried item is put down: 0x466420 with -1 empties the hands and then dispatches) skips its three place tests (relics area 54, lab gear area 13, mushrooms area 5): 0x4146E6 ja becomes jmp 0x414713, so the stock award runs wherever the item is put down."

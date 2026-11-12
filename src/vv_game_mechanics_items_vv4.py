@@ -67,7 +67,8 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_sickness_multiplier", "vv4_sickness_like_vv3",
                          "vv4_yellow_fruit_trees_limited", "vv4_yellow_fruit_refills_partially",
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete",
-                         "vv4_collectibles_stay_collected"})
+                         "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
+                         "vv4_island_events_scale_with_stored_amounts"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"

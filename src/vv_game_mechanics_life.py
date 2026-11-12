@@ -820,23 +820,23 @@ def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
     refill_hour = refill_unit * units_hour
     nexts = [w for w in (_next_refill_words(ctx, s) for s in ctx.sources) if w]
     out = [f"At a glance (estimates, in real-life time at {on} speed):",
-           "Next refills: " + ("; ".join(nexts) if nexts else "no food source here runs out and refills") + "."]
+           "Next refills (real time): " + ("; ".join(nexts) if nexts else "no food source here runs out and refills") + "."]
     if per_unit:
         day = max(0.0, ctx.food - (ctx.low_food + 1) + on_sources + refill_hour * 24) / (per_unit * units_hour * 24)
         out.append(f"Villagers the food can keep at 100% health: about {refill_unit / per_unit:,.1f} on the "
-                   f"refills alone; about {day:,.1f} for the next 24 hours, counting the food in storage and on the "
+                   f"refills alone; about {day:,.1f} for the next 24 real-life hours on {on} speed, counting the food in storage and on the "
                    f"sources too. You have {eaters} who eat"
                    + (" (fishing can feed more, as far as your farmers bring it in)"
                       if any(s.unlimited for s in ctx.sources) else "") + ".")
     gap = per_hour - refill_hour
     if gap > 0:
         brown, red = _boost(ctx.brown, ctx.mastery), _boost(ctx.red, ctx.mastery)
-        out.append(f"Mushrooms to make up the shortfall: your villagers eat about {gap:,.0f} more food an hour "
-                   f"than the refills bring, so about {gap / brown:,.1f} brown or {gap / red:,.1f} red mushrooms an "
-                   f"hour" + (f", or {gap / _boost(100, ctx.mastery):,.1f} golden" if ctx.golden else "") + ".")
+        out.append(f"Mushrooms to make up the shortfall: your villagers eat about {gap:,.0f} more food a real-life hour on {on} speed "
+                   f"than the refills bring, so about {gap / brown:,.1f} brown or {gap / red:,.1f} red mushrooms a "
+                   f"real-life hour" + (f", or {gap / _boost(100, ctx.mastery):,.1f} golden" if ctx.golden else "") + ".")
     else:
         out.append("Mushrooms to make up the shortfall: none needed, the refills bring more than your villagers eat.")
-    out.append(f"Food your villagers eat: about {per_hour * 8:,.0f} in 8 hours and {per_hour * 24:,.0f} in 24 hours.")
+    out.append(f"Food your villagers eat: about {per_hour * 8:,.0f} in 8 real-life hours and {per_hour * 24:,.0f} in 24, on {on} speed.")
     if ctx.tech is not None:
         import vv_game_mechanics_tech_time as tech_time
         tech = tech_time.glance(ctx, everyone)
