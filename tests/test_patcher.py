@@ -1197,8 +1197,8 @@ class ManifestTests(unittest.TestCase):
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
         # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
-        # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), the two
-        # pickup jobs' step queues reordered in place.
+        # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
+        # byte -- its companion moves the pickup jobs' award steps at run time.
         self.assertEqual(len(feature_ids), 43)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
@@ -4164,7 +4164,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_apprentice_graves",
             # Checked Skill Preferences are listed as Jobs on Graves: the burial writer re-encoded in place.
             "vv2_preferred_job_graves",
-            # Picked Up Collectibles Stay Collected When Dropped: the pickup jobs' step queues reordered in place.
+            # Picked Up Collectibles Stay Collected When Dropped: companion only, no executable bytes.
             "vv2_collectibles_stay_collected",
             },
         )

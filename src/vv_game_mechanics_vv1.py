@@ -397,7 +397,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                    "is out, at every speed, so at most about 30 an hour when each is picked at once",
                                    even_paused=True))
     # The pick (callback 42, 0x43A24B) pays the kind's award; the job no longer queues it at the food store
-    # (data/builds.json vv1_collectibles_stay_collected).
+    # (data/builds.json vv1_collectibles_stay_collected: "VVFP Collectibles Stay Collected.dll").
     if village.has(COLLECTED) is not False:
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom counts the moment the villager picks it up -- its food and Mushrooms Found, once -- "

@@ -12737,7 +12737,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "893D92593E39E00B63FBB84291B205FBC33A2C405C2DF6192542A0E58998CDD3",
+    "sha256": "DC3BFEDAA4C85E62A24C4ACB5A55D7669751ED18B374834949D7954F16FC41BF",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12834,6 +12834,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): island-event food and tech amounts scaled.
     "VVFP Island Events Scale.dll",
+    # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
+    # right after the carry step, never again at delivery.
+    "VVFP Collectibles Stay Collected.dll",
     # The Aspiring Adventurer (all five games): the owner's new island event.
     "VVFP Aspiring Adventurer.dll",
 )

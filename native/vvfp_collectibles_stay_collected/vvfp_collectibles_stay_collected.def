@@ -1,0 +1,4 @@
+LIBRARY "VVFP Collectibles Stay Collected"
+EXPORTS
+    VvfpStartup
+    VvfpCollectiblesStayCollectedInstalled

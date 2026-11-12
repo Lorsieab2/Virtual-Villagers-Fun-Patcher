@@ -311,7 +311,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"at Exploration level {explore if explore in GOLDEN_WAITS else 1}, something appears about every {wait_s} "
             f"real-life seconds while nothing is out, at every speed, {share_m:.0%} of them mushrooms")))
     # The jobs 0x45BCA0 / 0x45BF10 queue the award right after the carry step (data/builds.json
-    # vv2_collectibles_stay_collected).
+    # vv2_collectibles_stay_collected: "VVFP Collectibles Stay Collected.dll").
     if village.has(COLLECTED) is not False:
         add("Mushrooms", gm.patch_words(village, COLLECTED, (
             "a mushroom or collectible counts the moment the child picks it up -- the food and Mushrooms "

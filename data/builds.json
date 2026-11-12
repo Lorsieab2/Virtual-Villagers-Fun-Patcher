@@ -3386,6 +3386,54 @@
           "purpose": "Overview Map water, the map's overlay list 0x41C5B0 (only caller 0x44542B): its pictures' whole percent is rounded the same way (21 instead of 20), so they match the queued sprites; the instructions after it are the base game's own"
         },
         {
+          "offset": "0x6D3F8",
+          "before": "689A000000",
+          "after": "688F010000",
+          "purpose": "Frogs after The Frog Rescue (the world refresh 0x46D090): the frog that leaps right (effect 0x1B, frogstrip1) is placed at x 0x310 + rand(0x18F) = 784..1182 instead of 0x405 + rand(0x9A) = 1029..1182: the rand range"
+        },
+        {
+          "offset": "0x6D406",
+          "before": "81C605040000",
+          "after": "81C610030000",
+          "purpose": "Frogs after The Frog Rescue: the frog that leaps right (effect 0x1B, frogstrip1), its x start 0x405 -> 0x310"
+        },
+        {
+          "offset": "0x6D440",
+          "before": "68B8000000",
+          "after": "6886010000",
+          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), x 0x2E8 + rand(0x186) = 744..1133 instead of 0x3B6 + rand(0xB8) = 950..1133: the rand range"
+        },
+        {
+          "offset": "0x6D44E",
+          "before": "81C6B6030000",
+          "after": "81C6E8020000",
+          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), its x start 0x3B6 -> 0x2E8"
+        },
+        {
+          "offset": "0x6D488",
+          "before": "68B8000000",
+          "after": "6886010000",
+          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same rand range as the first"
+        },
+        {
+          "offset": "0x6D496",
+          "before": "81C6B6030000",
+          "after": "81C6E8020000",
+          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same x start as the first"
+        },
+        {
+          "offset": "0xB9F0C",
+          "before": "09",
+          "after": "0C",
+          "purpose": "The frog leap effect 0x1B (effect table 0x4B9D58, 16 bytes a type: image, frames, ...): 12 frames instead of 9, as frogstrip1.png draws (13 columns, the last empty), so the splash ripple plays to its end (read by the effect maker 0x41CF16)"
+        },
+        {
+          "offset": "0xB9F1C",
+          "before": "09",
+          "after": "0C",
+          "purpose": "The frog leap effect 0x1C: 12 frames instead of 9, as frogstrip2.png draws, so its splash ripple plays to its end"
+        },
+        {
           "offset": "0x204A8",
           "before": "E873A70400",
           "after": "E866FEFFFF",
@@ -3474,54 +3522,6 @@
           "before": "CCCCCCCCCCCCCCCCCCCC",
           "after": "0F8C1EE3FFFF61C20400",
           "purpose": "Nursery School top skill, tie-breaker piece 14 of 14 at 0x423972, in the int3 padding between functions (an int3 left on each side; no other row uses it; never a branch target), chained to the next by a jump: together, pushad; the stock 0x46AC20, whose -1 is returned as is; the whole number of its pick (0x471630), the highest among the 5 skills; one of the skills with it, each equally likely (rand(k) == 0 for the k-th, 0x4036D0); popad; ret 4"
-        },
-        {
-          "offset": "0x6D3F8",
-          "before": "689A000000",
-          "after": "688F010000",
-          "purpose": "Frogs after The Frog Rescue (the world refresh 0x46D090): the frog that leaps right (effect 0x1B, frogstrip1) is placed at x 0x310 + rand(0x18F) = 784..1182 instead of 0x405 + rand(0x9A) = 1029..1182: the rand range"
-        },
-        {
-          "offset": "0x6D406",
-          "before": "81C605040000",
-          "after": "81C610030000",
-          "purpose": "Frogs after The Frog Rescue: the frog that leaps right (effect 0x1B, frogstrip1), its x start 0x405 -> 0x310"
-        },
-        {
-          "offset": "0x6D440",
-          "before": "68B8000000",
-          "after": "6886010000",
-          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), x 0x2E8 + rand(0x186) = 744..1133 instead of 0x3B6 + rand(0xB8) = 950..1133: the rand range"
-        },
-        {
-          "offset": "0x6D44E",
-          "before": "81C6B6030000",
-          "after": "81C6E8020000",
-          "purpose": "Frogs after The Frog Rescue: the first chance of a frog that leaps left (effect 0x1C, frogstrip2), its x start 0x3B6 -> 0x2E8"
-        },
-        {
-          "offset": "0x6D488",
-          "before": "68B8000000",
-          "after": "6886010000",
-          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same rand range as the first"
-        },
-        {
-          "offset": "0x6D496",
-          "before": "81C6B6030000",
-          "after": "81C6E8020000",
-          "purpose": "Frogs after The Frog Rescue: the second chance of a frog that leaps left (effect 0x1C, frogstrip2), the same x start as the first"
-        },
-        {
-          "offset": "0xB9F0C",
-          "before": "09",
-          "after": "0C",
-          "purpose": "The frog leap effect 0x1B (effect table 0x4B9D58, 16 bytes a type: image, frames, ...): 12 frames instead of 9, as frogstrip1.png draws (13 columns, the last empty), so the splash ripple plays to its end (read by the effect maker 0x41CF16)"
-        },
-        {
-          "offset": "0xB9F1C",
-          "before": "09",
-          "after": "0C",
-          "purpose": "The frog leap effect 0x1C: 12 frames instead of 9, as frogstrip2.png draws, so its splash ripple plays to its end"
         }
       ]
     },
@@ -4291,40 +4291,39 @@
       "id": "vv1_collectibles_stay_collected",
       "game_id": "vv1",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
-      "description": "A mushroom counts the moment a villager picks it up: its food, Mushrooms Found and the game's tip come right then, exactly once, so a villager who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game a mushroom counts only when the villager carrying it reaches the food store, and one that never gets there is lost. The villager still walks to the food store with it, as before. A New Home has no collectibles, so only mushrooms change. Works with every kind of mushroom and with the other mushroom patches. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+      "description": "A mushroom counts the moment a villager picks it up: its food, Mushrooms Found and the game's tip come right then, exactly once, so a villager who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game a mushroom counts only when the villager carrying it reaches the food store, and one that never gets there is lost. The villager still walks to the food store with it, as before. A New Home has no collectibles, so only mushrooms change. Works with every kind of mushroom and with the other mushroom patches. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Collectibles Stay Collected.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own rule.",
       "output_tag": "Collectibles Stay Collected",
       "behavior_changes": [
-        "The mushroom pick (job callback 42, 0x43A24B, queued by the mushroom job 0x444500 at 0x444577) keeps the manager in edi (0x43A24B mov edi,[esi+0x3E010]; 0x43A251 mov [edi+0xACAC],1, the stock store), runs the stock map update 0x416380, and then, instead of returning (0x43A266), jumps to 0x43B592, which reads the mushroom's kind [manager+0xACB0] and jumps through the callback table (0x43B46C) to callback 32 + kind: the stock award of that kind (0x43AFEF brown, 0x43B04C red, or a kind another patch adds), which adds the food (0x41D140), shows the tip and adds 1 to Mushrooms Found (+0x9E30), then returns through the dispatcher's own epilogue.",
-        "The mushroom job no longer queues the award step at the end of the trip: 0x444670 call 0x4399F0 becomes add esp,0x1C (the seven pushed arguments are dropped), so the award comes only at the pick, once."
+        "The mushroom pick (job-step callback 42 of the dispatcher 0x43A230, 0x43A24B, queued by the mushroom job 0x444500 at 0x444577) runs its stock flag store ([manager+0xACAC] = 1) and map update 0x416380; then its epilogue (0x43A266: pop edi / pop ebp / pop ebx / pop esi / ret 8, which nothing else reaches) jumps to VVFP Collectibles Stay Collected.dll, which calls the dispatcher with the same slot and callback 32 + the mushroom's kind ([manager+0xACB0], the manager [esi+0x3E010] the pick has just written) -- the stock award of that kind (0x43AFEF brown, 0x43B04C red, or a kind another patch adds), which adds the food (0x41D140), shows the tip and adds 1 to Mushrooms Found (+0x9E30) -- and then runs the stock epilogue.",
+        "The mushroom job's call 0x4399F0 at 0x444670, which queues the award step at the end of the trip, calls the companion instead, which returns dropping the seven pushed arguments (ret 0x1C): the step is never queued, so the award comes only at the pick, once."
       ],
       "explicit_non_changes": [
+        "No executable byte is patched: the companion writes both sites at run time, only after verifying their stock bytes and the pick's stock code before its epilogue (0x43A24B..0x43A265) -- all of them, or none.",
         "The spawn, the kind roll, the carried pose, the walk to the food store and every other step of the job, the award amounts, the callback dispatcher 0x43A230 and its table, and the save are unchanged. The kind is read after the map update, which never writes [manager+0xACB0] (its only writers are the spawn 0x4236D9/0x4236EA, the expiry 0x4234A4 and the new village 0x41D468)."
       ],
-      "evidence_status": "implemented from exact-build disassembly; the mushroom job's queue and the pick callback (every kind, alone and with every other patch) are emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending",
-      "patches": [
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated on the stock executable (and with every other patch, in every mode) in tests/test_collectibles_stay_collected.py: the mushroom job's queue built by the game's own push and played with the real dispatcher, every kind, dropped away from the food store and delivered; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
         {
-          "offset": "0x3A24B",
-          "before": "8B8610E00300C780ACAC000001000000",
-          "after": "8BBE10E00300C787ACAC000001000000",
-          "purpose": "mushroom pick (callback 42): keep the manager in edi, then the stock flag store"
+          "source": "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+          "destination": "VVFP Collectibles Stay Collected.dll",
+          "sha256": "A4F43B7C01A977D26C8C5445BFD6A50B98C98BEE60DF61014905869F77D710D7"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x43A266",
+          "stock_bytes": "5F5D5B5EC20800",
+          "written_bytes": "E9XXXXXXXX9090",
+          "routine": "the mushroom pick's epilogue (callback 42): jumps to the companion, which runs the award of the mushroom's kind (callback 32 + [manager+0xACB0]) through the dispatcher 0x43A230, then the stock epilogue",
+          "installed_by": "VVFP Collectibles Stay Collected.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         },
         {
-          "offset": "0x3A266",
-          "before": "5F5D5B5EC20800",
-          "after": "E9271300009090",
-          "purpose": "after the stock map update, go on to the award instead of returning"
-        },
-        {
-          "offset": "0x3B592",
-          "before": "90909090909090909090909090",
-          "after": "8B87B0AC0000FF2485E8B44300",
-          "purpose": "award the picked mushroom's own kind now: callback 32 + [manager+0xACB0] through the stock table (padding after 0x43B58F)"
-        },
-        {
-          "offset": "0x44670",
-          "before": "E87B53FFFF",
-          "after": "83C41C9090",
-          "purpose": "the job no longer queues the end-of-trip award (its seven arguments are dropped)"
+          "va": "0x444670",
+          "stock_bytes": "E87B53FFFF",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the mushroom job's call queueing the end-of-trip award step: calls the companion, which drops its seven arguments (ret 0x1C), so the step is never queued",
+          "installed_by": "VVFP Collectibles Stay Collected.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         }
       ]
     },
@@ -4332,29 +4331,40 @@
       "id": "vv2_collectibles_stay_collected",
       "game_id": "vv2",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
-      "description": "A mushroom or collectible counts the moment a child picks it up: the mushroom's food and Mushrooms Found, or the collection piece (tech points for a piece already found) with its tips and completion messages, come right then, exactly once, so a child who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game it counts only at the end of the child's trip (the food bin for a mushroom), and one that never gets there is lost. The child still carries it there, as before. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+      "description": "A mushroom or collectible counts the moment a child picks it up: the mushroom's food and Mushrooms Found, or the collection piece (tech points for a piece already found) with its tips and completion messages, come right then, exactly once, so a child who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game it counts only at the end of the child's trip (the food bin for a mushroom), and one that never gets there is lost. The child still carries it there, as before. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Collectibles Stay Collected.dll\", started by VVFP Startup.dll; if it cannot be loaded, the game keeps its own rule.",
       "output_tag": "Collectibles Stay Collected",
       "behavior_changes": [
-        "The mushroom job (0x45BCA0) queues its award step (job step 17 with callback 39 brown / 40 red, 0x45BE2E) right after the step that puts the mushroom in the child's hands (step 15, 0x45BD2F) instead of at the end of the trip; the steps in between (0x45BD4E..0x45BE2E: the pose, the walks, the waits and the sparkle) follow it unchanged, then the stock 'hands empty' step 16 (0x45BE52).",
-        "The collectible job (0x45BF10) does the same with its award step (step 17 with callback 41, 0x45C08B): it comes right after step 15 (0x45BFCA), and the walk and the rest follow.",
-        "Every relative call in the moved code is re-aimed; the only jumps inside it (the pose choice and the position test) move with their targets, and no code outside jumps into either range. The callbacks read the carried item (record +0x44), which step 15 has already set, so a piece is credited as the same piece."
+        "The mushroom job (0x45BCA0): its call at 0x45BE4D, which appends the award step (job step 17 with callback 39 brown / 40 red) to the child's queue at the end of the trip, calls VVFP Collectibles Stay Collected.dll instead, which makes the same call to the queue push 0x449B70 and then moves that new entry to right after the step that puts the mushroom in the child's hands (step 15, queued at 0x45BD49); the steps in between (the pose, the walks, the waits and the sparkle) follow it in their order, then the stock 'hands empty' step 16.",
+        "The collectible job (0x45BF10) does the same at its call 0x45C09A (step 17 with callback 41): the award comes right after step 15 (queued at 0x45BFE4), and the walk and the rest follow.",
+        "The child's queue is the game's own (villager record +0x4C, 49 entries of 24 bytes, emptied by the job first at 0x4492A0); the entry moved is the one the game's push just added (step 17 with the job's own callback), so whatever callback the job computed is the one queued. A queue the game left full (the push added nothing) is left as it is. The callbacks read the carried item (record +0x44), which step 15 has already set, so a piece is credited as the same piece."
       ],
       "explicit_non_changes": [
+        "No executable byte is patched: the companion writes both call sites at run time, only after verifying their stock bytes and the pushes before them -- all of them, or none.",
         "The pickup callbacks (62, 63), the awards themselves (0x4633C5, 0x463422, 0x463426), the trip's walks and waits, catch-up's step simulator and the save are unchanged. Interrupting a child after the pick now keeps the award; before the pick nothing is taken, as before."
       ],
-      "evidence_status": "implemented from exact-build disassembly; both jobs' queues and the awards they queue are emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending",
-      "patches": [
+      "evidence_status": "implemented from exact-build disassembly; the shipped companion is emulated on the stock executable (and with every other patch, in every mode) in tests/test_collectibles_stay_collected.py: both jobs' queues built by the game's own push and played with the real callbacks, dropped away from the bin and delivered; runtime/player confirmation pending",
+      "patches": [],
+      "companion_files": [
         {
-          "offset": "0x5BD2F",
-          "before": "8B8EF474E5008B512883C21E526A006A006A006A006A0F578BCEE822DEFEFF6A006A006A006A006A006A16578BCEE80EDEFEFF817B04E80300007E3D817B08F40100007D346A646A006A00689201000068880400006A03578BCEE8E2DDFEFF6A646A006A006881020000682E0400006A03578BCEE8C8DDFEFF6A646A006A0068DE03000068240400006A03578BCEE8AEDDFEFF6A646A006A006A05E8D173FAFF83C40405CA030000506A0CE8C173FAFF83C404056A040000506A03578BCEE87EDDFEFF6A0C6A006A006A006A006A15578BCEE86ADDFEFF6A016A006A026A006A006A0B578BCEE856DDFEFF6A006A006A006A006A006A16578BCEE842DDFEFF8B86F474E500837828308BCE75046A27EB026A286A006A006A006A006A1157E81EDDFEFF",
-          "after": "8B8EF474E5008B512883C21E526A006A006A006A006A0F578BCEE822DEFEFF8B86F474E500837828308BCE75046A27EB026A286A006A006A006A006A1157E8FEDDFEFF6A006A006A006A006A006A16578BCEE8EADDFEFF817B04E80300007E3D817B08F40100007D346A646A006A00689201000068880400006A03578BCEE8BEDDFEFF6A646A006A006881020000682E0400006A03578BCEE8A4DDFEFF6A646A006A0068DE03000068240400006A03578BCEE88ADDFEFF6A646A006A006A05E8AD73FAFF83C40405CA030000506A0CE89D73FAFF83C404056A040000506A03578BCEE85ADDFEFF6A0C6A006A006A006A006A15578BCEE846DDFEFF6A016A006A026A006A006A0B578BCEE832DDFEFF6A006A006A006A006A006A16578BCEE81EDDFEFF",
-          "purpose": "mushroom job: the award step (callback 39/40) moved to right after the carry step"
+          "source": "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+          "destination": "VVFP Collectibles Stay Collected.dll",
+          "sha256": "A4F43B7C01A977D26C8C5445BFD6A50B98C98BEE60DF61014905869F77D710D7"
+        }
+      ],
+      "runtime_detours": [
+        {
+          "va": "0x45BE4D",
+          "stock_bytes": "E81EDDFEFF",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the mushroom job's call queueing the award step (step 17, callback 39/40): calls the companion, which makes the same call to 0x449B70 and moves the new entry to right after the carry step 15",
+          "installed_by": "VVFP Collectibles Stay Collected.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         },
         {
-          "offset": "0x5BFCA",
-          "before": "8B8EF474E5008B512883C21E526A006A006A006A006A0F578BCEE887DBFEFF6A006A006A006A006A006A16578BCEE873DBFEFF817D04E80300007E3D817D08F40100007D346A646A006A00689201000068880400006A03578BCEE847DBFEFF6A646A006A006881020000682E0400006A03578BCEE82DDBFEFF6A646A006A006890020000681D0300006A03578BCEE813DBFEFF6A646A006A00686B02000068200300006A03578BCEE8F9DAFEFF6A0C6A006A006A006A006A15578BCEE8E5DAFEFF6A296A006A006A006A006A11578BCEE8D1DAFEFF",
-          "after": "8B8EF474E5008B512883C21E526A006A006A006A006A0F578BCEE887DBFEFF6A296A006A006A006A006A11578BCEE873DBFEFF6A006A006A006A006A006A16578BCEE85FDBFEFF817D04E80300007E3D817D08F40100007D346A646A006A00689201000068880400006A03578BCEE833DBFEFF6A646A006A006881020000682E0400006A03578BCEE819DBFEFF6A646A006A006890020000681D0300006A03578BCEE8FFDAFEFF6A646A006A00686B02000068200300006A03578BCEE8E5DAFEFF6A0C6A006A006A006A006A15578BCEE8D1DAFEFF",
-          "purpose": "collectible job: the award step (callback 41) moved to right after the carry step"
+          "va": "0x45C09A",
+          "stock_bytes": "E8D1DAFEFF",
+          "written_bytes": "E8XXXXXXXX",
+          "routine": "the collectible job's call queueing the award step (step 17, callback 41): calls the companion, which makes the same call to 0x449B70 and moves the new entry to right after the carry step 15",
+          "installed_by": "VVFP Collectibles Stay Collected.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
         }
       ]
     },
@@ -4413,7 +4423,7 @@
       "id": "vv5_collectibles_stay_collected",
       "game_id": "vv5",
       "name": "Picked Up Collectibles Stay Collected When Dropped",
-      "description": "A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (Divine Energy or tech points for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
+      "description": "A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (the reward for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**",
       "output_tag": "Collectibles Stay Collected",
       "behavior_changes": [
         "The item listener's release (0x4146B0, run once when a child's carried item is put down: 0x466420 with -1 empties the hands and then dispatches) skips its three place tests (relics area 54, lab gear area 13, mushrooms area 5): 0x4146E6 ja becomes jmp 0x414713, so the stock award runs wherever the item is put down."
