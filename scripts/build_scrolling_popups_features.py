@@ -56,6 +56,24 @@ MSGBOX = {
 }
 CONTROL = {1: (0x40C197, 0x4094B0), 2: (0x40CB77, 0x4096A0), 3: (0x40D807, 0x40A060), 4: (0x40CFC9, 0x409BD0),
            5: (0x40D4B9, 0x409EA0)}
+# The tip (theTipDialog): (its vtable, size site, sizer).
+TIPS = {
+    1: (0x481AD0, 0x436006, 0x40C760),
+    2: (0x48FAC8, 0x443D86, 0x40D140),
+    3: (0x47F454, 0x41DFF1, 0x40DDD0),
+    4: (0x48D47C, 0x41B4B9, 0x40DE20),
+    5: (0x49868C, 0x41BD13, 0x40E310),
+}
+# The frame draw's tail (`mov edx, [esi]` .. the `jmp` to the dialog's body draw): (site, stock bytes).
+TAIL = {
+    1: (0x40C9A3, "8B165F8BCE5E5B83C404FF6230"),
+    2: (0x40D383, "8B165F8BCE5E5B83C404FF6230"),
+    3: (0x40E013, "8B165F8BCE5E5B83C404FF6230"),
+    4: (0x40E07C, "8B168B42305F8BCE5E83C404FFE0"),
+    5: (0x40E56C, "8B168B42305F8BCE5E83C404FFE0"),
+}
+# The tip's per-line `call justify` (The Secret City, The Tree of Life, New Believers).
+TIP_JUSTIFY = {3: 0x41E433, 4: 0x41B9B0, 5: 0x41C200}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
           "City's UpArrowButton, DownArrowButton, VerticalScrollTrack and VerticalScrollKnob, borrowed)",
        3: "image ids 0x1B-0x1E, 0x19, 0x1A", 4: "image ids 0xA3-0xA6, 0xA1, 0xA2", 5: "image ids 0x81-0x84, 0x7F, 0x80"}
@@ -78,7 +96,8 @@ def covered(game: int) -> str:
     if game in SITES:
         parts.append("island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them)")
     parts.append("message boxes (tech and puzzle results, confirmations)")
-    return " and ".join(parts)
+    parts.append("tips (the tutorial and notices)")
+    return ", ".join(parts[:-1]) + " and " + parts[-1]
 
 
 def description(game: int) -> str:
@@ -119,12 +138,31 @@ def detours(game: int) -> list[dict]:
     out.append((ctl, text_draw, "the text control draw's call of the text draw: the message box's text, when it does "
                                 "not fit, clipped, scrolled and given scrollbars; every other text as the game draws "
                                 "it"))
-    return [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
+    _tvt, tsize, tsizer = TIPS[game]
+    out.append((tsize, tsizer, "the tip's panel size: the width and the height capped to the screen, then the stock "
+                               "sizer"))
+    if game in TIP_JUSTIFY:
+        out.append((TIP_JUSTIFY[game], SITES[game][2], "the tip's per-line justified paragraph: at the widest word's "
+                                                       "width when that is wider than the box (never stuck)"))
+    rows = [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
              "routine": routine, "installed_by": INSTALLED_BY} for va, target, routine in out]
+    tail, stock = TAIL[game]
+    rows.append({"va": f"0x{tail:X}", "stock_bytes": stock,
+                 "written_bytes": "E9XXXXXXXX" + "90" * (len(stock) // 2 - 5),
+                 "routine": "the frame draw's tail calling the dialog's body draw: a tip that asked for more than the "
+                            "screen holds is drawn with its panel moved by the scroll position under a clip, with "
+                            "the scrollbars; every other dialog's body is called as before",
+                 "installed_by": INSTALLED_BY})
+    return rows
 
 
 def sites(game: int) -> list[tuple[int, str]]:
     return [(int(d["va"], 16), d["stock_bytes"]) for d in detours(game)]
+
+
+def call_sites(game: int) -> list[tuple[int, str]]:
+    """The sites that are 5-byte calls (all but the frame draw's tail)."""
+    return [(va, stock) for va, stock in sites(game) if stock.startswith("E8") and len(stock) == 10]
 
 
 def behavior_changes(game: int) -> list[str]:
@@ -163,6 +201,17 @@ def behavior_changes(game: int) -> list[str]:
         "(0x14 below the panel's top, 0x1E from its sides, above its buttons), moved by the scroll position, with "
         "the scrollbars beside it; every other text, and a message box's text that fits, is the stock call "
         "unchanged.",
+        f"The tip (vtable 0x{TIPS[game][0]:X}): its `call 0x{TIPS[game][2]:X}` sizing the panel "
+        f"(0x{TIPS[game][1]:X}) is capped the same way. The frame draw's tail (0x{TAIL[game][0]:X}, `mov edx, [esi]` "
+        "to the `jmp` into the dialog's body draw) jumps to the companion, which makes the same pops and calls the "
+        "body draw: a tip that asked for more than the screen holds has its body drawn with its panel rectangle "
+        "(+0x14..+0x20, which the body draw places everything by) moved by the scroll position and by what the "
+        "capped panel moved its centred contents, under a clip set to the box (0x24 from the sides, 0x0A below the "
+        "top, above twice the OK button's height), the rectangle put back after, with the scrollbars; every other "
+        "dialog's body is called exactly as before."
+        + (f" The tip's per-line `call 0x{SITES[game][2]:X}` (0x{TIP_JUSTIFY[game]:X}) is given the widest word's "
+           "width when that is wider than the box, so the stock hang on a long word cannot happen there."
+           if game in TIP_JUSTIFY else ""),
         f"The event pump's `call 0x{dispatch:X}` handing a mouse event to the game (0x{mouse:X}) calls the "
         "companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are "
         "used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read "

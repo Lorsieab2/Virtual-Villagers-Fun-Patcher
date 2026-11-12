@@ -81,6 +81,18 @@ typedef struct sp_msgbox {
     unsigned int vtable, size_site, sizer;
 } sp_msgbox;
 
+/* A panel scrolled whole (the tip): its body draw (vtable+0x30) places everything by the panel rectangle
+   (+0x14..+0x20), so the frame draw's call of it (`tail_site`) is made with that rectangle moved by the scroll
+   position, under a clip.  Its constructor asks the sizer (after `size_before`) for (picture, w, h) and centres its
+   contents by (panel - asked) / 2.  The box: `side` in from the sides, `top` below the top, and above
+   `reserve_buttons` x the height of the button at `button`; `line` is an arrow's step. */
+typedef struct sp_shift {
+    unsigned int vtable, size_site, sizer;
+    unsigned char size_before[3];
+    unsigned int button;
+    int reserve_buttons, top, side, line;
+} sp_shift;
+
 typedef struct sp_game {
     unsigned int justify, nbyte;
     unsigned int ctx_global;
@@ -101,7 +113,23 @@ typedef struct sp_game {
     unsigned int text_draw, ctl_site;
     unsigned char ctl_before[4];
     sp_msgbox msgbox;
+    /* The frame draw's tail (`mov edx, [esi]` .. `jmp` to the body draw, after the open fade's check; `tail_pops`
+       5 for A New Home to The Secret City, 4 for The Tree of Life and New Believers), the panels scrolled whole,
+       and the tip's per-line `call justify` (never stuck on a word wider than its box). */
+    unsigned int tail_site;
+    int tail_pops;
+    const sp_shift *shifts;
+    int shift_count;
+    unsigned int widen_site;
 } sp_game;
+
+/* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
+   (a tutorial tip's text starts 0x24 - 0x1A below it), above twice the OK button's height. */
+static const sp_shift SP_VV1_SHIFTS[] = {{0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV2_SHIFTS[] = {{0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
 
 /* The Secret City: the island-event dialog 0x4192F0. */
 static const sp_class SP_VV3_CLASSES[] = {
@@ -129,25 +157,30 @@ static const sp_game SP_GAMES[6] = {
     {0, 0, 0x48B2E8u, 0, 0x40A070u, 0x4093E0u, 0x403C6Eu, 0x401FE0u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
-     0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u}},              /* vv1 */
+     0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u},
+     0x40C9A3u, 5, SP_VV1_SHIFTS, 1, 0},                   /* vv1 */
     {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
-     0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u}},              /* vv2 */
+     0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u},
+     0x40D383u, 5, SP_VV2_SHIFTS, 1, 0},                   /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),
-     0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u}},              /* vv3 */
+     0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u},
+     0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u},                   /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
      {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
      {0xA2, 1, 0, {3, 5, 16, 21}},
      SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0]),
-     0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u}},              /* vv4 */
+     0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u},
+     0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u},                   /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
      {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
      {0x80, 1, 0, {3, 5, 16, 21}},
      SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0]),
-     0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u}},              /* vv5 */
+     0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u},
+     0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u},                   /* vv5 */
 };
 
 #endif /* VVFP_SCROLL_POPUP_H */

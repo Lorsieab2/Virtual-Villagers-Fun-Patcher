@@ -24,6 +24,9 @@ Proofs:
     made by the game's own constructor and drawn by the game's own panel and control draws: a text that fits is the
     stock call blit for blit; a long or wide text gets a panel inside the screen, its text inside its box, the bars,
     wheel/arrows/drag, and the clicks off the bars go to the game;
+  * the tip (all five games), made by the game's own constructor: its body is drawn through the frame draw's tail,
+    which the companion replaces; a tip that fits is drawn blit for blit as with the tail stock; a long or wide tip
+    is capped, its body drawn moved under the clip with the bars, scrolled by the wheel and a knob drag;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -92,6 +95,11 @@ def sites(game: int) -> list[tuple[int, str]]:
     _vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
     ctl, text_draw = BUILDER.CONTROL[game]
     out += [(bsize, BUILDER.call_bytes(bsize, bsizer)), (ctl, BUILDER.call_bytes(ctl, text_draw))]
+    _tvt, tsize, tsizer = BUILDER.TIPS[game]
+    out.append((tsize, BUILDER.call_bytes(tsize, tsizer)))
+    if game in BUILDER.TIP_JUSTIFY:
+        out.append((BUILDER.TIP_JUSTIFY[game], BUILDER.call_bytes(BUILDER.TIP_JUSTIFY[game], BUILDER.SITES[game][2])))
+    out.append(BUILDER.TAIL[game])            # the frame draw's tail: 13 / 14 bytes, not a call
     return out
 
 
@@ -120,8 +128,13 @@ class TheRows(unittest.TestCase):
             row = header.split("static const sp_game SP_GAMES[6]")[1].split(f"/* vv{game} */")[0].rsplit("/*", 1)[-1]
             vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
             ctl, text_draw = BUILDER.CONTROL[game]
-            for va in (mouse, dispatch, vt, bsize, bsizer, ctl, text_draw):
+            for va in (mouse, dispatch, vt, bsize, bsizer, ctl, text_draw, BUILDER.TAIL[game][0]):
                 self.assertIn(f"0x{va:X}u", row)
+            shifts = header.split(f"static const sp_shift SP_VV{game}_SHIFTS[] = ")[1].split(";")[0]
+            for va in BUILDER.TIPS[game]:
+                self.assertIn(f"0x{va:X}u", shifts)
+            if game in BUILDER.TIP_JUSTIFY:
+                self.assertIn(f"0x{BUILDER.TIP_JUSTIFY[game]:X}u", row)
             if game in BUILDER.SITES:
                 _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
                 classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
@@ -136,13 +149,13 @@ class TheRows(unittest.TestCase):
             data = STOCK[game].read_bytes()
             for va, stock in sites(game):
                 off = pe.get_offset_from_rva(va - 0x400000)
-                self.assertEqual(data[off:off + 5].hex().upper(), stock, hex(va))
+                self.assertEqual(data[off:off + len(stock) // 2].hex().upper(), stock, hex(va))
 
     @unittest.skipUnless(HAVE_STOCK, "needs the stock executables")
     def test_no_other_row_claims_a_site(self) -> None:
         for game in GAMES:
             pe = pefile.PE(str(STOCK[game]), fast_load=True)
-            ranges = [(va, va + 5) for va, _ in sites(game)]
+            ranges = [(va, va + len(stock) // 2) for va, stock in sites(game)]
             for p in patcher._load_fun_patch_records():
                 if p.raw.get("game_id") != f"vv{game}" or p.id == row_id(game):
                     continue
@@ -380,12 +393,13 @@ class EveryBuild(unittest.TestCase):
                     exe = self.render(game, mode, ids)
                     image = pefile.PE(data=exe, fast_load=True).get_memory_mapped_image()
                     for va, stock in sites(game):
-                        self.assertEqual(image[va - 0x400000:va - 0x400000 + 5].hex().upper(), stock, hex(va))
+                        n = len(stock) // 2
+                        self.assertEqual(image[va - 0x400000:va - 0x400000 + n].hex().upper(), stock, hex(va))
                     self.assertEqual(self.installed(exe, game), 1)
 
     def test_a_site_that_is_not_stock_installs_nothing(self) -> None:
         for game in GAMES:
-            for va, _stock in sites(game):
+            for va, stock_bytes in sites(game):
                 with self.subTest(game=game, site=hex(va)):
                     data = bytearray(STOCK[game].read_bytes())
                     pe = pefile.PE(data=bytes(data), fast_load=True)
@@ -395,7 +409,7 @@ class EveryBuild(unittest.TestCase):
                     self.assertEqual(p.export("VvfpScrollingPopupsInstalled"), 0)
                     for other, stock in sites(game):
                         if other != va:
-                            self.assertEqual(p.read(other, 5).hex().upper(), stock)
+                            self.assertEqual(p.read(other, len(stock) // 2).hex().upper(), stock)
 
     def test_another_game_installs_nothing(self) -> None:
         for game, other in ((1, 4), (2, 3), (3, 1), (4, 5), (5, 2)):
@@ -429,7 +443,10 @@ class TheMessageBox(unittest.TestCase):
 
     def stock_sites(self, d, game):
         """The message box's two sites written back to their stock calls (the game without the companion)."""
-        return [(va, bytes.fromhex(stock)) for va, stock in sites(game)[-2:]]
+        _vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
+        ctl, text_draw = BUILDER.CONTROL[game]
+        return [(bsize, bytes.fromhex(BUILDER.call_bytes(bsize, bsizer))),
+                (ctl, bytes.fromhex(BUILDER.call_bytes(ctl, text_draw)))]
 
     def test_a_text_that_fits_is_the_stock_call(self) -> None:
         for game, d in self.boxes.items():
@@ -544,6 +561,111 @@ class TheMessageBox(unittest.TestCase):
                 v = d.view()
                 self.assertEqual((v["vbar"], v["hbar"]), (1, 1))
                 self.check_inside(d, blits, v)
+
+
+TIP_LONG = b"\n".join(b"Tip line %d: drag a villager onto the garden to teach them farming." % n
+                      for n in range(1, 41))
+TIP_SHORT = b"Click on a villager and drag them\nto the farm to make them a farmer."
+TIP_WIDE = b"A tip with a line far too wide: " + b"Supercalifragilisticexpialidocious " * 6 + b"\nSecond line."
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class TheTip(unittest.TestCase):
+    """The tip of all five games, made by the game's own constructor, drawn by the game's own frame draw (through
+    the tail the companion replaces) and its button's draw."""
+    tips: dict = {}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        for game in GAMES:
+            cls.tips[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tips.clear()
+
+    def body_rows(self, d, blits):
+        left, top, right, bottom = d.panel()
+        return [b for b in d.text_blits(blits) if b[3][1] < bottom - 40]
+
+    def test_a_tip_that_fits_is_drawn_as_the_game_draws_it(self) -> None:
+        for game, d in self.tips.items():
+            with self.subTest(game=game):
+                d.make_tip(TIP_SHORT)
+                self.assertEqual(d.size_requests[-1], d.stock_height)
+                self.assertEqual(d.width_requests[-1], d.stock_width)
+                with_companion = d.draw_box()
+                tail, stock = BUILDER.TAIL[game]
+                patched = bytes(d.mu.mem_read(tail, len(stock) // 2))
+                d.mu.mem_write(tail, bytes.fromhex(stock))
+                try:
+                    plain = d.draw_box()
+                finally:
+                    d.mu.mem_write(tail, patched)
+                self.assertTrue(self.body_rows(d, with_companion))
+                self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
+
+    def test_a_long_tip_is_capped_clipped_and_scrolled(self) -> None:
+        for game, d in self.tips.items():
+            with self.subTest(game=game):
+                w, h = d.g["screen"]
+                d.make_tip(TIP_LONG)
+                self.assertGreater(d.stock_height, h)
+                blits = d.draw_box()
+                left, top, right, bottom = d.panel()
+                self.assertGreaterEqual(top, 16)
+                self.assertLessEqual(bottom, h - 16)
+                self.assertEqual(d.clip(), (0, 0, w, h))
+                v = d.view()
+                self.assertEqual((v["shown"], v["vbar"]), (1, 1))
+                art = d.art_blits(blits)
+                for name in ("up", "down", "track", "knob"):
+                    self.assertIn(name, art)
+                rows = self.body_rows(d, blits)
+                self.assertTrue(rows)
+                for b in rows:
+                    self.assertGreaterEqual(b[3][1], v["box_y"])
+                    self.assertLessEqual(b[3][1] + b[1][3], v["box_y"] + v["box_h"])
+                first = sorted({b[3][1] for b in rows})[:1]
+                self.assertTrue(d.mouse(1, (left + right) // 2, (top + bottom) // 2))
+                d.wheel(-2)
+                blits = d.draw_box()
+                self.assertEqual(d.scroll(), (0, 6 * v["line"]))
+                self.assertNotEqual(sorted({b[3][1] for b in self.body_rows(d, blits)})[:1], first)
+                d.wheel(50)
+                d.draw_box()
+                ky = v["vy"] + v["arrow_h"] + 2
+                self.assertFalse(d.mouse(2, v["vx"] + 8, ky))
+                self.assertFalse(d.mouse(1, v["vx"] + 8, ky + 2000))
+                self.assertFalse(d.mouse(3, v["vx"] + 8, ky + 2000))
+                d.draw_box()
+                self.assertEqual(d.scroll()[1], d.view()["content_h"] - d.view()["box_h"])
+                # the panel's rectangle is the game's again after the draw
+                self.assertEqual(d.panel(), (left, top, right, bottom))
+                self.assertTrue(d.click((left + right) // 2, bottom - 20))
+
+    def test_a_wide_tip_scrolls_sideways(self) -> None:
+        for game, d in self.tips.items():
+            with self.subTest(game=game):
+                d.make_tip(TIP_WIDE)
+                self.assertGreater(d.stock_width, d.g["screen"][0])
+                blits = d.draw_box()
+                left, top, right, bottom = d.panel()
+                self.assertGreaterEqual(left, 16)
+                self.assertLessEqual(right, d.g["screen"][0] - 16)
+                v = d.view()
+                self.assertEqual((v["shown"], v["hbar"]), (1, 1))
+                self.assertIn("handle", d.art_blits(blits))
+                for b in self.body_rows(d, blits):
+                    self.assertGreaterEqual(b[3][0], v["box_x"])
+                    self.assertLessEqual(b[3][0] + b[1][2], v["box_x"] + v["box_w"])
+                self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                d.draw_box()
+                self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
 
 
 if __name__ == "__main__":

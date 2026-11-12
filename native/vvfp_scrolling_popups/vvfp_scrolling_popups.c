@@ -581,7 +581,7 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
 static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int *a) {
     const sp_class *c = sp_class_at(ret - 5u, 1);
     int r = -1;
-    if (c == NULL && sp_class_at(ret - 5u, 2) != NULL) {
+    if (c == NULL && (sp_class_at(ret - 5u, 2) != NULL || ret - 5u == g_game->widen_site)) {
         int width = (int)a[3];
         __try {
             int widest = sp_widest_word(holder, (const char *)(UINT_PTR)a[0], a[4], (void *)(UINT_PTR)a[5]);
@@ -660,7 +660,8 @@ static int sp_cap(int limit, int cell) {
 typedef struct sp_asked {
     const unsigned char *popup;
     unsigned int vtable;
-    int w_req, h_req;
+    int w_req, h_req;             /* as asked */
+    int w_eff, h_eff;             /* as asked, with the room for the bars the capped panel needs */
 } sp_asked;
 static sp_asked g_asked[SP_ASKED];
 static int g_asked_next;
@@ -692,36 +693,65 @@ static void sp_ask(const unsigned char *popup, int w_req, int h_req) {
     g_asked[k].h_req = h_req;
 }
 
+/* Caps a size asked for (a[1] width, a[2] height, a[0] the panel picture) to the screen, keeping what was asked:
+   a capped height gives the width room for the vertical bar, a capped width gives the height room for the
+   horizontal bar (the asked size with that room is kept as w_eff / h_eff). */
+static void sp_cap_asked(const unsigned char *popup, unsigned int *a) {
+    const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
+    int cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+    int cap_h = sp_cap(sp_screen_h() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x14) : 0);
+    sp_asked *k;
+    sp_ask(popup, (int)a[1], (int)a[2]);
+    k = (sp_asked *)sp_asked_for(popup);
+    if (cap_h > 0 && (int)a[2] > cap_h && sp_art_ready()) {
+        a[1] += (unsigned int)(SP_GAP + g_track.w);       /* room for the vertical bar */
+    }
+    if (cap_w > 0 && (int)a[1] > cap_w) {
+        if (sp_art_ready()) {
+            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
+        }
+    }
+    if (k != NULL) {
+        k->w_eff = (int)a[1];
+        k->h_eff = (int)a[2];
+    }
+    if (cap_w > 0 && (int)a[1] > cap_w) {
+        a[1] = (unsigned int)cap_w;
+    }
+    if (cap_h > 0 && (int)a[2] > cap_h) {
+        a[2] = (unsigned int)cap_h;
+    }
+}
+
+static const sp_shift *sp_shift_at(unsigned int site, unsigned int vtable) {
+    int i;
+    for (i = 0; i < g_game->shift_count; ++i) {
+        const sp_shift *s = &g_game->shifts[i];
+        if (site != 0 ? s->size_site == site : s->vtable == vtable) {
+            return s;
+        }
+    }
+    return NULL;
+}
+
 /* From the stub at a size site: the island-event dialog makes room for a horizontal bar when its text has a word
    wider than its box and caps the height (*set_edi = 1: the constructor centres its contents by edi); the message
-   box caps the width and the height and keeps what it asked for.  Returns the sizer to continue to. */
+   box and the panels scrolled whole (tips) cap the width and the height and keep what they asked for.  Returns the
+   sizer to continue to. */
 static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *a, int *set_edi) {
     const sp_class *c = sp_class_at(ret - 5u, 0);
     *set_edi = 0;
     if (c == NULL) {
-        if (ret - 5u == g_game->msgbox.size_site) {
+        const sp_shift *s = sp_shift_at(ret - 5u, 0);
+        if (ret - 5u == g_game->msgbox.size_site || s != NULL) {
+            unsigned int vtable = s != NULL ? s->vtable : g_game->msgbox.vtable;
             __try {
-                const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
-                int cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
-                int cap_h = sp_cap(sp_screen_h() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x14) : 0);
-                if (*(const unsigned int *)popup == g_game->msgbox.vtable) {
-                    sp_ask((const unsigned char *)popup, (int)a[1], (int)a[2]);
-                    if (cap_h > 0 && (int)a[2] > cap_h && sp_art_ready()) {
-                        a[1] += (unsigned int)(SP_GAP + g_track.w);       /* room for the vertical bar */
-                    }
-                    if (cap_w > 0 && (int)a[1] > cap_w) {
-                        a[1] = (unsigned int)cap_w;
-                        if (sp_art_ready()) {
-                            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
-                        }
-                    }
-                    if (cap_h > 0 && (int)a[2] > cap_h) {
-                        a[2] = (unsigned int)cap_h;
-                    }
+                if (*(const unsigned int *)popup == vtable) {
+                    sp_cap_asked((const unsigned char *)popup, a);
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
             }
-            return g_game->msgbox.sizer;
+            return s != NULL ? s->sizer : g_game->msgbox.sizer;
         }
         return 0;                           /* never: every size site is a class's */
     }
@@ -865,6 +895,130 @@ __declspec(naked) static void sp_control_stub(void) {
         push ecx                            /* the holder */
         call sp_control
         ret 0x14
+    }
+}
+
+/* ---- Panels scrolled whole (tips) ------------------------------------------------------------------------------- */
+
+typedef void (__fastcall *sp_content_fn)(void *dialog, void *edx);
+
+typedef struct sp_shifted {
+    unsigned char *dialog;
+    sp_content_fn content;
+    int bx, by, dx0, dy0;
+} sp_shifted;
+
+/* The dialog's body drawn with its panel rectangle (+0x14..+0x20, which its body draw places everything by) moved
+   so the body's top left lands at (x, y), then put back. */
+static void sp_draw_shifted(void *holder, void *data, int x, int y) {
+    sp_shifted *s = (sp_shifted *)data;
+    int *panel = (int *)(s->dialog + 0x14), saved[4], dx = s->dx0 + (x - s->bx), dy = s->dy0 + (y - s->by);
+    (void)holder;
+    saved[0] = panel[0]; saved[1] = panel[1]; saved[2] = panel[2]; saved[3] = panel[3];
+    panel[0] += dx; panel[2] += dx;
+    panel[1] += dy; panel[3] += dy;
+    __try {
+        s->content(s->dialog, NULL);
+    } __finally {
+        panel[0] = saved[0]; panel[1] = saved[1]; panel[2] = saved[2]; panel[3] = saved[3];
+    }
+}
+
+/* A panel that asked for more than the screen holds: its body is drawn under the clip, moved by the scroll position
+   (and by what the capped panel moved it: the game centres a panel's contents by (panel - asked) / 2), with the
+   bars.  1 when drawn so. */
+static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
+    const sp_shift *s = sp_shift_at(0, *(const unsigned int *)dialog);
+    const sp_asked *asked = s != NULL ? sp_asked_for(dialog) : NULL;
+    const int *panel = (const int *)(dialog + 0x14);
+    void *holder = sp_holder(), *button;
+    int pw = panel[2] - panel[0], ph = panel[3] - panel[1], over_x, over_y, reserve = 0, bx, by, bw, bh;
+    int content_w, content_h;
+    sp_shifted d;
+    if (asked == NULL || holder == NULL) {
+        return 0;
+    }
+    over_x = asked->w_eff - pw;
+    over_y = asked->h_eff - ph;
+    if (over_x <= 0 && over_y <= 0) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    button = s->button != 0 ? *(void **)(dialog + s->button) : NULL;
+    if (button != NULL) {
+        reserve = s->reserve_buttons * sp_vcall_int(button, 0x10);
+    }
+    bx = panel[0] + s->side;
+    bw = pw - 2 * s->side;
+    by = panel[1] + s->top;
+    bh = panel[3] - reserve - by;
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.dx0 = over_x > 0 ? -((pw - asked->w_req) / 2) : 0;
+    d.dy0 = over_y > 0 ? -((ph - asked->h_req) / 2) : 0;
+    /* The body below the box's top, as the game laid it out for what it asked: down to the room for the buttons,
+       moved by half of what the panel is taller than asked when it is. */
+    content_h = asked->h_req - reserve - s->top + (over_y > 0 ? 0 : (ph - asked->h_req) / 2);
+    content_w = asked->w_req - 2 * s->side;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bh, bx, panel[2] - s->side / 3,
+                     content_w > bw || over_x > 0 ? content_w : bw, content_h, s->line,
+                     (unsigned int)asked->h_req * 31u + (unsigned int)asked->w_req, sp_draw_shifted, &d);
+}
+
+/* From the stub at the frame draw's tail: the dialog's body (vtable+0x30), as the frame draw's `jmp` called it. */
+static void __stdcall sp_content(unsigned char *dialog) {
+    sp_content_fn content = (sp_content_fn)(*(void ***)dialog)[0x30 / 4];
+    int *clip = NULL, old[4] = {0, 0, 0, 0}, done = 0;
+    __try {
+        clip = sp_clip(sp_holder());
+        if (clip != NULL) {
+            old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+        }
+        done = sp_shift_body(dialog, content);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        done = 0;
+        if (clip != NULL) {
+            __try {
+                clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+        }
+        g_view.popup = NULL;
+    }
+    if (!done) {
+        content(dialog, NULL);
+    }
+}
+
+/* The frame draw's tail, replaced from `mov edx, [esi]` through `jmp [edx+0x30]` (A New Home to The Secret City:
+   8B 16 5F 8B CE 5E 5B 83 C4 04 FF 62 30) or `jmp eax` (The Tree of Life, New Believers: 8B 16 8B 42 30 5F 8B CE
+   5E 83 C4 04 FF E0): the same pops, then the body through sp_content, returning to the frame draw's caller. */
+__declspec(naked) static void sp_tail_stub_5(void) {
+    __asm {
+        pop edi
+        mov ecx, esi
+        pop esi
+        pop ebx
+        add esp, 4
+        push ecx
+        call sp_content
+        ret
+    }
+}
+
+__declspec(naked) static void sp_tail_stub_4(void) {
+    __asm {
+        pop edi
+        mov ecx, esi
+        pop esi
+        add esp, 4
+        push ecx
+        call sp_content
+        ret
     }
 }
 
@@ -1070,6 +1224,35 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     sp_call_bytes(stock[count], g->ctl_site, g->text_draw);
     vvfp_site_branch(&w[count], g->ctl_site, 5, stock[count], 0xE8, (const void *)sp_control_stub);
     ++count;
+    /* The panels scrolled whole (tips): each one's sizer call, and the frame draw's tail that calls every
+       dialog's body; a tip's per-line justified paragraph (never stuck on a word wider than its box). */
+    for (i = 0; i < g->shift_count; ++i) {
+        const sp_shift *s = &g->shifts[i];
+        if (!vvfp_site_holds(s->size_site - 3u, s->size_before, 3)) {
+            return;
+        }
+        sp_call_bytes(stock[count], s->size_site, s->sizer);
+        vvfp_site_branch(&w[count], s->size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
+        ++count;
+    }
+    if (g->shift_count > 0) {
+        static const unsigned char tail5[13] = {0x8B, 0x16, 0x5F, 0x8B, 0xCE, 0x5E, 0x5B, 0x83, 0xC4, 0x04,
+                                                0xFF, 0x62, 0x30};
+        static const unsigned char tail4[14] = {0x8B, 0x16, 0x8B, 0x42, 0x30, 0x5F, 0x8B, 0xCE, 0x5E, 0x83,
+                                                0xC4, 0x04, 0xFF, 0xE0};
+        int four = g->tail_pops == 4;
+        if (!vvfp_site_holds(g->tail_site - 6u, (const unsigned char *)(four ? "\x0F\x8A" : "\x0F\x85"), 2)) {
+            return;                         /* jne / jp: the open fade not finished (no body drawn) */
+        }
+        vvfp_site_branch(&w[count], g->tail_site, four ? 14 : 13, four ? tail4 : tail5, 0xE9,
+                         four ? (const void *)sp_tail_stub_4 : (const void *)sp_tail_stub_5);
+        ++count;
+    }
+    if (g->widen_site != 0) {
+        sp_call_bytes(stock[count], g->widen_site, g->justify);
+        vvfp_site_branch(&w[count], g->widen_site, 5, stock[count], 0xE8, (const void *)sp_draw_stub);
+        ++count;
+    }
     g_game = g;
     g_game_number = game;
     g_mouse_dispatch = g->mouse_dispatch;

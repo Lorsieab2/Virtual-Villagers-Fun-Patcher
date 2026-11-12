@@ -89,7 +89,17 @@ GAMES = {
                 ctl_site=0x40CB77, text_draw=0x4096A0, frame_draw=0x4095D0,
                 strings=(0x441690, 0x441680), sound=(0x43E460, 0x43EFF0)),
 }
-ASSETS = ROOT / "assets" / "scrolling_popups"   # the pictures A New Home and The Lost Children borrow
+ASSETS = ROOT / "assets" / "scrolling_popups"
+TIP_ID = 0x106                    # the string id a tip is made with here (its text: Dialog.tip_text)
+# The tip (theTipDialog), per game: its constructor and its arguments (the string id, or the text for The Secret
+# City's, and zeros: not a tutorial tip), its body draw.
+TIPS = {
+    "vv1": dict(size_site=0x436006, ctor=0x435EB0, args=lambda text_va: (TIP_ID, 0, 0, 0)),
+    "vv2": dict(size_site=0x443D86, ctor=0x443B90, args=lambda text_va: (TIP_ID, 0, 0, 0, 0)),
+    "vv3": dict(size_site=0x41DFF1, ctor=0x41E5E0, args=lambda text_va: (text_va,)),
+    "vv4": dict(size_site=0x41B4B9, ctor=0x41BAB0, args=lambda text_va: (TIP_ID, 0, 0, 0, 0)),
+    "vv5": dict(size_site=0x41BD13, ctor=0x41C300, args=lambda text_va: (TIP_ID, 0, 0, 0, 0)),
+}   # the pictures A New Home and The Lost Children borrow
 
 
 def _map_rgba(mc, arg, ret):
@@ -150,6 +160,8 @@ class Dialog:
         # by id is "OK" (the buttons' labels).
         getter, lookup = self.g["strings"]
         self.texts = None
+        self.tip_text = None              # the text the game's string table gives for TIP_ID (a tip's text)
+        self.looked_up: list[int] = []
         self.mu.hook_add(UC_HOOK_CODE, self._strings, begin=getter, end=getter, user_data=0)
         self.mu.hook_add(UC_HOOK_CODE, self._strings, begin=lookup, end=lookup, user_data=4)
         # A New Home's and The Lost Children's message box fetches its button's click sound from the sound manager
@@ -161,7 +173,7 @@ class Dialog:
         self.passed: list[tuple[int, int, int]] = []    # mouse events the game's dispatcher received
         self.mu.hook_add(UC_HOOK_CODE, self._add_child, begin=self.g["add_child"], end=self.g["add_child"])
         self.children: list[int] = []     # what the dialogs made add to their window, in order
-        for site in (self.g.get("size_site"), self.g["box_size_site"]):
+        for site in (self.g.get("size_site"), self.g["box_size_site"], TIPS[game]["size_site"]):
             if site:
                 self.mu.hook_add(UC_HOOK_CODE, self._at_size_site, begin=site, end=site)
         for sizer in sorted({self.g.get("sizer"), self.g["box_sizer"]} - {None}):
@@ -216,6 +228,10 @@ class Dialog:
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
                 proc = bytes(mu.mem_read(arg(1), 64)).split(b"\0")[0].decode("latin-1")
                 ret(harness._method(harness._add_watch, 0) if proc == "SDL_AddEventWatch" else 0, 8)
+                return
+            if name == "GetSystemTimeAsFileTime":
+                mu.mem_write(arg(0), b"\0" * 8)               # a tip's timer start: time 0
+                ret(0, 4)
                 return
             if name.startswith("_FSOUND_") and "@" in name:
                 ret(0, int(name.rsplit("@", 1)[1]))      # no sound here (a message box's sound manager)
@@ -272,7 +288,9 @@ class Dialog:
                 mu.mem_write(self.texts, struct.pack("<II", self.font, self.font))
             value = self.texts
         else:
-            value = self._cstr(b"OK")
+            wanted = struct.unpack("<I", mu.mem_read(sp + 4, 4))[0]
+            self.looked_up.append(wanted)
+            value = self._cstr(self.tip_text if wanted == TIP_ID and self.tip_text is not None else b"OK")
         mu.reg_write(UC_X86_REG_EAX, value)
         mu.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
         mu.reg_write(UC_X86_REG_EIP, to)
@@ -506,6 +524,23 @@ class Dialog:
             self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
         self.stock_height = self.stock_heights[-1] if self.stock_heights else None
         self.stock_width = self.stock_widths[-1] if self.stock_widths else None
+        return d
+
+    def make_tip(self, text: bytes) -> int:
+        """A tip with `text`, made by the game's own constructor (its OK button, its sizer call, its layout)."""
+        t = TIPS[self.game]
+        self.children = []
+        self.tip_text = text
+        self.looked_up = []
+        self.dialog = d = self.m.font_heap.alloc(0x200)
+        text_va = self._cstr(text)
+        self.size_requests, self.stock_heights, self.width_requests, self.stock_widths = [], [], [], []
+        self.run._call(t["ctor"], d, *t["args"](text_va))
+        self.stock_height = self.stock_heights[-1] if self.stock_heights else None
+        self.stock_width = self.stock_widths[-1] if self.stock_widths else None
+        self.put(d + 0x44, 0x3F800000)    # its opening fade at its end
+        for child in self.children:
+            self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
         return d
 
     def control(self) -> int:
