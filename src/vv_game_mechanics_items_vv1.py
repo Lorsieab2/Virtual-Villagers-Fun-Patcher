@@ -498,6 +498,11 @@ ITEMS = (
          "See Mushrooms.", E),
         ("With the patcher (Super-Secret Golden Mushroom, off by default): 1 in 1,000,000 of them is a Golden "
          "Mushroom worth 100 food (Mushrooms).", E),
+        # The pick (callback 42, 0x43A24B) runs the award of the mushroom's kind (callback 32 + [mgr+0xACB0]); the job
+        # (0x444500) no longer queues the award at the food store (data/builds.json vv1_collectibles_stay_collected).
+        ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
+         "the moment it is picked up -- its food and Mushrooms Found, once -- even if the villager is moved or "
+         "stops before the food store (in the normal game it counts only at the food store).", C),
     )),
     Entry(ITEM, "Collectibles", (
         ("A New Home has none.", E),

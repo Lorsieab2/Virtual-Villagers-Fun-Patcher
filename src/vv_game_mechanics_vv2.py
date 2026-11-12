@@ -33,6 +33,8 @@ DAM, SCARER, GONG_FIRST_DONE, BEETLES = 0x2E798, 0x2E770, 0x2E910, 0x2E7E0
 COCONUT_CAP, CROPS_FULL = 1500, 800
 FIRE_HOURS = {gm.FAST: 10, gm.NORMAL: 20, gm.SLOW: 40}
 GOLDEN = "vv2_super_secret_golden_mushroom"
+# Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
+COLLECTED = "vv2_collectibles_stay_collected"
 HUNGRIER = "vv2_hungrier_villagers"
 LEARNING = "vv2_learning_never_fails"
 TOTEMS = "vv2_totems_out_of_entries"
@@ -308,6 +310,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.extend(gm.golden_lines(GOLDEN, 3600 / wait_s * share_m, speed_value, (
             f"at Exploration level {explore if explore in GOLDEN_WAITS else 1}, something appears about every {wait_s} "
             f"real-life seconds while nothing is out, at every speed, {share_m:.0%} of them mushrooms")))
+    # The jobs 0x45BCA0 / 0x45BF10 queue the award right after the carry step (data/builds.json
+    # vv2_collectibles_stay_collected).
+    if village.has(COLLECTED) is not False:
+        add("Mushrooms", gm.patch_words(village, COLLECTED, (
+            "a mushroom or collectible counts the moment the child picks it up -- the food and Mushrooms "
+            "Found, or the piece with its messages, once -- even if the child is moved or stops before the "
+            "end of the trip")), gm.CODE)
     add("Collectibles", "When it is not a mushroom it is a collectible: rare 4%, 6% or 8% at Exploration 1, 2, 3, "
                         "uncommon 12%, the rest common. Butterflies and shells can always appear, pebbles once the "
                         "dam is built, beetles once The Overgrown Gong Piece is solved"

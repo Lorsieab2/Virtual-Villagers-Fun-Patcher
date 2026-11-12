@@ -449,6 +449,18 @@ Remembers each villager's original look -- the head, body and mask they had befo
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Picked Up Collectibles Stay Collected When Dropped (`vv1_collectibles_stay_collected`)
+
+A mushroom counts the moment a villager picks it up: its food, Mushrooms Found and the game's tip come right then, exactly once, so a villager who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game a mushroom counts only when the villager carrying it reaches the food store, and one that never gets there is lost. The villager still walks to the food store with it, as before. A New Home has no collectibles, so only mushrooms change. Works with every kind of mushroom and with the other mushroom patches. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The mushroom pick (job callback 42, 0x43A24B, queued by the mushroom job 0x444500 at 0x444577) keeps the manager in edi (0x43A24B mov edi,[esi+0x3E010]; 0x43A251 mov [edi+0xACAC],1, the stock store), runs the stock map update 0x416380, and then, instead of returning (0x43A266), jumps to 0x43B592, which reads the mushroom's kind [manager+0xACB0] and jumps through the callback table (0x43B46C) to callback 32 + kind: the stock award of that kind (0x43AFEF brown, 0x43B04C red, or a kind another patch adds), which adds the food (0x41D140), shows the tip and adds 1 to Mushrooms Found (+0x9E30), then returns through the dispatcher's own epilogue. The mushroom job no longer queues the award step at the end of the trip: 0x444670 call 0x4399F0 becomes add esp,0x1C (the seven pushed arguments are dropped), so the award comes only at the pick, once.
+- Explicit non-changes/exclusions: The spawn, the kind roll, the carried pose, the walk to the food store and every other step of the job, the award amounts, the callback dispatcher 0x43A230 and its table, and the save are unchanged. The kind is read after the map update, which never writes [manager+0xACB0] (its only writers are the spawn 0x4236D9/0x4236EA, the expiry 0x4234A4 and the new village 0x41D468).
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the mushroom job's queue and the pick callback (every kind, alone and with every other patch) are emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Reenable F6 Clothing Change Cheat (`vv1_f6_clothing_change_cheat`)
 
 The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
@@ -1015,6 +1027,18 @@ Remembers each villager's original look -- the head, body and mask they had befo
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Picked Up Collectibles Stay Collected When Dropped (`vv2_collectibles_stay_collected`)
+
+A mushroom or collectible counts the moment a child picks it up: the mushroom's food and Mushrooms Found, or the collection piece (tech points for a piece already found) with its tips and completion messages, come right then, exactly once, so a child who is picked up and dropped somewhere else, or stops on the way, no longer loses it. In the normal game it counts only at the end of the child's trip (the food bin for a mushroom), and one that never gets there is lost. The child still carries it there, as before. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The mushroom job (0x45BCA0) queues its award step (job step 17 with callback 39 brown / 40 red, 0x45BE2E) right after the step that puts the mushroom in the child's hands (step 15, 0x45BD2F) instead of at the end of the trip; the steps in between (0x45BD4E..0x45BE2E: the pose, the walks, the waits and the sparkle) follow it unchanged, then the stock 'hands empty' step 16 (0x45BE52). The collectible job (0x45BF10) does the same with its award step (step 17 with callback 41, 0x45C08B): it comes right after step 15 (0x45BFCA), and the walk and the rest follow. Every relative call in the moved code is re-aimed; the only jumps inside it (the pose choice and the position test) move with their targets, and no code outside jumps into either range. The callbacks read the carried item (record +0x44), which step 15 has already set, so a piece is credited as the same piece.
+- Explicit non-changes/exclusions: The pickup callbacks (62, 63), the awards themselves (0x4633C5, 0x463422, 0x463426), the trip's walks and waits, catch-up's step simulator and the save are unchanged. Interrupting a child after the pick now keeps the award; before the pick nothing is taken, as before.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; both jobs' queues and the awards they queue are emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Render Unicode with In-Game Fonts (`vv2_unicode_text`)
 
 Lets the game draw, measure and accept ANY character -- accented letters, Greek, Cyrillic, Turkish, Chinese, Japanese, Korean, Arabic and Hebrew (joined and right to left), Indian scripts, cuneiform, symbols and colour emoji -- in the game's own two fonts (the big Burweed story font and the small Arial Bold font). The Lost Children's two fonts hold only A-Z, a-z, 0-9 and ! " ' , . ? / ` : -; every other Windows-1252 character is added to the fonts in their own style when the game starts (from the font's own plain letter with the accent added, or drawn by Windows in the font's own typeface: Arial Bold is part of Windows; **for Burweed, install the Burweed ICG font for the best-matching letters** -- the patcher never ships it -- otherwise Comic Sans MS stands in), and every other character is made the first time it is shown, in the font's size, baseline and weight, from the fonts Windows has (Segoe UI, Segoe UI Historic, Segoe UI Symbol, Segoe UI Emoji (in colour), the CJK fonts, Nirmala UI, Ebrima ..., Noto if installed, then the bundled open fonts: Noto Sans Cuneiform, Noto Serif Tangut, GNU Unifont and Unifont Upper, and last Last Resort, so every one of Unicode 18.0's assigned characters draws, even ones no Windows font has). Names, the Details screen, popups, dialogs and every other text use them with their real widths, so centring and line breaks stay right; Chinese and Japanese break between characters. **Text and translations never run off the screen:** a line this patch, a long name or a translation draws that would cross the edge of the game's 800-pixel-wide window is cut there with "…" (whole letters only; a justified paragraph wraps at the edge instead), and one that would start left of the window starts at its edge; it may still run past its own box. Without a translation, the game's own English is drawn exactly as before. This needs this row: with Translations alone (no Unicode row) the game draws by itself and nothing is fitted. Where Windows has no icu.dll (before Windows 10 1903), Thai, Lao, Khmer and Myanmar break between words by ICU's own word lists (ICU 77.1, Unicode License; about 4.4 MB in "Word Lists", read only when such a line is broken). Typing: every text box -- the tribe name, villager names on the Details screen, epitaphs -- takes any character Windows sends (dead keys, Alt codes, the Windows emoji panel, an input method for Japanese or Chinese), each stored whole or not at all, and Backspace erases a whole character (a whole emoji, flag or accented letter). Long names, everywhere: every name box takes names up to 1,200 bytes (up to 1,200 plain letters; fewer when letters need more bytes): the tribe name, villager names on the Details screen, epitaphs; Rename Tribe takes the same. It is one limit, shared with the other Fun Patchers. Characters are counted as you see them (a letter with its accents, an emoji with its skin tone or a flag is one), and Backspace removes one whole character. A long name scrolls in its box while you type it. The save itself is not changed: a name that fits its field (a villager's name 23 bytes, the tribe name 31) is kept there exactly as before; a longer one is kept there as its short form (its start and a mark, with a number when two would start alike) and the whole name is kept beside the save, in Virtual Villagers Fun Patcher\Save <n>\Data\Long Names. The game shows the whole name wherever it shows that name. Back Up Saves, Restore Saves and Copy Player Slot carry the Long Names files with the saves. With both settings off the game still loads and plays such a save and shows the short form. Characters are stored as UTF-8 (a Western European letter keeps its one Windows-1252 byte), so every older name reads as before; the base game and older patchers show other characters as odd letters but never break. **On by default and in Owner's Defaults.** **Cannot be used with "Use Unicode Font (overrides in-game fonts)" (ticking one unticks the other).** **Needs "Full Names on the Details Screen" (ticked with it): its Details box keeps the whole stored name, so opening a villager's Details and closing it never changes a name.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Unicode Text.dll", started by VVFP Startup.dll; the game's own pictures and saves are never changed. **Bundles four open fonts, loaded privately by the game (never installed in Windows): GNU Unifont 18.0.01 (GPL-2.0-or-later with the font exception, or OFL-1.1) and Unifont Upper for nearly every assigned character, Noto Sans Cuneiform and Noto Serif Tangut (OFL-1.1), and Last Resort 18.000 (OFL-1.1), a placeholder block for anything still without a glyph; about 14 MB of fonts (in the patcher's files folder, in "Unicode Fonts", with their licence texts and sources), copied once per game folder, and not again when the folder already has identical files.**
@@ -1576,6 +1600,18 @@ Remembers each villager's original look -- the head, body and mask they had befo
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Picked Up Collectibles Stay Collected When Dropped (`vv3_collectibles_stay_collected`)
+
+A mushroom or collectible a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food, or the collection piece (tech points for a piece already found), with its tips and completion messages, exactly once. In the normal game it counts only where the game takes it (the food bin for a mushroom, the collection spot for a collectible) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The item listener's release (0x42DEB0, run once when a child's carried item is put down: 0x455F30 with -1 dispatches the old item and then empties the hands) no longer requires the place: the collectible's area test (area 25, 0x42DEEA jne) and the mushroom's (area 14, 0x42DF1A jne) become NOPs, so the stock award runs wherever the item is put down.
+- Explicit non-changes/exclusions: The awards (0x42DF32..0x42E056 collectibles, 0x42E064..0x42E095 mushrooms), the pickup, the spawn and the save are unchanged. A release with empty hands dispatches nothing (0x42CE50 refuses -1), so an item is credited once.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the release listener (every collectible kind and mushroom, at the food bin, the collection spot and elsewhere) is emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Pointing Out a Rare Collectible Always Works (`vv3_rare_collectible_retry`)
 
 When the Tribal Chief completes Pointing out a rare collectible and the stock game rejects its random choice (a collectible a villager is already after, or a special one already collected), the whole stock selection is run again, up to 20 times in all, stopping as soon as a collectible is placed. In practice a collectible almost always appears instead of the stock cooldown being spent for nothing; if every attempt is refused (for example, when every special collectible has already been found), nothing is placed, exactly as in the stock game. The original rare categories, collectible IDs, collection rules and placement logic are unchanged.
@@ -2089,6 +2125,18 @@ Remembers each villager's original look -- the head, body and mask they had befo
 - Dependencies: vv4_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Picked Up Collectibles Stay Collected When Dropped (`vv4_collectibles_stay_collected`)
+
+A mushroom a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: its food and Mushrooms Found, exactly once. In the normal game a mushroom counts only at the food bin and is lost anywhere else. A mushroom dropped on the stew pot is left to the pot as in the normal game (it can go into the stew), so it never also pays food. Collectibles already count wherever they are put down in The Tree of Life and are unchanged. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The item listener's release (0x414410, run once when a child's carried item is put down: 0x45ED50 with -1 empties the hands and then dispatches) tests a mushroom's place the other way round: 0x414442 cmp eax,8 / jne exit (only the food bin) becomes cmp eax,5 / je exit (anywhere but the stew pot), so the stock mushroom award (0x4145DE) runs at any other place. At the stew pot the pot's own listener (0x42EA30, registered for the mushrooms before this one, 0x41345D) handles the mushroom as before: an ingredient the pot takes, the Grand Feast's mushroom, or nothing.
+- Explicit non-changes/exclusions: The collectible awards (already at any place), the mushroom award, the stew pot, the pickup, the spawn and the save are unchanged. A release with empty hands dispatches nothing, so a mushroom is credited once.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the release listener (each mushroom at the food bin, the stew pot and elsewhere, and the collectibles) is emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Render Unicode with In-Game Fonts (`vv4_unicode_text`)
 
@@ -2673,6 +2721,18 @@ Remembers each villager's original look -- the head, body and mask they had befo
 - Dependencies: vv5_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Picked Up Collectibles Stay Collected When Dropped (`vv5_collectibles_stay_collected`)
+
+A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (Divine Energy or tech points for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The item listener's release (0x4146B0, run once when a child's carried item is put down: 0x466420 with -1 empties the hands and then dispatches) skips its three place tests (relics area 54, lab gear area 13, mushrooms area 5): 0x4146E6 ja becomes jmp 0x414713, so the stock award runs wherever the item is put down.
+- Explicit non-changes/exclusions: The awards (0x414713..0x414970), the pickup, the spawn and the save are unchanged. A release with empty hands dispatches nothing, so an item is credited once.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; the release dispatch and listener (every kind, at its own place and elsewhere, released twice) are emulated on the stock and rendered executables in tests/test_collectibles_stay_collected.py; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Popup When Believers Become Heathens (`vv5_heathen_conversion_notice`)
 

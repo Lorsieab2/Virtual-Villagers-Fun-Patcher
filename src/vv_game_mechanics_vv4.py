@@ -32,6 +32,8 @@ BERRIES, EVENT_NEXT = 0x17108, 0x170F0
 SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
+# Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
+COLLECTED = "vv4_collectibles_stay_collected"
 HUNGRIER = "vv4_hungrier_villagers"
 CLASSIC = "vv4_classic_vv_difficulty"
 SPAWN_LIKE_VV3 = "vv4_collectible_spawn_like_vv3"
@@ -465,6 +467,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The rarity 0x41404D: rand(100) < 5 rare (+8), < 18 uncommon (+4), else common; a piece already found pays
     # 100, 250 or 1,500 tech points (0x41446C..0x4144A4).  Fish-scale spots (0x46) need 0x41F5E0: (the save's clock
     # ÷ 3,600) odd.
+    # The release listener 0x414410: any area but the stew pot (5) instead of only the food bin (8) (data/builds.json
+    # vv4_collectibles_stay_collected).
+    if village.has(COLLECTED) is not False:
+        add("Mushrooms", gm.patch_words(village, COLLECTED, (
+            "a mushroom a child has picked up counts wherever the child puts it down, once, not only at the "
+            "food bin; one dropped on the stew pot is left to the pot (collectibles already count "
+            "anywhere)")), gm.CODE)
     add("Collectibles", "The others are collectibles: 81.98% common, 13.01% uncommon, 5.01% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in every other "
                         "real-life hour (the odd whole hours counted from the save's clock base).", gm.RUNNING)

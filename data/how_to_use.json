@@ -442,6 +442,15 @@
       ]
     },
     {
+      "ids": ["vv1_collectibles_stay_collected", "vv2_collectibles_stay_collected", "vv3_collectibles_stay_collected", "vv4_collectibles_stay_collected", "vv5_collectibles_stay_collected"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. A mushroom or collectible a villager has picked up is never lost:",
+        "it counts once, with its food, count and messages, even if you pick the villager up and drop them elsewhere.",
+        "A New Home and The Lost Children count it as soon as it is picked; the other games wherever it is put down.",
+        "The Tree of Life: a mushroom dropped on the stew pot goes to the pot as before. Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_super_secret_golden_mushroom", "vv2_super_secret_golden_mushroom", "vv3_super_secret_golden_mushroom", "vv4_super_secret_golden_mushroom", "vv5_super_secret_golden_mushroom"],
       "guide": [
         "Adds a golden spotted mushroom to the island.",
@@ -1143,9 +1152,8 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time,",
-        "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors.",
-        "Story / Cheat Upgrades comes with its cost row."
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
     "owners_defaults": {

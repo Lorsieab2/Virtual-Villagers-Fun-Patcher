@@ -80,7 +80,8 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_super_secret_golden_mushroom", "vv3_manual_drop_breeding_overrides_birth_control",
                          "vv3_population_256", "vv3_fruit_trees_take_turns", "vv3_unicode_font",
                          "vv3_preferred_job_graves", "vv3_tech_cost_multiplier",
-                         "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full"})
+                         "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full",
+                         "vv3_collectibles_stay_collected"})
 
 ORIGINS = "vv3_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv3_origins_village_wide_upgrades"
@@ -471,12 +472,18 @@ def _items() -> list[Entry]:
             ((patch("vv3_super_secret_golden_mushroom") + ": 1 in 1,000,000 of the random mushrooms is a Golden "
               "Mushroom worth 100 food (Mushrooms).", VERIFIED_E),
              (patch("vv3_everyone_collects_like_vv1") + ": several children dropped on one mushroom or collectible "
-              "each collect it, so it is multiplied.", UNCONFIRMED))),
+              "each collect it, so it is multiplied.", UNCONFIRMED),
+             # The release listener 0x42DEB0: the area 14 test (0x42DF1A) is NOPed (vv3_collectibles_stay_collected).
+             (patch("vv3_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
+              "child puts it down, once, not only at the food bin.", VERIFIED_C))),
         Entry(ITEM, "Collectibles", (
             "four collections, the Tablet only once The Ruins is at least 2% done. A piece "
             "already owned pays 100, 250 or 1,500 tech points (common, uncommon, rare) instead; Tablet pieces "
             "already owned never appear again. Each complete collection raises the population limit by 5, all four "
-            "by 25."), VERIFIED_C),
+            "by 25."), VERIFIED_C,
+            # The release listener 0x42DEB0: the area 25 test (0x42DEEA) is NOPed (vv3_collectibles_stay_collected).
+            ((patch("vv3_collectibles_stay_collected") + ": a piece a child has picked up counts wherever the child "
+              "puts it down, once, with its messages, not only at the collection spot.", VERIFIED_C),)),
         # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The
         # pickup 0x42DF17..0x42E056: item kinds 0x34..0x63, 12 to a collection (0x42DE40: complete at 12 found); the
         # first 4 of each common (0x42D660), the next 4 uncommon (0x42D6A0), the last 4 rare (0x42D6E0); a piece found

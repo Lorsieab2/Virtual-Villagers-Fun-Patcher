@@ -57,6 +57,8 @@ UNIT = 360                                    # an age unit, in Normal-speed sec
 REGROW_UNITS = 40
 FIELD_CAP = 800
 GOLDEN = "vv1_super_secret_golden_mushroom"
+# Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
+COLLECTED = "vv1_collectibles_stay_collected"
 HUNGRIER = "vv1_hungrier_villagers"
 LEARNING = "vv1_learning_never_fails"
 MAGIC_FRUIT = "vv1_magic_fruit_alters_mortality"
@@ -394,6 +396,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         out.extend(gm.golden_lines(GOLDEN, 30.0, speed_value, "one appears about every 2 real-life minutes while none "
                                    "is out, at every speed, so at most about 30 an hour when each is picked at once",
                                    even_paused=True))
+    # The pick (callback 42, 0x43A24B) pays the kind's award; the job no longer queues it at the food store
+    # (data/builds.json vv1_collectibles_stay_collected).
+    if village.has(COLLECTED) is not False:
+        add("Mushrooms", gm.patch_words(village, COLLECTED, (
+            "a mushroom counts the moment the villager picks it up -- its food and Mushrooms Found, once -- "
+            "even if the villager is moved or stops before the food store")), gm.CODE)
     add("Collectibles", "A New Home has no collectibles: mushrooms are its only random pickup.", gm.RUNNING)
 
     # -- Tech points (how many there are is under Vital statistics) -----------------------------

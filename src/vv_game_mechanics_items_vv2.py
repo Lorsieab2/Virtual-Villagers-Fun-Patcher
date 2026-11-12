@@ -405,6 +405,11 @@ ITEMS = (
          "Mushroom worth 100 food.", E),
         ("With the patcher (VV1 Mushroom/Collectible Duplication Cheat, off by default): several children can be "
          "dropped on one mushroom or collectible, and it is multiplied: each of them gets it.", C),
+        # The mushroom job 0x45BCA0 queues its award (step 17, callback 39/40) right after the carry step 15
+        # (data/builds.json vv2_collectibles_stay_collected); stock: at the end of the trip.
+        ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
+         "the moment the child picks it up -- its food and Mushrooms Found, once -- even if the child is moved or "
+         "stops before the food bin (in the normal game it counts only at the end of the trip).", C),
     )),
     Entry(ITEM, "Collectibles", (
         ("Four collections of 12 pieces (4 common, 4 uncommon, 4 rare): butterflies and shells always, pebbles once "
@@ -412,6 +417,10 @@ ITEMS = (
          "picks it up (Collectibles).", E),
         ("A piece already found pays 100, 250 or 1,500 tech points by rarity; each complete collection raises the "
          "population limit by 5, all four by 25.", E),
+        # The collectible job 0x45BF10 queues its award (callback 41) right after the carry step.
+        ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a piece counts the "
+         "moment the child picks it up, with its messages, once, even if the child is moved or stops on the way.",
+         C),
     )),
     # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The pieces:
     # one found byte each at state 0x2E720 + piece, 12 a collection in the order 0, 12, 24, 36 (0x426120); the

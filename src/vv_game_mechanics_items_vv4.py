@@ -66,7 +66,8 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_collectible_spawn_like_vv3",
                          "vv4_sickness_multiplier", "vv4_sickness_like_vv3",
                          "vv4_yellow_fruit_trees_limited", "vv4_yellow_fruit_refills_partially",
-                         "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete"})
+                         "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete",
+                         "vv4_collectibles_stay_collected"})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"
@@ -433,7 +434,12 @@ def _items() -> list[Entry]:
             ((patch("vv4_super_secret_golden_mushroom") + ": 1 in 1,000,000 of the random mushrooms is a Golden "
               "Mushroom worth 100 food (Mushrooms).", VERIFIED_E),
              (patch("vv4_everyone_collects_like_vv1") + ": several children dropped on one mushroom or collectible "
-              "each collect it, so it is multiplied.", UNCONFIRMED))),
+              "each collect it, so it is multiplied.", UNCONFIRMED),
+             # The release listener 0x414410: 0x414442 cmp eax,8 / jne becomes cmp eax,5 / je
+             # (vv4_collectibles_stay_collected); the stew pot's listener 0x42EA30 runs first.
+             (patch("vv4_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
+              "child puts it down, once, not only at the food bin; one dropped on the stew pot is left to the pot, "
+              "as without the patch. Collectibles already count wherever they are put down.", VERIFIED_C))),
         Entry(ITEM, "The Fish Scale collection", (
             "a set of 12 pieces; each raises the Golden Fish chance by 2 points (Fishing Nets). Fish-scale spots count only in "
             "every other real-life hour."), VERIFIED_E),

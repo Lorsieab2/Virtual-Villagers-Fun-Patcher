@@ -26,6 +26,7 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 - **All Fruit Trees Refill to Full** (The Secret City, on in Owner's Defaults): each time a fruit tree's refill comes due, it goes back to 1,000 fruit instead of gaining about 111.
 - **Yellow Breadfruit Refills Partially Every Time** (The Tree of Life, off in Owner's Defaults; needs **Yellow Fruit Trees are No Longer Unlimited**): the yellow fruit supply refills at The Secret City's pace, about 111 fruit every 3 hours on Normal up to 1,000, instead of going back to full every 4 hours.
+- **Picked Up Collectibles Stay Collected When Dropped** (all five games, on in Owner's Defaults): a mushroom or collectible a villager has picked up counts exactly once even if you pick the villager up and drop them somewhere else, or they stop on the way; in the normal game it was lost unless it reached the food bin or its collection spot.
 - The patcher's helper files were rebuilt with the updated compiler; nothing they do changed.
 
 ## What's new in v1.35.95
@@ -1409,6 +1410,18 @@ With "Yellow Fruit Trees are No Longer Unlimited", the yellow fruit tree is no l
 Every villager's meal takes 2 to 10 times the normal food (the Hungrier Villagers slider, 2 unless moved): the meal's 2 food and the difficulty's extra 2 are both multiplied. Food never goes below 0; when it runs out the game's own starvation rules take over. Skipped meals at low food, the snack at the food bin, events and every source of food are unchanged. Off by default (it makes the game harder); Owner's Defaults ticks it.
 
 - Patch ID: `vv1_hungrier_villagers` to `vv5_hungrier_villagers`
+
+**Picked Up Collectibles Stay Collected When Dropped** (all five games)
+
+A mushroom or collectible a villager has picked up is never lost: it counts exactly once -- the mushroom's food and Mushrooms Found, or the collection piece (tech points or Divine Energy for a piece already found), with the game's tips, achievements and completion messages -- even if you pick the villager up and drop them somewhere else, or they stop on the way. In the normal game it counts only when it reaches its place (the food bin or food store for a mushroom, the collection's own spot for a collectible) and is lost anywhere else.
+
+- *A New Home* (mushrooms only; it has no collectibles) and *The Lost Children*: it counts the moment it is picked up; the villager still carries it to the food store (A New Home) or along the rest of the trip (The Lost Children) as before.
+- *The Secret City* and *New Believers*: it counts wherever the child puts it down.
+- *The Tree of Life*: a mushroom counts wherever it is put down except on the stew pot, which takes it as in the normal game (so it never also pays food); collectibles already counted anywhere and are unchanged.
+
+Works with Super-Secret Golden Mushroom and the VV1 Mushroom/Collectible Duplication Cheat (each child dropped on the item counts it once). Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **The in-game effect is not yet verified by a live test.**
+
+- Patch IDs: `vv1_collectibles_stay_collected`, `vv2_collectibles_stay_collected`, `vv3_collectibles_stay_collected`, `vv4_collectibles_stay_collected`, `vv5_collectibles_stay_collected`
 
 **Enable Origins Tech, Details, and Village-Wide Upgrades**
 

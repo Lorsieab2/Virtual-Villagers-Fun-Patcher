@@ -226,6 +226,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Yellow Breadfruit Refills Partially Every Time (The Tree of Life; the owner, 2026-11-11): off by default and
     # off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv4_yellow_fruit_refills_partially"]
+    # Picked Up Collectibles Stay Collected When Dropped (all five games; the owner, 2026-11-12): off by default,
+    # on in Owner's Defaults, which ticks it like every default-off patch it does not name.
+    + ["vv%d_collectibles_stay_collected" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]

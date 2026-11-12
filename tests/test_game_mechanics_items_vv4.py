@@ -84,7 +84,7 @@ PINS = (
     ("item", "Fruit", "E", ""),
     ("item", "Fish and the Golden Fish", "E", ""),
     ("item", "Crabs", "E", "O"),
-    ("item", "Mushrooms", "E", "EU"),
+    ("item", "Mushrooms", "E", "EUC"),
     ("item", "The Fish Scale collection", "E", ""),
     ("item", "The Lab Equipment collection", "E", ""),
     ("item", "The Mausoleum Mural collection", "E", ""),

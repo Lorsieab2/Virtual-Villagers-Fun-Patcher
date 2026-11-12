@@ -145,6 +145,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Breadfruit Refills Partially Every Time (off in Owner's Defaults too).
                   or p == "vv3_fruit_trees_refill_to_full"
                   or p == "vv4_yellow_fruit_refills_partially"
+                  # Picked Up Collectibles Stay Collected When Dropped (the owner, 2026-11-12: on in Owner's
+                  # Defaults only).
+                  or p.endswith("_collectibles_stay_collected")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
