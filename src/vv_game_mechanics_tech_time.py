@@ -408,6 +408,37 @@ def workers(everyone) -> int:
                and not p.carrying and p.health >= 20)
 
 
+def glance(ctx, everyone) -> str | None:
+    """Vital statistics' at-a-glance line: the cheapest next technology and the time to it with every working adult
+    researching (the owner, 2026-11-12: "time to next tech (cheapest tech first)")."""
+    village, game = ctx.village, ctx.game
+    if village.general or ctx.tech is None or game not in GAMES:
+        return None
+    levels = techs(game, village.data)
+    if levels is None:
+        return None
+    never = village.has(f"vv{game}_learning_never_fails") is True
+    lab = lab_bonus(game, village.data)
+    rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never)  # noqa: E731
+    if game == 5:
+        import vv_game_mechanics_vv5 as vv5
+        if _i32(village.data, vv5.PROJECTS + 8 * 4) < vv5.PUZZLE_THRESHOLDS[4]:
+            rate = lambda owned: 0.0  # noqa: E731
+    factor = (read_multiplier(village) or 1) if village.has(multiplier_feature(game)) is True else 1
+    nexts = goals(game, levels, ctx.tech, rate, False, game == 3 and village.has("vv3_both_factions") is True, factor)
+    if not nexts:
+        return "Next technology: every technology is at its top level."
+    g = nexts[0]
+    head = f"Next technology (the cheapest): {g.name} level {g.level}, {g.cost:,} tech points"
+    if g.needed <= 0:
+        return head + ". You have enough to buy it now."
+    adults = max(1, workers(everyone or []))
+    if math.isinf(g.units):
+        return head + f". You need {g.needed:,} more, and nobody earns tech points while the game is closed yet."
+    return (head + f". You need {g.needed:,} more: about {gm.duration(g.units / adults * ctx.unit)} with the game "
+            f"closed, if all {adults} working adult{'s' if adults != 1 else ''} research.")
+
+
 def lines(ctx, everyone) -> list[gm.Fact]:
     """The two sections' lines for a save's Vital statistics (nothing on the general page or a paused save's
     unknown tech points)."""

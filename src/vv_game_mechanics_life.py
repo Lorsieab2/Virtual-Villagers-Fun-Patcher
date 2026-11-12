@@ -710,6 +710,12 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     level = ctx.difficulty
     level_words = DIFFICULTY.get(level, "not read") if level is not None else "not read"
 
+    # At a glance, first (the owner, 2026-11-12: "the most essential data players should know. simple sweet and to the
+    # point"): one short line each -- next refills, villagers at 100% health, mushrooms, food eaten, next technology.
+    if everyone is not None:
+        for text in glance_lines(ctx, everyone):
+            sub(text, True)
+
     # 0. Time and units (the owner, 2026-10-24: every time says whether it is real-life or in-game time).
     # The owner, 2026-10-27: game time vs real time, the page's clock key (gm.time_units_lines, also on general pages).
     out.extend(gm.time_units_lines(gm.TIME_UNITS, ctx.speed))
@@ -726,10 +732,10 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
     for s in ctx.sources:
         amount = "" if s.amount is None else f"{s.amount:,}" + (f" of {s.cap:,}" if s.cap else "")
         text = f"{s.name}: {amount}" if amount else s.name
+        if s.refill_words:
+            text += f"; {s.refill_words}"
         if s.next_refill is not None:
             text += f"; next refill {gm.when(s.next_refill)}"
-        elif s.refill_words:
-            text += f"; {s.refill_words}"
         moment, fill = fill_time(ctx, s)
         # A time worked out from the refill rule is no plain save value: it carries the label.
         ok = s.verified if moment is None and not fill.startswith("full after") else (
@@ -783,6 +789,59 @@ def vitals_lines(ctx: Context, everyone: list[Person] | None, soonest, event) ->
 
     # 7. Food sustainability (estimates).
     out.extend(food_estimates(ctx, members))
+    return out
+
+
+def _next_refill_words(ctx: Context, s: Source) -> str | None:
+    """A limited source's next refill in real time; None for one that does not refill or never runs out."""
+    if s.unlimited or not s.step or not s.interval:
+        return None
+    if ctx.paused:
+        return f"{s.name} after {gm.duration(s.first_in if s.first_in is not None else s.interval)} of play once you unpause"
+    moment = s.next_refill if s.next_refill is not None else s.next_at
+    if moment is None:
+        return f"{s.name} within {gm.duration(s.interval)} of play"
+    if moment <= ctx.village.now:
+        return f"{s.name} as soon as you play the village"
+    return f"{s.name} at {gm.when(moment)} (in {gm.duration(moment - ctx.village.now)})"
+
+
+def glance_lines(ctx: Context, everyone: list[Person]) -> list[str]:
+    """Vital statistics' short summary, from the same figures as the Food estimates below (real-life time, the
+    save's speed)."""
+    members = tribe(everyone)
+    on = gm.speed_name(ctx.speed)
+    eaters = sum(1 for p in members if not p.golden)
+    per_unit = eat_per_unit(ctx)
+    units_hour = 3600.0 / ctx.unit
+    per_hour = eaters * per_unit * units_hour
+    _, _, on_sources = refills(ctx)
+    refill_unit = sum(s.per_unit for s in ctx.sources) * ctx.mastery
+    refill_hour = refill_unit * units_hour
+    nexts = [w for w in (_next_refill_words(ctx, s) for s in ctx.sources) if w]
+    out = [f"At a glance (estimates, in real-life time at {on} speed):",
+           "Next refills: " + ("; ".join(nexts) if nexts else "no food source here runs out and refills") + "."]
+    if per_unit:
+        day = max(0.0, ctx.food - (ctx.low_food + 1) + on_sources + refill_hour * 24) / (per_unit * units_hour * 24)
+        out.append(f"Villagers the food can keep at 100% health: about {refill_unit / per_unit:,.1f} on the "
+                   f"refills alone; about {day:,.1f} for the next 24 hours, counting the food in storage and on the "
+                   f"sources too. You have {eaters} who eat"
+                   + (" (fishing can feed more, as far as your farmers bring it in)"
+                      if any(s.unlimited for s in ctx.sources) else "") + ".")
+    gap = per_hour - refill_hour
+    if gap > 0:
+        brown, red = _boost(ctx.brown, ctx.mastery), _boost(ctx.red, ctx.mastery)
+        out.append(f"Mushrooms to make up the shortfall: your villagers eat about {gap:,.0f} more food an hour "
+                   f"than the refills bring, so about {gap / brown:,.1f} brown or {gap / red:,.1f} red mushrooms an "
+                   f"hour" + (f", or {gap / _boost(100, ctx.mastery):,.1f} golden" if ctx.golden else "") + ".")
+    else:
+        out.append("Mushrooms to make up the shortfall: none needed, the refills bring more than your villagers eat.")
+    out.append(f"Food your villagers eat: about {per_hour * 8:,.0f} in 8 hours and {per_hour * 24:,.0f} in 24 hours.")
+    if ctx.tech is not None:
+        import vv_game_mechanics_tech_time as tech_time
+        tech = tech_time.glance(ctx, everyone)
+        if tech:
+            out.append(tech)
     return out
 
 
