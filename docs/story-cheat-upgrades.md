@@ -759,6 +759,38 @@ Secret City and The Tree of Life: two picks in a row, each shown; New
 Believers: only the three living believers offered, the only male believer
 shown), the result, and the food change.
 
+### Branching events from the library (v1.35.97)
+
+The dialog's "From the library..." lists the events saved in the patcher's
+Custom Island Event Library (`<save folder>\Virtual Villagers Fun Patcher\
+Custom Island Events\<name>.json + <name>.cieg`, src/vv_cie_graph.py) made
+for this game, and queues the one picked; the editor above stays as it is.
+The runtime is native/vvfp_story_upgrades/story_graph.inc:
+
+- The .cieg is read and checked again (magic, version, CRC-32, every table
+  and index in bounds, no loop, only the allowed characters); a bad file is
+  refused with the reason, and the picker names every file it leaves out.
+- Roles are filled by the game's own eligible villagers (alive, of age, not
+  carrying a baby, not the game's special villagers -- the shipped Aspiring
+  Adventurer's rules -- and New Believers' believers), two roles always two
+  villagers. No villager for a role: the purchase is refused and says why;
+  no longer one at delivery: the event keeps waiting and is made due again.
+- The walk draws each branch with the game's random routine; conditions on
+  visited nodes, bound roles, the game and Guardians of Isola. Every effect is
+  made once, when the question is answered (or the first popup is built):
+  food and tech (scaled by "Island Events Scale" when ticked), the award when
+  paid, deaths with the event's cause told to Cause of Death, disappearances
+  logged as Disappeared, New Believers' "becomes a Heathen" through the game's
+  own conversion and counted by "Popup When Believers Become Heathens",
+  health, a like or dislike, a skill raised, sickness.
+- Each popup is laid out in pages that fit (paragraphs, sentences, words);
+  the question's earlier pages come first, the result's first page is the
+  click's result, every later page an island-event notice. Only the question
+  (or the first page) counts in Island Events Seen and the Island Events log.
+- The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
+  beside the queue's file (whose layout is unchanged), so a quit with the
+  question on screen or between pages resumes where it was.
+
 ### Custom titles
 
 A villager's title can be replaced by the player's text (1-31 letters,

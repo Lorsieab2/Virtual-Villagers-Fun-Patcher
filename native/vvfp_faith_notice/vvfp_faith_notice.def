@@ -6,3 +6,4 @@ EXPORTS
     VvfpFaithNoticeTaken
     VvfpFaithNoticeVillageReset
     VvfpFaithNoticeKeep
+    VvfpFaithNoticeCount

@@ -181,6 +181,25 @@ static void story_island_arming(int game, void *field, unsigned int value);
 /* ... and by the locks below: a bought island event is on its way until the
    game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
 static int story_bought_on_its_way(int game);
+/* Defined with the branching Custom Island Events (story_graph.inc), used earlier. */
+static int cg_holds(int game);
+static int cg_owns_armed(int game);
+static int cg_owns_asked(int game);
+static int cg_answering(int game);
+static int cg_prepare(int game);
+static int cg_counted_next(void);
+static int cg_deliver(int game, char *text, int size, int *counted);
+static void cg_begin_question(int game, char *text, int size);
+static int cg_resolve(int game, int button, char *text, int size);
+static int cg_tallest(int game, int button, char *out, int size);
+static int cg_featured(int game);
+static int cg_busy(int game);
+static void cg_tick(int game);
+static void cg_village_seen(int game, int slot, const unsigned int *roster);
+static void cg_flush_file(int game, int slot, const unsigned int *roster);
+static void cg_village_reset(int game, int slot);
+static INT_PTR CALLBACK cg_library_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+static int cg_library_purchase(int game, HWND owner);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -957,6 +976,8 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     /* A Custom Island Event goes first: the event it went ahead of comes next,
        and one a barrel went ahead of is made due again (story_custom_ui.inc). */
     ce_requeue_tick(game);
+    /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
+    cg_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1213,6 +1234,7 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_time_skip.inc"
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
+#include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -1582,6 +1604,16 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceCap(int on) {
 /* The next roll is `roll` (modulo the chances' total), -1 = the real source. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetRoll(int roll) {
     test_roll = roll;
+}
+
+/* The next `count` rolls are `rolls`, in order (each modulo its draw's range), before the one above. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSetRolls(const int *rolls, int count) {
+    int i;
+    test_roll_count = count < 0 ? 0 : (count > 64 ? 64 : count);
+    test_roll_next = 0;
+    for (i = 0; i < test_roll_count; ++i) {
+        test_rolls[i] = rolls[i];
+    }
 }
 
 /* The pure weighted pick: which of `count` outcomes with `chances` the

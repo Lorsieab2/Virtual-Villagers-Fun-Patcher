@@ -13,6 +13,7 @@ enum {
     IDC_CE_OTHER = 1131, IDC_CE_VALUES = 1132, IDC_CE_PUZZLES = 1133, IDC_CE_REVIVE = 1134,
     IDC_CE_OTHER_REMOVE = 1135, IDC_CE_QUEUE_NOTE = 1136, IDC_CE_CHOICE = 1137,
     IDC_CE_CHOICES = 1138, IDC_CE_TEXT_LABEL = 1139,
+    IDC_CE_LIBRARY = 1141,              /* "From the library...": a branching event (story_graph.inc) */
     IDD_CHOICES = 310,
     IDC_CC_LABEL_FIRST = 3701, IDC_CC_LIST_FIRST = 3711, IDC_CC_ADD_FIRST = 3721,
     IDC_CC_EDIT_FIRST = 3731, IDC_CC_REMOVE_FIRST = 3741, IDC_CC_CHANCE_FIRST = 3751,
@@ -2490,6 +2491,16 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHOICES), window, ui_choices_dialog, 0);
             return TRUE;
         }
+        if (id == IDC_CE_LIBRARY) {
+            /* The owner (2026-11-12): an event from the patcher's library, queued as it is; the editor stays. */
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(312), window, cg_library_dialog,
+                                (LPARAM)ui.game) == IDOK) {
+                GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
+                GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
+                EndDialog(window, IDC_CE_LIBRARY);
+            }
+            return TRUE;
+        }
         if (id == IDC_CE_OMITTED) {
             MessageBoxA(window, a->omitted, "Not in this game",
                         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -2979,6 +2990,9 @@ static void ce_opening_tick(int game) {
     if (!ce_wait_arm || time_skip_event_open()) {
         return;
     }
+    if (cg_holds(game)) {
+        return;                       /* a branching event whose roles the village cannot fill yet */
+    }
     ce_wait_arm = 0;
     if (!GAMES[game].island_pending()) {
         (void)GAMES[game].arm();
@@ -3015,8 +3029,8 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND ow
 static int ce_purchase_locked(int game, int *displaces) {
     int bought;
     *displaces = 0;
-    if (ce_armed) {
-        return 1;
+    if (ce_armed || cg_busy(game)) {
+        return 1;                     /* (a branching event's popups still to come: story_graph.inc) */
     }
     switch (game) {
     case 3:
@@ -3105,9 +3119,15 @@ static int story_custom_island_event(int game, HWND owner) {
         memset(&ui.choice, 0, sizeof ui.choice);
         ui.draft_game = game;
     }
-    if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
-                        UI_MODE_EVENT) != IDOK) {
-        return 0;
+    {
+        INT_PTR answer = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
+                                         UI_MODE_EVENT);
+        if (answer == IDC_CE_LIBRARY) {
+            return cg_library_purchase(game, owner);   /* an event from the library (story_graph.inc) */
+        }
+        if (answer != IDOK) {
+            return 0;
+        }
     }
     char prompt[600];
     wsprintfA(prompt, vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s3",

@@ -107,8 +107,8 @@ static int story_notice_free(int game) {
     ce_drop_lapsed();
     {
         const char *refused;
-        if (pick_slot >= 0 || ce_armed || GAMES[game].island_pending()) {
-            return 0;
+        if (pick_slot >= 0 || ce_armed || GAMES[game].island_pending() || cg_busy(game)) {
+            return 0;                  /* (a branching event's popups still to come wait for nothing else) */
         }
         ce_refusal_for_notice = 1;
         refused = a->arm_refusal();

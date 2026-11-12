@@ -823,7 +823,8 @@ class StaticTimeSkipPopupTests(unittest.TestCase):
         text = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
         body = text[text.index("static int ce_deliver(int game, char *text, int size) {"):]
         body = body[:body.index("\n}\n")]
-        self.assertIn("notice = ce_armed_is_notice;", body)
+        # (A branching event from the library counts only its own first page or question: story_graph.inc.)
+        self.assertIn("notice = graph ? !cg_counted_next() : ce_armed_is_notice;", body)
         # ... and for a player's event delivered before the village's first island event, which stays the
         # game's visitor (story_empty_village.inc: ce_dead_first, ce_first_before -- the owner, 2026-11-09:
         # a Custom Island Event comes first, the opening events after it, unchanged).
