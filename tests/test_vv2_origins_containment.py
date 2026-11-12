@@ -60,6 +60,8 @@ REMAINING = {
     "vv2_everyone_collects_like_vv1",
     # companion only (its two job builders' award calls, at run time); owns no Origins bytes
     "vv2_collectibles_stay_collected",
+    # More Island Events: runtime detours only (its companion); owns no Origins bytes
+    "vv2_more_island_events",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",
