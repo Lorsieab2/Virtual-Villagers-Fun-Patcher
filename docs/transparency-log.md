@@ -2796,7 +2796,7 @@ Remembers each villager's original look -- the head, body and mask they had befo
 
 #### Picked Up Collectibles Stay Collected When Dropped (`vv5_collectibles_stay_collected`)
 
-A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (Divine Energy or tech points for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
+A mushroom, relic or lab gear piece a child has picked up counts wherever the child puts it down -- dropped by you somewhere else, or set down when the child stops on the way: the mushroom's food and Mushrooms Found, or the collection piece (the reward for a piece already found) with its tips and completion messages, exactly once. In the normal game each counts only at its own place (the food bin, the relic spot, the lab) and is lost anywhere else. Nothing new is saved, so without the patch the game simply goes back to its own rule. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.**
 
 **Requires no other patch to be ticked.**
 
