@@ -1,4 +1,4 @@
-/* The Aspiring Adventurer: The Lost Children.  Included by vvfp_aspiring_adventurer.c.
+/* The Aspiring Adventurer: The Lost Children.  Included by vvfp_more_island_events.c.
 
    The Lost Children's two-choice island events are its family A: the trigger (0x42E990; 20% of its events, and
    the village's first) builds the family-A dialog (constructor 0x422380, on its own stack), whose setup 0x41F780

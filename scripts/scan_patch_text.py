@@ -353,7 +353,7 @@ KEY_FAMILIES = (
     re.compile(r"^vvfp\.story/story_c[1-5]\.C[1-5]_ADAPTER\.4[3-6]$"),
     re.compile(r"^vvfp\.story/story_tables\.VV[1-5]_EVENTS\.\d+\.(?:title|variant)$"),
     # The Aspiring Adventurer's pieces: a generated table of stems and their English (adv_text.inc).
-    re.compile(r"^vvfp\.aspiring_adventurer/adv_text\.[A-Z0-9_]+(?:\.[mf])?$"),
+    re.compile(r"^vvfp\.more_island_events/adv_text\.[A-Z0-9_]+(?:\.[mf])?$"),
 )
 KEY_FAMILY_SOURCES = (
     ("native/vvfp_cause_of_death/cod_vv12.inc", 'vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.%d'),
@@ -362,7 +362,7 @@ KEY_FAMILY_SOURCES = (
     ("native/vvfp_story_upgrades/story_custom.inc", 'vvfp.story/story_c%d.C%d_ADAPTER.%d'),
     ("native/vvfp_story_upgrades/vvfp_story_upgrades.c", 'vvfp.story/story_tables.VV%d_EVENTS.%d.title'),
     ("native/vvfp_story_upgrades/vvfp_story_upgrades.c", 'vvfp.story/story_tables.VV%d_EVENTS.%d.variant'),
-    ("native/vvfp_aspiring_adventurer/adv_text.inc", 'vvfp.aspiring_adventurer/adv_text.'),
+    ("native/vvfp_more_island_events/adv_text.inc", 'vvfp.more_island_events/adv_text.'),
 )
 
 

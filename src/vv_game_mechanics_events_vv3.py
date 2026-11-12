@@ -367,7 +367,7 @@ EVENTS = (
         f"\"Watch him work\": {M} 1,000 tech points.")),
 )
 
-# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP Aspiring Adventurer.dll" adds it (src/vv_game_mechanics_adventurer.py).
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
 from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
 
 EVENTS = EVENTS + (adventurer_event(3),)

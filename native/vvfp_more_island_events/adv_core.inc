@@ -1,5 +1,5 @@
 /* The Aspiring Adventurer: what every game shares -- who may go, the rolls, the words and their pages, and the
-   effects.  Included by vvfp_aspiring_adventurer.c; each game's file (adv_vv1.inc ... adv_vv345.inc) gives an
+   effects.  Included by vvfp_more_island_events.c; each game's file (adv_vv1.inc ... adv_vv345.inc) gives an
    adv_game and shows the pages in its own popup.
 
    WHO (the owner, 2026-11-12): one villager of 14 or more who is alive and present, not carrying a baby (nursing:

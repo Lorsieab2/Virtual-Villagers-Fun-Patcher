@@ -1,7 +1,7 @@
-LIBRARY "VVFP Aspiring Adventurer"
+LIBRARY "VVFP More Island Events"
 EXPORTS
     VvfpStartup=_VvfpStartup@8
-    VvfpAdventurerInstalled=_VvfpAdventurerInstalled@0
+    VvfpMoreIslandEventsInstalled=_VvfpMoreIslandEventsInstalled@0
     VvfpAdventurerPossible=_VvfpAdventurerPossible@0
     VvfpAdventurerEligible=_VvfpAdventurerEligible@4
     VvfpAdventurerState=_VvfpAdventurerState@4

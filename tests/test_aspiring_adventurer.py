@@ -1,8 +1,8 @@
-"""The Aspiring Adventurer (vvN_aspiring_adventurer_event): the owner's island event (2026-11-12), all five games.
+"""The Aspiring Adventurer (vvN_more_island_events): the owner's island event (2026-11-12), all five games.
 
 Static (always run):
-  * the words: the companion's table (native/vvfp_aspiring_adventurer/adv_text.inc) is what
-    scripts/build_aspiring_adventurer.py makes of src/vv_aspiring_adventurer.py, every piece in both forms is a
+  * the words: the companion's table (native/vvfp_more_island_events/adv_text.inc) is what
+    scripts/build_more_island_events.py makes of src/vv_aspiring_adventurer.py, every piece in both forms is a
     translation row of its own (route "key") with the same English, and the owner's wording is intact;
   * the odds: the per-outcome chances are the owner's table (A: 50/25/25, then 50/50, A1/A5/A8 8.33%, A7/A9 12.5%,
     A2/A3/A4/A6 12.5%; B: 90% home, 1 in 6 lost endings, 1 in 3 healers);
@@ -62,7 +62,7 @@ except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
 
 GAMES = (1, 2, 3, 4, 5)
-DLL = ROOT / "assets" / "aspiring_adventurer" / "VVFP Aspiring Adventurer.dll"
+DLL = ROOT / "assets" / "more_island_events" / "VVFP More Island Events.dll"
 EXES = {1: "Virtual Villagers - A New Home.exe", 2: "Virtual Villagers - The Lost Children.exe",
         3: "Virtual Villagers - The Secret City.exe", 4: "Virtual Villagers - The Tree of Life.exe",
         5: "Virtual Villagers - New Believers.exe"}
@@ -78,8 +78,8 @@ def _module(name: str, path: Path):
     return module
 
 
-BUILDER = _module("adv_builder", ROOT / "scripts" / "build_aspiring_adventurer.py")
-ROWS = _module("adv_rows", ROOT / "scripts" / "build_aspiring_adventurer_rows.py")
+BUILDER = _module("adv_builder", ROOT / "scripts" / "build_more_island_events.py")
+ROWS = _module("adv_rows", ROOT / "scripts" / "build_more_island_events_rows.py")
 
 # Each game's page (characters a line, lines a page: the companion's adv_game) and longest name.
 PAGE = {1: (46, 9), 2: (46, 12), 3: (46, 11), 4: (46, 11), 5: (46, 17)}
@@ -87,7 +87,7 @@ LONGEST = {1: 27, 2: 23, 3: 24, 4: 24, 5: 24}
 
 
 def feature_id(game: int) -> str:
-    return f"vv{game}_aspiring_adventurer_event"
+    return f"vv{game}_more_island_events"
 
 
 def wrap_lines(text: str, width: int) -> int:
@@ -115,7 +115,7 @@ def wrap_lines(text: str, width: int) -> int:
 
 class TheWords(unittest.TestCase):
     def test_the_companions_table_is_generated_from_the_one_source(self) -> None:
-        self.assertEqual((ROOT / "native" / "vvfp_aspiring_adventurer" / "adv_text.inc").read_text(encoding="utf-8"),
+        self.assertEqual((ROOT / "native" / "vvfp_more_island_events" / "adv_text.inc").read_text(encoding="utf-8"),
                          BUILDER.text_inc())
 
     def test_every_piece_is_a_key_row_with_its_english(self) -> None:
@@ -165,7 +165,7 @@ class TheOdds(unittest.TestCase):
         self.assertAlmostEqual(adv.outcome_chances(friend=False)["A"]["A5"], 100 / 6)
 
     def test_the_companion_rolls_the_same_odds(self) -> None:
-        core = (ROOT / "native" / "vvfp_aspiring_adventurer" / "adv_core.inc").read_text(encoding="utf-8")
+        core = (ROOT / "native" / "vvfp_more_island_events" / "adv_core.inc").read_text(encoding="utf-8")
         for needle in ("roll < 50 ? ADV_FIND_NOTHING : (roll < 75 ? ADV_FIND_MEAT : ADV_FIND_CHEST)",
                        "adv_percent(g, 50)", "g->rand_below(2) == 0 ? 7 : 9", "SURVIVE_FIND[g->rand_below(3)]",
                        "DEADLY[g->rand_below(4)]", "adv.lost = adv_percent(g, 10)", "1 + g->rand_below(6)",
@@ -195,13 +195,13 @@ class TheRows(unittest.TestCase):
         for game in GAMES:
             row = self.rows[feature_id(game)]
             self.assertEqual(row["companion_files"][0]["sha256"], sha)
-        self.assertIn("VVFP Aspiring Adventurer.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
-        self.assertIn('"VVFP Aspiring Adventurer.dll"',
+        self.assertIn("VVFP More Island Events.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
+        self.assertIn('"VVFP More Island Events.dll"',
                       (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8"))
 
     def test_every_site_is_in_the_row_and_the_source(self) -> None:
         source = "".join(p.read_text(encoding="utf-8")
-                         for p in (ROOT / "native" / "vvfp_aspiring_adventurer").glob("adv_vv*.inc"))
+                         for p in (ROOT / "native" / "vvfp_more_island_events").glob("adv_vv*.inc"))
         for game in GAMES:
             row = self.rows[feature_id(game)]
             self.assertEqual([d["va"] for d in row["runtime_detours"]], [f"0x{s[0]:X}" for s in ROWS.SITES[game]])
@@ -255,20 +255,21 @@ LAYOUT = {
 SPECIAL = {1: ((0x36C, 4, 0xC7),), 2: ((0x558, 1, 1),), 3: ((0xE80, 1, 1), (0xE94, 1, 1)), 4: ((0x1CC7, 1, 1),),
            5: ((0x1CEC, 1, 1), (0x1CFC, 4, 12), (0x1CFC, 4, 13), (0x1CFC, 4, 17), (0x1CE1, 1, 1))}
 TABLES = {3: dict(manager=0x59E110, first=0x14, stride=0x1F8C, table=0x4B3C78, strings=0x592730,
-                  loop=(0x419B54, 0x419B7B), offset=8, settext=0x4185A0, hide=0x40C230, show=0x40C1F0,
+                  loop=(0x419B54, 0x419B73), offset=8, settext=0x4185A0, hide=0x40C230, show=0x40C1F0,
                   close=0x40E020, ctor=0x4192F0, site=(0x419BEA, 0x419BEF), click=0x419A00, rand=0x4032D0,
                   food=0x582490, tech=0x582644),
           4: dict(manager=0x50E568, first=0x44, stride=0x2E3C, table=0x4CCA28, strings=0x4DEA20,
-                  loop=(0x418050, 0x41807D), offset=0x10, settext=0x416F60, hide=0x40C210, show=0x40C190,
+                  loop=(0x418050, 0x418075), offset=0x10, settext=0x416F60, hide=0x40C210, show=0x40C190,
                   close=0x40E090, ctor=0x417790, site=(0x418106, 0x41810B), click=0x417EA0, rand=0x4036D0,
                   food=0x4D6DD0, tech=0x4D6F88),
           5: dict(manager=0x554148, first=0x48, stride=0x2F44, table=0x4DC850, strings=0x5240A8,
-                  loop=(0x4188C0, 0x4188ED), offset=0x10, settext=0x417700, hide=0x40C700, show=0x40C680,
+                  loop=(0x4188C0, 0x4188E5), offset=0x10, settext=0x417700, hide=0x40C700, show=0x40C680,
                   close=0x40E580, ctor=0x418020, site=(0x41896A, 0x41896F), click=0x418720, rand=0x403660,
                   food=0x51D34C, tech=0x51D5F8)}
 # Achievement counters the later games' writers call (their object is not built here): stood in for.
-COUNTERS = {4: (0x412F90,), 5: (0x413450, 0x423600)}
+COUNTERS = {4: {0x412F90: 8}, 5: {0x413450: 8, 0x423600: 4}}
 TOP = 99999                                    # a scripted roll meaning "the last value" (n - 1)
+TITLE_LINE = "The Aspiring Adventurer\n"       # A New Home's and The Lost Children's title line
 FAKE_COD = 0x0E800000
 
 
@@ -282,9 +283,10 @@ class Village:
         self.rolls: list[int] = []
         self.ui: list[tuple] = []
         self.vanished: list[tuple] = []
+        self.calls: list[tuple] = []
         self._cod()
         self.p.export("VvfpStartup", game, 0)
-        self.installed = self.p.export("VvfpAdventurerInstalled")
+        self.installed = self.p.export("VvfpMoreIslandEventsInstalled")
         self.L = LAYOUT[game]
         p = self.p
         if game == 1:
@@ -305,6 +307,7 @@ class Village:
             self.base = p.alloc(0x30 + 0xE48C * 256)
             p.put32(0x4997BC, self.world)
             p.put32(0x499F24, self.base)
+            p.put32(self.world + 0x305A4, self.base)          # the pool the game's population count reads
             p.put32(self.world + 0x2E51C, 5)
             self.stride, self.first = 0xE48C, 0x30
             self.rand = 0x4031A0
@@ -312,6 +315,7 @@ class Village:
             p.stub(0x40B560, self._log("add"))
             p.stub(0x40B5A0, self._log("remove"))
             p.stub(0x40D390, self._log("close", 0))
+            p.stub(0x4491F0, lambda pr: (self.calls.append(("deselect",)) or 0, 0))   # The Voices' selection drop
         else:
             t = self.t = TABLES[game]
             self.base, self.stride, self.first = t["manager"], t["stride"], t["first"]
@@ -320,8 +324,30 @@ class Village:
             p.stub(t["hide"], self._log("hide"))
             p.stub(t["show"], self._log("show"))
             p.stub(t["close"], self._log("close", 0))
-            for va in COUNTERS.get(game, ()):
-                p.stub(va, lambda pr: (0, 8))
+            for va, pop in COUNTERS.get(game, {}).items():
+                p.stub(va, lambda pr, pop=pop: (0, pop))
+            if game in (4, 5):
+                # The game's own stop and health setter (thiscall on the record's health block +0x1C34: value,
+                # cause) reach the game's world, which is not built here: stood in for, and every call kept, so a
+                # test sees the companion ask for the game's own death (0, cause -1).
+                stop, setter = (0x468C60, 0x46AF00) if game == 4 else (0x473440, 0x4758B0)
+                p.stub(stop, lambda pr: (self.calls.append(("stop", pr.reg("ecx"))) or 0, 0))
+
+                def set_health(pr):
+                    block = pr.reg("ecx")
+                    pr.put32(block + 0xC, pr.arg(0))
+                    self.calls.append(("health", block - 0x1C34, pr.arg(0), pr.arg(1) - (1 << 32) if pr.arg(1) >> 31
+                                       else pr.arg(1)))
+                    return 0, 8
+                p.stub(setter, set_health)
+            if game == 5:
+                p.stub(0x4653D0, lambda pr: (0, 0))                            # not the one selected
+
+                def convert(pr):
+                    pr.write(pr.reg("ecx") + 0x1CEC, b"\x01")
+                    self.calls.append(("heathen", pr.reg("ecx")))
+                    return 0, 0
+                p.stub(0x4669E0, convert)
             for k in range(1, 60):
                 p.put32(t["table"] + 4 * k, 0)
         p.stub(self.rand, self._rand)
@@ -491,6 +517,8 @@ class Village:
         p.set_reg("esp", esp)
         p.set_reg("ecx", self.dlg)
         p.run(*t["site"])
+        if not any(u[0] == "text" for u in self.ui):     # one page: the question the constructor set
+            self.ui.append(("text", self.pages(0)[-1]))
         return True
 
     def click(self, button: int) -> None:
@@ -512,7 +540,11 @@ class Village:
         return ("close",) in self.ui
 
     def play(self, rolls: list[int], answer: int) -> list[str]:
-        """The whole event: each page shown, in order (the question's pages, then the result's), until the close."""
+        """The whole event: each page shown, in order (the question's pages, then the result's), until the close --
+        each as one line of words (A New Home's and The Lost Children's own line breaks and title taken out)."""
+        return [re.sub(r"\s+", " ", page.replace(TITLE_LINE, "")).strip() for page in self._play(rolls, answer)]
+
+    def _play(self, rolls: list[int], answer: int) -> list[str]:
         self.assertion = []
         if not self.begin(rolls):
             raise AssertionError("the event was not drawn")
@@ -533,10 +565,12 @@ class Village:
         return seen
 
 
-def rolls(*, hero=0, friend=0, find=0, survive=True, end=0, stranger=0, lost=False, lost_end=1, healer=1, skill=0,
+def rolls(*, hero=0, friend=None, find=0, survive=True, end=0, stranger=0, lost=False, lost_end=1, healer=1, skill=0,
           amount=0, injured=0, game=4) -> list[int]:
-    """The rolls adv_begin draws, in its order.  find: 0 dirt, 1 meat, 2 chest; end: the index within the half."""
-    out = [hero, friend, (0, 60, 80)[find], 0 if survive else 99, end, stranger]
+    """The rolls adv_begin draws, in its order.  find: 0 dirt, 1 meat, 2 chest; end: the index within the half.
+    The game's rand is asked only when there is a choice: with one possible friend (two who may go), none is drawn
+    for the friend (friend=None)."""
+    out = [hero] + ([] if friend is None else [friend]) + [(0, 60, 80)[find], 0 if survive else 99, end, stranger]
     if game == 3:
         out.append(0)                   # The Secret City's own count for its multiplier (0x45D460) draws one
     out += [0 if lost else 99, lost_end - 1, healer - 1, skill, amount, injured]
@@ -623,6 +657,35 @@ class Effects(unittest.TestCase):
                     self.assertEqual(v.health(0), 100)
                     self.assertTrue(v.closed_at_end)
 
+    def test_the_reward_scales_as_island_events_scale_scales(self) -> None:
+        """With "VVFP Island Events Scale.dll" loaded (stood in for: its VvfpIslandEventsScaleMode export), the reward
+        is scaled by its rule -- the population by the game's own count (stood in for) or a tenth of the store."""
+        counts = {1: 0x41CF90, 4: 0x467610, 5: 0x4713F0}
+        for game in (1, 4, 5):
+            for mode, people, expected in ((1, 30, 1000), (1, 51, 1500), (2, 0, 500 + 4000 // 10)):
+                with self.subTest(game=game, mode=mode, people=people):
+                    v = self.village(game)
+                    p = v.p
+                    fake = 0x0E900000
+                    mode_stub = p.alloc(16)
+                    p.write(mode_stub, b"\xC3")
+                    p.stub(mode_stub, lambda pr, mode=mode: (mode, 0))
+                    p.stub(counts[game], lambda pr, people=people: (people, 0))
+                    cod_module, cod_proc = p.api_handlers["GetModuleHandleA"], p.api_handlers["GetProcAddress"]
+                    p.api_handlers["GetModuleHandleA"] = lambda pr, m=cod_module: (
+                        (fake, 4) if pr.cstring(pr.arg(0)) == "VVFP Island Events Scale.dll" else m(pr))
+                    p.api_handlers["GetProcAddress"] = lambda pr, c=cod_proc: (
+                        (mode_stub, 8) if pr.arg(0) == fake else c(pr))
+                    if game == 1:
+                        p.put32(v.world + 0xA2EC, 4000)
+                    else:
+                        p.put32(v.t["food"], 4000)
+                    before = v.stores()[0]
+                    seen = " ".join(v.play(rolls(find=1, end=0, game=game), 1))
+                    self.assertEqual(v.state()[11], expected)
+                    self.assertEqual(v.stores()[0] - before, expected)
+                    self.assertIn(f"Your villagers gain {expected} food.", seen)
+
     def test_deaths_and_disappearances(self) -> None:
         for game in GAMES:
             for answer, kw, dies in ((1, dict(survive=False, end=0), True), (1, dict(survive=False, end=2), True),
@@ -637,6 +700,8 @@ class Effects(unittest.TestCase):
                     self.assertEqual(v.stores(), before)         # never a reward
                     if dies:
                         self.assertEqual(v.health(0), 0)
+                        if game in (4, 5):                       # the game's own setter, cause -1 "Unknown causes"
+                            self.assertIn(("health", v.rec(0), 0, -1), v.calls)
                         self.assertEqual(v.present(0), 1)        # the body lies: a grave comes
                         self.assertEqual(v.vanished, [])
                     else:

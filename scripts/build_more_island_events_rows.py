@@ -1,11 +1,11 @@
-"""The five rows of "The Aspiring Adventurer" (vvN_aspiring_adventurer_event), written by
-scripts/build_aspiring_adventurer.py.  The sites are the companion's own (native/vvfp_aspiring_adventurer: adv_vv1.inc,
+"""The five rows of "More Island Events" (vvN_more_island_events): for now one event, The Aspiring Adventurer, written by
+scripts/build_more_island_events.py.  The sites are the companion's own (native/vvfp_more_island_events: adv_vv1.inc,
 adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the two together)."""
 from __future__ import annotations
 
-DLL_NAME = "VVFP Aspiring Adventurer.dll"
+DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
-NAME = "The Aspiring Adventurer (New Island Event)"
+NAME = "More Island Events"
 CLASSIC = (4, 5)
 
 # (va, stock bytes, written, what) per game.
@@ -111,7 +111,8 @@ def description(game: int) -> str:
     classic = ("Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it."
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
-        "A new island event, written by the owner: a villager who loves to explore sees something glinting off the "
+        "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
+        "For now one: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (+500 food) or a golden chest of "
         "artifacts (+2,000 tech points); half the time the adventurer gets home (with the find, or with a friend's "
         "help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe "
@@ -129,7 +130,7 @@ def description(game: int) -> str:
 
 def row(game: int, sha: str) -> dict:
     return {
-        "id": f"vv{game}_aspiring_adventurer_event",
+        "id": f"vv{game}_more_island_events",
         "enabled": True,
         "catalog_enabled": True,
         "catalog_hidden": False,
@@ -167,7 +168,7 @@ def row(game: int, sha: str) -> dict:
                             "effects and the install with every other patch emulated on the stock executable in "
                             "tests/test_aspiring_adventurer.py; runtime/player confirmation pending"),
         "companion_files": [
-            {"source": f"assets/aspiring_adventurer/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},
+            {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},
         ],
         "patches": [],
         "runtime_detours": [

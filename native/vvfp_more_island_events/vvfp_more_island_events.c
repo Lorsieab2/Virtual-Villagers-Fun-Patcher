@@ -1,9 +1,9 @@
 /* VVFP Aspiring Adventurer -- "The Aspiring Adventurer", the owner's island event (2026-11-12), in all five games
-   (the rows vvN_aspiring_adventurer_event).
+   (the rows vvN_more_island_events).
 
    An aspiring adventurer of the village sees something glinting off the safe path: "Go investigate!" or "Stay on
    the safe path".  The owner's words, odds and effects are in adv_core.inc (and src/vv_aspiring_adventurer.py, the
-   one source of the words, which scripts/build_aspiring_adventurer.py writes into adv_text.inc); each game's own
+   one source of the words, which scripts/build_more_island_events.py writes into adv_text.inc); each game's own
    island-event machinery is in adv_vv1.inc (A New Home's encounters), adv_vv2.inc (The Lost Children's family A)
    and adv_vv345.inc (the event tables of The Secret City, The Tree of Life and New Believers).
 
@@ -55,7 +55,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
 }
 
 /* The game whose event is in (1..5), 0 when none (for the tests and the Story / Cheat Upgrades companion). */
-int __stdcall VvfpAdventurerInstalled(void) {
+int __stdcall VvfpMoreIslandEventsInstalled(void) {
     return g_adv_game != NULL ? g_adv_game->game : 0;
 }
 

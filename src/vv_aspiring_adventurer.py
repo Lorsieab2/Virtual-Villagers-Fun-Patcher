@@ -1,7 +1,7 @@
 """The Aspiring Adventurer: the owner's island event (2026-11-12), all five games -- its words and its odds.
 
-The one source of the event's English: scripts/build_aspiring_adventurer.py writes it into the companion
-(native/vvfp_aspiring_adventurer/adv_text.inc) and into the translation template
+The one source of the event's English: scripts/build_more_island_events.py writes it into the companion
+(native/vvfp_more_island_events/adv_text.inc) and into the translation template
 (data/translations/patcher_strings.json), and the Game Mechanics pages read the odds below.
 
 The owner's text, with only the pronoun fixes the owner was shown: (he/she), (his/her), (him/her), (He/she) follow
@@ -21,8 +21,8 @@ from __future__ import annotations
 
 import re
 
-STEM = "vvfp.aspiring_adventurer/adv_text"
-CONTEXT = "VVFP Aspiring Adventurer.dll (the island event The Aspiring Adventurer: its popups, in the game's own island-event popup)"
+STEM = "vvfp.more_island_events/adv_text"
+CONTEXT = "VVFP More Island Events.dll (the island event The Aspiring Adventurer: its popups, in the game's own island-event popup)"
 
 TITLE = "The Aspiring Adventurer"
 

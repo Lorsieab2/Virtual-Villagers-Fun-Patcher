@@ -1,8 +1,8 @@
 """The Aspiring Adventurer in the Game Mechanics pages' island events (all five games; the owner, 2026-11-12).
 
-One Event per game, shown only when the exe has the patch (vvN_aspiring_adventurer_event).  Every number comes from
+One Event per game, shown only when the exe has the patch (vvN_more_island_events).  Every number comes from
 src/vv_aspiring_adventurer.py, the same source the companion's words and the tests use; the companion
-(native/vvfp_aspiring_adventurer/adv_core.inc) rolls exactly these odds with the game's own random routine.
+(native/vvfp_more_island_events/adv_core.inc) rolls exactly these odds with the game's own random routine.
 """
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ def _pct(value: float) -> str:
 
 
 def adventurer_event(game: int) -> Event:
-    feature = f"vv{game}_aspiring_adventurer_event"
+    feature = f"vv{game}_more_island_events"
     who = "alive and present, 14 villager years or more, not nursing a baby (mother or father)"
     if NOT_SPECIAL[game]:
         who += ", " + NOT_SPECIAL[game]
@@ -101,8 +101,8 @@ def adventurer_event(game: int) -> Event:
                          only_with=f"vv{game}_island_events_scale_with_stored_amounts"))
     return Event(
         TITLE,
-        f"needs at least two villagers who are {who}; {HOW[game]}; added by \"The Aspiring Adventurer (New Island "
-        "Event)\" (without it the event does not exist)",
+        f"needs at least two villagers who are {who}; {HOW[game]}; added by \"More Island Events\" (without it the "
+        "event does not exist)",
         tuple(subs),
         only_with=feature,
     )

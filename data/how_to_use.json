@@ -228,15 +228,16 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
-        "and Island Events Scale With Population (like The Lost Children) and The Aspiring Adventurer (New Island Event).",
+        "and Island Events Scale With Population (like The Lost Children) and More Island Events.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
     {
-      "ids": ["vv1_aspiring_adventurer_event", "vv2_aspiring_adventurer_event", "vv3_aspiring_adventurer_event", "vv4_aspiring_adventurer_event", "vv5_aspiring_adventurer_event"],
+      "ids": ["vv1_more_island_events", "vv2_more_island_events", "vv3_more_island_events", "vv4_more_island_events", "vv5_more_island_events"],
       "guide": [
         "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers).",
-        "Adds the owner's island event: a villager sees something glinting off the safe path. Choose \"Go investigate!\" or \"Stay on the safe path\".",
+        "Adds the owner's new island events (more come later). The first, The Aspiring Adventurer: a villager sees something glinting off the path.",
+        "Choose \"Go investigate!\" or \"Stay on the safe path\".",
         "Investigating may bring +500 food or +2,000 tech points, or end in a death or a disappearance; the safe path brings them home 9 times in 10.",
         "It needs two villagers of 14 or more who are not nursing and not special. It comes like the game's own events, at their usual times.",
         "The text comes in pages that fit the screen: click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
@@ -1183,7 +1184,7 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, The Aspiring Adventurer (New Island Event),",
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, More Island Events,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]

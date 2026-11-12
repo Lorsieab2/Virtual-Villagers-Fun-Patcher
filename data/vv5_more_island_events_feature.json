@@ -1,11 +1,11 @@
 {
-  "id": "vv5_aspiring_adventurer_event",
+  "id": "vv5_more_island_events",
   "enabled": true,
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv5",
-  "name": "The Aspiring Adventurer (New Island Event)",
-  "description": "A new island event, written by the owner: a villager who loves to explore sees something glinting off the safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (+500 food) or a golden chest of artifacts (+2,000 tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they become a Heathen. The event is one more island event, listed and drawn like the game's own (1 in the number listed); it needs two villagers of 14 or more who are not nursing a baby and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit, and the adventurer and the friend who may come to help are drawn from them. The reward is 500 food or 2,000 tech points; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs no other patch.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is \"VVFP Aspiring Adventurer.dll\", started by VVFP Startup.dll; nothing is saved by it.",
+  "name": "More Island Events",
+  "description": "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). For now one: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (+500 food) or a golden chest of artifacts (+2,000 tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they become a Heathen. The event is one more island event, listed and drawn like the game's own (1 in the number listed); it needs two villagers of 14 or more who are not nursing a baby and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit, and the adventurer and the friend who may come to help are drawn from them. The reward is 500 food or 2,000 tech points; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next). Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs no other patch.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is \"VVFP More Island Events.dll\", started by VVFP Startup.dll; nothing is saved by it.",
   "output_tag": "Aspiring Adventurer",
   "dependencies": [],
   "behavior_changes": [
@@ -22,9 +22,9 @@
   "evidence_status": "implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py; runtime/player confirmation pending",
   "companion_files": [
     {
-      "source": "assets/aspiring_adventurer/VVFP Aspiring Adventurer.dll",
-      "destination": "VVFP Aspiring Adventurer.dll",
-      "sha256": "B80E8BDBC4C99EA6D8A39F5BD5D74E693D9CA386C102B79CF2A4812DA51A8359"
+      "source": "assets/more_island_events/VVFP More Island Events.dll",
+      "destination": "VVFP More Island Events.dll",
+      "sha256": "BB126067EB0C0BECB5735A40D399C55146D358E22CC3CAB1F065F752BDE025D1"
     }
   ],
   "patches": [],
@@ -34,21 +34,21 @@
       "stock_bytes": "83FE387CDB",
       "written_bytes": "E9XXXXXXXX",
       "routine": "the selector 0x418870's loop end over the event table 0x4DC850 (slots 1-55): the event, in slot 0, is listed after them when it can happen, so it is drawn like any listed event",
-      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     },
     {
       "va": "0x418738",
       "stock_bytes": "8B4E508B01",
       "written_bytes": "E9XXXXXXXX",
       "routine": "the event dialog's click handler 0x418720, OK: while the event has a page left it is shown instead",
-      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     },
     {
       "va": "0x41896A",
       "stock_bytes": "E8B1F6FFFF",
       "written_bytes": "E8XXXXXXXX",
       "routine": "the selector's call of the dialog constructor 0x418020: after it, a question of more than one page starts on its first page, with OK",
-      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]
 }

@@ -222,7 +222,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVanished(int game, int index) {
     }
 }
 
-/* "VVFP Aspiring Adventurer.dll" (The Aspiring Adventurer, an island event it adds): called right after its own
+/* "VVFP More Island Events.dll" (The Aspiring Adventurer, an island event it adds): called right after its own
    "disappears" took the villager in record `index` -- the game's own removal of a living villager with no body
    (the presence byte cleared; The Tree of Life's after the Sealed Box's death, as above) -- with what took them in
    that event's words (`what`, at most 120 characters are kept).  Without this the save-time reconciliation would

@@ -1,4 +1,4 @@
-/* The Aspiring Adventurer: A New Home.  Included by vvfp_aspiring_adventurer.c.
+/* The Aspiring Adventurer: A New Home.  Included by vvfp_more_island_events.c.
 
    A New Home's two-choice island events are its villager encounters: the trigger (0x4237B3; 20% of its island
    events, and the village's first) builds the encounter dialog (0x41A460, on its own stack), whose setup 0x4189E0

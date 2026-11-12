@@ -342,9 +342,9 @@ ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
 # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, companion only, "VVFP Aspiring
-# Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_aspiring_adventurer.py.
-ASPIRING_ADVENTURER_FEATURE_PATHS = tuple(
-    ROOT / "data" / f"vv{n}_aspiring_adventurer_event_feature.json" for n in range(1, 6))
+# Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_more_island_events.py.
+MORE_ISLAND_EVENTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_more_island_events_feature.json" for n in range(1, 6))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4213,7 +4213,7 @@ def _load_fun_patch_records(
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
                          + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
-                         + ASPIRING_ADVENTURER_FEATURE_PATHS):
+                         + MORE_ISLAND_EVENTS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12737,7 +12737,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "DC3BFEDAA4C85E62A24C4ACB5A55D7669751ED18B374834949D7954F16FC41BF",
+    "sha256": "430E873027A1C5D49FA911B188D5C50B433AAB0EDA605BB341358607ECB768F1",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12838,7 +12838,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
     # The Aspiring Adventurer (all five games): the owner's new island event.
-    "VVFP Aspiring Adventurer.dll",
+    "VVFP More Island Events.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

@@ -1,5 +1,5 @@
 /* The Aspiring Adventurer: The Secret City, The Tree of Life and New Believers.  Included by
-   vvfp_aspiring_adventurer.c.
+   vvfp_more_island_events.c.
 
    These three games keep their island events as objects in one table (The Secret City 0x4B3C78, slots 1-57; The
    Tree of Life 0x4CCA28, 1-49; New Believers 0x4DC850, 1-55) and present the one their selector drew (0x419B30,
@@ -42,6 +42,7 @@
 
 typedef void (__fastcall *adv_tc0)(void *self, void *unused);
 typedef void (__fastcall *adv_tc1)(void *self, void *unused, int a);
+typedef int (__fastcall *adv_tc0r)(void *self, void *unused);
 typedef int (__fastcall *adv_tc1r)(void *self, void *unused, int a);
 typedef void (__fastcall *adv_tc2)(void *self, void *unused, int a, int b);
 typedef int (__fastcall *adv_tc4r)(void *self, void *unused, int a, int b, int c, int d);
@@ -199,7 +200,7 @@ static void t_vanish(int index) {
         break;
     default:
         ADV_TC0(0x473440u, r);
-        if ((((adv_tc1r)(uintptr_t)0x4653D0u)(r, NULL, 0) & 0xFF) != 0) {
+        if ((((adv_tc0r)(uintptr_t)0x4653D0u)(r, NULL) & 0xFF) != 0) {
             ADV_TC0(0x470800u, g_manager);
         }
         r[0x1CD4] = 0;
@@ -320,7 +321,7 @@ static int t_scaled(int kind, int base, unsigned int count_routine) {
             return base + (stored > 0 ? stored / 10 : 0);
         }
         if (m == 1) {
-            int n = ((adv_tc1r)(uintptr_t)count_routine)((void *)(uintptr_t)g_manager, NULL, 0);
+            int n = ((adv_tc0r)(uintptr_t)count_routine)((void *)(uintptr_t)g_manager, NULL);
             return base * (n > 50 ? 3 : (n > 25 ? 2 : 1));
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {

@@ -154,7 +154,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_island_events_scale_with_stored_amounts")
                   # The Aspiring Adventurer (the owner, 2026-11-12: on in Owner's Defaults and in Classic VV
                   # Difficulty).
-                  or p.endswith("_aspiring_adventurer_event")
+                  or p.endswith("_more_island_events")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
