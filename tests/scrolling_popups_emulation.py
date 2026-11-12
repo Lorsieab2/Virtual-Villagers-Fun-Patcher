@@ -90,6 +90,41 @@ GAMES = {
                 strings=(0x441690, 0x441680), sound=(0x43E460, 0x43EFF0)),
 }
 ASSETS = ROOT / "assets" / "scrolling_popups"
+# The games' string tables (data/translations/vvN_strings.json): (first row, rows, stride, English pointer's offset).
+STRING_TABLES = {"vv1": (4747784, 629, 20, 4), "vv2": (4809472, 876, 12, 4), "vv3": (4897168, 1210, 16, 8),
+                 "vv4": (4997624, 1338, 16, 8), "vv5": (5059056, 1409, 16, 8)}
+SPRINTF = {"vv3": 0x46EFCD, "vv4": 0x4716DB, "vv5": 0x47C046}
+# The panels whose lines are text controls, by their constructors (no arguments): Create Nickname (all five),
+# Statistics (A New Home, The Lost Children).
+LABEL_PANELS = {"vv1": {"nickname": 0x415510, "statistics": 0x431B30},
+                "vv2": {"nickname": 0x41AC90, "statistics": 0x43F860},
+                "vv3": {"nickname": 0x41BA90}, "vv4": {"nickname": 0x4190B0}, "vv5": {"nickname": 0x4197D0}}
+# The tombstone (the grave's readout), per game.  A New Home and The Lost Children: its vtable, base constructor,
+# sizer and its 9-slice picture (the strip constructor, the file), its OK button's field, its fields the body draw
+# reads (the grave's slot, the grave manager, the string table) and the grave's fields in the manager (the name;
+# the skill value, the job, the age), the place Cause of Death's hook draws its cause line from (the site, its
+# stolen bytes, where it returns, the registers holding the panel, the renderer and the centre x; the centred draw,
+# the font global).  The later three: the constructor (the game's own code makes it), whether it takes the Roster of
+# the Dead entry's index (and where the entries live) or the entry itself, and the entry's fields.
+TOMBS = {
+    "vv1": dict(vt=0x481B58, base=0x40C9E0, sizer=0x40C760, strip=0x40A070, picture=b"GreenDlgTileGrid.png",
+                button=0x88, slot=0x60, manager=0x74, strings=0x7C, manager_size=0x10000,
+                name=lambda slot: (slot + 0x3B5) * 0x2C, value=0xA338, job=0xA33C, age=0xA340,
+                cod=dict(site=0x436700, stolen=bytes.fromhex("5F5E5D5B81C4CC000000"), back=None, panel="ebx",
+                         renderer="esi", x="ebp", draw=0x4094C0, font=0x48B608)),
+    "vv2": dict(vt=0x48FB48, base=0x40D470, sizer=0x40D140, strip=0x40A270, picture=b"GreenDlgTileGrid.png",
+                button=0x90, slot=0x60, manager=0x78, strings=0x80, manager_size=0x30000,
+                name=lambda slot: slot * 0x7C + 0x2EB0C, value=0x2EB78, job=0x2EB7C, age=0x2EB80,
+                epitaph=0x84, flag=0x64,
+                cod=dict(site=0x444790, stolen=bytes.fromhex("8B8D84000000"), back=0x444796, panel="ebp",
+                         renderer="esi", x="ebx", draw=0x4096B0, font=0x499F18)),
+    "vv3": dict(vt=0x47F498, ctor=0x41E6D0, by_index=True, entries=0x5973F0 + 0x974, entry_size=0x30,
+                age=0x1C, job=0x20, value=0x24, cause=0x2C),
+    "vv4": dict(vt=0x48D4EC, ctor=0x41BBA0, by_index=False, entry_size=0x5C, age=0x1C, job=0x28, value=0x2C,
+                cause=0x34),
+    "vv5": dict(vt=0x4986E8, ctor=0x41C3F0, by_index=False, entry_size=0x5C, age=0x1C, job=0x28, value=0x2C,
+                cause=0x34),
+}
 # A New Home's and The Lost Children's island-event dialogs (plain; two choices; crate / sacks and vials): the
 # vtable, base constructor, the size site (its `push ebp` (the height) and two more pushes start 5 bytes before it,
 # then `mov ecx, esi`) and the registers holding the width and the panel picture there, the width, the room the
@@ -138,6 +173,11 @@ def _map_rgba(mc, arg, ret):
     ret(value)
 
 
+def _map_rgb(mc, arg, ret):
+    """SDL_MapRGB(format, r, g, b): the colour in the format's masks, opaque."""
+    _map_rgba(mc, lambda k: arg(k) if k < 4 else 255, ret)
+
+
 def _tables() -> dict:
     return json.loads((ROOT / "data" / "font_glyph_tables.json").read_text(encoding="utf-8"))
 
@@ -150,6 +190,9 @@ class Dialog:
         self.g = dict(GAMES[game])
         self.watch = None
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
+        se.EXTRA_IMPORTS.setdefault("SDL_MapRGB", (0, _map_rgb))
+        # An editable text box's background (the later three's tombstone epitaph): not drawn here.
+        se.EXTRA_IMPORTS.setdefault("SDL_FillRect", (0, lambda mc, arg, ret: ret(0)))
         self.run = ute.FontRun(game, "collection_progression",
                                tuple(selection) if selection else (f"{game}_scrolling_popups",), _tables(),
                                swap={DLL_NAME: TEST_DLL})
@@ -185,6 +228,9 @@ class Dialog:
         # by id is "OK" (the buttons' labels).
         getter, lookup = self.g["strings"]
         self.texts = None
+        self.english = False              # True: every string id looked up is the game's own English text
+        self.string_overrides: dict = {}  # string id -> text (a translation, say)
+        self.real_children = False        # True: the game's own add-child runs as well (its window list)
         self.tip_text = None              # the text the game's string table gives for TIP_ID (a tip's text)
         self.looked_up: list[int] = []
         self.mu.hook_add(UC_HOOK_CODE, self._strings, begin=getter, end=getter, user_data=0)
@@ -195,6 +241,10 @@ class Dialog:
             getter, fetch = self.g["sound"]
             self.mu.hook_add(UC_HOOK_CODE, self._no_sound, begin=getter, end=getter, user_data=0)
             self.mu.hook_add(UC_HOOK_CODE, self._no_sound, begin=fetch, end=fetch, user_data=4)
+        # The C runtime's sprintf (the later three's tombstone constructor prints its lines with it; its locale
+        # needs the runtime's per-thread data, which the emulation has not got): answered from Python.
+        if game in SPRINTF:
+            self.mu.hook_add(UC_HOOK_CODE, self._sprintf, begin=SPRINTF[game], end=SPRINTF[game])
         self.passed: list[tuple[int, int, int]] = []    # mouse events the game's dispatcher received
         self.mu.hook_add(UC_HOOK_CODE, self._add_child, begin=self.g["add_child"], end=self.g["add_child"])
         self.children: list[int] = []     # what the dialogs made add to their window, in order
@@ -259,6 +309,9 @@ class Dialog:
                 mu.mem_write(arg(0), b"\0" * 8)               # a tip's timer start: time 0
                 ret(0, 4)
                 return
+            if name == "SDL_GetTicks":            # a tombstone's text box notes the time it was made
+                ret(0, 0)
+                return
             if name.startswith("_FSOUND_") and "@" in name:
                 ret(0, int(name.rsplit("@", 1)[1]))      # no sound here (a message box's sound manager)
                 return
@@ -316,17 +369,57 @@ class Dialog:
         else:
             wanted = struct.unpack("<I", mu.mem_read(sp + 4, 4))[0]
             self.looked_up.append(wanted)
-            value = self._cstr(self.tip_text if wanted == TIP_ID and self.tip_text is not None else b"OK")
+            if wanted in self.string_overrides:
+                value = self._cstr(self.string_overrides[wanted])
+            elif self.english:
+                value = self._english_va(wanted)
+            else:
+                value = self._cstr(self.tip_text if wanted == TIP_ID and self.tip_text is not None else b"OK")
         mu.reg_write(UC_X86_REG_EAX, value)
         mu.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
         mu.reg_write(UC_X86_REG_EIP, to)
 
+    def _sprintf(self, mu, address, size, user):
+        """sprintf(out, format, ...) (cdecl): %s, %d, %i, %u and %% as the C runtime prints them."""
+        sp = mu.reg_read(UC_X86_REG_ESP)
+        to, out, fmt = struct.unpack("<III", mu.mem_read(sp, 12))
+        text = bytes(mu.mem_read(fmt, 512)).split(b"\0")[0]
+        result, k, arg = b"", 0, sp + 12
+        while k < len(text):
+            c = text[k:k + 1]
+            if c == b"%" and k + 1 < len(text):
+                spec = text[k + 1:k + 2]
+                k += 2
+                if spec == b"%":
+                    result += b"%"
+                    continue
+                value = self.u32(arg)
+                arg += 4
+                if spec == b"s":
+                    result += bytes(mu.mem_read(value, 1024)).split(b"\0")[0] if value else b"(null)"
+                elif spec in (b"d", b"i"):
+                    result += str(struct.unpack("<i", struct.pack("<I", value))[0]).encode()
+                elif spec == b"u":
+                    result += str(value).encode()
+                else:
+                    raise AssertionError(f"sprintf %{spec!r}")
+                continue
+            result += c
+            k += 1
+        mu.mem_write(out, result + b"\0")
+        mu.reg_write(UC_X86_REG_EAX, len(result))
+        mu.reg_write(UC_X86_REG_ESP, sp + 4)
+        mu.reg_write(UC_X86_REG_EIP, to)
+
     def _add_child(self, mu, address, size, user):
         """The window's add-child (thiscall(window; child) ret 4): kept here, in order (the stand-in buttons need no
-        window list; a message box's text and buttons are drawn from it)."""
+        window list; a message box's text and buttons are drawn from it).  With `real_children` the game's own
+        add-child runs too (the window's list, which the companion walks for a tombstone's lines)."""
         sp = mu.reg_read(UC_X86_REG_ESP)
         to, child = struct.unpack("<II", mu.mem_read(sp, 8))
         self.children.append(child)
+        if self.real_children:
+            return
         mu.reg_write(UC_X86_REG_ESP, sp + 8)
         mu.reg_write(UC_X86_REG_EIP, to)
 
@@ -362,6 +455,15 @@ class Dialog:
         obj = heap.alloc(0x40)
         self.mu.mem_write(obj, struct.pack("<I", vtable))
         return obj
+
+    def _english_va(self, wanted: int) -> int:
+        """The game's own English text for string id `wanted` (its string table in the executable)."""
+        va, count, stride, eng = STRING_TABLES[self.game]
+        for k in range(count):
+            row = va + k * stride
+            if self.u32(row) == wanted:
+                return self.u32(row + eng)
+        return self._cstr(b"?")
 
     # -- helpers --------------------------------------------------------------------------------------------------
     def u32(self, va: int) -> int:
@@ -614,6 +716,121 @@ class Dialog:
         self.stock_height = self.stock_heights[-1] if self.stock_heights else None
         self.stock_width = self.stock_widths[-1] if self.stock_widths else None
         self.put(d + 0x44, 0x3F800000)    # its opening fade at its end
+        for child in self.children:
+            self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
+        return d
+
+    # -- the tombstone --------------------------------------------------------------------------------------------
+    def make_tomb(self, name: bytes, cause: bytes | None = None, job: int = 1, value: int = 60, age: int = 300,
+                  cause_id: int = 1) -> int:
+        """A tombstone for a grave of `name`, with the game's own English texts.  A New Home and The Lost Children:
+        the dialog's base constructor, vtable, the fields its body draw reads, its picture sized by the game's own
+        sizer (320 x 320, as its constructor asks), an OK button (a stand-in, 30 px high) and, when `cause` is given,
+        Cause of Death's cause line (its hook in the body draw replayed: _cod_line).  The later three: the game's own
+        constructor on a Roster of the Dead entry for `name` (its labels, its Done button, the window's list); the
+        cause line is the game's own (`cause_id`)."""
+        t = TOMBS[self.game]
+        heap = self.m.font_heap
+        mu = self.mu
+        self.children = []
+        self.english = True
+        if "ctor" in t:
+            if t["by_index"]:
+                entry = t["entries"]              # slot 0 of the Roster of the Dead
+                arg = heap.alloc(8)
+                self.put(arg, 0)
+            else:
+                entry = arg = heap.alloc(0x100)
+            mu.mem_write(entry, b"\0" * t["entry_size"])
+            mu.mem_write(entry, name[:0x1B] + b"\0")
+            self.put(entry + t["age"], age)
+            self.put(entry + t["job"], job)
+            self.put(entry + t["value"], value)
+            self.put(entry + t["cause"], cause_id)
+            self.dialog = d = heap.alloc(0x200)
+            self.size_requests, self.stock_heights, self.width_requests, self.stock_widths = [], [], [], []
+            self.real_children = True
+            try:
+                # The Secret City's takes (the picture kind, the entry's index); the later two (the entry, the kind).
+                self.run._call(t["ctor"], d, *((1, arg) if t["by_index"] else (arg, 1)))
+            finally:
+                self.real_children = False
+            self.put(d + 0x44, 0x3F800000)
+            for child in self.children:
+                self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
+            return d
+        self.dialog = d = heap.alloc(0x200)
+        self.run._call(t["base"], d, 0)
+        self.put(d, t["vt"])
+        manager = heap.alloc(t["manager_size"])
+        mu.mem_write(manager + t["name"](0), name[:0x2B] + b"\0")
+        self.put(manager + t["value"], value)
+        self.put(manager + t["job"], job)
+        self.put(manager + t["age"], age)
+        self.put(d + t["slot"], 0)
+        self.put(d + t["manager"], manager)
+        self.put(d + t["strings"], heap.alloc(0x40))
+        if "epitaph" in t:
+            self.put(d + t["epitaph"], self._object({0x0C: (lambda a: 0, 0)}))
+            mu.mem_write(d + t["flag"], b"\0")
+        self.tomb_button = self._object({0x0C: (lambda a: 120, 0), 0x10: (lambda a: 30, 0)})
+        self.put(d + t["button"], self.tomb_button)
+        strip = heap.alloc(0x40)
+        self.run._call(t["strip"], strip, self._cstr(t["picture"]), 9, 1)
+        self.run._call(t["sizer"], d, strip, 0x140, 0x140)
+        self.put(d + 0x44, 0x3F800000)
+        self._cod_line(cause)
+        return d
+
+    def _cod_line(self, cause: bytes | None) -> None:
+        """Cause of Death's tombstone hook (A New Home, The Lost Children), replayed: at its site in the body draw a
+        jump to code that makes the hook's own call -- the centred draw of the cause at the panel's centre x, 0xD7
+        below the panel's top, in the game's font (native/vvfp_cause_of_death/cod_vv12.inc cod_grave_lines) -- then
+        the stolen instructions, as that companion's detour does.  None: the site as the game has it."""
+        c = TOMBS[self.game]["cod"]
+        mu = self.mu
+        if not hasattr(self, "_cod_saved"):
+            self._cod_saved = bytes(mu.mem_read(c["site"], len(c["stolen"])))
+        if cause is None:
+            mu.mem_write(c["site"], self._cod_saved)
+            return
+        if not hasattr(self, "_cod_text"):
+            self._cod_text = self.m.font_heap.alloc(0x400)   # one buffer: the code below is written once
+        text = self._cod_text
+        mu.mem_write(text, cause[:0x3FF] + b"\0")
+        at = CODE + 0xF000
+        reg = {"ebx": 3, "ebp": 5, "esi": 6}
+        code = bytes([0x8B, 0x40 | reg[c["panel"]], 0x18])                 # mov eax, [panel + 0x18]
+        code += b"\x05" + struct.pack("<I", 0xD7)                          # add eax, 0xD7
+        code += b"\x6A\x00" + b"\xFF\x35" + struct.pack("<I", c["font"])     # push 0; push [font]
+        code += b"\x50" + bytes([0x50 | reg[c["x"]]])                       # push eax; push x
+        code += b"\x68" + struct.pack("<I", text)                          # push the cause
+        code += bytes([0x8B, 0xC8 | reg[c["renderer"]]])                    # mov ecx, renderer
+        code += b"\xE8" + struct.pack("<i", c["draw"] - (at + len(code) + 5))
+        code += c["stolen"]
+        if c["back"] is None:
+            code += b"\xC3"
+        else:
+            code += b"\xE9" + struct.pack("<i", c["back"] - (at + len(code) + 5))
+        mu.mem_write(at, code)
+        jump = b"\xE9" + struct.pack("<i", at - (c["site"] + 5))
+        mu.mem_write(c["site"], jump + b"\x90" * (len(c["stolen"]) - 5))
+
+    def make_panel(self, kind: str, size: int = 0x400) -> int:
+        """A panel of LABEL_PANELS made by the game's own constructor (no arguments), with the game's own English texts
+        (and string_overrides): its labels, text box and buttons, the window's list."""
+        ctor = LABEL_PANELS[self.game][kind]
+        self.children = []
+        self.english = True
+        self.dialog = d = self.m.font_heap.alloc(size)
+        self.size_requests, self.stock_heights, self.width_requests, self.stock_widths = [], [], [], []
+        self.looked_up = []
+        self.real_children = True
+        try:
+            self.run._call(ctor, d)
+        finally:
+            self.real_children = False
+        self.put(d + 0x44, 0x3F800000)
         for child in self.children:
             self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
         return d

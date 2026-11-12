@@ -79,6 +79,10 @@ EVENTS = {
     2: (("plain", 0x476DF8, 0x434A6B, 0x40D140), ("two choices", 0x476714, 0x42255F, 0x40D140),
         ("sacks and vials / two choices", 0x476F30, 0x439FA4, 0x40D140)),
 }
+# The tombstone (the grave's readout): its vtable (all five games).  A New Home and The Lost Children draw its lines
+# in its body draw with the centred-block draw, whose one call of the core draw is a site: (site, core draw).
+TOMBS = {1: 0x481B58, 2: 0x48FB48, 3: 0x47F498, 4: 0x48D4EC, 5: 0x4986E8}
+CENTRE = {1: (0x409501, 0x409160), 2: (0x4096F1, 0x409360)}
 # The tip's per-line `call justify` (The Secret City, The Tree of Life, New Believers).
 TIP_JUSTIFY = {3: 0x41E433, 4: 0x41B9B0, 5: 0x41C200}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
@@ -108,6 +112,7 @@ def covered(game: int) -> str:
         parts.append("island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them)")
     parts.append("message boxes (tech and puzzle results, confirmations)")
     parts.append("tips (the tutorial and notices)")
+    parts.append("the tombstone (a long name or cause of death scrolls sideways)")
     return ", ".join(parts[:-1]) + " and " + parts[-1]
 
 
@@ -158,6 +163,10 @@ def detours(game: int) -> list[dict]:
     if game in TIP_JUSTIFY:
         out.append((TIP_JUSTIFY[game], SITES[game][2], "the tip's per-line justified paragraph: at the widest word's "
                                                        "width when that is wider than the box (never stuck)"))
+    if game in CENTRE:
+        out.append((CENTRE[game][0], CENTRE[game][1], "the centred-block draw's call of the core draw: while the "
+                                                      "companion measures the tombstone's lines, each line's extent "
+                                                      "is recorded and nothing is drawn; otherwise the stock call"))
     rows = [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
              "routine": routine, "installed_by": INSTALLED_BY} for va, target, routine in out]
     tail, stock = TAIL[game]
@@ -235,6 +244,20 @@ def behavior_changes(game: int) -> list[str]:
            "is wider than the panel, has its body drawn with the y its constructor keeps (+0x64 / +0x6C) and, for a "
            "wide text, the panel's sides moved by the scroll position, under a clip, with the scrollbars."
            if game in EVENTS else ""),
+        (f"The tombstone (vtable 0x{TOMBS[game]:X}, a fixed panel): its body draw draws every line with the "
+         f"centred-block draw, whose call of the core draw (0x{CENTRE[game][0]:X}) calls the companion. Through the "
+         "frame draw's tail the body is drawn once measuring (each line's extent recorded, nothing drawn, the clip "
+         "empty), and when a line runs past the panel's sides (a long name, Cause of Death's cause line, a "
+         "translation) the body is drawn with the panel rectangle (which the body draw and Cause of Death's line "
+         "place everything by) moved by the scroll position, under a clip 16 px in from the sides and above the OK "
+         "button, with a horizontal bar below the lines; otherwise exactly as before."
+         if game in CENTRE else
+         f"The tombstone (vtable 0x{TOMBS[game]:X}, a fixed panel): each line is a text control. At the text control "
+         f"draw's call (0x{CONTROL[game][0]:X}) a line whose window is the tombstone is measured with all the "
+         "tombstone's other lines (its window's text controls, as the text control draw places them); when one runs "
+         "past the panel's sides (a long name, a long cause, a translation), each line is drawn moved by the scroll "
+         "position under a clip 16 px in from the sides and above the Done button, with a horizontal bar below the "
+         "lines; the editable epitaph and every tombstone that fits are drawn exactly as before."),
         f"The event pump's `call 0x{dispatch:X}` handing a mouse event to the game (0x{mouse:X}) calls the "
         "companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are "
         "used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read "

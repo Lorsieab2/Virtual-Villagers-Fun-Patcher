@@ -31,6 +31,10 @@ Proofs:
     by their constructors' own size sites and drawn by their own body draws through the frame draw's tail: a text that
     fits is blit for blit the stock tail's draw; a long text is capped and scrolled; the result replacing the
     question in a panel sized for the question scrolls inside it; a wide line scrolls sideways;
+  * the tombstone (all five games; a fixed panel): a tombstone that fits is drawn blit for blit as the game draws it;
+    long lines (a long name, a translated "Here Lies", a long cause -- in A New Home and The Lost Children Cause of
+    Death's cause line, drawn from its hook site exactly as that companion draws it) scroll sideways inside the
+    panel, with the horizontal bar above the button, dragged to the lines' ends and back by the wheel;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -39,6 +43,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import os
 import struct
 import sys
 import unittest
@@ -105,6 +110,8 @@ def sites(game: int) -> list[tuple[int, str]]:
     out.append((tsize, BUILDER.call_bytes(tsize, tsizer)))
     if game in BUILDER.TIP_JUSTIFY:
         out.append((BUILDER.TIP_JUSTIFY[game], BUILDER.call_bytes(BUILDER.TIP_JUSTIFY[game], BUILDER.SITES[game][2])))
+    if game in BUILDER.CENTRE:
+        out.append((BUILDER.CENTRE[game][0], BUILDER.call_bytes(*BUILDER.CENTRE[game])))
     out.append(BUILDER.TAIL[game])            # the frame draw's tail: 13 / 14 bytes, not a call
     return out
 
@@ -144,6 +151,9 @@ class TheRows(unittest.TestCase):
                     self.assertIn(f"0x{va:X}u", shifts)
             if game in BUILDER.TIP_JUSTIFY:
                 self.assertIn(f"0x{BUILDER.TIP_JUSTIFY[game]:X}u", row)
+            self.assertIn(f"0x{BUILDER.TOMBS[game]:X}u", row)
+            for va in BUILDER.CENTRE.get(game, ()):
+                self.assertIn(f"0x{va:X}u", row)
             if game in BUILDER.SITES:
                 _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
                 classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
@@ -794,6 +804,154 @@ class TheOldIslandEvents(unittest.TestCase):
                     self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
                     self.check(d, d.draw(), 0, 1)
                     self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
+
+
+TOMB_NAME = b"Kalahuna"
+TOMB_LONG_NAME = b"Kalahuna-Wewehimanukalawehi"
+TOMB_CAUSE = b"Died of old age"
+TOMB_LONG_CAUSE = b"Struck by a falling coconut while gathering the mushrooms of the old ruins"
+TOMB_HERE_LIES = b"Here Lies Our Beloved Friend and Teacher "
+# Pictures of what the emulation drew are written only when SCROLLING_POPUPS_PICTURES names a folder.
+PICTURES = Path(os.environ["SCROLLING_POPUPS_PICTURES"]) if os.environ.get("SCROLLING_POPUPS_PICTURES") else None
+
+
+def save_picture(d, blits, name: str) -> None:
+    if PICTURES is not None:
+        PICTURES.mkdir(parents=True, exist_ok=True)
+        d.save_picture(blits, PICTURES / name)
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class TheTombstone(unittest.TestCase):
+    """The tombstone of all five games.  A New Home and The Lost Children: the dialog's own fields, its picture sized
+    by the game's sizer, its body drawn by the game's own body draw through the frame draw's tail, Cause of Death's
+    cause line drawn from its hook site exactly as that companion draws it.  The later three: made by the game's own
+    constructor on a Roster of the Dead entry (its labels, its Done button, its window's list), drawn by the game's
+    own panel and text control draws.  The long lines: a long name, a long "Here Lies" (as a translation gives it)
+    and a long cause."""
+    tombs: dict = {}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        for game in GAMES:
+            cls.tombs[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.tombs.clear()
+
+    def make(self, d, game, name, long_lines):
+        d.string_overrides = {}
+        if game in (1, 2):
+            return d.make_tomb(name, TOMB_LONG_CAUSE if long_lines else TOMB_CAUSE)
+        d.make_tomb(name)                                    # once to learn the string ids it looks up
+        if long_lines:
+            english = {i: bytes(d.mu.mem_read(d._english_va(i), 32)).split(b"\0")[0] for i in d.looked_up}
+            here = next(i for i, t in english.items() if t.startswith(b"Here Lies"))
+            cause = next(i for i, t in english.items() if t == b"Starvation")     # the entry's cause 1
+            d.string_overrides = {here: TOMB_HERE_LIES, cause: TOMB_LONG_CAUSE}
+            d.make_tomb(name)
+        return d.dialog
+
+    def stock(self, d, game):
+        """The sites the tombstone's draw goes through, written back to the game's own bytes."""
+        if game in (1, 2):
+            site, core = BUILDER.CENTRE[game]
+            out = [(site, bytes.fromhex(BUILDER.call_bytes(site, core)))]
+            tail, stock = BUILDER.TAIL[game]
+            return out + [(tail, bytes.fromhex(stock))]
+        ctl, text_draw = BUILDER.CONTROL[game]
+        return [(ctl, bytes.fromhex(BUILDER.call_bytes(ctl, text_draw)))]
+
+    def test_a_tombstone_that_fits_is_drawn_as_the_game_draws_it(self) -> None:
+        for game, d in self.tombs.items():
+            with self.subTest(game=game):
+                self.make(d, game, TOMB_NAME, False)
+                before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                with_companion = d.draw_box()
+                self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
+                self.assertEqual(d.view()["shown"], 0)
+                patched = []
+                for va, stock in self.stock(d, game):
+                    patched.append((va, bytes(d.mu.mem_read(va, len(stock)))))
+                    d.mu.mem_write(va, stock)
+                try:
+                    plain = d.draw_box()
+                finally:
+                    for va, data in patched:
+                        d.mu.mem_write(va, data)
+                self.assertTrue(d.text_blits(with_companion))
+                self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
+
+    def test_long_lines_scroll_sideways(self) -> None:
+        for game, d in self.tombs.items():
+            with self.subTest(game=game):
+                w, h = d.g["screen"]
+                self.make(d, game, TOMB_LONG_NAME, True)
+                panel = d.panel()
+                self.assertEqual(panel[3] - panel[1], 320)                # as the constructor asks (the 9-slice
+                self.assertGreaterEqual(panel[2] - panel[0], 320)         # rounds 480 up to its cells)
+                blits = d.draw_box()
+                self.assertEqual(d.panel(), panel)                       # a fixed panel: never resized
+                self.assertEqual(d.clip(), (0, 0, w, h))
+                v = d.view()
+                self.assertEqual((v["shown"], v["vbar"], v["hbar"]), (1, 0, 1))
+                self.assertGreater(v["content_w"], v["box_w"])
+                left, top, right, bottom = panel
+                self.assertGreaterEqual(v["box_x"], left)
+                self.assertLessEqual(v["box_x"] + v["box_w"], right)
+                self.assertLessEqual(v["hy"] + v["hh"], bottom - 20)      # above the button's row
+                text = d.text_blits(blits)
+                self.assertTrue(text)
+                lines = [b for b in text if top <= b[3][1] < v["hy"]]
+                self.assertTrue(lines)
+                for b in lines:
+                    self.assertGreaterEqual(b[3][0], v["box_x"])
+                    self.assertLessEqual(b[3][0] + b[1][2], v["box_x"] + v["box_w"])
+                    self.assertGreaterEqual(b[3][1], v["box_y"])
+                    self.assertLessEqual(b[3][1] + b[1][3], v["box_y"] + v["box_h"])
+                art = d.art_blits(blits)
+                self.assertIn("wide", art)
+                self.assertIn("handle", art)
+                self.assertNotIn("knob", art)
+                save_picture(d, blits, f"vv{game}_tombstone_long.png")
+                start = [(b[1], b[3]) for b in lines]
+                # the handle dragged to the end: the lines' right ends show
+                self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                blits = d.draw_box()
+                self.assertEqual(d.scroll(), (v["content_w"] - v["box_w"], 0))
+                lines = [b for b in d.text_blits(blits) if top <= b[3][1] < v["hy"]]
+                self.assertGreater(max(b[3][0] + b[1][2] for b in lines), v["box_x"] + v["box_w"] - 24)
+                self.assertNotEqual([(b[1], b[3]) for b in lines], start)
+                save_picture(d, blits, f"vv{game}_tombstone_long_scrolled.png")
+                # the wheel scrolls sideways (no vertical bar), back to the start
+                self.assertTrue(d.mouse(1, (left + right) // 2, (top + bottom) // 2))
+                d.wheel(100)
+                d.draw_box()
+                self.assertEqual(d.scroll(), (0, 0))
+                # a click off the bar (the button's row) is the game's
+                self.assertTrue(d.click((left + right) // 2, bottom - 30))
+
+    def test_the_cause_of_death_line_alone_scrolls_too(self) -> None:
+        """A New Home and The Lost Children: Cause of Death's cause line, drawn from its hook in the body draw, is
+        measured with the game's lines and moves with them."""
+        for game in (1, 2):
+            d = self.tombs[game]
+            with self.subTest(game=game):
+                d.make_tomb(TOMB_NAME, TOMB_LONG_CAUSE)
+                blits = d.draw_box()
+                v = d.view()
+                self.assertEqual((v["shown"], v["hbar"]), (1, 1))
+                causes = [b for b in d.text_blits(blits) if b[3][1] >= d.panel()[1] + 0xD7 - 2
+                          and b[3][1] < v["hy"]]
+                self.assertTrue(causes)
+                self.assertGreaterEqual(min(b[3][0] for b in causes), v["box_x"])
+                self.assertLessEqual(max(b[3][0] + b[1][2] for b in causes), v["box_x"] + v["box_w"])
+                d.make_tomb(TOMB_NAME, None)                          # Cause of Death's site as the game has it
 
 
 if __name__ == "__main__":

@@ -336,9 +336,14 @@ class Routines:
                 break
         # The text routines: the wrapper that centres text (push ebx; mov ebx, [ecx]; push esi; mov esi,
         # [esp+..]) calls the width routine, then the draw routine.
-        m = re.search(rb"\x53\x8b\x19\x56\x8b\x74\x24", image)
-        centred = 0x400000 + m.start()
-        calls = [int(i.op_str, 16) for i in _calls(image, centred, 120) if i.mnemonic == "call"]
+        # (A companion may have put its own call in one of them -- Scrolling Popups measures A New Home's and The
+        # Lost Children's tombstone lines at the first's call of the draw routine: the first whose calls stay in
+        # the executable is read.)
+        for m in re.finditer(rb"\x53\x8b\x19\x56\x8b\x74\x24", image):
+            centred = 0x400000 + m.start()
+            calls = [int(i.op_str, 16) for i in _calls(image, centred, 120) if i.mnemonic == "call"]
+            if all(0x400000 <= c < 0x400000 + len(image) for c in calls[:2]):
+                break
         self.width, self.draw = calls[0], calls[1]
         draw = _calls(image, self.draw, 0x260)
         targets = [i for i in draw if i.mnemonic == "call" and i.op_str.startswith("0x")]

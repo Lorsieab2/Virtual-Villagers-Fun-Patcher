@@ -95,6 +95,7 @@ static volatile LONG g_wheel;
 static int g_watch;               /* 0 not tried, 1 installed, -1 no SDL */
 static sp_picture g_up, g_down, g_track, g_knob, g_wide, g_handle;
 static int g_art;                 /* 0 not loaded, 1 loaded, -1 missing */
+static int g_bars = 1;            /* sp_scroll draws the bars (a tombstone's lines after its first: not again) */
 #ifdef VVFP_TEST
 static volatile LONG g_scroll_draws;   /* the test build only: dialog bodies drawn scrolled */
 #endif
@@ -517,7 +518,10 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
     sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
     draw(holder, data, ox - g_sx, by - g_sy);
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
-    sp_draw_bars(holder, clip, old);
+    if (g_bars) {
+        sp_draw_bars(holder, clip, old);
+    }
+    g_bars = 1;
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
 #ifdef VVFP_TEST
     InterlockedIncrement(&g_scroll_draws);
@@ -898,16 +902,173 @@ static int sp_message(void *holder, const unsigned char *ctl, const unsigned int
                      &d);
 }
 
+/* ---- The tombstone ---------------------------------------------------------------------------------------------- */
+
+#define SP_TOMB_SIDE 0x10         /* the box: this far in from the panel's sides */
+#define SP_TOMB_BUTTON_GAP 0x14   /* the game puts the OK / Done button this far above the panel's bottom */
+
+/* The room the tombstone keeps below its lines: its button, the gap below it and 4 px above it. */
+/* The box's top for lines spanning (l, t)-(r, b): the first line's top; when the lines are wider than the box and the
+   horizontal bar would not fit between the last line and the button, the lines are lifted (at most to 12 px below
+   the panel's top) to make room for it. */
+static int sp_tomb_top(const int *panel, int l, int t, int r, int b, int bx, int bw, int bottom) {
+    int top = t, need;
+    if ((l < bx || r > bx + bw) && sp_art_ready()) {
+        need = b + SP_HBAR_GAP + sp_hbar_h() - bottom;
+        if (need > 0) {
+            top = t - need;
+        }
+    }
+    if (top < panel[1] + 12) {
+        top = panel[1] + 12 < t ? panel[1] + 12 : t;
+    }
+    return top;
+}
+
+static int sp_tomb_bottom(const unsigned char *popup) {
+    const int *panel = (const int *)(popup + 0x14);
+    void *button = *(void *const *)(popup + g_game->tomb_button);
+    int h = button != NULL ? sp_vcall_int(button, 0x10) : 0;
+    return panel[3] - SP_TOMB_BUTTON_GAP - (h > 0 && h < 200 ? h : 0) - 4;
+}
+
+/* The later three: a tombstone line is a text control, drawn by the text control draw.  Every line of the
+   tombstone (its window's controls of the same class, visible, not the editable epitaph) is measured as the
+   text control draw places it (its font, scale, alignment and the window's origin); when one runs past the panel's
+   sides (a long name, a long cause, a translation), each line is drawn moved by the scroll position under a clip
+   set to the panel less SP_TOMB_SIDE on each side, above its button, with a horizontal bar below the lines.  The
+   editable epitaph (its box cuts its own text) is drawn as the game draws it. */
+typedef struct sp_label_draw {
+    const char *text;
+    int x, y, l, t;               /* where the game draws it; the lines' left and top there */
+    unsigned int colour;
+    void *font;
+} sp_label_draw;
+
+static void sp_draw_label(void *holder, void *data, int x, int y) {
+    sp_label_draw *d = (sp_label_draw *)data;
+    ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, d->text, d->x + (x - d->l), d->y + (y - d->t), d->colour,
+                                               d->font);
+}
+
+/* One text control's text extent as the text control draw places it: 1 when measured. */
+static int sp_label_extent(const unsigned char *impl, const int *origin, void *font_default, int *l, int *t, int *r,
+                           int *b) {
+    const char *text = *(const char *const *)(impl + 0x30);
+    const int *rect = (const int *)(impl + 8);
+    void *font = *(void *const *)(impl + 0x3C);
+    float scale = *(const float *)(impl + 0x58);
+    int w, h, x;
+    if (text == NULL || *text == 0) {
+        return 0;
+    }
+    if (font == NULL) {
+        font = font_default;
+    }
+    if (font == NULL) {
+        return -1;
+    }
+    w = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, scale);
+    h = (int)((float)((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text) * scale);
+    switch (*(const int *)(impl + 0x40)) {
+    case 0: x = rect[0] + *(const int *)(impl + 0x44); break;
+    case 1: x = rect[0] + (rect[2] - rect[0] - w) / 2; break;
+    case 2: x = rect[2] - *(const int *)(impl + 0x44) - w; break;
+    default: return -1;
+    }
+    *l = origin[0] + x;
+    *r = *l + w;
+    *t = origin[1] + rect[1] + *(const int *)(impl + 0x48);
+    *b = *t + h;
+    return 1;
+}
+
+static int sp_tomb_label(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18), *node, *n, *first = NULL;
+    const int *panel, *origin;
+    unsigned char *ctx = *(unsigned char **)holder;
+    void *font_default;
+    int l = 0x7FFFFFFF, t = 0x7FFFFFFF, r = -0x7FFFFFFF, b = -0x7FFFFFFF, guard = 0, bx, bw, by, bottom, line = 0;
+    int ml, mt, mr, mb, here_l = 0, here_t = 0, k;
+    sp_label_draw d;
+    if (g_game->tomb_vtable == 0 || g_game->centre_site != 0 || popup == NULL
+        || *(const unsigned int *)popup != g_game->tomb_vtable || ctl[0x24] != 0 || g_game->width_fn == 0) {
+        return 0;
+    }
+    /* The text control draw has set the drawing context's font to the control's own, when it has one: the
+       window's default font is then not known here, and every line must have its own or none. */
+    font_default = *(void *const *)(ctl + 0x3C) == NULL ? *(void **)(ctx + 0x5C) : NULL;
+    node = *(const unsigned char *const *)(popup + 4);
+    origin = (const int *)(node + 4);
+    if (sp_label_extent(ctl, origin, font_default, &here_l, &here_t, &mr, &mb) != 1 || here_l != (int)a[1]
+        || here_t != (int)a[2]) {
+        return 0;                           /* not where the game draws it: as the game draws it */
+    }
+    for (n = *(const unsigned char *const *)(node + 0x18); n != NULL && guard < 64; n = *(const unsigned char *const *)(n + 4), ++guard) {
+        const unsigned char *wrapper = *(const unsigned char *const *)n, *impl;
+        if (wrapper == NULL) {
+            continue;
+        }
+        impl = *(const unsigned char *const *)(wrapper + 0x10);
+        if (impl == NULL || *(const unsigned int *)impl != *(const unsigned int *)ctl || impl[0x2C] == 0
+            || impl[0x24] != 0 || *(const unsigned char *const *)(impl + 0x18) != popup) {
+            continue;
+        }
+        k = sp_label_extent(impl, origin, font_default, &ml, &mt, &mr, &mb);
+        if (k < 0) {
+            return 0;
+        }
+        if (k == 0) {
+            continue;
+        }
+        first = impl;                       /* the list runs newest first: the last one met is the first made */
+        if (ml < l) l = ml;
+        if (mt < t) t = mt;
+        if (mr > r) r = mr;
+        if (mb > b) b = mb;
+        if (line == 0 || mb - mt < line) {
+            line = mb - mt;
+        }
+    }
+    panel = (const int *)(popup + 0x14);
+    bx = panel[0] + SP_TOMB_SIDE;
+    bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
+    bottom = sp_tomb_bottom(popup);
+    if (first == NULL || r <= l || (l >= bx && r <= bx + bw && b <= bottom)) {
+        if (g_view.popup == popup) {
+            g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
+        }
+        return 0;
+    }
+    by = sp_tomb_top(panel, l, t, r, b, bx, bw, bottom);
+    d.text = (const char *)(UINT_PTR)a[0];
+    d.x = (int)a[1];
+    d.y = (int)a[2];
+    d.l = l;
+    d.t = t;
+    d.colour = a[3];
+    d.font = (void *)(UINT_PTR)a[4];
+    g_bars = first == ctl;                  /* the bars once a frame, with the first line */
+    k = sp_scroll(holder, (unsigned char *)popup, panel, bx, by, bw, bottom - by, l, panel[2] - SP_TOMB_SIDE / 2,
+                  r - l, b - t, line, (unsigned int)(r - l) * 31u + (unsigned int)(b - t), sp_draw_label, &d);
+    g_bars = 1;
+    return k;
+}
+
 /* From the stub at the text control draw's call of the text draw: the holder (ecx), the control (esi) and the
    call's five arguments. */
 static void __stdcall sp_control(void *holder, const unsigned char *ctl, const unsigned int *a) {
     int *clip = NULL, old[4] = {0, 0, 0, 0}, done = 0;
+    g_bars = 1;
     __try {
         clip = sp_clip(holder);
         if (clip != NULL) {
             old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
         }
-        done = sp_message(holder, ctl, a);
+        done = sp_tomb_label(holder, ctl, a);
+        if (!done) {
+            done = sp_message(holder, ctl, a);
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         done = 0;
         if (clip != NULL) {
@@ -1061,6 +1222,96 @@ static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
                      (unsigned int)asked->h_req * 31u + (unsigned int)asked->w_req, sp_draw_shifted, &d);
 }
 
+/* A New Home and The Lost Children: the tombstone's body draw draws every line with the centred-block draw, which
+   calls the core draw from one place (`centre_site`).  The body is drawn once measuring (that call records each
+   line's extent and draws nothing; the clip is empty meanwhile, so nothing else shows), then, when a line runs past
+   the panel's sides, drawn with the panel rectangle (which the body draw and Cause of Death's cause line, drawn from
+   its hook in that body draw, place everything by) moved by the scroll position, under the clip. */
+static volatile LONG g_measuring;
+static int g_ext[5];              /* left, top, right, bottom; one line's height */
+static unsigned int g_core_draw;
+
+static void __stdcall sp_measured(void *ctx, const unsigned int *a) {
+    const char *s = (const char *)(UINT_PTR)a[0];
+    void *font = (void *)(UINT_PTR)a[4];
+    int w, h, x = (int)a[1], y = (int)a[2];
+    __try {
+        if (font == NULL && ctx != NULL) {
+            font = *(void **)((unsigned char *)ctx + 0x5C);
+        }
+        if (s == NULL || *s == 0 || font == NULL) {
+            return;
+        }
+        w = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, s, 1.0f);
+        h = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, s);
+        if (x < g_ext[0]) g_ext[0] = x;
+        if (y < g_ext[1]) g_ext[1] = y;
+        if (x + w > g_ext[2]) g_ext[2] = x + w;
+        if (y + h > g_ext[3]) g_ext[3] = y + h;
+        if (g_ext[4] == 0 || (h > 0 && h < g_ext[4])) {
+            g_ext[4] = h;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+__declspec(naked) static void sp_centre_stub(void) {
+    __asm {
+        cmp dword ptr [g_measuring], 0
+        jne measure
+        jmp dword ptr [g_core_draw]
+    measure:
+        lea eax, [esp + 4]
+        push eax                            /* the five arguments */
+        push ecx                            /* the drawing context */
+        call sp_measured
+        ret 0x14
+    }
+}
+
+static int sp_tomb_drawn(unsigned char *dialog, sp_content_fn content) {
+    const int *panel = (const int *)(dialog + 0x14);
+    void *holder = sp_holder();
+    int *clip = holder != NULL ? sp_clip(holder) : NULL, old[4], bx, bw, by, bottom;
+    sp_shifted d;
+    if (clip == NULL || g_game->width_fn == 0 || g_game->height_fn == 0) {
+        return 0;
+    }
+    old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+    g_ext[0] = g_ext[1] = 0x7FFFFFFF;
+    g_ext[2] = g_ext[3] = -0x7FFFFFFF;
+    g_ext[4] = 0;
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[0]; clip[3] = old[1];   /* empty: nothing shows */
+    InterlockedExchange(&g_measuring, 1);
+    __try {
+        content(dialog, NULL);
+    } __finally {
+        InterlockedExchange(&g_measuring, 0);
+        clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+    }
+    bx = panel[0] + SP_TOMB_SIDE;
+    bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
+    bottom = sp_tomb_bottom(dialog);
+    if (g_ext[2] <= g_ext[0] || (g_ext[0] >= bx && g_ext[2] <= bx + bw && g_ext[3] <= bottom)) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    by = sp_tomb_top(panel, g_ext[0], g_ext[1], g_ext[2], g_ext[3], bx, bw, bottom);
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.dx0 = bx - g_ext[0];
+    d.dy0 = by - g_ext[1];
+    d.yfield = 0;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, g_ext[0], panel[2] - SP_TOMB_SIDE / 2,
+                     g_ext[2] - g_ext[0], g_ext[3] - g_ext[1], g_ext[4],
+                     (unsigned int)(g_ext[2] - g_ext[0]) * 31u + (unsigned int)(g_ext[3] - g_ext[1]), sp_draw_shifted,
+                     &d);
+}
+
 /* From the stub at the frame draw's tail: the dialog's body (vtable+0x30), as the frame draw's `jmp` called it. */
 static void __stdcall sp_content(unsigned char *dialog) {
     sp_content_fn content = (sp_content_fn)(*(void ***)dialog)[0x30 / 4];
@@ -1070,7 +1321,11 @@ static void __stdcall sp_content(unsigned char *dialog) {
         if (clip != NULL) {
             old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
         }
-        done = sp_shift_body(dialog, content);
+        if (g_game->centre_site != 0 && *(const unsigned int *)dialog == g_game->tomb_vtable) {
+            done = sp_tomb_drawn(dialog, content);
+        } else {
+            done = sp_shift_body(dialog, content);
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         done = 0;
         if (clip != NULL) {
@@ -1340,6 +1595,16 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
                          four ? (const void *)sp_tail_stub_4 : (const void *)sp_tail_stub_5);
         ++count;
     }
+    /* A New Home, The Lost Children: the centred-block draw's call of the core draw (the tombstone's lines are
+       measured there). */
+    if (g->centre_site != 0) {
+        if (!vvfp_site_holds(g->centre_site - 3u, (const unsigned char *)"\x57\x8B\xCB", 3)) {
+            return;                         /* push edi; mov ecx, ebx */
+        }
+        sp_call_bytes(stock[count], g->centre_site, g->core_draw);
+        vvfp_site_branch(&w[count], g->centre_site, 5, stock[count], 0xE8, (const void *)sp_centre_stub);
+        ++count;
+    }
     if (g->widen_site != 0) {
         sp_call_bytes(stock[count], g->widen_site, g->justify);
         vvfp_site_branch(&w[count], g->widen_site, 5, stock[count], 0xE8, (const void *)sp_draw_stub);
@@ -1348,6 +1613,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_game = g;
     g_game_number = game;
     g_mouse_dispatch = g->mouse_dispatch;
+    g_core_draw = g->core_draw;
     if (vvfp_install_sites(w, count)) {
         g_installed = 1;
     } else {
