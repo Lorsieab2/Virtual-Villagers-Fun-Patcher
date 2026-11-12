@@ -94,7 +94,9 @@ static volatile LONG g_wheel;
 static int g_watch;               /* 0 not tried, 1 installed, -1 no SDL */
 static sp_picture g_up, g_down, g_track, g_knob, g_wide, g_handle;
 static int g_art;                 /* 0 not loaded, 1 loaded, -1 missing */
-static volatile LONG g_scroll_draws;   /* for the tests: dialog bodies drawn scrolled */
+#ifdef VVFP_TEST
+static volatile LONG g_scroll_draws;   /* the test build only: dialog bodies drawn scrolled */
+#endif
 
 /* ---- The game's helpers ------------------------------------------------------------------------------------ */
 
@@ -464,7 +466,9 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
     sp_draw_bars(holder, clip, old);
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+#ifdef VVFP_TEST
     InterlockedIncrement(&g_scroll_draws);
+#endif
     return r;
 }
 
@@ -682,8 +686,10 @@ int __stdcall VvfpScrollingPopupsInstalled(void) {
     return g_installed;
 }
 
-/* Dialog bodies drawn scrolled so far (for the tests' emulation). */
-int __stdcall VvfpScrollingPopupsScrolled(void) {
+#ifdef VVFP_TEST
+/* The TEST build only (vvfp_scrolling_popups_test.def, tests\test_dlls): never shipped.
+   Dialog bodies drawn scrolled so far. */
+int __stdcall VvfpScrollingPopupsTestScrolled(void) {
     return (int)g_scroll_draws;
 }
 
@@ -691,7 +697,7 @@ int __stdcall VvfpScrollingPopupsScrolled(void) {
    the content's width and height, the bars shown (vertical, horizontal), the vertical bar's x, top, height and
    arrow height, the horizontal bar's x, y, width, height, one line's height, and the scroll position x, y.
    Returns how many it wrote. */
-int __stdcall VvfpScrollingPopupsView(int *out, int count) {
+int __stdcall VvfpScrollingPopupsTestView(int *out, int count) {
     int v[20], i;
     v[0] = g_view.popup != NULL;
     v[1] = g_view.box_x; v[2] = g_view.box_y; v[3] = g_view.box_w; v[4] = g_view.box_h;
@@ -714,6 +720,7 @@ int __stdcall VvfpScrollingPopupsView(int *out, int count) {
     }
     return count;
 }
+#endif
 
 static void sp_call_bytes(unsigned char *out, unsigned int site, unsigned int target) {
     unsigned int rel = target - (site + 5u);

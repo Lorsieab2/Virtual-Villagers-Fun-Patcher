@@ -45,6 +45,10 @@ import unicode_text_emulation as ute  # noqa: E402
 CODE = 0x0C000000                 # the stand-ins' methods: each address answered from Python
 SDL_MODULE = 0x0C800000           # "SDL2.dll" as the companion finds it, with SDL_AddEventWatch
 FRAME = se.STACK_TOP - 0x40000    # the constructor's stack frame for its tail
+# The companion's TEST build (the same source with VVFP_TEST: the exports below that read its state); the shipped
+# DLL exports none of them.  It is loaded in the shipped DLL's place.
+DLL_NAME = "VVFP Scrolling Popups.dll"
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Scrolling Popups.test.dll"
 
 # Per game: the dialog constructor, its base constructor (this, fade flag), the base draw (panel + body), the body
 # draw, the tail [start, the `mov byte [esi+0x4C], 1` it ends at), the frame slots of the image manager and the
@@ -91,7 +95,8 @@ class Dialog:
         self.watch = None
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
         self.run = ute.FontRun(game, "collection_progression",
-                               tuple(selection) if selection else (f"{game}_scrolling_popups",), _tables())
+                               tuple(selection) if selection else (f"{game}_scrolling_popups",), _tables(),
+                               swap={DLL_NAME: TEST_DLL})
         self.run.r.clip = None            # the game's own clip test, not FontRun's always-on-screen answer
         # Every picture the game's loader loads, by file name (the companion builds its own strips of the scrollbar
         # pictures from the game's files, so each of those names may be loaded more than once).
@@ -266,10 +271,10 @@ class Dialog:
             "arrow_h", "hx", "hy", "hw", "hh", "line", "sx", "sy")
 
     def view(self) -> dict:
-        """The companion's view of the dialog it drew last (VvfpScrollingPopupsView)."""
+        """The companion's view of the dialog it drew last (VvfpScrollingPopupsTestView, the test build)."""
         dll = next(m for k, m in self.m.modules.items() if "scrolling" in k)
         out = self.m.font_heap.alloc(4 * len(self.VIEW))
-        n = self.run._call(dll.exports["VvfpScrollingPopupsView"], 0, out, len(self.VIEW))
+        n = self.run._call(dll.exports["VvfpScrollingPopupsTestView"], 0, out, len(self.VIEW))
         values = struct.unpack("<%di" % n, self.mu.mem_read(out, 4 * n))
         return dict(zip(self.VIEW, values))
 

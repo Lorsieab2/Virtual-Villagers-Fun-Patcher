@@ -369,11 +369,11 @@ class Routines:
 class FontRun:
     """One published build after WinMain is reached, with its fonts built."""
 
-    def __init__(self, game: str, mode: str, selection, tables: dict) -> None:
+    def __init__(self, game: str, mode: str, selection, tables: dict, swap=None) -> None:
         from test_startup_loader import run
         ref: dict = {}
         _register(ref)
-        machine, _result, _features, _before, _shipped = run(game, mode, tuple(selection))
+        machine, _result, _features, _before, _shipped = run(game, mode, tuple(selection), swap=swap)
         self.game, self.m = game, machine
         ref["machine"] = machine
         mu = machine.mu

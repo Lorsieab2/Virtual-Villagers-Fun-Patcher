@@ -51,6 +51,7 @@ except ImportError:  # pragma: no cover
 GAMES = (3, 4, 5)
 NAMES = {3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
 DLL = ROOT / "assets" / "scrolling_popups" / "VVFP Scrolling Popups.dll"
+TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Scrolling Popups.test.dll"   # VVFP_TEST: the state exports
 STOCK = {g: ROOT / "research" / "stock-executables" / f"Virtual Villagers - {n}.exe" for g, n in NAMES.items()}
 IMAGES = ROOT / "research" / "game-images"
 HAVE_STOCK = all(p.is_file() for p in STOCK.values())
@@ -151,8 +152,8 @@ class TheRows(unittest.TestCase):
                 self.assertNotIn(row_id(game), classic.get("dependencies", []))
 
 
-@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and DLL.is_file(),
-                     "needs unicorn, the stock executables and the game images")
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
 class TheDialog(unittest.TestCase):
     dialogs: dict = {}
 
@@ -183,9 +184,9 @@ class TheDialog(unittest.TestCase):
                 d.make(SHORT)
                 left, top, right, bottom = d.panel()
                 self.assertEqual(d.size_requests[-1], d.stock_height)   # the constructor's own height: not capped
-                before = d.companion_export("VvfpScrollingPopupsScrolled")
+                before = d.companion_export("VvfpScrollingPopupsTestScrolled")
                 with_companion = d.draw(with_panel=False)
-                self.assertEqual(d.companion_export("VvfpScrollingPopupsScrolled"), before)
+                self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
                 self.assertEqual(d.clip(), (0, 0) + d.g["screen"])
                 site = d.g["draw_site"]
                 patched = bytes(d.mu.mem_read(site, 5))
