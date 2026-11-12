@@ -334,6 +334,13 @@ YELLOW_FRUIT_FEATURE_PATHS = (ROOT / "data" / "vv4_yellow_fruit_trees_limited_fe
 # them; companion only, "VVFP VV4 Louder Flutes.dll", started by VVFP Startup.dll from its second word;
 # scripts/build_vv4_louder_wind_flutes_feature.py.
 LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.json",)
+# Island Events Scale With Population (like The Lost Children) and its alternative Island Events Scale With Stored
+# Food and Tech Points (A New Home, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
+# Island Events Scale.dll", started by VVFP Startup.dll from its second word; the stored row also ships the flag
+# file that switches the companion to the stored amounts; scripts/build_island_events_scale_features.py.
+ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
+    for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -457,9 +464,12 @@ EXPERIMENTAL_FUN_PATCH_IDS = POPULATION_256_FEATURE_IDS
 # alternative to Render Unicode with In-Game Fonts in all five games (the owner, 2026-11-01: off by default
 # and in Owner's Defaults, which keep the in-game fonts).  New Believers' Move the "Playing in the dirt" Spot is the
 # alternative to Puddle Play Moves to the Lake Shore, which moves the same walk to the lake shore (the owner,
-# 2026-11-08: the spot patch is off by default, in Owner's Defaults and in Select All).
+# 2026-11-08: the spot patch is off by default, in Owner's Defaults and in Select All).  Island Events Scale With
+# Stored Food and Tech Points is the alternative to Island Events Scale With Population (like The Lost Children) in
+# A New Home, The Tree of Life and New Believers (the owner, 2026-11-12: off by default and in Owner's Defaults).
 ALTERNATIVE_FUN_PATCH_IDS = frozenset({"vv3_fruit_trees_take_turns", "vv5_playing_in_the_dirt_spot"}
-                                      | {f"vv{game}_unicode_font" for game in range(1, 6)})
+                                      | {f"vv{game}_unicode_font" for game in range(1, 6)}
+                                      | {f"vv{game}_island_events_scale_with_stored_amounts" for game in (1, 4, 5)})
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"
 VV2_PLAYTEST_DISABLED_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
 VV3_RUNNING_CANDIDATE_PATHS = {
@@ -4198,7 +4208,7 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS):
+                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12722,7 +12732,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "C943A01C693155AB0137654504DE1E2460640BE6C6DBCADD49700A0FD0567205",
+    "sha256": "EB05441138F7194BFBA4977B90B57825BC3FC7FB80FDECBBE3C05C217414D027",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12816,6 +12826,12 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Heathens Keep Masks.dll",
     # Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made 2.5 times louder as they load.
     "VVFP VV4 Louder Flutes.dll",
+    # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
+    # Believers): island-event food and tech amounts scaled.
+    "VVFP Island Events Scale.dll",
+    # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
+    # right after the carry step, never again at delivery.
+    "VVFP Collectibles Stay Collected.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

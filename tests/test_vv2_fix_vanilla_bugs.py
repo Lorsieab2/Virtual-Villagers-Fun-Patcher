@@ -170,13 +170,15 @@ HEALING_FIXES = healing_practice_fixes("vv2")
 from test_vv2_overview_map_fire import overview_map_fire_fixes  # noqa: E402
 
 MAP_FIRE_FIXES = overview_map_fire_fixes("vv2")
+# Island events: the single-result amount factor doubles above 25 people (0x4335C9), as the two-choice one.
+EVENT_K_FIXES = ((0x335CB, bytes.fromhex("32"), bytes.fromhex("19")),)
 BURIAL_PASSED_OVER = 0x4653A8
 BURIAL_FREES = 0x46503B
 
 
 def _allowed() -> set[int]:
     allowed = set(range(HOOK_OFFSET, HOOK_OFFSET + 5)) | set(range(SWAP_OFFSET, SWAP_OFFSET + SWAP_LENGTH))
-    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES:
+    for offset, before, _ in NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES:
         allowed.update(range(offset, offset + len(before)))
     return allowed
 
@@ -321,10 +323,10 @@ class ManifestTests(unittest.TestCase):
         offsets = [(int(p["offset"], 16), len(bytes.fromhex(p["before"]))) for p in raw["patches"]]
         self.assertEqual(offsets, [(HOOK_OFFSET, 5), (SWAP_OFFSET, SWAP_LENGTH)]
                          + [(offset, len(before)) for offset, before, _ in
-                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES])
+                            NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES])
         self.assertEqual([(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                           for p in raw["patches"][2:]],
-                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES))
+                         list(NAME_FIXES + PERCENT_FIXES + LIKES_FIXES + NAME_IDENTITY_FIXES + TOTEM_FIXES + HEALING_FIXES + MAP_FIRE_FIXES + EVENT_K_FIXES))
         for offset, before, _ in TOTEM_FIXES:
             self.assertEqual(self.stock[offset:offset + len(before)], before)
         self.assertIn("Villagers never turn into totems", raw["description"])

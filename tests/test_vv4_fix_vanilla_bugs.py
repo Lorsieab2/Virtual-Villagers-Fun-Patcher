@@ -106,7 +106,21 @@ FIXES = FIXES + overview_map_water_fixes("vv4")
 # A Nursery School lesson's tie on the top skill is broken at random (tests/test_nursery_tie_random.py).
 from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
 
-FIXES = FIXES + nursery_tie_fixes("vv4")
+
+# After The Frog Rescue the frogs leap along the whole straight bottom stretch of the river, and their ripple plays
+# all 12 frames (the owner, 2026-11-12).
+FROG_FIXES = (
+    (0x6D3F8, bytes.fromhex("689A000000"), bytes.fromhex("688F010000")),
+    (0x6D406, bytes.fromhex("81C605040000"), bytes.fromhex("81C610030000")),
+    (0x6D440, bytes.fromhex("68B8000000"), bytes.fromhex("6886010000")),
+    (0x6D44E, bytes.fromhex("81C6B6030000"), bytes.fromhex("81C6E8020000")),
+    (0x6D488, bytes.fromhex("68B8000000"), bytes.fromhex("6886010000")),
+    (0x6D496, bytes.fromhex("81C6B6030000"), bytes.fromhex("81C6E8020000")),
+    (0xB9F0C, bytes.fromhex("09"), bytes.fromhex("0C")),
+    (0xB9F1C, bytes.fromhex("09"), bytes.fromhex("0C")),
+)
+# The frog rows sit before the Nursery School rows (tests/test_nursery_tie_random.py pins those last).
+FIXES = FIXES + FROG_FIXES + nursery_tie_fixes("vv4")
 
 
 def _vv4():

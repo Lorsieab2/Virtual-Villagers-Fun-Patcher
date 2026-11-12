@@ -20,7 +20,9 @@
        Farming practice check, 0x468AB7..0x468AC5: there was no fruit to work with); its rand(100) is still drawn;
      * with fewer than 3 fruit left, a villager dropped on the tree gets the game's own refusal for an empty food
        source -- the blackberry bush's (0x46F881..0x46F89C): action 0x3F with "There is not enough to harvest."
-       (text 0xA7) -- and the farming dispatcher and the task gate do not offer the fruit;
+       (text 0xA7) -- and the task gate does not offer the fruit; the farming dispatcher (the farmers the game
+       sends by itself) offers it only while the tree holds 6 or more (FS_KEEP: one trip's fruit is left for other
+       purposes; the owner, 2026-11-12), so only a villager the player drops on the tree takes the last 3;
      * the tree is refilled to 1,000 every 40 age units -- counted as the game counts them: each age unit the life
        tick 0x468430 processes for one living villager (the reference, re-chosen when it dies), at 0x468AD6, which
        every processed unit reaches, live and while catching up (time away, as clamped by the game's own aging, and
@@ -134,6 +136,9 @@
 #define FS_GAME 4
 #define FS_FULL 1000
 #define FS_TRIP 3                    /* fruit a food-bin credit or a stewed fruit takes */
+#define FS_KEEP 3                    /* farmers the game sends leave one trip's fruit on the tree (the owner,
+                                        2026-11-12: "to save a little bit for other purposes"); a villager the
+                                        player drops on it still picks it to empty */
 #define FS_BONUS 5                   /* fruit a Cooking Pit bonus takes */
 #define FS_REFILL_UNITS 40           /* age units between refills */
 #define FS_PARTIAL_UNITS 30          /* the partial refill: age units between refills (3 hours on Normal) */
@@ -552,6 +557,17 @@ static int __cdecl on_offer(void) {
     return ok;
 }
 
+/* Whether the farming dispatcher may send a farmer to the tree: a trip's fruit plus the FS_KEEP kept back. */
+static int __cdecl on_offer_natural(void) {
+    int ok = 1;
+    __try {
+        ok = !bind_village(0) || g_pending || g_fruit >= FS_TRIP + FS_KEEP;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 1;
+    }
+    return ok;
+}
+
 typedef char (__fastcall *do_action_fn)(void *self, void *unused, int action, void *block);
 
 /* A villager dropped on the restored tree: 1 the stock start; 0 the tree is (nearly) empty and the villager got
@@ -946,11 +962,11 @@ __declspec(naked) static void credit_stub(void) {
     }
 }
 
-/* At OFFER_SITE: the fruit joins the options only while the tree holds a trip's fruit. */
+/* At OFFER_SITE: the fruit joins the options only while the tree holds a trip's fruit and the FS_KEEP kept back. */
 __declspec(naked) static void offer_stub(void) {
     __asm {
         pushad
-        call on_offer
+        call on_offer_natural
         mov dword ptr [esp + 28], eax
         popad
         test eax, eax

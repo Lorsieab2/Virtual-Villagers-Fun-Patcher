@@ -329,8 +329,8 @@ def _game_tab(window, notebook, app, title: str, saves, documents, bold) -> dict
     box.tag_configure("unconfirmed", font=vv_tool_fonts.fonts(box)["label"], foreground=LABEL_RED)
     # Bullets (the owner, 2026-10-23): a wrapped line continues under the bullet's text, not under the bullet.
     plain = tkfont.nametofont(box.cget("font"))
-    box.tag_configure("bullet", lmargin1=0, lmargin2=plain.measure(gm.BULLET))
-    box.tag_configure("sub", lmargin1=0, lmargin2=plain.measure(gm.SUB_BULLET))
+    box.tag_configure("bullet", lmargin1=0, lmargin2=plain.measure(gm.BULLET), spacing3=vv_tool_fonts.LINE_GAP)
+    box.tag_configure("sub", lmargin1=0, lmargin2=plain.measure(gm.SUB_BULLET), spacing3=vv_tool_fonts.LINE_GAP)
     state: dict = {"folders": [], "slots": []}
 
     def chosen():

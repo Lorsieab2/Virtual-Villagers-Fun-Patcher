@@ -122,14 +122,15 @@ def _feature(feature: str) -> str:
 # The VV5 patches named below that the patcher's default selection leaves off (vv_fun_patcher_gui.DEFAULT_OFF_FUN_PATCH_IDS;
 # the test keeps the two the same).
 # Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
-DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom"})
+DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
+                         "vv5_collectibles_stay_collected"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
 PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_mommy_puzzle",
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
-           "vv5_everyone_collects_like_vv1")
+           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected")
 
 
 # ---------------------------------------------------------------------------
@@ -471,7 +472,12 @@ def _item_entries() -> list[Entry]:
               ((f"{_feature('vv5_super_secret_golden_mushroom')}: 1 in 1,000,000 random brown or red mushrooms is a "
                 "Golden Mushroom worth 100 food, counted as a mushroom.", VERIFIED_E),
                (f"{_feature('vv5_everyone_collects_like_vv1')}: several children dropped on one mushroom or collectible "
-                "each pick it up, so it is counted and paid once for each.", UNCONFIRMED))),
+                "each pick it up, so it is counted and paid once for each.", UNCONFIRMED),
+               # The release listener 0x4146B0: 0x4146E6 ja becomes jmp 0x414713, past the three place tests
+               # (vv5_collectibles_stay_collected).
+               (f"{_feature('vv5_collectibles_stay_collected')}: a mushroom, relic or lab gear piece a child has "
+                "picked up counts wherever the child puts it down, once, not only at its own place (the food bin, "
+                "the relic spot, the lab).", VERIFIED_C))),
         Entry(ITEM, "Relics (the first collectible set, 24 pieces)", "appear on the island at random, 82% common, 13% "
                                                                      "uncommon, 5% rare; see Collectibles", (
             "each piece owned raises the Divine Energy cap by 3 while the set is incomplete (69 with 23 pieces); all "

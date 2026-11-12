@@ -82,6 +82,8 @@ RULES = (
     Line(f"Strength n (single-result events): the population divided by 3, from 1 to 10. Amounts \"x k\": in "
          f"single-result events {K1}; in two-choice events {K2}. Sacks and vials have their own strength: 1 "
          "(33%), 2 (34%), 3 (33%)."),
+    Line("With the patcher's \"Fix Vanilla Bugs\" (in this game): single-result events use the two-choice factor "
+         f"too -- {K2} -- as the game meant (0x4335C9 tests 25, not 50 again).", only_with="vv2_fix_vanilla_bugs"),
     # Every "N%" is the game's test rand(100) < N: the C runtime's rand() (0 to 32,767) modulo 100.
     Line("Who: an event's villager is any living villager, each equally likely (Esteemed Elder statues have 0 "
          "health and are never picked); For The Birds and The Child Prodigy pick a living child under 14 villager "

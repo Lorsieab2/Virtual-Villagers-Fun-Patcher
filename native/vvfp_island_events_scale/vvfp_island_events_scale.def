@@ -1,0 +1,6 @@
+LIBRARY "VVFP Island Events Scale"
+EXPORTS
+    VvfpStartup
+    VvfpIslandEventsScaleInstalled
+    VvfpIslandEventsScaleMode
+    VvfpIslandEventsScaleLastFactor

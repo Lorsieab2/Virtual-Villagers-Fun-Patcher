@@ -58,6 +58,47 @@ class Event:
     only_with: str | None = None
 
 
+def scale_population_id(game: int) -> str:
+    """Island Events Scale With Population (like The Lost Children): A New Home, The Tree of Life, New Believers."""
+    return f"vv{game}_island_events_scale_with_population"
+
+
+def scale_stored_id(game: int) -> str:
+    """Island Events Scale With Stored Food and Tech Points, its alternative."""
+    return f"vv{game}_island_events_scale_with_stored_amounts"
+
+
+def scaling_rules(game: int, people: str) -> tuple[Line, Line]:
+    """The two rules lines that define the patches' factor k and the stored-amount rule (each shown only with its
+    patch); `people` says who counts, as the game's own count for room does."""
+    return (
+        Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): "
+             "each food and tech-point amount of the events marked so is multiplied by k, as in The Lost Children's "
+             f"two-choice events: k is 1 up to 25 people, 2 up to 50, 3 above ({people}). A rolled amount is "
+             "multiplied after the roll; a loss still takes no more than there is.",
+             only_with=scale_population_id(game)),
+        Line("With the patcher's \"Island Events Scale With Stored Food and Tech Points\" (in this game): each food "
+             "and tech-point amount of the events marked so becomes the game's amount plus a tenth of the food (for "
+             "food) or of the tech points (for tech points) stored at that moment, rounded down, and never less than "
+             "the game's amount; a loss grows the same way and still takes no more than there is.",
+             only_with=scale_stored_id(game)),
+    )
+
+
+def with_scaling(game: int, events: tuple, titles: frozenset) -> tuple:
+    """`events` with both patches' marks on each event titled in `titles` (every title must be there)."""
+    import dataclasses
+    missing = titles - {event.title for event in events}
+    if missing:
+        raise ValueError(f"island events scale: no such event {sorted(missing)}")
+    marks = ((scale_population_id(game), "its food and tech-point amounts are multiplied by k (1 up to 25 people, "
+                                         "2 up to 50, 3 above; see the rules above)"),
+             (scale_stored_id(game), "its food and tech-point amounts each gain a tenth of what is stored (see the "
+                                     "rules above)"))
+    return tuple(dataclasses.replace(event, patched=tuple(event.patched) + marks) if event.title in titles else event
+                 for event in events)
+
+
 def _line(item) -> Line:
     return item if isinstance(item, Line) else Line(item)
 

@@ -1,0 +1,150 @@
+{
+  "id": "vv4_island_events_scale_with_stored_amounts",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Island Events Scale With Stored Food and Tech Points",
+  "description": "Island events' food and tech-point gains and losses grow with what the village has stored: each amount becomes the game's own amount plus a tenth of the food (for a food amount) or of the tech points (for a tech amount) stored at that moment, rounded down, and never less than the game's own amount. For example, with 5,000 food stored a gain of 300 food becomes 800, and a loss of 300 food becomes a loss of 800. The 14 amounts of 9 events are scaled: The Creeping Mold, The Mysterious Footprints (all four), The Arc of Brilliant Colors, The Calabash Instrument, The Climber, The Mosquito Larvae, Faces in the Night, The Sealed Box and The Aspiring Scientist. A loss still takes no more than there is, and Food Mastery still raises a food gain as the game does. A single-result event's popup shows the scaled amount (it prints the amount the game set); a two-choice event's result text is fixed (for example \"Your tribe gains 5000 tech points.\"), so it still names the game's own amount while the scaled amount is what is given. Custom Island Events (Story / Cheat Upgrades) keep their own amounts. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** **Cannot be ticked together with \"Island Events Scale With Population (like The Lost Children)\": the two scale the same amounts in different ways, so tick only one; with both ticked the patcher builds nothing.** Classic VV Difficulty scales by the population instead, so it cannot be ticked with this one either. Off by default, and off in Owner's Defaults and Select All (it is the alternative). **Unverified in play: the effect has not been tested live.** The patch adds one small file, \"VVFP Island Events Scale Stored.txt\", to the patcher's folder, which tells \"VVFP Island Events Scale.dll\" (started by VVFP Startup.dll) to scale this way.",
+  "output_tag": "Events Scale With Stores",
+  "dependencies": [],
+  "conflicts": [
+    "vv4_island_events_scale_with_population",
+    "vv4_classic_vv_difficulty"
+  ],
+  "behavior_changes": [
+    "\"VVFP Island Events Scale.dll\" checks at start (VvfpStartup) whether \"VVFP Island Events Scale Stored.txt\" is in the patcher's folder (GetFileAttributesW, by full path from the executable's own; the contents are never read). When it is, each site below puts the stock amount plus floor(stored / 10) -- the food (0x4D6DD0) or tech points (0x4D6F88), read at that moment, 0 when below 0 -- with the amount's own sign in place of the stock amount (a loss grows by the same tenth). A single-result loss (The Creeping Mold, The Mysterious Footprints' food and tech lost) is then clamped to what is stored by the companion, by the setter's own rule (stored below the amount: the amount is what is stored), because the setter itself tests the store against its stock amount (cmp eax, imm / jge); the setter's test then runs as in the stock game, and the {award} its popup shows is what is taken. The two-choice food and tech writers' floor at 0 runs after it, as in the stock game.",
+    "The Creeping Mold: -100 food (0x414730).",
+    "The Mysterious Footprints (food gained): +300 food (0x414930).",
+    "The Mysterious Footprints (food lost): -300 food (0x414980).",
+    "The Mysterious Footprints (tech gained): +2,000 tech points (0x414A00).",
+    "The Mysterious Footprints (tech lost): -2,000 tech points (0x414A50).",
+    "The Arc of Brilliant Colors, \"Run to the right side\" (rare mushrooms): +300 food (0x415201).",
+    "The Calabash Instrument, \"Fill it up to the first notch\": +3,000 tech points (0x41585A).",
+    "The Calabash Instrument, \"Fill it to the top\": -2,000 tech points (0x415867).",
+    "The Climber, \"Start yelling for help\": -500 tech points (0x415942).",
+    "The Mosquito Larvae, \"Pour oil in the pond\": +500 tech points (0x415A74).",
+    "Faces in the Night, \"Inform the tribe\": +1,000 tech points (0x415B39).",
+    "The Sealed Box, \"Swim back with the box\": +5,000 tech points (0x415D7F).",
+    "The Aspiring Scientist, \"Try the salts\": +2,000 tech points (0x416715).",
+    "The Aspiring Scientist, \"Use algae\": -1,000 tech points (0x416728)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the row's own file is the flag; the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none).",
+    "The game's rolls, its food and tech writers (Food Mastery's raise included), the clamps, every other event, the popups' and buttons' texts, Custom Island Events and the save are unchanged."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; every site emulated on the stock executable with the shipped companion and the flag (stock + a tenth of the stored food or tech points, gains and losses, the loss clamp) in tests/test_island_events_scale.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/island_events_scale/VVFP Island Events Scale.dll",
+      "destination": "VVFP Island Events Scale.dll",
+      "sha256": "11EE8EE70B4B7C4D9C27DDFDBF21C4C58018C3183CA7F8811EC2888ACFBCC895"
+    },
+    {
+      "source": "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
+      "destination": "VVFP Island Events Scale Stored.txt",
+      "sha256": "308DE8AD748E3F4DA9085C7228D845C08B393196F84DE23F6A95C33AF4066818"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x414730",
+      "stock_bytes": "C7410864000000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Creeping Mold: -100 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 100 plus a tenth of the stored food (never less than 100) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414930",
+      "stock_bytes": "C741082C010000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (food gained): +300 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 300 plus a tenth of the stored food (never less than 300) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414980",
+      "stock_bytes": "C741082C010000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (food lost): -300 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 300 plus a tenth of the stored food (never less than 300) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414A00",
+      "stock_bytes": "C74108D0070000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (tech gained): +2,000 tech points: the instruction putting it in place (setter) calls the companion, which puts the stock amount 2000 plus a tenth of the stored tech points (never less than 2000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414A50",
+      "stock_bytes": "C74108D0070000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (tech lost): -2,000 tech points: the instruction putting it in place (setter) calls the companion, which puts the stock amount 2000 plus a tenth of the stored tech points (never less than 2000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415201",
+      "stock_bytes": "C74424042C010000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Arc of Brilliant Colors, \"Run to the right side\" (rare mushrooms): +300 food: the instruction putting it in place (esp) calls the companion, which puts the stock amount +300 plus a tenth of the stored food (never less than 300) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41585A",
+      "stock_bytes": "C7442404B80B0000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Calabash Instrument, \"Fill it up to the first notch\": +3,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +3000 plus a tenth of the stored tech points (never less than 3000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415867",
+      "stock_bytes": "C744240430F8FFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Calabash Instrument, \"Fill it to the top\": -2,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount -2000 plus a tenth of the stored tech points (never less than 2000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415942",
+      "stock_bytes": "680CFEFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Climber, \"Start yelling for help\": -500 tech points: the instruction putting it in place (push) calls the companion, which puts the stock amount -500 plus a tenth of the stored tech points (never less than 500) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415A74",
+      "stock_bytes": "C7442404F4010000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Mosquito Larvae, \"Pour oil in the pond\": +500 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +500 plus a tenth of the stored tech points (never less than 500) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415B39",
+      "stock_bytes": "C7442404E8030000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "Faces in the Night, \"Inform the tribe\": +1,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +1000 plus a tenth of the stored tech points (never less than 1000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415D7F",
+      "stock_bytes": "C744240488130000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Sealed Box, \"Swim back with the box\": +5,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +5000 plus a tenth of the stored tech points (never less than 5000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416715",
+      "stock_bytes": "C7442404D0070000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Aspiring Scientist, \"Try the salts\": +2,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +2000 plus a tenth of the stored tech points (never less than 2000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416728",
+      "stock_bytes": "C744240418FCFFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Aspiring Scientist, \"Use algae\": -1,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount -1000 plus a tenth of the stored tech points (never less than 1000) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

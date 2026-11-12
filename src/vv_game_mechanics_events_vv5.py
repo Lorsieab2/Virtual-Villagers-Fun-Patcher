@@ -16,7 +16,7 @@ and the picker 0x471870 are as docs/reports/island-event-conditions.txt (New Bel
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line
+from vv_game_mechanics_events import Event, Line, scaling_rules, with_scaling
 
 STORY = "vv5_story_cheat_upgrades"
 SLOTS = 55
@@ -240,3 +240,14 @@ EVENTS = (
     Event("Innovation in Farming (the mysterious storyteller)", f"needs The Heathen Scientist solved and {CHILD}", (
         "The storyteller appears and the children gather; nothing else changes.",)),
 )
+
+# Island Events Scale With Population (like The Lost Children) / With Stored Food and Tech Points (the owner,
+# 2026-11-12): "VVFP Island Events Scale.dll", scripts/build_island_events_scale_features.py.
+RULES = RULES + scaling_rules(5, "people are the believers plus the babies they carry, as for room; Heathens are "
+                                 "not counted")
+EVENTS = with_scaling(5, EVENTS, frozenset({
+    "The Creeping Mold", "The Mysterious Footprints (food gained)", "The Mysterious Footprints (food lost)",
+    "The Mysterious Footprints (tech gained)", "The Mysterious Footprints (tech lost)", "The Strange Crystals",
+    "The Pesky Critter", "Mushroom Day!", "News From Another Tribe (a message)", "Spying on the Heathens",
+    "You're Doing It Wrong!", "Outreach?", "The Advanced Artifacts", "Trick Or Trade", "The Aphids in the Noni Bush",
+    "The Defector", "The Straw Hat", "The Strange Nectar"}))

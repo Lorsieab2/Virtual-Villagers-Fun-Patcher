@@ -463,10 +463,12 @@ VV4_SUMMARY = (
     "Stews for puzzles: The Grand Feast (spicy, sweet and soapy, 20 food and the 4 feast foods; solved when it is "
     "made); Honoring the Tree (3 sweet-smelling plants; 20 villagers who ate it honoring at the same time); and, "
     "UNCONFIRMED, soap for Soap Invented and cloth pulp for Cloth Invented.")
-# The owner (2026-11-10), shown that the code lets every recipe be made again: "All stews" -- said once, in "How a
-# stew is made", not under every recipe.
-REHEAT = ("Reheating: every stew can be reheated. When a stew has gone cold, another hot rock makes the pot boil "
-          "again, and food added then makes the same stew again, ready for another 5 minutes.")
+# The owner (2026-11-10), shown that the code lets every recipe be made again: "All stews".  The owner (2026-11-12),
+# seen in play: "not all stews are reheatable with a separate heated rock in vv4. some just evaporate." -- live play
+# outranks the code reading; which stews evaporate is not known yet.
+REHEAT = ("Reheating: some stews can be reheated: when the stew has gone cold, another hot rock makes the pot boil "
+          "again and the same stew is ready for another 5 minutes. Not every stew can: some just evaporate instead "
+          "(seen in play); which ones is not known yet.")
 
 
 def vv4_facts() -> list[gm.Fact]:

@@ -609,6 +609,8 @@ CHIEF_READY = {"call a rare collectible (Leadership 3)": 0x12EFC - HEADER,
 SCIENCE, MEDICINE, ALCHEMY, LEADERSHIP = 0, 1, 2, 4
 UNSURE = ""                              # every unverified line carries UNCONFIRMED
 GOLDEN = "vv3_super_secret_golden_mushroom"
+# Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
+COLLECTED = "vv3_collectibles_stay_collected"
 HUNGRIER = "vv3_hungrier_villagers"
 RARE_RETRY = "vv3_rare_collectible_retry"
 MORTALITY = "vv3_nature_level_three_alters_mortality"
@@ -753,6 +755,11 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     if village.has(GOLDEN):
         out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, "
                                    "30% of them mushrooms in fair weather (all of them in rain, which makes it sooner)"))
+    # The release listener 0x42DEB0 without its area 25 / 14 tests (data/builds.json vv3_collectibles_stay_collected).
+    if village.has(COLLECTED) is not False:
+        add("Mushrooms", gm.patch_words(village, COLLECTED, (
+            "a mushroom or collectible a child has picked up counts wherever the child puts it down, once, "
+            "not only at the food bin or the collection spot")), gm.CODE)
     add("Mushrooms", f"Mushrooms found in this village: {_i32(buf, MUSHROOMS_FOUND):,}.", gm.SAVE)
     add("Collectibles", "The others are collectibles: common 83%, uncommon 13%, rare 4%. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity.", gm.RUNNING)

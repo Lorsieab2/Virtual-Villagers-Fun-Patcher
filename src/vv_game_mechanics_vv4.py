@@ -32,6 +32,8 @@ BERRIES, EVENT_NEXT = 0x17108, 0x170F0
 SCIENCE, MEDICINE, LEARNING_TECH, FOOD_MASTERY = 0, 1, 2, 4
 BERRY_CAP = 1000
 GOLDEN = "vv4_super_secret_golden_mushroom"
+# Picked Up Collectibles Stay Collected When Dropped (off by default; Owner's Defaults ticks it).
+COLLECTED = "vv4_collectibles_stay_collected"
 HUNGRIER = "vv4_hungrier_villagers"
 CLASSIC = "vv4_classic_vv_difficulty"
 SPAWN_LIKE_VV3 = "vv4_collectible_spawn_like_vv3"
@@ -104,7 +106,8 @@ REHEAT_LINE = "Some stews can be reheated by putting another hot rock in the pot
 # (0x42EE5F..0x42EE7E); an unfinished Grand Feast instead turns 0x18 on again (0x42EE1D).  A rock that goes in
 # while the pot is hot and its stew is ready makes the same stew again (0x42EAF1 -> vtable +0x2C = 0x42EDE0,
 # the recipe read again from the 3 herbs kept), which sets the 300-second deadline again (0x42EEB2 -> 0x42F240);
-# nothing counts the times.  What turns the hot state on for an already-made stew is not traced here (the only
+# nothing counts the times.  The owner (2026-11-12), seen in play: some stews evaporate instead of reheating, so
+# something not traced here stops it for them.  What turns the hot state on for an already-made stew is not traced here (the only
 # other writer is 0x42F4A0, a drop handler on the pot's boiling-water object, vtable 0x48E2F0 +0x28).
 REHEAT_CODE_LINE = (
     "In the game's code: each hot rock adds 10 heat to the pot, which only emptying it takes away; a stew is ready "
@@ -112,8 +115,8 @@ REHEAT_CODE_LINE = (
     "vines x3) need no heat. The pot takes things only while it is hot: making a stew ends that, and an unfinished "
     "Grand Feast stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow) "
     "after each thing added. A hot rock that goes into the hot pot while its stew is ready makes "
-    "the same stew again and starts its 5 real-life minutes over; nothing limits how often, and no stew is left "
-    "out of this (the 5 minutes are real time, the same at every speed).")
+    "the same stew again and starts its 5 real-life minutes over (the 5 minutes are real time, the same at every "
+    "speed). In play, though, not every stew can be reheated this way: some just evaporate.")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
 # have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every
@@ -365,6 +368,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                            "village already has still count"))
     fruit_patch = village.has(YELLOW_FRUIT)
     supply = fruit_supply(village) if fruit_patch is not False else None
+    fruit_at = fruit_next_at = None
     # With Yellow Breadfruit Refills Partially Every Time the tree gains 111 every 30 units instead of filling every 40.
     partial = fruit_patch is True and village.has(PARTIAL) is True
     refill_units = FRUIT_PARTIAL_UNITS if partial else FRUIT_REFILL_UNITS
@@ -380,7 +384,9 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             f"a fruit trip takes {FRUIT_TRIP} fruit when its food goes in the food bin (Food Mastery multiplies "
             f"the food, not the fruit taken), a stomped fruit put in the stew takes {FRUIT_TRIP}, a catch-up "
             f"Cooking Pit bonus takes {FRUIT_BONUS} and pays nothing with fewer left; with fewer than {FRUIT_TRIP} "
-            "left a villager dropped on the tree refuses and farmers are not sent there. Dendrology and "
+            "left a villager dropped on the tree refuses, and farmers the game sends leave the last 3 (they are "
+            "not sent there with fewer than 6 left; a villager the player drops on it still takes them). "
+            "Dendrology and "
             "Construction gate other puzzles (and the pit's debris), not the fruit; the difficulty, the Purify "
             "Tree, the Tree of Life, the Nursery's \"Showing baby the cooking area\" and the island event that "
             "needs the restored pit take no fruit; a Custom Island Event that refills the food sources fills the "
@@ -403,6 +409,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     + f"; {next_refill} after {left} more "
                                     f"age units ({gm.duration(gm.real_seconds(left * 360, speed_value))} of play on "
                                     f"{on} speed).", gm.SAVE)
+                # The owner (2026-11-12): a limited food source shows its next refill in real time.  The age units
+                # run from the save's last life tick; saved paused or already past, it comes when next played.
+                at = real(LAST_TICK) + gm.real_seconds(left * 360, speed_value)
+                fruit_at = None if paused or at <= village.now else at
+                fruit_next_at = None if paused else at
 
     # -- Refills -------------------------------------------------------------------------
     if paused:
@@ -456,6 +467,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # The rarity 0x41404D: rand(100) < 5 rare (+8), < 18 uncommon (+4), else common; a piece already found pays
     # 100, 250 or 1,500 tech points (0x41446C..0x4144A4).  Fish-scale spots (0x46) need 0x41F5E0: (the save's clock
     # ÷ 3,600) odd.
+    # The release listener 0x414410: any area but the stew pot (5) instead of only the food bin (8) (data/builds.json
+    # vv4_collectibles_stay_collected).
+    if village.has(COLLECTED) is not False:
+        add("Mushrooms", gm.patch_words(village, COLLECTED, (
+            "a mushroom a child has picked up counts wherever the child puts it down, once, not only at the "
+            "food bin; one dropped on the stew pot is left to the pot (collectibles already count "
+            "anywhere)")), gm.CODE)
     add("Collectibles", "The others are collectibles: 81.98% common, 13.01% uncommon, 5.01% rare. A piece already found "
                         "gives 100, 250 or 1,500 tech points by rarity. Fish-scale spots count only in every other "
                         "real-life hour (the odd whole hours counted from the save's clock base).", gm.RUNNING)
@@ -576,6 +594,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     growth_at = None if paused else real(NEXT_TICK)
     event_at = None if paused else real(EVENT_NEXT)
     gm.with_due(out, "Next growth:", growth_at, "refill")
+    gm.with_due(out, "The yellow fruit tree's supply (the patch's file", fruit_at, "refill")
     multiplier = 2.0 if mastery >= 3 else (1.5 if mastery == 2 else 1.0)
     collectibles, _ = life.collectible_lines(village, life.COLLECTIBLE_PAY[4])
     puzzles = []
@@ -687,7 +706,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                              verified=False)]
                       if _i32(data, PUZZLE_ENTRIES + 8 * 11) >= PUZZLE_THRESHOLDS[11] else [])
                 + ([life.Source("The Cooking Pit fruit", supply[0] if supply is not None else FRUIT_FULL, FRUIT_FULL,
-                                (FRUIT_PARTIAL_GAIN if partial else FRUIT_FULL) / refill_units, None,
+                                (FRUIT_PARTIAL_GAIN if partial else FRUIT_FULL) / refill_units, fruit_at,
                                 (f"+{FRUIT_PARTIAL_GAIN}" if partial else f"refilled to {FRUIT_FULL:,}")
                                 + f" every {refill_units} age units "
                                 f"({life.every_real(refill_units * 360, speed_value)}); a fruit trip takes "
@@ -695,6 +714,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                 "pit's 4 fruit spots is free",
                                 verified=gm.CODE, step=FRUIT_PARTIAL_GAIN if partial else FRUIT_FULL,
                                 interval=gm.real_seconds(refill_units * 360, speed_value),
+                                next_at=fruit_next_at,
                                 first_in=gm.real_seconds(
                                     max(1, refill_units - (supply[1] if supply is not None else 0)) * 360,
                                     speed_value),

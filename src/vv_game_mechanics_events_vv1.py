@@ -35,7 +35,7 @@ THE SCHEDULER (0x4237BD; the conditions report docs/reports/island-event-conditi
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line, share
+from vv_game_mechanics_events import Event, Line, share, scaling_rules, with_scaling
 
 RESTORE = "vv1_restore_missing_island_events"
 FIX = "vv1_fix_vanilla_bugs"
@@ -246,3 +246,10 @@ EVENTS = (
     Event("A Mysterious Vial (fizzy, from the sea)", "a vial. Item: a watery or oily fizzy vial", (
         "\"Drink the liquid.\": all five skills lose 30, 50 or 70 at strength 1, 2, 3, down to 0 at least.",)),
 )
+
+# Island Events Scale With Population (like The Lost Children) / With Stored Food and Tech Points (the owner,
+# 2026-11-12): the four encounters with a fixed or rolled amount ("VVFP Island Events Scale.dll",
+# scripts/build_island_events_scale_features.py); the island events already scale by n.
+RULES = RULES + scaling_rules(1, "people are the living villagers plus the babies being carried, as for strength n")
+EVENTS = with_scaling(1, EVENTS, frozenset({"The Trapped Whale", "The Troubled Child", "The Wild Mushroom",
+                                            "The Brass Compass"}))
