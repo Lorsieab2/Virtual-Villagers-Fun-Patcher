@@ -229,6 +229,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Picked Up Collectibles Stay Collected When Dropped (all five games; the owner, 2026-11-12): off by default,
     # on in Owner's Defaults, which ticks it like every default-off patch it does not name.
     + ["vv%d_collectibles_stay_collected" % game for game in range(1, 6)]
+    # Island Events Scale With Population (like The Lost Children) (A New Home, The Tree of Life, New Believers; the
+    # owner, 2026-11-12): off by default, on in Owner's Defaults (and in Classic VV Difficulty).  Its alternative,
+    # Island Events Scale With Stored Food and Tech Points, is off through ALTERNATIVE_OFF_FUN_PATCH_IDS and off in
+    # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+    + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -279,6 +284,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-11): Yellow Breadfruit Refills Partially Every Time is off in Owner's Defaults ("for parity
     # with the other games"; Owner's Defaults ticks All Fruit Trees Refill to Full in The Secret City instead).
     + ["vv4_yellow_fruit_refills_partially"]
+    # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
+    # Owner's Defaults; Island Events Scale With Population (like The Lost Children) is ticked there instead.
+    + ["vv%d_island_events_scale_with_stored_amounts" % game for game in (1, 4, 5)]
 )
 
 # Patches even Select All Patches leaves OFF, by exact id.  The owner: Select

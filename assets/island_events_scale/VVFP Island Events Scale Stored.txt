@@ -1,0 +1,3 @@
+Virtual Villagers Fun Patcher: "Island Events Scale With Stored Food and Tech Points" (A New Home, The Tree of Life, New Believers).
+While this file is here, "VVFP Island Events Scale.dll" adds a tenth of the stored food or tech points to each island event's amount instead of multiplying it by the population factor.
+The patcher adds and removes this file with the patch; nothing reads what it says.

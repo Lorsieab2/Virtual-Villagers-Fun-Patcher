@@ -20,7 +20,7 @@ the picker 0x4679B0 are as docs/reports/island-event-conditions.txt (The Tree of
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line
+from vv_game_mechanics_events import Event, Line, scaling_rules, with_scaling
 
 STORY = "vv4_story_cheat_upgrades"
 YELLOW_FRUIT = "vv4_yellow_fruit_trees_limited"
@@ -243,3 +243,12 @@ EVENTS = (
         "\"How should we care for our people?\": Medicine goes up a level.",
         "\"How should we care for the tree?\": Dendrology goes up a level.")),
 )
+
+# Island Events Scale With Population (like The Lost Children) / With Stored Food and Tech Points (the owner,
+# 2026-11-12): "VVFP Island Events Scale.dll", scripts/build_island_events_scale_features.py.
+RULES = RULES + scaling_rules(4, "people are the living villagers plus the babies being carried, as for room")
+EVENTS = with_scaling(4, EVENTS, frozenset({
+    "The Creeping Mold", "The Mysterious Footprints (food gained)", "The Mysterious Footprints (food lost)",
+    "The Mysterious Footprints (tech gained)", "The Mysterious Footprints (tech lost)", "The Arc of Brilliant Colors",
+    "The Calabash Instrument", "The Climber", "The Mosquito Larvae", "Faces in the Night", "The Sealed Box",
+    "The Aspiring Scientist"}))

@@ -148,6 +148,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Picked Up Collectibles Stay Collected When Dropped (the owner, 2026-11-12: on in Owner's
                   # Defaults only).
                   or p.endswith("_collectibles_stay_collected")
+                  # Island Events Scale With Population (the owner, 2026-11-12: on in Owner's Defaults and in
+                  # Classic VV Difficulty) and its alternative, With Stored Food and Tech Points.
+                  or p.endswith("_island_events_scale_with_population")
+                  or p.endswith("_island_events_scale_with_stored_amounts")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
@@ -346,6 +350,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
         # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
         held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
+        # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
+        # Population (the owner, 2026-11-12).
+        held_back |= {f"vv{n}_island_events_scale_with_stored_amounts" for n in (1, 4, 5)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

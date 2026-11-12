@@ -227,7 +227,8 @@
         "Off by default, and Select All does not tick it; its title is red. Ticking it ticks these together:",
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
-        "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen).",
+        "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
+        "and Island Events Scale With Population (like The Lost Children).",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
       ]
     },
@@ -295,6 +296,25 @@
         "Off by default and in Owner's Defaults. Needs Yellow Fruit Trees are No Longer Unlimited (ticking this ticks it).",
         "The yellow fruit tree no longer refills to full every 4 hours: it gains 111 fruit every 3 hours on Normal speed, up to 1,000, as The Secret City's fruit trees do.",
         "Time away and Time Warp count in proportion. The breadfruit island event (+350) and a Custom Island Event's refill to 1,000 work as before."
+      ]
+    },
+    {
+      "ids": ["vv1_island_events_scale_with_population", "vv4_island_events_scale_with_population", "vv5_island_events_scale_with_population"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers).",
+        "Island events' food and tech-point gains and losses are multiplied as in The Lost Children: x1 up to 25 villagers, x2 up to 50, x3 above.",
+        "A New Home: only its four encounters with a set or rolled amount (its island events already grow with the village). New Believers counts believers only.",
+        "A loss still takes no more than there is. Most result texts still name the game's own amount; the amount given is the scaled one.",
+        "Cannot be ticked with Island Events Scale With Stored Food and Tech Points. Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_island_events_scale_with_stored_amounts", "vv4_island_events_scale_with_stored_amounts", "vv5_island_events_scale_with_stored_amounts"],
+      "guide": [
+        "Off by default and in Owner's Defaults, and Select All does not tick it (it is the alternative).",
+        "Each island-event food or tech-point gain or loss becomes the game's amount plus a tenth of the food or tech points stored at that moment.",
+        "With 5,000 food stored, +300 food becomes +800 and -300 food becomes -800 (a loss still takes no more than there is).",
+        "Cannot be ticked with Island Events Scale With Population (like The Lost Children), nor with Classic VV Difficulty. Not yet tested in play."
       ]
     },
     {
@@ -1140,6 +1160,7 @@
         "and Fruit Trees Take Turns Refilling, which cannot be ticked with All Fruit Trees Refill at the Same Time (ticked).",
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
+        "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
         "It does not change the population mode."
       ]
@@ -1153,6 +1174,7 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
     },
@@ -1165,7 +1187,7 @@
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 2-10x Tech Cost included, and sets both sliders to 2.",
-        "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free).",
+        "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
         "It does not change the population mode."
       ]
     },

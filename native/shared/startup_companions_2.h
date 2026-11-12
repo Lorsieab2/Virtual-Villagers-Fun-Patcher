@@ -51,6 +51,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Heathens Keep Masks.dll",
     /* Louder Wind Flutes (The Tree of Life): the three wind flute sounds are made 2.5 times louder as they load. */
     "VVFP VV4 Louder Flutes.dll",
+    /* Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
+       Believers): island-event food and tech amounts scaled by the population or the stores. */
+    "VVFP Island Events Scale.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

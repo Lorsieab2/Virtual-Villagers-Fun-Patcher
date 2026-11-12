@@ -378,6 +378,10 @@ CASES = [
              "GetModuleHandleA",
              lambda p: ((FAKE_MODULE if p.cstring(p.arg(0)).lower() == "fmod.dll" else 0), 4)),
              m.export("VvfpStartup", g, 0), m.export("VvfpLouderFlutesInstalled"))[2]),
+    # Island Events Scale With Population (A New Home, The Tree of Life, New Believers): every amount site's call.
+    Case("Island Events Scale", "assets/island_events_scale/VVFP Island Events Scale.dll", (1, 4, 5),
+         lambda g: [f"vv{g}_island_events_scale_with_population"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandEventsScaleInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),

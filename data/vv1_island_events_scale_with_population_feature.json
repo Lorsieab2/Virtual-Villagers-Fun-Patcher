@@ -1,0 +1,64 @@
+{
+  "id": "vv1_island_events_scale_with_population",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Island Events Scale With Population (like The Lost Children)",
+  "description": "Island events' food and tech-point gains and losses grow with the village, as in The Lost Children: each amount is multiplied by 1 with up to 25 villagers, by 2 with 26 to 50 and by 3 with more than 50 (living villagers plus the babies being carried, as the game counts its population). A New Home's island events already grow with the village (strength n); this patch scales the four encounters that give a fixed or rolled amount: The Trapped Whale (+1,000 food), The Troubled Child (+3,000 tech points), The Wild Mushroom (+300 to 499 food) and The Brass Compass (+2,000 to 4,999 tech points). The encounters' own result texts are fixed (for example the whale's \"1000-point food bonus!\"), so they still name the game's own amount while the scaled amount is what is given. The Wild Mushroom's and The Brass Compass's amounts are scaled after the game's roll, so Pick Island Event's amount settings (Story / Cheat Upgrades) choose the roll, before the scaling. Custom Island Events (Story / Cheat Upgrades) keep their own amounts. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** **Cannot be ticked together with \"Island Events Scale With Stored Food and Tech Points\": the two scale the same amounts in different ways, so tick only one; with both ticked the patcher builds nothing.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Island Events Scale.dll\", started by VVFP Startup.dll; if it cannot be loaded, the stock amounts are given.",
+  "output_tag": "Events Scale With Population",
+  "dependencies": [],
+  "conflicts": [
+    "vv1_island_events_scale_with_stored_amounts"
+  ],
+  "behavior_changes": [
+    "Each site below calls VVFP Island Events Scale.dll, which counts the population with the population routine 0x41CF90 on the world ([esi+0x50A4] at each encounter) and puts the stock amount x k in place of the stock amount, k = 3 above 50, 2 above 25, else 1 (The Lost Children's 0x41F720: cmp 0x32 / jle, cmp 0x19 / jle). A gain stays a gain and a loss a loss. The four amounts are gains; the game's food and tech writers add them as before.",
+    "The Trapped Whale, \"Harvest the whale for food.\": +1,000 food (0x41944F).",
+    "The Troubled Child, \"Let him (her) try research.\": +3,000 tech points (0x419C35).",
+    "The Wild Mushroom, delicious: +300 to 499 food (rand(200) + 300) (0x419F09).",
+    "The Brass Compass, \"Let the researchers have it.\": +2,000 to 4,999 tech points (rand(3000) + 2000) (0x41A367)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none).",
+    "The game's rolls, its food and tech writers (Food Mastery's raise included), the clamps, every other event, the popups' and buttons' texts, Custom Island Events and the save are unchanged."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; every site emulated on the stock executable with the shipped companion (k = 1, 2, 3 at 25, 26, 50 and 51 villagers, gains, losses and the loss clamp, the 256 Villagers manager) in tests/test_island_events_scale.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/island_events_scale/VVFP Island Events Scale.dll",
+      "destination": "VVFP Island Events Scale.dll",
+      "sha256": "11EE8EE70B4B7C4D9C27DDFDBF21C4C58018C3183CA7F8811EC2888ACFBCC895"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x41944F",
+      "stock_bytes": "68E8030000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Trapped Whale, \"Harvest the whale for food.\": +1,000 food: the instruction putting it in place (push) calls the companion, which puts the stock amount +1000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x419C35",
+      "stock_bytes": "68B80B0000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Troubled Child, \"Let him (her) try research.\": +3,000 tech points: the instruction putting it in place (push) calls the companion, which puts the stock amount +3000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x419F09",
+      "stock_bytes": "052C010000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Wild Mushroom, delicious: +300 to 499 food (rand(200) + 300): the instruction putting it in place (add eax) calls the companion, which puts the stock amount +300 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41A367",
+      "stock_bytes": "05D0070000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Brass Compass, \"Let the researchers have it.\": +2,000 to 4,999 tech points (rand(3000) + 2000): the instruction putting it in place (add eax) calls the companion, which puts the stock amount +2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

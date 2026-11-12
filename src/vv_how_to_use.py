@@ -26,8 +26,9 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # Guides stay short: the owner asked for "brief, simple to understand".
 MAX_LINES = 8
 MAX_LINE_CHARS = 180
-# 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900.
-MAX_GUIDE_CHARS = 1000
+# 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
+# 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list.
+MAX_GUIDE_CHARS = 1100
 
 
 @dataclass(frozen=True)
