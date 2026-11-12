@@ -12737,7 +12737,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "C32E6B82DF9385EBBC5387FF057FF37AE9F78A098F2D2C0961A3040C5CA2A74F",
+    "sha256": "ADC3504AA6539A734A5EDBE25390CD0BA3450429736FF20A2187D3EEE417D538",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12839,6 +12839,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Collectibles Stay Collected.dll",
     # Scrolling Popups (all five games): scrollbars on popups whose text does not fit.
     "VVFP Scrolling Popups.dll",
+    # Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its
+    # box gets a line of its own instead of hanging the game's line layout.
+    "VVFP Long Words.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

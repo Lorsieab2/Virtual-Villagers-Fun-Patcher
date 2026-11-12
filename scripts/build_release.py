@@ -114,6 +114,8 @@ FILES = [
     "assets/stuck_walks/VVFP Stuck Walks.dll",
     # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
     "assets/keep_carried/VVFP Keep Carried.dll",
+    # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
+    "assets/long_words/VVFP Long Words.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.

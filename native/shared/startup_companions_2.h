@@ -60,6 +60,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Scrolling Popups (The Secret City, The Tree of Life, New Believers): scrollbars on the island-event popups
        whose text does not fit. */
     "VVFP Scrolling Popups.dll",
+    /* Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its box
+       gets a line of its own instead of hanging the game's line layout. */
+    "VVFP Long Words.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
