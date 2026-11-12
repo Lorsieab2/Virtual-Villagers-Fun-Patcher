@@ -1469,6 +1469,17 @@
         "It reads nothing from your saves and changes nothing. A line in red marked UNCONFIRMED is one the game's code does not settle."
       ]
     },
+    "custom_island_event_library": {
+      "title": "Custom Island Event Library",
+      "guide": [
+        "Write your own island events with a question, choices and random outcomes, then pick one to happen from Custom Island Events in the game.",
+        "Each event is kept in the save folder of the game chosen at the top; the game lists only the events that pass every check.",
+        "The tree on the left shows every part of the event; the tabs on the right edit the chosen part: its text, its ways on and their weights, and its changes.",
+        "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits on each game's screen.",
+        "If no villager fits a role the event needs, the game refuses to queue the event. (Name) is the full name when Last Names is on.",
+        "Delete moves an event to the Recycle Bin. Export and Import share an event as a file. New from The Aspiring Adventurer starts from the shipped example."
+      ]
+    },
     "picture_studio": {
       "title": "Picture Studio",
       "guide": [

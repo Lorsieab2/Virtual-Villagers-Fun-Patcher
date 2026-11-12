@@ -199,6 +199,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_tech_time",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
+               # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
+               "vv_cie_library_window", "vv_cie_graph",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",

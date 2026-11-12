@@ -541,6 +541,11 @@ FILES = [
     # Stew Recipes (Tools tab): its window and the pages of The Lost Children, The Secret City, The Tree of Life.
     "src/vv_stew_recipes_window.py",
     "src/vv_stew_recipes.py",
+    # Custom Island Event Library (Tools tab): its window, the branching event format with its checks, .cieg
+    # compiler and chances, and the shipped example its "New from The Aspiring Adventurer" copies.
+    "src/vv_cie_library_window.py",
+    "src/vv_cie_graph.py",
+    "data/cie_graphs/the_aspiring_adventurer.json",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",
