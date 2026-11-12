@@ -68,6 +68,16 @@ except ImportError:  # pragma: no cover
     HAVE_EMULATOR = False
 
 GAMES = (1, 2, 3, 4, 5)
+
+
+def write_code(mu, va, data) -> None:
+    """Write code bytes and drop the emulator's translated blocks, so the next run executes the new bytes
+    (without the flush the old, already-translated code keeps running and a stock comparison compares the
+    companion with itself)."""
+    mu.mem_write(va, data)
+    mu.ctl_flush_tb()
+
+
 EVENT_GAMES = (3, 4, 5)                  # the island-event dialog's rows (stage 1)
 NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
 DLL = ROOT / "assets" / "scrolling_popups" / "VVFP Scrolling Popups.dll"
@@ -242,11 +252,11 @@ class TheDialog(unittest.TestCase):
                 self.assertEqual(d.clip(), (0, 0) + d.g["screen"])
                 site = d.g["draw_site"]
                 patched = bytes(d.mu.mem_read(site, 5))
-                d.mu.mem_write(site, bytes.fromhex(BUILDER.call_bytes(site, d.g["justify"])))
+                write_code(d.mu, site, bytes.fromhex(BUILDER.call_bytes(site, d.g["justify"])))
                 try:
                     stock = d.draw(with_panel=False)
                 finally:
-                    d.mu.mem_write(site, patched)
+                    write_code(d.mu, site, patched)
                 self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in stock])
                 self.assertTrue(with_companion)
 
@@ -482,13 +492,13 @@ class TheMessageBox(unittest.TestCase):
                 patched = []
                 for va, stock in self.stock_sites(d, game):
                     patched.append((va, bytes(d.mu.mem_read(va, 5))))
-                    d.mu.mem_write(va, stock)
+                    write_code(d.mu, va, stock)
                 try:
                     d.make_box(BOX_SHORT)
                     stock = d.draw_box()
                 finally:
                     for va, data in patched:
-                        d.mu.mem_write(va, data)
+                        write_code(d.mu, va, data)
                 self.assertTrue(d.text_blits(with_companion))
                 self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in stock])
 
@@ -621,11 +631,11 @@ class TheTip(unittest.TestCase):
                 with_companion = d.draw_box()
                 tail, stock = BUILDER.TAIL[game]
                 patched = bytes(d.mu.mem_read(tail, len(stock) // 2))
-                d.mu.mem_write(tail, bytes.fromhex(stock))
+                write_code(d.mu, tail, bytes.fromhex(stock))
                 try:
                     plain = d.draw_box()
                 finally:
-                    d.mu.mem_write(tail, patched)
+                    write_code(d.mu, tail, patched)
                 self.assertTrue(self.body_rows(d, with_companion))
                 self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
 
@@ -726,11 +736,11 @@ class TheOldIslandEvents(unittest.TestCase):
                     with_companion = d.draw()
                     tail, stock = BUILDER.TAIL[game]
                     patched = bytes(d.mu.mem_read(tail, len(stock) // 2))
-                    d.mu.mem_write(tail, bytes.fromhex(stock))
+                    write_code(d.mu, tail, bytes.fromhex(stock))
                     try:
                         plain = d.draw()
                     finally:
-                        d.mu.mem_write(tail, patched)
+                        write_code(d.mu, tail, patched)
                     self.assertTrue(d.text_blits(with_companion))
                     self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
 
@@ -879,12 +889,12 @@ class TheTombstone(unittest.TestCase):
                 patched = []
                 for va, stock in self.stock(d, game):
                     patched.append((va, bytes(d.mu.mem_read(va, len(stock)))))
-                    d.mu.mem_write(va, stock)
+                    write_code(d.mu, va, stock)
                 try:
                     plain = d.draw_box()
                 finally:
                     for va, data in patched:
-                        d.mu.mem_write(va, data)
+                        write_code(d.mu, va, data)
                 self.assertTrue(d.text_blits(with_companion))
                 self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
 
@@ -1010,11 +1020,11 @@ class TheLabelPanels(unittest.TestCase):
                     self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
                     ctl, text_draw = BUILDER.CONTROL[game]
                     patched = bytes(d.mu.mem_read(ctl, 5))
-                    d.mu.mem_write(ctl, bytes.fromhex(BUILDER.call_bytes(ctl, text_draw)))
+                    write_code(d.mu, ctl, bytes.fromhex(BUILDER.call_bytes(ctl, text_draw)))
                     try:
                         plain = d.draw_box()
                     finally:
-                        d.mu.mem_write(ctl, patched)
+                        write_code(d.mu, ctl, patched)
                     self.assertTrue(d.text_blits(with_companion))
                     self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
 
