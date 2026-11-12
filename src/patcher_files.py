@@ -50,6 +50,13 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     # by bare name (vv1_sort_by.c).
     "Images/vvfp_sort_band.png": _GAME_IMAGE,
     "Images/vvfp_sort_radio.png": _GAME_IMAGE,
+    # Scrolling Popups (A New Home, The Lost Children): The Secret City's
+    # scrollbar pictures, built through the game's frame-strip constructor by
+    # bare name (native/shared/scroll_popup.h, SP_BORROWED_ART).
+    "Images/vvfp_scroll_up.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_down.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_track.png": _GAME_IMAGE,
+    "Images/vvfp_scroll_knob.png": _GAME_IMAGE,
     # The Super-Secret Golden Mushroom (A New Home, The Secret City, The Tree
     # of Life, New Believers): the game's sprite constructor is handed
     # "golden_mushroom.png" (vvfp_golden_mushroom.c).

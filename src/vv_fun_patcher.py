@@ -341,9 +341,10 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
-# Scrolling Popups (The Secret City, The Tree of Life, New Believers; the owner, 2026-11-12): companion only, "VVFP
-# Scrolling Popups.dll", started by VVFP Startup.dll from its second word; scripts/build_scrolling_popups_features.py.
-SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_feature.json" for n in (3, 4, 5))
+# Scrolling Popups (all five games; the owner, 2026-11-12): companion only, "VVFP Scrolling Popups.dll" (and, in A
+# New Home and The Lost Children, four borrowed scrollbar pictures to Images\), started by VVFP Startup.dll from its
+# second word; scripts/build_scrolling_popups_features.py.
+SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_feature.json" for n in (1, 2, 3, 4, 5))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -12836,7 +12837,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
-    # Scrolling Popups (The Secret City, The Tree of Life, New Believers): scrollbars on the island-event popups.
+    # Scrolling Popups (all five games): scrollbars on popups whose text does not fit.
     "VVFP Scrolling Popups.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by

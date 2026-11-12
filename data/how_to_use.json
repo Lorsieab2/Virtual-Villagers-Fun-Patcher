@@ -318,10 +318,10 @@
       ]
     },
     {
-      "ids": ["vv3_scrolling_popups", "vv4_scrolling_popups", "vv5_scrolling_popups"],
+      "ids": ["vv1_scrolling_popups", "vv2_scrolling_popups", "vv3_scrolling_popups", "vv4_scrolling_popups", "vv5_scrolling_popups"],
       "guide": [
         "Off by default; Owner's Defaults ticks it.",
-        "An island-event popup is never taller than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
+        "A popup (island events, message boxes) is never bigger than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
         "scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar. A very long word gets a sideways bar.",
         "A popup whose text fits looks exactly as before. No keyboard scrolling. Not yet tested in play."
       ]

@@ -71,6 +71,16 @@ typedef struct sp_art {
     int trim[4];
 } sp_art;
 
+/* The message box (theMessageBoxDlg; all five games share its layout): a text control (a label sized to its text,
+   every line of it, no wrapping) and one or two buttons below it.  Its constructor asks the sizer for (panel
+   picture, w = the wider of the text + 0x3C and the buttons + 0x3C, h = the text + a button + 0x3C) from one call
+   (`size_site`, after `push eax; mov ecx, esi`) and then places the text (panel_h - h) / 2 + 0x14 below the top,
+   centred, and the buttons from the panel's bottom.  Its vtable (written by every constructor before the sizer)
+   tells its text control from the others when that is drawn. */
+typedef struct sp_msgbox {
+    unsigned int vtable, size_site, sizer;
+} sp_msgbox;
+
 typedef struct sp_game {
     unsigned int justify, nbyte;
     unsigned int ctx_global;
@@ -79,10 +89,18 @@ typedef struct sp_game {
     unsigned int mouse_site, mouse_dispatch;
     int screen_w, screen_h;
     /* VerticalScrollTrack (18 x 220), VerticalScrollKnob (12 x 26), UpArrowButton / DownArrowButton (54 x 20, three
-       18-pixel states), WideSlider2 (260 x 32), sliderhandle (16 x 32 / 23 x 30). */
+       18-pixel states), WideSlider2 (260 x 32), sliderhandle (16 x 32 / 23 x 30).  A New Home and The Lost Children
+       have WideSlider2 and sliderhandle of their own (The Secret City's very pictures) but no vertical scrollbar:
+       they borrow The Secret City's four, shipped as Images\vvfp_scroll_*.png (byte-identical copies; no game file
+       is replaced) and loaded by name by the game's own picture loader. */
     sp_art up, down, track, knob, wide, handle;
     const sp_class *classes;
     int class_count;
+    /* The text draw (holder; text, x, y, colour, font) ret 0x14 (`mov ecx, [ecx]; jmp` the core draw: '\n' starts a
+       line) and the text control draw's one call of it (`ctl_site`, esi = the control, after `ctl_before`). */
+    unsigned int text_draw, ctl_site;
+    unsigned char ctl_before[4];
+    sp_msgbox msgbox;
 } sp_game;
 
 /* The Secret City: the island-event dialog 0x4192F0. */
@@ -101,21 +119,35 @@ static const sp_class SP_VV5_CLASSES[] = {
      0x50u, 0x85Cu, 0x864u, 2000u, {0x41834Eu, 0x418387u, 0x4183C2u, 0x41852Bu}},
 };
 
+/* The four borrowed pictures (A New Home, The Lost Children). */
+#define SP_BORROWED_ART                                                                                           \
+    {0, 3, "vvfp_scroll_up.png"}, {0, 3, "vvfp_scroll_down.png"}, {0, 1, "vvfp_scroll_track.png"},               \
+    {0, 1, "vvfp_scroll_knob.png"}
+
 static const sp_game SP_GAMES[6] = {
     {0},
-    {0},                                                                              /* A New Home: later */
-    {0},                                                                              /* The Lost Children: later */
+    {0, 0, 0x48B2E8u, 0, 0x40A070u, 0x4093E0u, 0x403C6Eu, 0x401FE0u, 800, 600,
+     SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
+     NULL, 0,
+     0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u}},              /* vv1 */
+    {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
+     SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
+     NULL, 0,
+     0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u}},              /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
-     SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0])},       /* vv3 */
+     SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),
+     0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u}},              /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
      {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
      {0xA2, 1, 0, {3, 5, 16, 21}},
-     SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0])},       /* vv4 */
+     SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0]),
+     0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u}},              /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
      {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
      {0x80, 1, 0, {3, 5, 16, 21}},
-     SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0])},       /* vv5 */
+     SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0]),
+     0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u}},              /* vv5 */
 };
 
 #endif /* VVFP_SCROLL_POPUP_H */

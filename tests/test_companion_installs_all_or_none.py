@@ -387,9 +387,8 @@ CASES = [
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
          (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
-    # Scrolling Popups (The Secret City, The Tree of Life, New Believers): the mouse dispatcher's call, the
-    # island-event dialog's body-text call and its panel-size call.
-    Case("Scrolling Popups", "assets/scrolling_popups/VVFP Scrolling Popups.dll", (3, 4, 5),
+    # Scrolling Popups (all five games): the mouse dispatcher's call, the popups' size calls, their text calls.
+    Case("Scrolling Popups", "assets/scrolling_popups/VVFP Scrolling Popups.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_scrolling_popups"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpScrollingPopupsInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four

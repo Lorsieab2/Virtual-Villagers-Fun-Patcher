@@ -59,16 +59,37 @@ GAMES = {
     "vv3": dict(ctor=0x4192F0, base=0x40E100, base_draw=None, body=0x418510, tail=0x41982B, frame_mgr=0x10,
                 frame_event=0x54, ok_id=0x10, choice_id=0x04, centred=0x40A070, width=0x200, screen=(800, 600),
                 holder=0x4B34A8, app=0x4B309C, mgr=0x42E9D0, lookup=0x42E6F0, get=0x42EA80, mouse=0x40451E, dispatch=0x4020A0, justify=0x40A0C0, draw_site=0x418591,
-                size_site=0x41983F, sizer=0x40DDD0, single=0x4197D6, single_holder=0x1C, add_child=0x40C1F0),
+                size_site=0x41983F, sizer=0x40DDD0, single=0x4197D6, single_holder=0x1C, add_child=0x40C1F0,
+                box_ctor=0x41C7A0, box_zeros=2, box_vtable=0x47F3AC, box_size_site=0x41C53F, box_sizer=0x40DDD0,
+                ctl_site=0x40D807, text_draw=0x40A060, frame_draw=0x409F80,
+                strings=(0x42F740, 0x42F190)),
     "vv4": dict(ctor=0x417790, base=0x40DD00, base_draw=None, body=0x416EC0, tail=0x417CD8, frame_mgr=0x14,
                 frame_event=0x58, ok_id=0x82, choice_id=0x83, centred=0x409BE0, width=0x200, screen=(800, 600),
                 holder=0x4CB928, app=0x4CB51C, mgr=0x44CCF0, lookup=0x44C8A0, get=0x44CB80, mouse=0x404B02, dispatch=0x402320, justify=0x409C30, draw_site=0x416F4C,
-                size_site=0x417CEF, sizer=0x40DE20, single=0x417C83, single_holder=0x20, add_child=0x40C190),
+                size_site=0x417CEF, sizer=0x40DE20, single=0x417C83, single_holder=0x20, add_child=0x40C190,
+                box_ctor=0x419F00, box_zeros=2, box_vtable=0x48D3C4, box_size_site=0x419BE0, box_sizer=0x40DE20,
+                ctl_site=0x40CFC9, text_draw=0x409BD0, frame_draw=0x409A00,
+                strings=(0x44DA20, 0x44D3D0)),
     "vv5": dict(ctor=0x418020, base=0x40E1F0, base_draw=None, body=0x417660, tail=0x41855F, frame_mgr=0x14,
                 frame_event=0x58, ok_id=0x75, choice_id=0x65, centred=0x409EB0, width=0x2C0, screen=(1024, 768),
                 holder=0x4DB0E8, app=0x4DACE0, mgr=0x44FBB0, lookup=0x44F760, get=0x44FA40, mouse=0x404A92, dispatch=0x4022D0, justify=0x409F00, draw_site=0x4176E9,
-                size_site=0x418573, sizer=0x40E310, single=0x41850A, single_holder=0x20, add_child=0x40C680),
+                size_site=0x418573, sizer=0x40E310, single=0x41850A, single_holder=0x20, add_child=0x40C680,
+                box_ctor=0x41A760, box_zeros=2, box_vtable=0x4985D4, box_size_site=0x41A47B, box_sizer=0x40E310,
+                ctl_site=0x40D4B9, text_draw=0x409EA0, frame_draw=0x409C30,
+                strings=(0x450D40, 0x4506D0)),
+    # A New Home and The Lost Children (no justified paragraph, no island-event dialog row here).
+    "vv1": dict(screen=(800, 600), holder=0x48B2E8, app=0x48AEDC, mouse=0x403C6E, dispatch=0x401FE0,
+                add_child=0x40AB80, centred=0x4094C0,
+                box_ctor=0x4275B0, box_zeros=4, box_vtable=0x459AB0, box_size_site=0x427378, box_sizer=0x40C760,
+                ctl_site=0x40C197, text_draw=0x4094B0, frame_draw=0x4093E0,
+                strings=(0x433980, 0x433970), sound=(0x430BC0, 0x431450)),
+    "vv2": dict(screen=(800, 600), holder=0x499BC8, app=0x4997BC, mouse=0x403EFE, dispatch=0x402070,
+                add_child=0x40B560, centred=0x4096B0,
+                box_ctor=0x433120, box_zeros=4, box_vtable=0x476DC4, box_size_site=0x432EE8, box_sizer=0x40D140,
+                ctl_site=0x40CB77, text_draw=0x4096A0, frame_draw=0x4095D0,
+                strings=(0x441690, 0x441680), sound=(0x43E460, 0x43EFF0)),
 }
+ASSETS = ROOT / "assets" / "scrolling_popups"   # the pictures A New Home and The Lost Children borrow
 
 
 def _map_rgba(mc, arg, ret):
@@ -104,7 +125,8 @@ class Dialog:
         load = self.run._picture
 
         def _picture(path: str) -> int:
-            surface = load(path)
+            name = path.replace("/", "\\").split("\\")[-1]
+            surface = self._shipped_picture(name) if name.lower().startswith("vvfp_scroll_") else load(path)
             self.loaded.setdefault(path.replace("/", "\\").split("\\")[-1].lower(), set()).add(surface)
             return surface
 
@@ -123,12 +145,31 @@ class Dialog:
         self._next_code = CODE
         self.mu.hook_add(UC_HOOK_CODE, self._answer, begin=CODE, end=CODE + 0x10000)
         self.mu.hook_add(UC_HOOK_CODE, self._dispatch, begin=self.g["dispatch"], end=self.g["dispatch"])
+        # The game's text manager (its getter loads the string file through the game object, which the emulation
+        # has not got): answered with a stand-in whose first fields are the font, and every string it is asked for
+        # by id is "OK" (the buttons' labels).
+        getter, lookup = self.g["strings"]
+        self.texts = None
+        self.mu.hook_add(UC_HOOK_CODE, self._strings, begin=getter, end=getter, user_data=0)
+        self.mu.hook_add(UC_HOOK_CODE, self._strings, begin=lookup, end=lookup, user_data=4)
+        # A New Home's and The Lost Children's message box fetches its button's click sound from the sound manager
+        # (whose getter loads the sounds through the game object): no sound here.
+        if "sound" in self.g:
+            getter, fetch = self.g["sound"]
+            self.mu.hook_add(UC_HOOK_CODE, self._no_sound, begin=getter, end=getter, user_data=0)
+            self.mu.hook_add(UC_HOOK_CODE, self._no_sound, begin=fetch, end=fetch, user_data=4)
         self.passed: list[tuple[int, int, int]] = []    # mouse events the game's dispatcher received
         self.mu.hook_add(UC_HOOK_CODE, self._add_child, begin=self.g["add_child"], end=self.g["add_child"])
-        self.mu.hook_add(UC_HOOK_CODE, self._at_size_site, begin=self.g["size_site"], end=self.g["size_site"])
-        self.mu.hook_add(UC_HOOK_CODE, self._at_size, begin=self.g["sizer"], end=self.g["sizer"])
+        self.children: list[int] = []     # what the dialogs made add to their window, in order
+        for site in (self.g.get("size_site"), self.g["box_size_site"]):
+            if site:
+                self.mu.hook_add(UC_HOOK_CODE, self._at_size_site, begin=site, end=site)
+        for sizer in sorted({self.g.get("sizer"), self.g["box_sizer"]} - {None}):
+            self.mu.hook_add(UC_HOOK_CODE, self._at_size, begin=sizer, end=sizer)
         self.size_requests: list[int] = []
         self.stock_heights: list[int] = []
+        self.width_requests: list[int] = []
+        self.stock_widths: list[int] = []
         w, h = self.g["screen"]
         self.screen = self.run._new_surface(w, h, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)
         heap = self.m.font_heap
@@ -140,7 +181,7 @@ class Dialog:
         self.holder = heap.alloc(16)
         self.mu.mem_write(self.holder, struct.pack("<I", self.ctx))
         self.mu.mem_write(self.g["holder"], struct.pack("<I", self.holder))
-        self.manager = self.run._call(self.g["mgr"], 0)
+        self.manager = self.run._call(self.g["mgr"], 0) if "mgr" in self.g else None
         # The game object (its vtable[9] says which screen is up; a panel draws only on the screen it was made on).
         self.app = self._object({0x24: (lambda a: 7, 0)})
         self.mu.mem_write(self.g["app"], struct.pack("<I", self.app))
@@ -175,6 +216,9 @@ class Dialog:
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
                 proc = bytes(mu.mem_read(arg(1), 64)).split(b"\0")[0].decode("latin-1")
                 ret(harness._method(harness._add_watch, 0) if proc == "SDL_AddEventWatch" else 0, 8)
+                return
+            if name.startswith("_FSOUND_") and "@" in name:
+                ret(0, int(name.rsplit("@", 1)[1]))      # no sound here (a message box's sound manager)
                 return
             original(name)
 
@@ -212,22 +256,58 @@ class Dialog:
         mu.reg_write(UC_X86_REG_ESP, sp + 4 + 12)
         mu.reg_write(UC_X86_REG_EIP, to)
 
-    def _add_child(self, mu, address, size, user):
-        """The window's add-child (thiscall(window; child) ret 4): the stand-in buttons need no window list."""
+    def _no_sound(self, mu, address, size, pop):
         sp = mu.reg_read(UC_X86_REG_ESP)
         to = struct.unpack("<I", mu.mem_read(sp, 4))[0]
+        mu.reg_write(UC_X86_REG_EAX, self.m.font_heap.alloc(0x700) if pop == 0 else 0)
+        mu.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
+        mu.reg_write(UC_X86_REG_EIP, to)
+
+    def _strings(self, mu, address, size, pop):
+        sp = mu.reg_read(UC_X86_REG_ESP)
+        to = struct.unpack("<I", mu.mem_read(sp, 4))[0]
+        if pop == 0:
+            if self.texts is None:
+                self.texts = self.m.font_heap.alloc(0x40)
+                mu.mem_write(self.texts, struct.pack("<II", self.font, self.font))
+            value = self.texts
+        else:
+            value = self._cstr(b"OK")
+        mu.reg_write(UC_X86_REG_EAX, value)
+        mu.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
+        mu.reg_write(UC_X86_REG_EIP, to)
+
+    def _add_child(self, mu, address, size, user):
+        """The window's add-child (thiscall(window; child) ret 4): kept here, in order (the stand-in buttons need no
+        window list; a message box's text and buttons are drawn from it)."""
+        sp = mu.reg_read(UC_X86_REG_ESP)
+        to, child = struct.unpack("<II", mu.mem_read(sp, 8))
+        self.children.append(child)
         mu.reg_write(UC_X86_REG_ESP, sp + 8)
         mu.reg_write(UC_X86_REG_EIP, to)
 
     def _at_size_site(self, mu, address, size, user):
-        """The constructor's panel height as it makes the sizer call (the stock formula's result)."""
+        """The constructor's panel height as it makes the sizer call (the stock formula's result), and width."""
         sp = mu.reg_read(UC_X86_REG_ESP)
         self.stock_heights.append(struct.unpack("<i", mu.mem_read(sp + 8, 4))[0])
+        self.stock_widths.append(struct.unpack("<i", mu.mem_read(sp + 4, 4))[0])
 
     def _at_size(self, mu, address, size, user):
-        """The height the sizer is given (after the companion, when it caps it)."""
+        """The height the sizer is given (after the companion, when it caps it), and the width."""
         sp = mu.reg_read(UC_X86_REG_ESP)
         self.size_requests.append(struct.unpack("<i", mu.mem_read(sp + 12, 4))[0])
+        self.width_requests.append(struct.unpack("<i", mu.mem_read(sp + 8, 4))[0])
+
+    def _shipped_picture(self, name: str) -> int:
+        """A picture shipped with the companion (assets/scrolling_popups), as the game's loader loads one."""
+        from vv_picture_image import decode_png
+        img = decode_png((ASSETS / name).read_bytes())
+        raw = bytearray()
+        d = img.data
+        for i in range(0, len(d), 4):
+            raw += struct.pack("<I", (d[i + 3] << 24) | (d[i] << 16) | (d[i + 1] << 8) | d[i + 2])
+        return self.run._new_surface(img.width, img.height, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000,
+                                     bytes(raw))
 
     def _object(self, methods: dict[int, tuple]) -> int:
         """An object whose vtable slot (byte offset) -> (fn, pop[, wants this])."""
@@ -287,7 +367,8 @@ class Dialog:
 
     def art_surfaces_by_name(self) -> dict:
         """The scrollbar pictures' SDL surfaces, by name: every surface the game's loader made from that file."""
-        return {name: self.loaded.get(file, set()) for name, file in self.ART_FILES.items()}
+        return {name: self.loaded.get(file, set()) | self.loaded.get(f"vvfp_scroll_{name}.png", set())
+                for name, file in self.ART_FILES.items()}
 
     def art_surfaces(self) -> set:
         return set().union(*self.art_surfaces_by_name().values())
@@ -409,6 +490,54 @@ class Dialog:
 
     def clip(self) -> tuple[int, int, int, int]:
         return struct.unpack("<4i", self.mu.mem_read(self.ctx + 0x60, 16))
+
+    # -- the message box ----------------------------------------------------------------------------------------------
+    def make_box(self, text: bytes) -> int:
+        """A message box with `text` (OK alone), made by the game's own constructor (the one taking a string): its
+        text control, its button, the sizer call and the placing of both, all the game's code."""
+        g = self.g
+        self.children = []
+        self.dialog = d = self.m.font_heap.alloc(0x200)
+        self.box_text = self._cstr(text)
+        self.size_requests, self.stock_heights, self.width_requests, self.stock_widths = [], [], [], []
+        self.run._call(g["box_ctor"], d, self.box_text, *([0] * g["box_zeros"]))
+        self.put(d + 0x44, 0x3F800000)    # its opening fade (+0x44, 0 to 1.0) at its end, as the game shows it
+        for child in self.children:       # shown, as its modal loop shows it: each control's show (vtable+0x14)
+            self.run._call(self.u32(self.u32(child) + 0x14), child, 1)
+        self.stock_height = self.stock_heights[-1] if self.stock_heights else None
+        self.stock_width = self.stock_widths[-1] if self.stock_widths else None
+        return d
+
+    def control(self) -> int:
+        """The message box's text control (the label wrapper's +0x10)."""
+        return self.u32(self.children[0] + 0x10)
+
+    def control_rect(self) -> tuple[int, int, int, int]:
+        return struct.unpack("<4i", self.mu.mem_read(self.control() + 8, 16))
+
+    def child_rect(self, child: int) -> tuple[int, int, int, int]:
+        """A child's rectangle as its vtable+8 gives it (relative to the panel)."""
+        out = self.m.font_heap.alloc(16)
+        self.run._call(self.u32(self.u32(child) + 8), child, out)
+        return struct.unpack("<4i", self.mu.mem_read(out, 16))
+
+    def draw_box(self) -> list:
+        """The message box as the game draws it: its panel (vtable+0x18), then each child (its vtable+0x18), in the
+        order the window keeps them."""
+        self.m.blits = []
+        self.run._call(self.u32(self.u32(self.dialog) + 0x18), self.dialog)
+        for child in self.children:
+            self.run._call(self.u32(self.u32(child) + 0x18), child)
+        return list(self.m.blits)
+
+    def font_surfaces(self) -> set:
+        """Every surface made from a font's picture (the glyphs' sources)."""
+        return set().union(*(s for name, s in self.loaded.items() if name.startswith("ldw")))
+
+    def text_blits(self, blits) -> list:
+        """The blits of text: glyphs (not the panel's picture, the scrollbar art or a button's picture)."""
+        fonts = self.font_surfaces()
+        return [b for b in blits if b[0] in fonts]
 
     # -- drawing ----------------------------------------------------------------------------------------------------
     def draw(self, with_panel: bool = True) -> list:

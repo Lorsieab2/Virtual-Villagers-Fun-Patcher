@@ -5,26 +5,29 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Scrolling Popups",
-  "description": "Island-event popups get scrollbars when their text does not fit: a popup is never taller than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or has a line wider than the box (one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when the result replaces the question. A popup whose text fits looks and works exactly as before. This first stage covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them); the text a popup can hold is still the game's 2,000 characters. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
+  "description": "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them) and message boxes (tech and puzzle results, confirmations); more popups follow. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
   "output_tag": "Scrolling Popups",
   "dependencies": [],
   "conflicts": [],
   "behavior_changes": [
     "The island-event dialog (constructor 0x418020): its `call 0x40E310` sizing the panel (0x418573) calls VVFP Scrolling Popups.dll, which caps the height to the screen's (768 px, read from the drawing context) less 16 px above and below; the game then centres the panel and places its buttons from the bottom.",
-    "Its draw's `call 0x409F00` drawing the body text (0x4176E9) calls the companion, which measures the text with that same routine (measure only) and its words with the game's counted draw; when the text fits the box (the panel's bottom less the room the dialog keeps for its buttons: 4 x a choice button's height with two choices, else 5/2 x the OK button's) it makes the stock call unchanged; otherwise it sets the drawing context's clip rectangle (+0x60) to the box, draws the text moved by the scroll position, restores the clip, and draws the scrollbars with the game's own pictures (image ids 0x81-0x84, 0x7F, 0x80: Up/DownArrowButton, VerticalScrollTrack tiled, VerticalScrollKnob, WideSlider2, sliderhandle).",
-    "The event pump's `call 0x4022D0` handing a mouse event to the game (0x404A92) calls the companion first: a press on a scrollbar of the dialog drawn this moment, a knob drag and its release are used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
-    "A word wider than the text box (a long unbroken word) hangs the stock game: its justified paragraph backs off to an empty line and tries the same word again, for ever. The constructor's four measures of the dialog's texts (0x41834E, 0x418387, 0x4183C2, 0x41852B, `call 0x409F00`, measure only) call the companion, which gives the paragraph the width of the text's widest word when that is wider than the box (the words measured with the game's counted draw, cut where the paragraph cuts them); the draw wraps at that same width and the box scrolls sideways."
+    "Its draw's `call 0x409F00` drawing the body text (0x4176E9) calls the companion, which measures the text with that same routine (measure only) and its words with the game's counted draw; when the text fits the box (the panel's bottom less the room the dialog keeps for its buttons: 4 x a choice button's height with two choices, else 5/2 x the OK button's) it makes the stock call unchanged; otherwise it sets the drawing context's clip rectangle (+0x60) to the box, draws the text moved by the scroll position, restores the clip, and draws the scrollbars with the game's own pictures.",
+    "A word wider than the text box (a long unbroken word) hangs the stock game: its justified paragraph backs off to an empty line and tries the same word again, for ever. The constructor's four measures of the dialog's texts (0x41834E, 0x418387, 0x4183C2, 0x41852B, `call 0x409F00`, measure only) call the companion, which gives the paragraph the width of the text's widest word when that is wider than the box (the words measured with the game's counted draw, cut where the paragraph cuts them); the draw wraps at that same width and the box scrolls sideways.",
+    "The message box (vtable 0x4985D4, laid out by 0x41A2D0): its `call 0x40E310` sizing the panel (0x41A47B) calls the companion, which keeps the size asked for and caps the width and the height to the screen's (1024 x 768, read from the drawing context) less 16 px on each side; the game then centres the panel and places its text and buttons as always.",
+    "The text control draw's `call 0x409EA0` drawing a control's text (0x40D4B9) calls the companion: the text of a message box whose panel was capped (the control's parent has the message box's vtable and asked for more than the screen holds) is drawn under a clip rectangle set to the room the box keeps for it (0x14 below the panel's top, 0x1E from its sides, above its buttons), moved by the scroll position, with the scrollbars beside it; every other text, and a message box's text that fits, is the stock call unchanged.",
+    "The event pump's `call 0x4022D0` handing a mouse event to the game (0x404A92) calls the companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
+    "The scrollbars are the game's own pictures (image ids 0x81-0x84, 0x7F, 0x80): Up/DownArrowButton, VerticalScrollTrack fitted to the bar's height, VerticalScrollKnob; the horizontal bar is WideSlider2 fitted to the vertical track's width (18 px) with sliderhandle fitted to the knob's size turned sideways."
   ],
   "explicit_non_changes": [
-    "No executable byte is patched: the companion writes the three sites at run time, only after verifying their stock bytes and the instructions before them (all of them, or none).",
-    "A popup whose text fits is drawn by the very same call as in the stock game; the dialog's text field keeps its 2,000-byte size; keys, the buttons, the events and the save are unchanged."
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes and the instructions before them (all of them, or none).",
+    "A popup whose text fits is drawn by the very same call as in the stock game; the popups' text fields keep their sizes; keys, the buttons, the events and the save are unchanged."
   ],
-  "evidence_status": "implemented from exact-build disassembly; the shipped companion emulated on the published executable's own dialog constructor and draw code with the game's own fonts and pictures (tests/test_scrolling_popups.py: the panel capped, the clip set and restored, wheel, arrows, knob drag and track clicks moving the drawn lines, the buttons at the panel's bottom, a fitting text drawn exactly as the stock game draws it); runtime/player confirmation pending",
+  "evidence_status": "implemented from exact-build disassembly; the companion emulated on the published executable's own popup code with the game's own fonts and pictures (tests/test_scrolling_popups.py: the panel capped, the clip set and restored, wheel, arrows, knob drag and track clicks moving the drawn lines, the buttons at the panel's bottom, a fitting text drawn exactly as the stock game draws it); runtime/player confirmation pending",
   "companion_files": [
     {
       "source": "assets/scrolling_popups/VVFP Scrolling Popups.dll",
       "destination": "VVFP Scrolling Popups.dll",
-      "sha256": "1699C4449A20C429A0276CB5941565CD52940829430585A329904978E73D84E8"
+      "sha256": "EC364E2326A6CF626020A7C1760EC5DD8479EC6FAD8BA036E14CA23797F0D422"
     }
   ],
   "patches": [],
@@ -76,6 +79,20 @@
       "stock_bytes": "E8D019FFFF",
       "written_bytes": "E8XXXXXXXX",
       "routine": "the island-event dialog constructor's measure of a text: at the widest word's width when that is wider than the box (never stuck), else the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41A47B",
+      "stock_bytes": "E8903EFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the message box's panel size: the width and the height capped to the screen, then the stock sizer",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D4B9",
+      "stock_bytes": "E8E2C9FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the text control draw's call of the text draw: the message box's text, when it does not fit, clipped, scrolled and given scrollbars; every other text as the game draws it",
       "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
     }
   ]

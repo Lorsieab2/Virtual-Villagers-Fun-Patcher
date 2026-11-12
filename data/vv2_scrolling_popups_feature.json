@@ -1,0 +1,74 @@
+{
+  "id": "vv2_scrolling_popups",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Scrolling Popups",
+  "description": "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. A New Home and The Lost Children have no up/down scrollbar pictures of their own, so they borrow The Secret City's (shipped as new picture files; no game file is replaced). Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the message boxes (tech and puzzle results, confirmations); more popups follow. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
+  "output_tag": "Scrolling Popups",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "The message box (vtable 0x476DC4, laid out by 0x432C90): its `call 0x40D140` sizing the panel (0x432EE8) calls the companion, which keeps the size asked for and caps the width and the height to the screen's (800 x 600, read from the drawing context) less 16 px on each side; the game then centres the panel and places its text and buttons as always.",
+    "The text control draw's `call 0x4096A0` drawing a control's text (0x40CB77) calls the companion: the text of a message box whose panel was capped (the control's parent has the message box's vtable and asked for more than the screen holds) is drawn under a clip rectangle set to the room the box keeps for it (0x14 below the panel's top, 0x1E from its sides, above its buttons), moved by the scroll position, with the scrollbars beside it; every other text, and a message box's text that fits, is the stock call unchanged.",
+    "The event pump's `call 0x402070` handing a mouse event to the game (0x403EFE) calls the companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
+    "The scrollbars are the game's own pictures (WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret City's UpArrowButton, DownArrowButton, VerticalScrollTrack and VerticalScrollKnob, borrowed)): Up/DownArrowButton, VerticalScrollTrack fitted to the bar's height, VerticalScrollKnob; the horizontal bar is WideSlider2 fitted to the vertical track's width (18 px) with sliderhandle fitted to the knob's size turned sideways."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes and the instructions before them (all of them, or none).",
+    "A popup whose text fits is drawn by the very same call as in the stock game; the popups' text fields keep their sizes; keys, the buttons, the events and the save are unchanged. No game picture is replaced: the borrowed pictures are new files."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the companion emulated on the published executable's own popup code with the game's own fonts and pictures (tests/test_scrolling_popups.py: the panel capped, the clip set and restored, wheel, arrows, knob drag and track clicks moving the drawn lines, the buttons at the panel's bottom, a fitting text drawn exactly as the stock game draws it); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/scrolling_popups/VVFP Scrolling Popups.dll",
+      "destination": "VVFP Scrolling Popups.dll",
+      "sha256": "EC364E2326A6CF626020A7C1760EC5DD8479EC6FAD8BA036E14CA23797F0D422"
+    },
+    {
+      "source": "assets/scrolling_popups/vvfp_scroll_up.png",
+      "destination": "Images/vvfp_scroll_up.png",
+      "sha256": "A3915041965727F9DF0757331DED2C256FCC84A6AFDAD42A247F025F473A6E39"
+    },
+    {
+      "source": "assets/scrolling_popups/vvfp_scroll_down.png",
+      "destination": "Images/vvfp_scroll_down.png",
+      "sha256": "8D9B9D1C676B962B09B4771FC8EB635CF42DF2487125E567D6BD2B3B8ABF84C1"
+    },
+    {
+      "source": "assets/scrolling_popups/vvfp_scroll_track.png",
+      "destination": "Images/vvfp_scroll_track.png",
+      "sha256": "0E7EF9CB7F20B625D219D6D0D74FD3FB2811DD2A757FAC3CCC664E16F9A29552"
+    },
+    {
+      "source": "assets/scrolling_popups/vvfp_scroll_knob.png",
+      "destination": "Images/vvfp_scroll_knob.png",
+      "sha256": "7593CA8307ECBA2CC1EDE72147FA6723B0CDFDC2D35986D219C4DF255DD5BF78"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x403EFE",
+      "stock_bytes": "E86DE1FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the event pump's call of the mouse dispatcher: scrollbar events are the companion's, every other event is passed on to the stock dispatcher",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x432EE8",
+      "stock_bytes": "E853A2FDFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the message box's panel size: the width and the height capped to the screen, then the stock sizer",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40CB77",
+      "stock_bytes": "E824CBFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the text control draw's call of the text draw: the message box's text, when it does not fit, clipped, scrolled and given scrollbars; every other text as the game draws it",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

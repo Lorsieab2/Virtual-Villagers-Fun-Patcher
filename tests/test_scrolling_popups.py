@@ -1,5 +1,5 @@
-"""Scrolling Popups (The Secret City, The Tree of Life, New Believers): vvN_scrolling_popups, stage 1 -- the
-island-event dialog.
+"""Scrolling Popups (all five games): vvN_scrolling_popups -- the island-event dialog of The Secret City, The Tree of
+Life and New Believers (stage 1) and the message box of all five games (stage 2).
 
 The owner (2026-11-12): vertical and horizontal scrollbars on popups so the player can read practically unlimited
 text, "Let the patcher handle it": a companion DLL, the game's own scrollbar art, text never off the screen.
@@ -20,6 +20,10 @@ Proofs:
       - a word wider than the box: the stock paragraph never finishes (shown with the site stock); with the
         companion the constructor's measures and the draw finish, and the horizontal bar (WideSlider2, sliderhandle)
         scrolls it sideways;
+  * the message box (all five games; A New Home and The Lost Children with The Secret City's borrowed pictures),
+    made by the game's own constructor and drawn by the game's own panel and control draws: a text that fits is the
+    stock call blit for blit; a long or wide text gets a panel inside the screen, its text inside its box, the bars,
+    wheel/arrows/drag, and the clicks off the bars go to the game;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -48,14 +52,15 @@ try:
 except ImportError:  # pragma: no cover
     HAVE_EMULATOR = False
 
-GAMES = (3, 4, 5)
-NAMES = {3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
+GAMES = (1, 2, 3, 4, 5)
+EVENT_GAMES = (3, 4, 5)                  # the island-event dialog's rows (stage 1)
+NAMES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life", 5: "New Believers"}
 DLL = ROOT / "assets" / "scrolling_popups" / "VVFP Scrolling Popups.dll"
 TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Scrolling Popups.test.dll"   # VVFP_TEST: the state exports
 STOCK = {g: ROOT / "research" / "stock-executables" / f"Virtual Villagers - {n}.exe" for g, n in NAMES.items()}
 IMAGES = ROOT / "research" / "game-images"
 HAVE_STOCK = all(p.is_file() for p in STOCK.values())
-HAVE_IMAGES = all((IMAGES / f"Virtual Villagers - {n}" / "Images" / "VerticalScrollTrack.png").is_file()
+HAVE_IMAGES = all((IMAGES / f"Virtual Villagers - {n}" / "Images" / "WideSlider2.png").is_file()
                   for n in NAMES.values())
 MODES = ("stock", "collection_progression", "immediate_fixed")
 LONG = b"".join(b"%d. Footprints by the old ruins.\n" % n for n in range(1, 56))
@@ -78,10 +83,15 @@ def row_id(game: int) -> str:
 
 
 def sites(game: int) -> list[tuple[int, str]]:
-    mouse, dispatch, _ctor, draw, justify, size, sizer, _screen = BUILDER.SITES[game]
-    out = [(mouse, BUILDER.call_bytes(mouse, dispatch)), (draw, BUILDER.call_bytes(draw, justify)),
-           (size, BUILDER.call_bytes(size, sizer))]
-    out += [(va, BUILDER.call_bytes(va, justify)) for va in BUILDER.MEASURES[game]]
+    mouse, dispatch = BUILDER.MOUSE[game]
+    out = [(mouse, BUILDER.call_bytes(mouse, dispatch))]
+    if game in BUILDER.SITES:
+        _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
+        out += [(draw, BUILDER.call_bytes(draw, justify)), (size, BUILDER.call_bytes(size, sizer))]
+        out += [(va, BUILDER.call_bytes(va, justify)) for va in BUILDER.MEASURES[game]]
+    _vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
+    ctl, text_draw = BUILDER.CONTROL[game]
+    out += [(bsize, BUILDER.call_bytes(bsize, bsizer)), (ctl, BUILDER.call_bytes(ctl, text_draw))]
     return out
 
 
@@ -89,7 +99,7 @@ class TheRows(unittest.TestCase):
     def setUp(self) -> None:
         self.rows = {p.id: p.raw for p in patcher.load_fun_patches()}
 
-    def test_three_public_rows_pin_the_companion(self) -> None:
+    def test_five_public_rows_pin_the_companion(self) -> None:
         digest = hashlib.sha256(DLL.read_bytes()).hexdigest().upper()
         public = {p.id for p in patcher.load_public_fun_patches()}
         self.assertIn("VVFP Scrolling Popups.dll", patcher.STARTUP_LOADER_COMPANIONS_2)
@@ -97,20 +107,27 @@ class TheRows(unittest.TestCase):
             row = self.rows[row_id(game)]
             self.assertIn(row_id(game), public)
             self.assertEqual(row["patches"], [])
+            borrowed = [(f"Images/{n}", hashlib.sha256((ROOT / "assets" / "scrolling_popups" / n).read_bytes())
+                         .hexdigest().upper()) for n in BUILDER.BORROWED] if game in (1, 2) else []
             self.assertEqual([(f["destination"], f["sha256"]) for f in row["companion_files"]],
-                             [("VVFP Scrolling Popups.dll", digest)])
+                             [("VVFP Scrolling Popups.dll", digest)] + borrowed)
             self.assertEqual([(int(d["va"], 16), d["stock_bytes"]) for d in row["runtime_detours"]], sites(game))
 
     def test_the_c_table_holds_the_same_sites(self) -> None:
         header = (ROOT / "native" / "shared" / "scroll_popup.h").read_text(encoding="utf-8")
         for game in GAMES:
-            mouse, dispatch, _ctor, draw, justify, size, sizer, _screen = BUILDER.SITES[game]
-            classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
-            for va in (draw, size, sizer, *BUILDER.MEASURES[game]):
-                self.assertIn(f"0x{va:X}u", classes)
+            mouse, dispatch = BUILDER.MOUSE[game]
             row = header.split("static const sp_game SP_GAMES[6]")[1].split(f"/* vv{game} */")[0].rsplit("/*", 1)[-1]
-            for va in (justify, mouse, dispatch):
+            vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
+            ctl, text_draw = BUILDER.CONTROL[game]
+            for va in (mouse, dispatch, vt, bsize, bsizer, ctl, text_draw):
                 self.assertIn(f"0x{va:X}u", row)
+            if game in BUILDER.SITES:
+                _ctor, draw, justify, size, sizer = BUILDER.SITES[game]
+                classes = header.split(f"static const sp_class SP_VV{game}_CLASSES[] = {{")[1].split("};")[0]
+                for va in (draw, size, sizer, *BUILDER.MEASURES[game]):
+                    self.assertIn(f"0x{va:X}u", classes)
+                self.assertIn(f"0x{justify:X}u", row)
 
     @unittest.skipUnless(HAVE_STOCK, "needs the stock executables")
     def test_every_site_holds_its_stock_bytes(self) -> None:
@@ -161,7 +178,7 @@ class TheDialog(unittest.TestCase):
     def setUpClass(cls) -> None:
         import scrolling_popups_emulation as spe
         cls.spe = spe
-        for game in GAMES:
+        for game in EVENT_GAMES:
             cls.dialogs[game] = spe.Dialog(f"vv{game}")
 
     @classmethod
@@ -381,10 +398,152 @@ class EveryBuild(unittest.TestCase):
                             self.assertEqual(p.read(other, 5).hex().upper(), stock)
 
     def test_another_game_installs_nothing(self) -> None:
-        for game in (1, 2):
-            p = Process(STOCK[4].read_bytes(), DLL)
-            p.export("VvfpStartup", game, 0)
-            self.assertEqual(p.export("VvfpScrollingPopupsInstalled"), 0)
+        for game, other in ((1, 4), (2, 3), (3, 1), (4, 5), (5, 2)):
+            with self.subTest(game=game, exe=other):
+                p = Process(STOCK[other].read_bytes(), DLL)
+                p.export("VvfpStartup", game, 0)
+                self.assertEqual(p.export("VvfpScrollingPopupsInstalled"), 0)
+
+
+BOX_LONG = b"\n".join(b"Tech level %d: your villagers can now build better huts and tools." % n for n in range(1, 41))
+BOX_SHORT = b"Your villagers have reached a new tech level!\nThey can now build better huts."
+BOX_WIDE = b"A line far too wide for the screen: " + b"Supercalifragilisticexpialidocious " * 6 + b"\nSecond line."
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class TheMessageBox(unittest.TestCase):
+    """The message box of all five games, made by the game's own constructor (its text control, its OK button, the
+    sizer call and the placing of both), drawn by the game's own panel draw and control draws."""
+    boxes: dict = {}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        for game in GAMES:
+            cls.boxes[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.boxes.clear()
+
+    def stock_sites(self, d, game):
+        """The message box's two sites written back to their stock calls (the game without the companion)."""
+        return [(va, bytes.fromhex(stock)) for va, stock in sites(game)[-2:]]
+
+    def test_a_text_that_fits_is_the_stock_call(self) -> None:
+        for game, d in self.boxes.items():
+            with self.subTest(game=game):
+                d.make_box(BOX_SHORT)
+                self.assertEqual(d.size_requests[-1], d.stock_height)
+                self.assertEqual(d.width_requests[-1], d.stock_width)
+                before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                with_companion = d.draw_box()
+                self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
+                patched = []
+                for va, stock in self.stock_sites(d, game):
+                    patched.append((va, bytes(d.mu.mem_read(va, 5))))
+                    d.mu.mem_write(va, stock)
+                try:
+                    d.make_box(BOX_SHORT)
+                    stock = d.draw_box()
+                finally:
+                    for va, data in patched:
+                        d.mu.mem_write(va, data)
+                self.assertTrue(d.text_blits(with_companion))
+                self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in stock])
+
+    def check_inside(self, d, blits, view):
+        w, h = d.g["screen"]
+        left, top, right, bottom = d.panel()
+        self.assertGreaterEqual(left, 16)
+        self.assertGreaterEqual(top, 16)
+        self.assertLessEqual(right, w - 16)
+        self.assertLessEqual(bottom, h - 16)
+        self.assertEqual(d.clip(), (0, 0, w, h))                  # restored
+        text = d.text_blits(blits)
+        self.assertTrue(text)
+        for b in text:
+            x, y = b[3][0], b[3][1]
+            if y < top + 2 or y >= bottom:                         # the OK button's label
+                continue
+            if y >= view["box_y"] + view["box_h"] + 2:
+                continue
+            self.assertGreaterEqual(x, view["box_x"])
+            self.assertLessEqual(x + b[1][2], view["box_x"] + view["box_w"])
+            self.assertGreaterEqual(y, view["box_y"])
+            self.assertLessEqual(y + b[1][3], view["box_y"] + view["box_h"])
+        art = d.art_blits(blits)
+        for kind in art.values():
+            for b in kind:
+                self.assertGreaterEqual(b[3][0], left)
+                self.assertLessEqual(b[3][0] + b[1][2], right)
+        return art
+
+    def test_a_long_text_is_capped_clipped_and_scrolled(self) -> None:
+        for game, d in self.boxes.items():
+            with self.subTest(game=game):
+                h = d.g["screen"][1]
+                d.make_box(BOX_LONG)
+                self.assertGreater(d.stock_height, h)
+                blits = d.draw_box()
+                v = d.view()
+                self.assertEqual((v["shown"], v["vbar"], v["hbar"]), (1, 1, 0))
+                art = self.check_inside(d, blits, v)
+                for name in ("up", "down", "track", "knob"):
+                    self.assertIn(name, art)
+                first = min(b[3][1] for b in d.text_blits(blits))
+                # the wheel over the panel: three lines; the arrows; the knob to the end
+                left, top, right, bottom = d.panel()
+                self.assertTrue(d.mouse(1, (left + right) // 2, (top + bottom) // 2))
+                d.wheel(-1)
+                d.draw_box()
+                self.assertEqual(d.scroll(), (0, 3 * v["line"]))
+                self.assertFalse(d.click(v["vx"] + 4, v["vy"] + 4))
+                d.draw_box()
+                self.assertEqual(d.scroll(), (0, 2 * v["line"]))
+                d.wheel(50)                                           # back to the top: the knob there
+                d.draw_box()
+                self.assertEqual(d.scroll(), (0, 0))
+                ky = v["vy"] + v["arrow_h"] + 2
+                self.assertFalse(d.mouse(2, v["vx"] + 8, ky))
+                self.assertFalse(d.mouse(1, v["vx"] + 8, ky + 2000))
+                self.assertFalse(d.mouse(3, v["vx"] + 8, ky + 2000))
+                blits = d.draw_box()
+                v2 = d.view()
+                self.assertEqual(d.scroll()[1], v2["content_h"] - v2["box_h"])
+                self.check_inside(d, blits, v2)
+                self.assertNotEqual(min(b[3][1] for b in d.text_blits(blits)), first - 1)
+                # a click off the bars (the OK button's row) is the game's
+                self.assertTrue(d.click((left + right) // 2, bottom - 30))
+                # a new message starts at the top
+                d.make_box(BOX_LONG.replace(b"huts", b"boats"))
+                d.draw_box()
+                self.assertEqual(d.scroll(), (0, 0))
+
+    def test_a_wide_text_scrolls_sideways(self) -> None:
+        for game, d in self.boxes.items():
+            with self.subTest(game=game):
+                w = d.g["screen"][0]
+                d.make_box(BOX_WIDE)
+                self.assertGreater(d.stock_width, w)
+                blits = d.draw_box()
+                v = d.view()
+                self.assertEqual((v["shown"], v["vbar"], v["hbar"]), (1, 0, 1))
+                art = self.check_inside(d, blits, v)
+                self.assertIn("wide", art)
+                self.assertIn("handle", art)
+                self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                d.draw_box()
+                self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
+                # both: a long and wide text gets both bars
+                d.make_box(BOX_LONG + b"\n" + BOX_WIDE)
+                blits = d.draw_box()
+                v = d.view()
+                self.assertEqual((v["vbar"], v["hbar"]), (1, 1))
+                self.check_inside(d, blits, v)
 
 
 if __name__ == "__main__":

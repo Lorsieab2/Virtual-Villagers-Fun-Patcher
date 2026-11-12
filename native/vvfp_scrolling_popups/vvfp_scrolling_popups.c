@@ -110,6 +110,13 @@ static int *sp_clip(void *holder) {
     return ctx != NULL ? (int *)(ctx + 0x60) : NULL;
 }
 
+static int sp_screen_w(void) {
+    void *holder = sp_holder();
+    unsigned char *ctx = holder != NULL ? *(unsigned char **)holder : NULL;
+    int w = ctx != NULL ? *(int *)(ctx + 0x08) : 0;
+    return w > 0 && w <= 4096 ? w : g_game->screen_w;
+}
+
 static int sp_screen_h(void) {
     void *holder = sp_holder();
     unsigned char *ctx = holder != NULL ? *(unsigned char **)holder : NULL;
@@ -201,13 +208,20 @@ static int sp_load(sp_picture *pic, const sp_art *art) {
     const char *file;
     void *loaded;
     unsigned char *surface;
-    if (art->id == 0 || art->columns <= 0) {
-        return 0;                           /* a file beside the companion: a later stage */
-    }
-    entry = ((sp_lookup_fn)(UINT_PTR)g_game->image_lookup)(art->id);
-    file = entry != NULL ? *(const char *const *)(entry + 4) : NULL;
-    if (entry == NULL || *(const unsigned int *)entry != art->id || file == NULL) {
+    if (art->columns <= 0) {
         return 0;
+    }
+    if (art->file != NULL) {
+        file = art->file;                   /* a picture file by name, loaded by the game's own loader */
+    } else {
+        if (art->id == 0 || g_game->image_lookup == 0) {
+            return 0;
+        }
+        entry = ((sp_lookup_fn)(UINT_PTR)g_game->image_lookup)(art->id);
+        file = entry != NULL ? *(const char *const *)(entry + 4) : NULL;
+        if (entry == NULL || *(const unsigned int *)entry != art->id || file == NULL) {
+            return 0;
+        }
     }
     ZeroMemory(pic->strip, sizeof pic->strip);
     ((sp_frame_image_fn)(UINT_PTR)g_game->frame_image)(pic->strip, NULL, file, art->columns, 1);
@@ -421,6 +435,109 @@ static const sp_class *sp_class_at(unsigned int site, int draw) {
     return NULL;
 }
 
+/* Draws a popup's text that does not fit, scrolled: `draw` draws it with its top left at (x, y).  The box (bx, by,
+   bw, bh) is where the text may show (the horizontal bar, when one is needed, takes its bottom); `ox` is where the
+   text's left edge goes when it is no wider than the box (the game's own place for it), else it starts at bx;
+   the vertical bar goes right of the box, within `room_r` (the box gives up width for it when it must).  `line` is
+   one line's height (an arrow's step; the box shows whole lines).  The scroll position is the popup's while it
+   shows the same text (`hash`).  Returns 0 when it cannot (the art is missing, no room): the caller makes the
+   stock call. */
+typedef void (*sp_draw_cb)(void *holder, void *data, int x, int y);
+
+static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int bx, int by, int bw, int bh, int ox,
+                     int room_r, int content_w, int content_h, int line, unsigned int hash, sp_draw_cb draw,
+                     void *data) {
+    int *clip = sp_clip(holder);
+    int old[4], need_v, need_h, vis_h, wheel;
+    if (clip == NULL || bw <= 0 || bh <= 0 || !sp_art_ready()) {
+        return 0;
+    }
+    if (line <= 0) {
+        line = 16;
+    }
+    need_h = content_w > bw;
+    vis_h = need_h ? bh - SP_HBAR_GAP - sp_hbar_h() : bh;
+    need_v = content_h > vis_h;
+    if (need_v && bx + bw + SP_GAP + g_track.w > room_r) {
+        bw = room_r - g_track.w - SP_GAP - bx;      /* the box gives up width for the vertical bar */
+        if (bw <= 0) {
+            return 0;
+        }
+        if (!need_h && content_w > bw) {
+            need_h = 1;
+            vis_h = bh - SP_HBAR_GAP - sp_hbar_h();
+        }
+    }
+    if (need_v && vis_h > line) {
+        vis_h -= vis_h % line;              /* whole lines: none is cut at the box's bottom */
+    }
+    if (!need_v && content_h < vis_h) {
+        vis_h = content_h;                  /* the horizontal bar right below the text */
+    }
+    if (vis_h < (need_v ? 2 * g_up.h + g_knob.h : line)) {
+        return 0;                           /* no room for a bar (or a line): as the game draws it */
+    }
+    sp_install_watch();
+    if (g_state_popup != popup || g_state_hash != hash) {
+        g_state_popup = popup;
+        g_state_hash = hash;
+        g_sx = g_sy = 0;
+        g_drag = g_pressed = 0;
+    }
+    if (need_h) {
+        ox = bx;
+    }
+    g_view.popup = popup;
+    g_view.tick = GetTickCount();
+    g_view.panel_l = panel[0]; g_view.panel_t = panel[1]; g_view.panel_r = panel[2]; g_view.panel_b = panel[3];
+    g_view.box_x = bx; g_view.box_y = by; g_view.box_w = bw; g_view.box_h = vis_h;
+    g_view.content_w = content_w; g_view.content_h = content_h;
+    g_view.vbar = need_v; g_view.hbar = need_h;
+    g_view.arrow_h = g_up.h;
+    g_view.track_w = g_track.w;
+    g_view.knob_w = g_knob.w; g_view.knob_h = g_knob.h;
+    g_view.vx = bx + bw + SP_GAP; g_view.vy = by; g_view.vh = vis_h;
+    g_view.handle_w = g_knob.h; g_view.handle_h = g_knob.w;
+    g_view.hx = bx; g_view.hy = by + vis_h + SP_HBAR_GAP; g_view.hw = bw;
+    g_view.hh = sp_hbar_h();
+    g_view.line = line;
+    wheel = (int)InterlockedExchange(&g_wheel, 0);
+    if (wheel != 0 && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
+        && g_my < g_view.panel_b) {
+        if (need_v) {
+            g_sy -= wheel * SP_WHEEL_LINES * g_view.line;
+        } else {
+            g_sx -= wheel * SP_WHEEL_LINES * g_view.line;
+        }
+    }
+    sp_clamp();
+    old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+    sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
+    draw(holder, data, ox - g_sx, by - g_sy);
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+    sp_draw_bars(holder, clip, old);
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+#ifdef VVFP_TEST
+    InterlockedIncrement(&g_scroll_draws);
+#endif
+    return 1;
+}
+
+/* The island-event body: the game's justified paragraph at the content's width. */
+typedef struct sp_justify_draw {
+    const char *text;
+    int width;
+    unsigned int colour;
+    void *font;
+    int result;
+} sp_justify_draw;
+
+static void sp_draw_justified(void *holder, void *data, int x, int y) {
+    sp_justify_draw *d = (sp_justify_draw *)data;
+    d->result = ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, d->text, x, y, d->width, d->colour,
+                                                            d->font, 0);
+}
+
 /* The body text, scrolled when it does not fit; returns what the game's call returns (its height). */
 static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     const char *text = (const char *)(UINT_PTR)a[0];
@@ -429,10 +546,9 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     void *font = (void *)(UINT_PTR)a[5];
     unsigned char *popup = (unsigned char *)text - c->text;
     const int *panel = (const int *)(popup + c->panel);
-    int reserve = sp_reserve(c, popup), box_h, content_h, content_w, need_v, need_h, vis_h, r, wheel, line;
-    int *clip = sp_clip(holder);
-    int old[4];
-    if (reserve < 0 || clip == NULL || a[6] != 0 || w <= 0) {
+    int reserve = sp_reserve(c, popup), box_h, content_h, content_w, line;
+    sp_justify_draw d;
+    if (reserve < 0 || sp_clip(holder) == NULL || a[6] != 0 || w <= 0) {
         return -1;
     }
     box_h = panel[3] - reserve - y;
@@ -447,64 +563,17 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
         }
         return -1;
     }
-    if (!sp_art_ready()) {
+    line = sp_measure(holder, "X", w, colour, font);
+    d.text = text;
+    d.width = content_w;
+    d.colour = colour;
+    d.font = font;
+    d.result = -1;
+    if (!sp_scroll(holder, popup, panel, x, y, w, box_h, x, panel[2] - 4, content_w, content_h, line, sp_hash(text),
+                   sp_draw_justified, &d)) {
         return -1;
     }
-    sp_install_watch();
-    line = sp_measure(holder, "X", w, colour, font);
-    if (line <= 0) {
-        line = 16;
-    }
-    need_h = content_w > w;
-    vis_h = need_h ? box_h - SP_HBAR_GAP - sp_hbar_h() : box_h;
-    need_v = content_h > vis_h;
-    if (need_v && vis_h > line) {
-        vis_h -= vis_h % line;              /* whole lines: none is cut at the box's bottom */
-    }
-    if (vis_h < 2 * g_up.h + g_knob.h) {
-        return -1;                          /* no room for a bar: as the game draws it */
-    }
-    if (g_state_popup != popup || g_state_hash != sp_hash(text)) {
-        g_state_popup = popup;
-        g_state_hash = sp_hash(text);
-        g_sx = g_sy = 0;
-        g_drag = g_pressed = 0;
-    }
-    g_view.popup = popup;
-    g_view.tick = GetTickCount();
-    g_view.panel_l = panel[0]; g_view.panel_t = panel[1]; g_view.panel_r = panel[2]; g_view.panel_b = panel[3];
-    g_view.box_x = x; g_view.box_y = y; g_view.box_w = w; g_view.box_h = vis_h;
-    g_view.content_w = content_w; g_view.content_h = content_h;
-    g_view.vbar = need_v; g_view.hbar = need_h;
-    g_view.arrow_h = g_up.h;
-    g_view.track_w = g_track.w;
-    g_view.knob_w = g_knob.w; g_view.knob_h = g_knob.h;
-    g_view.vx = x + w + SP_GAP; g_view.vy = y; g_view.vh = vis_h;
-    g_view.handle_w = g_knob.h; g_view.handle_h = g_knob.w;
-    g_view.hx = x; g_view.hy = y + vis_h + SP_HBAR_GAP; g_view.hw = w;
-    g_view.hh = sp_hbar_h();
-    g_view.line = line;
-    wheel = (int)InterlockedExchange(&g_wheel, 0);
-    if (wheel != 0 && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
-        && g_my < g_view.panel_b) {
-        if (need_v) {
-            g_sy -= wheel * SP_WHEEL_LINES * g_view.line;
-        } else {
-            g_sx -= wheel * SP_WHEEL_LINES * g_view.line;
-        }
-    }
-    sp_clamp();
-    old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
-    sp_clip_to(clip, old, x, y, x + w, y + vis_h);
-    r = ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, text, x - g_sx, y - g_sy, content_w, colour, font,
-                                                    0);
-    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
-    sp_draw_bars(holder, clip, old);
-    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
-#ifdef VVFP_TEST
-    InterlockedIncrement(&g_scroll_draws);
-#endif
-    return r;
+    return d.result;
 }
 
 /* From the stub at draw_site or a measure site: the return address, the holder (ecx) and the call's seven
@@ -573,24 +642,94 @@ __declspec(naked) static void sp_draw_stub(void) {
     }
 }
 
-/* ---- The panel's height --------------------------------------------------------------------------------------- */
+/* ---- The panel's size ----------------------------------------------------------------------------------------- */
 
-/* From the stub at size_site: makes room for a horizontal bar when the text has a word wider than its box, caps
-   the height argument; returns the sizer to continue to. */
-static unsigned int __stdcall sp_size(unsigned int ret, void *popup, unsigned int *a) {
-    const sp_class *c = sp_class_at(ret - 5u, 0);
-    if (c == NULL) {
-        return 0;                           /* never: every size_site is a class's */
+/* The largest size the 9-slice panel may be asked for along one axis: it rounds the size up to whole cells of its
+   picture (the strip's frame width +0x10 or height +0x14), so a size one cell short of the whole cells that fit
+   keeps the rounded panel inside `limit`. */
+static int sp_cap(int limit, int cell) {
+    if (cell > 0 && cell < limit) {
+        return (limit / cell) * cell - cell + 1;
     }
-    __try {
-        int limit = sp_screen_h() - 2 * SP_MARGIN, cap = limit;
-        int cell = a[0] != 0 ? *(const int *)((const unsigned char *)(UINT_PTR)a[0] + 0x14) : 0;
-        unsigned char *p = (unsigned char *)popup;
-        /* The 9-slice panel rounds the height up to whole cells of its picture (the strip's frame height, +0x14):
-           a height one cell short of the whole cells that fit keeps the rounded panel inside the limit. */
-        if (cell > 0 && cell < limit) {
-            cap = (limit / cell) * cell - cell + 1;
+    return limit;
+}
+
+/* A message box asked for (w_req, h_req): what it was asked for is kept (a few at a time), so its draw knows how
+   much of its text the capped panel left out and where the game put the text in it. */
+#define SP_ASKED 4
+typedef struct sp_asked {
+    const unsigned char *popup;
+    unsigned int vtable;
+    int w_req, h_req;
+} sp_asked;
+static sp_asked g_asked[SP_ASKED];
+static int g_asked_next;
+
+static const sp_asked *sp_asked_for(const unsigned char *popup) {
+    int i;
+    for (i = 0; i < SP_ASKED; ++i) {
+        if (g_asked[i].popup == popup && popup != NULL && *(const unsigned int *)popup == g_asked[i].vtable) {
+            return &g_asked[i];
         }
+    }
+    return NULL;
+}
+
+static void sp_ask(const unsigned char *popup, int w_req, int h_req) {
+    int i, k = -1;
+    for (i = 0; i < SP_ASKED; ++i) {
+        if (g_asked[i].popup == popup) {
+            k = i;
+        }
+    }
+    if (k < 0) {
+        k = g_asked_next;
+        g_asked_next = (g_asked_next + 1) % SP_ASKED;
+    }
+    g_asked[k].popup = popup;
+    g_asked[k].vtable = *(const unsigned int *)popup;
+    g_asked[k].w_req = w_req;
+    g_asked[k].h_req = h_req;
+}
+
+/* From the stub at a size site: the island-event dialog makes room for a horizontal bar when its text has a word
+   wider than its box and caps the height (*set_edi = 1: the constructor centres its contents by edi); the message
+   box caps the width and the height and keeps what it asked for.  Returns the sizer to continue to. */
+static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *a, int *set_edi) {
+    const sp_class *c = sp_class_at(ret - 5u, 0);
+    *set_edi = 0;
+    if (c == NULL) {
+        if (ret - 5u == g_game->msgbox.size_site) {
+            __try {
+                const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
+                int cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+                int cap_h = sp_cap(sp_screen_h() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x14) : 0);
+                if (*(const unsigned int *)popup == g_game->msgbox.vtable) {
+                    sp_ask((const unsigned char *)popup, (int)a[1], (int)a[2]);
+                    if (cap_h > 0 && (int)a[2] > cap_h && sp_art_ready()) {
+                        a[1] += (unsigned int)(SP_GAP + g_track.w);       /* room for the vertical bar */
+                    }
+                    if (cap_w > 0 && (int)a[1] > cap_w) {
+                        a[1] = (unsigned int)cap_w;
+                        if (sp_art_ready()) {
+                            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
+                        }
+                    }
+                    if (cap_h > 0 && (int)a[2] > cap_h) {
+                        a[2] = (unsigned int)cap_h;
+                    }
+                }
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+            return g_game->msgbox.sizer;
+        }
+        return 0;                           /* never: every size site is a class's */
+    }
+    *set_edi = 1;
+    __try {
+        int cell = a[0] != 0 ? *(const int *)((const unsigned char *)(UINT_PTR)a[0] + 0x14) : 0;
+        int cap = sp_cap(sp_screen_h() - 2 * SP_MARGIN, cell);
+        unsigned char *p = (unsigned char *)popup;
         int box_w = *(int *)(p + c->box + 8);
         void *holder = sp_holder();
         if (holder != NULL && box_w > 0 && sp_art_ready()
@@ -605,6 +744,13 @@ static unsigned int __stdcall sp_size(unsigned int ret, void *popup, unsigned in
     return c->sizer;
 }
 
+/* Returns the sizer in eax and, in edx, 1 when edi takes the (capped) height. */
+static unsigned __int64 __stdcall sp_size(unsigned int ret, void *popup, unsigned int *a) {
+    int set_edi = 0;
+    unsigned int to = sp_size_common(ret, popup, a, &set_edi);
+    return ((unsigned __int64)(unsigned int)set_edi << 32) | to;
+}
+
 __declspec(naked) static void sp_size_stub(void) {
     __asm {
         push ecx
@@ -614,8 +760,111 @@ __declspec(naked) static void sp_size_stub(void) {
         push dword ptr [esp + 0xC]          /* the return address */
         call sp_size
         pop ecx
+        test edx, edx
+        jz keep
         mov edi, dword ptr [esp + 0xC]      /* the height, capped: the constructor centres by edi */
+    keep:
         jmp eax
+    }
+}
+
+/* ---- The message box's text ------------------------------------------------------------------------------------ */
+
+typedef void (__fastcall *sp_text_fn)(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                      void *font);
+
+typedef struct sp_text_draw {
+    const char *text;
+    unsigned int colour;
+    void *font;
+} sp_text_draw;
+
+static void sp_draw_text(void *holder, void *data, int x, int y) {
+    sp_text_draw *d = (sp_text_draw *)data;
+    ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, d->text, x, y, d->colour, d->font);
+}
+
+/* The message box's text control (its only one) drawn at (x, y): 1 when drawn scrolled, 0 when the game's call is
+   to be made.  The game lays the box out as: the text `SP_MSG_TOP` below the panel's top (plus half of what the
+   panel is taller than asked, or less half of what it is shorter), `SP_MSG_SIDE` from each side, and below it the
+   room for its buttons -- what was asked for less the text and its top.  Scrolled, the text's room starts
+   `SP_MSG_TOP` below the panel's top (the size site gave the panel the horizontal bar's height when it capped the
+   width). */
+#define SP_MSG_TOP 0x14
+#define SP_MSG_SIDE 0x1E
+static int sp_message(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18);
+    const sp_asked *asked;
+    const int *panel, *rect = (const int *)(ctl + 8);
+    int x = (int)a[1], y = (int)a[2], lw, lh, top, bottom, left, right, newlines = 0, line;
+    const char *text = (const char *)(UINT_PTR)a[0], *p;
+    sp_text_draw d;
+    if (popup == NULL || text == NULL || *(const unsigned int *)popup != g_game->msgbox.vtable) {
+        return 0;
+    }
+    asked = sp_asked_for(popup);
+    if (asked == NULL) {
+        return 0;
+    }
+    panel = (const int *)(popup + 0x14);
+    lw = rect[2] - rect[0];
+    lh = rect[3] - rect[1];
+    top = panel[1] + SP_MSG_TOP;
+    bottom = panel[3] - (asked->h_req - lh - SP_MSG_TOP);
+    left = panel[0] + SP_MSG_SIDE;
+    right = panel[2] - SP_MSG_SIDE;
+    if (lw <= 0 || lh <= 0 || (y >= top && y + lh <= bottom && x >= left && x + lw <= right)) {
+        if (g_view.popup == popup) {
+            g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
+        }
+        return 0;
+    }
+    for (p = text; *p != 0; ++p) {
+        newlines += *p == '\n';
+    }
+    line = lh / (newlines + 1);
+    d.text = text;
+    d.colour = a[3];
+    d.font = (void *)(UINT_PTR)a[4];
+    return sp_scroll(holder, (unsigned char *)popup, panel, left, top, right - left, bottom - top,
+                     x >= left && x + lw <= right ? x : left, panel[2] - SP_MSG_SIDE / 2, lw, lh, line, sp_hash(text), sp_draw_text,
+                     &d);
+}
+
+/* From the stub at the text control draw's call of the text draw: the holder (ecx), the control (esi) and the
+   call's five arguments. */
+static void __stdcall sp_control(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    int *clip = NULL, old[4] = {0, 0, 0, 0}, done = 0;
+    __try {
+        clip = sp_clip(holder);
+        if (clip != NULL) {
+            old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+        }
+        done = sp_message(holder, ctl, a);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        done = 0;
+        if (clip != NULL) {
+            __try {
+                clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+        }
+        g_view.popup = NULL;
+    }
+    if (!done) {
+        ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1], (int)a[2],
+                                                   a[3], (void *)(UINT_PTR)a[4]);
+    }
+}
+
+__declspec(naked) static void sp_control_stub(void) {
+    __asm {
+        lea eax, [esp + 4]
+        push eax                            /* the five arguments */
+        push esi                            /* the text control */
+        push ecx                            /* the holder */
+        call sp_control
+        ret 0x14
     }
 }
 
@@ -764,9 +1013,10 @@ static void sp_call_bytes(unsigned char *out, unsigned int site, unsigned int ta
 }
 
 /* Called once by VVFP Startup.dll before WinMain. */
+#define SP_MAX_SITES 64
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
-    static vvfp_site_write w[1 + 6 * 8];
-    static unsigned char stock[1 + 6 * 8][5];
+    static vvfp_site_write w[SP_MAX_SITES];
+    static unsigned char stock[SP_MAX_SITES][5];
     const unsigned char *module;
     const sp_game *g;
     int count = 0, i, k;
@@ -779,7 +1029,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         return;                             /* every site is a VA of the games' fixed base */
     }
     g = &SP_GAMES[game];
-    if (g->class_count <= 0 || g->class_count > 8) {
+    if (g->class_count < 0 || g->class_count > 8 || g->mouse_site == 0 || g->msgbox.size_site == 0) {
         return;
     }
     sp_call_bytes(stock[count], g->mouse_site, g->mouse_dispatch);
@@ -808,6 +1058,18 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
             }
         }
     }
+    /* The message box: its constructor's sizer call (after `push eax; mov ecx, esi`) and the text control draw's
+       call of the text draw (esi = the control). */
+    if (!vvfp_site_holds(g->msgbox.size_site - 3u, (const unsigned char *)"\x50\x8B\xCE", 3)
+        || !vvfp_site_holds(g->ctl_site - 4u, g->ctl_before, 4)) {
+        return;
+    }
+    sp_call_bytes(stock[count], g->msgbox.size_site, g->msgbox.sizer);
+    vvfp_site_branch(&w[count], g->msgbox.size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
+    ++count;
+    sp_call_bytes(stock[count], g->ctl_site, g->text_draw);
+    vvfp_site_branch(&w[count], g->ctl_site, 5, stock[count], 0xE8, (const void *)sp_control_stub);
+    ++count;
     g_game = g;
     g_game_number = game;
     g_mouse_dispatch = g->mouse_dispatch;

@@ -141,8 +141,13 @@ FILES = [
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
     "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
-    # Scrolling Popups (The Secret City, The Tree of Life, New Believers): the companion.
+    # Scrolling Popups (all five games): the companion, and the four scrollbar pictures A New Home and The Lost
+    # Children borrow from The Secret City (shipped to Images\ as new files).
     "assets/scrolling_popups/VVFP Scrolling Popups.dll",
+    "assets/scrolling_popups/vvfp_scroll_up.png",
+    "assets/scrolling_popups/vvfp_scroll_down.png",
+    "assets/scrolling_popups/vvfp_scroll_track.png",
+    "assets/scrolling_popups/vvfp_scroll_knob.png",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -315,6 +320,8 @@ FILES = [
     "data/vv4_island_events_scale_with_stored_amounts_feature.json",
     "data/vv5_island_events_scale_with_population_feature.json",
     "data/vv5_island_events_scale_with_stored_amounts_feature.json",
+    "data/vv1_scrolling_popups_feature.json",
+    "data/vv2_scrolling_popups_feature.json",
     "data/vv3_scrolling_popups_feature.json",
     "data/vv4_scrolling_popups_feature.json",
     "data/vv5_scrolling_popups_feature.json",
