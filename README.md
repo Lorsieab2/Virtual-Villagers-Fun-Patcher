@@ -22,6 +22,12 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.96
+
+- **All Fruit Trees Refill to Full** (The Secret City, on in Owner's Defaults): each time a fruit tree's refill comes due, it goes back to 1,000 fruit instead of gaining about 111.
+- **Yellow Breadfruit Refills Partially Every Time** (The Tree of Life, off in Owner's Defaults; needs **Yellow Fruit Trees are No Longer Unlimited**): the yellow fruit supply refills at The Secret City's pace, about 111 fruit every 3 hours on Normal up to 1,000, instead of going back to full every 4 hours.
+- The patcher's helper files were rebuilt with the updated compiler; nothing they do changed.
+
 ## What's new in v1.35.95
 
 - **Stew Recipes window** (Tools tab, below Game Mechanics): every stew and potion recipe of The Lost Children, The Secret City and The Tree of Life, from the games' own code. It covers the herbs by their in-game names (The Lost Children's strange plants by their colour), fresh or salt water, what each one does, the puzzle stews and what they need, the food they take, and which ones can kill.
