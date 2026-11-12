@@ -1,0 +1,68 @@
+{
+  "id": "vv2_aspiring_adventurer_event",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "The Aspiring Adventurer (New Island Event)",
+  "description": "A new island event, written by the owner: a villager who loves to explore sees something glinting off the safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (+500 food) or a golden chest of artifacts (+2,000 tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they join another tribe. The event is one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them, never the village's first island event; it needs two villagers of 14 or more who are not nursing a baby and not an Esteemed Elder's totem statue, and the adventurer and the friend who may come to help are drawn from them. The reward is 500 food or 2,000 tech points times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next). Off by default; Owner's Defaults ticks it. **Needs no other patch.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is \"VVFP Aspiring Adventurer.dll\", started by VVFP Startup.dll; nothing is saved by it.",
+  "output_tag": "Aspiring Adventurer",
+  "dependencies": [],
+  "behavior_changes": [
+    "The event is one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them, never the village's first island event. It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not an Esteemed Elder's totem statue; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer.",
+    "Choice A, \"Go investigate!\": the find 50% a pile of dirt, 25% meat (+500 food), 25% a golden chest (+2,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half.",
+    "Choice B, \"Stay on the safe path\": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), joins another tribe (gone for good, no grave), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears.",
+    "The reward goes through the game's own food or tech writer, times the game's own factor for its two-choice events (1 up to 25 villagers, 2 up to 50, 3 above). The effects are made when the answer is clicked, as the game's own two-choice events make theirs; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one.",
+    "The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist.",
+    "Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/aspiring_adventurer/VVFP Aspiring Adventurer.dll",
+      "destination": "VVFP Aspiring Adventurer.dll",
+      "sha256": "B80E8BDBC4C99EA6D8A39F5BD5D74E693D9CA386C102B79CF2A4812DA51A8359"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x41F5AC",
+      "stock_bytes": "0F87E4000000",
+      "written_bytes": "0F87XXXXXXXX",
+      "routine": "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for this event when it can happen -- 1 in 22 a draw, like each stock event",
+      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41F7A0",
+      "stock_bytes": "0F87620C0000",
+      "written_bytes": "0F87XXXXXXXX",
+      "routine": "family A's setup 0x41F780, past its jump table: the event's 21 is set up by the companion",
+      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4204CE",
+      "stock_bytes": "0F87831D0000",
+      "written_bytes": "0F87XXXXXXXX",
+      "routine": "family A's resolve 0x4204B0, past its jump table: the event's 21 is answered by the companion (the effects and the first result page)",
+      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x42230E",
+      "stock_bytes": "E87DB0FEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "OK's close in family A's click handler 0x4222F0: while the event has a page left it is shown instead",
+      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x42F1A3",
+      "stock_bytes": "E8D831FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the trigger's call of family A's constructor 0x422380: after it, a question of more than one page starts on its first page, with OK",
+      "installed_by": "VVFP Aspiring Adventurer.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

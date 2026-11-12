@@ -341,6 +341,10 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
+# The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, companion only, "VVFP Aspiring
+# Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_aspiring_adventurer.py.
+ASPIRING_ADVENTURER_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_aspiring_adventurer_event_feature.json" for n in range(1, 6))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4208,7 +4212,8 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS):
+                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + ASPIRING_ADVENTURER_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12732,7 +12737,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "A49F9A20193DC71B198DF404EF4E7C1DCD1474DCCB20ED1D88473C8A7095310C",
+    "sha256": "893D92593E39E00B63FBB84291B205FBC33A2C405C2DF6192542A0E58998CDD3",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12829,6 +12834,8 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): island-event food and tech amounts scaled.
     "VVFP Island Events Scale.dll",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "VVFP Aspiring Adventurer.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

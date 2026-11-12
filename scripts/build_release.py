@@ -139,6 +139,8 @@ FILES = [
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "assets/aspiring_adventurer/VVFP Aspiring Adventurer.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -311,6 +313,11 @@ FILES = [
     "data/vv4_island_events_scale_with_stored_amounts_feature.json",
     "data/vv5_island_events_scale_with_population_feature.json",
     "data/vv5_island_events_scale_with_stored_amounts_feature.json",
+    "data/vv1_aspiring_adventurer_event_feature.json",
+    "data/vv2_aspiring_adventurer_event_feature.json",
+    "data/vv3_aspiring_adventurer_event_feature.json",
+    "data/vv4_aspiring_adventurer_event_feature.json",
+    "data/vv5_aspiring_adventurer_event_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.

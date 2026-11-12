@@ -29,6 +29,8 @@ PIECES = {
             ("vv4_yellow_fruit_trees_limited", "Yellow Fruit Trees are No Longer Unlimited"),
             # The owner (2026-11-12): a member of Classic VV Difficulty in The Tree of Life and New Believers.
             ("vv4_island_events_scale_with_population", "Island Events Scale With Population (like The Lost Children)"),
+            # The owner (2026-11-12): a member of each game's Classic VV Difficulty.
+            ("vv4_aspiring_adventurer_event", "The Aspiring Adventurer (New Island Event)"),
             ("vv4_difficulty_settings", "Difficulty Settings")],
     "vv5": [("vv5_food_pays_like_earlier_games", "Food Gains are Flat, like VV1-3 (Harder Games)"),
             ("vv5_hungrier_villagers", "Hungrier Villagers (2-10x Meals)"),
@@ -37,6 +39,7 @@ PIECES = {
             ("vv5_faith_loss_doubled_gains_halved", "Faith Loss is Doubled/Gains Halved"),
             ("vv5_sickness_like_vv3", "Sickness works like VV1-3"),
             ("vv5_island_events_scale_with_population", "Island Events Scale With Population (like The Lost Children)"),
+            ("vv5_aspiring_adventurer_event", "The Aspiring Adventurer (New Island Event)"),
             ("vv5_difficulty_settings", "Difficulty Settings")],
 }
 

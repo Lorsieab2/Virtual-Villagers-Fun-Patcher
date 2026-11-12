@@ -54,6 +54,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
        Believers): island-event food and tech amounts scaled by the population or the stores. */
     "VVFP Island Events Scale.dll",
+    /* The Aspiring Adventurer (all five games): the owner's new island event. */
+    "VVFP Aspiring Adventurer.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
