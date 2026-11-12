@@ -432,6 +432,8 @@ FIX_PERCENT |= {off for off, _, _ in zero_length_line_fixes("vv4")}
 from test_nursery_tie_random import nursery_tie_fixes  # noqa: E402
 
 FIX_PERCENT |= {off for off, _, _ in nursery_tie_fixes("vv4")}
+# ... and the frogs after The Frog Rescue (the leap ranges and the ripple frames), kept with 256 Villagers.
+FIX_PERCENT |= {0x6D3F8, 0x6D406, 0x6D440, 0x6D44E, 0x6D488, 0x6D496, 0xB9F0C, 0xB9F1C}
 BLOCK_CHECK, BLOCK_OBJECT, BLOCK_SIZE_FN = 0x4387A0, 0x4D8BF8, 0x438770
 
 
