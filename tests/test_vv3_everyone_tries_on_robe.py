@@ -257,17 +257,20 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for All Fruit Trees Refill to Full (vv3_fruit_trees_refill_to_full): without it the render equals the
     # pins before it (D539EA47..., 3C4A5D42..., 68E8C59C...); with it only 0x347EB..0x347F1 (the refill's add) and the
     # PE CheckSum (0x160..0x162) differ, in every mode; the length is unchanged.
+    # Re-pinned for Picked Up Collectibles Stay Collected When Dropped (vv3_collectibles_stay_collected): without it
+    # the render equals the pins before it (FB106BB0..., 9E0FEA89..., EAB765F8...); with it exactly 15 bytes differ in
+    # every mode, the two area-test NOPs 0x2DEEA..0x2DEEF and 0x2DF1A..0x2DF1F and the PE CheckSum; same length.
     "stock": (
-        "FB106BB033110F991407DBAA000B4D8AFF10B0BA44CFD9B30E2586236B576D7A",
-        "578C0D00",
+        "B8B3AC4E38B24A6C0333BFFC4E3CB376AE27F840CD0D32F1B60F31266595D58E",
+        "78E20C00",
     ),
     "collection_progression": (
-        "9E0FEA892524E44C3F676A63C23967641624E8300C36F748E320032C64302C85",
-        "57A50D00",
+        "B099D35A7AC0D1CDF80266DB6C81BA2A55E22D295B931CFE80073C78A6ADEC02",
+        "78FB0C00",
     ),
     "immediate_fixed": (
-        "EAB765F85E476FB2990A5199BA6F630C9062624FB5DCEB74B3D96C88F7F39852",
-        "56E70C00",
+        "8F04028774CBA8A73505F88AF675528D321E45A607360FAD840F876CD2EC6AFE",
+        "763D0D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at

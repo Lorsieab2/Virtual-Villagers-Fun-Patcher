@@ -214,6 +214,15 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
     ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
+    # Picked Up Collectibles Stay Collected When Dropped (2026-11-12): the splice at 0x3A266 (the mushroom pick's
+    # epilogue) jumps to 13 bytes of stock int3/nop padding INSIDE .text (0x43B592), which this walker does not
+    # treat as a cave, so its fingerprint is the empty digest. Reviewed by hand instead: the patched pick keeps the
+    # manager in edi (0x43A24B `mov edi,[esi+0x3E010]`, edi saved by the dispatcher's push at 0x43A243); the cave
+    # is `mov eax,[edi+0xACB0]; jmp [eax*4+0x43B4E8]`, which enters the brown (0x43AFEF), red (0x43B04C -> 0x43AFF1)
+    # or stock third (0x43B465; Golden Mushroom's case when that row is on) award case with the dispatcher's frame
+    # unchanged; none of the three reads edi before writing it, and each ends in the dispatcher's own epilogue
+    # (pops + ret 8). The bytes are pinned in tests/test_collectibles_stay_collected.py.
+    ("vv1_collectibles_stay_collected", "0x3A266"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     # Doubler persistence. Both halves re-verified after the save and restore
     # hooks were found to be on each other's functions and swapped.
     #
