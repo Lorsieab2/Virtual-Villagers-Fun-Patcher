@@ -219,9 +219,10 @@ def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
     return out
 
 
-def run(game: str, mode: str, selection, loader: bool = True, drop=()):
+def run(game: str, mode: str, selection, loader: bool = True, drop=(), swap=None):
+    """swap: shipped file name -> another file loaded in its place (a companion's TEST build)."""
     exe, shipped, features = published(game, mode, tuple(selection), loader)
-    shipped = {k: v for k, v in shipped.items() if k not in drop}
+    shipped = {k: (swap or {}).get(k, v) for k, v in shipped.items() if k not in drop}
     machine = StartupMachine(exe, build_of(game).input_name, shipped)
     call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
     before = {va: machine.code(va, len(stock)) for va, stock, _ in declared_detours(features)}

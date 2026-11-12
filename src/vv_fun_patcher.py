@@ -341,6 +341,10 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
+# Scrolling Popups (all five games; the owner, 2026-11-12): companion only, "VVFP Scrolling Popups.dll" (and, in A
+# New Home and The Lost Children, four borrowed scrollbar pictures to Images\), started by VVFP Startup.dll from its
+# second word; scripts/build_scrolling_popups_features.py.
+SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_feature.json" for n in (1, 2, 3, 4, 5))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4208,7 +4212,8 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS):
+                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + SCROLLING_POPUPS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -12732,7 +12737,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "EB05441138F7194BFBA4977B90B57825BC3FC7FB80FDECBBE3C05C217414D027",
+    "sha256": "ADC3504AA6539A734A5EDBE25390CD0BA3450429736FF20A2187D3EEE417D538",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12832,6 +12837,11 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (all five games): scrollbars on popups whose text does not fit.
+    "VVFP Scrolling Popups.dll",
+    # Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its
+    # box gets a line of its own instead of hanging the game's line layout.
+    "VVFP Long Words.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time

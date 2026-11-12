@@ -318,6 +318,15 @@
       ]
     },
     {
+      "ids": ["vv1_scrolling_popups", "vv2_scrolling_popups", "vv3_scrolling_popups", "vv4_scrolling_popups", "vv5_scrolling_popups"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it.",
+        "A popup (island events, message boxes) is never bigger than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
+        "scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar. A very long word gets a sideways bar.",
+        "A popup whose text fits looks exactly as before. No keyboard scrolling. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv4_louder_wind_flutes"],
       "guide": [
         "On by default. The wind flutes that play in fog once you have found a Wind Flute are 2.5 times louder, so you hear them over the music.",
@@ -1173,7 +1182,7 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]

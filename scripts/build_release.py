@@ -114,6 +114,8 @@ FILES = [
     "assets/stuck_walks/VVFP Stuck Walks.dll",
     # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
     "assets/keep_carried/VVFP Keep Carried.dll",
+    # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
+    "assets/long_words/VVFP Long Words.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
@@ -141,6 +143,13 @@ FILES = [
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
     "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (all five games): the companion, and the four scrollbar pictures A New Home and The Lost
+    # Children borrow from The Secret City (shipped to Images\ as new files).
+    "assets/scrolling_popups/VVFP Scrolling Popups.dll",
+    "assets/scrolling_popups/vvfp_scroll_up.png",
+    "assets/scrolling_popups/vvfp_scroll_down.png",
+    "assets/scrolling_popups/vvfp_scroll_track.png",
+    "assets/scrolling_popups/vvfp_scroll_knob.png",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -313,6 +322,11 @@ FILES = [
     "data/vv4_island_events_scale_with_stored_amounts_feature.json",
     "data/vv5_island_events_scale_with_population_feature.json",
     "data/vv5_island_events_scale_with_stored_amounts_feature.json",
+    "data/vv1_scrolling_popups_feature.json",
+    "data/vv2_scrolling_popups_feature.json",
+    "data/vv3_scrolling_popups_feature.json",
+    "data/vv4_scrolling_popups_feature.json",
+    "data/vv5_scrolling_popups_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.

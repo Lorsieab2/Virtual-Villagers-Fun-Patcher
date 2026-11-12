@@ -1,0 +1,123 @@
+{
+  "id": "vv3_scrolling_popups",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv3",
+  "name": "Scrolling Popups",
+  "description": "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them), message boxes (tech and puzzle results, confirmations), tips (the tutorial and notices), the tombstone (a long name or cause of death scrolls sideways) and the Roster of the Dead and Create Nickname (a long translation or name scrolls sideways). The Options panel (each label sits beside its slider or button, which cannot scroll with it) and the panels with no text body (Change Player, the outfit chooser) are as the game draws them. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Scrolling Popups.dll\", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.",
+  "output_tag": "Scrolling Popups",
+  "dependencies": [],
+  "conflicts": [],
+  "behavior_changes": [
+    "The island-event dialog (constructor 0x4192F0): its `call 0x40DDD0` sizing the panel (0x41983F) calls VVFP Scrolling Popups.dll, which caps the height to the screen's (600 px, read from the drawing context) less 16 px above and below; the game then centres the panel and places its buttons from the bottom.",
+    "Its draw's `call 0x40A0C0` drawing the body text (0x418591) calls the companion, which measures the text with that same routine (measure only) and its words with the game's counted draw; when the text fits the box (the panel's bottom less the room the dialog keeps for its buttons: 4 x a choice button's height with two choices, else 5/2 x the OK button's) it makes the stock call unchanged; otherwise it sets the drawing context's clip rectangle (+0x60) to the box, draws the text moved by the scroll position, restores the clip, and draws the scrollbars with the game's own pictures.",
+    "A word wider than the text box (a long unbroken word) hangs the stock game: its justified paragraph backs off to an empty line and tries the same word again, for ever. The constructor's four measures of the dialog's texts (0x419611, 0x419648, 0x419681, 0x4197F7, `call 0x40A0C0`, measure only) call the companion, which gives the paragraph the width of the text's widest word when that is wider than the box (the words measured with the game's counted draw, cut where the paragraph cuts them); the draw wraps at that same width and the box scrolls sideways.",
+    "The message box (vtable 0x47F3AC, laid out by 0x41C3A0): its `call 0x40DDD0` sizing the panel (0x41C53F) calls the companion, which keeps the size asked for and caps the width and the height to the screen's (800 x 600, read from the drawing context) less 16 px on each side; the game then centres the panel and places its text and buttons as always.",
+    "The text control draw's `call 0x40A060` drawing a control's text (0x40D807) calls the companion: the text of a message box whose panel was capped (the control's parent has the message box's vtable and asked for more than the screen holds) is drawn under a clip rectangle set to the room the box keeps for it (0x14 below the panel's top, 0x1E from its sides, above its buttons), moved by the scroll position, with the scrollbars beside it; every other text, and a message box's text that fits, is the stock call unchanged.",
+    "The tip (vtable 0x47F454): its `call 0x40DDD0` sizing the panel (0x41DFF1) is capped the same way. The frame draw's tail (0x40E013, `mov edx, [esi]` to the `jmp` into the dialog's body draw) jumps to the companion, which makes the same pops and calls the body draw: a tip that asked for more than the screen holds has its body drawn with its panel rectangle (+0x14..+0x20, which the body draw places everything by) moved by the scroll position and by what the capped panel moved its centred contents, under a clip set to the box (0x24 from the sides, 0x0A below the top, above twice the OK button's height), the rectangle put back after, with the scrollbars; every other dialog's body is called exactly as before. The tip's per-line `call 0x40A0C0` (0x41E433) is given the widest word's width when that is wider than the box, so the stock hang on a long word cannot happen there.",
+    "The tombstone (vtable 0x47F498, a fixed panel): each line is a text control. At the text control draw's call (0x40D807) a line whose window is the tombstone is measured with all the tombstone's other lines (its window's text controls, as the text control draw places them); when one runs past the panel's sides (a long name, a long cause, a translation), each line is drawn moved by the scroll position under a clip 16 px in from the sides and above the Done button, with a horizontal bar below the lines; the editable epitaph and every tombstone that fits are drawn exactly as before.",
+    "The same for the Roster of the Dead (vtable 0x47F2C0), Create Nickname (vtable 0x47F344): at the text control draw's call (0x40D807) a line of one of these panels is measured with all the panel's lines (its window's text controls); when one runs past the panel's sides, every line is drawn moved by the scroll position under a clip 16 px in from the sides, above the controls in the panel's lower half (its buttons, a text box), with a horizontal bar below the lines; text boxes, buttons and every panel that fits are drawn exactly as before.",
+    "The event pump's `call 0x4020A0` handing a mouse event to the game (0x40451E) calls the companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read by an SDL event watch (SDL_AddEventWatch, SDL_MOUSEWHEEL).",
+    "The scrollbars are the game's own pictures (image ids 0x1B-0x1E, 0x19, 0x1A): Up/DownArrowButton, VerticalScrollTrack fitted to the bar's height, VerticalScrollKnob; the horizontal bar is WideSlider2 fitted to the vertical track's width (18 px) with sliderhandle fitted to the knob's size turned sideways."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes and the instructions before them (all of them, or none).",
+    "A popup whose text fits is drawn by the very same call as in the stock game; the popups' text fields keep their sizes; keys, the buttons, the events and the save are unchanged."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the companion emulated on the published executable's own popup code with the game's own fonts and pictures (tests/test_scrolling_popups.py: the panel capped, the clip set and restored, wheel, arrows, knob drag and track clicks moving the drawn lines, the buttons at the panel's bottom, a fitting text drawn exactly as the stock game draws it); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/scrolling_popups/VVFP Scrolling Popups.dll",
+      "destination": "VVFP Scrolling Popups.dll",
+      "sha256": "FBD32094BE0C02638BB5E2A429BB40D11626132FBD8D3730006995A5E6E98968"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x40451E",
+      "stock_bytes": "E87DDBFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the event pump's call of the mouse dispatcher: scrollbar events are the companion's, every other event is passed on to the stock dispatcher",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x418591",
+      "stock_bytes": "E82A1BFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog's body text: the stock call when it fits, else clipped, scrolled and given scrollbars",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41983F",
+      "stock_bytes": "E88C45FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog's panel size: the height capped to the screen, then the stock sizer",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x419611",
+      "stock_bytes": "E8AA0AFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog constructor's measure of a text: at the widest word's width when that is wider than the box (never stuck), else the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x419648",
+      "stock_bytes": "E8730AFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog constructor's measure of a text: at the widest word's width when that is wider than the box (never stuck), else the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x419681",
+      "stock_bytes": "E83A0AFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog constructor's measure of a text: at the widest word's width when that is wider than the box (never stuck), else the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4197F7",
+      "stock_bytes": "E8C408FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the island-event dialog constructor's measure of a text: at the widest word's width when that is wider than the box (never stuck), else the stock call",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41C53F",
+      "stock_bytes": "E88C18FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the message box's panel size: the width and the height capped to the screen, then the stock sizer",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40D807",
+      "stock_bytes": "E854C8FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the text control draw's call of the text draw: the message box's text, when it does not fit, clipped, scrolled and given scrollbars; every other text as the game draws it",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41DFF1",
+      "stock_bytes": "E8DAFDFEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the tip's panel size: the width and the height capped to the screen, then the stock sizer",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41E433",
+      "stock_bytes": "E888BCFEFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the tip's per-line justified paragraph: at the widest word's width when that is wider than the box (never stuck)",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x40E013",
+      "stock_bytes": "8B165F8BCE5E5B83C404FF6230",
+      "written_bytes": "E9XXXXXXXX9090909090909090",
+      "routine": "the frame draw's tail calling the dialog's body draw: a tip that asked for more than the screen holds is drawn with its panel moved by the scroll position under a clip, with the scrollbars; every other dialog's body is called as before",
+      "installed_by": "VVFP Scrolling Popups.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}
