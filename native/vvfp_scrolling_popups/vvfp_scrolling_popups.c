@@ -62,6 +62,7 @@ typedef int (__cdecl *sp_add_watch_fn)(void *callback, void *userdata);
 typedef struct sp_picture {
     void *image;
     int w, h;                     /* one frame */
+    int tx, ty, tw, th;           /* its drawn part (the rest is transparent): left, top, width, height */
     unsigned char strip[0x40];    /* the game's frame strip (0x34 bytes), built here */
 } sp_picture;
 
@@ -218,6 +219,11 @@ static int sp_load(sp_picture *pic, const sp_art *art) {
     pic->image = pic->strip;
     pic->w = *(int *)(surface + 8) / art->columns;
     pic->h = *(int *)(surface + 0x0C);
+    pic->tx = 0; pic->ty = 0; pic->tw = pic->w; pic->th = pic->h;
+    if (art->trim[2] > 0 && art->trim[3] > 0 && art->trim[0] + art->trim[2] <= pic->w
+        && art->trim[1] + art->trim[3] <= pic->h) {
+        pic->tx = art->trim[0]; pic->ty = art->trim[1]; pic->tw = art->trim[2]; pic->th = art->trim[3];
+    }
     return pic->w > 0 && pic->h > 0;
 }
 
@@ -293,34 +299,54 @@ static int sp_handle_x(void) {
     return g_view.hx + (m > 0 ? (int)((long long)g_sx * sp_handle_travel() / m) : 0);
 }
 
-/* A picture stretched along one axis without scaling it: its two ends (`cap` pixels each) at the two ends of
-   [from, to), its middle repeated between them, each piece cut by the clip.  vertical: along y at column `at`;
-   else along x at row `at`. */
-static void sp_draw_run(void *holder, int *clip, const int *old, const sp_picture *p, int vertical, int at,
-                        int from, int to, int cap) {
-    int size = vertical ? p->h : p->w, cross = vertical ? p->w : p->h, step = size - 2 * cap, m;
-    if (to - from <= 0 || step <= 0) {
-        return;
+/* One axis of a picture fitted to [from, to) without scaling it: its two ends (`cap` pixels each) at the two ends,
+   and between them its middle -- repeated when the run is longer than the picture, its centre when shorter.  Each
+   piece is [lo, hi) with the picture placed at pos.  Returns the pieces. */
+#define SP_MAX_PIECES 24
+static int sp_pieces(int from, int to, int size, int cap, int *lo, int *hi, int *pos) {
+    int len = to - from, n = 0, m, step;
+    if (len <= 0 || size <= 0) {
+        return 0;
     }
-#define SP_PIECE(pos, lo, hi)                                                                                   \
-    do {                                                                                                        \
-        int lo_ = (lo) > from ? (lo) : from, hi_ = (hi) < to ? (hi) : to;                                       \
-        if (hi_ > lo_) {                                                                                        \
-            if (vertical) {                                                                                     \
-                sp_clip_to(clip, old, at, lo_, at + cross, hi_);                                                \
-                sp_picture_at(holder, p, at, (pos));                                                            \
-            } else {                                                                                            \
-                sp_clip_to(clip, old, lo_, at, hi_, at + cross);                                                \
-                sp_picture_at(holder, p, (pos), at);                                                            \
-            }                                                                                                   \
-        }                                                                                                       \
-    } while (0)
-    SP_PIECE(from, from, from + size - cap < to - cap ? from + size - cap : to - cap);   /* the first end */
-    for (m = from + size - cap; m < to - cap; m += step) {
-        SP_PIECE(m - cap, m, m + step < to - cap ? m + step : to - cap);                 /* the middle */
+    if (len == size) {
+        lo[0] = from; hi[0] = to; pos[0] = from;
+        return 1;
     }
-    SP_PIECE(to - size, to - cap, to);                                                   /* the last end */
-#undef SP_PIECE
+    if (2 * cap >= size) {
+        cap = (size - 1) / 2;
+    }
+    if (2 * cap > len) {
+        cap = len / 2;
+    }
+    lo[n] = from; hi[n] = from + cap; pos[n] = from; ++n;                       /* the first end */
+    if (len < size) {
+        lo[n] = from + cap; hi[n] = to - cap; pos[n] = (from + to) / 2 - size / 2; ++n;   /* the picture's centre */
+    } else {
+        step = size - 2 * cap;
+        hi[0] = from + size - cap < to - cap ? from + size - cap : to - cap;
+        for (m = from + size - cap; m < to - cap && n < SP_MAX_PIECES - 1; m += step) {
+            lo[n] = m; hi[n] = m + step < to - cap ? m + step : to - cap; pos[n] = m - cap; ++n;   /* the middle */
+        }
+    }
+    lo[n] = to - cap; hi[n] = to; pos[n] = to - size; ++n;                      /* the last end */
+    return n;
+}
+
+/* A picture's drawn part fitted to the rectangle (x, y, w, h) without scaling it, cut by the clip: its ends kept
+   (capx pixels left and right, capy top and bottom), its middle repeated or cut (sp_pieces) along each axis. */
+static void sp_draw_fitted(void *holder, int *clip, const int *old, const sp_picture *p, int frame, int x, int y,
+                           int w, int h, int capx, int capy) {
+    int xl[SP_MAX_PIECES], xh[SP_MAX_PIECES], xp[SP_MAX_PIECES], yl[SP_MAX_PIECES], yh[SP_MAX_PIECES],
+        yp[SP_MAX_PIECES];
+    int nx = sp_pieces(x, x + w, p->tw, capx, xl, xh, xp), ny = sp_pieces(y, y + h, p->th, capy, yl, yh, yp), i, j;
+    for (j = 0; j < ny; ++j) {
+        for (i = 0; i < nx; ++i) {
+            if (xh[i] > xl[i] && yh[j] > yl[j]) {
+                sp_clip_to(clip, old, xl[i], yl[j], xh[i], yh[j]);
+                sp_frame_at(holder, p, xp[i] - p->tx, yp[j] - p->ty, frame);
+            }
+        }
+    }
     clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
 }
 
@@ -330,16 +356,25 @@ static void sp_draw_bars(void *holder, int *clip, const int *old) {
         int hover_up = g_mx >= g_view.vx && g_mx < g_view.vx + g_view.track_w && g_my >= g_view.vy && g_my < ty;
         int hover_down = g_mx >= g_view.vx && g_mx < g_view.vx + g_view.track_w && g_my >= tb
                          && g_my < g_view.vy + g_view.vh;
-        sp_draw_run(holder, clip, old, &g_track, 1, g_view.vx, ty, tb, SP_TRACK_CAP);
+        sp_draw_fitted(holder, clip, old, &g_track, 0, g_view.vx, ty, g_track.w, tb - ty, 0, SP_TRACK_CAP);
         sp_frame_at(holder, &g_up, g_view.vx, g_view.vy, g_pressed == 1 ? 2 : hover_up ? 1 : 0);
         sp_frame_at(holder, &g_down, g_view.vx, tb, g_pressed == 2 ? 2 : hover_down ? 1 : 0);
         sp_picture_at(holder, &g_knob, g_view.vx + (g_view.track_w - g_view.knob_w) / 2, sp_knob_y());
     }
     if (g_view.hbar) {
-        sp_draw_run(holder, clip, old, &g_wide, 0, g_view.hy + (g_view.hh - g_wide.h) / 2, g_view.hx,
-                    g_view.hx + g_view.hw, SP_SLIDER_CAP);
-        sp_picture_at(holder, &g_handle, sp_handle_x(), g_view.hy + (g_view.hh - g_view.handle_h) / 2);
+        /* The horizontal bar is as thick as the vertical track: WideSlider2 with its rounded ends and its top and
+           bottom edges kept, its middle cut; the handle is sliderhandle fitted to the vertical knob's size turned
+           sideways (the knob's length along the bar, its width across). */
+        sp_draw_fitted(holder, clip, old, &g_wide, 0, g_view.hx, g_view.hy, g_view.hw, g_view.hh, SP_SLIDER_CAP,
+                       g_view.hh * 2 / 5);
+        sp_draw_fitted(holder, clip, old, &g_handle, 0, sp_handle_x(), g_view.hy + (g_view.hh - g_view.handle_h) / 2,
+                       g_view.handle_w, g_view.handle_h, g_handle.tw / 2 - 1, g_view.handle_h / 3);
     }
+}
+
+/* The horizontal bar's thickness: the vertical track's width. */
+static int sp_hbar_h(void) {
+    return g_track.w;
 }
 
 static int __cdecl sp_event_watch(void *userdata, void *event) {
@@ -421,7 +456,7 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
         line = 16;
     }
     need_h = content_w > w;
-    vis_h = need_h ? box_h - SP_HBAR_GAP - (g_wide.h > g_handle.h ? g_wide.h : g_handle.h) : box_h;
+    vis_h = need_h ? box_h - SP_HBAR_GAP - sp_hbar_h() : box_h;
     need_v = content_h > vis_h;
     if (need_v && vis_h > line) {
         vis_h -= vis_h % line;              /* whole lines: none is cut at the box's bottom */
@@ -445,9 +480,9 @@ static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
     g_view.track_w = g_track.w;
     g_view.knob_w = g_knob.w; g_view.knob_h = g_knob.h;
     g_view.vx = x + w + SP_GAP; g_view.vy = y; g_view.vh = vis_h;
-    g_view.handle_w = g_handle.w; g_view.handle_h = g_handle.h;
+    g_view.handle_w = g_knob.h; g_view.handle_h = g_knob.w;
     g_view.hx = x; g_view.hy = y + vis_h + SP_HBAR_GAP; g_view.hw = w;
-    g_view.hh = g_wide.h > g_handle.h ? g_wide.h : g_handle.h;
+    g_view.hh = sp_hbar_h();
     g_view.line = line;
     wheel = (int)InterlockedExchange(&g_wheel, 0);
     if (wheel != 0 && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
@@ -560,7 +595,7 @@ static unsigned int __stdcall sp_size(unsigned int ret, void *popup, unsigned in
         void *holder = sp_holder();
         if (holder != NULL && box_w > 0 && sp_art_ready()
             && sp_widest_word(holder, (const char *)(p + c->text), 0, *(void **)(p + c->font)) > box_w) {
-            a[2] += (unsigned int)(SP_HBAR_GAP + (g_wide.h > g_handle.h ? g_wide.h : g_handle.h));
+            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());
         }
         if (cap > 0 && (int)a[2] > cap) {
             a[2] = (unsigned int)cap;

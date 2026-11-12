@@ -316,6 +316,18 @@ class TheDialog(unittest.TestCase):
                 self.assertIn("handle", art)
                 self.assertGreater(d.view()["content_w"], d.box()[2])
                 v = d.view()
+                # the horizontal bar is as thick as the vertical track (18 px), WideSlider2 and sliderhandle cut to it
+                # (not the 32-px slider stretched), and the handle is drawn inside the bar, on top of it
+                self.assertEqual(v["hh"], 18)
+                for name in ("wide", "handle"):
+                    for b in art[name]:
+                        self.assertGreaterEqual(b[3][1], v["hy"])
+                        self.assertLessEqual(b[3][1] + b[1][3], v["hy"] + v["hh"])
+                        self.assertGreaterEqual(b[3][0], v["hx"])
+                        self.assertLessEqual(b[3][0] + b[1][2], v["hx"] + v["hw"])
+                handle_area = sum(b[1][2] * b[1][3] for b in art["handle"])
+                self.assertGreaterEqual(handle_area, 26 * 12)      # the vertical knob's size, turned sideways
+                self.assertGreater(blits.index(art["handle"][0]), blits.index(art["wide"][-1]))
                 hx = v["hx"] + 2
                 self.assertFalse(d.mouse(2, hx, v["hy"] + v["hh"] // 2))
                 self.assertFalse(d.mouse(1, hx + 1000, v["hy"] + v["hh"] // 2))

@@ -62,11 +62,13 @@ typedef struct sp_class {
 } sp_class;
 
 /* One picture: an image-table id of the game (or, for the games without the art, a file shipped beside the
-   companion: not used yet), cut into `columns` frames side by side. */
+   companion: not used yet), cut into `columns` frames side by side; `trim` is its drawn part (left, top, width,
+   height; the rest is transparent), measured from the pictures (0: the whole frame). */
 typedef struct sp_art {
     unsigned int id;
     int columns;
     const char *file;
+    int trim[4];
 } sp_art;
 
 typedef struct sp_game {
@@ -104,13 +106,15 @@ static const sp_game SP_GAMES[6] = {
     {0},                                                                              /* A New Home: later */
     {0},                                                                              /* The Lost Children: later */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
-     {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0},
+     {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0])},       /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
-     {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0}, {0xA2, 1, 0},
+     {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
+     {0xA2, 1, 0, {3, 5, 16, 21}},
      SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0])},       /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
-     {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0}, {0x80, 1, 0},
+     {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
+     {0x80, 1, 0, {3, 5, 16, 21}},
      SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0])},       /* vv5 */
 };
 
