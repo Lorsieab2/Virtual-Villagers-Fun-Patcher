@@ -776,20 +776,30 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   villagers. No villager for a role: the purchase is refused and says why;
   no longer one at delivery: the event keeps waiting and is made due again.
 - The walk draws each branch with the game's random routine; conditions on
-  visited nodes, bound roles, the game and Guardians of Isola. Every effect is
-  made once, when the question is answered (or the first popup is built):
-  food and tech (scaled by "Island Events Scale" when ticked), the award when
-  paid, deaths with the event's cause told to Cause of Death, disappearances
-  logged as Disappeared, New Believers' "becomes a Heathen" through the game's
-  own conversion and counted by "Popup When Believers Become Heathens",
-  health, a like or dislike, a skill raised, sickness.
+  visited nodes, bound roles, the game and Guardians of Isola.
+- The effects wait for their own page (the owner, 2026-11-12): each node's
+  effects are made, once, when the page showing the end of its text is built
+  -- as a stock plain island event makes its changes while building its
+  popup, and a result at the click -- so "Your villagers gain ..." is the page
+  the award lands on and an ending's last page brings its death or
+  disappearance. Food and tech (scaled by "Island Events Scale" when ticked),
+  deaths with the event's cause told to Cause of Death, disappearances logged
+  as Disappeared, New Believers' "becomes a Heathen" through the game's own
+  conversion and counted by "Popup When Believers Become Heathens", health, a
+  like or dislike, a skill raised, sickness. A villager who dies or leaves
+  between pages has only their own later effects skipped.
 - Each popup is laid out in pages that fit (paragraphs, sentences, words);
   the question's earlier pages come first, the result's first page is the
   click's result, every later page an island-event notice. Only the question
-  (or the first page) counts in Island Events Seen and the Island Events log.
+  (or the first page) counts in Island Events Seen. The Island Events log
+  writes a record per changed villager headed with the event's title, so a
+  later page's effects appear as more records under the same event title.
 - The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
-  beside the queue's file (whose layout is unchanged), so a quit with the
-  question on screen or between pages resumes where it was.
+  beside the queue's file (whose layout is unchanged), with when each page's
+  effects were made: a quit with the question on screen or between pages
+  resumes from the first page whose effects the save does not hold, so no
+  effect is made twice or lost. The file stays after the last page until a
+  save holds it.
 
 ### Custom titles
 

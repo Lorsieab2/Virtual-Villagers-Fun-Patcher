@@ -46,10 +46,12 @@
    when ticked, else the amount as written).  A question's two histories are both walked when it is asked (as the
    shipped event rolls everything when its popup is built), so the popup can be sized for the result it will show.
 
-   EFFECTS are applied once, all of them, when the first popup that can carry them is answered -- at the click of
-   a question, or as a plain event's first popup is built -- exactly when a stock island event makes its own: so
-   the Island Events log, which compares the village around that popup, records every one of them as that one
-   event's.  Through the adapters: food / tech points through the game's own writers (CE_AMOUNT_ADD / SUBTRACT),
+   EFFECTS WAIT FOR THEIR OWN PAGE (the owner, 2026-11-12).  Each node's effects are made, once, when the page
+   showing the end of that node's text is built for the screen -- as the game's own plain island event makes its
+   changes while it builds its popup, and as a question's result is built at the click -- so each page says what
+   has just happened (cg_layout_history, cg_show): the award with "Your villagers gain ...", a death or a
+   disappearance with its ending's last page.  A villager who has died or left by then (old age between pages)
+   has that role's later effects skipped; the rest of the event goes on.  Through the adapters: food / tech points through the game's own writers (CE_AMOUNT_ADD / SUBTRACT),
    the award only when paid; "dies" the adapter's death, with the event's cause told to "VVFP Cause of Death.dll"
    ("unknown": nothing, the game's own "Unknown causes"; "custom": VvfpCauseKilled, "Died in a custom island
    event"; the author's words: VvfpCauseKilledBy when that companion has it, else as "custom"); "disappears" the
@@ -66,23 +68,29 @@
    sentences, else words -- never off the screen), measured with the longest names the game holds, so the pages
    are the same whoever the villagers are; each page is then filled with the real names ("(name)" is the record's
    own name, the full name with Last Names on).  A popup that carries villager effects keeps two lines free on each
-   page for the "N changes could not be made" lines, written on its last page.  They are shown one after another,
+   page for the "N changes could not be made" lines of that page's own effects.  They are shown one after another,
    each a popup of its own through the game's own trigger:
      * a question: its text's earlier pages first, then the game's two-button popup with the last page;
      * the answer's first page is the result popup the click shows (ce_choice_resolve);
      * every later page through the island-event notice the Time Skip's closing popup uses (story_notice_arm).
    ONE EVENT.  Only the question (or, with no question, the first page) is the island event: it alone counts in
-   Island Events Seen and the Island Events log writes it alone (with its effects); every other page is a notice,
-   whose count is taken back and which the log skips (VvfpStoryTimeSkipNoticeShown).  While a run has pages left
-   the event slot is its own: no notice, no other custom event comes between.
+   Island Events Seen; every other page is a notice, whose count is taken back.  The Island Events log
+   ("VVFP Island Events.dll") has no event of its own to append to: it writes one numbered record per villager an
+   event's popup changed, each headed "Event: <title>", and skips only the Time Skip's notice.  So a later page's
+   effects are written as records under the same "Event: <title>" as the first page's (the question's records
+   carry its "Choice:" line too); a page that changes nobody writes nothing.  While a run has pages left the event
+   slot is its own: no notice, no other custom event comes between.
 
-   A QUIT BETWEEN POPUPS RESUMES.  The run (where it is, who the roles are, both histories, the pages still to
-   show) and the .cieg itself are kept beside the queue's file:
+   A QUIT BETWEEN POPUPS RESUMES, EACH EFFECT EXACTLY ONCE.  The run (where it is, who the roles are, both
+   histories, every page with the effects it makes, when each page's were made, and who was gone before it) and
+   the .cieg itself are kept beside the queue's file:
        Virtual Villagers N Story Purchases Graph - Save S.dat
-   written as the run changes, deleted when it ends.  It is put back, once, for the same village (a majority of
-   its roster) when the slot's save was written after the run's last purchase or effects -- the queue's own rule
-   (story_queue.inc) -- and the display due is armed again.  The queue file itself never holds a graph's popup
-   (sq_capture leaves it out), so a version 1 queue file is read exactly as before. */
+   written as the run changes, and kept after its last page until a save holds every page's effects.  It is put
+   back, once, for the same village (a majority of its roster) when the slot's save was written after the
+   purchase -- the queue's own rule (story_queue.inc) -- from the first page whose effects that save does not hold
+   (cg_village_seen): those pages are shown again and make their effects then, the pages the save holds are not.
+   The queue file itself never holds a graph's popup (sq_capture leaves it out), so a version 1 queue file is read
+   exactly as before. */
 
 #define CG_HEADER_BYTES 80u
 #define CG_NONE 0xFFFFu
@@ -106,7 +114,9 @@ enum { CG_POPUP = 0, CG_QUESTION = 1, CG_BRANCH = 2 };
 enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CGE_STATUS = 6, CGE_HEALTH = 7,
        CGE_PREF = 8, CGE_SKILL = 9, CGE_SICK = 10 };
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7 };
-enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4 };
+/* CG_DONE: every page shown, the file kept until a save holds the last page's effects (a crash before it must
+   neither lose nor repeat them). */
+enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DONE = 5 };
 enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_BELIEVERS = 8 };
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
@@ -555,12 +565,24 @@ typedef struct {
     cg_history walk[2];                /* [0] with no question; else one a button */
     int choice;                        /* the button answered, -1 */
     int display_count;
-    int display_next;
+    int display_next;                  /* the next display to show: every display before it is shown, and its
+                                          effects made */
     int display_used;
     int display_off[CG_MAX_DISPLAYS];
-    char displays[CG_DISPLAY_BYTES];
+    char displays[CG_DISPLAY_BYTES];   /* each page's words, the names filled in (composed when shown) */
+    /* Each display: its layout (1 a question's result, 0 the plain popup), the history's nodes whose effects it
+       makes (jobs[job_first .. + job_count]), and -- for a quit -- when they were made and who was gone and who
+       each role was just before it. */
+    unsigned char display_result[CG_MAX_DISPLAYS];
+    unsigned char display_villager[CG_MAX_DISPLAYS];   /* it makes a villager's effect: refusal lines kept */
+    short job_first[CG_MAX_DISPLAYS];
+    short job_count[CG_MAX_DISPLAYS];
+    short jobs[CG_MAX_PATH];
+    unsigned __int64 applied_when[CG_MAX_DISPLAYS];   /* 0: nothing made there (yet) */
+    unsigned int gone_at[CG_MAX_DISPLAYS];
+    unsigned int identity_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
     char title[CE_TITLE_BYTES];
-    unsigned __int64 when;             /* its purchase, then its effects: only a later save holds it */
+    unsigned __int64 when;             /* its purchase: only a later save paid for it */
 } cg_state;
 
 static cg_state cg;
@@ -574,7 +596,6 @@ static int cg_dirty;                   /* the run changed since its file was wri
 static ce_event cg_stub;               /* the armed event of a display: the title, no text, no change */
 static ce_choice cg_choice_stub;       /* ... and its question's (labels filled in when asked) */
 static ce_event cg_one;                /* one villager's change, through ce_apply */
-static cg_history *cg_tallest_walk;
 
 #ifdef VVFP_TEST
 static int test_graph_patches = -1;    /* the patches on, -1 = as seen */
@@ -600,7 +621,7 @@ static void cg_test_tell(int kind, int index, const char *words) {
 #endif
 
 static int cg_active(int game) {
-    return cg.phase != CG_IDLE && cg.game == game;
+    return cg.phase != CG_IDLE && cg.phase != CG_DONE && cg.game == game;
 }
 
 /* A run of `game` in the village on screen with popups still to come: the event slot is its own. */
@@ -1068,6 +1089,7 @@ static int cg_expand(const char *raw, char *out, int cap, int mode, int name_roo
 typedef struct {
     int count;
     int off[CG_MAX_PAGES];
+    int src_end[CG_MAX_PAGES];         /* where in the popup's text each page ends */
     int used;
     char buf[CG_RAW_BYTES + CG_MAX_PAGES];
 } cg_pages;
@@ -1079,6 +1101,8 @@ typedef struct {
     const char *title;
     int reserve;                       /* lines kept free on every page */
     cg_pages *pages;
+    const char *src;                   /* the popup's text being laid out ... */
+    int consumed;                      /* ... and how much of it the pages so far hold */
     char page[CG_RAW_BYTES];
 } cg_pager;
 
@@ -1094,6 +1118,7 @@ static void cg_flush(cg_pager *w) {
     cg_pages *p = w->pages;
     int n = lstrlenA(w->page);
     if (n > 0 && p->count < CG_MAX_PAGES && p->used + n + 1 <= (int)sizeof p->buf) {
+        p->src_end[p->count] = w->consumed;
         p->off[p->count++] = p->used;
         memcpy(p->buf + p->used, w->page, (size_t)n + 1);
         p->used += n + 1;
@@ -1113,6 +1138,7 @@ static int cg_put(cg_pager *w, const char *sep, const char *piece, int n) {
         trial[have + s + n] = '\0';
         if (cg_fits(w, trial)) {
             memcpy(w->page, trial, (size_t)(have + s + n + 1));
+            w->consumed = (int)(piece - w->src) + n;
             return 1;
         }
     }
@@ -1124,6 +1150,7 @@ static int cg_put(cg_pager *w, const char *sep, const char *piece, int n) {
         trial[n] = '\0';
         if (cg_fits(w, trial)) {
             memcpy(w->page, trial, (size_t)n + 1);
+            w->consumed = (int)(piece - w->src) + n;
             return 1;
         }
     }
@@ -1143,6 +1170,7 @@ static void cg_put_words(cg_pager *w, const char *s, int n) {
             if ((int)(e - s) + have + 1 < (int)sizeof w->page) {
                 memcpy(w->page + have, s, (size_t)(e - s));     /* one word alone: the popup cuts it, as ce_wrap */
                 w->page[have + (int)(e - s)] = '\0';
+                w->consumed = (int)(e - w->src);
             }
         }
         s = e;
@@ -1159,6 +1187,8 @@ static void cg_paginate(cg_pager *w, const char *text) {
     w->pages->count = 0;
     w->pages->used = 0;
     w->page[0] = '\0';
+    w->src = text;
+    w->consumed = 0;
     for (;;) {
         const char *end = p;
         while (*end != '\0' && *end != '\n') {
@@ -1231,13 +1261,24 @@ static void cg_compose(const ce_layout *l, const char *title, const char *text, 
     }
 }
 
-static void cg_add_display(const char *text) {
+/* A display: its page's words (names filled in), whether it is a question's result, whether its popup carries a
+   villager's effect; its jobs are set by the caller.  Its index, or -1 when there is no room. */
+static int cg_add_display(const char *text, int result, int villager) {
     int n = lstrlenA(text);
-    if (cg.display_count < CG_MAX_DISPLAYS && cg.display_used + n + 1 <= CG_DISPLAY_BYTES) {
-        cg.display_off[cg.display_count++] = cg.display_used;
-        memcpy(cg.displays + cg.display_used, text, (size_t)n + 1);
-        cg.display_used += n + 1;
+    int k = cg.display_count;
+    if (k >= CG_MAX_DISPLAYS || cg.display_used + n + 1 > CG_DISPLAY_BYTES) {
+        return -1;
     }
+    cg.display_off[k] = cg.display_used;
+    memcpy(cg.displays + cg.display_used, text, (size_t)n + 1);
+    cg.display_used += n + 1;
+    cg.display_result[k] = (unsigned char)(result != 0);
+    cg.display_villager[k] = (unsigned char)(villager != 0);
+    cg.job_first[k] = 0;
+    cg.job_count[k] = 0;
+    cg.applied_when[k] = 0;
+    cg.display_count = k + 1;
+    return k;
 }
 
 static const char *cg_display(int k) {
@@ -1361,7 +1402,9 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     }
     record = cg_villager(a, e[1]);
     if (record == NULL) {
-        ce_refuse(r, CE_WHY_OTHER);    /* gone already: never someone else in their record */
+        /* Gone since the event began (old age, another event between its pages, or this event): that role's
+           later effects are skipped -- never someone else in their record -- and the rest of the event goes on. */
+        cg.gone |= 1u << e[1];
         return;
     }
     index = cg.record[e[1]];
@@ -1459,24 +1502,51 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
     }
 }
 
-/* ---- One history's popups ---------------------------------------------------------------------------------- */
+/* ---- One history's popups, their pages, and which page makes which effect ------------------------------------
+
+   THE EFFECTS WAIT FOR THEIR OWN PAGE (the owner, 2026-11-12).  Each node's effects are made when the page that
+   shows the END of that node's text is built for the screen -- the moment the game's own plain island event
+   makes its changes (as it builds its popup: ce_deliver) and the moment a question's result is built after the
+   click (ce_choice_resolve) -- so the page says what has just happened: "Your villagers gain 500 food" is the
+   page the award lands on, the ending's last page is the one its death or disappearance comes with.  A node with
+   no text (a branch) makes its effects with the text shown just before it (or, before any, with the first).
+   Each page's "N changes could not be made" lines tell of that page's own effects. */
 
 typedef struct {
     char raw[CG_RAW_BYTES];            /* the award filled in, the names not */
-    int effects;                       /* carries villager effects: two lines kept for the refusal lines */
-    ce_result result;
+    int effects;                       /* carries villager effects: two lines kept on each page for the refusals */
 } cg_popup;
 
 static cg_popup cg_pops[CG_MAX_POPUPS];
 static int cg_pop_count;
+static short cg_node_pop[CG_MAX_PATH];     /* each history node: the popup its effects are made with ... */
+static short cg_node_end[CG_MAX_PATH];     /* ... at the page holding this much of the popup's text */
 
-/* The popups of history `h` -- and, with `apply`, every effect made on the village -- as the patcher's walk
-   builds them (src/vv_cie_graph.py walk: effects first, then the text, appended or new). */
-static void cg_build(const ce_adapter *a, int game, const cg_history *h, int apply) {
+/* The award's state before history node `upto` (the last deferred one's kind and amount, -1 none) and the index
+   of that node's first effect roll. */
+static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount) {
+    int fx = 0, i, k;
+    *kind = -1;
+    *amount = 0;
+    for (i = 0; i < upto && i < h->nodes; ++i) {
+        const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
+        for (k = 0; k < (int)cg_u16(n + 20); ++k, ++fx) {
+            const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+            if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
+                *kind = e[0] == CGE_FOOD ? 0 : 1;
+                *amount = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
+            }
+        }
+    }
+    return fx;
+}
+
+/* The popups of history `h` as the patcher's walk builds them (src/vv_cie_graph.py walk: a node's effects first --
+   an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
+   popup and the place in it its effects go with. */
+static void cg_group(int game, const cg_history *h) {
     static char text[CG_RAW_BYTES];
-    ce_result pending;
-    int award_kind = -1, award = 0, fx = 0, k, i;
-    memset(&pending, 0, sizeof pending);
+    int award_kind = -1, award = 0, fx = 0, k, i, first_text = -1;
     cg_pop_count = 0;
     memset(cg_visited, 0, sizeof cg_visited);
     if (cg.question) {
@@ -1485,27 +1555,18 @@ static void cg_build(const ce_adapter *a, int game, const cg_history *h, int app
     for (i = 0; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        ce_result here;
         int villager = 0;
-        memset(&here, 0, sizeof here);
         cg_visit(node);
         for (k = 0; k < (int)cg_u16(n + 20); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
-            int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
             villager |= e[0] >= CGE_KILL;
-            if (e[0] == CGE_FOOD || e[0] == CGE_TECH) {
-                if (e[2] & 2u) {
-                    award_kind = e[0] == CGE_FOOD ? 0 : 1;
-                    award = va;
-                }
-            }
-            if (apply) {
-                int ak = award_kind, av = award;
-                cg_effect(a, game, e, va, vb, &ak, &av, &here);
+            if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
+                award_kind = e[0] == CGE_FOOD ? 0 : 1;
+                award = fx < CG_MAX_FX ? h->fx_a[fx] : 0;
             }
         }
         if (n[0] != CG_BRANCH) {
-            cg_popup *p;
+            cg_popup *p = NULL;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
             if (n[1] == 0 || cg_pop_count == 0) {
                 if (cg_pop_count < CG_MAX_POPUPS) {
@@ -1520,17 +1581,27 @@ static void cg_build(const ce_adapter *a, int game, const cg_history *h, int app
                     lstrcatA(p->raw, text);
                 }
             }
-        }
-        if (cg_pop_count > 0) {
-            cg_popup *p = &cg_pops[cg_pop_count - 1];
-            if (villager) {
-                p->effects = 1;
+            if (first_text < 0) {
+                first_text = i;
             }
-            cg_merge_result(&p->result, &pending);
-            cg_merge_result(&p->result, &here);
-            memset(&pending, 0, sizeof pending);
-        } else {
-            cg_merge_result(&pending, &here);   /* effects before any text: told with the first popup */
+        }
+        cg_node_pop[i] = (short)(cg_pop_count - 1);
+        cg_node_end[i] = (short)(cg_pop_count > 0 ? lstrlenA(cg_pops[cg_pop_count - 1].raw) : 0);
+        if (villager && cg_pop_count > 0) {
+            cg_pops[cg_pop_count - 1].effects = 1;
+        }
+    }
+    /* Effects before any text: made with the first text's page. */
+    for (i = 0; i < h->nodes && first_text >= 0; ++i) {
+        if (cg_node_pop[i] < 0) {
+            const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
+            cg_node_pop[i] = 0;
+            cg_node_end[i] = cg_node_end[first_text];
+            for (k = 0; k < (int)cg_u16(n + 20); ++k) {
+                if (cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k)[0] >= CGE_KILL) {
+                    cg_pops[0].effects = 1;
+                }
+            }
         }
     }
 }
@@ -1544,16 +1615,17 @@ static ce_layout cg_notice_layout(const ce_adapter *a) {
     return plain;
 }
 
-/* Every popup of the built history as displays (from the first): `first_kind` 1 = page 0 is a question's
-   result, 0 = a plain event's first popup. */
-static void cg_displays_from_build(const ce_adapter *a, int after_question) {
+/* History `h` laid out as the run's displays (from the first): `after_question` 1 = page 0 is a question's
+   result, 0 = a plain event's first popup; each page with the nodes whose effects it makes. */
+static void cg_layout_history(const ce_adapter *a, int game, const cg_history *h, int after_question) {
     static cg_pager w;
     static cg_pages pages;
     static char real[CG_PAGE_BYTES];
-    static char shown[CG_PAGE_BYTES + 512];
     ce_layout first = after_question ? ce_result_layout(a) : cg_notice_layout(a);
     ce_layout rest = cg_notice_layout(a);
-    int p, k;
+    int p, k, i, jobs = 0;
+    cg_group(game, h);
+    cg.display_count = cg.display_next = cg.display_used = 0;
     for (p = 0; p < cg_pop_count; ++p) {
         w.a = a;
         w.first = p == 0 ? &first : &rest;
@@ -1563,12 +1635,63 @@ static void cg_displays_from_build(const ce_adapter *a, int after_question) {
         w.pages = &pages;
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
-            const ce_layout *l = (p == 0 && k == 0) ? &first : &rest;
+            int d;
             cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-            cg_compose(l, cg.title, real, k == pages.count - 1 ? &cg_pops[p].result : NULL, shown, sizeof shown);
-            cg_add_display(shown);
+            d = cg_add_display(real, p == 0 && k == 0 && after_question, cg_pops[p].effects);
+            if (d < 0) {
+                return;
+            }
+            cg.job_first[d] = (short)jobs;
+            for (i = 0; i < h->nodes; ++i) {
+                const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
+                int page = 0;
+                if (cg_node_pop[i] != p || cg_u16(n + 20) == 0u) {
+                    continue;
+                }
+                while (page + 1 < pages.count && pages.src_end[page] < cg_node_end[i]) {
+                    ++page;            /* the page holding the end of the node's text */
+                }
+                if (page == k && jobs < CG_MAX_PATH) {
+                    cg.jobs[jobs++] = (short)i;
+                }
+            }
+            cg.job_count[d] = (short)(jobs - cg.job_first[d]);
         }
     }
+}
+
+/* The effects display `k` makes, each once: every node of its jobs, in the history's order, the award's state
+   and the rolls as the walk left them. */
+static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) {
+    const cg_history *h = &cg.walk[cg.choice > 0 ? 1 : 0];
+    int j;
+    memset(r, 0, sizeof *r);
+    cg.gone_at[k] = cg.gone;
+    memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
+    for (j = 0; j < cg.job_count[k]; ++j) {
+        int i = cg.jobs[cg.job_first[k] + j];
+        const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
+        int award_kind, award, fx, e;
+        fx = cg_award_before(h, i, &award_kind, &award);
+        for (e = 0; e < (int)cg_u16(n + 20); ++e, ++fx) {
+            const unsigned char *eff = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + e);
+            int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
+            cg_effect(a, game, eff, va, vb, &award_kind, &award, r);
+        }
+    }
+    if (cg.job_count[k] > 0) {
+        cg.applied_when[k] = sq_clock();
+    }
+}
+
+/* Show display `k` (the next one): its effects made, then its words composed for its popup with that page's
+   refusal lines, into `text`. */
+static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) {
+    ce_result r;
+    ce_layout l = cg.display_result[k] ? ce_result_layout(a) : cg_notice_layout(a);
+    cg_make_effects(a, game, k, &r);
+    cg_compose(&l, cg.title, cg_display(k), r.refused > 0 ? &r : NULL, text, size);
+    cg.display_next = k + 1;
 }
 
 /* The question's text (the start node, its variant for this run) laid out in pages for the question popup; the
@@ -1638,7 +1761,7 @@ static int cg_arm(int game, int due) {
 
 /* Whether the run has a display still to show (and none armed or asked). */
 static int cg_wants_display(void) {
-    if (cg.phase == CG_IDLE || cg_display_armed || (ce_asked && cg.phase == CG_ASKED)) {
+    if (cg.phase == CG_IDLE || cg.phase == CG_DONE || cg_display_armed || (ce_asked && cg.phase == CG_ASKED)) {
         return 0;
     }
     switch (cg.phase) {
@@ -1663,8 +1786,16 @@ static int cg_slot_free(int game) {
     }
 }
 
+/* Every page shown: done -- its file kept (CG_DONE) until a save holds the effects of its last pages
+   (cg_flush_file), so a crash before that save brings back exactly the pages whose effects the save lacks. */
 static void cg_finish(void) {
+    int k;
     cg.phase = CG_IDLE;
+    for (k = 0; k < cg.display_count; ++k) {
+        if (cg.applied_when[k] != 0) {
+            cg.phase = CG_DONE;
+        }
+    }
     cg_display_armed = 0;
     cg_dirty = 1;
 }
@@ -1713,29 +1844,28 @@ static int cg_deliver(int game, char *text, int size, int *counted) {
         cg.display_count = cg.display_next = cg.display_used = 0;
         if (cg.question) {
             static cg_pages pages;
-            int k;
-            ce_layout plain = cg_notice_layout(a);
             static char real[CG_PAGE_BYTES];
-            static char shown[CG_PAGE_BYTES + 512];
+            int k;
             cg_question_pages(a, game, &pages);
             for (k = 0; k + 1 < pages.count; ++k) {
                 cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-                cg_compose(&plain, cg.title, real, NULL, shown, sizeof shown);
-                cg_add_display(shown);
+                (void)cg_add_display(real, 0, 0);
             }
             cg.phase = CG_PRE;
         } else {
             cg_walk(a, game, cg_g.start, &cg.walk[0]);
             cg.walked = 1;
-            cg_build(a, game, &cg.walk[0], 1);
-            cg_displays_from_build(a, 0);
+            cg.choice = -1;
+            cg_layout_history(a, game, &cg.walk[0], 0);
             cg.phase = CG_CHAIN;
-            cg.when = sq_clock();
             *counted = 1;
         }
     }
-    lstrcpynA(text, cg_display(cg.display_next), size);
-    ++cg.display_next;
+    if (cg.display_next < cg.display_count) {
+        cg_show(a, game, cg.display_next, text, size);
+    } else if (size > 0) {
+        text[0] = '\0';
+    }
     if (cg.phase == CG_CHAIN && cg.display_next >= cg.display_count) {
         cg_finish();
     }
@@ -1778,21 +1908,21 @@ static void cg_begin_question(int game, char *text, int size) {
     cg_dirty = 1;
 }
 
-/* The answer (ce_choice_resolve): every effect of that button's history made, its popups laid out, the first
-   page into `text`. */
+/* The answer (ce_choice_resolve): that button's history laid out in pages, and its first page shown -- with the
+   effects that page makes (the rest wait for their own pages). */
 static int cg_resolve(int game, int button, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     if (a == NULL || button < 0 || button > 1 || !cg.walked) {
         return 0;
     }
     cg.choice = button;
-    cg_build(a, game, &cg.walk[button], 1);
-    cg.display_count = cg.display_next = cg.display_used = 0;
-    cg_displays_from_build(a, 1);
+    cg_layout_history(a, game, &cg.walk[button], 1);
     cg.phase = CG_CHAIN;
-    cg.when = sq_clock();
-    lstrcpynA(text, cg_display(0), size);
-    cg.display_next = 1;
+    if (cg.display_count > 0) {
+        cg_show(a, game, 0, text, size);
+    } else if (size > 0) {
+        text[0] = '\0';
+    }
     if (cg.display_next >= cg.display_count) {
         cg_finish();
     }
@@ -1800,36 +1930,28 @@ static int cg_resolve(int game, int button, char *text, int size) {
     return 1;
 }
 
-/* ce_choice_tallest: the result `button` will show first, with room for its refusal lines. */
+/* ce_choice_tallest: the result `button` will show first, with room for its refusal lines when that page makes a
+   villager's effect.  (Laid out and set aside: nothing is made, the run stays asked.) */
 static int cg_tallest(int game, int button, char *out, int size) {
     const ce_adapter *a = ce_adapter_for(game);
-    static cg_pager w;
-    static cg_pages pages;
-    static char real[CG_PAGE_BYTES];
-    ce_layout first, rest;
+    ce_layout first;
     ce_result most;
+    int lines;
     if (a == NULL || button < 0 || button > 1 || !cg.walked) {
         return 0;
     }
-    cg_tallest_walk = &cg.walk[button];
-    cg_build(a, game, cg_tallest_walk, 0);
-    if (cg_pop_count == 0) {
+    cg_layout_history(a, game, &cg.walk[button], 1);
+    if (cg.display_count == 0) {
         return 0;
     }
     first = ce_result_layout(a);
-    rest = cg_notice_layout(a);
-    w.a = a;
-    w.first = &first;
-    w.rest = &rest;
-    w.title = cg.title;
-    w.reserve = cg_pops[0].effects ? 2 : 0;
-    w.pages = &pages;
-    cg_paginate(&w, cg_pops[0].raw);
     memset(&most, 0, sizeof most);
     most.refused = 999;
-    cg_expand(pages.count > 0 ? pages.buf : "", real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-    cg_compose(&first, cg.title, real, pages.count == 1 && cg_pops[0].effects ? &most : NULL, out, size);
-    return ce_text_lines(out);
+    cg_compose(&first, cg.title, cg_display(0), cg.display_villager[0] && cg.job_count[0] > 0 ? &most : NULL, out,
+               size);
+    lines = ce_text_lines(out);
+    cg.display_count = cg.display_next = cg.display_used = 0;
+    return lines;
 }
 
 /* ce_choice_featured: the subject, the villager the question is about. */
@@ -1996,7 +2118,7 @@ static int cg_queue(int game, unsigned int planned, int due) {
 /* Every frame (VvfpStoryInstall): the next display armed once the slot is free; a run of another village set
    aside (its file waits for it). */
 static void cg_tick(int game) {
-    if (cg.phase == CG_IDLE) {
+    if (cg.phase == CG_IDLE || cg.phase == CG_DONE) {
         return;
     }
     if (cg.game == game && !story_village_is(game, &cg_village)) {
@@ -2147,6 +2269,37 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     cg = cg_read_state;
     cg_village = story_village_now(game);
     cg_display_armed = 0;
+    {
+        /* EXACTLY ONCE.  The save holds the effects of every page made before it, and none after: the pages from
+           the first whose effects the save lacks are shown again (their effects made then), the roles as they were
+           just before that page.  A question whose answer the save lacks is asked again (the same histories). */
+        int k, rewind = -1;
+        int shown = cg.phase == CG_DONE ? cg.display_count : cg.display_next;
+        for (k = 0; k < shown && k < CG_MAX_DISPLAYS; ++k) {
+            if (cg.applied_when[k] != 0 && cg.applied_when[k] > saved) {
+                rewind = k;
+                break;
+            }
+        }
+        if (rewind >= 0) {
+            cg.gone = cg.gone_at[rewind];
+            memcpy(cg.identity, cg.identity_at[rewind], sizeof cg.identity);
+            for (k = rewind; k < cg.display_count; ++k) {
+                cg.applied_when[k] = 0;
+            }
+            if (cg.question && rewind == 0) {
+                cg.phase = CG_ASKED;
+                cg.choice = -1;
+            } else {
+                cg.phase = CG_CHAIN;
+                cg.display_next = rewind;
+            }
+        } else if (cg.phase == CG_DONE) {
+            memset(&cg, 0, sizeof cg);     /* over, and the save holds it all */
+            cg_file_remove(game, slot);
+            return;
+        }
+    }
     if (cg.phase == CG_ASKED) {
         cg.display_count = cg.display_next = 0;   /* asked again, with the same histories */
     }
@@ -2165,7 +2318,24 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
 
 /* The tick's write (story_queue.inc sq_sync): the run's file kept what the run is, deleted when it is over. */
 static void cg_flush_file(int game, int slot, const unsigned int *roster) {
-    if (!cg_dirty || cg.game != game || cg.slot != slot) {
+    if (cg.game != game || cg.slot != slot) {
+        return;
+    }
+    if (cg.phase == CG_DONE) {
+        /* Over: the file goes once a save holds every page's effects. */
+        unsigned __int64 saved = 0, last = 0;
+        int k;
+        for (k = 0; k < cg.display_count; ++k) {
+            if (cg.applied_when[k] > last) {
+                last = cg.applied_when[k];
+            }
+        }
+        if (sq_save_time(game, slot, &saved) && saved >= last) {
+            cg.phase = CG_IDLE;
+            cg_dirty = 1;
+        }
+    }
+    if (!cg_dirty) {
         return;
     }
     cg_dirty = 0;

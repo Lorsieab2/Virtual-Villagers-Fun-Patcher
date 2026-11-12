@@ -18,6 +18,7 @@ tests/test_story_custom_island_event.py does) and drives a .cieg compiled by src
 """
 from __future__ import annotations
 
+import re
 import struct
 import sys
 import unittest
@@ -50,7 +51,7 @@ GRAPH_JSON = ROOT / "data" / "cie_graphs" / "the_aspiring_adventurer.json"
 GRAPH = cg.load(GRAPH_JSON)
 CIEG = cg.compile_graph(GRAPH)
 NODES = list(GRAPH["nodes"])
-IDLE, QUEUED, PRE, ASKED, CHAIN = range(5)
+IDLE, QUEUED, PRE, ASKED, CHAIN, DONE = range(6)
 
 CIEG_BUF = EVENT_BUF + 0x40000
 FORCE_BUF = SCRATCH + 0x400
@@ -177,15 +178,30 @@ class Run:
         return text[len(head):] if text.startswith(head) else text
 
     # -- one popup after another, as the game's trigger would show them -----------------------------------------
+    def observe(self, who=SUBJECT) -> dict:
+        """What a page can change, read after each display (see play)."""
+        L = self.v.L
+        food, tech = stores(self)
+        return {"health": self.v.i32(who, L["health"]), "active": self.v.byte(who, ACTIVE[self.game]),
+                "heathen": self.v.byte(who, 0x1CEC) if self.game == "vv5" else 0, "food": food, "tech": tech,
+                "dislikes": self.v.prefs(who, "dislikes"),
+                "skills": [self.v.skill(who, k) for k in range(L["skill_count"])],
+                "told": len(self.told()), "tick": self.p.tick}
+
     def play(self, button=None, until=None):
         """Every display until the run ends (or `until` displays): [(kind, text, notice_shown)], kind "page",
-        "question" or "result"; the counter is raised before each one as the game's trigger raises it."""
+        "question" or "result"; the counter is raised before each one as the game's trigger raises it, and the
+        clock moves on a second.  self.seen[i] is the village after display i, self.before before the first."""
         shown = []
         counter = self.counter_va()
+        self.before = self.observe()
+        self.seen = []
         for _ in range(64):
             st = self.state()
-            if st["phase"] == IDLE or (until is not None and len(shown) >= until):
+            if st["phase"] in (IDLE, DONE) or (until is not None and len(shown) >= until):
                 break
+            self.p.tick += 1000
+            self.p.export("VvfpStoryProbeSetTick", self.p.tick)
             if not st["armed"] and st["phase"] != ASKED:
                 assert self.p.export("VvfpStoryProbeGraphArmNext", self.n) == 1, st
             if self.choice_pending():
@@ -195,23 +211,56 @@ class Run:
                 q = self.p.cstring(TEXT_BUF)
                 labels = [self.p.cstring(self.p.export("VvfpStoryProbeChoiceLabel", self.n, b)) for b in (0, 1)]
                 shown.append(("question", q, self.p.export("VvfpStoryTimeSkipNoticeShown", self.n), labels))
+                self.seen.append(self.observe())
                 if button is None:
                     break
+                self.p.tick += 1000
+                self.p.export("VvfpStoryProbeSetTick", self.p.tick)
                 self.p.write(TEXT_BUF, b"\0")
                 assert self.p.export("VvfpStoryProbeChoiceResolve", self.n, button, TEXT_BUF, 4096) == 1
                 shown.append(("result", self.p.cstring(TEXT_BUF), 0, None))
+                self.seen.append(self.observe())
                 continue
             self.p.put32(counter, self.p.u32(counter) + 1)
             self.p.write(TEXT_BUF, b"\0")
             assert self.p.export("VvfpStoryProbeDeliver", self.n, TEXT_BUF, 9000) == 1, st
             shown.append(("page", self.p.cstring(TEXT_BUF), self.p.export("VvfpStoryTimeSkipNoticeShown", self.n),
                           None))
+            self.seen.append(self.observe())
         return shown
 
 
 def stores(run: Run):
     food, tech, _, _ = _food_tech(run.story)
     return struct.unpack("<i", run.p.read(food, 4))[0], struct.unpack("<i", run.p.read(tech, 4))[0]
+
+
+SENTENCES = re.compile(r"(?<=[.!?])\s+")
+
+
+def _award_seen(e, run, h):
+    kind, amount = h.award[0], h.award[1]
+    return lambda o: o[kind] - run.before[kind] == amount
+
+
+def _skill_seen(e, run, h):
+    k = cg.GAMES[run.n].skills.index(e["skills"][ROLLS[3] % len(e["skills"])])
+    return lambda o: o["skills"][k] == 20 + ROLLS[4] % 11
+
+
+# For each effect of the owner's event: has the village (an observation, Run.observe) got it yet?
+EFFECT_SEEN = {
+    "pay_award": _award_seen,
+    "food": lambda e, run, h: (lambda o: True),           # deferred: nothing to see until paid
+    "tech": lambda e, run, h: (lambda o: True),
+    "kill": lambda e, run, h: (lambda o: o["health"] == 0),
+    "vanish": lambda e, run, h: (lambda o: o["active"] == 0),
+    "status": lambda e, run, h: (lambda o: o["heathen"] == 1),
+    "health": lambda e, run, h: (lambda o: o["health"] == 10 + ROLLS[3] % 41),
+    "preference": lambda e, run, h: (
+        lambda o: cg.GAMES[run.n].preferences.index("running") in o["dislikes"]),
+    "skill": _skill_seen,
+}
 
 
 def histories(game: int, patches=frozenset()):
@@ -241,7 +290,7 @@ class AspiringAdventurerEveryHistory(unittest.TestCase):
         self.assertIsNone(run.queue())
         shown = run.play(button=h.choice)
         st = run.state()
-        self.assertEqual(st["phase"], IDLE, "the run ends with its last page")
+        self.assertIn(st["phase"], (IDLE, DONE), "the run ends with its last page")
         # Who is who: Bea goes, Cal is the friend, the stranger is a woman (the rolls).
         names = {i: name for i, _s, _y, name in PEOPLE}
         sexes = {i: s for i, s, _y, _n in PEOPLE}
@@ -306,6 +355,20 @@ class AspiringAdventurerEveryHistory(unittest.TestCase):
         for i in (0, 2, 3):
             self.assertEqual(run.v.i32(i, L["health"]), 90, "nobody else is touched")
         del r
+        # EACH EFFECT ON ITS OWN PAGE: the page showing the end of its node's text (its last sentence) is the first
+        # display after which the village shows it.
+        ctx = cg.Context(run.n, frozenset({"guardians_of_isola"} if patches else ()), frozenset(GRAPH["roles"]))
+        texts = [norm(run.strip(t, title)) for _k, t, _n, _l in shown]
+        for node, e in h.effects:
+            if e["do"] in ("food", "tech") and e.get("defer"):
+                continue                       # the award: seen when paid (pay_award)
+            raw = cg.node_text(GRAPH["nodes"][node], ctx, h.nodes)
+            last = norm(SENTENCES.split(cg.expand(raw, binds, award).split("\n")[-1])[-1])
+            page = next(i for i, t in enumerate(texts) if last in t)
+            done = EFFECT_SEEN[e["do"]](e, run, h)
+            with self.subTest(node=node, effect=e["do"]):
+                self.assertTrue(done(run.seen[page]), f"made with the page that ends {node}")
+                self.assertFalse(done(run.seen[page - 1] if page > 0 else run.before), "not before it")
 
     def test_every_history_in_every_game(self):
         for game in self.each_game():
@@ -390,6 +453,124 @@ class PlainEventAndCauses(unittest.TestCase):
                 self.assertEqual(run.told(), [(1, subject, "Crushed by a falling idol")])
                 self.assertEqual(run.v.i32(subject, run.v.L["health"]), 0)
                 self.assertEqual(run.v.sick(0), 1)
+                # The first page makes its own nodes' effects (the food, the death, the sickness); the tech waits
+                # for the page that says so.
+                self.assertEqual((run.seen[0]["food"] - food0, run.seen[0]["tech"] - tech0, run.seen[0]["told"]),
+                                 (500, 0, 1))
+                self.assertEqual(run.seen[1]["tech"] - tech0, -50)
+
+
+@emulated
+class EffectsWaitForTheirPage(unittest.TestCase):
+    """The owner (2026-11-12): "The effects wait for their own page."  Three popups, one effect each: each is made
+    as its page is built; a quit between pages resumes with each effect exactly once; a villager gone between pages
+    has only their own later effects skipped."""
+
+    GRAPH = cg.load({
+        "format": "vvfp-cie-graph", "version": 1, "title": "Three Gifts", "games": [1, 2, 3, 4, 5],
+        "roles": {"subject": {"kind": "villager"}},
+        "start": "s",
+        "nodes": {
+            "s": {"text": "(Name) finds a basket of fruit.", "effects": [{"do": "food", "amount": 100}],
+                  "children": [{"next": "t"}]},
+            "t": {"text": "Then (he/she) finds an old book about the stars.",
+                  "effects": [{"do": "skill", "skills": ["Research"], "min": 5, "max": 5}],
+                  "children": [{"next": "u"}]},
+            "u": {"text": "At last (he/she) trips on a root and limps home.",
+                  "effects": [{"do": "health", "value": 40}]},
+        },
+    })
+    DATA = cg.compile_graph(GRAPH)
+
+    def start(self, game):
+        run = Run(game)
+        run.rolls([1] + [0] * 40)          # Bea
+        run.force([])
+        self.assertIsNone(run.queue(self.DATA))
+        return run
+
+    def research(self, run):
+        return run.v.skill(SUBJECT, cg.GAMES[run.n].skills.index("Research"))
+
+    def restart(self, game, file, save):
+        run = Run(game)
+        run.p.export("VvfpStoryProbeQueueSession", 0, 0, save, 0)
+        run.p.write(FILE_BUF, file)
+        run.p.export("VvfpStoryProbeGraphSession", FILE_BUF, len(file))
+        run.tick()
+        return run
+
+    def test_each_effect_with_its_own_page(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            run = self.start(game)
+            shown = run.play()
+            k = cg.GAMES[run.n].skills.index("Research")
+            with self.subTest(game=game):
+                self.assertEqual(len(shown), 3)
+                f0 = run.before["food"]
+                got = [(o["food"] - f0, o["skills"][k], o["health"]) for o in run.seen]
+                self.assertEqual(got, [(100, 0, 90), (100, 5, 90), (100, 5, 40)])
+
+    def test_a_quit_between_pages_makes_each_effect_once(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            run = self.start(game)
+            run.play(until=2)                         # the food and the book made
+            t1 = run.seen[0]["tick"]                  # the food's moment; the book's is t1 + 1000
+            run.tick()
+            file = run.graph_file()
+            with self.subTest(game=game, save="after both"):
+                again = self.restart(game, file, LATE)
+                self.assertEqual(again.state()["phase"], CHAIN)
+                rest = again.play()
+                self.assertEqual(len(rest), 1, "only the last page is still to come")
+                # A new process stands for the reloaded save: what the save held is not made again.
+                self.assertEqual((again.seen[-1]["food"] - again.before["food"], self.research(again),
+                                  again.v.i32(SUBJECT, again.v.L["health"])), (0, 0, 40))
+            with self.subTest(game=game, save="between them"):
+                again = self.restart(game, file, t1 + 500)   # the save holds the food, not the book
+                rest = again.play()
+                self.assertEqual(len(rest), 2, "the book's page again, then the last")
+                self.assertEqual((again.seen[-1]["food"] - again.before["food"], self.research(again),
+                                  again.v.i32(SUBJECT, again.v.L["health"])), (0, 5, 40))
+            # Every page shown, and a crash before the save caught up with the last one.
+            run = self.start(game)
+            run.play()
+            self.assertEqual(run.state()["phase"], DONE, "kept until a save holds its last page")
+            last = run.seen[-1]["tick"]
+            run.p.export("VvfpStoryProbeQueueSession", 0, 0, last - 500, 0)
+            run.tick()
+            file = run.graph_file()
+            with self.subTest(game=game, save="before the last page"):
+                self.assertTrue(file, "the finished run's file waits for the save")
+                again = self.restart(game, file, last - 500)
+                rest = again.play()
+                self.assertEqual(len(rest), 1)
+                self.assertEqual((self.research(again), again.v.i32(SUBJECT, again.v.L["health"])), (0, 40))
+            with self.subTest(game=game, save="after the last page"):
+                run.p.export("VvfpStoryProbeQueueSession", 0, 0, LATE, 0)
+                run.tick()
+                self.assertEqual(run.graph_file(), b"", "the save holds it all: the file goes")
+                again = self.restart(game, file, LATE)
+                self.assertIn(again.state()["phase"], (IDLE,), "nothing shown again")
+
+    def test_a_villager_gone_between_pages_has_only_their_own_effects_skipped(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            run = self.start(game)
+            run.play(until=1)
+            run.p.put32(run.v.record(SUBJECT) + run.v.L["health"], 0)   # died of old age between the pages
+            shown = run.play()
+            with self.subTest(game=game):
+                self.assertEqual(len(shown), 2, "the event goes on")
+                self.assertEqual(self.research(run), 0)
+                self.assertEqual(run.v.i32(SUBJECT, run.v.L["health"]), 0, "never made alive again")
+                self.assertTrue(all("could not be made" not in t for _k, t, *_ in shown))
+                self.assertIn("trips on a root", shown[-1][1])
 
 
 @emulated
@@ -452,7 +633,7 @@ class ResumeAfterAQuit(unittest.TestCase):
                 self.assertEqual([t for _k, t, *_ in part + rest], [t for _k, t, *_ in straight])
                 self.assertEqual(again.told(), [], "nothing made twice")
                 again.tick()
-                self.assertEqual(again.graph_file(), b"", "the file goes with the run's last page")
+                self.assertEqual(again.graph_file(), b"", "the file goes once a save holds the last page")
             with self.subTest(game=game, at="older save"):
                 again = self.restart(game, file, save=1)
                 self.assertEqual(again.state()["phase"], IDLE, "the save never held it")
