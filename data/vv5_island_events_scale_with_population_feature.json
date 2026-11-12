@@ -1,0 +1,216 @@
+{
+  "id": "vv5_island_events_scale_with_population",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Island Events Scale With Population (like The Lost Children)",
+  "description": "Island events' food and tech-point gains and losses grow with the village, as in The Lost Children: each amount is multiplied by 1 with up to 25 villagers, by 2 with 26 to 50 and by 3 with more than 50 (believers plus the babies they carry, as the game counts its population for room; Heathens are not counted). The 23 amounts of 16 events are scaled: The Creeping Mold, The Mysterious Footprints (all four), The Strange Crystals, The Pesky Critter, Mushroom Day!, News From Another Tribe (a message), Spying on the Heathens, You're Doing It Wrong!, Outreach?, The Advanced Artifacts, Trick Or Trade, The Aphids in the Noni Bush, The Defector, The Straw Hat and The Strange Nectar. A loss still takes no more than there is, and Food Mastery still raises a food gain as the game does. The Creeping Mold's and The Mysterious Footprints' popups show the scaled amount (they print the amount the game set); the other events' result texts are fixed (for example \"Your tribe gains 3000 tech points.\"), so they still name the game's own amount while the scaled amount is what is given. The Strange Crystals', The Pesky Critter's and Mushroom Day!'s amounts are scaled after the game's roll, so Pick Island Event's amount settings (Story / Cheat Upgrades) choose the roll, before the scaling. Custom Island Events (Story / Cheat Upgrades) keep their own amounts. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** **Cannot be ticked together with \"Island Events Scale With Stored Food and Tech Points\": the two scale the same amounts in different ways, so tick only one; with both ticked the patcher builds nothing.** Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is \"VVFP Island Events Scale.dll\", started by VVFP Startup.dll; if it cannot be loaded, the stock amounts are given.",
+  "output_tag": "Events Scale With Population",
+  "dependencies": [],
+  "conflicts": [
+    "vv5_island_events_scale_with_stored_amounts"
+  ],
+  "behavior_changes": [
+    "Each site below calls VVFP Island Events Scale.dll, which counts the population with the believer count 0x4713F0 on the villager manager (0x554148, or where 256 Villagers moves it: 0x494050's `mov ecx`); its record test 0x466170(0) refuses a Heathen and puts the stock amount x k in place of the stock amount, k = 3 above 50, 2 above 25, else 1 (The Lost Children's 0x41F720: cmp 0x32 / jle, cmp 0x19 / jle). A gain stays a gain and a loss a loss. A single-result loss (The Creeping Mold, The Mysterious Footprints' food and tech lost) is then clamped to what is stored by the companion, by the setter's own rule (stored below the amount: the amount is what is stored), because the setter itself tests the store against its stock amount (cmp eax, imm / jge); the setter's test then runs as in the stock game, and the {award} its popup shows is what is taken. The two-choice food and tech writers' floor at 0 runs after it, as in the stock game.",
+    "The Creeping Mold: -100 food (0x414A00).",
+    "The Mysterious Footprints (food gained): +300 food (0x414C10).",
+    "The Mysterious Footprints (food lost): -300 food (0x414C60).",
+    "The Mysterious Footprints (tech gained): +2,000 tech points (0x414CE0).",
+    "The Mysterious Footprints (tech lost): -2,000 tech points (0x414D30).",
+    "The Strange Crystals: +2,000 to 2,999 tech points (rand(1000) + 2000) (0x414EFD).",
+    "The Pesky Critter: -500 to -2,999 tech points (-500 - rand(2500)) (0x41507A).",
+    "Mushroom Day!: +50 to 99 food (rand(50) + 50) (0x415110).",
+    "Mushroom Day!: -500 to -1,499 tech points (-500 - rand(1000)) (0x415128).",
+    "News From Another Tribe (a message): +2,000 tech points (0x4155B0).",
+    "Spying on the Heathens, \"Talk to the heathen\": -40 food (0x415F01).",
+    "You're Doing It Wrong!, \"There are a lot of them; better not!\": +500 tech points (0x4160A5).",
+    "Outreach?, \"Offer a tour\": -25 food (0x4163CA).",
+    "Outreach?, \"Offer a tour\": -800 tech points (0x4163D7).",
+    "The Advanced Artifacts, \"Collaborate with the other researchers\": +2,000 tech points (0x41655A).",
+    "The Advanced Artifacts, the other button: -100 tech points (0x416548).",
+    "Trick Or Trade, \"Employ a clever ruse\": +1,500 tech points (0x416648).",
+    "Trick Or Trade, \"Trade some food for the scrolls\": -100 food (0x41666B).",
+    "Trick Or Trade, \"Trade some food for the scrolls\": +3,000 tech points (0x416692).",
+    "The Aphids in the Noni Bush, \"Research bugs that eat aphids\": +1,500 tech points (0x416891).",
+    "The Defector, \"Accept the heathen\" (a spy): -2,000 tech points (0x4169A9).",
+    "The Straw Hat, \"Use it as a cooking strainer\": +200 food (0x416A57).",
+    "The Strange Nectar, \"Bring it to the lab\": +2,000 tech points (0x416B3A)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none).",
+    "The game's rolls, its food and tech writers (Food Mastery's raise included), the clamps, every other event, the popups' and buttons' texts, Custom Island Events and the save are unchanged."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; every site emulated on the stock executable with the shipped companion (k = 1, 2, 3 at 25, 26, 50 and 51 villagers, gains, losses and the loss clamp, the 256 Villagers manager) in tests/test_island_events_scale.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/island_events_scale/VVFP Island Events Scale.dll",
+      "destination": "VVFP Island Events Scale.dll",
+      "sha256": "0BC8B76C2E9D9AA293DE453E262B9D6840BF9DC0F609C0430A52193CE5F3BD10"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x414A00",
+      "stock_bytes": "C7410864000000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Creeping Mold: -100 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 100 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414C10",
+      "stock_bytes": "C741082C010000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (food gained): +300 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 300 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414C60",
+      "stock_bytes": "C741082C010000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (food lost): -300 food: the instruction putting it in place (setter) calls the companion, which puts the stock amount 300 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414CE0",
+      "stock_bytes": "C74108D0070000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (tech gained): +2,000 tech points: the instruction putting it in place (setter) calls the companion, which puts the stock amount 2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414D30",
+      "stock_bytes": "C74108D0070000",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Mysterious Footprints (tech lost): -2,000 tech points: the instruction putting it in place (setter) calls the companion, which puts the stock amount 2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x414EFD",
+      "stock_bytes": "05D0070000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Strange Crystals: +2,000 to 2,999 tech points (rand(1000) + 2000): the instruction putting it in place (add eax) calls the companion, which puts the stock amount +2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41507A",
+      "stock_bytes": "B90CFEFFFF2BC8",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "The Pesky Critter: -500 to -2,999 tech points (-500 - rand(2500)): the instruction putting it in place (sub ecx) calls the companion, which puts the stock amount -500 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415110",
+      "stock_bytes": "83C03250B94CD35100",
+      "written_bytes": "E8XXXXXXXX90909090",
+      "routine": "Mushroom Day!: +50 to 99 food (rand(50) + 50): the instruction putting it in place (add push) calls the companion, which puts the stock amount +50 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415128",
+      "stock_bytes": "B90CFEFFFF2BC8",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "Mushroom Day!: -500 to -1,499 tech points (-500 - rand(1000)): the instruction putting it in place (sub ecx) calls the companion, which puts the stock amount -500 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4155B0",
+      "stock_bytes": "68D0070000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "News From Another Tribe (a message): +2,000 tech points: the instruction putting it in place (push) calls the companion, which puts the stock amount +2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x415F01",
+      "stock_bytes": "C7442404D8FFFFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "Spying on the Heathens, \"Talk to the heathen\": -40 food: the instruction putting it in place (esp) calls the companion, which puts the stock amount -40 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4160A5",
+      "stock_bytes": "C7442404F4010000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "You're Doing It Wrong!, \"There are a lot of them; better not!\": +500 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +500 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4163CA",
+      "stock_bytes": "6AE7B94CD35100",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "Outreach?, \"Offer a tour\": -25 food: the instruction putting it in place (push ecx) calls the companion, which puts the stock amount -25 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4163D7",
+      "stock_bytes": "C7442404E0FCFFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "Outreach?, \"Offer a tour\": -800 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount -800 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41655A",
+      "stock_bytes": "68D0070000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "The Advanced Artifacts, \"Collaborate with the other researchers\": +2,000 tech points: the instruction putting it in place (push) calls the companion, which puts the stock amount +2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416548",
+      "stock_bytes": "C74424049CFFFFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Advanced Artifacts, the other button: -100 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount -100 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416648",
+      "stock_bytes": "68DC050000",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "Trick Or Trade, \"Employ a clever ruse\": +1,500 tech points: the instruction putting it in place (push) calls the companion, which puts the stock amount +1500 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41666B",
+      "stock_bytes": "6A9CB94CD35100",
+      "written_bytes": "E8XXXXXXXX9090",
+      "routine": "Trick Or Trade, \"Trade some food for the scrolls\": -100 food: the instruction putting it in place (push ecx) calls the companion, which puts the stock amount -100 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416692",
+      "stock_bytes": "C7442404B80B0000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "Trick Or Trade, \"Trade some food for the scrolls\": +3,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +3000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416891",
+      "stock_bytes": "C7442404DC050000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Aphids in the Noni Bush, \"Research bugs that eat aphids\": +1,500 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +1500 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x4169A9",
+      "stock_bytes": "C744240430F8FFFF",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Defector, \"Accept the heathen\" (a spy): -2,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount -2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416A57",
+      "stock_bytes": "C7442404C8000000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Straw Hat, \"Use it as a cooking strainer\": +200 food: the instruction putting it in place (esp) calls the companion, which puts the stock amount +200 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x416B3A",
+      "stock_bytes": "C7442404D0070000",
+      "written_bytes": "E8XXXXXXXX909090",
+      "routine": "The Strange Nectar, \"Bring it to the lab\": +2,000 tech points: the instruction putting it in place (esp) calls the companion, which puts the stock amount +2000 x k (1 up to 25, 2 up to 50, 3 above) in its place",
+      "installed_by": "VVFP Island Events Scale.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

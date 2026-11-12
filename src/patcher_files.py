@@ -124,6 +124,10 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Yellow Breadfruit Refills Partially Every Time: a flag file whose presence beside the
     # companions tells "VVFP VV4 Fruit Supply.dll" to refill at The Secret City's pace (vvfp_vv4_fruit_supply.c).
     "VVFP VV4 Fruit Partial Refill.txt",
+    # Island Events Scale With Stored Food and Tech Points (A New Home, The Tree of Life, New Believers): a flag file
+    # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
+    # points instead of the population (vvfp_island_events_scale.c).
+    "VVFP Island Events Scale Stored.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.
