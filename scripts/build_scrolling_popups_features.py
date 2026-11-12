@@ -72,6 +72,13 @@ TAIL = {
     4: (0x40E07C, "8B168B42305F8BCE5E83C404FFE0"),
     5: (0x40E56C, "8B168B42305F8BCE5E83C404FFE0"),
 }
+# A New Home's and The Lost Children's island-event dialogs: (name, vtable, size site, sizer).
+EVENTS = {
+    1: (("plain", 0x459AE4, 0x428830, 0x40C760), ("encounter / two choices", 0x459578, 0x41A634, 0x40C760),
+        ("Mysterious Crate / visitor", 0x459BF8, 0x42D2B4, 0x40C760)),
+    2: (("plain", 0x476DF8, 0x434A6B, 0x40D140), ("two choices", 0x476714, 0x42255F, 0x40D140),
+        ("sacks and vials / two choices", 0x476F30, 0x439FA4, 0x40D140)),
+}
 # The tip's per-line `call justify` (The Secret City, The Tree of Life, New Believers).
 TIP_JUSTIFY = {3: 0x41E433, 4: 0x41B9B0, 5: 0x41C200}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
@@ -93,6 +100,10 @@ def call_bytes(site: int, target: int) -> str:
 def covered(game: int) -> str:
     """The popups the patch covers in `game`, in words."""
     parts = []
+    if game in EVENTS:
+        parts.append("island-event popups (plain, two-choice and visitor events, and Custom Island Events from Story "
+                     "/ Cheat Upgrades; also when the result replaces the question in a popup sized for the "
+                     "question)")
     if game in SITES:
         parts.append("island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them)")
     parts.append("message boxes (tech and puzzle results, confirmations)")
@@ -138,6 +149,9 @@ def detours(game: int) -> list[dict]:
     out.append((ctl, text_draw, "the text control draw's call of the text draw: the message box's text, when it does "
                                 "not fit, clipped, scrolled and given scrollbars; every other text as the game draws "
                                 "it"))
+    for name, _vt, esize, esizer in EVENTS.get(game, ()):
+        out.append((esize, esizer, f"the island-event dialog's ({name}) panel size: capped to the screen, the room it "
+                                   "asks below its text kept, then the stock sizer"))
     _tvt, tsize, tsizer = TIPS[game]
     out.append((tsize, tsizer, "the tip's panel size: the width and the height capped to the screen, then the stock "
                                "sizer"))
@@ -211,7 +225,16 @@ def behavior_changes(game: int) -> list[str]:
         "dialog's body is called exactly as before."
         + (f" The tip's per-line `call 0x{SITES[game][2]:X}` (0x{TIP_JUSTIFY[game]:X}) is given the widest word's "
            "width when that is wider than the box, so the stock hang on a long word cannot happen there."
-           if game in TIP_JUSTIFY else ""),
+           if game in TIP_JUSTIFY else "")
+        + "".join(
+            f" The island-event dialog ({name}, vtable 0x{vt:X}): its `call 0x{esizer:X}` (0x{esize:X}) is capped the "
+            "same way, and the room it asks for below its text is kept."
+            for name, vt, esize, esizer in EVENTS.get(game, ()))
+        + (" Through the frame draw's tail, an island-event dialog whose text shown now (measured with the game's own "
+           "text height and width; the result when it has replaced the question) does not fit above that room, or "
+           "is wider than the panel, has its body drawn with the y its constructor keeps (+0x64 / +0x6C) and, for a "
+           "wide text, the panel's sides moved by the scroll position, under a clip, with the scrollbars."
+           if game in EVENTS else ""),
         f"The event pump's `call 0x{dispatch:X}` handing a mouse event to the game (0x{mouse:X}) calls the "
         "companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are "
         "used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read "

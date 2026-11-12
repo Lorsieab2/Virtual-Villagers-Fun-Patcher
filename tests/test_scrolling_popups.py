@@ -27,6 +27,10 @@ Proofs:
   * the tip (all five games), made by the game's own constructor: its body is drawn through the frame draw's tail,
     which the companion replaces; a tip that fits is drawn blit for blit as with the tail stock; a long or wide tip
     is capped, its body drawn moved under the clip with the bars, scrolled by the wheel and a knob drag;
+  * A New Home's and The Lost Children's island-event dialogs (plain, two choices, crate / sacks and vials), laid out
+    by their constructors' own size sites and drawn by their own body draws through the frame draw's tail: a text that
+    fits is blit for blit the stock tail's draw; a long text is capped and scrolled; the result replacing the
+    question in a panel sized for the question scrolls inside it; a wide line scrolls sideways;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -95,6 +99,8 @@ def sites(game: int) -> list[tuple[int, str]]:
     _vt, _init, bsize, bsizer = BUILDER.MSGBOX[game]
     ctl, text_draw = BUILDER.CONTROL[game]
     out += [(bsize, BUILDER.call_bytes(bsize, bsizer)), (ctl, BUILDER.call_bytes(ctl, text_draw))]
+    for _name, _vt, esize, esizer in BUILDER.EVENTS.get(game, ()):
+        out.append((esize, BUILDER.call_bytes(esize, esizer)))
     _tvt, tsize, tsizer = BUILDER.TIPS[game]
     out.append((tsize, BUILDER.call_bytes(tsize, tsizer)))
     if game in BUILDER.TIP_JUSTIFY:
@@ -130,9 +136,12 @@ class TheRows(unittest.TestCase):
             ctl, text_draw = BUILDER.CONTROL[game]
             for va in (mouse, dispatch, vt, bsize, bsizer, ctl, text_draw, BUILDER.TAIL[game][0]):
                 self.assertIn(f"0x{va:X}u", row)
-            shifts = header.split(f"static const sp_shift SP_VV{game}_SHIFTS[] = ")[1].split(";")[0]
+            shifts = header.split(f"static const sp_shift SP_VV{game}_SHIFTS[] = ")[1].split("};")[0]
             for va in BUILDER.TIPS[game]:
                 self.assertIn(f"0x{va:X}u", shifts)
+            for _name, *vas in BUILDER.EVENTS.get(game, ()):
+                for va in vas:
+                    self.assertIn(f"0x{va:X}u", shifts)
             if game in BUILDER.TIP_JUSTIFY:
                 self.assertIn(f"0x{BUILDER.TIP_JUSTIFY[game]:X}u", row)
             if game in BUILDER.SITES:
@@ -666,6 +675,125 @@ class TheTip(unittest.TestCase):
                 self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
                 d.draw_box()
                 self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
+
+
+EVENT_TITLE = b"A Strange Storm\n"
+EVENT_SHORT = b"Your villagers find a basket of fruit\nwashed up on the shore."
+EVENT_LONG = b"\n".join(b"%d. The storm washes things ashore." % n for n in range(1, 40))
+EVENT_RESULT = b"\n".join(b"%d. The whale swims free." % n for n in range(1, 16))
+EVENT_WIDE = b"A name far too wide: " + b"Kalahuna-Supercalifragilistic" * 4 + b"\nSecond line."
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class TheOldIslandEvents(unittest.TestCase):
+    """A New Home's and The Lost Children's island-event dialogs."""
+    games: dict = {}
+    KINDS = ("plain", "choice", "crate")
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        for game in (1, 2):
+            cls.games[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.games.clear()
+
+    def text(self, kind, body):
+        return (EVENT_TITLE if kind == "plain" else b"") + body
+
+    def test_a_text_that_fits_is_drawn_as_the_game_draws_it(self) -> None:
+        for game, d in self.games.items():
+            for kind in self.KINDS:
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, self.text(kind, EVENT_SHORT))
+                    self.assertEqual(d.size_requests[-1], d.stock_height)
+                    with_companion = d.draw()
+                    tail, stock = BUILDER.TAIL[game]
+                    patched = bytes(d.mu.mem_read(tail, len(stock) // 2))
+                    d.mu.mem_write(tail, bytes.fromhex(stock))
+                    try:
+                        plain = d.draw()
+                    finally:
+                        d.mu.mem_write(tail, patched)
+                    self.assertTrue(d.text_blits(with_companion))
+                    self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
+
+    def check(self, d, blits, vbar, hbar):
+        w, h = d.g["screen"]
+        left, top, right, bottom = d.panel()
+        self.assertGreaterEqual(top, 16)
+        self.assertLessEqual(bottom, h - 16)
+        self.assertEqual(d.clip(), (0, 0, w, h))
+        v = d.view()
+        self.assertEqual((v["shown"], v["vbar"], v["hbar"]), (1, vbar, hbar))
+        text = d.text_blits(blits)
+        self.assertTrue(text)
+        for b in text:
+            self.assertGreaterEqual(b[3][1], v["box_y"])
+            self.assertLessEqual(b[3][1] + b[1][3], v["box_y"] + v["box_h"])
+            self.assertGreaterEqual(b[3][0], v["box_x"])
+            self.assertLessEqual(b[3][0] + b[1][2], v["box_x"] + v["box_w"])
+        art = d.art_blits(blits)
+        if vbar:
+            for name in ("up", "down", "track", "knob"):
+                self.assertIn(name, art)
+        if hbar:
+            self.assertIn("handle", art)
+        return v
+
+    def test_a_long_text_is_capped_and_scrolled(self) -> None:
+        for game, d in self.games.items():
+            for kind in self.KINDS:
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, self.text(kind, EVENT_LONG))
+                    self.assertGreater(d.stock_height, d.g["screen"][1])
+                    v = self.check(d, d.draw(), 1, 0)
+                    left, top, right, bottom = d.panel()
+                    self.assertTrue(d.mouse(1, (left + right) // 2, (top + bottom) // 2))
+                    d.wheel(-1)
+                    d.draw()
+                    self.assertEqual(d.scroll(), (0, 3 * v["line"]))
+                    self.assertFalse(d.click(v["vx"] + 4, v["vy"] + v["vh"] - 4))
+                    blits = d.draw()
+                    self.assertEqual(d.scroll(), (0, 4 * v["line"]))
+                    self.check(d, blits, 1, 0)
+                    y = struct.unpack("<i", d.mu.mem_read(d.dialog + d.event_kind["y"], 4))[0]
+                    d.wheel(-100)
+                    d.draw()
+                    self.assertEqual(d.scroll()[1], v["content_h"] - v["box_h"])
+                    # the y the constructor keeps is the game's again after each draw
+                    self.assertEqual(struct.unpack("<i", d.mu.mem_read(d.dialog + d.event_kind["y"], 4))[0], y)
+
+    def test_the_result_in_a_panel_sized_for_the_question_scrolls(self) -> None:
+        for game, d in self.games.items():
+            for kind in ("choice", "crate"):
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, EVENT_SHORT, EVENT_RESULT)
+                    before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                    d.draw()
+                    # the question fits: drawn as the game draws it
+                    self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
+                    panel = d.panel()
+                    d.show_result()
+                    v = self.check(d, d.draw(), 1, 0)
+                    self.assertEqual(d.panel(), panel)              # no re-size: the result scrolls in the panel
+                    self.assertEqual(d.scroll(), (0, 0))
+                    self.assertGreater(v["content_h"], v["box_h"])
+
+    def test_a_wide_line_scrolls_sideways(self) -> None:
+        for game, d in self.games.items():
+            for kind in self.KINDS:
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, self.text(kind, EVENT_WIDE))
+                    v = self.check(d, d.draw(), 0, 1)
+                    self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+                    self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                    self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                    self.check(d, d.draw(), 0, 1)
+                    self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
 
 
 if __name__ == "__main__":

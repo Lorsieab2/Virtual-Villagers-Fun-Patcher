@@ -90,6 +90,31 @@ GAMES = {
                 strings=(0x441690, 0x441680), sound=(0x43E460, 0x43EFF0)),
 }
 ASSETS = ROOT / "assets" / "scrolling_popups"
+# A New Home's and The Lost Children's island-event dialogs (plain; two choices; crate / sacks and vials): the
+# vtable, base constructor, the size site (its `push ebp` (the height) and two more pushes start 5 bytes before it,
+# then `mov ecx, esi`) and the registers holding the width and the panel picture there, the width, the room the
+# constructor adds below the text (5/2 or 4 x a button's height), the text fields (a; b when the byte at flag is set),
+# the text manager (whose +4 is the holder), and the y the constructor keeps.
+EVENTS = {
+    "vv1": {
+        "plain": dict(vt=0x459AE4, base=0x40C9E0, size=0x428830, regs=("edx", "eax"), width=0x1D0, room=(5, 2),
+                      a=0x277F, b=0, flag=0, mgr=0x50AC, y=0x6C, end=0x42884C),
+        "choice": dict(vt=0x459578, base=0x40C9E0, size=0x41A634, regs=("ecx", "edx"), width=0x1C2, room=(4, 1),
+                       a=0x74, b=0x2783, flag=0x50, mgr=0x50AC, y=0x64, end=0x41A650),
+        "crate": dict(vt=0x459BF8, base=0x40C9E0, size=0x42D2B4, regs=("ecx", "edx"), width=0x1C2, room=(4, 1),
+                      a=0x74, b=0x2783, flag=0x50, mgr=0x50B0, y=0x6C, end=0x42D2D0),
+    },
+    "vv2": {
+        "plain": dict(vt=0x476DF8, base=0x40D470, size=0x434A6B, regs=("edx", "eax"), width=0x1D0, room=(5, 2),
+                      a=0x277F, b=0, flag=0, mgr=0x50AC, y=0x6C, end=0x434A87),
+        "choice": dict(vt=0x476714, base=0x40D470, size=0x42255F, regs=("ecx", "edx"), width=0x1C2, room=(4, 1),
+                       a=0x7C, b=0x278B, flag=0x50, mgr=0x50B4, y=0x64, end=0x42257B),
+        "crate": dict(vt=0x476F30, base=0x40D470, size=0x439FA4, regs=("ecx", "edx"), width=0x1C2, room=(4, 1),
+                      a=0x74, b=0x2783, flag=0x50, mgr=0x50B0, y=0x6C, end=0x439FC0),
+    },
+}
+EVENT_HEIGHT = {"vv1": 0x402100, "vv2": 0x402190}
+EVENT_STRIP = {"vv1": 0x40A070, "vv2": 0x40A270}
 TIP_ID = 0x106                    # the string id a tip is made with here (its text: Dialog.tip_text)
 # The tip (theTipDialog), per game: its constructor and its arguments (the string id, or the text for The Secret
 # City's, and zeros: not a tutorial tip), its body draw.
@@ -173,7 +198,8 @@ class Dialog:
         self.passed: list[tuple[int, int, int]] = []    # mouse events the game's dispatcher received
         self.mu.hook_add(UC_HOOK_CODE, self._add_child, begin=self.g["add_child"], end=self.g["add_child"])
         self.children: list[int] = []     # what the dialogs made add to their window, in order
-        for site in (self.g.get("size_site"), self.g["box_size_site"], TIPS[game]["size_site"]):
+        for site in (self.g.get("size_site"), self.g["box_size_site"], TIPS[game]["size_site"],
+                     *(e["size"] for e in EVENTS.get(game, {}).values())):
             if site:
                 self.mu.hook_add(UC_HOOK_CODE, self._at_size_site, begin=site, end=site)
         for sizer in sorted({self.g.get("sizer"), self.g["box_sizer"]} - {None}):
@@ -525,6 +551,55 @@ class Dialog:
         self.stock_height = self.stock_heights[-1] if self.stock_heights else None
         self.stock_width = self.stock_widths[-1] if self.stock_widths else None
         return d
+
+    def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30) -> int:
+        """A New Home's / The Lost Children's island-event dialog `kind` with `text` (and a result text, shown when
+        `show_result` is called): the base constructor, the dialog's own vtable and fields, then the constructor's
+        own size site run with the height its own formula gives (the text's height by the game's routine plus the
+        room for its buttons), through the y it keeps."""
+        e = EVENTS[self.game][kind]
+        heap = self.m.font_heap
+        self.children = []
+        self.event_kind = e
+        self.dialog = d = heap.alloc(0x5200)
+        self.run._call(e["base"], d, 0)
+        self.put(d, e["vt"])
+        self.mu.mem_write(d + e["a"], text[:9999] + b"\0")
+        if e["b"]:
+            self.mu.mem_write(d + e["b"], (result or b"")[:9999] + b"\0")
+            self.mu.mem_write(d + e["flag"], b"\0")
+        if self.texts is None:
+            self.texts = heap.alloc(0x40)
+            self.mu.mem_write(self.texts, struct.pack("<II", self.font, self.font))
+        self.put(d + e["mgr"], self.texts)
+        self.put(d + e["mgr"] + 4, self.holder)
+        for field in (0x5098, 0x50A0):        # no villager's picture beside the text
+            self.put(d + field, -1)
+        strip = heap.alloc(0x40)
+        self.run._call(EVENT_STRIP[self.game], strip, self._cstr(b"OrangeDlgTileGrid.png"), 9, 1)
+        height = self.run._call(EVENT_HEIGHT[self.game], self.font, d + e["a"])
+        num, den = e["room"]
+        h = height + (num * button_h) // den + 0x23
+        mu = self.mu
+        frame = FRAME
+        mu.mem_write(frame, b"\0" * 0x100)
+        regs = {"eax": UC_X86_REG_EAX, "ecx": UC_X86_REG_ECX, "edx": UC_X86_REG_EDX}
+        for reg, value in ((UC_X86_REG_ESP, frame), (UC_X86_REG_ESI, d), (UC_X86_REG_EBP, h),
+                           (regs[e["regs"][0]], e["width"]), (regs[e["regs"][1]], strip)):
+            mu.reg_write(reg, value)
+        self.size_requests, self.stock_heights, self.width_requests, self.stock_widths = [], [], [], []
+        self.m.stop_at = e["end"]
+        self.m.error = None
+        mu.emu_start(e["size"] - 5, e["end"], count=5_000_000)
+        if self.m.error or mu.reg_read(UC_X86_REG_EIP) != e["end"]:
+            raise AssertionError(self.m.error or f"event stopped at {mu.reg_read(UC_X86_REG_EIP):#x}")
+        self.stock_height = self.stock_heights[-1] if self.stock_heights else None
+        self.put(d + 0x44, 0x3F800000)
+        return d
+
+    def show_result(self) -> None:
+        """The choice made: the result replaces the question (the flag the body draw reads), no re-size."""
+        self.mu.mem_write(self.dialog + self.event_kind["flag"], b"\x01")
 
     def make_tip(self, text: bytes) -> int:
         """A tip with `text`, made by the game's own constructor (its OK button, its sizer call, its layout)."""

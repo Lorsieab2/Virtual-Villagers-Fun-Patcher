@@ -91,7 +91,17 @@ typedef struct sp_shift {
     unsigned char size_before[3];
     unsigned int button;
     int reserve_buttons, top, side, line;
+    /* SP_SHIFT_MEASURED (A New Home's and The Lost Children's island-event dialogs): the body is the text shown
+       (`text_b` when the byte at `flag` is set -- the result replacing the question in a panel sized for the
+       question --, else `text_a`), drawn centred `text_top` below the y the constructor keeps at `yfield`, in the
+       font of the text manager at `font_mgr`; its size is measured when drawn (the game's height and width of a
+       '\n'-broken text), and the room below it is what the constructor asked for less the text it measured. */
+    int mode;
+    unsigned int yfield, text_a, text_b, flag, font_mgr;
+    int text_top;
 } sp_shift;
+#define SP_SHIFT_ASKED 0
+#define SP_SHIFT_MEASURED 1
 
 typedef struct sp_game {
     unsigned int justify, nbyte;
@@ -121,12 +131,33 @@ typedef struct sp_game {
     const sp_shift *shifts;
     int shift_count;
     unsigned int widen_site;
+    /* A New Home, The Lost Children: the text height (font; s) ret 4 and width (font; s, float scale) ret 8. */
+    unsigned int height_fn, width_fn;
 } sp_game;
 
 /* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
    (a tutorial tip's text starts 0x24 - 0x1A below it), above twice the OK button's height. */
-static const sp_shift SP_VV1_SHIFTS[] = {{0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV2_SHIFTS[] = {{0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV1_SHIFTS[] = {
+    {0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20},
+    /* A New Home's island events: plain (0x4286B0), encounter / two choices (0x41A460), crate / visitor (0x42D0E0). */
+    {0x459AE4u, 0x428830u, 0x40C760u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x6Cu, 0x277Fu, 0, 0, 0x50ACu, 0x23},
+    {0x459578u, 0x41A634u, 0x40C760u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x64u, 0x74u, 0x2783u, 0x50u, 0x50ACu, 0x23},
+    {0x459BF8u, 0x42D2B4u, 0x40C760u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
+};
+static const sp_shift SP_VV2_SHIFTS[] = {
+    {0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20},
+    /* The Lost Children's island events: plain (0x4348E0), two choices A (0x422380) and B, sacks and vials
+       (0x439DD0). */
+    {0x476DF8u, 0x434A6Bu, 0x40D140u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x6Cu, 0x277Fu, 0, 0, 0x50ACu, 0x23},
+    {0x476714u, 0x42255Fu, 0x40D140u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x64u, 0x7Cu, 0x278Bu, 0x50u, 0x50B4u, 0x23},
+    {0x476F30u, 0x439FA4u, 0x40D140u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
+     SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
+};
 static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
 static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
 static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
@@ -158,12 +189,12 @@ static const sp_game SP_GAMES[6] = {
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
      0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u},
-     0x40C9A3u, 5, SP_VV1_SHIFTS, 1, 0},                   /* vv1 */
+     0x40C9A3u, 5, SP_VV1_SHIFTS, 4, 0, 0x402100u, 0x402160u},                   /* vv1 */
     {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
      0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u},
-     0x40D383u, 5, SP_VV2_SHIFTS, 1, 0},                   /* vv2 */
+     0x40D383u, 5, SP_VV2_SHIFTS, 4, 0, 0x402190u, 0x4021F0u},                   /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),

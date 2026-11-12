@@ -373,7 +373,9 @@ static void sp_draw_bars(void *holder, int *clip, const int *old) {
         sp_draw_fitted(holder, clip, old, &g_track, 0, g_view.vx, ty, g_track.w, tb - ty, 0, SP_TRACK_CAP);
         sp_frame_at(holder, &g_up, g_view.vx, g_view.vy, g_pressed == 1 ? 2 : hover_up ? 1 : 0);
         sp_frame_at(holder, &g_down, g_view.vx, tb, g_pressed == 2 ? 2 : hover_down ? 1 : 0);
+        sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);     /* a short track cuts the knob */
         sp_picture_at(holder, &g_knob, g_view.vx + (g_view.track_w - g_view.knob_w) / 2, sp_knob_y());
+        clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
     }
     if (g_view.hbar) {
         /* The horizontal bar is as thick as the vertical track: WideSlider2 with its rounded ends and its top and
@@ -474,7 +476,7 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
     if (!need_v && content_h < vis_h) {
         vis_h = content_h;                  /* the horizontal bar right below the text */
     }
-    if (vis_h < (need_v ? 2 * g_up.h + g_knob.h : line)) {
+    if (vis_h < (need_v ? 2 * g_up.h + 6 : line)) {
         return 0;                           /* no room for a bar (or a line): as the game draws it */
     }
     sp_install_watch();
@@ -662,6 +664,7 @@ typedef struct sp_asked {
     unsigned int vtable;
     int w_req, h_req;             /* as asked */
     int w_eff, h_eff;             /* as asked, with the room for the bars the capped panel needs */
+    int reserve;                  /* SP_SHIFT_MEASURED: the room asked for below the text */
 } sp_asked;
 static sp_asked g_asked[SP_ASKED];
 static int g_asked_next;
@@ -691,6 +694,11 @@ static void sp_ask(const unsigned char *popup, int w_req, int h_req) {
     g_asked[k].vtable = *(const unsigned int *)popup;
     g_asked[k].w_req = w_req;
     g_asked[k].h_req = h_req;
+}
+
+static int g_asked_reserve(int h_req, int text_top, int height) {
+    int r = h_req - text_top - height;
+    return r > 0 ? r : 0;
 }
 
 /* Caps a size asked for (a[1] width, a[2] height, a[0] the panel picture) to the screen, keeping what was asked:
@@ -723,6 +731,16 @@ static void sp_cap_asked(const unsigned char *popup, unsigned int *a) {
     }
 }
 
+typedef int (__fastcall *sp_height_fn)(void *font, void *edx, const char *text);
+typedef int (__fastcall *sp_width_fn)(void *font, void *edx, const char *text, float scale);
+
+/* A measured panel's text shown now, and its font. */
+static const char *sp_shown(const sp_shift *s, const unsigned char *dialog, void **font) {
+    const unsigned char *manager = *(const unsigned char *const *)(dialog + s->font_mgr);
+    *font = manager != NULL ? *(void *const *)manager : NULL;
+    return (const char *)(dialog + (s->text_b != 0 && dialog[s->flag] != 0 ? s->text_b : s->text_a));
+}
+
 static const sp_shift *sp_shift_at(unsigned int site, unsigned int vtable) {
     int i;
     for (i = 0; i < g_game->shift_count; ++i) {
@@ -747,7 +765,26 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
             unsigned int vtable = s != NULL ? s->vtable : g_game->msgbox.vtable;
             __try {
                 if (*(const unsigned int *)popup == vtable) {
-                    sp_cap_asked((const unsigned char *)popup, a);
+                    if (s != NULL && s->mode == SP_SHIFT_MEASURED && g_game->height_fn != 0) {
+                        void *font;
+                        const char *text = sp_shown(s, (const unsigned char *)popup, &font);
+                        int height = 0, width = 0, asked_h = (int)a[2];
+                        sp_asked *k;
+                        if (font != NULL) {
+                            height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+                            width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
+                        }
+                        if (width > (int)a[1] - 2 * s->side && sp_art_ready()) {
+                            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
+                        }
+                        sp_cap_asked((const unsigned char *)popup, a);
+                        k = (sp_asked *)sp_asked_for((const unsigned char *)popup);
+                        if (k != NULL) {
+                            k->reserve = g_asked_reserve(asked_h, s->text_top, height);
+                        }
+                    } else {
+                        sp_cap_asked((const unsigned char *)popup, a);
+                    }
                 }
             } __except (EXCEPTION_EXECUTE_HANDLER) {
             }
@@ -906,6 +943,7 @@ typedef struct sp_shifted {
     unsigned char *dialog;
     sp_content_fn content;
     int bx, by, dx0, dy0;
+    unsigned int yfield;          /* moved instead of the panel's top and bottom (0: the panel's) */
 } sp_shifted;
 
 /* The dialog's body drawn with its panel rectangle (+0x14..+0x20, which its body draw places everything by) moved
@@ -914,14 +952,64 @@ static void sp_draw_shifted(void *holder, void *data, int x, int y) {
     sp_shifted *s = (sp_shifted *)data;
     int *panel = (int *)(s->dialog + 0x14), saved[4], dx = s->dx0 + (x - s->bx), dy = s->dy0 + (y - s->by);
     (void)holder;
+    int *yfield = s->yfield != 0 ? (int *)(s->dialog + s->yfield) : NULL, saved_y = yfield != NULL ? *yfield : 0;
     saved[0] = panel[0]; saved[1] = panel[1]; saved[2] = panel[2]; saved[3] = panel[3];
     panel[0] += dx; panel[2] += dx;
-    panel[1] += dy; panel[3] += dy;
+    if (yfield != NULL) {
+        *yfield += dy;
+    } else {
+        panel[1] += dy; panel[3] += dy;
+    }
     __try {
         s->content(s->dialog, NULL);
     } __finally {
         panel[0] = saved[0]; panel[1] = saved[1]; panel[2] = saved[2]; panel[3] = saved[3];
+        if (yfield != NULL) {
+            *yfield = saved_y;
+        }
     }
+}
+
+/* A measured panel (A New Home's and The Lost Children's island events): the text shown now, measured; when it
+   does not fit above the room kept for the buttons (the result replacing the question in a panel sized for the
+   question, or a text taller than the capped panel) or is wider than the box, it is drawn under the clip with the
+   y the constructor keeps (and the panel's sides, for a wide text) moved by the scroll position. */
+static int sp_measured_body(const sp_shift *s, const sp_asked *asked, unsigned char *dialog, sp_content_fn content,
+                            void *holder) {
+    const int *panel = (const int *)(dialog + 0x14);
+    int pw = panel[2] - panel[0], top, bottom, bx, bw, by, height, width, line, newlines = 0;
+    void *font;
+    const char *text = sp_shown(s, dialog, &font), *p;
+    sp_shifted d;
+    if (font == NULL || g_game->height_fn == 0 || g_game->width_fn == 0) {
+        return 0;
+    }
+    height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+    width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
+    top = *(const int *)(dialog + s->yfield) + s->text_top;
+    bottom = panel[3] - asked->reserve;
+    bx = panel[0] + s->side;
+    bw = pw - 2 * s->side;
+    if (top >= panel[1] && top + height <= bottom && width <= bw) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    by = panel[1] + s->text_top;              /* scrolled: the text from the top of its room */
+    for (p = text; *p != 0; ++p) {
+        newlines += *p == '\n';
+    }
+    line = height / (newlines + 1);
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.dx0 = width > bw ? bx - (panel[0] + (pw - width) / 2) : 0;
+    d.dy0 = by - top;
+    d.yfield = s->yfield;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, bx, panel[2] - s->side / 3,
+                     width, height, line > 0 ? line : s->line, sp_hash(text), sp_draw_shifted, &d);
 }
 
 /* A panel that asked for more than the screen holds: its body is drawn under the clip, moved by the scroll position
@@ -937,6 +1025,9 @@ static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
     sp_shifted d;
     if (asked == NULL || holder == NULL) {
         return 0;
+    }
+    if (s->mode == SP_SHIFT_MEASURED) {
+        return sp_measured_body(s, asked, dialog, content, holder);
     }
     over_x = asked->w_eff - pw;
     over_y = asked->h_eff - ph;
@@ -958,6 +1049,7 @@ static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
     d.content = content;
     d.bx = bx;
     d.by = by;
+    d.yfield = 0;
     d.dx0 = over_x > 0 ? -((pw - asked->w_req) / 2) : 0;
     d.dy0 = over_y > 0 ? -((ph - asked->h_req) / 2) : 0;
     /* The body below the box's top, as the game laid it out for what it asked: down to the room for the buttons,
