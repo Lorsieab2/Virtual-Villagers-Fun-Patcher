@@ -223,6 +223,22 @@ static void call_site(int index, const void *self, unsigned int msg, unsigned in
 
 static int g_choice_research;
 static int g_choice_float;
+/* The Story companion's VvfpStoryGraphLogged, stood in for. */
+static int g_story_logs;
+static int __stdcall stub_logged(int game, const char *title) {
+    (void)game;
+    (void)title;
+    return g_story_logs;
+}
+
+static void gain_research_once(unsigned int offset, int skills_float) {
+    if (skills_float) {
+        *(float *)(slot(0) + offset) += 1.0f;
+    } else {
+        *(int *)(slot(0) + offset) += 1;
+    }
+}
+
 static void gain_research(void) {
     if (g_choice_float) {
         *(float *)(slot(0) + g_choice_research) += 1.0f;
@@ -576,6 +592,46 @@ int main(void) {
 
         /* 9. A Choose Time Skip Amount step and an open event. */
         check_time_skip(&layout);
+
+        /* 10. A branching Custom Island Event's page (the Story companion's story_graph.inc): its effects come
+           back as lines of the event's one entry, "  <name>: <Label> <old> -> <new>" in record order, and nothing
+           is written as records of their own; the game's bracket around that popup writes nothing (the Story
+           companion logged it); any other popup is compared and written exactly as before. */
+        {
+            char lines[4096], want[160];
+            const char *at_research, *at_gone;
+            slot(1)[present] = 1;
+            slot(2)[present] = 1;
+            /* With Last Names on, the record's own name field holds the full name: that is the name printed. */
+            memset(slot(0) + layout.name, 0, 16);
+            put_name(slot(0), layout.name, "Kahu Kalahuna");
+            g_outs = 0;
+            CHECK(VvfpIslandEventsGraphBegin(g_harness_game) == 1, "a branching event's page: the village taken");
+            gain_research_once(research->offset, skills_float);
+            slot(2)[present] = 0;
+            CHECK(VvfpIslandEventsGraphEnd(g_harness_game, lines, (int)sizeof lines) > 0 && g_outs == 0,
+                  "...its changes come back as the entry's lines, no record of their own");
+            _snprintf(want, sizeof want, "  %s: Research ", "Kahu Kalahuna");
+            want[sizeof want - 1] = '\0';
+            at_research = strstr(lines, want);
+            at_gone = strstr(lines, "  Tavi: Gone\n");
+            CHECK(at_research != NULL && at_gone != NULL && at_research < at_gone && strstr(lines, "Event:") == NULL,
+                  "...\"Kahu Kalahuna: Research <old> -> <new>\" (the full name) then \"Tavi: Gone\", in record order");
+            slot(2)[present] = 1;
+            g_graph_logged = stub_logged;
+            g_story_logs = 1;
+            begin();
+            gain_research_once(research->offset, skills_float);
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 0, "the game's bracket around that page's popup writes nothing");
+            g_story_logs = 0;
+            begin();
+            gain_research_once(research->offset, skills_float);
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 1 && strstr(g_out[0].changes, "  Research: ") != NULL,
+                  "any other popup: one record per villager, as before");
+            g_graph_logged = NULL;
+        }
 
         /* 7. The later games' two-choice answer: "Choice:" as A New Home and
            The Lost Children write it (their answer_label). */

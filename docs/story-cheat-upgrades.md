@@ -759,6 +759,60 @@ Secret City and The Tree of Life: two picks in a row, each shown; New
 Believers: only the three living believers offered, the only male believer
 shown), the result, and the food change.
 
+### Branching events from the library (v1.35.97)
+
+The dialog's "From the library..." lists the events saved in the patcher's
+Custom Island Event Library (`<save folder>\Virtual Villagers Fun Patcher\
+Custom Island Events\<name>.json + <name>.cieg`, src/vv_cie_graph.py) made
+for this game, and queues the one picked; the editor above stays as it is.
+The runtime is native/vvfp_story_upgrades/story_graph.inc:
+
+- The .cieg is read and checked again (magic, version, CRC-32, every table
+  and index in bounds, no loop, only the allowed characters); a bad file is
+  refused with the reason, and the picker names every file it leaves out.
+- Roles are filled by the game's own eligible villagers (alive, of age, not
+  carrying a baby, not the game's special villagers -- the shipped Aspiring
+  Adventurer's rules -- and New Believers' believers), two roles always two
+  villagers. No villager for a role: the purchase is refused and says why;
+  no longer one at delivery: the event keeps waiting and is made due again.
+- The walk draws each branch with the game's random routine; conditions on
+  visited nodes, bound roles, the game and Guardians of Isola.
+- The effects wait for their own page (the owner, 2026-11-12): each node's
+  effects are made, once, when the page showing the end of its text is built
+  -- as a stock plain island event makes its changes while building its
+  popup, and a result at the click -- so "Your villagers gain ..." is the page
+  the award lands on and an ending's last page brings its death or
+  disappearance. Food and tech (scaled by "Island Events Scale" when ticked),
+  deaths with the event's cause told to Cause of Death, disappearances logged
+  as Disappeared, New Believers' "becomes a Heathen" through the game's own
+  conversion and counted by "Popup When Believers Become Heathens", health, a
+  like or dislike, a skill raised, sickness. A villager who dies or leaves
+  between pages has only their own later effects skipped.
+- Each popup is laid out in pages that fit (paragraphs, sentences, words);
+  the question's earlier pages come first, the result's first page is the
+  click's result, every later page an island-event notice. Only the question
+  (or the first page) counts in Island Events Seen. The Island Events log
+  keeps ONE entry for the event (the owner, 2026-11-12): "Event:", "Choice:",
+  then every change in page order as "<name>: <Label> <old> -> <new>",
+  appended as each page appears (VVFP Island Events.dll's
+  VvfpIslandEventsGraphBegin / End around that page's effects). The log
+  matches the save at every save: the entry so far is handed to the log after
+  each page (VvfpIslandEventsGraphWrite -> the Parentage Export's
+  WriteVillageEventEntry), a held record replaced each time, and each save
+  writes what it has gained onto the same entry, append-only -- its first part
+  a numbered "Island event <n>" left open, later parts only their new lines
+  right after it (or, if another record came between, a marked
+  "(continued) Island event <n>", never numbered), closed when the event is
+  over. The run's file remembers what each save's log holds, so a quit and a
+  reload continue the same entry, nothing twice. The game's own bracket around
+  the event's popups writes nothing for them (VvfpStoryGraphLogged).
+- The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
+  beside the queue's file (whose layout is unchanged), with when each page's
+  effects were made: a quit with the question on screen or between pages
+  resumes from the first page whose effects the save does not hold, so no
+  effect is made twice or lost. The file stays after the last page until a
+  save holds it.
+
 ### Custom titles
 
 A villager's title can be replaced by the player's text (1-31 letters,

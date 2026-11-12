@@ -110,3 +110,17 @@ EXPORTS
     VvfpStoryProbeNameCompare=_VvfpStoryProbeNameCompare@8
     VvfpStoryProbeChooserWords=_VvfpStoryProbeChooserWords@20
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpStoryProbeSetRolls=_VvfpStoryProbeSetRolls@8
+    VvfpStoryProbeGraphQueue=_VvfpStoryProbeGraphQueue@16
+    VvfpStoryProbeGraphCheck=_VvfpStoryProbeGraphCheck@8
+    VvfpStoryProbeGraphForce=_VvfpStoryProbeGraphForce@16
+    VvfpStoryProbeGraphState=_VvfpStoryProbeGraphState@4
+    VvfpStoryProbeGraphPath=_VvfpStoryProbeGraphPath@12
+    VvfpStoryProbeGraphDisplay=_VvfpStoryProbeGraphDisplay@4
+    VvfpStoryProbeGraphTold=_VvfpStoryProbeGraphTold@12
+    VvfpStoryProbeGraphArmNext=_VvfpStoryProbeGraphArmNext@4
+    VvfpStoryProbeGraphFile=_VvfpStoryProbeGraphFile@8
+    VvfpStoryProbeGraphSession=_VvfpStoryProbeGraphSession@8
+    VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
+    VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
+    VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12

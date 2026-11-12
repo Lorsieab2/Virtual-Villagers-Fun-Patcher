@@ -438,6 +438,28 @@ int __stdcall VvfpFaithNoticePending(int game, int *out) {
     return 1;
 }
 
+/* "VVFP Story Upgrades.dll": a branching Custom Island Event made a believer a Heathen (the owner, 2026-11-12: it
+   COUNTS as a faith conversion).  One more believer in the waiting batch, under `reason` (FNR_*; anything else is
+   "other", "a loss of faith"), exactly as the drift's own are counted -- so the popup tells of it when no other
+   conversion has come for FN_QUIET_MS, and the slot's file keeps it across a quit. */
+void __stdcall VvfpFaithNoticeCount(int game, int reason) {
+    if (game != FN_GAME || !g_installed) {
+        return;
+    }
+    if (reason < 0 || reason >= FNR_COUNT) {
+        reason = FNR_OTHER;
+    }
+    if (g_count > 0 && !batch_is_here()) {
+        forget_batch();                    /* the last batch was another village's (its own file has it) */
+    }
+    g_batch_slot = vv_game_save_slot(FN_GAME);
+    g_batch_generation = g_generation;
+    ++g_count;
+    ++g_counts[reason];
+    g_last = fn_now();
+    g_dirty = 1;                           /* written by the next VvfpFaithNoticeKeep */
+}
+
 /* Called every frame by "VVFP Story Upgrades.dll", while the popup waits too (a time skip, a menu): the slot's
    file read, and kept what the batch is. */
 void __stdcall VvfpFaithNoticeKeep(int game) {

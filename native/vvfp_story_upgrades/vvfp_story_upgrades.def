@@ -21,3 +21,4 @@ EXPORTS
     VvfpStoryAppearanceChanged=_VvfpStoryAppearanceChanged@16
     VvfpStoryTimeSkipNoticeShown=_VvfpStoryTimeSkipNoticeShown@4
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
