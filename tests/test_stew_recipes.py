@@ -215,7 +215,7 @@ class Page(unittest.TestCase):
         self.assertIn("only spicy + sweet + soapy", " ".join(s.text for s in yummy))
         # Reheating is said once, for every stew (the owner: "All stews"), not under each recipe.
         vv4 = [f.text for f in stews.facts(4)]
-        self.assertEqual(sum("Reheating: every stew can be reheated" in t for t in vv4), 1)
+        self.assertEqual(sum("Not every stew can: some just evaporate instead" in t for t in vv4), 1)
         self.assertFalse(any(t.startswith(stews.REHEAT_LINE) for t in vv4))
         # Food: fresh water always; salt water only for the failed "Too salty" mix (0x42DC80).
         food = next(t for t in vv4 if t.startswith("Food:"))

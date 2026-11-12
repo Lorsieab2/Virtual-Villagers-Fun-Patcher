@@ -104,7 +104,8 @@ REHEAT_LINE = "Some stews can be reheated by putting another hot rock in the pot
 # (0x42EE5F..0x42EE7E); an unfinished Grand Feast instead turns 0x18 on again (0x42EE1D).  A rock that goes in
 # while the pot is hot and its stew is ready makes the same stew again (0x42EAF1 -> vtable +0x2C = 0x42EDE0,
 # the recipe read again from the 3 herbs kept), which sets the 300-second deadline again (0x42EEB2 -> 0x42F240);
-# nothing counts the times.  What turns the hot state on for an already-made stew is not traced here (the only
+# nothing counts the times.  The owner (2026-11-12), seen in play: some stews evaporate instead of reheating, so
+# something not traced here stops it for them.  What turns the hot state on for an already-made stew is not traced here (the only
 # other writer is 0x42F4A0, a drop handler on the pot's boiling-water object, vtable 0x48E2F0 +0x28).
 REHEAT_CODE_LINE = (
     "In the game's code: each hot rock adds 10 heat to the pot, which only emptying it takes away; a stew is ready "
@@ -112,8 +113,8 @@ REHEAT_CODE_LINE = (
     "vines x3) need no heat. The pot takes things only while it is hot: making a stew ends that, and an unfinished "
     "Grand Feast stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow) "
     "after each thing added. A hot rock that goes into the hot pot while its stew is ready makes "
-    "the same stew again and starts its 5 real-life minutes over; nothing limits how often, and no stew is left "
-    "out of this (the 5 minutes are real time, the same at every speed).")
+    "the same stew again and starts its 5 real-life minutes over (the 5 minutes are real time, the same at every "
+    "speed). In play, though, not every stew can be reheated this way: some just evaporate.")
 # "That villager can't eat more stew so soon." (string 0x203) is said when the villager dropped on the pot
 # (0x42E920) is refused by the add-effect 0x460A90: the same stew's effect is already on them (0x45EB40) or they
 # have 12 (+0x1E5C).  An effect ends at a real-clock deadline (0x403750 + its length, 0x460B60); saving ends every

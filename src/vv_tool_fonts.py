@@ -24,6 +24,8 @@ HEADING = (FAMILY, 12, "bold")
 LABEL = (FAMILY, 9, "bold")
 BOLD = (FAMILY, 10, "bold")
 HEADING_SPACING = {"spacing1": 10, "spacing3": 4}
+# The owner (2026-11-12): a gap after every line of a page, so the lines do not run together in one block.
+LINE_GAP = 7
 
 _SPECS = {"text": TEXT, "heading": HEADING, "label": LABEL, "bold": BOLD}
 

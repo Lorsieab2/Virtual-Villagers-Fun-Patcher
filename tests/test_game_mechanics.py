@@ -475,7 +475,7 @@ class StewPots(unittest.TestCase):
         for words in ("each hot rock adds 10 heat", "the Grand Feast at 20 with its 4 feast items",
                       "the two salt-water mixes (soapy x3, pulpy vines x3) need no heat",
                       "stays hot for 10 real-life minutes on Normal speed (5 on Fast, 16 minutes 40 seconds on Slow)",
-                      "starts its 5 real-life minutes over; nothing limits how often"):
+                      "starts its 5 real-life minutes over", "not every stew can be reheated this way: some just evaporate"):
             self.assertIn(words, code.text)
         self.assertTrue(facts[vv4.CANT_EAT_LINE].confirmed)
         text = gm.render(list(facts.values()))
