@@ -221,3 +221,26 @@ __declspec(dllexport) void __stdcall VvfpCauseVanished(int game, int index) {
         cod_log_gone(record, "Disappeared in a custom island event");
     }
 }
+
+/* "VVFP More Island Events.dll" (The Aspiring Adventurer, an island event it adds): called right after its own
+   "disappears" took the villager in record `index` -- the game's own removal of a living villager with no body
+   (the presence byte cleared; The Tree of Life's after the Sealed Box's death, as above) -- with what took them in
+   that event's words (`what`, at most 120 characters are kept).  Without this the save-time reconciliation would
+   list the villager as Unaccounted.  The same checks as VvfpCauseVanished. */
+__declspec(dllexport) void __stdcall VvfpCauseVanishedBy(int game, int index, const char *what) {
+    char words[128];
+    unsigned char *record;
+    int i;
+    if (install_state != 1 || game != g_game || what == NULL) {
+        return;
+    }
+    for (i = 0; i < 120 && what[i] != '\0'; ++i) {
+        words[i] = what[i] == '\n' || what[i] == '\r' ? ' ' : what[i];
+    }
+    words[i] = '\0';
+    record = cod_record(index);
+    if (record != NULL && !rec_present(record) && (g_game == 4 || rec_health(record) > 0)
+        && cod_is_villager(record)) {
+        cod_log_gone(record, words);
+    }
+}

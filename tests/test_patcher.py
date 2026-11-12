@@ -1198,8 +1198,9 @@ class ManifestTests(unittest.TestCase):
         # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
-        # byte -- its companion moves the pickup jobs' award steps at run time.
-        self.assertEqual(len(feature_ids), 43)
+        # byte -- its companion moves the pickup jobs' award steps at run time; 44 with More Island Events
+        # (vv2_more_island_events), no executable byte -- its companion writes its five sites at run time.
+        self.assertEqual(len(feature_ids), 44)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4166,6 +4167,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_preferred_job_graves",
             # Picked Up Collectibles Stay Collected When Dropped: companion only, no executable bytes.
             "vv2_collectibles_stay_collected",
+            "vv2_more_island_events",
             },
         )
         for mode in ALL_MODES:

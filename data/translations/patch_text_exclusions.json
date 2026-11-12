@@ -104,6 +104,11 @@
    "reason": "Popup When Believers Become Heathens: the words looked for in the game's own eSayStoppedBelieving to tell the Guardians of Isola wording; never shown.",
    "files": ["native/vvfp_story_upgrades/story_faith_notice.inc"],
    "functions": ["faith_notice_left_the_tribe"]
+  },
+  {
+   "reason": "The Aspiring Adventurer: the words looked for in New Believers' own eSayStoppedBelieving to tell the Guardians of Isola wording (never shown), and its words for the Cause of Death companion's Deaths log (a disappearance, written to the log file only). The words the event shows are in the template and looked up by key (adv_text.inc).",
+   "files": ["native/vvfp_more_island_events/adv_vv345.inc", "native/vvfp_more_island_events/adv_core.inc"],
+   "functions": ["vv5_joins_key", "adv_choose"]
   }
  ]
 }

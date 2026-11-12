@@ -234,6 +234,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Island Events Scale With Stored Food and Tech Points, is off through ALTERNATIVE_OFF_FUN_PATCH_IDS and off in
     # Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
     + ["vv%d_island_events_scale_with_population" % game for game in (1, 4, 5)]
+    # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
+    # Owner's Defaults (and in Classic VV Difficulty where a game has it).
+    + ["vv%d_more_island_events" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]

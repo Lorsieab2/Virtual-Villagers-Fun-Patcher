@@ -57,6 +57,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
        right after the carry step, never again at delivery. */
     "VVFP Collectibles Stay Collected.dll",
+    /* The Aspiring Adventurer (all five games): the owner's new island event. */
+    "VVFP More Island Events.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
