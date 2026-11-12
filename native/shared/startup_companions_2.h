@@ -57,6 +57,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
        right after the carry step, never again at delivery. */
     "VVFP Collectibles Stay Collected.dll",
+    /* Scrolling Popups (The Secret City, The Tree of Life, New Believers): scrollbars on the island-event popups
+       whose text does not fit. */
+    "VVFP Scrolling Popups.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

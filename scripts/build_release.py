@@ -141,6 +141,8 @@ FILES = [
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
     "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (The Secret City, The Tree of Life, New Believers): the companion.
+    "assets/scrolling_popups/VVFP Scrolling Popups.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -313,6 +315,9 @@ FILES = [
     "data/vv4_island_events_scale_with_stored_amounts_feature.json",
     "data/vv5_island_events_scale_with_population_feature.json",
     "data/vv5_island_events_scale_with_stored_amounts_feature.json",
+    "data/vv3_scrolling_popups_feature.json",
+    "data/vv4_scrolling_popups_feature.json",
+    "data/vv5_scrolling_popups_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.

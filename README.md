@@ -1129,6 +1129,12 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 
 - Patch ID: `vv3_copy_paste`
 
+**Scrolling Popups**
+
+Island-event popups get scrollbars when their text does not fit: a popup is never taller than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or has a line wider than the box (one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when the result replaces the question. A popup whose text fits looks and works exactly as before. This first stage covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them); the text a popup can hold is still the game's 2,000 characters. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is "VVFP Scrolling Popups.dll", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.
+
+- Patch ID: `vv3_scrolling_popups`
+
 **Disable Clouds on the Overview Map**
 
 Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so Push Clouds Away on the Overview Map has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
@@ -1468,6 +1474,12 @@ Lets you copy and paste in the game's text boxes (the tribe name when a new vill
 
 - Patch ID: `vv4_copy_paste`
 
+**Scrolling Popups**
+
+Island-event popups get scrollbars when their text does not fit: a popup is never taller than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or has a line wider than the box (one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when the result replaces the question. A popup whose text fits looks and works exactly as before. This first stage covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them); the text a popup can hold is still the game's 2,000 characters. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is "VVFP Scrolling Popups.dll", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.
+
+- Patch ID: `vv4_scrolling_popups`
+
 **Disable Clouds on the Overview Map**
 
 Hides the clouds that drift over the island on the overview map (the Map button): they are not drawn at all, so the whole island shows. Only the overview map changes: the village, its weather and every other screen look exactly as before, and the map's markers, buttons and its fade when you leave it are unchanged. **On by default.** **Needs no other patch.** **With this on, the clouds are hidden, so the game's own push (the clouds moving away from the cursor) has no visible effect until this is unticked.** **Not yet seen in a running game** (checked by emulation of the stock executable).
@@ -1677,6 +1689,12 @@ Draws ALL of the game's text in a Windows typeface instead of the game's own bit
 Lets you copy and paste in the game's text boxes (the tribe name when a new village starts and the villager names on the Details screen, and every other box you type in). While a box has typing focus: Ctrl+V or Shift+Insert pastes the text on the Windows clipboard where you type (the boxes have no movable caret, so at the end of the text); Ctrl+C or Ctrl+Insert copies the box's whole text; Ctrl+X cuts it (copies it, then empties the box). Pasted text keeps the box's own rules: its own character filter (a numbers-only box takes only digits), and its own length limit, cut before the first character that does not fit, never inside a character. Line breaks and tabs become spaces; other control characters are dropped, and so is every character the game cannot show (never turned into '?'): **with Render Unicode with In-Game Fonts or Use Unicode Font on, every character those patches let you type is pasted (at least every Windows-1252 character: accented letters, curly quotes, €, ...); with neither, plain English letters, digits and signs only.** The keys never reach the game as letters or shortcuts. Ctrl+A does nothing: the game's boxes have no selection. When the clipboard is busy or holds no text, nothing happens. **On by default.** **Needs no other patch; works with or without Render Unicode with In-Game Fonts and Use Unicode Font.** **Not yet seen in a running game** (checked by emulation of each stock executable). The companion is "VVFP Copy and Paste.dll", started by VVFP Startup.dll; saves are never written by it.
 
 - Patch ID: `vv5_copy_paste`
+
+**Scrolling Popups**
+
+Island-event popups get scrollbars when their text does not fit: a popup is never taller than the screen (its buttons stay at its bottom, where they always are), and when its text is taller than the room left, or has a line wider than the box (one very long word), a vertical and/or a horizontal scrollbar appears, drawn with the game's own scrollbar pictures. Scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when the result replaces the question. A popup whose text fits looks and works exactly as before. This first stage covers the island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them); the text a popup can hold is still the game's 2,000 characters. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is "VVFP Scrolling Popups.dll", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.
+
+- Patch ID: `vv5_scrolling_popups`
 
 **Disable Clouds on the Overview Map**
 
