@@ -1,0 +1,8 @@
+LIBRARY "VVFP Aspiring Adventurer"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpAdventurerInstalled=_VvfpAdventurerInstalled@0
+    VvfpAdventurerPossible=_VvfpAdventurerPossible@0
+    VvfpAdventurerEligible=_VvfpAdventurerEligible@4
+    VvfpAdventurerState=_VvfpAdventurerState@4
+    VvfpAdventurerPage=_VvfpAdventurerPage@8
