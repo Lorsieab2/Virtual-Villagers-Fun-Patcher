@@ -98,7 +98,7 @@ SPRINTF = {"vv3": 0x46EFCD, "vv4": 0x4716DB, "vv5": 0x47C046}
 # Statistics (A New Home, The Lost Children).
 LABEL_PANELS = {"vv1": {"nickname": 0x415510, "statistics": 0x431B30},
                 "vv2": {"nickname": 0x41AC90, "statistics": 0x43F860},
-                "vv3": {"nickname": 0x41BA90}, "vv4": {"nickname": 0x4190B0}, "vv5": {"nickname": 0x4197D0}}
+                "vv3": {"nickname": 0x41BA90, "roster": 0x41A110}, "vv4": {"nickname": 0x4190B0}, "vv5": {"nickname": 0x4197D0}}
 # The tombstone (the grave's readout), per game.  A New Home and The Lost Children: its vtable, base constructor,
 # sizer and its 9-slice picture (the strip constructor, the file), its OK button's field, its fields the body draw
 # reads (the grave's slot, the grave manager, the string table) and the grave's fields in the manager (the name;

@@ -35,6 +35,9 @@ Proofs:
     long lines (a long name, a translated "Here Lies", a long cause -- in A New Home and The Lost Children Cause of
     Death's cause line, drawn from its hook site exactly as that companion draws it) scroll sideways inside the
     panel, with the horizontal bar above the button, dragged to the lines' ends and back by the wheel;
+  * the other fixed panels whose lines are text controls (Create Nickname in all five, Statistics in A New Home and
+    The Lost Children, the Roster of the Dead in The Secret City), made by the game's own constructors: a panel that
+    fits is the stock draw blit for blit; a long translation or name scrolls sideways above the buttons and text box;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -952,6 +955,110 @@ class TheTombstone(unittest.TestCase):
                 self.assertGreaterEqual(min(b[3][0] for b in causes), v["box_x"])
                 self.assertLessEqual(max(b[3][0] + b[1][2] for b in causes), v["box_x"] + v["box_w"])
                 d.make_tomb(TOMB_NAME, None)                          # Cause of Death's site as the game has it
+
+
+PANEL_LONG = b"Please type the name you would like to be known by on the island, the village and all the tribes"
+ROSTER_NAMES = (b"Kalahuna", b"WWWWWWWWWWWWWWWWWWWWWWWWWW")
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class TheLabelPanels(unittest.TestCase):
+    """The fixed panels whose lines are text controls, made by the game's own constructors with the game's own English
+    texts: Create Nickname (all five), Statistics (A New Home, The Lost Children), the Roster of the Dead (The Secret
+    City).  Their longest text replaced by a long one (as a translation gives it), or a long name on the Roster."""
+    panels: dict = {}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        cls.spe = spe
+        for game in GAMES:
+            cls.panels[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.panels.clear()
+
+    def kinds(self, game):
+        return list(self.spe.LABEL_PANELS[f"vv{game}"])
+
+    def make(self, d, kind, long_text):
+        d.string_overrides = {}
+        if kind == "roster":
+            entries = 0x5973F0 + 0x974
+            for k, name in enumerate(ROSTER_NAMES):
+                d.mu.mem_write(entries + k * 0x30, b"\0" * 0x30)
+                d.mu.mem_write(entries + k * 0x30, (name if long_text else name[:8]) + b"\0")
+                d.put(entries + k * 0x30 + 0x1C, 300)
+                d.put(entries + k * 0x30 + 0x2C, 1)
+            return d.make_panel(kind)
+        d.make_panel(kind)
+        if long_text:
+            texts = {i: bytes(d.mu.mem_read(d._english_va(i), 64)).split(b"\0")[0] for i in d.looked_up}
+            d.string_overrides = {max(texts, key=lambda i: len(texts[i])): PANEL_LONG}
+            d.make_panel(kind)
+        return d.dialog
+
+    def test_a_panel_that_fits_is_drawn_as_the_game_draws_it(self) -> None:
+        for game, d in self.panels.items():
+            for kind in self.kinds(game):
+                with self.subTest(game=game, kind=kind):
+                    self.make(d, kind, False)
+                    before = d.companion_export("VvfpScrollingPopupsTestScrolled")
+                    with_companion = d.draw_box()
+                    self.assertEqual(d.companion_export("VvfpScrollingPopupsTestScrolled"), before)
+                    ctl, text_draw = BUILDER.CONTROL[game]
+                    patched = bytes(d.mu.mem_read(ctl, 5))
+                    d.mu.mem_write(ctl, bytes.fromhex(BUILDER.call_bytes(ctl, text_draw)))
+                    try:
+                        plain = d.draw_box()
+                    finally:
+                        d.mu.mem_write(ctl, patched)
+                    self.assertTrue(d.text_blits(with_companion))
+                    self.assertEqual([(b[1], b[3]) for b in with_companion], [(b[1], b[3]) for b in plain])
+
+    def test_a_long_line_scrolls_sideways_above_the_buttons(self) -> None:
+        for game, d in self.panels.items():
+            for kind in self.kinds(game):
+                with self.subTest(game=game, kind=kind):
+                    w, h = d.g["screen"]
+                    self.make(d, kind, True)
+                    panel = d.panel()
+                    left, top, right, bottom = panel
+                    blits = d.draw_box()
+                    self.assertEqual(d.panel(), panel)
+                    self.assertEqual(d.clip(), (0, 0, w, h))
+                    v = d.view()
+                    self.assertEqual((v["shown"], v["hbar"]), (1, 1))
+                    self.assertGreater(v["content_w"], v["box_w"])
+                    self.assertGreaterEqual(v["box_x"], left)
+                    self.assertLessEqual(v["box_x"] + v["box_w"], right)
+                    # the bar lies above every other control in the panel's lower half (its buttons, a text box)
+                    vts = [d.u32(c) for c in d.children]
+                    label_vt = max(set(vts), key=vts.count)              # the labels' class (the most children)
+                    others = [c for c in d.children if d.u32(c) != label_vt
+                              or d.mu.mem_read(d.u32(c + 0x10) + 0x24, 1) != b"\0"]    # buttons, text boxes
+                    lower = [t for t in (d.child_rect(c)[1] for c in others) if t >= (top + bottom) // 2]
+                    if lower:
+                        self.assertLessEqual(v["hy"] + v["hh"], min(lower))
+                    lines = [b for b in d.text_blits(blits) if v["box_y"] - 2 <= b[3][1] < v["hy"]]
+                    self.assertTrue(lines)
+                    for b in lines:
+                        self.assertGreaterEqual(b[3][0], v["box_x"])
+                        self.assertLessEqual(b[3][0] + b[1][2], v["box_x"] + v["box_w"])
+                    self.assertIn("handle", d.art_blits(blits))
+                    save_picture(d, blits, f"vv{game}_{kind}_long.png")
+                    self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+                    self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                    self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+                    blits = d.draw_box()
+                    self.assertEqual(d.scroll()[0], v["content_w"] - v["box_w"])
+                    save_picture(d, blits, f"vv{game}_{kind}_long_scrolled.png")
+                    self.assertTrue(d.mouse(1, (left + right) // 2, (top + bottom) // 2))
+                    d.wheel(100)
+                    d.draw_box()
+                    self.assertEqual(d.scroll(), (0, 0))
 
 
 if __name__ == "__main__":

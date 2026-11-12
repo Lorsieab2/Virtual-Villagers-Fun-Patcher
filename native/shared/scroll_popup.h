@@ -141,6 +141,13 @@ typedef struct sp_game {
        line a text control, drawn by the text control draw (`ctl_site`). */
     unsigned int tomb_vtable, tomb_button;
     unsigned int centre_site, core_draw;
+    /* The panels whose lines are text controls (each a label of the window; text boxes and buttons stay as the game
+       draws them): when a line runs past the panel (a translation, a long name), every line is drawn moved by the
+       scroll position under a clip set to the panel less 16 px on each side, above the controls in its lower half
+       (its buttons), with the bars.  By vtable: the tombstone (the later three), the Roster of the Dead (The Secret
+       City), Create Nickname (all five), Statistics (A New Home, The Lost Children). */
+    const unsigned int *label_panels;
+    int label_panel_count;
 } sp_game;
 
 /* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
@@ -186,6 +193,14 @@ static const sp_class SP_VV5_CLASSES[] = {
      0x50u, 0x85Cu, 0x864u, 2000u, {0x41834Eu, 0x418387u, 0x4183C2u, 0x41852Bu}},
 };
 
+/* The panels whose lines are text controls (sp_game.label_panels). */
+static const unsigned int SP_VV1_LABEL_PANELS[] = {0x45A120u, 0x459388u};               /* Statistics, Create Nickname */
+static const unsigned int SP_VV2_LABEL_PANELS[] = {0x477640u, 0x47647Cu};               /* Statistics, Create Nickname */
+static const unsigned int SP_VV3_LABEL_PANELS[] = {0x47F498u, 0x47F2C0u, 0x47F344u};    /* tombstone, Roster, Nickname */
+static const unsigned int SP_VV4_LABEL_PANELS[] = {0x48D4ECu, 0x48D354u};               /* tombstone, Create Nickname */
+static const unsigned int SP_VV5_LABEL_PANELS[] = {0x4986E8u, 0x498564u};               /* tombstone, Create Nickname */
+#define SP_LABEL_PANELS(n) SP_VV##n##_LABEL_PANELS, (int)(sizeof SP_VV##n##_LABEL_PANELS / sizeof(unsigned int))
+
 /* The four borrowed pictures (A New Home, The Lost Children). */
 #define SP_BORROWED_ART                                                                                           \
     {0, 3, "vvfp_scroll_up.png"}, {0, 3, "vvfp_scroll_down.png"}, {0, 1, "vvfp_scroll_track.png"},               \
@@ -198,30 +213,30 @@ static const sp_game SP_GAMES[6] = {
      NULL, 0,
      0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u},
      0x40C9A3u, 5, SP_VV1_SHIFTS, 4, 0, 0x402100u, 0x402160u,
-     0x481B58u, 0x88u, 0x409501u, 0x409160u},                   /* vv1 */
+     0x481B58u, 0x88u, 0x409501u, 0x409160u, SP_LABEL_PANELS(1)},                   /* vv1 */
     {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
      0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u},
      0x40D383u, 5, SP_VV2_SHIFTS, 4, 0, 0x402190u, 0x4021F0u,
-     0x48FB48u, 0x90u, 0x4096F1u, 0x409360u},                   /* vv2 */
+     0x48FB48u, 0x90u, 0x4096F1u, 0x409360u, SP_LABEL_PANELS(2)},                   /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),
      0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u},
-     0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u, 0x4021C0u, 0x402230u, 0x47F498u, 0x6Cu},                   /* vv3 */
+     0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u, 0x4021C0u, 0x402230u, 0x47F498u, 0x6Cu, 0, 0, SP_LABEL_PANELS(3)},                   /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
      {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
      {0xA2, 1, 0, {3, 5, 16, 21}},
      SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0]),
      0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u},
-     0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u, 0x402500u, 0x402430u, 0x48D4ECu, 0x6Cu},                   /* vv4 */
+     0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u, 0x402500u, 0x402430u, 0x48D4ECu, 0x6Cu, 0, 0, SP_LABEL_PANELS(4)},                   /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
      {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
      {0x80, 1, 0, {3, 5, 16, 21}},
      SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0]),
      0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u},
-     0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u, 0x4024B0u, 0x4023E0u, 0x4986E8u, 0x6Cu},                   /* vv5 */
+     0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u, 0x4024B0u, 0x4023E0u, 0x4986E8u, 0x6Cu, 0, 0, SP_LABEL_PANELS(5)},                   /* vv5 */
 };
 
 #endif /* VVFP_SCROLL_POPUP_H */

@@ -83,6 +83,14 @@ EVENTS = {
 # in its body draw with the centred-block draw, whose one call of the core draw is a site: (site, core draw).
 TOMBS = {1: 0x481B58, 2: 0x48FB48, 3: 0x47F498, 4: 0x48D4EC, 5: 0x4986E8}
 CENTRE = {1: (0x409501, 0x409160), 2: (0x4096F1, 0x409360)}
+# The other fixed panels whose lines are text controls: (name, vtable).
+LABEL_PANELS = {
+    1: (("Statistics", 0x45A120), ("Create Nickname", 0x459388)),
+    2: (("Statistics", 0x477640), ("Create Nickname", 0x47647C)),
+    3: (("the Roster of the Dead", 0x47F2C0), ("Create Nickname", 0x47F344)),
+    4: (("Create Nickname", 0x48D354),),
+    5: (("Create Nickname", 0x498564),),
+}
 # The tip's per-line `call justify` (The Secret City, The Tree of Life, New Believers).
 TIP_JUSTIFY = {3: 0x41E433, 4: 0x41B9B0, 5: 0x41C200}
 ART = {1: "WideSlider2.png and sliderhandle.png (its own) and Images\\vvfp_scroll_up/down/track/knob.png (The Secret "
@@ -113,6 +121,7 @@ def covered(game: int) -> str:
     parts.append("message boxes (tech and puzzle results, confirmations)")
     parts.append("tips (the tutorial and notices)")
     parts.append("the tombstone (a long name or cause of death scrolls sideways)")
+    parts.append(" and ".join(n for n, _vt in LABEL_PANELS[game]) + " (a long translation or name scrolls sideways)")
     return ", ".join(parts[:-1]) + " and " + parts[-1]
 
 
@@ -126,7 +135,11 @@ def description(game: int) -> str:
         "drawn with the game's own scrollbar pictures." + borrowed + " Scroll with the mouse wheel over the popup, "
         "the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when "
         "it changes. A popup whose text fits looks and works exactly as before. This covers the " + covered(game)
-        + "; more popups follow. There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or "
+        + ". The Options panel (each label sits beside its slider or button, which cannot scroll with it)"
+        + (", the few-second online-statistics notice," if game in (1, 2) else "")
+        + " and the panels with no text body (Change Player" + (", the outfit chooser" if game > 1 else "")
+        + ") are as the game draws them. There is no "
+        "keyboard scrolling. Nothing is saved, so the patch can be ticked or "
         "unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in "
         "play: the effect has not been tested live.** The companion is \"" + DLL_NAME + "\", started by VVFP "
         "Startup.dll; if it cannot be loaded, the popups are as the game draws them."
@@ -258,6 +271,12 @@ def behavior_changes(game: int) -> list[str]:
          "past the panel's sides (a long name, a long cause, a translation), each line is drawn moved by the scroll "
          "position under a clip 16 px in from the sides and above the Done button, with a horizontal bar below the "
          "lines; the editable epitaph and every tombstone that fits are drawn exactly as before."),
+        "The same for " + ", ".join(f"{n} (vtable 0x{vt:X})" for n, vt in LABEL_PANELS[game])
+        + f": at the text control draw's call (0x{CONTROL[game][0]:X}) a line of one of these panels is measured with "
+        "all the panel's lines (its window's text controls); when one runs past the panel's sides, every line is drawn "
+        "moved by the scroll position under a clip 16 px in from the sides, above the controls in the panel's lower "
+        "half (its buttons, a text box), with a horizontal bar below the lines; text boxes, buttons and every panel "
+        "that fits are drawn exactly as before.",
         f"The event pump's `call 0x{dispatch:X}` handing a mouse event to the game (0x{mouse:X}) calls the "
         "companion first: a press on a scrollbar of the popup drawn this moment, a knob drag and its release are "
         "used by the companion and not passed on; every other event goes to the game unchanged. The wheel is read "

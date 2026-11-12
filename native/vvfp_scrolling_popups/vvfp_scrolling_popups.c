@@ -983,16 +983,39 @@ static int sp_label_extent(const unsigned char *impl, const int *origin, void *f
     return 1;
 }
 
-static int sp_tomb_label(void *holder, const unsigned char *ctl, const unsigned int *a) {
+typedef void (__fastcall *sp_rect_fn)(const void *control, void *edx, int *rect);
+
+/* A child control's top, from its vtable+8 (its rectangle on the screen); 0x7FFFFFFF when it cannot be told. */
+static int sp_child_top(const unsigned char *wrapper) {
+    int rect[4] = {0, 0, 0, 0};
+    __try {
+        ((sp_rect_fn)(*(void *const *const *)wrapper)[2])(wrapper, NULL, rect);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0x7FFFFFFF;
+    }
+    return rect[1] > -4096 && rect[1] < 4096 && rect[3] >= rect[1] ? rect[1] : 0x7FFFFFFF;
+}
+
+static int sp_is_label_panel(unsigned int vtable) {
+    int i;
+    for (i = 0; i < g_game->label_panel_count; ++i) {
+        if (g_game->label_panels[i] == vtable) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int sp_label_panel(void *holder, const unsigned char *ctl, const unsigned int *a) {
     const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18), *node, *n, *first = NULL;
     const int *panel, *origin;
     unsigned char *ctx = *(unsigned char **)holder;
     void *font_default;
     int l = 0x7FFFFFFF, t = 0x7FFFFFFF, r = -0x7FFFFFFF, b = -0x7FFFFFFF, guard = 0, bx, bw, by, bottom, line = 0;
-    int ml, mt, mr, mb, here_l = 0, here_t = 0, k;
+    int ml, mt, mr, mb, here_l = 0, here_t = 0, k, mid, below = 0x7FFFFFFF, top;
     sp_label_draw d;
-    if (g_game->tomb_vtable == 0 || g_game->centre_site != 0 || popup == NULL
-        || *(const unsigned int *)popup != g_game->tomb_vtable || ctl[0x24] != 0 || g_game->width_fn == 0) {
+    if (popup == NULL || ctl[0x24] != 0 || g_game->width_fn == 0
+        || !sp_is_label_panel(*(const unsigned int *)popup)) {
         return 0;
     }
     /* The text control draw has set the drawing context's font to the control's own, when it has one: the
@@ -1004,14 +1027,30 @@ static int sp_tomb_label(void *holder, const unsigned char *ctl, const unsigned 
         || here_t != (int)a[2]) {
         return 0;                           /* not where the game draws it: as the game draws it */
     }
-    for (n = *(const unsigned char *const *)(node + 0x18); n != NULL && guard < 64; n = *(const unsigned char *const *)(n + 4), ++guard) {
+    panel = (const int *)(popup + 0x14);
+    mid = (panel[1] + panel[3]) / 2;
+    for (n = *(const unsigned char *const *)(node + 0x18); n != NULL && guard < 256; n = *(const unsigned char *const *)(n + 4), ++guard) {
         const unsigned char *wrapper = *(const unsigned char *const *)n, *impl;
         if (wrapper == NULL) {
             continue;
         }
         impl = *(const unsigned char *const *)(wrapper + 0x10);
-        if (impl == NULL || *(const unsigned int *)impl != *(const unsigned int *)ctl || impl[0x2C] == 0
-            || impl[0x24] != 0 || *(const unsigned char *const *)(impl + 0x18) != popup) {
+        if (impl == NULL || *(const unsigned int *)impl != *(const unsigned int *)ctl
+            || *(const unsigned char *const *)(impl + 0x18) != popup) {
+            top = sp_child_top(wrapper);     /* another control (a button): the lines stay above it */
+            if (top >= mid && top < below) {
+                below = top;
+            }
+            continue;
+        }
+        if (impl[0x24] != 0) {                       /* a text box (the epitaph, a name): drawn as the game draws it */
+            top = origin[1] + *(const int *)(impl + 0xC);
+            if (top >= mid && top < below) {
+                below = top;
+            }
+            continue;
+        }
+        if (impl[0x2C] == 0) {
             continue;
         }
         k = sp_label_extent(impl, origin, font_default, &ml, &mt, &mr, &mb);
@@ -1030,11 +1069,10 @@ static int sp_tomb_label(void *holder, const unsigned char *ctl, const unsigned 
             line = mb - mt;
         }
     }
-    panel = (const int *)(popup + 0x14);
     bx = panel[0] + SP_TOMB_SIDE;
     bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
-    bottom = sp_tomb_bottom(popup);
-    if (first == NULL || r <= l || (l >= bx && r <= bx + bw && b <= bottom)) {
+    bottom = (below != 0x7FFFFFFF ? below : panel[3] - 0x10) - 4;   /* above the controls in the panel's lower half */
+    if (first == NULL || r <= l || (l >= bx && r <= bx + bw && b <= bottom && t >= panel[1])) {
         if (g_view.popup == popup) {
             g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
         }
@@ -1065,7 +1103,7 @@ static void __stdcall sp_control(void *holder, const unsigned char *ctl, const u
         if (clip != NULL) {
             old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
         }
-        done = sp_tomb_label(holder, ctl, a);
+        done = sp_label_panel(holder, ctl, a);
         if (!done) {
             done = sp_message(holder, ctl, a);
         }
