@@ -351,7 +351,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         return;
     }
     if (game == 4 || game == 5) {
-        const unsigned char *module = (const unsigned char *)GetModuleHandleW(NULL);
+        const unsigned char *module = (const unsigned char *)GetModuleHandleA(NULL);
         unsigned int rva = 0, slots = 0;
         if (module == NULL) {
             module = (const unsigned char *)(UINT_PTR)0x400000u;   /* the games' fixed base, as every site's VA */
