@@ -1083,7 +1083,7 @@ def _overlaps(a, b) -> bool:
 TALL = b"\n".join(b"Line %d of a long text." % n for n in range(1, 45))
 TALL_WIDE = TALL + b"\n" + WORD
 TOMB_TALL_CAUSE = b"\n".join([TOMB_LONG_CAUSE] * 10)
-PANEL_TALL = b"\n".join([PANEL_LONG] * 16)
+PANEL_TALL = b"\n".join([PANEL_LONG] * 30)      # taller than the Roster of the Dead's tall panel too
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
@@ -1203,9 +1203,15 @@ class BothWays(unittest.TestCase):
             out.append(d.child_rect(c))
         return out
 
-    def label_vt(self, d):
-        vts = [d.u32(c) for c in d.children]
-        return max(set(vts), key=vts.count)
+    text_vts: dict = {}
+
+    def text_control_vt(self, d, game):
+        """The game's text control class (labels and text boxes), as a message box's text control has it (the same
+        text control draw draws them all).  Made once per game, before the panel (it replaces the dialog)."""
+        if game not in self.text_vts:
+            d.make_box(BOX_SHORT)
+            self.text_vts[game] = d.u32(d.children[0])
+        return self.text_vts[game]
 
     # -- the panels ---------------------------------------------------------------------------------------------------
     def test_island_events(self) -> None:
@@ -1292,13 +1298,14 @@ class BothWays(unittest.TestCase):
                     left, top, right, bottom = d.panel()
                     controls = [(left, bottom - 0x14 - 30, right, bottom - 0x14)]    # the OK button's row
                 else:
+                    text_vt = self.text_control_vt(d, game)
                     d.make_tomb(TOMB_LONG_NAME)
                     english = {i: bytes(d.mu.mem_read(d._english_va(i), 32)).split(b"\0")[0] for i in d.looked_up}
                     here = next(i for i, x in english.items() if x.startswith(b"Here Lies"))
                     cause = next(i for i, x in english.items() if x == b"Starvation")
                     d.string_overrides = {here: TOMB_HERE_LIES, cause: TOMB_TALL_CAUSE}
                     d.make_tomb(TOMB_LONG_NAME)
-                    controls = self.children_rects(d, self.label_vt(d))      # Done, the editable epitaph
+                    controls = self.children_rects(d, text_vt)      # Done, the editable epitaph
                 self.both_ways(d, d.draw_box, controls, picture=f"vv{game}_tombstone_both.png")
                 if game in (1, 2):
                     d.make_tomb(TOMB_NAME, None)
@@ -1309,6 +1316,7 @@ class BothWays(unittest.TestCase):
             for kind in self.spe.LABEL_PANELS[f"vv{game}"]:
                 with self.subTest(game=game, kind=kind):
                     d.string_overrides = {}
+                    text_vt = self.text_control_vt(d, game)
                     if kind == "roster":
                         entries = 0x5973F0 + 0x974
                         for k, name in enumerate(ROSTER_NAMES):
@@ -1320,7 +1328,7 @@ class BothWays(unittest.TestCase):
                     texts = {i: bytes(d.mu.mem_read(d._english_va(i), 64)).split(b"\0")[0] for i in d.looked_up}
                     d.string_overrides = {max(texts, key=lambda i: len(texts[i])): PANEL_TALL}
                     d.make_panel(kind)
-                    self.both_ways(d, d.draw_box, self.children_rects(d, self.label_vt(d)))
+                    self.both_ways(d, d.draw_box, self.children_rects(d, text_vt))
 
 
 if __name__ == "__main__":
