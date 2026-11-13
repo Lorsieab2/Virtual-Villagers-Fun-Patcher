@@ -909,6 +909,15 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   patches' list names "vv<N>_scrolling_popups", or -- patched before the list
   -- its patcher folder holds "VVFP Scrolling Popups.dll". Not found: checked
   as without scrolling (pages), the stricter fit.
+- Popups whole with Scrolling Popups (v1.35.97): when "VVFP Scrolling Popups.dll"
+  is installed (VvfpScrollingPopupsInstalled, asked as the run is laid out:
+  story_graph.inc cg_scrolls) a popup's text is never split: cg_fits counts only
+  the bytes the game's popup holds, not its lines, and the display is composed
+  without a line limit, so each popup is one page that scrolls -- as the
+  patcher's fit check counts it with scrolling. The effects wait for their own
+  page and the log keeps one entry, as before. More Island Events does the same
+  (native/vvfp_more_island_events/adv_core.inc adv_scrolls): its question is one
+  popup and each answer's result one popup, its popups joined a paragraph apart.
 - Patch conditions (v1.35.97): the patcher writes the ids of everything it
   installed -- the game build's id and every fun patch, one per line, "#" lines
   notes -- into "Virtual Villagers Fun Patcher Files\VVFP Installed

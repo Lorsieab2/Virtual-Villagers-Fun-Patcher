@@ -131,3 +131,4 @@ EXPORTS
     VvfpStoryProbeMoreArm=_VvfpStoryProbeMoreArm@12
     VvfpStoryProbeMoreList=_VvfpStoryProbeMoreList@16
     VvfpStoryProbeInstalledPatches=_VvfpStoryProbeInstalledPatches@8
+    VvfpStoryProbeGraphScroll=_VvfpStoryProbeGraphScroll@4

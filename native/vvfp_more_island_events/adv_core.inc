@@ -36,8 +36,16 @@
    page): whole paragraphs where they fit, else whole sentences (never a sentence cut), so the text never runs off
    the screen; each page is shown in turn with OK.  The question's own text (the intro) is pages too, the last one
    shown with the two buttons.  The result of each choice is its first popup's pages (the opening and the find /
-   the safe or lost walk home), then its ending's.  The sizes are data (ADV_GAMES' width and lines): when the popups
-   can scroll, one page a popup is one number. */
+   the safe or lost walk home), then its ending's.  The sizes are data (ADV_GAMES' width and lines).
+
+   WITH SCROLLING POPUPS (the owner, v1.35.97: "the multiple popups for Aspiring Adventurer should be merged into
+   single ones"): when "VVFP Scrolling Popups.dll" is installed in the game (VvfpScrollingPopupsInstalled: its every
+   site, which include every game's island-event dialogs) a page is as tall as its text -- only the bytes the
+   game's popup holds count (ADV_PAGE_TEXT_MAX) -- and a result's popups join into the same page, a paragraph
+   apart: the question is one popup with its buttons, each answer's result one popup (with OK), and the effects
+   come with that page, the result's last, as before.  Every event of this companion lays its pages out here
+   (adv_popup), so every one of them is one popup per question and per result.  Without the patch nothing
+   changes: the pages fit the screen. */
 
 #define ADV_MAX_PAGES 10
 #define ADV_PAGE_BYTES 2400
@@ -407,8 +415,18 @@ static const char *adv_sentence_end(const char *s) {
 typedef struct {
     const adv_game *g;
     adv_pages *pages;
+    int scroll;                                 /* the popups scroll (adv_scrolls): only the bytes limit a page */
     char page[ADV_PAGE_BYTES];                  /* the page being filled */
 } adv_pager;
+
+/* Whether "VVFP Scrolling Popups.dll" is installed in the game (THE PAGES, above). */
+static int adv_scrolls(void) {
+    typedef int (__stdcall *adv_sp_fn)(void);
+    HMODULE module = GetModuleHandleA("VVFP Scrolling Popups.dll");
+    adv_sp_fn installed = module != NULL ? (adv_sp_fn)(void *)GetProcAddress(module, "VvfpScrollingPopupsInstalled")
+                                         : NULL;
+    return installed != NULL && installed() != 0;
+}
 
 static void adv_flush(adv_pager *w) {
     if (w->page[0] != '\0' && w->pages->count < ADV_MAX_PAGES) {
@@ -432,7 +450,7 @@ static int adv_fits(adv_pager *w, const char *sep, const char *piece, int n) {
     }
     memcpy(trial + len, piece, (size_t)n);
     trial[len + n] = '\0';
-    return adv_lines(w->g, trial) <= w->g->lines;
+    return w->scroll || adv_lines(w->g, trial) <= w->g->lines;
 }
 
 static void adv_put(adv_pager *w, const char *sep, const char *piece, int n) {
@@ -513,13 +531,19 @@ static void adv_paragraph(adv_pager *w, const char *text) {
     }
 }
 
-/* A popup's paragraphs (NULL-ended), starting on a new page. */
+/* A popup's paragraphs (NULL-ended), starting on a new page -- or, when the popups scroll, going on on the last page
+   of the same pages (one popup), a paragraph on. */
 static void adv_popup(const adv_game *g, adv_pages *pages, const char *const *paragraphs) {
     static adv_pager w;
     int i;
     w.g = g;
     w.pages = pages;
+    w.scroll = adv_scrolls();
     w.page[0] = '\0';
+    if (w.scroll && pages->count > 0) {
+        --pages->count;                         /* the last page is filled on */
+        adv_copy(w.page, sizeof w.page, pages->text[pages->count]);
+    }
     for (i = 0; paragraphs[i] != NULL; ++i) {
         adv_paragraph(&w, paragraphs[i]);
     }

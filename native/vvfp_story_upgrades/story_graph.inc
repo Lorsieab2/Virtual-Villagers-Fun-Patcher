@@ -686,6 +686,7 @@ static ce_event cg_one;                /* one villager's change, through ce_appl
 
 #ifdef VVFP_TEST
 static int test_graph_patches = -1;    /* the patches on, -1 = as seen */
+static int test_graph_scroll = -1;     /* Scrolling Popups installed (1) or not (0), -1 = as its companion says */
 static int test_graph_scale = -1;      /* the scale mode, -1 = as the companion says */
 static int test_graph_puzzles = -1;    /* the puzzles solved (bit = the adapter's index), -1 = as the game says */
 static short test_graph_force[64];     /* nodes a draw picks whenever one of them can be drawn */
@@ -1342,17 +1343,41 @@ typedef struct {
     const char *title;
     int reserve;                       /* lines kept free on every page */
     cg_pages *pages;
+    int scroll;                        /* Scrolling Popups is installed: a page is as tall as the text (cg_scrolls) */
     const char *src;                   /* the popup's text being laid out ... */
     int consumed;                      /* ... and how much of it the pages so far hold */
     char page[CG_RAW_BYTES];
 } cg_pager;
 
-/* `text` (raw: names not filled) fits page `pages->count` at its widest. */
+/* Whether "VVFP Scrolling Popups.dll" is installed in the game (VvfpScrollingPopupsInstalled: every one of its sites,
+   which include every game's island-event popups): then a popup scrolls, so its text is never split into pages --
+   each popup is ONE page, as tall as its text, limited only by the bytes the game's popup holds (CG_TEXT_MAX), as
+   the patcher's own fit check counts it with scrolling (src/vv_cie_graph.py).  Without it the text is paged to fit
+   the screen, as before. */
+static int cg_scrolls(void) {
+    typedef int (__stdcall *sp_installed_fn)(void);
+    HMODULE module;
+    sp_installed_fn installed;
+#ifdef VVFP_TEST
+    if (test_graph_scroll >= 0) {
+        return test_graph_scroll;
+    }
+#endif
+    module = GetModuleHandleA("VVFP Scrolling Popups.dll");
+    installed = module != NULL ? (sp_installed_fn)(void *)GetProcAddress(module, "VvfpScrollingPopupsInstalled") : NULL;
+    return installed != NULL && installed() != 0;
+}
+
+/* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup
+   scrolls -- its lines. */
 static int cg_fits(cg_pager *w, const char *text) {
     static char worst[CG_RAW_BYTES + 512];
     const ce_layout *l = w->pages->count == 0 ? w->first : w->rest;
     int n = cg_expand(text, worst, sizeof worst, CG_EXPAND_WORST, w->a->name_room, -1, 0);
-    return n <= CG_TEXT_MAX && n < (int)sizeof worst - 1 && ce_lines_used_in(l, w->title, worst) <= l->lines - w->reserve;
+    if (n > CG_TEXT_MAX || n >= (int)sizeof worst - 1) {
+        return 0;
+    }
+    return w->scroll || ce_lines_used_in(l, w->title, worst) <= l->lines - w->reserve;
 }
 
 static void cg_flush(cg_pager *w) {
@@ -1468,7 +1493,7 @@ static int cg_compose_once(const ce_layout *l, const char *title, const char *te
     w.out = out;
     w.size = size;
     w.width = l->width;
-    w.max_lines = l->lines - 1;
+    w.max_lines = cg_scrolls() ? 1000 : l->lines - 1;     /* a scrolling popup has room for every line */
     out[0] = '\0';
     if (l->with_title) {
         ce_wrap(&w, title);
@@ -1890,6 +1915,7 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             w.reserve += cg_answer_room(h->node[from - 1]);   /* shown in the answered question's popup */
         }
         w.pages = &pages;
+        w.scroll = cg_scrolls();
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
@@ -2159,6 +2185,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.title = cg.title;
     w.reserve = cg_answer_room(cg_g.start);
     w.pages = pages;
+    w.scroll = cg_scrolls();
     cg_paginate(&w, raw);
 }
 
@@ -3326,6 +3353,11 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
     }
     test_graph_patches = patches;
     test_graph_scale = scale;
+}
+
+/* Scrolling Popups installed (1) or not (0) for the layout of the pages, -1 = as its companion says. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphScroll(int on) {
+    test_graph_scroll = on;
 }
 
 /* The installed patches' list as the patcher would write it (NULL: none, as an older patch), then the patches the
