@@ -258,7 +258,7 @@ SENTENCES = re.compile(r"(?<=[.!?])\s+")
 
 
 def _award_seen(e, run, h):
-    kind, amount = h.award[0], h.award[1]
+    kind, amount = h.award[0], run.given            # the amount drawn (the example's awards are ranges)
     return lambda o: o[kind] - run.before[kind] == amount
 
 
@@ -310,12 +310,20 @@ class AspiringAdventurerEveryHistory(unittest.TestCase):
         shown = run.play(button=h.choice)
         st = run.state()
         self.assertIn(st["phase"], (IDLE, DONE), "the run ends with its last page")
+        # The award is a range in each game (the real event's AWARD_RANGES): the amount drawn, within it.
+        run.given = None
+        if h.award:
+            lo, hi = h.award[1] if isinstance(h.award[1], tuple) else (h.award[1], h.award[1])
+            if h.paid:
+                food_now, tech_now = stores(run)
+                run.given = food_now - food0 if h.award[0] == "food" else tech_now - tech0
+                self.assertTrue(lo <= run.given <= hi, (run.given, lo, hi))
         # Who is who: Bea goes, Cal is the friend, the stranger is a woman (the rolls).
         names = {i: name for i, _s, _y, name in PEOPLE}
         sexes = {i: s for i, s, _y, _n in PEOPLE}
         binds = {"subject": cg.Binding(names[SUBJECT], sexes[SUBJECT]),
                  "friend": cg.Binding(names[FRIEND], sexes[FRIEND]), "stranger": cg.Binding("", "f")}
-        award = (h.award[0], h.award[1]) if h.award else None
+        award = (h.award[0], run.given if run.given is not None else lo) if h.award else None
         title = GRAPH["title"]
         # The question: its earlier pages first (notices), then the two-button popup with the last.
         q_at = next(i for i, s in enumerate(shown) if s[0] == "question")
@@ -343,7 +351,7 @@ class AspiringAdventurerEveryHistory(unittest.TestCase):
         for _node, e in h.effects:
             do = e["do"]
             if do == "pay_award":
-                paid[h.award[0]] += h.award[1]
+                paid[h.award[0]] += run.given
             elif do == "kill":
                 expect_told.append((1, SUBJECT, e["cause"]))
                 self.assertEqual(run.v.i32(SUBJECT, L["health"]), 0, "dies: the game's own death")

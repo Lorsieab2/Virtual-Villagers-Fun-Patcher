@@ -36,12 +36,15 @@ class Helpers(unittest.TestCase):
         self.assertEqual(len(parts), len(set(parts)))                     # each part once
         self.assertEqual(set(parts), set(w.example_event()["nodes"]))     # and every part
         links = [words for _i, _p, words, kind, _t in rows if kind == "link"]
-        self.assertTrue(any("deadly  (shared: shown above)" in words for words in links), links)
+        # Each part by its plain-words name, never its id (the owner: code labels are never UI).
+        self.assertTrue(any("A deadly ending  (shared: shown above)" in words for words in links), links)
         buttons = [words for _i, _p, words, kind, _t in rows if kind == "choice"]
         self.assertEqual(buttons, ["Button A: Go investigate!", "Button B: Stay on the safe path"])
-        self.assertTrue(any(words.startswith("2 in 4: find_dirt") for _i, _p, words, _k, _t in rows))
-        self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8") for _i, _p, words, _k, _t
+        self.assertTrue(any(words.startswith("2 in 4: Finds a pile of dirt: nothing but") for _i, _p, words, _k, _t
                             in rows))
+        self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8 Saved by a friend")
+                            for _i, _p, words, _k, _t in rows))
+        self.assertFalse(any("find_dirt" in words or "a_open" in words for _i, _p, words, _k, _t in rows))
 
     def test_a_loop_and_a_broken_link_never_hang_the_tree(self) -> None:
         g = w.new_event()
@@ -125,7 +128,7 @@ class Helpers(unittest.TestCase):
                              (folder / "My Adventure.json", folder / "My Adventure.cieg", []))
             self.assertEqual(sorted(p.name for p in folder.iterdir()), ["My Adventure.cieg", "My Adventure.json"])
             back = cg.decompile_graph(saved.cieg.read_bytes())
-            self.assertEqual(back, cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
+            self.assertEqual(back, cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8")))))
             self.assertEqual(w.read_event(saved.json), g)
             self.assertEqual(w.library_events(Path(tmp)), [("My Adventure", 0)])
             # An event with problems: its .json alone, and the library says it has problems.
@@ -358,7 +361,7 @@ class Window(unittest.TestCase):
 
     def test_a_weight_edited_changes_the_chances(self) -> None:
         self.assertEqual(self.out["weight"], 6)
-        self.assertEqual(self.out["row"][:3], ["find_dirt", "6", "75%"])
+        self.assertEqual(self.out["row"][:3], ["Finds a pile of dirt", "6", "75%"])
         self.assertTrue(self.out["chances_before"].endswith("12.5%"), self.out["chances_before"])
         self.assertNotEqual(self.out["chances_before"], self.out["chances_after"])
         self.assertTrue(self.out["chances_after"].endswith("18.75%"), self.out["chances_after"])
@@ -375,7 +378,7 @@ class Window(unittest.TestCase):
         self.assertEqual((json_path.name, cieg_path.name), ("My Adventure.json", "My Adventure.cieg"))
         g = cg.load(json.loads(self.json_bytes.decode("utf-8")))
         self.assertEqual(g["nodes"]["a_open"]["children"][0]["weight"], 6)
-        self.assertEqual(cg.decompile_graph(self.cieg_bytes), g)
+        self.assertEqual(cg.decompile_graph(self.cieg_bytes), cg.without_names(g))   # names never compiled
         self.assertEqual(cg.compile_graph(g), self.cieg_bytes)
         self.assertEqual(self.out["library"], ["My Adventure"])
         self.assertFalse(self.out["dirty_after_save"])

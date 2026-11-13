@@ -153,6 +153,7 @@ version 3 refuses it).
 """
 from __future__ import annotations
 
+import copy
 import json
 import re
 import struct
@@ -194,6 +195,19 @@ REFUSAL_LINES = 2             # a blank line and "N changes could not be made." 
 AWARD_WIDEST = 10             # a scaled award's widest amount, digits (CE_MAX_AMOUNT)
 CAUSE_BYTES = 63
 ID_RE = re.compile(r"^[A-Za-z0-9_]{1,32}$")
+NAME_MAX = 60                 # a part's name (node "name"): the editor's words for it, never compiled
+
+
+def name_problem(name: str) -> str | None:
+    """Why `name` cannot be a part's name (the owner: what the author sees is plain words, never a code label), or
+    None: 1 to NAME_MAX letters, digits, spaces and . , ! ? : - ' ( ) /, starting with a letter or digit."""
+    if not isinstance(name, str) or not name.strip() or len(name) > NAME_MAX:
+        return f"is 1 to {NAME_MAX} characters"
+    if not (name[0].isascii() and name[0].isalnum()):
+        return "starts with a letter or a digit"
+    if not all((c.isascii() and c.isalnum()) or c in " .,!?:-'()/" for c in name):
+        return "has only letters, digits, spaces and . , ! ? : - ' ( ) /"
+    return None
 PATCH_RE = re.compile(r"^[a-z0-9_]{1,48}$")
 
 # ---- The games: the CAP bits and popups of native/vvfp_story_upgrades (story_custom.h, story_c1..c5.inc) ----
@@ -646,7 +660,7 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome"}
+                 "outcome", "name"}
     for nid, n in nodes_in.items():
         where = f"node {nid}"
         if not ID_RE.match(nid):
@@ -705,6 +719,10 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         if els is not None and not isinstance(els, str):
             problems.append(f"{where}: else names a node")
             els = None
+        name = n.get("name", "")
+        if name != "" and name_problem(name):
+            problems.append(f"{where}: its name {name_problem(name)}")
+            name = ""
         summary, outcome = n.get("summary", ""), n.get("outcome", "")
         if not isinstance(summary, str) or not isinstance(outcome, str) or not (summary + outcome).isascii():
             problems.append(f"{where}: summary and outcome are plain ASCII words")
@@ -729,6 +747,8 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         nodes[nid] = {"type": t, "popup": popup if t == "popup" else "new", "join": join, "text": text,
                       "variants": variants, "effects": effects, "children": children, "choices": choices,
                       "else": els, "summary": summary, "outcome": outcome}
+        if name:
+            nodes[nid]["name"] = name   # only when given: a graph without names normalizes as before
     g["nodes"] = nodes
     return g, problems
 
@@ -1436,8 +1456,17 @@ def compile_graph(g: dict) -> bytes:
     return bytes(data)
 
 
+def without_names(g: dict) -> dict:
+    """`g` without its parts' names: what a .cieg holds of it (the names are the editor's, never compiled)."""
+    out = copy.deepcopy(g)
+    for n in out.get("nodes", {}).values():
+        n.pop("name", None)
+    return out
+
+
 def decompile_graph(data: bytes) -> dict:
-    """The normalized graph a .cieg holds (what compile_graph was given); GraphError when the file is damaged."""
+    """The normalized graph a .cieg holds (what compile_graph was given, without its parts' names); GraphError when
+    the file is damaged."""
     if len(data) < _HEADER.size:
         raise GraphError(["the file is shorter than a .cieg header"])
     h = _HEADER.unpack_from(data, 0)
@@ -1624,6 +1653,12 @@ def percent(f: Fraction) -> str:
     return f"{text}%"
 
 
+def part_name(g: dict, nid: str) -> str:
+    """A part as the author sees it: its name, else its id (a graph saved before parts had names)."""
+    n = g.get("nodes", {}).get(nid)
+    return (n.get("name") if isinstance(n, dict) else None) or nid
+
+
 def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterable[str] | None = None) -> str:
     """The "chances of every outcome" table, as the owner's design file sets it out."""
     lines = [f"{g['title']}: {GAMES[game].name}" + (f", with {', '.join(patches)}" if patches else "")]
@@ -1634,7 +1669,8 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
             lines.append("THE EVENT")
             out_of = "out of every time the event happens"
         elif isinstance(choice, tuple):
-            words = " > ".join(f"{q} {answer_letter(b)}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
+            words = " > ".join(f"{part_name(g, q)} {answer_letter(b)}: {g['nodes'][q]['choices'][b]['label'].upper()}"
+                               for q, b in choice)
             lines.append(f"CHOICES {words}")
             out_of = "out of every time these choices are picked"
         else:
@@ -1643,7 +1679,8 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
             out_of = "out of every time this choice is picked"
         lines.append(f"Each ending, {out_of}:")
         for r in rows["ends"]:
-            name = f"{r.key} ({r.words})" if r.words else r.key
+            key = part_name(g, r.key)
+            name = f"{key} ({r.words})" if r.words else key
             split = ""
             if len(r.by_award) > 1:
                 split = "  (" + ", ".join(f"{percent(v)} {k}" for k, v in r.by_award.items()) + ")"

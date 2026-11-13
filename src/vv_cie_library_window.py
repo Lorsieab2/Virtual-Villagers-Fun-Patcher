@@ -149,13 +149,22 @@ def game_words(games) -> str:
     return " or ".join(cg.GAMES[n].name for n in games if n in cg.GAMES)
 
 
-def describe_cond(c) -> str:
-    """A condition in plain words: "the friend takes part", "in The Secret City", "after a_open"."""
+def part_words(g: dict | None, nid: str) -> str:
+    """A part as the author sees it: its plain-words name ("Finds a pile of dirt"), else its id (an event saved
+    before parts had names)."""
+    n = ((g or {}).get("nodes") or {}).get(nid)
+    name = n.get("name", "") if isinstance(n, dict) else ""
+    return name or nid
+
+
+def describe_cond(c, g: dict | None = None) -> str:
+    """A condition in plain words: "the friend takes part", "in The Secret City", "after Investigates" (a part by
+    its name: part_words)."""
     if c is None:
         return "always"
     (op, arg), = c.items()
     if op == "visited":
-        return f"after {arg}"
+        return f"after {part_words(g, arg)}"
     if op == "role":
         return f"{role_words(arg)} takes part"
     if op == "game":
@@ -167,14 +176,14 @@ def describe_cond(c) -> str:
         if iop == "role":
             return f"{role_words(iarg)} does not take part"
         if iop == "visited":
-            return f"{iarg} was not reached"
+            return f"{part_words(g, iarg)} was not reached"
         if iop == "game":
             return "not in " + game_words(iarg)
         if iop == "patch":
             return f"with {patch_words(iarg)} off"
-        return f"not ({describe_cond(arg)})"
+        return f"not ({describe_cond(arg, g)})"
     joiner = " and " if op == "all" else " or "
-    return "(" + joiner.join(describe_cond(x) for x in arg) + ")"
+    return "(" + joiner.join(describe_cond(x, g) for x in arg) + ")"
 
 
 def capital(words: str) -> str:
@@ -196,10 +205,10 @@ def cond_options(g: dict, keep=None) -> list[tuple[str, object]]:
         out.append((capital(describe_cond({"patch": p})), {"patch": p}))
         out.append((capital(describe_cond({"not": {"patch": p}})), {"not": {"patch": p}}))
     for nid in g.get("nodes", {}):
-        out.append((capital(describe_cond({"visited": nid})), {"visited": nid}))
-        out.append((capital(describe_cond({"not": {"visited": nid}})), {"not": {"visited": nid}}))
+        out.append((capital(describe_cond({"visited": nid}, g)), {"visited": nid}))
+        out.append((capital(describe_cond({"not": {"visited": nid}}, g)), {"not": {"visited": nid}}))
     if keep is not None and all(c != keep for _w, c in out):
-        out.insert(1, (capital(describe_cond(keep)), keep))
+        out.insert(1, (capital(describe_cond(keep, g)), keep))
     return out
 
 
@@ -238,9 +247,14 @@ def describe_effect(e: dict) -> str:
     return str(do)
 
 
-def plain_problem(problem: str) -> str:
-    """A check's words with "node X" read as "part X"."""
-    return re.sub(r"\bnode (\w+)", r"part \1", problem)
+def plain_problem(problem: str, g: dict | None = None) -> str:
+    """A check's words with "node X" read as "part <its name>" (part_words)."""
+    nodes = (g or {}).get("nodes") or {}
+
+    def name(m: re.Match) -> str:
+        nid = m.group(1)
+        return "part " + (f"\"{part_words(g, nid)}\"" if nid in nodes and part_words(g, nid) != nid else nid)
+    return re.sub(r"\bnode (\w+)", name, problem)
 
 
 def problem_node(problem: str, nodes) -> str | None:
@@ -331,22 +345,23 @@ def outline(g: dict) -> list[tuple[str, str, str, str, str | None]]:
 
     def label(nid: str) -> str:
         n = nodes[nid]
+        words = part_words(g, nid)
         if n["type"] == "branch":
-            return f"{nid}  (silent split)"
+            return f"{words}  (silent split)"
         text = " ".join(n.get("text", "").split())
         if len(text) > 48:
             text = text[:47] + "..."
-        return f"{nid}: {text}" if text else nid
+        return f"{words}: {text}" if text else words
 
     def visit(nid: str, parent: str, prefix: str, stack: tuple) -> None:
         if nid not in nodes:
             add(parent, f"{prefix}{nid or '(nothing)'}  (no such part: fix this link)", "missing", None)
             return
         if nid in stack:
-            add(parent, f"{prefix}-> {nid}  (goes back to an earlier part: a loop)", "link", nid)
+            add(parent, f"{prefix}-> {part_words(g, nid)}  (goes back to an earlier part: a loop)", "link", nid)
             return
         if nid in first:
-            add(parent, f"{prefix}-> {nid}  (shared: shown above)", "link", nid)
+            add(parent, f"{prefix}-> {part_words(g, nid)}  (shared: shown above)", "link", nid)
             return
         iid = add(parent, prefix + label(nid), "node", nid)
         first[nid] = iid
@@ -362,7 +377,7 @@ def outline(g: dict) -> list[tuple[str, str, str, str, str | None]]:
         for c in n["children"]:
             words = f"{_weight(c['weight'])} in {total}: " if many else ""
             if c["if"] is not None:
-                words += f"if {describe_cond(c['if'])}: "
+                words += f"if {describe_cond(c['if'], g)}: "
             visit(c["next"], iid, words, stack)
             if c["else"]:
                 visit(c["else"], iid, "otherwise: ", stack)
@@ -431,6 +446,15 @@ def delete_node(g: dict, nid: str) -> None:
                 c["next"] = ""
     if g.get("start") == nid:
         g["start"] = next(iter(g["nodes"]), "")
+
+
+def free_name(g: dict) -> str:
+    """A new part's plain-words name: "New part 1", "New part 2", ... (not yet used)."""
+    used = {part_words(g, nid) for nid in g["nodes"]}
+    n = 1
+    while f"New part {n}" in used:
+        n += 1
+    return f"New part {n}"
 
 
 def free_id(g: dict, stem: str = "part") -> str:
@@ -765,7 +789,7 @@ class Library:
         ttk.Label(page, text="The first part:").grid(row=6, column=0, sticky="w", pady=(10, 0))
         self.start_box = ttk.Combobox(page, state="readonly", width=30)
         self.start_box.grid(row=7, column=0, sticky="w")
-        self.start_box.bind("<<ComboboxSelected>>", lambda _e: self._set("start", self.start_box.get()))
+        self.start_box.bind("<<ComboboxSelected>>", lambda _e: self._set("start", self.id_of(self.start_box.get())))
         note = ttk.Label(page, justify="left", wraplength=500, text=(
             "The game needs no particular villagers for a Custom Island Event: you choose when it happens. If no "
             "villager fits a role the event needs (Roles tab), the game refuses to queue it and says so."))
@@ -882,7 +906,7 @@ class Library:
         self.next_var = tk.StringVar(master=self.window)
         self.next_box = ttk.Combobox(form, textvariable=self.next_var, width=24)
         self.next_box.grid(row=0, column=1, sticky="w", padx=(4, 12))
-        self.next_var.trace_add("write", lambda *_: self._child_set("next", self.next_var.get().strip()))
+        self.next_var.trace_add("write", lambda *_: self._child_set("next", self.id_of(self.next_var.get().strip())))
         ttk.Label(form, text="Weight:").grid(row=0, column=2, sticky="w")
         self.weight_var = tk.StringVar(master=self.window)
         ttk.Spinbox(form, from_=1, to=cg.MAX_WEIGHT, textvariable=self.weight_var, width=7).grid(
@@ -896,7 +920,7 @@ class Library:
         self.else_box = ttk.Combobox(form, state="readonly", width=24)
         self.else_box.grid(row=2, column=1, sticky="w", padx=(4, 0), pady=(4, 0))
         self.else_box.bind("<<ComboboxSelected>>", lambda _e: self._child_set(
-            "else", None if self.else_box.get() == LEAVE_OUT else self.else_box.get()))
+            "else", None if self.else_box.get() == LEAVE_OUT else self.id_of(self.else_box.get())))
         actions = ttk.Frame(ways)
         actions.pack(fill="x", pady=(6, 0))
         ttk.Button(actions, text="Add a way on", command=self.add_child).pack(side="left")
@@ -934,7 +958,7 @@ class Library:
         self.node_else_box = ttk.Combobox(other, state="readonly", width=24)
         self.node_else_box.grid(row=0, column=1, sticky="w", padx=(4, 0))
         self.node_else_box.bind("<<ComboboxSelected>>", lambda _e: self._node_set(
-            "else", None if self.node_else_box.get() == ENDS else self.node_else_box.get()))
+            "else", None if self.node_else_box.get() == ENDS else self.id_of(self.node_else_box.get())))
         ttk.Label(other, text="Words for this ending in the chances table:").grid(row=1, column=0, sticky="w",
                                                                                  pady=(6, 0))
         self.summary_var = tk.StringVar(master=self.window)
@@ -1094,9 +1118,8 @@ class Library:
         self.show_fit()
         self.show_children_table()
         self.show_status()
-        names = list(self.g["nodes"])
-        self.start_box.configure(values=names)
-        self.start_box.set(self.g["start"])
+        self.start_box.configure(values=self.part_names())
+        self.start_box.set(self.part(self.g["start"]))
 
     def show_status(self) -> None:
         name = self.stem or NOT_SAVED
@@ -1175,7 +1198,7 @@ class Library:
         n = self.node()
         self._loading = True
         try:
-            self.name_var.set(self.nid if n else "")
+            self.name_var.set(self.part(self.nid) if n else "")
             if n is None:
                 return
             self.type_box.set(TYPE_WORDS[n["type"]])
@@ -1184,7 +1207,7 @@ class Library:
             state = "readonly" if n["type"] == "popup" else "disabled"
             self.popup_box.configure(state=state)
             self.join_box.configure(state=state)
-            variants = ["The usual text"] + [f"Variant {i + 1}: {capital(describe_cond(v['if']))}"
+            variants = ["The usual text"] + [f"Variant {i + 1}: {capital(describe_cond(v['if'], self.g))}"
                                              for i, v in enumerate(n["variants"])]
             self.variant_box.configure(values=variants)
             self.variant_box.current(0)
@@ -1442,7 +1465,7 @@ class Library:
         if n is None:
             return
         question = n["type"] == "question"
-        names = list(self.g["nodes"])
+        names = self.part_names()
         if question:
             self.ways_frame.pack_forget()
             self.other_frame.pack_forget()
@@ -1456,7 +1479,7 @@ class Library:
                     if label.get() != c["label"]:
                         label.set(c["label"])
                     box.configure(values=names)
-                    box.set(c["next"])
+                    box.set(self.part(c["next"]) if c["next"] else "")
                     for widget in self.choice_rows[i]:
                         if i < shown:
                             widget.grid()
@@ -1477,13 +1500,14 @@ class Library:
         for i, c in enumerate(n["children"]):
             chance = cg.percent(Fraction(_weight(c["weight"]), total)) if total else "-"
             table.insert("", "end", iid=str(i), values=(
-                c["next"], c["weight"], chance, capital(describe_cond(c["if"])), c["else"] or ""))
+                self.part(c["next"]), c["weight"], chance, capital(describe_cond(c["if"], self.g)),
+                self.part(c["else"]) if c["else"] else ""))
         self._loading = True
         try:
             self.next_box.configure(values=names)
             self.else_box.configure(values=[LEAVE_OUT] + names)
             self.node_else_box.configure(values=[ENDS] + names)
-            self.node_else_box.set(n["else"] or ENDS)
+            self.node_else_box.set(self.part(n["else"]) if n["else"] else ENDS)
             if self.summary_var.get() != n["summary"]:
                 self.summary_var.set(n["summary"])
             if self.outcome_var.get() != n["outcome"]:
@@ -1520,14 +1544,14 @@ class Library:
     def _show_child(self) -> None:
         n = self.node()
         c = n["children"][self.child_index]
-        if self.next_var.get() != c["next"]:
-            self.next_var.set(c["next"])
+        if self.id_of(self.next_var.get()) != c["next"]:
+            self.next_var.set(self.part(c["next"]) if c["next"] else "")
         if self.weight_var.get() != str(c["weight"]):
             self.weight_var.set(str(c["weight"]))
         options = cond_options(self.g, c["if"])
         self.if_box.configure(values=[w for w, _c in options])
         self.if_box.set(next(w for w, cond in options if cond == c["if"]))
-        self.else_box.set(c["else"] or LEAVE_OUT)
+        self.else_box.set(self.part(c["else"]) if c["else"] else LEAVE_OUT)
 
     def _child_set(self, key: str, value) -> None:
         n = self.node()
@@ -1545,8 +1569,9 @@ class Library:
         for i, c in enumerate(n["children"]):
             chance = cg.percent(Fraction(_weight(c["weight"]), total)) if total else "-"
             if self.children_table.exists(str(i)):
-                self.children_table.item(str(i), values=(c["next"], c["weight"], chance,
-                                                         capital(describe_cond(c["if"])), c["else"] or ""))
+                self.children_table.item(str(i), values=(self.part(c["next"]), c["weight"], chance,
+                                                         capital(describe_cond(c["if"], self.g)),
+                                                         self.part(c["else"]) if c["else"] else ""))
 
     def _weight_changed(self) -> None:
         text = self.weight_var.get().strip()
@@ -1615,7 +1640,7 @@ class Library:
         while len(n["choices"]) <= index:
             n["choices"].append({"label": "", "next": ""})
         label, box = self.choice_vars[index]
-        n["choices"][index][key] = label.get() if key == "label" else box.get()
+        n["choices"][index][key] = label.get() if key == "label" else self.id_of(box.get())
         self.changed()
 
     # ---- parts ----
@@ -1629,6 +1654,7 @@ class Library:
                              "Next tab.", parent=self.window)
         new = free_id(self.g)
         self.g["nodes"][new] = blank_node()
+        self.g["nodes"][new]["name"] = free_name(self.g)
         if n["type"] != "question":
             n["children"].append({"next": new, "weight": 1, "if": None, "else": None})
         self.changed()
@@ -1641,7 +1667,8 @@ class Library:
         if len(self.g["nodes"]) == 1:
             SHOW_INFO(TITLE, "An event needs at least one part.", parent=self.window)
             return
-        if not ASK_YES_NO(TITLE, f"Delete the part {self.nid}? The ways on to it go too.", parent=self.window):
+        if not ASK_YES_NO(TITLE, f"Delete the part \"{self.part(self.nid)}\"? The ways on to it go too.",
+                          parent=self.window):
             return
         delete_node(self.g, self.nid)
         self.nid = self.g["start"]
@@ -1650,20 +1677,38 @@ class Library:
         self.show_node()
 
     def rename_part(self) -> None:
-        new = self.name_var.get().strip()
-        if new == self.nid or self.node() is None:
+        """The part's name in plain words (node "name"): the tree, the lists and the checks show it; the part's
+        internal id never changes."""
+        new = " ".join(self.name_var.get().split())
+        n = self.node()
+        if n is None or new == self.part(self.nid):
             return
-        if not cg.ID_RE.match(new):
-            SHOW_ERROR(TITLE, "A part's name is 1 to 32 letters, digits or _ (no spaces).", parent=self.window)
+        problem = cg.name_problem(new)
+        if problem:
+            SHOW_ERROR(TITLE, f"A part's name {problem}.", parent=self.window)
             return
-        if new in self.g["nodes"]:
-            SHOW_ERROR(TITLE, f"There is already a part named {new}.", parent=self.window)
+        if any(self.part(other) == new for other in self.g["nodes"] if other != self.nid):
+            SHOW_ERROR(TITLE, f"There is already a part named \"{new}\".", parent=self.window)
             return
-        rename_node(self.g, self.nid, new)
-        self.nid = new
+        n["name"] = new
         self.changed()
         self.refresh_now()
         self.show_node()
+
+    # ---- parts by name ----
+
+    def part(self, nid: str) -> str:
+        return part_words(self.g, nid)
+
+    def part_names(self) -> list[str]:
+        return [self.part(nid) for nid in self.g["nodes"]]
+
+    def id_of(self, words: str) -> str:
+        """The part whose name (or id) `words` is; `words` itself when none is (a link the Check tab flags)."""
+        for nid in self.g["nodes"]:
+            if self.part(nid) == words:
+                return nid
+        return words
 
     # ---- changes (effects) ----
 
@@ -2051,7 +2096,7 @@ class Library:
                                              "until they are fixed.", foreground=RED)
             for i, problem in enumerate(self.problems):
                 start = box.index("end-1c")
-                box.insert("end", plain_problem(problem) + ("\n" if i < len(self.problems) - 1 else ""))
+                box.insert("end", plain_problem(problem, self.g) + ("\n" if i < len(self.problems) - 1 else ""))
                 tag = f"p{i}"
                 box.tag_add(tag, start, f"{start} lineend")
                 box.tag_bind(tag, "<Button-1>", lambda _e, i=i: self.jump_to_problem(i))

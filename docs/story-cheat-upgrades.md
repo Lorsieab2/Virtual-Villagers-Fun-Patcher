@@ -891,6 +891,17 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   resumes from the first page whose effects the save does not hold, so no
   effect is made twice or lost. The file stays after the last page until a
   save holds it.
+- Part names (v1.35.97, the owner: code labels are never UI): a part may have
+  a "name" in plain words (src/vv_cie_graph.py name_problem: 1 to 60 letters,
+  digits, spaces and . , ! ? : - ' ( ) /), which the library's editor shows
+  everywhere in place of the part's internal id (the tree, the lists of parts,
+  "after ..." conditions, the Check tab's problems, the chances table). Names
+  are never compiled: a .cieg is the same bytes with or without them
+  (without_names). Both shipped examples name every part (The Cave Explorers'
+  in scripts/build_cave_explorers_graph.py PART_NAMES). The Aspiring Adventurer
+  example's meat and chest awards are the real event's per-game normal ranges
+  (src/vv_aspiring_adventurer.py AWARD_RANGES), each in a silent split by game
+  after the find (format version 3); its text and odds are unchanged.
 - Patch conditions (v1.35.97): the patcher writes the ids of everything it
   installed -- the game build's id and every fun patch, one per line, "#" lines
   notes -- into "Virtual Villagers Fun Patcher Files\VVFP Installed

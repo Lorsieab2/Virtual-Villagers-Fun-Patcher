@@ -1,6 +1,6 @@
 {
   "format": "vvfp-cie-graph",
-  "version": 1,
+  "version": 3,
   "title": "The Aspiring Adventurer",
   "games": [1, 2, 3, 4, 5],
   "patches": ["guardians_of_isola"],
@@ -13,6 +13,7 @@
   "start": "intro",
   "nodes": {
     "intro": {
+      "name": "Something glinting off the path",
       "type": "question",
       "text": "(Name) is an aspiring adventurer. Every morning (he/she) goes off in the jungle to scavenge for useful things. Although (name) has an eye for treasure, sometimes (his/her) ambition gets the best of (him/her). (Name) has managed to escape from sticky situations so far, but the others have cautioned (him/her) repeatedly about exploring alone.\nDuring (his/her) travels, (he/she) sees something glinting in the corner of (his/her) eye. (Name) feels compelled to see what it is, but is unsure whether to leave the known-safe path in order to investigate.",
       "choices": [
@@ -22,6 +23,7 @@
     },
 
     "a_open": {
+      "name": "Goes to investigate",
       "text": "Against (his/her) better judgement, (name) leaves the beaten path to check out the strange sight. As (he/she) pushes through the foliage, the area gets noticeably darker and colder. The hairs on (name)'s neck stand on end as (he/she) gets closer to the spot. When (name) approaches, (he/she) finds...",
       "children": [
         {"next": "find_dirt", "weight": 2},
@@ -30,27 +32,102 @@
       ]
     },
     "find_dirt": {
+      "name": "Finds a pile of dirt",
       "popup": "append",
       "text": "nothing but a pile of dirt.",
       "children": [{"next": "dirt_safe"}, {"next": "deadly"}]
     },
     "find_meat": {
+      "name": "Finds a stack of meat",
       "popup": "append",
       "text": "a large stack of meat, sitting perfectly on a cloth! (Name)'s stomach growls upon seeing the bounty, and (he/she) hastily grabs as much as (he/she) can and starts stuffing it in (his/her) knapsack.",
-      "effects": [{"do": "food", "amount": 500, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+      "children": [
+        {"next": "find_meat_award_1", "if": {"game": [1]}},
+        {"next": "find_meat_award_2", "if": {"game": [2]}},
+        {"next": "find_meat_award_3", "if": {"game": [3]}},
+        {"next": "find_meat_award_4", "if": {"game": [4]}},
+        {"next": "find_meat_award_5", "if": {"game": [5]}}
+      ]
     },
     "find_chest": {
+      "name": "Finds a golden chest",
       "popup": "append",
       "text": "a large golden chest full of artifacts! (Name)'s eyes widen at the sight, and (he/she) stuffs as much treasure as (he/she) can fit in (his/her) knapsack.",
-      "effects": [{"do": "tech", "amount": 2000, "scaled": true, "defer": true}],
+      "children": [
+        {"next": "find_chest_award_1", "if": {"game": [1]}},
+        {"next": "find_chest_award_2", "if": {"game": [2]}},
+        {"next": "find_chest_award_3", "if": {"game": [3]}},
+        {"next": "find_chest_award_4", "if": {"game": [4]}},
+        {"next": "find_chest_award_5", "if": {"game": [5]}}
+      ]
+    },
+    "find_meat_award_1": {
+      "name": "The meat's award (A New Home)",
+      "type": "branch",
+      "effects": [{"do": "food", "amount": 200, "max": 1500, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_meat_award_2": {
+      "name": "The meat's award (The Lost Children)",
+      "type": "branch",
+      "effects": [{"do": "food", "amount": 100, "max": 1500, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_meat_award_3": {
+      "name": "The meat's award (The Secret City)",
+      "type": "branch",
+      "effects": [{"do": "food", "amount": 200, "max": 600, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_meat_award_4": {
+      "name": "The meat's award (The Tree of Life)",
+      "type": "branch",
+      "effects": [{"do": "food", "amount": 300, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_meat_award_5": {
+      "name": "The meat's award (New Believers)",
+      "type": "branch",
+      "effects": [{"do": "food", "amount": 50, "max": 300, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_chest_award_1": {
+      "name": "The chest's award (A New Home)",
+      "type": "branch",
+      "effects": [{"do": "tech", "amount": 500, "max": 4999, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_chest_award_2": {
+      "name": "The chest's award (The Lost Children)",
+      "type": "branch",
+      "effects": [{"do": "tech", "amount": 500, "max": 3000, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_chest_award_3": {
+      "name": "The chest's award (The Secret City)",
+      "type": "branch",
+      "effects": [{"do": "tech", "amount": 1000, "max": 2000, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_chest_award_4": {
+      "name": "The chest's award (The Tree of Life)",
+      "type": "branch",
+      "effects": [{"do": "tech", "amount": 500, "max": 5000, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
+    },
+    "find_chest_award_5": {
+      "name": "The chest's award (New Believers)",
+      "type": "branch",
+      "effects": [{"do": "tech", "amount": 500, "max": 3000, "scaled": true, "defer": true}],
       "children": [{"next": "find_safe"}, {"next": "deadly"}]
     },
     "dirt_safe": {
+      "name": "After the dirt: a safe ending",
       "type": "branch",
       "children": [{"next": "A7"}, {"next": "A9"}]
     },
     "find_safe": {
+      "name": "After a find: a safe ending",
       "type": "branch",
       "children": [
         {"next": "A1"},
@@ -59,57 +136,67 @@
       ]
     },
     "deadly": {
+      "name": "A deadly ending",
       "type": "branch",
       "children": [{"next": "A2"}, {"next": "A3"}, {"next": "A4"}, {"next": "A6"}]
     },
 
     "A1": {
+      "name": "A1 Waits, then gets away safely",
       "summary": "gets away safely, reward",
       "outcome": "comes home safe",
       "text": "(Name) waits for a while, and seeing no one else around, concludes that (he/she) can get away safely. (He/She) triumphantly goes back to the village and raves about (his/her) latest discovery, to the joy of the villagers. Your villagers gain (award) (award_unit).",
       "effects": [{"do": "pay_award"}]
     },
     "A2": {
+      "name": "A2 The beast: dies",
       "summary": "the beast; dies, grave",
       "outcome": "dies and gets a grave",
       "text": "As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nThe last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.\nLater on, some hunters come to check on the trap, and see the unfortunate aftermath. They manage to recover (name)'s remains and return them to the village. The villagers mourn for (name) greatly and lament that things had to turn out this way.",
       "effects": [{"do": "kill", "cause": "unknown"}]
     },
     "A3": {
+      "name": "A3 The beast: never found",
       "summary": "the beast; remains lost, disappears",
       "outcome": "disappears, no grave",
       "text": "As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nThe last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.\nLater on, some hunters come to check on the trap, and see the unfortunate aftermath. They try to recover (name)'s remains, but are unsuccessful. They bring the sad news to the village along with their condolences. The villagers mourn for (name) greatly and lament that things had to turn out this way.",
       "effects": [{"do": "vanish"}]
     },
     "A4": {
+      "name": "A4 The knife: dies",
       "summary": "the knife; dies, grave",
       "outcome": "dies and gets a grave",
       "text": "As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nThe last thing (name) sees is a strange (stranger.man/woman) brandishing a knife with a wide grin on (stranger.his/her) face...\nAfter several days, the villagers get worried about (name) and send out a search party. Eventually, they find the grisly scene, and manage to recover (his/her) remains. For 3 days the village mourns (name)'s death as they lay (him/her) to rest. They vow never to let something like this happen again.",
       "effects": [{"do": "kill", "cause": "unknown"}]
     },
     "A5": {
+      "name": "A5 Escapes the trap",
       "summary": "escapes the trap, reward",
       "outcome": "comes home safe",
       "text": "As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nMiraculously, (name) manages to escape the trap, and quickly runs back to the safety of the village. Heart pounding, (he/she) frantically warns others about (his/her) misadventure, to the relief of all the villagers. (Name) vows to never do something like that EVER again! Your villagers gain (award) (award_unit).",
       "effects": [{"do": "pay_award"}]
     },
     "A6": {
+      "name": "A6 The knife: no trace",
       "summary": "the knife; no trace, disappears",
       "outcome": "disappears, no grave",
       "text": "As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nThe last thing (name) sees is a strange (stranger.man/woman) brandishing a knife with a wide grin on (stranger.his/her) face...\nAfter several days, the villagers get worried about (name) and send out a search party. Although they try their hardest, they cannot find any trace of (him/her). For 3 days the village mourns (name)'s disappearance and vow to never let something like this happen again.",
       "effects": [{"do": "vanish"}]
     },
     "A7": {
+      "name": "A7 Disappointed by the dirt",
       "summary": "found only dirt, disappointed",
       "outcome": "comes home safe",
       "text": "(Name) is disappointed that (he/she) wasted (his/her) time, and manages to make it back to the village safely."
     },
     "A9": {
+      "name": "A9 Laughs off the dirt",
       "summary": "found only dirt, laughs it off",
       "outcome": "comes home safe",
       "text": "(Name) laughs at the pitiable sight and walks back to the village with a smile. (He/She) will definitely have a funny story to tell over dinner."
     },
     "A8": {
+      "name": "A8 Saved by a friend",
       "summary": "saved by a friend, reward",
       "outcome": "comes home safe",
       "text": "As (name1) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/She) hears something coming, and braces for the worst...\nLuckily, it's just one of (his/her) old friends! Apparently, they got worried, and brought extra supplies to help (name1) out... Together (name1) and (name2) return to the safety of the village, to the relief of all the villagers. (Name1) thanks (name2) for saving (his/her) life and vows to never do something like that EVER again! Your villagers gain (award) (award_unit).",
@@ -117,6 +204,7 @@
     },
 
     "b_open": {
+      "name": "Stays on the safe path",
       "text": "(Name) decides it's far too dangerous to leave the safety of the path...",
       "children": [
         {"next": "b_home", "weight": 9},
@@ -124,12 +212,14 @@
       ]
     },
     "b_home": {
+      "name": "Makes it home safely",
       "popup": "append",
       "summary": "Home safe",
       "outcome": "comes home alive",
       "text": "And manages to make it home safely."
     },
     "b_lost": {
+      "name": "Gets lost on the way home",
       "popup": "append",
       "text": "And starts heading home. Unfortunately, something goes horribly wrong and (he/she) gets hopelessly lost in the jungle. Days pass with no sign of (name)...",
       "children": [
@@ -142,21 +232,25 @@
       ]
     },
     "L1": {
+      "name": "L1 Found injured",
       "text": "...until a scout spots (name) wandering disoriented. (He/She) is heavily injured, and is quickly brought to the healers...",
       "children": [{"next": "H1"}, {"next": "H2"}, {"next": "H3"}]
     },
     "H1": {
+      "name": "H1 The healers: dies",
       "summary": "Lost 1, healers: dies, grave",
       "outcome": "dies and gets a grave",
       "text": "Although they try everything in their power to save (name), (he/she) quietly passes away, to the grief of all the villagers. In the end, they can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.",
       "effects": [{"do": "kill", "cause": "unknown"}]
     },
     "H2": {
+      "name": "H2 The healers: full recovery",
       "summary": "Lost 1, healers: full recovery",
       "outcome": "comes home alive",
       "text": "After many medical procedures, (name) eventually makes a full recovery. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly."
     },
     "H3": {
+      "name": "H3 The healers: disabled",
       "summary": "Lost 1, healers: disabled, 10-50 health, dislikes running",
       "outcome": "comes home alive",
       "text": "After many medical procedures, (name) manages to recover, although is left permanently disabled. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly.",
@@ -166,12 +260,14 @@
       ]
     },
     "L2": {
+      "name": "L2 Joins another tribe",
       "summary": "Lost 2, joins another tribe: gone for good",
       "outcome": "joins the other tribe",
       "text": "...until a scout spots (name) walking about. (Name) seems to have joined another tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.",
       "effects": [{"do": "vanish"}]
     },
     "L2_heathen": {
+      "name": "L2 Joins the heathens",
       "summary": "Lost 2, joins the heathens: becomes a Heathen",
       "outcome": "joins the other tribe",
       "text": "...until a scout spots (name) walking about. (Name) is seen wearing a mask and seems to have joined the heathens' tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.",
@@ -181,24 +277,28 @@
       "effects": [{"do": "status", "status": "heathen"}]
     },
     "L3": {
+      "name": "L3 A skilled survivalist",
       "summary": "Lost 3, survivalist: +20 to 30 in one skill",
       "outcome": "comes home alive",
       "text": "...until a scout spots (name) walking about. (Name) notices the scout and returns home with them, to the great relief of the villagers. (He/She) recounts (his/her) misadventure to the worried villagers, who learn that (he/she) got lost in the dark. Luckily, (name) was prepared and managed to survive. (Name) is proving to be a great survivalist, and now teaches others the art of bushcraft!",
       "effects": [{"do": "skill", "skills": ["Farming", "Building", "Research", "Healing"], "min": 20, "max": 30}]
     },
     "L4": {
+      "name": "L4 Under a fallen tree",
       "summary": "Lost 4, fallen tree: dies, grave",
       "outcome": "dies and gets a grave",
       "text": "...until a scout spots (name)'s remains under a fallen tree. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.",
       "effects": [{"do": "kill", "cause": "unknown"}]
     },
     "L5": {
+      "name": "L5 At the bottom of a cliff",
       "summary": "Lost 5, stony cliff: dies, grave",
       "outcome": "dies and gets a grave",
       "text": "...until a scout spots (name)'s remains at the bottom of a stony cliff. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.",
       "effects": [{"do": "kill", "cause": "unknown"}]
     },
     "L6": {
+      "name": "L6 Never seen again",
       "summary": "Lost 6, never seen again: disappears",
       "outcome": "disappears, no grave",
       "text": "...and (he/she) is never seen again. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.",
