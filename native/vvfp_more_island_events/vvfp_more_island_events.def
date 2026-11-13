@@ -18,6 +18,7 @@ EXPORTS
     VvfpTroublingSignsPage=_VvfpTroublingSignsPage@8
     VvfpTroublingSignsButtons=_VvfpTroublingSignsButtons@4
     VvfpMoreIslandEventsButtonRoom=_VvfpMoreIslandEventsButtonRoom@4
+    VvfpMoreIslandEventsAnswerButtons=_VvfpMoreIslandEventsAnswerButtons@4
     VvfpMoreIslandEventsProtected=_VvfpMoreIslandEventsProtected@12
     VvfpDivingPossible=_VvfpDivingPossible@0
     VvfpDivingState=_VvfpDivingState@4

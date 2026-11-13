@@ -9,7 +9,7 @@ Swim towards the dolphins:
 
 -- A: Farming set to 100, a large food reward (2 times normal)
 (He/she) gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. “What magnificent creatures!” (he/she) thinks.
-Later, (he/she) shares (his/her) observations with the researchers and farmers, which revolutionize their catches that season. (name) becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain (award) food.
+Later, (he/she) shares (his/her) observations with the researchers and farmers, which revolutionize their catches that season. (name) becomes a skilled (fisherman/fisherwoman) and is lauded as a pioneer of aquaculture. Your villagers gain (award) food.
 
 -- B: loses 30 to 50 health (at random; never dies from it)
 Ouch! (name) is blinded by the slap of a large fluke in (his/her) face. (He/she) must have gotten too close to one of them and accidentally gotten hit by their tail flipper. (name) holds (his/her) nose to prevent any more red coming out. Luckily, (name) is not too far from the surface, but if (he/she) had been any deeper… (he/she) shudders to think about what might happen. (He/she) surfaces, leaves the beach, and heads off to the doctors for some medical treatment.

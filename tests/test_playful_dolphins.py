@@ -214,8 +214,10 @@ class TheWords(unittest.TestCase):
         owner = owner.replace("“", '"').replace("”", '"').replace("’", "'").replace("…", "...")
         title, body = owner.split("\n", 1)
         self.assertEqual(title.split(" --")[0], dp.TITLE + ".")
-        for form, sub in (("f", {"(he/she)": "she", "(He/she)": "She", "(his/her)": "her", "(His/her)": "Her"}),
-                          ("m", {"(he/she)": "he", "(He/she)": "He", "(his/her)": "his", "(His/her)": "His"})):
+        for form, sub in (("f", {"(he/she)": "she", "(He/she)": "She", "(his/her)": "her", "(His/her)": "Her",
+                                 "(fisherman/fisherwoman)": "fisherwoman"}),
+                          ("m", {"(he/she)": "he", "(He/she)": "He", "(his/her)": "his", "(His/her)": "His",
+                                 "(fisherman/fisherwoman)": "fisherman"})):
             with self.subTest(form=form):
                 filled = {key: dp.fill(key, form, "Ana", 300) for key, _ in dp.TEXTS}
                 ours = " ".join(" ".join(words(t)) for t in filled.values())
@@ -522,6 +524,8 @@ class Pages(unittest.TestCase):
                     self.assertEqual(words(" ".join(shown)), words(expected), name)
                     for page in shown:
                         self.assertLessEqual(len(page), 1990)
+                hunt = " ".join(v.dp_pages(1))
+                self.assertIn("becomes a skilled " + ("fisherwoman" if woman else "fisherman") + " and", hunt)
                 slap = " ".join(v.dp_pages(2))
                 self.assertIn("accidentally gotten hit by their tail flipper.", slap)
                 self.assertIn("any deeper... " + ("she" if woman else "he") + " shudders", slap)

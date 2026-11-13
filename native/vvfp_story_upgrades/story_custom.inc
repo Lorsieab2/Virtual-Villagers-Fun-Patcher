@@ -2280,12 +2280,27 @@ static int ce_choice_asked(int game) {
     return ce_asked && ce_asked_game == game;
 }
 
-/* The asked question's button label (button 0 or 1), or NULL. */
+/* Whether `game` shows a question's third and fourth buttons: The Secret City, The Tree of Life and New Believers,
+   the shared multi-answer popup (story_objects.inc, native/shared/vvfp_multi_answer.h).  A New Home's and The Lost
+   Children's popups keep two: an event with more is refused there (story_graph.inc cg_refusal). */
+static int ce_more_answers(int game) {
+    return game >= 3 && game <= 5;
+}
+
+/* The asked question's answers: two, or a branching event's question's two to four (format version 4). */
+static int ce_choice_answers(int game) {
+    if (!ce_choice_asked(game)) {
+        return 2;
+    }
+    return cg_owns_asked(game) ? cg_asked_answers() : 2;
+}
+
+/* The asked question's button label (button 0 the first, up to ce_choice_answers - 1), or NULL. */
 static const char *ce_choice_label(int game, int button) {
-    if (!ce_choice_asked(game) || button < 0 || button > 1) {
+    if (!ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game)) {
         return NULL;
     }
-    return ce_choice_store[ce_asked_store].labels[button];
+    return button < 2 ? ce_choice_store[ce_asked_store].labels[button] : cg_labels_more[button - 2];
 }
 
 /* The asked question's title (for a game that shows the title on its own),
@@ -2308,7 +2323,7 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     const ce_outcome *o;
     ce_layout l;
     int k;
-    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1) {
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game)) {
         return 0;
     }
     ce_asked = 0;
@@ -2378,7 +2393,7 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
     if (size > 0) {
         out[0] = '\0';
     }
-    if (a == NULL || !ce_choice_asked(game) || button < 0 || button > 1 || size <= 0) {
+    if (a == NULL || !ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game) || size <= 0) {
         return 0;
     }
     if (cg_owns_asked(game)) {

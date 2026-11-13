@@ -486,6 +486,24 @@ static int t_text_id(const char *text) {
     return g_tg->body_id;
 }
 
+/* The body id, carrying a button's label as it is (never wrapped). */
+static int t_label_text_id(const char *text) {
+    t_strings_in();
+    g_body_entry.text = text;
+    return g_tg->body_id;
+}
+
+/* The popup being built (g_ctor_dialog) is sized for `*text`: with `count` answers (3 or 4), `*text` padded with
+   blank lines worth the extra buttons' room (the shared multi-answer popup).  Returns that room (0: two answers). */
+static int t_padded_for(int count, const char **text) {
+    static char padded[ADV_PAGE_BYTES];
+    int room = count > 2 && g_ctor_dialog != NULL ? ma_room_for(g_ctor_dialog, count) : 0;
+    if (room > 0) {
+        *text = ma_padded(ma_game_of(g_tg->game), *text, g_ctor_dialog, room, padded, ADV_PAGE_TEXT_MAX);
+    }
+    return room;
+}
+
 static void __fastcall o_delete(void *self, void *unused, int flags) {
     (void)self; (void)unused; (void)flags;
 }
@@ -579,7 +597,15 @@ static int __fastcall o_result(void *self, void *unused, int choice) {
         return t_text_id("");
     }
     if (!ev->answered) {
-        return t_text_id(ev->flow->tallest());
+        const char *text = ev->flow->tallest();
+        if (adv_answers(ev->flow, 0) > 2) {
+            __try {
+                t_padded_for(adv_answers(ev->flow, 0), &text);   /* room for the extra answers */
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+                text = ev->flow->tallest();
+            }
+        }
+        return t_text_id(text);
     }
     pages = ev->flow->ending(ev->ending);
     return t_text_id(pages->text[g_page < pages->count ? g_page : 0]);
@@ -593,15 +619,13 @@ static void t_page_effects(void) {
     }
 }
 
-/* +0x34(c): the answer; the ending's first page follows (+0x28), with the effects when it is the last. */
-static void __fastcall o_choose(void *self, void *unused, int choice) {
+/* Answer `choice` (0 the first) of event `ev`: logged, the ending's first page next, with the effects when it is the
+   last. */
+static void t_chosen(t_event *ev, int choice) {
     static char label[128];
-    t_event *ev = t_event_of(self);
-    (void)unused;
     if (ev == NULL || !ev->ready || ev->answered) {
         return;
     }
-    choice = choice != 0;
     ev->flow->label(0, choice, label, sizeof label);
     ev->answered = 1;
     ev->ending = -1 - ev->flow->choose(0, choice);
@@ -613,6 +637,12 @@ static void __fastcall o_choose(void *self, void *unused, int choice) {
     if (g_effects_page == 0) {
         t_page_effects();
     }
+}
+
+/* +0x34(c): the game's own two buttons (c 0 the first); the ending's first page follows (+0x28). */
+static void __fastcall o_choose(void *self, void *unused, int choice) {
+    (void)unused;
+    t_chosen(t_event_of(self), choice != 0);
 }
 
 /* +0x2C(c): OK on the last page (the effects were made as it was shown). */
@@ -733,13 +763,53 @@ static void *t_control(void *dialog, unsigned int offset) {
     return *(void **)((unsigned char *)dialog + offset);
 }
 
-/* After the dialog's constructor: a question of more than one page starts with its first page and OK. */
+/* ---- Three or four answers (the shared multi-answer popup, native/shared/vvfp_multi_answer.h) ------------------- */
+
+static int g_multi;                    /* the popup on screen has our extra answer buttons */
+
+static int t_state(void *dialog) {
+    if (dialog == NULL || dialog != g_dialog || g_ev == NULL) {
+        return MA_NOT_OURS;
+    }
+    if (g_ev->answered) {
+        return MA_ANSWERED;
+    }
+    return g_stage == ADV_STAGE_QUESTION ? MA_ASKING : (g_stage == ADV_STAGE_INTRO ? MA_OK_UP : MA_NOT_OURS);
+}
+
+/* Answer 2 or 3 clicked (or typed): as the game answers its own two -- the answer, the ending's first page, OK up. */
+static void t_extra_answer(void *dialog, int answer) {
+    const adv_pages *pages;
+    t_chosen(g_ev, answer);
+    if (g_ev != NULL && g_ev->answered) {
+        pages = g_ev->flow->ending(g_ev->ending);
+        t_set_text(dialog, pages->text[0]);
+    }
+    ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x864));
+}
+
+static const ma_client T_CLIENT = { t_label_text_id, t_state, t_extra_answer };
+
+/* The answers on screen or off: ours with the game's two when there are more than two. */
+static void t_show_answers(void *dialog, int shown) {
+    if (g_multi) {
+        ma_show(dialog, shown);
+        return;
+    }
+    ADV_TC1(shown ? g_tg->show : g_tg->hide, dialog, t_control(dialog, 0x85C));
+    ADV_TC1(shown ? g_tg->show : g_tg->hide, dialog, t_control(dialog, 0x860));
+}
+
+/* After the dialog's constructor: three or four answers get their extra buttons; a question of more than one page
+   starts with its first page and OK. */
 static void __cdecl t_after_ctor(void *dialog) {
     __try {
         void *object = dialog != NULL ? *(void **)((unsigned char *)dialog + 0x50) : NULL;
         t_event *ev = t_event_of(object);
         const adv_pages *q;
+        int n;
         g_ctor_dialog = NULL;
+        g_multi = 0;
         if (object != NULL && object == &g_ts_object) {
             ts_after_ctor(dialog);
             return;
@@ -750,9 +820,22 @@ static void __cdecl t_after_ctor(void *dialog) {
         q = ev->flow->question(0);
         g_dialog = dialog;
         g_page = 0;
+        n = adv_answers(ev->flow, 0);
+        if (n > 2 && ((unsigned char *)dialog)[0x4C] != 0) {
+            static char labels[MA_MAX_ANSWERS][MA_LABEL_BYTES];
+            const char *words[MA_MAX_ANSWERS];
+            int k;
+            for (k = 0; k < n; ++k) {
+                ev->flow->label(0, k, labels[k], sizeof labels[k]);
+                words[k] = labels[k];
+            }
+            g_multi = ma_attach(g_tg->game, &T_CLIENT, dialog, n, words);
+            if (g_multi && q->count <= 1) {
+                t_set_text(dialog, q->text[q->count - 1]);   /* the labels went through the text: the question back */
+            }
+        }
         if (q->count > 1) {
-            ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x85C));
-            ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x860));
+            t_show_answers(dialog, 0);
             ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x864));
             t_set_text(dialog, q->text[0]);
             g_stage = ADV_STAGE_INTRO;
@@ -799,8 +882,7 @@ static int __cdecl t_ok(void *dialog) {
             if (g_page >= q->count - 1) {
                 t_set_text(dialog, q->text[q->count - 1]);
                 ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x864));
-                ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x85C));
-                ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x860));
+                t_show_answers(dialog, 1);
                 g_stage = ADV_STAGE_QUESTION;
             } else {
                 t_set_text(dialog, q->text[g_page]);
@@ -839,6 +921,24 @@ __declspec(naked) static void t_ok_stub(void) {
     stay:
         jmp dword ptr [g_ok_stay]
     }
+}
+
+/* The room the extra answer buttons of the popup on screen take beyond the game's two, for Scrolling Popups (the
+   shared multi-answer popup: The Troubling Signs' four, or any event's three or four): 0 for any other dialog. */
+int __stdcall VvfpMoreIslandEventsButtonRoom(const void *popup) {
+    return ma_room(popup);
+}
+
+/* The answer buttons of the popup on screen, top to bottom (for the tests): out[0..3]; the count (0 none of ours). */
+int __stdcall VvfpMoreIslandEventsAnswerButtons(void **out) {
+    int k;
+    if (out == NULL || g_ma.dialog == NULL) {
+        return 0;
+    }
+    for (k = 0; k < g_ma.count; ++k) {
+        out[k] = ma_button(g_ma.dialog, k);
+    }
+    return g_ma.count;
 }
 
 static int t_locate(int game) {

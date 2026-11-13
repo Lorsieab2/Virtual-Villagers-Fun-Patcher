@@ -44,7 +44,7 @@ static const adv_piece_text DP_TEXT[DP_PIECES] = {
       "" },
     { { "vvfp.more_island_events/dolphin_text.HUNT_2.m", "vvfp.more_island_events/dolphin_text.HUNT_2.f" },
       { "Later, he shares his observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain %d food.",
-        "Later, she shares her observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain %d food." },
+        "Later, she shares her observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherwoman and is lauded as a pioneer of aquaculture. Your villagers gain %d food." },
       "n" },
     { { "vvfp.more_island_events/dolphin_text.SLAP.m", "vvfp.more_island_events/dolphin_text.SLAP.f" },
       { "Ouch! %s is blinded by the slap of a large fluke in his face. He must have gotten too close to one of them and accidentally gotten hit by their tail flipper. %s holds his nose to prevent any more red coming out. Luckily, %s is not too far from the surface, but if he had been any deeper... he shudders to think about what might happen. He surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",

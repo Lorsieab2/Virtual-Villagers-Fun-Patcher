@@ -30,6 +30,13 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
       villager fits a role (and at delivery the event keeps waiting).
   Version 1 and 2 graphs load, compile and play exactly as before.
 
+  VERSION 4 (the owner, 2026-11-13: "Make the 2-4 option thing general"): a question has 2, 3 or 4 "choices", each
+  with its own label and its own next part.  The game shows them in its own two-choice popup with one or two more
+  buttons made as it makes its two (native/shared/vvfp_multi_answer.h; A New Home and The Lost Children their own),
+  stacked and centred; the keys 1 to 4 pick them where the game delivers keys.  The question's popup (and its
+  answer's first page, shown in it) keeps ANSWER_LINES text lines for each answer past two, so it is no taller than
+  with two.  Every other rule is version 3's.  Versions 1, 2 and 3 load, compile and play exactly as before.
+
   {
     "format": "vvfp-cie-graph", "version": 2,
     "title": "The Aspiring Adventurer",          # the popups' title: 47 bytes, one line in every game listed
@@ -54,8 +61,8 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
   NODE:
     "type": "popup" (default) | "question" | "branch"
         popup     text shown in a popup;
-        question  text and exactly two "choices" [{"label", "next"}] (the game's two-button popup); version 1: the
-                  start node only;
+        question  text and two "choices" [{"label", "next"}] (the game's two-button popup) -- version 4: two to
+                  four; version 1: the start node only;
         branch    no text and no popup: a silent weighted split (e.g. "survives" vs "deadly").
     "popup": "new" (default) | "append"           append: the text continues the popup open on the path
     "join": "space" (default) | "paragraph"       how an appended text joins the popup's text
@@ -96,7 +103,8 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
 
 WHAT A GRAPH MUST PASS (validate):  every next / else / start names a node; no cycle; every node reachable; on every
 history (every game, every patch on or off, every optional role bound or not) a node with children has one or an else;
-weights 1..MAX_WEIGHT; a question has exactly two choices (version 1: and is the start node; version 2: the page
+weights 1..MAX_WEIGHT; a question has exactly two choices -- version 4: two to four (version 1: and is the start
+node; version 2: the page
 rules above); titles, labels and text fit each game
 with the longest names (FIT below); only the allowed characters; every effect is one the game's Custom Island Event
 supports (GAMES[g].caps, the CAP_* bits of native/vvfp_story_upgrades/story_custom.h and story_c1..c5.inc); no more than
@@ -114,7 +122,9 @@ the game's popup holds (POPUP_TEXT_MAX) count.
 
 THE BINARY .cieg (version 1 or 2, little-endian) -- see compile_graph / decompile_graph.  Version 2 is laid out exactly as
 version 1; its number says a question may be any node (and text may hold "), so a companion that reads only version 1
-refuses it cleanly instead of misreading it.  A version 1 graph is compiled as version 1.
+refuses it cleanly instead of misreading it.  A version 1 graph is compiled as version 1.  Version 4 is laid out as
+version 3; its number says a question's children may be two to four choices (a companion that reads only up to
+version 3 refuses it).
   header (80 bytes)
      0 4s magic "CIEG"          4 H version (1, 2)         6 H header bytes (80)     8 I file bytes
     12 I crc32 of the whole file with this field 0      16 I games mask (bit g-1)
@@ -155,10 +165,15 @@ from pathlib import Path
 from typing import Any, Iterable
 
 FORMAT = "vvfp-cie-graph"
-VERSION = 3                   # what new events are written in
-VERSIONS = (1, 2, 3)          # what this patcher reads
+VERSION = 3                   # what new events are written in (a third answer makes an event version 4)
+VERSION_ANSWERS = 4           # the first version whose questions may have three or four answers
+VERSIONS = (1, 2, 3, 4)       # what this patcher reads
 BINARY_MAGIC = b"CIEG"
-BINARY_VERSION = 3            # a graph is compiled as its own version (1 and 2 byte for byte as before)
+BINARY_VERSION = 4            # a graph is compiled as its own version (1, 2 and 3 byte for byte as before)
+MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; before: exactly 2)
+MAX_ANSWERS = 4               # the game's two-choice popup with up to two more buttons (vvfp_multi_answer.h)
+MORE_ANSWER_GAMES = (3, 4, 5)  # the games whose popup shows a third and fourth button (story_custom.inc ce_more_answers)
+ANSWER_LINES = 3              # text lines a third or fourth answer's button takes (1.5 button heights of 20-px lines)
 NONE = 0xFFFF
 
 TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
@@ -331,6 +346,17 @@ PLACEHOLDER_RE = re.compile(r"\(([^()\n]*)\)")
 PRONOUNS = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
             "man/woman": ("man", "woman")}
 _NAME_ALIASES = {"name1": "subject", "name2": "friend"}
+
+
+def answer_letter(b: int) -> str:
+    """An answer as the chances table names it: A to D (a fifth, which the checks refuse, by its number)."""
+    return "ABCD"[b] if 0 <= b < 4 else str(b + 1)
+
+
+def answer_room(answers: int) -> int:
+    """The text lines a question's popup (and its answer's first page, shown in it) keeps for its buttons beyond the
+    game's two, so the popup is no taller than with two (story_graph.inc CG_ANSWER_LINES)."""
+    return ANSWER_LINES * max(0, answers - 2)
 
 
 def text_char_ok(c: str, version: int = 1) -> bool:
@@ -684,8 +710,11 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
             problems.append(f"{where}: summary and outcome are plain ASCII words")
             summary, outcome = "", ""
         if t == "question":
-            if len(choices) != 2:
-                problems.append(f"{where}: a question has exactly two choices")
+            if version >= VERSION_ANSWERS and not MIN_ANSWERS <= len(choices) <= MAX_ANSWERS:
+                problems.append(f"{where}: a question has {MIN_ANSWERS} to {MAX_ANSWERS} answers")
+            elif version < VERSION_ANSWERS and len(choices) != 2:
+                problems.append(f"{where}: a question has exactly two choices" + (
+                    " (three or four answers need format version 4)" if 2 < len(choices) <= MAX_ANSWERS else ""))
             if children or els is not None or popup != "new":
                 problems.append(f"{where}: a question has choices only (no children, else or append)")
             if version >= 2 and n.get("effects"):
@@ -908,6 +937,7 @@ class Popup:
     worst: str = ""                     # at its widest in the game
     effects: bool = False               # carries villager effects (refusal lines)
     nodes: list[str] = field(default_factory=list)
+    room: int = 0                       # lines kept for a question's third and fourth buttons (answer_room)
 
 
 @dataclass
@@ -977,7 +1007,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes)) for p in popups]
+        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room) for p in popups]
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
         for e in node["effects"]:
@@ -1026,7 +1056,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                                                  if asked else "the changes before this question need a page"))
             if len(answers) >= MAX_QUESTIONS_PER_RUN:
                 say(f"the history {' > '.join(path)} asks more than {MAX_QUESTIONS_PER_RUN} questions")
-            popups.append(Popup("question", text, nodes=[nid]))
+            popups.append(Popup("question", text, nodes=[nid], room=answer_room(len(node["choices"]))))
         elif node["type"] == "popup":
             paged = True
             if node["popup"] == "append":
@@ -1038,7 +1068,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 last.text = last.text + sep + text if last.text else text
                 last.nodes.append(nid)
             else:
-                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid]))
+                # An answer's first page is shown in the question's own popup: the same room for its buttons.
+                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid],
+                                    room=popups[-1].room if popups and popups[-1].layout == "question" else 0))
         if node["type"] != "branch":
             for raw, p in placeholders(text):
                 if p is None:
@@ -1131,7 +1163,7 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     for p in paths:
         game = GAMES[p.ctx.game]
         for pop in p.popups:
-            key = (game.number, pop.layout, pop.worst, pop.effects)
+            key = (game.number, pop.layout, pop.worst, pop.effects, pop.room)
             if key in done:
                 continue
             done.add(key)
@@ -1143,7 +1175,7 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
                 continue
             if scrolling:
                 continue
-            pages, why = paginate(layout, g["title"], pop.worst, REFUSAL_LINES if pop.effects else 0)
+            pages, why = paginate(layout, g["title"], pop.worst, (REFUSAL_LINES if pop.effects else 0) + pop.room)
             if why:
                 problems.append(f"{game.name}: the popup of {nodes} runs off the screen without scrolling: {why}")
             elif len(pages) > MAX_PAGES:
@@ -1214,6 +1246,9 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
         game = GAMES[gn]
         if len(title) > game.title_width:
             problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
+        if gn not in MORE_ANSWER_GAMES and any(len(n["choices"]) > 2 for n in nodes.values()):
+            problems.append(f"{game.name}: a question with more than two buttons is not shown in this game yet "
+                            "(untick the game, or keep two buttons)")
         for nid, n in nodes.items():
             for c in n["choices"]:
                 label = worst_case(c["label"], game, None)
@@ -1410,7 +1445,7 @@ def decompile_graph(data: bytes) -> dict:
      n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
      _z2) = h
     if magic != BINARY_MAGIC or version not in VERSIONS or hsize != _HEADER.size or fsize != len(data):
-        raise GraphError(["not a version 1, 2 or 3 .cieg file"])
+        raise GraphError(["not a version 1, 2, 3 or 4 .cieg file"])
     check = bytearray(data)
     struct.pack_into("<I", check, 12, 0)
     if zlib.crc32(bytes(check)) != crc:
@@ -1599,12 +1634,12 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
             lines.append("THE EVENT")
             out_of = "out of every time the event happens"
         elif isinstance(choice, tuple):
-            words = " > ".join(f"{q} {'AB'[b]}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
+            words = " > ".join(f"{q} {answer_letter(b)}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
             lines.append(f"CHOICES {words}")
             out_of = "out of every time these choices are picked"
         else:
             label = start["choices"][choice]["label"]
-            lines.append(f"CHOICE {'AB'[choice]}: {label.upper()}")
+            lines.append(f"CHOICE {answer_letter(choice)}: {label.upper()}")
             out_of = "out of every time this choice is picked"
         lines.append(f"Each ending, {out_of}:")
         for r in rows["ends"]:

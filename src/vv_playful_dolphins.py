@@ -8,7 +8,8 @@ THE OWNER'S TEXT, as pasted in chat (2026-11-13), unaltered but for the fixes th
   * "hold their breath" -> "hold (his/her) breath"; "shares his observations" -> "shares (his/her) observations";
     "doubts that (he/she) it's a good idea" -> "doubts that it's a good idea"; quote marks around What magnificent
     creatures!; a sentence-start "(he/she)" -> "(He/she)"; "exits the beach" -> "leaves the beach"; "accidentally got
-    hit" -> "accidentally gotten hit" (the owner, 2026-11-13); "aquaculture" kept (the owner);
+    hit" -> "accidentally gotten hit" (the owner, 2026-11-13); "aquaculture" kept (the owner); "a skilled fisherman"
+    -> "a skilled (fisherman/fisherwoman)", by the swimmer's sex (the owner, 2026-11-13);
   * the notes in parentheses or after "--" ("(then A or B, 50% each)", "-- a SMALL food reward") are instructions,
     never shown;
   * (Name) / (name) is the swimmer's full name, (he/she), (his/her) the swimmer's; (award) the amount;
@@ -20,6 +21,7 @@ Each piece is written in one form per sex of the swimmer when it uses a pronoun 
 and an amount as %d; each form is its own translation row, so a translation never has to guess a pronoun.
 
 TOKENS:  {n} the swimmer's name   {he} {He} {his} {His}  the swimmer's pronouns
+         {fisherman}  "fisherman" or "fisherwoman", by the swimmer's sex (the owner, 2026-11-13)
 """
 from __future__ import annotations
 
@@ -44,7 +46,7 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("HUNT_1", "{He} gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, "
                "disorienting them enough to become easy prey. \"What magnificent creatures!\" {he} thinks."),
     ("HUNT_2", "Later, {he} shares {his} observations with the researchers and farmers, which revolutionize their "
-               "catches that season. {n} becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your "
+               "catches that season. {n} becomes a skilled {fisherman} and is lauded as a pioneer of aquaculture. Your "
                "villagers gain %d food."),
     ("SLAP", "Ouch! {n} is blinded by the slap of a large fluke in {his} face. {He} must have gotten too close to one "
              "of them and accidentally gotten hit by their tail flipper. {n} holds {his} nose to prevent any more red "
@@ -57,10 +59,10 @@ TEXTS: tuple[tuple[str, str], ...] = (
 )
 
 PRONOUNS = {
-    "m": {"he": "he", "He": "He", "his": "his", "His": "His"},
-    "f": {"he": "she", "He": "She", "his": "her", "His": "Her"},
+    "m": {"he": "he", "He": "He", "his": "his", "His": "His", "fisherman": "fisherman"},
+    "f": {"he": "she", "He": "She", "his": "her", "His": "Her", "fisherman": "fisherwoman"},
 }
-_PRONOUN = re.compile(r"\{(he|He|his|His)\}")
+_PRONOUN = re.compile(r"\{(he|He|his|His|fisherman)\}")
 _NAME = re.compile(r"\{(n)\}")
 
 # The endings, in the C table's order (dolphin_core.inc DP_E_*), and the popups each shows: each a tuple of its

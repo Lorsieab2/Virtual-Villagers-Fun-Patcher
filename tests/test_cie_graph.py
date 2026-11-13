@@ -142,8 +142,8 @@ class Checks(unittest.TestCase):
 
     def test_format_and_version(self):
         d = tiny()
-        d["version"] = 4
-        self.assertProblem(d, "version 4")
+        d["version"] = 5
+        self.assertProblem(d, "version 5")
         d = tiny()
         d["format"] = "x"
         self.assertProblem(d, "format")
@@ -478,8 +478,8 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertProblem(d, "characters the game cannot show")         # the double quote is version 2's
         d["nodes"]["p"]["text"] = "(Name) finds a door."
         self.assertProblem(d, "only be the start node in a version 1 event")
-        d["version"] = 4
-        self.assertProblem(d, "version 4 is not one this patcher reads")
+        d["version"] = 5
+        self.assertProblem(d, "version 5 is not one this patcher reads")
 
     def test_an_answer_shows_its_own_page_first(self):
         self.assertProblem(multi(l={"type": "branch", "children": [{"next": "q2"}]}),
@@ -511,7 +511,7 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertEqual(struct.unpack_from("<H", b1, 4)[0], 1)
         self.assertEqual(cg.decompile_graph(b1), v1)
         bad = bytearray(blob)
-        struct.pack_into("<H", bad, 4, 4)
+        struct.pack_into("<H", bad, 4, 5)
         struct.pack_into("<I", bad, 12, 0)
         struct.pack_into("<I", bad, 12, __import__("zlib").crc32(bytes(bad)))
         with self.assertRaises(cg.GraphError):
@@ -673,6 +673,118 @@ class Version3(unittest.TestCase):
             i = src.index(f"C{game}_PUZZLE_DEFS[] = {{")
             names = tuple(re.findall(r'\{\s*"([^"]+)"', src[i:src.index("};", i)]))
             self.assertEqual(cg.PUZZLES[game], names, game)
+
+
+def four_doors(version: int = 4) -> dict:
+    """A version 4 graph: a four-answer question, one answer leading (after its own page) to a three-answer one."""
+    return {
+        "format": "vvfp-cie-graph", "version": version, "title": "Four Doors", "games": [3, 4, 5],
+        "roles": {"subject": {"kind": "villager"}},
+        "start": "q",
+        "nodes": {
+            "q": {"type": "question", "text": "(Name) finds four doors.", "choices": [
+                {"label": "The red door", "next": "a"}, {"label": "The blue door", "next": "b"},
+                {"label": "The green door", "next": "c"}, {"label": "The gold door", "next": "d"}]},
+            "a": {"text": "Food behind the red door.", "effects": [{"do": "food", "amount": 100}]},
+            "b": {"text": "A second room.", "children": [{"next": "q2"}]},
+            "q2": {"type": "question", "text": "Three more doors.", "choices": [
+                {"label": "Left", "next": "e"}, {"label": "Middle", "next": "f"}, {"label": "Right", "next": "h"}]},
+            "e": {"text": "Left."}, "f": {"text": "Middle.", "effects": [{"do": "tech", "amount": 50}]},
+            "h": {"text": "Right."},
+            "c": {"text": "Tech behind the green door.", "effects": [{"do": "tech", "amount": 100}]},
+            "d": {"text": "(Name) is never seen again.", "effects": [{"do": "vanish"}]},
+        },
+    }
+
+
+class Version4(unittest.TestCase):
+    """The owner (2026-11-13): "Make the 2-4 option thing general" -- a question with 2, 3 or 4 answers."""
+
+    def test_three_and_four_answers_pass(self):
+        self.assertEqual(problems_of(four_doors(), False), [])
+        self.assertEqual(problems_of(four_doors(), True), [])
+
+    def test_two_to_four_answers_only(self):
+        d = four_doors()
+        d["nodes"]["q"]["choices"].append({"label": "A fifth", "next": "d"})
+        self.assertProblem(d, "a question has 2 to 4 answers")
+        d = four_doors()
+        d["nodes"]["q"]["choices"] = d["nodes"]["q"]["choices"][:1]
+        self.assertProblem(d, "a question has 2 to 4 answers")
+        d = four_doors()
+        d["nodes"]["q"]["choices"][2]["next"] = "nowhere"
+        self.assertProblem(d, "'nowhere' names no node")
+
+    def test_a_new_home_and_the_lost_children_keep_two_for_now(self):
+        d = four_doors()
+        d["games"] = [1, 2, 3]
+        found = problems_of(d)
+        self.assertIn("A New Home: a question with more than two buttons is not shown in this game yet (untick the "
+                      "game, or keep two buttons)", found)
+        self.assertTrue(any(p.startswith("The Lost Children: a question with more than two") for p in found))
+        self.assertFalse(any(p.startswith("The Secret City") for p in found))
+        self.assertEqual(cg.MORE_ANSWER_GAMES, (3, 4, 5))
+
+    def test_versions_1_to_3_keep_two(self):
+        for version in (2, 3):
+            self.assertProblem(four_doors(version), "three or four answers need format version 4")
+        d = copy.deepcopy(tiny())
+        d["nodes"]["q"]["choices"].append({"label": "Maybe", "next": "b"})
+        self.assertProblem(d, "three or four answers need format version 4")
+
+    def test_every_answer_its_own_page_and_no_loops(self):
+        d = four_doors()
+        d["nodes"]["q"]["choices"][3]["next"] = "q2"
+        d["nodes"]["q2"]["choices"].append({"label": "Down", "next": "d"})
+        self.assertProblem(d, "an answer must show a page of its own before the next question")
+        d = four_doors()
+        d["nodes"]["e"]["children"] = [{"next": "b"}]
+        self.assertProblem(d, "a cycle")
+
+    def test_round_trip_and_version_number(self):
+        g = cg.load(four_doors())
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 4)[0], 4)
+        self.assertEqual(cg.decompile_graph(blob), g)
+        self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
+        self.assertEqual([c["label"] for c in cg.decompile_graph(blob)["nodes"]["q"]["choices"]],
+                         ["The red door", "The blue door", "The green door", "The gold door"])
+
+    def test_the_shipped_examples_compile_to_the_same_bytes(self):
+        # Compiled before format version 4 (the module at 538ddc27): versions 1 to 3 are unchanged.
+        pins = {"the_aspiring_adventurer.json": "a8eefacb036a67e1534fbb0685ecc3e41963ed837ba971379733a9b0892e4c2c",
+                "the_cave_explorers.json": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be"}
+        for name, digest in pins.items():
+            blob = cg.compile_graph(cg.load(ROOT / "data" / "cie_graphs" / name))
+            self.assertEqual(__import__("hashlib").sha256(blob).hexdigest(), digest, name)
+
+    def test_the_chances_are_keyed_by_answer(self):
+        rows = cg.chances(cg.load(four_doors()), 3)
+        keys = set(rows)
+        self.assertEqual(keys, {(("q", 0),), (("q", 1), ("q2", 0)), (("q", 1), ("q2", 1)), (("q", 1), ("q2", 2)),
+                                (("q", 2),), (("q", 3),)})
+        table = cg.chances_table(cg.load(four_doors()), 3)
+        self.assertIn("CHOICES q D: THE GOLD DOOR", table)
+        self.assertIn("q2 C: RIGHT", table)
+
+    def test_the_question_keeps_room_for_its_buttons(self):
+        self.assertEqual([cg.answer_room(n) for n in (2, 3, 4)], [0, 3, 6])
+        # A question whose text fills the two-answer popup no longer fits one page with four answers: it is paged.
+        layout = cg.GAMES[3].question
+        words = " ".join(["Word."] * 400)
+        two = cg.paginate(layout, "Four Doors", words, cg.answer_room(2))[0]
+        four = cg.paginate(layout, "Four Doors", words, cg.answer_room(4))[0]
+        self.assertGreater(len(four), len(two))
+        paths = cg.walk(cg.load(four_doors()), cg.Context(3, frozenset(), frozenset({"subject"})))
+        rooms = {(p.layout, p.room) for h in paths for p in h.popups}
+        self.assertIn(("question", 6), rooms)
+        self.assertIn(("question", 3), rooms)
+        self.assertIn(("result", 6), rooms)            # an answer's first page is shown in the question's popup
+        self.assertIn(("result", 3), rooms)
+
+    def assertProblem(self, data, words):
+        found = problems_of(data)
+        self.assertTrue(any(words in p for p in found), f"{words!r} not in {found}")
 
 
 if __name__ == "__main__":

@@ -803,6 +803,21 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   screen: story_label_widths.h holds each game's story-font widths
   (scripts/build_cie_label_widths.py); the two buttons are stacked, so a
   label wider than its button stays readable.
+- Version 4 (the owner, 2026-11-13: "Make the 2-4 option thing general"): a
+  question has 2 to 4 choices. Each answer's segment is walked when it is
+  asked (the third and fourth kept in the run file's seg_more, run file
+  version 3; a version 2 run file is read with them empty). The Secret City,
+  The Tree of Life and New Believers show them in the game's own two-choice
+  popup through native/shared/vvfp_multi_answer.h: the pick stubs present a
+  3- or 4-answer question through their own path (the presenter's
+  instructions up to its constructor call, whatever that call holds, then
+  cs_after_ctor), the extra buttons made with the game's own routines (ids 4
+  and 5), stacked 1.5 button heights apart, a copy of the dialog's virtual
+  table taking ids 4 and 5 and the keys 1 to 4 (Enter / Esc for OK), and
+  VvfpStoryButtonRoom for Scrolling Popups. A question's page and its
+  answer's first page keep 3 text lines per answer past two
+  (CG_ANSWER_LINES). A New Home and The Lost Children keep two buttons for
+  now: an event with more is refused there.
 - The effects wait for their own page (the owner, 2026-11-12): each node's
   effects are made, once, when the page showing the end of its text is built
   -- as a stock plain island event makes its changes while building its
