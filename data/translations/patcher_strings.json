@@ -66710,6 +66710,171 @@
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
    "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = a number (number)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.TITLE",
+   "english": "The Climb",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.INTRO.m",
+   "english": "%s is known for his crazy, spontaneous, yet sometimes genius ideas. He is an avid researcher and has been studying the tribe's history for a long time. He believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about his claims and warn him not to take matters into his own hands without further proof. %s knows that the plan could be dangerous, but what if he is right? Should he go through with his plan, or follow the other researchers' advice?",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.INTRO.f",
+   "english": "%s is known for her crazy, spontaneous, yet sometimes genius ideas. She is an avid researcher and has been studying the tribe's history for a long time. She believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about her claims and warn her not to take matters into her own hands without further proof. %s knows that the plan could be dangerous, but what if she is right? Should she go through with her plan, or follow the other researchers' advice?",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.LABEL_PLAN",
+   "english": "Go with the plan",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.LABEL_ADVICE",
+   "english": "Follow the scientists' advice",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.PLAN.m",
+   "english": "%s revises his plan until he believes it is practically foolproof. At dawn the next morning, he sneaks out of the hut before anyone else has woken up and makes his way toward the waterfall. Setting up his climbing gear, he makes the perilous ascent up the falls.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.PLAN.f",
+   "english": "%s revises her plan until she believes it is practically foolproof. At dawn the next morning, she sneaks out of the hut before anyone else has woken up and makes her way toward the waterfall. Setting up her climbing gear, she makes the perilous ascent up the falls.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.CLIMB.m",
+   "english": "For several hours, he carefully scales the jagged rocks until he can almost see over the edge of the falls. Just a little further...",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is male; the fall or the summit follows it after a space",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.CLIMB.f",
+   "english": "For several hours, she carefully scales the jagged rocks until she can almost see over the edge of the falls. Just a little further...",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is female; the fall or the summit follows it after a space",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.FALL.m",
+   "english": "Oops! %s's hand loses its grip and he falls many dozens of meters to the hard, unforgiving ground. When the villagers wake up, they discover %s's body and weep bitterly for their fallen colleague. He will be remembered as a passionate dreamer that dared to do the impossible.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.FALL.f",
+   "english": "Oops! %s's hand loses its grip and she falls many dozens of meters to the hard, unforgiving ground. When the villagers wake up, they discover %s's body and weep bitterly for their fallen colleague. She will be remembered as a passionate dreamer that dared to do the impossible.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.SUMMIT.m",
+   "english": "With one last stretch, %s climbs onto the final rock and stands in victory. From this height, he can see over the entire village and jungle canopy. He thinks he can even see other settlements from up here! Behind him, he hears the rushing of the falls echoing through a large cave mouth leading to somewhere unknown. Checking his notes and doing some quick calculations, he is almost certain the cave tunnel must lead somewhere close to the Southern Shore of Isola. %s fervently writes down his deductions and makes a detailed sketch of the area before making the careful descent back home. That day, he presents his findings to the others, who work together to perfect his plan. Over several months they send an expedition team to the perilous peak, and confirm that %s was right about everything. They name %s a Distinguished Scientist, and recognize his achievements in a grand ceremony. %s is certainly setting a name for himself throughout the entire scientific community! Your village gains %d tech points.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.SUMMIT.f",
+   "english": "With one last stretch, %s climbs onto the final rock and stands in victory. From this height, she can see over the entire village and jungle canopy. She thinks she can even see other settlements from up here! Behind her, she hears the rushing of the falls echoing through a large cave mouth leading to somewhere unknown. Checking her notes and doing some quick calculations, she is almost certain the cave tunnel must lead somewhere close to the Southern Shore of Isola. %s fervently writes down her deductions and makes a detailed sketch of the area before making the careful descent back home. That day, she presents her findings to the others, who work together to perfect her plan. Over several months they send an expedition team to the perilous peak, and confirm that %s was right about everything. They name %s a Distinguished Scientist, and recognize her achievements in a grand ceremony. %s is certainly setting a name for herself throughout the entire scientific community! Your village gains %d tech points.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.ADVICE.m",
+   "english": "%s admits that his plan still needs some refining. He goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even he sees glaring flaws in its execution, and writes a report detailing all his mistakes. The next day he consults his senior colleagues to help him work out the kinks in his plan, and over time %s learns many things from their strict guidance. It turns out he had much to learn, but was too blinded by ambition to notice his shortcomings. %s promises to be more humble and learn from his elders before stubbornly taking matters into his own hands.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/climb_text.ADVICE.f",
+   "english": "%s admits that her plan still needs some refining. She goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even she sees glaring flaws in its execution, and writes a report detailing all her mistakes. The next day she consults her senior colleagues to help her work out the kinks in her plan, and over time %s learns many things from their strict guidance. It turns out she had much to learn, but was too blinded by ambition to notice her shortcomings. %s promises to be more humble and learn from her elders before stubbornly taking matters into her own hands.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
   }
  ]
 }

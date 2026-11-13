@@ -1,5 +1,6 @@
 /* VVFP Aspiring Adventurer -- "The Aspiring Adventurer", the owner's island event (2026-11-12), in all five games
-   (the rows vvN_more_island_events).
+   (the rows vvN_more_island_events), with The Cave Explorers (A New Home, cave_core.inc) and The Climb (The Lost
+   Children, climb_core.inc), the owner's events of the same day.
 
    An aspiring adventurer of the village sees something glinting off the safe path: "Go investigate!" or "Stay on
    the safe path".  The owner's words, odds and effects are in adv_core.inc (and src/vv_aspiring_adventurer.py, the
@@ -25,7 +26,10 @@
 #include "adv_text.inc"
 #include "cave_text.inc"
 #include "adv_core.inc"
+#include "adv_log.inc"
+#include "climb_text.inc"
 #include "cave_core.inc"
+#include "climb_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -149,6 +153,44 @@ const char *__stdcall VvfpCaveExplorersPage(int set, int k) {
         return NULL;
     }
     pages = cave_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
+}
+
+/* The Climb (The Lost Children): whether it can happen now -- one villager who may climb. */
+int __stdcall VvfpClimbPossible(void) {
+    int possible = 0;
+    __try {
+        possible = climb_possible(g_adv_game);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        possible = 0;
+    }
+    return possible;
+}
+
+/* Its last popup's state (for the tests): out[0] the villager's record, [1] female, [2] the fall (1) or the summit
+   (0) after "Go with the plan", [3] the summit's award, [4] the advice's Research gain, [5] answered, [6] the choice
+   (0 the plan, 1 the advice), [7] the ending (-1 none yet: 0 the fall, 1 the summit, 2 the advice), [8] the
+   question's pages, [9] / [10] / [11] each ending's pages.  Returns 12. */
+int __stdcall VvfpClimbState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    out[0] = climb.hero; out[1] = climb.female; out[2] = climb.falls; out[3] = climb.award; out[4] = climb.gain;
+    out[5] = climb.answered; out[6] = climb.choice; out[7] = climb.ending; out[8] = climb.intro.count;
+    for (k = 0; k < CLIMB_ENDINGS; ++k) {
+        out[9 + k] = climb.endings[k].count;
+    }
+    return 12;
+}
+
+/* Page `k` of set `set`: 0 the question, 1..3 the endings (the fall, the summit, the advice). */
+const char *__stdcall VvfpClimbPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set > CLIMB_ENDINGS) {
+        return NULL;
+    }
+    pages = climb_set(set);
     return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import vv_aspiring_adventurer as adv
 import vv_cave_explorers as cave
+import vv_the_climb as climb
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -24,8 +25,9 @@ HOW = {
     1: "one more of the villager encounters (the two-choice island events): when an encounter is drawn, this event is "
        "1 in m + 1 (1 in m + 2 while The Cave Explorers can happen too), m the encounters possible at that moment, "
        "like each of them; never the village's first island event (always a visitor)",
-    2: "one more two-choice island event (family A): each of family A's draws is 1 in 22 for each event, this one "
-       "included; never the village's first island event",
+    2: "one more two-choice island event (family A) with its own slot in the draw: each of family A's draws is 1 in "
+       "23 for each event, this one included (the draw is one wider for The Climb, which has its own slot too); never "
+       "the village's first island event",
     3: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
        "listed), at the game's usual times",
     4: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
@@ -103,7 +105,8 @@ def adventurer_event(game: int) -> Event:
         reward_line(game),
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
-        "as a disappearance. The effects come when the answer is clicked.",
+        "as a disappearance. The effects wait for their own page: they come when the page that ends the ending's "
+        "text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.",
     ]
     if game in (1, 4, 5):
         subs.append(Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this "
@@ -160,8 +163,9 @@ def cave_explorers_event() -> Event:
         "encounters (below).",
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
-        "as a disappearance. The effects come when the answer that leads to them is clicked; the Island Events log "
-        "records them under the event's title with that answer.",
+        "as a disappearance. The effects wait for their own page: they come when the page that ends the ending's "
+        "text is shown; the Island Events log keeps one entry for the event, with each answer clicked and every "
+        "change.",
         Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): "
              "each award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).",
              only_with="vv1_island_events_scale_with_population"),
@@ -178,4 +182,46 @@ def cave_explorers_event() -> Event:
         "\"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv1_more_island_events",
+    )
+
+
+def the_climb_event() -> Event:
+    """The Climb (The Lost Children only; the owner, 2026-11-12): every number from src/vv_the_climb.py, the award from
+    src/vv_aspiring_adventurer.py's ranges; the companion (native/vvfp_more_island_events/climb_core.inc) rolls exactly
+    these odds with the game's own random routine."""
+    c = climb.outcome_chances()
+    lo, hi = climb.ADVICE_GAIN
+    who = (f"alive and present, {climb.ADULT_YEARS} villager years or more, with a Research of "
+           f"{climb.RESEARCH_TRAINEE} or more (the game's own \"Trainee\" level: below {climb.RESEARCH_TRAINEE} the "
+           "Details screen says \"Untrained\"), not nursing a baby (mother or father), not an Esteemed Elder's totem "
+           "statue")
+    subs = [
+        f"Who: a villager who is {who}; one such villager is enough, and the villager is drawn among them, each "
+        "equally likely. Never picked: anyone younger, anyone below Trainee in Research, a nursing mother or father, "
+        "an Esteemed Elder's statue, the dead and the absent.",
+        "One question in the game's own two-choice popup: \"Go with the plan\" or \"Follow the scientists' "
+        "advice\".",
+        f"\"Go with the plan\" (its page, then the climb): the fall {c['PLAN']['FALL']:g}% or the summit "
+        f"{c['PLAN']['SUMMIT']:g}%.",
+        "The fall: the villager dies, the game's own death (\"Unknown causes\", as the game's own island events "
+        "give; the body is buried and gets a grave).",
+        f"The summit: the villager's Research becomes {climb.RESEARCH_MAX} (the game's maximum); the village gains a "
+        "large tech award -- twice a normal one (a normal one is drawn, each amount equally likely, from "
+        f"{adv.award_words(2, 'tech')}): {adv.award_words(2, 'tech', 'large')} -- times the game's own two-choice factor (x1 up to 25 villagers, x2 "
+        "up to 50, x3 above), through the game's own tech writer; and the village celebrates as in the game's own Old "
+        "Friends event (every living villager of 14 or more who is not sick and does not dislike crowds goes "
+        "\"Celebrating\"). \"Distinguished Scientist\" is the story's words only: no title is given.",
+        f"\"Follow the scientists' advice\" gives +{lo} to {hi} Research (each equally likely), at most "
+        f"{climb.RESEARCH_MAX}; nothing else happens.",
+        "The effects wait for their own page: the fall's, the summit's and the advice's come when the page that ends "
+        "that text is shown (never on the plan's page); the Island Events log keeps one entry for the event, with the "
+        "answer and every change.",
+    ]
+    return Event(
+        climb.TITLE,
+        "needs one villager who is " + who + "; " + "one more two-choice island event (family A) with its own slot in "
+        "the draw: each of family A's draws is 1 in 23 for each event, this one included; never the village's first "
+        "island event; added by \"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv2_more_island_events",
     )

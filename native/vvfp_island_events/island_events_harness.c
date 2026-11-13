@@ -631,6 +631,20 @@ int main(void) {
             CHECK(g_outs == 1 && strstr(g_out[0].changes, "  Research: ") != NULL,
                   "any other popup: one record per villager, as before");
             g_graph_logged = NULL;
+            /* More Island Events' dialog (The Lost Children: its own one entry, effects on their own page): the
+               game's bracket around it writes nothing either. */
+            g_more_logged = stub_logged;
+            g_story_logs = 1;
+            begin();
+            gain_research_once(research->offset, skills_float);
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 0, "More Island Events' dialog: the game's bracket writes nothing");
+            g_story_logs = 0;
+            begin();
+            gain_research_once(research->offset, skills_float);
+            compare(&g_snaps[0]);
+            CHECK(g_outs == 1, "...and any other popup is written as before");
+            g_more_logged = NULL;
         }
 
         /* 7. The later games' two-choice answer: "Choice:" as A New Home and

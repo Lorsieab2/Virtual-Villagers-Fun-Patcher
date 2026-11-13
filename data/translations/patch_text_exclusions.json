@@ -113,12 +113,17 @@
   {
    "reason": "The Aspiring Adventurer: the words looked for in New Believers' own eSayStoppedBelieving to tell the Guardians of Isola wording (never shown), and its words for the Cause of Death companion's Deaths log (a disappearance, written to the log file only). The words the event shows are in the template and looked up by key (adv_text.inc).",
    "files": ["native/vvfp_more_island_events/adv_vv345.inc", "native/vvfp_more_island_events/adv_core.inc"],
-   "functions": ["vv5_joins_key", "adv_choose"]
+   "functions": ["vv5_joins_key", "adv_choose", "adv_make_effects"]
   },
   {
    "reason": "The Cave Explorers: its words for the Cause of Death companion's Deaths log (a disappearance, written to the log file only). The words the event shows are in the template and looked up by key (cave_text.inc).",
    "files": ["native/vvfp_more_island_events/cave_core.inc"],
    "functions": ["cave_effects"]
+  },
+  {
+   "reason": "More Island Events (all five games): the Island Events log's one entry for its events, in the log's own words (\"Event:\", \"Choice:\", \"Changes: none\"), written to the log file only, as the branching Custom Island Event's are.",
+   "files": ["native/vvfp_more_island_events/adv_log.inc"],
+   "functions": ["adv_log_event", "adv_log_choice", "adv_log_effects"]
   }
  ]
 }

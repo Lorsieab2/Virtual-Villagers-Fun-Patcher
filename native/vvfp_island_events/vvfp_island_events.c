@@ -337,13 +337,28 @@ typedef int (__stdcall *graph_logged_fn)(int game, const char *title);
 static graph_logged_fn g_graph_logged;     /* a harness sets its own */
 static int g_graph_looked;
 
+/* "VVFP More Island Events.dll" keeps the same kind of ONE entry for its events whose effects wait for their own
+   page (The Lost Children's: native/vvfp_more_island_events/adv_vv2.inc): VvfpMoreIslandEventsLogged(game, title)
+   says when the popup compared is its dialog. */
+static graph_logged_fn g_more_logged;      /* a harness sets its own */
+static int g_more_looked;
+
 static int graph_logged_by_story(const struct snapshot *s) {
     if (g_graph_logged == NULL && !g_graph_looked) {
         HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
         g_graph_logged = story != NULL ? (graph_logged_fn)(void *)GetProcAddress(story, "VvfpStoryGraphLogged") : NULL;
         g_graph_looked = story != NULL;
     }
-    return g_graph_logged != NULL && g_graph_logged(g_game, s->title);
+    if (g_more_logged == NULL && !g_more_looked) {
+        HMODULE more = GetModuleHandleA("VVFP More Island Events.dll");
+        g_more_logged = more != NULL ? (graph_logged_fn)(void *)GetProcAddress(more, "VvfpMoreIslandEventsLogged")
+                                     : NULL;
+        g_more_looked = more != NULL;
+    }
+    if (g_graph_logged != NULL && g_graph_logged(g_game, s->title)) {
+        return 1;
+    }
+    return g_more_logged != NULL && g_more_logged(g_game, s->title);
 }
 
 /* Compare and write: one record per villager the event changed. */

@@ -9,3 +9,7 @@ EXPORTS
     VvfpCaveExplorersPossible=_VvfpCaveExplorersPossible@0
     VvfpCaveExplorersState=_VvfpCaveExplorersState@4
     VvfpCaveExplorersPage=_VvfpCaveExplorersPage@8
+    VvfpClimbPossible=_VvfpClimbPossible@0
+    VvfpClimbState=_VvfpClimbState@4
+    VvfpClimbPage=_VvfpClimbPage@8
+    VvfpMoreIslandEventsLogged=_VvfpMoreIslandEventsLogged@8

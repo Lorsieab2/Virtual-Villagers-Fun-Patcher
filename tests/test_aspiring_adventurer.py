@@ -493,7 +493,8 @@ class Village:
             p.put32(self.dlg + 0x50B0, self.base)
             for o, v in ((0x54, 2), (0x58, 3), (0x5C, 4), (0x50C8, 0x111), (0x50CC, 0x222), (0x50D0, 0x333)):
                 p.put32(self.dlg + o, v)
-            self.rolls = [TOP] + list(rolls)
+            # The draw 21, this event's own slot of rand(23) (22 is The Climb's).
+            self.rolls = [21] + list(rolls)
             if p.call(0x41F780, [], ecx=self.dlg) & 0xFF == 0 or p.u32(self.dlg + 0x509C) != 21:
                 return False
             p.stub(0x422380, lambda pr: (pr.reg("ecx"), 0))
