@@ -130,3 +130,4 @@ EXPORTS
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
     VvfpStoryProbeMoreArm=_VvfpStoryProbeMoreArm@12
     VvfpStoryProbeMoreList=_VvfpStoryProbeMoreList@16
+    VvfpStoryProbeInstalledPatches=_VvfpStoryProbeInstalledPatches@8

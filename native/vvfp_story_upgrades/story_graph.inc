@@ -2538,8 +2538,75 @@ static void cg_role_words(int game, int r, char *out, int size) {
     (void)size;
 }
 
-/* Whether the patches named by the event are on: Guardians of Isola's rewrite (New Believers) is seen in the
-   game's own text, as the Faith popup sees it; any other patch is off. */
+/* ---- The installed patches (v1.35.97) ----------------------------------------------------------------------
+
+   The patcher writes the ids of the patches it installed into this game -- every fun patch, the game build's own id
+   (a "#" line is a note) -- one per line, into "<game folder>\Virtual Villagers Fun Patcher Files\VVFP Installed
+   Patches.txt" (src/vv_fun_patcher.py _write_installed_patches), at every patch, so the list always describes the
+   installed build (a re-patch rewrites it; an unpatched game has none).  It is read once a run: the patches never
+   change while the game runs.  An event's patch id is its short name: the line itself, or the line without its
+   "vv<N>_" game prefix in game N ("guardians_of_isola" matches "vv5_guardians_of_isola..."; a build id's "_rewrite"
+   ending too). */
+#define CG_INSTALLED_LEAF "VVFP Installed Patches.txt"
+#define CG_INSTALLED_BYTES 16384
+static int cg_installed_state = -1;    /* -1 not read yet, 0 no list (an older patch), 1 read */
+static char cg_installed[CG_INSTALLED_BYTES];
+
+static void cg_installed_load(void) {
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    HANDLE file;
+    DWORD got = 0;
+    if (cg_installed_state >= 0) {
+        return;
+    }
+    cg_installed_state = 0;
+    cg_installed[0] = '\0';
+    if (vvfp_patcher_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, CG_INSTALLED_LEAF) == 0) {
+        return;
+    }
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    if (ReadFile(file, cg_installed, CG_INSTALLED_BYTES - 1, &got, NULL)) {
+        cg_installed[got] = '\0';
+        cg_installed_state = 1;
+    }
+    CloseHandle(file);
+}
+
+/* Whether the short name `id` names an installed patch of `game` (cg_installed_state 1). */
+static int cg_installed_has(int game, const char *id) {
+    const char *p = cg_installed;
+    int n = lstrlenA(id);
+    while (*p != '\0') {
+        const char *end = p, *at = p;
+        int len;
+        while (*end != '\0' && *end != '\n' && *end != '\r') {
+            ++end;
+        }
+        if (*at != '#') {
+            if (end - at > 4 && at[0] == 'v' && at[1] == 'v' && at[2] == (char)('0' + game) && at[3] == '_') {
+                at += 4;                /* the game's prefix */
+            }
+            len = (int)(end - at);
+            if (len >= n && memcmp(at, id, (size_t)n) == 0
+                && (len == n || (len == n + 8 && memcmp(at + n, "_rewrite", 8) == 0))) {
+                return 1;
+            }
+        }
+        p = end;
+        while (*p == '\n' || *p == '\r') {
+            ++p;
+        }
+    }
+    return 0;
+}
+
+/* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
+   it (a game patched by an older patcher) only Guardians of Isola's rewrite (New Believers), seen in the game's own
+   text as the Faith popup sees it -- which is also asked with the list, as before. */
 static unsigned int cg_patches_on(int game) {
     unsigned int on = 0;
     int i;
@@ -2548,9 +2615,11 @@ static unsigned int cg_patches_on(int game) {
         return (unsigned int)test_graph_patches;
     }
 #endif
+    cg_installed_load();
     for (i = 0; i < cg_g.n_patch; ++i) {
         const char *id = cg_s(&cg_g, cg_u16(cg_g.d + cg_g.o_patch + 2u * (unsigned int)i));
-        if (game == 5 && lstrcmpA(id, "guardians_of_isola") == 0 && faith_notice_left_the_tribe()) {
+        if ((cg_installed_state == 1 && cg_installed_has(game, id))
+            || (game == 5 && lstrcmpA(id, "guardians_of_isola") == 0 && faith_notice_left_the_tribe())) {
             on |= 1u << i;
         }
     }
@@ -3257,6 +3326,15 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
     }
     test_graph_patches = patches;
     test_graph_scale = scale;
+}
+
+/* The installed patches' list as the patcher would write it (NULL: none, as an older patch), then the patches the
+   loaded graph names that are on in `game` (cg_patches_on), as a bit mask. */
+__declspec(dllexport) unsigned int __stdcall VvfpStoryProbeInstalledPatches(int game, const char *text) {
+    test_graph_patches = -1;
+    cg_installed_state = text != NULL ? 1 : 0;
+    lstrcpynA(cg_installed, text != NULL ? text : "", CG_INSTALLED_BYTES);
+    return cg_patches_on(game);
 }
 
 /* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */

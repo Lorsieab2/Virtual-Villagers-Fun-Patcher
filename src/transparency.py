@@ -419,6 +419,11 @@ def render_transparency_text(
         f"Patcher version/commit: {data.get('patcher_version', PATCHER_VERSION)} / {data.get('patcher_commit', 'unavailable')}",
         f"Population mode: {data.get('population_mode', data.get('patch_mode', 'unknown'))}",
         f"Timestamp (UTC): {created}",
+    ]
+    if data.get("installed_patches_path"):
+        lines.append(f"Installed patches list: {data['installed_patches_path']} (the ids of the build and every patch "
+                     "installed, read by Custom Island Events' patch conditions)")
+    lines += [
         "",
         "Applied selections",
         f"- Automatic population: {data.get('auto_applied', {}).get('population', 'none')}",

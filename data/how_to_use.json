@@ -1499,7 +1499,7 @@
       "guide": [
         "Write your own island events with questions, choices and random outcomes, then pick one to happen from Custom Island Events in the game.",
         "Any part can be a question with two to four buttons, as often as you like; each answer shows a page of its own first.",
-        "An award can be a range, drawn at random. An event can need puzzles solved first, and two roles at most so many years apart.",
+        "An award can be a range, drawn at random. An event can need puzzles solved first, roles at most so many years apart, and check which patches the game has.",
         "Each event is kept in the save folder of the game chosen at the top; the game lists only the events that pass every check.",
         "The tree on the left shows every part of the event; the tabs on the right edit the chosen part: its text, its ways on and their weights, and its changes.",
         "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits on each game's screen.",

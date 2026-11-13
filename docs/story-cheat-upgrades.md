@@ -891,6 +891,18 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   resumes from the first page whose effects the save does not hold, so no
   effect is made twice or lost. The file stays after the last page until a
   save holds it.
+- Patch conditions (v1.35.97): the patcher writes the ids of everything it
+  installed -- the game build's id and every fun patch, one per line, "#" lines
+  notes -- into "Virtual Villagers Fun Patcher Files\VVFP Installed
+  Patches.txt" at every patch (a re-patch rewrites it; a source folder's older
+  list is dropped like its other reports). The companion reads it once a run
+  (story_graph.inc cg_installed_load): an event's patch id is the short name,
+  the line itself or the line without its "vv<N>_" prefix in game N (so
+  "scrolling_popups" is on in The Secret City when "vv3_scrolling_popups" is
+  listed; a build id's "_rewrite" ending matches too); another game's patch
+  never counts. A game patched before this list existed has none: then, as
+  before, only Guardians of Isola's rewrite is seen (in the game's own text),
+  which is also still asked with the list.
 
 ### Custom titles
 

@@ -11158,7 +11158,8 @@ def _remove_unselected_companions(
     # overwrite: the transparency log by name, a patch log (under its name or
     # an older patcher's "<exe>.patch-log.json") only when the patcher signed
     # it, so a player's file of a similar name is kept.
-    reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
+    reports = [Path(patcher_files.TRANSPARENCY_FILENAME), Path(patcher_files.INSTALLED_PATCHES_FILENAME),
+               Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts)]
     for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
         for log_path in _signed_patch_logs(long_staging / folder):
             reports.append(folder / log_path.name)
@@ -11237,6 +11238,9 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     # describe the previous build, and the new build writes its own.
     owned.add(patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix().casefold())
     owned.add(patcher_files.TRANSPARENCY_FILENAME.casefold())
+    # ...and the installed patches' list, which describes the previous build too.
+    owned.add(patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix().casefold())
+    owned.add(patcher_files.INSTALLED_PATCHES_FILENAME.casefold())
     # Read through long_path; only a file that is the patcher's own log
     # (_log_data signs every one) is owned, under its name or an older
     # patcher's "<exe>.patch-log.json": a re-patch replaces the older name.
@@ -13704,6 +13708,27 @@ def _finalize_published_bytes(
     )
 
 
+def installed_patches_text(
+    build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str] = ()
+) -> str:
+    """The installed patches' list (patcher_files.INSTALLED_PATCHES_FILENAME): the game build's id and every fun patch
+    installed -- one id per line, sorted, "#" lines notes -- for Custom Island Events' patch conditions
+    (native/vvfp_story_upgrades/story_graph.inc cg_installed_has: an event names a patch by its id without the
+    "vv<N>_" prefix)."""
+    ids = sorted({build.id} | {patch.id for patch in fun_patches} - set(disabled_ids))
+    return ("# The patches the Virtual Villagers Fun Patcher installed in this game, one id per line.\n"
+            "# Written at every patch; Custom Island Events' patch conditions read it.\n"
+            + "".join(f"{patch_id}\n" for patch_id in ids))
+
+
+def _write_installed_patches(
+    staging_folder: Path, build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str]
+) -> None:
+    path = patcher_files.long_path(staging_folder / Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(installed_patches_text(build, fun_patches, disabled_ids).encode("ascii"))
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -13820,6 +13845,7 @@ def apply_patch(
             staging_folder, build, fun_patches
         )
         companions = _copy_companion_files(staging_folder, fun_patches)
+        _write_installed_patches(staging_folder, build, fun_patches, playtest_disabled_feature_ids)
         converted: list[dict[str, str]] = []
         for item in companions:
             relative, _ = _companion_relative_destination(Path(item["path"]), staging_folder)
@@ -13839,6 +13865,7 @@ def apply_patch(
             build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        log_data["installed_patches_path"] = patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix()
         log_data["removed_unselected_companions"] = removed_companions
         save_copy: dict[str, Any] | None = None
         if copy_saves:
