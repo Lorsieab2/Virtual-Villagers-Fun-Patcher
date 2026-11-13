@@ -919,12 +919,13 @@ class Dialog:
         b = self.mouse(3, x, y)
         return a or b
 
-    def wheel(self, notches: int) -> None:
-        """SDL_MOUSEWHEEL through the watch the companion registered (y = notches, + is away from the player)."""
+    def wheel(self, notches: int, sideways: int = 0) -> None:
+        """SDL_MOUSEWHEEL through the watch the companion registered (y = notches, + is away from the player;
+        x = sideways, a tilt wheel's or touchpad's notches, + to the right)."""
         if self.watch is None:
             raise AssertionError("no event watch registered")
         event = self.m.font_heap.alloc(0x40)
-        self.mu.mem_write(event, struct.pack("<IIIIii", 0x403, 0, 1, 0, 0, notches))
+        self.mu.mem_write(event, struct.pack("<IIIIii", 0x403, 0, 1, 0, sideways, notches))
         self.run._call(self.watch, 0, 0, event)
 
     # -- pictures ---------------------------------------------------------------------------------------------------

@@ -28,7 +28,10 @@
        moment (or a knob drag in progress) is used here and not passed on; every other event goes to the game's
        dispatcher unchanged, so the dialog's buttons work as before.
    The wheel: an SDL event watch (SDL_AddEventWatch, installed the first time a scrollbar is drawn) counts
-   SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse.  The scroll position starts at the top and
+   SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse: up and down, or sideways when the mouse is on
+   the horizontal bar or the popup has no vertical bar; a sideways wheel (tilt, touchpad: the event's x) always
+   scrolls sideways.  Every covered panel can show both bars at once (the owner, 2026-11-12: "for everything put
+   horizontal and vertical scrollbars"; tests/test_scrolling_popups.py BothWays).  The scroll position starts at the top and
    starts over whenever the text changes (the result replacing the question).  No keyboard scrolling (Copy and
    Paste owns the key events).
 
@@ -92,6 +95,7 @@ static int g_drag;                /* 0, 1 the vertical knob, 2 the horizontal ha
 static int g_drag_offset;
 static int g_pressed;             /* 0, 1 the up arrow, 2 the down arrow (drawn pressed), 3 a track */
 static volatile LONG g_wheel;
+static volatile LONG g_wheel_x;   /* the wheel's sideways notches (SDL_MouseWheelEvent x, + to the right) */
 static int g_watch;               /* 0 not tried, 1 installed, -1 no SDL */
 static sp_picture g_up, g_down, g_track, g_knob, g_wide, g_handle;
 static int g_art;                 /* 0 not loaded, 1 loaded, -1 missing */
@@ -399,6 +403,7 @@ static int __cdecl sp_event_watch(void *userdata, void *event) {
     (void)userdata;
     if (e != NULL && *(const unsigned int *)e == 0x403u) {
         InterlockedExchangeAdd(&g_wheel, *(const int *)(e + 20));
+        InterlockedExchangeAdd(&g_wheel_x, *(const int *)(e + 16));   /* a tilt wheel / touchpad: sideways */
     }
     return 1;
 }
@@ -451,7 +456,7 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
                      int room_r, int content_w, int content_h, int line, unsigned int hash, sp_draw_cb draw,
                      void *data) {
     int *clip = sp_clip(holder);
-    int old[4], need_v, need_h, vis_h, wheel;
+    int old[4], need_v, need_h, vis_h, wheel, wheel_x;
     if (clip == NULL || bw <= 0 || bh <= 0 || !sp_art_ready()) {
         return 0;
     }
@@ -504,14 +509,20 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
     g_view.hx = bx; g_view.hy = by + vis_h + SP_HBAR_GAP; g_view.hw = bw;
     g_view.hh = sp_hbar_h();
     g_view.line = line;
+    /* The wheel over the panel scrolls up and down; over the horizontal bar (or with no vertical bar) it scrolls
+       sideways, and a sideways wheel (tilt, touchpad) always does. */
     wheel = (int)InterlockedExchange(&g_wheel, 0);
-    if (wheel != 0 && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
+    wheel_x = (int)InterlockedExchange(&g_wheel_x, 0);
+    if ((wheel != 0 || wheel_x != 0) && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
         && g_my < g_view.panel_b) {
-        if (need_v) {
+        int on_hbar = need_h && g_mx >= g_view.hx && g_mx < g_view.hx + g_view.hw && g_my >= g_view.hy
+                      && g_my < g_view.hy + g_view.hh;
+        if (need_v && !on_hbar) {
             g_sy -= wheel * SP_WHEEL_LINES * g_view.line;
         } else {
             g_sx -= wheel * SP_WHEEL_LINES * g_view.line;
         }
+        g_sx += wheel_x * SP_WHEEL_LINES * g_view.line;
     }
     sp_clamp();
     old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];

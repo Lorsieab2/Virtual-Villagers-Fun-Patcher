@@ -1071,5 +1071,225 @@ class TheLabelPanels(unittest.TestCase):
                     self.assertEqual(d.scroll(), (0, 0))
 
 
+def _overlaps(a, b) -> bool:
+    """Two rectangles (left, top, right, bottom) share a pixel."""
+    return a[0] < b[2] and b[0] < a[2] and a[1] < b[3] and b[1] < a[3]
+
+
+TALL = b"\n".join(b"Line %d of a long text." % n for n in range(1, 45))
+TALL_WIDE = TALL + b"\n" + WORD
+TOMB_TALL_CAUSE = b"\n".join([TOMB_LONG_CAUSE] * 10)
+PANEL_TALL = b"\n".join([PANEL_LONG] * 16)
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and HAVE_IMAGES and TEST_DLL.is_file(),
+                     "needs unicorn, the stock executables, the game images and the test build")
+class BothWays(unittest.TestCase):
+    """The owner (2026-11-12): "for everything put horizontal and vertical scrollbars".  Every panel of every game,
+    with a text both too tall and too wide for it: both bars, the text inside the box, the bars inside the panel and
+    off its buttons and text boxes, and each direction scrolled by the wheel (up and down over the panel; sideways
+    over the horizontal bar, and by a sideways wheel) and by dragging its knob or handle."""
+    games: dict = {}
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import scrolling_popups_emulation as spe
+        cls.spe = spe
+        for game in GAMES:
+            cls.games[game] = spe.Dialog(f"vv{game}")
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.games.clear()
+
+    # -- the check, the same for every panel ---------------------------------------------------------------------
+    def both_ways(self, d, draw, controls=(), picture=None) -> None:
+        """`draw()` draws the panel and returns the blits; `controls` are the screen rectangles the bars must keep
+        off (its buttons, text boxes)."""
+        w, h = d.g["screen"]
+        blits = draw()
+        left, top, right, bottom = d.panel()
+        v = d.view()
+        self.assertEqual((v["shown"], v["vbar"], v["hbar"]), (1, 1, 1))
+        self.assertGreater(v["content_h"], v["box_h"])
+        self.assertGreater(v["content_w"], v["box_w"])
+        self.assertEqual(d.clip(), (0, 0, w, h))                                   # restored
+        self.assertTrue(0 <= left and right <= w and 0 <= top and bottom <= h)     # inside the screen
+        vbar = (v["vx"], v["vy"], v["vx"] + 18, v["vy"] + v["vh"])
+        hbar = (v["hx"], v["hy"], v["hx"] + v["hw"], v["hy"] + v["hh"])
+        box = (v["box_x"], v["box_y"], v["box_x"] + v["box_w"], v["box_y"] + v["box_h"])
+        for bar in (vbar, hbar):
+            self.assertTrue(left <= bar[0] and bar[2] <= right and top <= bar[1] and bar[3] <= bottom, bar)
+            self.assertFalse(_overlaps(bar, box), (bar, box))
+            for c in controls:
+                self.assertFalse(_overlaps(bar, c), (bar, c))
+        self.assertFalse(_overlaps(vbar, hbar))
+        art = d.art_blits(blits)
+        for name in ("up", "down", "track", "knob", "wide", "handle"):
+            self.assertIn(name, art)
+        for kind in art.values():
+            for b in kind:
+                self.assertTrue(left <= b[3][0] and b[3][0] + b[1][2] <= right, b)
+                self.assertTrue(top <= b[3][1] and b[3][1] + b[1][3] <= bottom, b)
+
+        def inside(blits):
+            text = [b for b in d.text_blits(blits) if box[1] - 2 <= b[3][1] < box[3]]
+            self.assertTrue(text)
+            for b in text:
+                self.assertTrue(box[0] <= b[3][0] and b[3][0] + b[1][2] <= box[2], (b, box))
+                self.assertTrue(box[1] <= b[3][1] and b[3][1] + b[1][3] <= box[3], (b, box))
+            return sorted((b[1], b[3][:2]) for b in text)
+
+        start = inside(blits)
+        if picture:
+            save_picture(d, blits, picture)
+        line = v["line"]
+        max_x, max_y = v["content_w"] - v["box_w"], v["content_h"] - v["box_h"]
+        # up and down: the wheel over the text
+        self.assertTrue(d.mouse(1, (box[0] + box[2]) // 2, (box[1] + box[3]) // 2))
+        d.wheel(-1)
+        moved = inside(draw())
+        self.assertEqual(d.scroll(), (0, min(3 * line, max_y)))
+        self.assertNotEqual(moved, start)
+        d.wheel(1)
+        self.assertEqual(inside(draw()), start)
+        self.assertEqual(d.scroll(), (0, 0))
+        # sideways: the wheel over the horizontal bar, and a sideways wheel anywhere over the panel
+        self.assertTrue(d.mouse(1, hbar[0] + v["hw"] // 2, hbar[1] + v["hh"] // 2))
+        d.wheel(-1)
+        moved = inside(draw())
+        self.assertEqual(d.scroll(), (min(3 * line, max_x), 0))
+        self.assertNotEqual(moved, start)
+        self.assertTrue(d.mouse(1, (box[0] + box[2]) // 2, (box[1] + box[3]) // 2))
+        d.wheel(0, -1)
+        self.assertEqual(inside(draw()), start)
+        self.assertEqual(d.scroll(), (0, 0))
+        d.wheel(0, 100)
+        draw()
+        self.assertEqual(d.scroll(), (max_x, 0))
+        d.wheel(0, -100)
+        draw()
+        # the knob dragged to the bottom, the handle to the right end: both ends
+        ky = v["vy"] + v["arrow_h"] + 2
+        self.assertFalse(d.mouse(2, v["vx"] + 8, ky))
+        self.assertFalse(d.mouse(1, v["vx"] + 8, ky + 3000))
+        self.assertFalse(d.mouse(3, v["vx"] + 8, ky + 3000))
+        draw()
+        self.assertEqual(d.scroll(), (0, max_y))
+        self.assertFalse(d.mouse(2, v["hx"] + 2, v["hy"] + v["hh"] // 2))
+        self.assertFalse(d.mouse(1, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+        self.assertFalse(d.mouse(3, v["hx"] + 3000, v["hy"] + v["hh"] // 2))
+        end = inside(draw())
+        self.assertEqual(d.scroll(), (max_x, max_y))
+        self.assertNotEqual(end, start)
+        # back by the wheel, each way
+        self.assertTrue(d.mouse(1, (box[0] + box[2]) // 2, (box[1] + box[3]) // 2))
+        d.wheel(100)
+        d.wheel(0, -100)
+        self.assertEqual(inside(draw()), start)
+        self.assertEqual(d.scroll(), (0, 0))
+
+    def children_rects(self, d, label_vt=None):
+        """The screen rectangles of a window's controls that are not its plain labels (buttons, text boxes)."""
+        out = []
+        for c in d.children:
+            impl = d.u32(c + 0x10)
+            if label_vt is not None and d.u32(c) == label_vt and d.mu.mem_read(impl + 0x24, 1) == b"\0":
+                continue
+            out.append(d.child_rect(c))
+        return out
+
+    def label_vt(self, d):
+        vts = [d.u32(c) for c in d.children]
+        return max(set(vts), key=vts.count)
+
+    # -- the panels ---------------------------------------------------------------------------------------------------
+    def test_island_events(self) -> None:
+        for game in EVENT_GAMES:
+            d = self.games[game]
+            with self.subTest(game=game):
+                d.make(TALL_WIDE)
+                left, top, _r, _b = d.panel()
+                ok = d.button_position("ok")
+                ow, oh = d.button_size["ok"]
+                self.both_ways(d, d.draw, [(left + ok[0], top + ok[1], left + ok[0] + ow, top + ok[1] + oh)],
+                               picture=f"vv{game}_island_event_both.png")
+                d.make(TALL_WIDE, choices=True)
+                left, top, _r, _b = d.panel()
+                cw, ch = d.button_size["choice"]
+                rects = [(left + x, top + y, left + x + cw, top + y + ch)
+                         for x, y in (d.button_position("choice_a"), d.button_position("choice_b"))]
+                self.both_ways(d, d.draw, rects)
+
+    def test_old_island_events(self) -> None:
+        for game in (1, 2):
+            d = self.games[game]
+            for kind in TheOldIslandEvents.KINDS:
+                with self.subTest(game=game, kind=kind):
+                    d.make_event(kind, (EVENT_TITLE if kind == "plain" else b"") + EVENT_LONG + b"\n" + EVENT_WIDE)
+                    left, top, right, bottom = d.panel()
+                    num, den = d.event_kind["room"]
+                    room = (bottom - (num * 30) // den, bottom)     # its buttons' room (30-px buttons here)
+                    self.both_ways(d, d.draw, [(left, room[0], right, room[1])],
+                                   picture=f"vv{game}_island_event_{kind}_both.png" if kind == "plain" else None)
+
+    def test_message_boxes(self) -> None:
+        for game in GAMES:
+            d = self.games[game]
+            with self.subTest(game=game):
+                d.make_box(BOX_LONG + b"\n" + BOX_WIDE)
+                self.both_ways(d, d.draw_box, [d.child_rect(c) for c in d.children[1:]])
+
+    def test_tips(self) -> None:
+        for game in GAMES:
+            d = self.games[game]
+            with self.subTest(game=game):
+                # Wide by one long word: The Tree of Life's tip measures a long text that has a line of many wide
+                # words shorter than it is, by its own height formula, and the stock draw stops there too.
+                d.make_tip(TIP_LONG + b"\n" + WORD * 2)      # wider than New Believers' 1024-px screen too
+                self.both_ways(d, d.draw_box, [d.child_rect(c) for c in d.children],
+                               picture=f"vv{game}_tip_both.png")
+
+    def test_tombstones(self) -> None:
+        for game in GAMES:
+            d = self.games[game]
+            with self.subTest(game=game):
+                d.string_overrides = {}
+                if game in (1, 2):
+                    d.make_tomb(TOMB_LONG_NAME, TOMB_TALL_CAUSE)
+                    left, top, right, bottom = d.panel()
+                    controls = [(left, bottom - 0x14 - 30, right, bottom - 0x14)]    # the OK button's row
+                else:
+                    d.make_tomb(TOMB_LONG_NAME)
+                    english = {i: bytes(d.mu.mem_read(d._english_va(i), 32)).split(b"\0")[0] for i in d.looked_up}
+                    here = next(i for i, x in english.items() if x.startswith(b"Here Lies"))
+                    cause = next(i for i, x in english.items() if x == b"Starvation")
+                    d.string_overrides = {here: TOMB_HERE_LIES, cause: TOMB_TALL_CAUSE}
+                    d.make_tomb(TOMB_LONG_NAME)
+                    controls = self.children_rects(d, self.label_vt(d))      # Done, the editable epitaph
+                self.both_ways(d, d.draw_box, controls, picture=f"vv{game}_tombstone_both.png")
+                if game in (1, 2):
+                    d.make_tomb(TOMB_NAME, None)
+
+    def test_label_panels(self) -> None:
+        for game in GAMES:
+            d = self.games[game]
+            for kind in self.spe.LABEL_PANELS[f"vv{game}"]:
+                with self.subTest(game=game, kind=kind):
+                    d.string_overrides = {}
+                    if kind == "roster":
+                        entries = 0x5973F0 + 0x974
+                        for k, name in enumerate(ROSTER_NAMES):
+                            d.mu.mem_write(entries + k * 0x30, b"\0" * 0x30)
+                            d.mu.mem_write(entries + k * 0x30, name + b"\0")
+                            d.put(entries + k * 0x30 + 0x1C, 300)
+                            d.put(entries + k * 0x30 + 0x2C, 1)
+                    d.make_panel(kind)
+                    texts = {i: bytes(d.mu.mem_read(d._english_va(i), 64)).split(b"\0")[0] for i in d.looked_up}
+                    d.string_overrides = {max(texts, key=lambda i: len(texts[i])): PANEL_TALL}
+                    d.make_panel(kind)
+                    self.both_ways(d, d.draw_box, self.children_rects(d, self.label_vt(d)))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -120,8 +120,8 @@ def covered(game: int) -> str:
         parts.append("island-event popups (and Custom Island Events from Story / Cheat Upgrades, which use them)")
     parts.append("message boxes (tech and puzzle results, confirmations)")
     parts.append("tips (the tutorial and notices)")
-    parts.append("the tombstone (a long name or cause of death scrolls sideways)")
-    parts.append(" and ".join(n for n, _vt in LABEL_PANELS[game]) + " (a long translation or name scrolls sideways)")
+    parts.append("the tombstone (a long name, cause of death or translation)")
+    parts.append(" and ".join(n for n, _vt in LABEL_PANELS[game]) + " (a long translation or name)")
     return ", ".join(parts[:-1]) + " and " + parts[-1]
 
 
@@ -132,14 +132,19 @@ def description(game: int) -> str:
         "Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its "
         "buttons stay at its bottom, where they always are), and when its text is taller than the room left, or "
         "wider than the box (a long line, or one very long word), a vertical and/or a horizontal scrollbar appears, "
-        "drawn with the game's own scrollbar pictures." + borrowed + " Scroll with the mouse wheel over the popup, "
-        "the arrows, by dragging the knob or by clicking the bar; the text starts at the top and starts over when "
-        "it changes. A popup whose text fits looks and works exactly as before. This covers the " + covered(game)
-        + ". The Options panel (each label sits beside its slider or button, which cannot scroll with it)"
-        + (", the few-second online-statistics notice," if game in (1, 2) else "")
+        "drawn with the game's own scrollbar pictures; every popup below can show both at once." + borrowed
+        + " Scroll up and down with the mouse wheel over the popup, sideways with the wheel over the horizontal bar "
+        "(or a sideways wheel or touchpad), with the arrows, by dragging the knob or handle or by clicking the bar; "
+        "the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly "
+        "as before. This covers the " + covered(game)
+        + ". Not covered, as the game draws them: the Options panel (each label sits beside its slider or button, "
+        "which cannot scroll with it)"
+        + (", the online-statistics notice (shown for two seconds, takes no clicks, a fixed 320 x 64 frame)"
+           if game in (1, 2) else "")
+        + (", hover hints (they follow the mouse and vanish when it moves, so no bar could be reached)"
+           if game in (4, 5) else "")
         + " and the panels with no text body (Change Player" + (", the outfit chooser" if game > 1 else "")
-        + ") are as the game draws them. There is no "
-        "keyboard scrolling. Nothing is saved, so the patch can be ticked or "
+        + "). There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or "
         "unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in "
         "play: the effect has not been tested live.** The companion is \"" + DLL_NAME + "\", started by VVFP "
         "Startup.dll; if it cannot be loaded, the popups are as the game draws them."
