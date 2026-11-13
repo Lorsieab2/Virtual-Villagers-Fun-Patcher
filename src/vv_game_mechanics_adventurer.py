@@ -199,7 +199,7 @@ def the_climb_event() -> Event:
         "an Esteemed Elder's statue, the dead and the absent.",
         "One question in the game's own two-choice popup: \"Go with the plan\" or \"Follow the scientists' "
         "advice\".",
-        f"\"Go with the plan\": its page, then the climb: the fall {c['PLAN']['FALL']:g}% or the summit "
+        f"\"Go with the plan\" (its page, then the climb): the fall {c['PLAN']['FALL']:g}% or the summit "
         f"{c['PLAN']['SUMMIT']:g}%.",
         "The fall: the villager dies, the game's own death (\"Unknown causes\", as the game's own island events "
         "give; the body is buried and gets a grave).",
@@ -209,7 +209,7 @@ def the_climb_event() -> Event:
         "up to 50, x3 above), through the game's own tech writer; and the village celebrates as in the game's own Old "
         "Friends event (every living villager of 14 or more who is not sick and does not dislike crowds goes "
         "\"Celebrating\"). \"Distinguished Scientist\" is the story's words only: no title is given.",
-        f"\"Follow the scientists' advice\": +{lo} to {hi} Research (each equally likely), at most "
+        f"\"Follow the scientists' advice\" gives +{lo} to {hi} Research (each equally likely), at most "
         f"{climb.RESEARCH_MAX}; nothing else happens.",
         "The effects come when the answer is clicked; the Island Events log records them under the event's title "
         "with that answer.",
