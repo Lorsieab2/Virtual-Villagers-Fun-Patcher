@@ -283,6 +283,18 @@ class TheOdds(unittest.TestCase):
         vv3 = (NATIVE / "dive_vv3.inc").read_text(encoding="utf-8")
         self.assertIn("#define DV_VV3_SWIMMING 37", vv3)
 
+    def test_the_game_mechanics_entry(self) -> None:
+        import vv_game_mechanics_events_vv3 as catalog
+        event = next(e for e in catalog.EVENTS if e.title == dt.TITLE)
+        self.assertEqual(event.only_with, "vv3_more_island_events")
+        text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
+        for needle in ("18 villager years or more", "not nursing a baby", "not the Tribal Chief", "never the diver",
+                       "wall clock", "25%", "18.75%", "1.06%", "4.13%", "17%", "66%", "dislikes swimming",
+                       "1,000 to 2,000 tech points", "200 to 600 food", "+10 to 20 Healing", "+10 to 20 Parenting",
+                       "at most 100", "a grave", "no grave", "one entry"):
+            self.assertIn(needle, text)
+        self.assertNotIn("highest Healing", text)              # the head Doctor is a name only (the owner)
+
     def test_swimming_is_preference_37_in_the_games_own_list(self) -> None:
         exe = STOCK[3].read_bytes() if STOCK[3].is_file() else b""
         if not exe:
