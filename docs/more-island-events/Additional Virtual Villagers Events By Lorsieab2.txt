@@ -737,13 +737,13 @@ THE REMEMBRANCE CEREMONY (all five games)
 Your text, unchanged.
 
 REQUIREMENTS TO HAPPEN
-- New Believers: every Heathen has converted (the hovel is empty for good).
-- A New Home, The Lost Children, The Secret City, The Tree of Life: at least one grave (someone buried), like the stock Day of Honor.
+- At least one grave (someone buried), in all five games.
+- New Believers also: every Heathen has converted (the hovel is empty for good).
 - It does NOT need the "Memorial Actions Can Also Occur at the Heathen Hovel" patch (see the effects).
 - It can happen again, as likely as one stock event each time.
 
 WHO TAKES PART
-- Everyone joins in: children, nursing mothers and fathers, and protected villagers too; no one is left out (the owner's exception). In New Believers, believers only: Heathens never take part.
+- Everyone joins in: children, nursing mothers and fathers, and protected villagers too; no one is left out (the owner's exception). Each villager is sent on their own, so the game's usual group filters (such as The Secret City leaving out 14 to 17 year olds) don't apply. In New Believers, believers only: Heathens never take part.
 
 --------------------------------------------------------------------------
 One popup (no choice, just OK):
@@ -751,7 +751,7 @@ One popup (no choice, just OK):
 Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.
 
 EFFECTS (not mentioned in the popup)
-- Each villager taking part Honors the Dead or Reflects (50% each). With the "Memorial Actions Can Also Occur at the Heathen Hovel" patch installed, each one goes to the former Heathen hovel or the mausoleum (50% each); without it, they all go to the mausoleum. In the other four games each villager goes to that game's graveyard or mausoleum (50% each where the game has both), and uses that game's own honoring/reflecting actions.
+- Each villager taking part Honors the Dead or Reflects (50% each). New Believers: Honoring the Dead at the mausoleum; with the "Memorial Actions Can Also Occur at the Heathen Hovel" patch, some go to the former Heathen hovel to Honor the Dead or Reflect, as that patch does. The Tree of Life: Honoring the Dead at the graveyard. The other games: their own graveyard or memorial actions (Honoring the Dead, and Reflecting where the game has it).
 - The feast quietly uses 10 food for every villager, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City).
 
 AS BUILT (your decisions of 13 November 2026)
@@ -787,7 +787,9 @@ EFFECTS
 - Each finished population hut, clothing hut, love hut, hospital and nursery school is damaged at 25% each; at least one always is, and an unlucky village can have all of them damaged.
 - A damaged structure loses 10 to 100% of its building progress (at random), and the builders must rebuild it.
 - At 100% the structure is back to unbuilt, as in the original game: a full rebuild. In The Tree of Life and New Believers, where unbuilt huts can be moved, this lets the player rearrange the village without starting over.
-- Solved puzzles stay solved. No one is hurt or dies.
+- Buildings that are puzzles are never damaged (A New Home's first hut; The Lost Children's Hospital, Sewing Hut and Lovely Hut), and New Believers' nursery is left out. Solved puzzles stay solved. No one is hurt or dies.
+- The Secret City's two starting huts lose only the work done after the new-village start.
+- A badly damaged building may need you to drop a villager on it to restart, as in the original game. Rebuilding repeats its celebration and tip; the "3 huts" trophy still needs three different huts.
 - If a damaged population hut leaves the village over its limit, nobody leaves; no new babies come until it is rebuilt.
 
 AS BUILT (your decisions of 13 November 2026)
