@@ -1,5 +1,5 @@
-"""The five rows of "More Island Events" (vvN_more_island_events): The Aspiring Adventurer (all five games) and The Cave
-Explorers (A New Home), written by scripts/build_more_island_events.py.  The sites are the companion's own
+"""The five rows of "More Island Events" (vvN_more_island_events): The Aspiring Adventurer (all five games), The Cave
+Explorers (A New Home) and The Climb (The Lost Children), written by scripts/build_more_island_events.py.  The sites are the companion's own
 (native/vvfp_more_island_events: adv_vv1.inc, adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the
 two together)."""
 from __future__ import annotations
@@ -37,6 +37,23 @@ CAVE_BEHAVIOUR = (
     "dies: health 0, a body and a grave). The effects are made when the answer leading to them is clicked; each "
     "removal is told to the Cause of Death companion (VvfpCauseVanishedBy).")
 
+CLIMB_DESCRIPTION = (
+    " And The Climb (The Lost Children only): a villager of 18 or more who is at least a Trainee in Research (20 or "
+    "more) wants to climb the Great Falls. \"Go with the plan\": half the time they fall and die (a grave); half "
+    "the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech "
+    "award (twice a normal one: " + adv.award_words(2, "tech", "large") + ", then the game's own factor) and "
+    "everyone celebrates. \"Follow the scientists' advice\": +10 to 20 Research (at most 100). One villager who "
+    "may go is enough.")
+CLIMB_BEHAVIOUR = (
+    "The Climb (The Lost Children): kept for family A's draw 21 like The Aspiring Adventurer (when both can happen the "
+    "draw 21 is one of them, the game's rand(2): 1 in 44 a draw each), only while a villager who may go on The "
+    "Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own \"Trainee\" "
+    "level, 0x429C3D); the villager is drawn among them. \"Go with the plan\": 50% the fall (health 0: a body and a "
+    "grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, "
+    "through the family-A tech writer 0x426290 after the two-choice factor 0x41F720; the game's own village "
+    "celebration 0x45D7D0 with Old Friends' place 0x18). \"Follow the scientists' advice\": +10 to 20 Research, at "
+    "most 100. The effects are made when the answer is clicked.")
+
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
 NAME = "More Island Events"
@@ -61,8 +78,9 @@ SITES = {
     ),
     2: (
         (0x41F5AC, "0F87E4000000", "0F87XXXXXXXX",
-         "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for this event when it can "
-         "happen -- 1 in 22 a draw, like each stock event"),
+         "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for The Aspiring Adventurer or "
+         "The Climb when one can happen -- 1 in 22 a draw, like each stock event (both possible: the game's rand(2) "
+         "picks one)"),
         (0x41F7A0, "0F87620C0000", "0F87XXXXXXXX",
          "family A's setup 0x41F780, past its jump table: the event's 21 is set up by the companion"),
         (0x4204CE, "0F87831D0000", "0F87XXXXXXXX",
@@ -136,8 +154,8 @@ HOW = {
     1: "one more of the game's villager encounters (its two-choice island events), drawn 1 in m + 1 when the encounters "
        "are drawn (m the encounters possible then; 1 in m + 2 while The Cave Explorers can happen too), never the "
        "village's first island event",
-    2: "one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them, never the "
-       "village's first island event",
+    2: "one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them (1 in 44 "
+       "while The Climb can happen too: the two share the draw), never the village's first island event",
     3: "one more island event, listed and drawn like the game's own (1 in the number listed)",
     4: "one more island event, listed and drawn like the game's own (1 in the number listed)",
     5: "one more island event, listed and drawn like the game's own (1 in the number listed)",
@@ -149,7 +167,7 @@ def description(game: int) -> str:
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
         "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
-        + ("Two here: " if game == 1 else "For now one: ")
+        + ("Two here: " if game in (1, 2) else "For now one: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
         "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
@@ -162,7 +180,7 @@ def description(game: int) -> str:
         "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
         + ". Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the "
         "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next)."
-        + (CAVE_DESCRIPTION if game == 1 else "") + " " + classic + " **Needs no other patch.** "
+        + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else "") + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -200,7 +218,7 @@ def row(game: int, sha: str) -> dict:
             "The owner's words, by translation key (the event's popup shows the player's language when a translation "
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "
             "each shown in turn with OK.",
-        ] + ([CAVE_BEHAVIOUR] if game == 1 else []),
+        ] + ([CAVE_BEHAVIOUR] if game == 1 else [CLIMB_BEHAVIOUR] if game == 2 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
@@ -211,7 +229,9 @@ def row(game: int, sha: str) -> dict:
                             "effects and the install with every other patch emulated on the stock executable in "
                             "tests/test_aspiring_adventurer.py"
                             + (" (The Cave Explorers: every path, its effects and its pages, in "
-                               "tests/test_cave_explorers.py)" if game == 1 else "")
+                               "tests/test_cave_explorers.py)" if game == 1 else
+                               " (The Climb: who may climb, both answers, both climbs, every effect and its pages, in "
+                               "tests/test_the_climb.py)" if game == 2 else "")
                             + "; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},

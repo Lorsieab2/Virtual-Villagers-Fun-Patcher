@@ -332,6 +332,7 @@ EXTRA = (
 )
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
-from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
+# The Climb (the owner, 2026-11-12, The Lost Children only): the same companion.
+from vv_game_mechanics_adventurer import adventurer_event, the_climb_event  # noqa: E402
 
-EVENTS = EVENTS + (adventurer_event(2),)
+EVENTS = EVENTS + (adventurer_event(2), the_climb_event())

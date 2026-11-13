@@ -1,4 +1,7 @@
-/* The Aspiring Adventurer: The Lost Children.  Included by vvfp_more_island_events.c.
+/* The Aspiring Adventurer and The Climb: The Lost Children.  Included by vvfp_more_island_events.c.
+
+   BOTH EVENTS share the sites below through adv_flow (adv_core.inc): each is one question with its two answers, then
+   its ending's pages.
 
    The Lost Children's two-choice island events are its family A: the trigger (0x42E990; 20% of its events, and
    the village's first) builds the family-A dialog (constructor 0x422380, on its own stack), whose setup 0x41F780
@@ -6,9 +9,12 @@
    condition holds; the draw 21 (`cmp eax, 0x14; ja 0x41F696`, 0x41F5AC) is never kept, so it draws again -- and
    the modal loop (0x401AD0 with 0) runs only the dialog.
 
-   THE SHARE.  The draw 21 is this event: the `ja` at 0x41F5AC goes here first and keeps 21 when the event can
-   happen (two villagers who may go, adv_possible; never the village's first island event) -- 1 in 22 a draw,
-   exactly like each stock event.  The setup's `ja 0x420408` past its jump table (0x41F7A0) and the resolve's
+   THE SHARE.  The draw 21 is these events: the `ja` at 0x41F5AC goes here first and keeps 21 when one of them can
+   happen (The Aspiring Adventurer: two villagers who may go, adv_possible; The Climb: one villager who may climb,
+   climb_possible; never the village's first island event) -- 1 in 22 a draw, exactly like each stock event.  The
+   rand(22) itself is not ours to widen (Story / Cheat Upgrades owns its call, 0x41F59D, and the next instruction,
+   0x41F5A5), so when both can happen the draw 21 is one of them, 1 in 2 each (the game's own rand(2): 0 The Aspiring
+   Adventurer, 1 The Climb).  The setup's `ja 0x420408` past its jump table (0x41F7A0) and the resolve's
    `ja 0x422257` (0x4204CE) take the event's 21 here; every other value goes on as before.  The setup writes the
    question (+0x7C: the title line, the picture's five lines -- 0x41F430 draws the villager under the title -- and
    the first page, padded to the event's tallest page: the dialog is sized from +0x7C once, by its constructor), the
@@ -40,11 +46,15 @@
 #define VV2_DLG_SUBJECT 0x50A0u
 #define VV2_DLG_CHOICE 0x50A4u
 #define VV2_PICTURE_LINES 5
+#define VV2_CELEBRATION_PLACE 0x18     /* Old Friends' place for the village celebration (0x4344AE) */
 
 typedef int (__cdecl *vv2_rand_fn)(int bound);
 
 static unsigned char *v2_dlg;          /* the family-A dialog this event is in */
 static int v2_stage, v2_page;
+static const adv_flow *v2_flow;        /* the event in it: ADV_FLOW or CLIMB_FLOW */
+static const adv_flow *v2_drawn;       /* the event the draw 21 was kept for */
+static int v2_ending;                  /* the ending reached */
 
 static unsigned char *v2_record(int index) {
     unsigned char *pool = VV2_POOL();
@@ -122,27 +132,55 @@ static int v2_joins(void) {
     return ADV_L2_OTHER;
 }
 
+static int v2_age(const unsigned char *r) {
+    return *(const int *)(r + 0x530);
+}
+
+/* Research, +0x7F4 (the Details panel's own field, 0x429C08). */
+static int v2_research(const unsigned char *r) {
+    return *(const int *)(r + 0x7F4);
+}
+
+/* The game's own village celebration 0x45D7D0 (thiscall on the villager pool, the place; ret 4), as Old Friends
+   calls it (0x4344A8..0x4344B0): every living villager who is not sick, does not dislike crowds and is 14 or more
+   (280 age units) starts "Celebrating" (0x459B60). */
+static void v2_celebrate(void) {
+    unsigned char *pool = VV2_POOL();
+    if (pool != NULL) {
+        ADV_TC1(0x45D7D0u, pool, VV2_CELEBRATION_PLACE);
+    }
+}
+
 static const adv_game ADV_VV2 = {
     2, v2_count, v2_record, v2_eligible, v2_female, v2_name, v2_rand, v2_kill, v2_vanish, v2_injure, v2_skill, NULL,
     v2_amount, v2_award, v2_joins, 46, 12, 1,
     /* the awards' base ranges (src/vv_aspiring_adventurer.py AWARD_RANGES): food 100 (For The Birds, 100 x k) ..
        1,500 (the thick, plastic sack at strength 3); tech 500 (the somewhat compromised sack at strength 1) ..
        3,000 (The Spyglass; the carefully sealed sack at strength 3) */
-    100, 1500, 500, 3000, NULL, NULL
+    100, 1500, 500, 3000, v2_age, NULL, v2_research, v2_celebrate
 };
 
 /* ---- The sites ---------------------------------------------------------------------------------------------- */
 
-/* The draw 21: kept when the event can happen. */
+/* The draw 21: kept when one of the events can happen (both: the game's rand(2), 0 the Adventurer). */
 static int __cdecl v2_keep(void) {
     unsigned char *world = VV2_WORLD();
-    int keep = 0;
+    int adv_ok, climb_ok;
+    v2_drawn = NULL;
     __try {
-        keep = world != NULL && *(int *)(world + 0x2E51C) > 1 && adv_possible(&ADV_VV2);
+        if (world != NULL && *(int *)(world + 0x2E51C) > 1) {
+            adv_ok = adv_possible(&ADV_VV2);
+            climb_ok = climb_possible(&ADV_VV2);
+            if (adv_ok && climb_ok) {
+                v2_drawn = v2_rand(2) == 0 ? &ADV_FLOW : &CLIMB_FLOW;
+            } else if (adv_ok || climb_ok) {
+                v2_drawn = adv_ok ? &ADV_FLOW : &CLIMB_FLOW;
+            }
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        keep = 0;
+        v2_drawn = NULL;
     }
-    return keep;
+    return v2_drawn != NULL;
 }
 
 /* `ja` from 0x41F5AC (eax the draw, above 20; bl 0 = not kept). */
@@ -163,13 +201,15 @@ __declspec(naked) static void v2_keep_stub(void) {
 }
 
 static void v2_page_text(char *out, int cap, const char *page, int pad_to) {
+    static char wrapped[ADV_PAGE_BYTES];
     int i, lines;
     adv_copy(out, cap, g_vv12_title);
     for (i = 0; i < VV2_PICTURE_LINES + 1; ++i) {
         adv_cat(out, cap, "\n");
     }
-    adv_cat(out, cap, adv_shown(page));
-    lines = adv_lines(adv.g, page);
+    adv_wrap(page, ADV_VV2.width, wrapped, sizeof wrapped);
+    adv_cat(out, cap, wrapped);
+    lines = adv_lines(&ADV_VV2, page);
     while (lines < pad_to && adv_len(out) + 2 < cap) {
         adv_cat(out, cap, "\n ");
         ++lines;
@@ -180,22 +220,29 @@ static void v2_page_text(char *out, int cap, const char *page, int pad_to) {
 static int __cdecl v2_setup(unsigned char *d) {
     static char label[VV2_DLG_LABEL];
     __try {
+        const adv_pages *first;
+        int subject;
         v2_dlg = d;
-        if (!adv_begin(&ADV_VV2)) {
+        v2_flow = v2_drawn != NULL ? v2_drawn : &ADV_FLOW;
+        v2_drawn = NULL;
+        if (!(v2_flow == &CLIMB_FLOW ? climb_begin(&ADV_VV2) : adv_begin(&ADV_VV2))) {
             v2_dlg = NULL;
             return 0;
         }
-        adv_piece(g_vv12_title, sizeof g_vv12_title, ADV_TITLE, 0);
-        v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, adv.intro.text[adv.intro.count - 1],
-                     adv_lines(&ADV_VV2, adv_tallest_text()));
-        adv_piece(label, sizeof label, ADV_LABEL_A, 0);
+        first = v2_flow->question(0);
+        subject = v2_flow->subject();
+        v2_ending = -1;
+        v2_flow->title(g_vv12_title, sizeof g_vv12_title);
+        v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
+                     adv_lines(&ADV_VV2, v2_flow->tallest()));
+        v2_flow->label(0, 0, label, sizeof label);
         adv_copy((char *)d + VV2_DLG_LABEL_A, VV2_DLG_LABEL, label);
-        adv_piece(label, sizeof label, ADV_LABEL_B, 0);
+        v2_flow->label(0, 1, label, sizeof label);
         adv_copy((char *)d + VV2_DLG_LABEL_B, VV2_DLG_LABEL, label);
-        *(int *)(d + VV2_DLG_SUBJECT) = adv.hero;
+        *(int *)(d + VV2_DLG_SUBJECT) = subject;
         *(int *)(d + 0x60) = 0x1C2;
         d[VV2_DLG_RESULT] = '\0';
-        ADV_TC1(0x44B2D0u, VV2_POOL(), adv.hero);
+        ADV_TC1(0x44B2D0u, VV2_POOL(), subject);
         v2_stage = ADV_STAGE_QUESTION;
         v2_page = 0;
         return 1;
@@ -239,13 +286,13 @@ static void v2_result(unsigned char *d, const char *page) {
 
 static void __cdecl v2_answer(unsigned char *d) {
     __try {
-        if (!v2_ours(d)) {
+        if (!v2_ours(d) || v2_stage != ADV_STAGE_QUESTION) {
             return;
         }
-        adv_choose(*(int *)(d + VV2_DLG_CHOICE) == 2);
+        v2_ending = -1 - v2_flow->answer(0, *(int *)(d + VV2_DLG_CHOICE) == 2);
         v2_stage = ADV_STAGE_RESULT;
         v2_page = 0;
-        v2_result(d, adv.result[adv.choice].text[0]);
+        v2_result(d, v2_flow->ending(v2_ending)->text[0]);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }
@@ -277,12 +324,12 @@ static void *__fastcall v2_ctor(void *dialog, void *unused) {
             if (*(int *)(d + VV2_DLG_EVENT) != ADV_VV2_EVENT) {
                 v2_dlg = NULL;
             }
-        } else if (adv.intro.count > 1) {
+        } else if (v2_flow->question(0)->count > 1) {
             ADV_TC1(0x40B5A0u, dialog, *(void **)(d + 0x50C8));
             ADV_TC1(0x40B5A0u, dialog, *(void **)(d + 0x50CC));
             ADV_TC1(0x40B560u, dialog, *(void **)(d + 0x50D0));
             d[0x50] = 1;
-            v2_result(d, adv.intro.text[0]);
+            v2_result(d, v2_flow->question(0)->text[0]);
             v2_stage = ADV_STAGE_INTRO;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -297,21 +344,22 @@ static void __fastcall v2_ok(void *dialog, void *unused) {
     __try {
         if (v2_ours(d)) {
             if (v2_stage == ADV_STAGE_INTRO) {
+                const adv_pages *intro = v2_flow->question(0);
                 ++v2_page;
-                if (v2_page >= adv.intro.count - 1) {
+                if (v2_page >= intro->count - 1) {
                     ADV_TC1(0x40B5A0u, dialog, *(void **)(d + 0x50D0));
                     ADV_TC1(0x40B560u, dialog, *(void **)(d + 0x50C8));
                     ADV_TC1(0x40B560u, dialog, *(void **)(d + 0x50CC));
                     d[0x50] = 0;
                     v2_stage = ADV_STAGE_QUESTION;
                 } else {
-                    v2_result(d, adv.intro.text[v2_page]);
+                    v2_result(d, intro->text[v2_page]);
                 }
                 return;
             }
-            if (v2_stage == ADV_STAGE_RESULT && v2_page + 1 < adv.result[adv.choice].count) {
+            if (v2_stage == ADV_STAGE_RESULT && v2_page + 1 < v2_flow->ending(v2_ending)->count) {
                 ++v2_page;
-                v2_result(d, adv.result[adv.choice].text[v2_page]);
+                v2_result(d, v2_flow->ending(v2_ending)->text[v2_page]);
                 return;
             }
             v2_dlg = NULL;

@@ -73,6 +73,8 @@ typedef struct adv_game {
     int food_lo, food_hi, tech_lo, tech_hi;          /* the game's stock island-event gains (AWARD_RANGES) */
     int (*age)(const unsigned char *record);         /* age units (The Cave Explorers; NULL: not in this game) */
     int (*cave_open)(void);                          /* The Cave puzzle done (The Cave Explorers) */
+    int (*research)(const unsigned char *record);    /* the Research skill (The Climb; NULL: not in this game) */
+    void (*celebrate)(void);                         /* the game's own village celebration (The Climb) */
 } adv_game;
 
 typedef struct {
