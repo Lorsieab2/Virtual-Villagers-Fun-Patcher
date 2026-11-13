@@ -26,9 +26,15 @@ EXPORTS
     VvfpDivingPage=_VvfpDivingPage@8
     VvfpMoreIslandEventsPickCount=_VvfpMoreIslandEventsPickCount@0
     VvfpMoreIslandEventsPickInfo=_VvfpMoreIslandEventsPickInfo@20
+    VvfpMoreIslandEventsPickSingle=_VvfpMoreIslandEventsPickSingle@4
     VvfpDolphinsPossible=_VvfpDolphinsPossible@0
     VvfpDolphinsState=_VvfpDolphinsState@4
     VvfpDolphinsPage=_VvfpDolphinsPage@8
     VvfpMysteriousMaskPossible=_VvfpMysteriousMaskPossible@0
     VvfpMysteriousMaskState=_VvfpMysteriousMaskState@4
     VvfpMysteriousMaskPage=_VvfpMysteriousMaskPage@8
+    VvfpCeremonyPossible=_VvfpCeremonyPossible@4
+    VvfpCeremonyState=_VvfpCeremonyState@4
+    VvfpCeremonyAct=_VvfpCeremonyAct@4
+    VvfpCeremonyObject=_VvfpCeremonyObject@4
+    VvfpCeremonyHovelPatch=_VvfpCeremonyHovelPatch@0

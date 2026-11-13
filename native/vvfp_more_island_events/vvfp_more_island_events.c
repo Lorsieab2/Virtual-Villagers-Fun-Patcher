@@ -36,12 +36,14 @@
 #include "dive_text.inc"
 #include "dolphin_text.inc"
 #include "mask_text.inc"
+#include "ceremony_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
 #include "troubling_core.inc"
 #include "dive_core.inc"
 #include "dolphin_core.inc"
 #include "mask_core.inc"
+#include "ceremony_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -52,6 +54,7 @@ struct adv_object;
 static const adv_flow *mp_due_flow(int game);
 static struct adv_object *mp_due_object(int game);
 static void mp_done(int game, int delivered);
+static int mp_due_cr(int game);
 
 #include "adv_vv345.inc"
 #include "troubling_vv3.inc"
@@ -60,6 +63,7 @@ static void mp_done(int game, int delivered);
 #include "mask_vv4.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
+#include "ceremony_games.inc"
 #include "mie_pick.inc"         /* Pick Island Event: the registry of every event (one line each) */
 
 /* Called once by VVFP Startup.dll before WinMain. */
@@ -76,10 +80,13 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         } else if (game == 2) {
             v2_install();
         } else if (game >= 3 && game <= 5) {
-            t_install(game);
+            if (!t_install(game)) {
+                g_cr = NULL;
+            }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         g_adv_game = NULL;
+        g_cr = NULL;
     }
 }
 

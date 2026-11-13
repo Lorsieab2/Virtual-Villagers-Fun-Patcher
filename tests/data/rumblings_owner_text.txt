@@ -1,0 +1,18 @@
+THE RUMBLINGS (all five games)
+The owner's own text, pasted in chat 2026-11-13. No changes needed.
+
+REQUIREMENTS TO HAPPEN
+- Every puzzle in that game is completed (the owner: "to compensate for this, this event needs all puzzles in their games to be completed").
+- At least one finished population hut, clothing hut, love hut, hospital or nursery school (whichever that game has).
+- It can happen again, as likely as one stock event each time.
+
+--------------------------------------------------------------------------
+One popup (no choice, just OK):
+
+One morning, the village becomes wracked with a violent shaking. Things start flying off shelves, pottery smashes on the floor, and everyone starts taking cover under nearby structures. The villagers are frightened, but luckily, no one is hurt. A lot of loose rubble is strewn about and some structures have been visibly damaged. It looks like the builders have more work cut out for them.
+
+EFFECTS
+- Each finished population hut, clothing hut, love hut, hospital and nursery school is damaged at 25% each; at least one always is, and an unlucky village can have all of them damaged.
+- A damaged structure loses 10 to 100% of its building progress (at random), and the builders must rebuild it.
+- At 100% the structure is back to unbuilt, as in the original game: a full rebuild. In The Tree of Life and New Believers, where unbuilt huts can be moved, this lets the player rearrange the village without starting over.
+- Solved puzzles stay solved. No one is hurt or dies.

@@ -139,6 +139,11 @@
    "reason": "More Island Events (all five games): the Island Events log's one entry for its events, in the log's own words (\"Event:\", \"Choice:\", \"Changes: none\"), written to the log file only, as the branching Custom Island Event's are.",
    "files": ["native/vvfp_more_island_events/adv_log.inc"],
    "functions": ["adv_log_event", "adv_log_choice", "adv_log_effects"]
+  },
+  {
+   "reason": "The Remembrance Ceremony and The Rumblings: their own lines in the Island Events log's one entry (the villagers at the ceremony, each damaged structure), written to the log file only. The words the events show are in the template and looked up by key (ceremony_text.inc).",
+   "files": ["native/vvfp_more_island_events/ceremony_core.inc", "native/vvfp_more_island_events/ceremony_games.inc"],
+   "functions": ["cr_remembrance", "cr_rumblings", "cr_log_line", "CR_V1_NAMES", "CR_V2_NAMES", "CR_V3_NAMES", "CR_V45_NAMES", "cr_story_busy", "cr_from_story"]
   }
  ]
 }

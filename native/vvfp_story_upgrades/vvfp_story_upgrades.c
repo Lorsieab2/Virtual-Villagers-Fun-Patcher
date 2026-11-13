@@ -1459,7 +1459,7 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeMoreArm(int game, int k, DWORD
     }
     test_tick = tick;
     install_state[game] = 1;
-    pick_slot = sm_slot(game);
+    pick_slot = sm_slot_of(game, k);
     pick_game = game;
     pick_tick = tick;
     pick_event = &sm_event;

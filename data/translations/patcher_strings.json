@@ -68072,6 +68072,66 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.more_island_events/remembrance_text.TITLE",
+   "english": "The Remembrance Ceremony",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/remembrance_text.TEXT",
+   "english": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/rumblings_text.TITLE",
+   "english": "The Rumblings",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/rumblings_text.TEXT",
+   "english": "One morning, the village becomes wracked with a violent shaking. Things start flying off shelves, pottery smashes on the floor, and everyone starts taking cover under nearby structures. The villagers are frightened, but luckily, no one is hurt. A lot of loose rubble is strewn about and some structures have been visibly damaged. It looks like the builders have more work cut out for them.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -68256,6 +68316,86 @@
    "english": "a population of 61 or more, two to four children under 14 and five villagers of 18 or more who may be picked",
    "games": [
     "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.description",
+   "english": "The whole village honors the dead, and the feast uses food.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.needs",
+   "english": "at least one grave",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.description",
+   "english": "The whole village honors the dead, and the feast uses food.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs",
+   "english": "at least one grave and The Last Heathen achieved (every Heathen converted)",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_rumblings.description",
+   "english": "The ground shakes and damages some of the village's huts.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_rumblings.needs",
+   "english": "every puzzle solved and a finished hut",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",

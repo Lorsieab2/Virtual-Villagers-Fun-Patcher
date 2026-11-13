@@ -108,11 +108,17 @@ it needs in plain words, one sentence, and how its game's draw knows it):
 
 | Game | Events |
 | --- | --- |
-| A New Home | The Aspiring Adventurer, The Cave Explorers |
-| The Lost Children | The Aspiring Adventurer, The Climb |
-| The Secret City | The Aspiring Adventurer, The Troubling Signs, Diving for Treasure |
-| The Tree of Life | The Aspiring Adventurer, The Playful Dolphins, The Mysterious Mask |
-| New Believers | The Aspiring Adventurer |
+| A New Home | The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Rumblings |
+| The Lost Children | The Aspiring Adventurer, The Climb, The Remembrance Ceremony, The Rumblings |
+| The Secret City | The Aspiring Adventurer, The Troubling Signs, Diving for Treasure, The Remembrance Ceremony, The Rumblings |
+| The Tree of Life | The Aspiring Adventurer, The Playful Dolphins, The Mysterious Mask, The Remembrance Ceremony, The Rumblings |
+| New Believers | The Aspiring Adventurer, The Remembrance Ceremony, The Rumblings |
+
+The Remembrance Ceremony and The Rumblings are single-result events: in A New Home and The Lost Children the pick
+steers the chooser to the island events (not the two-choice ones), and the ceremony's own widened case draw
+(ceremony_games.inc cr_v12_construct) answers its case once for the pick.  Their refusals: "The Remembrance Ceremony
+needs at least one grave" (New Believers: "... and The Last Heathen achieved"), "The Rumblings needs every puzzle
+solved and a finished hut".
 
 Each is possible exactly when its own draw would take it: the event's test over
 the game's eligible villagers (the owner's protected villagers never count,

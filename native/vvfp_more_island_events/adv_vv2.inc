@@ -552,6 +552,8 @@ static int v2_draw_site_known(void) {
     return v2_from_story(target);
 }
 
+static void cr_v2_sites(vvfp_site_write *w);   /* The Remembrance Ceremony, The Rumblings (ceremony_games.inc) */
+
 static int v2_install(void) {
     static const unsigned char KEEP_STOCK[6] = { 0x0F, 0x87, 0xE4, 0x00, 0x00, 0x00 };
     static const unsigned char SETUP_STOCK[6] = { 0x0F, 0x87, 0x62, 0x0C, 0x00, 0x00 };
@@ -559,19 +561,21 @@ static int v2_install(void) {
     static const unsigned char OK_STOCK[5] = { 0xE8, 0x7D, 0xB0, 0xFE, 0xFF };
     static const unsigned char CTOR_STOCK[5] = { 0xE8, 0xD8, 0x31, 0xFF, 0xFF };
     static const unsigned char CHOOSE_STOCK[5] = { 0xE8, 0xD9, 0xFD, 0xFF, 0xFF };
-    static vvfp_site_write w[6];
+    static vvfp_site_write w[8];
     if (!v2_draw_site_known()) {
         return 0;
     }
+    cr_v2_sites(&w[6]);                 /* The Remembrance Ceremony, The Rumblings: two more, all eight or none */
     v2_ja(&w[0], 0x41F5ACu, KEEP_STOCK, (const void *)v2_keep_stub);
     v2_ja(&w[1], 0x41F7A0u, SETUP_STOCK, (const void *)v2_setup_stub);
     v2_ja(&w[2], 0x4204CEu, RESOLVE_STOCK, (const void *)v2_resolve_stub);
     vvfp_site_branch(&w[3], 0x42230Eu, 5, OK_STOCK, 0xE8, (const void *)v2_ok);
     vvfp_site_branch(&w[4], 0x42F1A3u, 5, CTOR_STOCK, 0xE8, (const void *)v2_ctor);
     vvfp_site_branch(&w[5], 0x41F792u, 5, CHOOSE_STOCK, 0xE8, (const void *)v2_choose_event);
-    if (!vvfp_install_sites(w, 6)) {
+    if (!vvfp_install_sites(w, 8)) {
         return 0;
     }
     g_adv_game = &ADV_VV2;
+    cr_v12_ready(2);
     return 1;
 }

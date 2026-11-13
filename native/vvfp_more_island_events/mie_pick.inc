@@ -37,12 +37,19 @@ typedef struct {
     const char *description;                   /* one sentence for the list */
     const adv_flow *flow;                      /* A New Home / The Lost Children: its flow in the draw */
     adv_object *object;                        /* The Secret City .. New Believers: its object in slot 0 */
+    int cr;                                    /* 1 The Remembrance Ceremony, 2 The Rumblings (ceremony_games.inc):
+                                                  single-result events -- A New Home's and The Lost Children's
+                                                  island events, not their two-choice ones */
 } mie_pick;
 
 static int mp_adventurer(void) { return adv_possible(g_adv_game); }
 static int mp_cave(void) { return cave_possible(g_adv_game); }
 static int mp_climb(void) { return climb_possible(g_adv_game); }
 static void mp_ts_title(char *out, int cap) { ts_piece(out, cap, TS_TITLE, 0); }
+static void mp_rc_title(char *out, int cap) { cr_piece(out, cap, RC_TITLE); }
+static void mp_rb_title(char *out, int cap) { cr_piece(out, cap, RB_TITLE); }
+static int mp_remembrance(void) { return cr_possible_safe(g_cr, CR_REMEMBRANCE); }
+static int mp_rumblings(void) { return cr_possible_safe(g_cr, CR_RUMBLINGS); }
 
 static const mie_pick MIE_PICKS[] = {
     { MIE_ALL_GAMES, "aspiring_adventurer", adv_flow_title, mp_adventurer,
@@ -74,6 +81,18 @@ static const mie_pick MIE_PICKS[] = {
       "a population of 61 or more, two to four children under 14 and five villagers of 18 or more who may be picked",
       "Children find a strange mask, and the village decides what to do about it.",
       &MK_FLOW, &g_mk_object },
+    { MIE_IN(1) | MIE_IN(2) | MIE_IN(3) | MIE_IN(4), "remembrance_ceremony", mp_rc_title, mp_remembrance,
+      "at least one grave",
+      "The whole village honors the dead, and the feast uses food.",
+      NULL, &g_cr_objects[CR_REMEMBRANCE], 1 },
+    { MIE_IN(5), "remembrance_ceremony_nb", mp_rc_title, mp_remembrance,
+      "at least one grave and The Last Heathen achieved (every Heathen converted)",
+      "The whole village honors the dead, and the feast uses food.",
+      NULL, &g_cr_objects[CR_REMEMBRANCE], 1 },
+    { MIE_ALL_GAMES, "the_rumblings", mp_rb_title, mp_rumblings,
+      "every puzzle solved and a finished hut",
+      "The ground shakes and damages some of the village's huts.",
+      NULL, &g_cr_objects[CR_RUMBLINGS], 2 },
 };
 #define MIE_PICK_COUNT ((int)(sizeof MIE_PICKS / sizeof MIE_PICKS[0]))
 
@@ -142,6 +161,12 @@ static adv_object *mp_due_object(int game) {
     return p != NULL ? p->object : NULL;
 }
 
+/* A New Home / The Lost Children: the single-result event due (CR_REMEMBRANCE / CR_RUMBLINGS), or -1. */
+static int mp_due_cr(int game) {
+    const mie_pick *p = mp_due(game);
+    return p != NULL && p->cr > 0 ? p->cr - 1 : -1;
+}
+
 /* ---- Exports ------------------------------------------------------------------------------------------------- */
 
 /* "vvfp.more_island_events/mie_pick.<key><field>" (kernel32 only: no wsprintf in this DLL). */
@@ -149,6 +174,14 @@ static void mp_stem(char *out, int cap, const char *key, const char *field) {
     lstrcpynA(out, "vvfp.more_island_events/mie_pick.", cap);
     adv_cat(out, cap, key);
     adv_cat(out, cap, field);
+}
+
+/* Whether entry `k` is a single-result event (The Remembrance Ceremony, The Rumblings): Pick Island Event steers A
+   New Home's and The Lost Children's chooser to their single-result island events for it, not the two-choice ones.
+   1 / 0; -1 when it is not an event of the game played. */
+int __stdcall VvfpMoreIslandEventsPickSingle(int k) {
+    const mie_pick *p = mp_entry(k);
+    return p == NULL ? -1 : (p->cr > 0);
 }
 
 /* The registry's size (every game's entries; VvfpMoreIslandEventsPickInfo says which are in the game played). */

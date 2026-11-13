@@ -203,8 +203,9 @@ class TheRows(unittest.TestCase):
                       (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8"))
 
     def test_every_site_is_in_the_row_and_the_source(self) -> None:
+        native = ROOT / "native" / "vvfp_more_island_events"
         source = "".join(p.read_text(encoding="utf-8")
-                         for p in (ROOT / "native" / "vvfp_more_island_events").glob("adv_vv*.inc"))
+                         for p in [*native.glob("adv_vv*.inc"), native / "ceremony_games.inc"])
         for game in GAMES:
             row = self.rows[feature_id(game)]
             self.assertEqual([d["va"] for d in row["runtime_detours"]], [f"0x{s[0]:X}" for s in ROWS.SITES[game]])
@@ -320,6 +321,11 @@ class Village:
             p.stub(0x40D390, self._log("close", 0))
             p.stub(0x4491F0, lambda pr: (self.calls.append(("deselect",)) or 0, 0))   # The Voices' selection drop
         else:
+            if game == 3:
+                # The Roster of the Dead empty, as a village starts it (each entry -1): no grave, so The Remembrance
+                # Ceremony (ceremony_games.inc, the game's own count 0x454B10) is not listed beside the Adventurer.
+                for k in range(50):
+                    p.put32(0x5973F0 + 0x2C * k, 0xFFFFFFFF)
             t = self.t = TABLES[game]
             self.base, self.stride, self.first = t["manager"], t["stride"], t["first"]
             self.rand = t["rand"]

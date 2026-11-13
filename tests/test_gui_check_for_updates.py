@@ -211,6 +211,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_playful_dolphins",
                # ...and The Mysterious Mask's (The Tree of Life).
                "vv_mysterious_mask",
+               # ...and The Remembrance Ceremony's and The Rumblings' (all five games), with their page entries.
+               "vv_remembrance_ceremony", "vv_the_rumblings", "vv_game_mechanics_ceremony",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
@@ -452,8 +454,14 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
                                                   # More Island Events' The Aspiring Adventurer
-                                                  "vv_game_mechanics_adventurer"})
+                                                  "vv_game_mechanics_adventurer",
+                                                  # ...and The Remembrance Ceremony and The Rumblings
+                                                  "vv_game_mechanics_ceremony"})
               for n in (1, 2, 3, 4, 5)),
+            ("vv_game_mechanics_ceremony", {"vv_remembrance_ceremony", "vv_the_rumblings",
+                                            "vv_game_mechanics_events"}),
+            ("vv_remembrance_ceremony", set()),
+            ("vv_the_rumblings", set()),
             ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_cave_explorers", "vv_the_climb",
                                               "vv_troubling_signs", "vv_diving_for_treasure",
                                               "vv_playful_dolphins", "vv_mysterious_mask",

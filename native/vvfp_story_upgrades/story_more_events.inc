@@ -85,19 +85,38 @@ static void sm_refusal(const char *title, const char *needs, char *out, int cap)
     lstrcpynA(out, text, cap);
 }
 
-/* The family slot a More pick is armed with. */
-static int sm_slot(int game) {
+typedef int (__stdcall *sm_single_fn)(int k);
+
+/* Whether registry entry `k` is a single-result event (The Remembrance Ceremony, The Rumblings): A New Home's and
+   The Lost Children's island events, not their two-choice ones (VvfpMoreIslandEventsPickSingle). */
+static int sm_single(int k) {
+    sm_single_fn single = (sm_single_fn)(void *)sm_proc("VvfpMoreIslandEventsPickSingle");
+    return single != NULL && single(k) == 1;
+}
+
+/* The family slot registry entry `k` is armed with: A New Home the villager encounters, or its island events for a
+   single-result event; The Lost Children family A, or family C; the later games the event table's slot 0. */
+static int sm_slot_of(int game, int k) {
     switch (game) {
-    case 1: return (VV1_FAMILY_ENCOUNTER << 6) | SM_INDEX;
-    case 2: return (VV2_FAMILY_A << 6) | SM_INDEX;
+    case 1: return ((sm_single(k) ? VV1_FAMILY_ISLAND : VV1_FAMILY_ENCOUNTER) << 6) | SM_INDEX;
+    case 2: return ((sm_single(k) ? VV2_FAMILY_C : VV2_FAMILY_A) << 6) | SM_INDEX;
     default: return 0;                  /* the event table's slot 0 */
+    }
+}
+
+/* Whether `slot` is one a More pick of `game` is armed with. */
+static int sm_slot_ok(int game, int slot) {
+    switch (game) {
+    case 1: return slot == ((VV1_FAMILY_ENCOUNTER << 6) | SM_INDEX) || slot == ((VV1_FAMILY_ISLAND << 6) | SM_INDEX);
+    case 2: return slot == ((VV2_FAMILY_A << 6) | SM_INDEX) || slot == ((VV2_FAMILY_C << 6) | SM_INDEX);
+    default: return slot == 0;
     }
 }
 
 /* The pick's event for registry entry `k` (its title and what it needs, for the "could not happen" notice). */
 static int sm_describe(int game, int k) {
     int state = sm_info(game, k, sm_title, sm_desc, sm_needs);
-    sm_event.slot = sm_slot(game);
+    sm_event.slot = sm_slot_of(game, k);
     sm_event.title = sm_title;
     sm_event.variant = "";
     sm_event.description = sm_desc;
@@ -110,7 +129,7 @@ static int sm_arm(int game, int k) {
     if (!GAMES[game].arm()) {
         return 0;
     }
-    pick_slot = sm_slot(game);
+    pick_slot = sm_slot_of(game, k);
     pick_game = game;
     pick_tick = STORY_TICK();
     pick_event = &sm_event;
@@ -122,7 +141,7 @@ static int sm_arm(int game, int k) {
 /* The armed More pick's registry index for `game`, or -1. */
 static int sm_armed(int game) {
     return pick_slot >= 0 && pick_game == game && pick_event == &sm_event && pick_more >= 0
-               && pick_slot == sm_slot(game) ? pick_more : -1;
+               && sm_slot_ok(game, pick_slot) ? pick_more : -1;
 }
 
 /* Called by "VVFP More Island Events.dll" as its draw runs: the registry index of the event Pick Island Event has
@@ -198,7 +217,7 @@ static int sm_queue_index(int game) {
 
 static int sm_queue_restore(int game, int pick_index, int slot) {
     int k = SM_QUEUE_BASE - pick_index;
-    if (pick_index > SM_QUEUE_BASE || slot != sm_slot(game) || sm_describe(game, k) < 0) {
+    if (pick_index > SM_QUEUE_BASE || sm_describe(game, k) < 0 || slot != sm_slot_of(game, k)) {
         return 0;
     }
     pick_slot = slot;

@@ -49,6 +49,9 @@ REGISTRY = [
     ("Diving for Treasure", (3,)),
     ("The Playful Dolphins", (4,)),
     ("The Mysterious Mask", (4,)),
+    ("The Remembrance Ceremony", (1, 2, 3, 4)),
+    ("The Remembrance Ceremony", (5,)),          # New Believers' own line: The Last Heathen too
+    ("The Rumblings", (1, 2, 3, 4, 5)),
 ]
 
 

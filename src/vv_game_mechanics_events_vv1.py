@@ -259,3 +259,8 @@ EVENTS = with_scaling(1, EVENTS, frozenset({"The Trapped Whale", "The Troubled C
 from vv_game_mechanics_adventurer import adventurer_event, cave_explorers_event  # noqa: E402
 
 EVENTS = EVENTS + (adventurer_event(1), cave_explorers_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(1), rumblings_event(1))
