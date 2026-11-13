@@ -816,8 +816,17 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   table taking ids 4 and 5 and the keys 1 to 4 (Enter / Esc for OK), and
   VvfpStoryButtonRoom for Scrolling Popups. A question's page and its
   answer's first page keep 3 text lines per answer past two
-  (CG_ANSWER_LINES). A New Home and The Lost Children keep two buttons for
-  now: an event with more is refused there.
+  (CG_ANSWER_LINES). A New Home and The Lost Children: the encounter
+  dialog through native/shared/vvfp_multi_answer_12.h -- the setup detour
+  (0x41A51F / 0x42244A) pads the question for the extra buttons (their height
+  measured on a button made and deleted at once, in the font's lines) and
+  gives the dialog a copy of its virtual table; at its first draw (+0x30,
+  0x4187E0 / 0x41F430) the third and fourth buttons are made with the game's
+  routines (0x44AF03 + 0x4019B0 + 0x4015B0 / 0x467F83 + 0x4019D0 + 0x4015D0,
+  the answers' picture, the constructor's label colours), ids 5 and 6,
+  attached and stacked; its click handler answers 5 and 6 as the game answers
+  its two (the choice field 3 / 4, then c1 / c2_choice_resolve) and its key
+  handler takes 1 to 4 and Enter / Esc; ours are deleted at the next draw.
 - The effects wait for their own page (the owner, 2026-11-12): each node's
   effects are made, once, when the page showing the end of its text is built
   -- as a stock plain island event makes its changes while building its

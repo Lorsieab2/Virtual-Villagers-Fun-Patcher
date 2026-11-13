@@ -39,7 +39,8 @@
    the safe or lost walk home), then its ending's.  The sizes are data (ADV_GAMES' width and lines): when the popups
    can scroll, one page a popup is one number. */
 
-#define ADV_MAX_PAGES 10
+#define ADV_MAX_PAGES 16                     /* The Mysterious Mask's longest ending: 11 pages of 5 lines (its popup
+                                                holds four answers, so its pages are 6 lines shorter) */
 #define ADV_PAGE_BYTES 2400
 #define ADV_PAGE_TEXT_MAX 1990              /* a page's bytes: the later games' popup builds its text in 2,000 */
 #define ADV_PIECE_BYTES 2400
@@ -632,11 +633,16 @@ static int adv_percent(const adv_game *g, int percent) {
    from the game's own stock island-event gains of that kind, each equally likely (adv_game.food_lo .. tech_hi), times
    `times` (1 a normal award, 2 a large one, 3 a huge one), then the game's own scaling (adv_game.award_amount: The
    Lost Children's and The Secret City's own factors, Island Events Scale in the other three). */
-static int adv_award_roll(const adv_game *g, int kind, int times) {
+/* ... times `times` / `parts` (2: a SMALL award, half a normal one -- The Playful Dolphins), before the scaling. */
+static int adv_award_roll_part(const adv_game *g, int kind, int times, int parts) {
     int lo = kind == ADV_KIND_FOOD ? g->food_lo : g->tech_lo;
     int hi = kind == ADV_KIND_FOOD ? g->food_hi : g->tech_hi;
     int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);
-    return g->award_amount(kind, base * times);
+    return g->award_amount(kind, base * times / (parts > 0 ? parts : 1));
+}
+
+static int adv_award_roll(const adv_game *g, int kind, int times) {
+    return adv_award_roll_part(g, kind, times, 1);
 }
 
 /* Who goes, the rolls and the words, for the popup about to be built; 0 when nobody may go. */
@@ -838,7 +844,8 @@ typedef struct adv_flow {
     int (*choose)(int node, int choice);
     void (*effects)(int e);
     /* The answers question `node` has: 2, 3 or 4 (the shared multi-answer popup, vvfp_multi_answer.h; The Secret City,
-       The Tree of Life and New Believers only -- A New Home's and The Lost Children's dialogs show two).  NULL: two. */
+       The Tree of Life and New Believers; A New Home and The Lost Children through vvfp_multi_answer_12.h).  NULL: two
+       (and the game's dialog untouched). */
     int (*answers)(int node);
 } adv_flow;
 

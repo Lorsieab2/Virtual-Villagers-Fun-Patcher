@@ -1,5 +1,5 @@
 """The five rows of "More Island Events" (vvN_more_island_events): The Aspiring Adventurer (all five games), The Cave
-Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City), written by scripts/build_more_island_events.py.  The sites are the companion's own
+Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City) and The Playful Dolphins (The Tree of Life), written by scripts/build_more_island_events.py.  The sites are the companion's own
 (native/vvfp_more_island_events: adv_vv1.inc, adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the
 two together)."""
 from __future__ import annotations
@@ -107,6 +107,47 @@ DIVE_BEHAVIOUR = (
     "its multiplier, through 0x427130 / 0x4263F0). \"Better not\": +10 to 20 Parenting (+0xEB0). Skills at most 100 "
     "(the game's own adder 0x455740 caps at 0x64). The effects are made when the ending's last page is shown, with "
     "the event's one Island Events log entry. No site of its own.")
+DOLPHIN_DESCRIPTION = (
+    " And The Playful Dolphins (The Tree of Life only): a villager of 14 or more, swimming underwater, spots a pod of "
+    "dolphins. \"Swim towards the dolphins\": half the time the swimmer watches them hunt -- Farming becomes 100 (the "
+    "game's maximum) and the village gains a large food award (twice a normal one: "
+    + f"{2 * adv.award_range(4, 'food')[0]:,}" + " food before the scaling); half the time a tail slaps the swimmer, "
+    "who loses 30 to 50 health but never dies of it (at least 1 is left). \"Hang back\": a small food award (half a "
+    "normal one: " + f"{adv.award_range(4, 'food')[0] // 2:,}" + " food before the scaling). It needs two villagers of 14 or more who are not "
+    "nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); it has its own share of the "
+    "draw.")
+DOLPHIN_BEHAVIOUR = (
+    "The Playful Dolphins (The Tree of Life): the swimmer is a villager who may be picked (vv4_eligible: present "
+    "+0x1CC4, alive +0x1C40, 14 or more +0x1B8C, adv_is_protected: nursing +0x1C4C, a body or ghost +0x1CC7), drawn "
+    "among them; it can happen while two such villagers live, with no puzzle (not the Fishing Nets). One more "
+    "two-choice object with the Adventurer's virtual table and methods (adv_flow), its own entry in the draw (t_list). "
+    "\"Swim towards the dolphins\": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the "
+    "game's own skill adder 0x46AD80 caps (the double 100.0 at 0x48A7C0) -- and a large food award (the game's range "
+    "x 2, then Island Events Scale, through 0x41D920), else the tail slap: health (+0x1C40, 0..100, in the block "
+    "+0x1C34) minus 30 to 50, never below 1, through the game's own setter 0x46AF00 (value, cause -1: never its death "
+    "path). \"Hang back\": a small food award (the range x 1 / 2, then Island Events Scale). The effects are made "
+    "when the ending's last page is shown, with the event's one Island Events log entry. No site of its own.")
+MASK_DESCRIPTION = (
+    " And The Mysterious Mask (The Tree of Life only): a group of 2 to 4 children under 14 finds a strange carved mask "
+    "at the edge of the forest, and the player picks one of four answers: \"Wait for their parents to come\" or \"Cry "
+    "for help\" (the children are safe), \"Walk towards the clearing\" or \"Walk towards the forest\" (the same odds: "
+    "home safe 50%, else lost -- then rescued 75% or captured 25%, when every child of the group is gone for good, no "
+    "graves). The elders' speech tells what happened, and in every ending five volunteers of 18 or more leave on an "
+    "expedition for good (no graves). It needs a population of 61 or more (the living plus the babies carried), two "
+    "children under 14 and five villagers of 18 or more who are not nursing a baby and not a body or a ghost; it has "
+    "its own share of the draw.")
+MASK_BEHAVIOUR = (
+    "The Mysterious Mask (The Tree of Life): the group is 4 children under 14 (+0x1B8C < 280), or all of them when "
+    "fewer (at least 2), the expedition 5 villagers of 18 or more (vv4_eligible and +0x1B8C >= 360), each drawn among "
+    "those left; everyone passes adv_is_protected (nursing +0x1C4C, a body or ghost +0x1CC7); the population 61 or "
+    "more counted as the game's own 0x467610 counts (present +0x1CC4, not a body +0x1CC7, health +0x1C40 > 0, plus "
+    "the babies +0x1C50 while carrying +0x1C4C). One more object with the Adventurer's virtual table and methods "
+    "(adv_flow, answers 4: the shared multi-answer popup native/shared/vvfp_multi_answer.h, ids 4 and 5 and the keys "
+    "1 to 4), its own entry in the draw (t_list). A walk: rand(100) < 50 home safe, else lost: rand(100) < 25 "
+    "captured, else rescued. Its pages are laid out 6 lines shorter (3 for each answer past two) so the popup is no "
+    "taller than a two-answer one. The five volunteers, and when captured every child of the group, are removed as a "
+    "living villager is (adv_vv345.inc t_vanish: no body, no grave; told to Cause of Death) when the elders' last page "
+    "is shown, with the event's one Island Events log entry. No site of its own.")
 
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
@@ -226,7 +267,7 @@ def description(game: int) -> str:
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
         "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
-        + ("Two here: " if game in (1, 2) else "Three here: " if game == 3 else "For now one: ")
+        + ("Two here: " if game in (1, 2) else "Three here: " if game in (3, 4) else "For now one: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
         "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
@@ -241,7 +282,7 @@ def description(game: int) -> str:
         "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait "
         "for the page that tells them, and the Island Events log keeps one entry for each event."
         + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION + DIVE_DESCRIPTION
-           if game == 3 else "") + " " + classic + " **Needs no other patch.** "
+           if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "") + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -281,7 +322,7 @@ def row(game: int, sha: str) -> dict:
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "
             "each shown in turn with OK.",
         ] + ([CAVE_BEHAVIOUR] if game == 1 else [CLIMB_BEHAVIOUR] if game == 2 else [TROUBLING_BEHAVIOUR, DIVE_BEHAVIOUR]
-             if game == 3 else []),
+             if game == 3 else [DOLPHIN_BEHAVIOUR, MASK_BEHAVIOUR] if game == 4 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
@@ -299,7 +340,13 @@ def row(game: int, sha: str) -> dict:
                                "the last page, the log entry, the words and the four buttons, in "
                                "tests/test_troubling_signs.py; Diving for Treasure: who, every branch at its odds, "
                                "every effect on the last page, the log entry, the words and the draw with 1, 2 and 3 "
-                               "events, in tests/test_diving_for_treasure.py)" if game == 3 else "")
+                               "events, in tests/test_diving_for_treasure.py)" if game == 3 else
+                               " (The Playful Dolphins: who, both branches at their odds, Farming 100, the awards, the "
+                               "health loss that never kills, the effects on the last page, the log entry, the words "
+                               "and the draw, in tests/test_playful_dolphins.py; The Mysterious Mask: who, the 61 / 60 "
+                               "population, 1 / 2 children, 4 / 5 adults, all four answers by mouse and key, each "
+                               "elders' speech, both disappearances, the effects on the last page, the log entry, the "
+                               "words and the four buttons, in tests/test_mysterious_mask.py)" if game == 4 else "")
                             + "; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},

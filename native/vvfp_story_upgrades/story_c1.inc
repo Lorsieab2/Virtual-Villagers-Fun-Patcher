@@ -1002,6 +1002,7 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
 #define CHOICE_VARIANT_NONE 0x7F4B1A2D     /* past every stock jump table */
 
 static void *c1_choice_dialog;
+static const mb_client CS12_CLIENT;            /* story_c2.inc: the shared popup's client, both games */
 static char c1_choice_title[CE_TITLE_BYTES];
 
 /* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
@@ -1039,6 +1040,20 @@ static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int que
     if (other > lines) {
         lines = other;
     }
+    {
+        /* Three or four answers (format version 4): every answer's first page, and room for the extra buttons
+           (vvfp_multi_answer_12.h). */
+        int b, n = ce_choice_answers(game);
+        for (b = 2; b < n; ++b) {
+            int more = ce_choice_tallest(game, b, tallest, sizeof tallest);
+            if (more > lines) {
+                lines = more;
+            }
+        }
+        if (n > 2) {
+            lines += mb_room_lines(game, dialog, n);
+        }
+    }
     if (featured >= 0) {
         choice_open_gap((char *)dialog + question, C1_DLG_TEXT_BYTES);
         lines += CHOICE_PICTURE_LINES;
@@ -1071,6 +1086,11 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     }
     d[C1_DLG_RESULT] = '\0';
     c1_choice_dialog = dialog;
+    if (ce_choice_answers(1) > 2) {
+        mb_attach(1, &CS12_CLIENT, dialog);   /* its third and fourth buttons at its first draw */
+    } else {
+        mb_forget(dialog);
+    }
     return 1;
 }
 

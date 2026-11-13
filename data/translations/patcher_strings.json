@@ -67574,6 +67574,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.cg_refusal.s5",
+   "english": "This game can not ask a question with more than two buttons yet.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
@@ -67588,18 +67602,488 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_refusal.s5",
-   "english": "This game can not ask a question with more than two buttons yet.",
+   "stem": "vvfp.more_island_events/dolphin_text.TITLE",
+   "english": "The Playful Dolphins",
    "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
+    "vv4"
    ],
    "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.INTRO.m",
+   "english": "%s has been swimming underwater as a hobby. One day, he spots a pod of dolphins playing just offshore! They seem to be chasing something, but %s is unsure whether he can hold his breath long enough to see what. What should he do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.INTRO.f",
+   "english": "%s has been swimming underwater as a hobby. One day, she spots a pod of dolphins playing just offshore! They seem to be chasing something, but %s is unsure whether she can hold her breath long enough to see what. What should she do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.LABEL_SWIM",
+   "english": "Swim towards the dolphins",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.LABEL_BACK",
+   "english": "Hang back",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SWIM",
+   "english": "%s swims towards the dolphins, being careful not to disturb them.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); the hunt or the tail slap follows it in the next paragraph",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.m",
+   "english": "He gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. \"What magnificent creatures!\" he thinks.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.f",
+   "english": "She gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. \"What magnificent creatures!\" she thinks.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.m",
+   "english": "Later, he shares his observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.f",
+   "english": "Later, she shares her observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherwoman and is lauded as a pioneer of aquaculture. Your villagers gain %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SLAP.m",
+   "english": "Ouch! %s is blinded by the slap of a large fluke in his face. He must have gotten too close to one of them and accidentally gotten hit by their tail flipper. %s holds his nose to prevent any more red coming out. Luckily, %s is not too far from the surface, but if he had been any deeper... he shudders to think about what might happen. He surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SLAP.f",
+   "english": "Ouch! %s is blinded by the slap of a large fluke in her face. She must have gotten too close to one of them and accidentally gotten hit by their tail flipper. %s holds her nose to prevent any more red coming out. Luckily, %s is not too far from the surface, but if she had been any deeper... she shudders to think about what might happen. She surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.BACK.m",
+   "english": "%s doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and he is second-guessing whether they're playing anyway. %s resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.BACK.f",
+   "english": "%s doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and she is second-guessing whether they're playing anyway. %s resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.TITLE",
+   "english": "The Mysterious Mask",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.INTRO.m",
+   "english": "Little %s has been playing with the other children at the edge of the forest. One day, towards the forbidden clearing, he spots a strange carved mask unlike anything he has ever seen! The other children wonder if someone dropped it, and %s questions if the mask's owner lives somewhere nearby. Naturally, the children are afraid of strangers, even more so after hearing about the strange disappearances in the middle of the night, so no one moves a muscle. %s innocently says \"We should go ask our Mommies and Daddies about it! Maybe someone's looking for it!\" But unfortunately, no one knows where their parents are or what direction the village is in. Being the finder, the other kids look to %s to decide what to do. What shall they do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.INTRO.f",
+   "english": "Little %s has been playing with the other children at the edge of the forest. One day, towards the forbidden clearing, she spots a strange carved mask unlike anything she has ever seen! The other children wonder if someone dropped it, and %s questions if the mask's owner lives somewhere nearby. Naturally, the children are afraid of strangers, even more so after hearing about the strange disappearances in the middle of the night, so no one moves a muscle. %s innocently says \"We should go ask our Mommies and Daddies about it! Maybe someone's looking for it!\" But unfortunately, no one knows where their parents are or what direction the village is in. Being the finder, the other kids look to %s to decide what to do. What shall they do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.LABEL_WAIT",
+   "english": "Wait for their parents to come",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.LABEL_CRY",
+   "english": "Cry for help",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.LABEL_CLEARING",
+   "english": "Walk towards the clearing",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.LABEL_FOREST",
+   "english": "Walk towards the forest",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.WAIT.m",
+   "english": "The children wait all day for their parents to come. Eventually, they come and walk everyone back to the village. Little %s shows the mask to his parents, who are alarmed and send for the elders. As night falls, %s watches the elders chatter next to the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.WAIT.f",
+   "english": "The children wait all day for their parents to come. Eventually, they come and walk everyone back to the village. Little %s shows the mask to her parents, who are alarmed and send for the elders. As night falls, %s watches the elders chatter next to the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.CRY.m",
+   "english": "%s does not know what to do, and immediately begins crying for help. The other children, being scared and lost, cry as well. The startled parents come running through the bushes and pick up their poor little darlings. That night, little %s tells his parents about the strange mask. Alarmed, they immediately call the elders to discuss this discovery. %s watches forlornly as the elders chatter beside the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.CRY.f",
+   "english": "%s does not know what to do, and immediately begins crying for help. The other children, being scared and lost, cry as well. The startled parents come running through the bushes and pick up their poor little darlings. That night, little %s tells her parents about the strange mask. Alarmed, they immediately call the elders to discuss this discovery. %s watches forlornly as the elders chatter beside the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.CLEARING.m",
+   "english": "Brave %s grabs the mask and takes a step towards the clearing. The other children follow behind him, and",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.CLEARING.f",
+   "english": "Brave %s grabs the mask and takes a step towards the clearing. The other children follow behind her, and",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.FOREST.m",
+   "english": "Brave %s grabs the mask and takes a step towards the forest. The other children follow behind him, and",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.FOREST.f",
+   "english": "Brave %s grabs the mask and takes a step towards the forest. The other children follow behind her, and",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.HOME.m",
+   "english": "they eventually make it back to the village. That evening, %s tells his parents what they saw, and shows them the mysterious mask. Alarmed, %s's parents tell the elders, who converse by moonlight next to the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.HOME.f",
+   "english": "they eventually make it back to the village. That evening, %s tells her parents what they saw, and shows them the mysterious mask. Alarmed, %s's parents tell the elders, who converse by moonlight next to the fire.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.LOST",
+   "english": "they stumble into a dense part of the jungle. Night falls, and no one can see anything through the mist except their own shadows. Crack! Suddenly they hear the breaking of twigs beneath feet, and before anyone can react",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; CAPTURED or RESCUED follows it after a space, finishing the sentence",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.CAPTURED",
+   "english": "a group of masked strangers captures them and whisks them away to an unknown location. The worried parents spot their footsteps in the mud several hours later, along with the mask %s found earlier. Fearing for the children's safety, they beg the elders to take action.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.RESCUED.m",
+   "english": "a group of trusted adults from the village come and scoop them up. Startled, the children begin to cry. %s manages to hold back his tears until they arrive back home, to which he bursts into a loud sob. His parents notice the strange mask and ask him where he got it from, to which %s tells the adults the entire story. Fearing for the children's safety, they beg the elders to take action.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.RESCUED.f",
+   "english": "a group of trusted adults from the village come and scoop them up. Startled, the children begin to cry. %s manages to hold back her tears until they arrive back home, to which she bursts into a loud sob. Her parents notice the strange mask and ask her where she got it from, to which %s tells the adults the entire story. Fearing for the children's safety, they beg the elders to take action.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.ELDERS",
+   "english": "After a long and tense discussion, the elders gather the villagers around the fire at daybreak. \"Recently, our village has been the victim of strange happenings involving masked people.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; the elders' speech goes on with one of the F_ pieces after a space (its quote closes there)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.F_CAPTURED",
+   "english": "Just last night, a group of our children were possibly kidnapped and taken away to some hidden location in the jungle. This mask was found at the scene.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.F_RESCUED",
+   "english": "Just last night, a group of our children were found wandering in the jungle. Someone could have kidnapped them, or worse. Luckily, our trusted scouts found them and successfully returned them home. This mask was found at the scene.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.F_BACK",
+   "english": "Just last night, our children got lost while playing in the jungle. They managed to make it back, thank goodness, but they found this mask sitting at the edge. It must have been planted there by someone.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.F_WAITED",
+   "english": "Just last night, our children found this strange mask in the jungle, and they stayed put until their parents could come and notify us.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.F_CRIED",
+   "english": "Just last night, our children found this strange mask in the jungle, and they cried for help. Their parents notified us about the incident as soon as they could.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.APPEAL",
+   "english": "\"We believe some foul play is happening. We understand that you are worried, and that everyone's safety is at risk. However, we need to get to the bottom of this. We cannot rest until this matter is settled. We need five able-bodied volunteers to come with us and form an expedition to find the makers of these masks. Only then will we know if they are truly a threat to our people.\"",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.VOLUNTEERS",
+   "english": "Five adults raise their hands and proceed into the elders' hut. After much planning, the expedition team travels to the site where %s found the mask, and heads off into parts unknown.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mask_text.PARENTS",
+   "english": "The parents of %s, %s and the other kids wish the team good luck, and for justice for their children. The other villagers rally behind them, and hope for an end to the madness.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group)",
+   "route": "key"
   }
  ]
 }

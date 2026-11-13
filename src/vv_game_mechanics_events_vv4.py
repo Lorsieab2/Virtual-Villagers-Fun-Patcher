@@ -254,6 +254,7 @@ EVENTS = with_scaling(4, EVENTS, frozenset({
     "The Aspiring Scientist"}))
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
-from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
+from vv_game_mechanics_adventurer import (adventurer_event, mysterious_mask_event,  # noqa: E402
+                                          playful_dolphins_event)
 
-EVENTS = EVENTS + (adventurer_event(4),)
+EVENTS = EVENTS + (adventurer_event(4), playful_dolphins_event(), mysterious_mask_event())
