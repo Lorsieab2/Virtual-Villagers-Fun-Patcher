@@ -837,7 +837,15 @@ typedef struct adv_flow {
        the page that tells them is shown (the owner's rule: the effects wait for their own page).  NULL: not used. */
     int (*choose)(int node, int choice);
     void (*effects)(int e);
+    /* The answers question `node` has: 2, 3 or 4 (the shared multi-answer popup, vvfp_multi_answer.h; The Secret City,
+       The Tree of Life and New Believers).  NULL: two. */
+    int (*answers)(int node);
 } adv_flow;
+
+static int adv_answers(const adv_flow *flow, int node) {
+    int n = flow != NULL && flow->answers != NULL ? flow->answers(node) : 2;
+    return n < 2 ? 2 : (n > 4 ? 4 : n);
+}
 
 static const adv_pages *adv_flow_question(int node) {
     (void)node;
