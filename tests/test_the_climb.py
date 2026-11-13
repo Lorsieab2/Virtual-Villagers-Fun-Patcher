@@ -598,33 +598,33 @@ class Effects(unittest.TestCase):
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
 class TheLog(unittest.TestCase):
-    """The Island Events log's ONE entry for the event: held at the answer, its effects' lines taken by the log's own
-    comparison around the effects page, closed there; the game's own brackets write nothing for the dialog."""
+    """The Island Events log's ONE entry for the event: nothing handed over before the effects page (a save before it
+    holds neither), its effects' lines taken by the log's own comparison around that page, the entry handed over
+    complete and final there; the game's own brackets write nothing for the dialog until the next draw."""
 
     def test_one_entry_with_the_effects_page_bracketed(self) -> None:
         v = one_scientist(log=True)
         before = v.village_now()
         v.play_climb(climb_rolls(falls=True), 1)
         kinds = [c[0] for c in v.log_calls]
-        self.assertEqual(kinds, ["write", "begin", "end", "write"])
-        first, begin, end, last = v.log_calls
-        self.assertEqual((first[1], first[3], first[4], first[5]),
-                         (2, "  Event: The Climb\n  Choice: Go with the plan\n", -1, 0))
+        self.assertEqual(kinds, ["begin", "end", "write"])
+        begin, end, last = v.log_calls
         self.assertEqual(begin[1], before)                         # the village before the effects ...
         self.assertEqual(end[1][0], 0)                             # ... and after them
-        self.assertEqual(last[2], first[2])                        # the same entry
-        self.assertEqual((last[3], last[5]),
-                         ("  Event: The Climb\n  Choice: Go with the plan\n  Ana: Health 100 -> 0\n", 1))
+        self.assertEqual((last[1], last[3], last[4], last[5]),
+                         (2, "  Event: The Climb\n  Choice: Go with the plan\n  Ana: Health 100 -> 0\n", -1, 1))
         self.assertEqual(v.logged_while_open, 1)
-        self.assertEqual(v.logged(), 0)                            # closed: no longer ours
+        self.assertEqual(v.logged(), 1)                            # through the close's own bracket
+        v.begin_climb([5] * 20, draw=5)                            # the game's next draw: not ours
+        self.assertEqual(v.logged(), 0)
 
     def test_the_advice_is_logged_on_its_own_last_page(self) -> None:
         v = one_scientist(log=True)
         v.play_climb(climb_rolls(gain=0), 2)
         self.assertEqual(len(v.climb_pages(3)), 2)
-        self.assertEqual([c[0] for c in v.log_calls], ["write", "begin", "end", "write"])
-        self.assertEqual(v.log_calls[1][1][1], 50)                  # Research before the advice's last page ...
-        self.assertEqual(v.log_calls[2][1][1], 60)                  # ... and after it
+        self.assertEqual([c[0] for c in v.log_calls], ["begin", "end", "write"])
+        self.assertEqual(v.log_calls[0][1][1], 50)                  # Research before the advice's last page ...
+        self.assertEqual(v.log_calls[1][1][1], 60)                  # ... and after it
         self.assertEqual(v.log_calls[-1][3],
                          "  Event: The Climb\n  Choice: Follow the scientists' advice\n  Ana: Health 100 -> 0\n")
         self.assertEqual(v.log_calls[-1][5], 1)

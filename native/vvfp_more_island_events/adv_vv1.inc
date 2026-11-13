@@ -33,9 +33,10 @@
        (the last question page brings the two answers back, OK off, +0x50 = 0); on the last result page the close
        runs;
      0x41939D `ja 0x41A37A` (the answer's resolve 0x419380, past the stock kinds): the event's kind is answered
-       here -- the effects (adv_choose) and the first result page -- and the resolve leaves as for any other kind
-       (0x41A37A).  The Island Events log watches the click handler's answer (its entry, 0x41A3D0): the effects are
-       made inside it, as every stock encounter's are. */
+       here -- the next question, or the ending's first page -- and the resolve leaves as for any other kind
+       (0x41A37A).  The ending's effects wait for their own page (adv_log.inc): they are made when the page that ends
+       its text is shown -- in the answer's click when the ending is one page, else in the OK click that brings it --
+       and the event keeps its own one Island Events log entry, with a "Choice:" line for each answer clicked. */
 
 #define ADV_VV1_KIND 0x7F4B1A2E               /* past every stock jump table (Story's own questions are 0x...2D) */
 #define VV1_WORLD() (*(unsigned char **)(uintptr_t)0x48AEDCu)
@@ -178,6 +179,7 @@ static void *v1_dialog;
 static int v1_stage, v1_page;
 static const adv_flow *v1_flow;        /* the event in the dialog: ADV_FLOW or CAVE_FLOW */
 static int v1_node, v1_ending;         /* its question on screen; the ending reached */
+static int v1_effects_page;            /* the ending's page that makes its effects (its last), -1 made */
 
 static int v1_any_child(void) {
     int i;
@@ -312,6 +314,7 @@ static void v1_fill(unsigned char *d) {
 static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
     int m, adv_ok, cave_ok, draw;
+    adv_log_reset();                   /* an encounter is drawn: whatever was ours is over */
     __try {
         if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()) {
             adv_ok = adv_possible(&ADV_VV1);
@@ -326,6 +329,8 @@ static int __cdecl v1_choose(void *dialog) {
                         v1_node = 0;
                         v1_ending = -1;
                         v1_fill((unsigned char *)dialog);
+                        adv_log_event(1, g_vv12_title);
+                        v1_effects_page = -1;
                         v1_dialog = dialog;
                         v1_stage = ADV_STAGE_QUESTION;
                         v1_page = 0;
@@ -362,6 +367,15 @@ static int v1_ours(const unsigned char *d) {
 
 static void v1_result(unsigned char *d, const char *page) {
     v1_page_text((char *)d + VV1_DLG_RESULT, VV1_DLG_TEXT, page, 0);
+}
+
+/* Ending page `k` shown, and the ending's effects when it is the last (adv_log.inc). */
+static void v1_result_page(unsigned char *d, int k) {
+    v1_result(d, v1_flow->ending(v1_ending)->text[k]);
+    if (k == v1_effects_page) {
+        v1_effects_page = -1;
+        adv_log_effects(v1_flow->effects, v1_ending);
+    }
 }
 
 /* In place of the constructor's `call 0x40AB80` attaching the second answer (thiscall, the child). */
@@ -410,8 +424,12 @@ static void __fastcall v1_ok(void *dialog, void *unused) {
             }
             if (v1_stage == ADV_STAGE_RESULT && v1_page + 1 < v1_flow->ending(v1_ending)->count) {
                 ++v1_page;
-                v1_result(d, v1_flow->ending(v1_ending)->text[v1_page]);
+                v1_result_page(d, v1_page);
                 return;
+            }
+            if (v1_stage == ADV_STAGE_RESULT && v1_effects_page >= 0) {
+                v1_effects_page = -1;            /* never left unmade (a page count that changed: a fault) */
+                adv_log_effects(v1_flow->effects, v1_ending);
             }
             v1_dialog = NULL;
             v1_stage = ADV_STAGE_NONE;
@@ -423,21 +441,24 @@ static void __fastcall v1_ok(void *dialog, void *unused) {
 
 /* The answer (the resolve, the event's kind): +0x509C is 1 for the first button, 2 for the second.  The click
    handler has already taken the answers off and put OK up, and sets +0x50 (the result shown) after this.  An ending:
-   its effects (the flow's answer) and its first page.  Another question (The Cave Explorers): its words on the two
+   its first page (its effects wait for the last).  Another question (The Cave Explorers): its words on the two
    answers, and its pages -- the answers back at once when it is one page. */
 static void __cdecl v1_answer(unsigned char *d) {
     __try {
-        int next;
+        int next, which;
         const adv_pages *pages;
         if (!v1_ours(d) || v1_stage != ADV_STAGE_QUESTION) {
             return;
         }
-        next = v1_flow->answer(v1_node, *(int *)(d + VV1_DLG_CHOICE) == 2);
+        which = *(int *)(d + VV1_DLG_CHOICE) == 2;
+        adv_log_choice((const char *)d + (which ? VV1_DLG_LABEL_B : VV1_DLG_LABEL_A));
+        next = v1_flow->choose(v1_node, which);
         v1_page = 0;
         if (next < 0) {
             v1_ending = -1 - next;
             v1_stage = ADV_STAGE_RESULT;
-            v1_result(d, v1_flow->ending(v1_ending)->text[0]);
+            v1_effects_page = v1_flow->ending(v1_ending)->count - 1;
+            v1_result_page(d, 0);
             return;
         }
         v1_node = next;

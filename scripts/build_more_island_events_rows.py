@@ -34,8 +34,9 @@ CAVE_BEHAVIOUR = (
     "argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% "
     "gold coins a normal tech award, 30% a treasure map 3x, 30% preserved food 2x food); Stay Here -> return (food or "
     "tech, 50/50, a normal award) or keep (50% the researchers' normal tech award, 25% name2 and name1 die, 25% name2 "
-    "dies: health 0, a body and a grave). The effects are made when the answer leading to them is clicked; each "
-    "removal is told to the Cause of Death companion (VvfpCauseVanishedBy).")
+    "dies: health 0, a body and a grave). The effects wait for their own page: they are made when the page that ends "
+    "the ending's text is shown, and the event writes its own one Island Events log entry with a Choice line for each "
+    "answer clicked; each removal is told to the Cause of Death companion (VvfpCauseVanishedBy).")
 
 CLIMB_DESCRIPTION = (
     " And The Climb (The Lost Children only): a villager of 18 or more who is at least a Trainee in Research (20 or "
@@ -43,8 +44,7 @@ CLIMB_DESCRIPTION = (
     "the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech "
     "award (twice a normal one: " + adv.award_words(2, "tech", "large") + ", then the game's own factor) and "
     "everyone celebrates. \"Follow the scientists' advice\": +10 to 20 Research (at most 100). One villager who "
-    "may go is enough; it has its own slot among the two-choice events. In The Lost Children both events' effects "
-    "wait for the page that tells them.")
+    "may go is enough; it has its own slot among the two-choice events.")
 CLIMB_BEHAVIOUR = (
     "The Climb (The Lost Children): its own slot in family A's draw, 22 of rand(23) (The Aspiring Adventurer 21; each "
     "1 in 23 a draw, like each stock event), kept only while a villager who may go on The "
@@ -186,7 +186,8 @@ def description(game: int) -> str:
         "reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island "
         "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
         + ". Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the "
-        "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next)."
+        "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait "
+        "for the page that tells them, and the Island Events log keeps one entry for each event."
         + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else "") + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
@@ -219,9 +220,9 @@ def row(game: int, sha: str) -> dict:
             "fallen tree, dies at the bottom of a cliff, disappears.",
             "The reward is drawn, each amount equally likely, from the game's smallest to its largest stock "
             "island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's "
-            "own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + (". The effects wait for their own page (the page that ends the ending's text), and the "
-            "event writes its own one Island Events log entry" if game == 2 else ". The effects are made when the "
-            "answer is clicked, as the game's own two-choice events make theirs") + "; a disappearance is told to "
+            "own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + ". The effects wait for their own page (the "
+            "page that ends the ending's text), and the event writes its own one Island Events log entry; a "
+            "disappearance is told to "
             "the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one.",
             "The owner's words, by translation key (the event's popup shows the player's language when a translation "
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "

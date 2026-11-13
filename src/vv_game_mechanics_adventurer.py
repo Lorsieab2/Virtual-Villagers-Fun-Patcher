@@ -105,9 +105,8 @@ def adventurer_event(game: int) -> Event:
         reward_line(game),
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
-        + ("as a disappearance. The effects wait for their own page: they come when the page that ends the "
-         "ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and "
-         "every change." if game == 2 else "as a disappearance. The effects come when the answer is clicked."),
+        "as a disappearance. The effects wait for their own page: they come when the page that ends the ending's "
+        "text is shown, and the Island Events log keeps one entry for the event, with the answer and every change.",
     ]
     if game in (1, 4, 5):
         subs.append(Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this "
@@ -164,8 +163,9 @@ def cave_explorers_event() -> Event:
         "encounters (below).",
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
-        "as a disappearance. The effects come when the answer that leads to them is clicked; the Island Events log "
-        "records them under the event's title with that answer.",
+        "as a disappearance. The effects wait for their own page: they come when the page that ends the ending's "
+        "text is shown; the Island Events log keeps one entry for the event, with each answer clicked and every "
+        "change.",
         Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): "
              "each award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).",
              only_with="vv1_island_events_scale_with_population"),

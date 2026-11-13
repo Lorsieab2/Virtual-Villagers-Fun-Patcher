@@ -21,8 +21,10 @@
    event is composed, adv_begin), +0x1C the villager shown (the adventurer), +0x10 "two choices" (yes), +0x24 the
    pose (5), +0x20 a second villager (none), +0x14 / +0x18 the labels, +0x28(c) at build for c = 0, 1 and +0x0C
    the question (the popup is sized to the tallest of those three, so +0x28 then gives the tallest page of the
-   whole event); the click +0x34(c) (the answer: the effects, adv_choose) then +0x28(c) (the result's first page),
-   OK +0x2C(c) (nothing).  One string id carries every text in turn: each method points it at its text just before
+   whole event); the click +0x34(c) (the answer) then +0x28(c) (the result's first page), OK +0x2C(c) (nothing).
+   The effects wait for their own page (adv_log.inc): they are made when the result's last page is shown -- in the
+   answer's click when the result is one page, else in the OK click that brings it -- and the event keeps its own one
+   Island Events log entry.  One string id carries every text in turn: each method points it at its text just before
    returning it (the dialog copies the text at once, 0x416F60 -> 0x44D410 into its own 2,000 bytes).  The ids are
    ones nothing shows: The Secret City 0x3A7 / 0x3A9 (The Drought's strings, an event with no object and no code
    naming them), The Tree of Life 0x35F / 0x361 (The Medical Emergency's title and first label: its condition
@@ -386,6 +388,7 @@ static char g_title[256];
 
 static void *g_dialog;
 static int g_stage, g_page;
+static int g_effects_page = -1;          /* the result's page that makes its effects (its last), -1 made */
 
 static adv_string **t_slots(void) {
     return (adv_string **)(uintptr_t)g_tg->strings;
@@ -450,12 +453,16 @@ static int __fastcall o_title(void *self, void *unused) {
     (void)unused;
     g_dialog = NULL;
     g_stage = ADV_STAGE_NONE;
+    g_effects_page = -1;
     if (!adv_begin(g_table_adv)) {
         ((adv_object *)self)->villager = NULL;         /* no villager: the dialog is not shown */
     } else {
         ((adv_object *)self)->villager = g_table_adv->record(adv.hero);
     }
     adv_piece(g_title, sizeof g_title, ADV_TITLE, 0);
+    if (adv.ready) {
+        adv_log_event(g_table_adv->game, g_title);
+    }
     t_strings_in();
     return g_tg->title_id;
 }
@@ -508,17 +515,36 @@ static int __fastcall o_result(void *self, void *unused, int choice) {
     return t_text_id(adv.result[choice].text[g_page < adv.result[choice].count ? g_page : 0]);
 }
 
-/* +0x34(c): the answer. */
-static void __fastcall o_choose(void *self, void *unused, int choice) {
-    (void)self; (void)unused;
-    adv_choose(choice != 0);
-    g_stage = ADV_STAGE_RESULT;
-    g_page = 0;
+/* The result's last page is shown: its effects (adv_log.inc). */
+static void t_page_effects(void) {
+    g_effects_page = -1;
+    adv_log_effects(adv_flow_effects, adv.choice);
 }
 
-/* +0x2C(c): OK on the last page: the effects were made at the answer. */
+/* +0x34(c): the answer; the result's first page follows (+0x28), with the effects when it is the last. */
+static void __fastcall o_choose(void *self, void *unused, int choice) {
+    static char label[128];
+    (void)self; (void)unused;
+    choice = choice != 0;
+    adv_piece(label, sizeof label, choice ? ADV_LABEL_B : ADV_LABEL_A, 0);
+    if (!adv_answer_only(choice)) {
+        return;
+    }
+    adv_log_choice(label);
+    g_stage = ADV_STAGE_RESULT;
+    g_page = 0;
+    g_effects_page = adv.result[adv.choice].count - 1;
+    if (g_effects_page == 0) {
+        t_page_effects();
+    }
+}
+
+/* +0x2C(c): OK on the last page (the effects were made as it was shown). */
 static void __fastcall o_apply(void *self, void *unused, int choice) {
     (void)self; (void)unused; (void)choice;
+    if (g_effects_page >= 0 && adv.answered) {
+        t_page_effects();                    /* never left unmade (a page count that changed: a fault) */
+    }
     g_stage = ADV_STAGE_NONE;
     g_dialog = NULL;
     t_strings_out();
@@ -555,6 +581,7 @@ static void t_build_object(void) {
 /* After the stock slots are listed: slot 0 put back, and listed when the event can happen. */
 static int __cdecl t_list(void) {
     int listed = 0;
+    adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
     __try {
         *(void **)(uintptr_t)g_tg->table = &g_object;
         listed = adv_possible(g_table_adv);
@@ -652,6 +679,9 @@ static int __cdecl t_ok(void *dialog) {
         } else if (g_stage == ADV_STAGE_RESULT && g_page + 1 < adv.result[adv.choice].count) {
             ++g_page;
             t_set_text(dialog, adv.result[adv.choice].text[g_page]);
+            if (g_page == g_effects_page) {
+                t_page_effects();
+            }
             stay = 1;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {

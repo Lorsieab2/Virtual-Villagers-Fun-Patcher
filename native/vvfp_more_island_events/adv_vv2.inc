@@ -61,7 +61,6 @@ static int v2_stage, v2_page;
 static const adv_flow *v2_flow;        /* the event in it: ADV_FLOW or CLIMB_FLOW */
 static int v2_ending;                  /* the ending reached */
 static int v2_effects_page;            /* the ending's page that makes its effects (its last), -1 made */
-static int v2_entry_len, v2_entry_head, v2_key;   /* the Island Events log's one entry (below) */
 
 static unsigned char *v2_record(int index) {
     unsigned char *pool = VV2_POOL();
@@ -212,6 +211,7 @@ static int __fastcall v2_choose_event(void *dialog, void *unused) {
     unsigned char held[5];
     int widened = 0, event;
     (void)unused;
+    adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
     __try {
         memcpy(held, (const void *)(uintptr_t)V2_DRAW_SITE, sizeof held);
         if (held[0] == 0xE8) {
@@ -308,8 +308,8 @@ static int __cdecl v2_setup(unsigned char *d) {
         subject = v2_flow->subject();
         v2_ending = -1;
         v2_effects_page = -1;
-        v2_entry_head = 0;
         v2_flow->title(g_vv12_title, sizeof g_vv12_title);
+        adv_log_event(2, g_vv12_title);
         v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
                      adv_lines(&ADV_VV2, v2_flow->tallest()));
         v2_flow->label(0, 0, label, sizeof label);
@@ -359,77 +359,11 @@ static int v2_ours(const unsigned char *d) {
     return d != NULL && d == v2_dlg && v2_is_ours(*(const int *)(d + VV2_DLG_EVENT));
 }
 
-/* ---- The effects on their own page, and the Island Events log's one entry ---------------------------------------
+/* ---- The effects on their own page (adv_log.inc: the rule, and the Island Events log's one entry) ---------- */
 
-   The owner's standing rule: the effects wait for their own page.  An ending's effects are made, once, when the page
-   that ends its text is shown -- in the answer's click when the ending is one page, else in the OK click that brings
-   that page.  The Island Events log ("VVFP Island Events.dll") watches only the answer's click, so the event keeps
-   its own ONE entry, as a branching Custom Island Event does: "  Event: <title>", "  Choice: <answer>", then what
-   the effects page changed (that companion's own comparison around it, VvfpIslandEventsGraphBegin / End), or
-   "  Changes: none"; handed over at the answer (held, final 0) and when the effects are made (final 1) through
-   VvfpIslandEventsGraphWrite -> the Parentage Export's WriteVillageEventEntry, whose held record each save writes, so
-   the log matches the save at every save.  The game's own brackets around this dialog (its constructor, the answer's
-   click) write nothing for it: VvfpMoreIslandEventsLogged says so.  Without that companion: nothing is logged. */
-
-#define V2_ENTRY_BYTES 4096
-
-static char v2_entry[V2_ENTRY_BYTES];
-
-typedef int (__stdcall *v2_log_begin_fn)(int game);
-typedef int (__stdcall *v2_log_end_fn)(int game, char *out, int cap);
-typedef int (__stdcall *v2_log_write_fn)(int game, int key, const char *text, int disk, int final);
-
-static FARPROC v2_log_export(const char *name) {
-    HMODULE module = GetModuleHandleA("VVFP Island Events.dll");
-    return module != NULL ? GetProcAddress(module, name) : NULL;
-}
-
-static void v2_entry_put(const char *text) {
-    int n = adv_len(text);
-    if (v2_entry_len + n + 1 < V2_ENTRY_BYTES) {
-        memcpy(v2_entry + v2_entry_len, text, (size_t)n + 1);
-        v2_entry_len += n;
-    }
-}
-
-static void v2_log_send(int final) {
-    v2_log_write_fn write = (v2_log_write_fn)(void *)v2_log_export("VvfpIslandEventsGraphWrite");
-    if (v2_entry_head > 0 && write != NULL) {
-        (void)write(2, v2_key, v2_entry, -1, final);
-    }
-}
-
-/* The entry's head: the title and the answer clicked (`which` 0 the first). */
-static void v2_entry_start(int which) {
-    static char label[VV2_DLG_LABEL];
-    v2_entry_len = 0;
-    v2_entry[0] = '\0';
-    v2_entry_put("  Event: ");
-    v2_entry_put(g_vv12_title);
-    v2_entry_put("\n  Choice: ");
-    v2_flow->label(0, which, label, sizeof label);
-    v2_entry_put(label);
-    v2_entry_put("\n");
-    v2_entry_head = v2_entry_len;
-    v2_key = (int)(GetTickCount() & 0x7FFFFFFFu) | 1;
-}
-
-/* The ending's effects, bracketed by the log's own comparison; the entry closed. */
 static void v2_make_effects(void) {
-    static char lines[V2_ENTRY_BYTES];
-    v2_log_begin_fn begin = (v2_log_begin_fn)(void *)v2_log_export("VvfpIslandEventsGraphBegin");
-    v2_log_end_fn end = (v2_log_end_fn)(void *)v2_log_export("VvfpIslandEventsGraphEnd");
-    int began = begin != NULL && begin(2);
     v2_effects_page = -1;
-    v2_flow->effects(v2_ending);
-    lines[0] = '\0';
-    if (began && end != NULL && end(2, lines, (int)sizeof lines) > 0) {
-        v2_entry_put(lines);
-    }
-    if (v2_entry_len == v2_entry_head) {
-        v2_entry_put("  Changes: none\n");
-    }
-    v2_log_send(1);
+    adv_log_effects(v2_flow->effects, v2_ending);
 }
 
 /* Result page `k` shown, and its effects when it is the ending's last. */
@@ -452,14 +386,11 @@ static void __cdecl v2_answer(unsigned char *d) {
             return;
         }
         which = *(int *)(d + VV2_DLG_CHOICE) == 2;
+        adv_log_choice((const char *)d + (which ? VV2_DLG_LABEL_B : VV2_DLG_LABEL_A));
         v2_ending = -1 - v2_flow->choose(0, which);
         v2_stage = ADV_STAGE_RESULT;
         v2_page = 0;
         v2_effects_page = v2_flow->ending(v2_ending)->count - 1;
-        v2_entry_start(which);
-        if (v2_effects_page > 0) {
-            v2_log_send(0);                  /* held: the answer, its effects to come */
-        }
         v2_result_page(d, 0);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
@@ -541,20 +472,6 @@ static void __fastcall v2_ok(void *dialog, void *unused) {
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
     ADV_TC0(0x40D390u, dialog);
-}
-
-/* Asked by "VVFP Island Events.dll" as it compares a popup the game just showed (its constructor's bracket, the
-   answer's click): 1 while it is this companion's dialog -- the event's one entry is written here, never a record of
-   its own. */
-int __stdcall VvfpMoreIslandEventsLogged(int game, const char *title) {
-    int ours = 0;
-    __try {
-        ours = game == 2 && g_adv_game == &ADV_VV2 && v2_dlg != NULL
-            && (title == NULL || title[0] == '\0' || lstrcmpA(title, g_vv12_title) == 0);
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        ours = 0;
-    }
-    return ours;
 }
 
 /* A 6-byte `ja rel32` kept a `ja`, aimed at `to`. */

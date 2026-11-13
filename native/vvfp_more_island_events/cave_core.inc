@@ -21,9 +21,9 @@
                     and then name1 (two graves), 25% name2 dies (one grave) (the owner, 2026-11-12).
    An award is adv_award_roll's (the game's stock island-event range, times 1, 2 or 3, then Island Events Scale).
 
-   THE EFFECTS are made when the answer that leads to their page is clicked (adv_choose's rule): the dialog is modal,
-   the village does not run and no save can come between the click and the pages, so the Island Events log's
-   comparison around that click records them, under the event's title with the answer clicked.  "Dies" is the
+   THE EFFECTS wait for their own page (the owner's standing rule, adv_log.inc): an ending's are made, once, when the
+   page that ends its text is shown, and the event keeps one Island Events log entry with a "Choice:" line for each
+   answer clicked (cave_flow_choose / cave_flow_effects; adv_vv1.inc shows the pages).  "Dies" is the
    game's own death (health 0: a body, a grave, "Unknown causes"); "disappears" the game's own removal with no body,
    told to the Cause of Death companion (VvfpCauseVanishedBy). */
 
@@ -54,6 +54,7 @@ static struct {
     int keep_end, keep_award;                     /* "Curses schmurses": CAVE_RESEARCH.. */
     int answers[3], answered;                     /* each answer clicked (0 the first button), how many */
     int ending;                                   /* the ending reached, -1 none yet */
+    int effects_made;                             /* its effects are made (once) */
     adv_pages question[CAVE_QUESTIONS];
     adv_pages endings[CAVE_ENDINGS];
     int tallest_set, tallest_page;
@@ -294,6 +295,10 @@ static void cave_award(int kind, int amount) {
 
 /* Ending `e`'s effects, made once. */
 static void cave_effects(int e) {
+    if (cave.effects_made || e != cave.ending) {
+        return;
+    }
+    cave.effects_made = 1;
     switch (e) {
     case CAVE_E_FIND:
         if (cave.find == CAVE_MAP) {
@@ -338,8 +343,9 @@ static void cave_flow_label(int node, int which, char *out, int cap) {
     cave_piece(out, cap, CAVE_LABELS[node >= 0 && node < CAVE_QUESTIONS ? node : 0][which != 0], 0);
 }
 
-/* The answer `choice` (0 the first button) to question `node`: the next question, or an ending with its effects. */
-static int cave_flow_answer(int node, int choice) {
+/* The answer `choice` (0 the first button) to question `node`: the next question, or an ending -- its effects not
+   yet made (they wait for their own page: cave_flow_effects). */
+static int cave_flow_choose(int node, int choice) {
     int next;
     if (!cave.ready || cave.ending >= 0 || node < 0 || node >= CAVE_QUESTIONS || cave.answered >= 3) {
         return ADV_ENDING(cave.ending >= 0 ? cave.ending : CAVE_E_DONT);
@@ -354,7 +360,19 @@ static int cave_flow_answer(int node, int choice) {
     }
     if (next < 0) {
         cave.ending = -1 - next;
-        cave_effects(cave.ending);
+    }
+    return next;
+}
+
+static void cave_flow_effects(int e) {
+    cave_effects(e);
+}
+
+/* The answer and, for an ending, its effects at once (adv_flow's `answer`; the dialogs use choose / effects). */
+static int cave_flow_answer(int node, int choice) {
+    int next = cave_flow_choose(node, choice);
+    if (next < 0) {
+        cave_effects(-1 - next);
     }
     return next;
 }
@@ -377,5 +395,5 @@ static void cave_flow_title(char *out, int cap) {
 
 static const adv_flow CAVE_FLOW = {
     cave_flow_question, cave_flow_label, cave_flow_answer, cave_flow_ending, cave_flow_tallest, cave_flow_subject,
-    cave_flow_title
+    cave_flow_title, cave_flow_choose, cave_flow_effects
 };

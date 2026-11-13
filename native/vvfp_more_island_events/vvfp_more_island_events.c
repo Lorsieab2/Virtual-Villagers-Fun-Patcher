@@ -26,6 +26,7 @@
 #include "adv_text.inc"
 #include "cave_text.inc"
 #include "adv_core.inc"
+#include "adv_log.inc"
 #include "climb_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
