@@ -289,6 +289,33 @@ static void v2_page_text(char *out, int cap, const char *page, int pad_to) {
     }
 }
 
+/* The shared popup's client (vvfp_multi_answer_12.h): an event whose flow has answers(). */
+static int v2_ours(const unsigned char *d);
+
+static int v2_mb_state(void *dialog) {
+    if (!v2_ours((const unsigned char *)dialog)) {
+        return MB_NOT_OURS;
+    }
+    return v2_stage == ADV_STAGE_QUESTION ? MB_ASKING : (v2_stage == ADV_STAGE_INTRO ? MB_OK_UP : MB_ANSWERED);
+}
+
+static int v2_mb_answers(void *dialog) {
+    (void)dialog;
+    return adv_answers(v2_flow, 0);
+}
+
+static void v2_mb_label(void *dialog, int k, char *out, int cap) {
+    (void)dialog;
+    v2_flow->label(0, k, out, cap);
+}
+
+/* The game's own resolve (0x4204B0): its event is ours, so v2_answer answers (the choice field 3 or 4). */
+static void v2_mb_resolve(void *dialog) {
+    ADV_TC0(0x4204B0u, dialog);
+}
+
+static const mb_client V2_MB = { v2_mb_state, v2_mb_answers, v2_mb_label, v2_mb_resolve };
+
 /* The setup for the events' draws: 1 = the dialog is kept. */
 static int __cdecl v2_setup(unsigned char *d) {
     static char label[VV2_DLG_LABEL];
@@ -311,7 +338,11 @@ static int __cdecl v2_setup(unsigned char *d) {
         v2_flow->title(g_vv12_title, sizeof g_vv12_title);
         adv_log_event(2, g_vv12_title);
         v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
-                     adv_lines(&ADV_VV2, v2_flow->tallest()));
+                     adv_lines(&ADV_VV2, v2_flow->tallest())
+                     + (v2_flow->answers != NULL ? mb_room_lines(2, d, adv_answers(v2_flow, 0)) : 0));
+        if (v2_flow->answers != NULL) {
+            mb_attach(2, &V2_MB, d);           /* three or four answers (vvfp_multi_answer_12.h) */
+        }
         v2_flow->label(0, 0, label, sizeof label);
         adv_copy((char *)d + VV2_DLG_LABEL_A, VV2_DLG_LABEL, label);
         v2_flow->label(0, 1, label, sizeof label);
@@ -385,8 +416,17 @@ static void __cdecl v2_answer(unsigned char *d) {
         if (!v2_ours(d) || v2_stage != ADV_STAGE_QUESTION) {
             return;
         }
-        which = *(int *)(d + VV2_DLG_CHOICE) == 2;
-        adv_log_choice((const char *)d + (which ? VV2_DLG_LABEL_B : VV2_DLG_LABEL_A));
+        which = *(int *)(d + VV2_DLG_CHOICE) - 1;          /* 1 / 2 the game's two, 3 / 4 ours */
+        if (which < 0 || which >= adv_answers(v2_flow, 0)) {
+            which = 0;
+        }
+        if (which < 2) {
+            adv_log_choice((const char *)d + (which ? VV2_DLG_LABEL_B : VV2_DLG_LABEL_A));
+        } else {
+            static char label[VV2_DLG_LABEL];
+            v2_flow->label(0, which, label, sizeof label);
+            adv_log_choice(label);
+        }
         v2_ending = -1 - v2_flow->choose(0, which);
         v2_stage = ADV_STAGE_RESULT;
         v2_page = 0;

@@ -2280,13 +2280,6 @@ static int ce_choice_asked(int game) {
     return ce_asked && ce_asked_game == game;
 }
 
-/* Whether `game` shows a question's third and fourth buttons: The Secret City, The Tree of Life and New Believers,
-   the shared multi-answer popup (story_objects.inc, native/shared/vvfp_multi_answer.h).  A New Home's and The Lost
-   Children's popups keep two: an event with more is refused there (story_graph.inc cg_refusal). */
-static int ce_more_answers(int game) {
-    return game >= 3 && game <= 5;
-}
-
 /* The asked question's answers: two, or a branching event's question's two to four (format version 4). */
 static int ce_choice_answers(int game) {
     if (!ce_choice_asked(game)) {
