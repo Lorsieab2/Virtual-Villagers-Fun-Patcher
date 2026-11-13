@@ -325,7 +325,7 @@ class Who(unittest.TestCase):
         v = standard(robed=False)
         self.assertEqual(v.possible(), 0)
         entries, _ = v.list_draw(1)
-        self.assertEqual(entries, 1)                       # the Adventurer alone
+        self.assertEqual(entries, 2)                       # the Adventurer and Diving for Treasure only
 
     def test_population_60_never_61_yes_babies_count(self) -> None:
         v = standard(population=60)
@@ -366,10 +366,10 @@ class TheDraw(unittest.TestCase):
     def test_each_its_own_share(self) -> None:
         v = standard()
         entries, first = v.list_draw(0)
-        self.assertEqual(entries, 2)                         # both can happen: two entries for slot 0
-        entries, second = v.list_draw(1)
-        self.assertEqual(entries, 2)
-        self.assertNotEqual(first, second)                   # the coin puts either event's object in the slot
+        self.assertEqual(entries, 3)                         # with the Adventurer and Diving for Treasure: three
+        entries, second = v.list_draw(1)                     # entries for slot 0 (tests/test_diving_for_treasure.py)
+        self.assertEqual(entries, 3)
+        self.assertNotEqual(first, second)                   # the draw puts any event's object in the slot
         v = Signs()
         v.chief()
         v.village(1)                                        # the Adventurer cannot happen (one who may go)

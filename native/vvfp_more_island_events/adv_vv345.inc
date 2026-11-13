@@ -10,10 +10,12 @@
    with its own methods), kept in the table's slot 0: every selector lists slots 1 and up only, slot 0 is never
    written by a table builder (the teardowns 0x418F00 / 0x417760 / ... delete it like any slot: its deleter does
    nothing, the object is this DLL's), so the stock events keep every slot.  The selector's loop end (cmp esi, N /
-   jl) jumps here: after the stock slots are listed, slot 0 is listed too when the event's condition holds (at least
-   two villagers who may go, adv_possible) -- so it takes an equal share of the draw, rand(count), like any listed
-   event, with the game's own timing, rescue rule and counting.  The list has room: each selector's array holds
-   one entry more than its stock slots (the slot count + 1 dwords before the dialog on the stack).  Slot 0 is put
+   jl) jumps here: after the stock slots are listed, slot 0 is listed once for each of our events whose condition
+   holds (the Adventurer: at least two villagers who may go, adv_possible; The Secret City's The Troubling Signs and
+   Diving for Treasure their own), and the object put in slot 0 is one of theirs, each equally likely (t_list) -- so
+   each takes an equal share of the draw, rand(count), like any listed event, with the game's own timing, rescue rule
+   and counting.  Each selector's array holds one entry more than its stock slots (the slot count + 1 dwords before
+   the dialog on the stack): t_list never adds more entries than that room.  Slot 0 is put
    back at every selection (a teardown clears it).  The picked index 0 is presented by the stock code as any other
    (`mov reg, [esi*4 + table]`), and its "shown" byte (table - slots - 1 + 0, never read) is set as any other's.
 
@@ -226,10 +228,11 @@ static void t_injure(int index, int health) {
     }
 }
 
-/* Farming, Building, Research, Healing: The Secret City's ints +0xEAC.. (Farming, Parenting, Healing, Research,
-   Building), the later two's floats +0x1C5C.. in the same order. */
+/* Farming, Building, Research, Healing, Parenting: The Secret City's ints +0xEAC.. (Farming, Parenting, Healing,
+   Research, Building), the later two's floats +0x1C5C.. in the same order; at most 100, never below 0 (The Secret
+   City's own skill adder 0x455740: cmp edx, 0x64 / mov 0x64, test / mov 0). */
 static void t_skill(int index, int which, int amount) {
-    static const int SLOT[4] = { 0, 4, 3, 2 };
+    static const int SLOT[5] = { 0, 4, 3, 2, 1 };
     unsigned char *r = t_record(index);
     if (g_tg->game == 3) {
         int *field = (int *)(r + 0xEAC + 4 * SLOT[which]);
@@ -368,7 +371,13 @@ static const adv_game ADV_VV5 = {
     50, 300, 500, 3000, NULL, NULL
 };
 
-/* ---- The event object ------------------------------------------------------------------------------------------ */
+/* ---- The events in slot 0 ------------------------------------------------------------------------------------------
+
+   Every More Island Events event of these games is an object put in the table's slot 0 (THE EVENT, above), each with
+   its own place in the draw (t_list).  The two-choice ones -- The Aspiring Adventurer in all three games, Diving for
+   Treasure in The Secret City (dive_vv3.inc) -- share one virtual table and the methods below, each through its own
+   adv_flow (its question, labels, answer, endings and effects); The Troubling Signs (troubling_vv3.inc) has its own
+   object, methods and four-answer dialog.  Each registers itself with t_register. */
 
 typedef struct {
     void *vtable;
@@ -377,15 +386,29 @@ typedef struct {
     int extra[2];
 } adv_object;
 
+#define T_MAX_EVENTS 8
+
+typedef struct t_event {
+    adv_object *object;
+    const adv_flow *flow;              /* NULL: not shown by the two-choice methods below (The Troubling Signs) */
+    int (*listable)(void);             /* it can happen now */
+    int (*begin)(void);                /* composed for the popup about to be built: 1 ready */
+    int ready, answered, ending;       /* ending: adv_flow's, -1 none yet */
+} t_event;
+
+static t_event g_events[T_MAX_EVENTS]; /* in the order registered: the order t_list's draw counts them */
+static int g_event_count;
+static t_event *g_ev;                  /* the two-choice event of the popup being shown */
+
 static unsigned int g_vtable[17];      /* [0] = the source's RTTI locator */
-static adv_object g_object;
+static adv_object g_object;            /* The Aspiring Adventurer's */
 static adv_object g_ts_object;         /* The Troubling Signs' (The Secret City, troubling_vv3.inc) */
 static void *g_ctor_dialog;            /* the dialog being built (t_ctor_thunk) */
 static int g_list_count;               /* the entries t_list adds */
-static int ts_listable(void);
 static void ts_after_ctor(void *dialog);
 static int ts_ok(void *dialog);
 static void ts_install(void);
+static void dv_install(void);
 static adv_string g_title_entry, g_body_entry;
 static adv_string *g_saved_title, *g_saved_body;
 static int g_strings_in;
@@ -393,7 +416,30 @@ static char g_title[256];
 
 static void *g_dialog;
 static int g_stage, g_page;
-static int g_effects_page = -1;          /* the result's page that makes its effects (its last), -1 made */
+static int g_effects_page = -1;          /* the ending's page that makes its effects (its last), -1 made */
+
+static void t_register(adv_object *object, const adv_flow *flow, int (*listable)(void), int (*begin)(void)) {
+    if (g_event_count < T_MAX_EVENTS) {
+        t_event *ev = &g_events[g_event_count++];
+        memset(ev, 0, sizeof *ev);
+        ev->object = object;
+        ev->flow = flow;
+        ev->listable = listable;
+        ev->begin = begin;
+        ev->ending = -1;
+    }
+}
+
+/* The two-choice event whose object `object` is, NULL when none. */
+static t_event *t_event_of(const void *object) {
+    int k;
+    for (k = 0; k < g_event_count; ++k) {
+        if (object != NULL && (const void *)g_events[k].object == object && g_events[k].flow != NULL) {
+            return &g_events[k];
+        }
+    }
+    return NULL;
+}
 
 static adv_string **t_slots(void) {
     return (adv_string **)(uintptr_t)g_tg->strings;
@@ -444,8 +490,9 @@ static void __fastcall o_delete(void *self, void *unused, int flags) {
 }
 
 static char __fastcall o_condition(void *self, void *unused) {
-    (void)self; (void)unused;
-    return (char)adv_possible(g_table_adv);
+    t_event *ev = t_event_of(self);
+    (void)unused;
+    return (char)(ev != NULL && ev->listable());
 }
 
 static char __fastcall o_true(void *self, void *unused) {
@@ -455,44 +502,56 @@ static char __fastcall o_true(void *self, void *unused) {
 
 /* +0x08, asked once as the dialog is built: the event is composed here. */
 static int __fastcall o_title(void *self, void *unused) {
+    t_event *ev = t_event_of(self);
     (void)unused;
     g_dialog = NULL;
     g_stage = ADV_STAGE_NONE;
     g_effects_page = -1;
-    if (!adv_begin(g_table_adv)) {
-        ((adv_object *)self)->villager = NULL;         /* no villager: the dialog is not shown */
+    g_ev = ev;
+    g_title[0] = '\0';
+    if (ev == NULL) {
+        ((adv_object *)self)->villager = NULL;         /* not ours: the dialog is not shown */
     } else {
-        ((adv_object *)self)->villager = g_table_adv->record(adv.hero);
-    }
-    adv_piece(g_title, sizeof g_title, ADV_TITLE, 0);
-    if (adv.ready) {
-        adv_log_event(g_table_adv->game, g_title);
+        ev->answered = 0;
+        ev->ending = -1;
+        ev->ready = ev->begin();
+        ((adv_object *)self)->villager = ev->ready ? g_table_adv->record(ev->flow->subject()) : NULL;
+        ev->flow->title(g_title, sizeof g_title);
+        if (ev->ready) {
+            adv_log_event(g_table_adv->game, g_title);
+        }
     }
     t_strings_in();
     return g_tg->title_id;
 }
 
 static int __fastcall o_question(void *self, void *unused) {
-    (void)self; (void)unused;
-    return t_text_id(adv.intro.count > 0 ? adv.intro.text[adv.intro.count - 1] : "");
+    t_event *ev = t_event_of(self);
+    const adv_pages *q = ev != NULL ? ev->flow->question(0) : NULL;
+    (void)unused;
+    return t_text_id(q != NULL && q->count > 0 ? q->text[q->count - 1] : "");
+}
+
+static int t_label_id(void *self, int which) {
+    static char label[2][128];
+    t_event *ev = t_event_of(self);
+    label[which][0] = '\0';
+    if (ev != NULL) {
+        ev->flow->label(0, which, label[which], sizeof label[which]);
+    }
+    t_strings_in();
+    g_body_entry.text = label[which];
+    return g_tg->body_id;
 }
 
 static int __fastcall o_label_a(void *self, void *unused) {
-    static char label[128];
-    (void)self; (void)unused;
-    adv_piece(label, sizeof label, ADV_LABEL_A, 0);
-    t_strings_in();
-    g_body_entry.text = label;
-    return g_tg->body_id;
+    (void)unused;
+    return t_label_id(self, 0);
 }
 
 static int __fastcall o_label_b(void *self, void *unused) {
-    static char label[128];
-    (void)self; (void)unused;
-    adv_piece(label, sizeof label, ADV_LABEL_B, 0);
-    t_strings_in();
-    g_body_entry.text = label;
-    return g_tg->body_id;
+    (void)unused;
+    return t_label_id(self, 1);
 }
 
 static void *__fastcall o_villager(void *self, void *unused) {
@@ -510,35 +569,46 @@ static int __fastcall o_pose(void *self, void *unused) {
     return 5;
 }
 
-/* +0x28(c): before the answer the tallest page of the event (the popup is sized to it), then the result's page. */
+/* +0x28(c): before the answer the tallest page of the event (the popup is sized to it), then the ending's page. */
 static int __fastcall o_result(void *self, void *unused, int choice) {
-    (void)self; (void)unused;
-    if (!adv.answered) {
-        return t_text_id(adv_tallest_text());
+    t_event *ev = t_event_of(self);
+    const adv_pages *pages;
+    (void)unused; (void)choice;
+    if (ev == NULL) {
+        return t_text_id("");
     }
-    choice = choice != 0;
-    return t_text_id(adv.result[choice].text[g_page < adv.result[choice].count ? g_page : 0]);
+    if (!ev->answered) {
+        return t_text_id(ev->flow->tallest());
+    }
+    pages = ev->flow->ending(ev->ending);
+    return t_text_id(pages->text[g_page < pages->count ? g_page : 0]);
 }
 
-/* The result's last page is shown: its effects (adv_log.inc). */
+/* The ending's last page is shown: its effects (adv_log.inc). */
 static void t_page_effects(void) {
     g_effects_page = -1;
-    adv_log_effects(adv_flow_effects, adv.choice);
+    if (g_ev != NULL && g_ev->answered) {
+        adv_log_effects(g_ev->flow->effects, g_ev->ending);
+    }
 }
 
-/* +0x34(c): the answer; the result's first page follows (+0x28), with the effects when it is the last. */
+/* +0x34(c): the answer; the ending's first page follows (+0x28), with the effects when it is the last. */
 static void __fastcall o_choose(void *self, void *unused, int choice) {
     static char label[128];
-    (void)self; (void)unused;
-    choice = choice != 0;
-    adv_piece(label, sizeof label, choice ? ADV_LABEL_B : ADV_LABEL_A, 0);
-    if (!adv_answer_only(choice)) {
+    t_event *ev = t_event_of(self);
+    (void)unused;
+    if (ev == NULL || !ev->ready || ev->answered) {
         return;
     }
+    choice = choice != 0;
+    ev->flow->label(0, choice, label, sizeof label);
+    ev->answered = 1;
+    ev->ending = -1 - ev->flow->choose(0, choice);
+    g_ev = ev;
     adv_log_choice(label);
     g_stage = ADV_STAGE_RESULT;
     g_page = 0;
-    g_effects_page = adv.result[adv.choice].count - 1;
+    g_effects_page = ev->flow->ending(ev->ending)->count - 1;
     if (g_effects_page == 0) {
         t_page_effects();
     }
@@ -547,7 +617,7 @@ static void __fastcall o_choose(void *self, void *unused, int choice) {
 /* +0x2C(c): OK on the last page (the effects were made as it was shown). */
 static void __fastcall o_apply(void *self, void *unused, int choice) {
     (void)self; (void)unused; (void)choice;
-    if (g_effects_page >= 0 && adv.answered) {
+    if (g_effects_page >= 0) {
         t_page_effects();                    /* never left unmade (a page count that changed: a fault) */
     }
     g_stage = ADV_STAGE_NONE;
@@ -555,6 +625,7 @@ static void __fastcall o_apply(void *self, void *unused, int choice) {
     t_strings_out();
 }
 
+/* The two-choice events' virtual table (a copy of the stock event's, its methods ours), built once. */
 static void t_build_object(void) {
     static const int SLOTS[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13 };
     void *functions[13];
@@ -576,37 +647,54 @@ static void t_build_object(void) {
     for (i = 0; i < 13; ++i) {
         g_vtable[1 + SLOTS[i]] = (unsigned int)(uintptr_t)functions[i];
     }
-    memset(&g_object, 0, sizeof g_object);
-    g_object.vtable = &g_vtable[1];
-    g_object.amount = -1;
+}
+
+/* A two-choice event's object: the shared virtual table. */
+static void t_new_object(adv_object *object) {
+    memset(object, 0, sizeof *object);
+    object->vtable = &g_vtable[1];
+    object->amount = -1;
+}
+
+/* The Aspiring Adventurer, as these methods ask it. */
+static int adv_listable(void) {
+    return adv_possible(g_table_adv);
+}
+
+static int adv_begin_now(void) {
+    return adv_begin(g_table_adv);
 }
 
 /* ---- The sites ------------------------------------------------------------------------------------------------ */
 
-/* After the stock slots are listed (`listed` of them): slot 0 put back, and listed when the event can happen; the
-   entries to add (0, 1, or 2 when The Troubling Signs can happen too: each event its own share of the draw, the
-   object in slot 0 either's, 1 in 2 -- troubling_vv3.inc).  The list holds the stock slots + 1 entries. */
+/* After the stock slots are listed (`listed` of them): the entries to add, one for EACH registered event that can
+   happen now -- so each is drawn as any stock event, 1 in (count + entries) -- and the object put in slot 0 one of
+   those events', each equally likely (the game's own rand; none drawn when only one can happen).  Whichever entry
+   the selector then draws presents slot 0, so each event's chance is its own entry's.  The list holds the stock
+   slots + 1 entries (the dialog's frame follows it): never more entries than its room (when it is full the extra
+   entries are left out, never written past it; the slot's object is still drawn fairly among the events). */
 static int __cdecl t_list(int listed) {
-    int adventurer = 0, troubling = 0, room = g_tg->slots + 1 - listed;
+    int k, n = 0, room = g_tg->slots + 1 - listed;
+    int can[T_MAX_EVENTS];
     adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
     __try {
         *(void **)(uintptr_t)g_tg->table = &g_object;
-        adventurer = adv_possible(g_table_adv);
-        troubling = ts_listable();
-        if (adventurer && troubling) {
-            if (t_rand(2) != 0) {
-                *(void **)(uintptr_t)g_tg->table = &g_ts_object;
+        for (k = 0; k < g_event_count; ++k) {
+            if (g_events[k].listable != NULL && g_events[k].listable()) {
+                can[n++] = k;
             }
-            return room >= 2 ? 2 : (room >= 1 ? 1 : 0);
         }
-        if (troubling) {
-            *(void **)(uintptr_t)g_tg->table = &g_ts_object;
+        if (n > 0) {
+            *(void **)(uintptr_t)g_tg->table = g_events[can[t_rand(n)]].object;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         *(void **)(uintptr_t)g_tg->table = &g_object;
-        adventurer = troubling = 0;
+        n = 0;
     }
-    return (adventurer || troubling) && room >= 1 ? 1 : 0;
+    if (room < 0) {
+        room = 0;
+    }
+    return n < room ? n : room;
 }
 
 /* jmp from the loop end `cmp esi, N; jl top` (5 bytes). */
@@ -647,21 +735,25 @@ static void *t_control(void *dialog, unsigned int offset) {
 /* After the dialog's constructor: a question of more than one page starts with its first page and OK. */
 static void __cdecl t_after_ctor(void *dialog) {
     __try {
+        void *object = dialog != NULL ? *(void **)((unsigned char *)dialog + 0x50) : NULL;
+        t_event *ev = t_event_of(object);
+        const adv_pages *q;
         g_ctor_dialog = NULL;
-        if (dialog != NULL && *(void **)((unsigned char *)dialog + 0x50) == &g_ts_object) {
+        if (object != NULL && object == &g_ts_object) {
             ts_after_ctor(dialog);
             return;
         }
-        if (dialog == NULL || *(void **)((unsigned char *)dialog + 0x50) != &g_object || !adv.ready) {
+        if (ev == NULL || ev != g_ev || !ev->ready) {
             return;
         }
+        q = ev->flow->question(0);
         g_dialog = dialog;
         g_page = 0;
-        if (adv.intro.count > 1) {
+        if (q->count > 1) {
             ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x85C));
             ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x860));
             ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x864));
-            t_set_text(dialog, adv.intro.text[0]);
+            t_set_text(dialog, q->text[0]);
             g_stage = ADV_STAGE_INTRO;
         } else {
             g_stage = ADV_STAGE_QUESTION;
@@ -691,31 +783,38 @@ __declspec(naked) static void t_ctor_thunk(void) {
 static int __cdecl t_ok(void *dialog) {
     int stay = 0;
     __try {
-        if (dialog != NULL && *(void **)((unsigned char *)dialog + 0x50) == &g_ts_object) {
+        void *object = dialog != NULL ? *(void **)((unsigned char *)dialog + 0x50) : NULL;
+        t_event *ev;
+        if (object != NULL && object == &g_ts_object) {
             return ts_ok(dialog);
         }
-        if (dialog == NULL || dialog != g_dialog || *(void **)((unsigned char *)dialog + 0x50) != &g_object) {
+        ev = t_event_of(object);
+        if (dialog == NULL || dialog != g_dialog || ev == NULL || ev != g_ev) {
             return 0;
         }
         if (g_stage == ADV_STAGE_INTRO) {
+            const adv_pages *q = ev->flow->question(0);
             ++g_page;
-            if (g_page >= adv.intro.count - 1) {
-                t_set_text(dialog, adv.intro.text[adv.intro.count - 1]);
+            if (g_page >= q->count - 1) {
+                t_set_text(dialog, q->text[q->count - 1]);
                 ADV_TC1(g_tg->hide, dialog, t_control(dialog, 0x864));
                 ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x85C));
                 ADV_TC1(g_tg->show, dialog, t_control(dialog, 0x860));
                 g_stage = ADV_STAGE_QUESTION;
             } else {
-                t_set_text(dialog, adv.intro.text[g_page]);
+                t_set_text(dialog, q->text[g_page]);
             }
             stay = 1;
-        } else if (g_stage == ADV_STAGE_RESULT && g_page + 1 < adv.result[adv.choice].count) {
-            ++g_page;
-            t_set_text(dialog, adv.result[adv.choice].text[g_page]);
-            if (g_page == g_effects_page) {
-                t_page_effects();
+        } else if (g_stage == ADV_STAGE_RESULT) {
+            const adv_pages *pages = ev->flow->ending(ev->ending);
+            if (g_page + 1 < pages->count) {
+                ++g_page;
+                t_set_text(dialog, pages->text[g_page]);
+                if (g_page == g_effects_page) {
+                    t_page_effects();
+                }
+                stay = 1;
             }
-            stay = 1;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         stay = 0;
@@ -789,8 +888,12 @@ static int t_install(int game) {
         return 0;                       /* slot 0 taken by something else, or no vtable to copy */
     }
     t_build_object();
+    g_event_count = 0;
+    t_new_object(&g_object);
+    t_register(&g_object, &ADV_FLOW, adv_listable, adv_begin_now);   /* first: the draw's index 0 */
     if (game == 3) {
         ts_install();                   /* The Troubling Signs (troubling_vv3.inc): no site of its own */
+        dv_install();                   /* Diving for Treasure (dive_vv3.inc): no site of its own */
     }
     vvfp_site_branch(&w[0], g_tg->loop_site, 5, g_tg->loop_stock, 0xE9, (const void *)t_loop_stub);
     vvfp_site_branch(&w[1], g_tg->ok_site, 5, ADV_OK_STOCK, 0xE9, (const void *)t_ok_stub);

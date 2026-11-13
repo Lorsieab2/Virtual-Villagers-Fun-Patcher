@@ -1,5 +1,5 @@
 """The five rows of "More Island Events" (vvN_more_island_events): The Aspiring Adventurer (all five games), The Cave
-Explorers (A New Home), The Climb (The Lost Children) and The Troubling Signs (The Secret City), written by scripts/build_more_island_events.py.  The sites are the companion's own
+Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City), written by scripts/build_more_island_events.py.  The sites are the companion's own
 (native/vvfp_more_island_events: adv_vv1.inc, adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the
 two together)."""
 from __future__ import annotations
@@ -73,8 +73,9 @@ TROUBLING_BEHAVIOUR = (
     "protected (adv_is_protected: nursing +0xE8C, the chief +0xE80) -- four advisors (one per group, the same four for "
     "the event; they stay) and five travellers, any nine equally likely -- a population of 61 or more (The Lost "
     "Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the "
-    "game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer but has its own share of "
-    "the draw: with both possible the loop-end stub lists slot 0 twice and puts either event's object there, 1 in 2. "
+    "game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure "
+    "but has its own share of the draw: the loop-end stub lists slot 0 once for each of them that can happen (never "
+    "past the list's room) and puts one of their objects there, each equally likely. "
     "The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two "
     "(0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child "
     "0x40C1F0), stacked and centred 1.5 button heights apart, room for them measured by the game's own paragraph "
@@ -84,6 +85,28 @@ TROUBLING_BEHAVIOUR = (
     "villager is (no body), told to Cause of Death, and the award through the game's own writer (a loss at most what "
     "is stored) -- are made when the decree's last page is shown, with the event's one Island Events log entry. No "
     "site of its own.")
+DIVE_DESCRIPTION = (
+    " And Diving for Treasure (The Secret City only): a villager of 18 or more dives for something shimmering on the "
+    "reef. \"Swim deeper\": 1 in 4 each, golden doubloons (tech points), a useless buoy, a container of exotic "
+    "ingredients (food) -- a random amount as the Aspiring Adventurer's, " + adv.award_words(3, "tech") + " or "
+    + adv.award_words(3, "food") + ", times the game's own multiplier -- or an air tank pops: 75% the diver gets "
+    "ashore and now dislikes swimming; 25% the diver sinks: dies (17%, a grave), is never found (17%, no grave) or "
+    "is rescued (66%, +10 to 20 Healing, at most 100). \"Better not\": +10 to 20 Parenting, at most 100. It needs two "
+    "villagers of 18 or more who are not nursing a baby and not the Tribal Chief (the diver, and another named as the "
+    "head Doctor on the rescue page); it has its own share of the draw.")
+DIVE_BEHAVIOUR = (
+    "Diving for Treasure (The Secret City): the diver and the rescue page's head Doctor are two different villagers "
+    "of 18 or more (360 age units) who may be picked (vv3_eligible: alive +0xE78, present +0xF10, not a look-alike "
+    "+0xE94, adv_is_protected: nursing +0xE8C, the chief +0xE80), each drawn among them. One more two-choice object "
+    "with the Adventurer's virtual table and methods (adv_flow), its own entry in the draw (t_list: one entry for slot "
+    "0 per event that can happen, never past the list's room; the object put there drawn among them). \"Swim "
+    "deeper\": rand(4) A / B / C / D; D: rand(100) < 75 survives -- swimming (preference 37 of the game's list at file "
+    "0x97488) taken from the likes +0xFB4 and added to the dislikes +0xFC0 -- else sinks: rand(100) < 17 the game's "
+    "own death (0x462670, health 0, cause -1: a grave), < 34 removed as a living villager is (no body; told to Cause "
+    "of Death), else +10 to 20 Healing (+0xEB4); A a normal tech award, C a normal food award (the game's range, then "
+    "its multiplier, through 0x427130 / 0x4263F0). \"Better not\": +10 to 20 Parenting (+0xEB0). Skills at most 100 "
+    "(the game's own adder 0x455740 caps at 0x64). The effects are made when the ending's last page is shown, with "
+    "the event's one Island Events log entry. No site of its own.")
 
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
@@ -203,7 +226,7 @@ def description(game: int) -> str:
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
         "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
-        + ("Two here: " if game in (1, 2, 3) else "For now one: ")
+        + ("Two here: " if game in (1, 2) else "Three here: " if game == 3 else "For now one: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
         "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
@@ -217,8 +240,8 @@ def description(game: int) -> str:
         + ". Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the "
         "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait "
         "for the page that tells them, and the Island Events log keeps one entry for each event."
-        + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION if game == 3
-           else "") + " " + classic + " **Needs no other patch.** "
+        + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION + DIVE_DESCRIPTION
+           if game == 3 else "") + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -257,8 +280,8 @@ def row(game: int, sha: str) -> dict:
             "The owner's words, by translation key (the event's popup shows the player's language when a translation "
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "
             "each shown in turn with OK.",
-        ] + ([CAVE_BEHAVIOUR] if game == 1 else [CLIMB_BEHAVIOUR] if game == 2 else [TROUBLING_BEHAVIOUR] if game == 3
-             else []),
+        ] + ([CAVE_BEHAVIOUR] if game == 1 else [CLIMB_BEHAVIOUR] if game == 2 else [TROUBLING_BEHAVIOUR, DIVE_BEHAVIOUR]
+             if game == 3 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
@@ -274,7 +297,9 @@ def row(game: int, sha: str) -> dict:
                                "tests/test_the_climb.py)" if game == 2 else
                                " (The Troubling Signs: who, the draw, all four answers by mouse and key, the effects on "
                                "the last page, the log entry, the words and the four buttons, in "
-                               "tests/test_troubling_signs.py)" if game == 3 else "")
+                               "tests/test_troubling_signs.py; Diving for Treasure: who, every branch at its odds, "
+                               "every effect on the last page, the log entry, the words and the draw with 1, 2 and 3 "
+                               "events, in tests/test_diving_for_treasure.py)" if game == 3 else "")
                             + "; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},
