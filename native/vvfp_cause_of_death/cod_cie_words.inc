@@ -6,9 +6,9 @@
    right after, with those words: VvfpCauseKilledBy(game, index, words) -- as VvfpCauseVanishedBy does for a
    disappearance.  The death is then exactly VvfpCauseKilled's (cause 5 in A New Home and The Lost Children's graves
    file; the body kept for its Death record in the later three, cod_cie.inc), and the words go where "Died in a
-   custom island event" would: the Death record's "Cause of death:" line in every game, and the grave popup's cause
-   line in A New Home and The Lost Children (the two whose grave this companion draws; the later three's graves show
-   the game's own string-table cause, never touched).
+   custom island event" would: the Death record's "Cause of death:" line in every game, and the grave's cause line: A New Home's and The Lost
+   Children's popup (which this companion draws), and -- the owner, v1.35.97 -- The Secret City's, The Tree of Life's
+   and New Believers' too (THE LATER THREE'S GRAVES, below).
 
    The words are kept by the body's fingerprint (cod_fingerprint: its name and age, frozen at death -- the same that
    names its grave), in their own small file beside the Custom Island Event Deaths file:
@@ -216,6 +216,19 @@ static int cw_needed(unsigned int fingerprint) {
             return 1;
         }
     }
+    /* ...and, once buried, its Roster of the Dead entry (cause -1), whose grave shows the words (read under SEH:
+       the roster is the game's, at its fixed place). */
+    __try {
+        for (i = 0; i < V345_ENTRIES; ++i) {
+            const unsigned char *entry = v345_entry(i);
+            if (entry != NULL && *(const int *)(entry + V345[g_game].e_cause) == CAUSE_UNKNOWN
+                && *(const unsigned char *)entry != 0 && v345_fingerprint(entry) == fingerprint) {
+                return 1;
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
     return 0;
 }
 
@@ -305,4 +318,119 @@ __declspec(dllexport) void __stdcall VvfpCauseKilledBy(int game, int index, cons
         cw_add(cod_record_fingerprint(record), words);
     }
     VvfpCauseKilled(game, index);
+}
+
+/* ---- THE LATER THREE'S GRAVES (the owner, v1.35.97) ----------------------------------------------------------
+
+   The Secret City, The Tree of Life and New Believers word a grave's cause from their own string table: the grave
+   dialog's constructor (VV3 0x41E6D0, VV4 0x41BBA0, VV5 0x41C3F0) looks up "cause + base" with the string lookup
+   (thiscall, the id; ret 4) and makes the cause line from the text it returns, and The Secret City's Roster of the
+   Dead does the same for each entry it lists:
+
+       site      the call                  the Roster of the Dead entry      base
+       VV3 grave 0x41EC65 call 0x42F190    eax                               0x2E6
+       VV3 roster 0x41A07F call 0x42F190   ebp                               0x2E6
+       VV4 grave 0x41C18A call 0x44D3D0    ebx                               0x317
+       VV5 grave 0x41C9DA call 0x4506D0    eax                               0x314
+
+   Each call is pointed here at run time (a 5-byte call redirect, in the companion's own install batch: every one
+   of its sites or none, stock bytes checked first;
+   nothing is written to the exe file and no string table is touched): the game's own lookup runs as before, and
+   only when the entry's cause is the game's -1 ("Unknown causes", every island event's) and this companion holds
+   the author's words for that grave's fingerprint (its name and age at death: v345_fingerprint, the same as the
+   body's) is the text the line gets the words instead.  Every other grave keeps the game's own words. */
+
+typedef struct {
+    unsigned int va;                   /* the `call <lookup>` */
+    unsigned int lookup;               /* what it calls */
+    int game;
+    int reg;                           /* the entry's register: 0 eax, 1 ebx, 2 ebp */
+} cw_grave_site;
+
+static const cw_grave_site CW_GRAVE_SITES[] = {
+    { 0x41EC65u, 0x42F190u, 3, 0 },
+    { 0x41A07Fu, 0x42F190u, 3, 2 },
+    { 0x41C18Au, 0x44D3D0u, 4, 1 },
+    { 0x41C9DAu, 0x4506D0u, 5, 0 },
+};
+#define CW_GRAVE_SITE_COUNT ((int)(sizeof CW_GRAVE_SITES / sizeof CW_GRAVE_SITES[0]))
+
+static unsigned int cw_lookup;         /* the game's string lookup */
+static unsigned int cw_return;         /* the site's return address (the UI thread only) */
+static const unsigned char *cw_entry;  /* the entry the line is for */
+
+/* The text a grave's cause line gets: the author's words for a Custom Island Event's death, else `text`. */
+static const char *__cdecl cw_grave_text(const unsigned char *entry, const char *text) {
+    const char *words = NULL;
+    __try {
+        if (entry != NULL && *(const int *)(entry + V345[g_game].e_cause) == CAUSE_UNKNOWN) {
+            words = cw_words(v345_fingerprint(entry));
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        words = NULL;
+    }
+    return words != NULL ? words : text;
+}
+
+/* The redirected call: the game's lookup (its id on the stack, ecx its table), then the words in its place. */
+__declspec(naked) static void cw_grave_common(void) {
+    __asm {
+        pop dword ptr [cw_return]
+        call dword ptr [cw_lookup]
+        push eax
+        push dword ptr [cw_entry]
+        call cw_grave_text
+        add esp, 8
+        push dword ptr [cw_return]
+        ret
+    }
+}
+
+__declspec(naked) static void cw_grave_eax(void) {
+    __asm {
+        mov dword ptr [cw_entry], eax
+        jmp cw_grave_common
+    }
+}
+
+__declspec(naked) static void cw_grave_ebx(void) {
+    __asm {
+        mov dword ptr [cw_entry], ebx
+        jmp cw_grave_common
+    }
+}
+
+__declspec(naked) static void cw_grave_ebp(void) {
+    __asm {
+        mov dword ptr [cw_entry], ebp
+        jmp cw_grave_common
+    }
+}
+
+/* The game's grave sites into `w`, the companion's own install batch (cod_install_sites: every site of the companion
+   written, or none): their count, or -1 when one is not the game's own call (then nothing is installed). */
+static int cw_graves_prepare(vvfp_site_write *w) {
+    static unsigned char stocks[CW_GRAVE_SITE_COUNT][5];   /* each write keeps a pointer to its own stock bytes */
+    int i, n = 0;
+    if (g_game < 3) {
+        return 0;
+    }
+    for (i = 0; i < CW_GRAVE_SITE_COUNT; ++i) {
+        const cw_grave_site *c = &CW_GRAVE_SITES[i];
+        unsigned char *stock = stocks[i];
+        unsigned int rel = c->lookup - (c->va + 5u);
+        const void *stub = c->reg == 0 ? (const void *)cw_grave_eax
+                         : c->reg == 1 ? (const void *)cw_grave_ebx : (const void *)cw_grave_ebp;
+        if (c->game != g_game) {
+            continue;
+        }
+        stock[0] = 0xE8;
+        memcpy(stock + 1, &rel, 4);
+        if (!cod_bytes_are(c->va, stock, 5)) {
+            return -1;                  /* another patch has the site: the companion is not installed */
+        }
+        vvfp_site_branch(&w[n++], c->va, 5, stock, 0xE8, stub);
+        cw_lookup = c->lookup;
+    }
+    return n;
 }

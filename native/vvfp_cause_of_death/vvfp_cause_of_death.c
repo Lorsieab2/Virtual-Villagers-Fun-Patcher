@@ -592,11 +592,13 @@ static void cod_add(unsigned int va, const char *stock_hex, site_fn fn) {
    before any is written, so a VirtualProtect refused at the twentieth site
    leaves the first nineteen stock too (native/shared/install_sites.h; it
    used to leave them detoured and report the install refused). */
-static vvfp_site_write cod_writes[SITES_MAX];
+/* cod_cie_words.inc: the later three's grave sites, in this same batch. */
+static int cw_graves_prepare(vvfp_site_write *w);
+static vvfp_site_write cod_writes[SITES_MAX + 4];   /* + the later three's grave sites (cod_cie_words.inc) */
 
 static int cod_install_sites(int first) {
     unsigned char *page;
-    int i;
+    int i, graves;
     for (i = first; i < site_count; ++i) {
         if (sites[i].length < 5 || !cod_bytes_are(sites[i].va, sites[i].stock, sites[i].length)) {
             return 0;
@@ -610,7 +612,9 @@ static int cod_install_sites(int first) {
         vvfp_site_branch(&cod_writes[i - first], sites[i].va, sites[i].length, sites[i].stock, 0xE9,
                          page + i * STUB_BYTES);
     }
-    if (site_count - first <= 0 || !vvfp_install_sites(cod_writes, site_count - first)) {
+    graves = cw_graves_prepare(&cod_writes[site_count - first]);   /* the later three's grave cause lines */
+    if (site_count - first <= 0 || graves < 0
+        || !vvfp_install_sites(cod_writes, site_count - first + graves)) {
         VirtualFree(page, 0, MEM_RELEASE);     /* no site points at it */
         return 0;
     }
