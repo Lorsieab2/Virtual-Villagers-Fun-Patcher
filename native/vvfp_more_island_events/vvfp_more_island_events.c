@@ -28,14 +28,17 @@
 #include "adv_core.inc"
 #include "adv_log.inc"
 #include "climb_text.inc"
+#include "troubling_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
+#include "troubling_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
 enum { ADV_STAGE_NONE = 0, ADV_STAGE_INTRO, ADV_STAGE_QUESTION, ADV_STAGE_RESULT };
 
 #include "adv_vv345.inc"
+#include "troubling_vv3.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
 
@@ -192,6 +195,67 @@ const char *__stdcall VvfpClimbPage(int set, int k) {
     }
     pages = climb_set(set);
     return k >= 0 && k < pages->count ? pages->text[k] : NULL;
+}
+
+/* The Troubling Signs (The Secret City): whether it can happen now -- a robed chief, nine who may be picked, a
+   population of 61 or more and the tribe's name. */
+int __stdcall VvfpTroublingSignsPossible(void) {
+    return ts_listable();
+}
+
+/* Its last popup's state (for the tests): out[0] the chief's record, [1] the chief is a woman, [2..5] the four
+   advisors' records (the spiritual leaders, the magicians, the naturalists, the scientists and healers), [6..10] the
+   five travellers', [11..14] each answer's award, [15] answered, [16] the answer (0..3), [17] the effects made,
+   [18] the question's pages, [19..22] each answer's pages, [23] the stage (0 none, 1 the opening, 2 the question,
+   3 the answer's pages), [24] the page shown, [25] the population, [26] the room the four buttons take.
+   Returns 27. */
+int __stdcall VvfpTroublingSignsState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    out[0] = ts.chief; out[1] = ts.female;
+    for (k = 0; k < TS_ADVISORS; ++k) {
+        out[2 + k] = ts.advisor[k];
+    }
+    for (k = 0; k < TS_TRAVELLERS; ++k) {
+        out[6 + k] = ts.traveller[k];
+    }
+    for (k = 0; k < TS_GROUPS; ++k) {
+        out[11 + k] = ts.award[k];
+        out[19 + k] = ts.result[k].count;
+    }
+    out[15] = ts.answered; out[16] = ts.choice; out[17] = ts.effects_made; out[18] = ts.intro.count;
+    out[23] = g_ts_stage; out[24] = g_ts_page;
+    __try {
+        out[25] = g_ts != NULL ? g_ts->population() : -1;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        out[25] = -1;
+    }
+    out[26] = g_ts_room;
+    return 27;
+}
+
+/* Page `k` of set `set`: 0 the question, 1..4 each answer's. */
+const char *__stdcall VvfpTroublingSignsPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set > TS_GROUPS) {
+        return NULL;
+    }
+    pages = ts_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
+}
+
+/* The four answer buttons of the dialog showing it, top to bottom (for the tests): out[0..3]; 4. */
+int __stdcall VvfpTroublingSignsButtons(void **out) {
+    int k;
+    if (out == NULL || g_ts_dialog == NULL) {
+        return 0;
+    }
+    for (k = 0; k < TS_GROUPS; ++k) {
+        out[k] = ts_button(g_ts_dialog, k);
+    }
+    return 4;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

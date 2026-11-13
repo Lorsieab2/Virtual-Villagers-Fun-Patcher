@@ -381,6 +381,13 @@ typedef struct {
 
 static unsigned int g_vtable[17];      /* [0] = the source's RTTI locator */
 static adv_object g_object;
+static adv_object g_ts_object;         /* The Troubling Signs' (The Secret City, troubling_vv3.inc) */
+static void *g_ctor_dialog;            /* the dialog being built (t_ctor_thunk) */
+static int g_list_count;               /* the entries t_list adds */
+static int ts_listable(void);
+static void ts_after_ctor(void *dialog);
+static int ts_ok(void *dialog);
+static void ts_install(void);
 static adv_string g_title_entry, g_body_entry;
 static adv_string *g_saved_title, *g_saved_body;
 static int g_strings_in;
@@ -578,17 +585,30 @@ static void t_build_object(void) {
 
 /* ---- The sites ------------------------------------------------------------------------------------------------ */
 
-/* After the stock slots are listed: slot 0 put back, and listed when the event can happen. */
-static int __cdecl t_list(void) {
-    int listed = 0;
+/* After the stock slots are listed (`listed` of them): slot 0 put back, and listed when the event can happen; the
+   entries to add (0, 1, or 2 when The Troubling Signs can happen too: each event its own share of the draw, the
+   object in slot 0 either's, 1 in 2 -- troubling_vv3.inc).  The list holds the stock slots + 1 entries. */
+static int __cdecl t_list(int listed) {
+    int adventurer = 0, troubling = 0, room = g_tg->slots + 1 - listed;
     adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
     __try {
         *(void **)(uintptr_t)g_tg->table = &g_object;
-        listed = adv_possible(g_table_adv);
+        adventurer = adv_possible(g_table_adv);
+        troubling = ts_listable();
+        if (adventurer && troubling) {
+            if (t_rand(2) != 0) {
+                *(void **)(uintptr_t)g_tg->table = &g_ts_object;
+            }
+            return room >= 2 ? 2 : (room >= 1 ? 1 : 0);
+        }
+        if (troubling) {
+            *(void **)(uintptr_t)g_tg->table = &g_ts_object;
+        }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        listed = 0;
+        *(void **)(uintptr_t)g_tg->table = &g_object;
+        adventurer = troubling = 0;
     }
-    return listed;
+    return (adventurer || troubling) && room >= 1 ? 1 : 0;
 }
 
 /* jmp from the loop end `cmp esi, N; jl top` (5 bytes). */
@@ -599,14 +619,20 @@ __declspec(naked) static void t_loop_stub(void) {
         jmp dword ptr [g_loop_top]
     done_loop:
         pushad
+        push edi
         call t_list
-        test eax, eax
+        add esp, 4
+        mov dword ptr [g_list_count], eax
         popad
-        jz not_listed
+    next_entry:
+        cmp dword ptr [g_list_count], 0
+        jle not_listed
         mov eax, esp
         add eax, dword ptr [g_list_offset]
         mov dword ptr [eax + edi * 4], 0
         inc edi
+        dec dword ptr [g_list_count]
+        jmp next_entry
     not_listed:
         jmp dword ptr [g_loop_after]
     }
@@ -623,6 +649,11 @@ static void *t_control(void *dialog, unsigned int offset) {
 /* After the dialog's constructor: a question of more than one page starts with its first page and OK. */
 static void __cdecl t_after_ctor(void *dialog) {
     __try {
+        g_ctor_dialog = NULL;
+        if (dialog != NULL && *(void **)((unsigned char *)dialog + 0x50) == &g_ts_object) {
+            ts_after_ctor(dialog);
+            return;
+        }
         if (dialog == NULL || *(void **)((unsigned char *)dialog + 0x50) != &g_object || !adv.ready) {
             return;
         }
@@ -644,6 +675,7 @@ static void __cdecl t_after_ctor(void *dialog) {
 /* In place of the presenter's `call <constructor>` (ecx the dialog, one argument, ret 4). */
 __declspec(naked) static void t_ctor_thunk(void) {
     __asm {
+        mov dword ptr [g_ctor_dialog], ecx
         push ecx
         push dword ptr [esp + 8]
         call dword ptr [g_ctor]
@@ -661,6 +693,9 @@ __declspec(naked) static void t_ctor_thunk(void) {
 static int __cdecl t_ok(void *dialog) {
     int stay = 0;
     __try {
+        if (dialog != NULL && *(void **)((unsigned char *)dialog + 0x50) == &g_ts_object) {
+            return ts_ok(dialog);
+        }
         if (dialog == NULL || dialog != g_dialog || *(void **)((unsigned char *)dialog + 0x50) != &g_object) {
             return 0;
         }
@@ -756,6 +791,9 @@ static int t_install(int game) {
         return 0;                       /* slot 0 taken by something else, or no vtable to copy */
     }
     t_build_object();
+    if (game == 3) {
+        ts_install();                   /* The Troubling Signs (troubling_vv3.inc): no site of its own */
+    }
     vvfp_site_branch(&w[0], g_tg->loop_site, 5, g_tg->loop_stock, 0xE9, (const void *)t_loop_stub);
     vvfp_site_branch(&w[1], g_tg->ok_site, 5, ADV_OK_STOCK, 0xE9, (const void *)t_ok_stub);
     vvfp_site_branch(&w[2], g_tg->ctor_site, 5, g_tg->ctor_stock, 0xE8, (const void *)t_ctor_thunk);

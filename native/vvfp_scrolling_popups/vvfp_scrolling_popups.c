@@ -178,6 +178,18 @@ static int sp_vcall_int(void *object, unsigned int slot) {
     return ((sp_vint_fn)vtable[slot / 4])(object, NULL);
 }
 
+typedef int (__stdcall *sp_room_fn)(const void *popup);
+
+/* The room More Island Events' four-answer popup (The Troubling Signs) takes beyond the game's two buttons
+   ("VVFP More Island Events.dll" VvfpMoreIslandEventsButtonRoom): 0 for every other popup, or without it. */
+static int sp_more_room(const unsigned char *popup) {
+    HMODULE module = GetModuleHandleA("VVFP More Island Events.dll");
+    sp_room_fn room = module != NULL ? (sp_room_fn)(void *)GetProcAddress(module, "VvfpMoreIslandEventsButtonRoom")
+                                     : NULL;
+    int r = room != NULL ? room(popup) : 0;
+    return r > 0 && r < 2048 ? r : 0;
+}
+
 /* The room the class keeps below its text for its buttons; -1 when it cannot be told. */
 static int sp_reserve(const sp_class *c, unsigned char *popup) {
     if (c->reserve == SP_RESERVE_EVENT_DIALOG) {
@@ -188,7 +200,7 @@ static int sp_reserve(const sp_class *c, unsigned char *popup) {
         }
         if ((sp_vcall_int(event, 0x10) & 0xFF) != 0) {
             button = *(void **)(popup + c->choice_button);
-            return button != NULL ? 4 * sp_vcall_int(button, 0x10) : -1;
+            return button != NULL ? 4 * sp_vcall_int(button, 0x10) + sp_more_room(popup) : -1;
         }
         button = *(void **)(popup + c->ok_button);
         if (button == NULL) {

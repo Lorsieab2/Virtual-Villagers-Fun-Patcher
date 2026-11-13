@@ -13,3 +13,8 @@ EXPORTS
     VvfpClimbState=_VvfpClimbState@4
     VvfpClimbPage=_VvfpClimbPage@8
     VvfpMoreIslandEventsLogged=_VvfpMoreIslandEventsLogged@8
+    VvfpTroublingSignsPossible=_VvfpTroublingSignsPossible@0
+    VvfpTroublingSignsState=_VvfpTroublingSignsState@4
+    VvfpTroublingSignsPage=_VvfpTroublingSignsPage@8
+    VvfpTroublingSignsButtons=_VvfpTroublingSignsButtons@4
+    VvfpMoreIslandEventsButtonRoom=_VvfpMoreIslandEventsButtonRoom@4
