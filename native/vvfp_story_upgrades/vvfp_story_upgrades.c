@@ -80,6 +80,7 @@
 #include "story_targets.h"
 #include "story_custom.h"
 #include "story_label_widths.h"   /* each game's button-label widths (scripts/build_cie_label_widths.py) */
+#include "../shared/vvfp_multi_answer.h"   /* a question's third and fourth answers (The Secret City .. New Believers) */
 
 enum {
     IDD_PICK = 301,
@@ -193,6 +194,12 @@ static int cg_deliver(int game, char *text, int size, int *counted);
 static void cg_begin_question(int game, char *text, int size);
 static int cg_resolve(int game, int button, char *text, int size);
 static int cg_tallest(int game, int button, char *out, int size);
+static int cg_asked_answers(void);
+/* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
+static int cs_multi;
+static void *cs_dialog;
+static void __cdecl cs_after_ctor(void *dialog);
+static char cg_labels_more[2][CE_BUTTON_BYTES];   /* the asked question's third and fourth labels (format 4) */
 static int cg_featured(int game);
 static int cg_busy(int game);
 static void cg_tick(int game);
@@ -398,7 +405,27 @@ __declspec(naked) static void vv3_stub(void) {
         ret
     custom:
         mov edx, eax
+        cmp dword ptr [cs_multi], 0
+        jne multi
         push 0x419BE2
+        ret
+    multi:
+        /* A question of 3 or 4 answers (story_objects.inc): 0x419BE2..0x419BEA as the presenter runs them -- push
+           the object, the dialog at [esp + 0xF4], the call 0x419BEA makes (whatever it calls now) -- then the extra
+           answers, and on at 0x419BEF. */
+        push edx
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x419BEB
+        mov eax, dword ptr [eax]
+        add eax, 0x419BEF
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x419BEF
         ret
     }
 }
@@ -433,8 +460,28 @@ __declspec(naked) static void vv4_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4CCA28]
-    custom:
         push 0x4180FE
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x4180FE
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x4180FE..0x418106 as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xDC]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x418107
+        mov eax, dword ptr [eax]
+        add eax, 0x41810B
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41810B
         ret
     }
 }
@@ -470,8 +517,28 @@ __declspec(naked) static void vv5_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4DC850]
-    custom:
         push 0x418962
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x418962
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x418962..0x41896A as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x41896B
+        mov eax, dword ptr [eax]
+        add eax, 0x41896F
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41896F
         ret
     }
 }

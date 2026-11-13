@@ -111,6 +111,8 @@
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
 #define CG_ENTRY_BYTES 8192
 #define CG_MAX_QUESTIONS 16             /* questions on one history (src/vv_cie_graph.py MAX_QUESTIONS_PER_RUN) */
+#define CG_MAX_ANSWERS 4                /* a question's answers: version 4 two to four, before exactly two */
+#define CG_ANSWER_LINES 3               /* text lines each answer past two keeps (src/vv_cie_graph.py ANSWER_LINES) */
 
 enum { CGD_PAGE = 0, CGD_RESULT = 1, CGD_QUESTION = 2 };
 
@@ -379,9 +381,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     memset(g, 0, sizeof *g);
     g->d = data;
     g->size = size;
-    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 3u
+    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 4u
         || cg_u16(h + 6) != CG_HEADER_BYTES || cg_u32(h + 8) != size) {
-        return cg_bad("it is not a version 1, 2 or 3 .cieg file");
+        return cg_bad("it is not a version 1, 2, 3 or 4 .cieg file");
     }
     g->version = (int)cg_u16(h + 4);
     if (size > CG_MAX_FILE) {
@@ -533,10 +535,13 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (ccount > 256u) {
             return cg_bad("a node has more than 256 children");
         }
-        if (n[0] == CG_QUESTION && ((i != g->start && g->version < 2) || ccount != 2u || els != CG_NONE
-                                    || (g->version >= 2 && ecount != 0u))) {
+        if (n[0] == CG_QUESTION && ((i != g->start && g->version < 2)
+                                    || (g->version < 4 ? ccount != 2u : ccount < 2u || ccount > CG_MAX_ANSWERS)
+                                    || els != CG_NONE || (g->version >= 2 && ecount != 0u))) {
             return cg_bad(g->version < 2 ? "a question is not the event's first popup with two choices"
-                                         : "a question does not have two choices, or makes changes");
+                                         : g->version < 4 ? "a question does not have two choices, or makes changes"
+                                                          : "a question does not have two to four choices, or makes "
+                                                            "changes");
         }
         if (n[0] != CG_BRANCH && (cg_s(g, text)[0] == '\0' || !cg_text_ok(g, cg_s(g, text), 1, 0)
                                   || lstrlenA(cg_s(g, text)) > CG_TEXT_MAX)) {
@@ -639,12 +644,38 @@ typedef struct {
     int entry_at[CG_MAX_DISPLAYS];
     int sent_len[CG_MAX_DISPLAYS];     /* the entry's length handed to the log at display k (0: none) */
     char entry[CG_ENTRY_BYTES];
+    /* Run file version 3 (format version 4: three or four answers): the third and fourth answers' segments, after
+       everything version 2 kept (a version 2 file is read with these empty: its questions have two answers). */
+    cg_history seg_more[CG_MAX_QUESTIONS][CG_MAX_ANSWERS - 2];
 } cg_state;
+
 
 static cg_state cg;
 static cg_graph cg_g;
 static unsigned char cg_bytes[CG_MAX_FILE];
 static unsigned int cg_bytes_size;
+
+/* The answers of question `node`: its choices (two before format version 4, two to four from it). */
+static int cg_answer_count(int node) {
+    int n = node >= 0 && node < cg_g.n_node ? (int)cg_u16(cg_node_at(&cg_g, node) + 14) : 2;
+    return n < 2 ? 2 : (n > CG_MAX_ANSWERS ? CG_MAX_ANSWERS : n);
+}
+
+/* Question `qi`'s segment for answer `b`. */
+static cg_history *cg_seg(int qi, int b) {
+    return b < 2 ? &cg.seg[qi][b] : &cg.seg_more[qi][b - 2];
+}
+
+/* The text lines a question's popup keeps for its answers past two (and its answer's first page, shown in it). */
+static int cg_answer_room(int node) {
+    return CG_ANSWER_LINES * (cg_answer_count(node) - 2);
+}
+
+/* The answers of the question on screen (CG_ASKED), else two. */
+static int cg_asked_answers(void) {
+    return cg.phase == CG_ASKED && cg.asking >= 0 && cg.asking < cg.display_count
+               ? cg_answer_count(cg.display_node[cg.asking]) : 2;
+}
 static story_village cg_village;
 static int cg_display_armed;           /* the armed custom event (or question) is this run's next display */
 static int cg_purchasing;              /* the purchase arms its first display: not yet busy */
@@ -1853,6 +1884,11 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         w.rest = question ? &q : &rest;
         w.title = cg.title;
         w.reserve = cg_pops[p].effects ? 2 : 0;
+        if (question) {
+            w.reserve += cg_answer_room(cg_pops[p].question);
+        } else if (p == 0 && after_question && from > 0) {
+            w.reserve += cg_answer_room(h->node[from - 1]);   /* shown in the answered question's popup */
+        }
         w.pages = &pages;
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
@@ -2121,7 +2157,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.first = &q;
     w.rest = &q;
     w.title = cg.title;
-    w.reserve = 0;
+    w.reserve = cg_answer_room(cg_g.start);
     w.pages = pages;
     cg_paginate(&w, raw);
 }
@@ -2301,9 +2337,9 @@ static void cg_walk_answers(const ce_adapter *a, int game, int k) {
         return;
     }
     if (!cg.seg_walked[qi]) {
-        for (b = 0; b < 2; ++b) {
+        for (b = 0; b < cg_answer_count(node); ++b) {
             const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
-            cg_walk(a, game, (int)cg_u16(c), &cg.seg[qi][b]);
+            cg_walk(a, game, (int)cg_u16(c), cg_seg(qi, b));
         }
         cg.seg_walked[qi] = 1;
         cg.q_display[qi] = (short)k;
@@ -2356,10 +2392,13 @@ static void cg_begin_question(int game, char *text, int size) {
     q.check_title = 0;
     cg_compose(&q, cg.title, cg_display(k), NULL, text, size);
     cg_walk_answers(a, game, k);
-    for (b = 0; b < 2; ++b) {
+    for (b = 0; b < CG_MAX_ANSWERS; ++b) {
         const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
-        cg_expand(cg_s(&cg_g, cg_u16(c + 8)), real, CE_BUTTON_BYTES, CG_EXPAND_REAL, a->name_room, -1, 0);
-        lstrcpynA(ce_choice_store[ce_asked_store].labels[b], real, CE_BUTTON_BYTES);
+        real[0] = '\0';
+        if (b < cg_answer_count(node)) {
+            cg_expand(cg_s(&cg_g, cg_u16(c + 8)), real, CE_BUTTON_BYTES, CG_EXPAND_REAL, a->name_room, -1, 0);
+        }
+        lstrcpynA(b < 2 ? ce_choice_store[ce_asked_store].labels[b] : cg_labels_more[b - 2], real, CE_BUTTON_BYTES);
     }
     cg.phase = CG_ASKED;
     cg.asking = k;
@@ -2378,7 +2417,7 @@ static int cg_take_answer(const ce_adapter *a, int game, int button) {
     cg_displays_cut(cg.q_display[qi] + 1);
     cg.path.nodes = cg.q_path[qi];
     cg.path.fx = cg.q_fx[qi];
-    cg_path_add(&cg.seg[qi][button]);
+    cg_path_add(cg_seg(qi, button));
     cg_layout_from(a, game, cg.q_path[qi], 1);
     return 1;
 }
@@ -2390,10 +2429,13 @@ static int cg_resolve(int game, int button, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
     static char label[CE_BUTTON_BYTES];
     int qi = cg.answers, node, first;
-    if (a == NULL || button < 0 || button > 1 || qi >= CG_MAX_QUESTIONS || cg.asking < 0) {
+    if (a == NULL || button < 0 || button >= CG_MAX_ANSWERS || qi >= CG_MAX_QUESTIONS || cg.asking < 0) {
         return 0;
     }
     node = cg.display_node[cg.asking];
+    if (button >= cg_answer_count(node)) {
+        return 0;
+    }
     if (node < 0 || !cg_take_answer(a, game, button)) {
         return 0;
     }
@@ -2437,7 +2479,8 @@ static int cg_tallest(int game, int button, char *out, int size) {
     ce_layout first;
     ce_result most;
     int lines = 0, count, used, jobs, k;
-    if (a == NULL || button < 0 || button > 1 || cg.phase != CG_ASKED) {
+    if (a == NULL || button < 0 || cg.phase != CG_ASKED || cg.asking < 0
+        || button >= cg_answer_count(cg.display_node[cg.asking])) {
         return 0;
     }
     keep_path = cg.path;
@@ -2531,6 +2574,13 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     question = cg_node_at(&cg_g, cg_g.start)[0] == CG_QUESTION;
     if (question && !ce_choice_available(a)) {
         return "This game can not ask a question with two choices yet.";
+    }
+    if (!ce_more_answers(game)) {
+        for (i = 0; i < cg_g.n_node; ++i) {
+            if (cg_node_at(&cg_g, i)[0] == CG_QUESTION && cg_answer_count(i) > 2) {
+                return "This game can not ask a question with more than two buttons yet.";
+            }
+        }
     }
     ce_refusal_for_choice = question;
     {
@@ -2680,7 +2730,9 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 2u                 /* 2: the run keeps its path and every question's answers */
+#define CG_FILE_VERSION 3u                 /* 2: the run keeps its path and every question's answers; 3: and a
+                                              question's third and fourth answers (cg_state.seg_more) */
+#define CG_FILE_V2_STATE ((unsigned int)offsetof(cg_state, seg_more))   /* a version 2 file's state bytes */
 
 typedef struct {
     unsigned int magic;
@@ -2696,6 +2748,17 @@ static cg_file_head cg_head;
 static unsigned char cg_read_buf[CG_MAX_FILE];
 static cg_state cg_read_state;
 
+/* The state's bytes a run file of the header's version holds: version 3 the whole state, version 2 everything before
+   the third and fourth answers' segments (read with them empty); 0 for any other. */
+static unsigned int cg_file_state_bytes(void) {
+    return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 2u ? CG_FILE_V2_STATE : 0u;
+}
+
+static int cg_file_state_ok(void) {
+    return cg_file_state_bytes() != 0u && cg_head.state_bytes == cg_file_state_bytes();
+}
+
 #ifdef VVFP_TEST
 static unsigned char cg_test_file[sizeof(cg_file_head) + sizeof(cg_state) + CG_MAX_FILE];
 static unsigned int cg_test_size;
@@ -2703,16 +2766,18 @@ static unsigned int cg_test_size;
 static int cg_file_read(int game, int slot) {
     (void)game;
     (void)slot;
-    if (cg_test_size < sizeof cg_head + sizeof cg_read_state) {
+    unsigned int state;
+    if (cg_test_size < sizeof cg_head) {
         return 0;
     }
     memcpy(&cg_head, cg_test_file, sizeof cg_head);
-    memcpy(&cg_read_state, cg_test_file + sizeof cg_head, sizeof cg_read_state);
-    if (cg_head.graph_bytes > CG_MAX_FILE
-        || cg_test_size != sizeof cg_head + sizeof cg_read_state + cg_head.graph_bytes) {
+    state = cg_file_state_bytes();
+    memset(&cg_read_state, 0, sizeof cg_read_state);
+    if (state == 0u || cg_head.graph_bytes > CG_MAX_FILE || cg_test_size != sizeof cg_head + state + cg_head.graph_bytes) {
         return 0;
     }
-    memcpy(cg_read_buf, cg_test_file + sizeof cg_head + sizeof cg_read_state, cg_head.graph_bytes);
+    memcpy(&cg_read_state, cg_test_file + sizeof cg_head, state);
+    memcpy(cg_read_buf, cg_test_file + sizeof cg_head + state, cg_head.graph_bytes);
     return 1;
 }
 
@@ -2744,8 +2809,9 @@ static int cg_file_read(int game, int slot) {
     if (h == INVALID_HANDLE_VALUE) {
         return 0;
     }
-    ok = ReadFile(h, &cg_head, sizeof cg_head, &got, NULL) && got == sizeof cg_head
-        && ReadFile(h, &cg_read_state, sizeof cg_read_state, &more, NULL) && more == sizeof cg_read_state
+    memset(&cg_read_state, 0, sizeof cg_read_state);
+    ok = ReadFile(h, &cg_head, sizeof cg_head, &got, NULL) && got == sizeof cg_head && cg_file_state_bytes() != 0u
+        && ReadFile(h, &cg_read_state, cg_file_state_bytes(), &more, NULL) && more == cg_file_state_bytes()
         && cg_head.graph_bytes <= CG_MAX_FILE
         && ReadFile(h, cg_read_buf, cg_head.graph_bytes, &graph, NULL) && graph == cg_head.graph_bytes;
     CloseHandle(h);
@@ -2790,8 +2856,8 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
     if (cg.phase != CG_IDLE || !cg_file_read(game, slot)) {
         return;
     }
-    if (cg_head.magic != CG_FILE_MAGIC || cg_head.version != CG_FILE_VERSION || cg_head.game != (unsigned int)game
-        || cg_head.slot != (unsigned int)slot || cg_head.state_bytes != sizeof(cg_state)
+    if (cg_head.magic != CG_FILE_MAGIC || !cg_file_state_ok() || cg_head.game != (unsigned int)game
+        || cg_head.slot != (unsigned int)slot
         || cg_read_state.game != game || cg_read_state.phase == CG_IDLE
         || !cg_load(&check, cg_read_buf, cg_head.graph_bytes) || !sq_same_village(cg_head.roster, roster)) {
         return;
@@ -3226,7 +3292,8 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphState(int *out) {
    count. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPath(int which, int *out, int cap) {
     int i;
-    const cg_history *h = which <= 0 || cg.answers >= CG_MAX_QUESTIONS ? &cg.path : &cg.seg[cg.answers][which > 1];
+    const cg_history *h = which <= 0 || cg.answers >= CG_MAX_QUESTIONS ? &cg.path
+                          : cg_seg(cg.answers, which - 1 < CG_MAX_ANSWERS ? which - 1 : CG_MAX_ANSWERS - 1);
     for (i = 0; i < h->nodes && i < cap; ++i) {
         out[i] = h->node[i];
     }

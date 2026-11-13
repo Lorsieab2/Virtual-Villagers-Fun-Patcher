@@ -172,6 +172,7 @@ BINARY_MAGIC = b"CIEG"
 BINARY_VERSION = 4            # a graph is compiled as its own version (1, 2 and 3 byte for byte as before)
 MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; before: exactly 2)
 MAX_ANSWERS = 4               # the game's two-choice popup with up to two more buttons (vvfp_multi_answer.h)
+MORE_ANSWER_GAMES = (3, 4, 5)  # the games whose popup shows a third and fourth button (story_custom.inc ce_more_answers)
 ANSWER_LINES = 3              # text lines a third or fourth answer's button takes (1.5 button heights of 20-px lines)
 NONE = 0xFFFF
 
@@ -345,6 +346,11 @@ PLACEHOLDER_RE = re.compile(r"\(([^()\n]*)\)")
 PRONOUNS = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
             "man/woman": ("man", "woman")}
 _NAME_ALIASES = {"name1": "subject", "name2": "friend"}
+
+
+def answer_letter(b: int) -> str:
+    """An answer as the chances table names it: A to D (a fifth, which the checks refuse, by its number)."""
+    return "ABCD"[b] if 0 <= b < 4 else str(b + 1)
 
 
 def answer_room(answers: int) -> int:
@@ -1240,6 +1246,9 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
         game = GAMES[gn]
         if len(title) > game.title_width:
             problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
+        if gn not in MORE_ANSWER_GAMES and any(len(n["choices"]) > 2 for n in nodes.values()):
+            problems.append(f"{game.name}: a question with more than two buttons is not shown in this game yet "
+                            "(untick the game, or keep two buttons)")
         for nid, n in nodes.items():
             for c in n["choices"]:
                 label = worst_case(c["label"], game, None)
@@ -1625,12 +1634,12 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
             lines.append("THE EVENT")
             out_of = "out of every time the event happens"
         elif isinstance(choice, tuple):
-            words = " > ".join(f"{q} {'ABCD'[b]}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
+            words = " > ".join(f"{q} {answer_letter(b)}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
             lines.append(f"CHOICES {words}")
             out_of = "out of every time these choices are picked"
         else:
             label = start["choices"][choice]["label"]
-            lines.append(f"CHOICE {'ABCD'[choice]}: {label.upper()}")
+            lines.append(f"CHOICE {answer_letter(choice)}: {label.upper()}")
             out_of = "out of every time this choice is picked"
         lines.append(f"Each ending, {out_of}:")
         for r in rows["ends"]:

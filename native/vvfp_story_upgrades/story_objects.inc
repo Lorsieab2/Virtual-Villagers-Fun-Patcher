@@ -134,11 +134,23 @@ static void *ce_deliver_object(int game, unsigned int string_table, int title_id
    so the popup is tall enough for any of them.  The apply on OK does
    nothing: the changes were made at the click. */
 
-static char choice_labels[2][CE_BUTTON_BYTES];
-static char choice_tallest[2][2000];
+static char choice_labels[MA_MAX_ANSWERS][CE_BUTTON_BYTES];
+static char choice_tallest[MA_MAX_ANSWERS][2000];
 static char choice_result[2000];
 static int choice_answered;
 static int choice_game;
+static int choice_answers;               /* 2, or a branching event's question's 3 or 4 (format version 4) */
+static int choice_tallest_at;            /* with 3 or 4: the answer whose first page is the tallest */
+static char choice_padded[2000];
+
+/* THREE OR FOUR ANSWERS (the owner, 2026-11-13: "Make the 2-4 option thing general").  The question is presented by
+   the game's own presenter as any other, through the stub's own path (vvfp_story_upgrades.c vv3_stub ..): the
+   constructor called as the presenter calls it, the dialog it builds in cs_dialog, then cs_after_ctor gives it the
+   shared multi-answer popup (native/shared/vvfp_multi_answer.h): the third and fourth buttons made as the game makes
+   its two, stacked and centred, ids 4 and 5 and the keys 1 to 4.  Before the click +0x28 gives the tallest first page
+   of every answer, padded with blank lines worth the extra buttons' room.  With two answers nothing here is used. */
+static int cs_multi;                     /* the question handed to the presenter has 3 or 4 answers */
+static void *cs_dialog;                  /* the dialog the presenter builds for it */
 
 static int __fastcall choice_object_question(void *self, void *unused_edx) {
     (void)self;
@@ -182,21 +194,37 @@ static int __fastcall choice_object_pose(void *self, void *unused_edx) {
 static int __fastcall choice_object_result(void *self, void *unused_edx, int choice) {
     (void)self;
     (void)unused_edx;
+    if (!choice_answered && choice_answers > 2) {
+        const char *text = choice_tallest[choice_tallest_at];
+        __try {
+            text = ma_padded(ma_game_of(choice_game), text, cs_dialog, ma_room_for(cs_dialog, choice_answers),
+                             choice_padded, sizeof choice_padded);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            text = choice_tallest[choice_tallest_at];
+        }
+        ce_strings[1].text = text;
+        return ce_strings[1].id;
+    }
     ce_strings[1].text = choice_answered ? choice_result : choice_tallest[choice != 0];
     return ce_strings[1].id;
+}
+
+/* Answer `button` (0 the first): rolled and made, its result written. */
+static void choice_answer(int button) {
+    if (choice_answered) {
+        return;
+    }
+    choice_answered = 1;
+    if (!ce_choice_resolve(choice_game, button, choice_result, sizeof choice_result)) {
+        choice_result[0] = '\0';     /* another village by now: nothing happened */
+    }
 }
 
 /* +0x34 (ret 4): the click.  The game's own button order: 0 the first. */
 static void __fastcall choice_object_choose(void *self, void *unused_edx, int choice) {
     (void)self;
     (void)unused_edx;
-    if (choice_answered) {
-        return;
-    }
-    choice_answered = 1;
-    if (!ce_choice_resolve(choice_game, choice != 0, choice_result, sizeof choice_result)) {
-        choice_result[0] = '\0';     /* another village by now: nothing happened */
-    }
+    choice_answer(choice != 0);
 }
 
 /* +0x2C (ret 4): OK.  The changes were made at the click. */
@@ -204,6 +232,61 @@ static void __fastcall choice_object_apply(void *self, void *unused_edx, int cho
     (void)self;
     (void)unused_edx;
     (void)choice;
+    if (cs_multi) {
+        ma_forget();                  /* the popup closes: our buttons went at this OK */
+        cs_multi = 0;
+    }
+}
+
+/* ---- The shared multi-answer popup's client ---- */
+
+static int cs_text_id(const char *text) {
+    ce_strings[1].text = text;
+    return ce_strings[1].id;
+}
+
+static int cs_state(void *dialog) {
+    if (dialog == NULL || dialog != g_ma.dialog || !cs_multi) {
+        return MA_NOT_OURS;
+    }
+    return choice_answered ? MA_ANSWERED : MA_ASKING;
+}
+
+/* Answer 2 or 3: as the game's click handler answers its own two (the answer, its result as the text, OK shown). */
+static void cs_answer(void *dialog, int answer) {
+    const ma_game *g = ma_game_of(choice_game);
+    choice_answer(answer);
+    ((ma_v1_fn)(uintptr_t)g->set_text)(dialog, NULL, cs_text_id(choice_result));
+    ma_dialog_call(g->show, dialog, ma_control(dialog, 0x864u));
+}
+
+static const ma_client CS_CLIENT = { cs_text_id, cs_state, cs_answer };
+
+/* After the presenter's constructor (the stubs' own path for 3 or 4 answers): the shared popup's extra buttons, then
+   the question's text back (the labels went through it). */
+static void __cdecl cs_after_ctor(void *dialog) {
+    __try {
+        unsigned char *d = (unsigned char *)dialog;
+        const char *words[MA_MAX_ANSWERS];
+        const ma_game *g = ma_game_of(choice_game);
+        int k;
+        if (!cs_multi || d == NULL || g == NULL || *(void **)(d + 0x50) != (void *)&ce_object || d[0x4C] == 0) {
+            return;
+        }
+        for (k = 0; k < choice_answers; ++k) {
+            words[k] = choice_labels[k];
+        }
+        if (ma_attach(choice_game, &CS_CLIENT, dialog, choice_answers, words)) {
+            ce_strings[1].text = ce_body_text;
+            ((ma_v1_fn)(uintptr_t)g->set_text)(dialog, NULL, ce_strings[1].id);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+/* The room the extra buttons of the question on screen take, for Scrolling Popups: 0 for any other popup. */
+__declspec(dllexport) int __stdcall VvfpStoryButtonRoom(const void *popup) {
+    return ma_room(popup);
 }
 
 /* The question object of `game`, built from the two-choice vtable `source`
@@ -219,6 +302,7 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     const char *text;
     void *object;
     int b;
+    cs_multi = 0;
     if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
         return NULL;
     }
@@ -233,11 +317,18 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     if (!ce_choice_begin(game, ce_body_text, 2000)) {
         return NULL;
     }
-    for (b = 0; b < 2; ++b) {
+    choice_answers = ce_choice_answers(game);
+    choice_tallest_at = 0;
+    for (b = 0; b < choice_answers; ++b) {
+        int lines;
         text = ce_choice_label(game, b);
         lstrcpynA(choice_labels[b], text != NULL ? text : "", sizeof choice_labels[b]);
-        ce_choice_tallest(game, b, choice_tallest[b], sizeof choice_tallest[b]);
+        lines = ce_choice_tallest(game, b, choice_tallest[b], sizeof choice_tallest[b]);
+        if (b > 0 && lines > ce_text_lines(choice_tallest[choice_tallest_at])) {
+            choice_tallest_at = b;
+        }
     }
+    cs_multi = choice_answers > 2;
     text = ce_choice_title(game);
     lstrcpynA(ce_title_text, text != NULL ? text : "", sizeof ce_title_text);
     choice_result[0] = '\0';

@@ -236,6 +236,42 @@ lib.choice_vars[1][1].set(mid)
 lib._choice_set(1, "next")
 lib.refresh_now()
 out["loop_problems"] = lib.problems
+# Version 4: a third and a fourth button (2 to 4), each labelled and pointed at its part.
+lib.choice_vars[1][1].set(right)
+lib._choice_set(1, "next")
+out["v4_before"] = lib.g["version"]
+out["rows_two"] = [bool(lib.choice_rows[i][1].winfo_manager()) for i in range(4)]
+lib.add_answer()
+lib.add_answer()
+window.update()
+out["rows_four"] = [bool(lib.choice_rows[i][1].winfo_manager()) for i in range(4)]
+out["add_disabled"] = lib.add_answer_button.instate(["disabled"])
+lib.add_answer()
+out["four_count"] = len(lib.g["nodes"][mid]["choices"])
+out["v4_version"] = lib.g["version"]
+lib.refresh_now()
+out["v4_unlinked"] = lib.problems
+lib.choice_vars[2][0].set("Go up")
+lib.choice_vars[2][1].set(left)
+lib._choice_set(2, "next")
+lib.choice_vars[3][0].set("Go down")
+lib.choice_vars[3][1].set(right)
+lib._choice_set(3, "next")
+lib.refresh_now()
+out["v4_choices"] = [dict(c) for c in lib.g["nodes"][mid]["choices"]]
+out["v4_problems"] = lib.problems
+lib.remove_answer()
+lib.remove_answer()
+lib.remove_answer()
+window.update()
+out["back_to_two"] = len(lib.g["nodes"][mid]["choices"])
+out["remove_disabled"] = lib.remove_answer_button.instate(["disabled"])
+lib.g["nodes"][mid]["choices"] = lib.g["nodes"][mid]["choices"][:1]
+lib.refresh_now()
+out["one_problems"] = lib.problems
+lib.g["nodes"][mid]["choices"] = [{"label": f"A{k}", "next": right} for k in range(5)]
+lib.refresh_now()
+out["five_problems"] = lib.problems
 # Version 3: a puzzle needed (picked in the Event tab's list), a bad range and a bad age gap on the Check tab.
 lib.load_event(w.new_event(), None, dirty=False)
 lib.puzzle_game.set("A New Home")
@@ -365,6 +401,28 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["mid_problems"], [])
         self.assertIn(f"node {mid}: '' names no node", self.out["dangling_problems"])
         self.assertTrue(any(p.startswith("a cycle:") for p in self.out["loop_problems"]), self.out["loop_problems"])
+
+    def test_two_to_four_buttons(self) -> None:
+        mid, left, right = self.out["mid_parts"]
+        self.assertEqual(self.out["rows_two"], [True, True, False, False], "two buttons: two rows")
+        self.assertEqual(self.out["rows_four"], [True, True, True, True])
+        self.assertTrue(self.out["add_disabled"], "no fifth button")
+        self.assertEqual(self.out["four_count"], 4)
+        self.assertEqual(self.out["v4_version"], 4, "a third button makes the event version 4")
+        self.assertIn(f"node {mid}: '' names no node", self.out["v4_unlinked"], "a button with no part is flagged")
+        self.assertEqual(self.out["v4_choices"], [
+            {"label": "Go left", "next": left}, {"label": "Go right", "next": right},
+            {"label": "Go up", "next": left}, {"label": "Go down", "next": right}])
+        # Every link set; the event is still ticked for A New Home and The Lost Children, whose popups keep two.
+        self.assertEqual(self.out["v4_problems"], [
+            f"{name}: a question with more than two buttons is not shown in this game yet (untick the game, or keep "
+            "two buttons)" for name in ("A New Home", "The Lost Children")])
+        self.assertEqual(self.out["back_to_two"], 2, "removed down to two, never fewer")
+        self.assertTrue(self.out["remove_disabled"])
+        self.assertTrue(any("a question has 2 to 4 answers" in p for p in self.out["one_problems"]),
+                        self.out["one_problems"])
+        self.assertTrue(any("a question has 2 to 4 answers" in p for p in self.out["five_problems"]),
+                        self.out["five_problems"])
 
     def test_no_page_is_tall(self) -> None:
         self.assertTrue(self.out["heights"])

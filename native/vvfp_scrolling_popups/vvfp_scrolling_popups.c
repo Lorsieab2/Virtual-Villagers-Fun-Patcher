@@ -187,6 +187,13 @@ static int sp_more_room(const unsigned char *popup) {
     sp_room_fn room = module != NULL ? (sp_room_fn)(void *)GetProcAddress(module, "VvfpMoreIslandEventsButtonRoom")
                                      : NULL;
     int r = room != NULL ? room(popup) : 0;
+    /* ... or a Custom Island Event question's third and fourth answers ("VVFP Story Upgrades.dll"
+       VvfpStoryButtonRoom, the same shared popup: native/shared/vvfp_multi_answer.h). */
+    if (r <= 0) {
+        module = GetModuleHandleA("VVFP Story Upgrades.dll");
+        room = module != NULL ? (sp_room_fn)(void *)GetProcAddress(module, "VvfpStoryButtonRoom") : NULL;
+        r = room != NULL ? room(popup) : 0;
+    }
     return r > 0 && r < 2048 ? r : 0;
 }
 

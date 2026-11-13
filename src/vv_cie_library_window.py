@@ -58,9 +58,12 @@ INTRO = ("Write your own island events with choices and chances. Each event is k
          "Events in the game.")
 HELP_TEXT = (
     "How an event is built\n"
-    "An event starts with its first part: a popup, or a question with two buttons. Any part can be a question: "
-    "choose \"A question (two buttons)\" as its kind, write both buttons' words on the Next tab and point each "
-    "button at the part it leads to; ask as many questions as you like, between popups, chances and changes. After "
+    "An event starts with its first part: a popup, or a question with two to four buttons. Any part can be a "
+    "question: choose \"A question (2 to 4 buttons)\" as its kind, write each button's words on the Next tab and "
+    "point each button at the part it leads to (\"Add a button\" gives a question a third and a fourth; \"Remove "
+    "the last button\" takes one away, down to two); ask as many questions as you like, between popups, chances "
+    "and changes. The game shows the buttons one above the other in its own question popup, and the keys 1 to 4 "
+    "pick them. After "
     "each answer the game first shows a popup of the answer's own, so a button leads to a popup (or a split that "
     "reaches one) before the next question or the end, and a question itself changes nothing. Each part can lead on to "
     "other parts; when a part has several ways on, the game picks one at random, a way with a bigger weight "
@@ -121,7 +124,7 @@ RISKY = {
 CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown causes"}
 OWN_WORDS = "In my own words:"
 TYPE_WORDS = {"popup": "A popup with text", "branch": "A silent split (no popup)",
-              "question": "A question (two buttons)"}
+              "question": "A question (2 to 4 buttons)"}
 POPUP_WORDS = {"new": "Opens a new popup", "append": "Continues the popup already open"}
 JOIN_WORDS = {"space": "on the same line", "paragraph": "as a new paragraph"}
 VILLAGER_SEX = {"any": "Anyone", "male": "A man", "female": "A woman"}
@@ -351,7 +354,7 @@ def outline(g: dict) -> list[tuple[str, str, str, str, str | None]]:
         stack = stack + (nid,)
         if n["type"] == "question":
             for i, c in enumerate(n["choices"]):
-                ci = add(iid, f"Button {'AB'[i] if i < 2 else i + 1}: {c['label']}", "choice", nid)
+                ci = add(iid, f"Button {cg.answer_letter(i)}: {c['label']}", "choice", nid)
                 visit(c["next"], ci, "", stack)
             return
         total = sum(_weight(c["weight"]) for c in n["children"])
@@ -901,16 +904,28 @@ class Library:
 
         self.choice_frame = ttk.Frame(page)
         self.choice_vars: list[tuple[tk.StringVar, ttk.Combobox]] = []
-        for i in range(2):
-            ttk.Label(self.choice_frame, text=f"Button {'AB'[i]}:").grid(row=i, column=0, sticky="w", pady=2)
+        self.choice_rows: list[list[tk.Widget]] = []
+        for i in range(cg.MAX_ANSWERS):
+            words = ttk.Label(self.choice_frame, text=f"Button {'ABCD'[i]}:")
+            words.grid(row=i, column=0, sticky="w", pady=2)
             label = tk.StringVar(master=self.window)
-            ttk.Entry(self.choice_frame, textvariable=label, width=30).grid(row=i, column=1, sticky="w", padx=4)
-            ttk.Label(self.choice_frame, text="goes to").grid(row=i, column=2, sticky="w")
+            entry = ttk.Entry(self.choice_frame, textvariable=label, width=30)
+            entry.grid(row=i, column=1, sticky="w", padx=4)
+            goes = ttk.Label(self.choice_frame, text="goes to")
+            goes.grid(row=i, column=2, sticky="w")
             box = ttk.Combobox(self.choice_frame, state="readonly", width=20)
             box.grid(row=i, column=3, sticky="w", padx=4)
             label.trace_add("write", lambda *_a, i=i: self._choice_set(i, "label"))
             box.bind("<<ComboboxSelected>>", lambda _e, i=i: self._choice_set(i, "next"))
             self.choice_vars.append((label, box))
+            self.choice_rows.append([words, entry, goes, box])
+        answer_actions = ttk.Frame(self.choice_frame)
+        answer_actions.grid(row=cg.MAX_ANSWERS, column=0, columnspan=4, sticky="w", pady=(4, 0))
+        self.add_answer_button = ttk.Button(answer_actions, text="Add a button", command=self.add_answer)
+        self.add_answer_button.pack(side="left")
+        self.remove_answer_button = ttk.Button(answer_actions, text="Remove the last button",
+                                               command=self.remove_answer)
+        self.remove_answer_button.pack(side="left", padx=(6, 0))
 
         other = ttk.Frame(page)
         other.pack(fill="x", pady=(12, 0))
@@ -1435,12 +1450,21 @@ class Library:
                 self.choice_frame.pack(fill="x", pady=(6, 0), after=self.next_intro)
             self._loading = True
             try:
+                shown = max(cg.MIN_ANSWERS, min(cg.MAX_ANSWERS, len(n["choices"])))
                 for i, (label, box) in enumerate(self.choice_vars):
                     c = n["choices"][i] if i < len(n["choices"]) else {"label": "", "next": ""}
                     if label.get() != c["label"]:
                         label.set(c["label"])
                     box.configure(values=names)
                     box.set(c["next"])
+                    for widget in self.choice_rows[i]:
+                        if i < shown:
+                            widget.grid()
+                        else:
+                            widget.grid_remove()
+                self.add_answer_button.state(["!disabled"] if len(n["choices"]) < cg.MAX_ANSWERS else ["disabled"])
+                self.remove_answer_button.state(["!disabled"] if len(n["choices"]) > cg.MIN_ANSWERS
+                                                else ["disabled"])
             finally:
                 self._loading = False
             return
@@ -1563,6 +1587,27 @@ class Library:
         self.changed()
         self.show_children_table()
 
+    def add_answer(self) -> None:
+        """A third or fourth button: the event becomes format version 4 (questions with up to four answers)."""
+        n = self.node()
+        if n is None or n["type"] != "question" or len(n["choices"]) >= cg.MAX_ANSWERS:
+            return
+        while len(n["choices"]) < cg.MIN_ANSWERS:
+            n["choices"].append({"label": "", "next": ""})
+        n["choices"].append({"label": f"Answer {len(n['choices']) + 1}", "next": ""})
+        self.g["version"] = max(self.g.get("version", 1), cg.VERSION_ANSWERS)
+        self.changed()
+        self.show_children_table()
+
+    def remove_answer(self) -> None:
+        """The last button taken away, down to two."""
+        n = self.node()
+        if n is None or n["type"] != "question" or len(n["choices"]) <= cg.MIN_ANSWERS:
+            return
+        n["choices"].pop()
+        self.changed()
+        self.show_children_table()
+
     def _choice_set(self, index: int, key: str) -> None:
         n = self.node()
         if self._loading or n is None or n["type"] != "question":
@@ -1580,7 +1625,7 @@ class Library:
         if n is None:
             return
         if n["type"] == "question":
-            SHOW_INFO(TITLE, "The question's ways on are its two buttons: point a button at the new part on the "
+            SHOW_INFO(TITLE, "The question's ways on are its buttons: point a button at the new part on the "
                              "Next tab.", parent=self.window)
         new = free_id(self.g)
         self.g["nodes"][new] = blank_node()

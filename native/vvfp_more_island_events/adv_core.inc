@@ -838,7 +838,7 @@ typedef struct adv_flow {
     int (*choose)(int node, int choice);
     void (*effects)(int e);
     /* The answers question `node` has: 2, 3 or 4 (the shared multi-answer popup, vvfp_multi_answer.h; The Secret City,
-       The Tree of Life and New Believers).  NULL: two. */
+       The Tree of Life and New Believers only -- A New Home's and The Lost Children's dialogs show two).  NULL: two. */
     int (*answers)(int node);
 } adv_flow;
 
