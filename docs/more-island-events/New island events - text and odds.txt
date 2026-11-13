@@ -319,3 +319,42 @@ CHANCES
     D: survives, dislikes swimming 18.75% overall (75% of D)
        sinks 6.25% overall (25% of D): dies ~1.06%, disappears ~1.06%, rescued ~4.13%
   Better not: always +10 to 20 Parenting.
+
+==========================================================================
+THE PLAYFUL DOLPHINS (The Tree of Life)
+==========================================================================
+REQUIREMENTS TO HAPPEN
+- One eligible villager aged 14 or older (owner: "14 and up").
+- It does NOT need the fishing nets (or any puzzle) to be completed.
+- At least two eligible villagers overall (The Aspiring Adventurer's rule).
+
+WHO IS NEVER PICKED
+- Anyone under 14.
+- Protected villagers: nursing mothers or fathers, and anyone The Tree of Life's own island events never pick (bodies and ghosts).
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses "Swim towards the dolphins" or "Hang back".
+
+(Name) has been swimming underwater as a hobby. One day, (he/she) spots a pod of dolphins playing just offshore! They seem to be chasing something, but (name) is unsure whether (he/she) can hold (his/her) breath long enough to see what. What should (he/she) do?
+
+--------------------------------------------------------------------------
+"Swim towards the dolphins" (then A or B, 50% each):
+(name) swims towards the dolphins, being careful not to disturb them.
+
+A -- THE HUNT. Chance 50%. FARMING SET TO 100 (fully mastered), and a LARGE food reward (2 times normal):
+(He/she) gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. “What magnificent creatures!” (he/she) thinks.
+Later, (he/she) shares (his/her) observations with the researchers and farmers, which revolutionize their catches that season. (name) becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain (award) food.
+
+B -- THE TAIL SLAP. Chance 50%. LOSES 30 to 50% HEALTH (at random; never dies from it):
+Ouch! (name) is blinded by the slap of a large fluke in (his/her) face. (He/she) must have gotten too close to one of them and accidentally gotten hit by their tail flipper. (name) holds (his/her) nose to prevent any more red coming out. Luckily, (name) is not too far from the surface, but if (he/she) had been any deeper… (he/she) shudders to think about what might happen. (He/she) surfaces, leaves the beach, and heads off to the doctors for some medical treatment.
+
+--------------------------------------------------------------------------
+"Hang back" -- a SMALL food reward (half a normal amount):
+(name) doubts that it’s a good idea to follow the dolphins. They clearly seem to be busy doing something important, and (he/she) is second-guessing whether they’re playing anyway. (name) resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains (award) food.
+
+--------------------------------------------------------------------------
+THE PLAYFUL DOLPHINS -- CHANCES
+  Swim towards the dolphins:
+    the hunt: Farming 100, large food (A) ...... 50%
+    the tail slap: loses 30-50% health (B) ..... 50%
+  Hang back: always a small food reward.

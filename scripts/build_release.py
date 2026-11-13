@@ -535,6 +535,7 @@ FILES = [
     "src/vv_the_climb.py",
     "src/vv_troubling_signs.py",
     "src/vv_diving_for_treasure.py",
+    "src/vv_playful_dolphins.py",
     # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
     "src/vv_game_mechanics_farmers.py",
     "src/vv_game_mechanics_farmers_vv1.py",

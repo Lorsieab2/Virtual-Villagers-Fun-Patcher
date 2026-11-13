@@ -11,6 +11,7 @@ import vv_cave_explorers as cave
 import vv_the_climb as climb
 import vv_troubling_signs as ts
 import vv_diving_for_treasure as dt
+import vv_playful_dolphins as dp
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -299,6 +300,50 @@ def diving_for_treasure_event() -> Event:
         "event does not exist)",
         tuple(subs),
         only_with="vv3_more_island_events",
+    )
+
+
+def playful_dolphins_event() -> Event:
+    """The Playful Dolphins (The Tree of Life only; the owner, 2026-11-13): every number from
+    src/vv_playful_dolphins.py, the awards from src/vv_aspiring_adventurer.py's range; the companion
+    (native/vvfp_more_island_events/dolphin_core.inc, dolphin_vv4.inc) rolls exactly these odds with the game's own
+    random routine."""
+    c = dp.outcome_chances()["SWIM"]
+    food = adv.award_range(4, "food")[0]
+    lo, hi = dp.SLAP_LOSS
+    who = (f"alive and present, {dp.ADULT_YEARS} villager years or more, not nursing a baby (mother or father), not a "
+           "body or a ghost")
+    subs = [
+        f"Who: the swimmer is a villager who is {who}, drawn among them, each equally likely.",
+        never_picked(4) + f" Nor anyone under {dp.ADULT_YEARS}.",
+        "Needs no fishing nets or other puzzle.",
+        "One question in the game's own two-choice popup: \"Swim towards the dolphins\" or \"Hang back\".",
+        f"\"Swim towards the dolphins\": the hunt {_pct(c['HUNT'])} or the tail slap {_pct(c['SLAP'])}.",
+        f"The hunt: the swimmer's Farming becomes {dp.SKILL_MAX} (fully mastered, the game's maximum), and the village "
+        f"gains a large food award, twice a normal one: {2 * food:,} food{FOOD_WRITER[4]}.",
+        f"The tail slap: the swimmer loses {lo} to {hi} health (out of 100; each equally likely), never below "
+        f"{dp.HEALTH_LEFT_AT_LEAST} -- the slap never kills. Nothing else happens.",
+        f"\"Hang back\": always a small food award, half a normal one: {food // 2:,} food{FOOD_WRITER[4]}.",
+        "Each award is drawn when the popup opens and goes through the game's own food writer, as drawn (scaled only "
+        "with Island Events Scale ticked: below).",
+        Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): each "
+             "award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).",
+             only_with="vv4_island_events_scale_with_population"),
+        Line("With the patcher's \"Island Events Scale With Stored Food and Tech Points\" (in this game): each award "
+             "gains a tenth of the food stored (see the rules above).",
+             only_with="vv4_island_events_scale_with_stored_amounts"),
+        "The effects wait for their own page: they come when the page that ends that ending's text is shown, never on "
+        "an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. "
+        "Quitting before that page leaves the village as it was, and the event does not come back.",
+    ]
+    return Event(
+        dp.TITLE,
+        f"needs two villagers who are {who}, and no puzzle; one more island event, listed with the others whose "
+        "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
+        "Aspiring Adventurer), when the game draws an island event on its own schedule (the wall clock, real-life "
+        "hours; paused time does not count); added by \"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv4_more_island_events",
     )
 
 
