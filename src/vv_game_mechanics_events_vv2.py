@@ -341,3 +341,8 @@ EXTRA = (
 from vv_game_mechanics_adventurer import adventurer_event, the_climb_event  # noqa: E402
 
 EVENTS = EVENTS + (adventurer_event(2), the_climb_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(2), rumblings_event(2))

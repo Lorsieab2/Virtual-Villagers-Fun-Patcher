@@ -1,0 +1,20 @@
+THE REMEMBRANCE CEREMONY (all five games)
+The owner's own text, pasted in chat 2026-11-13. No changes needed.
+
+REQUIREMENTS TO HAPPEN
+- New Believers: every Heathen has converted (the hovel is empty for good).
+- A New Home, The Lost Children, The Secret City, The Tree of Life: at least one grave (someone buried), like the stock Day of Honor.
+- It does NOT need the "Memorial Actions Can Also Occur at the Heathen Hovel" patch (see the effects).
+- It can happen again, as likely as one stock event each time.
+
+WHO TAKES PART
+- Everyone, protected villagers included (the owner's exception: "everyone can go"). In New Believers, believers only: Heathens never take part.
+
+--------------------------------------------------------------------------
+One popup (no choice, just OK):
+
+Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.
+
+EFFECTS (not mentioned in the popup)
+- Each villager taking part Honors the Dead or Reflects (50% each). With the "Memorial Actions Can Also Occur at the Heathen Hovel" patch installed, each one goes to the former Heathen hovel or the mausoleum (50% each); without it, they all go to the mausoleum. In the other four games each villager goes to that game's graveyard or mausoleum (50% each where the game has both), and uses that game's own honoring/reflecting actions.
+- The feast quietly uses 10 food for every villager, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City).

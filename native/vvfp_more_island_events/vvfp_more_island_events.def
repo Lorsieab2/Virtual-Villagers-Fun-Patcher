@@ -30,3 +30,8 @@ EXPORTS
     VvfpMysteriousMaskPossible=_VvfpMysteriousMaskPossible@0
     VvfpMysteriousMaskState=_VvfpMysteriousMaskState@4
     VvfpMysteriousMaskPage=_VvfpMysteriousMaskPage@8
+    VvfpCeremonyPossible=_VvfpCeremonyPossible@4
+    VvfpCeremonyState=_VvfpCeremonyState@4
+    VvfpCeremonyAct=_VvfpCeremonyAct@4
+    VvfpCeremonyObject=_VvfpCeremonyObject@4
+    VvfpCeremonyHovelPatch=_VvfpCeremonyHovelPatch@0

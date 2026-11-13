@@ -68084,6 +68084,66 @@
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
    "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/remembrance_text.TITLE",
+   "english": "The Remembrance Ceremony",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/remembrance_text.TEXT",
+   "english": "Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/rumblings_text.TITLE",
+   "english": "The Rumblings",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/rumblings_text.TEXT",
+   "english": "One morning, the village becomes wracked with a violent shaking. Things start flying off shelves, pottery smashes on the floor, and everyone starts taking cover under nearby structures. The villagers are frightened, but luckily, no one is hurt. A lot of loose rubble is strewn about and some structures have been visibly damaged. It looks like the builders have more work cut out for them.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
   }
  ]
 }

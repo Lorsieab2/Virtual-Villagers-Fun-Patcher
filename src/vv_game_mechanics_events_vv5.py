@@ -256,3 +256,8 @@ EVENTS = with_scaling(5, EVENTS, frozenset({
 from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
 
 EVENTS = EVENTS + (adventurer_event(5),)
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(5), rumblings_event(5))

@@ -26,6 +26,7 @@ static struct {
     char entry[ADV_LOG_BYTES];
     int len;
     int sent;                             /* the entry handed over (once) */
+    char extra[1024];                     /* the event's own lines (what the villager comparison cannot say) */
 } adv_log;
 
 typedef int (__stdcall *adv_log_begin_fn)(int game);
@@ -51,6 +52,12 @@ static void adv_log_reset(void) {
     adv_log.len = 0;
     adv_log.entry[0] = '\0';
     adv_log.sent = 0;
+    adv_log.extra[0] = '\0';
+}
+
+/* A line of the event's own, made by its effects (The Rumblings' damaged structures): after the comparison's. */
+static void adv_log_extra(const char *line) {
+    adv_cat(adv_log.extra, (int)sizeof adv_log.extra, line);
 }
 
 /* One of the companion's events is composed for its popup (`title` as shown). */
@@ -88,6 +95,9 @@ static void adv_log_effects(void (*effects)(int), int ending) {
     lines[0] = '\0';
     if (began && end != NULL && end(adv_log.game, lines, (int)sizeof lines) > 0) {
         adv_log_put(lines);
+        adv_log_put(adv_log.extra);
+    } else if (adv_log.extra[0] != '\0') {
+        adv_log_put(adv_log.extra);
     } else {
         adv_log_put("  Changes: none\n");
     }

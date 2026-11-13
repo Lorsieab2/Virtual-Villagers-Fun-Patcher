@@ -412,6 +412,8 @@ static void ts_install(void);
 static void dv_install(void);
 static void dp_install(void);
 static void mk_install(void);
+static void cr_t_install(int game);
+static int g_cr_made;                  /* a single-popup event (ceremony_games.inc) has happened in this draw */
 static adv_string g_title_entry, g_body_entry;
 static adv_string *g_saved_title, *g_saved_body;
 static int g_strings_in;
@@ -710,6 +712,7 @@ static int __cdecl t_list(int listed) {
     int k, n = 0, room = g_tg->slots + 1 - listed;
     int can[T_MAX_EVENTS];
     adv_log_reset();                     /* an island event is being drawn: whatever was ours is over */
+    g_cr_made = 0;
     __try {
         *(void **)(uintptr_t)g_tg->table = &g_object;
         for (k = 0; k < g_event_count; ++k) {
@@ -1008,6 +1011,7 @@ static int t_install(int game) {
         dp_install();                   /* The Playful Dolphins (dolphin_vv4.inc): no site of its own */
         mk_install();                   /* The Mysterious Mask (mask_vv4.inc, four answers): no site of its own */
     }
+    cr_t_install(game);                 /* The Remembrance Ceremony, The Rumblings (ceremony_games.inc): no site */
     vvfp_site_branch(&w[0], g_tg->loop_site, 5, g_tg->loop_stock, 0xE9, (const void *)t_loop_stub);
     vvfp_site_branch(&w[1], g_tg->ok_site, 5, ADV_OK_STOCK, 0xE9, (const void *)t_ok_stub);
     vvfp_site_branch(&w[2], g_tg->ctor_site, 5, g_tg->ctor_stock, 0xE8, (const void *)t_ctor_thunk);

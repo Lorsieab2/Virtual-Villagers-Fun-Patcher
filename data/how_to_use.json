@@ -236,13 +236,13 @@
       "ids": ["vv1_more_island_events", "vv2_more_island_events", "vv3_more_island_events", "vv4_more_island_events", "vv5_more_island_events"],
       "guide": [
         "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers).",
-        "Adds the owner's new island events (more come later). The first, The Aspiring Adventurer: a villager sees something glinting off the path.",
-        "Choose \"Go investigate!\" or \"Stay on the safe path\". The Tree of Life also gets The Mysterious Mask: four answers (click, or press 1 to 4).",
-        "Investigating may bring food or tech points (random, like the game's own island events), or end in a death or a disappearance; the safe path brings them home 9 times in 10.",
-        "A New Home also gets The Cave Explorers (after The Cave puzzle), The Lost Children The Climb (a scientist climbs the Great Falls), The Tree of Life The Playful Dolphins.",
-        "The Secret City gets The Troubling Signs (its robed chief asks advisors; 5 villagers of 18+ leave) and Diving for Treasure (an adult dives: treasure, a fright, or worse).",
-        "It needs two villagers of 14 or more who are not nursing and not special. It comes like the game's own events, at their usual times.",
-        "The text comes in pages that fit the screen: click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
+        "Adds the owner's island events. The Aspiring Adventurer (all games): a villager sees something glinting off the path.",
+        "Choose \"Go investigate!\" (food, tech points, or a death or disappearance) or \"Stay on the safe path\" (home 9 times in 10).",
+        "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
+        "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
+        "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
+        "Most need two villagers of 14 or more who are not nursing and not special. They come like the game's own events, at their usual times.",
+        "Long text comes in pages: click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
       ]
     },
     {

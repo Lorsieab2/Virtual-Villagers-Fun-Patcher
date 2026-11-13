@@ -754,6 +754,20 @@ EFFECTS (not mentioned in the popup)
 - Each villager taking part Honors the Dead or Reflects (50% each). With the "Memorial Actions Can Also Occur at the Heathen Hovel" patch installed, each one goes to the former Heathen hovel or the mausoleum (50% each); without it, they all go to the mausoleum. In the other four games each villager goes to that game's graveyard or mausoleum (50% each where the game has both), and uses that game's own honoring/reflecting actions.
 - The feast quietly uses 10 food for every villager, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City).
 
+AS BUILT (your decisions of 13 November 2026)
+- Every game needs at least ONE grave (the game's own grave count; the stock Day of Honor asks for two in The Secret City, The Tree of Life and New Believers). New Believers also needs The Last Heathen done -- every Heathen converted and the old hovel fixed up, which the game saves for good.
+- Each villager is sent on their own, the way the game's own Day of Honor sends each one, so the game's group rules leave no one out. Babies still being carried are not villagers yet, so they stay with their mothers.
+- Where each villager goes and what they do:
+    A New Home ........... the cemetery: Honoring the Dead (the game has no Reflecting)
+    The Lost Children .... the memorial: Honoring the Dead or Reflecting, 50% each
+    The Secret City ...... the graveyard (it has no mausoleum): Honoring the Dead or Reflecting, 50% each
+    The Tree of Life ..... the graveyard: Honoring the Dead
+    New Believers ........ the mausoleum: Honoring. With "Memorial Actions Can Also Occur at the Heathen Hovel": the old Heathen hovel instead 50% of the time, where they Honor or Reflect (50% each) the way that patch sends them. Without that patch Reflecting is never used.
+
+THE REMEMBRANCE CEREMONY -- CHANCES
+  Its own place in the draw, as likely as one stock island event.
+  New Believers with the hovel patch: the mausoleum (Honoring) 50%; the hovel, Honoring 25%; the hovel, Reflecting 25%.
+
 ==========================================================================
 THE RUMBLINGS (all five games)
 ==========================================================================
@@ -775,3 +789,22 @@ EFFECTS
 - At 100% the structure is back to unbuilt, as in the original game: a full rebuild. In The Tree of Life and New Believers, where unbuilt huts can be moved, this lets the player rearrange the village without starting over.
 - Solved puzzles stay solved. No one is hurt or dies.
 - If a damaged population hut leaves the village over its limit, nobody leaves; no new babies come until it is rebuilt.
+
+AS BUILT (your decisions of 13 November 2026)
+- "Every puzzle" is the game's own Puzzles screen: 16 puzzles in A New Home, The Lost Children, The Secret City and The Tree of Life, 11 in New Believers.
+- The structures it can damage (a structure that is itself a puzzle is never damaged, so solved puzzles really stay solved):
+    A New Home ........... the second and third population huts (never the first, "The Hut" puzzle)
+    The Lost Children .... the three population huts (never the Lovely Hut, the Hospital or the Sewing Hut: all three are puzzles)
+    The Secret City ...... the three population huts and the clothing hut
+    The Tree of Life ..... the three population huts, the clothing hut, the love shack, the nursery school and the hospital
+    New Believers ........ the three population huts, the clothing hut and the love shack (never the nursery school)
+- The Secret City's first two huts and The Lost Children's first hut start part built in a new village: the 10 to 100% is counted on the work above that, so 100% puts them back exactly where a new village starts them.
+- A heavily damaged structure needs a villager dropped on it before the builders start again, as for a new building site in the stock game.
+- When it is finished again the game shows its own celebration, tip and completion message again.
+- The Tree of Life: a damaged nursery school's teacher stops teaching until it is rebuilt.
+- The Tree of Life and New Believers' "3 huts" trophy counter is left as the game keeps it (where the game saves it could not be proven), so rebuilding a hut may count toward that trophy again.
+
+THE RUMBLINGS -- CHANCES
+  Its own place in the draw, as likely as one stock island event.
+  Each finished structure ..... damaged 25% (if none is, one of them at random)
+  Each damaged one loses ...... 10% to 100% of its building work, each whole percent equally likely (100%: unbuilt)

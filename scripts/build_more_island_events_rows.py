@@ -149,6 +149,65 @@ MASK_BEHAVIOUR = (
     "living villager is (adv_vv345.inc t_vanish: no body, no grave; told to Cause of Death) when the elders' last page "
     "is shown, with the event's one Island Events log entry. No site of its own.")
 
+CEREMONY_PLACES = {
+    1: "at the cemetery, \"Honoring the Dead\"",
+    2: "at the memorial, \"Honoring the Dead\" or \"Reflecting\" (half the time each)",
+    3: "at the graveyard, \"Honoring the Dead\" or \"Reflecting\" (half the time each)",
+    4: "at the graveyard, \"Honoring the Dead\"",
+    5: "at the mausoleum, \"Honoring\" -- or, with \"Memorial Actions Can Also Occur at the Heathen Hovel\" installed, "
+       "half of them at the old Heathen hovel instead, \"Honoring\" or \"Reflecting\" (half the time each)",
+}
+RUMBLING_STRUCTURES = {
+    1: "the second and third population huts (the first, \"The Hut\", is a puzzle and is never damaged)",
+    2: "the three population huts (the Lovely Hut, the Hospital and the Sewing Hut are puzzles and are never damaged)",
+    3: "the three population huts and the clothing hut",
+    4: "the three population huts, the clothing hut, the love shack, the nursery school and the hospital",
+    5: "the three population huts, the clothing hut and the love shack (the nursery school is left out)",
+}
+CEREMONY_WHEN = {
+    1: "at least one grave", 2: "at least one grave", 3: "at least one grave", 4: "at least one grave",
+    5: "at least one grave and The Last Heathen done (every Heathen converted and the hovel fixed up)",
+}
+CEREMONY_SITES = {
+    1: "its own case in the island events' draw (rand(15) one wider for each of the two that can happen), through two "
+       "sites of its own",
+    2: "its own case in the single-result events' draw (rand(28) one wider for each of the two that can happen), "
+       "through two sites of its own",
+    3: "its own entry in the draw (t_list), no site of its own",
+    4: "its own entry in the draw (t_list), no site of its own",
+    5: "its own entry in the draw (t_list), no site of its own",
+}
+
+
+def ceremony_description(game: int) -> str:
+    return (
+        " And The Remembrance Ceremony and The Rumblings (all five games; one popup each, OK only). The Remembrance "
+        "Ceremony needs " + CEREMONY_WHEN[game] + ": everyone joins in -- children, nursing mothers and fathers, "
+        "everyone" + (" who believes" if game == 5 else "") + " -- each " + CEREMONY_PLACES[game] + ", and the feast "
+        "quietly uses 10 food for every villager (never below 0). The Rumblings needs every puzzle solved and a finished "
+        + ("hut" if game in (1, 2) else "structure") + ": an earthquake damages each of " + RUMBLING_STRUCTURES[game]
+        + " one time in four (at least one always), each losing 10 to 100% of its building work; the builders must "
+        "build it again (at 100% it is unbuilt again, as in a new village" + ("; an unbuilt one can be moved" if game in
+        (4, 5) else "") + "). Nobody is hurt; a village over its limit keeps everyone and has no new births until it is "
+        "rebuilt. Each has its own share of the draw and can come again.")
+
+
+def ceremony_behaviour(game: int) -> str:
+    return (
+        "The Remembrance Ceremony and The Rumblings (ceremony_core.inc, ceremony_games.inc): each " + CEREMONY_SITES[game]
+        + "; the game's own single-result popup shows the owner's words, the effects are made as it is built, with the "
+        "event's one Island Events log entry. The Remembrance Ceremony: needs " + CEREMONY_WHEN[game] + " (the game's "
+        "own grave count); every living, present villager" + (" who is a believer" if game == 5 else "") + " is "
+        "started on its own through the game's own stop and action starter, as its Day of Honor starts each one (so no "
+        "group filter leaves anyone out), " + CEREMONY_PLACES[game] + "; the feast uses 10 food for every villager the "
+        "game counts, never below 0 (Blessings Day's own rule). The Rumblings: needs every puzzle of the game's Puzzles "
+        "screen solved and one of " + RUMBLING_STRUCTURES[game] + " finished; each finished one rand(100) < 25 (none: "
+        "one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the "
+        "game's own construction passes through (at 100% the new village's state)"
+        + ("; the building's effect handle freed and set to -1" if game >= 3 else "")
+        + ("; the nursery school's teacher let go" if game == 4 else "") + ".")
+
+
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
 NAME = "More Island Events"
@@ -170,6 +229,15 @@ SITES = {
         (0x41A87C, "E8FF02FFFF", "E8XXXXXXXX",
          "the encounter constructor's attaching of its second answer: a question of more than one page starts on its "
          "first page, with OK"),
+        (0x423A06, "E8A54C0000", "E8XXXXXXXX",
+         "the trigger's call of the island event's constructor 0x4286B0 for the island family (type 2): for that one "
+         "call the chooser's draw 0x4284DB (the game's rand, or Story / Cheat Upgrades' own roll) is pointed into the "
+         "companion and put back after, one wider for each of The Remembrance Ceremony and The Rumblings that can "
+         "happen -- the only way to give them their own case without writing Story / Cheat Upgrades' sites for good"),
+        (0x4284E7, "83FF0E77EA", "E9XXXXXXXX",
+         "the chooser 0x428470's `cmp edi, 0xE; ja` past its 15 cases: a draw of 15 or more is one of the two events "
+         "(its text written into the event's own buffer +0x277F, its effects made, the chooser's own ending 0x428630); "
+         "every other draw goes on as before"),
     ),
     2: (
         (0x41F792, "E8D9FDFFFF", "E8XXXXXXXX",
@@ -191,6 +259,15 @@ SITES = {
         (0x42F1A3, "E8D831FFFF", "E8XXXXXXXX",
          "the trigger's call of family A's constructor 0x422380: after it, a question of more than one page starts on "
          "its first page, with OK"),
+        (0x42F0F7, "E8E4570000", "E8XXXXXXXX",
+         "the trigger's call of the single-result constructor 0x4348E0 (type 2): for that one call the chooser's draw "
+         "0x434607 (the game's rand, or Story / Cheat Upgrades' own roll) is pointed into the companion and put back "
+         "after, one wider for each of The Remembrance Ceremony and The Rumblings that can happen -- the only way to "
+         "give them their own case without writing Story / Cheat Upgrades' sites for good"),
+        (0x43462C, "0F87F2010000", "E9XXXXXXXX90",
+         "the single-result chooser 0x434570's `ja` past its 28 cases: a draw of 28 or more is one of the two events "
+         "(its text written into the event's own buffer +0x277F, its effects made, the chooser's own ending "
+         "0x434842); every other draw goes on as before"),
     ),
     3: (
         (0x419B6E, "83FE3A7CE1", "E9XXXXXXXX",
@@ -267,7 +344,7 @@ def description(game: int) -> str:
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
         "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
-        + ("Two here: " if game in (1, 2) else "Three here: " if game in (3, 4) else "For now one: ")
+        + ("Four here: " if game in (1, 2) else "Five here: " if game in (3, 4) else "Three here: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
         "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
@@ -282,7 +359,8 @@ def description(game: int) -> str:
         "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait "
         "for the page that tells them, and the Island Events log keeps one entry for each event."
         + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION + DIVE_DESCRIPTION
-           if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "") + " " + classic + " **Needs no other patch.** "
+           if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "")
+        + ceremony_description(game) + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -322,7 +400,8 @@ def row(game: int, sha: str) -> dict:
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "
             "each shown in turn with OK.",
         ] + ([CAVE_BEHAVIOUR] if game == 1 else [CLIMB_BEHAVIOUR] if game == 2 else [TROUBLING_BEHAVIOUR, DIVE_BEHAVIOUR]
-             if game == 3 else [DOLPHIN_BEHAVIOUR, MASK_BEHAVIOUR] if game == 4 else []),
+             if game == 3 else [DOLPHIN_BEHAVIOUR, MASK_BEHAVIOUR] if game == 4 else [])
+        + [ceremony_behaviour(game)],
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
@@ -347,6 +426,9 @@ def row(game: int, sha: str) -> dict:
                                "population, 1 / 2 children, 4 / 5 adults, all four answers by mouse and key, each "
                                "elders' speech, both disappearances, the effects on the last page, the log entry, the "
                                "words and the four buttons, in tests/test_mysterious_mask.py)" if game == 4 else "")
+                            + "; The Remembrance Ceremony and The Rumblings: the conditions, the draw, everyone sent "
+                            "and where, the feast, the damage and its states, the log entry and the words, in "
+                            "tests/test_ceremony_and_rumblings.py"
                             + "; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},

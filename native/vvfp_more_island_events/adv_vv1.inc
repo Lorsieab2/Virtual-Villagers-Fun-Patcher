@@ -539,19 +539,24 @@ __declspec(naked) static void v1_resolve_stub(void) {
     }
 }
 
+static void cr_v1_sites(vvfp_site_write *w);   /* The Remembrance Ceremony, The Rumblings (ceremony_games.inc) */
+static void cr_v12_ready(int game);
+
 static int v1_install(void) {
     static const unsigned char CHOOSE_STOCK[5] = { 0xE8, 0x29, 0xFF, 0xFF, 0xFF };
     static const unsigned char RESOLVE_STOCK[6] = { 0x0F, 0x87, 0xD7, 0x0F, 0x00, 0x00 };
     static const unsigned char OK_STOCK[5] = { 0xE8, 0xBD, 0x25, 0xFF, 0xFF };
     static const unsigned char ATTACH_STOCK[5] = { 0xE8, 0xFF, 0x02, 0xFF, 0xFF };
-    static vvfp_site_write w[4];
+    static vvfp_site_write w[6];
     vvfp_site_branch(&w[0], 0x4189F2u, 5, CHOOSE_STOCK, 0xE8, (const void *)v1_choose_stub);
     vvfp_site_branch(&w[1], 0x41939Du, 6, RESOLVE_STOCK, 0xE9, (const void *)v1_resolve_stub);
     vvfp_site_branch(&w[2], 0x41A3EEu, 5, OK_STOCK, 0xE8, (const void *)v1_ok);
     vvfp_site_branch(&w[3], 0x41A87Cu, 5, ATTACH_STOCK, 0xE8, (const void *)v1_attach);
-    if (!vvfp_install_sites(w, 4)) {
+    cr_v1_sites(&w[4]);                 /* two more, all six or none */
+    if (!vvfp_install_sites(w, 6)) {
         return 0;
     }
     g_adv_game = &ADV_VV1;
+    cr_v12_ready(1);
     return 1;
 }
