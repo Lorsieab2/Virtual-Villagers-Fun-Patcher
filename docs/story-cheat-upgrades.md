@@ -759,6 +759,110 @@ Secret City and The Tree of Life: two picks in a row, each shown; New
 Believers: only the three living believers offered, the only male believer
 shown), the result, and the food change.
 
+### Branching events from the library (v1.35.97)
+
+The dialog's "From the library..." lists the events saved in the patcher's
+Custom Island Event Library (`<save folder>\Virtual Villagers Fun Patcher\
+Custom Island Events\<name>.json + <name>.cieg`, src/vv_cie_graph.py) made
+for this game, and queues the one picked; the editor above stays as it is.
+The runtime is native/vvfp_story_upgrades/story_graph.inc:
+
+- The .cieg is read and checked again (magic, version, CRC-32, every table
+  and index in bounds, no loop, only the allowed characters); a bad file is
+  refused with the reason, and the picker names every file it leaves out.
+- Roles are filled by the game's own eligible villagers (alive, of age, not
+  carrying a baby, not the game's special villagers -- the shipped Aspiring
+  Adventurer's rules -- and New Believers' believers), two roles always two
+  villagers. No villager for a role: the purchase is refused and says why;
+  no longer one at delivery: the event keeps waiting and is made due again.
+- The walk draws each branch with the game's random routine; conditions on
+  visited nodes, bound roles, the game and Guardians of Isola.
+- Questions anywhere (format version 2, v1.35.97): the run keeps its path
+  -- every node reached, each effect's roll -- and grows it one segment at a
+  time, from the start or an answer up to the next question or the end. When
+  a question is asked, both answers' segments are walked (kept per question,
+  so a question asked again after a reload has the same outcomes); the
+  answer's segment is added to the path and laid out after the question's
+  page. Every question is the game's two-button popup; only the start's
+  question (or a plain event's first page) counts in Island Events Seen, a
+  later question's count is taken back as a notice's. Each later answer adds
+  a "Choice:" line to the event's one log entry. A reload rewinds to the
+  first page whose effects the save lacks; when that is an answer's first
+  page, the question is asked again and the entry goes back to before its
+  "Choice:" line. A version 1 .cieg is read and played as before.
+- Version 3 (v1.35.97): an award range (the effect's b, its top) is drawn
+  with the walk through the game's random routine, then scaled as a fixed
+  amount; the requirement's puzzles (an ALL of puzzle conditions in the
+  header's slot 42) are read through each adapter's puzzle_solved -- the
+  flags the Puzzles screen reads (A New Home's The Cave: [world +0x9FA8]) --
+  and the purchase is refused until they are solved; an age gap (a role's
+  bytes 6 and 7) makes the roles be filled by a search that keeps every gap
+  (ages in 20 units a year), refused with the roles named when no pair fits,
+  and at delivery the event keeps waiting.
+- A question's button label is limited only by the 39 bytes kept and the
+  screen: story_label_widths.h holds each game's story-font widths
+  (scripts/build_cie_label_widths.py); the two buttons are stacked, so a
+  label wider than its button stays readable.
+- Version 4 (the owner, 2026-11-13: "Make the 2-4 option thing general"): a
+  question has 2 to 4 choices. Each answer's segment is walked when it is
+  asked (the third and fourth kept in the run file's seg_more, run file
+  version 3; a version 2 run file is read with them empty). The Secret City,
+  The Tree of Life and New Believers show them in the game's own two-choice
+  popup through native/shared/vvfp_multi_answer.h: the pick stubs present a
+  3- or 4-answer question through their own path (the presenter's
+  instructions up to its constructor call, whatever that call holds, then
+  cs_after_ctor), the extra buttons made with the game's own routines (ids 4
+  and 5), stacked 1.5 button heights apart, a copy of the dialog's virtual
+  table taking ids 4 and 5 and the keys 1 to 4 (Enter / Esc for OK), and
+  VvfpStoryButtonRoom for Scrolling Popups. A question's page and its
+  answer's first page keep 3 text lines per answer past two
+  (CG_ANSWER_LINES). A New Home and The Lost Children: the encounter
+  dialog through native/shared/vvfp_multi_answer_12.h -- the setup detour
+  (0x41A51F / 0x42244A) pads the question for the extra buttons (their height
+  measured on a button made and deleted at once, in the font's lines) and
+  gives the dialog a copy of its virtual table; at its first draw (+0x30,
+  0x4187E0 / 0x41F430) the third and fourth buttons are made with the game's
+  routines (0x44AF03 + 0x4019B0 + 0x4015B0 / 0x467F83 + 0x4019D0 + 0x4015D0,
+  the answers' picture, the constructor's label colours), ids 5 and 6,
+  attached and stacked; its click handler answers 5 and 6 as the game answers
+  its two (the choice field 3 / 4, then c1 / c2_choice_resolve) and its key
+  handler takes 1 to 4 and Enter / Esc; ours are deleted at the next draw.
+- The effects wait for their own page (the owner, 2026-11-12): each node's
+  effects are made, once, when the page showing the end of its text is built
+  -- as a stock plain island event makes its changes while building its
+  popup, and a result at the click -- so "Your villagers gain ..." is the page
+  the award lands on and an ending's last page brings its death or
+  disappearance. Food and tech (scaled by "Island Events Scale" when ticked),
+  deaths with the event's cause told to Cause of Death, disappearances logged
+  as Disappeared, New Believers' "becomes a Heathen" through the game's own
+  conversion and counted by "Popup When Believers Become Heathens", health, a
+  like or dislike, a skill raised, sickness. A villager who dies or leaves
+  between pages has only their own later effects skipped.
+- Each popup is laid out in pages that fit (paragraphs, sentences, words);
+  the question's earlier pages come first, the result's first page is the
+  click's result, every later page an island-event notice. Only the question
+  (or the first page) counts in Island Events Seen. The Island Events log
+  keeps ONE entry for the event (the owner, 2026-11-12): "Event:", "Choice:",
+  then every change in page order as "<name>: <Label> <old> -> <new>",
+  appended as each page appears (VVFP Island Events.dll's
+  VvfpIslandEventsGraphBegin / End around that page's effects). The log
+  matches the save at every save: the entry so far is handed to the log after
+  each page (VvfpIslandEventsGraphWrite -> the Parentage Export's
+  WriteVillageEventEntry), a held record replaced each time, and each save
+  writes what it has gained onto the same entry, append-only -- its first part
+  a numbered "Island event <n>" left open, later parts only their new lines
+  right after it (or, if another record came between, a marked
+  "(continued) Island event <n>", never numbered), closed when the event is
+  over. The run's file remembers what each save's log holds, so a quit and a
+  reload continue the same entry, nothing twice. The game's own bracket around
+  the event's popups writes nothing for them (VvfpStoryGraphLogged).
+- The run is kept in "Virtual Villagers N Story Purchases Graph - Save S.dat"
+  beside the queue's file (whose layout is unchanged), with when each page's
+  effects were made: a quit with the question on screen or between pages
+  resumes from the first page whose effects the save does not hold, so no
+  effect is made twice or lost. The file stays after the last page until a
+  save holds it.
+
 ### Custom titles
 
 A villager's title can be replaced by the player's text (1-31 letters,

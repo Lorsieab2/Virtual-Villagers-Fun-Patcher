@@ -1067,9 +1067,10 @@ static const ce_adapter C5_ADAPTER = {
     2, 0x1C4C,
     /* The two-choice popup (0x418020): 48 characters, 11 lines for the
        question and 17 for a result (the tallest stock question and result:
-       Innovation in Farming's), the title above the result, labels of 38
-       characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role,
+       Innovation in Farming's), the title above the result, labels of up
+       to 39 characters, as wide as the screen shows whole
+       (story_label_widths.h). */
+    48, 11, 48, 17, 0, 39, c5_rand_below, c5_believer, c5_role,
     C5_PROBE, (int)(sizeof C5_PROBE / sizeof C5_PROBE[0]),
     c5_set_faith,
     "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "

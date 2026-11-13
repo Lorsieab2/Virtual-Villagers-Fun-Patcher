@@ -1009,8 +1009,9 @@ static const ce_adapter C3_ADAPTER = {
     /* The two-choice popup (0x4192F0): the 432-pixel text box of the plain
        one, 11 lines for the tallest of the question and the results (the
        tallest stock two-choice text; the popup also shows the villager);
-       the title stays above the result; labels of 32 characters. */
-    48, 11, 48, 11, 0, 32, c3_rand_below, NULL, c3_role,
+       the title stays above the result; labels of up to 39 characters, as wide as the screen shows
+   whole (story_label_widths.h). */
+    48, 11, 48, 11, 0, 39, c3_rand_below, NULL, c3_role,
     C3_PROBE, (int)(sizeof C3_PROBE / sizeof C3_PROBE[0]),
     NULL, NULL, 0, c3_set_health
 };

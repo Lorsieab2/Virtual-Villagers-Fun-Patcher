@@ -46,6 +46,7 @@
 #define ES_MULTILINE 0x0004L
 #define ES_WANTRETURN 0x1000L
 #define ES_NUMBER 0x2000L
+#define ES_READONLY 0x0800L
 #define CBS_DROPDOWNLIST 0x0003L
 #define BS_AUTOCHECKBOX 0x0003L
 
@@ -121,6 +122,7 @@ BEGIN
 
     AUTOCHECKBOX "Ask a question with two choices", 1137, 8, 396, 150, 10, WS_TABSTOP
     PUSHBUTTON  "Choices...", 1138, 162, 394, 80, 14, WS_TABSTOP
+    PUSHBUTTON  "From the library...", 1141, 248, 394, 92, 14, WS_TABSTOP
 
     PUSHBUTTON  "Not in this game...", 1114, 8, 412, 80, 15, WS_TABSTOP
     LTEXT       "It happens shortly, as a bought Island Event does.", 1136, 94, 412, 178, 18
@@ -420,4 +422,16 @@ BEGIN
     LTEXT       "", 3302, 8, 28, 244, 50
     DEFPUSHBUTTON "OK", 1, 120, 86, 64, 15
     PUSHBUTTON  "Cancel", 2, 188, 86, 64, 15
+END
+
+312 DIALOGEX 0, 0, 340, 230
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+CAPTION "Custom Island Events: the library"
+FONT 9, "Segoe UI"
+BEGIN
+    LTEXT       "Events saved in the patcher's Custom Island Event Library for this game:", -1, 8, 8, 324, 10
+    LISTBOX     3801, 8, 20, 324, 110, LBS_NOTIFY | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_HSCROLL | WS_BORDER | WS_TABSTOP
+    EDITTEXT    3802, 8, 136, 324, 66, ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL | WS_VSCROLL
+    DEFPUSHBUTTON "Queue event", 1, 196, 208, 64, 15
+    PUSHBUTTON  "Cancel", 2, 268, 208, 64, 15
 END

@@ -150,6 +150,8 @@ FILES = [
     "assets/scrolling_popups/vvfp_scroll_down.png",
     "assets/scrolling_popups/vvfp_scroll_track.png",
     "assets/scrolling_popups/vvfp_scroll_knob.png",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "assets/more_island_events/VVFP More Island Events.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -327,6 +329,11 @@ FILES = [
     "data/vv3_scrolling_popups_feature.json",
     "data/vv4_scrolling_popups_feature.json",
     "data/vv5_scrolling_popups_feature.json",
+    "data/vv1_more_island_events_feature.json",
+    "data/vv2_more_island_events_feature.json",
+    "data/vv3_more_island_events_feature.json",
+    "data/vv4_more_island_events_feature.json",
+    "data/vv5_more_island_events_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
@@ -522,6 +529,12 @@ FILES = [
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_nursery.py",
     "src/vv_game_mechanics_tech_time.py",
+    "src/vv_game_mechanics_adventurer.py",
+    "src/vv_aspiring_adventurer.py",
+    "src/vv_cave_explorers.py",
+    "src/vv_the_climb.py",
+    "src/vv_troubling_signs.py",
+    "src/vv_diving_for_treasure.py",
     # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
     "src/vv_game_mechanics_farmers.py",
     "src/vv_game_mechanics_farmers_vv1.py",
@@ -555,6 +568,13 @@ FILES = [
     # Stew Recipes (Tools tab): its window and the pages of The Lost Children, The Secret City, The Tree of Life.
     "src/vv_stew_recipes_window.py",
     "src/vv_stew_recipes.py",
+    # Custom Island Event Library (Tools tab): its window, the branching event format with its checks, .cieg
+    # compiler and chances, and the shipped examples its "New from The Aspiring Adventurer" / "New from The Cave
+    # Explorers" copy.
+    "src/vv_cie_library_window.py",
+    "src/vv_cie_graph.py",
+    "data/cie_graphs/the_aspiring_adventurer.json",
+    "data/cie_graphs/the_cave_explorers.json",
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",

@@ -52,6 +52,11 @@
    "files": ["native/vvfp_island_events/*"]
   },
   {
+   "reason": "A branching Custom Island Event's one Island Events log entry (its Event / Choice header, each later answer's Choice line, Changes: none, the test build's page lines): log words, which stay English.",
+   "files": ["native/vvfp_story_upgrades/story_graph.inc"],
+   "functions": ["cg_entry_start", "cg_log_end", "cg_log_write", "cg_resolve"]
+  },
+  {
    "reason": "The translation file format's own words (plural rule names, header names, game titles to check the @game row): compared with the file, never shown.",
    "files": ["native/vvfp_translations/*"]
   },
@@ -104,6 +109,31 @@
    "reason": "Popup When Believers Become Heathens: the words looked for in the game's own eSayStoppedBelieving to tell the Guardians of Isola wording; never shown.",
    "files": ["native/vvfp_story_upgrades/story_faith_notice.inc"],
    "functions": ["faith_notice_left_the_tribe"]
+  },
+  {
+   "reason": "The Aspiring Adventurer: the words looked for in New Believers' own eSayStoppedBelieving to tell the Guardians of Isola wording (never shown), and its words for the Cause of Death companion's Deaths log (a disappearance, written to the log file only). The words the event shows are in the template and looked up by key (adv_text.inc).",
+   "files": ["native/vvfp_more_island_events/adv_vv345.inc", "native/vvfp_more_island_events/adv_core.inc"],
+   "functions": ["vv5_joins_key", "adv_choose", "adv_make_effects"]
+  },
+  {
+   "reason": "The Cave Explorers: its words for the Cause of Death companion's Deaths log (a disappearance, written to the log file only). The words the event shows are in the template and looked up by key (cave_text.inc).",
+   "files": ["native/vvfp_more_island_events/cave_core.inc"],
+   "functions": ["cave_effects"]
+  },
+  {
+   "reason": "The Troubling Signs: its words for the Cause of Death companion's Deaths log (the five travellers' disappearance, written to the log file only). The words the event shows are in the template and looked up by key (troubling_text.inc).",
+   "files": ["native/vvfp_more_island_events/troubling_core.inc"],
+   "functions": ["ts_effects"]
+  },
+  {
+   "reason": "Diving for Treasure: its words for the Cause of Death companion's Deaths log (the diver's disappearance, written to the log file only). The words the event shows are in the template and looked up by key (dive_text.inc).",
+   "files": ["native/vvfp_more_island_events/dive_core.inc"],
+   "functions": ["dv_effects"]
+  },
+  {
+   "reason": "More Island Events (all five games): the Island Events log's one entry for its events, in the log's own words (\"Event:\", \"Choice:\", \"Changes: none\"), written to the log file only, as the branching Custom Island Event's are.",
+   "files": ["native/vvfp_more_island_events/adv_log.inc"],
+   "functions": ["adv_log_event", "adv_log_choice", "adv_log_effects"]
   }
  ]
 }

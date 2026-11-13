@@ -228,8 +228,21 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
-        "and Island Events Scale With Population (like The Lost Children).",
+        "and Island Events Scale With Population (like The Lost Children) and More Island Events.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
+      ]
+    },
+    {
+      "ids": ["vv1_more_island_events", "vv2_more_island_events", "vv3_more_island_events", "vv4_more_island_events", "vv5_more_island_events"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers).",
+        "Adds the owner's new island events (more come later). The first, The Aspiring Adventurer: a villager sees something glinting off the path.",
+        "Choose \"Go investigate!\" or \"Stay on the safe path\".",
+        "Investigating may bring food or tech points (random, like the game's own island events), or end in a death or a disappearance; the safe path brings them home 9 times in 10.",
+        "A New Home also gets The Cave Explorers (after The Cave puzzle); The Lost Children gets The Climb (a Trainee scientist of 18+ climbs the Great Falls, or takes advice).",
+        "The Secret City gets The Troubling Signs (its robed chief asks advisors; 5 villagers of 18+ leave) and Diving for Treasure (an adult dives: treasure, a fright, or worse).",
+        "It needs two villagers of 14 or more who are not nursing and not special. It comes like the game's own events, at their usual times.",
+        "The text comes in pages that fit the screen: click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
       ]
     },
     {
@@ -1182,7 +1195,7 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups,",
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
@@ -1476,6 +1489,19 @@
         "The Lost Children's plants have no names in the game, so the patcher names them by colour.",
         "It also says which stews solve puzzles and what else they need, how much food a stew takes, and whether a stew can kill.",
         "It reads nothing from your saves and changes nothing. A line in red marked UNCONFIRMED is one the game's code does not settle."
+      ]
+    },
+    "custom_island_event_library": {
+      "title": "Custom Island Event Library",
+      "guide": [
+        "Write your own island events with questions, choices and random outcomes, then pick one to happen from Custom Island Events in the game.",
+        "Any part can be a question with two to four buttons, as often as you like; each answer shows a page of its own first.",
+        "An award can be a range, drawn at random. An event can need puzzles solved first, and two roles at most so many years apart.",
+        "Each event is kept in the save folder of the game chosen at the top; the game lists only the events that pass every check.",
+        "The tree on the left shows every part of the event; the tabs on the right edit the chosen part: its text, its ways on and their weights, and its changes.",
+        "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits on each game's screen.",
+        "If no villager fits a role the event needs, the game refuses to queue the event. (Name) is the full name when Last Names is on.",
+        "Delete moves an event to the Recycle Bin. Export and Import share an event as a file. The two New from buttons start from the shipped examples."
       ]
     },
     "picture_studio": {

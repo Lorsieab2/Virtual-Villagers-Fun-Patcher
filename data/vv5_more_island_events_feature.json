@@ -1,0 +1,54 @@
+{
+  "id": "vv5_more_island_events",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "More Island Events",
+  "description": "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). For now one: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled survivalist, killed, gone, or they become a Heathen. The event is one more island event, listed and drawn like the game's own (1 in the number listed); it needs two villagers of 14 or more who are not nursing a baby and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit, and the adventurer and the friend who may come to help are drawn from them. The reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island events (50 to 300 food for the meat, 500 to 3,000 tech points for the chest); with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait for the page that tells them, and the Island Events log keeps one entry for each event. Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it. **Needs no other patch.** **Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). The companion is \"VVFP More Island Events.dll\", started by VVFP Startup.dll; nothing is saved by it.",
+  "output_tag": "Aspiring Adventurer",
+  "dependencies": [],
+  "behavior_changes": [
+    "The event is one more island event, listed and drawn like the game's own (1 in the number listed). It can happen only while at least two villagers may go: 14 or more (280 age units), alive and present, not carrying a baby, and not a Heathen, the chief, the Retired Chief or another of the special roles the game's own picker skips, or a Reanimated spirit; the adventurer and the friend of ending A8 are drawn from them, the friend never the adventurer.",
+    "Choice A, \"Go investigate!\": the find 50% a pile of dirt, 25% meat (a food award: 50 to 300 food), 25% a golden chest (a tech award: 500 to 3,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a grave; A3 and A6 disappear, no body), each equally likely within its half.",
+    "Choice B, \"Stay on the safe path\": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 each: dies; a full recovery; health set to 10-50 and running disliked), becomes a Heathen, the game's own conversion (\"the Isolans' tribe\" with Guardians of Isola, else \"the heathens' tribe\"), a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a fallen tree, dies at the bottom of a cliff, disappears.",
+    "The reward is drawn, each amount equally likely, from the game's smallest to its largest stock island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's own food or tech writer; with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as that patch scales the game's own events. The effects wait for their own page (the page that ends the ending's text), and the event writes its own one Island Events log entry; a disappearance is told to the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one.",
+    "The owner's words, by translation key (the event's popup shows the player's language when a translation has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- each shown in turn with OK."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion writes each site at run time, only after verifying every site's stock bytes (all of them, or none); without it the event does not exist.",
+    "Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island Events are unchanged; nothing is saved by the companion."
+  ],
+  "evidence_status": "implemented from exact-build disassembly; the draw, the popup pages, both choices' effects and the install with every other patch emulated on the stock executable in tests/test_aspiring_adventurer.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/more_island_events/VVFP More Island Events.dll",
+      "destination": "VVFP More Island Events.dll",
+      "sha256": "505EC4E0811002F089046631177761D24C469ACA5AD424C8907D54DBCC536B05"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4188E0",
+      "stock_bytes": "83FE387CDB",
+      "written_bytes": "E9XXXXXXXX",
+      "routine": "the selector 0x418870's loop end over the event table 0x4DC850 (slots 1-55): the event, in slot 0, is listed after them when it can happen, so it is drawn like any listed event",
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x418738",
+      "stock_bytes": "8B4E508B01",
+      "written_bytes": "E9XXXXXXXX",
+      "routine": "the event dialog's click handler 0x418720, OK: while the event has a page left it is shown instead",
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    },
+    {
+      "va": "0x41896A",
+      "stock_bytes": "E8B1F6FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the selector's call of the dialog constructor 0x418020: after it, a question of more than one page starts on its first page, with OK",
+      "installed_by": "VVFP More Island Events.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

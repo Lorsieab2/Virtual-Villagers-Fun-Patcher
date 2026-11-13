@@ -2743,6 +2743,7 @@ struct pending_record {
        ITS OWN save's log: at a save of another slot it stays held (the owner, 2026-10-31). */
     int slot;
     char *text;
+    int open_entry;     /* a branching Custom Island Event's one entry: its index in event_entries + 1, else 0 */
 };
 
 static struct pending_record *pending;
@@ -3239,6 +3240,9 @@ static int count_running_records(const struct game_layout *g, int births) {
 #define APPEND_RETRY          0
 #define APPEND_UNRECOVERABLE (-1)
 
+static int events_tail_open(const wchar_t *path);
+static int append_event_entry(const struct game_layout *g, const char *village, int k, const char *text);
+
 /* Append one rendered record to this village's log, heading a new file.
    `text` is everything after the "Conception <n>" line for a conception, and
    the whole block for a birth. `village` may be empty only when there is no
@@ -3289,6 +3293,11 @@ static int append_record(
             written = 0;
         }
     }
+    if (written && had_content && log_family_of(kind) == LOG_EVENTS && events_tail_open(path)) {
+        /* A branching event's entry is still open there (append_event_entry): closed first, so the two
+           records never run together.  Every other record ends with its blank line: never so. */
+        written = fputs("\n", file) >= 0;
+    }
     if (written) {
         if (kind == KIND_ARRIVED) {
             written = fprintf(file, "Arrived %d\n%s", arrived_before + 1, text) >= 0;
@@ -3325,6 +3334,157 @@ static int append_record(
             return APPEND_UNRECOVERABLE;
         }
         return APPEND_RETRY;
+    }
+    return APPEND_WRITTEN;
+}
+
+/* ---- A branching Custom Island Event's ONE entry ----------------------------------------------------------
+
+   The owner (2026-11-12): the Island Events log keeps ONE entry per branching event ("VVFP Story Upgrades.dll"
+   story_graph.inc, through "VVFP Island Events.dll"): its title, its "Choice:" line, then every page's changes in
+   page order as they happen -- and, as every log, it matches the save.  So the entry is a held record that is
+   REPLACED as the event goes on (WriteVillageEventEntry: the whole entry so far each time), and each save writes
+   what the entry has gained since the last one, onto the same entry, append-only:
+
+     * its first part is an ordinary numbered record, "Island event <n>" and the lines so far, left OPEN (no closing
+       blank line) while the event goes on;
+     * a later part is only its new lines, appended right after the open entry when the file still ends with it
+       (the usual case: the next save of this event, in this session or after a quit and a reload); were anything
+       else to have been written after it, the part says "(continued) Island event <n>" (or, with the number not
+       known in a new session, "(continued)" and the entry's first line), and is never numbered or counted;
+     * the event's end closes it with its blank line.
+   Any other record written into an Island Events log whose last record is open closes it first (append_record),
+   so no two records ever run together.  The session keeps, per entry, what is on disk; a new session is told it by
+   the Story companion (`disk`: the entry's length the last save wrote, from the run's own file). */
+#define EVENT_ENTRIES 4
+
+static struct {
+    int used;
+    int game_id;
+    int key;
+    size_t disk;                      /* bytes of the entry already in the log */
+    int number;                       /* its "Island event <n>" (0: not known in this session) */
+    int final;                        /* the event is over: closed by its next write */
+} event_entries[EVENT_ENTRIES];
+
+/* The last up-to-`cap` - 1 bytes of `path` without its carriage returns, into `out`; their length (-1 unreadable,
+   0 empty). */
+static int log_tail(const wchar_t *path, char *out, int cap) {
+    FILE *file = _wfopen(path, L"rb");
+    long size, from;
+    int n = 0, c;
+    if (file == NULL) {
+        return 0;
+    }
+    if (fseek(file, 0, SEEK_END) != 0 || (size = ftell(file)) < 0) {
+        fclose(file);
+        return -1;
+    }
+    from = size > (long)(cap - 1) ? size - (long)(cap - 1) : 0;
+    fseek(file, from, SEEK_SET);
+    while ((c = fgetc(file)) != EOF && n < cap - 1) {
+        if (c != '\r') {
+            out[n++] = (char)c;
+        }
+    }
+    out[n] = '\0';
+    fclose(file);
+    return n;
+}
+
+/* The log's last record is an entry left open: it ends with a record's line ("  ..."), not a blank line. */
+static int events_tail_open(const wchar_t *path) {
+    char tail[512];
+    int n = log_tail(path, tail, (int)sizeof tail);
+    const char *line;
+    if (n < 2 || tail[n - 1] != '\n' || tail[n - 2] == '\n') {
+        return 0;
+    }
+    tail[n - 1] = '\0';
+    line = strrchr(tail, '\n');
+    line = line != NULL ? line + 1 : tail;
+    return line[0] == ' ' && line[1] == ' ';
+}
+
+/* The log still ends with the entry's part already written (`text`, its first `disk` bytes), open. */
+static int events_tail_is(const wchar_t *path, const char *text, size_t disk) {
+    char tail[2048];
+    int n = log_tail(path, tail, (int)sizeof tail);
+    size_t want = disk < sizeof tail - 1 ? disk : sizeof tail - 1;
+    if (n < (int)want || want == 0) {
+        return 0;
+    }
+    return memcmp(tail + n - want, text + disk - want, want) == 0;
+}
+
+/* Write what entry `k` (`text`, the whole entry so far) has gained since the last write.  APPEND_* as
+   append_record. */
+static int append_event_entry(const struct game_layout *g, const char *village, int k, const char *text) {
+    wchar_t path[MAX_LOG_PATH];
+    int existing_records;
+    int had_content, written, continued;
+    size_t length = strlen(text);
+    LONGLONG original_size;
+    FILE *file;
+    if (k < 0 || k >= EVENT_ENTRIES || !event_entries[k].used) {
+        return APPEND_WRITTEN;            /* nothing known of it: dropped, never written twice */
+    }
+    if (event_entries[k].disk >= length && !event_entries[k].final) {
+        return APPEND_WRITTEN;            /* nothing new */
+    }
+    continued = event_entries[k].disk > 0;
+    /* A continuation goes into the file the entry is in (no roll); a first part where a record would. */
+    if (!select_family_log_file(g, LOG_EVENTS, village, path, &existing_records, continued)) {
+        return 0;
+    }
+    had_content = log_file_has_content(path);
+    original_size = log_file_size(path);
+    vv_log_words_appending((int)(g - GAME_LAYOUTS), path);
+    if (continued && had_content && events_tail_is(path, text, event_entries[k].disk)) {
+        continued = 1;                    /* right after the open entry: its lines, as one entry */
+    } else if (continued) {
+        continued = 2;                    /* something came between: a marked continuation */
+    }
+    file = _wfopen(path, L"a");
+    if (file == NULL) {
+        return 0;
+    }
+    written = 1;
+    if (!had_content && village[0] != '\0') {
+        written = fprintf(file, "%s", village) >= 0;
+    }
+    if (written && continued != 1 && had_content && events_tail_open(path)) {
+        written = fputs("\n", file) >= 0; /* another open entry: closed first */
+    }
+    if (written && continued == 0) {
+        event_entries[k].number = existing_records + 1;
+        written = fprintf(file, "%s%d\n%s", family_marker(LOG_EVENTS), event_entries[k].number, text) >= 0;
+    } else if (written && continued == 2) {
+        if (event_entries[k].number > 0) {
+            written = fprintf(file, "(continued) %s%d\n", family_marker(LOG_EVENTS), event_entries[k].number) >= 0;
+        } else {
+            const char *first = strchr(text, '\n');
+            written = fprintf(file, "(continued)\n%.*s", first != NULL ? (int)(first - text) + 1 : 0, text) >= 0;
+        }
+        written = written && fputs(text + event_entries[k].disk, file) >= 0;
+    } else if (written) {
+        written = fputs(text + event_entries[k].disk, file) >= 0;
+    }
+    if (written && event_entries[k].final) {
+        written = fputs("\n", file) >= 0; /* the event is over: the entry's closing blank line */
+    }
+    if (fflush(file) != 0) {
+        written = 0;
+    }
+    if (fclose(file) != 0) {
+        written = 0;
+    }
+    if (!written) {
+        return roll_back_append(path, original_size) ? APPEND_RETRY : APPEND_UNRECOVERABLE;
+    }
+    event_entries[k].disk = length;
+    if (event_entries[k].final) {
+        event_entries[k].used = 0;
     }
     return APPEND_WRITTEN;
 }
@@ -3414,14 +3574,16 @@ static void flush_pending(int game_id, const char *village, int at_save) {
             const char *text = entry->text;
             char *labelled = NULL;
             int outcome;
-            if (now_known && entry->tribe >= 0
+            if (now_known && entry->tribe >= 0 && entry->open_entry == 0
                 && !same_tribe(&held_tribes[entry->tribe], scratch_tribe, TRIBE_LOOSE)) {
                 labelled = label_record(entry->text);
                 if (labelled != NULL) {
                     text = labelled;
                 }
             }
-            outcome = append_record(g, village, entry->kind, text);
+            outcome = entry->open_entry > 0
+                          ? append_event_entry(g, village, entry->open_entry - 1, text)   /* its next part */
+                          : append_record(g, village, entry->kind, text);
             free(labelled);
             if (outcome == APPEND_RETRY) {
                 stopped = 1;                  /* keep it and all after it */
@@ -3469,6 +3631,7 @@ static int hold_record(int game_id, int kind, const unsigned char *records,
     entry->kind = kind;
     entry->slot = game_slot_now(game_id);
     entry->tribe = current_tribe_index(game_id, records);
+    entry->open_entry = 0;
     ++pending_count;
     return 1;
 }
@@ -4858,6 +5021,67 @@ __declspec(dllexport) int __stdcall WriteVillageEventRecord(int game_id, const c
         return 0;
     }
     return emit_record(game_id, KIND_ISLAND_EVENT, villager_table(game_id), record);
+}
+
+/* A branching Custom Island Event's ONE entry, as it is now (see append_event_entry): `key` names the event (the
+   Story companion's run), `text` is the whole entry so far ("  Event: ...\n  Choice: ...\n" and every change, each
+   line ending "\n", no closing blank line), `disk` -- only for an entry this session does not know yet, a run put
+   back after a reload -- how much of it the last save's log already holds, and `final` 1 when the event is over.
+   The entry's held record is replaced, so the next save writes what it has gained, onto the same entry.  1 when
+   kept (or, with no publisher, written). */
+__declspec(dllexport) int __stdcall WriteVillageEventEntry(int game_id, int key, const char *text, int disk,
+                                                           int final) {
+    const struct game_layout *g;
+    size_t length;
+    int k, free_k = -1, i;
+    if (game_id < GAME_VV1 || game_id > GAME_VV5 || text == NULL || text[0] == '\0') {
+        return 0;
+    }
+    g = layout_of(game_id);
+    if (!layout_is_usable(g)) {
+        return 0;
+    }
+    length = strlen(text);
+    for (k = 0; k < EVENT_ENTRIES; ++k) {
+        if (event_entries[k].used && event_entries[k].game_id == game_id && event_entries[k].key == key) {
+            break;
+        }
+        if (!event_entries[k].used && free_k < 0) {
+            free_k = k;
+        }
+    }
+    if (k == EVENT_ENTRIES) {
+        k = free_k >= 0 ? free_k : 0;
+        memset(&event_entries[k], 0, sizeof event_entries[k]);
+        event_entries[k].used = 1;
+        event_entries[k].game_id = game_id;
+        event_entries[k].key = key;
+        event_entries[k].disk = disk > 0 ? ((size_t)disk < length ? (size_t)disk : length) : 0;
+    }
+    if (final) {
+        event_entries[k].final = 1;
+    }
+    for (i = 0; i < pending_count; ++i) {
+        if (pending[i].open_entry == k + 1) {
+            char *copy = (char *)malloc(length + 1);
+            if (copy == NULL) {
+                return 0;
+            }
+            memcpy(copy, text, length + 1);
+            free(pending[i].text);
+            pending[i].text = copy;        /* replaced: the next save writes the whole of what it gained */
+            return 1;
+        }
+    }
+    if (!village_publisher_present(game_id)) {
+        /* Nothing names the village and nothing is held (emit_record): written now, unlabelled. */
+        return append_event_entry(g, "", k, text) == APPEND_WRITTEN;
+    }
+    if (!hold_record(game_id, KIND_ISLAND_EVENT, villager_table(game_id), text)) {
+        return 0;
+    }
+    pending[pending_count - 1].open_entry = k + 1;
+    return 1;
 }
 
 /* A VILLAGER WHO PASSES AWAY OR DISAPPEARS KEEPS THEIR PARENTS IN THE LOGS

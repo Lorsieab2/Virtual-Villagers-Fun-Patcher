@@ -1,0 +1,26 @@
+LIBRARY "VVFP More Island Events"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpMoreIslandEventsInstalled=_VvfpMoreIslandEventsInstalled@0
+    VvfpAdventurerPossible=_VvfpAdventurerPossible@0
+    VvfpAdventurerEligible=_VvfpAdventurerEligible@4
+    VvfpAdventurerState=_VvfpAdventurerState@4
+    VvfpAdventurerPage=_VvfpAdventurerPage@8
+    VvfpCaveExplorersPossible=_VvfpCaveExplorersPossible@0
+    VvfpCaveExplorersState=_VvfpCaveExplorersState@4
+    VvfpCaveExplorersPage=_VvfpCaveExplorersPage@8
+    VvfpClimbPossible=_VvfpClimbPossible@0
+    VvfpClimbState=_VvfpClimbState@4
+    VvfpClimbPage=_VvfpClimbPage@8
+    VvfpMoreIslandEventsLogged=_VvfpMoreIslandEventsLogged@8
+    VvfpTroublingSignsPossible=_VvfpTroublingSignsPossible@0
+    VvfpTroublingSignsState=_VvfpTroublingSignsState@4
+    VvfpTroublingSignsPage=_VvfpTroublingSignsPage@8
+    VvfpTroublingSignsButtons=_VvfpTroublingSignsButtons@4
+    VvfpMoreIslandEventsButtonRoom=_VvfpMoreIslandEventsButtonRoom@4
+    VvfpMoreIslandEventsAnswerButtons=_VvfpMoreIslandEventsAnswerButtons@4
+    VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
+    VvfpMoreIslandEventsProtected=_VvfpMoreIslandEventsProtected@12
+    VvfpDivingPossible=_VvfpDivingPossible@0
+    VvfpDivingState=_VvfpDivingState@4
+    VvfpDivingPage=_VvfpDivingPage@8

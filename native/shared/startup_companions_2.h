@@ -63,6 +63,8 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its box
        gets a line of its own instead of hanging the game's line layout. */
     "VVFP Long Words.dll",
+    /* The Aspiring Adventurer (all five games): the owner's new island event. */
+    "VVFP More Island Events.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -994,8 +994,9 @@ static const ce_adapter C2_ADAPTER = {
        popup's; stock family A lines reach 48 at its 450 pixels), 18 lines
        (the tallest stock family A text) less the two the villager's
        picture adds under the title; the result replaces the whole
-       text, title included; labels of 30 characters (the longest stock). */
-    46, 16, 46, 16, 1, 30, c2_rand_below, NULL, c2_role,
+       text, title included; labels of up to 39 characters, as wide as the screen
+   shows whole (story_label_widths.h). */
+    46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
     NULL, NULL, 0, c2_set_health
 };
@@ -1053,6 +1054,11 @@ static char __fastcall c2_choice_setup(void *dialog, void *unused_edx) {
         TC1(0x44B2D0u, villagers, featured);       /* selected, as the stock setup does */
     }
     d[C2_DLG_RESULT] = '\0';
+    if (ce_choice_answers(2) > 2) {
+        mb_attach(2, &CS12_CLIENT, dialog);   /* its third and fourth buttons at its first draw */
+    } else {
+        mb_forget(dialog);
+    }
     c2_choice_dialog = dialog;
     return 1;
 }
@@ -1068,6 +1074,48 @@ static void __fastcall c2_choice_resolve(void *dialog, void *unused_edx) {
     } else if (*(int *)(d + C2_DLG_SUBJECT) >= 0) {
         choice_open_gap((char *)d + C2_DLG_RESULT, C1_DLG_TEXT_BYTES);
     }
+}
+
+/* The shared popup's client in A New Home and The Lost Children (vvfp_multi_answer_12.h): the question asked, its
+   answers and words, and the game's own resolve for the question (c1 / c2_choice_resolve, as the outcomes scope hands
+   the game's resolve call to them). */
+static int cs12_game(void) {
+    return g_mb.g != NULL ? g_mb.g->game : 0;
+}
+
+static int cs12_state(void *dialog) {
+    if (dialog == NULL || dialog != g_mb.dialog || cs12_game() == 0) {
+        return MB_NOT_OURS;
+    }
+    return ce_choice_asked(cs12_game()) ? MB_ASKING : MB_ANSWERED;
+}
+
+static int cs12_answers(void *dialog) {
+    (void)dialog;
+    return ce_choice_answers(cs12_game());
+}
+
+static void cs12_label(void *dialog, int k, char *out, int cap) {
+    const char *words = ce_choice_label(cs12_game(), k);
+    (void)dialog;
+    lstrcpynA(out, words != NULL ? words : "", cap);
+}
+
+static void cs12_resolve(void *dialog) {
+    if (cs12_game() == 1) {
+        c1_choice_resolve(dialog, NULL);
+    } else {
+        c2_choice_resolve(dialog, NULL);
+    }
+}
+
+static const mb_client CS12_CLIENT = { cs12_state, cs12_answers, cs12_label, cs12_resolve };
+
+/* For Scrolling Popups: the game's own virtual table of A New Home's / The Lost Children's encounter dialog when it
+   carries our copy (three or four answers, vvfp_multi_answer_12.h), and in *room the room its question was padded
+   with for the extra buttons; 0 for any other popup. */
+__declspec(dllexport) int __stdcall VvfpMultiAnswerGameVtable(const void *popup, int *room) {
+    return (int)mb_game_vtable(popup, room);
 }
 
 /* The outcomes scope stub's target for the resolve call at `va` of `game`

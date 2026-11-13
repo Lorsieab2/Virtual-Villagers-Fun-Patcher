@@ -1,0 +1,269 @@
+THE ASPIRING ADVENTURER
+Revised text, 12 November 2026. A New Home, The Lost Children, The Secret City and The Tree of Life share one version (VV1-VV4). New Believers (VV5) differs only in lost ending 2.
+
+How to read this:
+- (he/she), (his/her), (him/her) and (He/She) follow the adventurer's sex.
+- (Name) / (name) is the adventurer. In ending A8, (name1) is the adventurer and (name2) is the friend who comes to help.
+- In endings A4 and A6, the stranger's (man/woman) and (his/her) follow the stranger's own sex, picked at random.
+- (award) is the amount actually given: food for the meat, tech points for the chest.
+- Changes from your draft: "their" changed to (his/her) where it means the adventurer; "and (he/she) stuffs" added in the chest find; lost ending 2 says "another tribe" outside New Believers; ending A9 added.
+
+
+=====================================================================
+REQUIREMENTS TO HAPPEN
+=====================================================================
+
+The event can happen only when at least TWO ELIGIBLE villagers are in the village: two who could each be picked by the rules in "Who is never picked" below. With fewer than two, it cannot happen.
+
+When it can happen, it takes an equal share of the island-event draw, like the game's own events. It uses the game's usual timing between island events. Pick Island Event can also choose it, under the same requirement.
+
+Exception: Custom Island Events (Story / Cheat Upgrades). There the player decides, so this requirement does not apply.
+
+
+=====================================================================
+WHO IS NEVER PICKED (the adventurer, or the friend in ending A8)
+=====================================================================
+
+In every game:
+- anyone under 14 (children and babies);
+- anyone nursing a baby, mother or father;
+- anyone dead (a body or grave), or not in the village.
+
+And in each game:
+- A New Home: the Golden Child.
+- The Lost Children: the Esteemed Elders' totem statues.
+- The Secret City: the tribal chief.
+- The Tree of Life: no one else.
+- New Believers: every Heathen (believers only), the chief, the Retired Chief and the other special roles the game itself never sends on events, and Reanimated spirits.
+
+The friend in ending A8 is never the adventurer. Because the event needs two villagers who can be picked, there is always a friend, so A8 can always happen. (Only a Custom Island Event, which skips that requirement, could leave no one to be the friend; then A8 becomes A5.)
+With fewer than two villagers who can be picked, the event does not happen (except through Custom Island Events).
+
+
+=====================================================================
+VV1-VV4 VERSION (A New Home, The Lost Children, The Secret City, The Tree of Life)
+=====================================================================
+
+EVENT TEXT
+
+(Name) is an aspiring adventurer. Every morning (he/she) goes off in the jungle to scavenge for useful things. Although (name) has an eye for treasure, sometimes (his/her) ambition gets the best of (him/her). (Name) has managed to escape from sticky situations so far, but the others have cautioned (him/her) repeatedly about exploring alone.
+During (his/her) travels, (he/she) sees something glinting in the corner of (his/her) eye. (Name) feels compelled to see what it is, but is unsure whether to leave the known-safe path in order to investigate.
+
+Choice A: Go investigate!
+Choice B: Stay on the safe path
+
+
+---------------------------------------------------------------------
+CHOICE A: GO INVESTIGATE!
+---------------------------------------------------------------------
+
+First popup (the opening, then ONE of the three finds; the find's text follows "(he/she) finds..." in the same popup):
+
+Against (his/her) better judgement, (name) leaves the beaten path to check out the strange sight. As (he/she) pushes through the foliage, the area gets noticeably darker and colder. The hairs on (name)'s neck stand on end as (he/she) gets closer to the spot. When (name) approaches, (he/she) finds...
+
+Find 1 -- the pile of dirt. Chance 50%. No reward. Next: A7 or A9 (survives), or A2, A3, A4 or A6 (deadly).
+nothing but a pile of dirt.
+
+Find 2 -- the meat. Chance 25%. Reward: food (a random amount, see REWARDS below), given only if the ending is A1, A5 or A8. Next: A1, A5 or A8 (survives), or A2, A3, A4 or A6 (deadly).
+a large stack of meat, sitting perfectly on a cloth! (Name)'s stomach growls upon seeing the bounty, and (he/she) hastily grabs as much as (he/she) can and starts stuffing it in (his/her) knapsack.
+
+Find 3 -- the artifacts. Chance 25%. Reward: tech points (a random amount, see REWARDS below), given only if the ending is A1, A5 or A8. Next: A1, A5 or A8 (survives), or A2, A3, A4 or A6 (deadly).
+a large golden chest full of artifacts! (Name)'s eyes widen at the sight, and (he/she) stuffs as much treasure as (he/she) can fit in (his/her) knapsack.
+
+
+Second popup (ONE ending). After any find: 50% a surviving ending, 50% a deadly ending, equal odds within each half.
+
+Ending A1 -- SURVIVES, gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds.
+(Name) waits for a while, and seeing no one else around, concludes that (he/she) can get away safely. (He/she) triumphantly goes back to the village and raves about (his/her) latest discovery, to the joy of the villagers. Your villagers gain (award) food/tech points.
+
+Ending A2 -- DIES (the beast), remains returned: gets a grave, "Unknown causes". After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.
+Later on, some hunters come to check on the trap, and see the unfortunate aftermath. They manage to recover (name)'s remains and return them to the village. The villagers mourn for (name) greatly and lament that things had to turn out this way.
+
+Ending A3 -- DISAPPEARS (the beast), remains never found: gone for good, no grave. After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.
+Later on, some hunters come to check on the trap, and see the unfortunate aftermath. They try to recover (name)'s remains, but are unsuccessful. They bring the sad news to the village along with their condolences. The villagers mourn for (name) greatly and lament that things had to turn out this way.
+
+Ending A4 -- DIES (the knife), remains recovered: gets a grave, "Unknown causes". After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is a strange (man/woman) brandishing a knife with a wide grin on (his/her) face...
+After several days, the villagers get worried about (name) and send out a search party. Eventually, they find the grisly scene, and manage to recover (his/her) remains. For 3 days the village mourns (name)'s death as they lay (him/her) to rest. They vow never to let something like this happen again.
+
+Ending A5 -- SURVIVES (escapes the trap), gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+Miraculously, (name) manages to escape the trap, and quickly runs back to the safety of the village. Heart pounding, (he/she) frantically warns others about (his/her) misadventure, to the relief of all the villagers. (Name) vows to never do something like that EVER again! Your villagers gain (award) food/tech points.
+
+Ending A6 -- DISAPPEARS (the knife), no trace found: gone for good, no grave. After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is a strange (man/woman) brandishing a knife with a wide grin on (his/her) face...
+After several days, the villagers get worried about (name) and send out a search party. Although they try their hardest, they cannot find any trace of (him/her). For 3 days the village mourns (name)'s disappearance and vow to never let something like this happen again.
+
+Ending A7 -- SURVIVES, no reward. Only after the pile of dirt. Chance 1 in 4 after the dirt.
+(Name) is disappointed that (he/she) wasted (his/her) time, and manages to make it back to the village safely.
+
+Ending A9 -- SURVIVES, no reward. Only after the pile of dirt. Chance 1 in 4 after the dirt.
+(Name) laughs at the pitiable sight and walks back to the village with a smile. (He/she) will definitely have a funny story to tell over dinner.
+
+Ending A8 -- SURVIVES (a friend comes to help), gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds. (name2) is a second villager who can be picked, never the adventurer; one always exists because the event needs two.
+As (name1) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+Luckily, it's just one of (his/her) old friends! Apparently, they got worried, and brought extra supplies to help (name1) out... Together (name1) and (name2) return to the safety of the village, to the relief of all the villagers. (Name1) thanks (name2) for saving (his/her) life and vows to never do something like that EVER again! Your villagers gain (award) food/tech points.
+
+
+---------------------------------------------------------------------
+CHOICE B: STAY ON THE SAFE PATH
+---------------------------------------------------------------------
+
+First popup (the opening, then ONE of the two lines below, in the same popup):
+
+(Name) decides it's far too dangerous to leave the safety of the path...
+
+Home safe -- chance 90%. Nothing else happens; the event ends here:
+And manages to make it home safely.
+Lost -- chance 10%. Then the second popup:
+And starts heading home. Unfortunately, something goes horribly wrong and (he/she) gets hopelessly lost in the jungle. Days pass with no sign of (name)...
+
+
+Second popup, only if lost (ONE ending, each 1 in 6):
+
+Lost ending 1 -- INJURED, brought to the healers. Then a third popup with ONE of the three healer outcomes below (each 1 in 3):
+...until a scout spots (name) wandering disoriented. (He/she) is heavily injured, and is quickly brought to the healers...
+
+  Healers 1 -- DIES: gets a grave, "Unknown causes".
+  Although they try everything in their power to save (name), (he/she) quietly passes away, to the grief of all the villagers. In the end, they can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+  Healers 2 -- SURVIVES: full recovery, nothing else changes.
+  After many medical procedures, (name) eventually makes a full recovery. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly.
+
+  Healers 3 -- SURVIVES, DISABLED: health set to 10-50% (at random) and now dislikes running.
+  After many medical procedures, (name) manages to recover, although is left permanently disabled. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly.
+
+Lost ending 2 (VV1-VV4) -- GONE FOR GOOD: joined another tribe; leaves the village, no grave.
+...until a scout spots (name) walking about. (Name) seems to have joined another tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+Lost ending 3 -- SURVIVES, the survivalist: gains 20 to 30 points (at random) in one of Farming, Building, Research or Healing (at random).
+...until a scout spots (name) walking about. (Name) notices the scout and returns home with them, to the great relief of the villagers. (He/she) recounts (his/her) misadventure to the worried villagers, who learn that (he/she) got lost in the dark. Luckily, (name) was prepared and managed to survive. (Name) is proving to be a great survivalist, and now teaches others the art of bushcraft!
+
+Lost ending 4 -- DIES (fallen tree): gets a grave, "Unknown causes".
+...until a scout spots (name)'s remains under a fallen tree. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+Lost ending 5 -- DIES (stony cliff): gets a grave, "Unknown causes".
+...until a scout spots (name)'s remains at the bottom of a stony cliff. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+Lost ending 6 -- DISAPPEARS: never seen again, no grave.
+...and (he/she) is never seen again. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+
+=====================================================================
+VV5 VERSION (New Believers)
+=====================================================================
+
+Everything is the same as the VV1-VV4 version above, except lost ending 2:
+
+Lost ending 2 (VV5) -- BECOMES A HEATHEN: a real conversion (stays in the village as a Heathen, no longer a believer).
+...until a scout spots (name) walking about. (Name) is seen wearing a mask and seems to have joined the heathens' tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+With the "Guardians of Isola" patch, "heathens'" reads "Isolans'":
+...until a scout spots (name) walking about. (Name) is seen wearing a mask and seems to have joined the Isolans' tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+
+=====================================================================
+HOW IT PLAYS (not shown in the game)
+=====================================================================
+
+Who: one villager aged 14 or older (never anyone under 14; the event needs at least two who can be picked), never a villager nursing a baby (mother or father), never the Golden Child, The Secret City's tribal chief or any other special villager; in New Believers, believers only. The friend in ending A8 follows the same rules.
+
+Choice A:
+- Find: nothing 50%, meat 25% (food), artifacts 25% (tech points).
+- Ending: half the time a surviving ending, half the time a deadly one.
+  - Surviving with a find: A1, A5 or A8 (A8 is always possible: the event needs two villagers who can be picked).
+  - Surviving after finding nothing: A7 or A9.
+  - Deadly: A2 or A4 (dies, gets a grave), A3 or A6 (disappears, no grave).
+  - The reward is given only in A1, A5 and A8.
+
+Choice B:
+- Home safe 90%, lost 10%.
+- Lost endings 1 to 6, each 1 in 6:
+  - 1: brought to the healers, then one of three, each 1 in 3:
+    - dies, gets a grave;
+    - full recovery;
+    - health left at 10-50% and now dislikes running.
+  - 2: New Believers: becomes a Heathen. Other games: gone for good, no grave.
+  - 3: gains 20 to 30 points (at random) in Farming, Building, Research or Healing (one at random).
+  - 4 and 5: dies, gets a grave.
+  - 6: disappears, no grave.
+
+Deaths count as "Unknown causes". The reward follows "Island Events Scale With Population" or "...With Stored Food and Tech Points" when either is ticked.
+
+REWARDS (the owner, 2026-11-12: "a random tech and food point award, scaling"):
+The amount is random, in the range that game's own island events give, then scaled with the village like the game's other island events.
+  A New Home ........... food 200 to 1,500    tech points 500 to 4,999
+  The Lost Children .... food 100 to 1,500    tech points 500 to 3,000
+  The Secret City ...... food 200 to 600      tech points 1,000 to 2,000
+  The Tree of Life ..... food 300             tech points 500 to 5,000
+  New Believers ........ food 50 to 300       tech points 500 to 3,000
+
+
+=====================================================================
+THE CHANCES OF EVERY OUTCOME
+=====================================================================
+
+CHOICE A: GO INVESTIGATE!
+
+Step by step:
+  Find 1, pile of dirt ......................... 50%
+     then A7 or A9 (home safe, nothing) ........ 25% each
+     then A2, A3, A4 or A6 ..................... 12.5% each
+  Find 2, meat (food) .......................... 25%
+     then A1, A5 or A8 (home with the food) .... 16.67% each (1 in 6)
+     then A2, A3, A4 or A6 ..................... 12.5% each
+  Find 3, artifacts (tech points) .............. 25%
+     then A1, A5 or A8 (home with the tech) .... 16.67% each (1 in 6)
+     then A2, A3, A4 or A6 ..................... 12.5% each
+
+Each ending, out of every time a villager investigates:
+  A1 (gets away safely, reward) ................ 8.33%  (4.17% food, 4.17% tech)
+  A5 (escapes the trap, reward) ................ 8.33%  (4.17% food, 4.17% tech)
+  A8 (saved by a friend, reward) ............... 8.33%  (4.17% food, 4.17% tech)
+  A7 (found only dirt, disappointed) ........... 12.5%
+  A9 (found only dirt, laughs it off) .......... 12.5%
+  A2 (the beast; dies, grave) .................. 12.5%
+  A3 (the beast; remains lost, disappears) ..... 12.5%
+  A4 (the knife; dies, grave) .................. 12.5%
+  A6 (the knife; no trace, disappears) ......... 12.5%
+  (A8 is always possible, since the event needs two villagers who can be picked. Only through Custom Island Events, which skip that requirement, could no friend exist; then A8 becomes A5.)
+
+In all, after investigating:
+  comes home safe ............................. 50%
+     with food ................................ 12.5%
+     with tech points ......................... 12.5%
+     with nothing (A7, A9) .................... 25%
+  dies and gets a grave (A2, A4) .............. 25%
+  disappears, no grave (A3, A6) ............... 25%
+
+
+CHOICE B: STAY ON THE SAFE PATH
+
+Step by step:
+  Home safe .................................... 90%
+  Lost ......................................... 10%
+     then each lost ending 1 to 6 .............. 1 in 6 (16.67%)
+     lost ending 1 (healers), then each of the three outcomes ... 1 in 3
+
+Each outcome, out of every time a villager stays on the path:
+  Home safe .................................... 90%
+  Lost 1, healers: dies, grave ................. 0.56%
+  Lost 1, healers: full recovery ............... 0.56%
+  Lost 1, healers: disabled (10-50% health, dislikes running) ... 0.56%
+  Lost 2, joins the other tribe ................ 1.67%  (New Believers: becomes a Heathen; other games: gone for good, no grave)
+  Lost 3, survivalist (+20 to 30 in one skill) . 1.67%
+  Lost 4, fallen tree: dies, grave ............. 1.67%
+  Lost 5, stony cliff: dies, grave ............. 1.67%
+  Lost 6, never seen again: disappears ......... 1.67%
+
+In all, after staying on the path:
+  comes home alive ............................. 92.78%  (90% safe, 1.67% survivalist, 0.56% full recovery, 0.56% disabled)
+  dies and gets a grave ........................ 3.89%
+  disappears, no grave ......................... 1.67%
+  joins the other tribe ........................ 1.67%  (New Believers: Heathen; other games: gone for good)
