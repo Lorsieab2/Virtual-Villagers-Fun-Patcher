@@ -9,10 +9,18 @@ Phase 1 is this module: the JSON format a graph is written in, every check a gra
 the Story / Cheat Upgrades companion reads (phase 2), and the "chances of every outcome" table.  Nothing here touches a
 game, a save or an exe.
 
-THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 1)
+THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still read, and checked by its own rules)
 ------------------------------------------------------------
+  VERSION 2 (v1.35.97, the owner: "build branching events as complex as The Cave Explorers") lets a question be ANY
+  node, any number of times on a history, mixed freely with chance splits, conditions and changes; it adds the
+  double quote to the characters text may use.  Its rules: a question makes no changes itself; after each answer a
+  page (a "popup" node) is shown before the next question or the end (the game shows the answer's result page at the
+  click: it cannot be a question); changes before a question come with a page of their own; at most
+  MAX_QUESTIONS_PER_RUN questions and MAX_POPUPS_PER_RUN_V2 popups on one history.  Version 1 keeps exactly its old
+  rules (a question only at the start, six popups), and its .cieg is the same bytes as before.
+
   {
-    "format": "vvfp-cie-graph", "version": 1,
+    "format": "vvfp-cie-graph", "version": 2,
     "title": "The Aspiring Adventurer",          # the popups' title: 47 bytes, one line in every game listed
     "games": [1, 2, 3, 4, 5],                     # the games it is made for (A New Home .. New Believers)
     "patches": ["guardians_of_isola"],            # patch ids the conditions may name ([a-z0-9_])
@@ -35,7 +43,8 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 1)
   NODE:
     "type": "popup" (default) | "question" | "branch"
         popup     text shown in a popup;
-        question  the start node only: text and exactly two "choices" [{"label", "next"}] (the game's two-button popup);
+        question  text and exactly two "choices" [{"label", "next"}] (the game's two-button popup); version 1: the
+                  start node only;
         branch    no text and no popup: a silent weighted split (e.g. "survives" vs "deadly").
     "popup": "new" (default) | "append"           append: the text continues the popup open on the path
     "join": "space" (default) | "paragraph"       how an appended text joins the popup's text
@@ -71,12 +80,13 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 1)
     (name1) (Name1) / (name2) (Name2)      the subject / the role "friend"
     (he/she) (He/She) (his/her) (His/Her) (him/her) (Him/Her) (man/woman) (Man/Woman)   by that role's sex
     (award) (award_unit)                   the award's amount actually given, and "food" / "tech points"
-  Text is the Custom Island Event's character set: letters, digits, space and . , ! ? : - '  (A New Home's font draws
-  no others), so a parenthesis is only ever a placeholder.
+  Text is the Custom Island Event's character set: letters, digits, space and . , ! ? : - ' -- and, in version 2, the
+  double quote " (every game's font draws it: src/vv_font_glyphs.py) -- so a parenthesis is only ever a placeholder.
 
 WHAT A GRAPH MUST PASS (validate):  every next / else / start names a node; no cycle; every node reachable; on every
 history (every game, every patch on or off, every optional role bound or not) a node with children has one or an else;
-weights 1..MAX_WEIGHT; a question is the start node and has exactly two choices; titles, labels and text fit each game
+weights 1..MAX_WEIGHT; a question has exactly two choices (version 1: and is the start node; version 2: the page
+rules above); titles, labels and text fit each game
 with the longest names (FIT below); only the allowed characters; every effect is one the game's Custom Island Event
 supports (GAMES[g].caps, the CAP_* bits of native/vvfp_story_upgrades/story_custom.h and story_c1..c5.inc); no more than
 MAX_POPUPS_PER_RUN popups on any history; a role used where it may be unbound, an award paid that was never deferred,
@@ -91,9 +101,11 @@ else whole sentences, as the shipped Aspiring Adventurer pages its text): a sent
 MAX_PAGES pages, runs off the screen.  With scrolling (v1.35.97's popup scrollbars) any height fits and only the bytes
 the game's popup holds (POPUP_TEXT_MAX) count.
 
-THE BINARY .cieg (version 1, little-endian) -- see compile_graph / decompile_graph:
+THE BINARY .cieg (version 1 or 2, little-endian) -- see compile_graph / decompile_graph.  Version 2 is laid out exactly as
+version 1; its number says a question may be any node (and text may hold "), so a companion that reads only version 1
+refuses it cleanly instead of misreading it.  A version 1 graph is compiled as version 1.
   header (80 bytes)
-     0 4s magic "CIEG"          4 H version (1)          6 H header bytes (80)     8 I file bytes
+     0 4s magic "CIEG"          4 H version (1, 2)         6 H header bytes (80)     8 I file bytes
     12 I crc32 of the whole file with this field 0      16 I games mask (bit g-1)
     20 H title string           22 H start node          24 H requirement min_eligible (0 = none)
     26 H role count  28 H node count  30 H child count  32 H effect count  34 H cond count  36 H variant count
@@ -130,9 +142,10 @@ from pathlib import Path
 from typing import Any, Iterable
 
 FORMAT = "vvfp-cie-graph"
-VERSION = 1
+VERSION = 2                   # what new events are written in
+VERSIONS = (1, 2)             # what this patcher reads
 BINARY_MAGIC = b"CIEG"
-BINARY_VERSION = 1
+BINARY_VERSION = 2            # a version 1 graph is still compiled as version 1, byte for byte as before
 NONE = 0xFFFF
 
 TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
@@ -140,7 +153,9 @@ BUTTON_BYTES = 39             # CE_BUTTON_BYTES 40, NUL included
 NODE_TEXT_MAX = 1990          # a node's text, bytes
 POPUP_TEXT_MAX = 1990         # a popup's text, bytes (the later games build the popup text in 2,000)
 MAX_PAGES = 10                # pages a popup may take without scrolling (the shipped event's ADV_MAX_PAGES)
-MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included
+MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included (version 1)
+MAX_POPUPS_PER_RUN_V2 = 16    # ... version 2 (questions anywhere): the companion keeps 96 pages a run
+MAX_QUESTIONS_PER_RUN = 16    # questions on one history (version 2; story_graph.inc CG_MAX_QUESTIONS)
 MAX_WEIGHT = 10000
 MAX_NODES = 1000
 MAX_PATHS = 200000
@@ -274,9 +289,10 @@ PRONOUNS = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him
 _NAME_ALIASES = {"name1": "subject", "name2": "friend"}
 
 
-def text_char_ok(c: str) -> bool:
-    """story_custom.inc ce_text_char_ok, line breaks allowed."""
-    return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n"
+def text_char_ok(c: str, version: int = 1) -> bool:
+    """story_custom.inc ce_text_char_ok, line breaks allowed; version 2 adds the double quote, which every game's
+    font draws (src/vv_font_glyphs.py: A New Home's and The Lost Children's fonts hold ! " ' , . ? / ` : -)."""
+    return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n" or (version >= 2 and c == '"')
 
 
 class GraphError(ValueError):
@@ -394,9 +410,11 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         return {}, ["the file is not a JSON object"]
     if data.get("format") != FORMAT:
         problems.append(f"format is not {FORMAT!r}")
-    if data.get("version") != VERSION:
-        problems.append(f"version {data.get('version')!r} is not {VERSION} (this patcher reads version {VERSION})")
-    g: dict[str, Any] = {"format": FORMAT, "version": VERSION}
+    version = data.get("version")
+    if version not in VERSIONS:
+        problems.append(f"version {version!r} is not one this patcher reads ({', '.join(map(str, VERSIONS))})")
+        version = VERSION
+    g: dict[str, Any] = {"format": FORMAT, "version": version}
     title = data.get("title")
     if not isinstance(title, str) or not title.strip():
         problems.append("title is missing")
@@ -540,6 +558,9 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                 problems.append(f"{where}: a question has exactly two choices")
             if children or els is not None or popup != "new":
                 problems.append(f"{where}: a question has choices only (no children, else or append)")
+            if version >= 2 and n.get("effects"):
+                problems.append(f"{where}: a question makes no changes (put them on the page before it, or on an "
+                                "answer's page)")
         elif choices:
             problems.append(f"{where}: only a question has choices")
         if t == "branch" and (text or variants):
@@ -761,7 +782,7 @@ class Popup:
 @dataclass
 class History:
     """One history from the start to an ending."""
-    choice: int | None                  # the question's button (0, 1), None without a question
+    choice: int | None                  # the first question's button (0, 1), None without a question
     nodes: tuple[str, ...]
     chance: Fraction
     popups: list[Popup]
@@ -769,6 +790,7 @@ class History:
     paid: bool
     effects: list[tuple[str, dict]]           # (node, effect) in order
     ctx: Context
+    answers: tuple[tuple[str, int], ...] = ()  # every question on the way and the button answered, in order
 
     @property
     def end(self) -> str:
@@ -811,8 +833,14 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         ("" if all(r in ctx.roles for r in g["roles"]) else
          f" without {', '.join(r for r in g['roles'] if r not in ctx.roles)}")
 
+    v2 = g.get("version", 1) >= 2
+    max_popups = MAX_POPUPS_PER_RUN_V2 if v2 else MAX_POPUPS_PER_RUN
+
+    # seg: (a question has been answered on the way, a page was shown since the last question (or the start),
+    #       a node with changes was reached since then) -- the companion shows each answer's own page first, and a
+    #       change needs a page to come with (version 2).
     def visit(nid: str, choice, path: tuple, chance: Fraction, popups: list[Popup], award, paid: bool,
-              gone: frozenset, effects: list) -> None:
+              gone: frozenset, effects: list, answers: tuple = (), seg: tuple = (False, False, False)) -> None:
         if len(found) >= MAX_PATHS:
             say(f"more than {MAX_PATHS} histories: the graph is too big")
             return
@@ -854,13 +882,21 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                             say(f"node {nid}: {s!r} is not one of {game.name}'s skills")
             effects.append((nid, e))
 
+        asked, paged, changed = seg
+        changed = changed or bool(node["effects"])
         text = node_text(node, ctx, path) if node["type"] != "branch" else ""
         if node["type"] == "question":
-            if nid != g["start"]:
-                say(f"node {nid}: a question can only be the start node (the game's two-button popup is the "
-                    "event's first)")
+            if nid != g["start"] and not v2:
+                say(f"node {nid}: a question can only be the start node in a version 1 event (version 2 asks "
+                    "anywhere)")
+            if v2 and not paged and (asked or changed):
+                say(f"node {nid} ({where}): " + ("an answer must show a page of its own before the next question"
+                                                 if asked else "the changes before this question need a page"))
+            if len(answers) >= MAX_QUESTIONS_PER_RUN:
+                say(f"the history {' > '.join(path)} asks more than {MAX_QUESTIONS_PER_RUN} questions")
             popups.append(Popup("question", text, nodes=[nid]))
         elif node["type"] == "popup":
+            paged = True
             if node["popup"] == "append":
                 if not popups or popups[-1].layout == "question":
                     say(f"node {nid} ({where}): append with no popup open to append to")
@@ -893,21 +929,26 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         if node["type"] == "question":
             for i, c in enumerate(node["choices"]):
                 if c["next"] in nodes:
-                    visit(c["next"], i, path, chance, popups, award, paid, gone, effects)
+                    visit(c["next"], i if choice is None else choice, path, chance, popups, award, paid, gone,
+                          effects, answers + ((nid, i),), (True, False, False))
             return
         kids = _resolved_children(node, ctx, path)
         if not kids:
             if node["children"]:
                 say(f"node {nid} ({where}): no child applies on the history {' > '.join(path)}, and no else")
+            if v2 and not paged and (asked or changed or not popups):
+                say(f"node {nid} ({where}): " + ("an answer must show a page of its own before the event ends"
+                                                 if asked else "the event must show a page"))
             n_new = len(popups)
-            if n_new > MAX_POPUPS_PER_RUN:
-                say(f"the history {' > '.join(path)} shows {n_new} popups; at most {MAX_POPUPS_PER_RUN}")
-            found.append(History(choice, path, chance, popups, award, paid, effects, ctx))
+            if n_new > max_popups:
+                say(f"the history {' > '.join(path)} shows {n_new} popups; at most {max_popups}")
+            found.append(History(choice, path, chance, popups, award, paid, effects, ctx, answers))
             return
         total = sum(w for _, w in kids)
         for nxt, w in kids:
             if nxt in nodes:
-                visit(nxt, choice, path, chance * Fraction(w, total), popups, award, paid, gone, effects)
+                visit(nxt, choice, path, chance * Fraction(w, total), popups, award, paid, gone, effects, answers,
+                      (asked, paged, changed))
 
     if g["start"] in nodes:
         visit(g["start"], None, (), Fraction(1), [], None, False, frozenset(), [])
@@ -938,17 +979,17 @@ def _cond_refs(c: Any, out: list[tuple[str, str]]) -> None:
             _cond_refs(x, out)
 
 
-def _check_text(where: str, text: str, problems: list[str]) -> None:
+def _check_text(where: str, text: str, problems: list[str], version: int = 1) -> None:
     if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
         problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
     for raw, p in placeholders(text):
         if p is None:
             problems.append(f"{where}: {raw} is not a placeholder (parentheses are only placeholders)")
     bare = PLACEHOLDER_RE.sub("", text)
-    bad = sorted({c for c in bare if not text_char_ok(c)})
+    bad = sorted({c for c in bare if not text_char_ok(c, version)})
     if bad:
         problems.append(f"{where}: characters the game cannot show: {' '.join(repr(c) for c in bad)} (letters, "
-                        "digits, space and . , ! ? : - ' only)")
+                        "digits, space and . , ! ? : - ' only" + (', and "' if version >= 2 else '') + ")")
 
 
 def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
@@ -1003,9 +1044,9 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
             if op == "patch" and ref not in g["patches"]:
                 problems.append(f"node {nid}: patch {ref!r} is not in patches")
         if n["type"] != "branch":
-            _check_text(f"node {nid}", n["text"], problems)
+            _check_text(f"node {nid}", n["text"], problems, g["version"])
             for i, v in enumerate(n["variants"]):
-                _check_text(f"node {nid} variant {i + 1}", v["text"], problems)
+                _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"])
     if problems:
         return g, problems
 
@@ -1049,7 +1090,7 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
                                     f"longest names; at most {min(game.label_width, BUTTON_BYTES)}")
     for nid, n in nodes.items():
         for c in n["choices"]:
-            _check_text(f"node {nid} label", c["label"], problems)
+            _check_text(f"node {nid} label", c["label"], problems, g["version"])
             if "\n" in c["label"]:
                 problems.append(f"node {nid}: a label is one line")
             for raw, p in placeholders(c["label"]):
@@ -1204,7 +1245,8 @@ def compile_graph(g: dict) -> bytes:
     for sec in sections:
         offs.append(at)
         at += len(sec)
-    head = _HEADER.pack(BINARY_MAGIC, BINARY_VERSION, _HEADER.size, at, 0,
+    version = 1 if g.get("version", 1) == 1 else BINARY_VERSION
+    head = _HEADER.pack(BINARY_MAGIC, version, _HEADER.size, at, 0,
                         sum(1 << (x - 1) for x in g["games"]), title, nidx[g["start"]],
                         g["requirement"]["min_eligible"], len(role_ids), len(node_ids), n_child, n_effect,
                         len(conds), n_variant, len(strings), len(g["patches"]), 0, *offs, 0)
@@ -1221,8 +1263,8 @@ def decompile_graph(data: bytes) -> dict:
     (magic, version, hsize, fsize, crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect, n_cond,
      n_variant, n_string, n_patch, _z, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
      _z2) = h
-    if magic != BINARY_MAGIC or version != BINARY_VERSION or hsize != _HEADER.size or fsize != len(data):
-        raise GraphError(["not a version 1 .cieg file"])
+    if magic != BINARY_MAGIC or version not in (1, BINARY_VERSION) or hsize != _HEADER.size or fsize != len(data):
+        raise GraphError(["not a version 1 or 2 .cieg file"])
     check = bytearray(data)
     struct.pack_into("<I", check, 12, 0)
     if zlib.crc32(bytes(check)) != crc:
@@ -1312,7 +1354,7 @@ def decompile_graph(data: bytes) -> dict:
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
                       "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
                       "outcome": s(outcome)}
-    return {"format": FORMAT, "version": VERSION, "title": s(title),
+    return {"format": FORMAT, "version": version, "title": s(title),
             "games": [x for x in range(1, 6) if games_mask & (1 << (x - 1))], "patches": patches,
             "requirement": {"min_eligible": min_el}, "roles": roles, "start": node_ids[start], "nodes": nodes}
 
@@ -1349,24 +1391,34 @@ class Row:
 
 def chances(g: dict, game: int, patches: Iterable[str] = (), roles: Iterable[str] | None = None) \
         -> dict[int | None, dict[str, list[Row]]]:
-    """For each question button (None without a question): "ends" -- each ending's chance out of every time that
-    button is clicked -- and "outcomes", the "In all" groups, each split by the award paid."""
+    """For each question button (None without a question) -- or, when a question is asked after the start
+    (version 2), each run of answers ((question, button), ...) -- "ends": each ending's chance out of every time
+    those answers are given -- and "outcomes", the "In all" groups, each split by the award paid."""
     bound = frozenset(roles) if roles is not None else frozenset(g["roles"])
     ctx = Context(game, frozenset(patches), bound)
     out: dict[int | None, dict[str, list[Row]]] = {}
     ends: dict[int | None, dict[str, Row]] = {}
     groups: dict[int | None, dict[str, Row]] = {}
-    for p in walk(g, ctx):
+    paths = walk(g, ctx)
+    by_answers = any(q != g["start"] for p in paths for q, _b in p.answers)
+    for p in paths:
         node = g["nodes"][p.end]
         aw = award_words(p)
-        e = ends.setdefault(p.choice, {}).setdefault(p.end, Row(p.end, node["summary"], Fraction(0), {}))
+        key = (p.answers or None) if by_answers else p.choice
+        e = ends.setdefault(key, {}).setdefault(p.end, Row(p.end, node["summary"], Fraction(0), {}))
         e.chance += p.chance
         e.by_award[aw] = e.by_award.get(aw, Fraction(0)) + p.chance
         name = node["outcome"] or default_outcome(p.effects)
-        o = groups.setdefault(p.choice, {}).setdefault(name, Row(name, name, Fraction(0), {}))
+        o = groups.setdefault(key, {}).setdefault(name, Row(name, name, Fraction(0), {}))
         o.chance += p.chance
         o.by_award[aw] = o.by_award.get(aw, Fraction(0)) + p.chance
     for choice in ends:
+        # Out of every time these answers are given (a later question is reached only on some draws: its keys' rows
+        # are taken out of the draws that reach it).  Version 1's buttons already add up to 1.
+        total = sum(r.chance for r in ends[choice].values())
+        for r in list(ends[choice].values()) + list(groups[choice].values()):
+            r.chance /= total
+            r.by_award = {k: v / total for k, v in r.by_award.items()}
         out[choice] = {"ends": list(ends[choice].values()), "outcomes": list(groups[choice].values())}
     return out
 
@@ -1386,6 +1438,10 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
         if choice is None:
             lines.append("THE EVENT")
             out_of = "out of every time the event happens"
+        elif isinstance(choice, tuple):
+            words = " > ".join(f"{q} {'AB'[b]}: {g['nodes'][q]['choices'][b]['label'].upper()}" for q, b in choice)
+            lines.append(f"CHOICES {words}")
+            out_of = "out of every time these choices are picked"
         else:
             label = start["choices"][choice]["label"]
             lines.append(f"CHOICE {'AB'[choice]}: {label.upper()}")

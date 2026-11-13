@@ -26,7 +26,7 @@ PAGE_BUDGET = 4000
 
 class Helpers(unittest.TestCase):
     def test_the_example_and_a_new_event_pass_every_check(self) -> None:
-        for g in (w.example_event(), w.new_event()):
+        for g in (w.example_event(), w.new_event(), w.example_event(w.CAVE_EXAMPLE)):
             self.assertEqual(cg.validate(g)[1], [], g["title"])
         self.assertEqual(w.example_event()["title"], "The Aspiring Adventurer")
 
@@ -201,6 +201,42 @@ saved = lib.save_as("My Adventure")
 out["saved"] = [str(saved.json), str(saved.cieg)]
 out["library"] = lib.library
 out["dirty_after_save"] = lib.dirty
+# The Cave Explorers: three questions, the second and third after other pages (version 2).
+lib.load_event(w.example_event(w.CAVE_EXAMPLE), None, dirty=False)
+lib.refresh_now()
+out["cave_problems"] = lib.problems
+out["cave_version"] = lib.g["version"]
+# A question added to a later page: its kind chosen, both buttons labelled and pointed at their parts.
+lib.load_event(w.new_event(), None, dirty=False)
+lib.add_part()
+mid = lib.nid
+lib.add_part()
+left = lib.nid
+lib.select_node(mid, "Text")
+lib.add_part()
+right = lib.nid
+lib.select_node(mid, "Next")
+lib.type_box.set(w.TYPE_WORDS["question"])
+lib._type_changed()
+window.update()
+lib.choice_vars[0][0].set("Go left")
+lib.choice_vars[1][0].set("Go right")
+window.update()
+lib.refresh_now()
+out["mid_version"] = lib.g["version"]
+out["mid_choices"] = [dict(c) for c in lib.g["nodes"][mid]["choices"]]
+out["mid_parts"] = [mid, left, right]
+out["mid_problems"] = lib.problems
+# A button to no part, and a button straight into another question: both are problems.
+lib.choice_vars[1][1].set("")
+lib._choice_set(1, "next")
+lib.refresh_now()
+out["dangling_problems"] = lib.problems
+lib.choice_vars[1][1].set(mid)
+lib._choice_set(1, "next")
+lib.refresh_now()
+out["loop_problems"] = lib.problems
+lib.load_event(w.example_event(), None, dirty=False)
 # Every scrolled page is far below the Windows limit.
 heights = {}
 def walk(widget):
@@ -292,6 +328,19 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["library"], ["My Adventure"])
         self.assertFalse(self.out["dirty_after_save"])
 
+    def test_the_cave_explorers_example_asks_three_questions(self) -> None:
+        self.assertEqual(self.out["cave_problems"], [])
+        self.assertEqual(self.out["cave_version"], 2)
+
+    def test_a_question_on_a_later_page(self) -> None:
+        mid, left, right = self.out["mid_parts"]
+        self.assertEqual(self.out["mid_version"], 2, "a question past the start makes the event version 2")
+        self.assertEqual(self.out["mid_choices"], [{"label": "Go left", "next": left},
+                                                    {"label": "Go right", "next": right}])
+        self.assertEqual(self.out["mid_problems"], [])
+        self.assertIn(f"node {mid}: '' names no node", self.out["dangling_problems"])
+        self.assertTrue(any(p.startswith("a cycle:") for p in self.out["loop_problems"]), self.out["loop_problems"])
+
     def test_no_page_is_tall(self) -> None:
         self.assertTrue(self.out["heights"])
         for name, height in self.out["heights"].items():
@@ -318,7 +367,7 @@ class Wiring(unittest.TestCase):
     def test_it_ships(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         for path in ("src/vv_cie_library_window.py", "src/vv_cie_graph.py",
-                     "data/cie_graphs/the_aspiring_adventurer.json"):
+                     "data/cie_graphs/the_aspiring_adventurer.json", "data/cie_graphs/the_cave_explorers.json"):
             self.assertIn(f'"{path}"', release)
 
     def test_translation_coverage(self) -> None:

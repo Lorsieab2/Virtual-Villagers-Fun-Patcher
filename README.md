@@ -22,6 +22,10 @@ dependency-first selection. API and command-line requests that omit a required
 prerequisite are rejected before any copied game folder or EXE is written.
 
 
+## What's new in v1.35.97
+
+- **Custom Island Event Library: questions anywhere** (Tools tab, all five games, Story / Cheat Upgrades). A question with two buttons can now be any part of an event, as many times as you like, mixed with chances, conditions and changes -- events as complex as The Cave Explorers. Make a part "A question (two buttons)", write both buttons' words and point each at the part it leads to; the Check tab refuses a button that leads nowhere, a loop, and an answer that does not show a page of its own before the next question or the end (the game shows each answer's page at the click). Each question is the game's own two-button popup; the event still counts once in Island Events Seen and keeps ONE Island Events log entry, with a "Choice:" line for each answer, matching the save at every save (a quit with a question on screen asks it again, with the same outcomes). Text may now use " too. Events saved before (version 1) load and play exactly as before. **New from The Cave Explorers** starts from the owner's event as an example (A New Home; its awards are fixed amounts -- an event's amounts are fixed -- and it cannot ask for The Cave puzzle or an age gap).
+
 ## What's new in v1.35.96
 
 - **All Fruit Trees Refill to Full** (The Secret City, on in Owner's Defaults): each time a fruit tree's refill comes due, it goes back to 1,000 fruit instead of gaining about 111.

@@ -14,7 +14,11 @@ tests/test_story_custom_island_event.py does) and drives a .cieg compiled by src
   brings it back;
 * no villager for a role: the purchase is refused and says why; a village that can no longer fill the roles at
   delivery keeps the event waiting;
-* a damaged .cieg (its checksum, its magic, cut short, a loop, an index out of range) is refused.
+* a damaged .cieg (its checksum, its magic, cut short, a loop, an index out of range) is refused;
+* version 2, questions anywhere: a page, a question, a chance split, a page and a second question, every branch in
+  every game (each effect with its own page, once; one island event counted; ONE Island Events log entry with each
+  answer's "Choice:" line), and a quit with the second question on screen or before the first answer's page resumes
+  with nothing made twice and the log entry continued as the save holds it.
 """
 from __future__ import annotations
 
@@ -808,6 +812,250 @@ class DamagedFiles(unittest.TestCase):
         # ...and refused by the purchase too.
         self.assertIn("checksum", run.queue(bytes(flipped)))
         self.assertEqual(run.state()["phase"], IDLE)
+
+
+# ---- Version 2: questions anywhere (v1.35.97, the owner: "events as complex as The Cave Explorers") ----------------
+
+MULTI = cg.load({
+    "format": "vvfp-cie-graph", "version": 2, "title": "Two Questions", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) finds a \"door\" in the hill.", "effects": [{"do": "food", "amount": 100}],
+              "children": [{"next": "q1"}]},
+        "q1": {"type": "question", "text": "Should (he/she) open it?", "choices": [
+            {"label": "Open it", "next": "o"}, {"label": "Leave it", "next": "l"}]},
+        "o": {"text": "It opens onto the dark.", "effects": [{"do": "tech", "amount": 10}],
+              "children": [{"next": "o1", "weight": 3}, {"next": "o2"}]},
+        "o1": {"popup": "append", "text": "A stair goes down.", "children": [{"next": "q2"}]},
+        "o2": {"popup": "append", "text": "(He/She) falls and limps home.", "effects": [{"do": "health", "value": 40}]},
+        "q2": {"type": "question", "text": "Does (name) go down?", "choices": [
+            {"label": "Go down", "next": "d"}, {"label": "Go home", "next": "u"}]},
+        "d": {"text": "Old books! (Name) reads all night.",
+              "effects": [{"do": "skill", "skills": ["Research"], "min": 5, "max": 5}]},
+        "u": {"text": "(Name) goes home."},
+        "l": {"text": "(Name) walks away."},
+    },
+})
+MULTI_CIEG = cg.compile_graph(MULTI)
+
+
+def play_answers(run: Run, answers, until=None):
+    """Run.play, answering each question in turn with the next of `answers` (stops at a question when none is
+    left): [(kind, text, notice_shown, labels)]."""
+    shown = []
+    counter = run.counter_va()
+    answers = list(answers)
+    run.before = run.observe()
+    run.seen = []
+    for _ in range(64):
+        st = run.state()
+        if st["phase"] in (IDLE, DONE) or (until is not None and len(shown) >= until):
+            break
+        run.p.tick += 1000
+        run.p.export("VvfpStoryProbeSetTick", run.p.tick)
+        if not st["armed"] and st["phase"] != ASKED:
+            assert run.p.export("VvfpStoryProbeGraphArmNext", run.n) == 1, st
+        if run.choice_pending():
+            run.p.put32(counter, run.p.u32(counter) + 1)
+            run.p.write(TEXT_BUF, b"\0")
+            assert run.p.export("VvfpStoryProbeChoiceBegin", run.n, TEXT_BUF, 4096) == 1
+            labels = [run.p.cstring(run.p.export("VvfpStoryProbeChoiceLabel", run.n, b)) for b in (0, 1)]
+            shown.append(("question", run.p.cstring(TEXT_BUF), run.p.export("VvfpStoryTimeSkipNoticeShown", run.n),
+                          labels))
+            run.seen.append(run.observe())
+            if not answers or (until is not None and len(shown) >= until):
+                break
+            run.p.tick += 1000
+            run.p.export("VvfpStoryProbeSetTick", run.p.tick)
+            run.p.write(TEXT_BUF, b"\0")
+            assert run.p.export("VvfpStoryProbeChoiceResolve", run.n, answers.pop(0), TEXT_BUF, 4096) == 1
+            shown.append(("result", run.p.cstring(TEXT_BUF), 0, None))
+            run.seen.append(run.observe())
+            continue
+        run.p.put32(counter, run.p.u32(counter) + 1)
+        run.p.write(TEXT_BUF, b"\0")
+        assert run.p.export("VvfpStoryProbeDeliver", run.n, TEXT_BUF, 9000) == 1, st
+        shown.append(("page", run.p.cstring(TEXT_BUF), run.p.export("VvfpStoryTimeSkipNoticeShown", run.n), None))
+        run.seen.append(run.observe())
+    return shown
+
+
+@emulated
+class QuestionsAnywhere(unittest.TestCase):
+    """A version 2 graph -- a page, a question, a chance split, a page, a second question -- in all five games:
+    every branch reached, each effect with its own page and made once, ONE island event counted and ONE Island
+    Events log entry with both answers, and a quit with the second question on screen, or between pages, resumes
+    with the log matching the save."""
+
+    def start(self, game, forced, log=True):
+        run = Run(game)
+        run.rolls([1] + [0] * 40)              # Bea
+        run.force(forced, graph=MULTI)
+        if log:
+            run.log(1)
+        self.assertIsNone(run.queue(MULTI_CIEG))
+        return run
+
+    def research(self, run):
+        return run.v.skill(SUBJECT, cg.GAMES[run.n].skills.index("Research"))
+
+    def histories(self, n):
+        return cg.walk(MULTI, cg.Context(n, frozenset(), frozenset(MULTI["roles"])))
+
+    def expect_kinds(self, h):
+        out, last = [], None
+        for pop in h.popups:
+            out.append("question" if pop.layout == "question" else "result" if last == "question" else "page")
+            last = pop.layout
+        return out
+
+    def test_every_branch_in_every_game(self):
+        binds = {"subject": cg.Binding("Bea", "f")}
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            for h in self.histories(n):
+                with self.subTest(game=game, history=" > ".join(h.nodes)):
+                    run = self.start(game, list(h.nodes))
+                    count0 = run.p.u32(run.counter_va())
+                    shown = play_answers(run, [b for _q, b in h.answers])
+                    self.assertIn(run.state()["phase"], (IDLE, DONE))
+                    self.assertEqual([k for k, *_ in shown], self.expect_kinds(h))
+                    self.assertEqual([norm(run.strip(t, "Two Questions")) for _k, t, *_ in shown],
+                                     [norm(cg.expand(pop.text, binds)) for pop in h.popups])
+                    for (q, b), labels in zip(h.answers, [s[3] for s in shown if s[0] == "question"]):
+                        self.assertEqual(labels, [c["label"] for c in MULTI["nodes"][q]["choices"]])
+                    # ONE island event: the first page; every question and page after it a notice's count.
+                    self.assertEqual(run.p.u32(run.counter_va()), count0 + 1, "Island Events Seen counts it once")
+                    self.assertEqual(shown[0][2], 0)
+                    for kind, _t, notice, _l in shown[1:]:
+                        self.assertEqual(notice, 0 if kind in ("question", "result") else 1)
+                    # Each effect once, with its own page.
+                    seen = run.seen
+                    f0, t0 = run.before["food"], run.before["tech"]
+                    self.assertEqual(seen[0]["food"] - f0, 100)
+                    self.assertEqual(seen[0]["tech"] - t0, 0)
+                    if "o" in h.nodes:
+                        at = next(i for i, s in enumerate(shown) if "It opens" in s[1])
+                        self.assertEqual(seen[at - 1]["tech"] - t0, 0, "not before its page")
+                        self.assertEqual(seen[at]["tech"] - t0, 10, "with its page")
+                    self.assertEqual(seen[-1]["tech"] - t0, 10 if "o" in h.nodes else 0)
+                    self.assertEqual(seen[-1]["food"] - f0, 100)
+                    self.assertEqual(run.v.i32(SUBJECT, run.v.L["health"]), 40 if "o2" in h.nodes else 90)
+                    self.assertEqual(self.research(run), 5 if "d" in h.nodes else 0)
+                    # ONE log entry: the title, each answer's "Choice:" line where it was given, every page's lines.
+                    filed_count, _now, filed = run.log()
+                    self.assertEqual(filed_count, 1)
+                    lines = ["  Event: Two Questions"]
+                    for k, (kind, _t, _n, labels) in enumerate(shown):
+                        if kind == "result":
+                            q, b = h.answers[sum(1 for s in shown[:k] if s[0] == "result")]
+                            lines.append(f"  Choice: {MULTI['nodes'][q]['choices'][b]['label']}")
+                    self.assertTrue(filed.startswith(lines[0] + "\n"), filed)
+                    self.assertEqual([x for x in filed.splitlines() if x.startswith("  Choice: ")], lines[1:])
+                    self.assertEqual(filed.count("  page "), 1 + ("o" in h.nodes) + ("d" in h.nodes))
+
+    def restart(self, game, file, save, log=True):
+        run = Run(game)
+        if log:
+            run.log(1)
+        run.p.export("VvfpStoryProbeQueueSession", 0, 0, save, 0)
+        run.p.write(FILE_BUF, file)
+        run.p.export("VvfpStoryProbeGraphSession", FILE_BUF, len(file))
+        run.tick()
+        return run
+
+    def test_a_quit_mid_event_resumes_and_the_log_matches_the_save(self):
+        h = next(h for h in self.histories(3) if h.end == "d")
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            straight_run = self.start(game, list(h.nodes))
+            straight = play_answers(straight_run, [0, 0])
+            whole = straight_run.log()[2]
+            # Quit with the second question on screen (pages 0..3: p, q1, o, q2).
+            run = self.start(game, list(h.nodes))
+            first = play_answers(run, [0], until=4)
+            self.assertEqual(first[-1][0], "question")
+            self.assertEqual(run.state()["phase"], ASKED)
+            run.tick()
+            file = run.graph_file()
+            with self.subTest(game=game, at="the second question, saved after it"):
+                again = self.restart(game, file, LATE)
+                st = again.state()
+                self.assertEqual((st["phase"], st["armed"]), (ASKED, 1), "the second question is armed again")
+                rest = play_answers(again, [0])
+                self.assertEqual(rest[0][1], first[-1][1], "the same question")
+                self.assertEqual([t for _k, t, *_ in first + rest[1:]], [t for _k, t, *_ in straight])
+                self.assertEqual((again.seen[-1]["food"] - again.before["food"],
+                                  again.seen[-1]["tech"] - again.before["tech"]), (0, 0), "nothing made twice")
+                self.assertEqual(self.research(again), 5)
+                self.assertEqual(again.log()[0::2], (1, whole), "the same entry, continued: nothing twice")
+            # Quit after the first answer's page, the save made before that page's effects.
+            t_open = run.seen[2]["tick"]
+            with self.subTest(game=game, at="the first answer, saved before its page"):
+                again = self.restart(game, file, t_open - 500)
+                st = again.state()
+                self.assertEqual(st["phase"], ASKED, "the save lacks the answer: the first question again")
+                held = again.sent()
+                self.assertEqual(held[1:3], ("  Event: Two Questions\n  page 0\n", 32),
+                                 "the log is told what the save's log holds: the first page, not the answer")
+                rest = play_answers(again, [0, 0])
+                self.assertEqual([t for _k, t, *_ in first[:1] + rest], [t for _k, t, *_ in straight])
+                self.assertEqual((again.seen[-1]["food"] - again.before["food"],
+                                  again.seen[-1]["tech"] - again.before["tech"]), (0, 10),
+                                 "the first page's food is in the save; the answer's tech is made now, once")
+                self.assertEqual(again.log()[0::2], (1, whole))
+            # The same quit, the other answer this time: the second question's segments go with the first answer.
+            with self.subTest(game=game, at="answered the other way after the reload"):
+                again = self.restart(game, file, t_open - 500)
+                rest = play_answers(again, [1])
+                self.assertEqual(norm(again.strip(rest[-1][1], "Two Questions")), "Bea walks away.")
+                self.assertIn("  Choice: Leave it\n", again.log()[2])
+                self.assertNotIn("Open it", again.log()[2])
+
+
+CAVE_GRAPH = cg.load(ROOT / "data" / "cie_graphs" / "the_cave_explorers.json")
+CAVE_CIEG = cg.compile_graph(CAVE_GRAPH)
+
+
+@emulated
+class CaveExplorersFromTheLibrary(unittest.TestCase):
+    """The library's second example (A New Home), every history: three questions deep, the owner's words with their
+    double quotes, both villagers' endings and the awards."""
+
+    def test_every_history(self):
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        run = Run("vv1")
+        binds = {"subject": cg.Binding("Bea", "f"), "friend": cg.Binding("Cal", "m")}
+        title = CAVE_GRAPH["title"]
+        for h in cg.walk(CAVE_GRAPH, cg.Context(1, frozenset(), frozenset(CAVE_GRAPH["roles"]))):
+            with self.subTest(history=" > ".join(h.nodes)):
+                run.reset()
+                run.rolls(ROLLS)
+                run.force(list(h.nodes), graph=CAVE_GRAPH)
+                food0, tech0 = stores(run)
+                self.assertIsNone(run.queue(CAVE_CIEG))
+                shown = play_answers(run, [b for _q, b in h.answers])
+                self.assertIn(run.state()["phase"], (IDLE, DONE))
+                self.assertEqual(run.state()["records"][:2], (SUBJECT, FRIEND))
+                award = (h.award[0], h.award[1]) if h.award else None
+                self.assertEqual(norm(" ".join(run.strip(t, title) for _k, t, *_ in shown)),
+                                 norm(" ".join(cg.expand(pop.text, binds, award) for pop in h.popups)))
+                self.assertNotIn("could not be made", " ".join(t for _k, t, *_ in shown))
+                food1, tech1 = stores(run)
+                paid = (h.award[1] if h.award and h.award[0] == "food" else 0,
+                        h.award[1] if h.award and h.award[0] == "tech" else 0)
+                self.assertEqual((food1 - food0, tech1 - tech0), paid)
+                L = run.v.L
+                for who, role in ((SUBJECT, "subject"), (FRIEND, "friend")):
+                    done = {e["do"] for _n, e in h.effects if e.get("role") == role}
+                    self.assertEqual(run.v.byte(who, ACTIVE["vv1"]), 0 if "vanish" in done else 1)
+                    if "kill" in done:
+                        self.assertEqual(run.v.i32(who, L["health"]), 0)
 
 
 class SourceAndLayout(unittest.TestCase):

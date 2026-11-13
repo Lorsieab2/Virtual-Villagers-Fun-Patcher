@@ -64747,6 +64747,34 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.cg_load.s20",
+   "english": "it is not a version 1 or 2 .cieg file",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s21",
+   "english": "a question does not have two choices, or makes changes",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_graph.cg_tell_vanished.s0",
    "english": "Disappeared in %s",
    "games": [

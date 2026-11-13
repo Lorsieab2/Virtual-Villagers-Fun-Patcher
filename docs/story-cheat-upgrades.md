@@ -777,6 +777,19 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   no longer one at delivery: the event keeps waiting and is made due again.
 - The walk draws each branch with the game's random routine; conditions on
   visited nodes, bound roles, the game and Guardians of Isola.
+- Questions anywhere (format version 2, v1.35.97): the run keeps its path
+  -- every node reached, each effect's roll -- and grows it one segment at a
+  time, from the start or an answer up to the next question or the end. When
+  a question is asked, both answers' segments are walked (kept per question,
+  so a question asked again after a reload has the same outcomes); the
+  answer's segment is added to the path and laid out after the question's
+  page. Every question is the game's two-button popup; only the start's
+  question (or a plain event's first page) counts in Island Events Seen, a
+  later question's count is taken back as a notice's. Each later answer adds
+  a "Choice:" line to the event's one log entry. A reload rewinds to the
+  first page whose effects the save lacks; when that is an answer's first
+  page, the question is asked again and the entry goes back to before its
+  "Choice:" line. A version 1 .cieg is read and played as before.
 - The effects wait for their own page (the owner, 2026-11-12): each node's
   effects are made, once, when the page showing the end of its text is built
   -- as a stock plain island event makes its changes while building its
