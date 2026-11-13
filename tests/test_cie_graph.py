@@ -142,8 +142,8 @@ class Checks(unittest.TestCase):
 
     def test_format_and_version(self):
         d = tiny()
-        d["version"] = 2
-        self.assertProblem(d, "version 2")
+        d["version"] = 3
+        self.assertProblem(d, "version 3")
         d = tiny()
         d["format"] = "x"
         self.assertProblem(d, "format")
@@ -409,6 +409,160 @@ class Library(unittest.TestCase):
     def test_stem(self):
         self.assertEqual(cg.library_stem("A: <bad>/name?"), "A badname")
         self.assertEqual(cg.library_stem("???"), "Custom Island Event")
+
+
+CAVE = ROOT / "data" / "cie_graphs" / "the_cave_explorers.json"
+
+
+def multi(**nodes) -> dict:
+    """A version 2 graph: a page, a question, a chance split, another question after a page, endings."""
+    g = {
+        "format": "vvfp-cie-graph", "version": 2, "title": "Two Questions", "games": [1, 2, 3, 4, 5],
+        "roles": {"subject": {"kind": "villager"}},
+        "start": "p",
+        "nodes": {
+            "p": {"text": "(Name) finds a \"door\".", "effects": [{"do": "food", "amount": 100}],
+                  "children": [{"next": "q1"}]},
+            "q1": {"type": "question", "text": "Open it?", "choices": [
+                {"label": "Open", "next": "o"}, {"label": "Leave", "next": "l"}]},
+            "o": {"text": "It opens.", "children": [{"next": "o1", "weight": 3}, {"next": "o2"}]},
+            "o1": {"popup": "append", "text": "A stair.", "children": [{"next": "q2"}]},
+            "o2": {"popup": "append", "text": "A pit.", "effects": [{"do": "kill"}]},
+            "q2": {"type": "question", "text": "Go down?", "choices": [
+                {"label": "Down", "next": "d"}, {"label": "Up", "next": "u"}]},
+            "d": {"text": "Gold.", "effects": [{"do": "tech", "amount": 50}]},
+            "u": {"text": "Home."},
+            "l": {"text": "(He/She) walks away."},
+        },
+    }
+    g["nodes"].update(nodes)
+    return g
+
+
+class QuestionsAnywhere(unittest.TestCase):
+    """Version 2 (v1.35.97): a question may be any node, as often as the author likes."""
+
+    def assertProblem(self, data, pattern, scrolling=False):
+        found = problems_of(data, scrolling)
+        self.assertTrue(any(re.search(pattern, p) for p in found), f"{pattern!r} not in {found}")
+
+    def test_a_multi_question_graph_passes_and_walks_every_answer(self):
+        self.assertEqual(problems_of(multi()), [])
+        g = cg.load(multi())
+        paths = cg.walk(g, cg.Context(1, frozenset(), frozenset(g["roles"])))
+        self.assertEqual(sorted(p.answers for p in paths), sorted([
+            (("q1", 0),), (("q1", 0), ("q2", 0)), (("q1", 0), ("q2", 1)), (("q1", 1),)]))
+        rows = cg.chances(g, 1)
+        self.assertEqual({r.key: r.chance for r in rows[(("q1", 0),)]["ends"]}, {"o2": 1})
+        self.assertEqual({r.key: r.chance for r in rows[(("q1", 0), ("q2", 0))]["ends"]}, {"d": 1})
+        table = cg.chances_table(g, 1)
+        self.assertIn("CHOICES q1 A: OPEN > q2 B: UP", table)
+        # The popups: the question's own, the answer's page, the second question.
+        p = next(p for p in paths if p.end == "d")
+        self.assertEqual([x.layout for x in p.popups], ["plain", "question", "result", "question", "result"])
+
+    def test_version_1_keeps_its_rules(self):
+        d = multi()
+        d["version"] = 1
+        self.assertProblem(d, "characters the game cannot show")         # the double quote is version 2's
+        d["nodes"]["p"]["text"] = "(Name) finds a door."
+        self.assertProblem(d, "only be the start node in a version 1 event")
+        d["version"] = 3
+        self.assertProblem(d, "version 3 is not one this patcher reads")
+
+    def test_an_answer_shows_its_own_page_first(self):
+        self.assertProblem(multi(l={"type": "branch", "children": [{"next": "q2"}]}),
+                           "an answer must show a page of its own before the next question")
+        self.assertProblem(multi(u={"type": "branch"}), "an answer must show a page of its own before the event")
+        self.assertProblem(multi(p={"type": "branch", "effects": [{"do": "food", "amount": 1}],
+                                    "children": [{"next": "q1"}]}),
+                           "the changes before this question need a page")
+
+    def test_a_question_makes_no_changes(self):
+        self.assertProblem(multi(q2={"type": "question", "text": "Go down?", "effects": [{"do": "sick"}],
+                                     "choices": [{"label": "Down", "next": "d"}, {"label": "Up", "next": "u"}]}),
+                           "a question makes no changes")
+
+    def test_no_loops_and_no_dangling_answers(self):
+        self.assertProblem(multi(u={"text": "Home.", "children": [{"next": "o"}]}), "a cycle")
+        self.assertProblem(multi(q2={"type": "question", "text": "x", "choices": [
+            {"label": "Down", "next": "d"}, {"label": "Up", "next": "nowhere"}]}), "'nowhere' names no node")
+
+    def test_round_trip_and_versions(self):
+        g = cg.load(multi())
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 4)[0], 2)
+        self.assertEqual(cg.decompile_graph(blob), g)
+        self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
+        # A version 1 graph is still written as version 1, and read back as it was.
+        v1 = cg.load(tiny())
+        b1 = cg.compile_graph(v1)
+        self.assertEqual(struct.unpack_from("<H", b1, 4)[0], 1)
+        self.assertEqual(cg.decompile_graph(b1), v1)
+        bad = bytearray(blob)
+        struct.pack_into("<H", bad, 4, 3)
+        struct.pack_into("<I", bad, 12, 0)
+        struct.pack_into("<I", bad, 12, __import__("zlib").crc32(bytes(bad)))
+        with self.assertRaises(cg.GraphError):
+            cg.decompile_graph(bytes(bad))
+
+
+class CaveExplorers(unittest.TestCase):
+    """The owner's event as the library's second example (scripts/build_cave_explorers_graph.py)."""
+
+    def setUp(self):
+        self.data = json.loads(CAVE.read_text(encoding="utf-8"))
+        self.g = cg.load(self.data)
+
+    def test_passes_with_and_without_scrolling_and_is_built_from_the_source(self):
+        self.assertEqual(problems_of(self.data, False), [])
+        self.assertEqual(problems_of(self.data, True), [])
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import build_cave_explorers_graph as build
+        self.assertEqual(build.build(), self.data, "regenerate with scripts/build_cave_explorers_graph.py")
+
+    def test_the_owners_odds(self):
+        import vv_cave_explorers as cave
+        rows = cg.chances(self.g, 1)
+
+        def ends(*answers):
+            return {r.key: r.chance for r in rows[tuple(answers)]["ends"]}
+        proceed = ("intro", 0), ("explore_q", 0)
+        for side in (0, 1):
+            run = ends(*proceed, ("run_q", side))
+            self.assertEqual(run["argue_2"] * 100, cave.A_ENDINGS["ARGUE"])
+            self.assertEqual(run["makeup"] * 100, cave.A_ENDINGS["MAKEUP"])
+            self.assertEqual((run["chasm_1"] + run["chasm_2"]) * 100, cave.A_ENDINGS["CHASM"])
+        find = ends(*proceed)
+        for key, pct in cave.B_FINDS.items():
+            self.assertEqual(find[key.lower()] * 100, pct, key)
+        keep = ends(("intro", 0), ("explore_q", 1), ("stay_q", 1))
+        self.assertEqual({k: v * 100 for k, v in keep.items()},
+                         {k.lower(): v for k, v in cave.KEEP_ENDINGS.items()})
+        self.assertEqual(ends(("intro", 0), ("explore_q", 1), ("stay_q", 0)),
+                         {"return_food": Fraction(1, 2), "return_tech": Fraction(1, 2)})
+        self.assertEqual(ends(("intro", 1)), {"dont": 1})
+
+    def test_the_words_are_the_events(self):
+        import vv_cave_explorers as cave
+        b = {"subject": cg.Binding("Anh", "f"), "friend": cg.Binding("Bao", "m")}
+        names, sexes = {"a": "Anh", "b": "Bao"}, {"a": "f", "b": "m"}
+        n = self.g["nodes"]
+        self.assertEqual(cg.expand(n["intro"]["text"], b), cave.fill("INTRO", names, sexes))
+        self.assertIn("special friend", n["intro"]["text"])
+        self.assertEqual(cg.expand(n["dont"]["text"], b), cave.fill("DONT", names, sexes))
+        self.assertEqual(cg.expand(n["a_s2"]["text"], b),
+                         cave.fill("A_SCREAM", {"s": "Bao", "o": "Anh"}, {"s": "m"}))
+        ctx = cg.Context(1, frozenset(), frozenset(self.g["roles"]))
+        self.assertEqual(cg.expand(cg.node_text(n["run_q"], ctx, ("a_s2",)), b),
+                         cave.fill("RUN", {"s": "Bao"}, {"s": "m"}))
+        self.assertEqual(cg.expand(n["keep"]["text"] + " " + n["keep_one"]["text"], b),
+                         cave.fill("KEEP", names) + cave.KEEP_JOIN + cave.fill("KEEP_ONE", names, sexes))
+        self.assertEqual(cg.expand(n["find_coins"]["text"], b, ("tech", 2000)),
+                         cave.fill("FIND_COINS", names, sexes, 2000))
+        self.assertEqual(n["stay"]["text"] + " " + n["stay_q"]["text"],
+                         cave.TEXTS[[k for k, _ in cave.TEXTS].index("STAY")][1]
+                         .replace("{b}", "(name2)").replace("{a}", "(name1)").replace("{He.b}", "(friend.He/She)"))
 
 
 if __name__ == "__main__":

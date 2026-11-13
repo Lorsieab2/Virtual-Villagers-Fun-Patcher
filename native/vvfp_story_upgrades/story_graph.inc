@@ -110,6 +110,9 @@
 #define CG_CAUSE_BYTES 64
 #define CG_LABEL_BYTES CE_BUTTON_BYTES
 #define CG_ENTRY_BYTES 8192
+#define CG_MAX_QUESTIONS 16             /* questions on one history (src/vv_cie_graph.py MAX_QUESTIONS_PER_RUN) */
+
+enum { CGD_PAGE = 0, CGD_RESULT = 1, CGD_QUESTION = 2 };
 
 enum { CG_POPUP = 0, CG_QUESTION = 1, CG_BRANCH = 2 };
 enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CGE_STATUS = 6, CGE_HEALTH = 7,
@@ -128,6 +131,7 @@ typedef struct {
     const unsigned char *d;
     unsigned int size;
     unsigned int games;
+    int version;                      /* 1, or 2: a question may be any node, text may hold " */
     int title, start, min_eligible;
     int n_role, n_node, n_child, n_effect, n_cond, n_variant, n_string, n_patch;
     unsigned int o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string, o_blob, blob_size;
@@ -307,6 +311,9 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
         if (*s == '\n' && lines) {
             continue;
         }
+        if (*s == '"' && g->version >= 2) {
+            continue;                  /* version 2: every game's font draws it (src/vv_font_glyphs.py) */
+        }
         if (!ce_text_char_ok(*s)) {
             return 0;
         }
@@ -369,10 +376,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     memset(g, 0, sizeof *g);
     g->d = data;
     g->size = size;
-    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) != 1u || cg_u16(h + 6) != CG_HEADER_BYTES
-        || cg_u32(h + 8) != size) {
-        return cg_bad("it is not a version 1 .cieg file");
+    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || (cg_u16(h + 4) != 1u && cg_u16(h + 4) != 2u)
+        || cg_u16(h + 6) != CG_HEADER_BYTES || cg_u32(h + 8) != size) {
+        return cg_bad("it is not a version 1 or 2 .cieg file");
     }
+    g->version = (int)cg_u16(h + 4);
     if (size > CG_MAX_FILE) {
         return cg_bad("it is larger than this game can read (128 KB)");
     }
@@ -506,8 +514,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (ccount > 256u) {
             return cg_bad("a node has more than 256 children");
         }
-        if (n[0] == CG_QUESTION && (i != g->start || ccount != 2u || els != CG_NONE)) {
-            return cg_bad("a question is not the event's first popup with two choices");
+        if (n[0] == CG_QUESTION && ((i != g->start && g->version < 2) || ccount != 2u || els != CG_NONE
+                                    || (g->version >= 2 && ecount != 0u))) {
+            return cg_bad(g->version < 2 ? "a question is not the event's first popup with two choices"
+                                         : "a question does not have two choices, or makes changes");
         }
         if (n[0] != CG_BRANCH && (cg_s(g, text)[0] == '\0' || !cg_text_ok(g, cg_s(g, text), 1, 0)
                                   || lstrlenA(cg_s(g, text)) > CG_TEXT_MAX)) {
@@ -562,19 +572,34 @@ typedef struct {
     unsigned int identity[CG_MAX_ROLES];
     int female[CG_MAX_ROLES];
     char name[CG_MAX_ROLES][CG_NAME_BYTES];
-    int walked;                        /* walk[] holds the histories */
-    cg_history walk[2];                /* [0] with no question; else one a button */
-    int choice;                        /* the button answered, -1 */
+    /* THE HISTORY SO FAR (version 2: a question may be any node).  `path` is every node the run has reached, each
+       question included, with every effect's roll; it grows one segment at a time -- from the start, or from an
+       answer, up to the next question (included) or the end.  Each question's two segments are walked when it is
+       asked (seg[q][button]: the popup can then be sized for the result either button shows, and a question asked
+       again after a restore has the same histories), and the one answered is added to `path`. */
+    cg_history path;
+    int answers;                       /* questions answered */
+    int asking;                        /* the display of the question on screen (CG_ASKED) */
+    int choice;                        /* the last button answered, -1 */
+    cg_history seg[CG_MAX_QUESTIONS][2];
+    unsigned char seg_walked[CG_MAX_QUESTIONS];
+    unsigned char answer[CG_MAX_QUESTIONS];
+    short q_display[CG_MAX_QUESTIONS]; /* question q's display */
+    short q_path[CG_MAX_QUESTIONS];    /* path.nodes / path.fx when it was asked (its own node included) */
+    short q_fx[CG_MAX_QUESTIONS];
+    int q_entry[CG_MAX_QUESTIONS];     /* the log entry's length before its "Choice:" line */
+    int jobs_used;
     int display_count;
     int display_next;                  /* the next display to show: every display before it is shown, and its
                                           effects made */
     int display_used;
     int display_off[CG_MAX_DISPLAYS];
     char displays[CG_DISPLAY_BYTES];   /* each page's words, the names filled in (composed when shown) */
-    /* Each display: its layout (1 a question's result, 0 the plain popup), the history's nodes whose effects it
-       makes (jobs[job_first .. + job_count]), and -- for a quit -- when they were made and who was gone and who
-       each role was just before it. */
-    unsigned char display_result[CG_MAX_DISPLAYS];
+    /* Each display: its kind (CGD_*: a page, a question's result -- the first page after an answer -- or a
+       question's own popup, display_node its node), the path's nodes whose effects it makes (jobs[job_first .. +
+       job_count]), and -- for a quit -- when they were made and who was gone and who each role was just before it. */
+    unsigned char display_kind[CG_MAX_DISPLAYS];
+    short display_node[CG_MAX_DISPLAYS];
     unsigned char display_villager[CG_MAX_DISPLAYS];   /* it makes a villager's effect: refusal lines kept */
     short job_first[CG_MAX_DISPLAYS];
     short job_count[CG_MAX_DISPLAYS];
@@ -998,27 +1023,52 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
     ++h->fx;
 }
 
-/* One history from `from`: the nodes and every effect's roll.  `game` and the bound roles and patches decide
-   the conditions; the question (start) node counts as visited. */
+/* A node's effects the run makes: none for a question (version 2 refuses them; version 1 never made them). */
+static int cg_fx_count(const unsigned char *n) {
+    return n[0] == CG_QUESTION ? 0 : (int)cg_u16(n + 20);
+}
+
+/* The visited set: the path's first `upto` nodes. */
+static void cg_visit_path(int upto) {
+    int i;
+    memset(cg_visited, 0, sizeof cg_visited);
+    for (i = 0; i < upto && i < cg.path.nodes; ++i) {
+        cg_visit(cg.path.node[i]);
+    }
+}
+
+/* One segment from `from`: the nodes and every effect's roll, up to the next question (included) or the end.
+   `game` and the bound roles and patches decide the conditions; the path so far counts as visited. */
 static void cg_walk(const ce_adapter *a, int game, int from, cg_history *h) {
     int node = from;
     memset(h, 0, sizeof *h);
-    memset(cg_visited, 0, sizeof cg_visited);
-    if (cg.question) {
-        cg_visit(cg_g.start);
-    }
+    cg_visit_path(cg.path.nodes);
     while (node >= 0 && h->nodes < CG_MAX_PATH) {
         const unsigned char *n = cg_node_at(&cg_g, node);
         int k;
         h->node[h->nodes++] = (short)node;
         cg_visit(node);
-        for (k = 0; k < (int)cg_u16(n + 20); ++k) {
+        for (k = 0; k < cg_fx_count(n); ++k) {
             cg_roll_effect(a, game, cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k), h);
         }
         if (n[0] == CG_QUESTION) {
             break;
         }
         node = cg_draw(a, node, game);
+    }
+}
+
+/* Segment `s` added to the path. */
+static void cg_path_add(const cg_history *s) {
+    int i;
+    for (i = 0; i < s->nodes && cg.path.nodes < CG_MAX_PATH; ++i) {
+        cg.path.node[cg.path.nodes++] = s->node[i];
+    }
+    for (i = 0; i < s->fx; ++i, ++cg.path.fx) {
+        if (cg.path.fx < CG_MAX_FX) {
+            cg.path.fx_a[cg.path.fx] = i < CG_MAX_FX ? s->fx_a[i] : 0;
+            cg.path.fx_b[cg.path.fx] = i < CG_MAX_FX ? s->fx_b[i] : 0;
+        }
     }
 }
 
@@ -1271,7 +1321,7 @@ static void cg_compose(const ce_layout *l, const char *title, const char *text, 
 
 /* A display: its page's words (names filled in), whether it is a question's result, whether its popup carries a
    villager's effect; its jobs are set by the caller.  Its index, or -1 when there is no room. */
-static int cg_add_display(const char *text, int result, int villager) {
+static int cg_add_display(const char *text, int kind, int villager) {
     int n = lstrlenA(text);
     int k = cg.display_count;
     if (k >= CG_MAX_DISPLAYS || cg.display_used + n + 1 > CG_DISPLAY_BYTES) {
@@ -1280,9 +1330,10 @@ static int cg_add_display(const char *text, int result, int villager) {
     cg.display_off[k] = cg.display_used;
     memcpy(cg.displays + cg.display_used, text, (size_t)n + 1);
     cg.display_used += n + 1;
-    cg.display_result[k] = (unsigned char)(result != 0);
+    cg.display_kind[k] = (unsigned char)kind;
+    cg.display_node[k] = -1;
     cg.display_villager[k] = (unsigned char)(villager != 0);
-    cg.job_first[k] = 0;
+    cg.job_first[k] = (short)cg.jobs_used;
     cg.job_count[k] = 0;
     cg.applied_when[k] = 0;
     cg.sent_len[k] = 0;
@@ -1524,6 +1575,7 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
 typedef struct {
     char raw[CG_RAW_BYTES];            /* the award filled in, the names not */
     int effects;                       /* carries villager effects: two lines kept on each page for the refusals */
+    int question;                      /* a question's own popup: the node, else -1 */
 } cg_popup;
 
 static cg_popup cg_pops[CG_MAX_POPUPS];
@@ -1539,7 +1591,7 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
     *amount = 0;
     for (i = 0; i < upto && i < h->nodes; ++i) {
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
-        for (k = 0; k < (int)cg_u16(n + 20); ++k, ++fx) {
+        for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
             if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
                 *kind = e[0] == CGE_FOOD ? 0 : 1;
@@ -1553,20 +1605,21 @@ static int cg_award_before(const cg_history *h, int upto, int *kind, int *amount
 /* The popups of history `h` as the patcher's walk builds them (src/vv_cie_graph.py walk: a node's effects first --
    an award it defers is the (award) of its own text -- then its text, appended or new), and for each node the
    popup and the place in it its effects go with. */
-static void cg_group(int game, const cg_history *h) {
+static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
-    int award_kind = -1, award = 0, fx = 0, k, i, first_text = -1;
+    int award_kind = -1, award = 0, fx, k, i, first_text = -1;
     cg_pop_count = 0;
-    memset(cg_visited, 0, sizeof cg_visited);
-    if (cg.question) {
-        cg_visit(cg_g.start);
+    fx = cg_award_before(h, from, &award_kind, &award);
+    cg_visit_path(from);
+    for (i = 0; i < from && i < CG_MAX_PATH; ++i) {
+        cg_node_pop[i] = -2;           /* an earlier segment's: laid out already */
     }
-    for (i = 0; i < h->nodes; ++i) {
+    for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
         int villager = 0;
         cg_visit(node);
-        for (k = 0; k < (int)cg_u16(n + 20); ++k, ++fx) {
+        for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
             villager |= e[0] >= CGE_KILL;
             if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
@@ -1577,10 +1630,11 @@ static void cg_group(int game, const cg_history *h) {
         if (n[0] != CG_BRANCH) {
             cg_popup *p = NULL;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
-            if (n[1] == 0 || cg_pop_count == 0) {
+            if (n[0] == CG_QUESTION || n[1] == 0 || cg_pop_count == 0 || cg_pops[cg_pop_count - 1].question >= 0) {
                 if (cg_pop_count < CG_MAX_POPUPS) {
                     p = &cg_pops[cg_pop_count++];
                     memset(p, 0, sizeof *p);
+                    p->question = n[0] == CG_QUESTION ? node : -1;
                     lstrcpynA(p->raw, text, sizeof p->raw);
                 }
             } else {
@@ -1601,12 +1655,12 @@ static void cg_group(int game, const cg_history *h) {
         }
     }
     /* Effects before any text: made with the first text's page. */
-    for (i = 0; i < h->nodes && first_text >= 0; ++i) {
-        if (cg_node_pop[i] < 0) {
+    for (i = from; i < h->nodes && first_text >= 0; ++i) {
+        if (cg_node_pop[i] == -1) {
             const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
             cg_node_pop[i] = 0;
             cg_node_end[i] = cg_node_end[first_text];
-            for (k = 0; k < (int)cg_u16(n + 20); ++k) {
+            for (k = 0; k < cg_fx_count(n); ++k) {
                 if (cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k)[0] >= CGE_KILL) {
                     cg_pops[0].effects = 1;
                 }
@@ -1624,37 +1678,50 @@ static ce_layout cg_notice_layout(const ce_adapter *a) {
     return plain;
 }
 
-/* History `h` laid out as the run's displays (from the first): `after_question` 1 = page 0 is a question's
-   result, 0 = a plain event's first popup; each page with the nodes whose effects it makes. */
-static void cg_layout_history(const ce_adapter *a, int game, const cg_history *h, int after_question) {
+/* The path from node `from` (a segment: the start's, or an answer's) laid out as more of the run's displays:
+   `after_question` 1 = its first page is a question's result, 0 = a plain event's first popup (or the start
+   question's); each page with the nodes whose effects it makes.  A question's text is laid out for the question
+   popup: its earlier pages shown first (notices, through the plain popup, which is never smaller), its last page
+   the two-button popup itself. */
+static void cg_layout_from(const ce_adapter *a, int game, int from, int after_question) {
     static cg_pager w;
     static cg_pages pages;
     static char real[CG_PAGE_BYTES];
+    const cg_history *h = &cg.path;
     ce_layout first = after_question ? ce_result_layout(a) : cg_notice_layout(a);
     ce_layout rest = cg_notice_layout(a);
-    int p, k, i, jobs = 0;
-    cg_group(game, h);
-    cg.display_count = cg.display_next = cg.display_used = 0;
+    ce_layout q = ce_question_layout(a);
+    int p, k, i, jobs = cg.jobs_used;
+    q.check_title = 0;
+    cg_group(game, h, from);
     for (p = 0; p < cg_pop_count; ++p) {
+        int question = cg_pops[p].question >= 0;
         w.a = a;
-        w.first = p == 0 ? &first : &rest;
-        w.rest = &rest;
+        w.first = question ? &q : (p == 0 ? &first : &rest);
+        w.rest = question ? &q : &rest;
         w.title = cg.title;
         w.reserve = cg_pops[p].effects ? 2 : 0;
         w.pages = &pages;
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
-            int d;
+            int d, kind = CGD_PAGE;
+            if (question && k + 1 == pages.count) {
+                kind = CGD_QUESTION;
+            } else if (p == 0 && k == 0 && after_question) {
+                kind = CGD_RESULT;
+            }
             cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-            d = cg_add_display(real, p == 0 && k == 0 && after_question, cg_pops[p].effects);
+            d = cg_add_display(real, kind, cg_pops[p].effects);
             if (d < 0) {
+                cg.jobs_used = jobs;
                 return;
             }
+            cg.display_node[d] = (short)(kind == CGD_QUESTION ? cg_pops[p].question : -1);
             cg.job_first[d] = (short)jobs;
-            for (i = 0; i < h->nodes; ++i) {
+            for (i = from; i < h->nodes; ++i) {
                 const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
                 int page = 0;
-                if (cg_node_pop[i] != p || cg_u16(n + 20) == 0u) {
+                if (cg_node_pop[i] != p || cg_fx_count(n) == 0) {
                     continue;
                 }
                 while (page + 1 < pages.count && pages.src_end[page] < cg_node_end[i]) {
@@ -1667,6 +1734,41 @@ static void cg_layout_history(const ce_adapter *a, int game, const cg_history *h
             cg.job_count[d] = (short)(jobs - cg.job_first[d]);
         }
     }
+    cg.jobs_used = jobs;
+}
+
+/* The displays from `count` on taken away (a question answered again, a restore). */
+static void cg_displays_cut(int count) {
+    if (count < 0) {
+        count = 0;
+    }
+    if (count >= cg.display_count) {
+        return;
+    }
+    cg.display_count = count;
+    cg.display_used = count > 0 ? cg.display_off[count - 1] + lstrlenA(cg.displays + cg.display_off[count - 1]) + 1 : 0;
+    cg.jobs_used = count > 0 ? cg.job_first[count - 1] + cg.job_count[count - 1] : 0;
+    if (cg.display_next > count) {
+        cg.display_next = count;
+    }
+}
+
+static void cg_entry_start(const char *label);
+
+/* The run's first segment, from the start: walked, added to the path and laid out (the roles are bound). */
+static void cg_start_run(const ce_adapter *a, int game) {
+    static cg_history first;
+    memset(&cg.path, 0, sizeof cg.path);
+    cg.display_count = cg.display_next = cg.display_used = cg.jobs_used = 0;
+    cg.answers = 0;
+    cg.choice = -1;
+    cg_walk(a, game, cg_g.start, &first);
+    cg_path_add(&first);
+    cg_layout_from(a, game, 0, 0);
+    if (!cg.question) {
+        cg_entry_start(NULL);
+    }
+    cg.phase = CG_CHAIN;
 }
 
 /* ---- The Island Events log's one entry ("VVFP Island Events.dll", native/vvfp_island_events) ----------------
@@ -1811,7 +1913,7 @@ __declspec(dllexport) int __stdcall VvfpStoryGraphLogged(int game, const char *t
 /* The effects display `k` makes, each once: every node of its jobs, in the history's order, the award's state
    and the rolls as the walk left them. */
 static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) {
-    const cg_history *h = &cg.walk[cg.choice > 0 ? 1 : 0];
+    const cg_history *h = &cg.path;
     int j;
     memset(r, 0, sizeof *r);
     cg.gone_at[k] = cg.gone;
@@ -1821,7 +1923,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
         int award_kind, award, fx, e;
         fx = cg_award_before(h, i, &award_kind, &award);
-        for (e = 0; e < (int)cg_u16(n + 20); ++e, ++fx) {
+        for (e = 0; e < cg_fx_count(n); ++e, ++fx) {
             const unsigned char *eff = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + e);
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;
             cg_effect(a, game, eff, va, vb, &award_kind, &award, r);
@@ -1836,7 +1938,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
    refusal lines, into `text`. */
 static void cg_show(const ce_adapter *a, int game, int k, char *text, int size) {
     ce_result r;
-    ce_layout l = cg.display_result[k] ? ce_result_layout(a) : cg_notice_layout(a);
+    ce_layout l = cg.display_kind[k] == CGD_RESULT ? ce_result_layout(a) : cg_notice_layout(a);
     int logging;
     cg.entry_at[k] = cg.entry_len;
     logging = cg.job_count[k] > 0 && cg_log_begin(game);
@@ -1874,10 +1976,27 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
 
 /* ---- Arming each display ----------------------------------------------------------------------------------- */
 
-/* The next display is the question (its earlier pages shown, or none). */
+/* The next display is a question's own popup (its earlier pages shown, or none): the start's, before the run is
+   laid out, or any question's (version 2) once it is; a question asked again after a restore. */
 static int cg_next_is_question(void) {
-    return cg.question && (cg.phase == CG_ASKED || (cg.phase == CG_QUEUED && cg.pre_pages == 0)
-                           || (cg.phase == CG_PRE && cg.display_next >= cg.display_count));
+    switch (cg.phase) {
+    case CG_QUEUED: return cg.question && cg.pre_pages == 0;
+    case CG_ASKED: return 1;
+    case CG_CHAIN:
+        return cg.display_next < cg.display_count && cg.display_kind[cg.display_next] == CGD_QUESTION;
+    default: return 0;
+    }
+}
+
+/* The node of the question to ask next (or being asked). */
+static int cg_question_node(void) {
+    if (cg.phase == CG_QUEUED) {
+        return cg_g.start;
+    }
+    if (cg.phase == CG_ASKED) {
+        return cg.asking >= 0 && cg.asking < cg.display_count ? cg.display_node[cg.asking] : -1;
+    }
+    return cg.display_next < cg.display_count ? cg.display_node[cg.display_next] : -1;
 }
 
 /* Arm the run's next display in `game`: the island event made due as the purchase makes it (`due`), or only
@@ -1890,13 +2009,16 @@ static int cg_arm(int game, int due) {
     cg_stub.game = game;
     lstrcpynA(cg_stub.title, cg.title, sizeof cg_stub.title);
     if (question) {
-        int b;
+        int b, node = cg_question_node();
+        if (node < 0 || node >= cg_g.n_node) {
+            return 0;
+        }
         /* (Only its own fields: the stub's outcomes stay zero, never written.) */
         cg_choice_stub.enabled = 1;
         cg_choice_stub.featured_record = 0;
         cg_choice_stub.featured_identity = 0;
         for (b = 0; b < 2; ++b) {
-            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, cg_g.start) + 12) + b);
+            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
             lstrcpynA(cg_choice_stub.labels[b], cg_s(&cg_g, cg_u16(c + 8)), CE_BUTTON_BYTES);
             cg_choice_stub.outcome_count[b] = 1;
             cg_choice_stub.outcomes[b][0].chance = 1;
@@ -1925,7 +2047,6 @@ static int cg_wants_display(void) {
     }
     switch (cg.phase) {
     case CG_QUEUED: case CG_ASKED: return 1;
-    case CG_PRE: return 1;
     default: return cg.display_next < cg.display_count;
     }
 }
@@ -2004,26 +2125,8 @@ static int cg_deliver(int game, char *text, int size, int *counted) {
     }
     cg_display_armed = 0;
     if (cg.phase == CG_QUEUED) {
-        cg.display_count = cg.display_next = cg.display_used = 0;
-        if (cg.question) {
-            static cg_pages pages;
-            static char real[CG_PAGE_BYTES];
-            int k;
-            cg_question_pages(a, game, &pages);
-            for (k = 0; k + 1 < pages.count; ++k) {
-                cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
-                (void)cg_add_display(real, 0, 0);
-            }
-            cg.phase = CG_PRE;
-        } else {
-            cg_walk(a, game, cg_g.start, &cg.walk[0]);
-            cg.walked = 1;
-            cg.choice = -1;
-            cg_layout_history(a, game, &cg.walk[0], 0);
-            cg_entry_start(NULL);
-            cg.phase = CG_CHAIN;
-            *counted = 1;
-        }
+        *counted = !cg.question;
+        cg_start_run(a, game);         /* the start question's earlier pages, or the event's first popup */
     }
     if (cg.display_next < cg.display_count) {
         cg_show(a, game, cg.display_next, text, size);
@@ -2037,61 +2140,133 @@ static int cg_deliver(int game, char *text, int size, int *counted) {
     return 1;
 }
 
-/* The question (ce_choice_begin): both histories walked now, the last page of its text into `text`, its labels
-   with the names filled in. */
+/* The question `cg.answers` (asked at display `k`, its node the path's last): both answers' segments walked
+   (once: asked again after a restore, the same histories). */
+static void cg_walk_answers(const ce_adapter *a, int game, int k) {
+    int qi = cg.answers, b;
+    int node = cg.display_node[k];
+    if (qi < 0 || qi >= CG_MAX_QUESTIONS || node < 0) {
+        return;
+    }
+    if (!cg.seg_walked[qi]) {
+        for (b = 0; b < 2; ++b) {
+            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
+            cg_walk(a, game, (int)cg_u16(c), &cg.seg[qi][b]);
+        }
+        cg.seg_walked[qi] = 1;
+        cg.q_display[qi] = (short)k;
+        cg.q_path[qi] = (short)cg.path.nodes;
+        cg.q_fx[qi] = (short)cg.path.fx;
+    }
+}
+
+/* The question (ce_choice_begin): its own page (the last of its text) into `text`, both answers' segments walked,
+   its labels with the names filled in.  Only the start's question is the island event: a later one's count is
+   taken back (Island Events Seen counts the event once). */
 static void cg_begin_question(int game, char *text, int size) {
     const ce_adapter *a = ce_adapter_for(game);
-    static cg_pages pages;
     static char real[CG_PAGE_BYTES];
     ce_layout q;
-    int b;
+    int b, k, node, counted;
     if (a == NULL) {
         return;
     }
     cg_display_armed = 0;
+    if (cg.phase == CG_QUEUED) {
+        cg_start_run(a, game);         /* a start question with no earlier page */
+    }
+    k = cg.phase == CG_ASKED ? cg.asking : cg.display_next;
+    if (k < 0 || k >= cg.display_count || cg.display_kind[k] != CGD_QUESTION) {
+        if (size > 0) {
+            text[0] = '\0';
+        }
+        return;
+    }
+    counted = cg.question && cg.answers == 0;   /* the start's question: the island event itself */
+    if (!counted) {
+        ce_uncount_notice(game);       /* a later question: a notice's count */
+    }
+    node = cg.display_node[k];
+    if (cg.job_count[k] > 0 && cg.applied_when[k] == 0) {
+        /* (Never from a checked graph: a question makes no changes and the ones before it have a page.  Made here
+           all the same, rather than lost.) */
+        ce_result r;
+        int logging = cg_log_begin(game);
+        cg.entry_at[k] = cg.entry_len;
+        cg_make_effects(a, game, k, &r);
+        if (logging) {
+            cg_log_end(game);
+            cg_log_send(game, -1, 0);
+            cg.sent_len[k] = cg.entry_len;
+        }
+    }
     q = ce_question_layout(a);
     q.check_title = 0;
-    cg_question_pages(a, game, &pages);
-    cg_expand(pages.count > 0 ? pages.buf + pages.off[pages.count - 1] : "", real, sizeof real, CG_EXPAND_REAL,
-              a->name_room, -1, 0);
-    cg_compose(&q, cg.title, real, NULL, text, size);
-    if (!cg.walked) {
-        for (b = 0; b < 2; ++b) {
-            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, cg_g.start) + 12) + b);
-            cg_walk(a, game, (int)cg_u16(c), &cg.walk[b]);
-        }
-        cg.walked = 1;
-    }
+    cg_compose(&q, cg.title, cg_display(k), NULL, text, size);
+    cg_walk_answers(a, game, k);
     for (b = 0; b < 2; ++b) {
-        const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, cg_g.start) + 12) + b);
+        const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
         cg_expand(cg_s(&cg_g, cg_u16(c + 8)), real, CE_BUTTON_BYTES, CG_EXPAND_REAL, a->name_room, -1, 0);
         lstrcpynA(ce_choice_store[ce_asked_store].labels[b], real, CE_BUTTON_BYTES);
     }
     cg.phase = CG_ASKED;
-    cg.display_count = cg.display_next = cg.display_used = 0;
-    cg_logged = game;                  /* the question's own popup: the entry's, written when the event is over */
+    cg.asking = k;
+    cg.display_next = k + 1;
+    cg_logged = game;                  /* the question's own popup: the entry's, never a record of its own */
     cg_dirty = 1;
 }
 
-/* The answer (ce_choice_resolve): that button's history laid out in pages, and its first page shown -- with the
-   effects that page makes (the rest wait for their own pages). */
-static int cg_resolve(int game, int button, char *text, int size) {
-    const ce_adapter *a = ce_adapter_for(game);
-    if (a == NULL || button < 0 || button > 1 || !cg.walked) {
+/* Answer `button` of the asked question added to the run: the path back to the question, that answer's segment
+   on it, its pages laid out after the question's.  0 when nothing is asked. */
+static int cg_take_answer(const ce_adapter *a, int game, int button) {
+    int qi = cg.answers;
+    if (cg.phase != CG_ASKED || qi < 0 || qi >= CG_MAX_QUESTIONS || !cg.seg_walked[qi]) {
         return 0;
     }
+    cg_displays_cut(cg.q_display[qi] + 1);
+    cg.path.nodes = cg.q_path[qi];
+    cg.path.fx = cg.q_fx[qi];
+    cg_path_add(&cg.seg[qi][button]);
+    cg_layout_from(a, game, cg.q_path[qi], 1);
+    return 1;
+}
+
+/* The answer (ce_choice_resolve): that button's segment laid out in pages, and its first page shown -- with the
+   effects that page makes (the rest wait for their own pages).  The log entry gets the button clicked: its
+   header's "Choice:" line for the start's question, another "Choice:" line for each later one. */
+static int cg_resolve(int game, int button, char *text, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    static char label[CE_BUTTON_BYTES];
+    int qi = cg.answers, node, first;
+    if (a == NULL || button < 0 || button > 1 || qi >= CG_MAX_QUESTIONS || cg.asking < 0) {
+        return 0;
+    }
+    node = cg.display_node[cg.asking];
+    if (node < 0 || !cg_take_answer(a, game, button)) {
+        return 0;
+    }
+    first = cg.q_display[qi] + 1;
+    cg.answer[qi] = (unsigned char)button;
+    cg.answers = qi + 1;
     cg.choice = button;
-    cg_layout_history(a, game, &cg.walk[button], 1);
     {
-        /* The entry's header: the title and the button clicked, as the game showed it. */
-        static char label[CE_BUTTON_BYTES];
-        const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, cg_g.start) + 12) + button);
+        const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + button);
+        char line[CE_BUTTON_BYTES + 16];
         cg_expand(cg_s(&cg_g, cg_u16(c + 8)), label, CE_BUTTON_BYTES, CG_EXPAND_REAL, a->name_room, -1, 0);
-        cg_entry_start(label);
+        cg.q_entry[qi] = cg.entry_len;
+        if (cg.entry_head == 0) {
+            cg_entry_start(label);     /* the title and the start question's answer */
+            cg.q_entry[qi] = 0;
+        } else {
+            wsprintfA(line, "  Choice: %s\n", label);
+            cg_entry_put(line);
+        }
     }
     cg.phase = CG_CHAIN;
-    if (cg.display_count > 0) {
-        cg_show(a, game, 0, text, size);
+    cg.asking = -1;
+    cg.display_next = first;
+    if (first < cg.display_count) {
+        cg_show(a, game, first, text, size);
     } else if (size > 0) {
         text[0] = '\0';
     }
@@ -2105,24 +2280,33 @@ static int cg_resolve(int game, int button, char *text, int size) {
 /* ce_choice_tallest: the result `button` will show first, with room for its refusal lines when that page makes a
    villager's effect.  (Laid out and set aside: nothing is made, the run stays asked.) */
 static int cg_tallest(int game, int button, char *out, int size) {
+    static cg_history keep_path;
     const ce_adapter *a = ce_adapter_for(game);
     ce_layout first;
     ce_result most;
-    int lines;
-    if (a == NULL || button < 0 || button > 1 || !cg.walked) {
+    int lines = 0, count, used, jobs, k;
+    if (a == NULL || button < 0 || button > 1 || cg.phase != CG_ASKED) {
         return 0;
     }
-    cg_layout_history(a, game, &cg.walk[button], 1);
-    if (cg.display_count == 0) {
-        return 0;
+    keep_path = cg.path;
+    count = cg.display_count;
+    used = cg.display_used;
+    jobs = cg.jobs_used;
+    if (cg_take_answer(a, game, button)) {
+        k = cg.q_display[cg.answers] + 1;
+        if (k < cg.display_count) {
+            first = ce_result_layout(a);
+            memset(&most, 0, sizeof most);
+            most.refused = 999;
+            cg_compose(&first, cg.title, cg_display(k), cg.display_villager[k] && cg.job_count[k] > 0 ? &most : NULL,
+                       out, size);
+            lines = ce_text_lines(out);
+        }
     }
-    first = ce_result_layout(a);
-    memset(&most, 0, sizeof most);
-    most.refused = 999;
-    cg_compose(&first, cg.title, cg_display(0), cg.display_villager[0] && cg.job_count[0] > 0 ? &most : NULL, out,
-               size);
-    lines = ce_text_lines(out);
-    cg.display_count = cg.display_next = cg.display_used = 0;
+    cg.path = keep_path;
+    cg.display_count = count;
+    cg.display_used = used;
+    cg.jobs_used = jobs;
     return lines;
 }
 
@@ -2263,6 +2447,7 @@ static int cg_queue(int game, unsigned int planned, int due) {
     cg.planned = planned;
     cg.patches = cg_patches_on(game);
     cg.choice = -1;
+    cg.asking = -1;
     lstrcpynA(cg.title, cg_s(&cg_g, (unsigned int)cg_g.title), sizeof cg.title);
     if (cg.question) {
         static cg_pages pages;
@@ -2314,7 +2499,7 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 1u
+#define CG_FILE_VERSION 2u                 /* 2: the run keeps its path and every question's answers */
 
 typedef struct {
     unsigned int magic;
@@ -2454,10 +2639,18 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
             }
         }
         if (rewind >= 0) {
+            /* The first page the save lacks.  Is it an answer's first page?  Then that answer is not in the save
+               either: the question is asked again.  Every question answered after it is taken back too (its pages
+               are laid out again from its answer when it is answered again: the same histories). */
+            int again = cg.display_kind[rewind] == CGD_RESULT ? rewind - 1 : -1;
+            int qi;
             cg.gone = cg.gone_at[rewind];
             memcpy(cg.identity, cg.identity_at[rewind], sizeof cg.identity);
-            /* The entry continues from that page: its own lines are taken back, made again as it is shown. */
-            cg.entry_len = cg.question && rewind == 0 ? 0 : cg.entry_at[rewind];
+            for (qi = 0; qi < cg.answers && cg.q_display[qi] < (again >= 0 ? again : rewind); ++qi) {
+            }
+            /* The entry continues from that page: its own lines are taken back, made again as it is shown (or,
+               for a question asked again, from before its "Choice:" line). */
+            cg.entry_len = again >= 0 && qi < cg.answers ? cg.q_entry[qi] : cg.entry_at[rewind];
             if (cg.entry_len == 0) {
                 cg.entry_head = 0;
             }
@@ -2466,8 +2659,16 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
                 cg.applied_when[k] = 0;
                 cg.sent_len[k] = 0;
             }
-            if (cg.question && rewind == 0) {
+            if (qi < cg.answers) {
+                cg_displays_cut(cg.q_display[qi] + 1);
+                cg.path.nodes = cg.q_path[qi];
+                cg.path.fx = cg.q_fx[qi];
+                cg.answers = qi;
+            }
+            if (again >= 0 && cg.display_kind[again] == CGD_QUESTION) {
                 cg.phase = CG_ASKED;
+                cg.asking = again;
+                cg.display_next = again + 1;
                 cg.choice = -1;
             } else {
                 cg.phase = CG_CHAIN;
@@ -2479,9 +2680,7 @@ static void cg_village_seen(int game, int slot, const unsigned int *roster) {
             return;
         }
     }
-    if (cg.phase == CG_ASKED) {
-        cg.display_count = cg.display_next = 0;   /* asked again, with the same histories */
-    }
+
     {
         /* The log is told what of the entry this save already holds: the entry as it was handed over at the last
            page before the save, so the next save continues that same entry (append_event_entry). */
@@ -2814,7 +3013,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,
-   [6] planned, [7..10] the first four roles' records, [11] pre_pages, [12] walk[0] nodes, [13] walk[1] nodes,
+   [6] planned, [7..10] the first four roles' records, [11] pre_pages, [12] the path's nodes, [13] answers,
    [14] the told count, [15..18] the first four roles' female flags. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphState(int *out) {
     int i;
@@ -2832,15 +3031,16 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphState(int *out) {
         out[7 + i] = (cg.bound & (1u << i)) ? cg.record[i] : -1;
     }
     out[11] = cg.pre_pages;
-    out[12] = cg.walk[0].nodes;
-    out[13] = cg.walk[1].nodes;
+    out[12] = cg.path.nodes;
+    out[13] = cg.answers;
     out[14] = test_graph_told_count;
 }
 
-/* History `which`'s nodes into out (at most `cap`); the count. */
+/* The path's nodes (which 0) or the asked question's answer `which - 1` segment, into out (at most `cap`); the
+   count. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPath(int which, int *out, int cap) {
     int i;
-    const cg_history *h = &cg.walk[which != 0];
+    const cg_history *h = which <= 0 || cg.answers >= CG_MAX_QUESTIONS ? &cg.path : &cg.seg[cg.answers][which > 1];
     for (i = 0; i < h->nodes && i < cap; ++i) {
         out[i] = h->node[i];
     }

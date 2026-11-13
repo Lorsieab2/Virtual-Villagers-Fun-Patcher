@@ -1,0 +1,545 @@
+{
+  "format": "vvfp-cie-graph",
+  "version": 2,
+  "title": "The Cave Explorers",
+  "games": [
+    1
+  ],
+  "patches": [],
+  "requirement": {
+    "min_eligible": 2
+  },
+  "roles": {
+    "subject": {
+      "kind": "villager",
+      "min_age": 18
+    },
+    "friend": {
+      "kind": "villager",
+      "min_age": 18
+    }
+  },
+  "start": "intro",
+  "nodes": {
+    "intro": {
+      "type": "question",
+      "text": "(name1) has been curious about the cave. (He/She) wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. (name1) is trying to convince (name2), (his/her) special friend, to come with (him/her). (name2) is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says (name1). \"So, what do you say?\"",
+      "choices": [
+        {
+          "label": "Explore the Cave",
+          "next": "explore"
+        },
+        {
+          "label": "Don't explore",
+          "next": "dont"
+        }
+      ]
+    },
+    "dont": {
+      "text": "\"Sorry, I'm not going,\" says (name2). \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" (friend.he/she) says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" (name1) is saddened, but realizes that (name2) is right. After much reflection, (he/she) thanks (friend.him/her) for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" (name2) promises to protect (name1) if (he/she) will do the same. \"Of course! After all, I'm here for you!\" (name1) and (name2) may not always get along, but one thing's for certain: their bond is stronger than ever.",
+      "summary": "does not explore",
+      "outcome": "nothing happens"
+    },
+    "explore": {
+      "text": "\"Okay, let's go!\" (name2) says. (name1) and (name2) pack up their supplies and steal away to the cave in secret. By torchlight, they see intricate drawings depicting the island's history painted on the walls, and numerous artifacts scattered around the area. \"Fascinating!\" (name2) says. \"I never thought I'd see such beautiful things!\"",
+      "children": [
+        {
+          "next": "explore_q"
+        }
+      ]
+    },
+    "explore_q": {
+      "type": "question",
+      "text": "\"Toldja it'd be worth it,\" says (name1), beaming. (He/She) asks (name2) if they should head in further to see if any more things can be found.",
+      "choices": [
+        {
+          "label": "Proceed Further",
+          "next": "deeper"
+        },
+        {
+          "label": "Stay Here",
+          "next": "stay"
+        }
+      ]
+    },
+    "deeper": {
+      "text": "The two head in deeper. The place becomes darker and narrower until only a small sliver of light remains.",
+      "children": [
+        {
+          "next": "a_scream",
+          "weight": 50
+        },
+        {
+          "next": "b_search",
+          "weight": 50
+        }
+      ]
+    },
+    "a_scream": {
+      "type": "branch",
+      "children": [
+        {
+          "next": "a_s1"
+        },
+        {
+          "next": "a_s2"
+        }
+      ]
+    },
+    "a_s1": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "Suddenly (name1) screams. (He/She) tries to run to (name2), but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says (name2).",
+      "children": [
+        {
+          "next": "wrong_1"
+        },
+        {
+          "next": "wrong_2"
+        },
+        {
+          "next": "wrong_3"
+        },
+        {
+          "next": "wrong_4"
+        }
+      ]
+    },
+    "a_s2": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "Suddenly (name2) screams. (friend.He/She) tries to run to (name1), but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says (name1).",
+      "children": [
+        {
+          "next": "wrong_1"
+        },
+        {
+          "next": "wrong_2"
+        },
+        {
+          "next": "wrong_3"
+        },
+        {
+          "next": "wrong_4"
+        }
+      ]
+    },
+    "wrong_1": {
+      "popup": "append",
+      "text": "\"I stepped on something slimy!\"",
+      "children": [
+        {
+          "next": "run_q"
+        }
+      ]
+    },
+    "wrong_2": {
+      "popup": "append",
+      "text": "\"I felt something scratch me!\"",
+      "children": [
+        {
+          "next": "run_q"
+        }
+      ]
+    },
+    "wrong_3": {
+      "popup": "append",
+      "text": "\"I ran into something sticky!\"",
+      "children": [
+        {
+          "next": "run_q"
+        }
+      ]
+    },
+    "wrong_4": {
+      "popup": "append",
+      "text": "\"I heard something growling!\"",
+      "children": [
+        {
+          "next": "run_q"
+        }
+      ]
+    },
+    "run_q": {
+      "type": "question",
+      "text": "\"Quick, run! Something's chasing us!\" (he/she) cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever (name1) encountered seems to be coming closer. Which path should they run down?",
+      "variants": [
+        {
+          "if": {
+            "visited": "a_s2"
+          },
+          "text": "\"Quick, run! Something's chasing us!\" (friend.he/she) cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever (name2) encountered seems to be coming closer. Which path should they run down?"
+        }
+      ],
+      "choices": [
+        {
+          "label": "Run towards the left path",
+          "next": "run_left"
+        },
+        {
+          "label": "Run towards the right path",
+          "next": "run_right"
+        }
+      ]
+    },
+    "run_left": {
+      "text": "(name1) and (name2) run down the left path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+      "children": [
+        {
+          "next": "argue",
+          "weight": 10
+        },
+        {
+          "next": "makeup",
+          "weight": 80
+        },
+        {
+          "next": "chasm",
+          "weight": 10
+        }
+      ]
+    },
+    "run_right": {
+      "text": "(name1) and (name2) run down the right path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+      "children": [
+        {
+          "next": "argue",
+          "weight": 10
+        },
+        {
+          "next": "makeup",
+          "weight": 80
+        },
+        {
+          "next": "chasm",
+          "weight": 10
+        }
+      ]
+    },
+    "argue": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" (name1) stammers. \"We barely made it out alive!\" (name2), frightened, starts crying. \"This was YOUR idea! We almost got ourselves killed because of your stupid plan! I should have never agreed to come along!\" (name2) shouts.",
+      "children": [
+        {
+          "next": "argue_2"
+        }
+      ]
+    },
+    "argue_2": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "(name1) and (name2)'s argument lasts for a while until both storm off to their homes. Although thankfully unhurt, neither of them wants anything to do with each other anymore.",
+      "summary": "they argue",
+      "outcome": "both come home"
+    },
+    "makeup": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" (name1) stammers. Suddenly, (name2) starts crying. \"It was terrifying! If we hadn't made it out...\" \"I'm so sorry, (name2),\" (name1) says. \"I should have listened to you. You were right all along, about everything.\" The two embrace, sobbing for a while as the others help care for them. They quickly make amends and promise never to let each other do anything like that again.",
+      "summary": "they make up",
+      "outcome": "both come home"
+    },
+    "chasm": {
+      "type": "branch",
+      "children": [
+        {
+          "next": "chasm_1"
+        },
+        {
+          "next": "chasm_2"
+        }
+      ]
+    },
+    "chasm_1": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "As they burst out of the cave, they flop onto what seems to be solid ground. However, (name1)'s foot slips and (he/she) falls down a slippery chasm. Horrified, (name2) has no time to react before (friend.he/she), too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+      "effects": [
+        {
+          "do": "vanish",
+          "role": "subject"
+        },
+        {
+          "do": "vanish",
+          "role": "friend"
+        }
+      ],
+      "summary": "the chasm, name1 slips first",
+      "outcome": "both disappear, no graves"
+    },
+    "chasm_2": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "As they burst out of the cave, they flop onto what seems to be solid ground. However, (name2)'s foot slips and (friend.he/she) falls down a slippery chasm. Horrified, (name1) has no time to react before (he/she), too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+      "effects": [
+        {
+          "do": "vanish",
+          "role": "friend"
+        },
+        {
+          "do": "vanish",
+          "role": "subject"
+        }
+      ],
+      "summary": "the chasm, name2 slips first",
+      "outcome": "both disappear, no graves"
+    },
+    "b_search": {
+      "type": "branch",
+      "children": [
+        {
+          "next": "b_find_1"
+        },
+        {
+          "next": "b_find_2"
+        }
+      ]
+    },
+    "b_find_1": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "The two trek on, searching high and low for anything they can find. After a while with no luck, (name1) finds something buried in the ground. Wow! It's",
+      "children": [
+        {
+          "next": "find_map",
+          "weight": 10
+        },
+        {
+          "next": "find_coins",
+          "weight": 30
+        },
+        {
+          "next": "find_treasure",
+          "weight": 30
+        },
+        {
+          "next": "find_food",
+          "weight": 30
+        }
+      ]
+    },
+    "b_find_2": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "The two trek on, searching high and low for anything they can find. After a while with no luck, (name2) finds something buried in the ground. Wow! It's",
+      "children": [
+        {
+          "next": "find_map",
+          "weight": 10
+        },
+        {
+          "next": "find_coins",
+          "weight": 30
+        },
+        {
+          "next": "find_treasure",
+          "weight": 30
+        },
+        {
+          "next": "find_food",
+          "weight": 30
+        }
+      ]
+    },
+    "find_map": {
+      "popup": "append",
+      "text": "a map! (name1) and (name2) follow the map to a strange place that was previously unknown by the villagers. No one knows where they went, but they left a note saying they were 'alive and well' along with a drawing of their whereabouts. 'I hope you'll come and follow us someday,' the note says. 'You'll love it here. - (name1) and (name2)'",
+      "effects": [
+        {
+          "do": "vanish",
+          "role": "subject"
+        },
+        {
+          "do": "vanish",
+          "role": "friend"
+        }
+      ],
+      "summary": "a map: both leave",
+      "outcome": "both disappear, no graves"
+    },
+    "find_coins": {
+      "popup": "append",
+      "text": "a sack of gold coins! (name1) and (name2) haul the heavy sack back home to the delight of the villagers. Your village gains (award) tech points.",
+      "effects": [
+        {
+          "do": "tech",
+          "amount": 2000,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "gold coins",
+      "outcome": "both come home"
+    },
+    "find_treasure": {
+      "popup": "append",
+      "text": "a treasure map! (name1) and (name2) follow the map to the X marked on the ground, where they dig up a large chest full of jewels and gold! They drag the chest all the way back home to the utter delight of the villagers. Your villagers gain (award) of tech points.",
+      "effects": [
+        {
+          "do": "tech",
+          "amount": 6000,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "a treasure map",
+      "outcome": "both come home"
+    },
+    "find_food": {
+      "popup": "append",
+      "text": "a sack of preserved food! (name1) and (name2) haul the large sack back to the village, to the delight of the villagers. Your villagers gain (award) food.",
+      "effects": [
+        {
+          "do": "food",
+          "amount": 1000,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "preserved food",
+      "outcome": "both come home"
+    },
+    "stay": {
+      "text": "(name2) is too enamored by all the glittering sights and objects and decides to stay put. (friend.He/She) tries to take some to show the researchers, but (name1) stops them.",
+      "children": [
+        {
+          "next": "stay_q"
+        }
+      ]
+    },
+    "stay_q": {
+      "type": "question",
+      "text": "\"Wait. I don't think that's a good idea. What if you get cursed or something?\" What should (name2) say?",
+      "choices": [
+        {
+          "label": "You're right, I'll return them.",
+          "next": "return"
+        },
+        {
+          "label": "Curses schmurses. I'm keeping them",
+          "next": "keep"
+        }
+      ]
+    },
+    "return": {
+      "type": "branch",
+      "children": [
+        {
+          "next": "return_food",
+          "weight": 50
+        },
+        {
+          "next": "return_tech",
+          "weight": 50
+        }
+      ]
+    },
+    "return_food": {
+      "text": "(name2) carefully rearranges the objects exactly where (friend.he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of food at their doorsteps. Your villagers gain (award) food.",
+      "effects": [
+        {
+          "do": "food",
+          "amount": 500,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "food",
+      "outcome": "both come home"
+    },
+    "return_tech": {
+      "text": "(name2) carefully rearranges the objects exactly where (friend.he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of strange devices at their doorsteps. Your villagers gain (award) tech points.",
+      "effects": [
+        {
+          "do": "tech",
+          "amount": 2000,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "tech points",
+      "outcome": "both come home"
+    },
+    "keep": {
+      "text": "(name2) decides to take some of the objects for further study. \"Surely the researchers will want to come here now.\" When they return home,",
+      "children": [
+        {
+          "next": "keep_research",
+          "weight": 50
+        },
+        {
+          "next": "keep_both",
+          "weight": 25
+        },
+        {
+          "next": "keep_one",
+          "weight": 25
+        }
+      ]
+    },
+    "keep_research": {
+      "popup": "append",
+      "text": "(name2) informs the researchers about the objects (name1) and (name2) found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain (award) tech points.",
+      "effects": [
+        {
+          "do": "tech",
+          "amount": 2000,
+          "scaled": true,
+          "defer": true
+        },
+        {
+          "do": "pay_award"
+        }
+      ],
+      "summary": "the researchers",
+      "outcome": "both come home"
+    },
+    "keep_both": {
+      "popup": "append",
+      "text": "(name2) suddenly feels a strange pain in their chest. Over the next few days (friend.he/she) develops a high fever and convulsions. No matter what the healers do, (name2) becomes weaker and weaker, until (friend.he/she) passes away in agony. (name1), in (his/her) guilt, stops eating until (he/she) too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (name1) and (name2), to rest in peace.",
+      "effects": [
+        {
+          "do": "kill",
+          "role": "friend",
+          "cause": "unknown"
+        },
+        {
+          "do": "kill",
+          "role": "subject",
+          "cause": "unknown"
+        }
+      ],
+      "summary": "name2 dies, then name1",
+      "outcome": "both die, graves"
+    },
+    "keep_one": {
+      "popup": "append",
+      "text": "(name2) suddenly feels a strange pain in their chest. Over the next few days (friend.he/she) develops a high fever and convulsions. No matter what the healers do, (name2) becomes weaker and weaker, until (friend.he/she) passes away in agony. The villagers mourn for (friend.him/her), and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (name2), to rest in peace.",
+      "effects": [
+        {
+          "do": "kill",
+          "role": "friend",
+          "cause": "unknown"
+        }
+      ],
+      "summary": "name2 dies",
+      "outcome": "name2 dies, a grave"
+    }
+  }
+}

@@ -5,7 +5,7 @@ Static (always run):
     scripts/build_more_island_events.py makes of src/vv_cave_explorers.py, every piece in every form is a translation
     row of its own (route "key", A New Home only), and the owner's wording is intact (the broken placeholders fixed);
   * the odds: the owner's table (Proceed: 50% A / 50% B; A: 10% argument, 80% make up, 10% chasm; B: 10% map, 30%
-    coins, 30% treasure map, 30% food; return: 50/50 food or tech; keep: 80% researchers, 10% both die, 10% name2 dies),
+    coins, 30% treasure map, 30% food; return: 50/50 food or tech; keep: 50% researchers, 25% both die, 25% name2 dies),
     and the companion rolls the same numbers;
   * Game Mechanics: the event is listed only with the patch, with every branch's chance and its condition.
 
@@ -51,10 +51,10 @@ NATIVE = ROOT / "native" / "vvfp_more_island_events"
 WIDTH, LINES = 46, 9                       # A New Home's page (ADV_VV1)
 TITLE_LINE = "The Cave Explorers\n"
 
-# The rolls' values: the run's ending, the find, the kept ending (rand(100) thresholds 10/90, 10/40/70, 80/90).
+# The rolls' values: the run's ending, the find, the kept ending (rand(100) thresholds 10/90, 10/40/70, 50/75).
 A_END = {"ARGUE": 0, "MAKEUP": 50, "CHASM": 95}
 FIND = {"FIND_MAP": 0, "FIND_COINS": 20, "FIND_TREASURE": 50, "FIND_FOOD": 80}
-KEEP = {"KEEP_RESEARCH": 0, "KEEP_BOTH": 85, "KEEP_ONE": 95}
+KEEP = {"KEEP_RESEARCH": 0, "KEEP_BOTH": 60, "KEEP_ONE": 80}
 
 
 def cave_rolls(*, pair=0, scream=True, screamer=0, wrong=0, end="MAKEUP", faller=0, finder=0, find="FIND_COINS",
@@ -140,7 +140,7 @@ class TheOdds(unittest.TestCase):
                                         "FIND_FOOD": 15.0})
         self.assertEqual(c["RUN"], {"ARGUE": 10.0, "MAKEUP": 80.0, "CHASM": 10.0})
         self.assertEqual(c["RETURN"], {"RETURN_FOOD": 50.0, "RETURN_TECH": 50.0})
-        self.assertEqual(c["KEEP"], {"KEEP_RESEARCH": 80.0, "KEEP_BOTH": 10.0, "KEEP_ONE": 10.0})
+        self.assertEqual(c["KEEP"], {"KEEP_RESEARCH": 50.0, "KEEP_BOTH": 25.0, "KEEP_ONE": 25.0})
         self.assertEqual(cave.AWARDS["FIND_TREASURE"], ("tech", "huge"))
         self.assertEqual(cave.AWARDS["FIND_FOOD"], ("food", "large"))
         self.assertEqual(adv.award_range(1, "tech", "huge"), (1500, 14997))
@@ -155,7 +155,7 @@ class TheOdds(unittest.TestCase):
                        "roll < 10 ? CAVE_MAP : (roll < 40 ? CAVE_COINS : (roll < 70 ? CAVE_TREASURE : CAVE_FOOD))",
                        "adv_award_roll(g, ADV_KIND_TECH, 1)", "adv_award_roll(g, ADV_KIND_TECH, 3)",
                        "adv_award_roll(g, ADV_KIND_FOOD, 2)", "cave.return_food = g->rand_below(2) == 0;",
-                       "roll < 80 ? CAVE_RESEARCH : (roll < 90 ? CAVE_BOTH_DIE : CAVE_ONE_DIES)",
+                       "roll < 50 ? CAVE_RESEARCH : (roll < 75 ? CAVE_BOTH_DIE : CAVE_ONE_DIES)",
                        "#define CAVE_ADULT_UNITS 360", "#define CAVE_GAP_UNITS 100"):
             self.assertIn(needle, core)
 
@@ -170,7 +170,7 @@ class TheMechanicsPage(unittest.TestCase):
                       "not nursing a baby", "Proceed Further", "50%", "argue 10%", "make up 80%",
                       "the chasm 10%", "a map 10%", "gold coins 30%", "a treasure map 30%", "preserved food 30%",
                       "200 to 1,500 food", "500 to 4,999 tech points", "1,500 to 14,997 tech points",
-                      "400 to 3,000 food", "the researchers 80%", "both die 10%", "dies 10%", "no grave"):
+                      "400 to 3,000 food", "the researchers 50%", "both die 25%", "dies 25%", "no grave"):
             with self.subTest(words=words):
                 self.assertIn(words, text)
         for game in (2, 3, 4, 5):
@@ -231,7 +231,8 @@ class CaveVillage(Village):
         for k, v in enumerate(self.RECT):
             p.put32(self.dlg + 0x14 + 4 * k, v)
         self.rolls = [draw] + list(rolls)
-        p.call(0x4189E0, [], ecx=self.dlg)
+        # Every popup laid out with the longest names: more than the emulator's default cap of instructions.
+        p.call(0x4189E0, [], ecx=self.dlg, limit=8_000_000)
         if p.u32(self.dlg + 0x5094) != 0x7F4B1A2E:
             return False
         esp = STACK_TOP - 0x3000 - 4

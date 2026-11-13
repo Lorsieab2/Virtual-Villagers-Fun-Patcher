@@ -64747,6 +64747,34 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.cg_load.s20",
+   "english": "it is not a version 1 or 2 .cieg file",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s21",
+   "english": "a question does not have two choices, or makes changes",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_graph.cg_tell_vanished.s0",
    "english": "Disappeared in %s",
    "games": [
@@ -66077,7 +66105,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.INTRO.m",
-   "english": "%s has been curious about the cave. He wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, his good friend, to come with him. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
+   "english": "%s has been curious about the cave. He wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, his special friend, to come with him. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
    "games": [
     "vv1"
    ],
@@ -66088,7 +66116,7 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.INTRO.f",
-   "english": "%s has been curious about the cave. She wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, her good friend, to come with her. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
+   "english": "%s has been curious about the cave. She wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, her special friend, to come with her. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
    "games": [
     "vv1"
    ],
@@ -66121,46 +66149,46 @@
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.mm",
-   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s promises to protect %s if he will do the same. \"Of course! After all, I'm here for you!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
    "games": [
     "vv1"
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is male",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is male",
    "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.fm",
-   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s promises to protect %s if he will do the same. \"Of course! After all, I'm here for you!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
    "games": [
     "vv1"
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is male",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is male",
    "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.mf",
-   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s promises to protect %s if she will do the same. \"Of course! After all, I'm here for you!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
    "games": [
     "vv1"
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is female",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is female",
    "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.ff",
-   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s promises to protect %s if she will do the same. \"Of course! After all, I'm here for you!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
    "games": [
     "vv1"
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is female",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is female",
    "route": "key"
   },
   {

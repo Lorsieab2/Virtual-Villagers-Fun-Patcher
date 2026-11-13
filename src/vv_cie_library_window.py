@@ -45,6 +45,7 @@ from vv_tree_editor_tools import ScrollingTab
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "data" / "cie_graphs" / "the_aspiring_adventurer.json"
+CAVE_EXAMPLE = ROOT / "data" / "cie_graphs" / "the_cave_explorers.json"   # questions anywhere (version 2)
 
 TITLE = "Custom Island Event Library"
 WIDTH, HEIGHT = 1180, 780
@@ -57,14 +58,19 @@ INTRO = ("Write your own island events with choices and chances. Each event is k
          "Events in the game.")
 HELP_TEXT = (
     "How an event is built\n"
-    "An event starts with its first part: a popup, or a question with two buttons. Each part can lead on to "
+    "An event starts with its first part: a popup, or a question with two buttons. Any part can be a question: "
+    "choose \"A question (two buttons)\" as its kind, write both buttons' words on the Next tab and point each "
+    "button at the part it leads to; ask as many questions as you like, between popups, chances and changes. After "
+    "each answer the game first shows a popup of the answer's own, so a button leads to a popup (or a split that "
+    "reaches one) before the next question or the end, and a question itself changes nothing. Each part can lead on to "
     "other parts; when a part has several ways on, the game picks one at random, a way with a bigger weight "
     "more often. A way can be kept for some games, some patches, or only when a role takes part; when it does "
     "not apply, its Otherwise part is used instead. A silent split shows nothing and just picks the way on.\n\n"
     "Text\n"
     "Use the Insert menu for names and words that change: (Name) is the villager's name (the full name, first "
     "and last, when the Last Names patch is on), (he/she) and the others follow the villager's sex, and "
-    "(award) is the amount actually given. Only letters, digits, spaces and . , ! ? : - ' can be shown.\n\n"
+    "(award) is the amount actually given (a fixed amount; the Island Events Scale patches can scale it). Only "
+    "letters, digits, spaces and . , ! ? : - ' \" can be shown.\n\n"
     "Roles\n"
     "The main villager, and any others the event uses. If no villager fits a role the event needs, the game "
     "refuses to queue the event and says so.\n\n"
@@ -114,7 +120,7 @@ RISKY = {
 CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown causes"}
 OWN_WORDS = "In my own words:"
 TYPE_WORDS = {"popup": "A popup with text", "branch": "A silent split (no popup)",
-              "question": "The question (two buttons)"}
+              "question": "A question (two buttons)"}
 POPUP_WORDS = {"new": "Opens a new popup", "append": "Continues the popup already open"}
 JOIN_WORDS = {"space": "on the same line", "paragraph": "as a new paragraph"}
 VILLAGER_SEX = {"any": "Anyone", "male": "A man", "female": "A woman"}
@@ -252,9 +258,9 @@ def new_event(title: str = "A New Island Event") -> dict:
     return cg.normalize(data)[0]
 
 
-def example_event() -> dict:
-    """A copy of the shipped example, The Aspiring Adventurer."""
-    return cg.normalize(json.loads(EXAMPLE.read_text(encoding="utf-8")))[0]
+def example_event(path: Path = EXAMPLE) -> dict:
+    """A copy of a shipped example: The Aspiring Adventurer, or (CAVE_EXAMPLE) The Cave Explorers."""
+    return cg.normalize(json.loads(path.read_text(encoding="utf-8")))[0]
 
 
 def new_role() -> dict:
@@ -694,7 +700,8 @@ class Library:
                                ("Save As...", self.save_as), ("Duplicate", self.duplicate),
                                ("Delete...", self.delete), ("Import...", self.import_event),
                                ("Export...", self.export_event),
-                               ("New from The Aspiring Adventurer", self.new_from_example)):
+                               ("New from The Aspiring Adventurer", self.new_from_example),
+                               ("New from The Cave Explorers", self.new_from_cave)):
             button = ttk.Button(buttons, text=words, command=command)
             button.pack(side="left", padx=(0, 4))
             self.buttons[words] = button
@@ -1305,6 +1312,8 @@ class Library:
                 return
             n["text"], n["variants"] = "", []
         if kind == "question":
+            if self.nid != self.g["start"]:
+                self.g["version"] = max(self.g.get("version", 1), 2)   # questions anywhere: version 2
             n["choices"] = (n["choices"] + [{"label": "Yes", "next": c["next"]} for c in n["children"]]
                             + [{"label": "No", "next": ""}, {"label": "No", "next": ""}])[:2]
             n["children"], n["else"], n["popup"] = [], None, "new"
@@ -1984,6 +1993,10 @@ class Library:
     def new_from_example(self) -> None:
         if self._leave_changes():
             self.load_event(example_event(), None, dirty=True)
+
+    def new_from_cave(self) -> None:
+        if self._leave_changes():
+            self.load_event(example_event(CAVE_EXAMPLE), None, dirty=True)
 
     def open_selected(self) -> None:
         folder = self.save_folder()
