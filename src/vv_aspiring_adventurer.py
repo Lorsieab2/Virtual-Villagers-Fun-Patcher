@@ -175,11 +175,54 @@ DEADLY = ("A2", "A3", "A4", "A6")                                     # equal
 LOST_PERCENT = 10                                                     # Choice B: lost, else home safe
 LOST_ENDINGS = ("L1", "L2", "L3", "L4", "L5", "L6")                   # equal
 HEALERS = ("H1", "H2", "H3")                                          # equal, after L1
-FOOD_AWARD = 500
-TECH_AWARD = 2000
 INJURED_HEALTH = (10, 50)                                             # inclusive
 SKILL_GAIN = (20, 30)                                                 # inclusive (the owner, 2026-11-12)
 ADULT_YEARS = 14
+
+# ---- The reward (the owner, 2026-11-12: "a random tech and food point award, scaling") --------------------------
+#
+# A NORMAL award is a random amount, each equally likely, from the smallest to the largest food (or tech-point) gain
+# the game's own stock island events give, taken at the game's own base amount (A New Home's strength n, The Lost
+# Children's k and The Secret City's m all at 1): the game's own scaling -- or "Island Events Scale" when ticked --
+# is then applied to it exactly as before (adv_game.award_amount).  A LARGE award is twice a normal one, a HUGE award
+# three times (The Cave Explorers).  The Aspiring Adventurer's meat and chest give a normal award in every game.
+# Patch-added events (Restore Missing Island Events) and the Gong of Wonder (no island event) are left out.  Read from
+# the Game Mechanics island-event catalogs (src/vv_game_mechanics_events_vvN.py, each read from the stock executable)
+# and the Island Events Scale site table (scripts/build_island_events_scale_features.py); the companion has the same
+# numbers (adv_vv1.inc, adv_vv2.inc, adv_vv345.inc: each adv_game's food / tech range):
+AWARD_RANGES: dict[int, dict[str, tuple[int, int]]] = {
+    # A New Home: food 200 The Greedy Little Monkey (200 x n) .. 1,500 the wooden crate at strength 3; tech 500 the
+    # badly weathered crate at strength 1 .. 4,999 The Brass Compass (rand(3000) + 2000, 0x41A367).
+    1: {"food": (200, 1500), "tech": (500, 4999)},
+    # The Lost Children: food 100 For The Birds (100 x k) .. 1,500 the thick, plastic sack at strength 3; tech 500
+    # the somewhat compromised sack at strength 1 .. 3,000 The Spyglass and the carefully sealed sack at strength 3.
+    2: {"food": (100, 1500), "tech": (500, 3000)},
+    # The Secret City: food 200 The Bitter Brown Beans' taste, The Mango and the Papaya's mango, The Shooting Star
+    # (m x 200) .. 600 the beans' brew; tech 1,000 the beans' taste and The Return of Biggles .. 2,000 The
+    # Mysterious Fog and the beans' brew.
+    3: {"food": (200, 600), "tech": (1000, 2000)},
+    # The Tree of Life: food 300 The Mysterious Footprints and The Arc of Brilliant Colors (its only food gains);
+    # tech 500 The Mosquito Larvae (0x415A74) .. 5,000 The Sealed Box (0x415D7F).
+    4: {"food": (300, 300), "tech": (500, 5000)},
+    # New Believers: food 50 Mushroom Day! (rand(50) + 50, 0x415110) .. 300 The Mysterious Footprints; tech 500
+    # You're Doing It Wrong! (0x4160A5) .. 3,000 Trick Or Trade (0x416692).
+    5: {"food": (50, 300), "tech": (500, 3000)},
+}
+AWARD_SIZES = {"normal": 1, "large": 2, "huge": 3}
+
+
+def award_range(game: int, kind: str, size: str = "normal") -> tuple[int, int]:
+    """The base amounts an award can be (inclusive), before the game's own scaling / Island Events Scale."""
+    lo, hi = AWARD_RANGES[game][kind]
+    return lo * AWARD_SIZES[size], hi * AWARD_SIZES[size]
+
+
+def award_words(game: int, kind: str, size: str = "normal") -> str:
+    """'200 to 1,500 food' / '300 food' -- the base amounts in plain words."""
+    lo, hi = award_range(game, kind, size)
+    unit = "food" if kind == "food" else "tech points"
+    return f"{lo:,} {unit}" if lo == hi else f"{lo:,} to {hi:,} {unit}"
+
 
 # What each ending does (never shown).
 EFFECTS = {

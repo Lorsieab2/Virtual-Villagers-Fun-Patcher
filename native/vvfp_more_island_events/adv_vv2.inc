@@ -124,7 +124,11 @@ static int v2_joins(void) {
 
 static const adv_game ADV_VV2 = {
     2, v2_count, v2_record, v2_eligible, v2_female, v2_name, v2_rand, v2_kill, v2_vanish, v2_injure, v2_skill, NULL,
-    v2_amount, v2_award, v2_joins, 46, 12, 1
+    v2_amount, v2_award, v2_joins, 46, 12, 1,
+    /* the awards' base ranges (src/vv_aspiring_adventurer.py AWARD_RANGES): food 100 (For The Birds, 100 x k) ..
+       1,500 (the thick, plastic sack at strength 3); tech 500 (the somewhat compromised sack at strength 1) ..
+       3,000 (The Spyglass; the carefully sealed sack at strength 3) */
+    100, 1500, 500, 3000, NULL, NULL
 };
 
 /* ---- The sites ---------------------------------------------------------------------------------------------- */

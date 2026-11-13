@@ -346,17 +346,26 @@ static void t_award(int kind, int amount) {
     ADV_TC1(WRITERS[g_tg->game - 3][kind], (void *)t_store(kind), amount);
 }
 
+/* The awards' base ranges (src/vv_aspiring_adventurer.py AWARD_RANGES: each game's smallest and largest stock
+   island-event gain): The Secret City food 200 (the Bitter Brown Beans' taste, m x 200) .. 600 (their brew), tech
+   1,000 (the beans' taste, The Return of Biggles) .. 2,000 (The Mysterious Fog); The Tree of Life food 300 (The
+   Mysterious Footprints, The Arc of Brilliant Colors: its only food gains), tech 500 (The Mosquito Larvae 0x415A74)
+   .. 5,000 (The Sealed Box 0x415D7F); New Believers food 50 (Mushroom Day!'s rand(50) + 50, 0x415110) .. 300 (The
+   Mysterious Footprints), tech 500 (You're Doing It Wrong! 0x4160A5) .. 3,000 (Trick Or Trade 0x416692). */
 static const adv_game ADV_VV3 = {
     3, t_count, t_record, vv3_eligible, t_female, t_name, t_rand, t_kill, t_vanish, t_injure, t_skill, NULL,
-    vv3_amount, t_award, t_other_joins, 46, 11, 0
+    vv3_amount, t_award, t_other_joins, 46, 11, 0,
+    200, 600, 1000, 2000, NULL, NULL
 };
 static const adv_game ADV_VV4 = {
     4, t_count, t_record, vv4_eligible, t_female, t_name, t_rand, t_kill, t_vanish, t_injure, t_skill, NULL,
-    vv4_amount, t_award, t_other_joins, 46, 11, 0
+    vv4_amount, t_award, t_other_joins, 46, 11, 0,
+    300, 300, 500, 5000, NULL, NULL
 };
 static const adv_game ADV_VV5 = {
     5, t_count, t_record, vv5_eligible, t_female, t_name, t_rand, t_kill, t_vanish, t_injure, t_skill, vv5_convert,
-    vv5_amount, t_award, vv5_joins_key, 46, 17, 0
+    vv5_amount, t_award, vv5_joins_key, 46, 17, 0,
+    50, 300, 500, 3000, NULL, NULL
 };
 
 /* ---- The event object ------------------------------------------------------------------------------------------ */

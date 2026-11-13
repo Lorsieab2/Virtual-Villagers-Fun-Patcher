@@ -170,7 +170,9 @@ class TheOdds(unittest.TestCase):
                        "adv_percent(g, 50)", "g->rand_below(2) == 0 ? 7 : 9", "SURVIVE_FIND[g->rand_below(3)]",
                        "DEADLY[g->rand_below(4)]", "adv.lost = adv_percent(g, 10)", "1 + g->rand_below(6)",
                        "1 + g->rand_below(3)", "20 + g->rand_below(11)", "10 + g->rand_below(41)",
-                       "adv_eligible_count(g, -1) >= 2", "2000 : 500"):
+                       "adv_eligible_count(g, -1) >= 2", "adv.award = adv_award_roll(g, adv.award_kind, 1);",
+                       "int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);",
+                       "return g->award_amount(kind, base * times);"):
             self.assertIn(needle, core)
 
 
@@ -565,12 +567,15 @@ class Village:
         return seen
 
 
-def rolls(*, hero=0, friend=None, find=0, survive=True, end=0, stranger=0, lost=False, lost_end=1, healer=1, skill=0,
-          amount=0, injured=0, game=4) -> list[int]:
-    """The rolls adv_begin draws, in its order.  find: 0 dirt, 1 meat, 2 chest; end: the index within the half.
-    The game's rand is asked only when there is a choice: with one possible friend (two who may go), none is drawn
-    for the friend (friend=None)."""
+def rolls(*, hero=0, friend=None, find=0, survive=True, end=0, stranger=0, award=0, lost=False, lost_end=1, healer=1,
+          skill=0, amount=0, injured=0, game=4) -> list[int]:
+    """The rolls adv_begin draws, in its order.  find: 0 dirt, 1 meat, 2 chest; end: the index within the half;
+    award: the reward's draw within the game's range (adv.award_range; TOP the largest), drawn only when the range
+    has more than one amount (The Tree of Life's food is always 300).  The game's rand is asked only when there is a
+    choice: with one possible friend (two who may go), none is drawn for the friend (friend=None)."""
+    lo, hi = adv.award_range(game, "tech" if find == 2 else "food")
     out = [hero] + ([] if friend is None else [friend]) + [(0, 60, 80)[find], 0 if survive else 99, end, stranger]
+    out += [award] if hi > lo else []
     if game == 3:
         out.append(0)                   # The Secret City's own count for its multiplier (0x45D460) draws one
     out += [0 if lost else 99, lost_end - 1, healer - 1, skill, amount, injured]
@@ -640,29 +645,44 @@ class Effects(unittest.TestCase):
         return v
 
     def test_the_rewards(self) -> None:
+        """A normal award (the owner, 2026-11-12): the game's stock island-event range, each amount equally likely --
+        the draw's lowest, a middle one and the highest (TOP) give lo, lo + 7 and hi (a small village: no scaling)."""
         for game in GAMES:
-            for find, end, a_end in ((1, 0, 1), (2, 1, 5), (1, 2, 8)):
-                with self.subTest(game=game, find=find, end=a_end):
+            for find, end, a_end, draw in ((1, 0, 1, 0), (2, 1, 5, 7), (1, 2, 8, TOP), (2, 0, 1, TOP)):
+                with self.subTest(game=game, find=find, end=a_end, draw=draw):
                     v = self.village(game)
                     before = v.stores()
-                    seen = v.play(rolls(find=find, end=end, game=game), 1)
+                    seen = v.play(rolls(find=find, end=end, award=draw, game=game), 1)
                     state = v.state()
                     self.assertEqual(state[4], a_end)
                     after = v.stores()
                     gained = (after[0] - before[0], after[1] - before[1])
                     self.assertEqual(gained, (state[11], 0) if find == 1 else (0, state[11]))
-                    self.assertGreaterEqual(state[11], 500 if find == 1 else 2000)
+                    lo, hi = adv.award_range(game, "food" if find == 1 else "tech")
+                    expected = hi if draw == TOP else min(hi, lo + draw)
+                    self.assertEqual(state[11], expected)
                     kind = "food" if find == 1 else "tech points"
                     self.assertIn(f"Your villagers gain {state[11]} {kind}.", " ".join(seen))
                     self.assertEqual(v.health(0), 100)
                     self.assertTrue(v.closed_at_end)
+
+    def test_the_ranges_are_the_companions(self) -> None:
+        """The companion's adv_game ranges are src/vv_aspiring_adventurer.py's AWARD_RANGES."""
+        source = "".join(p.read_text(encoding="utf-8")
+                         for p in (ROOT / "native" / "vvfp_more_island_events").glob("adv_vv*.inc"))
+        for game in GAMES:
+            r = adv.AWARD_RANGES[game]
+            line = f"{r['food'][0]}, {r['food'][1]}, {r['tech'][0]}, {r['tech'][1]}, "
+            with self.subTest(game=game):
+                self.assertIn(line, source)
 
     def test_the_reward_scales_as_island_events_scale_scales(self) -> None:
         """With "VVFP Island Events Scale.dll" loaded (stood in for: its VvfpIslandEventsScaleMode export), the reward
         is scaled by its rule -- the population by the game's own count (stood in for) or a tenth of the store."""
         counts = {1: 0x41CF90, 4: 0x467610, 5: 0x4713F0}
         for game in (1, 4, 5):
-            for mode, people, expected in ((1, 30, 1000), (1, 51, 1500), (2, 0, 500 + 4000 // 10)):
+            lo = adv.award_range(game, "food")[0]            # the draw 0: the range's lowest
+            for mode, people, expected in ((1, 30, 2 * lo), (1, 51, 3 * lo), (2, 0, lo + 4000 // 10)):
                 with self.subTest(game=game, mode=mode, people=people):
                     v = self.village(game)
                     p = v.p
