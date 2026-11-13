@@ -5,17 +5,21 @@
 
    The Lost Children's two-choice island events are its family A: the trigger (0x42E990; 20% of its events, and
    the village's first) builds the family-A dialog (constructor 0x422380, on its own stack), whose setup 0x41F780
-   draws the event with 0x41F570 -- up to ten draws of rand(22) (0x41F59D), each event 0..20 kept when its own
-   condition holds; the draw 21 (`cmp eax, 0x14; ja 0x41F696`, 0x41F5AC) is never kept, so it draws again -- and
-   the modal loop (0x401AD0 with 0) runs only the dialog.
+   draws the event with 0x41F570 (called at 0x41F792) -- up to ten draws of rand(22) (0x41F59D), each event 0..20
+   kept when its own condition holds; the draw 21 (`cmp eax, 0x14; ja 0x41F696`, 0x41F5AC) is never kept, so it
+   draws again -- and the modal loop (0x401AD0 with 0) runs only the dialog.
 
-   THE SHARE.  The draw 21 is these events: the `ja` at 0x41F5AC goes here first and keeps 21 when one of them can
-   happen (The Aspiring Adventurer: two villagers who may go, adv_possible; The Climb: one villager who may climb,
-   climb_possible; never the village's first island event) -- 1 in 22 a draw, exactly like each stock event.  The
-   rand(22) itself is not ours to widen (Story / Cheat Upgrades owns its call, 0x41F59D, and the next instruction,
-   0x41F5A5), so when both can happen the draw 21 is one of them, 1 in 2 each (the game's own rand(2): 0 The Aspiring
-   Adventurer, 1 The Climb).  The setup's `ja 0x420408` past its jump table (0x41F7A0) and the resolve's
-   `ja 0x422257` (0x4204CE) take the event's 21 here; every other value goes on as before.  The setup writes the
+   EACH EVENT ITS OWN SLOT (the owner, 2026-11-12: "Each its own slot").  The draw is one wider for each event past
+   the first: rand(23), 21 The Aspiring Adventurer (the slot the stock draw never keeps), 22 The Climb -- each kept
+   when it can happen (The Aspiring Adventurer: two villagers who may go, adv_possible; The Climb: one villager who
+   may climb, climb_possible; never the village's first island event), so each is 1 in 23 a draw, exactly like each
+   stock event (they are 1 in 23 too now).  The widening is the chooser's own call at 0x41F792 coming here
+   (v2_choose_event): for that one run the draw's call 0x41F59D is pointed here and put back before the chooser
+   returns, chaining onto whatever it held -- the game's rand, or Story / Cheat Upgrades' own Pick Island Event roll
+   (story_vv2.inc vv2_event_roll_a, which installs later, from the Origins companion, and checks the stock bytes
+   there; its picks and its custom questions are unchanged).  The `ja` at 0x41F5AC keeps 21 and 22 here; the setup's
+   `ja 0x420408` past its jump table (0x41F7A0) and the resolve's `ja 0x422257` (0x4204CE) take them here; every
+   other value goes on as before.  The setup writes the
    question (+0x7C: the title line, the picture's five lines -- 0x41F430 draws the villager under the title -- and
    the first page, padded to the event's tallest page: the dialog is sized from +0x7C once, by its constructor), the
    labels +0x4E9A / +0x4F9A, the villager shown +0x50A0 (selected, 0x44B2D0, as the stock setups select theirs) and
@@ -27,10 +31,12 @@
        own swap; +0x50 = 1, the page in +0x278B);
      0x42230E `call 0x40D390` (OK's close in the click handler 0x4222F0): while a page is left it is shown instead
        (the last question page brings the answers back, OK off, +0x50 = 0); on the last result page the close runs.
-   The answer (the resolve, after the click handler took the answers off and set +0x50A4 = 1 or 2) makes the
-   effects inside the click, as every family-A event does, so the Island Events log records them. */
+   The answer (the resolve, after the click handler took the answers off and set +0x50A4 = 1 or 2) shows the
+   ending's first page; the ending's effects wait for the page that ends its text (below, with the Island Events
+   log's one entry for the event). */
 
-#define ADV_VV2_EVENT 21
+#define V2_DRAW_FIRST 21                /* the first event's draw: the slot the stock draw never keeps */
+#define V2_DRAW_SITE 0x41F59Du           /* the draw's call (Story / Cheat Upgrades' too) */
 #define VV2_WORLD() (*(unsigned char **)(uintptr_t)0x4997BCu)
 #define VV2_POOL() (*(unsigned char **)(uintptr_t)0x499F24u)
 #define VV2_STRIDE 0xE48Cu
@@ -53,8 +59,9 @@ typedef int (__cdecl *vv2_rand_fn)(int bound);
 static unsigned char *v2_dlg;          /* the family-A dialog this event is in */
 static int v2_stage, v2_page;
 static const adv_flow *v2_flow;        /* the event in it: ADV_FLOW or CLIMB_FLOW */
-static const adv_flow *v2_drawn;       /* the event the draw 21 was kept for */
 static int v2_ending;                  /* the ending reached */
+static int v2_effects_page;            /* the ending's page that makes its effects (its last), -1 made */
+static int v2_entry_len, v2_entry_head, v2_key;   /* the Island Events log's one entry (below) */
 
 static unsigned char *v2_record(int index) {
     unsigned char *pool = VV2_POOL();
@@ -160,36 +167,100 @@ static const adv_game ADV_VV2 = {
     100, 1500, 500, 3000, v2_age, NULL, v2_research, v2_celebrate
 };
 
-/* ---- The sites ---------------------------------------------------------------------------------------------- */
+/* ---- The draw: each event its own slot ---------------------------------------------------------------------- */
 
-/* The draw 21: kept when one of the events can happen (both: the game's rand(2), 0 the Adventurer). */
-static int __cdecl v2_keep(void) {
-    unsigned char *world = VV2_WORLD();
-    int adv_ok, climb_ok;
-    v2_drawn = NULL;
+/* The events, in the order of their draws: 21 The Aspiring Adventurer (the slot the stock draw never keeps), 22 The
+   Climb (one more). */
+static const adv_flow *const V2_EVENTS[] = { &ADV_FLOW, &CLIMB_FLOW };
+#define V2_EVENT_COUNT 2                /* V2_EVENTS' size (checked below) */
+#define V2_DRAW_LAST 22                 /* V2_DRAW_FIRST + V2_EVENT_COUNT - 1 (a plain number: the stubs use it) */
+typedef char v2_events_checked[(sizeof V2_EVENTS / sizeof V2_EVENTS[0] == V2_EVENT_COUNT
+                                && V2_DRAW_LAST == V2_DRAW_FIRST + V2_EVENT_COUNT - 1) ? 1 : -1];
+
+static int v2_is_ours(int event) {
+    return event >= V2_DRAW_FIRST && event <= V2_DRAW_LAST;
+}
+
+static int v2_possible(int event) {
+    const adv_flow *flow = V2_EVENTS[event - V2_DRAW_FIRST];
+    return flow == &CLIMB_FLOW ? climb_possible(&ADV_VV2) : adv_possible(&ADV_VV2);
+}
+
+typedef int (__cdecl *v2_roll_fn)(int bound);
+static v2_roll_fn v2_roll_inner;       /* what the draw's call reached: the game's rand, or Story's own roll */
+
+/* The family-A draw, one wider for each event past the first (whose slot, 21, the stock draw already holds). */
+static int __cdecl v2_draw(int bound) {
+    v2_roll_fn inner = v2_roll_inner != NULL ? v2_roll_inner : (v2_roll_fn)(uintptr_t)0x4031A0u;
+    return inner(bound + V2_EVENT_COUNT - 1);
+}
+
+/* Whether `target` is in "VVFP Story Upgrades.dll" (its Pick Island Event roll, story_vv2.inc vv2_event_roll_a). */
+static int v2_from_story(unsigned int target) {
+    HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    MEMORY_BASIC_INFORMATION info;
+    return story != NULL && VirtualQuery((const void *)(uintptr_t)target, &info, sizeof info) == sizeof info
+        && info.AllocationBase == (void *)story;
+}
+
+/* In place of the setup's `call 0x41F570` (0x41F792; thiscall, the dialog): for this one chooser run the draw's
+   call (0x41F59D) comes here first -- whatever it reaches (the game's rand 0x4031A0, or Story / Cheat Upgrades' own
+   roll, which installs later, from the Origins companion, and checks the stock bytes there) is called with the
+   wider bound -- and the call is put back as it was before the chooser returns. */
+static int __fastcall v2_choose_event(void *dialog, void *unused) {
+    static vvfp_site_write w;
+    unsigned char held[5];
+    int widened = 0, event;
+    (void)unused;
     __try {
-        if (world != NULL && *(int *)(world + 0x2E51C) > 1) {
-            adv_ok = adv_possible(&ADV_VV2);
-            climb_ok = climb_possible(&ADV_VV2);
-            if (adv_ok && climb_ok) {
-                v2_drawn = v2_rand(2) == 0 ? &ADV_FLOW : &CLIMB_FLOW;
-            } else if (adv_ok || climb_ok) {
-                v2_drawn = adv_ok ? &ADV_FLOW : &CLIMB_FLOW;
+        memcpy(held, (const void *)(uintptr_t)V2_DRAW_SITE, sizeof held);
+        if (held[0] == 0xE8) {
+            unsigned int target = V2_DRAW_SITE + 5u + *(const unsigned int *)(held + 1);
+            if (target == 0x4031A0u || v2_from_story(target)) {
+                v2_roll_inner = (v2_roll_fn)(uintptr_t)target;
+                vvfp_site_branch(&w, V2_DRAW_SITE, 5, held, 0xE8, (const void *)v2_draw);
+                widened = vvfp_install_sites(&w, 1);
             }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
-        v2_drawn = NULL;
+        widened = 0;
     }
-    return v2_drawn != NULL;
+    event = ((int (__fastcall *)(void *, void *))(uintptr_t)0x41F570u)(dialog, NULL);
+    if (widened) {
+        __try {
+            unsigned char ours[5];
+            memcpy(ours, w.bytes, sizeof ours);
+            vvfp_site_bytes(&w, V2_DRAW_SITE, 5, ours, held);
+            (void)vvfp_install_sites(&w, 1);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+    }
+    return event;
+}
+
+/* An event's draw: kept when it can happen (never the village's first island event). */
+static int __cdecl v2_keep(int event) {
+    unsigned char *world = VV2_WORLD();
+    int keep = 0;
+    __try {
+        keep = world != NULL && *(int *)(world + 0x2E51C) > 1 && v2_is_ours(event) && v2_possible(event);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        keep = 0;
+    }
+    return keep;
 }
 
 /* `ja` from 0x41F5AC (eax the draw, above 20; bl 0 = not kept). */
 __declspec(naked) static void v2_keep_stub(void) {
     __asm {
-        cmp eax, ADV_VV2_EVENT
-        jne leave_it
+        cmp eax, V2_DRAW_FIRST
+        jb leave_it
+        cmp eax, V2_DRAW_LAST
+        ja leave_it
         pushad
+        push eax
         call v2_keep
+        add esp, 4
         test eax, eax
         popad
         jz leave_it
@@ -199,6 +270,8 @@ __declspec(naked) static void v2_keep_stub(void) {
         ret
     }
 }
+
+/* ---- The pages ------------------------------------------------------------------------------------------------ */
 
 static void v2_page_text(char *out, int cap, const char *page, int pad_to) {
     static char wrapped[ADV_PAGE_BYTES];
@@ -216,15 +289,17 @@ static void v2_page_text(char *out, int cap, const char *page, int pad_to) {
     }
 }
 
-/* The setup for the draw 21: 1 = the dialog is kept. */
+/* The setup for the events' draws: 1 = the dialog is kept. */
 static int __cdecl v2_setup(unsigned char *d) {
     static char label[VV2_DLG_LABEL];
     __try {
         const adv_pages *first;
-        int subject;
+        int subject, event = *(int *)(d + VV2_DLG_EVENT);
+        if (!v2_is_ours(event)) {
+            return 0;
+        }
         v2_dlg = d;
-        v2_flow = v2_drawn != NULL ? v2_drawn : &ADV_FLOW;
-        v2_drawn = NULL;
+        v2_flow = V2_EVENTS[event - V2_DRAW_FIRST];
         if (!(v2_flow == &CLIMB_FLOW ? climb_begin(&ADV_VV2) : adv_begin(&ADV_VV2))) {
             v2_dlg = NULL;
             return 0;
@@ -232,6 +307,8 @@ static int __cdecl v2_setup(unsigned char *d) {
         first = v2_flow->question(0);
         subject = v2_flow->subject();
         v2_ending = -1;
+        v2_effects_page = -1;
+        v2_entry_head = 0;
         v2_flow->title(g_vv12_title, sizeof g_vv12_title);
         v2_page_text((char *)d + VV2_DLG_QUESTION, VV2_DLG_TEXT, first->text[first->count - 1],
                      adv_lines(&ADV_VV2, v2_flow->tallest()));
@@ -255,8 +332,10 @@ static int __cdecl v2_setup(unsigned char *d) {
 /* `ja` from 0x41F7A0 (eax the event, esi the dialog). */
 __declspec(naked) static void v2_setup_stub(void) {
     __asm {
-        cmp eax, ADV_VV2_EVENT
-        jne error
+        cmp eax, V2_DRAW_FIRST
+        jb error
+        cmp eax, V2_DRAW_LAST
+        ja error
         pushad
         push esi
         call v2_setup
@@ -277,7 +356,89 @@ __declspec(naked) static void v2_setup_stub(void) {
 }
 
 static int v2_ours(const unsigned char *d) {
-    return d != NULL && d == v2_dlg && *(const int *)(d + VV2_DLG_EVENT) == ADV_VV2_EVENT;
+    return d != NULL && d == v2_dlg && v2_is_ours(*(const int *)(d + VV2_DLG_EVENT));
+}
+
+/* ---- The effects on their own page, and the Island Events log's one entry ---------------------------------------
+
+   The owner's standing rule: the effects wait for their own page.  An ending's effects are made, once, when the page
+   that ends its text is shown -- in the answer's click when the ending is one page, else in the OK click that brings
+   that page.  The Island Events log ("VVFP Island Events.dll") watches only the answer's click, so the event keeps
+   its own ONE entry, as a branching Custom Island Event does: "  Event: <title>", "  Choice: <answer>", then what
+   the effects page changed (that companion's own comparison around it, VvfpIslandEventsGraphBegin / End), or
+   "  Changes: none"; handed over at the answer (held, final 0) and when the effects are made (final 1) through
+   VvfpIslandEventsGraphWrite -> the Parentage Export's WriteVillageEventEntry, whose held record each save writes, so
+   the log matches the save at every save.  The game's own brackets around this dialog (its constructor, the answer's
+   click) write nothing for it: VvfpMoreIslandEventsLogged says so.  Without that companion: nothing is logged. */
+
+#define V2_ENTRY_BYTES 4096
+
+static char v2_entry[V2_ENTRY_BYTES];
+
+typedef int (__stdcall *v2_log_begin_fn)(int game);
+typedef int (__stdcall *v2_log_end_fn)(int game, char *out, int cap);
+typedef int (__stdcall *v2_log_write_fn)(int game, int key, const char *text, int disk, int final);
+
+static FARPROC v2_log_export(const char *name) {
+    HMODULE module = GetModuleHandleA("VVFP Island Events.dll");
+    return module != NULL ? GetProcAddress(module, name) : NULL;
+}
+
+static void v2_entry_put(const char *text) {
+    int n = adv_len(text);
+    if (v2_entry_len + n + 1 < V2_ENTRY_BYTES) {
+        memcpy(v2_entry + v2_entry_len, text, (size_t)n + 1);
+        v2_entry_len += n;
+    }
+}
+
+static void v2_log_send(int final) {
+    v2_log_write_fn write = (v2_log_write_fn)(void *)v2_log_export("VvfpIslandEventsGraphWrite");
+    if (v2_entry_head > 0 && write != NULL) {
+        (void)write(2, v2_key, v2_entry, -1, final);
+    }
+}
+
+/* The entry's head: the title and the answer clicked (`which` 0 the first). */
+static void v2_entry_start(int which) {
+    static char label[VV2_DLG_LABEL];
+    v2_entry_len = 0;
+    v2_entry[0] = '\0';
+    v2_entry_put("  Event: ");
+    v2_entry_put(g_vv12_title);
+    v2_entry_put("\n  Choice: ");
+    v2_flow->label(0, which, label, sizeof label);
+    v2_entry_put(label);
+    v2_entry_put("\n");
+    v2_entry_head = v2_entry_len;
+    v2_key = (int)(GetTickCount() & 0x7FFFFFFFu) | 1;
+}
+
+/* The ending's effects, bracketed by the log's own comparison; the entry closed. */
+static void v2_make_effects(void) {
+    static char lines[V2_ENTRY_BYTES];
+    v2_log_begin_fn begin = (v2_log_begin_fn)(void *)v2_log_export("VvfpIslandEventsGraphBegin");
+    v2_log_end_fn end = (v2_log_end_fn)(void *)v2_log_export("VvfpIslandEventsGraphEnd");
+    int began = begin != NULL && begin(2);
+    v2_effects_page = -1;
+    v2_flow->effects(v2_ending);
+    lines[0] = '\0';
+    if (began && end != NULL && end(2, lines, (int)sizeof lines) > 0) {
+        v2_entry_put(lines);
+    }
+    if (v2_entry_len == v2_entry_head) {
+        v2_entry_put("  Changes: none\n");
+    }
+    v2_log_send(1);
+}
+
+/* Result page `k` shown, and its effects when it is the ending's last. */
+static void v2_result_page(unsigned char *d, int k) {
+    const adv_pages *pages = v2_flow->ending(v2_ending);
+    v2_page_text((char *)d + VV2_DLG_RESULT, VV2_DLG_TEXT, pages->text[k], 0);
+    if (k == v2_effects_page) {
+        v2_make_effects();
+    }
 }
 
 static void v2_result(unsigned char *d, const char *page) {
@@ -286,13 +447,20 @@ static void v2_result(unsigned char *d, const char *page) {
 
 static void __cdecl v2_answer(unsigned char *d) {
     __try {
+        int which;
         if (!v2_ours(d) || v2_stage != ADV_STAGE_QUESTION) {
             return;
         }
-        v2_ending = -1 - v2_flow->answer(0, *(int *)(d + VV2_DLG_CHOICE) == 2);
+        which = *(int *)(d + VV2_DLG_CHOICE) == 2;
+        v2_ending = -1 - v2_flow->choose(0, which);
         v2_stage = ADV_STAGE_RESULT;
         v2_page = 0;
-        v2_result(d, v2_flow->ending(v2_ending)->text[0]);
+        v2_effects_page = v2_flow->ending(v2_ending)->count - 1;
+        v2_entry_start(which);
+        if (v2_effects_page > 0) {
+            v2_log_send(0);                  /* held: the answer, its effects to come */
+        }
+        v2_result_page(d, 0);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }
@@ -300,8 +468,10 @@ static void __cdecl v2_answer(unsigned char *d) {
 /* `ja` from 0x4204CE (eax the event, esi the dialog). */
 __declspec(naked) static void v2_resolve_stub(void) {
     __asm {
-        cmp eax, ADV_VV2_EVENT
-        jne leave_it
+        cmp eax, V2_DRAW_FIRST
+        jb leave_it
+        cmp eax, V2_DRAW_LAST
+        ja leave_it
         pushad
         push esi
         call v2_answer
@@ -321,7 +491,7 @@ static void *__fastcall v2_ctor(void *dialog, void *unused) {
     made = ((void *(__fastcall *)(void *, void *))(uintptr_t)0x422380u)(dialog, NULL);
     __try {
         if (!v2_ours(d)) {
-            if (*(int *)(d + VV2_DLG_EVENT) != ADV_VV2_EVENT) {
+            if (!v2_is_ours(*(int *)(d + VV2_DLG_EVENT))) {
                 v2_dlg = NULL;
             }
         } else if (v2_flow->question(0)->count > 1) {
@@ -359,8 +529,11 @@ static void __fastcall v2_ok(void *dialog, void *unused) {
             }
             if (v2_stage == ADV_STAGE_RESULT && v2_page + 1 < v2_flow->ending(v2_ending)->count) {
                 ++v2_page;
-                v2_result(d, v2_flow->ending(v2_ending)->text[v2_page]);
+                v2_result_page(d, v2_page);
                 return;
+            }
+            if (v2_stage == ADV_STAGE_RESULT && v2_effects_page >= 0) {
+                v2_make_effects();               /* never left unmade (a page count that changed: a fault) */
             }
             v2_dlg = NULL;
             v2_stage = ADV_STAGE_NONE;
@@ -368,6 +541,20 @@ static void __fastcall v2_ok(void *dialog, void *unused) {
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
     ADV_TC0(0x40D390u, dialog);
+}
+
+/* Asked by "VVFP Island Events.dll" as it compares a popup the game just showed (its constructor's bracket, the
+   answer's click): 1 while it is this companion's dialog -- the event's one entry is written here, never a record of
+   its own. */
+int __stdcall VvfpMoreIslandEventsLogged(int game, const char *title) {
+    int ours = 0;
+    __try {
+        ours = game == 2 && g_adv_game == &ADV_VV2 && v2_dlg != NULL
+            && (title == NULL || title[0] == '\0' || lstrcmpA(title, g_vv12_title) == 0);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ours = 0;
+    }
+    return ours;
 }
 
 /* A 6-byte `ja rel32` kept a `ja`, aimed at `to`. */
@@ -380,19 +567,38 @@ static void v2_ja(vvfp_site_write *w, unsigned int va, const unsigned char *expe
     vvfp_site_bytes(w, va, 6, expect, bytes);
 }
 
+/* The draw's own call (0x41F59D): the stock call of rand, or Story / Cheat Upgrades' (which then installs later). */
+static int v2_draw_site_known(void) {
+    static const unsigned char DRAW_STOCK[5] = { 0xE8, 0xFE, 0x3B, 0xFE, 0xFF };
+    unsigned int target;
+    if (vvfp_site_holds(V2_DRAW_SITE, DRAW_STOCK, 5)) {
+        return 1;
+    }
+    if (*(const unsigned char *)(uintptr_t)V2_DRAW_SITE != 0xE8) {
+        return 0;
+    }
+    target = V2_DRAW_SITE + 5u + *(const unsigned int *)(uintptr_t)(V2_DRAW_SITE + 1u);
+    return v2_from_story(target);
+}
+
 static int v2_install(void) {
     static const unsigned char KEEP_STOCK[6] = { 0x0F, 0x87, 0xE4, 0x00, 0x00, 0x00 };
     static const unsigned char SETUP_STOCK[6] = { 0x0F, 0x87, 0x62, 0x0C, 0x00, 0x00 };
     static const unsigned char RESOLVE_STOCK[6] = { 0x0F, 0x87, 0x83, 0x1D, 0x00, 0x00 };
     static const unsigned char OK_STOCK[5] = { 0xE8, 0x7D, 0xB0, 0xFE, 0xFF };
     static const unsigned char CTOR_STOCK[5] = { 0xE8, 0xD8, 0x31, 0xFF, 0xFF };
-    static vvfp_site_write w[5];
+    static const unsigned char CHOOSE_STOCK[5] = { 0xE8, 0xD9, 0xFD, 0xFF, 0xFF };
+    static vvfp_site_write w[6];
+    if (!v2_draw_site_known()) {
+        return 0;
+    }
     v2_ja(&w[0], 0x41F5ACu, KEEP_STOCK, (const void *)v2_keep_stub);
     v2_ja(&w[1], 0x41F7A0u, SETUP_STOCK, (const void *)v2_setup_stub);
     v2_ja(&w[2], 0x4204CEu, RESOLVE_STOCK, (const void *)v2_resolve_stub);
     vvfp_site_branch(&w[3], 0x42230Eu, 5, OK_STOCK, 0xE8, (const void *)v2_ok);
     vvfp_site_branch(&w[4], 0x42F1A3u, 5, CTOR_STOCK, 0xE8, (const void *)v2_ctor);
-    if (!vvfp_install_sites(w, 5)) {
+    vvfp_site_branch(&w[5], 0x41F792u, 5, CHOOSE_STOCK, 0xE8, (const void *)v2_choose_event);
+    if (!vvfp_install_sites(w, 6)) {
         return 0;
     }
     g_adv_game = &ADV_VV2;

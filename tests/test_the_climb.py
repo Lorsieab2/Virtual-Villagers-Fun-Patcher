@@ -12,14 +12,18 @@ Static (always run):
 EMULATED (unicorn, the stock The Lost Children executable, the shipped DLL; tests/story_emulator.py):
   * WHO: Research 19 never, 20 yes; 17 years never, 18 yes; never the nursing, an Esteemed Elder's statue, the dead or
     the absent; one villager is enough; the villager drawn among those who may go;
-  * THE DRAW: family A's draw 21 is kept for The Climb when only it can happen, and, when The Aspiring Adventurer can
-    too, the game's rand(2) picks (0 the Adventurer, 1 The Climb); none: never kept;
+  * THE DRAW, each event its own slot: family A's draw is rand(23) -- 21 The Aspiring Adventurer, 22 The Climb, each
+    kept only when it can happen -- chained onto whatever the draw's call holds (the game's rand, or Story / Cheat
+    Upgrades' own roll), which is put back after; an unknown call is left alone;
   * THE POPUP through the game's own click handler, OK and constructor sites: the question's pages with OK, the two
     answers, the result's pages with OK, the close;
-  * EVERY EFFECT, made in the answer's click (the click the Island Events log watches): the fall -- the game's own
+  * EVERY EFFECT, made when the page that ends its ending's text is shown (never on the plan's page): the fall -- the
+    game's own
     death (health 0: the body lies and gets a grave); the summit -- Research 100, the award through the game's tech
     writer within the large range and scaled by the game's own factor, the game's own village celebration called
     once (Old Friends' place); the advice -- +10 to 20 Research, at most 100; nothing else changes;
+  * THE LOG: one Island Events entry, held at the answer, the effects page bracketed by the log's own comparison and
+    the entry closed there; the game's own brackets write nothing while the dialog is open;
   * THE PAGES: every page with the longest name The Lost Children holds fits the popup's page, and the pages together
     hold the owner's whole text.
 
@@ -197,7 +201,7 @@ class TheMechanicsPage(unittest.TestCase):
                       "not an Esteemed Elder's totem statue", "one such villager is enough", "Go with the plan",
                       "Follow the scientists' advice", "the fall 50%", "the summit 50%", "1,000 to 6,000 tech points",
                       "Research becomes 100", "celebrat", "+10 to 20 Research", "a grave", "Distinguished Scientist",
-                      "1 in 44"):
+                      "1 in 23", "its own slot", "when the page"):
             with self.subTest(words=words):
                 self.assertIn(words, text)
         for game in (1, 3, 4, 5):
@@ -207,18 +211,65 @@ class TheMechanicsPage(unittest.TestCase):
 
 # ---- Emulated -----------------------------------------------------------------------------------------------------
 
-class ClimbVillage(Village):
-    """The Lost Children with the companion started; the game's own celebration stood in for (recorded)."""
+FAKE_ISLAND_EVENTS = 0x0EA00000                # "VVFP Island Events.dll", stood in for
+CLIMB_DRAW, ADVENTURER_DRAW = 22, 21           # each event's own slot of family A's rand(23)
 
-    def __init__(self) -> None:
+
+class ClimbVillage(Village):
+    """The Lost Children with the companion started; the game's own celebration stood in for (recorded), and -- with
+    `log` -- the Island Events log's one-entry exports stood in for (each call recorded, with the village then)."""
+
+    def __init__(self, log: bool = False) -> None:
         super().__init__(2)
         self.celebrations: list[tuple[int, int]] = []
-        self.people: int | None = None
+        self.bounds: list[int] = []
+        self.log_calls: list[tuple] = []
+        p = self.p
 
         def celebrate(pr):
             self.celebrations.append((pr.reg("ecx"), pr.arg(0)))
             return 0, 4
-        self.p.stub(0x45D7D0, celebrate)
+        p.stub(0x45D7D0, celebrate)
+        rand = p.stubs[self.rand]
+
+        def counted(pr):
+            self.bounds.append(pr.arg(0))
+            return rand(pr)
+        p.stub(self.rand, counted)
+        if log:
+            self._fake_log()
+
+    def _fake_log(self) -> None:
+        p = self.p
+        code = p.alloc(32)
+        p.write(code, b"\xC3" * 32)
+        exports = {"VvfpIslandEventsGraphBegin": code, "VvfpIslandEventsGraphEnd": code + 8,
+                   "VvfpIslandEventsGraphWrite": code + 16}
+
+        def begin(pr):
+            self.log_calls.append(("begin", self.village_now()))
+            return 1, 4
+
+        def end(pr):
+            self.log_calls.append(("end", self.village_now()))
+            pr.write(pr.arg(1), b"  Ana: Health 100 -> 0\n\0")
+            return len("  Ana: Health 100 -> 0\n"), 12
+
+        def write(pr):
+            self.log_calls.append(("write", pr.arg(0), pr.arg(1), pr.cstring(pr.arg(2), 4000),
+                                   pr.arg(3) - (1 << 32) if pr.arg(3) >> 31 else pr.arg(3), pr.arg(4)))
+            return 1, 20
+        p.stub(code, begin)
+        p.stub(code + 8, end)
+        p.stub(code + 16, write)
+        module, proc = p.api_handlers["GetModuleHandleA"], p.api_handlers["GetProcAddress"]
+        p.api_handlers["GetModuleHandleA"] = lambda pr, m=module: (
+            (FAKE_ISLAND_EVENTS, 4) if pr.arg(0) and pr.cstring(pr.arg(0)) == "VVFP Island Events.dll" else m(pr))
+        p.api_handlers["GetProcAddress"] = lambda pr, c=proc: (
+            (exports.get(pr.cstring(pr.arg(1)), 0), 8) if pr.arg(0) == FAKE_ISLAND_EVENTS else c(pr))
+
+    def village_now(self) -> tuple:
+        return (self.health(0), self.research(0), self.stores(), len(self.celebrations))
 
     def scientist(self, i: int, name: str, woman: bool = False, research: int = 50, **kw) -> None:
         self.villager(i, name, woman, **kw)
@@ -229,6 +280,9 @@ class ClimbVillage(Village):
 
     def climb_possible(self) -> int:
         return self.p.export("VvfpClimbPossible")
+
+    def logged(self) -> int:
+        return self.p.export("VvfpMoreIslandEventsLogged", 2, 0)
 
     def climb_state(self) -> list[int]:
         out = self.p.alloc(12 * 4)
@@ -244,18 +298,19 @@ class ClimbVillage(Village):
             out.append(self.p.cstring(at, 4000))
             k += 1
 
-    def begin_climb(self, rolls: list[int], share: int | None = None) -> bool:
-        """Family A's setup with the draw 21 (and, when both events can happen, `share` for the rand(2)); True when the
-        dialog is The Climb's."""
+    def begin_climb(self, rolls: list[int], draw: int = CLIMB_DRAW) -> bool:
+        """Family A's setup with the draw `draw` (rand(23): 22 The Climb's own slot); True when the dialog is The
+        Climb's."""
         p = self.p
         self.ui.clear()
+        self.bounds.clear()
         self.dlg = p.alloc(0x6000)
         p.put32(self.dlg + 0x50AC, self.world)
         p.put32(self.dlg + 0x50B0, self.base)
         for o, v in ((0x54, 2), (0x58, 3), (0x5C, 4), (0x50C8, 0x111), (0x50CC, 0x222), (0x50D0, 0x333)):
             p.put32(self.dlg + o, v)
-        self.rolls = [TOP] + ([] if share is None else [share]) + list(rolls)
-        if p.call(0x41F780, [], ecx=self.dlg) & 0xFF == 0 or p.u32(self.dlg + 0x509C) != 21:
+        self.rolls = [draw] + list(rolls)
+        if p.call(0x41F780, [], ecx=self.dlg) & 0xFF == 0 or p.u32(self.dlg + 0x509C) not in (21, 22):
             return False
         p.stub(0x422380, lambda pr: (pr.reg("ecx"), 0))
         p.set_reg("esp", STACK_TOP - 0x3000)
@@ -263,28 +318,30 @@ class ClimbVillage(Village):
         p.run(0x42F1A3, 0x42F1A8)
         return self.shown().startswith(TITLE_LINE)
 
-    def play_climb(self, rolls: list[int], answer: int, share: int | None = None) -> list[str]:
+    def play_climb(self, rolls: list[int], answer: int) -> list[str]:
         """The whole event: every page shown, in order, until the close (each as one line of words, the title and the
-        dialog's own line breaks taken out).  `answer` 1 is "Go with the plan", 2 the advice."""
-        if not self.begin_climb(rolls, share):
+        dialog's own line breaks taken out); `self.states` the village as each result page is shown.  `answer` 1 is
+        "Go with the plan", 2 the advice."""
+        if not self.begin_climb(rolls):
             raise AssertionError("The Climb was not drawn")
         seen = [self.shown()]
         for _ in range(self.climb_state()[8] - 1):
             self.click(0)
             seen.append(self.shown())
         self.click(answer)
-        self.after_answer = (self.health(self.hero), self.research(self.hero), self.stores(), len(self.celebrations))
+        self.states = [self.village_now()]
+        self.logged_while_open = self.logged()
         seen.append(self.shown())
         for _ in range(20):
             self.ui.clear()
             self.click(0)
             if self.closed():
                 break
+            self.states.append(self.village_now())
             seen.append(self.shown())
         self.closed_at_end = self.closed()
+        self.result_pages = [re.sub(r"\s+", " ", page.replace(TITLE_LINE, "")).strip() for page in seen[-len(self.states):]]
         return [re.sub(r"\s+", " ", page.replace(TITLE_LINE, "")).strip() for page in seen]
-
-    hero = 0
 
 
 def climb_rolls(*, hero: int | None = None, falls: bool = True, award: int = 0, gain: int = 0) -> list[int]:
@@ -329,55 +386,139 @@ class Who(unittest.TestCase):
         self.assertFalse(v.begin_climb(climb_rolls()))
 
     def test_the_villager_is_drawn_among_those_who_may_go(self) -> None:
-        v = ClimbVillage()
-        v.scientist(0, "Ana", True, research=19)                  # never
-        v.scientist(1, "Ben", research=20)
-        v.scientist(2, "Cal", research=60)
-        self.assertEqual(v.possible(), 1)                         # the Adventurer can happen too
-        v.play_climb(climb_rolls(hero=1, falls=False), 2, share=1)
-        self.assertEqual(v.climb_state()[0], 2)                   # the second of Ben and Cal
-        v = ClimbVillage()
-        v.scientist(0, "Ana", True, research=19)
-        v.scientist(1, "Ben", research=20)
-        v.scientist(2, "Cal", research=60)
-        v.play_climb(climb_rolls(hero=0, falls=False), 2, share=1)
-        self.assertEqual(v.climb_state()[0], 1)
+        for hero, expected in ((1, 2), (0, 1)):
+            v = ClimbVillage()
+            v.scientist(0, "Ana", True, research=19)              # never
+            v.scientist(1, "Ben", research=20)
+            v.scientist(2, "Cal", research=60)
+            self.assertEqual(v.possible(), 1)                     # the Adventurer can happen too: no matter
+            v.play_climb(climb_rolls(hero=hero, falls=False), 2)
+            self.assertEqual(v.climb_state()[0], expected)
 
-    def test_the_draw_21_is_shared_with_the_adventurer(self) -> None:
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
+class TheDraw(unittest.TestCase):
+    """Each its own slot (the owner): family A's draw is rand(23) -- 0..20 the stock events, 21 The Aspiring
+    Adventurer, 22 The Climb -- and the draw's call is put back as it was."""
+
+    def test_each_event_its_own_slot(self) -> None:
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.scientist(1, "Ben")
         self.assertEqual((v.possible(), v.climb_possible()), (1, 1))
-        self.assertTrue(v.begin_climb(climb_rolls(hero=0), share=1))      # rand(2) = 1: The Climb
+        self.assertTrue(v.begin_climb(climb_rolls(hero=0), draw=CLIMB_DRAW))
+        self.assertEqual(v.bounds[0], 23)
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.scientist(1, "Ben")
-        self.assertFalse(v.begin_climb([0] * 20, share=0))                # rand(2) = 0: the Adventurer
+        self.assertFalse(v.begin_climb([0] * 20, draw=ADVENTURER_DRAW))
+        self.assertEqual(v.p.u32(v.dlg + 0x509C), 21)
         self.assertTrue(v.shown().startswith("The Aspiring Adventurer\n"))
+        self.assertEqual(v.bounds[0], 23)
+
+    def test_a_slot_whose_event_cannot_happen_draws_again(self) -> None:
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True)                               # one villager: the Adventurer cannot happen
+        self.assertTrue(v.begin_climb([CLIMB_DRAW] + climb_rolls(), draw=ADVENTURER_DRAW))
+        self.assertEqual(v.bounds[:2], [23, 23])                  # 21 not kept: drawn again, 22 kept
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True)
+        self.assertTrue(v.begin_climb(climb_rolls(), draw=CLIMB_DRAW))
+        self.assertEqual(v.bounds, [23, 100, 2501, 11])           # the draw, then the Climb's own rolls
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True, research=0)                   # nobody may climb: 22 is drawn again
+        self.assertFalse(v.begin_climb([5] * 20, draw=CLIMB_DRAW))
+        self.assertEqual(v.bounds[:2], [23, 23])
         # Never the village's first island event.
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
         v.p.put32(v.world + 0x2E51C, 1)
         self.assertFalse(v.begin_climb(climb_rolls()))
 
+    def test_the_draws_call_is_put_back(self) -> None:
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True)
+        stock = v.p.read(0x41F59D, 5)
+        self.assertEqual(stock.hex().upper(), "E8FE3BFEFF")      # the game's rand, as at the start
+        v.begin_climb(climb_rolls())
+        self.assertEqual(v.p.read(0x41F59D, 5), stock)
+
+    def test_chained_onto_story_cheat_upgrades_roll(self) -> None:
+        """With Story / Cheat Upgrades' roll at the draw's call (it installs later, from the Origins companion), the
+        widened bound reaches that roll, and its call is put back as it was."""
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True)
+        p = v.p
+        story_fn = p.alloc(16)
+        p.write(story_fn, b"\xC3")
+        story_base = next(b for b, e, _ in p.mu.mem_regions() if b <= story_fn <= e)
+        seen: list[int] = []
+
+        def story_roll(pr):
+            seen.append(pr.arg(0))
+            return CLIMB_DRAW, 0                                 # as Story's roll returns the game's rand
+        p.stub(story_fn, story_roll)
+        module = p.api_handlers["GetModuleHandleA"]
+        p.api_handlers["GetModuleHandleA"] = lambda pr, m=module: (
+            (story_base, 4) if pr.arg(0) and pr.cstring(pr.arg(0)) == "VVFP Story Upgrades.dll" else m(pr))
+        story_call = b"\xE8" + struct.pack("<i", story_fn - (0x41F59D + 5))
+        p.write(0x41F59D, story_call)
+        p.mu.ctl_flush_tb()
+        # Story's roll gives the draw itself: the scripted rolls go to the Climb's own (the fall, the award, the gain).
+        self.assertTrue(v.begin_climb([0, 0, 0], draw=FALL))
+        self.assertEqual(seen, [23])
+        self.assertEqual(p.read(0x41F59D, 5), story_call)
+        self.assertEqual(p.u32(v.dlg + 0x509C), 22)
+
+    def test_an_unknown_call_at_the_draw_is_left_alone(self) -> None:
+        v = ClimbVillage()
+        v.scientist(0, "Ana", True)
+        p = v.p
+        other = p.alloc(16)
+        p.write(other, b"\xC3")
+        seen: list[int] = []
+        p.stub(other, lambda pr: (seen.append(pr.arg(0)) or 5, 0))   # 5: The Voices In The Brush, always possible
+        call = b"\xE8" + struct.pack("<i", other - (0x41F59D + 5))
+        p.write(0x41F59D, call)
+        p.mu.ctl_flush_tb()
+        self.assertFalse(v.begin_climb(climb_rolls()))
+        self.assertEqual(p.read(0x41F59D, 5), call)
+        self.assertEqual(seen, [22])                              # the stock bound: never widened, never ours
+
+
+def one_scientist(research: int = 50, woman: bool = True, log: bool = False) -> ClimbVillage:
+    v = ClimbVillage(log)
+    v.scientist(0, "Ana", woman, research=research)
+    v.villager(1, "Kid", years=10)                                # a child: never climbs, never touched
+    return v
+
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
 class Effects(unittest.TestCase):
-    def village(self, research: int = 50, woman: bool = True) -> ClimbVillage:
-        v = ClimbVillage()
-        v.scientist(0, "Ana", woman, research=research)
-        v.villager(1, "Kid", years=10)                            # a child: never climbs, never touched
-        return v
+    """The effects wait for their own page (the owner's standing rule): each ending's are made when the page that
+    ends its text is shown -- never on the plan's page."""
+
+    def village(self, research: int = 50, woman: bool = True, log: bool = False) -> ClimbVillage:
+        return one_scientist(research, woman, log)
+
+    def assert_only_on_the_last_page(self, v: ClimbVillage, before: tuple) -> None:
+        self.assertGreater(len(v.states), 1)
+        for state in v.states[:-1]:
+            self.assertEqual(state, before)                       # nothing yet on the earlier pages
+        self.assertNotEqual(v.states[-1], before)
 
     def test_the_fall(self) -> None:
         v = self.village()
-        before = v.stores()
+        before = v.village_now()
         text = joined(v.play_climb(climb_rolls(falls=True), 1))
         self.assertTrue(v.closed_at_end)
-        self.assertEqual(v.after_answer, (0, 50, before, 0))      # made in the answer's click
+        self.assert_only_on_the_last_page(v, before)
+        self.assertEqual(v.result_pages[0], OWNER["PLAN"])        # the plan's page: still alive
+        self.assertEqual(v.states[0][0], 100)
+        self.assertTrue(v.result_pages[-1].endswith("dared to do the impossible."))
         self.assertEqual((v.health(0), v.present(0)), (0, 1))     # the game's own death: the body lies, a grave comes
         self.assertEqual(v.research(0), 50)
-        self.assertEqual(v.stores(), before)
+        self.assertEqual(v.stores(), before[2])
         self.assertEqual(v.celebrations, [])
         self.assertEqual(v.vanished, [])
         self.assertEqual((v.health(1), v.present(1)), (100, 1))
@@ -388,21 +529,22 @@ class Effects(unittest.TestCase):
         for draw, research in ((0, 50), (7, 20), (TOP, 99)):
             with self.subTest(draw=draw):
                 v = self.village(research)
-                before = v.stores()
+                before = v.village_now()
                 text = joined(v.play_climb(climb_rolls(falls=False, award=draw), 1))
                 award = v.climb_state()[3]
                 lo, hi = adv.award_range(2, "tech")
                 self.assertEqual(award, 2 * (hi if draw == TOP else lo + draw))
                 self.assertTrue(1000 <= award <= 6000)
+                self.assert_only_on_the_last_page(v, before)
+                self.assertTrue(v.result_pages[-1].endswith(f"Your village gains {award} tech points."))
                 after = v.stores()
-                self.assertEqual((after[0] - before[0], after[1] - before[1]), (0, award))
+                self.assertEqual((after[0] - before[2][0], after[1] - before[2][1]), (0, award))
                 self.assertEqual(v.research(0), 100)              # the game's maximum
                 self.assertEqual(v.celebrations, [(v.base, 0x18)])   # once, on the pool, Old Friends' place
-                self.assertEqual(v.after_answer, (100, 100, after, 1))
+                self.assertEqual(v.states[-1], (100, 100, after, 1))
                 self.assertEqual((v.health(0), v.present(0)), (100, 1))
                 self.assertIn(OWNER["PLAN"], text)
                 self.assertIn(owner_text("SUMMIT", award=award), text)
-                self.assertIn(f"Your village gains {award} tech points.", text)
 
     def test_the_award_scales_by_the_games_own_factor(self) -> None:
         for people, factor in ((25, 1), (26, 2), (50, 2), (51, 3)):
@@ -423,7 +565,7 @@ class Effects(unittest.TestCase):
                 gain = v.climb_state()[4]
                 self.assertEqual(gain, 20 if draw == TOP else 10 + draw)
                 self.assertEqual(v.research(0), expected)
-                self.assertEqual(v.after_answer[1], expected)
+                self.assertEqual(v.states[-1][1], expected)       # on the advice's own (last) page
                 self.assertEqual(v.stores(), before)
                 self.assertEqual(v.celebrations, [])
                 self.assertEqual((v.health(0), v.present(0)), (100, 1))
@@ -452,6 +594,46 @@ class Effects(unittest.TestCase):
         v = self.village(woman=False)
         text = joined(v.play_climb(climb_rolls(falls=False, award=0), 1))
         self.assertIn(owner_text("SUMMIT", "m", "Ana", 1000), text)
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
+class TheLog(unittest.TestCase):
+    """The Island Events log's ONE entry for the event: held at the answer, its effects' lines taken by the log's own
+    comparison around the effects page, closed there; the game's own brackets write nothing for the dialog."""
+
+    def test_one_entry_with_the_effects_page_bracketed(self) -> None:
+        v = one_scientist(log=True)
+        before = v.village_now()
+        v.play_climb(climb_rolls(falls=True), 1)
+        kinds = [c[0] for c in v.log_calls]
+        self.assertEqual(kinds, ["write", "begin", "end", "write"])
+        first, begin, end, last = v.log_calls
+        self.assertEqual((first[1], first[3], first[4], first[5]),
+                         (2, "  Event: The Climb\n  Choice: Go with the plan\n", -1, 0))
+        self.assertEqual(begin[1], before)                         # the village before the effects ...
+        self.assertEqual(end[1][0], 0)                             # ... and after them
+        self.assertEqual(last[2], first[2])                        # the same entry
+        self.assertEqual((last[3], last[5]),
+                         ("  Event: The Climb\n  Choice: Go with the plan\n  Ana: Health 100 -> 0\n", 1))
+        self.assertEqual(v.logged_while_open, 1)
+        self.assertEqual(v.logged(), 0)                            # closed: no longer ours
+
+    def test_the_advice_is_logged_on_its_own_last_page(self) -> None:
+        v = one_scientist(log=True)
+        v.play_climb(climb_rolls(gain=0), 2)
+        self.assertEqual(len(v.climb_pages(3)), 2)
+        self.assertEqual([c[0] for c in v.log_calls], ["write", "begin", "end", "write"])
+        self.assertEqual(v.log_calls[1][1][1], 50)                  # Research before the advice's last page ...
+        self.assertEqual(v.log_calls[2][1][1], 60)                  # ... and after it
+        self.assertEqual(v.log_calls[-1][3],
+                         "  Event: The Climb\n  Choice: Follow the scientists' advice\n  Ana: Health 100 -> 0\n")
+        self.assertEqual(v.log_calls[-1][5], 1)
+
+    def test_without_the_log_companion_nothing_is_asked(self) -> None:
+        v = one_scientist()
+        v.play_climb(climb_rolls(falls=True), 1)
+        self.assertEqual(v.log_calls, [])
+        self.assertEqual(v.health(0), 0)
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")

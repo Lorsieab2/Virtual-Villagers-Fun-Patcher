@@ -74,6 +74,11 @@ RULES = (
          f"{each(22, TWO, 20)} ({each(22, TWO, 100)} of the first event), each sack or vial {share(40, SACK)}. How "
          "it is worked out: with E of them possible, each gets 1/E x (1 - (1 - E/28)^10) of the single-result 40% "
          "(22 in place of 28 for two-choice), and the fallback event gets the rest."),
+    # More Island Events (the owner, 2026-11-12: "Each its own slot"): adv_vv2.inc widens the draw by one per event.
+    Line("With the patcher's \"More Island Events\" (in this game): each of its events has its own slot in the "
+         "two-choice draw, which becomes 1 in 23 (21 The Aspiring Adventurer, 22 The Climb, each passing only when "
+         "it can happen), so every two-choice event is 1 in 23 a draw; with every condition met each is then "
+         f"{each(23, TWO + 2, 20)}.", only_with="vv2_more_island_events"),
     Line("With the patcher's \"Restore Missing Island Events\" (in this game): The Mosquito Swarm, The Dragonfly "
          "Migration and Science Awareness Day pass their draw like an unconditional event, and draw 4 shows one "
          "of three lore pages (The Tattered Diary, The Doctrine of Magicians, The Doctrine of Naturalists, a third "

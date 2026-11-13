@@ -15,9 +15,8 @@
        twice a normal one, drawn from the game's stock tech range, then the game's own two-choice factor);
      "Follow the scientists' advice": +10 to 20 Research (each equally likely), at most the game's 100.
 
-   THE EFFECTS are made when the answer is clicked (adv_choose's rule: the dialog is modal, the village does not run
-   and no save can come between the click and the pages, so the Island Events log's comparison around that click
-   records them, under the event's title with the answer clicked):
+   THE EFFECTS wait for their own page (the owner's standing rule): each ending's are made, once, when the page that
+   ends its text is shown (adv_vv2.inc), and the Island Events log's one entry for the event takes them there:
      the fall: the game's own death (adv_game.kill: health 0 -- a body, a grave, "Unknown causes");
      the summit: Research set to the game's maximum, 100 (adv_game.skill: 0x4212F4's own cap), the award through the
        game's own tech writer, and the village celebrates (adv_game.celebrate: the game's own village celebration, as
@@ -41,6 +40,7 @@ static struct {
     int award;                                    /* the summit's award */
     int gain;                                     /* the advice's Research gain (before the cap) */
     int ending;                                   /* the ending reached, -1 none yet */
+    int effects_made;                             /* its effects are made (once) */
     adv_pages intro;
     adv_pages endings[CLIMB_ENDINGS];
     int tallest_set, tallest_page;
@@ -189,6 +189,10 @@ static int climb_same(void) {
 /* Ending `e`'s effects, made once. */
 static void climb_effects(int e) {
     const adv_game *g = climb.g;
+    if (climb.effects_made || e != climb.ending) {
+        return;
+    }
+    climb.effects_made = 1;
     if (!climb_same()) {
         return;
     }
@@ -221,8 +225,9 @@ static void climb_flow_label(int node, int which, char *out, int cap) {
     climb_piece(out, cap, which ? CLIMB_LABEL_ADVICE : CLIMB_LABEL_PLAN, 0);
 }
 
-/* The answer `choice` (0 "Go with the plan", 1 "Follow the scientists' advice"): its ending, with its effects. */
-static int climb_flow_answer(int node, int choice) {
+/* The answer `choice` (0 "Go with the plan", 1 "Follow the scientists' advice"): its ending, its effects not yet
+   made (they wait for their own page: climb_flow_effects). */
+static int climb_flow_choose(int node, int choice) {
     (void)node;
     if (!climb.ready || climb.answered) {
         return ADV_ENDING(climb.ending >= 0 ? climb.ending : CLIMB_E_ADVICE);
@@ -230,8 +235,18 @@ static int climb_flow_answer(int node, int choice) {
     climb.answered = 1;
     climb.choice = choice != 0;
     climb.ending = climb.choice ? CLIMB_E_ADVICE : (climb.falls ? CLIMB_E_FALL : CLIMB_E_SUMMIT);
-    climb_effects(climb.ending);
     return ADV_ENDING(climb.ending);
+}
+
+static void climb_flow_effects(int e) {
+    climb_effects(e);
+}
+
+/* The answer and its effects at once (adv_flow's `answer`; The Lost Children uses choose / effects). */
+static int climb_flow_answer(int node, int choice) {
+    int next = climb_flow_choose(node, choice);
+    climb_effects(-1 - next);
+    return next;
 }
 
 static const adv_pages *climb_flow_ending(int e) {
@@ -252,5 +267,5 @@ static void climb_flow_title(char *out, int cap) {
 
 static const adv_flow CLIMB_FLOW = {
     climb_flow_question, climb_flow_label, climb_flow_answer, climb_flow_ending, climb_flow_tallest,
-    climb_flow_subject, climb_flow_title
+    climb_flow_subject, climb_flow_title, climb_flow_choose, climb_flow_effects
 };

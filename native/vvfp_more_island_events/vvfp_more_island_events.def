@@ -12,3 +12,4 @@ EXPORTS
     VvfpClimbPossible=_VvfpClimbPossible@0
     VvfpClimbState=_VvfpClimbState@4
     VvfpClimbPage=_VvfpClimbPage@8
+    VvfpMoreIslandEventsLogged=_VvfpMoreIslandEventsLogged@8

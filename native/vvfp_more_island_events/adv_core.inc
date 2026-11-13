@@ -96,6 +96,7 @@ static struct {
     int skill_which, skill_amount, injured_health;
     int award_kind, award;                            /* the find's kind and the amount it gives */
     int effect[2];                                    /* ADV_FX_* of each choice */
+    int effects_made;                                 /* the answer's effects are made (once) */
     adv_pages intro;
     adv_pages result[2];
     int tallest;                                      /* the page with the most lines: [0] intro, 1/2 result */
@@ -698,14 +699,25 @@ static int adv_same_hero(void) {
     return r != NULL && adv_identity(adv.g, adv.hero) == adv.hero_id;
 }
 
-/* The answer: `choice` 0 is "Go investigate!", 1 "Stay on the safe path".  Made once. */
-static void adv_choose(int choice) {
-    const adv_game *g = adv.g;
-    if (g == NULL || !adv.ready || adv.answered || choice < 0 || choice > 1) {
-        return;
+/* The answer: `choice` 0 is "Go investigate!", 1 "Stay on the safe path", taken once; 1 when taken now. */
+static int adv_answer_only(int choice) {
+    if (adv.g == NULL || !adv.ready || adv.answered || choice < 0 || choice > 1) {
+        return 0;
     }
     adv.answered = 1;
     adv.choice = choice;
+    return 1;
+}
+
+/* The answer's effects, made once (The Lost Children: when the page that tells them is shown, adv_vv2.inc; the
+   other games: in the answer's click, adv_choose). */
+static void adv_make_effects(void) {
+    const adv_game *g = adv.g;
+    int choice = adv.choice;
+    if (g == NULL || !adv.answered || adv.effects_made) {
+        return;
+    }
+    adv.effects_made = 1;
     if (!adv_same_hero()) {
         return;
     }
@@ -742,6 +754,13 @@ static void adv_choose(int choice) {
     }
 }
 
+/* The answer and its effects at once (A New Home, The Secret City, The Tree of Life, New Believers). */
+static void adv_choose(int choice) {
+    if (adv_answer_only(choice)) {
+        adv_make_effects();
+    }
+}
+
 /* ---- An event as a dialog shows it (A New Home's encounter dialog, adv_vv1.inc) ----------------------------------
 
    An event is QUESTIONS: each shows its pages, the last with its two answers; an answer makes its effects and leads
@@ -757,6 +776,10 @@ typedef struct adv_flow {
     const char *(*tallest)(void);                /* the page with the most lines of them all */
     int (*subject)(void);                        /* the villager in the picture */
     void (*title)(char *out, int cap);
+    /* The Lost Children (adv_vv2.inc): the answer without its effects, and the effects of ending `e`, made once when
+       the page that tells them is shown (the owner's rule: the effects wait for their own page).  NULL: not used. */
+    int (*choose)(int node, int choice);
+    void (*effects)(int e);
 } adv_flow;
 
 static const adv_pages *adv_flow_question(int node) {
@@ -775,6 +798,17 @@ static int adv_flow_answer(int node, int choice) {
     return ADV_ENDING(adv.choice);
 }
 
+static int adv_flow_choose(int node, int choice) {
+    (void)node;
+    adv_answer_only(choice);
+    return ADV_ENDING(adv.choice);
+}
+
+static void adv_flow_effects(int e) {
+    (void)e;
+    adv_make_effects();
+}
+
 static const adv_pages *adv_flow_ending(int e) {
     return &adv.result[e != 0];
 }
@@ -789,7 +823,7 @@ static void adv_flow_title(char *out, int cap) {
 
 static const adv_flow ADV_FLOW = {
     adv_flow_question, adv_flow_label, adv_flow_answer, adv_flow_ending, adv_tallest_text, adv_flow_subject,
-    adv_flow_title
+    adv_flow_title, adv_flow_choose, adv_flow_effects
 };
 
 /* ---- Skill and preference helpers the games share -------------------------------------------------------------- */

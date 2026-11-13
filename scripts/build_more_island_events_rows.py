@@ -43,16 +43,18 @@ CLIMB_DESCRIPTION = (
     "the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech "
     "award (twice a normal one: " + adv.award_words(2, "tech", "large") + ", then the game's own factor) and "
     "everyone celebrates. \"Follow the scientists' advice\": +10 to 20 Research (at most 100). One villager who "
-    "may go is enough.")
+    "may go is enough; it has its own slot among the two-choice events. In The Lost Children both events' effects "
+    "wait for the page that tells them.")
 CLIMB_BEHAVIOUR = (
-    "The Climb (The Lost Children): kept for family A's draw 21 like The Aspiring Adventurer (when both can happen the "
-    "draw 21 is one of them, the game's rand(2): 1 in 44 a draw each), only while a villager who may go on The "
+    "The Climb (The Lost Children): its own slot in family A's draw, 22 of rand(23) (The Aspiring Adventurer 21; each "
+    "1 in 23 a draw, like each stock event), kept only while a villager who may go on The "
     "Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own \"Trainee\" "
     "level, 0x429C3D); the villager is drawn among them. \"Go with the plan\": 50% the fall (health 0: a body and a "
     "grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, "
     "through the family-A tech writer 0x426290 after the two-choice factor 0x41F720; the game's own village "
     "celebration 0x45D7D0 with Old Friends' place 0x18). \"Follow the scientists' advice\": +10 to 20 Research, at "
-    "most 100. The effects are made when the answer is clicked.")
+    "most 100. The effects wait for their own page: they are made when the page that ends the ending's text is "
+    "shown, and the event writes its own one Island Events log entry (VvfpIslandEventsGraphBegin / End / Write).")
 
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
@@ -77,17 +79,22 @@ SITES = {
          "first page, with OK"),
     ),
     2: (
+        (0x41F792, "E8D9FDFFFF", "E8XXXXXXXX",
+         "family A's setup 0x41F780's call of its chooser 0x41F570: for that one run the draw's call 0x41F59D (the "
+         "game's rand, or Story / Cheat Upgrades' own roll) is pointed into the companion and put back after, so the "
+         "draw is one wider for each event past the first: rand(23) -- the only way to widen it without writing "
+         "Story / Cheat Upgrades' own site for good (it installs later and checks the stock bytes there)"),
         (0x41F5AC, "0F87E4000000", "0F87XXXXXXXX",
-         "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for The Aspiring Adventurer or "
-         "The Climb when one can happen -- 1 in 22 a draw, like each stock event (both possible: the game's rand(2) "
-         "picks one)"),
+         "family A's draw 0x41F570: its draw 21 (never kept in the stock game) is kept for The Aspiring Adventurer and "
+         "22 for The Climb, each when it can happen -- each 1 in 23 a draw, like each stock event"),
         (0x41F7A0, "0F87620C0000", "0F87XXXXXXXX",
-         "family A's setup 0x41F780, past its jump table: the event's 21 is set up by the companion"),
+         "family A's setup 0x41F780, past its jump table: the events' 21 and 22 are set up by the companion"),
         (0x4204CE, "0F87831D0000", "0F87XXXXXXXX",
-         "family A's resolve 0x4204B0, past its jump table: the event's 21 is answered by the companion (the effects "
-         "and the first result page)"),
+         "family A's resolve 0x4204B0, past its jump table: the events' 21 and 22 are answered by the companion (the "
+         "first result page; the effects wait for their own page)"),
         (0x42230E, "E87DB0FEFF", "E8XXXXXXXX",
-         "OK's close in family A's click handler 0x4222F0: while the event has a page left it is shown instead"),
+         "OK's close in family A's click handler 0x4222F0: while the event has a page left it is shown instead (the "
+         "ending's last page makes its effects)"),
         (0x42F1A3, "E8D831FFFF", "E8XXXXXXXX",
          "the trigger's call of family A's constructor 0x422380: after it, a question of more than one page starts on "
          "its first page, with OK"),
@@ -154,8 +161,8 @@ HOW = {
     1: "one more of the game's villager encounters (its two-choice island events), drawn 1 in m + 1 when the encounters "
        "are drawn (m the encounters possible then; 1 in m + 2 while The Cave Explorers can happen too), never the "
        "village's first island event",
-    2: "one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them (1 in 44 "
-       "while The Climb can happen too: the two share the draw), never the village's first island event",
+    2: "one more of the game's two-choice island events (family A) with its own slot in the draw, 1 in 23 a draw like "
+       "each of them (the draw is one wider for The Climb), never the village's first island event",
     3: "one more island event, listed and drawn like the game's own (1 in the number listed)",
     4: "one more island event, listed and drawn like the game's own (1 in the number listed)",
     5: "one more island event, listed and drawn like the game's own (1 in the number listed)",
@@ -212,8 +219,9 @@ def row(game: int, sha: str) -> dict:
             "fallen tree, dies at the bottom of a cliff, disappears.",
             "The reward is drawn, each amount equally likely, from the game's smallest to its largest stock "
             "island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's "
-            "own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + ". The effects are made "
-            "when the answer is clicked, as the game's own two-choice events make theirs; a disappearance is told to "
+            "own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + (". The effects wait for their own page (the page that ends the ending's text), and the "
+            "event writes its own one Island Events log entry" if game == 2 else ". The effects are made when the "
+            "answer is clicked, as the game's own two-choice events make theirs") + "; a disappearance is told to "
             "the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one.",
             "The owner's words, by translation key (the event's popup shows the player's language when a translation "
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "

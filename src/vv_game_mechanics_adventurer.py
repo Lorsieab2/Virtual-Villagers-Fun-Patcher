@@ -25,9 +25,9 @@ HOW = {
     1: "one more of the villager encounters (the two-choice island events): when an encounter is drawn, this event is "
        "1 in m + 1 (1 in m + 2 while The Cave Explorers can happen too), m the encounters possible at that moment, "
        "like each of them; never the village's first island event (always a visitor)",
-    2: "one more two-choice island event (family A): each of family A's draws is 1 in 22 for each event, this one "
-       "included (1 in 44 while The Climb can happen too: the two share the draw); never the village's first island "
-       "event",
+    2: "one more two-choice island event (family A) with its own slot in the draw: each of family A's draws is 1 in "
+       "23 for each event, this one included (the draw is one wider for The Climb, which has its own slot too); never "
+       "the village's first island event",
     3: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
        "listed), at the game's usual times",
     4: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
@@ -105,7 +105,9 @@ def adventurer_event(game: int) -> Event:
         reward_line(game),
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
-        "as a disappearance. The effects come when the answer is clicked.",
+        + ("as a disappearance. The effects wait for their own page: they come when the page that ends the "
+         "ending's text is shown, and the Island Events log keeps one entry for the event, with the answer and "
+         "every change." if game == 2 else "as a disappearance. The effects come when the answer is clicked."),
     ]
     if game in (1, 4, 5):
         subs.append(Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this "
@@ -211,15 +213,15 @@ def the_climb_event() -> Event:
         "\"Celebrating\"). \"Distinguished Scientist\" is the story's words only: no title is given.",
         f"\"Follow the scientists' advice\" gives +{lo} to {hi} Research (each equally likely), at most "
         f"{climb.RESEARCH_MAX}; nothing else happens.",
-        "The effects come when the answer is clicked; the Island Events log records them under the event's title "
-        "with that answer.",
+        "The effects wait for their own page: the fall's, the summit's and the advice's come when the page that ends "
+        "that text is shown (never on the plan's page); the Island Events log keeps one entry for the event, with the "
+        "answer and every change.",
     ]
     return Event(
         climb.TITLE,
-        "needs one villager who is " + who + "; " + "one more two-choice island event (family A): it shares family "
-        "A's draw 21 with The Aspiring Adventurer -- 1 in 22 a draw while only it can happen, 1 in 44 while The "
-        "Aspiring Adventurer can happen too; never the village's first island event; added by \"More Island "
-        "Events\" (without it the event does not exist)",
+        "needs one villager who is " + who + "; " + "one more two-choice island event (family A) with its own slot in "
+        "the draw: each of family A's draws is 1 in 23 for each event, this one included; never the village's first "
+        "island event; added by \"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv2_more_island_events",
     )
