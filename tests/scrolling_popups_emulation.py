@@ -489,6 +489,18 @@ class Dialog:
     def justify_height(self, text_va: int, width: int) -> int:
         return self.run._call(self.g["justify"], self.holder, text_va, 0, 0, width, self.colour, self.font, 1)
 
+    def justify_height_widened(self, text_va: int, width: int) -> int:
+        """The stock paragraph's height of a text that may hold a word wider than `width` (on which the stock
+        paragraph never finishes): measured at a width wide enough for its widest word, as the constructor's own
+        measures are when the companion widens them (the harness stands in for the two-choice tail's start)."""
+        for _ in range(6):
+            try:
+                return self.run._call(self.g["justify"], self.holder, text_va, 0, 0, width, self.colour, self.font,
+                                      1, count=5_000_000)
+            except Exception:
+                width *= 2
+        raise AssertionError("the paragraph never finished")
+
     def companion_export(self, name: str) -> int:
         dll = next(m for k, m in self.m.modules.items() if "scrolling" in k)
         return self.run._call(dll.exports[name], 0)
@@ -592,7 +604,7 @@ class Dialog:
         # sizer to placing the buttons.
         start, height = g["single"], 0
         if choices:
-            self.text_height = max(self.justify_height(self.text_va, box_w), line)
+            self.text_height = max(self.justify_height_widened(self.text_va, box_w), line)
             height = self.text_height + 4 * self.button_size["choice"][1] + self.i32(d + 0x854)
             start = g["tail"]
         tail_end = bytes(mu.mem_read(g["tail"], 0x300)).find(b"\xC6\x46\x4C\x01") + g["tail"]

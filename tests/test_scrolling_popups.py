@@ -38,6 +38,10 @@ Proofs:
   * the other fixed panels whose lines are text controls (Create Nickname in all five, Statistics in A New Home and
     The Lost Children, the Roster of the Dead in The Secret City), made by the game's own constructors: a panel that
     fits is the stock draw blit for blit; a long translation or name scrolls sideways above the buttons and text box;
+  * both ways (BothWays; the owner, 2026-11-12: "for everything put horizontal and vertical scrollbars"): every
+    panel of every game with a text too tall and too wide shows both bars, inside the panel and off its buttons and
+    text boxes, its text inside the box, scrolled each way by the wheel (sideways over the horizontal bar, or by a
+    sideways wheel) and by dragging the knob and the handle;
   * all or none: a changed site installs nothing; with every other public patch in all three population modes the
     sites stay stock and the companion installs.
 The live effect in a running game is NOT verified here.
@@ -1244,9 +1248,10 @@ class BothWays(unittest.TestCase):
         for game in GAMES:
             d = self.games[game]
             with self.subTest(game=game):
-                # Wide by one long word: The Tree of Life's tip measures a long text that has a line of many wide
-                # words shorter than it is, by its own height formula, and the stock draw stops there too.
-                d.make_tip(TIP_LONG + b"\n" + WORD * 2)      # wider than New Believers' 1024-px screen too
+                # The Tree of Life's and New Believers' tips lay out only part of some long texts with a very wide
+                # line (their own height formula and the stock draw stop at the same line: the companion shows
+                # what the game lays out); each game gets a tall and wide text its tip lays out whole.
+                d.make_tip(TIP_LONG + b"\n" + (WORD if game == 4 else TIP_WIDE))
                 self.both_ways(d, d.draw_box, [d.child_rect(c) for c in d.children],
                                picture=f"vv{game}_tip_both.png")
 
