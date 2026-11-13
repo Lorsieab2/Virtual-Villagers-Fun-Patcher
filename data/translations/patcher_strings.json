@@ -67239,6 +67239,325 @@
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
    "notes": "a patcher text shown by the game in its island-event popup; %1 = a number (number)",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.TITLE",
+   "english": "Diving for Treasure",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.INTRO.m",
+   "english": "%s is a diver. He regularly swims around the sea using a complex setup of reeds and animal skins to carry air. During one of his dives, he sees something shimmering deep down in the bottom of the reef. Should he swim down and look?",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.INTRO.f",
+   "english": "%s is a diver. She regularly swims around the sea using a complex setup of reeds and animal skins to carry air. During one of her dives, she sees something shimmering deep down in the bottom of the reef. Should she swim down and look?",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.LABEL_DEEPER",
+   "english": "Swim deeper",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.LABEL_NOT",
+   "english": "Better not",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.DEEPER.m",
+   "english": "%s swims deeper towards the shimmering object. He can feel the pressure of the ocean getting heavier and heavier all around him. Just a little bit closer, and...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.DEEPER.f",
+   "english": "%s swims deeper towards the shimmering object. She can feel the pressure of the ocean getting heavier and heavier all around her. Just a little bit closer, and...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_A.m",
+   "english": "It's an abandoned net wrapped around a seaweed-encrusted crate. When %s surfaces, he cracks it open to find a bunch of golden doubloons! Your village gains %d tech points.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_A.f",
+   "english": "It's an abandoned net wrapped around a seaweed-encrusted crate. When %s surfaces, she cracks it open to find a bunch of golden doubloons! Your village gains %d tech points.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_B.m",
+   "english": "It's a chewed-up buoy, which to %s, is some heavy striped ball. Whatever it is, it certainly has no use now. %s lets go of the mysterious heavy ball and swims up to the surface. Maybe next time he will find something worthwhile.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_B.f",
+   "english": "It's a chewed-up buoy, which to %s, is some heavy striped ball. Whatever it is, it certainly has no use now. %s lets go of the mysterious heavy ball and swims up to the surface. Maybe next time she will find something worthwhile.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_C.m",
+   "english": "It's a large rectangular shipping container, all rusted from the salt. To %s, it's just some random container, but it must contain something to be so heavy. He carefully swims to the surface and hauls it ashore. Turns out, it's full of exotic ingredients, the likes of which %s has never seen before! Your village gains %d food.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_C.f",
+   "english": "It's a large rectangular shipping container, all rusted from the salt. To %s, it's just some random container, but it must contain something to be so heavy. She carefully swims to the surface and hauls it ashore. Turns out, it's full of exotic ingredients, the likes of which %s has never seen before! Your village gains %d food.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_D.m",
+   "english": "POP! Before %s can react, one of his makeshift air tanks pops like a balloon. He stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. %s forgets his training and starts clawing through the water like a drowning animal.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.FIND_D.f",
+   "english": "POP! Before %s can react, one of her makeshift air tanks pops like a balloon. She stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. %s forgets her training and starts clawing through the water like a drowning animal.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D1.m",
+   "english": "After some agonizingly long minutes, %s heaves himself ashore, gasping for breath. His eyes, nose and mouth sting from the salty water, and he is dazed for a while. Eventually, %s manages to recover enough to make his way to the healers'. %s spends several days recovering from his near-death experience and is now afraid of the unforgiving ocean.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D1.f",
+   "english": "After some agonizingly long minutes, %s heaves herself ashore, gasping for breath. Her eyes, nose and mouth sting from the salty water, and she is dazed for a while. Eventually, %s manages to recover enough to make her way to the healers'. %s spends several days recovering from her near-death experience and is now afraid of the unforgiving ocean.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2_1.m",
+   "english": "After some agonizingly long minutes, %s struggles harder and harder to make it to the surface. His body becomes weaker and more painful with every stroke and his lungs are ready to burst. The sunlight starts becoming fainter as %s begins sinking towards the briny blue depths...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2_1.f",
+   "english": "After some agonizingly long minutes, %s struggles harder and harder to make it to the surface. Her body becomes weaker and more painful with every stroke and her lungs are ready to burst. The sunlight starts becoming fainter as %s begins sinking towards the briny blue depths...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2_2.m",
+   "english": "%s's last thoughts before inhaling water are of his family, and the foolish dreams he once had of taming the great, blue ocean...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2_2.f",
+   "english": "%s's last thoughts before inhaling water are of her family, and the foolish dreams she once had of taming the great, blue ocean...",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2A",
+   "english": "Eventually, %s's body washes ashore, to the dismay and grief of the villagers. They bury %s and mournfully lament the loss of a great sea explorer.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2B",
+   "english": "Several days pass, and %s's body is never found. %s's friends, family and the entire village gather to remember %s and mourn the loss of a great sea explorer.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2C_1.m",
+   "english": "\"Thank goodness, he's alive!\" %s coughs hard, bringing up water. \"Wh-where am I?!\" he sputters. %s opens his eyes to see the faces of many doctors, friends, as well as his family huddled over him. %s, the head Doctor, says, \"We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.\" %s sits up to see worried loved ones crying in distress, and is moved with pity. He goes to hug them and thanks everyone for saving his life.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2C_1.f",
+   "english": "\"Thank goodness, she's alive!\" %s coughs hard, bringing up water. \"Wh-where am I?!\" she sputters. %s opens her eyes to see the faces of many doctors, friends, as well as her family huddled over her. %s, the head Doctor, says, \"We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.\" %s sits up to see worried loved ones crying in distress, and is moved with pity. She goes to hug them and thanks everyone for saving her life.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2C_2.m",
+   "english": "Once he has sufficiently recovered from his near-death experience, he makes a silent, solemn vow to the majestic Ocean. In his heart, he apologizes for almost throwing his life away for the sake of some tempting treasure, and promises never to take Them for granted again. %s devotes himself to the healing arts in gratitude towards those who saved him that day.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.D2C_2.f",
+   "english": "Once she has sufficiently recovered from her near-death experience, she makes a silent, solemn vow to the majestic Ocean. In her heart, she apologizes for almost throwing her life away for the sake of some tempting treasure, and promises never to take Them for granted again. %s devotes herself to the healing arts in gratitude towards those who saved her that day.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.NOT.m",
+   "english": "%s knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and %s has a family waiting back home. %s hangs up his diving equipment to be a gentle father to his spouse and children.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.NOT.f",
+   "english": "%s knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and %s has a family waiting back home. %s hangs up her diving equipment to be a gentle mother to her spouse and children.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female",
+   "route": "key"
   }
  ]
 }

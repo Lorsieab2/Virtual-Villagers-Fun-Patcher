@@ -2,11 +2,12 @@
    vvfp_more_island_events.c after adv_vv345.inc, whose table slot, sites and dialog helpers it shares.
 
    ITS OWN SLOT.  The selector 0x419B30 lists the table's slots that can happen and draws one, rand(count).  This
-   event and The Aspiring Adventurer share the table's slot 0 (the only slot no stock event owns), but each has its
-   own place in the draw: when both can happen the list gets two entries for slot 0 (each a share of rand(count + 2),
-   like any listed event) and the object put in slot 0 is either event's, 1 in 2 (t_list) -- so each is drawn 1 in
-   (count + 2), as if it had a slot of its own.  The list holds one entry more than the stock slots (the dialog's
-   frame follows it): when it is full the second entry is left out rather than written past it.
+   event, The Aspiring Adventurer and Diving for Treasure share the table's slot 0 (the only slot no stock event
+   owns), but each has its own place in the draw: the list gets one entry for slot 0 per event that can happen (each
+   a share of rand(count + entries), like any listed event) and the object put in slot 0 is one of theirs, each
+   equally likely (adv_vv345.inc t_list) -- so each is drawn 1 in (count + entries), as if it had a slot of its own.
+   The list holds one entry more than the stock slots (the dialog's frame follows it): entries beyond its room are
+   left out rather than written past it.
 
    THE POPUP is The Secret City's own two-choice island-event dialog (constructor 0x4192F0), built by the game, with
    two more answer buttons made exactly as the constructor makes its two (new 0x14 bytes 0x46EC93, the picture 4 of
@@ -521,4 +522,5 @@ static void ts_install(void) {
     g_ts_layout.lines = TS_LINES;
     ts_build_object();
     g_ts = &TS_VV3;
+    t_register(&g_ts_object, NULL, ts_listable, NULL);   /* its own entry in the draw (adv_vv345.inc t_list) */
 }

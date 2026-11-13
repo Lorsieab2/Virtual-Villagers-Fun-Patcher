@@ -456,15 +456,20 @@ class Village:
     # -- the draw ------------------------------------------------------------------------------------------------
     def listed(self) -> bool:
         """The Secret City, The Tree of Life, New Believers: every stock slot empty, the selector's loop run; True
-        when slot 0 (the event) was listed."""
+        when slot 0 was listed with this event in it (The Secret City lists one entry for each of its More Island
+        Events events that can happen -- Diving for Treasure too, whenever two adults may go -- and the coin, no
+        roll scripted, puts the Adventurer's object in the slot)."""
         p, t = self.p, self.t
         esp = STACK_TOP - 0x2000
         p.set_reg("esp", esp)
         p.set_reg("esi", 1)
         p.set_reg("edi", 0)
+        saved, self.rolls = self.rolls, [0]
         p.run(*t["loop"])
+        self.rolls = saved
         self.obj = p.u32(t["table"])
-        return p.reg("edi") == 1 and p.u32(esp + t["offset"]) == 0
+        entries = p.reg("edi")
+        return entries >= 1 and all(p.u32(esp + t["offset"] + 4 * k) == 0 for k in range(entries))
 
     # -- the popup -----------------------------------------------------------------------------------------------
     def begin(self, rolls: list[int]) -> bool:

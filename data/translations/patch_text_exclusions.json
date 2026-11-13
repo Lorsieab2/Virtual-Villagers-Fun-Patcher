@@ -126,6 +126,11 @@
    "functions": ["ts_effects"]
   },
   {
+   "reason": "Diving for Treasure: its words for the Cause of Death companion's Deaths log (the diver's disappearance, written to the log file only). The words the event shows are in the template and looked up by key (dive_text.inc).",
+   "files": ["native/vvfp_more_island_events/dive_core.inc"],
+   "functions": ["dv_effects"]
+  },
+  {
    "reason": "More Island Events (all five games): the Island Events log's one entry for its events, in the log's own words (\"Event:\", \"Choice:\", \"Changes: none\"), written to the log file only, as the branching Custom Island Event's are.",
    "files": ["native/vvfp_more_island_events/adv_log.inc"],
    "functions": ["adv_log_event", "adv_log_choice", "adv_log_effects"]

@@ -1,6 +1,7 @@
 /* VVFP Aspiring Adventurer -- "The Aspiring Adventurer", the owner's island event (2026-11-12), in all five games
    (the rows vvN_more_island_events), with The Cave Explorers (A New Home, cave_core.inc) and The Climb (The Lost
-   Children, climb_core.inc), the owner's events of the same day.
+   Children, climb_core.inc), the owner's events of the same day, and The Troubling Signs (troubling_core.inc) and
+   Diving for Treasure (dive_core.inc), The Secret City's, 2026-11-13.
 
    An aspiring adventurer of the village sees something glinting off the safe path: "Go investigate!" or "Stay on
    the safe path".  The owner's words, odds and effects are in adv_core.inc (and src/vv_aspiring_adventurer.py, the
@@ -29,9 +30,11 @@
 #include "adv_log.inc"
 #include "climb_text.inc"
 #include "troubling_text.inc"
+#include "dive_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
 #include "troubling_core.inc"
+#include "dive_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -39,6 +42,7 @@ enum { ADV_STAGE_NONE = 0, ADV_STAGE_INTRO, ADV_STAGE_QUESTION, ADV_STAGE_RESULT
 
 #include "adv_vv345.inc"
 #include "troubling_vv3.inc"
+#include "dive_vv3.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
 
@@ -256,6 +260,43 @@ int __stdcall VvfpTroublingSignsButtons(void **out) {
         out[k] = ts_button(g_ts_dialog, k);
     }
     return 4;
+}
+
+/* Diving for Treasure (The Secret City): whether it can happen now -- two villagers of 18 or more who may be picked
+   (the diver and the head Doctor). */
+int __stdcall VvfpDivingPossible(void) {
+    return g_dv != NULL ? dv_listable() : 0;
+}
+
+/* Its last popup's state (for the tests): out[0] the diver's record, [1] the head Doctor's, [2] the diver is a woman,
+   [3] the find (0 A, 1 B, 2 C, 3 D), [4] D: survives (1) or sinks (0), [5] sinking: 0 dies, 1 disappears, 2 rescued,
+   [6] A's tech award, [7] C's food award, [8] the rescue's Healing gain, [9] "Better not"'s Parenting gain,
+   [10] answered, [11] the choice (0 "Swim deeper", 1 "Better not"), [12] the ending (-1 none yet: 0 A, 1 B, 2 C,
+   3 D1, 4 D2a, 5 D2b, 6 D2c, 7 "Better not"), [13] the effects made, [14] the question's pages, [15..22] each
+   ending's pages.  Returns 23. */
+int __stdcall VvfpDivingState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    out[0] = dv.diver; out[1] = dv.doctor; out[2] = dv.female; out[3] = dv.find; out[4] = dv.survives;
+    out[5] = dv.sink; out[6] = dv.tech_award; out[7] = dv.food_award; out[8] = dv.healing_gain;
+    out[9] = dv.parenting_gain; out[10] = dv.answered; out[11] = dv.choice; out[12] = dv.ending;
+    out[13] = dv.effects_made; out[14] = dv.intro.count;
+    for (k = 0; k < DV_ENDINGS; ++k) {
+        out[15 + k] = dv.endings[k].count;
+    }
+    return 23;
+}
+
+/* Page `k` of set `set`: 0 the question, 1..8 the endings (A, B, C, D1, D2a, D2b, D2c, "Better not"). */
+const char *__stdcall VvfpDivingPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set > DV_ENDINGS) {
+        return NULL;
+    }
+    pages = dv_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 
 /* The owner's protected villagers (adv_core.inc adv_is_protected_allowing): 1 when `record` of `game` may never be

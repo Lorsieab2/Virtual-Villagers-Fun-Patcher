@@ -10,6 +10,7 @@ import vv_aspiring_adventurer as adv
 import vv_cave_explorers as cave
 import vv_the_climb as climb
 import vv_troubling_signs as ts
+import vv_diving_for_treasure as dt
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -245,8 +246,57 @@ def troubling_signs_event() -> Event:
         f"population of {ts.POPULATION_AT_LEAST} or more counted as The Lost Children's \"A Dangerous Mission\" counts "
         "it (the living villagers plus the babies being carried); one more island event, listed with the others whose "
         "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
-        "Aspiring Adventurer), when the game draws an island event on its own schedule (the wall clock, real "
+        "Aspiring Adventurer and Diving for Treasure), when the game draws an island event on its own schedule (the wall clock, real "
         "seconds); added by \"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv3_more_island_events",
+    )
+
+
+def diving_for_treasure_event() -> Event:
+    """Diving for Treasure (The Secret City only; the owner, 2026-11-13): every number from
+    src/vv_diving_for_treasure.py, the awards from src/vv_aspiring_adventurer.py's ranges; the companion
+    (native/vvfp_more_island_events/dive_core.inc, dive_vv3.inc) rolls exactly these odds with the game's own random
+    routine."""
+    c = {k: v + 1e-9 for k, v in dt.outcome_chances()["DEEPER"].items()}   # 4.125% shows as 4.13% (half up)
+    lo, hi = dt.SKILL_GAIN
+    who = (f"alive and present, {dt.ADULT_YEARS} villager years or more, not nursing a baby (mother or father), not "
+           "the Tribal Chief")
+    subs = [
+        f"Who: the diver is a villager who is {who}, drawn among them, each equally likely; no spouse or children are "
+        "needed. The \"head Doctor\" named on the rescue page is only a name in the story: any other such villager, "
+        "drawn at random, never the diver; nothing happens to them.",
+        "Never picked (the owner's protected villagers): a nursing mother or father, the Tribal Chief, and anyone the "
+        f"game's own island events never pick; nor anyone under {dt.ADULT_YEARS}. Everyone else may be picked "
+        "(titles, Esteemed Elders and founders included).",
+        "One question in the game's own two-choice popup: \"Swim deeper\" or \"Better not\".",
+        f"\"Swim deeper\": a crate of golden doubloons {_pct(c['A'])}, a chewed-up buoy {_pct(c['B'])}, a shipping "
+        f"container of exotic ingredients {_pct(c['C'])}, or an air tank pops {dt.FIND_PERCENT}% (1 in 4 each).",
+        f"The doubloons: the village gains tech points ({adv.award_words(3, 'tech')}). The buoy: nothing happens. "
+        f"The container: the village gains food ({adv.award_words(3, 'food')}). Each amount is drawn when the popup "
+        "opens, each equally likely, times m, the game's own multiplier for its events (the villagers it counts, "
+        "divided by 20, plus 1), through the game's own food or tech writer.",
+        f"The air tank: {dt.SURVIVE_PERCENT}% the diver makes it ashore (overall {_pct(c['D1'])}) and now dislikes "
+        "swimming (the game's own dislike: taken from the likes if it was one, added to the dislikes); "
+        f"{100 - dt.SURVIVE_PERCENT}% the diver sinks (overall {_pct(c['D2A'] + c['D2B'] + c['D2C'])}).",
+        f"Sinking: {dt.DIES_PERCENT}% the body washes ashore -- the diver dies, the game's own death (\"Unknown "
+        f"causes\", a grave; overall {_pct(c['D2A'])}); {dt.DISAPPEARS_PERCENT}% the body is never found -- gone for "
+        f"good, no body, no grave, the Deaths log records a disappearance (overall {_pct(c['D2B'])}); "
+        f"{dt.RESCUED_PERCENT}% rescued -- +{lo} to {hi} Healing (each equally likely), at most {dt.SKILL_MAX}, the "
+        f"game's maximum (overall {_pct(c['D2C'])}).",
+        f"\"Better not\": always +{lo} to {hi} Parenting (each equally likely), at most {dt.SKILL_MAX}; nothing else "
+        "happens.",
+        "The effects wait for their own page: they come when the page that ends that ending's text is shown, never on "
+        "an earlier page; the Island Events log keeps one entry for the event, with the answer and every change. "
+        "Quitting before that page leaves the village as it was, and the event does not come back.",
+    ]
+    return Event(
+        dt.TITLE,
+        f"needs two villagers who are {who} (the diver and someone to name on the rescue page); one more island event, "
+        "listed with the others whose condition holds and drawn like them (1 in the number listed: it has its own "
+        "place in the draw, beside The Aspiring Adventurer and The Troubling Signs), when the game draws an island "
+        "event on its own schedule (the wall clock, real seconds); added by \"More Island Events\" (without it the "
+        "event does not exist)",
         tuple(subs),
         only_with="vv3_more_island_events",
     )
