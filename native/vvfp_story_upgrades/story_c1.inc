@@ -924,8 +924,9 @@ static const ce_adapter C1_ADAPTER = {
        15 lines (the longest and tallest stock encounter texts, at its 450
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
-       title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role,
+       title included; labels of up to 39 characters (the bytes kept), as wide as the screen
+   shows whole (story_label_widths.h; the owner, 2026-11-13: a label may run off its button while it is readable). */
+    49, 13, 49, 13, 1, 39, c1_rand_below, NULL, c1_role,
     C1_PROBE, (int)(sizeof C1_PROBE / sizeof C1_PROBE[0]),
     NULL,
     "Do this at your own risk: the game never makes anyone else the Golden Child. Each "

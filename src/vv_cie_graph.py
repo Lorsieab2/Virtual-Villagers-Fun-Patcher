@@ -19,6 +19,17 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
   MAX_QUESTIONS_PER_RUN questions and MAX_POPUPS_PER_RUN_V2 popups on one history.  Version 1 keeps exactly its old
   rules (a question only at the start, six popups), and its .cieg is the same bytes as before.
 
+  VERSION 3 (the owner, 2026-11-13: "add all three") adds
+    * award ranges: {"do": "food" | "tech", "amount": min, "max": max, ...} -- each amount min..max equally likely,
+      drawn with the walk that reaches it (the game's own random routine), then scaled by "Island Events Scale" as a
+      fixed amount is; the (award) placeholder shows the amount drawn;
+    * "only after a puzzle is solved": requirement {"puzzles": {"<game>": ["<puzzle>", ...]}} with each game's
+      puzzles as PUZZLES lists them -- the purchase is refused until every one listed for the game played is solved;
+    * "at most N years apart": a villager role's {"max_age_gap": {"role": other, "years": N}} -- the roles are
+      filled only by villagers within N years of each other; no such pair: the purchase is refused, as when no
+      villager fits a role (and at delivery the event keeps waiting).
+  Version 1 and 2 graphs load, compile and play exactly as before.
+
   {
     "format": "vvfp-cie-graph", "version": 2,
     "title": "The Aspiring Adventurer",          # the popups' title: 47 bytes, one line in every game listed
@@ -109,18 +120,20 @@ refuses it cleanly instead of misreading it.  A version 1 graph is compiled as v
     12 I crc32 of the whole file with this field 0      16 I games mask (bit g-1)
     20 H title string           22 H start node          24 H requirement min_eligible (0 = none)
     26 H role count  28 H node count  30 H child count  32 H effect count  34 H cond count  36 H variant count
-    38 H string count  40 H patch count  42 H 0
+    38 H string count  40 H patch count  42 H the requirement's condition (version 3: an ALL of puzzle conditions,
+    op 8: a = the puzzle's name, b = its game; NONE = none; 0 in versions 1 and 2)
     44 I roles  48 I nodes  52 I children  56 I effects  60 I conds  64 I variants  68 I patches  72 I strings (offsets)
     76 I 0
   role     8 bytes: B kind (0 villager, 1 stranger), B flags (1 optional, 2 exclude_nursing, 4 exclude_special,
-                    8 believers_only), B sex (0 any, 1 male, 2 female, 3 random), B min_age years, H id string, H 0
+                    8 believers_only), B sex (0 any, 1 male, 2 female, 3 random), B min_age years, H id string,
+                    B age-gap role + 1 (0 none), B its years (version 3; 0 0 before)
   node    28 bytes: B type (0 popup, 1 question, 2 branch), B popup (0 new, 1 append), B join (0 space, 1 paragraph),
                     B 0, H id string, H text string, H first variant, H variants, H first child, H children
                     (a question's: its two choices), H else node, H first effect, H effects, H summary string,
                     H outcome string, H 0
   child   12 bytes: H next node, H weight, H cond, H else node, H label string (choices only), H 0
   effect  16 bytes: B type (EFFECT_CODES), B role, B flags (1 scaled, 2 defer, 4 dislikes), B 0, i a, i b, H string, H 0
-                    food/tech a = amount; health a..b; skill a..b and string = the skills, comma separated;
+                    food/tech a = amount (b = a range's top, version 3; 0 = fixed); health a..b; skill a..b and string = the skills, comma separated;
                     preference string = the word; kill string = the cause; status a = 1 (heathen)
   cond     8 bytes: B op (COND_CODES), B operand count, H a, H b, H 0 -- visited a = node, role a = role, game a = mask,
                     patch a = patch, not a = operand, all / any: operands a .. a + count - 1 (consecutive)
@@ -142,10 +155,10 @@ from pathlib import Path
 from typing import Any, Iterable
 
 FORMAT = "vvfp-cie-graph"
-VERSION = 2                   # what new events are written in
-VERSIONS = (1, 2)             # what this patcher reads
+VERSION = 3                   # what new events are written in
+VERSIONS = (1, 2, 3)          # what this patcher reads
 BINARY_MAGIC = b"CIEG"
-BINARY_VERSION = 2            # a version 1 graph is still compiled as version 1, byte for byte as before
+BINARY_VERSION = 3            # a graph is compiled as its own version (1 and 2 byte for byte as before)
 NONE = 0xFFFF
 
 TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
@@ -236,7 +249,7 @@ class Game:
     plain: Layout        # the plain island-event popup (a graph whose start is not a question)
     question: Layout     # the two-choice question popup
     result: Layout       # every later popup
-    label_width: int
+    label_width: int     # a label's characters: the bytes the companion keeps (CE_BUTTON_BYTES - 1)
     skills: tuple[str, ...]
     preferences: tuple[str, ...]
     statuses: dict[str, int]          # status word -> the game's status list index
@@ -245,28 +258,58 @@ class Game:
 
 GAMES: dict[int, Game] = {
     1: Game(1, "A New Home", _COMMON | CAP_VILLAGE | CAP_STATUS, 27, 51,
-            Layout(51, 14, True), Layout(49, 13, True), Layout(49, 13, True), 34,
+            Layout(51, 14, True), Layout(49, 13, True), Layout(49, 13, True), 39,
             ("Parenting", "Building", "Farming", "Healing", "Research"), tuple(_PREFS_VV1.split(",")), {},
             "the Golden Child"),
     2: Game(2, "The Lost Children", _COMMON | CAP_STATUS, 23, 46,
-            Layout(46, 20, True), Layout(46, 16, True), Layout(46, 16, True), 30,
+            Layout(46, 20, True), Layout(46, 16, True), Layout(46, 16, True), 39,
             ("Parenting", "Building", "Farming", "Healing", "Research"), tuple(_PREFS_VV2.split(",")), {},
             "the Esteemed Elders' totem statues"),
     3: Game(3, "The Secret City", _COMMON | CAP_STATUS, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 32,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building"), tuple(_PREFS_VV3.split(",")), {},
             "the tribal chief"),
     4: Game(4, "The Tree of Life", _COMMON | CAP_VILLAGE, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 34,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building"), tuple(_PREFS_VV45.split(",")), {},
             "no one else"),
     5: Game(5, "New Believers", _COMMON | CAP_STATUS | CAP_SPAWN_FACTION | CAP_FAITH, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 17, False), 38,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 17, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building", "Devotion"), tuple(_PREFS_VV45.split(",")),
             {"heathen": 1},
             "the Heathens (believers_only), the chief, the Retired Chief, the other special roles the game never "
             "sends on events, and Reanimated spirits"),
 }
+
+# ---- Puzzles (version 3: "only after a puzzle is solved") ----------------------------------------------------------
+#
+# Each game's puzzles as its Custom Island Event adapter lists them (native/vvfp_story_upgrades/story_c1..c5.inc
+# C<n>_PUZZLE_DEFS, mirrored in tests/test_cie_graph.py).  The companion reads a puzzle solved from the same flag the
+# game's Puzzles and Statistics screens read (the adapter's puzzle_solved: A New Home's world bytes, e.g. The Cave
+# [world +0x9FA8], world = [0x48AEDC]; the other games' tables beside it).
+
+PUZZLES: dict[int, tuple[str, ...]] = {
+    1: ("The Well", "The Hut (the first small hut)", "The Beach", "The School", "The Lagoon",
+        "The Magic Fish of Fertility", "The Cemetery", "Herb Mastery", "The Garden", "The Magic Plant of Life",
+        "The Temple", "The Idol", "The Butterflies", "The Treasure", "The Cave",
+        "The second small hut (not on the Puzzles screen)", "The third small hut (not on the Puzzles screen)"),
+    2: ("The Lovely Hut (not on the Puzzles screen)", "Fire", "The Scarecrow", "The Elder Totem", "The Hospital",
+        "Herb Mastery", "The Sewing Hut", "The Dam", "The Cutting Tool", "The Stew", "The Vine Wall",
+        "The Ancient Mosaic", "The Boxed Gong Piece", "The Sunken Gong Piece", "The Inlaid Gong Piece",
+        "The Overgrown Gong Piece", "Sustainable Fishing"),
+    3: ("The First Chief", "The Bee Hive", "The Alchemy Lab", "The Roster of the Dead", "Weather Dancing", "The Lift",
+        "The Ruins", "The Ancient Bath", "The Statue", "The Orchard", "The Sharks", "Aromatherapy", "The Ash Key",
+        "The Cliff Key", "The Clam Key", "The Chief and the Princess"),
+    4: ("The Cutting Tool", "The Stream", "Boiling Water", "Soap Invented", "The Butterflies", "The Frog Rescue",
+        "The Cooking Pit", "Cloth Invented", "The Nursery School", "The Mossy Rocks", "The Grand Feast",
+        "Fishing Nets", "Pruning the Tree", "Honoring the Tree", "Purify Tree", "Decorating the Tree"),
+    5: ("The Nursery School (the milestone, not on the Puzzles screen)", "The Prison Break", "The Hungry Totem",
+        "The Knowing Totem", "The Buried Mausoleum", "The Blocking Totem", "The Hollow Totem", "The Lake",
+        "The Pain Totem", "The Rainbow Totem", "The Tribute Statue", "The Blind Totem",
+        "Hut 1 (not on the Puzzles screen)", "Hut 2 (not on the Puzzles screen)", "Hut 3 (not on the Puzzles screen)",
+        "The clothing hut", "The love shack", "The nursery school building"),
+}
+MAX_AGE_GAP = 80              # years
 
 # ---- Effects, conditions, placeholders ----------------------------------------------------------------------------
 
@@ -279,6 +322,7 @@ GONE_EFFECTS = ("kill", "vanish")
 STATUS_CODES = {"heathen": 1}
 CAUSES = ("custom", "unknown")
 COND_CODES = {"visited": 1, "role": 2, "game": 3, "patch": 4, "not": 5, "all": 6, "any": 7}
+COND_PUZZLE = 8              # version 3, the requirement only: a = the puzzle's name, b = its game
 SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
 NODE_TYPES = ("popup", "question", "branch")
 UNITS = {"food": "food", "tech": "tech points"}
@@ -293,6 +337,38 @@ def text_char_ok(c: str, version: int = 1) -> bool:
     """story_custom.inc ce_text_char_ok, line breaks allowed; version 2 adds the double quote, which every game's
     font draws (src/vv_font_glyphs.py: A New Home's and The Lost Children's fonts hold ! " ' , . ? / ` : -)."""
     return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n" or (version >= 2 and c == '"')
+
+
+# ---- Button labels (the owner, 2026-11-13: a label may run off its button, as long as it is readable) ----------
+#
+# Each game draws a question's two labels in its story font, centred on its button, the two buttons one above the
+# other in the middle of the screen (scripts/build_cie_label_widths.py): a label is limited only by the bytes the
+# companion keeps (BUTTON_BYTES) and by the screen's width, measured with the game's own font widths.
+
+LABEL_WIDTHS = Path(__file__).resolve().parents[1] / "data" / "cie_label_widths.json"
+_LABEL_TABLE: dict | None = None
+
+
+def _label_table(game: int) -> dict:
+    global _LABEL_TABLE
+    if _LABEL_TABLE is None:
+        _LABEL_TABLE = json.loads(LABEL_WIDTHS.read_text(encoding="utf-8"))["games"]
+    return _LABEL_TABLE[str(game)]
+
+
+def label_px(game: int, text: str) -> int:
+    """`text` measured as the game measures it (its story font, ldwBurweed27)."""
+    t = _label_table(game)
+    if not text:
+        return 0
+    w = t["widths"]
+    total = sum(w[ord(c) - 32] if 32 <= ord(c) < 127 else w[ord("A") - 32] for c in text)
+    return total + t["spacing"] * (len(text) - 1)
+
+
+def label_max_px(game: int) -> int:
+    """The widest label the game's screen shows whole, centred."""
+    return _label_table(game)["max_px"]
 
 
 class GraphError(ValueError):
@@ -341,7 +417,7 @@ def _int_in(v: Any, lo: int, hi: int) -> bool:
     return isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi
 
 
-def _norm_effect(e: Any, where: str, problems: list[str]) -> dict | None:
+def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> dict | None:
     if not isinstance(e, dict) or e.get("do") not in EFFECT_CODES:
         problems.append(f"{where}: an effect is {{\"do\": one of {', '.join(EFFECT_CODES)}}}")
         return None
@@ -349,11 +425,21 @@ def _norm_effect(e: Any, where: str, problems: list[str]) -> dict | None:
     known = {"do"}
     out: dict[str, Any] = {"do": do}
     if do in ("food", "tech"):
-        known |= {"amount", "scaled", "defer"}
+        known |= {"amount", "max", "scaled", "defer"}
         amount = e.get("amount")
         if not _int_in(amount, -MAX_AMOUNT, MAX_AMOUNT) or amount == 0:
             problems.append(f"{where}: {do} amount is a whole number, not 0, at most {MAX_AMOUNT} either way")
         out.update(amount=amount, scaled=bool(e.get("scaled", False)), defer=bool(e.get("defer", False)))
+        if "max" in e:
+            # Version 3: a range -- amount .. max, each equally likely, rolled with its page's walk (the
+            # "Island Events Scale" patches then scale the roll, as they scale a fixed amount).
+            hi = e["max"]
+            if version < 3:
+                problems.append(f"{where}: an amount range needs format version 3")
+            elif not _int_in(hi, -MAX_AMOUNT, MAX_AMOUNT) or not isinstance(amount, int) or hi <= amount \
+                    or (hi > 0) != (amount > 0):
+                problems.append(f"{where}: {do} range: its top is above its amount, on the same side of 0")
+            out["max"] = hi
         if out["defer"] and isinstance(amount, int) and amount < 0:
             problems.append(f"{where}: an award (defer) is a gain")
     elif do == "pay_award":
@@ -434,10 +520,34 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
     g["patches"] = list(dict.fromkeys(patches))
     req = data.get("requirement", {})
     min_el = req.get("min_eligible", 0) if isinstance(req, dict) else None
+    version = g["version"]
     if not _int_in(min_el, 0, 255):
         problems.append("requirement.min_eligible is 0..255")
         min_el = 0
     g["requirement"] = {"min_eligible": min_el}
+    puzzles = req.get("puzzles") if isinstance(req, dict) else None
+    if puzzles is not None:
+        # Version 3: "only after a puzzle is solved", per game: {"1": ["The Cave"], ...}.  Custom Island Events
+        # keep this part of the requirement: the purchase is refused until every listed puzzle of the game being
+        # played is solved.
+        fixed: dict[str, list[str]] = {}
+        if version < 3:
+            problems.append("needing a puzzle solved needs format version 3")
+        elif not isinstance(puzzles, dict):
+            problems.append("the puzzles needed are listed per game")
+        else:
+            for key, names in puzzles.items():
+                gn = int(key) if isinstance(key, (int, str)) and str(key).isdigit() else None
+                if gn not in GAMES or gn not in g["games"]:
+                    problems.append(f"puzzles needed: {key!r} is not one of the event's games")
+                    continue
+                if not isinstance(names, list) or not names or any(n not in PUZZLES[gn] for n in names):
+                    problems.append(f"puzzles needed: {GAMES[gn].name}'s puzzles are "
+                                    + ", ".join(PUZZLES[gn]))
+                    continue
+                fixed[str(gn)] = list(dict.fromkeys(names))
+        if fixed:
+            g["requirement"]["puzzles"] = {k: fixed[k] for k in sorted(fixed)}
 
     roles_in = data.get("roles")
     roles: dict[str, dict] = {}
@@ -459,7 +569,7 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
             roles[rid] = {"kind": "stranger", "sex": sex}
         else:
             extra = set(r) - {"kind", "optional", "sex", "min_age", "exclude_nursing", "exclude_special",
-                              "believers_only"}
+                              "believers_only", "max_age_gap"}
             sex = r.get("sex", "any")
             if sex not in ("any", "male", "female"):
                 problems.append(f"{where}: a villager's sex is any, male or female")
@@ -470,6 +580,17 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                           "min_age": min_age, "exclude_nursing": bool(r.get("exclude_nursing", True)),
                           "exclude_special": bool(r.get("exclude_special", True)),
                           "believers_only": bool(r.get("believers_only", True))}
+            gap = r.get("max_age_gap")
+            if gap is not None:
+                # Version 3: at most `years` apart from another villager role (both bound: the purchase is refused
+                # when no pair fits, as when no villager fits a role).
+                if version < 3:
+                    problems.append(f"{where}: an age gap needs format version 3")
+                elif not isinstance(gap, dict) or set(gap) != {"role", "years"} or not isinstance(gap["role"], str) \
+                        or not _int_in(gap["years"], 0, MAX_AGE_GAP):
+                    problems.append(f"{where}: an age gap is 0..{MAX_AGE_GAP} years from another role")
+                else:
+                    roles[rid]["max_age_gap"] = {"role": gap["role"], "years": gap["years"]}
         if extra:
             problems.append(f"{where}: unknown fields {', '.join(sorted(extra))}")
     if roles and next(iter(roles)) != "subject":
@@ -478,6 +599,15 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         problems.append("subject is a villager the event needs (not optional)")
     if len(roles) > 16:
         problems.append("at most 16 roles")
+    for rid, r in roles.items():
+        gap = r.get("max_age_gap")
+        if gap is None:
+            continue
+        other = roles.get(gap["role"])
+        if gap["role"] == rid or other is None or other["kind"] != "villager":
+            problems.append(f"role {rid}: the age gap names another villager role")
+        elif other.get("max_age_gap", {}).get("role") == rid:
+            problems.append(f"role {rid}: give the age gap on one of the two roles only")
     g["roles"] = roles
 
     start = data.get("start")
@@ -519,7 +649,7 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                 problems.append(f"{where}: variant {i + 1} is {{\"if\": condition, \"text\": \"...\"}}")
                 continue
             variants.append({"if": _norm_cond(v["if"], f"{where} variant {i + 1}", problems), "text": v["text"]})
-        effects = [x for x in (_norm_effect(e, f"{where} effect {i + 1}", problems)
+        effects = [x for x in (_norm_effect(e, f"{where} effect {i + 1}", problems, version)
                                for i, e in enumerate(n.get("effects", []) or [])) if x is not None]
         children = []
         for i, c in enumerate(n.get("children", []) or []):
@@ -636,7 +766,8 @@ def worst_case(text: str, game: Game, award: tuple[str, int, bool] | None) -> st
         if p.what == "award":
             if award is None:
                 return ""
-            return "9" * (AWARD_WIDEST if award[2] else len(str(abs(award[1]))))
+            widest = max(abs(x) for x in award[1]) if isinstance(award[1], tuple) else abs(award[1])
+            return "9" * (AWARD_WIDEST if award[2] else len(str(widest)))
         if p.what == "award_unit":
             return UNITS[award[0]] if award else UNITS["tech"]
         if p.what == "name":
@@ -786,7 +917,7 @@ class History:
     nodes: tuple[str, ...]
     chance: Fraction
     popups: list[Popup]
-    award: tuple[str, int, bool] | None       # the award deferred or paid: (kind, amount, scaled)
+    award: tuple | None                       # the award deferred or paid: (kind, amount or (min, max), scaled)
     paid: bool
     effects: list[tuple[str, dict]]           # (node, effect) in order
     ctx: Context
@@ -857,7 +988,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             if do in ("food", "tech") and e["defer"]:
                 if award is not None and not paid:
                     say(f"node {nid} ({where}): an award is deferred while another is still unpaid")
-                award, paid = (do, e["amount"], e["scaled"]), False
+                amount = (e["amount"], e["max"]) if e.get("max") is not None else e["amount"]
+                award, paid = (do, amount, e["scaled"]), False
             elif do == "pay_award":
                 if award is None or paid:
                     say(f"node {nid} ({where}): pay_award with no award deferred on the way here")
@@ -1088,6 +1220,9 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
                 if len(label) > min(game.label_width, BUTTON_BYTES):
                     problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with the "
                                     f"longest names; at most {min(game.label_width, BUTTON_BYTES)}")
+                elif label_px(gn, label) > label_max_px(gn):
+                    problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the longest "
+                                    f"names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
     for nid, n in nodes.items():
         for c in n["choices"]:
             _check_text(f"node {nid} label", c["label"], problems, g["version"])
@@ -1188,7 +1323,9 @@ def compile_graph(g: dict) -> bytes:
         else:
             flags = (1 if v["optional"] else 0) | (2 if v["exclude_nursing"] else 0) | \
                 (4 if v["exclude_special"] else 0) | (8 if v["believers_only"] else 0)
-            roles += _ROLE.pack(0, flags, SEX_CODES[v["sex"]], v["min_age"], s(r), 0)
+            gap = v.get("max_age_gap")
+            extra = (ridx[gap["role"]] + 1) | (gap["years"] << 8) if gap else 0
+            roles += _ROLE.pack(0, flags, SEX_CODES[v["sex"]], v["min_age"], s(r), extra)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -1210,6 +1347,7 @@ def compile_graph(g: dict) -> bytes:
             flags, a, b, st = 0, 0, 0, NONE
             if do in ("food", "tech"):
                 flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
+                b = e.get("max") or 0       # version 3: a range's top (0: the amount alone)
             elif do == "kill":
                 st = s(e["cause"])
             elif do == "status":
@@ -1230,6 +1368,14 @@ def compile_graph(g: dict) -> bytes:
                             s(n["outcome"]), 0)
     patches = b"".join(_PATCH.pack(s(p)) for p in g["patches"])
     title = s(g["title"])
+    # Version 3: the requirement's puzzles, one ALL condition over puzzle conditions (a = the name, b = the game).
+    requirement = NONE if g.get("version", 1) >= 3 else 0
+    req_puzzles = [(int(gn), name) for gn, names in g["requirement"].get("puzzles", {}).items() for name in names]
+    if req_puzzles:
+        requirement = len(conds)
+        conds.append(_COND.pack(COND_CODES["all"], len(req_puzzles), requirement + 1, 0, 0))
+        for gn, name in req_puzzles:
+            conds.append(_COND.pack(COND_PUZZLE, 0, s(name), gn, 0))
     blob = b""
     offsets = []
     for t in strings:
@@ -1245,11 +1391,11 @@ def compile_graph(g: dict) -> bytes:
     for sec in sections:
         offs.append(at)
         at += len(sec)
-    version = 1 if g.get("version", 1) == 1 else BINARY_VERSION
+    version = g.get("version", 1)          # each version's own number (1 and 2 byte for byte as before)
     head = _HEADER.pack(BINARY_MAGIC, version, _HEADER.size, at, 0,
                         sum(1 << (x - 1) for x in g["games"]), title, nidx[g["start"]],
                         g["requirement"]["min_eligible"], len(role_ids), len(node_ids), n_child, n_effect,
-                        len(conds), n_variant, len(strings), len(g["patches"]), 0, *offs, 0)
+                        len(conds), n_variant, len(strings), len(g["patches"]), requirement, *offs, 0)
     data = bytearray(head + b"".join(sections))
     struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
     return bytes(data)
@@ -1261,10 +1407,10 @@ def decompile_graph(data: bytes) -> dict:
         raise GraphError(["the file is shorter than a .cieg header"])
     h = _HEADER.unpack_from(data, 0)
     (magic, version, hsize, fsize, crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect, n_cond,
-     n_variant, n_string, n_patch, _z, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
+     n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
      _z2) = h
-    if magic != BINARY_MAGIC or version not in (1, BINARY_VERSION) or hsize != _HEADER.size or fsize != len(data):
-        raise GraphError(["not a version 1 or 2 .cieg file"])
+    if magic != BINARY_MAGIC or version not in VERSIONS or hsize != _HEADER.size or fsize != len(data):
+        raise GraphError(["not a version 1, 2 or 3 .cieg file"])
     check = bytearray(data)
     struct.pack_into("<I", check, 12, 0)
     if zlib.crc32(bytes(check)) != crc:
@@ -1306,13 +1452,15 @@ def decompile_graph(data: bytes) -> dict:
         return {name: [cond(a + k) for k in range(count)]}
 
     roles = {}
-    for rid, (kind, flags, sex, min_age, _sid, _z3) in zip(role_ids, roles_raw):
+    for rid, (kind, flags, sex, min_age, _sid, extra) in zip(role_ids, roles_raw):
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
         else:
             roles[rid] = {"kind": "villager", "optional": bool(flags & 1), "sex": sex_names[sex], "min_age": min_age,
                           "exclude_nursing": bool(flags & 2), "exclude_special": bool(flags & 4),
                           "believers_only": bool(flags & 8)}
+            if version >= 3 and extra & 0xFF:
+                roles[rid]["max_age_gap"] = {"role": role_ids[(extra & 0xFF) - 1], "years": extra >> 8}
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
         (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
@@ -1337,6 +1485,8 @@ def decompile_graph(data: bytes) -> dict:
             e: dict[str, Any] = {"do": do}
             if do in ("food", "tech"):
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
+                if b:
+                    e["max"] = b
             elif do in VILLAGER_EFFECTS:
                 e["role"] = role_ids[role]
                 if do == "kill":
@@ -1354,9 +1504,17 @@ def decompile_graph(data: bytes) -> dict:
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
                       "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
                       "outcome": s(outcome)}
+    requirement: dict[str, Any] = {"min_eligible": min_el}
+    if version >= 3 and req_cond != NONE:
+        op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
+        puzzles: dict[str, list[str]] = {}
+        for k in range(count):
+            _op, _c, name, gn, _ = _COND.unpack_from(data, o_cond + (first + k) * _COND.size)
+            puzzles.setdefault(str(gn), []).append(s(name))
+        requirement["puzzles"] = {k: puzzles[k] for k in sorted(puzzles)}
     return {"format": FORMAT, "version": version, "title": s(title),
             "games": [x for x in range(1, 6) if games_mask & (1 << (x - 1))], "patches": patches,
-            "requirement": {"min_eligible": min_el}, "roles": roles, "start": node_ids[start], "nodes": nodes}
+            "requirement": requirement, "roles": roles, "start": node_ids[start], "nodes": nodes}
 
 
 # ---- The chances of every outcome ----------------------------------------------------------------------------------
@@ -1378,6 +1536,8 @@ def award_words(p: History) -> str:
     if p.award is None or not p.paid:
         return "nothing"
     kind, amount, _ = p.award
+    if isinstance(amount, tuple):
+        return f"+{amount[0]:,} to {amount[1]:,} {UNITS[kind]}"
     return f"+{amount:,} {UNITS[kind]}"
 
 

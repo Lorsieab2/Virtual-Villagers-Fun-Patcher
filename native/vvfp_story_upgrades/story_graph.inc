@@ -117,7 +117,8 @@ enum { CGD_PAGE = 0, CGD_RESULT = 1, CGD_QUESTION = 2 };
 enum { CG_POPUP = 0, CG_QUESTION = 1, CG_BRANCH = 2 };
 enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CGE_STATUS = 6, CGE_HEALTH = 7,
        CGE_PREF = 8, CGE_SKILL = 9, CGE_SICK = 10 };
-enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7 };
+enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
+       CGC_PUZZLE = 8 };              /* version 3: a = the puzzle's name, b = its game (the requirement) */
 /* CG_DONE: every page shown, the file kept until a save holds the last page's effects (a crash before it must
    neither lose nor repeat them). */
 enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DONE = 5 };
@@ -131,7 +132,9 @@ typedef struct {
     const unsigned char *d;
     unsigned int size;
     unsigned int games;
-    int version;                      /* 1, or 2: a question may be any node, text may hold " */
+    int version;                      /* 1; 2: a question may be any node, text may hold "; 3: award ranges,
+                                         the puzzle requirement, age gaps between roles */
+    int req_cond;                     /* version 3: the requirement's condition (puzzles), CG_NONE */
     int title, start, min_eligible;
     int n_role, n_node, n_child, n_effect, n_cond, n_variant, n_string, n_patch;
     unsigned int o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string, o_blob, blob_size;
@@ -376,9 +379,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     memset(g, 0, sizeof *g);
     g->d = data;
     g->size = size;
-    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || (cg_u16(h + 4) != 1u && cg_u16(h + 4) != 2u)
+    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 3u
         || cg_u16(h + 6) != CG_HEADER_BYTES || cg_u32(h + 8) != size) {
-        return cg_bad("it is not a version 1 or 2 .cieg file");
+        return cg_bad("it is not a version 1, 2 or 3 .cieg file");
     }
     g->version = (int)cg_u16(h + 4);
     if (size > CG_MAX_FILE) {
@@ -399,6 +402,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     g->n_variant = (int)cg_u16(h + 36);
     g->n_string = (int)cg_u16(h + 38);
     g->n_patch = (int)cg_u16(h + 40);
+    g->req_cond = g->version >= 3 ? (int)cg_u16(h + 42) : (int)CG_NONE;
     g->o_role = cg_u32(h + 44);
     g->o_node = cg_u32(h + 48);
     g->o_child = cg_u32(h + 52);
@@ -444,6 +448,14 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             || (r[0] == 1 && (r[2] < 1u || r[2] > 3u)) || (i == 0 && (r[0] != 0 || (r[1] & CG_ROLE_OPTIONAL)))) {
             return cg_bad("a role is not one this game can read");
         }
+        if (r[6] != 0 || r[7] != 0) {
+            /* Version 3: at most r[7] years apart from role r[6] - 1, both villagers. */
+            int other = (int)r[6] - 1;
+            if (g->version < 3 || other < 0 || other >= g->n_role || other == i || r[0] != 0
+                || cg_role_at(g, other)[0] != 0 || r[7] > 80u) {
+                return cg_bad("a role's age gap is not one this game can read");
+            }
+        }
     }
     for (i = 0; i < g->n_cond; ++i) {
         const unsigned char *c = cg_cond_at(g, i);
@@ -456,6 +468,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         case CGC_PATCH: ok = (int)a < g->n_patch; break;
         case CGC_NOT: ok = (int)a > i && (int)a < g->n_cond; break;
         case CGC_ALL: case CGC_ANY: ok = c[1] >= 1u && (int)a > i && (int)a + c[1] <= g->n_cond; break;
+        case CGC_PUZZLE:
+            ok = g->version >= 3 && cg_str_ok(g, a, 0) && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= 5u;
+            break;
         default: ok = 0; break;
         }
         if (!ok) {
@@ -480,7 +495,11 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         }
         if (ok) {
             switch (e[0]) {
-            case CGE_FOOD: case CGE_TECH: ok = a != 0 && a <= CE_MAX_AMOUNT && a >= -CE_MAX_AMOUNT; break;
+            case CGE_FOOD: case CGE_TECH:
+                /* b: version 3's range top (0: the amount alone), above the amount, the same side of 0. */
+                ok = a != 0 && a <= CE_MAX_AMOUNT && a >= -CE_MAX_AMOUNT
+                     && (b == 0 || (g->version >= 3 && b > a && b <= CE_MAX_AMOUNT && (b > 0) == (a > 0)));
+                break;
             case CGE_KILL: {
                 const char *cause = cg_s(g, str);
                 ok = str != CG_NONE && cause[0] != '\0' && lstrlenA(cause) < CG_CAUSE_BYTES && ce_text_ok(cause, 0);
@@ -540,6 +559,10 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 return cg_bad("a child is not one this game can read");
             }
         }
+    }
+    if (g->req_cond != (int)CG_NONE
+        && (g->req_cond >= g->n_cond || cg_cond_at(g, g->req_cond)[0] != CGC_ALL)) {
+        return cg_bad("its requirement is not one this game can read");
     }
     if (!cg_acyclic(g)) {
         return cg_bad("its nodes go round in a circle");
@@ -633,6 +656,7 @@ static ce_event cg_one;                /* one villager's change, through ce_appl
 #ifdef VVFP_TEST
 static int test_graph_patches = -1;    /* the patches on, -1 = as seen */
 static int test_graph_scale = -1;      /* the scale mode, -1 = as the companion says */
+static int test_graph_puzzles = -1;    /* the puzzles solved (bit = the adapter's index), -1 = as the game says */
 static short test_graph_force[64];     /* nodes a draw picks whenever one of them can be drawn */
 static int test_graph_forced;
 typedef struct {
@@ -743,9 +767,99 @@ static int cg_augment(const ce_adapter *a, int game, int role, unsigned char *se
     return 0;
 }
 
+/* VERSION 3: AGE GAPS.  A villager role may be "at most N years apart" from another (the role's bytes 6 and 7:
+   that role + 1, N).  The matching above cannot see a rule between two roles, so with a gap the roles are filled
+   by a search: each role in turn takes an eligible villager not taken, within every gap of the roles already
+   filled (cg_try), until all are filled or none can be (CG_GAP_STEPS bounds it: a village too big to search is
+   refused rather than hung).  Ages in the games' own units, 20 a year (ce_age). */
+#define CG_GAP_STEPS 400000
+static int cg_try[CG_MAX_ROLES];       /* the record each role holds in this search, -1 */
+static int cg_gap_steps;
+
+static int cg_has_gaps(void) {
+    int r;
+    for (r = 0; r < cg_g.n_role; ++r) {
+        if (cg_role_at(&cg_g, r)[6] != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void cg_try_reset(void) {
+    int r;
+    for (r = 0; r < CG_MAX_ROLES; ++r) {
+        cg_try[r] = -1;
+    }
+}
+
+/* Record `i` as role `r` keeps every age gap with the roles already filled. */
+static int cg_gap_ok(const ce_adapter *a, int r, int i) {
+    const unsigned char *spec = cg_role_at(&cg_g, r);
+    int q;
+    for (q = 0; q < cg_g.n_role; ++q) {
+        const unsigned char *qs = cg_role_at(&cg_g, q);
+        int years, diff;
+        if (q == r || cg_try[q] < 0) {
+            continue;
+        }
+        if (spec[6] == (unsigned char)(q + 1)) {
+            years = spec[7];
+        } else if (qs[6] == (unsigned char)(r + 1)) {
+            years = qs[7];
+        } else {
+            continue;
+        }
+        diff = ce_age(a, a->record(i)) - ce_age(a, a->record(cg_try[q]));
+        if (diff < 0) {
+            diff = -diff;
+        }
+        if (diff > 20 * years) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+static int cg_search(const ce_adapter *a, int game, unsigned int roles, unsigned char *used) {
+    int r, i;
+    if (roles == 0u) {
+        return 1;
+    }
+    if (++cg_gap_steps > CG_GAP_STEPS) {
+        return 0;
+    }
+    for (r = 0; r < cg_g.n_role && !(roles & (1u << r)); ++r) {
+    }
+    if (r >= cg_g.n_role || cg_role_at(&cg_g, r)[0] != 0) {
+        return cg_search(a, game, roles & ~(1u << r), used);
+    }
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        int ok;
+        if (used[i] || !cg_eligible(a, game, r, i) || !cg_gap_ok(a, r, i)) {
+            continue;
+        }
+        used[i] = 1;
+        cg_try[r] = i;
+        ok = cg_search(a, game, roles & ~(1u << r), used);
+        used[i] = 0;
+        cg_try[r] = -1;
+        if (ok) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int cg_matchable(const ce_adapter *a, int game, unsigned int roles, const unsigned char *used) {
     unsigned char seen[CE_MAX_RECORDS];
     int r;
+    if (cg_has_gaps()) {
+        static unsigned char copy[CE_MAX_RECORDS];
+        memcpy(copy, used, sizeof copy);
+        cg_gap_steps = 0;
+        return cg_search(a, game, roles, copy);
+    }
     for (r = 0; r < CE_MAX_RECORDS; ++r) {
         cg_owner[r] = -1;
     }
@@ -782,6 +896,7 @@ static int cg_feasible(int game) {
         return 0;
     }
     memset(used, 0, sizeof used);
+    cg_try_reset();
     return cg_matchable(a, game, cg.planned, used);
 }
 
@@ -800,6 +915,7 @@ static int cg_bind(int game) {
         return 1;
     }
     memset(used, 0, sizeof used);
+    cg_try_reset();
     if (!cg_matchable(a, game, left, used)) {
         return 0;
     }
@@ -816,13 +932,15 @@ static int cg_bind(int game) {
         }
         left &= ~(1u << r);
         for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
-            if (used[i] || !cg_eligible(a, game, r, i)) {
+            if (used[i] || !cg_eligible(a, game, r, i) || !cg_gap_ok(a, r, i)) {
                 continue;
             }
             used[i] = 1;
+            cg_try[r] = i;
             if (cg_matchable(a, game, left, used)) {
                 candidates[n++] = i;
             }
+            cg_try[r] = -1;
             used[i] = 0;
         }
         if (n == 0) {
@@ -830,6 +948,7 @@ static int cg_bind(int game) {
         }
         pick = candidates[ce_random_below(a, n)];
         used[pick] = 1;
+        cg_try[r] = pick;
         cg.record[r] = pick;
         cg.identity[r] = ce_identity(a, a->record(pick));
         cg.female[r] = ce_sex(a, a->record(pick)) == STORY_SEX_FEMALE;
@@ -851,6 +970,33 @@ static unsigned char *cg_villager(const ce_adapter *a, int r) {
 
 static unsigned char cg_visited[(CG_MAX_NODES + 7) / 8];
 
+/* Whether `game`'s puzzle `name` is solved: the adapter's puzzle_solved, the flag the game's own Puzzles and
+   Statistics screens read (A New Home: the world's byte, The Cave at [world +0x9FA8], story_c1.inc C1_PUZZLES;
+   the other games' tables in story_c2..c5.inc).  0 when the game has no puzzle of that name. */
+static int cg_puzzle_solved(int game, const char *name) {
+    const ce_adapter *a = ce_adapter_for(game);
+    int i;
+#ifdef VVFP_TEST
+    if (test_graph_puzzles >= 0) {
+        for (i = 0; a != NULL && i < a->puzzle_count; ++i) {
+            if (lstrcmpA(a->puzzles[i].name, name) == 0) {
+                return (test_graph_puzzles >> i) & 1;
+            }
+        }
+        return 0;
+    }
+#endif
+    if (a == NULL || a->puzzle_solved == NULL) {
+        return 0;
+    }
+    for (i = 0; i < a->puzzle_count; ++i) {
+        if (lstrcmpA(a->puzzles[i].name, name) == 0) {
+            return a->puzzle_solved(i) != 0;
+        }
+    }
+    return 0;
+}
+
 static int cg_holds_cond(int i, int game, int depth) {
     const unsigned char *c;
     unsigned int a;
@@ -868,6 +1014,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_ROLE: return (cg.bound >> a) & 1u;
     case CGC_GAME: return (a >> (game - 1)) & 1u;
     case CGC_PATCH: return (cg.patches >> a) & 1u;
+    case CGC_PUZZLE: return (int)cg_u16(c + 4) != game || cg_puzzle_solved(game, cg_s(&cg_g, a));
     case CGC_NOT: return !cg_holds_cond((int)a, game, depth + 1);
     case CGC_ALL:
         for (k = 0; k < c[1]; ++k) {
@@ -1002,6 +1149,11 @@ static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e
     int va = 0, vb = 0;
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
+        if (hi != 0) {
+            /* Version 3: a range, each amount equally likely (the game's random routine), then scaled as a fixed
+               amount is. */
+            lo += ce_random_below(a, hi - lo + 1);
+        }
         va = (e[2] & 1u) ? cg_scaled(a, game, e[0] == CGE_FOOD, lo) : lo;
         break;
     case CGE_HEALTH:
@@ -2388,7 +2540,21 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             return why;
         }
     }
+    if (cg_g.req_cond != (int)CG_NONE) {
+        /* Version 3: "only after a puzzle is solved" -- every puzzle the event lists for this game. */
+        const unsigned char *all = cg_cond_at(&cg_g, cg_g.req_cond);
+        int k;
+        for (k = 0; k < all[1]; ++k) {
+            const unsigned char *c = cg_cond_at(&cg_g, (int)cg_u16(all + 2) + k);
+            if (c[0] == CGC_PUZZLE && (int)cg_u16(c + 4) == game && !cg_puzzle_solved(game, cg_s(&cg_g, cg_u16(c + 2)))) {
+                wsprintfA(reason, "\"%s\" can only happen once %s is solved. Nothing has been queued.",
+                          cg_s(&cg_g, (unsigned int)cg_g.title), cg_s(&cg_g, cg_u16(c + 2)));
+                return reason;
+            }
+        }
+    }
     memset(used, 0, sizeof used);
+    cg_try_reset();
     needed = cg_needed();
     for (r = 0; r < cg_g.n_role; ++r) {
         if (!(needed & (1u << r))) {
@@ -2405,12 +2571,27 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         }
     }
     if (!cg_matchable(a, game, needed, used)) {
+        if (cg_has_gaps()) {
+            /* Version 3: no villagers fit the roles together (an age gap). */
+            int q;
+            for (q = 0; q < cg_g.n_role; ++q) {
+                const unsigned char *qs = cg_role_at(&cg_g, q);
+                if (qs[6] != 0 && (needed & (1u << q)) && (needed & (1u << (qs[6] - 1)))) {
+                    wsprintfA(reason, "No two villagers in the village can be the event's %s and %s now: they must be "
+                              "at most %d years apart. Nothing has been queued.",
+                              cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, qs[6] - 1) + 4)), cg_s(&cg_g, cg_u16(qs + 4)),
+                              (int)qs[7]);
+                    return reason;
+                }
+            }
+        }
         return "The village does not have enough different villagers for the event's roles now. "
                "Nothing has been queued.";
     }
     *planned = needed;
     for (r = 0; r < cg_g.n_role; ++r) {
         const unsigned char *spec = cg_role_at(&cg_g, r);
+        cg_try_reset();
         if (spec[0] == 0 && (spec[1] & CG_ROLE_OPTIONAL) && cg_matchable(a, game, *planned | (1u << r), used)) {
             *planned |= 1u << r;       /* an optional role the village can fill now */
         }
@@ -3010,6 +3191,11 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
     }
     test_graph_patches = patches;
     test_graph_scale = scale;
+}
+
+/* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphPuzzles(int solved) {
+    test_graph_puzzles = solved;
 }
 
 /* The run: out[0] phase, [1] display_next, [2] display_count, [3] display armed, [4] choice, [5] bound roles,

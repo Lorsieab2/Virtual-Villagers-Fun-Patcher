@@ -28708,6 +28708,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s3",
+   "english": "That button label is wider than the screen in this game. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_custom.ce_label_refusal.s2",
    "english": "A button label is %d characters at most in this game.",
    "games": [
@@ -64748,7 +64762,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.cg_load.s20",
-   "english": "it is not a version 1 or 2 .cieg file",
+   "english": "it is not a version 1, 2 or 3 .cieg file",
    "games": [
     "vv1",
     "vv2",
@@ -64763,6 +64777,34 @@
   {
    "stem": "vvfp.story/story_graph.cg_load.s21",
    "english": "a question does not have two choices, or makes changes",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s22",
+   "english": "a role's age gap is not one this game can read",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_load.s23",
+   "english": "its requirement is not one this game can read",
    "games": [
     "vv1",
     "vv2",
@@ -64929,6 +64971,20 @@
    "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
   },
   {
+   "stem": "vvfp.story/story_graph.cg_refusal.s3",
+   "english": "\"%s\" can only happen once %s is solved. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
    "stem": "vvfp.story/story_graph.cg_refusal.s1",
    "english": "Nobody in the village can be the event's %s now: it needs %s. Nothing has been queued.",
    "games": [
@@ -64941,6 +64997,20 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s4",
+   "english": "No two villagers in the village can be the event's %s and %s now: they must be at most %d years apart. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
   },
   {
    "stem": "vvfp.story/story_graph.cg_refusal.s2",

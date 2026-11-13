@@ -79,6 +79,7 @@
 #endif
 #include "story_targets.h"
 #include "story_custom.h"
+#include "story_label_widths.h"   /* each game's button-label widths (scripts/build_cie_label_widths.py) */
 
 enum {
     IDD_PICK = 301,

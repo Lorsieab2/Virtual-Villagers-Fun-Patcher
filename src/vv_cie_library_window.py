@@ -92,6 +92,7 @@ NOT_SAVED = "(not saved yet)"
 ENDS = "(the event ends)"
 LEAVE_OUT = "(leave this way out)"
 NEW_TEXT = "Write what happens here."
+NO_GAP = "(any age)"
 
 GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The Lost Children",
                3: "Virtual Villagers - The Secret City", 4: "Virtual Villagers - The Tree of Life",
@@ -766,6 +767,19 @@ class Library:
             "The game needs no particular villagers for a Custom Island Event: you choose when it happens. If no "
             "villager fits a role the event needs (Roles tab), the game refuses to queue it and says so."))
         note.grid(row=8, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        # Only after a puzzle is solved (the owner, 2026-11-13): per game, any of its puzzles.
+        ttk.Label(page, text="Only after these puzzles are solved (the game refuses to queue it before):").grid(
+            row=9, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        pick = ttk.Frame(page)
+        pick.grid(row=10, column=0, columnspan=3, sticky="w")
+        self.puzzle_game = ttk.Combobox(pick, state="readonly", width=26)
+        self.puzzle_game.grid(row=0, column=0, sticky="nw", padx=(0, 8))
+        self.puzzle_game.bind("<<ComboboxSelected>>", lambda _e: self._show_puzzles())
+        self.puzzle_list = tk.Listbox(pick, selectmode="multiple", height=8, width=48, exportselection=False)
+        self.puzzle_list.grid(row=0, column=1, sticky="w")
+        self.puzzle_list.bind("<<ListboxSelect>>", lambda _e: self._puzzles_changed())
+        self.puzzle_note = ttk.Label(page, justify="left", wraplength=500, text="")
+        self.puzzle_note.grid(row=11, column=0, columnspan=3, sticky="w")
         page.columnconfigure(0, weight=1)
 
     def _tab_text(self) -> None:
@@ -1029,6 +1043,7 @@ class Library:
             self.patches_var.set(", ".join(g["patches"]))
         finally:
             self._loading = False
+        self._show_puzzles()
         self.refresh_now()
         self.show_node()
         self.show_roles()
@@ -1276,6 +1291,48 @@ class Library:
         if self._loading:
             return
         self.g[key] = value
+        self.changed()
+
+    def _show_puzzles(self) -> None:
+        """The puzzles of the game picked, those the event needs selected."""
+        names = [cg.GAMES[n].name for n in self.g["games"]]
+        current = self.puzzle_game.get()
+        self.puzzle_game.configure(values=names)
+        if current not in names:
+            self.puzzle_game.set(names[0] if names else "")
+        game = next((n for n in self.g["games"] if cg.GAMES[n].name == self.puzzle_game.get()), None)
+        self._loading = True
+        try:
+            self.puzzle_list.delete(0, "end")
+            needed = self.g["requirement"].get("puzzles", {}).get(str(game), []) if game else []
+            for i, name in enumerate(cg.PUZZLES.get(game, ()) if game else ()):
+                self.puzzle_list.insert("end", name)
+                if name in needed:
+                    self.puzzle_list.selection_set(i)
+        finally:
+            self._loading = False
+        every = self.g["requirement"].get("puzzles", {})
+        words = "; ".join(f"{cg.GAMES[int(k)].name}: {', '.join(v)}" for k, v in every.items())
+        self.puzzle_note.configure(text=("Needed: " + words) if words else "No puzzle is needed.")
+
+    def _puzzles_changed(self) -> None:
+        if self._loading:
+            return
+        game = next((n for n in self.g["games"] if cg.GAMES[n].name == self.puzzle_game.get()), None)
+        if game is None:
+            return
+        names = [self.puzzle_list.get(i) for i in self.puzzle_list.curselection()]
+        puzzles = dict(self.g["requirement"].get("puzzles", {}))
+        if names:
+            puzzles[str(game)] = names
+        else:
+            puzzles.pop(str(game), None)
+        if puzzles:
+            self.g["requirement"]["puzzles"] = {k: puzzles[k] for k in sorted(puzzles)}
+            self.g["version"] = max(self.g.get("version", 1), 3)
+        else:
+            self.g["requirement"].pop("puzzles", None)
+        self._show_puzzles()
         self.changed()
 
     def _games_changed(self) -> None:
@@ -1670,6 +1727,26 @@ class Library:
 
         if do in ("food", "tech"):
             integer("amount", -cg.MAX_AMOUNT, cg.MAX_AMOUNT, f"Amount of {cg.UNITS[do]} (below 0 takes):")
+            # A range (the owner, 2026-11-13): up to this much, each amount equally likely, drawn for its page.
+            ttk.Label(form, text="Up to (empty: exactly the amount; drawn at random):").grid(row=row, column=0,
+                                                                                         sticky="w", pady=2)
+            top = var_of("" if e.get("max") is None else str(e["max"]))
+            ttk.Spinbox(form, from_=-cg.MAX_AMOUNT, to=cg.MAX_AMOUNT, textvariable=top, width=12).grid(
+                row=row, column=1, sticky="w")
+
+            def write_top(*_a):
+                text = top.get().strip()
+                if not text:
+                    e.pop("max", None)
+                else:
+                    try:
+                        e["max"] = int(text)
+                    except ValueError:
+                        return
+                    self.g["version"] = max(self.g.get("version", 1), 3)
+                self._effect_changed()
+            top.trace_add("write", write_top)
+            row += 1
             flag("scaled", "Scaled by the Island Events Scale patches, when they are on")
             flag("defer", "Keep it as the award: given later by \"Give the award kept earlier\"")
         elif do == "pay_award":
@@ -1853,6 +1930,34 @@ class Library:
             box = ttk.Checkbutton(form, text=words, variable=var, command=write,
                                   state="normal" if enabled else "disabled")
             box.grid(row=4 + i, column=0, columnspan=2, sticky="w", pady=2)
+        # At most N years apart from another villager role (the owner, 2026-11-13).
+        others = [q for q, v in self.g["roles"].items() if q != r and v["kind"] == "villager"]
+        gap = role.get("max_age_gap") or {}
+        line = ttk.Frame(form)
+        line.grid(row=4 + len(flags), column=0, columnspan=2, sticky="w", pady=(6, 2))
+        ttk.Label(line, text="At most").pack(side="left")
+        years = tk.StringVar(master=self.window, value=str(gap.get("years", 5)))
+        ttk.Spinbox(line, from_=0, to=cg.MAX_AGE_GAP, textvariable=years, width=4).pack(side="left", padx=4)
+        ttk.Label(line, text="years apart from").pack(side="left")
+        partner = ttk.Combobox(line, state="readonly", width=24,
+                               values=[NO_GAP] + [capital(role_words(q)) for q in others])
+        partner.pack(side="left", padx=4)
+        partner.set(capital(role_words(gap["role"])) if gap.get("role") in others else NO_GAP)
+
+        def write_gap(*_a):
+            pick = partner.current()
+            if pick <= 0:
+                role.pop("max_age_gap", None)
+            else:
+                try:
+                    n = int(years.get())
+                except ValueError:
+                    return
+                role["max_age_gap"] = {"role": others[pick - 1], "years": n}
+                self.g["version"] = max(self.g.get("version", 1), 3)
+            self._role_changed()
+        partner.bind("<<ComboboxSelected>>", write_gap)
+        years.trace_add("write", write_gap)
 
     def add_role(self) -> None:
         name = ASK_STRING(TITLE, "A short name for the new role (letters, digits or _; e.g. rival):",

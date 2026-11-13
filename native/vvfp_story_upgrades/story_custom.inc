@@ -1913,6 +1913,36 @@ static int ce_has_effects(const ce_event *e) {
         || e->revive_count > 0;
 }
 
+/* The game of adapter `a` (1..5), 0 when none. */
+static int ce_game_of(const ce_adapter *a) {
+    int g;
+    for (g = 1; g <= 5; ++g) {
+        if (ce_adapter_for(g) == a) {
+            return g;
+        }
+    }
+    return 0;
+}
+
+/* `label` measured as the game measures it in its story font (story_label_widths.h): a label may be wider than
+   its button (the owner, 2026-11-13), the two buttons are one above the other, so only the screen limits it. */
+static int ce_label_px(const ce_adapter *a, const char *label) {
+    int g = ce_game_of(a), n = 0, total = 0;
+    if (g == 0) {
+        return 0;
+    }
+    for (; *label != '\0'; ++label, ++n) {
+        unsigned char c = (unsigned char)*label;
+        total += CE_LABEL_PX[g - 1][(c >= 32 && c < 127 ? c : 'A') - 32];
+    }
+    return n > 0 ? total + CE_LABEL_SPACING[g - 1] * (n - 1) : 0;
+}
+
+static int ce_label_max_px(const ce_adapter *a) {
+    int g = ce_game_of(a);
+    return g == 0 ? 0x7FFFFFFF : CE_LABEL_MAX_PX[g - 1];
+}
+
 /* Why `label` cannot be a button's label in this game, or NULL. */
 static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
     static char reason[96];
@@ -1925,6 +1955,9 @@ static const char *ce_label_refusal(const ce_adapter *a, const char *label) {
     if (lstrlenA(label) > ce_label_width(a)) {
         wsprintfA(reason, "A button label is %d characters at most in this game.", ce_label_width(a));
         return reason;
+    }
+    if (ce_label_px(a, label) > ce_label_max_px(a)) {
+        return "That button label is wider than the screen in this game. Shorten it.";
     }
     return NULL;
 }

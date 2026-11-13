@@ -236,6 +236,22 @@ lib.choice_vars[1][1].set(mid)
 lib._choice_set(1, "next")
 lib.refresh_now()
 out["loop_problems"] = lib.problems
+# Version 3: a puzzle needed (picked in the Event tab's list), a bad range and a bad age gap on the Check tab.
+lib.load_event(w.new_event(), None, dirty=False)
+lib.puzzle_game.set("A New Home")
+lib._show_puzzles()
+lib.puzzle_list.selection_set(14)
+lib._puzzles_changed()
+lib.refresh_now()
+out["puzzle_req"] = lib.g["requirement"].get("puzzles")
+out["puzzle_version"] = lib.g["version"]
+out["puzzle_problems"] = lib.problems
+out["puzzle_note"] = lib.puzzle_note.cget("text")
+lib.g["nodes"]["start"]["effects"] = [{"do": "food", "amount": 100, "max": 50, "scaled": False, "defer": False}]
+lib.g["roles"]["friend"] = w.new_role()
+lib.g["roles"]["friend"]["max_age_gap"] = {"role": "friend", "years": 5}
+lib.refresh_now()
+out["v3_problems"] = lib.problems
 lib.load_event(w.example_event(), None, dirty=False)
 # Every scrolled page is far below the Windows limit.
 heights = {}
@@ -330,11 +346,20 @@ class Window(unittest.TestCase):
 
     def test_the_cave_explorers_example_asks_three_questions(self) -> None:
         self.assertEqual(self.out["cave_problems"], [])
-        self.assertEqual(self.out["cave_version"], 2)
+        self.assertEqual(self.out["cave_version"], 3)
+
+    def test_puzzles_ranges_and_age_gaps(self):
+        self.assertEqual(self.out["puzzle_req"], {"1": ["The Cave"]})
+        self.assertEqual(self.out["puzzle_version"], 3)
+        self.assertEqual(self.out["puzzle_problems"], [])
+        self.assertIn("A New Home: The Cave", self.out["puzzle_note"])
+        text = "\n".join(self.out["v3_problems"])
+        self.assertIn("its top is above its amount", text)
+        self.assertIn("the age gap names another villager role", text)
 
     def test_a_question_on_a_later_page(self) -> None:
         mid, left, right = self.out["mid_parts"]
-        self.assertEqual(self.out["mid_version"], 2, "a question past the start makes the event version 2")
+        self.assertGreaterEqual(self.out["mid_version"], 2, "a question past the start needs version 2 or later")
         self.assertEqual(self.out["mid_choices"], [{"label": "Go left", "next": left},
                                                     {"label": "Go right", "next": right}])
         self.assertEqual(self.out["mid_problems"], [])
