@@ -12,6 +12,7 @@ import vv_the_climb as climb
 import vv_troubling_signs as ts
 import vv_diving_for_treasure as dt
 import vv_playful_dolphins as dp
+import vv_mysterious_mask as mm
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -342,6 +343,53 @@ def playful_dolphins_event() -> Event:
         "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
         "Aspiring Adventurer), when the game draws an island event on its own schedule (the wall clock, real-life "
         "hours; paused time does not count); added by \"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv4_more_island_events",
+    )
+
+
+def mysterious_mask_event() -> Event:
+    """The Mysterious Mask (The Tree of Life only; the owner, 2026-11-13): every number from src/vv_mysterious_mask.py;
+    the companion (native/vvfp_more_island_events/mask_core.inc, mask_vv4.inc) rolls exactly these odds with the
+    game's own random routine."""
+    lo, hi = mm.CHILDREN
+    c = mm.outcome_chances()["CLEARING"]
+    protected = "not nursing a baby (mother or father), not a body or a ghost"
+    subs = [
+        f"Who: the group is {lo} to {hi} children under {mm.CHILD_UNDER_YEARS} villager years -- {hi} when there are "
+        f"more, else all of them; any age under {mm.CHILD_UNDER_YEARS}, however young (babies still being carried are "
+        "not villagers, so never in it) -- each drawn among those left, each equally likely; one of them finds the "
+        "mask, and "
+        f"another is named in the story. The expedition is {mm.VOLUNTEERS} villagers of {mm.ADULT_YEARS} villager years "
+        f"or more, drawn the same way. Everyone picked is alive and present, {protected}; family ties do not matter "
+        "(a volunteer may be a child's parent).",
+        never_picked(4),
+        "One question in the game's own island-event popup with four answers, one above the other (click one, or press "
+        "the keys 1 to 4): \"Wait for their parents to come\", \"Cry for help\", \"Walk towards the clearing\" or "
+        "\"Walk towards the forest\". Its pages are laid out shorter (3 lines less for each answer past two), so the "
+        "popup is no taller than a two-answer one.",
+        "\"Wait for their parents to come\" and \"Cry for help\": the children are safe.",
+        f"\"Walk towards the clearing\" and \"Walk towards the forest\" (the same odds): home safe {mm.HOME_PERCENT}%; "
+        f"lost {100 - mm.HOME_PERCENT}%, then rescued {100 - mm.CAPTURED_PERCENT}% or captured "
+        f"{mm.CAPTURED_PERCENT}%. Out of every walk: home safe {_pct(c['CLEARING_HOME'])}, rescued "
+        f"{_pct(c['CLEARING_RESCUED'])}, captured {_pct(c['CLEARING_CAPTURED'])}. Captured: every child of the group "
+        "is gone for good (no body, no graves); the Deaths log records each as a disappearance.",
+        f"Every ending: the elders tell the village what happened (one of five speeches) and the {mm.VOLUNTEERS} "
+        "villagers of the expedition -- the five volunteers -- leave for good (no body, no graves); the Deaths log "
+        "records each as a disappearance.",
+        "The effects wait for their own page: they come when the elders' last page is shown, never on an earlier page; "
+        "the Island Events log keeps one entry for the event, with the answer and every change. Quitting before that "
+        "page leaves the village as it was, and the event does not come back.",
+    ]
+    return Event(
+        mm.TITLE,
+        f"needs a population of {mm.POPULATION_AT_LEAST} or more (the living villagers plus the babies being carried, "
+        f"The Lost Children's \"A Dangerous Mission\" rule), {lo} children under {mm.CHILD_UNDER_YEARS} and "
+        f"{mm.VOLUNTEERS} villagers of {mm.ADULT_YEARS} villager years or more, all {protected}; one more island "
+        "event, listed with the others whose condition holds and drawn like them (1 in the number listed: it has its "
+        "own place in the draw, beside The Aspiring Adventurer and The Playful Dolphins), when the game draws an "
+        "island event on its own schedule (the wall clock, real-life hours; paused time does not count); added by "
+        "\"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv4_more_island_events",
     )

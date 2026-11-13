@@ -2,7 +2,7 @@
    (the rows vvN_more_island_events), with The Cave Explorers (A New Home, cave_core.inc) and The Climb (The Lost
    Children, climb_core.inc), the owner's events of the same day, and The Troubling Signs (troubling_core.inc) and
    Diving for Treasure (dive_core.inc), The Secret City's, 2026-11-13, and The Playful Dolphins (dolphin_core.inc),
-   The Tree of Life's, 2026-11-13.
+   The Tree of Life's, 2026-11-13, with The Mysterious Mask (mask_core.inc), the same day's.
 
    An aspiring adventurer of the village sees something glinting off the safe path: "Go investigate!" or "Stay on
    the safe path".  The owner's words, odds and effects are in adv_core.inc (and src/vv_aspiring_adventurer.py, the
@@ -34,11 +34,13 @@
 #include "troubling_text.inc"
 #include "dive_text.inc"
 #include "dolphin_text.inc"
+#include "mask_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
 #include "troubling_core.inc"
 #include "dive_core.inc"
 #include "dolphin_core.inc"
+#include "mask_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -48,6 +50,7 @@ enum { ADV_STAGE_NONE = 0, ADV_STAGE_INTRO, ADV_STAGE_QUESTION, ADV_STAGE_RESULT
 #include "troubling_vv3.inc"
 #include "dive_vv3.inc"
 #include "dolphin_vv4.inc"
+#include "mask_vv4.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
 
@@ -337,6 +340,48 @@ const char *__stdcall VvfpDolphinsPage(int set, int k) {
         return NULL;
     }
     pages = dp_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
+}
+
+/* The Mysterious Mask (The Tree of Life): whether it can happen now -- a population of 61 or more, two children under
+   14 and five villagers of 18 or more who may be picked. */
+int __stdcall VvfpMysteriousMaskPossible(void) {
+    return g_mk != NULL ? mk_listable() : 0;
+}
+
+/* Its last popup's state (for the tests): out[0..3] the group's records (-1 none; [0] name1, [1] name2), [4] the
+   group's size, [5..9] the five volunteers', [10] name1 is a girl, [11] a walk gets home (1) or is lost (0), [12] lost:
+   captured (1) or rescued (0), [13] answered, [14] the answer (0..3), [15] the ending (-1 none yet; 0..7 as
+   src/vv_mysterious_mask.py ENDINGS), [16] the effects made, [17] the villagers they took, [18] the question's pages,
+   [19..26] each ending's pages, [27] the lines a page holds.  Returns 28. */
+int __stdcall VvfpMysteriousMaskState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    for (k = 0; k < MK_GROUP_MAX; ++k) {
+        out[k] = mk.group[k];
+    }
+    out[4] = mk.group_count;
+    for (k = 0; k < MK_EXPEDITION; ++k) {
+        out[5 + k] = mk.volunteer[k];
+    }
+    out[10] = mk.female; out[11] = mk.home; out[12] = mk.captured; out[13] = mk.answered; out[14] = mk.choice;
+    out[15] = mk.ending; out[16] = mk.effects_made; out[17] = mk.gone; out[18] = mk.intro.count;
+    for (k = 0; k < MK_ENDINGS; ++k) {
+        out[19 + k] = mk.endings[k].count;
+    }
+    out[27] = g_mk_layout.lines;
+    return 28;
+}
+
+/* Page `k` of set `set`: 0 the question, 1..8 the endings. */
+const char *__stdcall VvfpMysteriousMaskPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set > MK_ENDINGS) {
+        return NULL;
+    }
+    pages = mk_set(set);
     return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 

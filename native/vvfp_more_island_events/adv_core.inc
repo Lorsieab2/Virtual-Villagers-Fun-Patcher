@@ -39,7 +39,8 @@
    the safe or lost walk home), then its ending's.  The sizes are data (ADV_GAMES' width and lines): when the popups
    can scroll, one page a popup is one number. */
 
-#define ADV_MAX_PAGES 10
+#define ADV_MAX_PAGES 16                     /* The Mysterious Mask's longest ending: 11 pages of 5 lines (its popup
+                                                holds four answers, so its pages are 6 lines shorter) */
 #define ADV_PAGE_BYTES 2400
 #define ADV_PAGE_TEXT_MAX 1990              /* a page's bytes: the later games' popup builds its text in 2,000 */
 #define ADV_PIECE_BYTES 2400

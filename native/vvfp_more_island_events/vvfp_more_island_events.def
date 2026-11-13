@@ -26,3 +26,6 @@ EXPORTS
     VvfpDolphinsPossible=_VvfpDolphinsPossible@0
     VvfpDolphinsState=_VvfpDolphinsState@4
     VvfpDolphinsPage=_VvfpDolphinsPage@8
+    VvfpMysteriousMaskPossible=_VvfpMysteriousMaskPossible@0
+    VvfpMysteriousMaskState=_VvfpMysteriousMaskState@4
+    VvfpMysteriousMaskPage=_VvfpMysteriousMaskPage@8

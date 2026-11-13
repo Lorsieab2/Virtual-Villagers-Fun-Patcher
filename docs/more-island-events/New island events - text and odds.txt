@@ -358,3 +358,76 @@ THE PLAYFUL DOLPHINS -- CHANCES
     the hunt: Farming 100, large food (A) ...... 50%
     the tail slap: loses 30-50% health (B) ..... 50%
   Hang back: always a small food reward.
+
+==========================================================================
+THE MYSTERIOUS MASK (The Tree of Life)
+==========================================================================
+REQUIREMENTS TO HAPPEN
+- A population of 61 or more (the same requirement as The Lost Children's "A Dangerous Mission").
+- At least 2 eligible children under 14 (the group); up to 4 are picked when there are more (the owner: "preferably 3-4").
+- 5 eligible adults aged 18 or older (the expedition).
+- At least two eligible villagers overall (The Aspiring Adventurer's rule; always true here).
+- Family ties don't matter: the volunteers may be the children's parents.
+
+WHO IS NEVER PICKED
+- Protected villagers: nursing mothers or fathers, and anyone The Tree of Life's own island events never pick (bodies and ghosts).
+
+(name1) = the child who finds the mask; (name2) = another child in the group; the rest of the group are "the other children".
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses ONE of FOUR (one popup, four buttons):
+"Wait for their parents to come" / "Cry for help" / "Walk towards the clearing" / "Walk towards the forest"
+
+Little (name1) has been playing with the other children at the edge of the forest. One day, towards the forbidden clearing, (he/she) spots a strange carved mask unlike anything (he/she) has ever seen! The other children wonder if someone dropped it, and (name2) questions if the mask’s owner lives somewhere nearby. Naturally, the children are afraid of strangers, even more so after hearing about the strange disappearances in the middle of the night, so no one moves a muscle. (name2) innocently says “We should go ask our Mommies and Daddies about it! Maybe someone’s looking for it!” But unfortunately, no one knows where their parents are or what direction the village is in. Being the finder, the other kids look to (name1) to decide what to do. What shall they do?
+
+--------------------------------------------------------------------------
+W -- "Wait for their parents to come" (then F, the "waited" version):
+The children wait all day for their parents to come. Eventually, they come and walk everyone back to the village. Little (name1) shows the mask to (his/her) parents, who are alarmed and send for the elders. As night falls, (name1) watches the elders chatter next to the fire.
+
+H -- "Cry for help" (then F, the "cried" version):
+(name1) does not know what to do, and immediately begins crying for help. The other children, being scared and lost, cry as well. The startled parents come running through the bushes and pick up their poor little darlings. That night, little (name1) tells (his/her) parents about the strange mask. Alarmed, they immediately call the elders to discuss this discovery. (name1) watches forlornly as the elders chatter beside the fire.
+
+"Walk towards the clearing" (then A or B, 50% each):
+Brave (name1) grabs the mask and takes a step towards the clearing. The other children follow behind (him/her), and
+
+"Walk towards the forest" (then A or B, 50% each; the same odds as the clearing):
+Brave (name1) grabs the mask and takes a step towards the forest. The other children follow behind (him/her), and
+
+A -- HOME SAFE (50% after either walk; then F, the "made it back" version):
+they eventually make it back to the village. That evening, (name1) tells (his/her) parents what they saw, and shows them the mysterious mask. Alarmed, (name1)’s parents tell the elders, who converse by moonlight next to the fire.
+
+B -- LOST (50% after either walk; then C or D):
+they stumble into a dense part of the jungle. Night falls, and no one can see anything through the mist except their own shadows. Crack! Suddenly they hear the breaking of twigs beneath feet, and before anyone can react
+
+C -- CAPTURED (25% after B; owner: "halved", so most outcomes end with the children safe). EVERY CHILD IN THE GROUP DISAPPEARS for good, no graves. Then F, the "captured" version:
+a group of masked strangers captures them and whisks them away to an unknown location. The worried parents spot their footsteps in the mud several hours later, along with the mask (name1) found earlier. Fearing for the children’s safety, they beg the elders to take action.
+
+D -- RESCUED (75% after B; then F, the "rescued" version):
+a group of trusted adults from the village come and scoop them up. Startled, the children begin to cry. (name1) manages to hold back (his/her) tears until they arrive back home, to which (he/she) bursts into a loud sob. (His/her) parents notice the strange mask and ask (him/her) where (he/she) got it from, to which (name1) tells the adults the entire story. Fearing for the children’s safety, they beg the elders to take action.
+
+--------------------------------------------------------------------------
+F -- THE ELDERS (every path ends here). THE 5 ADULT VOLUNTEERS LEAVE FOR GOOD, no graves, in every ending.
+
+After a long and tense discussion, the elders gather the villagers around the fire at daybreak. “Recently, our village has been the victim of strange happenings involving masked people.
+
+then ONE of (matching what happened):
+(captured) Just last night, a group of our children were possibly kidnapped and taken away to some hidden location in the jungle. This mask was found at the scene.”
+(rescued) Just last night, a group of our children were found wandering in the jungle. Someone could have kidnapped them, or worse. Luckily, our trusted scouts found them and successfully returned them home. This mask was found at the scene.”
+(made it back) Just last night, our children got lost while playing in the jungle. They managed to make it back, thank goodness, but they found this mask sitting at the edge. It must have been planted there by someone.”
+(waited) Just last night, our children found this strange mask in the jungle, and they stayed put until their parents could come and notify us.”
+(cried) Just last night, our children found this strange mask in the jungle, and they cried for help. Their parents notified us about the incident as soon as they could.”
+
+then:
+“We believe some foul play is happening. We understand that you are worried, and that everyone’s safety is at risk. However, we need to get to the bottom of this. We cannot rest until this matter is settled. We need five able-bodied volunteers to come with us and form an expedition to find the makers of these masks. Only then will we know if they are truly a threat to our people.”
+Five adults raise their hands and proceed into the elders’ hut. After much planning, the expedition team travels to the site where (name1) found the mask, and heads off into parts unknown.
+The parents of (name1), (name2) and the other kids wish the team good luck, and for justice for their children. The other villagers rally behind them, and hope for an end to the madness.
+
+--------------------------------------------------------------------------
+THE MYSTERIOUS MASK -- CHANCES
+The player's choice decides the start; chance decides the rest. The 5 volunteers always leave.
+  Wait for their parents ..... children safe
+  Cry for help ............... children safe
+  Walk (clearing or forest):
+    home safe (A) ............ 50%
+    lost, then rescued (D) ... 37.5%  (75% of lost)
+    lost, then captured (C) .. 12.5%  (25% of lost) -- every child in the group disappears
