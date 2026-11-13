@@ -928,6 +928,13 @@ int __stdcall VvfpMoreIslandEventsButtonRoom(const void *popup) {
     return ma_room(popup);
 }
 
+/* For Scrolling Popups: the game's own virtual table of A New Home's / The Lost Children's encounter dialog when it
+   carries our copy (three or four answers, vvfp_multi_answer_12.h), and in *room the room its question was padded
+   with for the extra buttons; 0 for any other popup. */
+int __stdcall VvfpMultiAnswerGameVtable(const void *popup, int *room) {
+    return (int)mb_game_vtable(popup, room);
+}
+
 /* The answer buttons of the popup on screen, top to bottom (for the tests): out[0..3]; the count (0 none of ours). */
 int __stdcall VvfpMoreIslandEventsAnswerButtons(void **out) {
     int k;

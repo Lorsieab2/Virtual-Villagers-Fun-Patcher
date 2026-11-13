@@ -3,11 +3,14 @@
 Custom Island Events (format version 4), in the test build of "VVFP Story Upgrades.dll" mapped beside each game's
 rendered executable in the emulator (tests/test_story_cie_graph_runtime.py's Run):
 
-* The Secret City, The Tree of Life and New Believers: a four-answer question and, after one answer's page, a
-  three-answer one -- every answer reachable, its labels, its own page first with its effects made on it (once), ONE
-  Island Events log entry with a "Choice:" line per answer, and a quit with the question on screen or after an
-  answer the save lacks resumes correctly; A New Home and The Lost Children refuse an event with more than two
-  buttons (their popups keep two for now);
+* in all five games: a four-answer question and, after one answer's page, a three-answer one -- every answer
+  reachable, its labels, its own page first with its effects made on it (once), ONE Island Events log entry with a
+  "Choice:" line per answer, and a quit with the question on screen or after an answer the save lacks resumes
+  correctly;
+* A New Home and The Lost Children: the question in the game's own encounter dialog (the setup call the companion
+  holds, the dialog's draw, its click handler -- the game's own for its two answers): the extra buttons made at the
+  first draw with the game's routines, picture and label colours, ids 5 and 6, stacked and centred, the question
+  padded for them; each answer by mouse and by keys 1-4; Enter for OK; ours deleted at the next draw;
 * The Secret City, The Tree of Life and New Believers: the question shown in the game's own two-choice popup through
   the presenter (each game's pick site, the companion's own path for 3 or 4 answers, a stand-in for the dialog's
   constructor as tests/test_troubling_signs.py has it, the game's own click handler): the extra buttons made with the
@@ -39,7 +42,7 @@ if HAVE_EMULATOR:
 def four_doors() -> dict:
     """Four answers, then (after the second answer's own page) three; every answer its own page and effect."""
     return {
-        "format": "vvfp-cie-graph", "version": 4, "title": "Four Doors", "games": [3, 4, 5],
+        "format": "vvfp-cie-graph", "version": 4, "title": "Four Doors", "games": [1, 2, 3, 4, 5],
         "roles": {"subject": {"kind": "villager"}},
         "start": "q",
         "nodes": {
@@ -363,20 +366,9 @@ class EveryGame(unittest.TestCase):
     entry, and a quit with the question on screen."""
 
     def games(self):
-        for game in ("vv3", "vv4", "vv5"):
+        for game in GAMES:
             if have_stock(game):
                 yield game
-
-    def test_a_new_home_and_the_lost_children_refuse_more_than_two_for_now(self):
-        data = four_doors()
-        data["games"] = [1, 2, 3, 4, 5]
-        blob = cg.compile_graph(cg.normalize(data)[0])
-        for game in ("vv1", "vv2"):
-            if have_stock(game):
-                with self.subTest(game=game):
-                    r = Run(game)
-                    r.reset()
-                    self.assertEqual(r.queue(blob), "This game can not ask a question with more than two buttons yet.")
 
     def ask(self, r: Run) -> tuple[str, list[str]]:
         st = r.state()
@@ -485,6 +477,234 @@ class EveryGame(unittest.TestCase):
                 self.assertEqual(filed.count("Choice:"), 1, "one Choice line: the answer given after the reload")
                 self.assertIn(LABELS[3], filed)
                 self.assertNotIn(LABELS[2], filed)
+
+
+# A New Home's and The Lost Children's encounter dialog (native/shared/vvfp_multi_answer_12.h).
+ENCOUNTER = {
+    "vv1": dict(site=0x41A51F, dvt=0x459578, alloc=0x44AF03, button=0x4019B0, image=0x4595C4, label=0x4015B0,
+                attach=0x40AB80, remove=0x40ABC0, sound=0x431470, draw=0x4187E0, lines=0x402100, select=0x43A160,
+                close=0x40C9B0, resolve=0x419380, buttons=(0x50BC, 0x50C0, 0x50C4), choice=0x509C, res=0x2783,
+                q=0x74, font=0x50AC, villagers=0x50A8, sound_field=0x50A0),
+    "vv2": dict(site=0x42244A, dvt=0x476714, alloc=0x467F83, button=0x4019D0, image=0x47677C, label=0x4015D0,
+                attach=0x40B560, remove=0x40B5A0, sound=0x43F010, draw=0x41F430, lines=0x402190, select=0x44B2D0,
+                close=0x40D390, resolve=0x4204B0, buttons=(0x50C8, 0x50CC, 0x50D0), choice=0x50A4, res=0x278B,
+                q=0x7C, font=0x50B4, villagers=0x50B0, sound_field=0x50A8),
+}
+ENC_W, ENC_H = 300, 40
+ENC_PANEL = (100, 30, 700, 590)
+
+
+class Encounter:
+    """A New Home or The Lost Children with the companion and the question in the game's own encounter dialog."""
+
+    def __init__(self, game: str):
+        self.r = Run(game)
+        self.e = ENCOUNTER[game]
+        self.p = self.r.p
+        p, e = self.p, self.e
+        self.made: dict[int, int] = {}            # id -> button (ours, made by the game's own routines)
+        self.labels: dict[int, tuple] = {}
+        self.placed: dict[int, tuple[int, int]] = {}
+        self.deleted: list[int] = []
+        self.ui: list[tuple] = []
+        code = p.alloc(64)
+        p.write(code, b"\xC3" * 64)
+        self.vt = p.alloc(32)
+        for k in range(5):
+            p.put32(self.vt + 4 * k, code + 8 * k)
+        self.stub(code, lambda pr: (self.deleted.append(pr.reg("ecx")) or 0, 4))
+        self.stub(code + 8, self._place)
+        self.stub(code + 16, lambda pr: (0, 0))
+        self.stub(code + 24, lambda pr: (ENC_W, 0))
+        self.stub(code + 32, lambda pr: (ENC_H, 0))
+        self.stub(e["alloc"], lambda pr: (p.alloc(0x40), 0))
+        self.stub(e["button"], self._button)
+        self.stub(e["label"], self._label)
+        self.stub(e["attach"], lambda pr: (self.ui.append(("on", pr.arg(0))) or 0, 4))
+        self.stub(e["remove"], lambda pr: (self.ui.append(("off", pr.arg(0))) or 0, 4))
+        self.stub(e["sound"], lambda pr: (0, 4))
+        self.stub(e["draw"], lambda pr: (self.ui.append(("draw",)) or 0, 0))
+        self.stub(e["lines"], lambda pr: (LINE, 4))
+        self.stub(e["select"], lambda pr: (0, 4))
+        self.stub(e["close"], lambda pr: (self.ui.append(("close",)) or 0, 0))
+        p.mu.ctl_flush_tb()
+
+    def stub(self, va, fn):
+        self.p.stub(va, fn)
+        self.p.mu.hook_add(UC_HOOK_CODE, self.p._on_code, begin=va, end=va)
+
+    def _place(self, pr):
+        ident = next((i for i, b in {**self.made, **self.own}.items() if b == pr.reg("ecx")), 0)
+        self.placed[ident] = (pr.arg(0), pr.arg(1))
+        return 0, 8
+
+    def _button(self, pr):
+        b = pr.reg("ecx")
+        pr.put32(b, self.vt)
+        assert pr.arg(1) == self.e["image"] and pr.arg(4) == self.dlg, "the answers' picture, the dialog listens"
+        self.made[pr.arg(0)] = b
+        return b, 0x18
+
+    def _label(self, pr):
+        ident = next((i for i, b in self.made.items() if b == pr.reg("ecx")), 0)
+        self.labels[ident] = (pr.cstring(pr.arg(0)), pr.arg(1), pr.arg(2), pr.arg(3))
+        return 0, 0x14
+
+    def open(self, data: bytes = None) -> int:
+        """The question armed and the dialog's setup run (the companion's, at the constructor's setup call)."""
+        p, e, r = self.p, self.e, self.r
+        r.reset()
+        r.rolls([0] * 40)
+        assert r.queue(data if data is not None else FOUR_CIEG) is None
+        if not r.state()["armed"]:
+            assert p.export("VvfpStoryProbeGraphArmNext", r.n) == 1
+        self.dlg = d = p.alloc(0x5400)
+        p.put32(d, e["dvt"])
+        p.write(d + 0x14, struct.pack("<4i", *ENC_PANEL))
+        for off, v in ((0x54, 2), (0x58, 3), (0x5C, 4)):
+            p.put32(d + off, v)
+        p.put32(d + e["sound_field"], p.alloc(16))
+        p.put32(d + e["villagers"], r.story.village.array)
+        font = p.alloc(16)
+        p.put32(font, p.alloc(16))
+        p.put32(d + e["font"], font)
+        self.own = {}
+        for ident, off in zip((2, 3, 4), e["buttons"]):
+            b = p.alloc(0x40)
+            p.put32(b, self.vt)
+            p.put32(d + off, b)
+            self.own[ident] = b
+        p.set_reg("esp", STACK_TOP - 0x10000)
+        p.set_reg("ecx", d)
+        p.run(e["site"], e["site"] + 5)
+        return d
+
+    def draw(self):
+        self.p.call(self.p.u32(self.p.u32(self.dlg) + 0x30), [], ecx=self.dlg)
+
+    def click(self, ident: int) -> int:
+        return self.p.call(self.p.u32(self.p.u32(self.dlg) + 0x0C), [8, ident], ecx=self.dlg) & 0xFF
+
+    def key(self, kind: int, code: int) -> int:
+        return self.p.call(self.p.u32(self.p.u32(self.dlg) + 0x08), [kind, code, 0], ecx=self.dlg) & 0xFF
+
+    def result(self) -> str:
+        return self.p.cstring(self.dlg + self.e["res"], 0x2710)
+
+
+@emulated
+class TheEncounterDialog(unittest.TestCase):
+    """A New Home and The Lost Children: the game's own encounter dialog with three or four answers."""
+
+    def games(self):
+        for game in ("vv1", "vv2"):
+            if have_stock(game):
+                yield game
+
+    def test_four_buttons_at_the_first_draw_stacked_centred_and_padded(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                v = Encounter(game)
+                v.open()
+                p, e = v.p, v.e
+                self.assertNotEqual(p.u32(v.dlg), e["dvt"], "our copy of the dialog's virtual table")
+                question = p.cstring(v.dlg + e["q"], 0x2710)
+                self.assertIn("finds four doors", question)
+                two = Encounter(game)
+                two.open(TWO_CIEG)
+                q2 = two.p.cstring(two.dlg + e["q"], 0x2710)
+                self.assertEqual(two.p.u32(two.dlg), e["dvt"], "two answers: the game's own dialog, untouched")
+                # Room: 2 x 1.5 button heights in the font's lines, beyond what two answers need.
+                room = -(-(3 * ENC_H) // LINE)
+                self.assertGreaterEqual(question.count("\n") - q2.count("\n"), room)
+                # Scrolling Popups knows the dialog by the game's own table, and keeps the padded room for our buttons.
+                out = p.alloc(4)
+                self.assertEqual(p.export("VvfpMultiAnswerGameVtable", v.dlg, out), e["dvt"])
+                self.assertEqual(p.u32(out), room * LINE)
+                self.assertEqual(p.export("VvfpMultiAnswerGameVtable", v.dlg + 4, out), 0)
+                self.assertTrue(set(v.made.values()) <= set(v.deleted),
+                                "before the first draw only the measuring button, made and deleted at once")
+                self.assertEqual([u for u in v.ui if u[0] == "on"], [], "nothing attached before the first draw")
+                v.draw()
+                self.assertEqual(sorted(v.made), [5, 6])
+                self.assertEqual(v.labels[5], (LABELS[2], 0xFF000000, 0xFF555555, 0xFF555555))
+                self.assertEqual(v.labels[6][0], LABELS[3])
+                self.assertIn(("on", v.made[5]), v.ui)
+                self.assertIn(("on", v.made[6]), v.ui)
+                self.assertEqual(v.ui[-1], ("draw",), "then the game draws")
+                width, height = ENC_PANEL[2] - ENC_PANEL[0], ENC_PANEL[3] - ENC_PANEL[1]
+                ids = (2, 3, 5, 6)
+                ys = [v.placed[i][1] for i in ids]
+                for i in ids:
+                    self.assertEqual(v.placed[i][0], width // 2 - ENC_W // 2, "centred")
+                self.assertEqual(ys[-1], height - 2 * ENC_H)
+                self.assertEqual([b - a for a, b in zip(ys, ys[1:])], [ENC_H + ENC_H // 2] * 3)
+                self.assertGreaterEqual(ys[0], 0)
+                n = len(v.made)
+                v.draw()
+                self.assertEqual(len(v.made), n, "made once")
+
+    def test_every_answer_by_mouse_and_by_key(self):
+        for game in self.games():
+            for k in range(4):
+                for by_key in (False, True):
+                    with self.subTest(game=game, answer=k, by_key=by_key):
+                        v = Encounter(game)
+                        v.open()
+                        v.draw()
+                        food0, tech0 = stores(v.r)
+                        v.ui.clear()
+                        if by_key:
+                            self.assertEqual(v.key(6, 0x3EB), 0, "Enter takes no answer")
+                            self.assertEqual(v.key(5, ord("1") + k), 1)
+                        else:
+                            self.assertEqual(v.click((2, 3, 5, 6)[k]), 1)
+                        self.assertEqual(v.r.state()["choice"], k)
+                        self.assertIn(FIRST[k][0], v.result(), "the answer's own page")
+                        food1, tech1 = stores(v.r)
+                        self.assertEqual((food1 - food0, tech1 - tech0), FIRST[k][1:])
+                        self.assertEqual(v.p.read(v.dlg + 0x50, 1), b"\1", "the result is drawn")
+                        off = {a for w, a in v.ui if w == "off"}
+                        for b in (v.own[2], v.own[3], v.made[5], v.made[6]):
+                            self.assertIn(b, off, "every answer off")
+                        self.assertIn(("on", v.own[4]), v.ui, "OK on")
+                        v.draw()
+                        self.assertTrue({v.made[5], v.made[6]} <= set(v.deleted), "ours deleted at the next draw")
+                        v.ui.clear()
+                        if by_key:
+                            self.assertEqual(v.key(6, 0x3EB), 1, "Enter is OK")
+                        else:
+                            v.click(4)
+                        self.assertEqual(stores(v.r), (food1, tech1), "nothing made twice")
+
+    def test_three_answers_after_a_page(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                v = Encounter(game)
+                v.open()
+                v.draw()
+                v.click(3)                               # the blue door: its page, then q2
+                self.assertIn("a second room", v.result())
+                v.click(4)
+                st = v.r.state()
+                if not st["armed"]:
+                    self.assertEqual(v.p.export("VvfpStoryProbeGraphArmNext", v.r.n), 1)
+                v.made.clear()
+                d = v.dlg
+                p, e = v.p, v.e
+                p.put32(d, e["dvt"])
+                p.write(d + 0x50, b"\0")
+                p.set_reg("esp", STACK_TOP - 0x10000)
+                p.set_reg("ecx", d)
+                p.run(e["site"], e["site"] + 5)
+                v.draw()
+                self.assertEqual(sorted(i for i, b in v.made.items() if b not in v.deleted), [5])
+                self.assertEqual(v.labels[5][0], LABELS2[2])
+                self.assertEqual(v.key(5, ord("4")), 0, "no fourth answer")
+                tech0 = stores(v.r)[1]
+                self.assertEqual(v.key(5, ord("3")), 1)
+                self.assertIn(SECOND[2][0], v.result())
+                self.assertEqual(stores(v.r)[1] - tech0, SECOND[2][1])
 
 
 if __name__ == "__main__":
