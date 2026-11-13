@@ -1225,6 +1225,33 @@ class BothWays(unittest.TestCase):
                          for x, y in (d.button_position("choice_a"), d.button_position("choice_b"))]
                 self.both_ways(d, d.draw, rects)
 
+    def test_three_and_four_answers(self) -> None:
+        """A question with 3 or 4 answers (More Island Events, Story / Cheat Upgrades: the shared two-choice popup with
+        extra buttons stacked below the game's two, the room they take told to Scrolling Popups): both bars stay
+        above every answer button."""
+        for game in GAMES:
+            d = self.games[game]
+            for answers in (3, 4):
+                with self.subTest(game=game, answers=answers):
+                    try:
+                        if game in (1, 2):
+                            lines = -(-(answers - 2) * 3 * 30 // 2 // 20)        # mb_room_lines: 1.5 buttons each
+                            d.make_event("choice", EVENT_LONG + b"\n" + EVENT_WIDE + b"\n" * lines,
+                                         answers_room=lines * 20)
+                            buttons = 4 * 30 + lines * 20
+                        else:
+                            d.make(TALL_WIDE, choices=True)
+                            ch = d.button_size["choice"][1]
+                            room = (answers - 2) * 3 * ch // 2
+                            d.multi_answer = (d.dialog, room, 0, 0)
+                            buttons = 4 * ch + room
+                        left, top, right, bottom = d.panel()
+                        self.both_ways(d, d.draw, [(left, bottom - buttons, right, bottom)],
+                                       picture=f"vv{game}_island_event_{answers}_answers_both.png"
+                                       if answers == 4 else None)
+                    finally:
+                        d.multi_answer = None
+
     def test_old_island_events(self) -> None:
         for game in (1, 2):
             d = self.games[game]
