@@ -7,6 +7,7 @@ src/vv_aspiring_adventurer.py, the same source the companion's words and the tes
 from __future__ import annotations
 
 import vv_aspiring_adventurer as adv
+import vv_cave_explorers as cave
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -21,8 +22,8 @@ NOT_SPECIAL = {
 }
 HOW = {
     1: "one more of the villager encounters (the two-choice island events): when an encounter is drawn, this event is "
-       "1 in m + 1, m the encounters possible at that moment, like each of them; never the village's first island "
-       "event (always a visitor)",
+       "1 in m + 1 (1 in m + 2 while The Cave Explorers can happen too), m the encounters possible at that moment, "
+       "like each of them; never the village's first island event (always a visitor)",
     2: "one more two-choice island event (family A): each of family A's draws is 1 in 22 for each event, this one "
        "included; never the village's first island event",
     3: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
@@ -33,12 +34,24 @@ HOW = {
        "listed), at the game's usual times",
 }
 REWARD = {
-    1: "as given (500 food, 2,000 tech points)",
+    1: "as drawn (scaled only with Island Events Scale ticked: below)",
     2: "times the game's own two-choice factor: x1 up to 25 villagers, x2 up to 50, x3 above",
     3: "times m, the game's own multiplier for its events (the villagers it counts, divided by 20, plus 1)",
-    4: "as given (500 food, 2,000 tech points)",
-    5: "as given (500 food, 2,000 tech points)",
+    4: "as drawn (scaled only with Island Events Scale ticked: below)",
+    5: "as drawn (scaled only with Island Events Scale ticked: below)",
 }
+FOOD_WRITER = {4: " (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at "
+                  "level 3, as for its own events)",
+               5: " (the game's own food writer then raises food by half at Food Mastery level 2 and doubles it at "
+                  "level 3, as for its own events)"}
+
+
+def reward_line(game: int) -> str:
+    """The Aspiring Adventurer's reward in plain words (the owner, 2026-11-12: a random award, scaling)."""
+    return (f"The reward is a random amount, each equally likely: {adv.award_words(game, 'food')} for the meat, "
+            f"{adv.award_words(game, 'tech')} for the chest -- from the smallest to the largest food or tech-point "
+            "gain of the game's own island events -- given only in A1, A5 and A8 through the game's own food or tech "
+            f"writer{FOOD_WRITER.get(game, '')}, {REWARD[game]}.")
 JOINS = {
     5: "becomes a Heathen through the game's own conversion (\"...joined the Isolans' tribe\" with Guardians of Isola, "
        "\"...the heathens' tribe\" without)",
@@ -63,7 +76,7 @@ def adventurer_event(game: int) -> Event:
         "is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in "
         "play the friend always exists and A8 is always possible.",
         "\"Go investigate!\" (one popup with the opening and the find, then one with the ending): the find is a pile "
-        "of dirt 50%, meat 25% (+500 food) or a golden chest of artifacts 25% (+2,000 tech points); then 50% a "
+        "of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a "
         "surviving ending and 50% a deadly one, each equally likely within its half.",
         "After the dirt: A7 (home safe) 25%, A9 (laughs it off) 25%; A2, A3, A4, A6 12.5% each. After the meat or "
         "the chest: A1 (gets away), A5 (escapes the trap), A8 (a friend comes to help) 16.67% each (1 in 6), each "
@@ -87,7 +100,7 @@ def adventurer_event(game: int) -> Event:
         f"In all, staying on the path: home alive {_pct(b['HOME'] + b['L3'] + b['H2'] + b['H3'])}, dies "
         f"{_pct(b['H1'] + b['L4'] + b['L5'])}, disappears {_pct(b['L6'])}, "
         + ("becomes a Heathen " if game == 5 else "joins another tribe ") + f"{_pct(b['L2'])}.",
-        f"The reward is given only in A1, A5 and A8, through the game's own food or tech writer, {REWARD[game]}.",
+        reward_line(game),
         "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
         "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
         "as a disappearance. The effects come when the answer is clicked.",
@@ -105,4 +118,64 @@ def adventurer_event(game: int) -> Event:
         "event does not exist)",
         tuple(subs),
         only_with=feature,
+    )
+
+
+def cave_explorers_event() -> Event:
+    """The Cave Explorers (A New Home only; the owner, 2026-11-12): every number from src/vv_cave_explorers.py, the
+    rewards from src/vv_aspiring_adventurer.py's ranges; the companion (native/vvfp_more_island_events/cave_core.inc)
+    rolls exactly these odds with the game's own random routine."""
+    c = cave.outcome_chances()
+    p, run, ret, keep = c["PROCEED"], c["RUN"], c["RETURN"], c["KEEP"]
+    who = ("alive and present, 18 villager years or more, not nursing a baby (mother or father), not the Golden "
+           "Child")
+    subs = [
+        f"Who: two villagers who are {who}, at most {cave.MAX_AGE_GAP_YEARS} villager years apart (name1 and name2: "
+        "every such pair equally likely, either way round).",
+        "Three questions in a row in the encounter's own popup, each after its pages: \"Explore the Cave\" or "
+        "\"Don't explore\"; then \"Proceed Further\" or \"Stay Here\"; then, depending on the way, \"Run towards the "
+        "left path\" or \"Run towards the right path\" (the same odds either way), or \"You're right, I'll return "
+        "them.\" or \"Curses schmurses. I'm keeping them.\"",
+        "After \"Don't explore\" nothing happens.",
+        f"After \"Proceed Further\", {_pct(p['A'])} a scream in the dark (A), {_pct(100 - p['A'])} a find (B). In A the "
+        "one who screams is name1 or name2 (1 in 2) and what they felt one of four (1 in 4 each); then they run: "
+        f"they argue {_pct(run['ARGUE'])} (nothing happens), they make up {_pct(run['MAKEUP'])} (nothing happens), "
+        f"or the chasm {_pct(run['CHASM'])}: both disappear, gone for good, no grave and no food from the berries.",
+        f"In B the finder is name1 or name2 (1 in 2) and the find is a map {cave.B_FINDS['FIND_MAP']}% (both leave "
+        "for a strange place: they disappear, no grave), gold coins "
+        f"{cave.B_FINDS['FIND_COINS']}% ({adv.award_words(1, 'tech')}), a treasure map "
+        f"{cave.B_FINDS['FIND_TREASURE']}% (a huge award, three times: {adv.award_words(1, 'tech', 'huge')}) or "
+        f"preserved food {cave.B_FINDS['FIND_FOOD']}% (a large award, twice: {adv.award_words(1, 'food', 'large')}). "
+        f"Out of every \"Proceed Further\": the map {_pct(p['FIND_MAP'])}, the coins {_pct(p['FIND_COINS'])}, the "
+        f"treasure map {_pct(p['FIND_TREASURE'])}, the food {_pct(p['FIND_FOOD'])}, and in A the chasm "
+        f"{_pct(p['A'] * run['CHASM'] / 100)}.",
+        f"\"Stay Here\", then \"You're right, I'll return them.\": food {_pct(ret['RETURN_FOOD'])} "
+        f"({adv.award_words(1, 'food')}) or tech points {_pct(ret['RETURN_TECH'])} ({adv.award_words(1, 'tech')}).",
+        f"After \"Curses schmurses. I'm keeping them.\", the researchers {_pct(keep['KEEP_RESEARCH'])} "
+        f"({adv.award_words(1, 'tech')}); both die {_pct(keep['KEEP_BOTH'])} (name2, then name1: two graves); only "
+        f"name2 dies {_pct(keep['KEEP_ONE'])} (one grave).",
+        "Each amount is drawn, each equally likely, from the smallest to the largest food or tech-point gain of the "
+        "game's own island events (a large award twice that, a huge one three times), given through the game's own "
+        "food or tech writer; with Island Events Scale ticked it is then scaled as that patch scales the game's own "
+        "encounters (below).",
+        "A death is the game's own (\"Unknown causes\", as the game's own island events give; the body is buried and "
+        "gets a grave); a disappearance takes the villager with no body and no grave, and the Deaths log records it "
+        "as a disappearance. The effects come when the answer that leads to them is clicked; the Island Events log "
+        "records them under the event's title with that answer.",
+        Line("With the patcher's \"Island Events Scale With Population (like The Lost Children)\" (in this game): "
+             "each award is multiplied by k (1 up to 25 people, 2 up to 50, 3 above; see the rules above).",
+             only_with="vv1_island_events_scale_with_population"),
+        Line("With the patcher's \"Island Events Scale With Stored Food and Tech Points\" (in this game): each award "
+             "gains a tenth of what is stored (see the rules above).",
+             only_with="vv1_island_events_scale_with_stored_amounts"),
+    ]
+    return Event(
+        cave.TITLE,
+        "needs The Cave puzzle done (the Golden Child has opened the cave) and two villagers who are " + who
+        + f", at most {cave.MAX_AGE_GAP_YEARS} villager years apart; one more of the villager encounters: when an "
+        "encounter is drawn, this event is 1 in m + 1 (1 in m + 2 while The Aspiring Adventurer can happen too), m "
+        "the encounters possible at that moment, like each of them; never the village's first island event; added by "
+        "\"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv1_more_island_events",
     )

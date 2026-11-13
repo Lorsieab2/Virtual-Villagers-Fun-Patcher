@@ -255,6 +255,7 @@ EVENTS = with_scaling(1, EVENTS, frozenset({"The Trapped Whale", "The Troubled C
                                             "The Brass Compass"}))
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
-from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
+# The Cave Explorers (the owner, 2026-11-12, A New Home only): the same companion.
+from vv_game_mechanics_adventurer import adventurer_event, cave_explorers_event  # noqa: E402
 
-EVENTS = EVENTS + (adventurer_event(1),)
+EVENTS = EVENTS + (adventurer_event(1), cave_explorers_event())
