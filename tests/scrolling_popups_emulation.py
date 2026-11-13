@@ -44,6 +44,7 @@ import unicode_text_emulation as ute  # noqa: E402
 
 CODE = 0x0C000000                 # the stand-ins' methods: each address answered from Python
 SDL_MODULE = 0x0C800000           # "SDL2.dll" as the companion finds it, with SDL_AddEventWatch
+STORY_MODULE = 0x0C801000         # "VVFP Story Upgrades.dll" as the companion finds it (multi_answer)
 FRAME = se.STACK_TOP - 0x40000    # the constructor's stack frame for its tail
 # The companion's TEST build (the same source with VVFP_TEST: the exports below that read its state); the shipped
 # DLL exports none of them.  It is loaded in the shipped DLL's place.
@@ -189,6 +190,8 @@ class Dialog:
         self.game = game
         self.g = dict(GAMES[game])
         self.watch = None
+        self.multi_answer = None          # see _story_room
+        self._story_methods: dict = {}
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGBA", (0, _map_rgba))
         se.EXTRA_IMPORTS.setdefault("SDL_MapRGB", (0, _map_rgb))
         # An editable text box's background (the later three's tombstone epitaph): not drawn here.
@@ -301,9 +304,20 @@ class Dialog:
                 if text.lower() == "sdl2.dll":
                     ret(SDL_MODULE, 4)
                     return
+                if text.lower() == "vvfp story upgrades.dll" and harness.multi_answer is not None:
+                    ret(STORY_MODULE, 4)
+                    return
             if name == "GetProcAddress" and arg(0) == SDL_MODULE:
                 proc = bytes(mu.mem_read(arg(1), 64)).split(b"\0")[0].decode("latin-1")
                 ret(harness._method(harness._add_watch, 0) if proc == "SDL_AddEventWatch" else 0, 8)
+                return
+            if name == "GetProcAddress" and arg(0) == STORY_MODULE:
+                proc = bytes(mu.mem_read(arg(1), 64)).split(b"\0")[0].decode("latin-1")
+                if not harness._story_methods:       # made once: the companion asks at every draw
+                    harness._story_methods = {"VvfpStoryButtonRoom": harness._method(harness._story_room, 4),
+                                              "VvfpMultiAnswerGameVtable":
+                                                  harness._method(harness._story_game_vtable, 8)}
+                ret(harness._story_methods.get(proc, 0), 8)
                 return
             if name == "GetSystemTimeAsFileTime":
                 mu.mem_write(arg(0), b"\0" * 8)               # a tip's timer start: time 0
@@ -321,6 +335,22 @@ class Dialog:
 
     def _add_watch(self, args):
         self.watch = args[0]
+        return 0
+
+    # -- "VVFP Story Upgrades.dll" as Scrolling Popups asks it about a question with 3 or 4 answers ----------------
+    # multi_answer = (popup, room, copied vtable or 0, the game's vtable): VvfpStoryButtonRoom(popup) answers the room
+    # its extra buttons take for that popup (The Secret City, The Tree of Life, New Believers);
+    # VvfpMultiAnswerGameVtable(popup, &room) answers the game's vtable and the room for a popup that carries a copy
+    # (A New Home, The Lost Children), as native/shared/vvfp_multi_answer.h / vvfp_multi_answer_12.h do.
+    def _story_room(self, args):
+        popup, room, _copy, _game = self.multi_answer
+        return room if args[0] == popup else 0
+
+    def _story_game_vtable(self, args):
+        popup, room, copy, game = self.multi_answer
+        if copy and args[0] == popup and self.u32(popup) == copy:
+            self.put(args[1], room)
+            return game
         return 0
 
     # -- stand-in methods ----------------------------------------------------------------------------------------
@@ -489,6 +519,18 @@ class Dialog:
     def justify_height(self, text_va: int, width: int) -> int:
         return self.run._call(self.g["justify"], self.holder, text_va, 0, 0, width, self.colour, self.font, 1)
 
+    def justify_height_widened(self, text_va: int, width: int) -> int:
+        """The stock paragraph's height of a text that may hold a word wider than `width` (on which the stock
+        paragraph never finishes): measured at a width wide enough for its widest word, as the constructor's own
+        measures are when the companion widens them (the harness stands in for the two-choice tail's start)."""
+        for _ in range(6):
+            try:
+                return self.run._call(self.g["justify"], self.holder, text_va, 0, 0, width, self.colour, self.font,
+                                      1, count=5_000_000)
+            except Exception:
+                width *= 2
+        raise AssertionError("the paragraph never finished")
+
     def companion_export(self, name: str) -> int:
         dll = next(m for k, m in self.m.modules.items() if "scrolling" in k)
         return self.run._call(dll.exports[name], 0)
@@ -592,7 +634,7 @@ class Dialog:
         # sizer to placing the buttons.
         start, height = g["single"], 0
         if choices:
-            self.text_height = max(self.justify_height(self.text_va, box_w), line)
+            self.text_height = max(self.justify_height_widened(self.text_va, box_w), line)
             height = self.text_height + 4 * self.button_size["choice"][1] + self.i32(d + 0x854)
             start = g["tail"]
         tail_end = bytes(mu.mem_read(g["tail"], 0x300)).find(b"\xC6\x46\x4C\x01") + g["tail"]
@@ -654,11 +696,14 @@ class Dialog:
         self.stock_width = self.stock_widths[-1] if self.stock_widths else None
         return d
 
-    def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30) -> int:
+    def make_event(self, kind: str, text: bytes, result: bytes | None = None, button_h: int = 30,
+                   answers_room: int = 0) -> int:
         """A New Home's / The Lost Children's island-event dialog `kind` with `text` (and a result text, shown when
         `show_result` is called): the base constructor, the dialog's own vtable and fields, then the constructor's
         own size site run with the height its own formula gives (the text's height by the game's routine plus the
-        room for its buttons), through the y it keeps."""
+        room for its buttons), through the y it keeps.  `answers_room` > 0: a question with 3 or 4 answers, as Story /
+        Cheat Upgrades makes it -- the dialog carries a copy of its vtable, and VvfpMultiAnswerGameVtable answers the
+        game's and that room (multi_answer)."""
         e = EVENTS[self.game][kind]
         heap = self.m.font_heap
         self.children = []
@@ -666,6 +711,12 @@ class Dialog:
         self.dialog = d = heap.alloc(0x5200)
         self.run._call(e["base"], d, 0)
         self.put(d, e["vt"])
+        self.multi_answer = None
+        if answers_room:
+            copy = heap.alloc(0x100)
+            self.mu.mem_write(copy, bytes(self.mu.mem_read(e["vt"], 0x100)))
+            self.put(d, copy)
+            self.multi_answer = (d, answers_room, copy, e["vt"])
         self.mu.mem_write(d + e["a"], text[:9999] + b"\0")
         if e["b"]:
             self.mu.mem_write(d + e["b"], (result or b"")[:9999] + b"\0")
@@ -681,7 +732,7 @@ class Dialog:
         self.run._call(EVENT_STRIP[self.game], strip, self._cstr(b"OrangeDlgTileGrid.png"), 9, 1)
         height = self.run._call(EVENT_HEIGHT[self.game], self.font, d + e["a"])
         num, den = e["room"]
-        h = height + (num * button_h) // den + 0x23
+        h = height + (num * button_h) // den + 0x23   # (a 3- or 4-answer question comes padded with blank lines)
         mu = self.mu
         frame = FRAME
         mu.mem_write(frame, b"\0" * 0x100)
@@ -919,12 +970,13 @@ class Dialog:
         b = self.mouse(3, x, y)
         return a or b
 
-    def wheel(self, notches: int) -> None:
-        """SDL_MOUSEWHEEL through the watch the companion registered (y = notches, + is away from the player)."""
+    def wheel(self, notches: int, sideways: int = 0) -> None:
+        """SDL_MOUSEWHEEL through the watch the companion registered (y = notches, + is away from the player;
+        x = sideways, a tilt wheel's or touchpad's notches, + to the right)."""
         if self.watch is None:
             raise AssertionError("no event watch registered")
         event = self.m.font_heap.alloc(0x40)
-        self.mu.mem_write(event, struct.pack("<IIIIii", 0x403, 0, 1, 0, 0, notches))
+        self.mu.mem_write(event, struct.pack("<IIIIii", 0x403, 0, 1, 0, sideways, notches))
         self.run._call(self.watch, 0, 0, event)
 
     # -- pictures ---------------------------------------------------------------------------------------------------

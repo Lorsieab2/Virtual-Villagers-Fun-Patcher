@@ -28,7 +28,10 @@
        moment (or a knob drag in progress) is used here and not passed on; every other event goes to the game's
        dispatcher unchanged, so the dialog's buttons work as before.
    The wheel: an SDL event watch (SDL_AddEventWatch, installed the first time a scrollbar is drawn) counts
-   SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse.  The scroll position starts at the top and
+   SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse: up and down, or sideways when the mouse is on
+   the horizontal bar or the popup has no vertical bar; a sideways wheel (tilt, touchpad: the event's x) always
+   scrolls sideways.  Every covered panel can show both bars at once (the owner, 2026-11-12: "for everything put
+   horizontal and vertical scrollbars"; tests/test_scrolling_popups.py BothWays).  The scroll position starts at the top and
    starts over whenever the text changes (the result replacing the question).  No keyboard scrolling (Copy and
    Paste owns the key events).
 
@@ -92,6 +95,7 @@ static int g_drag;                /* 0, 1 the vertical knob, 2 the horizontal ha
 static int g_drag_offset;
 static int g_pressed;             /* 0, 1 the up arrow, 2 the down arrow (drawn pressed), 3 a track */
 static volatile LONG g_wheel;
+static volatile LONG g_wheel_x;   /* the wheel's sideways notches (SDL_MouseWheelEvent x, + to the right) */
 static int g_watch;               /* 0 not tried, 1 installed, -1 no SDL */
 static sp_picture g_up, g_down, g_track, g_knob, g_wide, g_handle;
 static int g_art;                 /* 0 not loaded, 1 loaded, -1 missing */
@@ -393,8 +397,17 @@ static void sp_draw_bars(void *holder, int *clip, const int *old) {
         sp_draw_fitted(holder, clip, old, &g_track, 0, g_view.vx, ty, g_track.w, tb - ty, 0, SP_TRACK_CAP);
         sp_frame_at(holder, &g_up, g_view.vx, g_view.vy, g_pressed == 1 ? 2 : hover_up ? 1 : 0);
         sp_frame_at(holder, &g_down, g_view.vx, tb, g_pressed == 2 ? 2 : hover_down ? 1 : 0);
-        sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);     /* a short track cuts the knob */
-        sp_picture_at(holder, &g_knob, g_view.vx + (g_view.track_w - g_view.knob_w) / 2, sp_knob_y());
+        if (g_view.knob_h < g_knob.h) {
+            /* a short track: the knob fitted to its shorter length, its ends kept (it still drags) */
+            int clip_track[4];
+            sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);
+            clip_track[0] = clip[0]; clip_track[1] = clip[1]; clip_track[2] = clip[2]; clip_track[3] = clip[3];
+            sp_draw_fitted(holder, clip, clip_track, &g_knob, 0, g_view.vx + (g_view.track_w - g_view.knob_w) / 2,
+                           sp_knob_y(), g_view.knob_w, g_view.knob_h, 0, g_view.knob_h / 3);
+        } else {
+            sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);
+            sp_picture_at(holder, &g_knob, g_view.vx + (g_view.track_w - g_view.knob_w) / 2, sp_knob_y());
+        }
         clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
     }
     if (g_view.hbar) {
@@ -418,6 +431,7 @@ static int __cdecl sp_event_watch(void *userdata, void *event) {
     (void)userdata;
     if (e != NULL && *(const unsigned int *)e == 0x403u) {
         InterlockedExchangeAdd(&g_wheel, *(const int *)(e + 20));
+        InterlockedExchangeAdd(&g_wheel_x, *(const int *)(e + 16));   /* a tilt wheel / touchpad: sideways */
     }
     return 1;
 }
@@ -470,7 +484,7 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
                      int room_r, int content_w, int content_h, int line, unsigned int hash, sp_draw_cb draw,
                      void *data) {
     int *clip = sp_clip(holder);
-    int old[4], need_v, need_h, vis_h, wheel;
+    int old[4], need_v, need_h, vis_h, wheel, wheel_x;
     if (clip == NULL || bw <= 0 || bh <= 0 || !sp_art_ready()) {
         return 0;
     }
@@ -518,19 +532,33 @@ static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int b
     g_view.arrow_h = g_up.h;
     g_view.track_w = g_track.w;
     g_view.knob_w = g_knob.w; g_view.knob_h = g_knob.h;
+    {
+        /* A track shorter than twice the knob (a small panel with both bars, Create Nickname's) gets a knob half
+           its length (8 px at least), so the knob always has room to be dragged. */
+        int track = vis_h - 2 * g_up.h;
+        if (need_v && track < 2 * g_knob.h) {
+            g_view.knob_h = track / 2 > 8 ? track / 2 : 8;
+        }
+    }
     g_view.vx = bx + bw + SP_GAP; g_view.vy = by; g_view.vh = vis_h;
     g_view.handle_w = g_knob.h; g_view.handle_h = g_knob.w;
     g_view.hx = bx; g_view.hy = by + vis_h + SP_HBAR_GAP; g_view.hw = bw;
     g_view.hh = sp_hbar_h();
     g_view.line = line;
+    /* The wheel over the panel scrolls up and down; over the horizontal bar (or with no vertical bar) it scrolls
+       sideways, and a sideways wheel (tilt, touchpad) always does. */
     wheel = (int)InterlockedExchange(&g_wheel, 0);
-    if (wheel != 0 && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
+    wheel_x = (int)InterlockedExchange(&g_wheel_x, 0);
+    if ((wheel != 0 || wheel_x != 0) && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
         && g_my < g_view.panel_b) {
-        if (need_v) {
+        int on_hbar = need_h && g_mx >= g_view.hx && g_mx < g_view.hx + g_view.hw && g_my >= g_view.hy
+                      && g_my < g_view.hy + g_view.hh;
+        if (need_v && !on_hbar) {
             g_sy -= wheel * SP_WHEEL_LINES * g_view.line;
         } else {
             g_sx -= wheel * SP_WHEEL_LINES * g_view.line;
         }
+        g_sx += wheel_x * SP_WHEEL_LINES * g_view.line;
     }
     sp_clamp();
     old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
@@ -1034,14 +1062,16 @@ static int sp_label_extent(const unsigned char *impl, const int *origin, void *f
 
 typedef void (__fastcall *sp_rect_fn)(const void *control, void *edx, int *rect);
 
-/* A child control's top, from its vtable+8 (its rectangle on the screen); 0x7FFFFFFF when it cannot be told. */
-static int sp_child_top(const unsigned char *wrapper) {
+/* A child control's top, from its vtable+8 (its rectangle on the screen); 0x7FFFFFFF when it cannot be told.  *right
+   gets its right edge. */
+static int sp_child_top(const unsigned char *wrapper, int *right) {
     int rect[4] = {0, 0, 0, 0};
     __try {
         ((sp_rect_fn)(*(void *const *const *)wrapper)[2])(wrapper, NULL, rect);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0x7FFFFFFF;
     }
+    *right = rect[2];
     return rect[1] > -4096 && rect[1] < 4096 && rect[3] >= rect[1] ? rect[1] : 0x7FFFFFFF;
 }
 
@@ -1055,13 +1085,15 @@ static int sp_is_label_panel(unsigned int vtable) {
     return 0;
 }
 
+#define SP_MAX_TOPS 32
 static int sp_label_panel(void *holder, const unsigned char *ctl, const unsigned int *a) {
     const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18), *node, *n, *first = NULL;
     const int *panel, *origin;
     unsigned char *ctx = *(unsigned char **)holder;
     void *font_default;
     int l = 0x7FFFFFFF, t = 0x7FFFFFFF, r = -0x7FFFFFFF, b = -0x7FFFFFFF, guard = 0, bx, bw, by, bottom, line = 0;
-    int ml, mt, mr, mb, here_l = 0, here_t = 0, k, mid, below = 0x7FFFFFFF, top;
+    int ml, mt, mr, mb, here_l = 0, here_t = 0, k, mid, below = 0x7FFFFFFF, top, tops = 0, top_of[SP_MAX_TOPS];
+    int right_of[SP_MAX_TOPS], column;
     sp_label_draw d;
     if (popup == NULL || ctl[0x24] != 0 || g_game->width_fn == 0
         || !sp_is_label_panel(*(const unsigned int *)popup)) {
@@ -1086,16 +1118,18 @@ static int sp_label_panel(void *holder, const unsigned char *ctl, const unsigned
         impl = *(const unsigned char *const *)(wrapper + 0x10);
         if (impl == NULL || *(const unsigned int *)impl != *(const unsigned int *)ctl
             || *(const unsigned char *const *)(impl + 0x18) != popup) {
-            top = sp_child_top(wrapper);     /* another control (a button): the lines stay above it */
-            if (top >= mid && top < below) {
-                below = top;
+            int right = 0x7FFFFFFF;
+            top = sp_child_top(wrapper, &right);   /* another control (a button): the lines stay above it */
+            if (top != 0x7FFFFFFF && tops < SP_MAX_TOPS) {
+                right_of[tops] = right;
+                top_of[tops++] = top;
             }
             continue;
         }
         if (impl[0x24] != 0) {                       /* a text box (the epitaph, a name): drawn as the game draws it */
-            top = origin[1] + *(const int *)(impl + 0xC);
-            if (top >= mid && top < below) {
-                below = top;
+            if (tops < SP_MAX_TOPS) {
+                right_of[tops] = origin[0] + *(const int *)(impl + 0x10);
+                top_of[tops++] = origin[1] + *(const int *)(impl + 0xC);
             }
             continue;
         }
@@ -1118,9 +1152,19 @@ static int sp_label_panel(void *holder, const unsigned char *ctl, const unsigned
             line = mb - mt;
         }
     }
+    /* The lines' box ends above the first control (a button, a text box) in the panel's lower half, or below the
+       first line's top and reaching the vertical bar's column at the panel's right (Create Nickname's name box, the
+       panel's width): no bar ever covers a control; the lines below it scroll into the box.  A control between the
+       lines and clear of that column (the tombstone's epitaph) keeps the lines around it as the game places them. */
+    column = panel[2] - SP_TOMB_SIDE / 2 - (g_art == 1 ? g_track.w : 18);   /* sp_scroll's room_r less the track */
+    for (k = 0; k < tops; ++k) {
+        if ((top_of[k] >= mid || (top_of[k] > t && right_of[k] > column)) && top_of[k] < below) {
+            below = top_of[k];
+        }
+    }
     bx = panel[0] + SP_TOMB_SIDE;
     bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
-    bottom = (below != 0x7FFFFFFF ? below : panel[3] - 0x10) - 4;   /* above the controls in the panel's lower half */
+    bottom = (below != 0x7FFFFFFF ? below : panel[3] - 0x10) - 4;   /* above those controls */
     if (first == NULL || r <= l || (l >= bx && r <= bx + bw && b <= bottom && t >= panel[1])) {
         if (g_view.popup == popup) {
             g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
