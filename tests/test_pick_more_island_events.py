@@ -47,6 +47,8 @@ REGISTRY = [
     ("The Climb", (2,)),
     ("The Troubling Signs", (3,)),
     ("Diving for Treasure", (3,)),
+    ("The Playful Dolphins", (4,)),
+    ("The Mysterious Mask", (4,)),
 ]
 
 

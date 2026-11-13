@@ -25,3 +25,4 @@ EXPORTS
     VvfpStoryButtonRoom=_VvfpStoryButtonRoom@4
     VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
     VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
+    VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8

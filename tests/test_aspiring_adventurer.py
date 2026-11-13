@@ -172,7 +172,8 @@ class TheOdds(unittest.TestCase):
                        "1 + g->rand_below(3)", "20 + g->rand_below(11)", "10 + g->rand_below(41)",
                        "adv_eligible_count(g, -1) >= 2", "adv.award = adv_award_roll(g, adv.award_kind, 1);",
                        "int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);",
-                       "return g->award_amount(kind, base * times);"):
+                       "return g->award_amount(kind, base * times / (parts > 0 ? parts : 1));",
+                       "return adv_award_roll_part(g, kind, times, 1);"):
             self.assertIn(needle, core)
 
 

@@ -455,10 +455,7 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["v4_choices"], [
             {"label": "Go left", "next": left}, {"label": "Go right", "next": right},
             {"label": "Go up", "next": left}, {"label": "Go down", "next": right}])
-        # Every link set; the event is still ticked for A New Home and The Lost Children, whose popups keep two.
-        self.assertEqual(self.out["v4_problems"], [
-            f"{name}: a question with more than two buttons is not shown in this game yet (untick the game, or keep "
-            "two buttons)" for name in ("A New Home", "The Lost Children")])
+        self.assertEqual(self.out["v4_problems"], [], "every link set: no problem in any of the five games")
         self.assertEqual(self.out["back_to_two"], 2, "removed down to two, never fewer")
         self.assertTrue(self.out["remove_disabled"])
         self.assertTrue(any("a question has 2 to 4 answers" in p for p in self.out["one_problems"]),

@@ -685,7 +685,7 @@ class Version3(unittest.TestCase):
 def four_doors(version: int = 4) -> dict:
     """A version 4 graph: a four-answer question, one answer leading (after its own page) to a three-answer one."""
     return {
-        "format": "vvfp-cie-graph", "version": version, "title": "Four Doors", "games": [3, 4, 5],
+        "format": "vvfp-cie-graph", "version": version, "title": "Four Doors", "games": [1, 2, 3, 4, 5],
         "roles": {"subject": {"kind": "villager"}},
         "start": "q",
         "nodes": {
@@ -721,16 +721,6 @@ class Version4(unittest.TestCase):
         d = four_doors()
         d["nodes"]["q"]["choices"][2]["next"] = "nowhere"
         self.assertProblem(d, "'nowhere' names no node")
-
-    def test_a_new_home_and_the_lost_children_keep_two_for_now(self):
-        d = four_doors()
-        d["games"] = [1, 2, 3]
-        found = problems_of(d)
-        self.assertIn("A New Home: a question with more than two buttons is not shown in this game yet (untick the "
-                      "game, or keep two buttons)", found)
-        self.assertTrue(any(p.startswith("The Lost Children: a question with more than two") for p in found))
-        self.assertFalse(any(p.startswith("The Secret City") for p in found))
-        self.assertEqual(cg.MORE_ANSWER_GAMES, (3, 4, 5))
 
     def test_versions_1_to_3_keep_two(self):
         for version in (2, 3):

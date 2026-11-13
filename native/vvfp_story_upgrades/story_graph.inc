@@ -2671,13 +2671,6 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     if (question && !ce_choice_available(a)) {
         return "This game can not ask a question with two choices yet.";
     }
-    if (!ce_more_answers(game)) {
-        for (i = 0; i < cg_g.n_node; ++i) {
-            if (cg_node_at(&cg_g, i)[0] == CG_QUESTION && cg_answer_count(i) > 2) {
-                return "This game can not ask a question with more than two buttons yet.";
-            }
-        }
-    }
     ce_refusal_for_choice = question;
     {
         const char *why = a->arm_refusal();

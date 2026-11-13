@@ -66,6 +66,14 @@ static const mie_pick MIE_PICKS[] = {
       "two villagers of 18 or more who may be picked",
       "A villager wants to dive for treasure: swim deeper, or better not.",
       &DV_FLOW, &g_dv_object },
+    { MIE_IN(4), "playful_dolphins", dp_flow_title, dp_listable,
+      "two villagers of 14 or more who may be picked",
+      "A villager sees dolphins playing: swim towards them, or hang back.",
+      &DP_FLOW, &g_dp_object },
+    { MIE_IN(4), "mysterious_mask", mk_flow_title, mk_listable,
+      "a population of 61 or more, two to four children under 14 and five villagers of 18 or more who may be picked",
+      "Children find a strange mask, and the village decides what to do about it.",
+      &MK_FLOW, &g_mk_object },
 };
 #define MIE_PICK_COUNT ((int)(sizeof MIE_PICKS / sizeof MIE_PICKS[0]))
 

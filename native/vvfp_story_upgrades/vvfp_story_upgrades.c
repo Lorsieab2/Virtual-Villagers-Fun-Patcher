@@ -81,6 +81,7 @@
 #include "story_custom.h"
 #include "story_label_widths.h"   /* each game's button-label widths (scripts/build_cie_label_widths.py) */
 #include "../shared/vvfp_multi_answer.h"   /* a question's third and fourth answers (The Secret City .. New Believers) */
+#include "../shared/vvfp_multi_answer_12.h"   /* ... and in A New Home and The Lost Children */
 
 enum {
     IDD_PICK = 301,

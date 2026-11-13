@@ -207,6 +207,10 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_troubling_signs",
                # ...and Diving for Treasure's (The Secret City).
                "vv_diving_for_treasure",
+               # ...and The Playful Dolphins' (The Tree of Life).
+               "vv_playful_dolphins",
+               # ...and The Mysterious Mask's (The Tree of Life).
+               "vv_mysterious_mask",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
@@ -452,12 +456,15 @@ class ReleasesLinkTests(unittest.TestCase):
               for n in (1, 2, 3, 4, 5)),
             ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_cave_explorers", "vv_the_climb",
                                               "vv_troubling_signs", "vv_diving_for_treasure",
+                                              "vv_playful_dolphins", "vv_mysterious_mask",
                                               "vv_game_mechanics_events"}),
             ("vv_aspiring_adventurer", set()),
             ("vv_cave_explorers", set()),
             ("vv_the_climb", set()),
             ("vv_troubling_signs", set()),
             ("vv_diving_for_treasure", set()),
+            ("vv_playful_dolphins", set()),
+            ("vv_mysterious_mask", set()),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
                                         "vv_game_mechanics_farmers",
