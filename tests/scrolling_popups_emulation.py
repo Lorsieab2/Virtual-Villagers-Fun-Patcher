@@ -759,6 +759,11 @@ class Dialog:
         t = TIPS[self.game]
         self.children = []
         self.tip_text = text
+        # The tip's text is what the stand-in string table gives for TIP_ID: never the game's English text or an
+        # override left by a tombstone or a label panel made earlier on this Dialog (make_tomb / make_panel set
+        # `english`), or the tip is made with that short text instead and draws unscrolled.
+        self.english = False
+        self.string_overrides = {}
         self.looked_up = []
         self.dialog = d = self.m.font_heap.alloc(0x200)
         text_va = self._cstr(text)
