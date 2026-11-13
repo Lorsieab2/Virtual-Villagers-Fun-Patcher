@@ -19,6 +19,7 @@ EXPORTS
     VvfpTroublingSignsButtons=_VvfpTroublingSignsButtons@4
     VvfpMoreIslandEventsButtonRoom=_VvfpMoreIslandEventsButtonRoom@4
     VvfpMoreIslandEventsAnswerButtons=_VvfpMoreIslandEventsAnswerButtons@4
+    VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpMoreIslandEventsProtected=_VvfpMoreIslandEventsProtected@12
     VvfpDivingPossible=_VvfpDivingPossible@0
     VvfpDivingState=_VvfpDivingState@4

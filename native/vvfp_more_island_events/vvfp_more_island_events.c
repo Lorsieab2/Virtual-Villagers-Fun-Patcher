@@ -25,6 +25,7 @@
 #include "../shared/vv4_villager_table.h"
 #include "../shared/vv5_villager_table.h"
 #include "../shared/vvfp_multi_answer.h"
+#include "../shared/vvfp_multi_answer_12.h"
 
 #include "adv_text.inc"
 #include "cave_text.inc"

@@ -32,7 +32,8 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
 
   VERSION 4 (the owner, 2026-11-13: "Make the 2-4 option thing general"): a question has 2, 3 or 4 "choices", each
   with its own label and its own next part.  The game shows them in its own two-choice popup with one or two more
-  buttons made as it makes its two (native/shared/vvfp_multi_answer.h; A New Home and The Lost Children their own),
+  buttons made as it makes its two (native/shared/vvfp_multi_answer.h; vvfp_multi_answer_12.h for A New Home and The
+  Lost Children),
   stacked and centred; the keys 1 to 4 pick them where the game delivers keys.  The question's popup (and its
   answer's first page, shown in it) keeps ANSWER_LINES text lines for each answer past two, so it is no taller than
   with two.  Every other rule is version 3's.  Versions 1, 2 and 3 load, compile and play exactly as before.
@@ -172,7 +173,6 @@ BINARY_MAGIC = b"CIEG"
 BINARY_VERSION = 4            # a graph is compiled as its own version (1, 2 and 3 byte for byte as before)
 MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; before: exactly 2)
 MAX_ANSWERS = 4               # the game's two-choice popup with up to two more buttons (vvfp_multi_answer.h)
-MORE_ANSWER_GAMES = (3, 4, 5)  # the games whose popup shows a third and fourth button (story_custom.inc ce_more_answers)
 ANSWER_LINES = 3              # text lines a third or fourth answer's button takes (1.5 button heights of 20-px lines)
 NONE = 0xFFFF
 
@@ -1246,9 +1246,6 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
         game = GAMES[gn]
         if len(title) > game.title_width:
             problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
-        if gn not in MORE_ANSWER_GAMES and any(len(n["choices"]) > 2 for n in nodes.values()):
-            problems.append(f"{game.name}: a question with more than two buttons is not shown in this game yet "
-                            "(untick the game, or keep two buttons)")
         for nid, n in nodes.items():
             for c in n["choices"]:
                 label = worst_case(c["label"], game, None)

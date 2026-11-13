@@ -692,10 +692,39 @@ typedef struct sp_asked {
 static sp_asked g_asked[SP_ASKED];
 static int g_asked_next;
 
+/* A popup's virtual table as the game made it: A New Home's and The Lost Children's encounter dialog with three or
+   four answers carries a copy (More Island Events' or Story / Cheat Upgrades' VvfpMultiAnswerGameVtable, the shared
+   native/shared/vvfp_multi_answer_12.h), which gives the game's table and the room its question keeps for the extra
+   buttons (*room, else 0). */
+typedef int (__stdcall *sp_multi_fn)(const void *popup, int *room);
+
+static unsigned int sp_vtable_of(const unsigned char *popup, int *room) {
+    static const char *const MODULES[2] = { "VVFP More Island Events.dll", "VVFP Story Upgrades.dll" };
+    unsigned int vt = *(const unsigned int *)popup;
+    int k;
+    if (room != NULL) {
+        *room = 0;
+    }
+    for (k = 0; k < 2; ++k) {
+        HMODULE module = GetModuleHandleA(MODULES[k]);
+        sp_multi_fn fn = module != NULL ? (sp_multi_fn)(void *)GetProcAddress(module, "VvfpMultiAnswerGameVtable")
+                                        : NULL;
+        int r = 0;
+        unsigned int game = fn != NULL ? (unsigned int)fn(popup, &r) : 0u;
+        if (game != 0u) {
+            if (room != NULL) {
+                *room = r > 0 && r < 2048 ? r : 0;
+            }
+            return game;
+        }
+    }
+    return vt;
+}
+
 static const sp_asked *sp_asked_for(const unsigned char *popup) {
     int i;
     for (i = 0; i < SP_ASKED; ++i) {
-        if (g_asked[i].popup == popup && popup != NULL && *(const unsigned int *)popup == g_asked[i].vtable) {
+        if (g_asked[i].popup == popup && popup != NULL && sp_vtable_of(popup, NULL) == g_asked[i].vtable) {
             return &g_asked[i];
         }
     }
@@ -714,7 +743,7 @@ static void sp_ask(const unsigned char *popup, int w_req, int h_req) {
         g_asked_next = (g_asked_next + 1) % SP_ASKED;
     }
     g_asked[k].popup = popup;
-    g_asked[k].vtable = *(const unsigned int *)popup;
+    g_asked[k].vtable = sp_vtable_of(popup, NULL);
     g_asked[k].w_req = w_req;
     g_asked[k].h_req = h_req;
 }
@@ -787,7 +816,8 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
         if (ret - 5u == g_game->msgbox.size_site || s != NULL) {
             unsigned int vtable = s != NULL ? s->vtable : g_game->msgbox.vtable;
             __try {
-                if (*(const unsigned int *)popup == vtable) {
+                int room = 0;
+                if (sp_vtable_of((const unsigned char *)popup, &room) == vtable) {
                     if (s != NULL && s->mode == SP_SHIFT_MEASURED && g_game->height_fn != 0) {
                         void *font;
                         const char *text = sp_shown(s, (const unsigned char *)popup, &font);
@@ -803,7 +833,7 @@ static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *
                         sp_cap_asked((const unsigned char *)popup, a);
                         k = (sp_asked *)sp_asked_for((const unsigned char *)popup);
                         if (k != NULL) {
-                            k->reserve = g_asked_reserve(asked_h, s->text_top, height);
+                            k->reserve = g_asked_reserve(asked_h, s->text_top, height) + room;   /* + extra buttons */
                         }
                     } else {
                         sp_cap_asked((const unsigned char *)popup, a);
@@ -1234,7 +1264,7 @@ static int sp_measured_body(const sp_shift *s, const sp_asked *asked, unsigned c
    (and by what the capped panel moved it: the game centres a panel's contents by (panel - asked) / 2), with the
    bars.  1 when drawn so. */
 static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
-    const sp_shift *s = sp_shift_at(0, *(const unsigned int *)dialog);
+    const sp_shift *s = sp_shift_at(0, sp_vtable_of(dialog, NULL));
     const sp_asked *asked = s != NULL ? sp_asked_for(dialog) : NULL;
     const int *panel = (const int *)(dialog + 0x14);
     void *holder = sp_holder(), *button;

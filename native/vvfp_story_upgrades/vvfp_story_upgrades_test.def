@@ -124,5 +124,6 @@ EXPORTS
     VvfpStoryProbeGraphSession=_VvfpStoryProbeGraphSession@8
     VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
     VvfpStoryButtonRoom=_VvfpStoryButtonRoom@4
+    VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
