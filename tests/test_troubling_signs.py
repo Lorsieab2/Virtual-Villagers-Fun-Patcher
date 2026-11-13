@@ -457,8 +457,7 @@ class Answers(unittest.TestCase):
         m = low[1] // 1000                                   # the game's own factor: 1,000 tech at the bottom
         self.assertGreaterEqual(m, 1)
         self.assertEqual(low, [200 * m, 1000 * m, 200 * m, 1000 * m])
-        highs = standard()
-        highs.set_stores(100000, 100000)                      # a loss is never more than what is stored
+        highs = standard()                                    # the page says the full roll, whatever is stored
         self.assertTrue(highs.open(awards=(TOP, TOP, TOP, TOP)))
         self.assertEqual(highs.ts_state()[11:15], [600 * m, 2000 * m, 600 * m, 2000 * m])
         # Each answer's store change.
@@ -471,16 +470,18 @@ class Answers(unittest.TestCase):
             v.play(g)
             amount = v.ts_state()[11 + g]
             df, dt = expect[g]
-            self.assertEqual(v.stores(), (food + df * amount, tech + dt * amount), g)
-        # A loss never below 0: what is stored is what is taken, and the page says so.
+            self.assertEqual(v.stores(), (max(0, food + df * amount), max(0, tech + dt * amount)), g)
+        # A low store (the owner, 2026-11-13: "yeah show the full amount"): the page says the full roll, the store
+        # ends at 0.
         for g, stores in ((0, (150, 5000)), (3, (1000, 700))):
             v = standard()
             v.set_stores(*stores)
             self.assertTrue(v.open(awards=(TOP, TOP, TOP, TOP)))
-            self.assertEqual(v.ts_state()[11 + g], stores[0] if g == 0 else stores[1])
+            full = (600 if g == 0 else 2000) * m
+            self.assertEqual(v.ts_state()[11 + g], full)
+            self.assertIn(f"loses {full} ", " ".join(v.ts_pages(1 + g)))
             v.play(g)
             self.assertEqual(v.stores()[0 if g == 0 else 1], 0)
-            self.assertIn(f"loses {stores[0] if g == 0 else stores[1]} ", " ".join(v.ts_pages(1 + g)))
 
     def test_one_entry_and_nothing_at_a_save_before_the_last_page(self) -> None:
         v = standard()

@@ -234,8 +234,8 @@ def troubling_signs_event() -> Event:
         f"tech points ({tech}).",
         "Each amount is drawn when the popup opens, each equally likely, from the smallest to the largest food or "
         "tech-point gain of the game's own island events, times m, the game's own multiplier for its events (the "
-        "villagers it counts, divided by 20, plus 1), through the game's own food or tech writer. A loss never takes "
-        "more than is stored: the decree says what is taken, and the store stops at 0.",
+        "villagers it counts, divided by 20, plus 1), through the game's own food or tech writer. The decree says "
+        "the full amount drawn, a loss too; a loss never takes more than is stored, so the store stops at 0.",
         "The effects wait for their own page: the travellers leave and the award comes when the decree's last page is "
         "shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and "
         "every change. Quitting before that page leaves the village as it was, and the event does not come back.",
