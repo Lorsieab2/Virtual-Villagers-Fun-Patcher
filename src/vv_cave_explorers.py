@@ -44,7 +44,7 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("TITLE", TITLE),
     ("INTRO", "{a} has been curious about the cave. {He.a} wonders why the other villagers have not explored it more "
               "thoroughly, and speculates that there must be more to it than meets the eye. {a} is trying to convince "
-              "{b}, {his.a} good friend, to come with {him.a}. {b} is also curious, but is not sure whether to sneak "
+              "{b}, {his.a} special friend, to come with {him.a}. {b} is also curious, but is not sure whether to sneak "
               "off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says "
               "{a}. \"So, what do you say?\""),
     ("LABEL_EXPLORE", "Explore the Cave"),
@@ -54,7 +54,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
              "reconsider. Let the tribe handle this and maybe we can tag along later.\" {a} is saddened, but realizes "
              "that {b} is right. After much reflection, {he.a} thanks {him.b} for setting their mind straight. \"I "
              "may not always have my best interests in mind, but I'm glad to have such a good friend looking out for "
-             "me!\" {a} and {b} may not always get along, but one thing's for certain: their bond is stronger than "
+             "me!\" {b} promises to protect {a} if {he.a} will do the same. \"Of course! After all, I'm here for "
+             "you!\" {a} and {b} may not always get along, but one thing's for certain: their bond is stronger than "
              "ever."),
     ("EXPLORE_1", "\"Okay, let's go!\" {b} says. {a} and {b} pack up their supplies and steal away to the cave in "
                   "secret. By torchlight, they see intricate drawings depicting the island's history painted on the "

@@ -231,7 +231,8 @@ class CaveVillage(Village):
         for k, v in enumerate(self.RECT):
             p.put32(self.dlg + 0x14 + 4 * k, v)
         self.rolls = [draw] + list(rolls)
-        p.call(0x4189E0, [], ecx=self.dlg)
+        # Every popup laid out with the longest names: more than the emulator's default cap of instructions.
+        p.call(0x4189E0, [], ecx=self.dlg, limit=8_000_000)
         if p.u32(self.dlg + 0x5094) != 0x7F4B1A2E:
             return False
         esp = STACK_TOP - 0x3000 - 4
