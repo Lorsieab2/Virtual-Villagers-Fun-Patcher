@@ -142,8 +142,8 @@ class Checks(unittest.TestCase):
 
     def test_format_and_version(self):
         d = tiny()
-        d["version"] = 3
-        self.assertProblem(d, "version 3")
+        d["version"] = 4
+        self.assertProblem(d, "version 4")
         d = tiny()
         d["format"] = "x"
         self.assertProblem(d, "format")
@@ -478,8 +478,8 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertProblem(d, "characters the game cannot show")         # the double quote is version 2's
         d["nodes"]["p"]["text"] = "(Name) finds a door."
         self.assertProblem(d, "only be the start node in a version 1 event")
-        d["version"] = 3
-        self.assertProblem(d, "version 3 is not one this patcher reads")
+        d["version"] = 4
+        self.assertProblem(d, "version 4 is not one this patcher reads")
 
     def test_an_answer_shows_its_own_page_first(self):
         self.assertProblem(multi(l={"type": "branch", "children": [{"next": "q2"}]}),
@@ -511,7 +511,7 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertEqual(struct.unpack_from("<H", b1, 4)[0], 1)
         self.assertEqual(cg.decompile_graph(b1), v1)
         bad = bytearray(blob)
-        struct.pack_into("<H", bad, 4, 3)
+        struct.pack_into("<H", bad, 4, 4)
         struct.pack_into("<I", bad, 12, 0)
         struct.pack_into("<I", bad, 12, __import__("zlib").crc32(bytes(bad)))
         with self.assertRaises(cg.GraphError):
@@ -574,6 +574,105 @@ class CaveExplorers(unittest.TestCase):
         self.assertEqual(n["stay"]["text"] + " " + n["stay_q"]["text"],
                          cave.TEXTS[[k for k, _ in cave.TEXTS].index("STAY")][1]
                          .replace("{b}", "(name2)").replace("{a}", "(name1)").replace("{He.b}", "(friend.He/She)"))
+
+
+def v3(**kw) -> dict:
+    """A version 3 graph: a ranged award, a puzzle requirement, two villagers at most 5 years apart."""
+    g = {
+        "format": "vvfp-cie-graph", "version": 3, "title": "Three Rules", "games": [1, 3],
+        "requirement": {"min_eligible": 2, "puzzles": {"1": ["The Cave"], "3": ["The Bee Hive"]}},
+        "roles": {"subject": {"kind": "villager", "min_age": 18},
+                  "friend": {"kind": "villager", "min_age": 18, "max_age_gap": {"role": "subject", "years": 5}}},
+        "start": "s",
+        "nodes": {"s": {"text": "(name1) and (name2) find (award) (award_unit).",
+                        "effects": [{"do": "tech", "amount": 500, "max": 4999, "scaled": True, "defer": True},
+                                    {"do": "pay_award"}]}},
+    }
+    for k, v in kw.items():
+        g[k] = v
+    return g
+
+
+class Version3(unittest.TestCase):
+    """The owner (2026-11-13): award ranges, "only after a puzzle is solved", "at most N years apart"."""
+
+    def assertProblem(self, data, pattern):
+        found = problems_of(data)
+        self.assertTrue(any(re.search(pattern, p) for p in found), f"{pattern!r} not in {found}")
+
+    def test_passes_and_round_trips(self):
+        self.assertEqual(problems_of(v3()), [])
+        g = cg.load(v3())
+        self.assertEqual(g["requirement"]["puzzles"], {"1": ["The Cave"], "3": ["The Bee Hive"]})
+        self.assertEqual(g["roles"]["friend"]["max_age_gap"], {"role": "subject", "years": 5})
+        self.assertEqual(g["nodes"]["s"]["effects"][0]["max"], 4999)
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 4)[0], 3)
+        self.assertEqual(cg.decompile_graph(blob), g)
+        self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
+
+    def test_the_range_in_the_walk_the_fit_and_the_table(self):
+        g = cg.load(v3())
+        (p,) = cg.walk(g, cg.Context(1, frozenset(), frozenset(g["roles"])))
+        self.assertEqual(p.award, ("tech", (500, 4999), True))
+        self.assertEqual(cg.award_words(p), "+500 to 4,999 tech points")
+        self.assertEqual(cg.worst_case("(award)", cg.GAMES[1], ("tech", (500, 4999), False)), "9999")
+        self.assertIn("+500 to 4,999 tech points", cg.chances(g, 1)[None]["outcomes"][0].by_award)
+
+    def test_range_rules(self):
+        bad = v3()
+        bad["nodes"]["s"]["effects"][0]["max"] = 400
+        self.assertProblem(bad, "its top is above its amount")
+        bad["nodes"]["s"]["effects"][0]["max"] = -10
+        self.assertProblem(bad, "its top is above its amount")
+        old = v3()
+        old["version"] = 2
+        self.assertProblem(old, "an amount range needs format version 3")
+
+    def test_puzzle_rules(self):
+        self.assertProblem(v3(requirement={"puzzles": {"1": ["The Moon"]}}), "A New Home's puzzles are")
+        self.assertProblem(v3(requirement={"puzzles": {"2": ["Fire"]}}), "'2' is not one of the event's games")
+        old = v3()
+        old["version"] = 2
+        self.assertProblem(old, "needing a puzzle solved needs format version 3")
+        self.assertEqual(set(cg.PUZZLES), set(cg.GAMES))
+
+    def test_age_gap_rules(self):
+        d = v3()
+        d["roles"]["friend"]["max_age_gap"] = {"role": "friend", "years": 5}
+        self.assertProblem(d, "the age gap names another villager role")
+        d = v3()
+        d["roles"]["subject"]["max_age_gap"] = {"role": "friend", "years": 5}
+        self.assertProblem(d, "on one of the two roles only")
+        d = v3()
+        d["roles"]["friend"]["max_age_gap"] = {"role": "subject", "years": 81}
+        self.assertProblem(d, "an age gap is 0..80 years")
+        d = v3()
+        d["roles"]["stranger"] = {"kind": "stranger"}
+        d["roles"]["friend"]["max_age_gap"] = {"role": "stranger", "years": 5}
+        self.assertProblem(d, "the age gap names another villager role")
+
+    def test_the_cave_explorers_uses_all_three(self):
+        import vv_aspiring_adventurer as adv
+        g = cg.load(CAVE)
+        self.assertEqual(g["version"], 3)
+        self.assertEqual(g["requirement"]["puzzles"], {"1": ["The Cave"]})
+        self.assertEqual(g["roles"]["friend"]["max_age_gap"], {"role": "subject", "years": 5})
+        food, tech = adv.AWARD_RANGES[1]["food"], adv.AWARD_RANGES[1]["tech"]
+        ranges = {nid: (n["effects"][0]["do"], n["effects"][0]["amount"], n["effects"][0]["max"])
+                  for nid, n in g["nodes"].items() if n["effects"] and n["effects"][0]["do"] in ("food", "tech")}
+        self.assertEqual(ranges, {
+            "find_coins": ("tech", *tech), "find_treasure": ("tech", 3 * tech[0], 3 * tech[1]),
+            "find_food": ("food", 2 * food[0], 2 * food[1]), "return_food": ("food", *food),
+            "return_tech": ("tech", *tech), "keep_research": ("tech", *tech)})
+        self.assertEqual(g["nodes"]["stay_q"]["choices"][1]["label"], "Curses schmurses. I'm keeping them.")
+
+    def test_the_puzzles_mirror_the_companion(self):
+        for game in range(1, 6):
+            src = (NATIVE / f"story_c{game}.inc").read_text(encoding="utf-8")
+            i = src.index(f"C{game}_PUZZLE_DEFS[] = {{")
+            names = tuple(re.findall(r'\{\s*"([^"]+)"', src[i:src.index("};", i)]))
+            self.assertEqual(cg.PUZZLES[game], names, game)
 
 
 if __name__ == "__main__":

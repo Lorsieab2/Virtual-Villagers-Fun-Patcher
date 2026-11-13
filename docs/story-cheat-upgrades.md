@@ -790,6 +790,19 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   first page whose effects the save lacks; when that is an answer's first
   page, the question is asked again and the entry goes back to before its
   "Choice:" line. A version 1 .cieg is read and played as before.
+- Version 3 (v1.35.97): an award range (the effect's b, its top) is drawn
+  with the walk through the game's random routine, then scaled as a fixed
+  amount; the requirement's puzzles (an ALL of puzzle conditions in the
+  header's slot 42) are read through each adapter's puzzle_solved -- the
+  flags the Puzzles screen reads (A New Home's The Cave: [world +0x9FA8]) --
+  and the purchase is refused until they are solved; an age gap (a role's
+  bytes 6 and 7) makes the roles be filled by a search that keeps every gap
+  (ages in 20 units a year), refused with the roles named when no pair fits,
+  and at delivery the event keeps waiting.
+- A question's button label is limited only by the 39 bytes kept and the
+  screen: story_label_widths.h holds each game's story-font widths
+  (scripts/build_cie_label_widths.py); the two buttons are stacked, so a
+  label wider than its button stays readable.
 - The effects wait for their own page (the owner, 2026-11-12): each node's
   effects are made, once, when the page showing the end of its text is built
   -- as a stock plain island event makes its changes while building its

@@ -8,12 +8,14 @@ become the format's placeholders: {a} (name1), {b} (name2), the screamer / the f
 branch that picks them, pronouns by that villager's role, %d the award.  The odds are the event's (KEEP_ENDINGS,
 A_ENDINGS, B_FINDS, ...).
 
-What the format cannot say, and how the example says it instead:
-  * "only once The Cave puzzle is done" and "at most 5 years apart": no condition for them -- the roles are two
-    villagers of 18 or more (Custom Island Events skip a shipped event's natural requirement in any case);
-  * the random award sizes (normal, large 2x, huge 3x): a graph's amounts are fixed -- 2,000 tech points or 500 food
-    (normal; the Aspiring Adventurer example's amounts), 1,000 food (large), 6,000 tech points (huge), each scaled by
-    the Island Events Scale patches as the example's are;
+Version 3 of the format says the rest of the owner's rules (the owner, 2026-11-13: add all three):
+  * "only once The Cave puzzle is done": requirement.puzzles {"1": ["The Cave"]} -- the purchase is refused until
+    it is solved;
+  * "at most 5 years apart": the friend's max_age_gap from the subject, 5 years (both 18 or more);
+  * the random award sizes: ranges, A New Home's as the shipped event draws them (src/vv_aspiring_adventurer.py
+    AWARD_RANGES: a normal award 200 to 1,500 food or 500 to 4,999 tech points, a large one twice that, a huge one
+    three times), each scaled by the Island Events Scale patches as the shipped event's is.
+What it still says differently:
   * the companion asks its next question in the same dialog right after a click; a Custom Island Event shows the
     answer's own page first, so "Explore the Cave" shows "Okay, let's go!..." and then asks "Toldja it'd be worth
     it..." on its own, and "Stay Here" shows the first two sentences before asking "Wait. I don't think...";
@@ -29,16 +31,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+import vv_aspiring_adventurer as adv  # noqa: E402
 import vv_cave_explorers as cave  # noqa: E402
 
 OUT = ROOT / "data" / "cie_graphs" / "the_cave_explorers.json"
 TEXT = dict(cave.TEXTS)
 
-# Fixed awards (see above).
-NORMAL_TECH, NORMAL_FOOD = 2000, 500
-AWARD = {"FIND_COINS": ("tech", NORMAL_TECH), "FIND_TREASURE": ("tech", 3 * NORMAL_TECH),
-         "FIND_FOOD": ("food", 2 * NORMAL_FOOD), "RETURN_FOOD": ("food", NORMAL_FOOD),
-         "RETURN_TECH": ("tech", NORMAL_TECH), "KEEP_RESEARCH": ("tech", NORMAL_TECH)}
+# The awards: A New Home's ranges, times the size (normal 1, large 2, huge 3: cave.AWARDS).
+SIZES = {"normal": 1, "large": 2, "huge": 3}
+
+
+def award_range(key: str) -> tuple[str, int, int]:
+    kind, size = cave.AWARDS[key]
+    lo, hi = adv.AWARD_RANGES[cave.GAME][kind]
+    return kind, lo * SIZES[size], hi * SIZES[size]
 KEEP_LABEL = TEXT["LABEL_KEEP"]          # the owner's words whole (a label may be wider than its button)
 
 
@@ -64,8 +70,8 @@ def text(key: str, **extra: str) -> str:
 
 
 def award(key: str) -> list[dict]:
-    kind, amount = AWARD[key]
-    return [{"do": kind, "amount": amount, "scaled": True, "defer": True}, {"do": "pay_award"}]
+    kind, lo, hi = award_range(key)
+    return [{"do": kind, "amount": lo, "max": hi, "scaled": True, "defer": True}, {"do": "pay_award"}]
 
 
 def build() -> dict:
@@ -151,10 +157,11 @@ def build() -> dict:
                      "effects": [{"do": "kill", "role": "friend", "cause": "unknown"}],
                      "summary": "name2 dies", "outcome": "name2 dies, a grave"}
     return {
-        "format": "vvfp-cie-graph", "version": 2, "title": cave.TITLE, "games": [cave.GAME], "patches": [],
-        "requirement": {"min_eligible": 2},
+        "format": "vvfp-cie-graph", "version": 3, "title": cave.TITLE, "games": [cave.GAME], "patches": [],
+        "requirement": {"min_eligible": 2, "puzzles": {str(cave.GAME): ["The Cave"]}},
         "roles": {"subject": {"kind": "villager", "min_age": cave.ADULT_YEARS},
-                  "friend": {"kind": "villager", "min_age": cave.ADULT_YEARS}},
+                  "friend": {"kind": "villager", "min_age": cave.ADULT_YEARS,
+                             "max_age_gap": {"role": "subject", "years": cave.MAX_AGE_GAP_YEARS}}},
         "start": "intro", "nodes": n,
     }
 

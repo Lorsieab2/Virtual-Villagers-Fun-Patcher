@@ -22,6 +22,7 @@ tests/test_story_custom_island_event.py does) and drives a .cieg compiled by src
 """
 from __future__ import annotations
 
+import copy
 import re
 import struct
 import sys
@@ -1024,38 +1025,154 @@ CAVE_CIEG = cg.compile_graph(CAVE_GRAPH)
 @emulated
 class CaveExplorersFromTheLibrary(unittest.TestCase):
     """The library's second example (A New Home), every history: three questions deep, the owner's words with their
-    double quotes, both villagers' endings and the awards."""
+    double quotes and full button labels, both villagers' endings, the awards drawn in their ranges -- once The Cave
+    is solved, two villagers at most 5 years apart."""
+
+    CAVE = 14                                  # The Cave, A New Home's puzzle index (story_c1.inc C1_PUZZLE_DEFS)
 
     def test_every_history(self):
         if not have_stock("vv1"):
             self.skipTest("no stock executable")
         run = Run("vv1")
-        binds = {"subject": cg.Binding("Bea", "f"), "friend": cg.Binding("Cal", "m")}
         title = CAVE_GRAPH["title"]
+        names = {i: (name, sex) for i, sex, _y, name in PEOPLE}
         for h in cg.walk(CAVE_GRAPH, cg.Context(1, frozenset(), frozenset(CAVE_GRAPH["roles"]))):
             with self.subTest(history=" > ".join(h.nodes)):
                 run.reset()
                 run.rolls(ROLLS)
                 run.force(list(h.nodes), graph=CAVE_GRAPH)
+                run.p.export("VvfpStoryProbeGraphPuzzles", 1 << self.CAVE)
                 food0, tech0 = stores(run)
                 self.assertIsNone(run.queue(CAVE_CIEG))
                 shown = play_answers(run, [b for _q, b in h.answers])
                 self.assertIn(run.state()["phase"], (IDLE, DONE))
-                self.assertEqual(run.state()["records"][:2], (SUBJECT, FRIEND))
-                award = (h.award[0], h.award[1]) if h.award else None
+                subject, friend = run.state()["records"][:2]
+                ages = {i: y for i, _s, y, _n in PEOPLE}
+                self.assertLessEqual(abs(ages[subject] - ages[friend]), 5, "at most 5 years apart")
+                binds = {"subject": cg.Binding(*names[subject]), "friend": cg.Binding(*names[friend])}
+                food1, tech1 = stores(run)
+                given = None
+                if h.award and h.paid:
+                    kind, (lo, hi), _scaled = h.award
+                    given = food1 - food0 if kind == "food" else tech1 - tech0
+                    self.assertTrue(lo <= given <= hi, (given, lo, hi))
+                    self.assertEqual((food1 - food0, tech1 - tech0),
+                                     (given, 0) if kind == "food" else (0, given))
+                else:
+                    self.assertEqual((food1 - food0, tech1 - tech0), (0, 0))
+                award = (h.award[0], given) if given is not None else None
                 self.assertEqual(norm(" ".join(run.strip(t, title) for _k, t, *_ in shown)),
                                  norm(" ".join(cg.expand(pop.text, binds, award) for pop in h.popups)))
+                labels = [s[3] for s in shown if s[0] == "question"]
+                self.assertEqual(labels, [[c["label"] for c in CAVE_GRAPH["nodes"][q]["choices"]] for q, _b in h.answers])
                 self.assertNotIn("could not be made", " ".join(t for _k, t, *_ in shown))
-                food1, tech1 = stores(run)
-                paid = (h.award[1] if h.award and h.award[0] == "food" else 0,
-                        h.award[1] if h.award and h.award[0] == "tech" else 0)
-                self.assertEqual((food1 - food0, tech1 - tech0), paid)
                 L = run.v.L
-                for who, role in ((SUBJECT, "subject"), (FRIEND, "friend")):
+                for who, role in ((subject, "subject"), (friend, "friend")):
                     done = {e["do"] for _n, e in h.effects if e.get("role") == role}
                     self.assertEqual(run.v.byte(who, ACTIVE["vv1"]), 0 if "vanish" in done else 1)
                     if "kill" in done:
                         self.assertEqual(run.v.i32(who, L["health"]), 0)
+
+
+V3 = cg.load({
+    "format": "vvfp-cie-graph", "version": 3, "title": "Old Friends", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 18},
+              "friend": {"kind": "villager", "min_age": 18, "max_age_gap": {"role": "subject", "years": 5}}},
+    "start": "s",
+    "nodes": {"s": {"text": "(name1) and (name2) find (award) (award_unit).",
+                    "effects": [{"do": "food", "amount": 100, "max": 199, "scaled": True, "defer": True},
+                                {"do": "pay_award"}]}},
+})
+
+
+def v3_with_puzzle(game: int) -> bytes:
+    data = copy.deepcopy(V3)
+    data["requirement"] = {"min_eligible": 0, "puzzles": {str(game): [cg.PUZZLES[game][1]]}}
+    return cg.compile_graph(cg.load(data))
+
+
+@emulated
+class Version3Rules(unittest.TestCase):
+    """The owner (2026-11-13): award ranges, "only after a puzzle is solved", "at most N years apart" -- emulated in
+    all five games."""
+
+    def test_a_range_is_drawn_within_its_bounds_then_scaled(self):
+        data = cg.compile_graph(V3)
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            for roll, scale in ((0, 0), (57, 0), (99, 0), (250, 0), (57, 2)):
+                with self.subTest(game=game, roll=roll, scale=scale):
+                    run = Run(game)
+                    run.rolls([1, roll] + [0] * 40)             # Bea (Adam is the only one within 5 years), the draw
+                    run.force([], scale=scale)
+                    food_va, _t, _a, _b = _food_tech(run.story)
+                    run.p.put32(food_va, 2000)
+                    food0, _ = stores(run)
+                    self.assertIsNone(run.queue(data))
+                    shown = play_answers(run, [])
+                    food1, _ = stores(run)
+                    drawn = 100 + roll % 100
+                    expect = drawn + (2000 // 10 if scale == 2 else 0)
+                    self.assertEqual(food1 - food0, expect)
+                    self.assertTrue(100 <= drawn <= 199)
+                    self.assertIn(f"find {expect} food", shown[0][1])
+
+    def test_the_puzzle_gate(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            n = int(game[2:])
+            puzzle = cg.PUZZLES[n][1]
+            with self.subTest(game=game, puzzle=puzzle):
+                run = Run(game)
+                run.p.export("VvfpStoryProbeGraphPuzzles", 0)
+                why = run.queue(v3_with_puzzle(n))
+                self.assertEqual(why, f"\"Old Friends\" can only happen once {puzzle} is solved. Nothing has been "
+                                      "queued.")
+                self.assertEqual(run.state()["phase"], IDLE)
+                run.p.export("VvfpStoryProbeGraphPuzzles", 1 << 1)
+                self.assertIsNone(run.queue(v3_with_puzzle(n)), "solved: queued")
+                # Another game's puzzle never holds this game's event back.
+                other = 1 if n != 1 else 2
+                run = Run(game)
+                run.p.export("VvfpStoryProbeGraphPuzzles", 0)
+                self.assertIsNone(run.queue(v3_with_puzzle(other)))
+
+    def test_the_age_gap_and_its_refusal(self):
+        data = cg.compile_graph(V3)
+        apart = [(0, "m", 20, "Adam"), (1, "f", 30, "Bea"), (2, "m", 40, "Cal"), (3, "f", 50, "Dee")]
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game, village="no pair within 5 years"):
+                run = Run(game, people=apart)
+                why = run.queue(data)
+                self.assertEqual(why, "No two villagers in the village can be the event's subject and friend now: "
+                                      "they must be at most 5 years apart. Nothing has been queued.")
+                self.assertEqual(run.state()["phase"], IDLE)
+            for subject_roll in range(4):
+                with self.subTest(game=game, roll=subject_roll):
+                    run = Run(game)                      # Adam 30, Bea 31, Cal 40, Dee 25
+                    run.rolls([subject_roll, subject_roll] + [0] * 40)
+                    run.force([])
+                    self.assertIsNone(run.queue(data))
+                    play_answers(run, [])
+                    subject, friend = run.state()["records"][:2]
+                    ages = {i: y for i, _s, y, _n in PEOPLE}
+                    self.assertNotEqual(subject, friend)
+                    self.assertLessEqual(abs(ages[subject] - ages[friend]), 5)
+                    self.assertNotIn(2, (subject, friend), "Cal (40) has nobody within 5 years")
+            with self.subTest(game=game, at="delivery"):
+                run = Run(game)
+                run.rolls([0] * 40)
+                run.force([])
+                self.assertIsNone(run.queue(data))
+                for i, sex, years, name in apart:        # the village has changed: no pair any more
+                    run.v.put(i, sex=sex, years=years, name=name)
+                run.p.write(TEXT_BUF, b"\0")
+                self.assertEqual(run.p.export("VvfpStoryProbeDeliver", run.n, TEXT_BUF, 9000), 0)
+                self.assertEqual(run.state()["phase"], QUEUED, "it keeps waiting, never run with the gap broken")
 
 
 class SourceAndLayout(unittest.TestCase):

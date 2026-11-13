@@ -127,24 +127,22 @@ static int t_rand(int n) {
    not carrying a baby (+0xE8C, the game's "pregnant or nursing"), not the Tribal Chief (+0xE80). */
 static int vv3_eligible(const unsigned char *r) {
     return r[0xF10] != 0 && *(const int *)(r + 0xE78) > 0 && r[0xE94] == 0 && *(const int *)(r + 0xDC4) >= ADV_ADULT_UNITS
-        && *(const int *)(r + 0xE8C) == 0 && r[0xE80] == 0;
+        && !adv_is_protected(3, r);
 }
 
 /* The Tree of Life: present (+0xCC4 of the record's +0x1000 half: +0x1CC4), not a body or ghost (+0x1CC7), alive
    (+0x1C40), 14 or more (+0x1B8C), not carrying a baby (+0x1C4C). */
 static int vv4_eligible(const unsigned char *r) {
-    return r[0x1CC4] != 0 && r[0x1CC7] == 0 && *(const int *)(r + 0x1C40) > 0
-        && *(const int *)(r + 0x1B8C) >= ADV_ADULT_UNITS && *(const int *)(r + 0x1C4C) == 0;
+    return r[0x1CC4] != 0 && *(const int *)(r + 0x1C40) > 0 && *(const int *)(r + 0x1B8C) >= ADV_ADULT_UNITS
+        && !adv_is_protected(4, r);
 }
 
 /* New Believers: present (+0x1CD4), alive (+0x1C40), not a Reanimated spirit (+0x1CE1), a believer (Heathen
    +0x1CEC clear), not one of the roles the game's own picker skips (+0x1CFC 12-17: the chief, the Retired Chief,
    the puzzles' Heathens), 14 or more (+0x1B8C), not carrying a baby (+0x1C4C). */
 static int vv5_eligible(const unsigned char *r) {
-    int role = *(const int *)(r + 0x1CFC);
-    return r[0x1CD4] != 0 && *(const int *)(r + 0x1C40) > 0 && r[0x1CE1] == 0 && r[0x1CEC] == 0
-        && !(role >= 12 && role <= 17) && *(const int *)(r + 0x1B8C) >= ADV_ADULT_UNITS
-        && *(const int *)(r + 0x1C4C) == 0;
+    return r[0x1CD4] != 0 && *(const int *)(r + 0x1C40) > 0 && r[0x1CEC] == 0
+        && *(const int *)(r + 0x1B8C) >= ADV_ADULT_UNITS && !adv_is_protected(5, r);
 }
 
 static unsigned int t_name_offset(void) {

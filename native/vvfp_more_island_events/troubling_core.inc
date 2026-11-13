@@ -9,8 +9,9 @@
      * NINE other villagers, all different: four ADVISORS, one for each group the chief may ask (the spiritual
        leaders, the magicians, the naturalists, the scientists and healers), each the "(random name)" of the group's
        page, the same four for the whole event, who stay; and five TRAVELLERS, who leave the village for good;
-       each of them 18 or more (360 age units) and not protected (adv_is_protected: never a villager carrying a baby,
-       mother or father, nor one the game's own island events never pick; the chief is never one of the nine);
+       each of them 18 or more (360 age units) and not protected (adv_core.inc adv_is_protected: never a villager
+       carrying a baby, mother or father, nor the Tribal Chief -- the stock picker's one exclusion; everyone else,
+       titles and Esteemed Elders included, is fair game);
      * a population of 61 or more, counted as The Lost Children's own count for its "A Dangerous Mission"
        (0x425860: the living villagers who are not look-alikes, plus the babies being carried; ts_game.population).
    With no robed chief, fewer than nine such villagers, a smaller population or no tribe name to call, the event
@@ -41,38 +42,6 @@
 #define TS_MAX_RECORDS 512
 
 enum { TS_SPIRITUAL = 0, TS_MAGICIANS, TS_NATURALISTS, TS_SCIENTISTS };
-
-/* ---- Protected villagers ------------------------------------------------------------------------------------------
-   TODO(adv_is_protected): a LOCAL stand-in, to be removed when feat/97-climb's shared adv_is_protected (adv_core.inc,
-   the same name and signature) is merged in.  The owner (2026-11-13): protected means exactly the villagers carrying
-   a baby (mother or father), A New Home's Golden Child, The Secret City's Tribal Chief, any villager the game's own
-   island events never pick, and The Lost Children's totems -- "Everyone else should be fair game".  `allow_chief`: the
-   Tribal Chief is not protected (an event that names the chief as its speaker). */
-#ifndef ADV_IS_PROTECTED_DEFINED
-static int adv_is_protected(int game, const unsigned char *rec, int allow_chief) {
-    if (rec == NULL) {
-        return 1;
-    }
-    switch (game) {
-    case 1:
-        return *(const int *)(rec + 0x358) != 0 || *(const int *)(rec + 0x36C) == 0xC7;   /* carrying; Golden Child */
-    case 2:
-        return *(const int *)(rec + 0x540) != 0 || rec[0x558] != 0;     /* carrying; Esteemed Elder statue (totem) */
-    case 3:
-        return *(const int *)(rec + 0xE8C) != 0                          /* carrying (pregnant or nursing) */
-            || rec[0xE94] != 0                                           /* a look-alike record, never a villager */
-            || (!allow_chief && rec[0xE80] != 0);                        /* the Tribal Chief */
-    case 4:
-        return *(const int *)(rec + 0x1C4C) != 0 || rec[0x1CC7] != 0;   /* carrying; a ghost */
-    case 5: {
-        int role = *(const int *)(rec + 0x1CFC);
-        return *(const int *)(rec + 0x1C4C) != 0 || rec[0x1CE1] != 0 || rec[0x1CEC] != 0 || (role >= 12 && role <= 17);
-    }
-    default:
-        return 1;
-    }
-}
-#endif
 
 /* ---- The game's side ------------------------------------------------------------------------------------------- */
 
@@ -112,9 +81,11 @@ static const int TS_LABELS[TS_GROUPS] = { TS_LABEL_SPIRITUAL, TS_LABEL_MAGICIANS
 
 /* ---- Who ------------------------------------------------------------------------------------------------------- */
 
-/* One of the nine: alive and present, 18 or more, not protected (the chief is protected here: never one of them). */
+/* One of the nine: alive and present (never a look-alike record), 18 or more, not protected (adv_core.inc
+   adv_is_protected, nothing allowed: the chief is never one of them -- the chief alone is let through, as the speaker,
+   by ts_game.chief). */
 static int ts_candidate(const ts_game *t, const unsigned char *r) {
-    return r != NULL && t->alive(r) && t->age(r) >= TS_ADULT_UNITS && !adv_is_protected(t->g->game, r, 0);
+    return r != NULL && t->alive(r) && t->age(r) >= TS_ADULT_UNITS && !adv_is_protected(t->g->game, r);
 }
 
 /* The candidates' records, in record order (at most `cap`); the count. */

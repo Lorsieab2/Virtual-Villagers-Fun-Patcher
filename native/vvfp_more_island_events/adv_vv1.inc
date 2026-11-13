@@ -70,7 +70,7 @@ static int v1_count(void) {
    the conception's mark), not the Golden Child (family +0x36C 0xC7, 0x43C350). */
 static int v1_eligible(const unsigned char *r) {
     return r[0x28] == 1 && *(const int *)(r + 0x344) > 0 && *(const int *)(r + 0x348) >= ADV_ADULT_UNITS
-        && *(const int *)(r + 0x358) == 0 && *(const int *)(r + 0x36C) != 0xC7;
+        && !adv_is_protected(1, r);
 }
 
 static int v1_female(const unsigned char *r) {

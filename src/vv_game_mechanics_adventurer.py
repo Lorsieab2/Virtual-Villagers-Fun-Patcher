@@ -17,10 +17,27 @@ NOT_SPECIAL = {
     1: "not the Golden Child",
     2: "not an Esteemed Elder's totem statue",
     3: "not the Tribal Chief",
-    4: "",
+    4: "not a body or a ghost",
     5: "a believer (never a Heathen), not the chief, the Retired Chief or another of the special roles the game's own "
        "picker skips, and not a Reanimated spirit",
 }
+# The owner's protected villagers (2026-11-13; native/vvfp_more_island_events/adv_core.inc adv_is_protected): never
+# picked by any of these events, whatever the role.
+PROTECTED = {
+    1: "the Golden Child",
+    2: "an Esteemed Elder's totem statue",
+    3: "the Tribal Chief",
+    4: "a body or a ghost",
+    5: "a Reanimated spirit, and the chief, the Retired Chief and the other roles the game's own island events never "
+       "pick",
+}
+
+
+def never_picked(game: int) -> str:
+    """The owner's protected villagers in plain words (the same for every role of every event of the game)."""
+    return (f"Never picked, in any role (the owner's protected villagers): a nursing mother or father, "
+            f"{PROTECTED[game]}, and anyone the game's own island events never pick. Everyone else may be picked "
+            "(titles, Esteemed Elders who are not statues, founders and the like included).")
 HOW = {
     1: "one more of the villager encounters (the two-choice island events): when an encounter is drawn, this event is "
        "1 in m + 1 (1 in m + 2 while The Cave Explorers can happen too), m the encounters possible at that moment, "
@@ -77,6 +94,7 @@ def adventurer_event(game: int) -> Event:
         f"Who: the adventurer is drawn from the villagers who are {who}, each equally likely; the friend of ending A8 "
         "is drawn the same way from the others (never the adventurer). The event needs two such villagers, so in "
         "play the friend always exists and A8 is always possible.",
+        never_picked(game),
         "\"Go investigate!\" (one popup with the opening and the find, then one with the ending): the find is a pile "
         "of dirt 50%, meat 25% (a food award) or a golden chest of artifacts 25% (a tech-point award); then 50% a "
         "surviving ending and 50% a deadly one, each equally likely within its half.",
@@ -135,6 +153,7 @@ def cave_explorers_event() -> Event:
     subs = [
         f"Who: two villagers who are {who}, at most {cave.MAX_AGE_GAP_YEARS} villager years apart (name1 and name2: "
         "every such pair equally likely, either way round).",
+        never_picked(1),
         "Three questions in a row in the encounter's own popup, each after its pages: \"Explore the Cave\" or "
         "\"Don't explore\"; then \"Proceed Further\" or \"Stay Here\"; then, depending on the way, \"Run towards the "
         "left path\" or \"Run towards the right path\" (the same odds either way), or \"You're right, I'll return "
@@ -197,8 +216,8 @@ def the_climb_event() -> Event:
            "statue")
     subs = [
         f"Who: a villager who is {who}; one such villager is enough, and the villager is drawn among them, each "
-        "equally likely. Never picked: anyone younger, anyone below Trainee in Research, a nursing mother or father, "
-        "an Esteemed Elder's statue, the dead and the absent.",
+        "equally likely; anyone younger or below Trainee in Research never climbs.",
+        never_picked(2),
         "One question in the game's own two-choice popup: \"Go with the plan\" or \"Follow the scientists' "
         "advice\".",
         f"\"Go with the plan\" (its page, then the climb): the fall {c['PLAN']['FALL']:g}% or the summit "
