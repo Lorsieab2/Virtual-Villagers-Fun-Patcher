@@ -66063,6 +66063,611 @@
    "context": "VVFP More Island Events.dll (the island event The Aspiring Adventurer: its popups, in the game's own island-event popup)",
    "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the adventurer); the adventurer is female",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.TITLE",
+   "english": "The Cave Explorers",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.INTRO.m",
+   "english": "%s has been curious about the cave. He wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, his good friend, to come with him. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.INTRO.f",
+   "english": "%s has been curious about the cave. She wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. %s is trying to convince %s, her good friend, to come with her. %s is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says %s. \"So, what do you say?\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_EXPLORE",
+   "english": "Explore the Cave",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_DONT",
+   "english": "Don't explore",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.DONT.mm",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.DONT.fm",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, he thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.DONT.mf",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" he says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks him for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.DONT.ff",
+   "english": "\"Sorry, I'm not going,\" says %s. \"What if we get lost? What if people discover we're gone? We'll get in trouble. I don't want to risk getting hurt. And neither should you,\" she says. \"Please reconsider. Let the tribe handle this and maybe we can tag along later.\" %s is saddened, but realizes that %s is right. After much reflection, she thanks her for setting their mind straight. \"I may not always have my best interests in mind, but I'm glad to have such a good friend looking out for me!\" %s and %s may not always get along, but one thing's for certain: their bond is stronger than ever.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.EXPLORE_1",
+   "english": "\"Okay, let's go!\" %s says. %s and %s pack up their supplies and steal away to the cave in secret. By torchlight, they see intricate drawings depicting the island's history painted on the walls, and numerous artifacts scattered around the area. \"Fascinating!\" %s says. \"I never thought I'd see such beautiful things!\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.EXPLORE_2.m",
+   "english": "\"Toldja it'd be worth it,\" says %s, beaming. He asks %s if they should head in further to see if any more things can be found.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.EXPLORE_2.f",
+   "english": "\"Toldja it'd be worth it,\" says %s, beaming. She asks %s if they should head in further to see if any more things can be found.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_PROCEED",
+   "english": "Proceed Further",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_STAY",
+   "english": "Stay Here",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.DEEPER",
+   "english": "The two head in deeper. The place becomes darker and narrower until only a small sliver of light remains.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.B_SEARCH",
+   "english": "The two trek on, searching high and low for anything they can find. After a while with no luck, %s finds something buried in the ground. Wow! It's",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who finds it (name1 or name2)); the find follows it after a space (\"... It's a map!\")",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.FIND_MAP",
+   "english": "a map! %s and %s follow the map to a strange place that was previously unknown by the villagers. No one knows where they went, but they left a note saying they were 'alive and well' along with a drawing of their whereabouts. 'I hope you'll come and follow us someday,' the note says. 'You'll love it here. - %s and %s'",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.FIND_COINS",
+   "english": "a sack of gold coins! %s and %s haul the heavy sack back home to the delight of the villagers. Your village gains %d tech points.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.FIND_TREASURE",
+   "english": "a treasure map! %s and %s follow the map to the X marked on the ground, where they dig up a large chest full of jewels and gold! They drag the chest all the way back home to the utter delight of the villagers. Your villagers gain %d of tech points.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.FIND_FOOD",
+   "english": "a sack of preserved food! %s and %s haul the large sack back to the village, to the delight of the villagers. Your villagers gain %d food.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.A_SCREAM.m",
+   "english": "Suddenly %s screams. He tries to run to %s, but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says %s.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.A_SCREAM.f",
+   "english": "Suddenly %s screams. She tries to run to %s, but they can't see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. \"What's wrong?!\" says %s.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.WRONG_1",
+   "english": "\"I stepped on something slimy!\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.WRONG_2",
+   "english": "\"I felt something scratch me!\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.WRONG_3",
+   "english": "\"I ran into something sticky!\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.WRONG_4",
+   "english": "\"I heard something growling!\"",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RUN.m",
+   "english": "\"Quick, run! Something's chasing us!\" he cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever %s encountered seems to be coming closer. Which path should they run down?",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RUN.f",
+   "english": "\"Quick, run! Something's chasing us!\" she cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever %s encountered seems to be coming closer. Which path should they run down?",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_LEFT",
+   "english": "Run towards the left path",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_RIGHT",
+   "english": "Run towards the right path",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RUN_LEFT",
+   "english": "%s and %s run down the left path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RUN_RIGHT",
+   "english": "%s and %s run down the right path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.ARGUE",
+   "english": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" %s stammers. \"We barely made it out alive!\" %s, frightened, starts crying. \"This was YOUR idea! We almost got ourselves killed because of your stupid plan! I should have never agreed to come along!\" %s shouts.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.ARGUE_2",
+   "english": "%s and %s's argument lasts for a while until both storm off to their homes. Although thankfully unhurt, neither of them wants anything to do with each other anymore.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.MAKEUP",
+   "english": "As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. \"W-we w-went in th-the c-cave, and heard s-something c-chasing us,\" %s stammers. Suddenly, %s starts crying. \"It was terrifying! If we hadn't made it out...\" \"I'm so sorry, %s,\" %s says. \"I should have listened to you. You were right all along, about everything.\" The two embrace, sobbing for a while as the others help care for them. They quickly make amends and promise never to let each other do anything like that again.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2); %4 = text (person: name1)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.CHASM.mm",
+   "english": "As they burst out of the cave, they flop onto what seems to be solid ground. However, %s's foot slips and he falls down a slippery chasm. Horrified, %s has no time to react before he, too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.CHASM.fm",
+   "english": "As they burst out of the cave, they flop onto what seems to be solid ground. However, %s's foot slips and she falls down a slippery chasm. Horrified, %s has no time to react before he, too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.CHASM.mf",
+   "english": "As they burst out of the cave, they flop onto what seems to be solid ground. However, %s's foot slips and he falls down a slippery chasm. Horrified, %s has no time to react before she, too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.CHASM.ff",
+   "english": "As they burst out of the cave, they flop onto what seems to be solid ground. However, %s's foot slips and she falls down a slippery chasm. Horrified, %s has no time to react before she, too tumbles down the winding waterfall. All that's left of them is their fading screams and a bowl of fresh berries.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.STAY.m",
+   "english": "%s is too enamored by all the glittering sights and objects and decides to stay put. He tries to take some to show the researchers, but %s stops them. \"Wait. I don't think that's a good idea. What if you get cursed or something?\" What should %s say?",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.STAY.f",
+   "english": "%s is too enamored by all the glittering sights and objects and decides to stay put. She tries to take some to show the researchers, but %s stops them. \"Wait. I don't think that's a good idea. What if you get cursed or something?\" What should %s say?",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_RETURN",
+   "english": "You're right, I'll return them.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.LABEL_KEEP",
+   "english": "Curses schmurses. I'm keeping them.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RETURN_FOOD.m",
+   "english": "%s carefully rearranges the objects exactly where he found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of food at their doorsteps. Your villagers gain %d food.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RETURN_FOOD.f",
+   "english": "%s carefully rearranges the objects exactly where she found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of food at their doorsteps. Your villagers gain %d food.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RETURN_TECH.m",
+   "english": "%s carefully rearranges the objects exactly where he found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of strange devices at their doorsteps. Your villagers gain %d tech points.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.RETURN_TECH.f",
+   "english": "%s carefully rearranges the objects exactly where she found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of strange devices at their doorsteps. Your villagers gain %d tech points.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP",
+   "english": "%s decides to take some of the objects for further study. \"Surely the researchers will want to come here now.\" When they return home",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); the next piece follows it after a comma",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.mm",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days he develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until he passes away in agony. %s, in his guilt, stops eating until he too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s and %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.fm",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days she develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until she passes away in agony. %s, in his guilt, stops eating until he too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s and %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.mf",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days he develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until he passes away in agony. %s, in her guilt, stops eating until she too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s and %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.ff",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days she develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until she passes away in agony. %s, in her guilt, stops eating until she too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s and %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_ONE.m",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days he develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until he passes away in agony. The villagers mourn for him, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_ONE.f",
+   "english": "%s suddenly feels a strange pain in their chest. Over the next few days she develops a high fever and convulsions. No matter what the healers do, %s becomes weaker and weaker, until she passes away in agony. The villagers mourn for her, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor %s, to rest in peace.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.KEEP_RESEARCH",
+   "english": "%s informs the researchers about the objects %s and %s found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain %d tech points.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = a number (number)",
+   "route": "key"
   }
  ]
 }

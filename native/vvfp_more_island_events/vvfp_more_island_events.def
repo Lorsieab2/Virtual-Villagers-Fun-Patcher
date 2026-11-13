@@ -6,3 +6,6 @@ EXPORTS
     VvfpAdventurerEligible=_VvfpAdventurerEligible@4
     VvfpAdventurerState=_VvfpAdventurerState@4
     VvfpAdventurerPage=_VvfpAdventurerPage@8
+    VvfpCaveExplorersPossible=_VvfpCaveExplorersPossible@0
+    VvfpCaveExplorersState=_VvfpCaveExplorersState@4
+    VvfpCaveExplorersPage=_VvfpCaveExplorersPage@8

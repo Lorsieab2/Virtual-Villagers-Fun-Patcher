@@ -1,7 +1,41 @@
-"""The five rows of "More Island Events" (vvN_more_island_events): for now one event, The Aspiring Adventurer, written by
-scripts/build_more_island_events.py.  The sites are the companion's own (native/vvfp_more_island_events: adv_vv1.inc,
-adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the two together)."""
+"""The five rows of "More Island Events" (vvN_more_island_events): The Aspiring Adventurer (all five games) and The Cave
+Explorers (A New Home), written by scripts/build_more_island_events.py.  The sites are the companion's own
+(native/vvfp_more_island_events: adv_vv1.inc, adv_vv2.inc, adv_vv345.inc; tests/test_aspiring_adventurer.py pins the
+two together)."""
 from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+import vv_aspiring_adventurer as adv  # noqa: E402
+
+
+def reward_words(game: int) -> str:
+    return f"{adv.award_words(game, 'food')} for the meat, {adv.award_words(game, 'tech')} for the chest"
+
+
+CAVE_DESCRIPTION = (
+    " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
+    "years apart, wonder what the cave hides. \"Don't explore\" changes nothing; \"Explore the Cave\" leads on: "
+    "\"Proceed Further\" brings a scream in the dark (they run, then argue, make up, or both fall down a chasm and are "
+    "gone for good, 1 in 10) or a find (a map that takes both away for good, 1 in 10; gold coins: tech points; a "
+    "treasure map: three times as many; preserved food: twice the food); \"Stay Here\" lets them return what they "
+    "found (food or tech points) or keep it (the researchers' tech points 8 times in 10; otherwise one or both die, "
+    "with graves). Each award is a random amount from the smallest to the largest food or tech-point gain of the "
+    "game's own island events (A New Home: " + adv.award_words(1, "food") + ", " + adv.award_words(1, "tech")
+    + "), scaled as the Aspiring Adventurer's is.")
+CAVE_BEHAVIOUR = (
+    "The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (with both possible, each is 1 in "
+    "m + 2), only while The Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring "
+    "Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those "
+    "ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own "
+    "text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% "
+    "argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% "
+    "gold coins a normal tech award, 30% a treasure map 3x, 30% preserved food 2x food); Stay Here -> return (food or "
+    "tech, 50/50, a normal award) or keep (80% the researchers' normal tech award, 10% name2 and name1 die, 10% name2 "
+    "dies: health 0, a body and a grave). The effects are made when the answer leading to them is clicked; each "
+    "removal is told to the Cause of Death companion (VvfpCauseVanishedBy).")
 
 DLL_NAME = "VVFP More Island Events.dll"
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
@@ -12,11 +46,13 @@ CLASSIC = (4, 5)
 SITES = {
     1: (
         (0x4189F2, "E829FFFFFF", "E8XXXXXXXX",
-         "the encounter setup 0x4189E0's call of its roller 0x418920: the companion draws this event 1 in m + 1 (m the "
-         "encounters the roller would accept now), else calls the roller as before"),
+         "the encounter setup 0x4189E0's call of its roller 0x418920: the companion draws rand(m + k), m the "
+         "encounters the roller would accept now and k the events that can happen (The Aspiring Adventurer, The "
+         "Cave Explorers): a draw of m or more is one of them, each 1 in m + k; else it calls the roller as before"),
         (0x41939D, "0F87D70F0000", "E9XXXXXXXX90",
          "the answer's resolve 0x419380, past its stock kinds (ja 0x41A37A): the event's own kind is answered by the "
-         "companion (the effects and the first result page); every other kind goes on as before"),
+         "companion (the effects and the first result page, or The Cave Explorers' next question); every other kind "
+         "goes on as before"),
         (0x41A3EE, "E8BD25FFFF", "E8XXXXXXXX",
          "OK's close in the encounter click handler 0x41A3D0: while the event has a page left it is shown instead"),
         (0x41A87C, "E8FF02FFFF", "E8XXXXXXXX",
@@ -98,7 +134,8 @@ SCALE = {
 }
 HOW = {
     1: "one more of the game's villager encounters (its two-choice island events), drawn 1 in m + 1 when the encounters "
-       "are drawn (m the encounters possible then), never the village's first island event",
+       "are drawn (m the encounters possible then; 1 in m + 2 while The Cave Explorers can happen too), never the "
+       "village's first island event",
     2: "one more of the game's two-choice island events (family A), drawn 1 in 22 a draw like each of them, never the "
        "village's first island event",
     3: "one more island event, listed and drawn like the game's own (1 in the number listed)",
@@ -112,17 +149,20 @@ def description(game: int) -> str:
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
         "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
-        "For now one: The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
-        "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (+500 food) or a golden chest of "
-        "artifacts (+2,000 tech points); half the time the adventurer gets home (with the find, or with a friend's "
+        + ("Two here: " if game == 1 else "For now one: ")
+        + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
+        "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
+        "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
         "help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe "
         "path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled "
         "survivalist, killed, gone, or they " + ("become a Heathen" if game == 5 else "join another tribe")
         + ". The event is " + HOW[game] + "; it needs two villagers of 14 or more who are not nursing a baby and not "
         + WHO_NOT[game] + ", and the adventurer and the friend who may come to help are drawn from them. The "
-        "reward is 500 food or 2,000 tech points" + ("; " if game in (1, 4, 5) else " ") + SCALE[game] + ". Deaths are the game's own (\"Unknown "
-        "causes\", with a grave); a disappearance is logged as one in the Deaths log. The popups show the owner's "
-        "text in pages that fit the screen (OK shows the next). " + classic + " **Needs no other patch.** "
+        "reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island "
+        "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
+        + ". Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the "
+        "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next)."
+        + (CAVE_DESCRIPTION if game == 1 else "") + " " + classic + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )
@@ -143,21 +183,24 @@ def row(game: int, sha: str) -> dict:
             f"The event is {HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
             f"units), alive and present, not carrying a baby, and not {WHO_NOT[game]}; the adventurer and the friend "
             "of ending A8 are drawn from them, the friend never the adventurer.",
-            "Choice A, \"Go investigate!\": the find 50% a pile of dirt, 25% meat (+500 food), 25% a golden chest "
-            "(+2,000 tech points); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, "
+            "Choice A, \"Go investigate!\": the find 50% a pile of dirt, 25% meat (a food award: "
+            + adv.award_words(game, "food") + "), 25% a golden chest (a tech award: " + adv.award_words(game, "tech")
+            + "); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, "
             "which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a "
             "grave; A3 and A6 disappear, no body), each equally likely within its half.",
             "Choice B, \"Stay on the safe path\": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 "
             "each: dies; a full recovery; health set to 10-50 and running disliked), " + JOINS[game]
             + ", a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a "
             "fallen tree, dies at the bottom of a cliff, disappears.",
-            "The reward goes through the game's own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + ". The effects are made "
+            "The reward is drawn, each amount equally likely, from the game's smallest to its largest stock "
+            "island-event gain of that kind (src/vv_aspiring_adventurer.py AWARD_RANGES), and goes through the game's "
+            "own food or tech writer" + ("; " if game in (1, 4, 5) else ", ") + SCALE[game] + ". The effects are made "
             "when the answer is clicked, as the game's own two-choice events make theirs; a disappearance is told to "
             "the Cause of Death companion (VvfpCauseVanishedBy), so its Deaths log records it as one.",
             "The owner's words, by translation key (the event's popup shows the player's language when a translation "
             "has them), are laid out in pages that fit the game's popup -- whole paragraphs, else whole sentences -- "
             "each shown in turn with OK.",
-        ],
+        ] + ([CAVE_BEHAVIOUR] if game == 1 else []),
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
@@ -166,7 +209,10 @@ def row(game: int, sha: str) -> dict:
         ],
         "evidence_status": ("implemented from exact-build disassembly; the draw, the popup pages, both choices' "
                             "effects and the install with every other patch emulated on the stock executable in "
-                            "tests/test_aspiring_adventurer.py; runtime/player confirmation pending"),
+                            "tests/test_aspiring_adventurer.py"
+                            + (" (The Cave Explorers: every path, its effects and its pages, in "
+                               "tests/test_cave_explorers.py)" if game == 1 else "")
+                            + "; runtime/player confirmation pending"),
         "companion_files": [
             {"source": f"assets/more_island_events/{DLL_NAME}", "destination": DLL_NAME, "sha256": sha},
         ],

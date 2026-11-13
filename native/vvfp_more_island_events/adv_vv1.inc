@@ -1,4 +1,10 @@
-/* The Aspiring Adventurer: A New Home.  Included by vvfp_more_island_events.c.
+/* The Aspiring Adventurer and The Cave Explorers: A New Home.  Included by vvfp_more_island_events.c.
+
+   BOTH EVENTS share the sites below through adv_flow (adv_core.inc): the draw takes rand(m + k), k the events that
+   can happen now (the Adventurer at m, The Cave Explorers after it), each one more encounter.  The Cave Explorers asks
+   up to three questions in the same dialog: after an answer that leads to another question, the two answer buttons
+   get that question's words (the constructor's own text setter 0x4015A0, then centred again with the button's own
+   size and move, as the constructor places them) and come back on its last page.
 
    A New Home's two-choice island events are its villager encounters: the trigger (0x4237B3; 20% of its island
    events, and the village's first) builds the encounter dialog (0x41A460, on its own stack), whose setup 0x4189E0
@@ -146,15 +152,32 @@ static int v1_joins(void) {
     return ADV_L2_OTHER;
 }
 
+static int v1_age(const unsigned char *r) {
+    return *(const int *)(r + 0x348);
+}
+
+/* The Cave puzzle (the Puzzles screen's "The Cave"): world byte +0x9FA8, set to 1 only by the Golden Child opening
+   the cave (effect 1, 0x43ABCA). */
+static int v1_cave_open(void) {
+    unsigned char *world = VV1_WORLD();
+    return world != NULL && world[0x9FA8] != 0;
+}
+
+/* The awards' base ranges (src/vv_aspiring_adventurer.py AWARD_RANGES: the smallest and largest stock island-event
+   gain): food 200 (The Greedy Little Monkey, 200 x n at strength 1) .. 1,500 (the wooden crate at strength 3); tech
+   500 (the badly weathered crate at strength 1) .. 4,999 (The Brass Compass, rand(3000) + 2000 at 0x41A367). */
 static const adv_game ADV_VV1 = {
     1, v1_count, v1_record, v1_eligible, v1_female, v1_name, v1_rand, v1_kill, v1_vanish, v1_injure, v1_skill, NULL,
-    v1_amount, v1_award, v1_joins, 46, 9, 1
+    v1_amount, v1_award, v1_joins, 46, 9, 1,
+    200, 1500, 500, 4999, v1_age, v1_cave_open
 };
 
 /* ---- The share --------------------------------------------------------------------------------------------- */
 
 static void *v1_dialog;
 static int v1_stage, v1_page;
+static const adv_flow *v1_flow;        /* the event in the dialog: ADV_FLOW or CAVE_FLOW */
+static int v1_node, v1_ending;         /* its question on screen; the ending reached */
 
 static int v1_any_child(void) {
     int i;
@@ -195,55 +218,120 @@ static int v1_story_busy(void) {
     return pending != NULL && pending(1) != 0;
 }
 
-/* A page as the dialog shows it: the title, the picture's lines, the page's own lines. */
+/* A page as the dialog shows it: the title, the picture's lines, the page's own lines (wrapped here: the dialog
+   breaks only at '\n'). */
 static void v1_page_text(char *out, int cap, const char *page, int pad_to) {
+    static char wrapped[ADV_PAGE_BYTES];
     int i, lines;
     adv_copy(out, cap, g_vv12_title);
     for (i = 0; i < VV1_PICTURE_LINES + 1; ++i) {
         adv_cat(out, cap, "\n");
     }
-    adv_cat(out, cap, adv_shown(page));
-    lines = adv_lines(adv.g, page);
+    adv_wrap(page, ADV_VV1.width, wrapped, sizeof wrapped);
+    adv_cat(out, cap, wrapped);
+    lines = adv_lines(&ADV_VV1, page);
     while (lines < pad_to && adv_len(out) + 2 < cap) {
         adv_cat(out, cap, "\n ");
         ++lines;
     }
 }
 
-/* adv_begin done: the setup's fields. */
-static void v1_fill(unsigned char *d) {
+/* The answers' words of question `node` in the dialog's two labels (which the Island Events log reads as the answer
+   clicked). */
+static void v1_set_labels(unsigned char *d, int node) {
     static char label[VV1_DLG_LABEL];
-    unsigned char *villagers = *(unsigned char **)(d + 0x50A8u);
-    adv_piece(g_vv12_title, sizeof g_vv12_title, ADV_TITLE, 0);
-    v1_page_text((char *)d + VV1_DLG_QUESTION, VV1_DLG_TEXT, adv.intro.text[adv.intro.count - 1],
-                 adv_lines(&ADV_VV1, adv_tallest_text()));
-    adv_piece(label, sizeof label, ADV_LABEL_A, 0);
+    v1_flow->label(node, 0, label, sizeof label);
     adv_copy((char *)d + VV1_DLG_LABEL_A, VV1_DLG_LABEL, label);
-    adv_piece(label, sizeof label, ADV_LABEL_B, 0);
+    v1_flow->label(node, 1, label, sizeof label);
     adv_copy((char *)d + VV1_DLG_LABEL_B, VV1_DLG_LABEL, label);
+}
+
+/* An answer button given its new words and centred again, as the constructor 0x41A460 places it: the text setter
+   0x4015A0 (the constructor's own, font 0), its width and height (vtable +0xC / +0x10), and the move (+4) to x = the
+   dialog's width / 2 - its width / 2 and y = the dialog's height - h / 2 - 3h (the first, 0x41A687) or - 2h (the
+   second, 0x41A772). */
+typedef void (__fastcall *v1_text_fn)(void *self, void *unused, const char *text, int font);
+typedef int (__fastcall *v1_size_fn)(void *self, void *unused);
+typedef void (__fastcall *v1_move_fn)(void *self, void *unused, int x, int y);
+
+static void v1_relabel_one(unsigned char *d, unsigned int button_at, unsigned int label_at, int second) {
+    void *button = *(void **)(d + button_at);
+    void **vtable;
+    int w, h, x, y;
+    if (button == NULL) {
+        return;
+    }
+    ((v1_text_fn)(uintptr_t)0x4015A0u)(button, NULL, (const char *)d + label_at, 0);
+    vtable = *(void ***)button;
+    w = ((v1_size_fn)vtable[3])(button, NULL);
+    h = ((v1_size_fn)vtable[4])(button, NULL);
+    x = (*(int *)(d + 0x1C) - *(int *)(d + 0x14)) / 2 - w / 2;
+    y = (*(int *)(d + 0x20) - *(int *)(d + 0x18)) - (second ? 2 * h : h / 2 + 3 * h);
+    ((v1_move_fn)vtable[1])(button, NULL, x, y);
+}
+
+static void v1_relabel(unsigned char *d) {
+    v1_relabel_one(d, 0x50BCu, VV1_DLG_LABEL_A, 0);
+    v1_relabel_one(d, 0x50C0u, VV1_DLG_LABEL_B, 1);
+}
+
+/* The two answers up and OK off (the click handler's own swap, reversed), or OK up and the answers off. */
+static void v1_answers_on(unsigned char *d) {
+    ADV_TC1(0x40ABC0u, d, *(void **)(d + 0x50C4));
+    ADV_TC1(0x40AB80u, d, *(void **)(d + 0x50BC));
+    ADV_TC1(0x40AB80u, d, *(void **)(d + 0x50C0));
+}
+
+static void v1_ok_on(unsigned char *d) {
+    ADV_TC1(0x40ABC0u, d, *(void **)(d + 0x50BC));
+    ADV_TC1(0x40ABC0u, d, *(void **)(d + 0x50C0));
+    ADV_TC1(0x40AB80u, d, *(void **)(d + 0x50C4));
+}
+
+/* The event's begin done: the setup's fields. */
+static void v1_fill(unsigned char *d) {
+    const adv_pages *first = v1_flow->question(0);
+    unsigned char *villagers = *(unsigned char **)(d + 0x50A8u);
+    int subject = v1_flow->subject();
+    v1_flow->title(g_vv12_title, sizeof g_vv12_title);
+    v1_page_text((char *)d + VV1_DLG_QUESTION, VV1_DLG_TEXT, first->text[first->count - 1],
+                 adv_lines(&ADV_VV1, v1_flow->tallest()));
+    v1_set_labels(d, 0);
     *(int *)(d + VV1_DLG_KIND) = ADV_VV1_KIND;
-    *(int *)(d + VV1_DLG_SUBJECT) = adv.hero;
+    *(int *)(d + VV1_DLG_SUBJECT) = subject;
     *(int *)(d + 0x60) = 0x1C2;
     d[VV1_DLG_RESULT] = '\0';
     if (villagers != NULL) {
-        ADV_TC1(0x43A160u, villagers, adv.hero);
+        ADV_TC1(0x43A160u, villagers, subject);
     }
 }
 
-/* In place of the setup's `call 0x418920`: the stock draw, or ADV_VV1_KIND -2 when this event is drawn. */
+/* In place of the setup's `call 0x418920`: the stock draw, or ADV_VV1_KIND -2 when one of the events is drawn --
+   each possible event one more encounter, rand(m + k) with k of them possible: m + 0 The Aspiring Adventurer (when
+   it can happen), the next The Cave Explorers (when it can). */
 static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
-    int m;
+    int m, adv_ok, cave_ok, draw;
     __try {
-        if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()
-            && adv_possible(&ADV_VV1)) {
-            m = v1_possible_encounters();
-            if (v1_rand(m + 1) == m && adv_begin(&ADV_VV1)) {
-                v1_fill((unsigned char *)dialog);
-                v1_dialog = dialog;
-                v1_stage = ADV_STAGE_QUESTION;
-                v1_page = 0;
-                return -2;
+        if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()) {
+            adv_ok = adv_possible(&ADV_VV1);
+            cave_ok = cave_possible(&ADV_VV1);
+            if (adv_ok || cave_ok) {
+                m = v1_possible_encounters();
+                draw = v1_rand(m + adv_ok + cave_ok) - m;
+                if (draw >= 0) {
+                    int is_cave = !adv_ok || draw > 0;
+                    if (is_cave ? cave_begin(&ADV_VV1) : adv_begin(&ADV_VV1)) {
+                        v1_flow = is_cave ? &CAVE_FLOW : &ADV_FLOW;
+                        v1_node = 0;
+                        v1_ending = -1;
+                        v1_fill((unsigned char *)dialog);
+                        v1_dialog = dialog;
+                        v1_stage = ADV_STAGE_QUESTION;
+                        v1_page = 0;
+                        return -2;
+                    }
+                }
             }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -288,12 +376,10 @@ static void __fastcall v1_attach(void *dialog, void *unused, void *child) {
             }
             return;
         }
-        if (adv.intro.count > 1) {
-            ADV_TC1(0x40ABC0u, dialog, *(void **)(d + 0x50BC));
-            ADV_TC1(0x40ABC0u, dialog, *(void **)(d + 0x50C0));
-            ADV_TC1(0x40AB80u, dialog, *(void **)(d + 0x50C4));
+        if (v1_flow->question(0)->count > 1) {
+            v1_ok_on(d);
             d[0x50] = 1;
-            v1_result(d, adv.intro.text[0]);
+            v1_result(d, v1_flow->question(0)->text[0]);
             v1_stage = ADV_STAGE_INTRO;
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -307,21 +393,24 @@ static void __fastcall v1_ok(void *dialog, void *unused) {
     __try {
         if (v1_ours(d)) {
             if (v1_stage == ADV_STAGE_INTRO) {
+                const adv_pages *pages = v1_flow->question(v1_node);
                 ++v1_page;
-                if (v1_page >= adv.intro.count - 1) {
-                    ADV_TC1(0x40ABC0u, dialog, *(void **)(d + 0x50C4));
-                    ADV_TC1(0x40AB80u, dialog, *(void **)(d + 0x50BC));
-                    ADV_TC1(0x40AB80u, dialog, *(void **)(d + 0x50C0));
-                    d[0x50] = 0;
+                if (v1_page >= pages->count - 1) {
+                    v1_answers_on(d);
+                    if (v1_node == 0) {
+                        d[0x50] = 0;                  /* the question's last page, +0x74 */
+                    } else {
+                        v1_result(d, pages->text[pages->count - 1]);
+                    }
                     v1_stage = ADV_STAGE_QUESTION;
                 } else {
-                    v1_result(d, adv.intro.text[v1_page]);
+                    v1_result(d, pages->text[v1_page]);
                 }
                 return;
             }
-            if (v1_stage == ADV_STAGE_RESULT && v1_page + 1 < adv.result[adv.choice].count) {
+            if (v1_stage == ADV_STAGE_RESULT && v1_page + 1 < v1_flow->ending(v1_ending)->count) {
                 ++v1_page;
-                v1_result(d, adv.result[adv.choice].text[v1_page]);
+                v1_result(d, v1_flow->ending(v1_ending)->text[v1_page]);
                 return;
             }
             v1_dialog = NULL;
@@ -332,16 +421,36 @@ static void __fastcall v1_ok(void *dialog, void *unused) {
     ADV_TC0(0x40C9B0u, dialog);
 }
 
-/* The answer (the resolve, the event's kind): +0x509C is 1 for the first button, 2 for the second. */
+/* The answer (the resolve, the event's kind): +0x509C is 1 for the first button, 2 for the second.  The click
+   handler has already taken the answers off and put OK up, and sets +0x50 (the result shown) after this.  An ending:
+   its effects (the flow's answer) and its first page.  Another question (The Cave Explorers): its words on the two
+   answers, and its pages -- the answers back at once when it is one page. */
 static void __cdecl v1_answer(unsigned char *d) {
     __try {
-        if (!v1_ours(d)) {
+        int next;
+        const adv_pages *pages;
+        if (!v1_ours(d) || v1_stage != ADV_STAGE_QUESTION) {
             return;
         }
-        adv_choose(*(int *)(d + VV1_DLG_CHOICE) == 2);
-        v1_stage = ADV_STAGE_RESULT;
+        next = v1_flow->answer(v1_node, *(int *)(d + VV1_DLG_CHOICE) == 2);
         v1_page = 0;
-        v1_result(d, adv.result[adv.choice].text[0]);
+        if (next < 0) {
+            v1_ending = -1 - next;
+            v1_stage = ADV_STAGE_RESULT;
+            v1_result(d, v1_flow->ending(v1_ending)->text[0]);
+            return;
+        }
+        v1_node = next;
+        v1_set_labels(d, next);
+        v1_relabel(d);
+        pages = v1_flow->question(next);
+        if (pages->count <= 1) {
+            v1_answers_on(d);
+            v1_stage = ADV_STAGE_QUESTION;
+        } else {
+            v1_stage = ADV_STAGE_INTRO;
+        }
+        v1_result(d, pages->text[0]);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
     }
 }

@@ -18,8 +18,11 @@
        3 each); the injured are left with 10-50 health (each equally likely) and dislike running; the survivalist
        of 3 gains 20-30 points (each equally likely) in Farming, Building, Research or Healing (1 in 4 each), to at
        most the game's 100.
-   The reward (meat +500 food, the chest +2,000 tech points) is given only in A1, A5 and A8, through the game's own
-   food or tech writer, scaled as each game's own island events are (adv_game.award_amount).
+   The reward (the meat food, the chest tech points) is given only in A1, A5 and A8, through the game's own food or
+   tech writer: a NORMAL award (the owner, 2026-11-12: "a random tech and food point award, scaling") -- a random
+   amount, each equally likely, from the game's smallest to its largest stock island-event gain of that kind
+   (adv_game.food_lo .. food_hi / tech_lo .. tech_hi, src/vv_aspiring_adventurer.py AWARD_RANGES says where each
+   comes from), then scaled as each game's own island events are (adv_game.award_amount); adv_award_roll.
 
    THE EFFECTS are made when the player clicks the answer (adv_choose), as every stock two-choice event makes its
    own -- so the patcher's Island Events log, which compares the villagers around that click, records them:
@@ -67,6 +70,9 @@ typedef struct adv_game {
     int width;                                       /* characters a line (counted as the popup wraps) */
     int lines;                                       /* lines a page (the title apart) */
     int wrap;                                        /* 1: the popup does not wrap -- the pages carry the breaks */
+    int food_lo, food_hi, tech_lo, tech_hi;          /* the game's stock island-event gains (AWARD_RANGES) */
+    int (*age)(const unsigned char *record);         /* age units (The Cave Explorers; NULL: not in this game) */
+    int (*cave_open)(void);                          /* The Cave puzzle done (The Cave Explorers) */
 } adv_game;
 
 typedef struct {
@@ -167,13 +173,20 @@ static void adv_cat(char *out, int cap, const char *in) {
     adv_copy(out + n, cap - n, in);
 }
 
-/* `format` with each %s the next of `names` (n: the adventurer's, f: the friend's), %d `number`, %% a %. */
-static void adv_fill(char *out, int cap, const char *format, const char *names, int number) {
+typedef const char *(*adv_name_fn)(char who);
+
+/* The Aspiring Adventurer's names: n the adventurer, f the friend. */
+static const char *adv_name_of(char who) {
+    return who == 'f' ? adv.friend_name : adv.name;
+}
+
+/* `format` with each %s the name `name_of` gives for the next letter of `names`, %d `number`, %% a %. */
+static void adv_fill(char *out, int cap, const char *format, const char *names, int number, adv_name_fn name_of) {
     int o = 0, k = 0;
     const char *p;
     for (p = format; *p != '\0' && o < cap - 1; ++p) {
         if (p[0] == '%' && p[1] == 's') {
-            const char *v = names[k] == 'f' ? adv.friend_name : adv.name;
+            const char *v = name_of(names[k]);
             if (names[k] != '\0') {
                 ++k;
             }
@@ -213,7 +226,7 @@ static void adv_piece(char *out, int cap, int key, int number) {
     const adv_piece_text *t = &ADV_TEXT[key];
     int form = key == ADV_STRANGER ? adv.stranger_female : adv.female;
     const char *shown;
-    adv_fill(filled, sizeof filled, t->english[form], t->names, number);
+    adv_fill(filled, sizeof filled, t->english[form], t->names, number, adv_name_of);
     shown = vvfp_trf(t->stem[form], t->english[form], filled, out, (unsigned int)cap);
     if (shown != out) {
         adv_copy(out, cap, shown);
@@ -555,6 +568,17 @@ static int adv_percent(const adv_game *g, int percent) {
     return g->rand_below(100) < percent;
 }
 
+/* An award of `kind` (the owner, 2026-11-12: "a random tech and food point award, scaling"): a base amount drawn
+   from the game's own stock island-event gains of that kind, each equally likely (adv_game.food_lo .. tech_hi), times
+   `times` (1 a normal award, 2 a large one, 3 a huge one), then the game's own scaling (adv_game.award_amount: The
+   Lost Children's and The Secret City's own factors, Island Events Scale in the other three). */
+static int adv_award_roll(const adv_game *g, int kind, int times) {
+    int lo = kind == ADV_KIND_FOOD ? g->food_lo : g->tech_lo;
+    int hi = kind == ADV_KIND_FOOD ? g->food_hi : g->tech_hi;
+    int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);
+    return g->award_amount(kind, base * times);
+}
+
 /* Who goes, the rolls and the words, for the popup about to be built; 0 when nobody may go. */
 static int adv_begin(const adv_game *g) {
     static const int SURVIVE_FIND[3] = { 1, 5, 8 };
@@ -599,7 +623,7 @@ static int adv_begin(const adv_game *g) {
     }
     adv.stranger_female = g->rand_below(2);
     adv.award_kind = adv.find == ADV_FIND_CHEST ? ADV_KIND_TECH : ADV_KIND_FOOD;
-    adv.award = g->award_amount(adv.award_kind, adv.award_kind == ADV_KIND_TECH ? 2000 : 500);
+    adv.award = adv_award_roll(g, adv.award_kind, 1);
     switch (adv.a_end) {
     case 1: case 5: case 8: adv.effect[0] = ADV_FX_AWARD; break;
     case 2: case 4: adv.effect[0] = ADV_FX_DIES; break;
@@ -715,6 +739,56 @@ static void adv_choose(int choice) {
         break;
     }
 }
+
+/* ---- An event as a dialog shows it (A New Home's encounter dialog, adv_vv1.inc) ----------------------------------
+
+   An event is QUESTIONS: each shows its pages, the last with its two answers; an answer makes its effects and leads
+   to another question or to an ENDING, whose pages are then shown with OK.  The Aspiring Adventurer is one question
+   with two endings; The Cave Explorers (cave_core.inc) asks up to three questions in a row. */
+#define ADV_ENDING(e) (-1 - (e))
+
+typedef struct adv_flow {
+    const adv_pages *(*question)(int node);
+    void (*label)(int node, int which, char *out, int cap);    /* an answer's words (which 0 the first) */
+    int (*answer)(int node, int choice);         /* the effects; the next question (>= 0) or ADV_ENDING(e) */
+    const adv_pages *(*ending)(int e);
+    const char *(*tallest)(void);                /* the page with the most lines of them all */
+    int (*subject)(void);                        /* the villager in the picture */
+    void (*title)(char *out, int cap);
+} adv_flow;
+
+static const adv_pages *adv_flow_question(int node) {
+    (void)node;
+    return &adv.intro;
+}
+
+static void adv_flow_label(int node, int which, char *out, int cap) {
+    (void)node;
+    adv_piece(out, cap, which ? ADV_LABEL_B : ADV_LABEL_A, 0);
+}
+
+static int adv_flow_answer(int node, int choice) {
+    (void)node;
+    adv_choose(choice);
+    return ADV_ENDING(adv.choice);
+}
+
+static const adv_pages *adv_flow_ending(int e) {
+    return &adv.result[e != 0];
+}
+
+static int adv_flow_subject(void) {
+    return adv.hero;
+}
+
+static void adv_flow_title(char *out, int cap) {
+    adv_piece(out, cap, ADV_TITLE, 0);
+}
+
+static const adv_flow ADV_FLOW = {
+    adv_flow_question, adv_flow_label, adv_flow_answer, adv_flow_ending, adv_tallest_text, adv_flow_subject,
+    adv_flow_title
+};
 
 /* ---- Skill and preference helpers the games share -------------------------------------------------------------- */
 

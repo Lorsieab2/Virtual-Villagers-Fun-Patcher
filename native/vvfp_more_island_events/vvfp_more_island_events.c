@@ -23,7 +23,9 @@
 #include "../shared/vv5_villager_table.h"
 
 #include "adv_text.inc"
+#include "cave_text.inc"
 #include "adv_core.inc"
+#include "cave_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -99,6 +101,55 @@ const char *__stdcall VvfpAdventurerPage(int set, int k) {
         return NULL;
     }
     return pages->text[k];
+}
+
+/* The Cave Explorers (A New Home): whether it can happen now -- The Cave puzzle done and two villagers who may go. */
+int __stdcall VvfpCaveExplorersPossible(void) {
+    int possible = 0;
+    __try {
+        possible = cave_possible(g_adv_game);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        possible = 0;
+    }
+    return possible;
+}
+
+/* Its last popup's state (for the tests): out[0] / [1] name1's / name2's record, [2] / [3] female, [4] A (1) or B
+   (0) after "Proceed Further", [5] the screamer (0 name1, 1 name2), [6] what's wrong 0..3, [7] the run's ending
+   (0 the argument, 1 they make up, 2 the chasm), [8] the one who slips, [9] the finder, [10] the find (0 the map,
+   1 the coins, 2 the treasure map, 3 the food), [11] its award, [12] returned for food (1) or tech (0), [13] its award,
+   [14] kept: 0 the researchers, 1 both die, 2 name2 dies, [15] its award, [16] the answers clicked, [17] the
+   ending (-1 none yet: 0 don't, 1 the find, 2 left, 3 right, 4 return, 5 keep), [18] each question's pages (four
+   bytes), [19] each ending's pages (six nibbles).  Returns 20. */
+int __stdcall VvfpCaveExplorersState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    out[0] = cave.who[0]; out[1] = cave.who[1]; out[2] = cave.female[0]; out[3] = cave.female[1];
+    out[4] = cave.scream_a; out[5] = cave.screamer; out[6] = cave.wrong; out[7] = cave.a_end; out[8] = cave.faller;
+    out[9] = cave.finder; out[10] = cave.find; out[11] = cave.find_award; out[12] = cave.return_food;
+    out[13] = cave.return_award; out[14] = cave.keep_end; out[15] = cave.keep_award; out[16] = cave.answered;
+    out[17] = cave.ending;
+    out[18] = 0;
+    for (k = 0; k < CAVE_QUESTIONS; ++k) {
+        out[18] |= (cave.question[k].count & 0xFF) << (8 * k);
+    }
+    out[19] = 0;
+    for (k = 0; k < CAVE_ENDINGS; ++k) {
+        out[19] |= (cave.endings[k].count & 0xF) << (4 * k);
+    }
+    return 20;
+}
+
+/* Page `k` of question `set` (0..3: the start, Proceed / Stay, the run, the stay) or, from 4, of ending set - 4. */
+const char *__stdcall VvfpCaveExplorersPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set >= CAVE_QUESTIONS + CAVE_ENDINGS) {
+        return NULL;
+    }
+    pages = cave_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
