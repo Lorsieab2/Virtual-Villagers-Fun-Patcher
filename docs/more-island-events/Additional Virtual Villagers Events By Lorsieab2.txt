@@ -622,7 +622,7 @@ Your text, with the grammar mistakes fixed as you asked.
 
 REQUIREMENTS TO HAPPEN
 - A population of 61 or more (the same requirement as The Lost Children's "A Dangerous Mission").
-- At least 2 eligible children under 14 (the group); up to 4 are picked when there are more (the owner: "preferably 3-4").
+- At least 2 eligible children under 14, any age below that (the group); up to 4 are picked when there are more (the owner: "preferably 3-4").
 - 5 eligible adults aged 18 or older (the expedition).
 - At least two eligible villagers overall (The Aspiring Adventurer's rule; always true here).
 - Family ties don't matter: the volunteers may be the children's parents.
@@ -743,7 +743,7 @@ REQUIREMENTS TO HAPPEN
 - It can happen again, as likely as one stock event each time.
 
 WHO TAKES PART
-- Everyone, protected villagers included (the owner's exception: "everyone can go"). In New Believers, believers only: Heathens never take part.
+- Everyone joins in: children, nursing mothers and fathers, and protected villagers too; no one is left out (the owner's exception). In New Believers, believers only: Heathens never take part.
 
 --------------------------------------------------------------------------
 One popup (no choice, just OK):
@@ -774,3 +774,4 @@ EFFECTS
 - A damaged structure loses 10 to 100% of its building progress (at random), and the builders must rebuild it.
 - At 100% the structure is back to unbuilt, as in the original game: a full rebuild. In The Tree of Life and New Believers, where unbuilt huts can be moved, this lets the player rearrange the village without starting over.
 - Solved puzzles stay solved. No one is hurt or dies.
+- If a damaged population hut leaves the village over its limit, nobody leaves; no new babies come until it is rebuilt.
