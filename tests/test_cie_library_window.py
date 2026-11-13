@@ -24,6 +24,44 @@ WINDOWS_LIMIT = 32767
 PAGE_BUDGET = 4000
 
 
+class ScrollingPopupsDetected(unittest.TestCase):
+    """v1.35.97: whether the chosen game's popups scroll is read from the game's installed patches, never ticked by
+    hand: its installed patches' list, else (a game patched before the list) its Scrolling Popups companion."""
+
+    def folder(self, tmp: str, name: str, listing: str | None = None, dll: bool = False, files: bool = True) -> Path:
+        root = Path(tmp) / name
+        root.mkdir()
+        inner = root / w.patcher_files.PATCHER_FILES_FOLDER
+        if files:
+            inner.mkdir()
+        if listing is not None:
+            (inner / w.patcher_files.INSTALLED_PATCHES_FILENAME).write_text(listing, encoding="ascii")
+        if dll:
+            (inner / "VVFP Scrolling Popups.dll").write_bytes(b"MZ")
+        return root
+
+    def test_from_the_list_else_the_companion(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            on = self.folder(tmp, "on", "# notes\nvv3\nvv3_scrolling_popups\n")
+            off = self.folder(tmp, "off", "vv3\nvv3_more_island_events\n", dll=True)   # the list decides
+            other = self.folder(tmp, "other", "vv4\nvv4_scrolling_popups\n")
+            old_on = self.folder(tmp, "old_on", dll=True)
+            old_off = self.folder(tmp, "old_off")
+            stock = self.folder(tmp, "stock", files=False)
+            self.assertIs(w.scrolling_installed(3, [on]), True)
+            self.assertIs(w.scrolling_installed(3, [off]), False)
+            self.assertIs(w.scrolling_installed(3, [other]), False)            # another game's never counts
+            self.assertIs(w.scrolling_installed(3, [old_on]), True)
+            self.assertIs(w.scrolling_installed(3, [old_off]), False)
+            self.assertIsNone(w.scrolling_installed(3, [stock, Path(tmp) / "missing"]))
+            self.assertIs(w.scrolling_installed(3, [Path(tmp) / "missing", stock, on]), True)   # the first patched
+
+    def test_no_tick_box(self) -> None:
+        source = Path(w.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("ttk.Checkbutton(buttons, text=SCROLLING", source)
+        self.assertIn("self.detect_scrolling()", source)
+
+
 class Helpers(unittest.TestCase):
     def test_the_example_and_a_new_event_pass_every_check(self) -> None:
         for g in (w.example_event(), w.new_event(), w.example_event(w.CAVE_EXAMPLE)):
@@ -83,7 +121,8 @@ class Helpers(unittest.TestCase):
         self.assertEqual(w.problem_node("The Secret City: the popup of b_open+b_lost takes 11 pages", nodes),
                          "b_open")
         # The window's own words never show a code label.
-        shown = " ".join([w.INTRO, w.HELP_TEXT, w.SCROLLING, *w.EFFECT_NAMES.values(), *w.RISKY.values(),
+        shown = " ".join([w.INTRO, w.HELP_TEXT, w.SCROLLING, w.NOT_SCROLLING, w.SCROLLING_UNKNOWN,
+                          *w.EFFECT_NAMES.values(), *w.RISKY.values(),
                           *w.TYPE_WORDS.values(), *w.POPUP_WORDS.values(), *w.KIND_WORDS.values()])
         for word in ("node", "json", "cieg", "graph", "defer", "pay_award", "branch", "optional"):
             self.assertNotIn(word, shown.lower())

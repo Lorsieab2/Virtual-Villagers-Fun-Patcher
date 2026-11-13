@@ -902,6 +902,13 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   example's meat and chest awards are the real event's per-game normal ranges
   (src/vv_aspiring_adventurer.py AWARD_RANGES), each in a silent split by game
   after the find (format version 3); its text and odds are unchanged.
+- Scrolling Popups in the editor (v1.35.97): the fit check's "with scrolling"
+  is no longer a tick box. The library window finds the chosen game's folders
+  for its save folder (the patcher's own _game_folders_for) and reads the first
+  patched one (src/vv_cie_library_window.py scrolling_installed): its installed
+  patches' list names "vv<N>_scrolling_popups", or -- patched before the list
+  -- its patcher folder holds "VVFP Scrolling Popups.dll". Not found: checked
+  as without scrolling (pages), the stricter fit.
 - Patch conditions (v1.35.97): the patcher writes the ids of everything it
   installed -- the game build's id and every fun patch, one per line, "#" lines
   notes -- into "Virtual Villagers Fun Patcher Files\VVFP Installed

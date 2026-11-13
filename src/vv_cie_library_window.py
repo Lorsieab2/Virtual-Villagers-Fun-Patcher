@@ -35,6 +35,7 @@ from fractions import Fraction
 from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
+import patcher_files
 import vv_cie_graph as cg
 import vv_save_backup
 import vv_tool_fonts
@@ -82,13 +83,16 @@ HELP_TEXT = (
     "island events), or in your own words (up to 63 characters).\n\n"
     "Fitting on the screen\n"
     "Text never runs off the screen: the fit meter shows how many pages each game needs for the chosen popup. "
-    "With the Scrolling Popups patch, a popup scrolls, so only the game's text limit counts.\n\n"
+    "When the chosen game has the Scrolling Popups patch (the window reads which patches the game has), a popup "
+    "scrolls, so only the game's text limit counts.\n\n"
     "Saving\n"
     "Save writes the event to the library of the save folder chosen at the top. Events with problems are kept "
     "but the game does not list them until the problems on the Check tab are fixed. Delete moves the event to "
     "the Recycle Bin. Export and Import share an event as a file.")
 
-SCROLLING = "Popups scroll in my games (the Scrolling Popups patch)"
+SCROLLING = "Popups scroll in this game: it has the Scrolling Popups patch"
+NOT_SCROLLING = "Popups do not scroll in this game: it does not have the Scrolling Popups patch"
+SCROLLING_UNKNOWN = "This game's folder was not found: the fit is checked as without the Scrolling Popups patch"
 NO_FOLDER = "(no save folder found)"
 NO_EVENTS = "(no events saved yet)"
 NOT_SAVED = "(not saved yet)"
@@ -594,6 +598,27 @@ class Saved:
     problems: list[str] = field(default_factory=list)
 
 
+def scrolling_installed(game: int, game_folders) -> bool | None:
+    """Whether the game in the first of `game_folders` that is a patched game has the Scrolling Popups patch: its
+    installed patches' list (patcher_files.INSTALLED_PATCHES_FILENAME, written at every patch) names
+    "vv<game>_scrolling_popups"; a game patched before that list existed has the patch exactly when its companion
+    "VVFP Scrolling Popups.dll" is in its patcher folder (a patch removes the companions it did not install).  None
+    when no such folder is found."""
+    for folder in game_folders:
+        root = Path(folder)
+        files = root / patcher_files.PATCHER_FILES_FOLDER
+        listing = root / Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts)
+        try:
+            if listing.is_file():
+                ids = {line.strip() for line in listing.read_text(encoding="ascii", errors="replace").splitlines()}
+                return f"vv{game}_scrolling_popups" in ids
+            if files.is_dir():
+                return (files / "VVFP Scrolling Popups.dll").is_file()
+        except OSError:
+            continue
+    return None
+
+
 def save_event(g: dict, save_folder: Path, stem: str, scrolling: bool = False) -> Saved:
     """The event into the library: its .json, and its .cieg when it passes every check."""
     checked, problems = cg.validate(g, scrolling)
@@ -733,9 +758,11 @@ class Library:
             button = ttk.Button(buttons, text=words, command=command)
             button.pack(side="left", padx=(0, 4))
             self.buttons[words] = button
+        # Whether the chosen game's popups scroll: read from the game's installed patches (detect_scrolling), never
+        # ticked by hand.
         self.scrolling = tk.BooleanVar(master=self.window, value=False)
-        ttk.Checkbutton(buttons, text=SCROLLING, variable=self.scrolling,
-                        command=self.schedule_refresh).pack(side="right")
+        self.scrolling_label = ttk.Label(buttons, text=SCROLLING_UNKNOWN)
+        self.scrolling_label.pack(side="right")
 
     def _build_bottom(self, outer) -> None:
         bottom = ttk.Frame(outer)
@@ -2167,7 +2194,25 @@ class Library:
             self.folder_box.set(NO_FOLDER)
         self.list_library()
 
+    def detect_scrolling(self) -> None:
+        """The chosen game's popups scroll when it has the Scrolling Popups patch: its game folders are the
+        patcher's own guesses for the save folder (the game that saves there, _game_folders_for)."""
+        folder = self.save_folder()
+        finder = getattr(self.app, "_game_folders_for", None)
+        try:
+            folders = finder(folder) if folder is not None and finder is not None else []
+        except Exception:
+            folders = []
+        game = self.game_numbers[max(0, self.game_box.current())]
+        state = scrolling_installed(game, folders)
+        self.scrolling_label.configure(text=SCROLLING if state else (NOT_SCROLLING if state is False
+                                                                     else SCROLLING_UNKNOWN))
+        if self.scrolling.get() != bool(state):
+            self.scrolling.set(bool(state))
+            self.schedule_refresh()
+
     def list_library(self) -> None:
+        self.detect_scrolling()
         events = library_events(self.save_folder(), self.scrolling.get())
         self.library = [stem for stem, _n in events]
         self.event_box.configure(values=[stem + (f"  ({n} problem(s))" if n else "") for stem, n in events])
