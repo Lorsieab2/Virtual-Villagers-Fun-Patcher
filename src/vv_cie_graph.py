@@ -236,7 +236,7 @@ class Game:
     plain: Layout        # the plain island-event popup (a graph whose start is not a question)
     question: Layout     # the two-choice question popup
     result: Layout       # every later popup
-    label_width: int
+    label_width: int     # a label's characters: the bytes the companion keeps (CE_BUTTON_BYTES - 1)
     skills: tuple[str, ...]
     preferences: tuple[str, ...]
     statuses: dict[str, int]          # status word -> the game's status list index
@@ -245,23 +245,23 @@ class Game:
 
 GAMES: dict[int, Game] = {
     1: Game(1, "A New Home", _COMMON | CAP_VILLAGE | CAP_STATUS, 27, 51,
-            Layout(51, 14, True), Layout(49, 13, True), Layout(49, 13, True), 34,
+            Layout(51, 14, True), Layout(49, 13, True), Layout(49, 13, True), 39,
             ("Parenting", "Building", "Farming", "Healing", "Research"), tuple(_PREFS_VV1.split(",")), {},
             "the Golden Child"),
     2: Game(2, "The Lost Children", _COMMON | CAP_STATUS, 23, 46,
-            Layout(46, 20, True), Layout(46, 16, True), Layout(46, 16, True), 30,
+            Layout(46, 20, True), Layout(46, 16, True), Layout(46, 16, True), 39,
             ("Parenting", "Building", "Farming", "Healing", "Research"), tuple(_PREFS_VV2.split(",")), {},
             "the Esteemed Elders' totem statues"),
     3: Game(3, "The Secret City", _COMMON | CAP_STATUS, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 32,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building"), tuple(_PREFS_VV3.split(",")), {},
             "the tribal chief"),
     4: Game(4, "The Tree of Life", _COMMON | CAP_VILLAGE, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 34,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 11, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building"), tuple(_PREFS_VV45.split(",")), {},
             "no one else"),
     5: Game(5, "New Believers", _COMMON | CAP_STATUS | CAP_SPAWN_FACTION | CAP_FAITH, 23, 30,
-            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 17, False), 38,
+            Layout(48, 14, False), Layout(48, 11, False), Layout(48, 17, False), 39,
             ("Farming", "Parenting", "Healing", "Research", "Building", "Devotion"), tuple(_PREFS_VV45.split(",")),
             {"heathen": 1},
             "the Heathens (believers_only), the chief, the Retired Chief, the other special roles the game never "
@@ -293,6 +293,38 @@ def text_char_ok(c: str, version: int = 1) -> bool:
     """story_custom.inc ce_text_char_ok, line breaks allowed; version 2 adds the double quote, which every game's
     font draws (src/vv_font_glyphs.py: A New Home's and The Lost Children's fonts hold ! " ' , . ? / ` : -)."""
     return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n" or (version >= 2 and c == '"')
+
+
+# ---- Button labels (the owner, 2026-11-13: a label may run off its button, as long as it is readable) ----------
+#
+# Each game draws a question's two labels in its story font, centred on its button, the two buttons one above the
+# other in the middle of the screen (scripts/build_cie_label_widths.py): a label is limited only by the bytes the
+# companion keeps (BUTTON_BYTES) and by the screen's width, measured with the game's own font widths.
+
+LABEL_WIDTHS = Path(__file__).resolve().parents[1] / "data" / "cie_label_widths.json"
+_LABEL_TABLE: dict | None = None
+
+
+def _label_table(game: int) -> dict:
+    global _LABEL_TABLE
+    if _LABEL_TABLE is None:
+        _LABEL_TABLE = json.loads(LABEL_WIDTHS.read_text(encoding="utf-8"))["games"]
+    return _LABEL_TABLE[str(game)]
+
+
+def label_px(game: int, text: str) -> int:
+    """`text` measured as the game measures it (its story font, ldwBurweed27)."""
+    t = _label_table(game)
+    if not text:
+        return 0
+    w = t["widths"]
+    total = sum(w[ord(c) - 32] if 32 <= ord(c) < 127 else w[ord("A") - 32] for c in text)
+    return total + t["spacing"] * (len(text) - 1)
+
+
+def label_max_px(game: int) -> int:
+    """The widest label the game's screen shows whole, centred."""
+    return _label_table(game)["max_px"]
 
 
 class GraphError(ValueError):
@@ -1088,6 +1120,9 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
                 if len(label) > min(game.label_width, BUTTON_BYTES):
                     problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with the "
                                     f"longest names; at most {min(game.label_width, BUTTON_BYTES)}")
+                elif label_px(gn, label) > label_max_px(gn):
+                    problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the longest "
+                                    f"names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
     for nid, n in nodes.items():
         for c in n["choices"]:
             _check_text(f"node {nid} label", c["label"], problems, g["version"])

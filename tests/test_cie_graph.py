@@ -226,10 +226,21 @@ class Checks(unittest.TestCase):
         self.assertProblem(tiny(b={"text": "x", "popup": "append"}), "append with no popup")
 
     def test_label_fit(self):
+        """The owner (2026-11-13): a label may be wider than its button; only the bytes kept and the screen limit it."""
+        ok = tiny(q={"type": "question", "text": "x", "choices": [
+            {"label": "Curses schmurses. I'm keeping them.", "next": "a"}, {"label": "W" * 30, "next": "b"}]})
+        self.assertEqual(problems_of(ok), [])
         self.assertProblem(tiny(q={"type": "question", "text": "x", "choices": [
-            {"label": "A" * 31, "next": "a"}, {"label": "B", "next": "b"}]}), "The Lost Children: the label")
+            {"label": "W" * 31, "next": "a"}, {"label": "B", "next": "b"}]}),
+            r"The Lost Children: the label 'W+' runs off the screen")
+        d = tiny(q={"type": "question", "text": "x", "choices": [
+            {"label": "W" * 31, "next": "a"}, {"label": "B", "next": "b"}]})
+        d["games"] = [5]
+        self.assertEqual(problems_of(d), [], "New Believers' wider screen shows it whole")
         self.assertProblem(tiny(q={"type": "question", "text": "x", "choices": [
-            {"label": "Help (name) now", "next": "a"}, {"label": "B", "next": "b"}]}), "A New Home: the label")
+            {"label": "Help (name) now, before the night", "next": "a"}, {"label": "B", "next": "b"}]}),
+            "A New Home: the label .* characters with the longest names; at most 39")
+        self.assertEqual(cg.label_px(1, "Curses schmurses. I'm keeping them."), 384)
 
     def test_title_fit(self):
         d = tiny()
@@ -379,8 +390,8 @@ class MirrorsTheNativeTables(unittest.TestCase):
             self.assertEqual(list(cg.GAMES[game].preferences), listed, game)
 
     def test_popups_and_labels(self):
-        expect = {1: (49, 13, 49, 13, 1, 34), 2: (46, 16, 46, 16, 1, 30), 3: (48, 11, 48, 11, 0, 32),
-                  4: (48, 11, 48, 11, 0, 34), 5: (48, 11, 48, 17, 0, 38)}
+        expect = {1: (49, 13, 49, 13, 1, 39), 2: (46, 16, 46, 16, 1, 39), 3: (48, 11, 48, 11, 0, 39),
+                  4: (48, 11, 48, 11, 0, 39), 5: (48, 11, 48, 17, 0, 39)}
         for game, numbers in expect.items():
             src = (NATIVE / f"story_c{game}.inc").read_text(encoding="utf-8")
             self.assertIn(", ".join(map(str, numbers)) + ",", src, game)

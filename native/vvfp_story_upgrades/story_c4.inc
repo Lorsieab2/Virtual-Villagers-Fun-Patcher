@@ -847,8 +847,9 @@ static const ce_adapter C4_ADAPTER = {
     0, 0x1C4C,
     /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
        11 lines (the tallest stock two-choice text), the title above the
-       result, labels of 34 characters (the longest stock). */
-    48, 11, 48, 11, 0, 34, c4_rand_below, NULL, NULL,
+       result, labels of up to 39 characters, as wide as the screen shows
+   whole (story_label_widths.h). */
+    48, 11, 48, 11, 0, 39, c4_rand_below, NULL, NULL,
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
     NULL, NULL, 0, c4_set_health
 };

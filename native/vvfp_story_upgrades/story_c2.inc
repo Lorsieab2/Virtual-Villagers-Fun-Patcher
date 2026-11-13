@@ -994,8 +994,9 @@ static const ce_adapter C2_ADAPTER = {
        popup's; stock family A lines reach 48 at its 450 pixels), 18 lines
        (the tallest stock family A text) less the two the villager's
        picture adds under the title; the result replaces the whole
-       text, title included; labels of 30 characters (the longest stock). */
-    46, 16, 46, 16, 1, 30, c2_rand_below, NULL, c2_role,
+       text, title included; labels of up to 39 characters, as wide as the screen
+   shows whole (story_label_widths.h). */
+    46, 16, 46, 16, 1, 39, c2_rand_below, NULL, c2_role,
     C2_PROBE, (int)(sizeof C2_PROBE / sizeof C2_PROBE[0]),
     NULL, NULL, 0, c2_set_health
 };

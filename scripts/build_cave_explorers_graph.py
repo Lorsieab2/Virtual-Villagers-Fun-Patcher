@@ -17,8 +17,6 @@ What the format cannot say, and how the example says it instead:
   * the companion asks its next question in the same dialog right after a click; a Custom Island Event shows the
     answer's own page first, so "Explore the Cave" shows "Okay, let's go!..." and then asks "Toldja it'd be worth
     it..." on its own, and "Stay Here" shows the first two sentences before asking "Wait. I don't think...";
-  * "Curses schmurses. I'm keeping them." is 35 characters; A New Home's buttons hold 34 in a Custom Island Event
-    (the longest stock label), so the button reads without its full stop.
 
     python scripts/build_cave_explorers_graph.py
 """
@@ -41,7 +39,7 @@ NORMAL_TECH, NORMAL_FOOD = 2000, 500
 AWARD = {"FIND_COINS": ("tech", NORMAL_TECH), "FIND_TREASURE": ("tech", 3 * NORMAL_TECH),
          "FIND_FOOD": ("food", 2 * NORMAL_FOOD), "RETURN_FOOD": ("food", NORMAL_FOOD),
          "RETURN_TECH": ("tech", NORMAL_TECH), "KEEP_RESEARCH": ("tech", NORMAL_TECH)}
-KEEP_LABEL = "Curses schmurses. I'm keeping them"
+KEEP_LABEL = TEXT["LABEL_KEEP"]          # the owner's words whole (a label may be wider than its button)
 
 
 def words(template: str, who: dict[str, str]) -> str:

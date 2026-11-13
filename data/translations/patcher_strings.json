@@ -28708,6 +28708,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_custom.ce_label_refusal.s3",
+   "english": "That button label is wider than the screen in this game. Shorten it.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_custom.ce_label_refusal.s2",
    "english": "A button label is %d characters at most in this game.",
    "games": [

@@ -426,7 +426,7 @@
           "next": "return"
         },
         {
-          "label": "Curses schmurses. I'm keeping them",
+          "label": "Curses schmurses. I'm keeping them.",
           "next": "keep"
         }
       ]
