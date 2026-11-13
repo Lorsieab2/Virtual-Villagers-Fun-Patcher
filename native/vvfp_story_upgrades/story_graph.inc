@@ -204,6 +204,56 @@ static int cg_str_ok(const cg_graph *g, unsigned int i, int may_be_none) {
     return i == CG_NONE ? may_be_none : (int)i < g->n_string;
 }
 
+/* A version 5 food / tech effect's per-game amounts, "<game>:<min>-<max>;..." (src/vv_cie_graph.py per_game_text):
+   1 with game `game`'s into *lo / *hi, 0 when it is not listed, -1 when the text is not that shape. */
+static int cg_num(const char **p, int *out) {
+    int neg = 0, v = 0, digits = 0;
+    if (**p == '-') {
+        neg = 1;
+        ++*p;
+    }
+    while (**p >= '0' && **p <= '9' && digits < 9) {
+        v = v * 10 + (**p - '0');
+        ++*p;
+        ++digits;
+    }
+    *out = neg ? -v : v;
+    return digits > 0;
+}
+
+static int cg_per_game(const char *text, int game, int *lo, int *hi) {
+    const char *p = text;
+    int found = 0, last = 0;
+    while (*p != '\0') {
+        int g, a, b;
+        if (*p < '1' || *p > '5' || p[1] != ':') {
+            return -1;
+        }
+        g = *p - '0';
+        p += 2;
+        if (g <= last || !cg_num(&p, &a) || *p != '-') {
+            return -1;
+        }
+        ++p;
+        if (!cg_num(&p, &b) || (*p != ';' && *p != '\0')) {
+            return -1;
+        }
+        if (*p == ';') {
+            ++p;
+            if (*p == '\0') {
+                return -1;
+            }
+        }
+        last = g;
+        if (g == game) {
+            *lo = a;
+            *hi = b;
+            found = 1;
+        }
+    }
+    return found;
+}
+
 static int cg_role_by_id(const cg_graph *g, const char *id, int length) {
     int r;
     for (r = 0; r < g->n_role; ++r) {
@@ -381,9 +431,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     memset(g, 0, sizeof *g);
     g->d = data;
     g->size = size;
-    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 4u
+    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 5u
         || cg_u16(h + 6) != CG_HEADER_BYTES || cg_u32(h + 8) != size) {
-        return cg_bad("it is not a version 1, 2, 3 or 4 .cieg file");
+        return cg_bad("it is not a version 1, 2, 3, 4 or 5 .cieg file");
     }
     g->version = (int)cg_u16(h + 4);
     if (size > CG_MAX_FILE) {
@@ -488,7 +538,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     for (i = 0; i < g->n_effect; ++i) {
         const unsigned char *e = cg_effect_at(g, i);
-        int a = (int)cg_u32(e + 4), b = (int)cg_u32(e + 8);
+        int a = (int)cg_u32(e + 4), b = (int)cg_u32(e + 8), lo, hi;
         unsigned int str = cg_u16(e + 12);
         int villager = e[0] >= CGE_KILL && e[0] <= CGE_SICK;
         int ok = e[0] >= CGE_FOOD && e[0] <= CGE_SICK;
@@ -501,6 +551,17 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 /* b: version 3's range top (0: the amount alone), above the amount, the same side of 0. */
                 ok = a != 0 && a <= CE_MAX_AMOUNT && a >= -CE_MAX_AMOUNT
                      && (b == 0 || (g->version >= 3 && b > a && b <= CE_MAX_AMOUNT && (b > 0) == (a > 0)));
+                /* Version 5: the string is each game's own amount or range ("1:200-1500;5:50-300"), every one
+                   valid; before it a food / tech effect has none. */
+                if (ok && str != CG_NONE) {
+                    int game;
+                    ok = g->version >= 5 && cg_str_ok(g, str, 0) && cg_s(g, str)[0] != '\0';
+                    for (game = 1; ok && game <= 5; ++game) {
+                        int found = cg_per_game(cg_s(g, str), game, &lo, &hi);
+                        ok = found >= 0 && (found == 0 || (lo != 0 && hi >= lo && (lo > 0) == (hi > 0)
+                                                           && lo >= -CE_MAX_AMOUNT && hi <= CE_MAX_AMOUNT));
+                    }
+                }
                 break;
             case CGE_KILL: {
                 const char *cause = cg_s(g, str);
@@ -1175,12 +1236,18 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
     return pick >= 0 ? -1 : n;
 }
 
-/* An effect's own roll as its node is reached, into the history. */
+/* An effect's own roll as its node is reached, into the history (cg_per_game: above the loader). */
 static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e, cg_history *h) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     int va = 0, vb = 0;
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
+        /* Version 5: this game's own amount or range, when the effect lists one. */
+        if (cg_u16(e + 12) != CG_NONE && cg_per_game(cg_s(&cg_g, cg_u16(e + 12)), game, &lo, &hi) == 1) {
+            if (hi == lo) {
+                hi = 0;
+            }
+        }
         if (hi != 0) {
             /* Version 3: a range, each amount equally likely (the game's random routine), then scaled as a fixed
                amount is. */

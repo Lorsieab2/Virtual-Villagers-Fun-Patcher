@@ -30,6 +30,12 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
       villager fits a role (and at delivery the event keeps waiting).
   Version 1 and 2 graphs load, compile and play exactly as before.
 
+  VERSION 5 (the owner, v1.35.97: "per-game award ranges in one reward step"): a food / tech effect may carry
+  "per_game": {"<game>": [min, max], ...} -- each listed game's own amount (min = max) or range, drawn and scaled as
+  a version 3 range is; a game not listed uses the effect's "amount" (and "max").  In the .cieg it is the effect's
+  string, "<game>:<min>-<max>;..." (games increasing), which a version 1-4 effect never has.  Versions 1 to 4 load,
+  compile and play exactly as before.
+
   VERSION 4 (the owner, 2026-11-13: "Make the 2-4 option thing general"): a question has 2, 3 or 4 "choices", each
   with its own label and its own next part.  The game shows them in its own two-choice popup with one or two more
   buttons made as it makes its two (native/shared/vvfp_multi_answer.h; vvfp_multi_answer_12.h for A New Home and The
@@ -169,7 +175,8 @@ from typing import Any, Iterable
 FORMAT = "vvfp-cie-graph"
 VERSION = 3                   # what new events are written in (a third answer makes an event version 4)
 VERSION_ANSWERS = 4           # the first version whose questions may have three or four answers
-VERSIONS = (1, 2, 3, 4)       # what this patcher reads
+VERSION_PER_GAME = 5          # the first version whose food / tech effect may give each game its own amount or range
+VERSIONS = (1, 2, 3, 4, 5)    # what this patcher reads
 BINARY_MAGIC = b"CIEG"
 BINARY_VERSION = 4            # a graph is compiled as its own version (1, 2 and 3 byte for byte as before)
 MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; before: exactly 2)
@@ -457,6 +464,30 @@ def _int_in(v: Any, lo: int, hi: int) -> bool:
     return isinstance(v, int) and not isinstance(v, bool) and lo <= v <= hi
 
 
+def effect_amount(e: dict, game: int):
+    """A food / tech effect's amount in `game`: an int, or (min, max) for a range -- its own for the game when it
+    lists one (version 5 per_game), else the effect's."""
+    per = (e.get("per_game") or {}).get(str(game))
+    if per is not None:
+        return per[0] if per[0] == per[1] else (per[0], per[1])
+    return (e["amount"], e["max"]) if e.get("max") is not None else e["amount"]
+
+
+def per_game_text(per: dict) -> str:
+    """The .cieg's string for a per_game: "<game>:<min>-<max>;..." (the companion's story_graph.inc cg_per_game)."""
+    return ";".join(f"{k}:{v[0]}-{v[1]}" for k, v in sorted(per.items()))
+
+
+def per_game_parse(text: str) -> dict:
+    out = {}
+    for part in text.split(";"):
+        k, _, r = part.partition(":")
+        lo, _, hi = r[1:].partition("-") if r.startswith("-") else r.partition("-")
+        lo = -int(lo) if r.startswith("-") else int(lo)
+        out[k] = [lo, int(hi)]
+    return out
+
+
 def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> dict | None:
     if not isinstance(e, dict) or e.get("do") not in EFFECT_CODES:
         problems.append(f"{where}: an effect is {{\"do\": one of {', '.join(EFFECT_CODES)}}}")
@@ -465,7 +496,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> d
     known = {"do"}
     out: dict[str, Any] = {"do": do}
     if do in ("food", "tech"):
-        known |= {"amount", "max", "scaled", "defer"}
+        known |= {"amount", "max", "scaled", "defer", "per_game"}
         amount = e.get("amount")
         if not _int_in(amount, -MAX_AMOUNT, MAX_AMOUNT) or amount == 0:
             problems.append(f"{where}: {do} amount is a whole number, not 0, at most {MAX_AMOUNT} either way")
@@ -480,6 +511,26 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> d
                     or (hi > 0) != (amount > 0):
                 problems.append(f"{where}: {do} range: its top is above its amount, on the same side of 0")
             out["max"] = hi
+        if "per_game" in e:
+            per = e["per_game"]
+            if version < VERSION_PER_GAME:
+                problems.append(f"{where}: amounts per game need format version {VERSION_PER_GAME}")
+            if not isinstance(per, dict) or not per:
+                problems.append(f"{where}: per_game is {{\"<game>\": [min, max], ...}}")
+                per = {}
+            norm: dict[str, list[int]] = {}
+            for key in sorted(per, key=str):
+                pair = per[key]
+                if str(key) not in {str(n) for n in range(1, 6)} or not isinstance(pair, (list, tuple)) \
+                        or len(pair) != 2 or not all(_int_in(v, -MAX_AMOUNT, MAX_AMOUNT) for v in pair) \
+                        or pair[0] == 0 or pair[1] < pair[0] or (pair[0] > 0) != (pair[1] > 0):
+                    problems.append(f"{where}: {do} amount for game {key}: [min, max], not 0, min at most max, "
+                                    "on one side of 0")
+                    continue
+                norm[str(key)] = [pair[0], pair[1]]
+            out["per_game"] = norm
+            if out["defer"] and any(lo < 0 for lo, _hi in norm.values()):
+                problems.append(f"{where}: an award (defer) is a gain")
         if out["defer"] and isinstance(amount, int) and amount < 0:
             problems.append(f"{where}: an award (defer) is a gain")
     elif do == "pay_award":
@@ -1038,7 +1089,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             if do in ("food", "tech") and e["defer"]:
                 if award is not None and not paid:
                     say(f"node {nid} ({where}): an award is deferred while another is still unpaid")
-                amount = (e["amount"], e["max"]) if e.get("max") is not None else e["amount"]
+                amount = effect_amount(e, game.number)
                 award, paid = (do, amount, e["scaled"]), False
             elif do == "pay_award":
                 if award is None or paid:
@@ -1400,6 +1451,8 @@ def compile_graph(g: dict) -> bytes:
             if do in ("food", "tech"):
                 flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
                 b = e.get("max") or 0       # version 3: a range's top (0: the amount alone)
+                if e.get("per_game"):
+                    st = s(per_game_text(e["per_game"]))     # version 5: each game's own amount or range
             elif do == "kill":
                 st = s(e["cause"])
             elif do == "status":
@@ -1548,6 +1601,8 @@ def decompile_graph(data: bytes) -> dict:
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
                 if b:
                     e["max"] = b
+                if st != NONE:
+                    e["per_game"] = per_game_parse(s(st))
             elif do in VILLAGER_EFFECTS:
                 e["role"] = role_ids[role]
                 if do == "kill":

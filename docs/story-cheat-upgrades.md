@@ -916,8 +916,16 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   (without_names). Both shipped examples name every part (The Cave Explorers'
   in scripts/build_cave_explorers_graph.py PART_NAMES). The Aspiring Adventurer
   example's meat and chest awards are the real event's per-game normal ranges
-  (src/vv_aspiring_adventurer.py AWARD_RANGES), each in a silent split by game
-  after the find (format version 3); its text and odds are unchanged.
+  (src/vv_aspiring_adventurer.py AWARD_RANGES), in ONE reward step each (format
+  version 5, below); its parts, text and odds are the original's.
+- Per-game amounts (v1.35.97, format version 5): a food / tech effect may carry
+  "per_game": {"<game>": [min, max], ...}, each listed game's own amount
+  (min = max) or range, drawn and scaled as a version 3 range is; a game not
+  listed uses the effect's own amount (and max).  In the .cieg it is the
+  effect's string "<game>:<min>-<max>;..." (story_graph.inc cg_per_game, checked
+  as the file loads); versions 1 to 4 load, compile and play as before.  The
+  editor's Changes tab: "Different amounts per game", a row per game the event
+  is made for; the Check tab checks each.
 - Scrolling Popups in the editor (v1.35.97): the fit check's "with scrolling"
   is no longer a tick box. The library window finds the chosen game's folders
   for its save folder (the patcher's own _game_folders_for) and reads the first

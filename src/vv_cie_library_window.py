@@ -127,6 +127,7 @@ RISKY = {
 }
 CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown causes"}
 OWN_WORDS = "In my own words:"
+PER_GAME_WORDS = "Different amounts per game (a game left unticked uses the amount above)"
 TYPE_WORDS = {"popup": "A popup with text", "branch": "A silent split (no popup)",
               "question": "A question (2 to 4 buttons)"}
 POPUP_WORDS = {"new": "Opens a new popup", "append": "Continues the popup already open"}
@@ -223,6 +224,12 @@ def describe_effect(e: dict) -> str:
         unit = cg.UNITS[do]
         amount = e.get("amount") if isinstance(e.get("amount"), int) else 0
         words = f"Adds {amount:,} {unit}" if amount >= 0 else f"Takes {-amount:,} {unit}"
+        if e.get("max") is not None:
+            words += f" to {e['max']:,}"
+        if e.get("per_game"):
+            words += " (" + "; ".join(
+                f"{cg.GAMES[int(k)].name}: {v[0]:,}" + (f" to {v[1]:,}" if v[1] != v[0] else "")
+                for k, v in e["per_game"].items()) + ")"
         if e.get("scaled"):
             words += ", scaled by the Island Events Scale patches"
         if e.get("defer"):
@@ -1863,6 +1870,55 @@ class Library:
                     self.g["version"] = max(self.g.get("version", 1), 3)
                 self._effect_changed()
             top.trace_add("write", write_top)
+            row += 1
+            # Different amounts per game (format version 5): a row per game the event is made for.
+            per_on = var_of(bool(e.get("per_game")), tk.BooleanVar)
+            per_rows = ttk.Frame(form)
+
+            def show_per_game():
+                for child in per_rows.winfo_children():
+                    child.destroy()
+                if not per_on.get():
+                    return
+                for i, n in enumerate(self.g["games"]):
+                    lo_hi = (e.get("per_game") or {}).get(str(n))
+                    ticked = var_of(lo_hi is not None, tk.BooleanVar)
+                    lo = var_of("" if lo_hi is None else str(lo_hi[0]))
+                    hi = var_of("" if lo_hi is None or lo_hi[1] == lo_hi[0] else str(lo_hi[1]))
+
+                    def write_game(_a=None, n=n, ticked=ticked, lo=lo, hi=hi):
+                        per = dict(e.get("per_game") or {})
+                        per.pop(str(n), None)
+                        if ticked.get():
+                            try:
+                                a = int(lo.get().strip())
+                                b = int(hi.get().strip()) if hi.get().strip() else a
+                            except ValueError:
+                                return
+                            per[str(n)] = [a, b]
+                        e["per_game"] = dict(sorted(per.items()))
+                        self.g["version"] = max(self.g.get("version", 1), cg.VERSION_PER_GAME)
+                        self._effect_changed()
+                    ttk.Checkbutton(per_rows, text=cg.GAMES[n].name, variable=ticked,
+                                    command=write_game).grid(row=i, column=0, sticky="w")
+                    ttk.Spinbox(per_rows, from_=-cg.MAX_AMOUNT, to=cg.MAX_AMOUNT, textvariable=lo, width=10).grid(
+                        row=i, column=1, sticky="w", padx=(4, 0))
+                    ttk.Label(per_rows, text="up to").grid(row=i, column=2, padx=4)
+                    ttk.Spinbox(per_rows, from_=-cg.MAX_AMOUNT, to=cg.MAX_AMOUNT, textvariable=hi, width=10).grid(
+                        row=i, column=3, sticky="w")
+                    lo.trace_add("write", lambda *_a, f=write_game: f())
+                    hi.trace_add("write", lambda *_a, f=write_game: f())
+
+            def write_per_game():
+                if not per_on.get():
+                    e.pop("per_game", None)
+                    self._effect_changed()
+                show_per_game()
+            ttk.Checkbutton(form, text=PER_GAME_WORDS, variable=per_on, command=write_per_game).grid(
+                row=row, column=0, columnspan=3, sticky="w", pady=(6, 2))
+            row += 1
+            per_rows.grid(row=row, column=0, columnspan=3, sticky="w", padx=(18, 0))
+            show_per_game()
             row += 1
             flag("scaled", "Scaled by the Island Events Scale patches, when they are on")
             flag("defer", "Keep it as the award: given later by \"Give the award kept earlier\"")

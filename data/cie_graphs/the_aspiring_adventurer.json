@@ -1,6 +1,6 @@
 {
   "format": "vvfp-cie-graph",
-  "version": 3,
+  "version": 5,
   "title": "The Aspiring Adventurer",
   "games": [1, 2, 3, 4, 5],
   "patches": ["guardians_of_isola"],
@@ -41,84 +41,14 @@
       "name": "Finds a stack of meat",
       "popup": "append",
       "text": "a large stack of meat, sitting perfectly on a cloth! (Name)'s stomach growls upon seeing the bounty, and (he/she) hastily grabs as much as (he/she) can and starts stuffing it in (his/her) knapsack.",
-      "children": [
-        {"next": "find_meat_award_1", "if": {"game": [1]}},
-        {"next": "find_meat_award_2", "if": {"game": [2]}},
-        {"next": "find_meat_award_3", "if": {"game": [3]}},
-        {"next": "find_meat_award_4", "if": {"game": [4]}},
-        {"next": "find_meat_award_5", "if": {"game": [5]}}
-      ]
+      "effects": [{"do": "food", "amount": 500, "per_game": {"1": [200, 1500], "2": [100, 1500], "3": [200, 600], "4": [300, 300], "5": [50, 300]}, "scaled": true, "defer": true}],
+      "children": [{"next": "find_safe"}, {"next": "deadly"}]
     },
     "find_chest": {
       "name": "Finds a golden chest",
       "popup": "append",
       "text": "a large golden chest full of artifacts! (Name)'s eyes widen at the sight, and (he/she) stuffs as much treasure as (he/she) can fit in (his/her) knapsack.",
-      "children": [
-        {"next": "find_chest_award_1", "if": {"game": [1]}},
-        {"next": "find_chest_award_2", "if": {"game": [2]}},
-        {"next": "find_chest_award_3", "if": {"game": [3]}},
-        {"next": "find_chest_award_4", "if": {"game": [4]}},
-        {"next": "find_chest_award_5", "if": {"game": [5]}}
-      ]
-    },
-    "find_meat_award_1": {
-      "name": "The meat's award (A New Home)",
-      "type": "branch",
-      "effects": [{"do": "food", "amount": 200, "max": 1500, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_meat_award_2": {
-      "name": "The meat's award (The Lost Children)",
-      "type": "branch",
-      "effects": [{"do": "food", "amount": 100, "max": 1500, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_meat_award_3": {
-      "name": "The meat's award (The Secret City)",
-      "type": "branch",
-      "effects": [{"do": "food", "amount": 200, "max": 600, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_meat_award_4": {
-      "name": "The meat's award (The Tree of Life)",
-      "type": "branch",
-      "effects": [{"do": "food", "amount": 300, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_meat_award_5": {
-      "name": "The meat's award (New Believers)",
-      "type": "branch",
-      "effects": [{"do": "food", "amount": 50, "max": 300, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_chest_award_1": {
-      "name": "The chest's award (A New Home)",
-      "type": "branch",
-      "effects": [{"do": "tech", "amount": 500, "max": 4999, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_chest_award_2": {
-      "name": "The chest's award (The Lost Children)",
-      "type": "branch",
-      "effects": [{"do": "tech", "amount": 500, "max": 3000, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_chest_award_3": {
-      "name": "The chest's award (The Secret City)",
-      "type": "branch",
-      "effects": [{"do": "tech", "amount": 1000, "max": 2000, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_chest_award_4": {
-      "name": "The chest's award (The Tree of Life)",
-      "type": "branch",
-      "effects": [{"do": "tech", "amount": 500, "max": 5000, "scaled": true, "defer": true}],
-      "children": [{"next": "find_safe"}, {"next": "deadly"}]
-    },
-    "find_chest_award_5": {
-      "name": "The chest's award (New Believers)",
-      "type": "branch",
-      "effects": [{"do": "tech", "amount": 500, "max": 3000, "scaled": true, "defer": true}],
+      "effects": [{"do": "tech", "amount": 2000, "per_game": {"1": [500, 4999], "2": [500, 3000], "3": [1000, 2000], "4": [500, 5000], "5": [500, 3000]}, "scaled": true, "defer": true}],
       "children": [{"next": "find_safe"}, {"next": "deadly"}]
     },
     "dirt_safe": {

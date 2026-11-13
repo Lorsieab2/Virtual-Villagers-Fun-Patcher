@@ -62,6 +62,14 @@ class ScrollingPopupsDetected(unittest.TestCase):
         self.assertIn("self.detect_scrolling()", source)
 
 
+class PerGameAmountWords(unittest.TestCase):
+    def test_the_changes_list_names_each_games_amount(self) -> None:
+        words = w.describe_effect({"do": "food", "amount": 100, "per_game": {"1": [200, 1500], "4": [300, 300]}})
+        self.assertIn("A New Home: 200 to 1,500", words)
+        self.assertIn("The Tree of Life: 300", words)
+        self.assertIn("Different amounts per game", w.PER_GAME_WORDS)
+
+
 class Helpers(unittest.TestCase):
     def test_the_example_and_a_new_event_pass_every_check(self) -> None:
         for g in (w.example_event(), w.new_event(), w.example_event(w.CAVE_EXAMPLE)):
