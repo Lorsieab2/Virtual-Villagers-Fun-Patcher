@@ -632,11 +632,16 @@ static int adv_percent(const adv_game *g, int percent) {
    from the game's own stock island-event gains of that kind, each equally likely (adv_game.food_lo .. tech_hi), times
    `times` (1 a normal award, 2 a large one, 3 a huge one), then the game's own scaling (adv_game.award_amount: The
    Lost Children's and The Secret City's own factors, Island Events Scale in the other three). */
-static int adv_award_roll(const adv_game *g, int kind, int times) {
+/* ... times `times` / `parts` (2: a SMALL award, half a normal one -- The Playful Dolphins), before the scaling. */
+static int adv_award_roll_part(const adv_game *g, int kind, int times, int parts) {
     int lo = kind == ADV_KIND_FOOD ? g->food_lo : g->tech_lo;
     int hi = kind == ADV_KIND_FOOD ? g->food_hi : g->tech_hi;
     int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);
-    return g->award_amount(kind, base * times);
+    return g->award_amount(kind, base * times / (parts > 0 ? parts : 1));
+}
+
+static int adv_award_roll(const adv_game *g, int kind, int times) {
+    return adv_award_roll_part(g, kind, times, 1);
 }
 
 /* Who goes, the rolls and the words, for the popup about to be built; 0 when nobody may go. */

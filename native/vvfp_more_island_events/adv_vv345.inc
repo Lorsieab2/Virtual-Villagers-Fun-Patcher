@@ -12,7 +12,7 @@
    nothing, the object is this DLL's), so the stock events keep every slot.  The selector's loop end (cmp esi, N /
    jl) jumps here: after the stock slots are listed, slot 0 is listed once for each of our events whose condition
    holds (the Adventurer: at least two villagers who may go, adv_possible; The Secret City's The Troubling Signs and
-   Diving for Treasure their own), and the object put in slot 0 is one of theirs, each equally likely (t_list) -- so
+   Diving for Treasure and The Tree of Life's The Playful Dolphins their own), and the object put in slot 0 is one of theirs, each equally likely (t_list) -- so
    each takes an equal share of the draw, rand(count), like any listed event, with the game's own timing, rescue rule
    and counting.  Each selector's array holds one entry more than its stock slots (the slot count + 1 dwords before
    the dialog on the stack): t_list never adds more entries than that room.  Slot 0 is put
@@ -375,7 +375,7 @@ static const adv_game ADV_VV5 = {
 
    Every More Island Events event of these games is an object put in the table's slot 0 (THE EVENT, above), each with
    its own place in the draw (t_list).  The two-choice ones -- The Aspiring Adventurer in all three games, Diving for
-   Treasure in The Secret City (dive_vv3.inc) -- share one virtual table and the methods below, each through its own
+   Treasure in The Secret City (dive_vv3.inc), The Playful Dolphins in The Tree of Life (dolphin_vv4.inc) -- share one virtual table and the methods below, each through its own
    adv_flow (its question, labels, answer, endings and effects); The Troubling Signs (troubling_vv3.inc) has its own
    object, methods and four-answer dialog.  Each registers itself with t_register. */
 
@@ -409,6 +409,7 @@ static void ts_after_ctor(void *dialog);
 static int ts_ok(void *dialog);
 static void ts_install(void);
 static void dv_install(void);
+static void dp_install(void);
 static adv_string g_title_entry, g_body_entry;
 static adv_string *g_saved_title, *g_saved_body;
 static int g_strings_in;
@@ -894,6 +895,8 @@ static int t_install(int game) {
     if (game == 3) {
         ts_install();                   /* The Troubling Signs (troubling_vv3.inc): no site of its own */
         dv_install();                   /* Diving for Treasure (dive_vv3.inc): no site of its own */
+    } else if (game == 4) {
+        dp_install();                   /* The Playful Dolphins (dolphin_vv4.inc): no site of its own */
     }
     vvfp_site_branch(&w[0], g_tg->loop_site, 5, g_tg->loop_stock, 0xE9, (const void *)t_loop_stub);
     vvfp_site_branch(&w[1], g_tg->ok_site, 5, ADV_OK_STOCK, 0xE9, (const void *)t_ok_stub);

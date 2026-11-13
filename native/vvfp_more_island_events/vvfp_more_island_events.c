@@ -1,7 +1,8 @@
 /* VVFP Aspiring Adventurer -- "The Aspiring Adventurer", the owner's island event (2026-11-12), in all five games
    (the rows vvN_more_island_events), with The Cave Explorers (A New Home, cave_core.inc) and The Climb (The Lost
    Children, climb_core.inc), the owner's events of the same day, and The Troubling Signs (troubling_core.inc) and
-   Diving for Treasure (dive_core.inc), The Secret City's, 2026-11-13.
+   Diving for Treasure (dive_core.inc), The Secret City's, 2026-11-13, and The Playful Dolphins (dolphin_core.inc),
+   The Tree of Life's, 2026-11-13.
 
    An aspiring adventurer of the village sees something glinting off the safe path: "Go investigate!" or "Stay on
    the safe path".  The owner's words, odds and effects are in adv_core.inc (and src/vv_aspiring_adventurer.py, the
@@ -31,10 +32,12 @@
 #include "climb_text.inc"
 #include "troubling_text.inc"
 #include "dive_text.inc"
+#include "dolphin_text.inc"
 #include "cave_core.inc"
 #include "climb_core.inc"
 #include "troubling_core.inc"
 #include "dive_core.inc"
+#include "dolphin_core.inc"
 
 static const adv_game *g_adv_game;     /* the installed game's, NULL when not installed */
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
@@ -43,6 +46,7 @@ enum { ADV_STAGE_NONE = 0, ADV_STAGE_INTRO, ADV_STAGE_QUESTION, ADV_STAGE_RESULT
 #include "adv_vv345.inc"
 #include "troubling_vv3.inc"
 #include "dive_vv3.inc"
+#include "dolphin_vv4.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
 
@@ -296,6 +300,42 @@ const char *__stdcall VvfpDivingPage(int set, int k) {
         return NULL;
     }
     pages = dv_set(set);
+    return k >= 0 && k < pages->count ? pages->text[k] : NULL;
+}
+
+/* The Playful Dolphins (The Tree of Life): whether it can happen now -- two villagers of 14 or more who may be picked
+   (no puzzle needed). */
+int __stdcall VvfpDolphinsPossible(void) {
+    return g_dp != NULL ? dp_listable() : 0;
+}
+
+/* Its last popup's state (for the tests): out[0] the swimmer's record, [1] the swimmer is a woman, [2] the tail slap
+   (1) or the hunt (0) after "Swim towards the dolphins", [3] the hunt's food award, [4] hanging back's food award,
+   [5] the slap's health loss, [6] answered, [7] the choice (0 swim, 1 hang back), [8] the ending (-1 none yet: 0 the
+   hunt, 1 the slap, 2 hang back), [9] the effects made, [10] the question's pages, [11..13] each ending's pages,
+   [14] / [15] the health before / after the slap.  Returns 16. */
+int __stdcall VvfpDolphinsState(int *out) {
+    int k;
+    if (out == NULL) {
+        return 0;
+    }
+    out[0] = dp.swimmer; out[1] = dp.female; out[2] = dp.slap; out[3] = dp.hunt_award; out[4] = dp.back_award;
+    out[5] = dp.loss; out[6] = dp.answered; out[7] = dp.choice; out[8] = dp.ending; out[9] = dp.effects_made;
+    out[10] = dp.intro.count;
+    for (k = 0; k < DP_ENDINGS; ++k) {
+        out[11 + k] = dp.endings[k].count;
+    }
+    out[14] = dp.health_before; out[15] = dp.health_after;
+    return 16;
+}
+
+/* Page `k` of set `set`: 0 the question, 1..3 the endings (the hunt, the slap, hang back). */
+const char *__stdcall VvfpDolphinsPage(int set, int k) {
+    const adv_pages *pages;
+    if (set < 0 || set > DP_ENDINGS) {
+        return NULL;
+    }
+    pages = dp_set(set);
     return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 

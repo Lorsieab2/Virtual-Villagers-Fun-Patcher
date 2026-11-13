@@ -67558,6 +67558,160 @@
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
    "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female",
    "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.TITLE",
+   "english": "The Playful Dolphins",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.INTRO.m",
+   "english": "%s has been swimming underwater as a hobby. One day, he spots a pod of dolphins playing just offshore! They seem to be chasing something, but %s is unsure whether he can hold his breath long enough to see what. What should he do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.INTRO.f",
+   "english": "%s has been swimming underwater as a hobby. One day, she spots a pod of dolphins playing just offshore! They seem to be chasing something, but %s is unsure whether she can hold her breath long enough to see what. What should she do?",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.LABEL_SWIM",
+   "english": "Swim towards the dolphins",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.LABEL_BACK",
+   "english": "Hang back",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SWIM",
+   "english": "%s swims towards the dolphins, being careful not to disturb them.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); the hunt or the tail slap follows it in the next paragraph",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.m",
+   "english": "He gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. \"What magnificent creatures!\" he thinks.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.f",
+   "english": "She gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. \"What magnificent creatures!\" she thinks.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.m",
+   "english": "Later, he shares his observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.f",
+   "english": "Later, she shares her observations with the researchers and farmers, which revolutionize their catches that season. %s becomes a skilled fisherman and is lauded as a pioneer of aquaculture. Your villagers gain %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SLAP.m",
+   "english": "Ouch! %s is blinded by the slap of a large fluke in his face. He must have gotten too close to one of them and accidentally gotten hit by their tail flipper. %s holds his nose to prevent any more red coming out. Luckily, %s is not too far from the surface, but if he had been any deeper... he shudders to think about what might happen. He surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.SLAP.f",
+   "english": "Ouch! %s is blinded by the slap of a large fluke in her face. She must have gotten too close to one of them and accidentally gotten hit by their tail flipper. %s holds her nose to prevent any more red coming out. Luckily, %s is not too far from the surface, but if she had been any deeper... she shudders to think about what might happen. She surfaces, leaves the beach, and heads off to the doctors for some medical treatment.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is female",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.BACK.m",
+   "english": "%s doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and he is second-guessing whether they're playing anyway. %s resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is male",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dolphin_text.BACK.f",
+   "english": "%s doubts that it's a good idea to follow the dolphins. They clearly seem to be busy doing something important, and she is second-guessing whether they're playing anyway. %s resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains %d food.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is female",
+   "route": "key"
   }
  ]
 }
