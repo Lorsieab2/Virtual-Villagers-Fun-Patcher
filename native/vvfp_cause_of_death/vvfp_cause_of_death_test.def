@@ -49,3 +49,4 @@ EXPORTS
     VvfpCauseTestCreationSave=_VvfpCauseTestCreationSave@12
     VvfpCauseTestCreationFields=_VvfpCauseTestCreationFields@8
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpCauseKilledBy=_VvfpCauseKilledBy@12

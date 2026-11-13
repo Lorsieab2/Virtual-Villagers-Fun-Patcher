@@ -290,7 +290,7 @@ def description(game: str) -> str:
             "Done keeps it), and the cause under the age, in those games' own words ("
             f"{CAUSE_WORDS}). The cause is the one that killed them -- old age, sickness, hunger "
             "or an empty food bin, an injury at work -- and \"Unknown causes\" for an island event "
-            "and anything else, which is how those games word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\". The epitaph "
+            "and anything else, which is how those games word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\", or the event's own words when it names the cause. The epitaph "
             "is chosen by the rule those games use at a burial: a child's is \"Curious and "
             "Playful\" or \"Loving and Special\"; an adult's comes from the skill the grave shows "
             "(for example \"Strong Arms, Big Heart\" or \"Inspired Architect\" for a builder); a "
@@ -310,7 +310,7 @@ def description(game: str) -> str:
             f"age, in those games' own words ({CAUSE_WORDS}). The cause is the one that killed "
             "them -- old age, sickness, hunger or an empty food bin, an injury at work -- and "
             "\"Unknown causes\" for an island event and anything else, which is how those games "
-            "word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\". The Lost Children keeps no cause, so it is kept for each "
+            "word an island-event death; a Custom Island Event's \"dies\" is \"Died in a custom island event\", or the event's own words when it names the cause. The Lost Children keeps no cause, so it is kept for each "
             "save slot in a file beside the saves ('Virtual Villagers Fun Patcher\\Save <n>\\Data\\Graves\\"
             "Virtual Villagers 2 Graves - Save <n>.dat'); Start Over deletes it. The game's own epitaphs "
             f"are unchanged. {APPRENTICE} **Graves dug before this patch was installed, and bodies that were "
@@ -343,6 +343,7 @@ def manifest(game: str, sha: str) -> dict:
         ]
     changes += [
         "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
+        "A branching Custom Island Event's death that names its own cause is reported by the Story / Cheat Upgrades DLL with those words (VvfpCauseKilledBy): the Death record's cause line says them" + (" and so does the grave" if game in ("vv1", "vv2") else "") + ", kept by the body's fingerprint in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Custom Island Event Deaths\\Virtual Villagers " + n + " Custom Island Event Causes - Save <n>.dat' until nothing needs them (written at each save; deleted by Start Over).",
         f"Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Deaths\\Virtual Villagers {n} Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
         "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
         "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",

@@ -823,7 +823,10 @@ static void cod_grave_lines(int slot, const unsigned char *grave, const unsigned
         ((text_fn)(uintptr_t)draw)(renderer, 0, "\"", right - 0x1C, top + 0x46, font, 0);
     }
     if (entry->cause != CAUSE_NONE) {
-        ((text_fn)(uintptr_t)draw)(renderer, 0, cod_cause_shown(entry->cause), x, top + 0xD7, font, 0);
+        /* A Custom Island Event's own words, when its death named them (cod_cie_words.inc), as the author wrote them. */
+        const char *words = entry->cause == CAUSE_CUSTOM_EVENT ? cw_words(entry->fingerprint) : NULL;
+        ((text_fn)(uintptr_t)draw)(renderer, 0, words != NULL ? words : cod_cause_shown(entry->cause), x, top + 0xD7,
+                                   font, 0);
         COD_COUNT(draws);
     }
 }

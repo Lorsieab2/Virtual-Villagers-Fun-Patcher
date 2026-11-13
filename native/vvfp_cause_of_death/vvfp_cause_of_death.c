@@ -450,6 +450,9 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 /* The lines a Death record carries before the villager's identity. */
 static const char *roster_sex(int value);
 
+/* cod_cie_words.inc: a Custom Island Event's own cause words (VvfpCauseKilledBy). */
+static const char *cod_cause_words_of(int cause, unsigned int fingerprint);
+
 /* cod_lost.inc: the babies a mother carried when she died or disappeared. */
 static int lost_babies(const unsigned char *record);
 static void lost_line(char *out, int babies);
@@ -465,7 +468,7 @@ static int cod_log_death(const unsigned char *record, int cause, const char *gra
     wsprintfA(before,
               "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n%s",
               rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
-              cod_cause_words(cause), grave,
+              cod_cause_words_of(cause, cod_record_fingerprint(record)), grave,
               epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)", carrying);
     written = cod_write(LOG_DEATH, record, 1, before, NULL, 1);
     lost_record(record, babies, "died");
@@ -710,6 +713,10 @@ static int cie_taken(const unsigned char *record, int game_cause);
 static void cie_tick(void);
 static void cie_saved(int slot);
 static void cie_reset(int slot);
+/* cod_cie_words.inc: their words, at each save and at Start Over. */
+static void cw_saved(int slot);
+static void cw_reset(int slot);
+static const char *cw_words(unsigned int fingerprint);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -719,6 +726,7 @@ static void cie_reset(int slot);
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
 #include "cod_cie.inc"             /* the Custom Island Event's "Dies" */
+#include "cod_cie_words.inc"       /* ...and its own cause words (VvfpCauseKilledBy) */
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
 #include "cod_creation_save.inc"   /* the logs at village creation */
@@ -952,6 +960,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     } else {
         cie_reset(slot);
     }
+    cw_reset(slot);
     if (saved_slot == slot) {
         saved_slot = 0;
     }
