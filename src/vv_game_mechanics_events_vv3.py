@@ -368,6 +368,6 @@ EVENTS = (
 )
 
 # The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
-from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
+from vv_game_mechanics_adventurer import adventurer_event, troubling_signs_event  # noqa: E402
 
-EVENTS = EVENTS + (adventurer_event(3),)
+EVENTS = EVENTS + (adventurer_event(3), troubling_signs_event())

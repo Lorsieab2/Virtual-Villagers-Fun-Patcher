@@ -9,6 +9,7 @@ from __future__ import annotations
 import vv_aspiring_adventurer as adv
 import vv_cave_explorers as cave
 import vv_the_climb as climb
+import vv_troubling_signs as ts
 from vv_game_mechanics_events import Event, Line
 
 TITLE = adv.TITLE
@@ -201,6 +202,53 @@ def cave_explorers_event() -> Event:
         "\"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv1_more_island_events",
+    )
+
+
+def troubling_signs_event() -> Event:
+    """The Troubling Signs (The Secret City only; the owner, 2026-11-13): every rule from src/vv_troubling_signs.py,
+    the awards from src/vv_aspiring_adventurer.py's ranges; the companion (native/vvfp_more_island_events/
+    troubling_core.inc, troubling_vv3.inc) does exactly this."""
+    who = (f"alive and present, {ts.ADULT_YEARS} villager years or more, not nursing a baby (mother or father), not "
+           "the Tribal Chief")
+    food, tech = adv.award_words(3, "food"), adv.award_words(3, "tech")
+    subs = [
+        "Who: the Tribal Chief wearing the chief's robe (a chief the clothing has dressed otherwise does not count) is "
+        f"the speaker. Then {ts.ADVISORS + ts.TRAVELLERS} other villagers, all different, each {who}: "
+        f"{ts.ADVISORS} advisors, one for each group the chief may ask (each named on that group's page; they stay), "
+        f"and {ts.TRAVELLERS} travellers (they leave). Any {ts.ADVISORS + ts.TRAVELLERS} such villagers are equally "
+        "likely; family members may be picked together.",
+        "Never picked, in any role (the owner's protected villagers): a nursing mother or father, and anyone the game's "
+        "own island events never pick; the Tribal Chief is only ever the speaker. Everyone else may be picked (titles, "
+        "Esteemed Elders and founders included).",
+        "One question with four answers, in the game's own island-event popup with two more buttons in the game's own "
+        "look: \"Consult the spiritual leaders\", \"Ask the magicians for advice\", \"Call the naturalists to a "
+        "discussion\" or \"Talk with the scientists and healers\" (the mouse, or the keys 1 to 4; Enter or Esc for "
+        "OK).",
+        "Every answer shows that group's advice, then the chief's call to the tribe (\"Hear me, O ...!\", the tribe's "
+        f"own name), then the decree; the {ts.TRAVELLERS} travellers then leave for good: no body, no grave, and the "
+        "Deaths log records each as a disappearance.",
+        f"The spiritual leaders: the village loses food ({food}). The magicians: the village gains tech points "
+        f"({tech}). The naturalists: the village gains food ({food}). The scientists and healers: the village loses "
+        f"tech points ({tech}).",
+        "Each amount is drawn when the popup opens, each equally likely, from the smallest to the largest food or "
+        "tech-point gain of the game's own island events, times m, the game's own multiplier for its events (the "
+        "villagers it counts, divided by 20, plus 1), through the game's own food or tech writer. A loss never takes "
+        "more than is stored: the decree says what is taken, and the store stops at 0.",
+        "The effects wait for their own page: the travellers leave and the award comes when the decree's last page is "
+        "shown, never on an earlier page; the Island Events log keeps one entry for the event, with the answer and "
+        "every change. Quitting before that page leaves the village as it was, and the event does not come back.",
+    ]
+    return Event(
+        ts.TITLE,
+        f"needs the Tribal Chief in the robe, {ts.ADVISORS + ts.TRAVELLERS} other villagers who are {who}, and a "
+        f"population of {ts.POPULATION_AT_LEAST} or more counted as The Lost Children's \"A Dangerous Mission\" counts "
+        "it (the living villagers plus the babies being carried); one more island event, listed with the others whose "
+        "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
+        "Aspiring Adventurer), when the game draws an island event on its own schedule (the wall clock, real "
+        "seconds); added by \"More Island Events\" (without it the event does not exist)",
+        tuple(subs),
+        only_with="vv3_more_island_events",
     )
 
 
