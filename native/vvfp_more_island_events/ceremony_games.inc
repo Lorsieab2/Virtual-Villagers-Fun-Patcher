@@ -410,6 +410,18 @@ static void cr_v45_damage(int k, int loss) {
         ADV_TC2(l->setter, l->projects, b->id, done_at - progress);
     }
     o[0x30] = (unsigned char)(loss < 100);
+    if (k < 3) {
+        /* The "3 huts" trophy (The Tree of Life 0x2D, New Believers 0x31: done at 3, 0x4B8524 / 0x4C6544) counts
+           each population hut's completion (0x412F90 / 0x413450: +1 while locked).  Still locked, the damaged hut's
+           count is taken back, so rebuilding it counts it again and the trophy still needs three different huts.
+           The table is saved with the village (the state's +0x328: 0x41F06A / 0x42452A copy it, 0x41FC47 / 0x42573E
+           load it, beside the food store), so the count stays right across a save. */
+        unsigned char *trophy = (unsigned char *)(uintptr_t)(g_tg->game == 4 ? 0x4CBB98u + 0x2Du * 12u
+                                                                                : 0x4DB358u + 0x31u * 12u);
+        if (trophy[0] == 0 && *(int *)(trophy + 4) > 0) {
+            --*(int *)(trophy + 4);
+        }
+    }
     if (g_tg->game == 4 && b->id == 24) {
         cr_v4_release_teacher();
     }

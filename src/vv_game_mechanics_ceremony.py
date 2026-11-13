@@ -104,6 +104,9 @@ def rumblings_event(game: int) -> Event:
     ]
     if game == 4:
         subs.append("A damaged nursery school's teacher stops teaching until it is rebuilt.")
+    if game in (4, 5):
+        subs.append("The \"3 huts\" trophy: while it is still locked, a damaged population hut no longer counts toward "
+                    "it until it is rebuilt, so the trophy still needs three different huts.")
     subs.append("One popup with the owner's words and OK. The effects come as the popup shows; the Island Events log "
                 "keeps one entry for the event, naming each damaged structure. It can happen again, as likely as one "
                 "stock event each time.")

@@ -687,6 +687,24 @@ class TheRumblings(unittest.TestCase):
                     self.assertEqual(p.read(obj + 0x30, 1), b"\x01")
                     self.assertEqual([p.u32(obj + 0x34), p.u32(obj + 0x38), s32(p.u32(obj + 0x3C))], [3, 2000, -1])
 
+    def test_the_three_huts_trophy_still_needs_three_different_huts(self) -> None:
+        for game, entry in ((4, 0x4CBB98 + 0x2D * 12), (5, 0x4DB358 + 0x31 * 12)):
+            with self.subTest(game=game):
+                v = rumblings_village(game)
+                v.finish(0)
+                v.finish(3)                                             # the clothing hut: not this trophy
+                v.p.write(entry, b"\x00")
+                v.p.put32(entry + 4, 2)                                 # locked, two huts counted
+                v.happen(RUMBLINGS, [0, 0, 30, 30])                     # both damaged
+                self.assertEqual(v.cr_state()[7:11], [40, 0, 0, 40])
+                self.assertEqual(v.p.u32(entry + 4), 1)                 # only the hut's count taken back
+                v = rumblings_village(game)
+                v.finish(0)
+                v.p.write(entry, b"\x01")
+                v.p.put32(entry + 4, 3)                                 # unlocked: left alone
+                v.happen(RUMBLINGS, [0, 30])
+                self.assertEqual(v.p.u32(entry + 4), 3)
+
     def test_the_tree_of_lifes_nursery_teacher_let_go(self) -> None:
         v = rumblings_village(4)
         v.villager(2, "Teacher", True, years=30)

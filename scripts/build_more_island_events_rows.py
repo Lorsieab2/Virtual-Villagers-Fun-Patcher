@@ -205,7 +205,9 @@ def ceremony_behaviour(game: int) -> str:
         "one of them at random), each losing 10 + rand(91) percent of its building work, written as the states the "
         "game's own construction passes through (at 100% the new village's state)"
         + ("; the building's effect handle freed and set to -1" if game >= 3 else "")
-        + ("; the nursery school's teacher let go" if game == 4 else "") + ".")
+        + ("; the nursery school's teacher let go" if game == 4 else "")
+        + ("; a damaged population hut's count of the still-locked \"3 huts\" trophy taken back (saved with the "
+           "village at the state's +0x328), so it still needs three different huts" if game in (4, 5) else "") + ".")
 
 
 DLL_NAME = "VVFP More Island Events.dll"

@@ -804,7 +804,7 @@ AS BUILT (your decisions of 13 November 2026)
 - A heavily damaged structure needs a villager dropped on it before the builders start again, as for a new building site in the stock game.
 - When it is finished again the game shows its own celebration, tip and completion message again.
 - The Tree of Life: a damaged nursery school's teacher stops teaching until it is rebuilt.
-- The Tree of Life and New Believers' "3 huts" trophy counter is left as the game keeps it (where the game saves it could not be proven), so rebuilding a hut may count toward that trophy again.
+- The Tree of Life and New Believers' "3 huts" trophy: while it is still locked, a damaged population hut's count is taken back, so rebuilding it counts it again and the trophy still needs three different huts. (The game saves that count with the village, beside the stored food.)
 
 THE RUMBLINGS -- CHANCES
   Its own place in the draw, as likely as one stock island event.
