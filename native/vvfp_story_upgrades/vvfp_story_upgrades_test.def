@@ -114,6 +114,7 @@ EXPORTS
     VvfpStoryProbeGraphQueue=_VvfpStoryProbeGraphQueue@16
     VvfpStoryProbeGraphCheck=_VvfpStoryProbeGraphCheck@8
     VvfpStoryProbeGraphForce=_VvfpStoryProbeGraphForce@16
+    VvfpStoryProbeGraphPuzzles=_VvfpStoryProbeGraphPuzzles@4
     VvfpStoryProbeGraphState=_VvfpStoryProbeGraphState@4
     VvfpStoryProbeGraphPath=_VvfpStoryProbeGraphPath@12
     VvfpStoryProbeGraphDisplay=_VvfpStoryProbeGraphDisplay@4

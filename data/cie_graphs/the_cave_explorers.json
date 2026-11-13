@@ -1,13 +1,18 @@
 {
   "format": "vvfp-cie-graph",
-  "version": 2,
+  "version": 3,
   "title": "The Cave Explorers",
   "games": [
     1
   ],
   "patches": [],
   "requirement": {
-    "min_eligible": 2
+    "min_eligible": 2,
+    "puzzles": {
+      "1": [
+        "The Cave"
+      ]
+    }
   },
   "roles": {
     "subject": {
@@ -16,7 +21,11 @@
     },
     "friend": {
       "kind": "villager",
-      "min_age": 18
+      "min_age": 18,
+      "max_age_gap": {
+        "role": "subject",
+        "years": 5
+      }
     }
   },
   "start": "intro",
@@ -364,7 +373,8 @@
       "effects": [
         {
           "do": "tech",
-          "amount": 2000,
+          "amount": 500,
+          "max": 4999,
           "scaled": true,
           "defer": true
         },
@@ -381,7 +391,8 @@
       "effects": [
         {
           "do": "tech",
-          "amount": 6000,
+          "amount": 1500,
+          "max": 14997,
           "scaled": true,
           "defer": true
         },
@@ -398,7 +409,8 @@
       "effects": [
         {
           "do": "food",
-          "amount": 1000,
+          "amount": 400,
+          "max": 3000,
           "scaled": true,
           "defer": true
         },
@@ -449,7 +461,8 @@
       "effects": [
         {
           "do": "food",
-          "amount": 500,
+          "amount": 200,
+          "max": 1500,
           "scaled": true,
           "defer": true
         },
@@ -465,7 +478,8 @@
       "effects": [
         {
           "do": "tech",
-          "amount": 2000,
+          "amount": 500,
+          "max": 4999,
           "scaled": true,
           "defer": true
         },
@@ -499,7 +513,8 @@
       "effects": [
         {
           "do": "tech",
-          "amount": 2000,
+          "amount": 500,
+          "max": 4999,
           "scaled": true,
           "defer": true
         },
