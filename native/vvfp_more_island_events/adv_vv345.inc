@@ -379,7 +379,7 @@ static const adv_game ADV_VV5 = {
    adv_flow (its question, labels, answer, endings and effects); The Troubling Signs (troubling_vv3.inc) has its own
    object, methods and four-answer dialog.  Each registers itself with t_register. */
 
-typedef struct {
+typedef struct adv_object {
     void *vtable;
     void *villager;
     int amount;
@@ -716,6 +716,14 @@ static int __cdecl t_list(int listed) {
         }
         if (n > 0) {
             *(void **)(uintptr_t)g_tg->table = g_events[can[t_rand(n)]].object;
+        }
+        {
+            /* Pick Island Event chose one of ours (mie_pick.inc): its object in slot 0, which the Story companion's
+               pick (slot 0) presents when the object's own condition holds. */
+            adv_object *picked = mp_due_object(g_tg->game);
+            if (picked != NULL) {
+                *(void **)(uintptr_t)g_tg->table = picked;
+            }
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         *(void **)(uintptr_t)g_tg->table = &g_object;

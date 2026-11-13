@@ -99,6 +99,44 @@ game's own code, with its own choices, random outcomes and amounts -- except
 the outcomes the player sets (below), which are the game's own rolls answered
 with the chosen value.
 
+### More Island Events' events (v1.35.97)
+
+With the More Island Events patch installed, the list ends with that patch's
+events of the game played -- its registry, `native/vvfp_more_island_events/
+mie_pick.inc` (`MIE_PICKS`, one line per event: games, title, its own test, what
+it needs in plain words, one sentence, and how its game's draw knows it):
+
+| Game | Events |
+| --- | --- |
+| A New Home | The Aspiring Adventurer, The Cave Explorers |
+| The Lost Children | The Aspiring Adventurer, The Climb |
+| The Secret City | The Aspiring Adventurer, The Troubling Signs, Diving for Treasure |
+| The Tree of Life, New Believers | The Aspiring Adventurer |
+
+Each is possible exactly when its own draw would take it: the event's test over
+the game's eligible villagers (the owner's protected villagers never count,
+except The Troubling Signs' chief, the owner's exception), and in A New Home and
+The Lost Children never before the village's first island events. One that is
+not possible is listed "- not possible right now" with what it needs; OK says so
+in a box ("The Climb needs a villager of 18 or more who is at least a Trainee in
+Research and may go.") and nothing is bought. Without More Island Events none is
+listed. They have no settings: each plays by its own odds.
+
+A pick is armed as any pick (the island event due, the same lock and lapse, the
+queue file: its `pick_index` is -1000 - the registry index, which older builds
+leave alone). The game's chooser is steered to the family the event is drawn in
+(A New Home the villager encounters, The Lost Children family A, both with the
+index 0x3E that no stock roll reaches; the later games the event table's slot 0,
+where More Island Events keeps its events). That companion's draw asks
+`VvfpStoryMoreEventDue(game)` which event is due and takes it instead of drawing:
+A New Home's encounter setup begins it, The Lost Children's family-A draw
+returns its own number (its keep test still runs), and the later games'
+selector puts its object in slot 0, which this pick then presents only when the
+object's own condition holds. A New Home and The Lost Children report back with
+`VvfpStoryMoreEventDone(game, delivered)`. An event that can no longer happen
+when due is refused as any picked event: the game's own choice runs and the next
+Pick Island Event says why. No executable byte is written for any of this.
+
 ### Events not offered (developer-dead)
 
 Since v1.35.46 a developer-dead event is offered when it was **proven to work**:

@@ -314,6 +314,10 @@ static void sq_capture(int game, sq_file *f) {
             f->pick_outcome = 1;
             f->pick_settings = oc.set;
         }
+    } else if (sm_armed(game) >= 0 && story_village_is(game, &pick_village)) {
+        f->have |= SQ_PICK;                 /* a More Island Events event (story_more_events.inc) */
+        f->pick_slot = pick_slot;
+        f->pick_index = sm_queue_index(game);
     }
     /* A branching event's page or question is never written here: its own file keeps the whole run
        (story_graph.inc), so this file's layout is unchanged. */
@@ -435,6 +439,9 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
             oc_arm(game, pick_slot, &f->pick_settings);
         }
         restored |= SQ_PICK;
+    } else if ((f->have & SQ_PICK) && pick_slot < 0 && f->pick_index <= SM_QUEUE_BASE
+               && sm_queue_restore(game, f->pick_index, f->pick_slot)) {
+        restored |= SQ_PICK;                /* a More Island Events event (story_more_events.inc) */
     }
     if ((f->have & SQ_CUSTOM) && !ce_armed && f->ce.game == game
         && (!f->ce_is_choice || choice != NULL)) {

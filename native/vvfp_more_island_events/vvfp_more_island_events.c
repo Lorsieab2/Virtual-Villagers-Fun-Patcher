@@ -41,11 +41,18 @@ static const adv_game *g_adv_game;     /* the installed game's, NULL when not in
 static char g_vv12_title[128];         /* A New Home's / The Lost Children's title line */
 enum { ADV_STAGE_NONE = 0, ADV_STAGE_INTRO, ADV_STAGE_QUESTION, ADV_STAGE_RESULT };
 
+/* Pick Island Event's picks (mie_pick.inc), asked by every game's draw. */
+struct adv_object;
+static const adv_flow *mp_due_flow(int game);
+static struct adv_object *mp_due_object(int game);
+static void mp_done(int game, int delivered);
+
 #include "adv_vv345.inc"
 #include "troubling_vv3.inc"
 #include "dive_vv3.inc"
 #include "adv_vv1.inc"
 #include "adv_vv2.inc"
+#include "mie_pick.inc"         /* Pick Island Event: the registry of every event (one line each) */
 
 /* Called once by VVFP Startup.dll before WinMain. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {

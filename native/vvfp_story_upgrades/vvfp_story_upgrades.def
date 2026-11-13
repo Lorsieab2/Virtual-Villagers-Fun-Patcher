@@ -23,3 +23,5 @@ EXPORTS
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
     VvfpStoryGraphLogged=_VvfpStoryGraphLogged@8
     VvfpStoryButtonRoom=_VvfpStoryButtonRoom@4
+    VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
+    VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8

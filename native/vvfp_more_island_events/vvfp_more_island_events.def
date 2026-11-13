@@ -23,3 +23,5 @@ EXPORTS
     VvfpDivingPossible=_VvfpDivingPossible@0
     VvfpDivingState=_VvfpDivingState@4
     VvfpDivingPage=_VvfpDivingPage@8
+    VvfpMoreIslandEventsPickCount=_VvfpMoreIslandEventsPickCount@0
+    VvfpMoreIslandEventsPickInfo=_VvfpMoreIslandEventsPickInfo@20
