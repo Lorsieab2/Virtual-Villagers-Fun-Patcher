@@ -24,7 +24,8 @@
      "Ask the magicians for advice"         the village gains tech points;
      "Call the naturalists to a discussion" the village gains food;
      "Talk with the scientists and healers" the village loses tech points.
-   A loss takes at most what is stored (the page says what is taken; the game's own writers also floor at 0).
+   The page says the full amount rolled, a loss too (the owner, 2026-11-13); a loss takes at most what is stored, so
+   the store stops at 0 (the game's own writers also floor at 0).
 
    THE PAGES: the question (the opening, then the four answers); then the asked group's advice, the "Hear me" page,
    and the decree.  THE EFFECTS wait for their own page (the owner's standing rule): made, once, when the decree's
@@ -67,7 +68,7 @@ static struct {
     char advisor_name[TS_ADVISORS][ADV_NAME_BYTES];
     int traveller[TS_TRAVELLERS];
     unsigned int traveller_id[TS_TRAVELLERS];
-    int award[TS_GROUPS];                            /* the amount each answer's decree says (a loss: what is taken) */
+    int award[TS_GROUPS];                            /* the amount each answer's decree says (the full roll) */
     adv_pages intro;
     adv_pages result[TS_GROUPS];
     int tallest_set, tallest_page;
@@ -235,19 +236,10 @@ static int ts_begin(const ts_game *t, const adv_game *g) {
         ts.traveller[k] = list[TS_ADVISORS + k];
         ts.traveller_id[k] = adv_identity(t->g, ts.traveller[k]);
     }
-    /* The awards (a loss: at most what is stored -- the village does not run while the popup is up). */
+    /* The awards: the page says the full amount rolled, a loss too (the owner, 2026-11-13: "yeah show the full
+       amount"); the store stops at 0 (ts_effects). */
     for (k = 0; k < TS_GROUPS; ++k) {
-        int amount = adv_award_roll(t->g, TS_KIND[k], 1);
-        if (TS_SIGN[k] < 0) {
-            int stored = t->stored(TS_KIND[k]);
-            if (stored < 0) {
-                stored = 0;
-            }
-            if (amount > stored) {
-                amount = stored;
-            }
-        }
-        ts.award[k] = amount;
+        ts.award[k] = adv_award_roll(t->g, TS_KIND[k], 1);
     }
     ts_compose(g);
     ts_find_tallest(g);
@@ -288,7 +280,14 @@ static void ts_effects(int group) {
         }
     }
     if (ts.award[group] > 0) {
-        g->award(TS_KIND[group], TS_SIGN[group] * ts.award[group]);
+        int amount = ts.award[group];
+        if (TS_SIGN[group] < 0) {
+            int stored = ts.t->stored(TS_KIND[group]);
+            amount = stored <= 0 ? 0 : (amount > stored ? stored : amount);   /* the store stops at 0 */
+        }
+        if (amount > 0) {
+            g->award(TS_KIND[group], TS_SIGN[group] * amount);
+        }
     }
 }
 
