@@ -13,3 +13,4 @@ EXPORTS
     VvfpClimbState=_VvfpClimbState@4
     VvfpClimbPage=_VvfpClimbPage@8
     VvfpMoreIslandEventsLogged=_VvfpMoreIslandEventsLogged@8
+    VvfpMoreIslandEventsProtected=_VvfpMoreIslandEventsProtected@12

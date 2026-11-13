@@ -194,6 +194,19 @@ const char *__stdcall VvfpClimbPage(int set, int k) {
     return k >= 0 && k < pages->count ? pages->text[k] : NULL;
 }
 
+/* The owner's protected villagers (adv_core.inc adv_is_protected_allowing): 1 when `record` of `game` may never be
+   picked by these events; `allow` ADV_ALLOW_TRIBAL_CHIEF (1) lets The Secret City's Tribal Chief through, for an event
+   the owner names (The Troubling Signs' speaker).  For the tests and the other events. */
+int __stdcall VvfpMoreIslandEventsProtected(int game, const unsigned char *record, unsigned int allow) {
+    int is_protected = 1;
+    __try {
+        is_protected = adv_is_protected_allowing(game, record, allow);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        is_protected = 1;
+    }
+    return is_protected;
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {

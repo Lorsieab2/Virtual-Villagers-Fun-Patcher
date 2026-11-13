@@ -75,8 +75,8 @@ static int v2_count(void) {
 /* Present (+0x30), alive (+0x52C), not an Esteemed Elder's statue (+0x558: made with health 0 and this byte,
    0x44D467 / 0x44D485), 14 or more (+0x530), not carrying a baby (+0x540). */
 static int v2_eligible(const unsigned char *r) {
-    return r[0x30] != 0 && *(const int *)(r + 0x52C) > 0 && r[0x558] == 0
-        && *(const int *)(r + 0x530) >= ADV_ADULT_UNITS && *(const int *)(r + 0x540) == 0;
+    return r[0x30] != 0 && *(const int *)(r + 0x52C) > 0 && *(const int *)(r + 0x530) >= ADV_ADULT_UNITS
+        && !adv_is_protected(2, r);
 }
 
 static int v2_female(const unsigned char *r) {

@@ -82,6 +82,62 @@ typedef struct {
     char text[ADV_MAX_PAGES][ADV_PAGE_BYTES];
 } adv_pages;
 
+/* ---- Protected villagers (the owner, 2026-11-13) --------------------------------------------------------------
+
+   "No protected villagers can ever be chosen by these new events unless I explicitly say otherwise", and what
+   protected means: "no nursing villagers male or female, golden child, vv3 tribal chief, any other villager stock
+   island events forbid and never pick, vv2 totems.  everyone else should be fair game."  ONE check, used by every
+   picker of every More Island Events event (each game's adv_game.eligible: the adventurer and the friend, The Cave
+   Explorers' two, The Climb's climber), on top of each event's own rules (age, New Believers' believers only).
+
+     every game     nursing -- the game's own "conceived" field, set on a mother OR a father who carries (A New Home
+                    +0x358, The Lost Children +0x540, The Secret City +0xE8C, The Tree of Life and New Believers
+                    +0x1C4C)
+     A New Home     the Golden Child: i32 +0x36C == 0xC7 (0x41FBDC).  The stock picker (the encounters': any
+                    present +0x28, living +0x344 villager) has no other test.
+     The Lost Children  an Esteemed Elder's totem statue: u8 +0x558 (made with health 0 at 0x44D467 / 0x44D485, so
+                    the stock pickers, 0x44BAE0 -- present +0x30, health +0x52C > 0 -- never take one).
+     The Secret City    the Tribal Chief: u8 +0xE80 -- the stock picker 0x45D460's exclusion ([eax-0x90] at
+                    0x45D4A4, asked with its bl flag); the picker otherwise tests only health +0xE78, present
+                    +0xF10, sex +0xDC8, age +0xDC4 and pregnant +0xE8C.  ADV_ALLOW_TRIBAL_CHIEF lets an event the
+                    owner names take the chief (The Troubling Signs: its speaker).
+     The Tree of Life   a body or ghost: u8 +0x1CC7 (the stock picker 0x4679B0 counts only present +0x1CC4, not marked
+                    dead +0x1CC7, health +0x1C40 > 0).
+     New Believers      a Reanimate in progress: u8 +0x1CE1, and the roles +0x1CFC 12-17 (the Heathen ranks, the
+                    Retired Chief, the Heathen Mommy): the stock picker 0x471870 skips both, for every event.
+   Records that are not villagers at all (The Secret City's +0xE94 records, native/shared/villager_lookalike.h) and
+   the dead and the absent are never candidates either (each game's eligible).  Everyone else is fair game: titles,
+   Esteemed Elders who are not totems, founders, the Silver Mirror's double. */
+
+#define ADV_ALLOW_TRIBAL_CHIEF 0x1u          /* The Secret City's Tribal Chief may be picked (the owner's exception) */
+
+static int adv_is_protected_allowing(int game, const unsigned char *r, unsigned int allow) {
+    if (r == NULL) {
+        return 1;
+    }
+    switch (game) {
+    case 1:
+        return *(const int *)(r + 0x358) != 0 || *(const int *)(r + 0x36C) == 0xC7;
+    case 2:
+        return *(const int *)(r + 0x540) != 0 || r[0x558] != 0;
+    case 3:
+        return *(const int *)(r + 0xE8C) != 0 || (r[0xE80] != 0 && !(allow & ADV_ALLOW_TRIBAL_CHIEF));
+    case 4:
+        return *(const int *)(r + 0x1C4C) != 0 || r[0x1CC7] != 0;
+    case 5: {
+        int role = *(const int *)(r + 0x1CFC);
+        return *(const int *)(r + 0x1C4C) != 0 || r[0x1CE1] != 0 || (role >= 12 && role <= 17);
+    }
+    default:
+        return 1;
+    }
+}
+
+/* The owner's protected villagers, none allowed: what every More Island Events picker uses. */
+static int adv_is_protected(int game, const unsigned char *r) {
+    return adv_is_protected_allowing(game, r, 0);
+}
+
 static struct {
     const adv_game *g;
     int ready;                                        /* composed, not yet answered */
