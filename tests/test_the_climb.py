@@ -54,9 +54,9 @@ RESEARCH = 0x7F4
 FALL, SUMMIT = 0, 99                       # rand(100) < 50 is the fall
 
 # The owner's words (2026-11-12), typed from the owner's text: the curly apostrophe as ', the ellipsis as ..., the
-# notes left out, the one approved edit made, a sentence's first pronoun capitalised.  Ana is a woman.
+# notes left out, the approved edits made, a sentence's first pronoun capitalised.  Ana is a woman.
 OWNER = {
-    "INTRO": "Ana is known for their crazy, spontaneous, yet sometimes genius ideas. She is an avid researcher and has "
+    "INTRO": "Ana is known for her crazy, spontaneous, yet sometimes genius ideas. She is an avid researcher and has "
              "been studying the tribe's history for a long time. She believes that two of the tribe's founders fell "
              "down the Great Falls, but nothing definitive is known about their origins. Ana proposes trying to "
              "retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical "
@@ -64,7 +64,7 @@ OWNER = {
              "that the plan could be dangerous, but what if she is right? Should she go through with her plan, or "
              "follow the other researchers' advice?",
     "PLAN": "Ana revises her plan until she believes it is practically foolproof. At dawn the next morning, she sneaks "
-            "out of the hut before anyone else has woken up and makes their way toward the waterfall. Setting up her "
+            "out of the hut before anyone else has woken up and makes her way toward the waterfall. Setting up her "
             "climbing gear, she makes the perilous ascent up the falls.",
     "FALL": "For several hours, she carefully scales the jagged rocks until she can almost see over the edge of the "
             "falls. Just a little further... Oops! Ana's hand loses its grip and she falls many dozens of meters to "
@@ -86,7 +86,7 @@ OWNER = {
               "it. After scrutinizing it thoroughly, even she sees glaring flaws in its execution, and writes a report "
               "detailing all her mistakes. The next day she consults her senior colleagues to help her work out the "
               "kinks in her plan, and over time Ana learns many things from their strict guidance. It turns out she "
-              "had much to learn, but was too blinded by ambition to notice their shortcomings. Ana promises to be "
+              "had much to learn, but was too blinded by ambition to notice her shortcomings. Ana promises to be "
               "more humble and learn from her elders before stubbornly taking matters into her own hands.",
 }
 
@@ -133,7 +133,7 @@ class TheWords(unittest.TestCase):
         male = owner_text("SUMMIT", "m", "Ben")
         self.assertIn("Ben is certainly setting a name for himself throughout", male)
         self.assertIn("Behind him, he hears the rushing", male)
-        self.assertTrue(owner_text("INTRO", "m", "Ben").startswith("Ben is known for their crazy, spontaneous, yet "
+        self.assertTrue(owner_text("INTRO", "m", "Ben").startswith("Ben is known for his crazy, spontaneous, yet "
                                                                    "sometimes genius ideas. He is an avid researcher"))
         self.assertIn("He will be remembered as a passionate dreamer", owner_text("FALL", "m", "Ben"))
         self.assertIn("to help him work out the kinks in his plan", owner_text("ADVICE", "m", "Ben"))

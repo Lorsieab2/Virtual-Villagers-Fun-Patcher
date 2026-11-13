@@ -66682,7 +66682,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.INTRO.m",
-   "english": "%s is known for their crazy, spontaneous, yet sometimes genius ideas. He is an avid researcher and has been studying the tribe's history for a long time. He believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about his claims and warn him not to take matters into his own hands without further proof. %s knows that the plan could be dangerous, but what if he is right? Should he go through with his plan, or follow the other researchers' advice?",
+   "english": "%s is known for his crazy, spontaneous, yet sometimes genius ideas. He is an avid researcher and has been studying the tribe's history for a long time. He believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about his claims and warn him not to take matters into his own hands without further proof. %s knows that the plan could be dangerous, but what if he is right? Should he go through with his plan, or follow the other researchers' advice?",
    "games": [
     "vv2"
    ],
@@ -66693,7 +66693,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.INTRO.f",
-   "english": "%s is known for their crazy, spontaneous, yet sometimes genius ideas. She is an avid researcher and has been studying the tribe's history for a long time. She believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about her claims and warn her not to take matters into her own hands without further proof. %s knows that the plan could be dangerous, but what if she is right? Should she go through with her plan, or follow the other researchers' advice?",
+   "english": "%s is known for her crazy, spontaneous, yet sometimes genius ideas. She is an avid researcher and has been studying the tribe's history for a long time. She believes that two of the tribe's founders fell down the Great Falls, but nothing definitive is known about their origins. %s proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about her claims and warn her not to take matters into her own hands without further proof. %s knows that the plan could be dangerous, but what if she is right? Should she go through with her plan, or follow the other researchers' advice?",
    "games": [
     "vv2"
    ],
@@ -66726,7 +66726,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.PLAN.m",
-   "english": "%s revises his plan until he believes it is practically foolproof. At dawn the next morning, he sneaks out of the hut before anyone else has woken up and makes their way toward the waterfall. Setting up his climbing gear, he makes the perilous ascent up the falls.",
+   "english": "%s revises his plan until he believes it is practically foolproof. At dawn the next morning, he sneaks out of the hut before anyone else has woken up and makes his way toward the waterfall. Setting up his climbing gear, he makes the perilous ascent up the falls.",
    "games": [
     "vv2"
    ],
@@ -66737,7 +66737,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.PLAN.f",
-   "english": "%s revises her plan until she believes it is practically foolproof. At dawn the next morning, she sneaks out of the hut before anyone else has woken up and makes their way toward the waterfall. Setting up her climbing gear, she makes the perilous ascent up the falls.",
+   "english": "%s revises her plan until she believes it is practically foolproof. At dawn the next morning, she sneaks out of the hut before anyone else has woken up and makes her way toward the waterfall. Setting up her climbing gear, she makes the perilous ascent up the falls.",
    "games": [
     "vv2"
    ],
@@ -66814,7 +66814,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.ADVICE.m",
-   "english": "%s admits that his plan still needs some refining. He goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even he sees glaring flaws in its execution, and writes a report detailing all his mistakes. The next day he consults his senior colleagues to help him work out the kinks in his plan, and over time %s learns many things from their strict guidance. It turns out he had much to learn, but was too blinded by ambition to notice their shortcomings. %s promises to be more humble and learn from his elders before stubbornly taking matters into his own hands.",
+   "english": "%s admits that his plan still needs some refining. He goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even he sees glaring flaws in its execution, and writes a report detailing all his mistakes. The next day he consults his senior colleagues to help him work out the kinks in his plan, and over time %s learns many things from their strict guidance. It turns out he had much to learn, but was too blinded by ambition to notice his shortcomings. %s promises to be more humble and learn from his elders before stubbornly taking matters into his own hands.",
    "games": [
     "vv2"
    ],
@@ -66825,7 +66825,7 @@
   },
   {
    "stem": "vvfp.more_island_events/climb_text.ADVICE.f",
-   "english": "%s admits that her plan still needs some refining. She goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even she sees glaring flaws in its execution, and writes a report detailing all her mistakes. The next day she consults her senior colleagues to help her work out the kinks in her plan, and over time %s learns many things from their strict guidance. It turns out she had much to learn, but was too blinded by ambition to notice their shortcomings. %s promises to be more humble and learn from her elders before stubbornly taking matters into her own hands.",
+   "english": "%s admits that her plan still needs some refining. She goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even she sees glaring flaws in its execution, and writes a report detailing all her mistakes. The next day she consults her senior colleagues to help her work out the kinks in her plan, and over time %s learns many things from their strict guidance. It turns out she had much to learn, but was too blinded by ambition to notice her shortcomings. %s promises to be more humble and learn from her elders before stubbornly taking matters into her own hands.",
    "games": [
     "vv2"
    ],

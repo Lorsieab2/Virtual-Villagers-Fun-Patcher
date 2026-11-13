@@ -6,8 +6,9 @@ The one source of the event's English: scripts/build_more_island_events.py write
 
 THE OWNER'S TEXT, as pasted in chat (2026-11-12), unaltered but for what the owner's own notes and the builder's brief
 asked for:
-  * the one edit the owner approved: "(name) is certainly setting a name for themselves" -> "... for
-    (himself/herself)";
+  * the edits the owner approved: "(name) is certainly setting a name for themselves" -> "... for
+    (himself/herself)"; and (2026-11-12) "known for their crazy ...", "makes their way toward the waterfall" and
+    "notice their shortcomings" -> (his/her);
   * the notes in parentheses ("(Then 50:50)", "( (name) dies)", "((name) becomes fully mastered in Research ...)",
     "(everyone does Celebrating)", "((name) gains 10-20 points in research skill)") are instructions, never shown; the
     title line's "- any villager at least a Trainee Scientist age 18 or older" is the rule of who may be picked, so the
@@ -41,7 +42,7 @@ GAME = 2
 # (key, template).  Order is the C table's order (climb_text.inc CLIMB_*).
 TEXTS: tuple[tuple[str, str], ...] = (
     ("TITLE", TITLE),
-    ("INTRO", "{n} is known for their crazy, spontaneous, yet sometimes genius ideas. {He} is an avid researcher and "
+    ("INTRO", "{n} is known for {his} crazy, spontaneous, yet sometimes genius ideas. {He} is an avid researcher and "
               "has been studying the tribe's history for a long time. {He} believes that two of the tribe's founders "
               "fell down the Great Falls, but nothing definitive is known about their origins. {n} proposes trying "
               "to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical "
@@ -51,7 +52,7 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("LABEL_PLAN", "Go with the plan"),
     ("LABEL_ADVICE", "Follow the scientists' advice"),
     ("PLAN", "{n} revises {his} plan until {he} believes it is practically foolproof. At dawn the next morning, {he} "
-             "sneaks out of the hut before anyone else has woken up and makes their way toward the waterfall. Setting "
+             "sneaks out of the hut before anyone else has woken up and makes {his} way toward the waterfall. Setting "
              "up {his} climbing gear, {he} makes the perilous ascent up the falls."),
     ("CLIMB", "For several hours, {he} carefully scales the jagged rocks until {he} can almost see over the edge of the "
               "falls. Just a little further..."),
@@ -73,7 +74,7 @@ TEXTS: tuple[tuple[str, str], ...] = (
                "double-check it. After scrutinizing it thoroughly, even {he} sees glaring flaws in its execution, and "
                "writes a report detailing all {his} mistakes. The next day {he} consults {his} senior colleagues to "
                "help {him} work out the kinks in {his} plan, and over time {n} learns many things from their strict "
-               "guidance. It turns out {he} had much to learn, but was too blinded by ambition to notice their "
+               "guidance. It turns out {he} had much to learn, but was too blinded by ambition to notice {his} "
                "shortcomings. {n} promises to be more humble and learn from {his} elders before stubbornly taking "
                "matters into {his} own hands."),
 )
