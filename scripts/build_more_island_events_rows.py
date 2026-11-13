@@ -33,7 +33,7 @@ CAVE_BEHAVIOUR = (
     "text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% "
     "argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% "
     "gold coins a normal tech award, 30% a treasure map 3x, 30% preserved food 2x food); Stay Here -> return (food or "
-    "tech, 50/50, a normal award) or keep (80% the researchers' normal tech award, 10% name2 and name1 die, 10% name2 "
+    "tech, 50/50, a normal award) or keep (50% the researchers' normal tech award, 25% name2 and name1 die, 25% name2 "
     "dies: health 0, a body and a grave). The effects are made when the answer leading to them is clicked; each "
     "removal is told to the Cause of Death companion (VvfpCauseVanishedBy).")
 

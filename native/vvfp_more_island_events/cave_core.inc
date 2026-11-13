@@ -17,8 +17,8 @@
           graves), 30% gold coins (a normal tech award), 30% a treasure map (a huge one: 3x), 30% preserved food
           (a large food award: 2x).
      "Stay Here" -> "You're right, I'll return them.": food or tech points (1 in 2), a normal award;
-                 -> "Curses schmurses. I'm keeping them.": 80% the researchers (a normal tech award), 10% name2 dies
-                    and then name1 (two graves), 10% name2 dies (one grave).
+                 -> "Curses schmurses. I'm keeping them.": 50% the researchers (a normal tech award), 25% name2 dies
+                    and then name1 (two graves), 25% name2 dies (one grave) (the owner, 2026-11-12).
    An award is adv_award_roll's (the game's stock island-event range, times 1, 2 or 3, then Island Events Scale).
 
    THE EFFECTS are made when the answer that leads to their page is clicked (adv_choose's rule): the dialog is modal,
@@ -255,7 +255,7 @@ static int cave_begin(const adv_game *g) {
     cave.return_food = g->rand_below(2) == 0;
     cave.return_award = adv_award_roll(g, cave.return_food ? ADV_KIND_FOOD : ADV_KIND_TECH, 1);
     roll = g->rand_below(100);
-    cave.keep_end = roll < 80 ? CAVE_RESEARCH : (roll < 90 ? CAVE_BOTH_DIE : CAVE_ONE_DIES);
+    cave.keep_end = roll < 50 ? CAVE_RESEARCH : (roll < 75 ? CAVE_BOTH_DIE : CAVE_ONE_DIES);
     cave.keep_award = adv_award_roll(g, ADV_KIND_TECH, 1);
     cave_compose(g);
     cave_find_tallest(g);

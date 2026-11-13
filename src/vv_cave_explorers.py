@@ -227,7 +227,7 @@ WRONG = ("WRONG_1", "WRONG_2", "WRONG_3", "WRONG_4")  # equal
 A_ENDINGS = {"ARGUE": 10, "MAKEUP": 80, "CHASM": 10}  # percent, after either path
 B_FINDS = {"FIND_MAP": 10, "FIND_COINS": 30, "FIND_TREASURE": 30, "FIND_FOOD": 30}   # percent
 RETURN_FOOD_PERCENT = 50                             # "You're right": 50% food, else tech points
-KEEP_ENDINGS = {"KEEP_RESEARCH": 80, "KEEP_BOTH": 10, "KEEP_ONE": 10}               # percent
+KEEP_ENDINGS = {"KEEP_RESEARCH": 50, "KEEP_BOTH": 25, "KEEP_ONE": 25}  # percent (the owner, 2026-11-12)
 
 # The award each ending gives (kind, size: src/vv_aspiring_adventurer.py AWARD_RANGES / AWARD_SIZES).
 AWARDS = {
