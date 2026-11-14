@@ -1,0 +1,304 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gardening Contest",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_gardening_contest",
+  "source": "v26",
+  "lines": [
+   3043,
+   3096
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3045",
+  "ledger": [
+   {
+    "src": "L3044",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L3046",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L3053",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3069",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3071",
+    "kind": "instruction",
+    "text": "Both gain Farming experience if supported.",
+    "why": "the skill effects on s1"
+   },
+   {
+    "src": "L3079",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3089",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "gardener1": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "gardener2": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "distinct": true,
+   "items": [
+    {
+     "text": "neat rows with carefully labeled plants",
+     "src": "L3054"
+    },
+    {
+     "text": "a winding garden with shaded places to sit",
+     "src": "L3055"
+    },
+    {
+     "text": "hardy food plants that require little attention",
+     "src": "L3056"
+    },
+    {
+     "text": "flowers chosen to attract helpful insects",
+     "src": "L3057"
+    },
+    {
+     "text": "a mixture of familiar plants and experimental varieties",
+     "src": "L3058"
+    },
+    {
+     "text": "a traditional layout remembered by the elders",
+     "src": "L3059"
+    }
+   ]
+  },
+  "END": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The village gains a peaceful place to gather and learn.",
+     "src": "L3090"
+    },
+    {
+     "text": "The elder rests on a bench, pleased that the younger villagers listened without copying the past blindly.",
+     "src": "L3091-3092"
+    },
+    {
+     "text": "A child presents both gardeners with a leaf labeled \"BEST.\"",
+     "src": "L3093"
+    },
+    {
+     "text": "A nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task.",
+     "src": "L3094-3095"
+    },
+    {
+     "text": "The gardeners agree to compare notes again after the next harvest.",
+     "src": "L3096"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "Two plans",
+   "src": "L3049-3051,L3061-3064",
+   "text": "Two skilled gardeners have developed different plans for a small community garden near the village. (Gardener1) favors {A.1}, while (gardener2) favors {A.2}.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+   "choices": [
+    {
+     "label": "Combine the best features into one shared garden.",
+     "next": "shared",
+     "src": "L3066"
+    },
+    {
+     "label": "Give each gardener a small plot to demonstrate the plan.",
+     "next": "plots",
+     "src": "L3067"
+    }
+   ]
+  },
+  "shared": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "text": "The gardeners cooperate, creating a beautiful and useful space.",
+   "src": "L3070-3071",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "gardener1",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L3071"
+    },
+    {
+     "do": "skill",
+     "role": "gardener2",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L3071"
+    }
+   ],
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "s2": {
+   "text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.",
+   "src": "L3072-3073",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "s3": {
+   "text": "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.",
+   "src": "L3074-3075",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "s4": {
+   "text": "The gardeners realize that the combined plan needs more work than they can manage. They simplify it rather than overpromise.",
+   "src": "L3076-3077",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "plots": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "p1"
+    },
+    {
+     "next": "p2"
+    },
+    {
+     "next": "p3"
+    },
+    {
+     "next": "p4"
+    }
+   ]
+  },
+  "p1": {
+   "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+   "src": "L3080-3081",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "p2": {
+   "text": "One garden produces more food, while the other becomes a favorite resting place. Neither is declared a failure.",
+   "src": "L3082-3083",
+   "text_only": [
+    {
+     "src": "L3082",
+     "what": "more food",
+     "reason": "describes the garden's yield, not a reward to the village"
+    }
+   ],
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "p3": {
+   "text": "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.",
+   "src": "L3084-3085",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "p4": {
+   "text": "A plant grows across the dividing line. The gardeners spend an absurd amount of time deciding who owns it.",
+   "src": "L3086-3087",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}"
+  }
+ }
+}
