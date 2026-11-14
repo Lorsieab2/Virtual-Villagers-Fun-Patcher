@@ -354,6 +354,10 @@ KEY_FAMILIES = (
     re.compile(r"^vvfp\.story/story_tables\.VV[1-5]_EVENTS\.\d+\.(?:title|variant)$"),
     # The Aspiring Adventurer's pieces: a generated table of stems and their English (adv_text.inc).
     re.compile(r"^vvfp\.more_island_events/adv_text\.[A-Z0-9_]+(?:\.[mf])?$"),
+    # More Island Events' other events and its Pick Island Event registry: generated tables of stems
+    # (scripts/build_more_island_events.py), every one looked up by its key.
+    re.compile(r"^vvfp\.more_island_events/(?:cave|climb|troubling|dive|dolphin|mask|remembrance|rumblings)_text\."),
+    re.compile(r"^vvfp\.more_island_events/mie_pick\."),
 )
 KEY_FAMILY_SOURCES = (
     ("native/vvfp_cause_of_death/cod_vv12.inc", 'vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.%d'),

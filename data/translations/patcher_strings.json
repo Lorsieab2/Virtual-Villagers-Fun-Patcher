@@ -66156,7 +66156,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.INTRO.m",
@@ -66166,7 +66167,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.INTRO.f",
@@ -66176,7 +66178,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_EXPLORE",
@@ -66186,7 +66189,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_DONT",
@@ -66196,7 +66200,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.mm",
@@ -66206,7 +66211,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.fm",
@@ -66216,7 +66222,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.mf",
@@ -66226,7 +66233,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is male; name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DONT.ff",
@@ -66236,7 +66244,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2); %5 = text (person: name1); %6 = text (person: name1); %7 = text (person: name2); name2 is female; name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.EXPLORE_1",
@@ -66246,7 +66255,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.EXPLORE_2.m",
@@ -66256,7 +66266,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.EXPLORE_2.f",
@@ -66266,7 +66277,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_PROCEED",
@@ -66276,7 +66288,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_STAY",
@@ -66286,7 +66299,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.DEEPER",
@@ -66296,7 +66310,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.B_SEARCH",
@@ -66306,7 +66321,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who finds it (name1 or name2)); the find follows it after a space (\"... It's a map!\")"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who finds it (name1 or name2)); the find follows it after a space (\"... It's a map!\")",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.FIND_MAP",
@@ -66316,7 +66332,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.FIND_COINS",
@@ -66326,7 +66343,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.FIND_TREASURE",
@@ -66336,7 +66354,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.FIND_FOOD",
@@ -66346,7 +66365,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.A_SCREAM.m",
@@ -66356,7 +66376,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.A_SCREAM.f",
@@ -66366,7 +66387,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); %2 = text (person: the other one of the two); %3 = text (person: the other one of the two); the one who screams (name1 or name2) is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.WRONG_1",
@@ -66376,7 +66398,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.WRONG_2",
@@ -66386,7 +66409,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.WRONG_3",
@@ -66396,7 +66420,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.WRONG_4",
@@ -66406,7 +66431,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RUN.m",
@@ -66416,7 +66442,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RUN.f",
@@ -66426,7 +66453,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who screams (name1 or name2)); the one who screams (name1 or name2) is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_LEFT",
@@ -66436,7 +66464,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RIGHT",
@@ -66446,7 +66475,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RUN_LEFT",
@@ -66456,7 +66486,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RUN_RIGHT",
@@ -66466,7 +66497,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.ARGUE",
@@ -66476,7 +66508,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.ARGUE_2",
@@ -66486,7 +66519,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.MAKEUP",
@@ -66496,7 +66530,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2); %4 = text (person: name1)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1); %2 = text (person: name2); %3 = text (person: name2); %4 = text (person: name1)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.CHASM.mm",
@@ -66506,7 +66541,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.CHASM.fm",
@@ -66516,7 +66552,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.CHASM.mf",
@@ -66526,7 +66563,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is male; the other one of the two is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.CHASM.ff",
@@ -66536,7 +66574,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the one who slips (name1 or name2)); %2 = text (person: the other one of the two); the one who slips (name1 or name2) is female; the other one of the two is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.STAY.m",
@@ -66546,7 +66585,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.STAY.f",
@@ -66556,7 +66596,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); name2 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_RETURN",
@@ -66566,7 +66607,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.LABEL_KEEP",
@@ -66576,7 +66618,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RETURN_FOOD.m",
@@ -66586,7 +66629,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RETURN_FOOD.f",
@@ -66596,7 +66640,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RETURN_TECH.m",
@@ -66606,7 +66651,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.RETURN_TECH.f",
@@ -66616,7 +66662,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = a number (number); name2 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP",
@@ -66626,7 +66673,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); the next piece follows it after a comma"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); the next piece follows it after a comma",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.mm",
@@ -66636,7 +66684,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.fm",
@@ -66646,7 +66695,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.mf",
@@ -66656,7 +66706,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is male; name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_BOTH.ff",
@@ -66666,7 +66717,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name1); %4 = text (person: name1); %5 = text (person: name2); name2 is female; name1 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_ONE.m",
@@ -66676,7 +66728,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_ONE.f",
@@ -66686,7 +66739,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name2); %3 = text (person: name2); name2 is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/cave_text.KEEP_RESEARCH",
@@ -66696,7 +66750,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name2); %2 = text (person: name1); %3 = text (person: name2); %4 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.TITLE",
@@ -66706,7 +66761,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.INTRO.m",
@@ -66716,7 +66772,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.INTRO.f",
@@ -66726,7 +66783,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_PLAN",
@@ -66736,7 +66794,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.LABEL_ADVICE",
@@ -66746,7 +66805,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.PLAN.m",
@@ -66756,7 +66816,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.PLAN.f",
@@ -66766,7 +66827,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.CLIMB.m",
@@ -66776,7 +66838,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; the villager is male; the fall or the summit follows it after a space"
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is male; the fall or the summit follows it after a space",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.CLIMB.f",
@@ -66786,7 +66849,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; the villager is female; the fall or the summit follows it after a space"
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is female; the fall or the summit follows it after a space",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.FALL.m",
@@ -66796,7 +66860,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.FALL.f",
@@ -66806,7 +66871,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.SUMMIT.m",
@@ -66816,7 +66882,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.SUMMIT.f",
@@ -66826,7 +66893,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); %4 = text (person: the villager who climbs); %5 = text (person: the villager who climbs); %6 = a number (number); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.ADVICE.m",
@@ -66836,7 +66904,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/climb_text.ADVICE.f",
@@ -66846,7 +66915,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Climb, The Lost Children: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who climbs); %2 = text (person: the villager who climbs); %3 = text (person: the villager who climbs); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.TITLE",
@@ -66856,7 +66926,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.INTRO_1.m",
@@ -66866,7 +66937,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.INTRO_1.f",
@@ -66876,7 +66948,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.INTRO_2",
@@ -66886,7 +66959,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = text (person: the Tribal Chief)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = text (person: the Tribal Chief)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SPIRITUAL",
@@ -66896,7 +66970,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_MAGICIANS",
@@ -66906,7 +66981,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_NATURALISTS",
@@ -66916,7 +66992,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LABEL_SCIENTISTS",
@@ -66926,7 +67003,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_SPIRITUAL.m",
@@ -66936,7 +67014,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_SPIRITUAL.f",
@@ -66946,7 +67025,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_MAGICIANS.m",
@@ -66956,7 +67036,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_MAGICIANS.f",
@@ -66966,7 +67047,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_NATURALISTS.m",
@@ -66976,7 +67058,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_NATURALISTS.f",
@@ -66986,7 +67069,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_SCIENTISTS.m",
@@ -66996,7 +67080,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.ADVICE_SCIENTISTS.f",
@@ -67006,7 +67091,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the advisor of the group the chief asked); %2 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.HEAR.m",
@@ -67016,7 +67102,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (the tribe's name (the player's)); %2 = text (person: the Tribal Chief); the Tribal Chief is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (the tribe's name (the player's)); %2 = text (person: the Tribal Chief); the Tribal Chief is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.HEAR.f",
@@ -67026,7 +67113,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (the tribe's name (the player's)); %2 = text (person: the Tribal Chief); the Tribal Chief is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (the tribe's name (the player's)); %2 = text (person: the Tribal Chief); the Tribal Chief is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DECREE_SPIRITUAL",
@@ -67036,7 +67124,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)"
+   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DECREE_MAGICIANS",
@@ -67046,7 +67135,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)"
+   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DECREE_NATURALISTS",
@@ -67056,7 +67146,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)"
+   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DECREE_SCIENTISTS",
@@ -67066,7 +67157,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)"
+   "notes": "a patcher text shown by the game in its island-event popup; the chief's speech goes on in the next paragraph (its quote closes there)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DECREE_2",
@@ -67076,7 +67168,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DEPART_SPIRITUAL",
@@ -67086,7 +67179,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DEPART_MAGICIANS",
@@ -67096,7 +67190,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DEPART_NATURALISTS",
@@ -67106,7 +67201,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief); %2 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.DEPART_SCIENTISTS",
@@ -67116,7 +67212,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the Tribal Chief)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/troubling_text.LOSS_SCIENTISTS",
@@ -67126,7 +67223,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Troubling Signs, The Secret City: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = a number (number)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = a number (number)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.TITLE",
@@ -67136,7 +67234,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.INTRO.m",
@@ -67146,7 +67245,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.INTRO.f",
@@ -67156,7 +67256,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_DEEPER",
@@ -67166,7 +67267,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.LABEL_NOT",
@@ -67176,7 +67278,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.DEEPER.m",
@@ -67186,7 +67289,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.DEEPER.f",
@@ -67196,7 +67300,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_A.m",
@@ -67206,7 +67311,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_A.f",
@@ -67216,7 +67322,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = a number (number); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_B.m",
@@ -67226,7 +67333,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_B.f",
@@ -67236,7 +67344,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_C.m",
@@ -67246,7 +67355,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_C.f",
@@ -67256,7 +67366,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = a number (number); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_D.m",
@@ -67266,7 +67377,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.FIND_D.f",
@@ -67276,7 +67388,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D1.m",
@@ -67286,7 +67399,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D1.f",
@@ -67296,7 +67410,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2_1.m",
@@ -67306,7 +67421,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2_1.f",
@@ -67316,7 +67432,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2_2.m",
@@ -67326,7 +67443,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2_2.f",
@@ -67336,7 +67454,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2A",
@@ -67346,7 +67465,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2B",
@@ -67356,7 +67476,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2C_1.m",
@@ -67366,7 +67487,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2C_1.f",
@@ -67376,7 +67498,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the head Doctor (another villager)); %4 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2C_2.m",
@@ -67386,7 +67509,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.D2C_2.f",
@@ -67396,7 +67520,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.NOT.m",
@@ -67406,7 +67531,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dive_text.NOT.f",
@@ -67416,7 +67542,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the diver); %2 = text (person: the diver); %3 = text (person: the diver); the diver is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_graph.cg_load.s24",
@@ -67468,7 +67595,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.INTRO.m",
@@ -67478,7 +67606,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.INTRO.f",
@@ -67488,7 +67617,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_SWIM",
@@ -67498,7 +67628,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.LABEL_BACK",
@@ -67508,7 +67639,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a button of the game's island-event popup"
+   "notes": "a button of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.SWIM",
@@ -67518,7 +67650,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); the hunt or the tail slap follows it in the next paragraph"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); the hunt or the tail slap follows it in the next paragraph",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.m",
@@ -67528,7 +67661,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.HUNT_1.f",
@@ -67538,7 +67672,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.m",
@@ -67548,7 +67683,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.HUNT_2.f",
@@ -67558,7 +67694,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = a number (number); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.SLAP.m",
@@ -67568,7 +67705,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.SLAP.f",
@@ -67578,7 +67716,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = text (person: the villager who swims); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.BACK.m",
@@ -67588,7 +67727,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is male"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is male",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/dolphin_text.BACK.f",
@@ -67598,7 +67738,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Playful Dolphins, The Tree of Life: its popups, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is female"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: the villager who swims); %2 = text (person: the villager who swims); %3 = a number (number); the villager is female",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.TITLE",
@@ -67608,7 +67749,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.INTRO.m",
@@ -67618,7 +67760,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a boy"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.INTRO.f",
@@ -67628,7 +67771,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a girl"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group); %3 = text (person: name2, another child of the group); %4 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_WAIT",
@@ -67638,7 +67782,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CRY",
@@ -67648,7 +67793,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_CLEARING",
@@ -67658,7 +67804,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LABEL_FOREST",
@@ -67668,7 +67815,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)"
+   "notes": "a button of the island-event popup (four buttons; a label may be wider than its button)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.WAIT.m",
@@ -67678,7 +67826,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.WAIT.f",
@@ -67688,7 +67837,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.CRY.m",
@@ -67698,7 +67848,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a boy"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.CRY.f",
@@ -67708,7 +67859,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a girl"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); %3 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.CLEARING.m",
@@ -67718,7 +67870,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.CLEARING.f",
@@ -67728,7 +67881,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.FOREST.m",
@@ -67738,7 +67892,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a boy; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.FOREST.f",
@@ -67748,7 +67903,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); name1 is a girl; HOME or LOST follows it after a space, finishing the sentence",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.HOME.m",
@@ -67758,7 +67914,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.HOME.f",
@@ -67768,7 +67925,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.LOST",
@@ -67778,7 +67936,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; CAPTURED or RESCUED follows it after a space, finishing the sentence"
+   "notes": "a patcher text shown by the game in its island-event popup; CAPTURED or RESCUED follows it after a space, finishing the sentence",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.CAPTURED",
@@ -67788,7 +67947,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.RESCUED.m",
@@ -67798,7 +67958,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a boy",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.RESCUED.f",
@@ -67808,7 +67969,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name1, the child who finds the mask); name1 is a girl",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.ELDERS",
@@ -67818,7 +67980,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; the elders' speech goes on with one of the F_ pieces after a space (its quote closes there)"
+   "notes": "a patcher text shown by the game in its island-event popup; the elders' speech goes on with one of the F_ pieces after a space (its quote closes there)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.F_CAPTURED",
@@ -67828,7 +67991,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here"
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.F_RESCUED",
@@ -67838,7 +68002,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here"
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.F_BACK",
@@ -67848,7 +68013,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here"
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.F_WAITED",
@@ -67858,7 +68024,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here"
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.F_CRIED",
@@ -67868,7 +68035,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here"
+   "notes": "a patcher text shown by the game in its island-event popup; continues the elders' speech (ELDERS) after a space; its quote closes here",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.APPEAL",
@@ -67878,7 +68046,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup"
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.VOLUNTEERS",
@@ -67888,7 +68057,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mask_text.PARENTS",
@@ -67898,7 +68068,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Mysterious Mask, The Tree of Life: its popups, in the game's own island-event popup with four answers)",
-   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group)"
+   "notes": "a patcher text shown by the game in its island-event popup; %1 = text (person: name1, the child who finds the mask); %2 = text (person: name2, another child of the group)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/remembrance_text.TITLE",
@@ -67912,7 +68083,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
-   "notes": "the title of the game's island-event popup"
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/remembrance_text.TEXT",
@@ -67926,7 +68098,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Remembrance Ceremony, all five games: its popup, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)"
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/rumblings_text.TITLE",
@@ -67940,7 +68113,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
-   "notes": "the title of the game's island-event popup"
+   "notes": "the title of the game's island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/rumblings_text.TEXT",
@@ -67954,7 +68128,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
-   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)"
+   "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_more_events.sm_refusal.s0",
@@ -67983,7 +68158,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.aspiring_adventurer.needs",
@@ -67997,7 +68173,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.cave_explorers.description",
@@ -68007,7 +68184,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.cave_explorers.needs",
@@ -68017,7 +68195,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.the_climb.description",
@@ -68027,7 +68206,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.the_climb.needs",
@@ -68037,7 +68217,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.troubling_signs.description",
@@ -68047,7 +68228,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.troubling_signs.needs",
@@ -68057,7 +68239,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.diving_for_treasure.description",
@@ -68067,7 +68250,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.diving_for_treasure.needs",
@@ -68077,7 +68261,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.playful_dolphins.description",
@@ -68087,7 +68272,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.playful_dolphins.needs",
@@ -68097,7 +68283,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.mysterious_mask.description",
@@ -68107,7 +68294,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.mysterious_mask.needs",
@@ -68117,7 +68305,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.description",
@@ -68130,7 +68319,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.needs",
@@ -68143,7 +68333,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.description",
@@ -68153,7 +68344,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs",
@@ -68163,7 +68355,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.the_rumblings.description",
@@ -68177,7 +68370,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list"
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.the_rumblings.needs",
@@ -68191,7 +68385,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
-   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)"
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
   },
   {
    "stem": "vvfp.more_island_events/mie_pick.first_events",
@@ -68206,20 +68401,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_collection.sc_check.s0",
    "english": "another branching island event is still running",
    "games": [
@@ -68231,7 +68412,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_collection.sc_check.s1",
@@ -68245,7 +68427,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_collection.sc_check.s2",
@@ -68273,7 +68456,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_collection.sc_pick_buy.s0",
@@ -68287,7 +68471,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_collection.sc_library_add.s0",
@@ -68301,7 +68486,8 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.story/story_graph.cg_pools_ok.s0",
@@ -68679,7 +68865,22 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
   }
  ]
 }
