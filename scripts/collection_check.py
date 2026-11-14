@@ -616,7 +616,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
                 rep.add("d TOKENS", f"{f.where}: ({inner}) is not a placeholder (a literal parenthesis is \\( \\))")
         for inner in braces_in(t):
             if inner.startswith("@"):
-                if inner[1:] not in words:
+                if inner[1:] not in words and inner[1:] not in ("tribe", "Tribe"):   # G5: built in, filled at run time
                     rep.add("d TOKENS", f"{f.where}: game word {{{inner}}} is not in words")
             elif is_pool_ref(inner):
                 p = pools.get(inner.split(".")[0])
