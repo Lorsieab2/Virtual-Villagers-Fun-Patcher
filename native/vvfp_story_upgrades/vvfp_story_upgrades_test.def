@@ -144,3 +144,5 @@ EXPORTS
     VvfpStoryProbeCollectionFile=_VvfpStoryProbeCollectionFile@4
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4
+    VvfpStoryProbeCollectionCieg=_VvfpStoryProbeCollectionCieg@8
+    VvfpStoryProbeMoreEntry=_VvfpStoryProbeMoreEntry@24

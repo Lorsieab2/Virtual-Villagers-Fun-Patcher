@@ -98,6 +98,8 @@ static unsigned int sc_test_coll_ok;   /* bit i: collection entry i arms */
 static int sc_test_trace[64];          /* each arm tried: source << 16 | index */
 static int sc_test_traced;
 static int sc_test_have_file;
+static const unsigned char *sc_test_cieg;   /* every entry's compiled file instead of the folder's */
+static unsigned int sc_test_cieg_size;
 #endif
 
 /* ---- The game's own rand, clock and island timer ------------------------------------------------------------ */
@@ -487,6 +489,13 @@ static int sc_scan(int game) {
 static int sc_load_entry(int i, unsigned int *size) {
     char leaf[80];
     wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+#ifdef VVFP_TEST
+    if (sc_test_cieg != NULL && sc_test_cieg_size <= sizeof sc_bytes) {
+        memcpy(sc_bytes, sc_test_cieg, sc_test_cieg_size);
+        *size = sc_test_cieg_size;
+        return 1;
+    }
+#endif
     wsprintfA(leaf, "%s.cieg", sc_list[i].id);
     return sc_path(path, leaf) != 0 && sc_read_w(path, sc_bytes, sizeof sc_bytes, size);
 }
@@ -841,6 +850,28 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionChoose(int game, int
         trace[i] = sc_test_trace[i];
     }
     return sc_test_traced | (armed ? 0x100 : 0);
+}
+
+/* Every collection entry's compiled file is `data` (`size` bytes; NULL: the folder's own). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeCollectionCieg(const unsigned char *data, unsigned int size) {
+    sc_test_cieg = data;
+    sc_test_cieg_size = size;
+}
+
+/* The Pick Island Event list's entry `m` as the chooser fills it (sm_fill): its title, what it needs (empty when
+   possible) and the refusal shown when it is chosen anyway; returns its k (SM_COLL_BASE + i for the collection's),
+   -1 past the list. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreEntry(int game, int m, char *title, char *needs, char *refusal,
+                                                            int cap) {
+    sm_list.count = 0;
+    sm_fill(game);
+    if (m < 0 || m >= sm_list.count) {
+        return -1;
+    }
+    lstrcpynA(title, sm_list.title[m], cap);
+    lstrcpynA(needs, sm_list.needs[m], cap);
+    sm_refusal_of(m, refusal, cap);
+    return sm_list.k[m];
 }
 
 /* The trouble guard of the village in the game's own records. */

@@ -65,7 +65,8 @@ class EveryPatch(unittest.TestCase):
     def test_written_at_a_patch_and_rewritten_at_a_repatch(self) -> None:
         for game in ("vv1", "vv3", "vv5"):
             with self.subTest(game=game):
-                ids = [f"{game}_more_island_events", f"{game}_scrolling_popups"]
+                # More Island Events needs Story / Cheat Upgrades (its rare roll and Pick Island Event).
+                ids = [f"{game}_more_island_events", f"{game}_scrolling_popups", f"{game}_story_cheat_upgrades"]
                 source, output, _log, temp = publish(self, game, ids)
                 path = output.parent / patcher_files.INSTALLED_PATCHES_RELATIVE_PATH
                 first = listed(path.read_text(encoding="ascii"))
@@ -76,7 +77,7 @@ class EveryPatch(unittest.TestCase):
                 transparency = (output.parent / patcher_files.TRANSPARENCY_RELATIVE_PATH).read_text(encoding="utf-8")
                 self.assertIn("Installed patches list: Virtual Villagers Fun Patcher Files/VVFP Installed Patches.txt",
                               transparency)
-                _s, output2, _l, _t = publish(self, game, ids[:1], overwrite=True, temp=temp)
+                _s, output2, _l, _t = publish(self, game, [ids[0], ids[2]], overwrite=True, temp=temp)
                 again = listed((output2.parent / patcher_files.INSTALLED_PATCHES_RELATIVE_PATH).read_text("ascii"))
                 self.assertIn(ids[0], again)
                 self.assertNotIn(ids[1], again)

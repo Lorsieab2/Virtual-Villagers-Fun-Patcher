@@ -98,7 +98,7 @@ same draws, draw for draw, as the stock code.
 `scripts/build_event_collection_features.py` compiles every event under `data/event_collection/`
 and writes, for each game, `Virtual Villagers Fun Patcher Files\Island Event Collection\` with the
 game's `.cieg` files, `manifest.txt` (`id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit`)
-and `Isola Grand Event Collection - Credits.txt` (the source's credit ledger, lines 1-91, and every
+and `Credits.txt` (the source's credit ledger, lines 1-91, and every
 section's credit block, verbatim; then each event's own credit).
 
 Both patches, More Island Events and Isola Grand Event Collection, need Story / Cheat Upgrades,

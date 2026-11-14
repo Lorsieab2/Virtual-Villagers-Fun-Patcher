@@ -279,5 +279,65 @@ class TheStorySide(unittest.TestCase):
         self.assertEqual(p.export("VvfpStoryMoreEventDue", 3), 0xFFFFFFFF)
 
 
+@unittest.skipUnless(aa.HAVE_EMULATOR and aa.HAVE_STOCK and STORY_DLL.is_file(), "needs the Story TEST build")
+class TheCollection(unittest.TestCase):
+    """The Isola Grand Event Collection's events in the Pick Island Event list (story_collection.inc sc_pick_fill):
+    listed after More Island Events' when the collection's row is installed, each possible now by the strict cast or
+    with what it needs; chosen anyway, refused with it.  The event is the design's worked example (The Gardening
+    Contest, tests/data/cie_v6_gardening.json, compiled here), its Farming requirement left out."""
+
+    MANIFEST = "vv3_gardening_contest\tThe Gardening Contest\t3\t1\t\ttest\n"
+
+    def story(self, adults: int):
+        import json
+        sys.path.insert(0, str(ROOT / "src"))
+        import test_story_custom_island_event as sci
+        import vv_cie_graph as cie
+        data = json.loads((ROOT / "tests" / "data" / "cie_v6_gardening.json").read_text(encoding="utf-8"))
+        for role in data["roles"].values():
+            role.pop("skill", None)
+        g, problems = cie.validate(data)
+        self.assertEqual(problems, [])
+        cieg = cie.compile_graph(g)
+        st = sci.Story("vv3")
+        p = st.proc
+        for i in range(adults):
+            st.village.put(i, sex="m" if i % 2 else "f", years=25, name=f"V{i}")
+        text = p.alloc(len(self.MANIFEST) + 1)
+        p.write(text, self.MANIFEST.encode() + b"\0")
+        p.export("VvfpStoryProbeCollectionManifest", text, 0, 0)
+        blob = p.alloc(len(cieg))
+        p.write(blob, cieg)
+        p.export("VvfpStoryProbeCollectionCieg", blob, len(cieg))
+        return p
+
+    def entry(self, p, m: int):
+        bufs = [p.alloc(1200) for _ in range(3)]
+        k = p.export("VvfpStoryProbeMoreEntry", 3, m, *bufs, 1200)
+        return (k if k != 0xFFFFFFFF else -1), [p.cstring(b, 1200) for b in bufs]
+
+    def test_listed_possible_now(self) -> None:
+        p = self.story(adults=2)
+        k, (title, needs, _refusal) = self.entry(p, 0)
+        self.assertEqual(k, 0x4000)                               # SM_COLL_BASE + 0
+        self.assertEqual(title, "The Gardening Contest")
+        self.assertEqual(needs, "")
+        self.assertEqual(self.entry(p, 1)[0], -1)
+
+    def test_what_it_needs_and_the_refusal(self) -> None:
+        p = self.story(adults=1)
+        k, (title, needs, refusal) = self.entry(p, 0)
+        self.assertEqual(k, 0x4000)
+        self.assertTrue(needs)
+        self.assertNotIn("Nothing has been queued", needs)
+        self.assertTrue(refusal.startswith("The Gardening Contest can not happen right now: "))
+        self.assertIn(needs, refusal)
+
+    def test_not_listed_without_the_row(self) -> None:
+        p = self.story(adults=2)
+        p.export("VvfpStoryProbeCollectionManifest", 0, 0, 0)     # the real folder: no row installed here
+        self.assertEqual(self.entry(p, 0)[0], -1)
+
+
 if __name__ == "__main__":
     unittest.main()

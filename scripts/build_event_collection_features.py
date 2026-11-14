@@ -11,7 +11,7 @@ src/vv_cie_graph.py (validate, then compile_graph) and writes:
   * assets/event_collection/vvN/manifest.txt -- the events of game N, one line each:
     id<TAB>title<TAB>games<TAB>draw weight<TAB>series<TAB>credit (Story / Cheat Upgrades' story_collection.inc reads
     it from "<game folder>\\Virtual Villagers Fun Patcher Files\\Island Event Collection\\manifest.txt");
-  * assets/event_collection/Isola Grand Event Collection - Credits.txt, and the same text as
+  * assets/event_collection/Credits.txt ("Island Event Collection\\Credits.txt" in the game), and the same text as
     docs/more-island-events/Isola Grand Event Collection - Credits.md: the source's credit ledger (lines 1-91) and
     every section's credit block, verbatim, then each event's own credit;
   * data/vvN_isola_grand_event_collection_feature.json -- the five rows, pinning every file by SHA-256.
@@ -41,7 +41,8 @@ SOURCE_SHA256 = "F5ABB8BF95F7345EDA4F7ACF676E58C536841C7767322348AAD8134CDC96E56
 DATA = ROOT / "data" / "event_collection"
 ASSETS = ROOT / "assets" / "event_collection"
 FOLDER = "Island Event Collection"          # beside the companions (src/patcher_files.py PATCHER_READ_FOLDERS)
-CREDITS_NAME = "Isola Grand Event Collection - Credits.txt"
+CREDITS_NAME = "Credits.txt"                # short: every path stays inside the game's own longest file's length
+ID_MAX = 30                                 # an event id's longest (its .cieg's path, likewise)
 CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collection - Credits.md"
 NAME = "Isola Grand Event Collection"
 GAMES = (1, 2, 3, 4, 5)
@@ -105,8 +106,9 @@ def compile_events(src: Path = DATA) -> list[dict]:
             raise SystemExit(f"{path.relative_to(ROOT)}: " + "; ".join(problems[:5]))
         meta = data["collection"]
         ident = str(meta.get("id", ""))
-        if not re.fullmatch(r"[a-z0-9_]+", ident):
-            raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident!r} must be [a-z0-9_]")
+        if not re.fullmatch(r"[a-z0-9_]+", ident) or len(ident) > ID_MAX:
+            raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident!r} must be [a-z0-9_], at most "
+                             f"{ID_MAX} characters (a deep game folder's paths must still fit)")
         if ident in seen:
             raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident} is also {seen[ident]}")
         seen[ident] = path.relative_to(ROOT).as_posix()
@@ -162,7 +164,7 @@ def sha(data: bytes) -> str:
 def description(game: int, count: int) -> str:
     return (
         "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; "
-        "the credits come with it, in \"" + CREDITS_NAME + "\" beside the patcher's files), as rare, separate events: "
+        "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"), as rare, separate events: "
         "the game's own island events and their chances never change. After a natural island event, a separate rare "
         "roll (Story / Cheat Upgrades) may bring one of these events -- or one of More Island Events' -- some hours "
         "later, between two natural ones: about three in seven days of game time, never during a village's two "
