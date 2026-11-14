@@ -1230,6 +1230,7 @@ class Library:
         self.items_table.configure(yscrollcommand=bar.set)
         bar.pack(side="right", fill="y")
         self.items_table.pack(side="left", fill="x", expand=True)
+        horizontal_bar(self.items_table)
         self.items_table.bind("<<TreeviewSelect>>", self._item_selected)
         form = ttk.Frame(page)
         form.pack(fill="x", pady=(4, 0))
