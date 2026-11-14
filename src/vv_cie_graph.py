@@ -1193,7 +1193,8 @@ def inline_text(alts: list[tuple[int, str]]) -> str:
 
 def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
     """Version 6 text with each inline pick in its canonical form.  With `pools` (the event's pool names), a
-    one-option brace {x} that names no pool and no game word is just its text (G4): its braces go."""
+    one-option brace {x} whose x cannot be a list or game-word name (a space, or a character outside a name) is
+    just its text (G4); an identifier-shaped {x} stays, and the checks refuse it unless it names a list."""
     names = set(pools) if pools is not None else None
 
     def one(m: re.Match) -> str:
@@ -1207,7 +1208,7 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
         if names is None or inner.startswith("@"):
             return raw
         tok = _POOL_TOKEN.match(inner)
-        return raw if tok and tok.group(1) in names else inner
+        return raw if tok else inner          # identifier-shaped: a list (checked), never text (G4)
     return _TOKEN_V6.sub(one, text) if isinstance(text, str) else text
 
 
@@ -2363,7 +2364,7 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
                 problems.append(f"{where}: a label shows game words only, not {raw}")
             elif tok[0] == "pool":
                 if tok[1] not in g.get("pools", {}):
-                    problems.append(f"{where}: {raw} names no pool")
+                    problems.append(f"{where}: {raw}: unknown list {tok[1]} (names no pool)")
                 elif uses is not None:
                     uses[tok[1]] = max(uses.get(tok[1], 0), tok[2])
             else:

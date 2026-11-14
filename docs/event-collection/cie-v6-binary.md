@@ -93,8 +93,10 @@ strings. The engine must use the offsets, not the order.
 - Inline picks `{a|b}` / `{3:a|1:b}` never reach the binary: each becomes its own pool `_iN` and the text holds
   `{_iN}`. An alternative may hold a game word (`{the {@chief}|the elders}`, G4): the `_iN` item then holds
   `{@chief}`. Nested inline picks are refused.
-- A one-option brace `{x}` (G4) that names no pool and no game word is just the text `x`: `normalize` removes the
-  braces, so it never reaches the binary.
+- A one-option brace `{x}` (G4) whose `x` cannot be a pool or game-word name (it holds a space, or a character
+  outside `[A-Za-z0-9_]` and the `.k` instance) is just the text `x`: `normalize` removes the braces, so it never
+  reaches the binary. An identifier-shaped `{x}` must name a defined pool (or `{@x}` a game word); otherwise it is
+  a validation error ("unknown list x"), so a misspelt list never ships as visible text.
 - **`{@tribe}` and `{@Tribe}` (G5)** are built in: no pool is written for them and authors cannot define them. The
   engine fills them AT RUN TIME with the player's tribe or village name from the save (the per-game read The
   Troubling Signs uses, `native/vvfp_more_island_events/troubling_*.inc`), the capital form with its first letter
