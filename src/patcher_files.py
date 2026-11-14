@@ -152,8 +152,17 @@ PATCHER_READS: frozenset[str] = frozenset({
     )
 )
 
+# Folders of files only the companions read, whatever their names: everything in them goes in the patcher's folder.
+PATCHER_READ_FOLDERS: tuple[str, ...] = (
+    # The Isola Grand Event Collection: its events (.cieg), manifest.txt and credits, read by "VVFP Story
+    # Upgrades.dll" from "Island Event Collection\\" beside it (story_collection.inc;
+    # scripts/build_event_collection_features.py).
+    "Island Event Collection/",
+)
+
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
 _PATCHER_READS = {key.casefold() for key in PATCHER_READS}
+_PATCHER_READ_FOLDERS = tuple(folder.casefold() for folder in PATCHER_READ_FOLDERS)
 
 # The patch log. Its name is short and the same in every build (the owner,
 # 2026-11-09: "fix the path too long bug when trying to patch games"): the
@@ -247,7 +256,7 @@ def installed_relative_path(destination: str) -> PurePosixPath:
     key = text.casefold()
     if key in _IN_PLACE:
         return PurePosixPath(text)
-    if key.endswith(".dll") or key in _PATCHER_READS:
+    if key.endswith(".dll") or key in _PATCHER_READS or key.startswith(_PATCHER_READ_FOLDERS):
         return PurePosixPath(PATCHER_FILES_FOLDER) / text
     raise ValueError(
         f"Companion file {destination} is not classified: add it to "

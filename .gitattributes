@@ -121,3 +121,6 @@ assets/word_lists/** -text
 assets/fruit_supply/*.txt -text
 # Island Events Scale With Stored Food and Tech Points's flag file: pinned by raw SHA-256.
 assets/island_events_scale/*.txt -text
+# The Isola Grand Event Collection's files (.cieg, manifest.txt, credits): pinned by raw SHA-256.
+assets/event_collection/** -text
+docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collection[[:space:]]-[[:space:]]Credits.md -text

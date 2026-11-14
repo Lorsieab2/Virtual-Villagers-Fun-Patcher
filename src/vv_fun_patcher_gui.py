@@ -241,6 +241,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, off by default, on in
     # Owner's Defaults (and in Classic VV Difficulty where a game has it).
     + ["vv%d_more_island_events" % game for game in range(1, 6)]
+    # Isola Grand Event Collection (all five games; the owner, 2026-11-14): "Default ON in Owner's Defaults, OFF
+    # everywhere else" -- off here and in Select All, not in Classic VV Difficulty.
+    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # Memorial Actions Can Also Occur at the Heathen Hovel (New Believers; the owner, 2026-11-08): off by
     # default, on in Owner's Defaults and Select All.
     + [HOVEL_MEMORIAL_ACTIONS_ID]
@@ -305,6 +308,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + TECH_COST_MULTIPLIER_FUN_PATCH_IDS
     # Classic VV Difficulty would tick 2-10x Tech Cost through its dependencies.
     + CLASSIC_DIFFICULTY_FUN_PATCH_IDS
+    # Isola Grand Event Collection: on in Owner's Defaults only (the owner, 2026-11-14).
+    + ["vv%d_isola_grand_event_collection" % game for game in range(1, 6)]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
