@@ -42,19 +42,32 @@ def never_picked(game: int) -> str:
     return (f"Never picked, in any role (the owner's protected villagers): a nursing mother or father, "
             f"{PROTECTED[game]}, and anyone the game's own island events never pick. Everyone else may be picked "
             "(titles, Esteemed Elders who are not statues, founders and the like included).")
+# Story / Cheat Upgrades' separate rare roll after each natural island event, percent by game: the C table
+# SC_P_PERCENT in native/vvfp_story_upgrades/story_collection.inc (tests/test_the_climb.py keeps the two equal).
+RARE_ROLL_PERCENT = {1: 30, 2: 25, 3: 20, 4: 20, 5: 20}
+
+
+def rare(game: int) -> str:
+    """How every More Island Events event comes (the owner, 2026-11-14: the stock island events' chances never
+    change): never through the game's own draw, only through the separate rare roll or Pick Island Event."""
+    return ("it never takes a share of the game's own draw, so the game's own island events keep their chances: "
+            "after each natural island event once the village has seen two, Story / Cheat Upgrades' separate rare "
+            f"roll comes up {RARE_ROLL_PERCENT[game]}% of the time, and then one of the patcher's rare events comes "
+            "later, 30% to 70% of the way to the next natural event (on the same wall clock as the game's own island "
+            "events), unless the village is in trouble by then (the "
+            "game's own rescue rule, food below 10 a villager, half the village sick, or fewer than 6 villagers of 14 "
+            "or more) or the natural event comes first; the More Island Events that can happen then are equally "
+            "likely (with the Isola Grand Event Collection installed too, half the time one of its events instead); "
+            "Pick Island Event can also pick it")
+
+
 HOW = {
-    1: "one more of the villager encounters (the two-choice island events): when an encounter is drawn, this event is "
-       "1 in m + 1 (1 in m + 2 while The Cave Explorers can happen too), m the encounters possible at that moment, "
-       "like each of them; never the village's first island event (always a visitor)",
-    2: "one more two-choice island event (family A) with its own slot in the draw: each of family A's draws is 1 in "
-       "23 for each event, this one included (the draw is one wider for The Climb, which has its own slot too); never "
-       "the village's first island event",
-    3: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed), at the game's usual times",
-    4: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed), at the game's usual times",
-    5: "one more island event: listed with the others whose condition holds and drawn like them (1 in the number "
-       "listed), at the game's usual times",
+    1: "one of the villager encounters (the two-choice island events) when it comes; never the village's first "
+       "island event (always a visitor); " + rare(1),
+    2: "a two-choice island event (family A) when it comes; never the village's first island event; " + rare(2),
+    3: "an island event when it comes; " + rare(3),
+    4: "an island event when it comes; " + rare(4),
+    5: "an island event when it comes; " + rare(5),
 }
 REWARD = {
     1: "as drawn (scaled only with Island Events Scale ticked: below)",
@@ -199,10 +212,8 @@ def cave_explorers_event() -> Event:
     return Event(
         cave.TITLE,
         "needs The Cave puzzle done (the Golden Child has opened the cave) and two villagers who are " + who
-        + f", at most {cave.MAX_AGE_GAP_YEARS} villager years apart; one more of the villager encounters: when an "
-        "encounter is drawn, this event is 1 in m + 1 (1 in m + 2 while The Aspiring Adventurer can happen too), m "
-        "the encounters possible at that moment, like each of them; never the village's first island event; added by "
-        "\"More Island Events\" (without it the event does not exist)",
+        + f", at most {cave.MAX_AGE_GAP_YEARS} villager years apart; " + HOW[1] + "; added by \"More Island "
+        "Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv1_more_island_events",
     )
@@ -246,10 +257,8 @@ def troubling_signs_event() -> Event:
         ts.TITLE,
         f"needs the Tribal Chief in the robe, {ts.ADVISORS + ts.TRAVELLERS} other villagers who are {who}, and a "
         f"population of {ts.POPULATION_AT_LEAST} or more counted as The Lost Children's \"A Dangerous Mission\" counts "
-        "it (the living villagers plus the babies being carried); one more island event, listed with the others whose "
-        "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
-        "Aspiring Adventurer and Diving for Treasure), when the game draws an island event on its own schedule (the wall clock, real "
-        "seconds); added by \"More Island Events\" (without it the event does not exist)",
+        "it (the living villagers plus the babies being carried); " + HOW[3] + "; added by \"More Island Events\" "
+        "(without it the event does not exist)",
         tuple(subs),
         only_with="vv3_more_island_events",
     )
@@ -294,11 +303,8 @@ def diving_for_treasure_event() -> Event:
     ]
     return Event(
         dt.TITLE,
-        f"needs two villagers who are {who} (the diver and someone to name on the rescue page); one more island event, "
-        "listed with the others whose condition holds and drawn like them (1 in the number listed: it has its own "
-        "place in the draw, beside The Aspiring Adventurer and The Troubling Signs), when the game draws an island "
-        "event on its own schedule (the wall clock, real seconds); added by \"More Island Events\" (without it the "
-        "event does not exist)",
+        f"needs two villagers who are {who} (the diver and someone to name on the rescue page); " + HOW[3]
+        + "; added by \"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv3_more_island_events",
     )
@@ -339,10 +345,8 @@ def playful_dolphins_event() -> Event:
     ]
     return Event(
         dp.TITLE,
-        f"needs two villagers who are {who}, and no puzzle; one more island event, listed with the others whose "
-        "condition holds and drawn like them (1 in the number listed: it has its own place in the draw, beside The "
-        "Aspiring Adventurer), when the game draws an island event on its own schedule (the wall clock, real-life "
-        "hours; paused time does not count); added by \"More Island Events\" (without it the event does not exist)",
+        f"needs two villagers who are {who}, and no puzzle; " + HOW[4] + "; added by \"More Island Events\" "
+        "(without it the event does not exist)",
         tuple(subs),
         only_with="vv4_more_island_events",
     )
@@ -385,11 +389,8 @@ def mysterious_mask_event() -> Event:
         mm.TITLE,
         f"needs a population of {mm.POPULATION_AT_LEAST} or more (the living villagers plus the babies being carried, "
         f"The Lost Children's \"A Dangerous Mission\" rule), {lo} children under {mm.CHILD_UNDER_YEARS} and "
-        f"{mm.VOLUNTEERS} villagers of {mm.ADULT_YEARS} villager years or more, all {protected}; one more island "
-        "event, listed with the others whose condition holds and drawn like them (1 in the number listed: it has its "
-        "own place in the draw, beside The Aspiring Adventurer and The Playful Dolphins), when the game draws an "
-        "island event on its own schedule (the wall clock, real-life hours; paused time does not count); added by "
-        "\"More Island Events\" (without it the event does not exist)",
+        f"{mm.VOLUNTEERS} villagers of {mm.ADULT_YEARS} villager years or more, all {protected}; " + HOW[4]
+        + "; added by \"More Island Events\" (without it the event does not exist)",
         tuple(subs),
         only_with="vv4_more_island_events",
     )
@@ -429,9 +430,8 @@ def the_climb_event() -> Event:
     ]
     return Event(
         climb.TITLE,
-        "needs one villager who is " + who + "; " + "one more two-choice island event (family A) with its own slot in "
-        "the draw: each of family A's draws is 1 in 23 for each event, this one included; never the village's first "
-        "island event; added by \"More Island Events\" (without it the event does not exist)",
+        "needs one villager who is " + who + "; " + HOW[2] + "; added by \"More Island Events\" (without it the "
+        "event does not exist)",
         tuple(subs),
         only_with="vv2_more_island_events",
     )

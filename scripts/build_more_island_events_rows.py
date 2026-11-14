@@ -25,14 +25,14 @@ CAVE_DESCRIPTION = (
     "\"Proceed Further\" brings a scream in the dark (they run, then argue, make up, or both fall down a chasm and are "
     "gone for good, 1 in 10) or a find (a map that takes both away for good, 1 in 10; gold coins: tech points; a "
     "treasure map: three times as many; preserved food: twice the food); \"Stay Here\" lets them return what they "
-    "found (food or tech points) or keep it (the researchers' tech points 8 times in 10; otherwise one or both die, "
+    "found (food or tech points) or keep it (the researchers' tech points half the time; otherwise one or both die, "
     "with graves). Each award is a random amount from the smallest to the largest food or tech-point gain of the "
     "game's own island events (A New Home: " + adv.award_words(1, "food") + ", " + adv.award_words(1, "tech")
     + "), scaled as the Aspiring Adventurer's is.")
 CAVE_BEHAVIOUR = (
-    "The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (with both possible, each is 1 in "
-    "m + 2), only while The Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring "
-    "Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those "
+    "The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (never a share of the stock "
+    "draw: taken only while due, through Story / Cheat Upgrades' rare roll or Pick Island Event), only while The "
+    "Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those "
     "ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own "
     "text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% "
     "argue, 80% make up, 10% the chasm: both removed with no body), 50% B (10% a map: both removed with no body; 30% "
@@ -368,7 +368,7 @@ def description(game: int) -> str:
     classic = ("Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it."
                if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
     return (
-        "Adds new island events, written by the owner, to the ones the game draws from (more come in later versions). "
+        "Adds new island events, written by the owner, beside the game's own (more come in later versions). "
         + ("Four here: " if game in (1, 2) else "Five here: " if game in (3, 4) else "Three here: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
         "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
