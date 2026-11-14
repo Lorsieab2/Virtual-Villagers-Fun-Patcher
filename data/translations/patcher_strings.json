@@ -69259,6 +69259,17 @@
    "mechanism": "b",
    "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs_isolans",
+   "english": "at least one grave and A Family Reunited achieved (every Isolan came to live with our tribe)",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, as .needs, with Guardians of Isola Rewrite installed (its words: Isolans, A Family Reunited) (lower case, no full stop)",
+   "route": "key"
   }
  ]
 }

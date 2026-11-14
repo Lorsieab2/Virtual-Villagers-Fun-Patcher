@@ -24,12 +24,12 @@
     {
       "source": "assets/event_collection/vv1/manifest.txt",
       "destination": "Island Event Collection/manifest.txt",
-      "sha256": "FD50CF7F4CA3270B6B354A0EBCAFBA169B58F614425CD51A7A82646F3C7E7406"
+      "sha256": "E1D63CDD0BF867F961CC80C9F9B15521A2D7CD41E7E3D237342A7426E23D39C3"
     },
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Island Event Collection/Credits.txt",
-      "sha256": "5FF059ED89B84C01E7DFAB8A5BEF628DB4C0DAC4E7B5352B734C5FD5E9B52457"
+      "sha256": "475166DB03623C355E1150FCB352EC6AED98157E0A7C66BFD47973F339C0EF41"
     },
     {
       "source": "assets/event_collection/all_beautification.cieg",
@@ -54,7 +54,7 @@
     {
       "source": "assets/event_collection/all_great_appointment.cieg",
       "destination": "Island Event Collection/all_great_appointment.cieg",
-      "sha256": "7653049E90A8680A93C520A641873C5BFD7EC1F8C15B1A95F63EA81F3E605C0E"
+      "sha256": "246E4D78C6B44C22F17A7E8395D3DA0B2452326BFC11D10D9FCDA2EB9BF28427"
     },
     {
       "source": "assets/event_collection/all_inexplicable_idea.cieg",
@@ -79,7 +79,7 @@
     {
       "source": "assets/event_collection/all_panel_standards.cieg",
       "destination": "Island Event Collection/all_panel_standards.cieg",
-      "sha256": "1B3F5C24AF7840A1CF804D656D639BFA5CB9814DF20BD9B4820BEF2B50CF035A"
+      "sha256": "FEE05940B68713F10156B370BB78A5F58FFE8D7CB293E7C602E9C5BC89E2504C"
     },
     {
       "source": "assets/event_collection/all_physics_defying.cieg",
@@ -89,7 +89,7 @@
     {
       "source": "assets/event_collection/all_scholasticon.cieg",
       "destination": "Island Event Collection/all_scholasticon.cieg",
-      "sha256": "47F58D43C4743AF6609528EFD60C3EEC549165FAC5F2D5C0FD57324A4B7F0BF5"
+      "sha256": "1D86D7CEEF7A9B128BD4420A89A1387AA25D936631B16058F2A89EEF9994407A"
     },
     {
       "source": "assets/event_collection/all_secret_of_life.cieg",
@@ -119,7 +119,7 @@
     {
       "source": "assets/event_collection/all_v18_01_warriors.cieg",
       "destination": "Island Event Collection/all_v18_01_warriors.cieg",
-      "sha256": "E1E7D11AA073FE244A3ACDAB22668A5E3F71571EA92DE1490E2354E08AC28957"
+      "sha256": "C09BB7E49663033D88CA172C7A341AC4E46BBB2851E222BA511FE74F49B370DA"
     },
     {
       "source": "assets/event_collection/all_v18_02_martial.cieg",
@@ -289,12 +289,12 @@
     {
       "source": "assets/event_collection/all_v22_2_strength.cieg",
       "destination": "Island Event Collection/all_v22_2_strength.cieg",
-      "sha256": "A32FAF6B88174A52784B770A7065259AFD65884BC397F635FE441C7AB3EFBED0"
+      "sha256": "E8DFCEE66163185BE937F0C6D30A084D5D472987F47E45A37EF78819064BEB52"
     },
     {
       "source": "assets/event_collection/all_v22_3_potion.cieg",
       "destination": "Island Event Collection/all_v22_3_potion.cieg",
-      "sha256": "3458234EC6FE7E3854C8663D50FC28845A561A3F4421CC58F8D8E04811DC624E"
+      "sha256": "941E2B5D76E36CE72A73B476183B01B885E33C5C5B8E5ACDF9D0909142A56490"
     },
     {
       "source": "assets/event_collection/all_v22_4_parents.cieg",
@@ -459,7 +459,7 @@
     {
       "source": "assets/event_collection/vv1_v14_16_child_who.cieg",
       "destination": "Island Event Collection/vv1_v14_16_child_who.cieg",
-      "sha256": "F589605A5E10D8D55175A8CD0DD40B143C4B082DAF3A06A3FCFBB03A525E1EDB"
+      "sha256": "DB72756EC10C8428CA5065AFB5D0E79185E386440B76E3F18809A49C5AAD3146"
     },
     {
       "source": "assets/event_collection/vv1_v14_17_golden.cieg",
@@ -499,12 +499,12 @@
     {
       "source": "assets/event_collection/vv1_v14_24_boy_who.cieg",
       "destination": "Island Event Collection/vv1_v14_24_boy_who.cieg",
-      "sha256": "BA58DE74B8E982A8CDC2A2CB5F3DD08411D01BE1F85D916802C887E63C4262E1"
+      "sha256": "E286868E774A30F7862711C9892161A20AB98896F268C99581943F24FA6CAD76"
     },
     {
       "source": "assets/event_collection/vv1_v14_25_child_who.cieg",
       "destination": "Island Event Collection/vv1_v14_25_child_who.cieg",
-      "sha256": "969F1550F535F48CC6B216125D2F0673444B488DD9BFEADEF0D2A8CC8667038D"
+      "sha256": "675032E8731AEFBE8C77B342F8D4E7CBE2484BB7BCA6138AA640C37C12F462EB"
     },
     {
       "source": "assets/event_collection/vv1_v17_building.cieg",
