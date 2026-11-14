@@ -112,9 +112,7 @@ class Manifest(unittest.TestCase):
 # here may fail ONLY with problems matching its pattern.
 #   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
-KNOWN_GAPS = {
-    "all_v20_between_life_and_death.json": r"^a SCHEMA: .*runs off the screen without scrolling: a sentence is taller",
-    "all_v22_4_parents_lesson.json": r"^a SCHEMA: .*runs off the screen without scrolling: a sentence is taller",
+KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
 }
 
 
