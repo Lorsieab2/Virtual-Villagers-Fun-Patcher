@@ -508,7 +508,7 @@
         "On by default. Drop a villager of 14 or more on a mushroom or collectible: they act Confused, and the game's message line",
         "says \"Only children can see and pick up mushrooms.\" or \"Only children can see and pick up collectibles.\"",
         "Children still pick them up as before. The Lost Children already showed Confused; only its message changes.",
-        "The game's one-time tip about confused villagers may appear the first time. Nothing to click. Not yet tested in play."
+        "The game's one-time tip about confused villagers is not shown for this; it stays for other confused moments. Nothing to click. Not yet tested in play."
       ]
     },
     {

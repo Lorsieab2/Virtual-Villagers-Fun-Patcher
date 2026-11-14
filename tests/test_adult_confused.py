@@ -376,6 +376,193 @@ class LostChildrenTests(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# The game's one-time tip about confused villagers ("... need more skill or more advanced technology ..."): the
+# owner (2026-11-14) -- not shown for an adult dropped on a mushroom or collectible, in all five games (The Lost
+# Children's stock path included), and not used up either, so a real confused moment later still shows it.  Here the
+# game's OWN Confused routine runs (VV1 0x440040, VV2 0x454590; VV3-VV5 through the real do-action, its dispatcher
+# and the registered handler 0x447BE0 / 0x452CB0 / 0x459480 with the real tip table routine 0x436E60 / 0x44B890 /
+# 0x44E730); only the routines they call for the pose, the text and the step queue are stand-ins.
+# ---------------------------------------------------------------------------------------------------------------
+def _pop(g: Game, va: int) -> int:
+    """The bytes of arguments the routine at `va` pops (its first `ret N`)."""
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    for ins in md.disasm(g.p.read(va, 0x3000), va):
+        if ins.mnemonic == "ret":
+            return int(ins.op_str, 16) if ins.op_str else 0
+    raise AssertionError(hex(va))
+
+
+# Text lookups whose first `ret` is an early cdecl-style exit (thiscall, one argument).
+KNOWN_POPS = {0x433970: 4, 0x441680: 4}
+
+
+def stub_callees(g: Game, start: int, keep: tuple[int, ...] = (), results: dict | None = None) -> None:
+    """Every routine the routine at `start` calls or tail-jumps to becomes a recording stand-in, except `keep`."""
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    scratch = g.p.alloc(0x1000)
+    results = results or {}
+    for ins in md.disasm(g.p.read(start, 0x400), start):
+        # each of these routines has one `ret` (or a closing tail `jmp`, then padding), at its end
+        if ins.mnemonic in ("int3", "ret") or (ins.mnemonic == "nop" and ins.size == 1):
+            break
+        if ins.mnemonic in ("call", "jmp") and ins.op_str.startswith("0x"):
+            target = int(ins.op_str, 16)
+            if (ins.mnemonic == "jmp" and start <= target < start + 0x400) or target in keep \
+                    or target in g.p.stubs:
+                continue
+            g.stub(target, KNOWN_POPS.get(target) if target in KNOWN_POPS else _pop(g, target),
+                   results.get(target, scratch))
+
+
+TIP = {   # game: the Confused routine, the tip's "show" routine and id (VV1/VV2), or table, routine, id (VV3-VV5)
+    1: dict(confused=0x440040, show=0x41C960, tip=0x12E, byte=(0x3E010, 0x15F)),
+    2: dict(confused=0x454590, show=0x4257A0, tip=0x1B4, byte=(0xE574D4, 0x1E5)),
+    3: dict(handler=0x447BE0, table=0x594C40, routine=0x436E60, tip=0x2A9, base=0x279, handlers=0x596970, queue=0xB80),
+    4: dict(handler=0x452CB0, table=0x4DACE0, routine=0x44B890, tip=0x2DC, base=0x2AA, handlers=0x501B30, queue=0xBA0),
+    5: dict(handler=0x459480, table=0x520220, routine=0x44E730, tip=0x2CD, base=0x29C, handlers=0x5475C8, queue=0xCE0),
+}
+
+
+SHOW_BY_ID = {3: 0x42E0F0, 4: 0x44C290, 5: 0x44EF60}   # the handlers' status line by text id
+
+
+def later_with_the_real_handler(g: Game, item: int, age: int):
+    """later_drop with the game's real do-action, dispatcher and Confused handler (and its tip table)."""
+    r, t = LATER[g.game], TIP[g.game]
+    g.p.put32(t["handlers"] + r["confused"] * 8, t["handler"])
+    g.p.write(t["handlers"] + r["confused"] * 8 + 4, b"\x01")
+    for i in range(10):                                 # the tip table's ten pending slots, empty
+        g.p.put32(t["table"] + t["queue"] + 8 * i, 0xFFFFFFFF)
+        g.p.put32(t["table"] + t["queue"] + 4 + 8 * i, 0)
+    stub_callees(g, t["handler"], keep=(t["routine"],))
+    record = g.p.alloc(0x2000)
+    g.p.put32(record + r["age"], age)
+    g.stub(r["clear"][0], r["clear"][1])
+    g.stub(r["show"], 4)
+    for va, value in r["extra"].items():
+        g.stub(va, 0, value)
+    if r["selected"][0] == "byte":
+        g.p.write(record + r["selected"][1], b"\x01")
+    else:
+        g.stub(r["selected"][1], 0, 1)
+    g.frame({0x1C: RETURN, 0x20: record})
+    g.p.set_reg("esi", item)
+    g.p.set_reg("edi", 0)
+    g.p.run(r["resume"], RETURN)
+    return record
+
+
+def tip_queued(g: Game) -> bool:
+    t = TIP[g.game]
+    return any(g.p.u32(t["table"] + t["queue"] + 4 + 8 * i) == t["tip"]
+               and g.p.u32(t["table"] + t["queue"] + 8 * i) != 0xFFFFFFFF
+               for i in range(10))
+
+
+def tip_byte(g: Game) -> int:
+    t = TIP[g.game]
+    return g.p.read(t["table"] + (t["tip"] - t["base"]) * 32, 1)[0]
+
+
+@NEEDS
+class ConfusedTipTests(unittest.TestCase):
+    def test_later_games_no_tip_for_the_drop_and_not_used_up(self):
+        for game in (3, 4, 5):
+            for item, _action, _mushroom in LATER[game]["items"][::2]:
+                with self.subTest(game=game, item=hex(item)):
+                    g = Game(game)
+                    self.assertEqual(tip_byte(g), 0, "the tip has not been seen")
+                    later_with_the_real_handler(g, item, ADULT)
+                    # the game's own handler ran: it showed its text (the stock id) by id on the status line
+                    self.assertEqual([a[0] for _e, a in g.of(SHOW_BY_ID[game])], [LATER[game]["text"]])
+                    self.assertFalse(tip_queued(g), "the confused tip is not shown for the drop")
+                    self.assertEqual(tip_byte(g), 0, "the tip is not marked as seen")
+
+    def test_later_games_a_real_confused_moment_still_shows_the_tip(self):
+        for game in (3, 4, 5):
+            with self.subTest(game=game):
+                g = Game(game)
+                r = LATER[game]
+                later_with_the_real_handler(g, r["items"][0][0], ADULT)          # the drop first: no tip
+                self.assertFalse(tip_queued(g))
+                record = g.p.alloc(0x2000)
+                g.p.put32(record + r["age"], ADULT)
+                args = g.p.alloc(0x10)
+                g.p.put32(args, 0x10)
+                g.p.put32(args + 4, 0xFFFFFFFF)
+                g.p.call(r["do"], [r["confused"], args], ecx=record)            # any other confused moment
+                self.assertTrue(tip_queued(g), "the tip is still shown for a real confused moment")
+
+    def test_a_new_home_no_tip_for_the_drop_and_not_used_up(self):
+        t = TIP[1]
+        g = Game(1)
+        screen = g.p.alloc(0x1000)
+        villagers = g.p.alloc(0x40000)
+        tips = g.p.alloc(0x1000)
+        g.p.put32(villagers + t["byte"][0], tips)
+        g.p.write(tips + t["byte"][1], b"\x01")                    # 1: the tip is still to show
+        stub_callees(g, t["confused"])
+        g.p.put32(screen + 0x10, g.p.alloc(0x100))
+        g.p.put32(screen + 0x14, g.p.alloc(0x100))
+        g.p.put32(screen + 0x20, villagers)
+        g.p.put32(screen + 0x294, 3)
+        g.p.put32(screen + 0x350, g.p.alloc(0x100))
+        g.p.put32(villagers + 3 * VV1_RECORD + 0x348, ADULT)
+        g.stub(0x414200, 8, 0x21)
+        for va, pop in ((0x424150, 8), (0x444500, 4), (0x40BB30, 4)):
+            g.stub(va, pop)
+        g.stub(0x402F70, 0, CLOCK)
+        g.frame({})
+        g.p.set_reg("esi", screen)
+        g.p.set_reg("ebp", 0x118)
+        g.p.set_reg("ebx", 0xC7)
+        g.p.run(0x4250FA, 0x4252BE)
+        self.assertGreater(len(g.of(0x4399F0)), 0, "the game's own Confused routine queued its steps")
+        self.assertEqual([a for _e, a in g.of(t["show"]) if a and a[0] == t["tip"]], [])
+        self.assertEqual(g.p.read(tips + t["byte"][1], 1), b"\x01", "not used up")
+        # a real confused moment later: the tip shows
+        g.p.call(t["confused"], [5], ecx=villagers)
+        self.assertEqual([a[0] for _e, a in g.of(t["show"])], [t["tip"]])
+        self.assertEqual(g.p.read(tips + t["byte"][1], 1), b"\x00")
+
+    def test_the_lost_children_no_tip_for_the_drop_and_not_used_up(self):
+        t = TIP[2]
+        g = Game(2)
+        screen, villagers, _label = vv2_world(g, ADULT)
+        g.p.stubs.pop(t["confused"])                               # the game's own Confused routine runs
+        tips = g.p.alloc(0x1000)
+        g.p.put32(villagers + t["byte"][0], tips)
+        g.p.write(tips + t["byte"][1], b"\x01")
+        stub_callees(g, t["confused"])
+        g.p.call(0x42FB20, [3, 0x2F], ecx=screen)
+        self.assertGreater(len(g.of(0x449B70)), 0, "the game's own Confused routine queued its steps")
+        self.assertEqual([a for _e, a in g.of(t["show"]) if a and a[0] == t["tip"]], [])
+        self.assertEqual(g.p.read(tips + t["byte"][1], 1), b"\x01", "not used up")
+        # a real confused moment: case 0x3D of the same dispatcher (its own text) -- the tip shows
+        g.p.write(g.p.u32(screen + 0x10) + 0x30459, b"\0")
+        g.p.call(0x42FB20, [3, 0x3D], ecx=screen)
+        self.assertEqual([a[0] for _e, a in g.of(t["show"])], [t["tip"]])
+        self.assertEqual(g.p.read(tips + t["byte"][1], 1), b"\x00")
+
+    def test_the_stock_games_show_the_tip_for_the_drop(self):
+        """Without the companion The Lost Children's own adult path shows (and uses up) the tip; this is what the
+        patch takes away."""
+        t = TIP[2]
+        g = Game(2, with_dll=False)
+        screen, villagers, _label = vv2_world(g, ADULT)
+        g.p.stubs.pop(t["confused"])
+        tips = g.p.alloc(0x1000)
+        g.p.put32(villagers + t["byte"][0], tips)
+        g.p.write(tips + t["byte"][1], b"\x01")
+        stub_callees(g, t["confused"])
+        g.p.call(0x42FB20, [3, 0x2F], ecx=screen)
+        self.assertEqual([a[0] for _e, a in g.of(t["show"])], [t["tip"]])
+        self.assertEqual(g.p.read(tips + t["byte"][1], 1), b"\x00")
+
+
+# ---------------------------------------------------------------------------------------------------------------
 # All five: every stock byte checked, every other patch, the row
 # ---------------------------------------------------------------------------------------------------------------
 @NEEDS

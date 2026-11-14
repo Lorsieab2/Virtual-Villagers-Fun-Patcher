@@ -29,8 +29,8 @@
    HOW.  After every site's stock bytes and the stock code each detour relies on are checked
    (native/shared/install_sites.h: all of them, or none):
      A New Home       0x425168, the adult's `call 0x424150`, calls vv1_area: an adult on a mushroom (area 0x21) gets
-                      the Confused action (0x440040, the game's own: "Confused", the head scratch, and its one-time
-                      tip) and the message on the message bar (0x40BB30 on [screen + 0x350], shown 5 seconds:
+                      the Confused action (0x440040, the game's own: "Confused"; its one-time tip about confused
+                      villagers is neither shown nor used up here) and the message on the message bar (0x40BB30 on [screen + 0x350], shown 5 seconds:
                       [screen + 0x284] = the clock 0x402F70 + 5, as the game's message routine 0x421B40 does); every
                       other area goes to 0x424150 as before.
      The Lost Children
@@ -98,7 +98,17 @@ static void __fastcall vv1_area(unsigned int screen, unsigned int edx, unsigned 
     __try {
         unsigned int villagers = rd(screen + 0x20);
         if (area == VV1_MUSHROOM && (int)rd(villagers + slot * 0x3D8u + 0x348) >= AC_CHILD_UNTIL) {
-            CALL1(VV1_CONFUSED, villagers, slot);
+            /* The one-time tip about confused villagers is not shown for this, nor used up: its "still to show"
+               byte ([[villagers + 0x3E010] + 0x15F], cleared by 0x440040 as it shows the tip) is held at 0 for
+               the call and given back its own value. */
+            volatile unsigned char *tip = (volatile unsigned char *)(UINT_PTR)(rd(villagers + 0x3E010) + 0x15F);
+            unsigned char was = *tip;
+            *tip = 0;
+            __try {
+                CALL1(VV1_CONFUSED, villagers, slot);
+            } __finally {
+                *tip = was;
+            }
             CALL1(VV1_SET_TEXT, rd(screen + 0x350), (unsigned int)(UINT_PTR)ac_words(1));
             wr(screen + 0x284, (unsigned int)CALL0(VV1_CLOCK, rd(screen + 0x10)) + 5u);
             return;
@@ -123,7 +133,16 @@ static void __stdcall vv2_adult(unsigned int villagers, unsigned int screen, uns
                                 unsigned int area) {
     if (text == VV2_STOCK_TEXT) {
         __try {
-            CALL2(VV2_CONFUSED, villagers, slot, 0);
+            /* The one-time confused tip: its "still to show" byte ([[villagers + 0xE574D4] + 0x1E5]) held at 0
+               for the call, then given back (not shown, not used up). */
+            volatile unsigned char *tip = (volatile unsigned char *)(UINT_PTR)(rd(villagers + 0xE574D4) + 0x1E5);
+            unsigned char was = *tip;
+            *tip = 0;
+            __try {
+                CALL2(VV2_CONFUSED, villagers, slot, 0);
+            } __finally {
+                *tip = was;
+            }
             CALL1(VV2_SET_TEXT, rd(screen + 0x2BC), (unsigned int)(UINT_PTR)ac_words(area == VV2_MUSHROOM));
             wr(screen + 0x1D4, (unsigned int)CALL0(VV2_CLOCK, rd(screen + 0x10)) + 5u);
         } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -158,12 +177,13 @@ typedef struct {
     unsigned int selected;                /* VV3: the record's byte; else thiscall record () -> al */
     unsigned int status_line, status_show;
     unsigned int mushroom[3];             /* the drop's mushroom actions (0 = none) */
+    unsigned int tip_seen;                /* the confused tip's "already shown" byte in the tip table */
 } ac_later;
 
 static const ac_later LATER[3] = {
-    {0x455570u, 0xDC4u, 0x2Cu, 0x1Au, 0xF11u, 0x58F5E8u, 0x42E200u, {0x2Fu, 0, 0}},
-    {0x45DEC0u, 0x1B8Cu, 0x1Au, 0x80u, 0x45DD10u, 0x4DB8E8u, 0x44C3A0u, {0x1Eu, 0x90u, 0}},
-    {0x465580u, 0x1B8Cu, 0x1Fu, 0x76u, 0x4653D0u, 0x520F68u, 0x44F0B0u, {0x23u, 0, 0}},
+    {0x455570u, 0xDC4u, 0x2Cu, 0x1Au, 0xF11u, 0x58F5E8u, 0x42E200u, {0x2Fu, 0, 0}, 0x594C40u + (0x2A9u - 0x279u) * 32u},
+    {0x45DEC0u, 0x1B8Cu, 0x1Au, 0x80u, 0x45DD10u, 0x4DB8E8u, 0x44C3A0u, {0x1Eu, 0x90u, 0}, 0x4DACE0u + (0x2DCu - 0x2AAu) * 32u},
+    {0x465580u, 0x1B8Cu, 0x1Fu, 0x76u, 0x4653D0u, 0x520F68u, 0x44F0B0u, {0x23u, 0, 0}, 0x520220u + (0x2CDu - 0x29Cu) * 32u},
 };
 
 /* Takes the place of the drop's `call do-action` for a mushroom or collectible: ecx the villager's record. */
@@ -174,9 +194,19 @@ static void __fastcall later_drop(unsigned int record, unsigned int edx, unsigne
         if ((int)rd(record + g->age) >= AC_CHILD_UNTIL) {
             unsigned int text[2];
             int shown;
+            volatile unsigned char *tip = (volatile unsigned char *)(UINT_PTR)g->tip_seen;
+            unsigned char was = *tip;
             text[0] = g->stock_text;
             text[1] = 0xFFFFFFFFu;
-            CALL2(g->do_action, record, g->confused, (unsigned int)(UINT_PTR)text);
+            /* The Confused handler asks the tip table for the one-time confused tip (VV3 0x436E60, VV4 0x44B890,
+               VV5 0x44E730), which queues it only while its byte is 0: the byte is held at 1 for the call and
+               given back its own value, so the tip is neither shown nor marked as seen. */
+            *tip = 1;
+            __try {
+                CALL2(g->do_action, record, g->confused, (unsigned int)(UINT_PTR)text);
+            } __finally {
+                *tip = was;
+            }
             shown = g_game == 3 ? *(volatile unsigned char *)(UINT_PTR)(record + g->selected) != 0
                                 : (CALL0(g->selected, record) & 0xFF) != 0;
             if (shown) {
@@ -230,10 +260,14 @@ static const ac_code VV1_CODE[] = {
     {0x42510Bu, {0x39, 0xA8, 0x48, 0x03, 0x00, 0x00, 0x7D, 0x35}, 8},
     /* push eax / mov eax, [esi+0x294] / push eax / mov ecx, esi -- the area, the slot, the screen */
     {0x42515Eu, {0x50, 0x8B, 0x86, 0x94, 0x02, 0x00, 0x00, 0x50, 0x8B, 0xCE}, 10},
+    /* the Confused action's tip test: mov eax, [esi+0x3E010] / mov cl, [eax+0x15F] */
+    {0x440043u, {0x8B, 0x86, 0x10, 0xE0, 0x03, 0x00, 0x8A, 0x88, 0x5F, 0x01}, 10},
 };
 static const ac_code VV2_CODE[] = {
     {0x42FB20u, {0x8B, 0x54, 0x24, 0x08, 0x53, 0x55, 0x56, 0x57}, 8},    /* the frame vv2_confused reads */
     {0x454590u, {0x56, 0x8B, 0xF1, 0x8B, 0x86, 0xD4, 0x74, 0xE5}, 8},
+    /* the Confused action's tip test: mov cl, [eax+0x1E5] / test cl, cl */
+    {0x454599u, {0x8A, 0x88, 0xE5, 0x01, 0x00, 0x00, 0x84, 0xC9}, 8},
     {0x40C510u, {0x8B, 0x49, 0x10, 0xE9, 0x28, 0xFD, 0xFF, 0xFF}, 8},
     {0x403200u, {0x51, 0x8D, 0x44, 0x24, 0x00, 0x50, 0xE8, 0x8F}, 8},
     {0x42FCA6u, {0x5D, 0x5B, 0xC2, 0x08, 0x00, 0x6A, 0x2B, 0x57}, 8},    /* pop ebp / pop ebx / ret 8 / push 0x2B /
@@ -242,16 +276,27 @@ static const ac_code VV2_CODE[] = {
 static const ac_code VV3_CODE[] = {
     {0x455570u, {0x8B, 0x54, 0x24, 0x08, 0x8B, 0x44, 0x24, 0x04}, 8},
     {0x42E200u, {0x8B, 0x44, 0x24, 0x04, 0x56, 0x68, 0xFF, 0x00}, 8},
+    /* the Confused handler asks for tip 0x2A9 of the tip table 0x594C40 ... */
+    {0x447BE0u, {0x56, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xA9, 0x02, 0x00, 0x00}, 10},
+    {0x447BEAu, {0xB9, 0x40, 0x4C, 0x59, 0x00, 0xE8}, 6},
+    /* ... whose byte is at (tip - 0x279) x 32 */
+    {0x436E6Du, {0x8D, 0x87, 0x87, 0xFD, 0xFF, 0xFF, 0xC1, 0xE0, 0x05}, 9},
 };
 static const ac_code VV4_CODE[] = {
     {0x45DEC0u, {0x8B, 0x54, 0x24, 0x08, 0x8B, 0x44, 0x24, 0x04}, 8},
     {0x44C3A0u, {0x8B, 0x44, 0x24, 0x04, 0x56, 0x68, 0xFF, 0x00}, 8},
     {0x45DD10u, {0x56, 0x8B, 0xF1, 0xE8, 0x58, 0x21, 0xFC, 0xFF}, 8},
+    {0x452CB0u, {0x56, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xDC, 0x02, 0x00, 0x00}, 10},
+    {0x452CBAu, {0xB9, 0xE0, 0xAC, 0x4D, 0x00, 0xE8}, 6},
+    {0x44B89Cu, {0x8D, 0x87, 0x56, 0xFD, 0xFF, 0xFF, 0xC1, 0xE0, 0x05}, 9},
 };
 static const ac_code VV5_CODE[] = {
     {0x465580u, {0x8B, 0x54, 0x24, 0x08, 0x8B, 0x44, 0x24, 0x04}, 8},
     {0x44F0B0u, {0x8B, 0x44, 0x24, 0x04, 0x56, 0x68, 0xFF, 0x00}, 8},
     {0x4653D0u, {0x56, 0x8B, 0xF1, 0xE8, 0x78, 0x05, 0xFC, 0xFF}, 8},
+    {0x459480u, {0x56, 0x6A, 0x00, 0x6A, 0x00, 0x68, 0xCD, 0x02, 0x00, 0x00}, 10},
+    {0x45948Au, {0xB9, 0x20, 0x02, 0x52, 0x00, 0xE8}, 6},
+    {0x44E73Du, {0x8D, 0x87, 0x64, 0xFD, 0xFF, 0xFF, 0xC1, 0xE0, 0x05}, 9},
 };
 
 static int code_holds(const ac_code *code, int count) {
@@ -308,7 +353,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         vvfp_site_branch(&w[count++], VV2_SITE, 5, stock[0], 0xE8, (const void *)vv2_confused);
     } else if (game >= 3 && game <= 5) {
         const ac_code *code = game == 3 ? VV3_CODE : game == 4 ? VV4_CODE : VV5_CODE;
-        int codes = game == 4 ? 3 : (game == 3 ? 2 : 3);
+        int codes = game == 3 ? (int)(sizeof VV3_CODE / sizeof VV3_CODE[0])
+                  : game == 4 ? (int)(sizeof VV4_CODE / sizeof VV4_CODE[0]) : (int)(sizeof VV5_CODE / sizeof VV5_CODE[0]);
         int n = game == 3 ? 2 : game == 4 ? 3 : 2;
         sites = game == 3 ? VV3_SITES : game == 4 ? VV4_SITES : VV5_SITES;
         if (!code_holds(code, codes)) {
