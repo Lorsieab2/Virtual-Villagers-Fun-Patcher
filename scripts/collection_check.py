@@ -63,7 +63,7 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
-AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines")
+AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons")
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -514,8 +514,10 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
         rep.add("c COVERAGE", "no manifest row for collection.id")
         return
     a, b = row["lines"]
+    spans = [(a, b)] + [tuple(s) for s in row.get("addon_lines", [])]    # an event's add-on rows (Q14)
+    own = {n for lo, hi in spans for n in range(lo, hi + 1)}
     # A line that is nothing but structural markers ("Go to (3).") needs no ledger entry.
-    missing = [n for n in range(a, b + 1) if n not in consumed and not lib.is_blank_or_separator(n)
+    missing = [n for n in sorted(own) if n not in consumed and not lib.is_blank_or_separator(n)
                and processed_line(n, cuts, fixes)]
     if missing:
         rep.add("c COVERAGE", f"{len(missing)} source lines consumed by nothing: {compress(missing)}")
@@ -531,9 +533,9 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                    for n in range(r["lines"][0], r["lines"][1] + 1)}
     if shared - notes_lines:
         rep.add("c COVERAGE", f"shared_lines outside a notes section: {compress(sorted(shared - notes_lines))}")
-    stray = sorted(n for n in consumed if not a <= n <= b and n not in shared)
+    stray = sorted(n for n in consumed if n not in own and n not in shared)
     if stray:
-        rep.add("c COVERAGE", f"src outside the event's lines {a}-{b}: {compress(stray)}")
+        rep.add("c COVERAGE", f"src outside the event's lines {a}-{b} (and its add-ons): {compress(stray)}")
     for n in sorted(text_lines - whole):
         p = processed_line(n, cuts, fixes)
         mask = [False] * len(p)
@@ -957,6 +959,20 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
     choices = max((len(n.get("choices", []) or []) for n in doc.get("nodes", {}).values()), default=0)
     if choices != row["choices"]:
         rep.add("d TOKENS", f"the widest question has {choices} choices; the source has {row['choices']}")
+    # Add-ons (Q14): an add-on row's branches live in its event's file, listed in collection.addons. Their lines
+    # join the event's for coverage, and their banks are checked as "<add-on id> <bank>" so equal bank numbers of
+    # two add-ons stay distinct.
+    addons = col.get("addons", []) or []
+    if addons:
+        row = dict(row, pools=dict(row.get("pools", {})), addon_lines=[])
+        for aid in addons:
+            ar = rows.get(aid)
+            if ar is None or ar["kind"] != "addon":
+                rep.add("a SCHEMA", f"collection.addons: {aid!r} is not an add-on row of the manifest")
+                continue
+            row["addon_lines"].append(ar["lines"])
+            for label, size in ar.get("pools", {}).items():
+                row["pools"][f"{aid} {label}"] = size
     return row
 
 
