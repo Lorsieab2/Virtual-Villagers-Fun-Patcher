@@ -1,0 +1,271 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thing That Should Not Exist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r1_should_not_exist",
+  "source": "v26",
+  "lines": [
+   9206,
+   9250
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9206",
+  "ledger": [
+   {
+    "src": "L9215",
+    "kind": "instruction",
+    "text": "Add to buried-relic pool.",
+    "why": "a text_only reason on a2 (rule 9)"
+   },
+   {
+    "src": "L9244",
+    "kind": "instruction",
+    "text": "Add to buried-relic pool for later generations.",
+    "why": "a text_only reason on d1 (rule 9)"
+   },
+   {
+    "src": "L9234",
+    "kind": "instruction",
+    "text": "Large Tech reward;",
+    "why": "the large tech effect on c1"
+   }
+  ]
+ },
+ "roles": {
+  "finder": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "second": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}",
+   "src": "L9207-9209",
+   "choices": [
+    {
+     "label": "DESTROY IT",
+     "next": "set_a",
+     "src": "L9211"
+    },
+    {
+     "label": "TRY TO USE IT",
+     "next": "set_b",
+     "src": "L9222"
+    },
+    {
+     "label": "GIVE IT TO THE RESEARCHERS",
+     "next": "set_c",
+     "src": "L9232"
+    },
+    {
+     "label": "BURY IT",
+     "next": "set_d",
+     "src": "L9242"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The Shattered Mystery: The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
+   "src": "L9212-9213"
+  },
+  "a2": {
+   "text": "The Thing That Would Not Break: It survives repeated blows and is buried amid fearful rumors.",
+   "src": "L9214-9215",
+   "text_only": [
+    {
+     "src": "L9215",
+     "what": "Add to buried-relic pool",
+     "reason": "rule 9: the buried-relic pool is a state kept across events; no game keeps it"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The Destruction That Saved Them:",
+   "src": "L9216-9218",
+   "children": [
+    {
+     "next": "a3_2"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The Accidental Discovery: A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
+   "src": "L9219-9220"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The Impossible Tool: (Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
+   "src": "L9223-9224"
+  },
+  "b2": {
+   "text": "The Voice from Nowhere: The object speaks or makes a strange noise; some villagers flee, others pray, and panic spreads.",
+   "src": "L9225-9226"
+  },
+  "b3": {
+   "text": "The Hero of the Village: (Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
+   "src": "L9227-9228"
+  },
+  "b4": {
+   "text": "The Catastrophic Misunderstanding: A ceremony accidentally activates the object, igniting a theological dispute.",
+   "src": "L9229-9230"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Scholar's Triumph: Its construction inspires several practical discoveries. (Finder) is honored.",
+   "src": "L9233-9234",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9234"
+    }
+   ]
+  },
+  "c2": {
+   "text": "The Great Scholarly Embarrassment: Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
+   "src": "L9235-9236"
+  },
+  "c3": {
+   "text": "The Forbidden Question: Scholars propose that distant people possess far greater technology; elders demand silence.",
+   "src": "L9237-9238",
+   "text_only": [
+    {
+     "src": "L9238",
+     "what": "technology",
+     "reason": "narrative: 'technology' is part of the story, not a change the event makes"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Accused Discoverer: Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
+   "src": "L9239-9240"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "d1": {
+   "text": "Forgotten Beneath the Earth: The object passes into legend.",
+   "src": "L9243-9244",
+   "text_only": [
+    {
+     "src": "L9244",
+     "what": "Add to buried-relic pool",
+     "reason": "rule 9: the buried-relic pool is a state kept across events; no game keeps it"
+    }
+   ]
+  },
+  "d2": {
+   "text": "The Second Discoverer:",
+   "src": "L9245-9246",
+   "children": [
+    {
+     "next": "d2_2"
+    }
+   ]
+  },
+  "d3": {
+   "text": "The Accusation: A witness reports the burial as suspicious. (Finder) must explain (finder.his/her) actions to the elders.",
+   "src": "L9247-9248"
+  },
+  "d4": {
+   "text": "The Relic That Returned: The object reappears near the huts; nobody admits moving it. Was it sabotage, chance, or a curse?",
+   "src": "L9249-9250"
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "a3_2": {
+   "text": "An unpleasant odor or startling reaction sends the villagers away; nobody agrees whether the attempt prevented danger or created it.",
+   "src": "L9216-9218"
+  },
+  "d2_2": {
+   "text": "(Second) digs it up years later; an elderly witness cries, \"That thing again?!\"",
+   "src": "L9245-9246"
+  }
+ },
+ "include_pools": [
+  "v20_relics"
+ ],
+ "requirement": {
+  "min_eligible": 2
+ }
+}

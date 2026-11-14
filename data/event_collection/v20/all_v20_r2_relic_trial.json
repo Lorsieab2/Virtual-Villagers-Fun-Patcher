@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trial of the Impossible Relic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r2_relic_trial",
+  "source": "v26",
+  "lines": [
+   9252,
+   9283
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9252",
+  "ledger": []
+ },
+ "roles": {
+  "accused": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "Following a suspicious discovery, (Accused) is brought before a council of elders. The object rests on a woven mat. Some accuse (accused.him/her) of spying; others defend (accused.his/her) curiosity.",
+   "src": "L9253-9255",
+   "choices": [
+    {
+     "label": "INVESTIGATE FORMALLY",
+     "next": "set_a",
+     "src": "L9257"
+    },
+    {
+     "label": "CONFINE (Accused) IN A GUARDED SHELTER",
+     "next": "set_b",
+     "src": "L9266"
+    },
+    {
+     "label": "DEFEND (Accused) PUBLICLY",
+     "next": "set_c",
+     "src": "L9276"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Innocent: Evidence clears (Accused), who is publicly vindicated.",
+   "src": "L9258"
+  },
+  "a2": {
+   "text": "The Hidden Visitor: Strange footprints and materials suggest someone else has recently visited the island.",
+   "src": "L9259-9260"
+  },
+  "a3": {
+   "text": "The False Confession: Frightened, (Accused) admits to something untrue; another witness eventually exposes the mistake.",
+   "src": "L9261-9262"
+  },
+  "a4": {
+   "text": "The Unexpected Spy: Another villager planted the object to discredit (Accused).",
+   "src": "L9263-9264"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The Wrongful Prisoner: (Accused) is innocent. Later revelations bring shame upon the council and demands for restitution.",
+   "src": "L9267-9268",
+   "text_only": [
+    {
+     "src": "L9267-9268",
+     "what": "confinement, restitution",
+     "reason": "rule 7: a guarded shelter and the council's restitution are told only"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The Prisoner's Discovery: In confinement, (Accused) recalls a crucial clue about the object's arrival.",
+   "src": "L9269-9270"
+  },
+  "b3": {
+   "text": "The Village Divided: Supporters demand release while fearful villagers demand continued confinement.",
+   "src": "L9271-9272"
+  },
+  "b4": {
+   "text": "The Escape: (Accused) flees into the forest; the village cannot decide whether this proves guilt or desperation.",
+   "src": "L9273-9274",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "accused",
+     "src": "L9273"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Vindicated Explorer: The accusation collapses; (Accused) receives public thanks for the discovery.",
+   "src": "L9277-9278",
+   "text_only": [
+    {
+     "src": "L9277",
+     "what": "collapses",
+     "reason": "narrative: the accusation collapses; no structure is involved"
+    }
+   ]
+  },
+  "c2": {
+   "text": "The Unanswered Suspicion: (Accused) is freed, but rumors persist.",
+   "src": "L9279"
+  },
+  "c3": {
+   "text": "The Courageous Elder: An elder argues that fear must not become an excuse for cruelty, winning grudging respect.",
+   "src": "L9280-9281"
+  },
+  "c4": {
+   "text": "The Genuine Conspiracy: The relic was planted deliberately, although (Accused) may still be innocent.",
+   "src": "L9282-9283"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

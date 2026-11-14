@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Relic That Outlived Its Discoverer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r4_relic_outlived",
+  "source": "v26",
+  "lines": [
+   9313,
+   9330
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9313",
+  "ledger": [
+   {
+    "src": "L9316",
+    "kind": "instruction",
+    "why": "one of R4-1 to R4-8, equally likely"
+   },
+   {
+    "src": "L9326",
+    "kind": "instruction",
+    "text": "Large Tech reward.",
+    "why": "the large tech effect on r5"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "first": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "second": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The relic again",
+   "text": "Years or generations after (First) first found the object, (Second) discovers it again. The original discoverer may now be elderly or dead.\n{v20_relics}",
+   "src": "L9314-9315",
+   "text_only": [
+    {
+     "src": "L9315",
+     "what": "the original discoverer may now be elderly or dead",
+     "reason": "only a living villager can be named; the first discoverer is cast alive"
+    }
+   ],
+   "children": [
+    {
+     "next": "set_r"
+    }
+   ]
+  },
+  "r1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Forgotten Genius: (Second) solves the mystery and receives acclaim once denied to (First).",
+   "src": "L9317-9318"
+  },
+  "r2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Justice Across Generations: Village records reveal that (First) was wrongfully confined; the elders clear (first.his/her) name.",
+   "src": "L9319-9320",
+   "text_only": [
+    {
+     "src": "L9320",
+     "what": "wrongfully confined",
+     "reason": "rule 7: confinement and clearing a name are told only"
+    }
+   ]
+  },
+  "r3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Legendary Artifact: The object becomes a cherished relic despite nobody understanding its purpose.",
+   "src": "L9321-9322"
+  },
+  "r4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Great Deception: A supposed ancient marvel was fabricated by an earlier villager as an elaborate prank.",
+   "src": "L9323-9324"
+  },
+  "r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Discovery That Changed Everything: A later generation understands part of its construction.",
+   "src": "L9325-9326",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9326"
+    }
+   ]
+  },
+  "r6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Curse That Wasn't: The object proves entirely harmless.",
+   "src": "L9327"
+  },
+  "r7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Curse That Was: It activates unexpectedly after decades.",
+   "src": "L9328"
+  },
+  "r8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Last Witness: An elder admits to having concealed the truth about the object's arrival for many years.",
+   "src": "L9329-9330"
+  },
+  "set_r": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    },
+    {
+     "next": "r4"
+    },
+    {
+     "next": "r5"
+    },
+    {
+     "next": "r6"
+    },
+    {
+     "next": "r7"
+    },
+    {
+     "next": "r8"
+    }
+   ]
+  }
+ },
+ "include_pools": [
+  "v20_relics"
+ ]
+}

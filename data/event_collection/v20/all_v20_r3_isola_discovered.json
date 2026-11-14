@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Has Isola Been Discovered?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r3_isola_discovered",
+  "source": "v26",
+  "lines": [
+   9285,
+   9311
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9285",
+  "ledger": []
+ },
+ "roles": {},
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "A second impossible object appears. Then a third. The villagers fear that powerful strangers know the island's location.",
+   "src": "L9286-9287",
+   "choices": [
+    {
+     "label": "PREPARE FOR POSSIBLE INVASION",
+     "next": "set_a",
+     "src": "L9289"
+    },
+    {
+     "label": "SEARCH FOR THE SOURCE",
+     "next": "set_b",
+     "src": "L9295"
+    },
+    {
+     "label": "KEEP THE DISCOVERIES SECRET",
+     "next": "set_c",
+     "src": "L9301"
+    },
+    {
+     "label": "ATTEMPT TO COMMUNICATE",
+     "next": "set_d",
+     "src": "L9307"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Watch posts and patrols are organized.",
+   "src": "L9290"
+  },
+  "a2": {
+   "text": "A lookout mistakes an animal for an invader, causing panic.",
+   "src": "L9291"
+  },
+  "a3": {
+   "text": "A patrol discovers signs of an unfamiliar landing party.",
+   "src": "L9292"
+  },
+  "a4": {
+   "text": "The preparations exhaust food and labor; nobody arrives.",
+   "src": "L9293",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true,
+     "src": "L9293"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296"
+  },
+  "b2": {
+   "text": "A cave contains a secret collection of strange artifacts.",
+   "src": "L9297"
+  },
+  "b3": {
+   "text": "An unfamiliar campsite appears recently abandoned.",
+   "src": "L9298"
+  },
+  "b4": {
+   "text": "The objects may have washed ashore from a distant land.",
+   "src": "L9299"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The elders conceal the relics, but rumors persist.",
+   "src": "L9302"
+  },
+  "c2": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303"
+  },
+  "c3": {
+   "text": "Someone steals a relic for personal gain.",
+   "src": "L9304"
+  },
+  "c4": {
+   "text": "A child innocently reveals the secret to everyone.",
+   "src": "L9305"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "d1": {
+   "text": "A great shore signal receives no answer.",
+   "src": "L9308"
+  },
+  "d2": {
+   "text": "A distant light appears over the water.",
+   "src": "L9309"
+  },
+  "d3": {
+   "text": "An unfamiliar object appears in apparent response.",
+   "src": "L9310"
+  },
+  "d4": {
+   "text": "The signal attracts attention the elders deeply regret.",
+   "src": "L9311"
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  }
+ }
+}
