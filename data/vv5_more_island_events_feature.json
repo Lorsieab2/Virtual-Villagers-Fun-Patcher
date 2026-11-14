@@ -27,7 +27,7 @@
     {
       "source": "assets/more_island_events/VVFP More Island Events.dll",
       "destination": "VVFP More Island Events.dll",
-      "sha256": "144FDF3E6EB7F4896B5782223849B9017C3E181DC5A3F3BDDD11FE2E58215F5B"
+      "sha256": "D45F2535233293924EC891815F2D73B369FC4803585BC417D86B9832ACC163F1"
     }
   ],
   "patches": [],
