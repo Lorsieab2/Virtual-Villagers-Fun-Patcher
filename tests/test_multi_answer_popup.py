@@ -897,8 +897,10 @@ def stacked_height(h: int, n: int) -> int:
 
 @emulated
 class SevenFitOnScreen(unittest.TestCase):
-    """Seven answers and at least three text lines fit an 800 x 600 screen in every game, with and without
-    Scrolling Popups -- measured on the layout the companion makes (ONE column; two columns are not needed)."""
+    """Seven answers and at least three text lines fit an 800 x 600 screen in every game without Scrolling Popups --
+    measured on the layout the companion makes (ONE column; two columns are not needed).  With Scrolling Popups the
+    choices are rows at the end of the scrolled text instead (one popup per island event, the owner 2026-11-14:
+    tests/test_one_popup_scrolling.py and tests/test_one_popup_runtime.py)."""
 
     def test_seven_answers_and_three_lines_fit_800_by_600(self):
         for game in GAMES:
@@ -907,7 +909,7 @@ class SevenFitOnScreen(unittest.TestCase):
             g = int(game[2])
             h = BUTTON_H if g >= 3 else ENC_H
             layout = cg.GAMES[g].question
-            for scrolling in (False, True):
+            for scrolling in (False,):
                 with self.subTest(game=game, scrolling=scrolling):
                     # The text lines a question page keeps beside seven answers (the companion's pagination).
                     title = 5 if layout.with_title else 0       # the title, then four line breaks

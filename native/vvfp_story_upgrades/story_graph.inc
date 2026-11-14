@@ -2736,6 +2736,17 @@ static int cg_cu_char(const unsigned char *t, int u, unsigned char c) {
     return cg_cu_kind[u] == 0 && t[cg_cu_at[u]] == c;
 }
 
+/* Where placeholder unit `u`'s word starts (its capital goes there): after its last "." before any "|". */
+static int cg_ph_word_at(const unsigned char *t, int u) {
+    int b, at = 1;
+    for (b = 1; b < cg_cu_len[u] - 1 && t[cg_cu_at[u] + b] != '|'; ++b) {
+        if (t[cg_cu_at[u] + b] == '.') {
+            at = b + 1;
+        }
+    }
+    return at;
+}
+
 static int cg_case_start(const unsigned char *t, int u, int item) {
     int k = u - 1;
     while (k >= 0 && cg_cu_kind[k] == 0 && (t[cg_cu_at[k]] == ' ' || t[cg_cu_at[k]] == '"' || t[cg_cu_at[k]] == '\'')) {
@@ -2751,7 +2762,8 @@ static int cg_case_start(const unsigned char *t, int u, int item) {
 /* `text` (NUL-ended, changed in place) with its runs in capitals in sentence case; `item`: a pool's item. */
 static void cg_sentence_case(char *text, int item) {
     unsigned char *t = (unsigned char *)text;
-    int n = 0, words = 0, k, i, line = 0, upper = 0;
+    int n = 0, words = 0, k, i, line = 0, upper = 0, lines = 0;
+    static int line_start[CG_CASE_UNITS], line_end[CG_CASE_UNITS];
     for (k = 0; t[k] != 0; ++k) {
         upper |= cg_up(t[k]);
     }
@@ -2769,6 +2781,14 @@ static void cg_sentence_case(char *text, int item) {
     if (t[k] != 0) {
         return;                         /* longer than any popup's text: as written */
     }
+    line_start[0] = 0;                  /* each line's units [start, end) */
+    for (k = 0; k < n; ++k) {
+        if (cg_cu_char(t, k, '\n')) {
+            line_end[lines++] = k;
+            line_start[lines] = k + 1;
+        }
+    }
+    line_end[lines] = n;
     for (k = 0; k < n;) {
         if (cg_cu_kind[k] == 0 && cg_letter(t[cg_cu_at[k]])) {
             int start = k, letters = 0, lower = 0;
@@ -2810,15 +2830,18 @@ static void cg_sentence_case(char *text, int item) {
             }
             r1 = j;
             if (long_words >= 2 || (long_words >= 1 && !lower_in_line)) {
-                int u0 = cg_cw_start[r0], u1 = cg_cw_end[r1 - 1], u, b;
+                /* the run's span: out to the words around it (or the line's ends) */
+                int u0 = r0 > first ? cg_cw_end[r0 - 1] : line_start[cg_cw_line[r0]];
+                int u1 = r1 < last ? cg_cw_start[r1] : line_end[cg_cw_line[r0]], u, b;
                 for (u = u0; u < u1; ++u) {
                     for (b = 0; b < (cg_cu_kind[u] == 0 || cg_cu_kind[u] == 1 ? cg_cu_len[u] : 0); ++b) {
                         t[cg_cu_at[u] + b] = cg_to_lo(t[cg_cu_at[u] + b]);
                     }
                 }
                 for (u = u0; u < u1; ++u) {
-                    if (cg_cu_kind[u] == 1 && cg_cu_len[u] > 1 && cg_case_start(t, u, item)) {
-                        t[cg_cu_at[u] + 1] = cg_to_up(t[cg_cu_at[u] + 1]);
+                    if (cg_cu_kind[u] == 1 && cg_cu_len[u] > 2 && cg_case_start(t, u, item)) {
+                        int at = cg_ph_word_at(t, u);
+                        t[cg_cu_at[u] + at] = cg_to_up(t[cg_cu_at[u] + at]);
                     }
                 }
                 for (w = r0; w < r1; ++w) {
@@ -2869,11 +2892,17 @@ static void cg_title_case(char *title) {
         unsigned char kind = 0;
         int len = cg_case_token(t + k, &kind), b;
         if (len > 0) {
-            if (kind == 1 && len > 1) {
-                t[k + 1] = cg_to_up(t[k + 1]);         /* "(NAME)": the name, as written */
-                for (b = 2; b < len; ++b) {
+            if (kind == 1 && len > 2) {
+                int at = 1;
+                for (b = 1; b < len; ++b) {
                     t[k + b] = cg_to_lo(t[k + b]);
                 }
+                for (b = 1; b < len - 1 && t[k + b] != '|'; ++b) {
+                    if (t[k + b] == '.') {
+                        at = b + 1;
+                    }
+                }
+                t[k + at] = cg_to_up(t[k + at]);      /* "(NAME)": "(Name)", the name as written */
                 begin = 0;
             } else {
                 begin = 1;

@@ -1397,6 +1397,12 @@ def _units(text: str) -> list[tuple[str, str]]:
     return out
 
 
+def _ph_word_at(raw: str) -> int:
+    """Where a placeholder's word starts (its capital goes there): after its last "." before any "|"."""
+    inner = raw[1:-1].partition("|")[0]
+    return 1 + inner.rfind(".") + 1
+
+
 def _sentence_start(units: list[tuple[str, str]], at: int, item: bool) -> bool:
     k = at - 1
     while k >= 0 and units[k][0] == "c" and units[k][1] in _SENTENCE_QUOTES:
@@ -1429,17 +1435,20 @@ def sentence_case(text: str, item: bool = False) -> str:
             words.append([start, k, sum(1 for c in chars if _is_letter(c)), any(_is_lower(c) for c in chars)])
             continue
         k += 1
-    # Lines: the words of each, by the line breaks between them.
+    # Lines: the words of each, by the line breaks between them, and each line's units [start, end).
     lines: list[list[int]] = [[]]
+    bounds: list[list[int]] = [[0, n]]
     w = 0
     for k in range(n):
         while w < len(words) and words[w][0] == k:
             lines[-1].append(w)
             w += 1
         if units[k] == ("c", "\n"):
+            bounds[-1][1] = k
             lines.append([])
+            bounds.append([k + 1, n])
     out = list(units)
-    for line in lines:
+    for line, (line_start, line_end) in zip(lines, bounds):
         lower_in_line = any(words[w][3] for w in line)
         i = 0
         while i < len(line):
@@ -1452,7 +1461,10 @@ def sentence_case(text: str, item: bool = False) -> str:
             run = line[i:j]
             long_words = sum(1 for w in run if words[w][2] >= 2)
             if long_words >= 2 or (long_words >= 1 and not lower_in_line):
-                first, last = words[run[0]][0], words[run[-1]][1]
+                # The run's span: out to the words around it (or the line's ends), so a placeholder beside it is
+                # in it ("(NAME) STOPS." -> "(name) stops.").
+                first = words[line[i - 1]][1] if i > 0 else line_start
+                last = words[line[j]][0] if j < len(line) else line_end
                 for u in range(first, last):
                     kind, raw = out[u]
                     if kind == "c":
@@ -1461,8 +1473,9 @@ def sentence_case(text: str, item: bool = False) -> str:
                         out[u] = ("ph", "".join(_to_lower(c) for c in raw))
                 for u in range(first, last):
                     kind, raw = out[u]
-                    if kind == "ph" and _sentence_start(out, u, item) and len(raw) > 1:
-                        out[u] = ("ph", raw[0] + _to_upper(raw[1]) + raw[2:])
+                    if kind == "ph" and _sentence_start(out, u, item) and len(raw) > 2:
+                        at = _ph_word_at(raw)
+                        out[u] = ("ph", raw[:at] + _to_upper(raw[at]) + raw[at + 1:])
                 for w in run:
                     s, e = words[w][0], words[w][1]
                     if _sentence_start(out, s, item):
@@ -1486,8 +1499,10 @@ def title_case(title: str) -> str:
     out = []
     begin = True
     for kind, raw in units:
-        if kind == "ph" and len(raw) > 1:
-            out.append(raw[0] + _to_upper(raw[1]) + "".join(_to_lower(c) for c in raw[2:]))   # "(NAME)": the name
+        if kind == "ph" and len(raw) > 2:
+            low = "".join(_to_lower(c) for c in raw)
+            at = _ph_word_at(low)
+            out.append(low[:at] + _to_upper(low[at]) + low[at + 1:])   # "(NAME)": "(Name)", the name as written
             begin = False
             continue
         if kind != "c":
