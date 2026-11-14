@@ -142,6 +142,9 @@ class CollectionFiles(unittest.TestCase):
         self.assertEqual(r.returncode, 1 if KNOWN_GAPS else 0, r.stdout + r.stderr)
         self.assertIn("files pass", r.stdout)
 
+    def test_shared_pools(self):
+        self.assertEqual(cc.check_shared_pools(), [])
+
     def test_every_listed_grammar_fix_is_on_its_line(self):
         fixes = cc.grammar_doc_fixes()
         self.assertGreaterEqual(len(fixes), 30)

@@ -994,6 +994,32 @@ def canonical(doc: dict) -> str:
     return json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
 
 
+def check_shared_pools() -> list[str]:
+    """data/event_collection/shared_pools.json: each item is its source text (its own src) and every pool name is
+    a v6 pool name.  Returned as problems (empty = fine)."""
+    out = []
+    if not lib.SHARED_POOLS.exists():
+        return ["data/event_collection/shared_pools.json is missing"]
+    data = json.loads(lib.SHARED_POOLS.read_text(encoding="utf-8"))
+    if data.get("format") != "vvfp-event-collection-pools" or not isinstance(data.get("pools"), dict):
+        return ["shared_pools.json: format vvfp-event-collection-pools with a pools object"]
+    for name, p in data["pools"].items():
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_]{0,31}", name):
+            out.append(f"shared pool {name}: not a pool name")
+        for i, it in enumerate(p.get("items", [])):
+            if not isinstance(it, dict) or not it.get("src") or not isinstance(it.get("text"), str):
+                out.append(f"shared pool {name} item {i + 1}: {{\"text\", \"src\"}}")
+                continue
+            try:
+                span = build_span(lib.src_lines(it["src"]), {}, {})
+            except ValueError as ex:
+                out.append(f"shared pool {name} item {i + 1}: {ex}")
+                continue
+            if not re.search(text_regex(it["text"], {}), span.text):
+                out.append(f"shared pool {name} item {i + 1}: {it['text'][:60]!r} is not the source text")
+    return out
+
+
 def collection_files() -> list[Path]:
     return sorted(p for p in lib.COLLECTION_DIR.glob("*/*.json"))
 
