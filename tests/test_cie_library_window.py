@@ -50,7 +50,9 @@ class ScrollingPopupsDetected(unittest.TestCase):
             stock = self.folder(tmp, "stock", files=False)
             self.assertIs(w.scrolling_installed(3, [on]), True)
             self.assertIs(w.scrolling_installed(3, [off]), False)
-            self.assertIs(w.scrolling_installed(3, [other]), False)            # another game's never counts
+            self.assertIsNone(w.scrolling_installed(3, [other]))               # another game's never counts
+            self.assertIs(w.scrolling_installed(3, [other, on]), True)         # ...and is skipped, not decisive
+            self.assertIs(w.scrolling_installed(3, [other, off]), False)
             self.assertIs(w.scrolling_installed(3, [old_on]), True)
             self.assertIs(w.scrolling_installed(3, [old_off]), False)
             self.assertIsNone(w.scrolling_installed(3, [stock, Path(tmp) / "missing"]))

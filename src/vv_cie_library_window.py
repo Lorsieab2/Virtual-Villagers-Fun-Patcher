@@ -724,8 +724,8 @@ def scrolling_installed(game: int, game_folders) -> bool | None:
     """Whether the game in the first of `game_folders` that is a patched game has the Scrolling Popups patch: its
     installed patches' list (patcher_files.INSTALLED_PATCHES_FILENAME, written at every patch) names
     "vv<game>_scrolling_popups"; a game patched before that list existed has the patch exactly when its companion
-    "VVFP Scrolling Popups.dll" is in its patcher folder (a patch removes the companions it did not install).  None
-    when no such folder is found."""
+    "VVFP Scrolling Popups.dll" is in its patcher folder (a patch removes the companions it did not install).  A
+    folder whose list names only other games is skipped.  None when no such folder is found."""
     for folder in game_folders:
         root = Path(folder)
         files = root / patcher_files.PATCHER_FILES_FOLDER
@@ -733,6 +733,9 @@ def scrolling_installed(game: int, game_folders) -> bool | None:
         try:
             if listing.is_file():
                 ids = {line.strip() for line in listing.read_text(encoding="ascii", errors="replace").splitlines()}
+                games = {i.split("_", 1)[0] for i in ids if re.fullmatch(r"vv[1-5](_\w+)?", i)}
+                if games and f"vv{game}" not in games:
+                    continue                    # another game's folder never decides this game's answer
                 return f"vv{game}_scrolling_popups" in ids
             if files.is_dir():
                 return (files / "VVFP Scrolling Popups.dll").is_file()
