@@ -1,5 +1,665 @@
 {
  "format": "vvfp-event-collection-pools",
  "version": 1,
- "pools": {}
+ "pools": {
+  "v8_c1": {
+   "items": [
+    {
+     "text": "After the competition, the winner discovers that the loser has already gone home. The winner {finds (coda1.him/her) to offer a sincere compliment|decides to give (coda1.him/her) space|asks the judges to acknowledge the loser's contribution}.",
+     "src": "L4336-4339"
+    }
+   ]
+  },
+  "v8_c2": {
+   "items": [
+    {
+     "text": "The adult kneels to the child's eye level. \"I was impatient. You didn't deserve that.\" The child {forgives (coda1.him/her)|says (coda2.he/she) is still upset|asks whether they can try again tomorrow}. The adult accepts the answer.",
+     "src": "L4342-4346"
+    }
+   ]
+  },
+  "v8_c3": {
+   "items": [
+    {
+     "text": "The child hears the apology but shakes (coda1.his/her) head. \"Not yet.\" The adult says, \"Alright. I will do better whether or not you're ready to forgive me.\" No forced reconciliation occurs.",
+     "src": "L4349-4353"
+    }
+   ]
+  },
+  "v8_c4": {
+   "items": [
+    {
+     "text": "An elder gives advice that turns out to be mistaken. At first, (coda1.he/she) insists the younger villagers must have misunderstood. Then the evidence becomes impossible to ignore. \"Well,\" the elder says. \"I suppose being old doesn't make me right about everything.\" A child asks whether this means the elder will stop giving advice. \"Absolutely not.\"",
+     "src": "L4356-4362"
+    }
+   ]
+  },
+  "v8_c5": {
+   "items": [
+    {
+     "text": "A nursing parent finally finds a quiet place to sit with the baby. Someone approaches with a request, sees the exhausted expression, and quietly turns away. For five glorious minutes, nobody needs anything else from (coda1.him/her).",
+     "src": "L4365-4368"
+    }
+   ]
+  },
+  "v8_c6": {
+   "items": [
+    {
+     "text": "The losing contestant looks at (coda1.his/her) finished work. It is better than anything (coda1.he/she) could have made last year. No trophy can change that.",
+     "src": "L4371-4373"
+    }
+   ]
+  },
+  "v8_c7": {
+   "items": [
+    {
+     "text": "Someone mentions a former villager who would have loved the event. The conversation goes quiet. Then one person recalls a ridiculous thing the absent friend once said. They laugh, and the laughter does not erase the sadness.",
+     "src": "L4376-4379"
+    }
+   ]
+  },
+  "v8_c8": {
+   "items": [
+    {
+     "text": "A competitor discovers that a rival has knowingly cheated. \"Don't you DARE call it a misunderstanding,\" (coda1.he/she) says. The culprit is given a chance to explain, but the organizers do not excuse the wrongdoing merely because the culprit feels ashamed. The result is corrected; restitution is required where appropriate. Forgiveness is optional.",
+     "src": "L4382-4387"
+    }
+   ]
+  },
+  "v8_c9": {
+   "items": [
+    {
+     "text": "The judges announce the wrong name. The crowd cheers. The real winner stands frozen. When the mistake is discovered, the judges correct it publicly and apologize to BOTH villagers. The mistaken winner is allowed to feel disappointed without being blamed for the judges' error.",
+     "src": "L4390-4394"
+    }
+   ]
+  },
+  "v8_c10": {
+   "items": [
+    {
+     "text": "A child notices that an elder has been standing for a long time. Without being asked, the child brings a stool. The elder says nothing at first, then reaches over and pats the child's hand.",
+     "src": "L4397-4399"
+    }
+   ]
+  },
+  "v8_c11": {
+   "items": [
+    {
+     "text": "A villager laughs at a competitor's mistake. The competitor looks genuinely hurt. The laughter dies down. The joker apologizes, not with a grand speech but by acknowledging exactly what was unkind. The competitor may accept, decline, or simply change the subject.",
+     "src": "L4402-4406"
+    }
+   ]
+  },
+  "v8_c12": {
+   "items": [
+    {
+     "text": "A famously critical Master Builder examines an apprentice's work. After a long silence, (coda1.he/she) says, \"That joint is acceptable.\" The apprentice looks as though (coda2.he/she) has been crowned ruler of the entire island.",
+     "src": "L4409-4412"
+    }
+   ]
+  },
+  "v8_c13": {
+   "items": [
+    {
+     "text": "A parent finishes a project while caring for an infant and hears someone praise only the baby's cuteness. The parent smiles, then says, \"Thank you. I worked hard on the project, too.\" The other villager recognizes the oversight and offers a genuine compliment.",
+     "src": "L4415-4420"
+    }
+   ]
+  },
+  "v8_c14": {
+   "items": [
+    {
+     "text": "A villager claims to have saved the entire competition by catching a falling coconut. Another points out that the coconut was rolling slowly along the ground. \"It was a VERY determined coconut,\" comes the reply.",
+     "src": "L4423-4426"
+    }
+   ]
+  },
+  "v8_c15": {
+   "items": [
+    {
+     "text": "After a long day of arguments, the rivals sit down to eat. They do not discuss the contest. One passes the salt. The other says, \"Thanks.\" Nothing is solved. Something is less difficult.",
+     "src": "L4429-4432"
+    }
+   ]
+  },
+  "v8_c16": {
+   "items": [
+    {
+     "text": "An elder watches a child demonstrate a skill (coda1.he/she) once taught. The child's hands move with confidence. \"You're getting good at this,\" the elder says. \"I had a good teacher,\" the child replies. The elder looks away before the child can see the tears.",
+     "src": "L4435-4439"
+    }
+   ]
+  },
+  "v9_r1": {
+   "items": [
+    {
+     "text": "'I hope you lose every contest you ever enter,' (Subject) snaps. (Friend) goes pale. 'You were my friend.' Neither speaks for days.",
+     "src": "L5229-5230"
+    }
+   ]
+  },
+  "v9_r2": {
+   "items": [
+    {
+     "text": "The two adults shove each other. Other adults intervene promptly. No one is seriously hurt. The organizers suspend the contest and require accountability before either may return.",
+     "src": "L5232-5234"
+    }
+   ]
+  },
+  "v9_r3": {
+   "items": [
+    {
+     "text": "(Subject) admits to a wrongdoing nobody accused (subject.him/her) of. The judge says, 'That is a separate matter, and we will not pretend it proves this charge.'",
+     "src": "L5236-5238"
+    }
+   ]
+  },
+  "v9_r4": {
+   "items": [
+    {
+     "text": "An elder confesses to protect a grandchild. The grandchild says, 'Please stop. I don't want you punished for something I did.'",
+     "src": "L5240-5241"
+    }
+   ]
+  },
+  "v9_r5": {
+   "items": [
+    {
+     "text": "A villager confesses because (coda1.he/she) genuinely believes a careless thought caused the disaster. A trusted adult explains the difference between wishing, fearing, and acting.",
+     "src": "L5243-5245"
+    }
+   ]
+  },
+  "v9_r6": {
+   "items": [
+    {
+     "text": "The guilty villager is cleared by accident. (coda1.He/She) returns at sunset and tells the truth, trembling. The wronged person asks, 'Why now?' 'Because you deserved to know.'",
+     "src": "L5247-5249"
+    }
+   ]
+  },
+  "v9_r7": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (coda1.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
+  },
+  "v9_r8": {
+   "items": [
+    {
+     "text": "A former enemy repairs the broken object in secret. The owner recognizes the workmanship. Neither knows how to begin the conversation.",
+     "src": "L5254-5255"
+    }
+   ]
+  },
+  "v9_r9": {
+   "items": [
+    {
+     "text": "The judge announces a verdict, then realizes the evidence was misread. The hearing is reopened. The judge apologizes publicly.",
+     "src": "L5257-5258"
+    }
+   ]
+  },
+  "v9_r10": {
+   "items": [
+    {
+     "text": "A pompous prosecutor drops a pile of bark-paper documents into slug slime. The court recesses while everyone tries not to laugh.",
+     "src": "L5260-5261"
+    }
+   ]
+  },
+  "v9_r11": {
+   "items": [
+    {
+     "text": "The 'prison' is a harmless, story-only holding room where an adult culprit waits for a hearing; the guard is bored, the culprit is indignant, and no game-state removal occurs.",
+     "src": "L5263-5265"
+    }
+   ]
+  },
+  "v9_r12": {
+   "items": [
+    {
+     "text": "The accused spends a sleepless night in story-only custody before new evidence clears (coda1.him/her). The leader apologizes and offers restitution. The experience is not waved away as a joke.",
+     "src": "L5267-5269"
+    }
+   ]
+  },
+  "v9_r13": {
+   "items": [
+    {
+     "text": "The culprit's punishment is to rebuild the object (coda1.he/she) destroyed. The victim watches and says, 'That doesn't make us even.' 'I know,' the culprit replies.",
+     "src": "L5271-5273"
+    }
+   ]
+  },
+  "v9_r14": {
+   "items": [
+    {
+     "text": "The rivals exchange apologies that are technically sincere but extremely badly phrased. 'I'm sorry you're such an irritating person.' 'THAT IS NOT AN APOLOGY.' They try again.",
+     "src": "L5275-5277"
+    }
+   ]
+  },
+  "v9_r15": {
+   "items": [
+    {
+     "text": "An elderly witness is confidently wrong. When corrected, (coda1.he/she) says, 'I have been wrong before. Not often, mind you.'",
+     "src": "L5279-5280"
+    }
+   ]
+  },
+  "v9_r16": {
+   "items": [
+    {
+     "text": "A child presents an airtight argument. The adults ignore it until a Master Scientist repeats the same point. The child is furious. The scientist gives the child public credit.",
+     "src": "L5282-5284"
+    }
+   ]
+  },
+  "v9_r17": {
+   "items": [
+    {
+     "text": "A nursing mother or father, baby asleep in (coda1.his/her) arms, settles the dispute with one calm observation. Everyone thanks the parent. The parent says, 'Excellent. Now go argue somewhere else.'",
+     "src": "L5286-5288"
+    }
+   ]
+  },
+  "v9_r18": {
+   "items": [
+    {
+     "text": "A villager discovers the person who hurt (coda1.him/her) is crying. (coda1.He/She) offers water, but not forgiveness. Both acts are sincere.",
+     "src": "L5290-5291"
+    }
+   ]
+  },
+  "v9_r19": {
+   "items": [
+    {
+     "text": "The rivals agree to work together. One says, 'I still despise your handwriting.' The other says, 'I still despise your face.' Their joint project is excellent.",
+     "src": "L5293-5295"
+    }
+   ]
+  },
+  "v9_r20": {
+   "items": [
+    {
+     "text": "The supposed victim admits staging the disappearance to attract attention. The leader is furious. The villager must repair the harm, including apologizing to those falsely accused.",
+     "src": "L5297-5299"
+    }
+   ]
+  },
+  "v9_r21": {
+   "items": [
+    {
+     "text": "The court is interrupted by a child demanding to know whether slugs have property rights. The judge closes (coda1.his/her) eyes.",
+     "src": "L5301-5302"
+    }
+   ]
+  },
+  "v9_r22": {
+   "items": [
+    {
+     "text": "The inventor's spectacular creation disintegrates into rotten wood dust. The rival laughs, then sees the inventor's face and stops.",
+     "src": "L5304-5305"
+    }
+   ]
+  },
+  "v9_r23": {
+   "items": [
+    {
+     "text": "'I thought if I won, you'd finally be proud of me,' the apprentice whispers. The mentor says, 'I should have told you sooner.'",
+     "src": "L5307-5308"
+    }
+   ]
+  },
+  "v9_r24": {
+   "items": [
+    {
+     "text": "No one reconciles. The village still needs dinner. Two bitter enemies pass bowls across the table without speaking. It is a start.",
+     "src": "L5310-5311"
+    }
+   ]
+  },
+  "v9_r25": {
+   "items": [
+    {
+     "text": "The whole argument began because somebody labeled a jar of crushed snail shells 'PEARLS.' The inventor refuses to change the label.",
+     "src": "L5313-5314"
+    }
+   ]
+  },
+  "v9_r26": {
+   "items": [
+    {
+     "text": "The neutral judge resigns from all future slug-related litigation. A child asks whether this includes snails. The judge says, 'Especially.'",
+     "src": "L5316-5317"
+    }
+   ]
+  },
+  "v10_o1": {
+   "items": [
+    {
+     "text": "(Subject) finds that the usual conversations stop when (subject.he/she) approaches. A friend finally says, \"I don't know what to believe.\" The uncertainty hurts almost as much as the accusation.",
+     "src": "L5933-5936"
+    }
+   ]
+  },
+  "v10_o2": {
+   "items": [
+    {
+     "text": "The disastrous invention becomes a joke at every feast. At first (Subject) laughs along. Then one day (subject.he/she) doesn't. Someone finally notices.",
+     "src": "L5939-5941"
+    }
+   ]
+  },
+  "v10_o3": {
+   "items": [
+    {
+     "text": "A cruel nickname catches on. A teacher challenges it: \"One foolish decision does not define a person.\" A child repeats the lesson more loudly than expected.",
+     "src": "L5944-5946"
+    }
+   ]
+  },
+  "v10_o4": {
+   "items": [
+    {
+     "text": "(Subject) establishes an \"INSTITUTE OF IMPROBABLE MATERIALS\" in a shed. Its first experiment involves fermented fruit juice, yeast, and a very expensive pearl. The village leaders demand an inventory.",
+     "src": "L5949-5952"
+    }
+   ]
+  },
+  "v10_o5": {
+   "items": [
+    {
+     "text": "After several wise recommendations, (Subject) is asked to advise the leaders regularly. (subject.He/She) accepts, then discovers the position involves listening to arguments about whose goat ate whose tree bark.",
+     "src": "L5955-5958"
+    }
+   ]
+  },
+  "v10_o6": {
+   "items": [
+    {
+     "text": "The former troublemaker becomes a teacher and warns the children not to repeat (coda1.his/her) mistakes. Naturally, they ask for detailed instructions.",
+     "src": "L5961-5963"
+    }
+   ]
+  },
+  "v10_o7": {
+   "items": [
+    {
+     "text": "The experienced healer is selected to coordinate care. (coda1.He/She) insists that the title is less important than training, hygiene, and listening to patients.",
+     "src": "L5966-5969"
+    }
+   ]
+  },
+  "v10_o8": {
+   "items": [
+    {
+     "text": "The new research lead announces a strict rule: \"NO MORE UNLABELED POWDERS.\" Someone asks whether this includes pulverized gemstones. \"ESPECIALLY THOSE.\"",
+     "src": "L5972-5975"
+    }
+   ]
+  },
+  "v10_o9": {
+   "items": [
+    {
+     "text": "The village's most dependable farmer is asked to coordinate the harvest. The first decree is that nobody may use cave guano as table seasoning.",
+     "src": "L5978-5980"
+    }
+   ]
+  },
+  "v10_o10": {
+   "items": [
+    {
+     "text": "The Master Builder receives the office after years of dependable work. (coda1.He/She) celebrates by repairing the same crooked bench that started (coda1.his/her) career.",
+     "src": "L5983-5986"
+    }
+   ]
+  },
+  "v10_o11": {
+   "items": [
+    {
+     "text": "The community honors a villager known for patient service and wisdom. The villager declines an elaborate crown and asks for a quieter ceremony.",
+     "src": "L5989-5991"
+    }
+   ]
+  },
+  "v10_o12": {
+   "items": [
+    {
+     "text": "The Magician's appointment is celebrated with an elaborate ritual. The ceremony goes perfectly until the decorative vines catch on a stool.",
+     "src": "L5994-5996",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "v10_o13": {
+   "items": [
+    {
+     "text": "The Naturalist is appointed after years of careful stewardship. The first public address is interrupted by a slug crawling over the notes. The Naturalist calls it \"an excellent teaching opportunity.\"",
+     "src": "L5999-6002",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "v10_o14": {
+   "items": [
+    {
+     "text": "The council corrects a false accusation before the entire village. (Subject) accepts the apology but says, \"I wish you had asked me first.\"",
+     "src": "L6005-6007"
+    }
+   ]
+  },
+  "v10_o15": {
+   "items": [
+    {
+     "text": "The wrongdoer apologizes sincerely. The injured person says, \"I believe you're sorry. I am still angry.\" The apology remains valid; the anger remains real.",
+     "src": "L6010-6013"
+    }
+   ]
+  },
+  "v10_o16": {
+   "items": [
+    {
+     "text": "The village grants (Subject) another opportunity under sensible supervision. (subject.He/She) succeeds quietly and resists the urge to make a speech.",
+     "src": "L6016-6018"
+    }
+   ]
+  },
+  "v10_o17": {
+   "items": [
+    {
+     "text": "The two villagers never become friends. They do, however, stop trying to ruin each other's work. The village considers this tremendous progress.",
+     "src": "L6021-6023"
+    }
+   ]
+  },
+  "v10_o18": {
+   "items": [
+    {
+     "text": "A child announces that (Subject) is now \"HEAD OF THE DEPARTMENT OF TERRIBLE IDEAS.\" (Subject) bows deeply and demands an office.",
+     "src": "L6026-6028"
+    }
+   ]
+  },
+  "v10_o19": {
+   "items": [
+    {
+     "text": "After days of avoidance, someone sits beside (Subject) and offers a piece of bread. They do not discuss the scandal. Not yet.",
+     "src": "L6031-6033"
+    }
+   ]
+  },
+  "v10_o20": {
+   "items": [
+    {
+     "text": "An elderly villager who once mocked (Subject) says, \"I was wrong about you.\" (Subject) answers, \"I've waited years to hear that.\"",
+     "src": "L6036-6038"
+    }
+   ]
+  },
+  "v10_o21": {
+   "items": [
+    {
+     "text": "(Subject) confesses to damaging the workshop, convinced that (subject.his/her) experiment caused it. A careful investigation shows the damage predated the experiment. The relief leaves (Subject) shaking.",
+     "src": "L6041-6045"
+    }
+   ]
+  },
+  "v10_o22": {
+   "items": [
+    {
+     "text": "(Subject) admits taking the last piece of bread. The council points out that it was offered freely. (Subject) demands to be punished anyway. An elder prescribes an afternoon of rest.",
+     "src": "L6048-6051"
+    }
+   ]
+  },
+  "v10_o23": {
+   "items": [
+    {
+     "text": "The leaders offer (Subject) a senior role. (Subject) declines, saying, \"I like the work. I don't like meetings.\" The leaders respect the choice.",
+     "src": "L6054-6057"
+    }
+   ]
+  },
+  "v10_o24": {
+   "items": [
+    {
+     "text": "(Subject) offers to teach (Friend) a difficult skill. (Friend) refuses twice, then arrives before dawn on the third day, pretending to be passing by.",
+     "src": "L6060-6062"
+    }
+   ]
+  },
+  "v10_o25": {
+   "items": [
+    {
+     "text": "A defeated contestant shouts until (coda1.his/her) voice cracks, then bursts into tears. The organizers give (coda1.him/her) space. Later, (coda1.he/she) apologizes for the insults, not for feeling disappointed.",
+     "src": "L6065-6069"
+    }
+   ]
+  },
+  "v10_o26": {
+   "items": [
+    {
+     "text": "The village unveils a commemorative statue of its new advisor. The advisor stares at it. \"Why do I have seven teeth?\" The sculptor replies, \"Artistic freedom.\"",
+     "src": "L6072-6075"
+    }
+   ]
+  },
+  "v10_o27": {
+   "items": [
+    {
+     "text": "A quiet worker is appointed head of a field after years of unglamorous service. The loudest candidate complains. An apprentice says, \"You never noticed who did the work.\"",
+     "src": "L6078-6081"
+    }
+   ]
+  },
+  "v10_o28": {
+   "items": [
+    {
+     "text": "(Subject) makes one impressive gesture, then immediately returns to old habits. The village declines to restore (subject.his/her) responsibilities until behavior improves.",
+     "src": "L6084-6087"
+    }
+   ]
+  },
+  "v10_o29": {
+   "items": [
+    {
+     "text": "A child asks the adults why they are laughing at someone who is trying to learn. Nobody has a satisfying answer.",
+     "src": "L6090-6092"
+    }
+   ]
+  },
+  "v10_o30": {
+   "items": [
+    {
+     "text": "Years later, a young villager asks whether the famous snail-shell incident really happened. (Subject) sighs. \"Which version?\"",
+     "src": "L6095-6097"
+    }
+   ]
+  },
+  "v9_materials": {
+   "items": [
+    {
+     "text": "crushed-up snail shells",
+     "src": "L4524"
+    },
+    {
+     "text": "tree bark",
+     "src": "L4525"
+    },
+    {
+     "text": "volcanic ash",
+     "src": "L4526"
+    },
+    {
+     "text": "tough vines",
+     "src": "L4527"
+    },
+    {
+     "text": "animal rawhide",
+     "src": "L4528"
+    },
+    {
+     "text": "animal entrails",
+     "src": "L4529"
+    },
+    {
+     "text": "pulverized gemstones",
+     "src": "L4530"
+    },
+    {
+     "text": "polished pearls",
+     "src": "L4531"
+    },
+    {
+     "text": "eyeballs",
+     "src": "L4532"
+    },
+    {
+     "text": "spider silk",
+     "src": "L4533"
+    },
+    {
+     "text": "rotten wood",
+     "src": "L4534"
+    },
+    {
+     "text": "fermented yogurt",
+     "src": "L4535"
+    },
+    {
+     "text": "yeast",
+     "src": "L4536"
+    },
+    {
+     "text": "slugs",
+     "src": "L4537"
+    },
+    {
+     "text": "slug slime",
+     "src": "L4538"
+    },
+    {
+     "text": "cave guano",
+     "src": "L4539"
+    }
+   ],
+   "distinct": true
+  }
+ }
 }

@@ -1,0 +1,258 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Duel of the Terrible Inventors",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_duel_terrible_inventors",
+  "source": "v26",
+  "lines": [
+   4936,
+   4973
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4937",
+  "ledger": [
+   {
+    "src": "L4936",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4938",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4939",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4954",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4960",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4967",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "include_pools": [
+  "v9_materials",
+  "v9_r1",
+  "v9_r2",
+  "v9_r14",
+  "v9_r19",
+  "v9_r22",
+  "v9_r24"
+ ],
+ "pools": {
+  "END": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "They reconcile over a repair project, while still arguing about tools.",
+     "src": "L4968"
+    },
+    {
+     "text": "They remain enemies but agree never to become physical again.",
+     "src": "L4969"
+    },
+    {
+     "text": "A third inventor wins the contest while they are arguing.",
+     "src": "L4970"
+    },
+    {
+     "text": "A child gives each a trophy labeled 'MOST DRAMATIC ADULT.'",
+     "src": "L4971"
+    },
+    {
+     "text": "One says, 'I thought you hated me.' The other replies, 'I do. I also know you're brilliant.'",
+     "src": "L4972-4973"
+    }
+   ]
+  },
+  "TEST": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "One invention wins clearly. The loser storms away.",
+     "src": "L4955"
+    },
+    {
+     "text": "Both fail. A child suggests a simpler design that works.",
+     "src": "L4956"
+    },
+    {
+     "text": "Both work, but one smells like cave guano.",
+     "src": "L4957"
+    },
+    {
+     "text": "The devices combine into something unexpectedly useful.",
+     "src": "L4958"
+    }
+   ]
+  },
+  "COOL": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "One apologizes for shoving; the other admits to provoking (subject.him/her).",
+     "src": "L4961"
+    },
+    {
+     "text": "Both apologize for the physical fight but refuse to forgive the insults.",
+     "src": "L4962"
+    },
+    {
+     "text": "One denies wrongdoing; the organizers cancel the competition.",
+     "src": "L4963"
+    },
+    {
+     "text": "An elder says, 'You are both too old to fight like children.' A child objects that children are better behaved.",
+     "src": "L4964-4965"
+    }
+   ]
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "Two inventors",
+   "src": "L4941-4949",
+   "text": "Two inventors, (Subject) and (Friend), have spent years claiming the other is a fraud. They each present a device made from {v9_materials} and {v9_materials.2}. The first promises to {keep a roof dry|make a garden thrive|produce a beautiful melody}. The second promises the same thing, 'BUT BETTER.'\nWhen one prototype fails, the inventors begin shouting. A wooden measuring stick is snatched away, and they start shoving one another. Nearby adults separate them before anyone is seriously hurt.",
+   "choices": [
+    {
+     "label": "Judge the inventions under the same test.",
+     "next": "test",
+     "src": "L4951"
+    },
+    {
+     "label": "Require apologies and a cooling-off period first.",
+     "next": "cool",
+     "src": "L4952"
+    }
+   ]
+  },
+  "test": {
+   "text": "{TEST}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "cool": {
+   "text": "{COOL}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r1"
+    },
+    {
+     "next": "coda_r2"
+    },
+    {
+     "next": "coda_r14"
+    },
+    {
+     "next": "coda_r19"
+    },
+    {
+     "next": "coda_r22"
+    },
+    {
+     "next": "coda_r24"
+    }
+   ]
+  },
+  "coda_r1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r1}"
+  },
+  "coda_r2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r2}"
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r19": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r19}"
+  },
+  "coda_r22": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r22}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

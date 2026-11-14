@@ -1,0 +1,379 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Magician and the Naturalist",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vv345_magician_naturalist",
+  "source": "v26",
+  "lines": [
+   5850,
+   5926
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5851",
+  "ledger": [
+   {
+    "src": "L5850",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5852",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5853",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5858",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5878",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5885",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5892",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5900",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5907",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5924-5926",
+    "kind": "note",
+    "why": "designer note: VV3-VV5 only; the VV3 Chief is never displaced"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "magician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "one": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v10_o12",
+  "v10_o13",
+  "v10_o15",
+  "v10_o17",
+  "v10_o29"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "restore a neglected garden",
+     "src": "L5859"
+    },
+    {
+     "text": "decorate a ceremonial gathering place",
+     "src": "L5860"
+    },
+    {
+     "text": "explain an unusual weather pattern",
+     "src": "L5861"
+    },
+    {
+     "text": "teach children about the island",
+     "src": "L5862"
+    },
+    {
+     "text": "protect a fragile grove",
+     "src": "L5863"
+    },
+    {
+     "text": "design a beautiful public monument",
+     "src": "L5864"
+    }
+   ]
+  },
+  "PRESENT": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "Both proposals have strengths and weaknesses.",
+     "src": "L5879"
+    },
+    {
+     "text": "The Magician gives a magnificent speech but forgets to explain the practical steps.",
+     "src": "L5880-5881"
+    },
+    {
+     "text": "The Naturalist brings seventeen charts and no one can read the tiny labels.",
+     "src": "L5882-5883"
+    }
+   ]
+  },
+  "SHARED": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The two work together grudgingly and achieve an unexpectedly lovely result.",
+     "src": "L5886-5887"
+    },
+    {
+     "text": "They spend an hour arguing about whose name should appear first on the plaque.",
+     "src": "L5888-5889"
+    },
+    {
+     "text": "They agree to divide tasks by expertise.",
+     "src": "L5890"
+    }
+   ]
+  },
+  "MEDIATE": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The elder reminds them that disagreement is not a reason to insult one another.",
+     "src": "L5893-5894"
+    },
+    {
+     "text": "The elder is secretly enjoying the argument and has to be reminded to mediate.",
+     "src": "L5895-5896"
+    },
+    {
+     "text": "The elder admits both traditions matter to different people for different reasons.",
+     "src": "L5897-5898"
+    }
+   ]
+  },
+  "TESTS": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "The apprentices identify a practical combination.",
+     "src": "L5901"
+    },
+    {
+     "text": "Neither proposal works as expected; both experts must revise their assumptions.",
+     "src": "L5902-5903"
+    },
+    {
+     "text": "A child asks whether the argument itself is part of the ceremony. Nobody answers.",
+     "src": "L5904-5905"
+    }
+   ]
+  },
+  "OUTCOMES": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "They reconcile and become occasional collaborators.",
+     "src": "L5908"
+    },
+    {
+     "text": "They still hate each other, but now respect each other's competence.",
+     "src": "L5909-5910"
+    },
+    {
+     "text": "One publicly admits (one.he/she) was wrong. The other nearly faints.",
+     "src": "L5911-5912"
+    },
+    {
+     "text": "Their feud becomes a running village joke, until the leaders ask the audience to stop encouraging the shouting.",
+     "src": "L5913-5915"
+    },
+    {
+     "text": "The Magician is recognized as head magician after a long record of service, while the Naturalist becomes head naturalist.",
+     "src": "L5916-5918"
+    },
+    {
+     "text": "Neither receives a title. Both are told to spend a week learning how to listen.",
+     "src": "L5919-5920"
+    },
+    {
+     "text": "One says, \"I will never agree with you.\" The other replies, \"Good. I'd worry if you did.\"",
+     "src": "L5921-5922"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "Two traditions",
+   "src": "L5855-5856",
+   "text": "A respected Magician and a respected Naturalist have been arguing for weeks over the best way to {A}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Unbearably smug",
+   "src": "L5866-5871",
+   "text": "The Magician insists on {ritual|symbolism|creative intuition|traditional magical practice}. The Naturalist argues for {observation|soil testing|ecological balance|careful natural methods}.\nNeither is necessarily foolish. Both are unbearably smug.",
+   "choices": [
+    {
+     "label": "LET EACH PRESENT A PROPOSAL.",
+     "next": "present",
+     "src": "L5873"
+    },
+    {
+     "label": "REQUIRE A SHARED PLAN.",
+     "next": "shared",
+     "src": "L5874"
+    },
+    {
+     "label": "ASK A NEUTRAL ELDER TO MEDIATE.",
+     "next": "mediate",
+     "src": "L5875"
+    },
+    {
+     "label": "LET APPRENTICES TEST SAFE PARTS OF BOTH IDEAS.",
+     "next": "tests",
+     "src": "L5876"
+    }
+   ]
+  },
+  "present": {
+   "text": "{PRESENT}",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "shared": {
+   "text": "{SHARED}",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "mediate": {
+   "text": "{MEDIATE}",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "tests": {
+   "text": "{TESTS}",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "outcome": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{OUTCOMES}",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o12"
+    },
+    {
+     "next": "coda_o13"
+    },
+    {
+     "next": "coda_o15"
+    },
+    {
+     "next": "coda_o17"
+    },
+    {
+     "next": "coda_o29",
+     "if": {
+      "role": "magician"
+     }
+    }
+   ]
+  },
+  "coda_o12": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o12}"
+  },
+  "coda_o13": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o13}"
+  },
+  "coda_o15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o15}"
+  },
+  "coda_o17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o17}"
+  },
+  "coda_o29": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o29}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

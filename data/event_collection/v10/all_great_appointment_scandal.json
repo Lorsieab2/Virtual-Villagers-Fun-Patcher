@@ -1,0 +1,616 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Appointment Scandal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_great_appointment_scandal",
+  "source": "v26",
+  "lines": [
+   5730,
+   5848
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5731",
+  "ledger": [
+   {
+    "src": "L5730",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5732",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5733",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5739",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5747",
+    "kind": "structural",
+    "text": "(VV3-VV5 ONLY)",
+    "why": "game gate: the item's if"
+   },
+   {
+    "src": "L5748",
+    "kind": "structural",
+    "text": "(VV3-VV5 ONLY)",
+    "why": "game gate: the item's if"
+   },
+   {
+    "src": "L5750-5752",
+    "kind": "note",
+    "why": "designer rule: magician and naturalist only in VV3-VV5 (the items' game gate)"
+   },
+   {
+    "src": "L5767",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5775",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5783",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5790",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5798",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5804",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5812",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5820",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5832",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5845-5848",
+    "kind": "note",
+    "why": "titles are story only (rule 7); nursing parents are never harmed"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "candidate": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v10_o17",
+  "v10_o19",
+  "v10_o23",
+  "v10_o24",
+  "v10_o25",
+  "v10_o27"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "head doctor / senior healer",
+     "src": "L5740"
+    },
+    {
+     "text": "head scientist / lead researcher",
+     "src": "L5741"
+    },
+    {
+     "text": "head farmer / harvest coordinator",
+     "src": "L5742"
+    },
+    {
+     "text": "head builder / works supervisor",
+     "src": "L5743"
+    },
+    {
+     "text": "head devotee / spiritual organizer",
+     "src": "L5744"
+    },
+    {
+     "text": "priest or priestess / ceremonial caretaker",
+     "src": "L5745"
+    },
+    {
+     "text": "spiritual leader / community counselor",
+     "src": "L5746"
+    },
+    {
+     "text": "head magician",
+     "src": "L5747",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "text": "head naturalist",
+     "src": "L5748",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "MERIT": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "(Subject) has excellent skill but poor teamwork. The leaders request a plan for improvement.",
+     "src": "L5768-5769"
+    },
+    {
+     "text": "(Friend) has quietly mentored others for years. The record impresses the council.",
+     "src": "L5770-5771"
+    },
+    {
+     "text": "Both are qualified; the decision rests on the office's current needs.",
+     "src": "L5772-5773"
+    }
+   ]
+  },
+  "WORKERS": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "Apprentices praise (Subject)'s patience.",
+     "src": "L5776"
+    },
+    {
+     "text": "Several workers complain that (Friend) takes credit for others' work. The claims are checked.",
+     "src": "L5777-5778"
+    },
+    {
+     "text": "The workers prefer a shared leadership arrangement.",
+     "src": "L5779"
+    },
+    {
+     "text": "A child nominates the village's pet lizard. The nomination is respectfully declined.",
+     "src": "L5780-5781"
+    }
+   ]
+  },
+  "TRIAL": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "(Subject) organizes a complex project beautifully.",
+     "src": "L5784"
+    },
+    {
+     "text": "(Friend) handles a mistake with honesty and care.",
+     "src": "L5785"
+    },
+    {
+     "text": "Both perform well but disagree over priorities.",
+     "src": "L5786"
+    },
+    {
+     "text": "One candidate refuses to delegate and becomes exhausted; the leaders offer feedback.",
+     "src": "L5787-5788"
+    }
+   ]
+  },
+  "APPOINT": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "(Subject) is appointed after demonstrating competence.",
+     "src": "L5799"
+    },
+    {
+     "text": "(Friend) is appointed after demonstrating competence.",
+     "src": "L5800"
+    },
+    {
+     "text": "Both are assigned complementary coordinating duties.",
+     "src": "L5801"
+    },
+    {
+     "text": "Neither is appointed; the leaders reopen nominations.",
+     "src": "L5802"
+    }
+   ]
+  },
+  "SCANDAL": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "The responsible candidate admits wrongdoing and accepts a temporary bar from leadership.",
+     "src": "L5805-5806"
+    },
+    {
+     "text": "A falsely accused candidate insists on a public correction before returning to work.",
+     "src": "L5807-5808"
+    },
+    {
+     "text": "The investigation reveals poor record-keeping, not deliberate wrongdoing; the procedures are fixed.",
+     "src": "L5809-5810"
+    }
+   ]
+  },
+  "VINDICATION": {
+   "set": "(7)",
+   "items": [
+    {
+     "text": "The accused candidate is cleared. The accuser apologizes and corrects the rumor.",
+     "src": "L5813-5814"
+    },
+    {
+     "text": "The candidate is cleared but declines the office, saying the process has exhausted (candidate.him/her).",
+     "src": "L5815-5816"
+    },
+    {
+     "text": "The candidate accepts the appointment while requesting clearer future procedures.",
+     "src": "L5817-5818"
+    }
+   ]
+  },
+  "REACTIONS": {
+   "set": "(8)",
+   "items": [
+    {
+     "text": "The winner is jubilant; the loser is furious and refuses to attend the celebration.",
+     "src": "L5821-5822"
+    },
+    {
+     "text": "The loser congratulates the winner sincerely, then cries alone later.",
+     "src": "L5823-5824"
+    },
+    {
+     "text": "The winner admits to feeling frightened rather than triumphant.",
+     "src": "L5825-5826"
+    },
+    {
+     "text": "The new coordinator's first act is to give the apprentices credit for their work.",
+     "src": "L5827-5828"
+    },
+    {
+     "text": "The winner delivers a speech so long that an elderly villager falls asleep.",
+     "src": "L5829-5830"
+    }
+   ]
+  },
+  "LONG": {
+   "set": "(9)",
+   "items": [
+    {
+     "text": "A disgraced candidate earns trust back over time through consistent work, not one grand apology.",
+     "src": "L5833-5834"
+    },
+    {
+     "text": "The former rivals become effective colleagues without becoming friends.",
+     "src": "L5835-5836"
+    },
+    {
+     "text": "The village remembers the appointment as a lesson in fairness rather than a triumph for one faction.",
+     "src": "L5837-5838"
+    },
+    {
+     "text": "The new head appoints a former rival as an advisor, after discussing clear boundaries.",
+     "src": "L5839-5840"
+    },
+    {
+     "text": "The loser declares the process corrupt and spends a week sulking. A child asks whether sulking counts as a profession.",
+     "src": "L5841-5843"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The office",
+   "src": "L5735-5737",
+   "text": "The village leaders announce that a respected senior worker will be selected to coordinate {A}. It is a responsibility, not a magical promotion in skill.",
+   "text_only": [
+    {
+     "src": "L5736-5737",
+     "what": "a promotion in skill",
+     "reason": "the text says there is none; the office is story only (rule 7)"
+    }
+   ],
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The candidates",
+   "src": "L5754-5760",
+   "text": "Two qualified candidates, (Subject) and (Friend), are nominated. They {respect each other|secretly despise each other|used to be friends|are parent and adult child|have been rivals since their apprenticeship}.\nA third villager, (Third), is {a meticulous record-keeper|an opinionated elder|a worried apprentice|a former critic}.",
+   "choices": [
+    {
+     "label": "ASSESS COMPETENCE AND SERVICE.",
+     "next": "merit",
+     "src": "L5762"
+    },
+    {
+     "label": "ASK THE WORKERS WHO KNOW THE CANDIDATES.",
+     "next": "workers",
+     "src": "L5763"
+    },
+    {
+     "label": "GIVE BOTH A SUPERVISED TRIAL.",
+     "next": "trial",
+     "src": "L5764"
+    },
+    {
+     "label": "INVESTIGATE AN ALLEGATION BEFORE VOTING.",
+     "next": "allegation",
+     "src": "L5765"
+    }
+   ]
+  },
+  "merit": {
+   "text": "{MERIT}",
+   "children": [
+    {
+     "next": "appoint"
+    }
+   ]
+  },
+  "workers": {
+   "text": "{WORKERS}",
+   "children": [
+    {
+     "next": "appoint"
+    }
+   ]
+  },
+  "trial": {
+   "text": "{TRIAL}",
+   "children": [
+    {
+     "next": "appoint"
+    }
+   ]
+  },
+  "allegation": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "al1"
+    },
+    {
+     "next": "al2"
+    },
+    {
+     "next": "al3"
+    },
+    {
+     "next": "al4"
+    }
+   ]
+  },
+  "al1": {
+   "src": "L5791-5792",
+   "text": "The allegation is supported by records. The candidate receives a fair hearing and may be disqualified.",
+   "children": [
+    {
+     "next": "scandal"
+    }
+   ]
+  },
+  "al2": {
+   "src": "L5793",
+   "text": "The allegation is false and was spread by a rival.",
+   "children": [
+    {
+     "next": "vindication"
+    }
+   ]
+  },
+  "al3": {
+   "src": "L5794",
+   "text": "The allegation stems from a misunderstanding.",
+   "children": [
+    {
+     "next": "vindication"
+    }
+   ]
+  },
+  "al4": {
+   "src": "L5795-5796",
+   "text": "Evidence remains inconclusive; the appointment is delayed rather than treating suspicion as guilt.",
+   "children": [
+    {
+     "next": "scandal"
+    }
+   ]
+  },
+  "appoint": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{APPOINT}",
+   "children": [
+    {
+     "next": "reactions"
+    }
+   ]
+  },
+  "scandal": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{SCANDAL}",
+   "children": [
+    {
+     "next": "long"
+    }
+   ]
+  },
+  "vindication": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{VINDICATION}",
+   "children": [
+    {
+     "next": "long"
+    }
+   ]
+  },
+  "reactions": {
+   "name": "Reactions",
+   "text": "{REACTIONS}",
+   "text_only": [
+    {
+     "src": "L5821-5822",
+     "what": "the celebration",
+     "reason": "the loser refuses to attend a celebration the story mentions; no celebration is asked for"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "long": {
+   "name": "Long aftermath",
+   "text": "{LONG}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o17"
+    },
+    {
+     "next": "coda_o19"
+    },
+    {
+     "next": "coda_o23"
+    },
+    {
+     "next": "coda_o24"
+    },
+    {
+     "next": "coda_o25"
+    },
+    {
+     "next": "coda_o27"
+    }
+   ]
+  },
+  "coda_o17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o17}"
+  },
+  "coda_o19": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o19}"
+  },
+  "coda_o23": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o23}"
+  },
+  "coda_o24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o24}"
+  },
+  "coda_o25": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o25}"
+  },
+  "coda_o27": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o27}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

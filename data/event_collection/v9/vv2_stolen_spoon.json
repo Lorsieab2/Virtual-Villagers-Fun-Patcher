@@ -1,0 +1,586 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Spoon",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_stolen_spoon",
+  "source": "v26",
+  "lines": [
+   4796,
+   4872
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4797",
+  "ledger": [
+   {
+    "src": "L4796",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4798",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4799",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4813",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4821",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4827",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4834",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4844",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4849",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4853",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4859",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4867",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4868",
+    "kind": "note",
+    "text": "A dramatic",
+    "why": "designer note: prison is narrative only; the source's substitute (supervised kitchen work) is never shown"
+   },
+   {
+    "src": "L4869-4870",
+    "kind": "note",
+    "why": "designer note: prison is narrative only"
+   },
+   {
+    "src": "L4871",
+    "kind": "note",
+    "text": "otherwise substitute supervised kitchen work.",
+    "why": "designer note: prison is narrative only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "confessor": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_r6",
+  "v9_r7",
+  "v9_r9",
+  "v9_r10",
+  "v9_r11",
+  "v9_r14",
+  "v9_r15",
+  "v9_r17",
+  "v9_r24"
+ ],
+ "pools": {
+  "COMPROMISE": {
+   "set": "(8)",
+   "items": [
+    {
+     "text": "The families share custody of the spoon, then immediately argue over who gets it on Tuesdays.",
+     "src": "L4860-4861"
+    },
+    {
+     "text": "The elder carves two replicas. Both families claim the replica is inferior to the original.",
+     "src": "L4862-4863"
+    },
+    {
+     "text": "The rival says, 'I still hate your cooking.' The cook says, 'At least you've finally tasted it.'",
+     "src": "L4864-4865"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The spoon",
+   "src": "L4801-4804",
+   "text": "A ceremonial wooden spoon has vanished from the communal kitchen. It is worth almost nothing, except that two families have argued about its ownership for years. A cook accuses a rival of stealing it. The rival shouts, 'I WOULD RATHER EAT CAVE GUANO THAN TOUCH YOUR SPOON!'",
+   "text_only": [
+    {
+     "src": "L4801",
+     "what": "a spoon has vanished",
+     "reason": "an object goes missing, not a villager"
+    }
+   ],
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The case",
+   "src": "L4806",
+   "text": "A village leader appoints an impartial elder to hear the case.",
+   "choices": [
+    {
+     "label": "Hear witnesses.",
+     "next": "witnesses",
+     "src": "L4808"
+    },
+    {
+     "label": "Search the kitchen.",
+     "next": "search",
+     "src": "L4809"
+    },
+    {
+     "label": "Offer mediation.",
+     "next": "mediation",
+     "src": "L4810"
+    },
+    {
+     "label": "Let both sides present their evidence formally.",
+     "next": "trial",
+     "src": "L4811"
+    }
+   ]
+  },
+  "witnesses": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "w1"
+    },
+    {
+     "next": "w2"
+    },
+    {
+     "next": "w3"
+    },
+    {
+     "next": "w4"
+    }
+   ]
+  },
+  "w1": {
+   "src": "L4814",
+   "text": "A child saw someone with a spoon but cannot identify which spoon.",
+   "children": [
+    {
+     "next": "confusion"
+    }
+   ]
+  },
+  "w2": {
+   "src": "L4815-4816",
+   "text": "A nursing mother says she borrowed a DIFFERENT spoon to prepare food, and resents being treated as a criminal for it.",
+   "text_only": [
+    {
+     "src": "L4815",
+     "what": "to prepare food",
+     "reason": "narrative; no food changes"
+    }
+   ],
+   "children": [
+    {
+     "next": "confusion"
+    }
+   ]
+  },
+  "w3": {
+   "src": "L4817",
+   "text": "A tired father admits he moved the spoon while cleaning.",
+   "children": [
+    {
+     "next": "found"
+    }
+   ]
+  },
+  "w4": {
+   "src": "L4818-4819",
+   "text": "An elder confesses because (elder.he/she) dislikes seeing people argue, but has no actual knowledge of the theft.",
+   "text_only": [
+    {
+     "src": "L4818",
+     "what": "dislikes seeing people argue",
+     "reason": "a trait of a text figure, not a game preference"
+    }
+   ],
+   "children": [
+    {
+     "next": "wrong_guilt"
+    }
+   ]
+  },
+  "search": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L4822",
+   "text": "The spoon is found behind a shelf.",
+   "children": [
+    {
+     "next": "found"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L4823",
+   "text": "It is discovered inside a hollow loaf of bread. Nobody can explain why.",
+   "children": [
+    {
+     "next": "found"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L4824",
+   "text": "A broken spoon is found, but it is not the missing one.",
+   "children": [
+    {
+     "next": "confusion"
+    }
+   ]
+  },
+  "s4": {
+   "src": "L4825",
+   "text": "The cook had placed it in a safe box and forgotten.",
+   "children": [
+    {
+     "next": "found"
+    }
+   ]
+  },
+  "mediation": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    },
+    {
+     "next": "m4"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L4828",
+   "text": "The families agree to share the spoon on festival days.",
+   "children": [
+    {
+     "next": "compromise"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L4829",
+   "text": "Both reject mediation and demand a verdict.",
+   "children": [
+    {
+     "next": "trial"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L4830-4831",
+   "text": "One family offers to make a second spoon. The other insists the original has sentimental value.",
+   "children": [
+    {
+     "next": "compromise"
+    }
+   ]
+  },
+  "m4": {
+   "src": "L4832",
+   "text": "The mediator admits the spoon looks like every other spoon on Isola.",
+   "children": [
+    {
+     "next": "compromise"
+    }
+   ]
+  },
+  "trial": {
+   "name": "The trial",
+   "src": "L4835-4837",
+   "text": "The judge asks for evidence, not insults. The cook produces a diagram of the crime scene that is mostly angry arrows. The rival produces four witnesses who can only testify that the cook is 'annoying.'",
+   "children": [
+    {
+     "next": "trial_set"
+    }
+   ]
+  },
+  "trial_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L4838-4839",
+   "text": "A credible witness proves the rival borrowed the spoon and forgot to return it. The judge orders its return and an apology.",
+   "children": [
+    {
+     "next": "compromise"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L4840",
+   "text": "The evidence is contradictory. No guilt is established.",
+   "children": [
+    {
+     "next": "wrong_guilt"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L4841",
+   "text": "The rival admits deliberately hiding the spoon out of spite.",
+   "children": [
+    {
+     "next": "accountability"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L4842",
+   "text": "The cook admits inventing the accusation to humiliate the rival.",
+   "children": [
+    {
+     "next": "accountability"
+    }
+   ]
+  },
+  "confusion": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4845-4847",
+   "text": "The judge adjourns until the witnesses can distinguish a soup spoon from a ceremonial spoon. A child asks whether the judge is paid. 'No,' says the judge. 'Clearly.'",
+   "children": [
+    {
+     "next": "wrong_guilt"
+    }
+   ]
+  },
+  "found": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4850-4851",
+   "text": "The spoon is returned. The accuser must correct the public allegation. The accused may remain angry. A happy ending is not mandatory.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "wrong_guilt": {
+   "name": "Wrong guilt",
+   "src": "L4854-4857",
+   "text": "A villager confesses to an act (confessor.he/she) did not commit, either from fear, misplaced responsibility, or a desire to end the hearing. The judge refuses to convict without corroboration. The confession is withdrawn or investigated, and the villager is treated kindly.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "compromise": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{COMPROMISE}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "accountability": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4868,L4871-4872",
+   "text": "The wrongdoer faces restitution and a fair hearing.\nThe judge refuses to imprison anyone over a spoon merely to satisfy the crowd.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r6"
+    },
+    {
+     "next": "coda_r7"
+    },
+    {
+     "next": "coda_r9"
+    },
+    {
+     "next": "coda_r10"
+    },
+    {
+     "next": "coda_r11"
+    },
+    {
+     "next": "coda_r14"
+    },
+    {
+     "next": "coda_r15"
+    },
+    {
+     "next": "coda_r17"
+    },
+    {
+     "next": "coda_r24",
+     "if": {
+      "role": "cook"
+     }
+    }
+   ]
+  },
+  "coda_r6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r6}"
+  },
+  "coda_r7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r7}"
+  },
+  "coda_r9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r9}"
+  },
+  "coda_r10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r10}"
+  },
+  "coda_r11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r11}"
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r15}"
+  },
+  "coda_r17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r17}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}
