@@ -87,12 +87,18 @@
     "src": "L3494",
     "kind": "note",
     "why": "safety note: Isolans are never cast; no harmful effect"
+   },
+   {
+    "src": "L3451",
+    "kind": "note",
+    "text": "or village leader",
+    "why": "designer alternative to the Chief; the game word gives the village leader"
    }
   ]
  },
  "words": {
   "Chief": {
-   "*": "The leader"
+   "*": "The village leader"
   }
  },
  "requirement": {
@@ -653,7 +659,7 @@
   },
   "f4": {
    "src": "L3451-3452",
-   "text": "{@Chief} or village leader gives a brief welcome. A visiting child loudly asks when the snacks will be served.",
+   "text": "{@Chief} gives a brief welcome. A visiting child loudly asks when the snacks will be served.",
    "children": [
     {
      "next": "rare"

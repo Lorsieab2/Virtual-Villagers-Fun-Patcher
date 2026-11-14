@@ -1010,83 +1010,6 @@
    "src": "L2031-2042",
    "text": "Years later, villagers still remember the day that (one) accidentally commanded everyone to {LEG}.\nThe original story is carefully preserved. The mistake becomes a harmless joke told at village gatherings.\n(One) {laughs along whenever it is mentioned|groans every single time|secretly enjoys the attention}.\nPerhaps devotion includes learning to laugh at oneself."
   },
-  "v1": {
-   "src": "L1977-1978",
-   "text": "(Devotee1) wins for accuracy. (Devotee2) congratulates (devotee1.him/her).",
-   "children": [
-    {
-     "next": "end"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "devotee1",
-     "skills": [
-      "Devotion",
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L1978"
-    }
-   ]
-  },
-  "v2": {
-   "src": "L1979-1981",
-   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
-   "children": [
-    {
-     "next": "end"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "devotee2",
-     "skills": [
-      "Devotion",
-      "Research"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L1981"
-    }
-   ]
-  },
-  "v3": {
-   "src": "L1982-1983",
-   "text": "The judges declare a tie. Both competitors are invited to teach the children.",
-   "children": [
-    {
-     "next": "end"
-    }
-   ],
-   "effects": [
-    {
-     "do": "skill",
-     "role": "devotee1",
-     "skills": [
-      "Devotion",
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L1983"
-    },
-    {
-     "do": "skill",
-     "role": "devotee2",
-     "skills": [
-      "Devotion",
-      "Research"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L1983"
-    }
-   ]
-  },
   "v4": {
    "src": "L1984-1985",
    "text": "The judges award no prize, explaining that both contestants need more practice. The competitors agree to return next year.",
@@ -1127,13 +1050,31 @@
    "set": "(5)",
    "children": [
     {
-     "next": "v1"
+     "next": "v1_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v1_r"
     },
     {
-     "next": "v2"
+     "next": "v2_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v2_r"
     },
     {
-     "next": "v3"
+     "next": "v3_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v3_r"
     },
     {
      "next": "v4"
@@ -1183,7 +1124,162 @@
   "end": {
    "name": "Quiet ending",
    "src": "L2045-2050",
-   "text": "When the ceremony is over, the villagers return to their daily lives. The elders carefully put away their records. The children continue asking questions.\nAnd somewhere in the village, one thoroughly embarrassed storyteller is practicing the word \"NOT\" over and over again."
+   "text": "When the ceremony is over, the villagers return to their daily lives. The elders carefully put away their records. The children continue asking questions.",
+   "variants": [
+    {
+     "if": {
+      "visited": "fumble"
+     },
+     "text": "When the ceremony is over, the villagers return to their daily lives. The elders carefully put away their records. The children continue asking questions.\nAnd somewhere in the village, one thoroughly embarrassed storyteller is practicing the word \"NOT\" over and over again.",
+     "src": "L2045-2050"
+    }
+   ]
+  },
+  "v1_5": {
+   "src": "L1977-1978",
+   "text": "(Devotee1) wins for accuracy. (Devotee2) congratulates (devotee1.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1978"
+    }
+   ]
+  },
+  "v1_r": {
+   "src": "L1977-1978",
+   "text": "(Devotee1) wins for accuracy. (Devotee2) congratulates (devotee1.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1978"
+    }
+   ]
+  },
+  "v2_5": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    }
+   ]
+  },
+  "v2_r": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    }
+   ]
+  },
+  "v3_5": {
+   "src": "L1982-1983",
+   "text": "The judges declare a tie. Both competitors are invited to teach the children.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    }
+   ]
+  },
+  "v3_r": {
+   "src": "L1982-1983",
+   "text": "The judges declare a tie. Both competitors are invited to teach the children.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    }
+   ]
   }
  }
 }

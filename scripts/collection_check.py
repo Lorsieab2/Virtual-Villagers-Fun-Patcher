@@ -63,7 +63,7 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
-AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons")
+AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots")
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -82,7 +82,7 @@ EFFECT_KIND = {"skill": "skill", "food": "food", "tech": "tech", "kill": "kill",
                "health_change": "health_change", "damage": "damage", "sick": "health", "mood": "mood",
                "action": "action", "status": "status", "pay_award": "food"}
 
-PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl",
+PRONOUN_WORDS = {"he/she", "his/her", "him/her", "man/woman", "himself/herself", "woman/man", "boy/girl", "mother/father", "father/mother",
                  "son/daughter"}
 NAME_WORDS = {"name", "name1", "name2"}
 ALLOWED_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,!?:-'\"\n;/&%")
@@ -442,6 +442,19 @@ def ledger_maps(doc: dict, rep: Report):
             rep.add("b FIDELITY", f"{where}: L{n} {before!r} -> {after!r} is not in docs/event-collection/"
                                   "grammar-fixes.md")
         fixes.setdefault(n, []).append((before, after))
+    # A bank slot (mapping, rule 4.5): a "(N)" inside a sentence that inserts bank N's item, not a route, so the
+    # trailing-route rule must not strip it ("The judges (6)." -> "The judges {JUDGING}.").
+    for i, s in enumerate(doc.get("collection", {}).get("bank_slots", []) or []):
+        try:
+            (n,) = lib.src_lines(s["src"])
+            slot = s["slot"]
+        except (ValueError, KeyError, TypeError):
+            rep.add("c COVERAGE", f"bank slot {i + 1}: {{\"src\": one line, \"slot\": \"(N)\"}}")
+            continue
+        if not re.fullmatch(r"\(\d+\)", slot) or slot not in lib.normalize_source_text(lib.line(n)):
+            rep.add("c COVERAGE", f"bank slot {i + 1}: {slot!r} is not a bank number on L{n}")
+            continue
+        fixes.setdefault(n, []).insert(0, (slot, f"(bank {slot[1:-1]})"))
     return cuts, whole, fixes
 
 
@@ -742,10 +755,37 @@ def node_source_lines(n: dict) -> set[int]:
     return out
 
 
+def node_games(doc: dict) -> dict[str, set]:
+    """The games each node can be reached in, following a child's plain {"game": [...]} condition (and its else)."""
+    nodes = doc.get("nodes", {}) or {}
+    reach: dict[str, set] = {}
+    todo = [(doc.get("start"), set(doc.get("games", [])))]
+    while todo:
+        nid, gs = todo.pop()
+        if nid not in nodes or not gs or gs <= reach.get(nid, set()):
+            continue
+        reach[nid] = reach.get(nid, set()) | gs
+        n = nodes[nid]
+        for c in (n.get("children", []) or []) + (n.get("choices", []) or []):
+            cond = c.get("if")
+            if isinstance(cond, dict) and set(cond) == {"game"}:
+                want = set(cond["game"] if isinstance(cond["game"], list) else [cond["game"]])
+                todo.append((c.get("next"), gs & want))
+                if c.get("else"):
+                    todo.append((c["else"], gs - want))
+            else:
+                todo.append((c.get("next"), gs))
+                if c.get("else"):
+                    todo.append((c["else"], gs))
+    return reach
+
+
 def check_effects(doc: dict, rep: Report) -> None:
-    games = doc.get("games", [])
+    all_games = doc.get("games", [])
+    reach = node_games(doc)
     cuts_whole = {}
     for nid, n in doc.get("nodes", {}).items():
+        games = sorted(reach.get(nid, set(all_games)))
         effs = n.get("effects", []) or []
         kinds = {EFFECT_KIND.get(e.get("do"), e.get("do")) for e in effs}
         covered = set()

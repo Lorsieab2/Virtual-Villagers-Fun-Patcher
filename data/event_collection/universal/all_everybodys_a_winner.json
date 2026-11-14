@@ -188,7 +188,17 @@
     },
     {
      "text": "{@Chief} accidentally awards the grand prize to the wrong child, then to the wrong parent, then to the schoolteacher. Eventually, the actual winner receives it.",
-     "src": "L1797-1799"
+     "src": "L1797-1799",
+     "if": {
+      "any": [
+       {
+        "visited": "one"
+       },
+       {
+        "visited": "sp1"
+       }
+      ]
+     }
     },
     {
      "text": "Every child receives a trophy so large that nobody can carry theirs home. The adults reconsider their budgeting.",
@@ -209,7 +219,17 @@
     },
     {
      "text": "The winner congratulates the other children, and several promise to try again next year.",
-     "src": "L1810-1811"
+     "src": "L1810-1811",
+     "if": {
+      "any": [
+       {
+        "visited": "one"
+       },
+       {
+        "visited": "sp1"
+       }
+      ]
+     }
     },
     {
      "text": "The adults agree to announce the judging criteria before future competitions. Nobody gets everything they want, but everyone understands the rules.",

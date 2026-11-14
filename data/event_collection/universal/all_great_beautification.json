@@ -105,7 +105,7 @@
    {
     "src": "L1445-1446",
     "kind": "instruction",
-    "why": "the small Building effects: a safe repair either is or is not completed, two equal copies of the nose page (n_repair, n_norepair)"
+    "why": "the small Building effects on the safe repairs only (the nose fits or is slightly crooked); none for a dropped nose"
    },
    {
     "src": "L1448",
@@ -122,6 +122,12 @@
     "kind": "structural",
     "why": "bank heading: the quiet ending closes every path"
    }
+  ],
+  "bank_slots": [
+   {
+    "src": "L1455",
+    "slot": "(6)"
+   }
   ]
  },
  "grammar_fixes": [
@@ -134,11 +140,6 @@
    "src": "L1459",
    "before": "contestant2",
    "after": "(contestant2)"
-  },
-  {
-   "src": "L1455",
-   "before": "The judges (6).",
-   "after": "The judges (judging)."
   }
  ],
  "words": {
@@ -244,6 +245,62 @@
     {
      "text": "decide that the old monument is part of the village's character and should remain exactly as it is",
      "src": "L1463-1464"
+    }
+   ]
+  },
+  "CH_RE": {
+   "items": [
+    {
+     "text": "orders the nose reattached",
+     "src": "L1435"
+    }
+   ]
+  },
+  "CH_INSP": {
+   "items": [
+    {
+     "text": "asks the builders to inspect the whole structure",
+     "src": "L1435-1436"
+    }
+   ]
+  },
+  "CH_BETTER": {
+   "items": [
+    {
+     "text": "decides the statue looks better without it",
+     "src": "L1436-1437"
+    }
+   ]
+  },
+  "CH_FORBID": {
+   "items": [
+    {
+     "text": "forbids anyone from touching the monument again",
+     "src": "L1437"
+    }
+   ]
+  },
+  "RE_FIT": {
+   "items": [
+    {
+     "text": "fits perfectly",
+     "src": "L1439"
+    }
+   ]
+  },
+  "RE_CROOK": {
+   "items": [
+    {
+     "text": "is slightly crooked",
+     "src": "L1439"
+    }
+   ]
+  },
+  "RE_OFF": {
+   "items": [
+    {
+     "text": "falls off again the following morning",
+     "src": "L1440"
     }
    ]
   }
@@ -620,10 +677,16 @@
    "type": "branch",
    "children": [
     {
-     "next": "n_repair"
+     "next": "n_re"
     },
     {
-     "next": "n_norepair"
+     "next": "n_insp"
+    },
+    {
+     "next": "n_better"
+    },
+    {
+     "next": "n_forbid"
     }
    ]
   },
@@ -642,11 +705,36 @@
    "src": "L1467-1472",
    "text": "The villagers eventually return to their daily routines. Some still think the monument is hideous. Others insist that it has never looked better. A few have already forgotten why anyone was arguing.\nBut the monument remains, a reminder that beauty is not always something everyone agrees upon."
   },
-  "n_repair": {
+  "n_re": {
    "popup": "append",
    "join": "paragraph",
-   "src": "L1435-1443",
-   "text": "{@Chief} {orders the nose reattached|asks the builders to inspect the whole structure|decides the statue looks better without it|forbids anyone from touching the monument again}.\nIf the nose is reattached, it {fits perfectly|is slightly crooked|falls off again the following morning}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
+   "src": "L1435-1437",
+   "text": "{@Chief} {CH_RE}.",
+   "children": [
+    {
+     "next": "n_re_res"
+    }
+   ]
+  },
+  "n_re_res": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "n_fit"
+    },
+    {
+     "next": "n_crook"
+    },
+    {
+     "next": "n_off"
+    }
+   ]
+  },
+  "n_fit": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1439-1440",
+   "text": "If the nose is reattached, it {RE_FIT}.",
    "children": [
     {
      "next": "quiet"
@@ -675,11 +763,77 @@
     }
    ]
   },
-  "n_norepair": {
+  "n_crook": {
    "popup": "append",
    "join": "paragraph",
-   "src": "L1435-1443",
-   "text": "{@Chief} {orders the nose reattached|asks the builders to inspect the whole structure|decides the statue looks better without it|forbids anyone from touching the monument again}.\nIf the nose is reattached, it {fits perfectly|is slightly crooked|falls off again the following morning}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
+   "src": "L1439-1440",
+   "text": "If the nose is reattached, it {RE_CROOK}.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1445"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1445"
+    }
+   ]
+  },
+  "n_off": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1439-1440",
+   "text": "If the nose is reattached, it {RE_OFF}.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "n_insp": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1435-1437,L1442-1443",
+   "text": "{@Chief} {CH_INSP}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "n_better": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1435-1437,L1442-1443",
+   "text": "{@Chief} {CH_BETTER}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "n_forbid": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1435-1437,L1442-1443",
+   "text": "{@Chief} {CH_FORBID}.\nIf the nose remains off, future generations may simply assume that the statue was always supposed to look that way.",
    "children": [
     {
      "next": "quiet"

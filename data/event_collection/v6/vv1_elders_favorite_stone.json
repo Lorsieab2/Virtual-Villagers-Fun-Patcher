@@ -116,31 +116,38 @@
     }
    ]
   },
-  "OUTCOME": {
+  "ENDING": {
    "items": [
     {
-     "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
-     "src": "L2846-2847"
+     "text": "keeps the stone safe",
+     "src": "L2862",
+     "if": {
+      "any": [
+       {
+        "visited": "o1"
+       },
+       {
+        "visited": "o3"
+       },
+       {
+        "visited": "o5"
+       },
+       {
+        "visited": "o6"
+       }
+      ]
+     }
     },
     {
-     "text": "The adult finds three similar stones. The elder rejects them all with the solemn expertise of a jeweler inspecting diamonds.",
-     "src": "L2848-2849"
+     "text": "places the replacement on a shelf",
+     "src": "L2862",
+     "if": {
+      "visited": "o4"
+     }
     },
     {
-     "text": "The stone turns out to have been in the elder's pocket all along. The elder says, \"Excellent. The search was a success.\"",
-     "src": "L2850-2851"
-    },
-    {
-     "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
-     "src": "L2852-2854"
-    },
-    {
-     "text": "A father holding his infant recognizes the stone as the paperweight that has been sitting on the schoolhouse table. He returns it after the lesson ends.",
-     "src": "L2855-2857"
-    },
-    {
-     "text": "The elder quietly explains that the stone belonged to someone who is no longer alive. The child sits beside (elder.him/her) for a while.",
-     "src": "L2858-2859"
+     "text": "thanks the helpers",
+     "src": "L2863"
     }
    ]
   }
@@ -149,8 +156,108 @@
  "nodes": {
   "stone": {
    "name": "The favorite stone",
-   "src": "L2830-2835,L2861-2863",
-   "text": "An elderly villager, (elder), has spent the morning searching for (elder.his/her) favorite stone. It is not a precious stone. It is not even particularly attractive. But (elder.he/she) has carried it for years.\n(Adult) offers to help, while (child) asks what makes this particular stone so important. The elder replies, {A}\n{OUTCOME}\nBy sunset, the village has moved on to other concerns. The elder {keeps the stone safe|places the replacement on a shelf|thanks the helpers}.",
+   "src": "L2830-2835",
+   "text": "An elderly villager, (elder), has spent the morning searching for (elder.his/her) favorite stone. It is not a precious stone. It is not even particularly attractive. But (elder.he/she) has carried it for years.\n(Adult) offers to help, while (child) asks what makes this particular stone so important. The elder replies, {A}",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    },
+    {
+     "next": "o4"
+    },
+    {
+     "next": "o5"
+    },
+    {
+     "next": "o6"
+    }
+   ]
+  },
+  "o1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2846-2847",
+   "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2848-2849",
+   "text": "The adult finds three similar stones. The elder rejects them all with the solemn expertise of a jeweler inspecting diamonds.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2850-2851",
+   "text": "The stone turns out to have been in the elder's pocket all along. The elder says, \"Excellent. The search was a success.\"",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2852-2854",
+   "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2855-2857",
+   "text": "A father holding his infant recognizes the stone as the paperweight that has been sitting on the schoolhouse table. He returns it after the lesson ends.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2858-2859",
+   "text": "The elder quietly explains that the stone belonged to someone who is no longer alive. The child sits beside (elder.him/her) for a while.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "sunset": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2861-2863",
+   "text": "By sunset, the village has moved on to other concerns. The elder {ENDING}.",
    "text_only": [
     {
      "src": "L2863",
