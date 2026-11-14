@@ -639,7 +639,8 @@ class NodeTitles(unittest.TestCase):
                 self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
 
     def test_placeholders_in_titles(self):
-        """17: on screen with the names (or pronouns when they do not fit); the log's entry in the readable form."""
+        """17: on screen with the names (or pronouns when they do not fit); the log's entry with the real names (the
+        owner: "(Name1)" is filled with the cast villager's name -- "Ana's No Good, Very Bad Day")."""
         from test_cie_graph_v6 import TITLED_NAMES
         for game in GAME_IDS:
             if not have_stock(game):
@@ -663,7 +664,9 @@ class NodeTitles(unittest.TestCase):
                     self.assertEqual(titles[-1], cg.title_shown(lg, TITLED_NAMES["nodes"]["y"]["title"],
                                                                 int(game[2]), b))
                     _n, _now, filed = r.log()
-                    self.assertIn("Event: Someone's No Good, Very Bad Day", filed)
+                    logged = cg.expand_v6(TITLED_NAMES["title"], lg, b, None, None, int(game[2]))
+                    self.assertTrue(logged.startswith(want if name == "Ana" else name[:6]), logged)
+                    self.assertIn(f"  Event: {logged}\n", filed)
 
     def test_the_loader_refuses_a_bad_node_title(self):
         from test_cie_graph_v6 import TITLES
@@ -796,7 +799,8 @@ class SexWords(unittest.TestCase):
                     want = cg.simulate(g, int(game[2]), [], {"parent": cg.Binding(name, sex)})
                     self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
                     self.assertEqual(r.titles(), want["titles"])
-                    self.assertIn("Event: The Mother or father's Lullaby", r.log()[2])
+                    self.assertIn("Event: The Mother's Lullaby\n" if sex == "f" else "Event: The Father's Lullaby\n",
+                                  r.log()[2])
 
 
 @emulated
