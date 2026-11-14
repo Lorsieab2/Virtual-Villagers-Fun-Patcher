@@ -118,6 +118,15 @@ class Manifest(unittest.TestCase):
 KNOWN_GAPS: dict[str, str] = {   # G1 closed GAP-FIT7; the label name-to-pronoun fallback closed GAP-LABEL-NAME
     "all_secret_of_life.json": r"^a SCHEMA: A New Home: the popup of (a4|b2) runs off the screen without scrolling: "
                                r"a sentence is taller than the popup",
+    # GAP-VISITOR: V17-E's "(Visitor)" is an offscreen Isolan competitor shown by name; Isolans are never cast
+    # (authoring rule 15) and a stranger has no name, so the format cannot show it yet. Written for the coming named
+    # stranger ({"kind": "stranger", "named": true}: a random name from the game's own list, never a living villager's).
+    "vv5_v17_cooking.json": r"a SCHEMA: (\(scrolling\) )?(node \w+: \(Visitor\): a stranger has no name|"
+                            r"role visitor: unknown fields named)$",
+    # GAP-LABELFIT: "Praise (Name1) for creating something alive." is too wide with the longest names; the engine's
+    # label-only name-to-pronoun fallback for screen fit is coming, so the source's name stays.
+    "all_its_alive.json": r"a SCHEMA: (\(scrolling\) )?[A-Za-z ]+: the label 'Praise \(researcher\) for creating "
+                          r"something alive\.' runs off the screen with the longest names \(\d+ of \d+ pixels\)$",
 }
 
 

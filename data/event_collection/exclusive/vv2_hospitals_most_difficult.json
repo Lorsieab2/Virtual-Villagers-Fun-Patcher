@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hospital's Most Difficult Patient",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_hospitals_most_difficult",
+  "source": "v26",
+  "lines": [
+   7857,
+   7866
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7857",
+  "ledger": [
+   {
+    "src": "L7860",
+    "kind": "instruction",
+    "text": "Restore some health.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7862",
+    "kind": "instruction",
+    "text": "Gain a small tech reward.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7865",
+    "kind": "instruction",
+    "text": "Lose health, then restore some.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Hospital's Most Difficult Patient",
+   "src": "L7858",
+   "text": "A stubborn villager insists that going to the hospital is unnecessary despite being visibly exhausted.",
+   "choices": [
+    {
+     "label": "Ask an experienced healer to speak with the patient.",
+     "next": "set_a",
+     "src": "L7859"
+    },
+    {
+     "label": "Let the villager rest privately while healers remain available.",
+     "next": "set_b",
+     "src": "L7863"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7860",
+   "text": "Patient listening restores trust.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 20,
+     "src": "L7860"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7861",
+   "text": "The patient argues with every healer, then becomes the hospital's loudest supporter."
+  },
+  "a3": {
+   "src": "L7862",
+   "text": "The patient notices badly organized supplies. The embarrassed healers reorganize the room.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7862"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L7864",
+   "text": "The villager recovers and thanks everyone for respecting the request."
+  },
+  "b2": {
+   "src": "L7865",
+   "text": "The villager grows weaker and finally accepts treatment.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -20,
+     "max": -10,
+     "src": "L7865"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 20,
+     "src": "L7865"
+    }
+   ]
+  },
+  "b3": {
+   "src": "L7866",
+   "text": "At night, the villager quietly visits the hospital and begs the healers not to tell anyone."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

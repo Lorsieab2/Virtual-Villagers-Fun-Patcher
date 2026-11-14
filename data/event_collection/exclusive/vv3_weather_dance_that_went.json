@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weather Dance That Went Wrong",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_weather_dance_that_went",
+  "source": "v26",
+  "lines": [
+   7904,
+   7914
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7904",
+  "ledger": [
+   {
+    "src": "L7907",
+    "kind": "instruction",
+    "text": "Gain food.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7914",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Weather Dance That Went Wrong",
+   "src": "L7905",
+   "text": "A confident performer claims to have perfected a new weather dance.",
+   "choices": [
+    {
+     "label": "Allow the performance.",
+     "next": "set_a",
+     "src": "L7906"
+    },
+    {
+     "label": "Ask for a demonstration without grand promises.",
+     "next": "set_b",
+     "src": "L7911"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7907",
+   "text": "Rain arrives, but only after the dancer has exhausted every spectator. The farmers celebrate.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7907"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L7907",
+     "what": "the farmers celebrate",
+     "reason": "only the farmers celebrate, and they are not cast; told only"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7908",
+   "text": "A gust of wind carries away ceremonial decorations. The audience applauds, thinking it part of the performance."
+  },
+  "a3": {
+   "src": "L7909",
+   "text": "No rain falls. The dancer insists that the clouds are simply late."
+  },
+  "a4": {
+   "src": "L7910",
+   "text": "A brief shower falls on the wrong patch of ground. The researchers argue whether it counts."
+  },
+  "b1": {
+   "src": "L7912",
+   "text": "The dancer admits the ritual was mostly improvisation and learns humility."
+  },
+  "b2": {
+   "src": "L7913",
+   "text": "An elder turns the performance into a children's game."
+  },
+  "b3": {
+   "src": "L7914",
+   "text": "Careful observations of wind and clouds lead to a useful prediction.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7914"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

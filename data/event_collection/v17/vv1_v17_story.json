@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Words We Brought With Us",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v17_story",
+  "source": "v26",
+  "lines": [
+   8143,
+   8148
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8143",
+  "shared_lines": [
+   "L8099-8101"
+  ],
+  "ledger": [
+   {
+    "src": "L8147",
+    "kind": "note",
+    "text": "clearly labeled",
+    "why": "designer rule, never shown"
+   },
+   {
+    "src": "L8148",
+    "kind": "note",
+    "why": "designer rule, never shown"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8099-8101,L8144-8145",
+   "text": "The villagers of the Southern Shore celebrate the work that helped their settlement survive. Competitors display their creations near the village center while elders tell the children how much knowledge was once lost.\nThe contestants retell the settlers' history. One recitation is accurate; the other contains an embarrassing accidental insult to a revered elder.",
+   "name": "The Words We Brought With Us",
+   "text_only": [
+    {
+     "src": "L8099",
+     "what": "the villagers celebrate",
+     "reason": "the festival's setting, told as scenery; the contest itself gives no reward in the source"
+    }
+   ],
+   "type": "question",
+   "choices": [
+    {
+     "label": "Correct it gently",
+     "next": "a",
+     "src": "L8146"
+    },
+    {
+     "label": "Preserve the comic version as a separate festival song",
+     "next": "pick_b",
+     "src": "L8147"
+    }
+   ]
+  },
+  "a": {
+   "src": "L8146",
+   "text": "The elder teaches the original version.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u7": {
+   "text": "{v17_u7}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1"
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u7"
+    },
+    {
+     "next": "u8"
+    }
+   ]
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_u1",
+  "v17_u6",
+  "v17_u7",
+  "v17_u8",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

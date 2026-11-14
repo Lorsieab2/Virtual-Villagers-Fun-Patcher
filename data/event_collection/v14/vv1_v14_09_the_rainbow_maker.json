@@ -1,0 +1,59 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rainbow Maker",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v14_09_the_rainbow_maker",
+  "source": "v26",
+  "lines": [
+   7707,
+   7712
+  ],
+  "section": "v14",
+  "credit": "ORIGINAL CONCEPTS & CREATIVE DIRECTION: Lorsieab2 — the Golden Child\nsolves equations beyond his peers, explains advanced subjects simply,\ncomposes a song alone, invents an instrument, summons rainbows and storms,\nwaters and regrows crops/berry bush, and helps children discover plants,\nanimals, fungi, stars, planets and hidden places. Also requested more\nage-appropriate actions suggesting an adult's insight in a child's body.\nADDITIONAL CONCEPTS, EVENT PROSE & EXPANSIONS: ChatGPT — the further\nchild-scholar, music, empathy, play, invention and social scenarios below.",
+  "draw_weight": 1,
+  "series": "v14_golden_child",
+  "title_src": "L7707",
+  "ledger": [
+   {
+    "src": "L7711",
+    "kind": "instruction",
+    "text": "Outcome:",
+    "why": "the scene's outcome, carried by its effect or text_only reason"
+   },
+   {
+    "src": "L7712",
+    "kind": "instruction",
+    "why": "the rest of the scene's outcome instruction"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The Rainbow Maker",
+   "src": "L7708-7711",
+   "text": "After a passing shower, the Golden Child points toward the sky. One rainbow appears, then a second, and then a faint third arch. The children race to see where the colors touch the earth. The adults disagree about whether he summoned the sight or simply knew when to look.",
+   "text_only": [
+    {
+     "src": "L7711-7712",
+     "what": "the outcome",
+     "reason": "rule 8: a cosmetic weather wonder; the source gives no resource reward"
+    }
+   ]
+  }
+ }
+}

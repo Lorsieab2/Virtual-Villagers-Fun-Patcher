@@ -1,0 +1,278 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Shelter for the Next Storm",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v17_building",
+  "source": "v26",
+  "lines": [
+   8121,
+   8129
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8121",
+  "shared_lines": [
+   "L8099-8101"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8099-8101,L8122-8124",
+   "text": "The villagers of the Southern Shore celebrate the work that helped their settlement survive. Competitors display their creations near the village center while elders tell the children how much knowledge was once lost.\nTwo builders construct small demonstration shelters from vines, wood and stone. A stern master builder kicks the first support and it falls over.\n\"A roof is not a roof if it meets the ground before the rain does!\"",
+   "name": "A Shelter for the Next Storm",
+   "text_only": [
+    {
+     "src": "L8099",
+     "what": "the villagers celebrate",
+     "reason": "the festival's setting, told as scenery; the contest itself gives no reward in the source"
+    }
+   ],
+   "type": "question",
+   "choices": [
+    {
+     "label": "Test them with carried water",
+     "next": "a",
+     "src": "L8125"
+    },
+    {
+     "label": "Let the builders defend their methods",
+     "next": "b",
+     "src": "L8126"
+    },
+    {
+     "label": "Ask children to inspect the shelters",
+     "next": "c",
+     "src": "L8128"
+    }
+   ]
+  },
+  "a": {
+   "src": "L8125",
+   "text": "One leaks, one remains dry.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "b": {
+   "src": "L8126-8127",
+   "text": "The strangest support arrangement appears to defy ordinary balance, but survives repeated load tests.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "c": {
+   "src": "L8128-8129",
+   "text": "They notice a low doorway that would trap an elder carrying a basket; both teams revise their plans.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u2": {
+   "text": "{v17_u2}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u3": {
+   "text": "{v17_u3}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u5": {
+   "text": "{v17_u5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1"
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3"
+    },
+    {
+     "next": "u4"
+    },
+    {
+     "next": "u5"
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8"
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10"
+    }
+   ]
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u5",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

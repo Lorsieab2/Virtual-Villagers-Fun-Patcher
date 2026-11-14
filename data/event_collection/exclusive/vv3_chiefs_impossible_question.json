@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Impossible Question",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_chiefs_impossible_question",
+  "source": "v26",
+  "lines": [
+   7893,
+   7902
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7893",
+  "ledger": [
+   {
+    "src": "L7896",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7897",
+    "kind": "instruction",
+    "text": "Lose a little food;",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chief": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "tribal_chief"
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Chief's Impossible Question",
+   "src": "L7894",
+   "text": "The Tribal Chief asks the village's scholars to settle a dispute: what makes a decision wise when every choice has a cost?",
+   "choices": [
+    {
+     "label": "Invite representatives of different traditions to debate.",
+     "next": "set_a",
+     "src": "L7895"
+    },
+    {
+     "label": "Let the Chief decide alone.",
+     "next": "set_b",
+     "src": "L7899"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7896",
+   "text": "A naturalist and a magician unexpectedly agree that patience matters more than certainty.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7896"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7897",
+   "text": "The speakers argue until a child asks who will tend the neglected gardens.\nThe debate ends abruptly.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L7897",
+     "loss": true
+    }
+   ]
+  },
+  "a3": {
+   "src": "L7898",
+   "text": "The Chief listens to a healer's account of a difficult decision and announces that compassion must have a voice."
+  },
+  "b1": {
+   "src": "L7900",
+   "text": "The Chief makes a careful judgment and earns respect."
+  },
+  "b2": {
+   "src": "L7901",
+   "text": "The decision is unpopular but later proves necessary."
+  },
+  "b3": {
+   "src": "L7902",
+   "text": "The Chief admits uncertainty and calls for more evidence, impressing the researchers."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

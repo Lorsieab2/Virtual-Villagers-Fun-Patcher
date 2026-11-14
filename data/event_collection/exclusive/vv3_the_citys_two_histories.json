@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The City's Two Histories",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_the_citys_two_histories",
+  "source": "v26",
+  "lines": [
+   7916,
+   7925
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7916",
+  "ledger": [
+   {
+    "src": "L7919",
+    "kind": "instruction",
+    "text": "Gain large tech.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L7923",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The City's Two Histories",
+   "src": "L7917",
+   "text": "Two scholars uncover contradictory accounts of the Secret City's past.",
+   "choices": [
+    {
+     "label": "Preserve both accounts.",
+     "next": "set_a",
+     "src": "L7918"
+    },
+    {
+     "label": "Choose the account that seems most credible.",
+     "next": "set_b",
+     "src": "L7922"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7919",
+   "text": "Comparing the stories reveals a forgotten event.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7919"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7920",
+   "text": "The scholars discover that each account was written to flatter its author."
+  },
+  "a3": {
+   "src": "L7921",
+   "text": "The village stages both versions as plays, and neither scholar likes the casting."
+  },
+  "b1": {
+   "src": "L7923",
+   "text": "A careful comparison of evidence produces a reliable record.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7923"
+    }
+   ]
+  },
+  "b2": {
+   "src": "L7924",
+   "text": "A newly discovered inscription contradicts the chosen version, to everyone's embarrassment."
+  },
+  "b3": {
+   "src": "L7925",
+   "text": "The rejected scholar writes a scathing poem that becomes more popular than either history."
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}
