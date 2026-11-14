@@ -108,22 +108,46 @@ class Manifest(unittest.TestCase):
         self.assertEqual(rows["all_v22_4_parents_lesson"]["choices"], 7)
 
 
+# Format gaps Track A / B must close before Phase 2 (each pinned so the test flips when the gap closes): a file listed
+# here may fail ONLY with problems matching its pattern.
+#   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
+#   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
+KNOWN_GAPS = {
+    "all_v20_between_life_and_death.json": r"^a SCHEMA: .*runs off the screen without scrolling: a sentence is taller",
+    "all_v22_4_parents_lesson.json": r"^a SCHEMA: .*runs off the screen without scrolling: a sentence is taller",
+}
+
+
 class CollectionFiles(unittest.TestCase):
     def test_every_file_passes(self):
+        import re
         files = cc.collection_files()
-        self.assertGreaterEqual(len(files), 1)
+        self.assertGreaterEqual(len(files), 10)
         rows = cc.manifest_rows()
         for p in files:
             with self.subTest(file=p.name):
                 rep = cc.check_file(p, rows)
-                self.assertEqual(rep.problems, [])
+                gap = KNOWN_GAPS.get(p.name)
+                if gap:
+                    self.assertTrue(rep.problems, f"{p.name}: the gap is closed; remove it from KNOWN_GAPS")
+                    self.assertEqual([x for x in rep.problems if not re.match(gap, x)], [])
+                else:
+                    self.assertEqual(rep.problems, [])
                 if cc.engine() is None:
                     self.assertTrue(rep.skipped, "a and g must say SKIPPED while the v6 format is missing")
 
-    def test_cli_exit_code(self):
+    def test_cli_runs(self):
         r = subprocess.run([sys.executable, str(ROOT / "scripts" / "collection_check.py")], capture_output=True,
                            text=True, cwd=ROOT)
-        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(r.returncode, 1 if KNOWN_GAPS else 0, r.stdout + r.stderr)
+        self.assertIn("files pass", r.stdout)
+
+    def test_every_listed_grammar_fix_is_on_its_line(self):
+        fixes = cc.grammar_doc_fixes()
+        self.assertGreaterEqual(len(fixes), 30)
+        for n, before, after in fixes:
+            self.assertIn(before, lib.normalize_source_text(lib.line(n)), f"L{n}")
+            self.assertNotEqual(before, after)
 
     def test_grammar_fixes_used_are_listed(self):
         listed = cc.grammar_doc_fixes()

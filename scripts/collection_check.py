@@ -260,8 +260,10 @@ def text_regex(text: str, words: dict, top: bool = True) -> str:
             parts.append(PH_RE)
         elif kind == "brace":
             if s.startswith("@"):
+                # the source has one of the word's own values, or (the mapping rule) the Chief it replaces
                 vals = sorted({v for v in words.get(s[1:], {}).values()}, key=len, reverse=True)
-                parts.append("(?:" + "|".join(re.escape(v) for v in vals) + ")" if vals else r"(?!x)x")
+                alts = [re.escape(v) for v in vals] + [r"(?:[Tt]he |[Aa] )?Chiefs?"]
+                parts.append("(?:" + "|".join(alts) + ")" if vals else r"(?!x)x")
             elif is_pool_ref(s):
                 parts.append(PH_RE)
             else:
@@ -289,7 +291,8 @@ def processed_line(n: int, ledger_cuts: dict[int, list[str]], fixes: dict[int, l
     for before, after in fixes.get(n, []):
         s = s.replace(before, after)
     for cut in ledger_cuts.get(n, []):
-        s = s.replace(cut, " ")
+        s = s.replace(cut, "\x00")
+    s = re.sub(r"\s*\x00\s*(?=[.,;:!?])", "", s).replace("\x00", " ")   # a cut before a full stop leaves none
     s = lib.strip_structural(s)
     return re.sub(r"\s+", " ", s).strip()
 

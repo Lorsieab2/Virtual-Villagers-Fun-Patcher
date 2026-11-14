@@ -116,6 +116,7 @@ STRUCTURAL_INLINE = [
     re.compile(r"^\s*CHOICE\s*[A-Z]?\s*(?::|\s-\s|\s*-)\s*"),                # CHOICE A: / CHOICE A - / CHOICE:
     re.compile(r"^\s*[-*]\s+"),                                              # bullets
     re.compile(r"^\s*[A-G]\d{0,2}\s*(?:\.|:|\s-\s)\s*(?=\S)"),               # A. / A: / A1 - / B2:
+    re.compile(r"^\s*\(\d+\)\s*:?\s*$"),                                     # a bank heading "(3)" / "(4):" alone
     re.compile(r"^\s*\(\d+\)\s*(?=\S)"),                                     # (3) at the start of a line
     re.compile(r"\(\s*(?:VV\d(?:\s*-\s*VV\d)?[,\s]*)+ONLY\s*\)"),            # (VV3-VV5 ONLY)
     re.compile(r"\bGo to \(\d+\)\.?"),                                       # Go to (5).
