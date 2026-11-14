@@ -62,6 +62,10 @@
   "apprentice": {
    "kind": "villager",
    "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
   }
  },
  "pools": {
@@ -251,18 +255,126 @@
    "popup": "append",
    "join": "paragraph",
    "src": "L5063-5064",
-   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}"
+   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "misconduct": {
    "popup": "append",
    "join": "paragraph",
    "src": "L5070",
-   "text": "The responsible adult makes restitution and helps rebuild safely."
+   "text": "The responsible adult makes restitution and helps rebuild safely.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
   "mixed": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{MIXED}"
+   "text": "{MIXED}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r7"
+    },
+    {
+     "next": "coda_r8"
+    },
+    {
+     "next": "coda_r9"
+    },
+    {
+     "next": "coda_r13"
+    },
+    {
+     "next": "coda_r14"
+    },
+    {
+     "next": "coda_r18"
+    },
+    {
+     "next": "coda_r23"
+    },
+    {
+     "next": "coda_r24"
+    }
+   ]
+  },
+  "coda_r7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r7}"
+  },
+  "coda_r8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r8}"
+  },
+  "coda_r9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r9}"
+  },
+  "coda_r13": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r13}"
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r18": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r18}"
+  },
+  "coda_r23": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r23}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "no_coda": {
+   "type": "branch"
   }
- }
+ },
+ "include_pools": [
+  "v9_r7",
+  "v9_r8",
+  "v9_r9",
+  "v9_r13",
+  "v9_r14",
+  "v9_r18",
+  "v9_r23",
+  "v9_r24"
+ ]
 }

@@ -1,0 +1,607 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Trial of the Shattered Pearls",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_trial_of_the_shattered_pearls",
+  "source": "v26",
+  "lines": [
+   5143,
+   5222
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5144",
+  "ledger": [
+   {
+    "src": "L5143",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5145",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5146",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5162",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5168",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5174",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5182",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5189",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5195",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5201",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5207-5208",
+    "kind": "note",
+    "why": "designer note: custody only if the patch supports it (it does not), so the source's default, supervised restitution, is shown"
+   },
+   {
+    "src": "L5209",
+    "kind": "note",
+    "text": "otherwise",
+    "why": "designer note: the default sentence"
+   },
+   {
+    "src": "L5209",
+    "kind": "note",
+    "text": "No playable",
+    "why": "designer note: nobody is removed"
+   },
+   {
+    "src": "L5210",
+    "kind": "note",
+    "why": "designer note: nobody is removed"
+   },
+   {
+    "src": "L5213",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5218",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "culprit": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "rival": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_r7",
+  "v9_r8",
+  "v9_r9",
+  "v9_r11",
+  "v9_r13",
+  "v9_r18",
+  "v9_r23",
+  "v9_r25"
+ ],
+ "pools": {
+  "DAMAGE": {
+   "set": "(7)",
+   "items": [
+    {
+     "text": "The culprit admits envy and apologizes sincerely.",
+     "src": "L5204"
+    },
+    {
+     "text": "The culprit insists the artwork deserved it. The community condemns the act without demanding instant forgiveness.",
+     "src": "L5205-5206"
+    },
+    {
+     "text": "The sentence is supervised restitution.",
+     "src": "L5209"
+    },
+    {
+     "text": "The victim refuses to reconcile. The culprit must accept that.",
+     "src": "L5211"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The exhibition",
+   "src": "L5148-5150",
+   "text": "A joint Isolan-village art exhibition ends in disaster. A display of polished pearls is found shattered, and glittering gemstone powder has been scattered across a prized carved panel.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Accusations",
+   "src": "L5152-5154",
+   "text": "An Isolan artist accuses a village Master Builder. The builder accuses an Isolan rival. A frightened apprentice confesses before anyone asks a question. The neutral arbiter calls for order.",
+   "choices": [
+    {
+     "label": "Examine the physical evidence.",
+     "next": "evidence",
+     "src": "L5156"
+    },
+    {
+     "label": "Interview the confessing apprentice privately.",
+     "next": "confession",
+     "src": "L5157"
+    },
+    {
+     "label": "Investigate both rivals' motives.",
+     "next": "motives",
+     "src": "L5158"
+    },
+    {
+     "label": "Convene a public hearing with neutral rules.",
+     "next": "hearing",
+     "src": "L5159"
+    },
+    {
+     "label": "Pause the exhibition and preserve the damaged work.",
+     "next": "preserve",
+     "src": "L5160"
+    }
+   ]
+  },
+  "evidence": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "src": "L5163",
+   "text": "A fallen shelf caused the damage. Neither rival is guilty.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "e2": {
+   "src": "L5164",
+   "text": "One rival deliberately struck the display.",
+   "children": [
+    {
+     "next": "intentional"
+    }
+   ]
+  },
+  "e3": {
+   "src": "L5165",
+   "text": "The apprentice knocked it over by accident and panicked.",
+   "children": [
+    {
+     "next": "accident"
+    }
+   ]
+  },
+  "e4": {
+   "src": "L5166",
+   "text": "The powder came from an unrelated art project.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "confession": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L5169",
+   "text": "The apprentice was afraid the mentor would be punished.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L5170",
+   "text": "The apprentice thought a confession would end the fighting.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "c3": {
+   "src": "L5171",
+   "text": "The apprentice actually caused the damage by accident.",
+   "children": [
+    {
+     "next": "accident"
+    }
+   ]
+  },
+  "c4": {
+   "src": "L5172",
+   "text": "The apprentice saw the real culprit and is afraid to name (culprit.him/her).",
+   "children": [
+    {
+     "next": "intentional"
+    }
+   ]
+  },
+  "motives": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    },
+    {
+     "next": "m4"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L5175",
+   "text": "The rivals are bitter enemies but neither damaged the display.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L5176",
+   "text": "One rival wanted to win so badly that (rival.he/she) sabotaged it.",
+   "children": [
+    {
+     "next": "intentional"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L5177-5178",
+   "text": "One rival made a cruel joke, not the physical damage. The joke is addressed separately.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "m4": {
+   "src": "L5179-5180",
+   "text": "The rivals were secretly collaborating on a surprise exhibit; their secrecy caused a misunderstanding.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "hearing": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "h1"
+    },
+    {
+     "next": "h2"
+    },
+    {
+     "next": "h3"
+    },
+    {
+     "next": "h4"
+    }
+   ]
+  },
+  "h1": {
+   "src": "L5183",
+   "text": "The arbiter catches a witness inventing details to protect a friend.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "h2": {
+   "src": "L5184-5185",
+   "text": "The accused screams, 'YOU HAVE HATED ME SINCE THE DAY WE MET!' The rival replies, 'YES, BUT THAT DOESN'T MAKE YOU GUILTY!'",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "h3": {
+   "src": "L5186",
+   "text": "A witness admits to tampering and offers restitution.",
+   "children": [
+    {
+     "next": "intentional"
+    }
+   ]
+  },
+  "h4": {
+   "src": "L5187",
+   "text": "The arbiter refuses to treat the apprentice's fear as proof.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "preserve": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "p1"
+    },
+    {
+     "next": "p2"
+    },
+    {
+     "next": "p3"
+    },
+    {
+     "next": "p4"
+    }
+   ]
+  },
+  "p1": {
+   "src": "L5190",
+   "text": "The pearls are recoverable and the panel can be repaired.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "p2": {
+   "src": "L5191",
+   "text": "The artwork is permanently damaged; its maker grieves the loss.",
+   "children": [
+    {
+     "next": "bittersweet"
+    }
+   ]
+  },
+  "p3": {
+   "src": "L5192",
+   "text": "A child finds a missing pearl inside a decorative coconut.",
+   "children": [
+    {
+     "next": "exoneration"
+    }
+   ]
+  },
+  "p4": {
+   "src": "L5193",
+   "text": "A visiting artisan offers a restoration method.",
+   "children": [
+    {
+     "next": "bittersweet"
+    }
+   ]
+  },
+  "exoneration": {
+   "name": "Exoneration",
+   "src": "L5196-5199",
+   "text": "The arbiter publicly clears those against whom there is no evidence. The rivals may apologize, remain hostile, or begin to trust each other. The apprentice learns that confessing to a thing one didn't do can make the truth harder to find.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "intentional": {
+   "name": "Intentional damage",
+   "src": "L5202-5203",
+   "text": "The culprit is identified by evidence, not rumor. The arbiter orders restitution, a public correction and proportionate consequences.\n{DAMAGE}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "accident": {
+   "name": "Accident",
+   "src": "L5214-5216",
+   "text": "The apprentice admits the accident. The adults realize their furious accusations frightened a young person into hiding the truth. They apologize; the apprentice helps repair what can be repaired.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "bittersweet": {
+   "name": "Bittersweet",
+   "src": "L5219-5222",
+   "text": "The damaged art cannot be made exactly as it was. The artist may restore it imperfectly, create a new work, or leave it unfinished. A former rival says, 'I hated that piece. I never wanted it destroyed.' The artist replies, 'I wish you had said that yesterday.'",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r7"
+    },
+    {
+     "next": "coda_r8",
+     "if": {
+      "role": "builder"
+     }
+    },
+    {
+     "next": "coda_r9"
+    },
+    {
+     "next": "coda_r11"
+    },
+    {
+     "next": "coda_r13"
+    },
+    {
+     "next": "coda_r18"
+    },
+    {
+     "next": "coda_r23"
+    },
+    {
+     "next": "coda_r25"
+    }
+   ]
+  },
+  "coda_r7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r7}"
+  },
+  "coda_r8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r8}"
+  },
+  "coda_r9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r9}"
+  },
+  "coda_r11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r11}"
+  },
+  "coda_r13": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r13}"
+  },
+  "coda_r18": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r18}"
+  },
+  "coda_r23": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r23}"
+  },
+  "coda_r25": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r25}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}
