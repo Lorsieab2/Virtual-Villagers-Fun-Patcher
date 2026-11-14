@@ -1,18 +1,19 @@
-/* Island-event questions with 2, 3 or 4 answers in the game's own two-choice island popup: The Secret City, The Tree
+/* Island-event questions with 2 to 7 answers in the game's own two-choice island popup: The Secret City, The Tree
    of Life and New Believers.  Shared by "VVFP More Island Events.dll" (its events, The Troubling Signs first) and
    "VVFP Story Upgrades.dll" (Custom Island Events' questions); each includes it once and keeps its own one popup.
 
    THE POPUP is the game's own two-choice island-event dialog (constructors 0x4192F0 / 0x417790 / 0x418020), built by
-   the game with its two answer buttons (+0x85C, +0x860) and OK (+0x864).  A third and fourth answer are buttons made
+   the game with its two answer buttons (+0x85C, +0x860) and OK (+0x864).  Each answer past two is a button made
    exactly as the constructor makes its two: operator new 0x14 bytes (0x46EC93 / 0x470C5C / 0x47BBDC), the answer
    picture of the image manager (0x42E9D0 + 0x42E8A0 picture 4 / 0x44CCF0 + 0x44CB60 picture 0x83 / 0x44FBB0 +
-   0x44FA20 picture 0x65), the button (0x4019F0 / 0x401C20 / 0x401BD0) with ids 4 and 5 and the dialog as its
-   listener, the label (0x401620 / 0x401600 / 0x4015D0) set from the dialog's text (its text setter 0x4185A0 /
+   0x44FA20 picture 0x65), the button (0x4019F0 / 0x401C20 / 0x401BD0) with ids 4 to 8 (the dialog's own are 1 OK, 2 and
+   3: docs/event-collection/button-probe.md) and the dialog as its listener, the label (0x401620 / 0x401600 / 0x4015D0) set from the dialog's text (its text setter 0x4185A0 /
    0x416F60 / 0x417700 fills +0x58) in the game's own label colours (0x4A460C / 0x4B8E34 / 0x4C6D24, three dwords),
    and the dialog's add-child (0x40C1F0 / 0x40C190 / 0x40C680): the game's art, font and button look.
-   All the answers stand one above the other, centred, 1.5 button heights apart as the constructor spaces its two (its
-   first at the height - 3.5 h, its second at - 2 h): the game's two move up and ours take the places below, so a
-   label wider than its button stays whole on the screen and never meets another.  With two answers nothing here is
+   All the answers stand one above the other in ONE column, centred, 1.5 button heights apart as the constructor
+   spaces its two (its first at the height - 3.5 h, its second at - 2 h) -- 1.25 heights apart with 5 to 7 answers,
+   so seven take 8.75 h rather than 10.5 h: the game's two move up and ours take the places below, so a label wider
+   than its button stays whole on the screen and never meets another.  With two answers nothing here is
    used: the dialog is the game's, untouched.
 
    ROOM: the popup is sized by its constructor for its text; the client pads the tallest page with blank lines worth
@@ -22,8 +23,8 @@
    popup keeps its text above every button.
 
    CLICKS AND KEYS: the dialog's virtual table becomes a copy of the game's (0x47F28C / 0x48D2C8 / 0x4984D8) with two
-   entries of its own.  The click handler (+0x0C): ids 4 and 5 are the third and fourth answers (the answers hidden,
-   +0x830 = 2 or 3, the client's answer); every other click goes to the game's own handler (0x419A00 / 0x417EA0 /
+   entries of its own.  The click handler (+0x0C): ids 4 to 8 are the third to seventh answers (the answers hidden,
+   +0x830 = 2 to 6, the client's answer); every other click goes to the game's own handler (0x419A00 / 0x417EA0 /
    0x418720), which answers ids 2 and 3 itself.  The keyboard handler (+0x08; the game's own takes no key: 0x4011D0 /
    0x401050 / 0x43F050): Enter or Esc is OK while OK is shown, as the game's own message box does it (0x41AC90 /
    0x418390 / 0x418AC0, the same engine), and the typed keys 1 to N pick the answers while they are shown.  Our
@@ -36,7 +37,7 @@
 #ifndef VVFP_MULTI_ANSWER_H
 #define VVFP_MULTI_ANSWER_H
 
-#define MA_MAX_ANSWERS 4
+#define MA_MAX_ANSWERS 7
 #define MA_EXTRA (MA_MAX_ANSWERS - 2)
 #define MA_LABEL_BYTES 128
 
@@ -68,7 +69,7 @@ static const ma_game MA_GAMES[3] = {
 typedef struct {
     int (*text_id)(const char *text);
     int (*state)(void *dialog);
-    void (*answer)(void *dialog, int answer);     /* answer 2 or 3 clicked (or typed): its first page, OK up */
+    void (*answer)(void *dialog, int answer);     /* answer 2 to 6 clicked (or typed): its first page, OK up */
 } ma_client;
 
 typedef struct {
@@ -76,7 +77,7 @@ typedef struct {
     const ma_client *c;
     void *dialog;                   /* the dialog with our buttons, NULL none */
     void *buttons[MA_EXTRA];
-    int count;                      /* the answers shown: 3 or 4 */
+    int count;                      /* the answers shown: 3 to 7 */
     int shown;
     int room;                       /* the room the extra buttons take beyond the game's two */
     unsigned int dvt[24];           /* the dialog's virtual table: [0] its RTTI locator */
@@ -123,7 +124,13 @@ static void *ma_button(void *dialog, int k) {
     return k - 2 < MA_EXTRA ? g_ma.buttons[k - 2] : NULL;
 }
 
-/* The room `count` answers take beyond the game's two: 1.5 button heights each (the constructor's spacing). */
+/* The distance between two answers' tops: 1.5 button heights (the constructor's) up to four answers, 1.25 from five. */
+static int ma_step(int h, int count) {
+    return count > 4 ? h + h / 4 : h + h / 2;
+}
+
+/* The room `count` answers take beyond the game's two: how far above the game's own first (the height - 3.5 h) the
+   first answer stands -- 1.5 button heights for each answer past two, up to four. */
 static int ma_room_for(void *dialog, int count) {
     void *button = dialog != NULL ? ma_control(dialog, 0x85Cu) : NULL;
     int h;
@@ -131,7 +138,10 @@ static int ma_room_for(void *dialog, int count) {
         return 0;
     }
     h = ma_vcall(button, 0x10);
-    return (count - 2) * 3 * h / 2;
+    if (count <= 4) {
+        return (count - 2) * 3 * h / 2;
+    }
+    return (count - 1) * ma_step(h, count) - (h + h / 2);
 }
 
 /* `text` with blank lines worth `room` pixels more, measured by the game's own justified paragraph as the constructor
@@ -195,7 +205,7 @@ static void ma_free(void *dialog) {
     g_ma.shown = 0;
 }
 
-/* All the answers one above the other at the panel's bottom, centred, 1.5 button heights apart. */
+/* All the answers one above the other at the panel's bottom, centred, ma_step apart. */
 static void ma_layout(void *dialog) {
     unsigned char *d = (unsigned char *)dialog;
     int width = *(int *)(d + 0x1C) - *(int *)(d + 0x14);
@@ -209,12 +219,12 @@ static void ma_layout(void *dialog) {
         }
         bw = ma_vcall(b, 0x0C);
         bh = ma_vcall(b, 0x10);
-        step = bh + bh / 2;
+        step = ma_step(bh, g_ma.count);
         ((ma_v2_fn)(*(void ***)b)[1])(b, NULL, (width - bw) / 2, height - 2 * bh - (g_ma.count - 1 - k) * step);
     }
 }
 
-/* The dialog's click handler (its +0x0C): ids 4 and 5 are our answers, the rest the game's. */
+/* The dialog's click handler (its +0x0C): ids 4 to 8 are our answers, the rest the game's. */
 static char __fastcall ma_message(void *dialog, void *unused, int message, int id) {
     char handled = 0;
     int state;
@@ -265,7 +275,7 @@ static char __fastcall ma_key(void *dialog, void *unused, int type, int code, in
     return 0;
 }
 
-/* After the dialog's constructor: `count` answers (3 or 4; the game made the first two with labels[0] and [1]) --
+/* After the dialog's constructor: `count` answers (3 to 7; the game made the first two with labels[0] and [1]) --
    ours made with labels[2..], all laid out, our virtual table, and the answers shown.  The dialog's text is the last
    label afterwards: the client sets its page.  0 (nothing changed) when the buttons could not be made. */
 static int ma_attach(int game, const ma_client *client, void *dialog, int count, const char *const *labels) {

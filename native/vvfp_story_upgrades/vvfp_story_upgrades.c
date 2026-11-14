@@ -200,7 +200,7 @@ static int cg_asked_answers(void);
 static int cs_multi;
 static void *cs_dialog;
 static void __cdecl cs_after_ctor(void *dialog);
-static char cg_labels_more[2][CE_BUTTON_BYTES];   /* the asked question's third and fourth labels (format 4) */
+static const char *cg_label(int button);   /* the asked question's button labels (story_graph.inc; format 6: up to 7) */
 static int cg_featured(int game);
 static int cg_busy(int game);
 static void cg_tick(int game);

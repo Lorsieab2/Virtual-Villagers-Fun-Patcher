@@ -1,28 +1,29 @@
-/* Island-event questions with 3 or 4 answers in A New Home's and The Lost Children's own two-choice popup (the villager
+/* Island-event questions with 3 to 7 answers in A New Home's and The Lost Children's own two-choice popup (the villager
    encounters' dialog 0x41A460 / the family-A dialog 0x422380).  Shared by "VVFP More Island Events.dll" and "VVFP Story
    Upgrades.dll"; each includes it once and keeps its own one popup.  The later three games: vvfp_multi_answer.h.
 
    THE BUTTONS are made exactly as the constructor makes its two: operator new 0x14 bytes (0x44AF03 / 0x467F83), the
    button (0x4019B0 / 0x4019D0) with the answers' own picture ("0x4595C4" / "0x47677C", the constructor's), a new id
-   (5 and 6: the constructor's are 2, 3 and OK 4, at +0x54 / +0x58 / +0x5C) and the dialog as its listener, the label
+   (5 to 9: the constructor's are 2, 3 and OK 4, at +0x54 / +0x58 / +0x5C; docs/event-collection/button-probe.md) and the dialog as its listener, the label
    (0x4015B0 / 0x4015D0) in the constructor's colours (black, then grey 0x55 twice).  They are attached and taken off
    with the dialog's own add / remove (0x40AB80 / 0x40ABC0, 0x40B560 / 0x40B5A0), as its click handler swaps its two.
-   All the answers stand one above the other, centred, 1.5 button heights apart as the constructor spaces its two
-   (its first at the height - 3.5 h, its second at - 2 h, OK at - h - 20 below them).
+   All the answers stand one above the other in ONE column, centred, 1.5 button heights apart as the constructor
+   spaces its two (its first at the height - 3.5 h, its second at - 2 h, OK at - h - 20 below them) -- 1.25 heights
+   apart with 5 to 7 answers.
 
    WHEN.  These dialogs are built in one call that also places their buttons, and neither companion has a site after
    it; so the extra buttons are made when the dialog is first DRAWN (its +0x30, 0x4187E0 / 0x41F430), and at every
    draw after that they follow the client's state: made and laid out while its answers are asked, taken off and
    deleted while they are not (a draw is never inside a button's own click, so deleting there is safe).  The dialog's
    virtual table becomes a copy of the game's (0x459578 / 0x476714) with that draw, its click handler (+0x0C: ids 5
-   and 6 answered as the game answers its two -- the sound, the answers off, OK on, the choice field +0x509C / +0x50A4
-   = 3 or 4, the client's resolve, the result shown +0x50 -- every other click to the game's 0x41A3D0 / 0x4222F0, our
+   to 9 answered as the game answers its two -- the sound, the answers off, OK on, the choice field +0x509C / +0x50A4
+   = 3 to 7, the client's resolve, the result shown +0x50 -- every other click to the game's 0x41A3D0 / 0x4222F0, our
    buttons taken off first when it is one of its answers) and its keyboard handler (+0x08; the game's 0x41F620 /
    0x401180 takes no key): Enter / Esc is OK while OK is shown, as the games' own message boxes (0x415400 / 0x41AB80),
    and the keys 1 to N the answers while they are asked.
 
    ROOM.  The popup is sized once by its constructor from its text: the client pads the question with blank lines
-   worth the extra buttons (mb_room_lines: 1.5 button heights each, the button's height measured on a button made and
+   worth the extra buttons (mb_room_lines: as far above the game's first answer as the first of all stands, the button's height measured on a button made and
    deleted at once, in the font's lines -- 0x402100 / 0x402190 on the dialog's font +0x50AC / +0x50B4).
 
    With two answers nothing here is used: the dialog is the game's, untouched. */
@@ -30,7 +31,7 @@
 #ifndef VVFP_MULTI_ANSWER_12_H
 #define VVFP_MULTI_ANSWER_12_H
 
-#define MB_MAX_ANSWERS 4
+#define MB_MAX_ANSWERS 7
 #define MB_EXTRA (MB_MAX_ANSWERS - 2)
 #define MB_LABEL_BYTES 128
 #define MB_FIRST_ID 5
@@ -58,11 +59,11 @@ static const mb_game MB_GAMES[2] = {
 };
 
 typedef struct {
-    /* The popup's state (MB_*), the answers the question on screen has (2..4) and their words. */
+    /* The popup's state (MB_*), the answers the question on screen has (2..7) and their words. */
     int (*state)(void *dialog);
     int (*answers)(void *dialog);
     void (*label)(void *dialog, int k, char *out, int cap);
-    /* The answer's resolve, after the choice field is set (3 or 4) and the answers are off and OK on. */
+    /* The answer's resolve, after the choice field is set (3 to 7) and the answers are off and OK on. */
     void (*resolve)(void *dialog);
 } mb_client;
 
@@ -126,6 +127,23 @@ static void mb_delete(void *b) {
     }
 }
 
+/* The distance between two answers' tops: 1.5 button heights (the constructor's) up to four answers, 1.25 from five. */
+static int mb_step(int h, int count) {
+    return count > 4 ? h + h / 4 : h + h / 2;
+}
+
+/* The room `count` answers take beyond the game's two, in pixels: 1.5 button heights for each answer past two, up to
+   four; from five, how far above the game's own first (the height - 3.5 h) the first answer stands. */
+static int mb_room_px(int h, int count) {
+    if (count <= 2) {
+        return 0;
+    }
+    if (count <= 4) {
+        return (count - 2) * 3 * h / 2;
+    }
+    return (count - 1) * mb_step(h, count) - (h + h / 2);
+}
+
 /* The text lines `count` answers need beyond the game's two (0 for two), for the client's padding of the question. */
 static int mb_room_lines(int game, void *dialog, int count) {
     const mb_game *g = mb_game_of(game);
@@ -138,7 +156,7 @@ static int mb_room_lines(int game, void *dialog, int count) {
         void **font = (void **)mb_field(dialog, g->font_field);
         int h = b != NULL ? mb_vcall(b, 0x10) : 0;
         int line = font != NULL && *font != NULL ? ((mb_lines_fn)(uintptr_t)g->line_height)(*font, NULL, NULL) : 0;
-        int room = (count - 2) * 3 * h / 2;
+        int room = mb_room_px(h, count);
         if (b != NULL) {
             mb_delete(b);
         }
@@ -180,7 +198,7 @@ static void mb_take_off(void *dialog, int free_them) {
     g_mb.made = 0;
 }
 
-/* Every answer one above the other at the panel's bottom, centred, 1.5 button heights apart. */
+/* Every answer one above the other at the panel's bottom, centred, mb_step apart. */
 static void mb_layout(void *dialog, int count) {
     unsigned char *d = (unsigned char *)dialog;
     int width = *(int *)(d + 0x1C) - *(int *)(d + 0x14);
@@ -194,7 +212,7 @@ static void mb_layout(void *dialog, int count) {
         }
         bw = mb_vcall(b, 0x0C);
         bh = mb_vcall(b, 0x10);
-        ((mb_v2_fn)(*(void ***)b)[1])(b, NULL, width / 2 - bw / 2, height - 2 * bh - (count - 1 - k) * (bh + bh / 2));
+        ((mb_v2_fn)(*(void ***)b)[1])(b, NULL, width / 2 - bw / 2, height - 2 * bh - (count - 1 - k) * mb_step(bh, count));
     }
 }
 
@@ -212,7 +230,9 @@ static void __fastcall mb_draw(void *dialog, void *unused) {
                 same = same && g_mb.buttons[k] != NULL && lstrcmpA(words[k], g_mb.words[k]) == 0;
             }
             if (count <= 2 || !same || (g_mb.made && g_mb.made != count)) {
-                if (g_mb.buttons[0] != NULL || g_mb.buttons[1] != NULL) {
+                for (k = 0; k < MB_EXTRA && g_mb.buttons[k] == NULL; ++k) {
+                }
+                if (k < MB_EXTRA) {
                     mb_take_off(dialog, 1);
                 }
             }
@@ -235,7 +255,7 @@ static void __fastcall mb_draw(void *dialog, void *unused) {
     ((mb_draw_fn)(uintptr_t)g_mb.g->draw)(dialog, NULL);
 }
 
-/* The dialog's click handler (+0x0C): ids 5 and 6 are our answers, the rest the game's. */
+/* The dialog's click handler (+0x0C): ids 5 to 9 are our answers, the rest the game's. */
 static char __fastcall mb_message(void *dialog, void *unused, int message, int id) {
     unsigned char *d = (unsigned char *)dialog;
     (void)unused;
