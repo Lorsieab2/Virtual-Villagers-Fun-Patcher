@@ -545,6 +545,9 @@ FILES = [
     "src/vv_remembrance_ceremony.py",
     "src/vv_the_rumblings.py",
     "src/vv_game_mechanics_ceremony.py",
+    # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
+    "src/vv_game_mechanics_collection.py",
+    "data/event_collection_index.json",
     # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
     "src/vv_game_mechanics_farmers.py",
     "src/vv_game_mechanics_farmers_vv1.py",

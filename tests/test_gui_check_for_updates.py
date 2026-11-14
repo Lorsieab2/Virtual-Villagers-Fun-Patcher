@@ -213,6 +213,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_mysterious_mask",
                # ...and The Remembrance Ceremony's and The Rumblings' (all five games), with their page entries.
                "vv_remembrance_ceremony", "vv_the_rumblings", "vv_game_mechanics_ceremony",
+               # Isola Grand Event Collection (v1.35.97): its page entry.
+               "vv_game_mechanics_collection",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
                # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
@@ -451,7 +453,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                          "vv_game_mechanics_life"}),
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
-            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
+            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life",
+                                          "vv_game_mechanics_collection"}),
+            ("vv_game_mechanics_collection", {"vv_game_mechanics", "vv_game_mechanics_adventurer"}),
             *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
                                                   # More Island Events' The Aspiring Adventurer
                                                   "vv_game_mechanics_adventurer",
@@ -459,7 +463,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                                   "vv_game_mechanics_ceremony"})
               for n in (1, 2, 3, 4, 5)),
             ("vv_game_mechanics_ceremony", {"vv_remembrance_ceremony", "vv_the_rumblings",
-                                            "vv_game_mechanics_events"}),
+                                            "vv_game_mechanics_events",
+                                            # the rare roll's words (fix/97-release-1)
+                                            "vv_game_mechanics_adventurer"}),
             ("vv_remembrance_ceremony", set()),
             ("vv_the_rumblings", set()),
             ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_cave_explorers", "vv_the_climb",

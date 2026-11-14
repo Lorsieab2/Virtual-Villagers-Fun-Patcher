@@ -1,0 +1,728 @@
+{
+ "events": {
+  "all_beautification": {
+   "harm": [],
+   "section": "universal"
+  },
+  "all_conundrums": {
+   "harm": [],
+   "section": "v11"
+  },
+  "all_doctors_dilemma": {
+   "harm": [
+    "kill"
+   ],
+   "section": "universal"
+  },
+  "all_everybodys_winner": {
+   "harm": [],
+   "section": "universal"
+  },
+  "all_great_appointment": {
+   "harm": [],
+   "section": "v10"
+  },
+  "all_inexplicable_idea": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_invention": {
+   "harm": [],
+   "section": "v10"
+  },
+  "all_invention_showcase": {
+   "harm": [],
+   "section": "v11"
+  },
+  "all_its_alive": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_panel_standards": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_physics_defying": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_scholasticon": {
+   "harm": [],
+   "section": "universal"
+  },
+  "all_secret_of_life": {
+   "harm": [],
+   "section": "v11"
+  },
+  "all_storytelling": {
+   "harm": [],
+   "section": "universal"
+  },
+  "all_strange_statue": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_teacher_who_failed": {
+   "harm": [],
+   "section": "v10"
+  },
+  "all_unlikely_advisor": {
+   "harm": [],
+   "section": "v10"
+  },
+  "all_v18_01_warriors": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_02_martial": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_03_question": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_04_duel": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_05_alchemists": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_06_paradox": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_07_sixteenth": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_08_poets": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_09_trivia": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_10_ball": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_11_stick_game": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_12_hoop": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v18_decathlon": {
+   "harm": [],
+   "section": "v18"
+  },
+  "all_v20_between_life": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d10_child": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_d11_ancient": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d12_cannot": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d1_two_lives": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_d2_no_such": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d3_cure": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d4_half": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_d5_last_dose": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d6_physician": {
+   "harm": [
+    "kill"
+   ],
+   "section": "v20"
+  },
+  "all_v20_d7_patient": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_d8_works_too": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_d9_healers": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_r1_should_not": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_r2_relic_trial": {
+   "harm": [
+    "vanish"
+   ],
+   "section": "v20"
+  },
+  "all_v20_r3_isola": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v20_r4_relic": {
+   "harm": [],
+   "section": "v20"
+  },
+  "all_v21_c1_potters": {
+   "harm": [],
+   "section": "v21"
+  },
+  "all_v21_c2_divided": {
+   "harm": [],
+   "section": "v21"
+  },
+  "all_v21_c3_crafts_fair": {
+   "harm": [],
+   "section": "v21"
+  },
+  "all_v22_1_drawing": {
+   "harm": [],
+   "section": "v22"
+  },
+  "all_v22_2_strength": {
+   "harm": [],
+   "section": "v22"
+  },
+  "all_v22_3_potion": {
+   "harm": [],
+   "section": "v22"
+  },
+  "all_v22_4_parents": {
+   "harm": [],
+   "section": "v22"
+  },
+  "all_v23_1_practical": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v23_2_ill_timed": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v23_3_strange": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v23_4_missing": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v23_5_false_alarm": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v23_6_prank_war": {
+   "harm": [],
+   "section": "v23"
+  },
+  "all_v24_revolutionary": {
+   "harm": [],
+   "section": "v24"
+  },
+  "all_verse_that_changed": {
+   "harm": [],
+   "section": "v13"
+  },
+  "all_very_bad_day": {
+   "harm": [],
+   "section": "v10"
+  },
+  "vv1_child_of_legend": {
+   "harm": [],
+   "section": "original"
+  },
+  "vv1_elders_favorite": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv1_last_song_before": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv1_masters_small": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv1_missing_pearl": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv1_the_wall": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv1_unexpected": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv1_v14_01_impossible": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_02_worlds": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_03_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_04_living_map": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_05_lesson": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_06_song_isola": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_07_instrument": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_08_tiny": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_09_rainbow": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_10_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_11_thirsty": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_12_berry_bushs": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_13_curious": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_14_stars_have": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_15_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_16_child_who": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_17_golden": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_18_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_19_golden": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_20_question": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_21_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_22_golden": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_23_little": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_24_boy_who": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v14_25_child_who": {
+   "harm": [],
+   "section": "v14"
+  },
+  "vv1_v17_building": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_children": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_cooking": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_farming": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_research": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_sculpture": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv1_v17_story": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_cooking_contest": {
+   "harm": [],
+   "section": "original"
+  },
+  "vv2_experimental_remedy": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv2_hospitals_most_difficult": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv2_hut_sharing_negotiation": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv2_packed_hospital": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv2_secret_behind_waterfall": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv2_stolen_spoon": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv2_the_great_totem_dispute": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv2_timid_child": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv2_v17_building": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_v17_children": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_v17_farming": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_v17_research": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_v17_sculpture": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_v17_story": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv2_veterinary_visitor": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv345_magician_naturalist": {
+   "harm": [],
+   "section": "v10"
+  },
+  "vv3_chief_and_the_pearl": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv3_chiefs_impossible_question": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv3_chiefs_monumental_speech": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv3_child_who_claimed_to_be": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv3_duel_terrible_inventors": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv3_gardening_contest": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv3_statue_that_judged_its": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv3_tale_telling_elder": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv3_the_citys_two_histories": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv3_unfortunate_portrait": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv3_v17_building": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_children": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_cooking": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_farming": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_research": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_sculpture": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_v17_story": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv3_weather_dance_that_went": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv4_arbor_day_festival": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv4_breadfruit_breakdown": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv4_fruity_masterpiece": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv4_lullaby": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv4_mask_that_wouldnt_stay": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv4_quiet_gardener": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv4_rotten_structure": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv4_the_dolphins_strange_gift": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv4_the_great_water_argument": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv4_the_unwelcome_landscaper": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv4_v17_building": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_children": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_cooking": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_farming": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_research": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_sculpture": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv4_v17_story": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_convert_who_missed_home": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv5_feast_of_two_traditions": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv5_field_day": {
+   "harm": [],
+   "section": "vv5_isolan"
+  },
+  "vv5_gift_or_insult": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv5_great_laundry_mishap": {
+   "harm": [],
+   "section": "vv5_isolan"
+  },
+  "vv5_great_woodworking": {
+   "harm": [],
+   "section": "vv5_isolan"
+  },
+  "vv5_keeper_of_little_things": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv5_little_things_remember": {
+   "harm": [],
+   "section": "v8"
+  },
+  "vv5_meaning_of_faith": {
+   "harm": [],
+   "section": "original"
+  },
+  "vv5_multicultural_festival": {
+   "harm": [],
+   "section": "v6"
+  },
+  "vv5_old_belief_and_new": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv5_potluck_dispute": {
+   "harm": [],
+   "section": "vv5_isolan"
+  },
+  "vv5_slug_race": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv5_the_guardians_disagreement": {
+   "harm": [],
+   "section": "exclusive"
+  },
+  "vv5_trial_shattered_pearls": {
+   "harm": [],
+   "section": "v9"
+  },
+  "vv5_v17_building": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_children": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_cooking": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_farming": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_research": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_sculpture": {
+   "harm": [],
+   "section": "v17"
+  },
+  "vv5_v17_story": {
+   "harm": [],
+   "section": "v17"
+  }
+ },
+ "format": "vvfp-event-collection-index",
+ "version": 1
+}
