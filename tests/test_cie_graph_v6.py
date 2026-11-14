@@ -16,6 +16,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 import struct
 import sys
 import unittest
@@ -506,9 +507,61 @@ class Answers(unittest.TestCase):
             {"label": "A", "next": "k"}, {"label": "B", "next": "l", "if": {"visited": "p"}}]}})
         self.assertTrue(any("uses only game, patch, role" in p for p in t.problems_of(d, True)))
 
+    def test_room_matches_the_engine(self):
+        """answer_room == story_graph.inc cg_answer_room for 2..7 answers, in every game's question popup and
+        result popup (an answer's first page), read from the engine's own source:
+          * CG_ANSWER_LINES, story_graph.inc:152 (from the merge of feat/97-coll-engine 2ba3bf5e);
+          * the cap in cg_answer_room, story_graph.inc:1103-1112: from five answers never more than the layout's
+            lines less the title it leads with (5) less 3;
+          * the table itself from vvfp_multi_answer.h ma_room_for / ma_step (lines 128-145): the first answer stands
+            (n - 1) x 1.25 h - 1.5 h above the game's own first (n >= 5), h = a button, 2 lines of 20 px."""
+        native = (ROOT / "native" / "vvfp_story_upgrades" / "story_graph.inc").read_text(encoding="utf-8")
+        m = re.search(r"static const int CG_ANSWER_LINES\[CG_MAX_ANSWERS \+ 1\] = \{([^}]*)\};", native)
+        self.assertIsNotNone(m, "CG_ANSWER_LINES moved: re-read story_graph.inc")
+        table = [int(x) for x in m.group(1).split(",")]
+        self.assertEqual(table, [0, 0] + [cg.answer_room(n) for n in range(2, 8)])
+        for line in ("int room = CG_ANSWER_LINES[n < 2 ? 2 : n];",
+                     "int most = l->lines - (l->with_title ? 5 : 0) - 3;",
+                     "if (n > CG_V4_ANSWERS && room > most) {",
+                     "room = most > 0 ? most : 0;"):
+            self.assertIn(line, native, "cg_answer_room changed: mirror it in vv_cie_graph.answer_room")
+        self.assertIn("#define CG_V4_ANSWERS 4", native)
+        helper = (ROOT / "native" / "shared" / "vvfp_multi_answer.h").read_text(encoding="utf-8")
+        self.assertIn("return count > 4 ? h + h / 4 : h + h / 2;", helper)
+        self.assertIn("return (count - 1) * ma_step(h, count) - (h + h / 2);", helper)
+        h, line = 40, 20
+        for n in range(5, 8):
+            px = (n - 1) * (h + h // 4) - (h + h // 2)
+            self.assertEqual(-(-px // line), table[n], n)
+
+        def engine(n: int, layout) -> int:
+            room = table[2 if n < 2 else n]
+            most = layout.lines - (5 if layout.with_title else 0) - 3
+            if n > 4 and room > most:
+                room = most if most > 0 else 0
+            return room
+
+        for game in cg.GAMES.values():
+            for layout in (game.question, game.result):
+                for n in range(2, 8):
+                    self.assertEqual(cg.answer_room(n, layout), engine(n, layout), (game.name, layout, n))
+        # A New Home's question popup: 13 lines, the title's 5, three kept: room 5 from five answers.
+        self.assertEqual([cg.answer_room(n, cg.GAMES[1].question) for n in range(2, 8)], [0, 3, 6, 5, 5, 5])
+
+    def test_seven_answers_fit_without_scrolling_where_the_engine_does(self):
+        # Every game: the question keeps 3 lines below its title, and its answers' pages fit.
+        self.assertEqual(t.problems_of(self.seven(), False), [])
+        # A New Home, four buttons (no cap: the version 4 rule) and an answer page with changes: the title (5),
+        # the buttons (6) and the refusal lines (2) leave no line in its 13, so the engine cannot show it either.
+        d = read(KITCHEN)
+        problems = t.problems_of(d, False)
+        self.assertEqual(len(problems), 1, problems)
+        self.assertTrue(problems[0].startswith("A New Home: the popup of b runs off the screen"), problems)
+        self.assertEqual(t.problems_of(d, True), [])
+
     def test_room_and_labels(self):
-        self.assertEqual([cg.answer_room(n) for n in range(2, 8)], [0, 3, 6, 7, 9, 12])
-        self.assertEqual(cg.answer_room(7, 11), 8)
+        self.assertEqual([cg.answer_room(n) for n in range(2, 8)], [0, 3, 6, 7, 10, 12])
+        self.assertEqual(cg.answer_room(7, cg.GAMES[3].question), 8)
         self.assertEqual([cg.answer_letter(b) for b in range(8)], list("ABCDEFG") + ["8"])
         long_label = "Ask the Isolan team to agree on a few shared safety rules first."   # 64 bytes: v6 allows 95
         d = v6(nodes={"q": {"type": "question", "text": "Pick.", "choices": [

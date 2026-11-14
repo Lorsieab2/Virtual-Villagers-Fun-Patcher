@@ -128,9 +128,14 @@ strings. The engine must use the offsets, not the order.
    - skill (9) may now be negative (both of min, max in -100..-1): same roll, `lo + random_below(hi - lo + 1)`.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
-6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; every pool instance as the pool's
-   longest eligible item, measured after its own worst-case expansion (the first on a tie); then the glyph
-   fallback in VV1/VV2 (the fallback is longer, so this is the worst case).
+6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; then the glyph fallback in VV1/VV2.
+   - **Pages (engine).** `cg_fits` pages a popup with `CG_EXPAND_WORST`, and `cg_pool_text` returns the instance's
+     DRAWN item when the run holds a pick (always, once the walk is done): pages are laid out with the drawn
+     items and the longest names. Only with no pick does it take the longest eligible item by its raw bytes.
+   - **Fit check (Python, `worst_v6`).** No run exists, so every pool instance is the pool's longest eligible
+     item measured after its own worst-case expansion (the first on a tie). That is never shorter than any item
+     the engine can draw, so whatever Python accepts the engine can page; Python may refuse a little more than
+     strictly needed. `simulate` returns each popup's whole text, before paging.
 
 ## 7. Harm and the protected filter
 
@@ -186,9 +191,11 @@ holds only `per_game`.
 ## 11. Answers
 
 2 to 7 answers in v6 (`MAX_ANSWERS = 7`). The text lines a question keeps for its buttons beyond the game's two
-(`answer_room`): `3 x (n - 2)` for n <= 4; for n = 5..7, `ceil(2.5 x n) - 6`, but never more than the layout's
-lines less 3, less 5 more in VV1/VV2 (their title and four line breaks are in the text) (provisional until Track
-B's 800x600 render test, R2). Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
+(`answer_room` = `story_graph.inc cg_answer_room`): `3 x (n - 2)` for n <= 4; for n = 5..7,
+`ceil(2.5 x (n - 1) - 3)` (7, 10, 12: `CG_ANSWER_LINES`), and from five answers never more than the layout's lines
+less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the question layout; its answer's
+first page uses the result layout. `tests/test_cie_graph_v6.py` pins Python and the engine's source together for
+n = 2..7 in all five games. Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
 the popup's inner width in pixels is UNCONFIRMED.
 
 ## 12. Python API (stable names; Track D imports these)
