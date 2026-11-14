@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reunion That Hurt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_50_reunion",
+  "source": "v28",
+  "lines": [
+   10881,
+   10887
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10881",
+  "ledger": [
+   {
+    "src": "L10882",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10887",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A long-absent friend returns, expecting everything to be as it was.",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A long-absent friend returns, expecting everything to be as before.",
+   "src": "L10883",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They rebuild trust gradually.",
+   "src": "L10884"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The abandoned friend declines to reconnect.",
+   "src": "L10885"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They acknowledge that affection and resentment can coexist.",
+   "src": "L10886"
+  }
+ }
+}

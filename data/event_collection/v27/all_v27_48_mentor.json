@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlikely Mentor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_48_mentor",
+  "source": "v28",
+  "lines": [
+   10865,
+   10871
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10865",
+  "ledger": [
+   {
+    "src": "L10866",
+    "kind": "note",
+    "why": "the cast: RELATIONSHIPS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10871",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A blunt artisan agrees to train an unusually sensitive apprentice.",
+  "cast_only": [
+   "artisan"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "artisan": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A blunt, disagreeable artisan agrees to train an unusually sensitive apprentice.",
+   "src": "L10867",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The apprentice thrives on precise feedback.",
+   "src": "L10868",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10868"
+    }
+   ]
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The mentor learns that harshness is not the same as honesty.",
+   "src": "L10869"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They clash and choose a different training arrangement.",
+   "src": "L10870"
+  }
+ }
+}

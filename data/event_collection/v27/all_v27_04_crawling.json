@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crawling Expedition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_04_crawling",
+  "source": "v28",
+  "lines": [
+   10513,
+   10519
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10513",
+  "ledger": [
+   {
+    "src": "L10514",
+    "kind": "note",
+    "why": "the cast: BABIES; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10519",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A crawling baby makes a daring escape from the play mat."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "nursing_parent"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A mobile baby makes an impressive escape from a supervised play mat.",
+   "src": "L10515",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A caregiver catches the baby investigating a harmless basket.",
+   "src": "L10516",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10516"
+    }
+   ]
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The baby is found asleep beneath a nearby bench.",
+   "src": "L10517"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The adults improve their watch schedule after a frightening search.",
+   "src": "L10518",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10518"
+    }
+   ]
+  }
+ }
+}

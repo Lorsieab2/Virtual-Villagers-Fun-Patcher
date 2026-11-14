@@ -174,6 +174,12 @@ Closing full stops (decision 7, review r1 minor 1, M8):
 | L10008 | `retaliation; unlock` | `retaliation.` | V23-1 The Practical Joke | The page closes with a full stop once the sequel instruction is cut (decision 7) |
 | L10372 | `reputation, if` | `reputation.` | V24 The Revolutionary Invention, reaction R6 | The reaction closes with a full stop once the designer note is cut (decision 7) |
 
+### V27 (lines 10433-10945: the 57 short events of the V28 source)
+
+None. The V27 lines needed no glaring grammar fix. Their designer words inside an outcome ("if eligible", "grant a
+small appropriate skill gain", "no grave is created and a search/missing-person state persists", "selected by weighted
+sub-branch" and the like) are ledger cuts, never shown, not grammar fixes (scripts/collection_v27.py lists each).
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

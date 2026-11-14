@@ -467,7 +467,7 @@ V27_EVENTS = [
     ("all_v27_32_fish", "The Fish That Followed"),
     ("all_v27_33_insect", "The Unusual Insect"),
     ("all_v27_34_pet", "The Unwelcome Pet"),
-    ("all_v27_35_last_morning", "The Pet's Last Morning"),
+    ("all_v27_35_pets_last", "The Pet's Last Morning"),
     ("all_v27_36_hatchling", "The Strange Hatchling"),
     ("all_v27_37_returned", "The Animal That Returned"),
     ("all_v27_38_rough_patch", "The Parents' Rough Patch"),

@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Recognition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_03_recognition",
+  "source": "v28",
+  "lines": [
+   10505,
+   10511
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10505",
+  "ledger": [
+   {
+    "src": "L10506",
+    "kind": "note",
+    "why": "the cast: BABIES; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10509",
+    "kind": "note",
+    "text": " if eligible",
+    "why": "designer condition (nursing is the nursing parent's own state)"
+   },
+   {
+    "src": "L10511",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A baby reaches for a familiar villager who has come home after several days away."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "nursing_parent"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A baby reaches toward a familiar villager returning after several days.",
+   "src": "L10507",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A father scoops the baby up and receives an excited squeal.",
+   "src": "L10508"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mother nurses the baby and settles them afterward.",
+   "src": "L10509",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10509"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The baby turns away shyly, then recognizes the visitor's voice.",
+   "src": "L10510"
+  }
+ }
+}
