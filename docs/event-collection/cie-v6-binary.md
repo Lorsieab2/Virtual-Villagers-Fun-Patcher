@@ -66,6 +66,9 @@ strings. The engine must use the offsets, not the order.
 - **The first role (G7):** a villager the event needs (not optional) or a stranger. When any effect acts on a
   villager, at least one villager role must exist. An unprefixed placeholder or effect names `subject` when
   there is one, else the first role.
+- **No roles at all:** `"roles": {}` is allowed when no text, label, condition or effect names a role (e.g. V20
+  crisis D1, whose patient is story text). Role count 0 in the header; nothing is cast; `min_eligible` is 0. A
+  name or pronoun placeholder, a role condition or a villager effect in such a graph is an error.
 
 ## 3. Child record (12 bytes, unchanged size)
 
@@ -112,12 +115,24 @@ strings. The engine must use the offsets, not the order.
   - role shorthand `(roleid)` / `(Roleid)`: that role's name (role ids are matched ignoring case). A keyword
     (`name`, `name1`, `name2`, `award`, `award_unit`, a pronoun) always wins; the compiler refuses a role id that
     equals a keyword ignoring case, and two role ids that differ only by case.
+  - **All caps** (for the owner's ALL-CAPS button labels and text): any placeholder written entirely in capitals
+    -- `(NAME)`, `(NAME1)`, `(NAME2)`, `(GARDENER1)`, `(HE/SHE)`, `(HIM/HER)`, `(HIS/HER)`, `(MAN/WOMAN)`,
+    `(HIMSELF/HERSELF)`, `(ROLE.HE/SHE)`, `(AWARD_UNIT)`, ... -- expands to the same word in capitals ("ANA",
+    "HER", "TECH POINTS"). A role prefix is matched ignoring case. A placeholder is all caps when it has at least
+    two letters and no lower-case letter. The fit check measures it as written: names `W` x name_room, the longer
+    pronoun in capitals.
 - `\(` and `\)`: a literal parenthesis. No other backslash appears.
 - `{NAME}` or `{NAME.k}`, k = 1..8: pool `NAME`, instance k (`{NAME}` is instance 1). `NAME` is a pool name
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
 - Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
-- Titles (G6): v6 titles may hold `"` too (every game's font draws it); nothing else changes.
+- Titles (G6): v6 titles may hold `"` too (every game's font draws it). At most 47 bytes (`CE_TITLE_BYTES` 48)
+  in every game. VV1/VV2 wrap the title into the text (51 / 46 characters a line, as before). **VV3-5 (v6):** the
+  dialog draws the title on ONE line, centred, in its own font (`ldwarialbold`), with no wrap and no cut (body
+  draw 0x418510 / 0x416EC0 / 0x417660 calls the centred draw 0x40A070 / 0x409BE0 / 0x409EB0 with [dialog+0x54]);
+  so the title is checked by its pixels in that font (`data/font_glyph_tables.json`), at most the body text's
+  width: 432 px in VV3/VV4, 624 px in VV5. The engine needs no change (graph pages never apply the in-game
+  editor's 30-character check, `check_title = 0`). Versions 1-5 keep the 30-character rule.
 
 ## 6. The walk (cg_walk) and the random stream
 
