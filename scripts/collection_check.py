@@ -262,7 +262,10 @@ def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = No
         elif kind == "ph":
             parts.append(PH_RE)
         elif kind == "brace":
-            if s.startswith("@"):
+            if s.lower() == "@tribe":
+                # G5: the built-in tribe or village name stands for one source parenthesis group ("(tribe name)")
+                parts.append(PH_RE)
+            elif s.startswith("@"):
                 # the source has one of the word's own values, or (the mapping rule) the Chief it replaces
                 vals = sorted({v for v in words.get(s[1:], {}).values()}, key=len, reverse=True)
                 alts = [re.escape(v) for v in vals] + [r"(?:[Tt]he |[Aa] )?Chiefs?"]
@@ -616,7 +619,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
                 rep.add("d TOKENS", f"{f.where}: ({inner}) is not a placeholder (a literal parenthesis is \\( \\))")
         for inner in braces_in(t):
             if inner.startswith("@"):
-                if inner[1:] not in words:
+                if inner[1:] not in words and inner[1:] not in ("tribe", "Tribe"):   # G5: built in
                     rep.add("d TOKENS", f"{f.where}: game word {{{inner}}} is not in words")
             elif is_pool_ref(inner):
                 p = pools.get(inner.split(".")[0])

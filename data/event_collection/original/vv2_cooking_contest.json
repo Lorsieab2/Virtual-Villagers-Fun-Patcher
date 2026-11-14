@@ -44,18 +44,6 @@
     "why": "bank heading and designer note"
    },
    {
-    "src": "L230",
-    "kind": "gap",
-    "set": "D-CUISINE",
-    "why": "\"traditional (tribe name)\": the format has no token for the village's name"
-   },
-   {
-    "src": "L231",
-    "kind": "gap",
-    "set": "D-CUISINE",
-    "why": "\"contemporary (tribe name)\": the format has no token for the village's name"
-   },
-   {
     "src": "L236",
     "kind": "note",
     "why": "bank heading and designer note"
@@ -1228,6 +1216,14 @@
     {
      "text": "down-to-earth",
      "src": "L229"
+    },
+    {
+     "text": "traditional {@tribe}",
+     "src": "L230"
+    },
+    {
+     "text": "contemporary {@tribe}",
+     "src": "L231"
     },
     {
      "text": "creative",
