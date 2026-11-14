@@ -101,10 +101,6 @@
   "min_eligible": 1
  },
  "roles": {
-  "cook": {
-   "kind": "villager",
-   "min_age": 14
-  },
   "elder": {
    "kind": "stranger",
    "sex": "random"
@@ -527,10 +523,7 @@
      "next": "coda_r17"
     },
     {
-     "next": "coda_r24",
-     "if": {
-      "role": "cook"
-     }
+     "next": "coda_r24"
     }
    ]
   },

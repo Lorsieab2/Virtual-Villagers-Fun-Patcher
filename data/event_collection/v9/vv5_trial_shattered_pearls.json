@@ -106,16 +106,6 @@
   "min_eligible": 1
  },
  "roles": {
-  "builder": {
-   "kind": "villager",
-   "min_age": 14,
-   "skill": {
-    "names": [
-     "Building"
-    ],
-    "min": 1
-   }
-  },
   "culprit": {
    "kind": "stranger",
    "sex": "random"
@@ -535,10 +525,7 @@
      "next": "coda_r7"
     },
     {
-     "next": "coda_r8",
-     "if": {
-      "role": "builder"
-     }
+     "next": "coda_r8"
     },
     {
      "next": "coda_r9"
