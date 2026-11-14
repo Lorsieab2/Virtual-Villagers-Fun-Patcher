@@ -1,0 +1,1039 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Woodworking Competition",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_great_woodworking",
+  "source": "v26",
+  "lines": [
+   2101,
+   2396
+  ],
+  "section": "vv5_isolan",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* VV5 woodworking showcase, potluck dispute, laundry misunderstanding,\n  neighborly games, keeper of little things and festival events:\n  event prose/branches by ChatGPT; overarching VV5 two-community setup,\n  Guardians of Harmony naming and gameplay constraints by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2103",
+  "ledger": [
+   {
+    "src": "L2102",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2106-2112",
+    "kind": "note",
+    "why": "gameplay rule: only the player's villagers are cast; the Isolan team is text only"
+   },
+   {
+    "src": "L2114",
+    "kind": "structural",
+    "why": "section label"
+   },
+   {
+    "src": "L2115-2117",
+    "kind": "note",
+    "why": "designer setting note for the writer, never displayed"
+   },
+   {
+    "src": "L2119",
+    "kind": "structural",
+    "why": "section label"
+   },
+   {
+    "src": "L2137",
+    "kind": "gap",
+    "text": ", (Isolan leader),",
+    "why": "the offscreen Isolan leader is never cast, and a stranger has no name"
+   },
+   {
+    "src": "L2144",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2158",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2176",
+    "kind": "structural",
+    "why": "section label"
+   },
+   {
+    "src": "L2182",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2194",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L2196",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2210",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L2212",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2223",
+    "kind": "structural",
+    "text": "Go to (5).",
+    "why": "route"
+   },
+   {
+    "src": "L2225",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2238",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L2240",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2262",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2282",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2302",
+    "kind": "structural",
+    "text": "(8 or 9, as appropriate)",
+    "why": "route: an equal branch to (8) or (9)"
+   },
+   {
+    "src": "L2304",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2317-2318",
+    "kind": "instruction",
+    "why": "the Building and Tech effects on the village-victory endings"
+   },
+   {
+    "src": "L2320",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2332-2333",
+    "kind": "instruction",
+    "why": "the Building effects on the Isolan-victory endings"
+   },
+   {
+    "src": "L2335",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2347",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2356",
+    "kind": "instruction",
+    "text": "a little practical",
+    "why": "the Building effects on the repair round"
+   },
+   {
+    "src": "L2357",
+    "kind": "instruction",
+    "text": "experience and",
+    "why": "the Building effects on the repair round"
+   },
+   {
+    "src": "L2359",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2370-2371",
+    "kind": "structural",
+    "why": "bank heading: rare (weight 5 against 20), replacing the (8), (9), (10) or (12) ending"
+   },
+   {
+    "src": "L2386",
+    "kind": "structural",
+    "why": "bank heading: optional (an equal branch with no ending)"
+   },
+   {
+    "src": "L2170",
+    "kind": "structural",
+    "why": "bank heading (bank B is never referenced by any page of the source; kept as an unused list)"
+   }
+  ],
+  "inline_sets": [
+   "(4)"
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2260",
+   "before": "entries, (6).",
+   "after": "entries, (6)"
+  },
+  {
+   "src": "L2379",
+   "before": "After checking the records, the mistake is corrected.",
+   "after": "After the records are checked, the mistake is corrected."
+  }
+ ],
+ "words": {
+  "chief": {
+   "*": "the village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "builder1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "isoleader": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "boaster": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "JUDGE": {
+   "set": "JUDGE",
+   "items": [
+    {
+     "text": "a respected traveling artisan with no ties to either community",
+     "src": "L2145"
+    },
+    {
+     "text": "three visiting elders from a distant settlement",
+     "src": "L2146"
+    },
+    {
+     "text": "an impartial craftsperson who has never met either team",
+     "src": "L2147"
+    },
+    {
+     "text": "a small council of visiting traders accustomed to judging handiwork",
+     "src": "L2148"
+    },
+    {
+     "text": "a visiting scholar who insists on written scoring criteria",
+     "src": "L2149"
+    },
+    {
+     "text": "a visiting carpenter who is notoriously difficult to impress",
+     "src": "L2150"
+    }
+   ]
+  },
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "carve an animal native to Isola",
+     "src": "L2159"
+    },
+    {
+     "text": "make a useful piece of furniture",
+     "src": "L2160"
+    },
+    {
+     "text": "construct a model of an important island landmark",
+     "src": "L2161"
+    },
+    {
+     "text": "make a toy that children can actually play with",
+     "src": "L2162"
+    },
+    {
+     "text": "create a decorative panel telling a story from Isola's history",
+     "src": "L2163"
+    },
+    {
+     "text": "design a wooden vessel that can float",
+     "src": "L2164"
+    },
+    {
+     "text": "build a ceremonial centerpiece for a village feast",
+     "src": "L2165"
+    },
+    {
+     "text": "make the most beautiful object from an unpromising piece of driftwood",
+     "src": "L2166"
+    },
+    {
+     "text": "construct a practical object using only a small set of tools",
+     "src": "L2167"
+    },
+    {
+     "text": "create a work that represents cooperation between communities",
+     "src": "L2168"
+    }
+   ]
+  },
+  "ENTRY": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "A beautifully carved family of wooden animals, each with its own expression. Even the judge smiles.",
+     "src": "L2241-2242"
+    },
+    {
+     "text": "A sturdy chest decorated with intricate patterns from the visitors' community. The judge admires its craftsmanship.",
+     "src": "L2243-2244"
+    },
+    {
+     "text": "A perfectly functional chair that is so uncomfortable nobody wants to sit in it.",
+     "src": "L2245-2246"
+    },
+    {
+     "text": "A delicate miniature boat that floats beautifully until a tiny wave sends it upside down.",
+     "src": "L2247-2248"
+    },
+    {
+     "text": "An elaborate statue whose face bears an unfortunate resemblance to {@chief}.",
+     "src": "L2249-2250"
+    },
+    {
+     "text": "A wooden musical instrument that makes {a lovely melody|an ear-splitting screech|a noise suspiciously like a fart}.",
+     "src": "L2251-2252"
+    },
+    {
+     "text": "A lovingly carved representation of the visitors' ancestors. The Isolan leader explains the meaning of each symbol.",
+     "src": "L2253-2254"
+    },
+    {
+     "text": "A wooden sculpture so abstract that the judge quietly asks whether it is upside down.",
+     "src": "L2255-2256"
+    },
+    {
+     "text": "A practical table that turns out to be more useful than either team's decorative creations.",
+     "src": "L2257-2258"
+    }
+   ]
+  },
+  "INT": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "nothing happens. The judge is able to proceed without incident.",
+     "src": "L2263"
+    },
+    {
+     "text": "a child asks whether the teams are allowed to vote for themselves. The judge says no. The child asks whether bribery counts as voting.",
+     "src": "L2264-2265"
+    },
+    {
+     "text": "a gust of wind blows away the scoring sheets. Both teams chase them through the village.",
+     "src": "L2266-2267"
+    },
+    {
+     "text": "the Isolan team accuses the village of copying a carving technique. The village points out that it was SHOWN to them earlier. The misunderstanding is resolved after a rather awkward conversation.",
+     "src": "L2268-2270"
+    },
+    {
+     "text": "one of the creations collapses. The judge pauses the contest and checks whether anyone is hurt. Nobody is injured; the damaged entry is evaluated according to the announced criteria.",
+     "src": "L2271-2273"
+    },
+    {
+     "text": "the two team leaders begin arguing over which creation is prettier. The judge asks them to stop providing unsolicited commentary.",
+     "src": "L2274-2275"
+    },
+    {
+     "text": "a visiting spectator offers to buy both entries. The judge reminds everyone that the competition is not an auction.",
+     "src": "L2276-2277"
+    },
+    {
+     "text": "a tiny wooden animal falls out of a competitor's sleeve. It is an unfinished gift for a child, not a secret contest entry. The judges allow it to be set aside.",
+     "src": "L2278-2280"
+    }
+   ]
+  },
+  "VIL": {
+   "set": "(8)",
+   "items": [
+    {
+     "text": "The Isolan leader shakes (builder1)'s hand. \"Well earned.\" The villagers invite the visitors to stay for dinner.",
+     "src": "L2305-2306"
+    },
+    {
+     "text": "The visitors demand a rematch next year. (Builder1) accepts with an enormous grin.",
+     "src": "L2307-2308"
+    },
+    {
+     "text": "The Isolan leader says, \"We could have won if our chair hadn't looked like an injured crab.\" Nobody disagrees.",
+     "src": "L2309-2310"
+    },
+    {
+     "text": "The village team offers to display both entries together, so everyone can appreciate the different traditions.",
+     "src": "L2311-2312"
+    },
+    {
+     "text": "A villager boasts a little too loudly. (Builder2) reminds (boaster.him/her) that winning one contest does not make an entire community superior to another.",
+     "src": "L2313-2315"
+    }
+   ]
+  },
+  "ISO": {
+   "set": "(9)",
+   "items": [
+    {
+     "text": "(Builder1) congratulates the visitors sincerely and asks for a lesson in their carving technique.",
+     "src": "L2321-2322"
+    },
+    {
+     "text": "(Builder2) pouts for a while, then admits that the winning entry really was excellent.",
+     "src": "L2323-2324"
+    },
+    {
+     "text": "The village team challenges the Isolans to a rematch, this time with a different assignment.",
+     "src": "L2325-2326"
+    },
+    {
+     "text": "The Isolan leader is so surprised by the win that (isoleader.he/she) forgets the acceptance speech.",
+     "src": "L2327-2328"
+    },
+    {
+     "text": "The visitors share the prize feast with the village, saying that a good celebration should include everyone.",
+     "src": "L2329-2330"
+    }
+   ]
+  },
+  "TRO": {
+   "set": "(10)",
+   "items": [
+    {
+     "text": "The judge orders a second trophy made. The two teams spend the afternoon helping each other finish it.",
+     "src": "L2336-2337"
+    },
+    {
+     "text": "The teams agree to display the trophy in a shared meeting place, provided nobody secretly moves it.",
+     "src": "L2338-2339"
+    },
+    {
+     "text": "The leaders decide to alternate possession of the trophy. They immediately begin arguing about who gets it first.",
+     "src": "L2340-2341"
+    },
+    {
+     "text": "Someone suggests cutting the trophy in half. The judge looks horrified.",
+     "src": "L2342-2343"
+    },
+    {
+     "text": "The teams abandon the trophy entirely and share a meal. The judge is secretly relieved.",
+     "src": "L2344-2345"
+    }
+   ]
+  },
+  "RARE": {
+   "set": "(13)",
+   "items": [
+    {
+     "text": "A wooden statue's nose suddenly falls off. Both teams swear it was perfectly attached a moment ago. The judge declares that noses were not part of the scoring criteria.",
+     "src": "L2372-2374"
+    },
+    {
+     "text": "The trophy turns out to be a beautifully carved wooden spoon. The winning team uses it to serve stew.",
+     "src": "L2375-2376"
+    },
+    {
+     "text": "The judge awards the prize to a small, perfectly made stool. Nobody remembers which team actually built it. After the records are checked, the mistake is corrected.",
+     "src": "L2377-2379"
+    },
+    {
+     "text": "A child asks why the statue has three ears. The sculptor replies, \"For better listening.\" The child seems satisfied.",
+     "src": "L2380-2381"
+    },
+    {
+     "text": "A visiting elder declares the ugliest entry the most historically authentic. Everyone asks for an explanation. The elder says, \"You had to be there.\"",
+     "src": "L2382-2384"
+    }
+   ]
+  },
+  "QUIET": {
+   "set": "(14)",
+   "items": [
+    {
+     "text": "The visitors depart at sunset, carrying their tools and promising to return. The village workshop seems a little quieter afterward.",
+     "src": "L2387-2389"
+    },
+    {
+     "text": "(Builder1) discovers a small wooden token left behind by the Isolan team: a thank-you gift for the hospitality.",
+     "src": "L2390-2391"
+    },
+    {
+     "text": "The two team leaders sit together after the contest, comparing sore hands and laughing about their mistakes.",
+     "src": "L2392-2393"
+    },
+    {
+     "text": "No grand friendship is formed, and nobody changes their beliefs. But the next time the communities meet, they greet each other by name.",
+     "src": "L2394-2396"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "follow an established design, with careful measurements",
+     "src": "L2171"
+    },
+    {
+     "text": "improvise something ambitious and completely original",
+     "src": "L2172"
+    },
+    {
+     "text": "focus on strength and practical use",
+     "src": "L2173"
+    },
+    {
+     "text": "create something beautiful, even if it serves no obvious purpose",
+     "src": "L2174"
+    }
+   ]
+  }
+ },
+ "start": "invite",
+ "nodes": {
+  "invite": {
+   "name": "The invitation",
+   "src": "L2121-2139",
+   "text": "An unexpected invitation has arrived at the village workshop.\n\"To our neighbors,\" it reads, \"we propose a friendly contest to determine which community possesses the finest woodworkers on Isola. The contest shall be conducted with dignity, fairness, and absolutely no unnecessary boasting.\"\nBelow the message, someone has added in a different handwriting: \"WE ARE GOING TO WIN.\"\n(Builder1), the village's {most enthusiastic builder|most meticulous craftsperson|self-appointed artistic expert}, reads the invitation aloud. (Builder2) {laughs|looks offended|starts sharpening a carving tool|asks whether the other community knows what it has gotten itself into}.\nThe visitors arrive carrying wood, tools, and a suspiciously large banner. Their team leader greets the villagers with {a solemn bow|a friendly handshake|a dramatic flourish|an extremely competitive smile}.",
+   "children": [
+    {
+     "next": "judge"
+    }
+   ]
+  },
+  "judge": {
+   "name": "The judge",
+   "src": "L2141-2142,L2152-2154",
+   "text": "A neutral judging party has been invited: {JUDGE}. Neither competing community may choose the winner.\n\"The rules are simple,\" the judge announces. \"Each team must create something useful, beautiful, or at least recognizable. You may choose your approach, but both teams will be judged by the same standards.\"",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "The approach",
+   "src": "L2156",
+   "text": "The judge reveals the assignment: {A}.",
+   "choices": [
+    {
+     "label": "Focus on craftsmanship and precision.",
+     "next": "precise",
+     "src": "L2177"
+    },
+    {
+     "label": "Make something wildly imaginative.",
+     "next": "creative",
+     "src": "L2178"
+    },
+    {
+     "label": "Ask the Isolan team to agree on a few shared safety rules first.",
+     "next": "safety",
+     "src": "L2179"
+    },
+    {
+     "label": "Propose a friendly exchange of techniques before judging.",
+     "next": "exchange",
+     "src": "L2180"
+    }
+   ]
+  },
+  "precise": {
+   "src": "L2183-2192",
+   "text": "The village team measures every board and checks each joint. (Builder1) insists that even the smallest mistake could ruin everything.\nThe Isolan team, meanwhile, {works in near silence|sings while carving|uses an unfamiliar but effective technique|finishes suspiciously early}.\nBy the end of the allotted time, the village's creation is {sturdy and elegant|technically flawless but rather plain|so carefully measured that the team ran out of time to decorate it|beautifully symmetrical except for one extremely noticeable leg}.",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ]
+  },
+  "creative": {
+   "src": "L2197-2208",
+   "text": "(Builder1) declares that the village will make something no one has ever seen.\nThe team produces {a magnificent carved bird with moving wings|a chair shaped like a giant coconut|a wooden fish with a hidden compartment|a detailed model of the island|a statue that appears to be judging its judges}.\nThe Isolan team {looks genuinely impressed|tries not to laugh|immediately begins adding more decorations to its own entry}.\nUnfortunately, {one decoration falls off|the creation is too large to fit through the doorway|the paint has not dried|the object makes an alarming squeaking noise whenever it moves}.",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ]
+  },
+  "safety": {
+   "src": "L2213-2222",
+   "text": "The village team proposes that both sides inspect their tools, agree on work areas, and keep spectators away from flying wood chips.\nThe Isolan leader {agrees readily|acts insulted until a loose board nearly hits (isoleader.him/her)|suggests an even better arrangement}.\nThe work proceeds {smoothly|with a few petty arguments|under the watchful eye of the visiting judge}.\nThe teams finish their creations without serious incident.",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ]
+  },
+  "exchange": {
+   "src": "L2226-2236",
+   "text": "Before the contest begins, (builder1) shows the visitors a clever way to join two pieces of wood. The Isolan leader responds by demonstrating {a beautiful carving technique|a clever wooden hinge|a method of smoothing rough edges|a way to bend thin wood without breaking it}.\nThe two teams learn something useful, then remember they are supposed to be competing.\n\"Don't think this means we're going easy on you,\" says the Isolan leader.\n\"Wouldn't dream of it,\" replies (builder1).",
+   "children": [
+    {
+     "next": "entry"
+    }
+   ]
+  },
+  "entry": {
+   "name": "The Isolan entry",
+   "src": "L2260",
+   "text": "{ENTRY}\nJust as the judge prepares to evaluate both entries,",
+   "text_only": [
+    {
+     "src": "L2271-2273",
+     "what": "a creation collapses; nobody is injured",
+     "reason": "a contest entry, not a village structure: nothing is damaged and nobody is hurt"
+    }
+   ],
+   "children": [
+    {
+     "next": "interrupt"
+    }
+   ]
+  },
+  "verdict": {
+   "type": "branch",
+   "set": "(7)",
+   "children": [
+    {
+     "next": "v1"
+    },
+    {
+     "next": "v2"
+    },
+    {
+     "next": "v3"
+    },
+    {
+     "next": "v4"
+    },
+    {
+     "next": "v5"
+    },
+    {
+     "next": "v6"
+    },
+    {
+     "next": "v7"
+    }
+   ]
+  },
+  "v1": {
+   "src": "L2283-2285",
+   "text": "The village team wins for excellent workmanship. The Isolans congratulate the winners, though one mutters that the judging criteria were clearly invented by people who love straight lines.",
+   "children": [
+    {
+     "next": "vil"
+    }
+   ]
+  },
+  "v2": {
+   "src": "L2286-2288",
+   "text": "The Isolan team wins for artistry and originality. The village team is disappointed but asks how the visitors made such intricate carvings.",
+   "children": [
+    {
+     "next": "iso"
+    }
+   ]
+  },
+  "v3": {
+   "src": "L2289-2290",
+   "text": "The judge declares a tie. Both teams are proud until they discover there is only one trophy.",
+   "children": [
+    {
+     "next": "tro"
+    }
+   ]
+  },
+  "v4": {
+   "src": "L2291-2293",
+   "text": "The judge declares the village entry more practical and the Isolan entry more beautiful. Neither team can agree which compliment is better.",
+   "children": [
+    {
+     "next": "tro"
+    }
+   ]
+  },
+  "v5": {
+   "src": "L2294-2296",
+   "text": "Both entries fail the required safety test. The judge refuses to reward an unsafe object merely because it looks impressive. The teams must repair their work.",
+   "children": [
+    {
+     "next": "repair"
+    }
+   ]
+  },
+  "v6": {
+   "src": "L2297-2299",
+   "text": "The judge admits that both creations satisfy different purposes and awards separate prizes under the announced categories.",
+   "children": [
+    {
+     "next": "show"
+    }
+   ]
+  },
+  "v7": {
+   "src": "L2300-2302",
+   "text": "The judge selects a winner, but both teams accuse the judge of having terrible taste. They then agree to accept the decision after reviewing the scoring notes.",
+   "children": [
+    {
+     "next": "v7_who"
+    }
+   ]
+  },
+  "v7_who": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "vil"
+    },
+    {
+     "next": "iso"
+    }
+   ]
+  },
+  "vil": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "vil_end",
+     "weight": 20
+    },
+    {
+     "next": "vil_rare",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "vil_end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{VIL}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2317"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2317"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2318"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "vil_rare": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RARE}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2317"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2317"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L2318"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "iso": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "iso_end",
+     "weight": 20
+    },
+    {
+     "next": "iso_rare",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "iso_end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{ISO}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2332"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2332"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "iso_rare": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RARE}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2332"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2332"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "tro": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "tro_end",
+     "weight": 20
+    },
+    {
+     "next": "tro_rare",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "tro_end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{TRO}",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "tro_rare": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RARE}",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "repair": {
+   "name": "The repair round",
+   "src": "L2348-2357",
+   "text": "The teams have one hour to repair their entries. The village team {reinforces the joints|replaces a broken leg|removes a dangerous splinter|starts again with a simpler design}. The Isolan team {tightens the supports|repairs a cracked panel|removes an unstable decoration|borrows a tool with permission}.\nThe judge {awards the safer finished entry a narrow victory|declares a draw|decides neither entry meets the standard}. Nobody is seriously hurt. The teams gain a great deal of respect for careful workmanship.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder1",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2356"
+    },
+    {
+     "do": "skill",
+     "role": "builder2",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2356"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "show": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "show_end",
+     "weight": 20
+    },
+    {
+     "next": "show_rare",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "show_end": {
+   "name": "The shared showcase",
+   "src": "L2360-2368",
+   "text": "The judge announces that both communities have made something worth celebrating. The villagers place the entries side by side.\nSome admire the Isolan patterns. Others prefer the village's construction. A few children care only about the wooden toys.\nFor the rest of the afternoon, the two communities exchange stories, techniques, and increasingly exaggerated accounts of how difficult the contest was.",
+   "text_only": [
+    {
+     "src": "L2360-2361",
+     "what": "worth celebrating",
+     "reason": "narrative: praise, not the Celebrating action"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "show_rare": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RARE}",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "quiet": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "quiet_text"
+    },
+    {
+     "next": "no_quiet"
+    }
+   ]
+  },
+  "quiet_text": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{QUIET}"
+  },
+  "no_quiet": {
+   "type": "branch"
+  },
+  "interrupt": {
+   "popup": "append",
+   "join": "space",
+   "text": "{INT}",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  }
+ }
+}
