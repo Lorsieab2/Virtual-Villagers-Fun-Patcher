@@ -187,7 +187,9 @@ holds only `per_game`.
 
 2 to 7 answers in v6 (`MAX_ANSWERS = 7`). The text lines a question keeps for its buttons beyond the game's two
 (`answer_room`): `3 x (n - 2)` for n <= 4; for n = 5..7, `ceil(2.5 x n) - 6`, but never more than the layout's
-lines less 3 (provisional until Track B's 800x600 render test, R2).
+lines less 3, less 5 more in VV1/VV2 (their title and four line breaks are in the text) (provisional until Track
+B's 800x600 render test, R2). Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
+the popup's inner width in pixels is UNCONFIRMED.
 
 ## 12. Python API (stable names; Track D imports these)
 

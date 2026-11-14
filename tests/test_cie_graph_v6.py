@@ -211,6 +211,14 @@ class SharedVectors(unittest.TestCase):
         self.assertEqual(by["guard_protected_now"]["rolls_used"], 0)   # one child left, weight 1: no roll
 
 
+class ActionsTable(unittest.TestCase):
+    def test_the_shipped_actions_are_the_catalog(self):
+        catalog = read(ROOT / "tests" / "cie_behaviour_catalog.json")
+        for n in range(1, 6):
+            self.assertEqual({k: (v["group"], v["unsafe"]) for k, v in cg.actions(n).items()},
+                             {a["label"]: (a["group"], bool(a["unsafe"])) for a in catalog[str(n)]}, n)
+
+
 class Tokens(unittest.TestCase):
     def test_tokens_and_braces(self):
         self.assertEqual(cg.text_tokens(r"a \(b\) (name) {X.2} {@w} {1:x|y}"),

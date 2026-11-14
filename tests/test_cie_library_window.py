@@ -143,6 +143,8 @@ class Helpers(unittest.TestCase):
         for kind in w.effect_kinds([1, 2, 3, 4, 5]):
             e = w.new_effect(kind, [1, 2, 3, 4, 5])
             g = w.new_event()
+            if kind in w.NEW_KINDS:
+                w.to_v6(g)                                   # the new changes make the event version 6
             g["nodes"]["start"]["effects"] = [e] if kind != "pay_award" else [
                 {"do": "food", "amount": 5, "scaled": False, "defer": True}, e]
             self.assertEqual(cg.validate(g)[1], [], kind)
@@ -295,8 +297,7 @@ lib.add_answer()
 lib.add_answer()
 window.update()
 out["rows_four"] = [bool(lib.choice_rows[i][1].winfo_manager()) for i in range(4)]
-out["add_disabled"] = lib.add_answer_button.instate(["disabled"])
-lib.add_answer()
+out["add_disabled"] = lib.add_answer_button.instate(["disabled"])   # a fifth is offered (version 6)
 out["four_count"] = len(lib.g["nodes"][mid]["choices"])
 out["v4_version"] = lib.g["version"]
 lib.refresh_now()
@@ -338,7 +339,81 @@ lib.g["roles"]["friend"] = w.new_role()
 lib.g["roles"]["friend"]["max_age_gap"] = {"role": "friend", "years": 5}
 lib.refresh_now()
 out["v3_problems"] = lib.problems
+# Version 6: seven buttons (two shown only in The Secret City), a list, a game word, role requirements and the
+# new changes.
+lib.load_event(w.new_event(), None, dirty=False)
+ends = []
+for k in range(7):
+    lib.select_node("start")
+    lib.add_part()
+    ends.append(lib.nid)
+lib.select_node("start", "Next")
+lib.type_box.set(w.TYPE_WORDS["question"])
+lib._type_changed()
+for k in range(5):
+    lib.add_answer()
+window.update()
+out["seven_rows"] = [bool(lib.choice_rows[i][1].winfo_manager()) for i in range(7)]
+out["seven_add_disabled"] = lib.add_answer_button.instate(["disabled"])
+out["seven_version"] = lib.g["version"]
+for k in range(7):
+    lib.choice_vars[k][0].set(f"Way {k + 1}")
+    lib.choice_vars[k][1].set(lib.part(ends[k]))
+    lib._choice_set(k, "next")
+for k in (5, 6):
+    lib.choice_ifs[k].set("In The Secret City")
+    lib._choice_if(k)
+lib.g["games"] = [1, 3]
+lib.scrolling.set(True)                # seven buttons and a page of changes: checked with Scrolling Popups
+lib.refresh_now()
+out["seven_if"] = [c.get("if") for c in lib.g["nodes"]["start"]["choices"]]
+out["seven_problems"] = lib.problems
+lib.add_pool("DISH")
+lib.item_text.set("a fish stew")
+lib.add_item()
+lib.item_text.set("a coconut cake")
+lib.distinct_var.set(True)
+lib._distinct_changed()
+lib.add_word("chief")
+lib.g["words"]["chief"]["3"] = "the Chief"
+lib.g["nodes"]["start"]["text"] = "(Name) cooks {DISH} and {DISH.2} for {@chief}."
+lib.refresh_now()
+out["pool"] = lib.g["pools"]["DISH"]
+out["pool_problems"] = lib.problems
+out["pool_rows"] = len(lib.items_table.get_children())
+lib.role_id = "subject"
+lib.show_roles()
+role = lib.g["roles"]["subject"]
+role["skill"] = {"names": ["Farming"], "min": 5, "pick": "highest"}
+role["max_age"] = 60
+role["protected"] = "exclude"
+lib._role_form()
+out["role_widgets"] = [str(c.cget("text")) for c in lib.role_form.winfo_children() if "label" in str(c)]
+lib.select_node(ends[0], "Changes")
+for kind in w.NEW_KINDS:
+    lib.add_effect(kind)
+lib.add_effect("skill")
+lib.g["nodes"][ends[0]]["effects"][-1].pop("min")
+lib.g["nodes"][ends[0]]["effects"][-1].pop("max")
+lib.g["nodes"][ends[0]]["effects"][-1]["set"] = 100
+lib.show_effects()
+lib.refresh_now()
+out["effects_listed"] = list(lib.effect_list.get(0, "end"))
+out["v6_problems"] = lib.problems
+saved = lib.save_as("Seven Ways")
+back = cg.decompile_graph(saved.cieg.read_bytes())
+out["seven_round_trip"] = back == cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
+# A collection event: its block shown read-only, and Save keeps a copy.
+w.ASK_OPEN = lambda **k: sys.argv[3]
+w.ASK_STRING = lambda *a, **k: k.get("initialvalue")
+lib.import_event()
+out["collection_text"] = lib.collection_label.cget("text")
+out["collection_status"] = lib.status.cget("text")
+copy = lib.save()
+out["collection_saved"] = [copy.json.name, copy.cieg.name if copy.cieg else None]
+out["collection_kept"] = json.loads(copy.json.read_text(encoding="utf-8")).get("collection", {}).get("id")
 lib.load_event(w.example_event(), None, dirty=False)
+out["collection_text_after"] = lib.collection_label.cget("text")
 # Every scrolled page is far below the Windows limit.
 heights = {}
 def walk(widget):
@@ -381,7 +456,8 @@ class Window(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             save = Path(tmp) / "Virtual Villagers - The Secret City"
             save.mkdir()
-            done = subprocess.run([sys.executable, "-c", TK_CHILD, str(ROOT / "src"), str(save)],
+            done = subprocess.run([sys.executable, "-c", TK_CHILD, str(ROOT / "src"), str(save),
+                                   str(ROOT / "tests" / "data" / "cie_v6_gardening.json")],
                                   capture_output=True, text=True, timeout=300)
             cls.code, cls.stderr = done.returncode, done.stderr
             cls.out = json.loads(done.stdout.strip().splitlines()[-1]) if done.returncode == 0 else {}
@@ -397,7 +473,7 @@ class Window(unittest.TestCase):
     def test_opens_resizable_with_its_tabs_and_closes(self) -> None:
         self.assertTrue(self.out["title"].startswith(w.TITLE))
         self.assertEqual(self.out["resizable"], [True, True])
-        self.assertEqual(self.out["tabs"], ["Event", "Text", "Next", "Changes", "Roles", "Check"])
+        self.assertEqual(self.out["tabs"], ["Event", "Text", "Next", "Changes", "Roles", "Lists", "Check"])
         self.assertEqual(self.out["new_problems"], [])
         self.assertEqual(len(self.out["folders"]), 1)
         self.assertTrue(self.out["closed"])
@@ -456,7 +532,7 @@ class Window(unittest.TestCase):
         mid, left, right = self.out["mid_parts"]
         self.assertEqual(self.out["rows_two"], [True, True, False, False], "two buttons: two rows")
         self.assertEqual(self.out["rows_four"], [True, True, True, True])
-        self.assertTrue(self.out["add_disabled"], "no fifth button")
+        self.assertFalse(self.out["add_disabled"], "a fifth button is offered (version 6)")
         self.assertEqual(self.out["four_count"], 4)
         self.assertEqual(self.out["v4_version"], 4, "a third button makes the event version 4")
         self.assertIn(f"node {mid}: '' names no node", self.out["v4_unlinked"], "a button with no part is flagged")
@@ -470,6 +546,41 @@ class Window(unittest.TestCase):
                         self.out["one_problems"])
         self.assertTrue(any("a question has 2 to 4 answers" in p for p in self.out["five_problems"]),
                         self.out["five_problems"])
+
+    def test_seven_buttons_with_conditions(self) -> None:
+        self.assertEqual(self.out["seven_rows"], [True] * 7)
+        self.assertTrue(self.out["seven_add_disabled"], "no eighth button")
+        self.assertEqual(self.out["seven_version"], 6, "a fifth button makes the event version 6")
+        self.assertEqual(self.out["seven_if"], [None] * 5 + [{"game": [3]}] * 2)
+        self.assertEqual(self.out["seven_problems"], [])
+
+    def test_lists_and_game_words(self) -> None:
+        self.assertEqual(self.out["pool"], {"items": [{"text": "a fish stew", "weight": 1, "if": None},
+                                                      {"text": "a coconut cake", "weight": 1, "if": None}],
+                                            "distinct": True})
+        self.assertEqual(self.out["pool_problems"], [])
+        self.assertEqual(self.out["pool_rows"], 2)
+
+    def test_role_requirements_and_new_changes(self) -> None:
+        words = " ".join(self.out["role_widgets"])
+        self.assertIn("Oldest age", words)
+        self.assertIn("Skill needed", words)
+        self.assertIn(w.PREFER_NOTE, words)
+        listed = "\n".join(self.out["effects_listed"])
+        for part in ("Everyone celebrates", "looks pleased", "health changes by 10 to 20", "percent of its work",
+                     "skill becomes 100"):
+            self.assertIn(part, listed)
+        self.assertEqual(self.out["v6_problems"], [])
+        self.assertTrue(self.out["seven_round_trip"])
+
+    def test_a_collection_event_is_shown_read_only_and_saved_as_a_copy(self) -> None:
+        self.assertIn("Isola Grand Event Collection", self.out["collection_text"])
+        self.assertIn("vv3_gardening_contest", self.out["collection_text"])
+        self.assertIn("Save keeps a copy", self.out["collection_status"])
+        self.assertEqual(self.out["collection_saved"], ["The Gardening Contest copy.json",
+                                                        "The Gardening Contest copy.cieg"])
+        self.assertEqual(self.out["collection_kept"], "vv3_gardening_contest")
+        self.assertEqual(self.out["collection_text_after"], "")
 
     def test_no_page_is_tall(self) -> None:
         self.assertTrue(self.out["heights"])
@@ -497,7 +608,8 @@ class Wiring(unittest.TestCase):
     def test_it_ships(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         for path in ("src/vv_cie_library_window.py", "src/vv_cie_graph.py",
-                     "data/cie_graphs/the_aspiring_adventurer.json", "data/cie_graphs/the_cave_explorers.json"):
+                     "data/cie_graphs/the_aspiring_adventurer.json", "data/cie_graphs/the_cave_explorers.json",
+                     "data/cie_label_widths.json", "data/cie_actions.json"):
             self.assertIn(f'"{path}"', release)
 
     def test_translation_coverage(self) -> None:
