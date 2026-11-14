@@ -81,7 +81,7 @@
   ]
  },
  "requirement": {
-  "min_eligible": 2
+  "min_eligible": 1
  },
  "roles": {
   "patient": {
@@ -96,7 +96,8 @@
      "Healing"
     ],
     "min": 1
-   }
+   },
+   "optional": true
   }
  },
  "start": "collapse",
@@ -165,22 +166,6 @@
     }
    ]
   },
-  "a1": {
-   "text": "The Physician's Triumph: Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
-   "src": "L9098-9099",
-   "effects": [
-    {
-     "do": "skill",
-     "role": "healer",
-     "skills": [
-      "Healing"
-     ],
-     "min": 10,
-     "max": 20,
-     "src": "L9099"
-    }
-   ]
-  },
   "a2": {
    "text": "A Life Forever Changed: (Patient) survives with lasting weakness and breathlessness; (patient.he/she) develops a dislike of running.",
    "src": "L9100-9101",
@@ -191,6 +176,13 @@
      "list": "dislikes",
      "preference": "running",
      "src": "L9101"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9100"
     }
    ],
    "text_only": [
@@ -267,6 +259,15 @@
      "what": "enduring sensitivity",
      "reason": "rule 9: no lasting sensitivity state"
     }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9111"
+    }
    ]
   },
   "b4": {
@@ -322,6 +323,15 @@
      "src": "L9120-9121",
      "what": "lingering weakness",
      "reason": "rule 9: no lasting weakness state"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9120"
     }
    ]
   },
@@ -433,6 +443,13 @@
      "list": "dislikes",
      "preference": "running",
      "src": "L9137"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9136"
     }
    ]
   },
@@ -575,6 +592,13 @@
      "list": "dislikes",
      "preference": "running",
      "src": "L9159"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9158"
     }
    ],
    "text_only": [
@@ -630,6 +654,45 @@
     },
     {
      "next": "g5"
+    }
+   ]
+  },
+  "a1_h": {
+   "text": "The Physician's Triumph: Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9099"
+    }
+   ]
+  },
+  "a1_n": {
+   "text": "The Physician's Triumph: Careful treatment stabilizes (Patient); (patient.he/she) eventually recovers fully.",
+   "src": "L9098-9099",
+   "text_only": [
+    {
+     "src": "L9099",
+     "what": "Healing experience gained",
+     "reason": "no healer is cast in this village (the role is optional), so nobody gains it"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_h",
+     "if": {
+      "role": "healer"
+     },
+     "else": "a1_n"
     }
    ]
   }

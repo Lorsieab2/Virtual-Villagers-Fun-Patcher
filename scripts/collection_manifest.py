@@ -331,8 +331,10 @@ _V18 = [("The Warriors' Tournament", 8524, 8552), ("The Martial Arts Tournament"
         ("The Sixteenth Aria", 8705, 8732), ("The Poets' Tournament", 8735, 8762),
         ("The Great Trivia Trial", 8765, 8792), ("The Ball Tournament", 8795, 8822),
         ("The Stick Game", 8825, 8852), ("The Hoop Tournament", 8855, 8882)]
+# Ids and file names at most 30 characters (the packaging long-path limit): short slugs.
+_V18_SLUGS = ['warriors_tournament', 'martial_arts', 'great_question', 'philosophers_duel', 'alchemists_trial', 'paradox_challenge', 'sixteenth_aria', 'poets_tournament', 'great_trivia_trial', 'ball_tournament', 'stick_game', 'hoop_tournament']
 for _i, (_t, _a, _b) in enumerate(_V18, 1):
-    _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
+    _slug = _V18_SLUGS[_i - 1]
     R(f"all_v18_{_i:02d}_{_slug}", _t, ALL, _a, _b, "event", "v18", "v18", 2, {}, ["tech", "food", "skill"],
       series="v18_trials")
 R("all_v18_isolan_decathlon", "The Isolan Decathlon", ALL, 8885, 8900, "event", "v18", "v18", 0, {"D": (4, None)})
@@ -345,8 +347,9 @@ _V20 = [("D1", "Two Lives, One Decision", 8950, 8968, 3, True), ("D2", "The Trea
         ("D8", "The Medicine That Works Too Well", 9048, 9053, 2, False),
         ("D9", "The Healer's Secret", 9055, 9061, 2, False), ("D10", "The Child Who Corrected the Masters", 9063, 9069, 2, False),
         ("D11", "The Ancient Oath", 9071, 9078, 2, True), ("D12", "The Doctor Who Could Not Save Everyone", 9080, 9087, 3, True)]
+_V20_SLUGS = {'D1': 'two_lives', 'D2': 'no_such_treatment', 'D3': 'experimental_cure', 'D4': 'half_translated', 'D5': 'last_dose', 'D6': 'physician_refused', 'D7': 'patient_knew_much', 'D8': 'works_too_well', 'D9': 'healers_secret', 'D10': 'child_corrected', 'D11': 'ancient_oath', 'D12': 'cannot_save_all'}   # ids at most 30 characters
 for _d, _t, _a, _b, _c, _dead in _V20:
-    _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
+    _slug = _V20_SLUGS[_d]
     R(f"all_v20_{_d.lower()}_{_slug}", _t, ALL, _a, _b, "event", "v20", "v20", _c, {},
       ["kill", "health_change"] if _dead else ["health_change"], deaths=_dead, series="v20_crises")
 R("all_v20_between_life_and_death", "The Doctors' Dilemma: Between Life and Death", ALL, 9089, 9184, "event", "v20",
@@ -354,30 +357,30 @@ R("all_v20_between_life_and_death", "The Doctors' Dilemma: Between Life and Deat
              "G": (5, None)}, ["kill", "skill:Healing", "tech", "preference:dislikes"], deaths=True)
 R("bank_v20_relic_pool", "The Impossible Relics of Isola: relic pool", ALL, 9186, 9204, "bank", "v20", "v20", 0,
   {"relics": (12, None)})
-R("all_v20_r1_thing_that_should_not_exist", "The Thing That Should Not Exist", ALL, 9206, 9250, "event", "v20",
+R("all_v20_r1_should_not_exist", "The Thing That Should Not Exist", ALL, 9206, 9250, "event", "v20",
   "v20", 4, {}, ["tech"])
-R("all_v20_r2_trial_of_the_impossible_relic", "The Trial of the Impossible Relic", ALL, 9252, 9283, "event", "v20",
+R("all_v20_r2_relic_trial", "The Trial of the Impossible Relic", ALL, 9252, 9283, "event", "v20",
   "v20", 3)
-R("all_v20_r3_has_isola_been_discovered", "Has Isola Been Discovered?", ALL, 9285, 9311, "event", "v20", "v20", 4, {},
+R("all_v20_r3_isola_discovered", "Has Isola Been Discovered?", ALL, 9285, 9311, "event", "v20", "v20", 4, {},
   ["food"])
-R("all_v20_r4_relic_that_outlived_its_discoverer", "The Relic That Outlived Its Discoverer", ALL, 9313, 9330, "event",
+R("all_v20_r4_relic_outlived", "The Relic That Outlived Its Discoverer", ALL, 9313, 9330, "event",
   "v20", "v20", 0, {}, ["tech"])
 N("notes_v20_relic_variants_codas", "Relics: game-specific variants, optional codas and implementation notes", 9332,
   9363, "v20", "v20")
 N("notes_v21_header", "V21 - The Potters' Trials and the Great Isolan Crafts Fair: credits and setting", 9364, 9372,
   "v21", "v21")
-R("all_v21_c1_great_potters_trial", "The Great Potters' Trial", ALL, 9374, 9423, "event", "v21", "v21", 3, {}, ["tech"])
-R("all_v21_c2_statue_that_divided_the_village", "The Statue That Divided the Village", ALL, 9425, 9463, "event", "v21",
+R("all_v21_c1_potters_trial", "The Great Potters' Trial", ALL, 9374, 9423, "event", "v21", "v21", 3, {}, ["tech"])
+R("all_v21_c2_divided_statue", "The Statue That Divided the Village", ALL, 9425, 9463, "event", "v21",
   "v21", 3, {}, ["tech"])
-R("all_v21_c3_great_isolan_crafts_fair", "The Great Isolan Crafts Fair", ALL, 9465, 9515, "event", "v21", "v21", 3, {},
+R("all_v21_c3_crafts_fair", "The Great Isolan Crafts Fair", ALL, 9465, 9515, "event", "v21", "v21", 3, {},
   ["tech", "food", "celebrate"])
 N("notes_v21_adaptations_codas", "V21 game-specific adaptations and optional codas", 9517, 9549, "v21", "v21")
 N("notes_v22_header", "V22 - Drawing, Strength, Potion-Making and Parenting: credits", 9551, 9560, "v22", "v22")
-R("all_v22_1_great_isolan_drawing_competition", "The Great Isolan Drawing Competition", ALL, 9562, 9629, "event",
+R("all_v22_1_drawing_contest", "The Great Isolan Drawing Competition", ALL, 9562, 9629, "event",
   "v22", "v22", 4, {}, ["tech"])
-R("all_v22_2_great_isolan_strength_trials", "The Great Isolan Strength Trials", ALL, 9631, 9704, "event", "v22", "v22",
+R("all_v22_2_strength_trials", "The Great Isolan Strength Trials", ALL, 9631, 9704, "event", "v22", "v22",
   5, {}, ["tech"])
-R("all_v22_3_great_isolan_potion_making_trials", "The Great Isolan Potion-Making Trials", ALL, 9706, 9786, "event",
+R("all_v22_3_potion_making", "The Great Isolan Potion-Making Trials", ALL, 9706, 9786, "event",
   "v22", "v22", 5, {}, ["skill:Healing", "skill:Research", "tech"])
 R("all_v22_4_parents_lesson", "The Parent's Lesson", ALL, 9788, 9930, "event", "v22", "v22", 7,
   {"A": (4, None), "B": (4, None), "C": (4, None), "D": (4, None), "E": (4, None), "F": (4, None), "G": (4, None)},
@@ -393,7 +396,7 @@ R("all_v23_5_false_alarm", "The False Alarm", ALL, 10077, 10093, "event", "v23",
 R("all_v23_6_prank_war", "The Prank War", ALL, 10095, 10110, "event", "v23", "v23", 3, {}, ["celebrate"])
 N("notes_v23_seeds_and_notes", "V23 short-title seeds, cross-game notes and parenting language", 10112, 10137, "v23",
   "v23")
-R("all_v24_revolutionary_invention", "The Revolutionary Invention / The Revolutionary Discovery", ALL, 10139, 10430,
+R("all_v24_revolutionary", "The Revolutionary Invention / The Revolutionary Discovery", ALL, 10139, 10430,
   "event", "v24", "v24", 5, {"subject": (32, None)}, ["skill", "tech", "food"])
 R("bank_v26_materials", "V26 - The Materials of Isola", ALL, 10432, 10571, "bank", "v26", "v26", 0)
 

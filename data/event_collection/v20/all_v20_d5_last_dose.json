@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Dose",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d5_last_dose",
+  "source": "v26",
+  "lines": [
+   9016,
+   9029
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9016",
+  "ledger": []
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "patient2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "Two patients require the same scarce medicine. There is enough for one.",
+   "src": "L9017",
+   "choices": [
+    {
+     "label": "Treat the more gravely ill patient.",
+     "next": "set_a",
+     "src": "L9018"
+    },
+    {
+     "label": "Treat the patient most likely to benefit.",
+     "next": "set_b",
+     "src": "L9022"
+    },
+    {
+     "label": "Search for more ingredients.",
+     "next": "set_c",
+     "src": "L9026"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Both survive, one without the medicine.",
+   "src": "L9019"
+  },
+  "a2": {
+   "text": "The treated patient survives; the other deteriorates.",
+   "src": "L9020",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient2",
+     "min": -30,
+     "max": -10,
+     "src": "L9020"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The medicine fails, and the physicians grieve.",
+   "src": "L9021",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9021"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The chosen patient recovers.",
+   "src": "L9023",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9023"
+    }
+   ]
+  },
+  "b2": {
+   "text": "Both die despite the attempt.",
+   "src": "L9024",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9024"
+    },
+    {
+     "do": "kill",
+     "role": "patient2",
+     "cause": "unknown",
+     "src": "L9024"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The untreated patient unexpectedly recovers.",
+   "src": "L9025",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient2",
+     "min": 10,
+     "max": 30,
+     "src": "L9025"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  },
+  "c1": {
+   "text": "An expedition finds enough for another dose.",
+   "src": "L9027"
+  },
+  "c2": {
+   "text": "The expedition returns too late.",
+   "src": "L9028",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9028"
+    }
+   ]
+  },
+  "c3": {
+   "text": "A child notices the needed plant growing near the hospital.",
+   "src": "L9029"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ }
+}

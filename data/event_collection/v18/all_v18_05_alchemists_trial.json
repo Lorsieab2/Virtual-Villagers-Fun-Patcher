@@ -1,0 +1,496 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Alchemists' Trial",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_05_alchemists_trial",
+  "source": "v26",
+  "lines": [
+   8645,
+   8672
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": "v18_trials",
+  "title_src": "L8645",
+  "ledger": [
+   {
+    "src": "L8646",
+    "kind": "structural",
+    "why": "games line"
+   },
+   {
+    "src": "L8647",
+    "kind": "note",
+    "why": "who competes: the trials name no villager (no game skill matches these contestants)"
+   },
+   {
+    "src": "L8654",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L8662",
+    "kind": "structural",
+    "why": "heading of the VV5-only outcomes"
+   },
+   {
+    "src": "L8670-8672",
+    "kind": "instruction",
+    "why": "a small ('modest') game-scaled tech reward on the constructive outcomes (A1, A2, B1, B2, B3); reputation is told only (rule 7)"
+   }
+  ]
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The trial",
+   "text": "Researchers compete to identify unknown powders, separate harmless mixtures, make useful dyes, and explain the changes they observe. The healers forbid tasting unknown substances or making dangerous fumes.",
+   "src": "L8649",
+   "choices": [
+    {
+     "label": "Reward the most useful preparation.",
+     "next": "set_a",
+     "src": "L8651"
+    },
+    {
+     "label": "Reward the clearest explanation and safest method.",
+     "next": "set_b",
+     "src": "L8652"
+    }
+   ]
+  },
+  "a1": {
+   "text": "A contestant produces a durable plant dye that transforms village weaving.",
+   "src": "L8655",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8670"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8670",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "a2": {
+   "text": "An apparent failure yields a surprisingly effective clay sealant. The judges argue whether accidents count as discoveries.",
+   "src": "L8656",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8670"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8670",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "a3": {
+   "text": "A pompous researcher makes a foul-smelling paste. The crowd retreats, and the judges award no prize.",
+   "src": "L8657",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A careful apprentice identifies a mislabeled mineral before anyone uses it. The healers declare (apprentice.him/her) the true champion.",
+   "src": "L8658",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8670"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8670",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The most colorful demonstration is exposed as trickery; the least impressive one is scientifically sound.",
+   "src": "L8659",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8670"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8670",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The finalists disagree about the cause of a reaction and devise a fair experiment instead of quarreling.",
+   "src": "L8660",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8670"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8670",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "p1": {
+   "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",
+   "src": "L8663-8664",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p2": {
+   "text": "An accusation of favoritism forces the judges to disclose their criteria; the disputed result is upheld, reversed, or declared a tie.",
+   "src": "L8665-8666",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Competitors from both communities secretly practice together and publicly acknowledge each other when the results are announced.",
+   "src": "L8667-8668",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "visited": "b2"
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "visited": "a3"
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p1"
+       },
+       {
+        "visited": "p2"
+       },
+       {
+        "visited": "p3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p2"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

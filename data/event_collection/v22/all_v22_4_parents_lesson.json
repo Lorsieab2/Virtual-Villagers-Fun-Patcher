@@ -173,6 +173,9 @@
     "kind": "instruction",
     "why": "the Parenting effect (or none) and the text_only reasons"
    }
+  ],
+  "shared_lines": [
+   "L9959-9962"
   ]
  },
  "requirement": {
@@ -269,6 +272,11 @@
      "max": 40,
      "src": "L9806"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "a2": {
@@ -279,6 +287,11 @@
      "src": "L9810",
      "what": "NO GAIN until a successful follow-up lesson",
      "reason": "no gain now; a later lesson is a state no game keeps (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -303,6 +316,11 @@
      "max": 20,
      "src": "L9814"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "a4_1": {
@@ -313,6 +331,11 @@
      "src": "L9818",
      "what": "NO GAIN if uncorrected; MODERATE if corrected",
      "reason": "the popup resolves at once: corrected or not, equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -336,6 +359,11 @@
      "min": 10,
      "max": 20,
      "src": "L9818"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -394,6 +422,11 @@
      "max": 40,
      "src": "L9823"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "b2": {
@@ -404,6 +437,11 @@
      "src": "L9827",
      "what": "NO GAIN until corrected",
      "reason": "no gain now; a later correction is a state no game keeps (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -421,6 +459,11 @@
      "max": 20,
      "src": "L9830"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "b4_1": {
@@ -431,6 +474,11 @@
      "src": "L9833-9834",
      "what": "SMALL GAIN if the adult models patience afterward; otherwise NO GAIN",
      "reason": "the popup resolves at once: equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -454,6 +502,11 @@
      "min": 5,
      "max": 10,
      "src": "L9833-9834"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -507,6 +560,11 @@
      "max": 40,
      "src": "L9839"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "c2": {
@@ -517,6 +575,11 @@
      "src": "L9843",
      "what": "NO GAIN until boundaries are clarified",
      "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -534,6 +597,11 @@
      "max": 20,
      "src": "L9846"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "c4_1": {
@@ -544,6 +612,11 @@
      "src": "L9850",
      "what": "NO GAIN if uncorrected; MODERATE if corrected",
      "reason": "the popup resolves at once: equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -567,6 +640,11 @@
      "min": 10,
      "max": 20,
      "src": "L9850"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -620,6 +698,11 @@
      "max": 40,
      "src": "L9855"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "d2": {
@@ -630,6 +713,11 @@
      "src": "L9859",
      "what": "NO GAIN until corrected",
      "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -647,6 +735,11 @@
      "max": 20,
      "src": "L9862"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "d4": {
@@ -657,6 +750,11 @@
      "src": "L9866",
      "what": "NO GAIN if the child remains bossy",
      "reason": "no gain (the only result the source states)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -699,6 +797,11 @@
      "max": 40,
      "src": "L9871"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "e2_1": {
@@ -709,6 +812,11 @@
      "src": "L9875",
      "what": "MODERATE GAIN if lesson completed",
      "reason": "the popup resolves at once: completed or not, equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -733,6 +841,11 @@
      "max": 20,
      "src": "L9875"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "e2": {
@@ -754,6 +867,11 @@
      "src": "L9878",
      "what": "SMALL or MODERATE GAIN if corrected",
      "reason": "the popup resolves at once: none, small or moderate, equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -778,6 +896,11 @@
      "max": 10,
      "src": "L9878"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "e3_3": {
@@ -800,6 +923,11 @@
      "min": 10,
      "max": 20,
      "src": "L9878"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -825,6 +953,11 @@
      "src": "L9881",
      "what": "NO GAIN until the child understands",
      "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -867,6 +1000,11 @@
      "max": 40,
      "src": "L9886"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "f2": {
@@ -877,6 +1015,11 @@
      "src": "L9890",
      "what": "NO GAIN until corrected",
      "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -893,6 +1036,11 @@
      "src": "L9894",
      "what": "MODERATE GAIN only if the child learns",
      "reason": "the popup resolves at once: equally likely"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -922,6 +1070,11 @@
      "max": 20,
      "src": "L9894"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "f3": {
@@ -948,6 +1101,11 @@
      "min": 10,
      "max": 20,
      "src": "L9897"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -990,6 +1148,11 @@
      "max": 40,
      "src": "L9902"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "g2": {
@@ -1000,6 +1163,11 @@
      "src": "L9906",
      "what": "NO GAIN until corrected",
      "reason": "no gain now (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -1024,6 +1192,11 @@
      "max": 20,
      "src": "L9909"
     }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
    ]
   },
   "g4_1": {
@@ -1034,6 +1207,11 @@
      "src": "L9913-9914",
      "what": "possible small skill LOSS if the adult responds poorly; a later corrective event may repair it",
      "reason": "the popup resolves at once: no change or a small loss, equally likely; the later repair is a state no game keeps (rule 9)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -1057,6 +1235,11 @@
      "min": -10,
      "max": -5,
      "src": "L9913-9914"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -1088,6 +1271,44 @@
      "next": "g4"
     }
    ]
+  },
+  "coda_v22_4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Child Who Remembered: Years later, a grown villager repeats the same lesson to a younger child, with either wisdom or irony.",
+   "src": "L9959-9960"
+  },
+  "coda_v22_5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Trouble That Became Talent: A mischievous child channels cleverness into art, research, or helpful invention.",
+   "src": "L9961-9962"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v22_4"
+    },
+    {
+     "next": "coda_v22_5"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  }
 }

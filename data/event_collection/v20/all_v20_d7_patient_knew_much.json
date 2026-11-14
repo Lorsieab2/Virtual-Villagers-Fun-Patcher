@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Patient Who Knew Too Much",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d7_patient_knew_much",
+  "source": "v26",
+  "lines": [
+   9041,
+   9046
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9041",
+  "ledger": [
+   {
+    "src": "L9044",
+    "kind": "structural",
+    "text": "or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9045",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A sick researcher insists the healers have misidentified the illness.",
+   "src": "L9042",
+   "choices": [
+    {
+     "label": "Investigate",
+     "next": "set_a",
+     "src": "L9043"
+    },
+    {
+     "label": "Continue the original treatment",
+     "next": "set_b",
+     "src": "L9045"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The patient is right.",
+   "src": "L9043-9044"
+  },
+  "a2": {
+   "text": "A different illness is discovered.",
+   "src": "L9043-9044"
+  },
+  "a3": {
+   "text": "The theory is disproved.",
+   "src": "L9043-9044"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "It works.",
+   "src": "L9045-9046",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9045"
+    }
+   ]
+  },
+  "b2": {
+   "text": "It fails.",
+   "src": "L9045-9046",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9045"
+    }
+   ]
+  },
+  "b3": {
+   "text": "An apprentice finds evidence that contradicts both diagnoses.",
+   "src": "L9045-9046"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9043",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9045",
+   "before": "it works; fails; or",
+   "after": "it works; it fails; or"
+  },
+  {
+   "src": "L9045",
+   "before": ";",
+   "after": "."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

@@ -1,0 +1,845 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Isolan Strength Trials",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v22_2_strength_trials",
+  "source": "v26",
+  "lines": [
+   9631,
+   9704
+  ],
+  "section": "v22",
+  "credit": "CREDITS\nOriginal event concepts and requested parenting mechanics: Lorsieab2.\nEvent scripts, additional branches, and detailed outcomes: ChatGPT.\nAll earlier material and its authorship credits are preserved unchanged.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9631",
+  "ledger": [
+   {
+    "src": "L9701-9704",
+    "kind": "instruction",
+    "why": "Physical skill only for practice or effort: no game has it (rule 8), so text only"
+   },
+   {
+    "src": "L9963",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
+    "src": "L9644",
+    "kind": "instruction",
+    "text": "Gain Physical skill",
+    "why": "text only (rule 8)"
+   },
+   {
+    "src": "L9645",
+    "kind": "instruction",
+    "text": "and Champion of the Coconut Carry reputation.",
+    "why": "text only (rule 7)"
+   },
+   {
+    "src": "L9657",
+    "kind": "instruction",
+    "text": "Gain Physical skill and a prize.",
+    "why": "text only (rule 8, rule 7)"
+   },
+   {
+    "src": "L9669",
+    "kind": "instruction",
+    "text": "Gain Physical skill.",
+    "why": "text only (rule 8)"
+   },
+   {
+    "src": "L9672",
+    "kind": "instruction",
+    "text": "gain Tech and Physical skill for observing.",
+    "why": "the tech effect on c2; Physical is rule 8"
+   },
+   {
+    "src": "L9674",
+    "kind": "instruction",
+    "text": "Gain Cooperation reputation.",
+    "why": "text only (rule 7)"
+   },
+   {
+    "src": "L9682",
+    "kind": "instruction",
+    "text": "; gain Physical skill",
+    "why": "text only (rule 8)"
+   },
+   {
+    "src": "L9689",
+    "kind": "instruction",
+    "text": "Gain respect.",
+    "why": "text only (rule 7)"
+   },
+   {
+    "src": "L9697",
+    "kind": "instruction",
+    "text": "Gain Physical skill and respect.",
+    "why": "text only (rule 8, rule 7)"
+   },
+   {
+    "src": "L9679-9680",
+    "kind": "note",
+    "why": "a designer rule for the carry (consent and safety), never displayed"
+   }
+  ],
+  "shared_lines": [
+   "L9952-9964"
+  ]
+ },
+ "roles": {
+  "strongman": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The beginning",
+   "text": "To celebrate the village's hardworking builders, farmers, and gatherers, the elders announce a friendly strength competition. Coconuts are stacked, water-filled clay jugs are carefully inspected, sturdy fallen logs are marked, and a large stone is placed at the edge of the clearing. (Strongman) volunteers. Several spectators immediately begin arguing about which feat should count as the greatest demonstration of strength.",
+   "src": "L9633-9638",
+   "children": [
+    {
+     "next": "question"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9633",
+     "what": "celebrate",
+     "reason": "narrative: 'celebrate' is part of the story, not a change the event makes"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The choice",
+   "text": "WHAT CHALLENGE SHOULD (STRONGMAN) ATTEMPT?",
+   "src": "L9640",
+   "choices": [
+    {
+     "label": "THE COCONUT CARRY",
+     "next": "set_a",
+     "src": "L9642"
+    },
+    {
+     "label": "THE WATER-JUG LIFT",
+     "next": "set_b",
+     "src": "L9655"
+    },
+    {
+     "label": "THE BOULDER OR LOG CHALLENGE",
+     "next": "set_c",
+     "src": "L9667"
+    },
+    {
+     "label": "THE WILLING-VILLAGER CARRY",
+     "next": "set_d",
+     "src": "L9678"
+    },
+    {
+     "label": "THE GRAND STRENGTH CIRCUIT",
+     "next": "set_e",
+     "src": "L9691"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The Walking Coconut Mountain: (Strongman) carries an astonishing number of coconuts across the finish line.",
+   "src": "L9643-9645",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9644",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The Clever Basket: (Strongman) uses a huge woven carrier and wins. The judges argue whether cleverness counts. The elders decide either to honor the feat or to introduce a separate ingenuity prize.",
+   "src": "L9646-9648",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The Great Coconut Avalanche: The stack tumbles harmlessly into the sand. Children race to collect the runaway coconuts while (Strongman) bows to the laughing crowd.",
+   "src": "L9649-9651",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The Patient Champion: A rival starts with more coconuts but drops them. (Strongman)'s slower, steadier effort wins the contest.",
+   "src": "L9652-9653",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Steady as Stone: (Strongman) holds two filled clay jugs longer than anyone else.",
+   "src": "L9656-9657",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9657",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The Unfortunate Splash: A cracked jug gives way, soaking (Strongman). The crowd roars with laughter; the organizers replace the jug and offer a fair retry.",
+   "src": "L9658-9660",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The Surprise Winner: A quiet villager with excellent balance defeats several boastful competitors. (Strongman) learns that control matters as much as brute force.",
+   "src": "L9661-9663",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4": {
+   "text": "A Sensible Withdrawal: (Strongman) notices a strained grip and stops before injury. No prize, but an elder praises good judgment.",
+   "src": "L9664-9665",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9665",
+     "what": "injury",
+     "reason": "narrative: the contestant stops before any injury; nobody is hurt"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Strongest on the Shore: (Strongman) moves the marked stone or fallen log farther than any competitor.",
+   "src": "L9668-9669",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9669",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "c2": {
+   "text": "The Leverage Lesson: A smaller competitor demonstrates a clever wooden lever. The judges award a separate prize for engineering;",
+   "src": "L9670-9672",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9672"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9672",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "c3": {
+   "text": "Stuck in the Sand: The log sinks into soft sand. (Strongman) and a rival must work together to free it.",
+   "src": "L9673-9674",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9674",
+     "what": "Cooperation reputation",
+     "reason": "rule 7: prizes and reputations are told only"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Overconfident Champion: (Strongman) boasts loudly, then cannot budge the load. A child remarks, \"Perhaps your words were heavier.\"",
+   "src": "L9675-9676",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "d1": {
+   "text": "A Perfect Partnership: (Strongman) carries the volunteer steadily and wins. Both celebrate.",
+   "src": "L9681-9682",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "strongman",
+     "src": "L9682"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9682",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "d2": {
+   "text": "The Talking Passenger: The volunteer offers nonstop advice about posture and foot placement. (Strongman) finishes but is thoroughly embarrassed; the audience is delighted.",
+   "src": "L9683-9685",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d3": {
+   "text": "The Sudden Switch: The volunteer proves stronger than (Strongman) and jokingly offers to reverse roles. The crowd applauds.",
+   "src": "L9686-9687",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d4": {
+   "text": "Teamwork Over Glory: (Strongman) decides the carry is unwise and helps organize a safer team challenge instead.",
+   "src": "L9688-9689",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "e1": {
+   "text": "The All-Around Champion: A balanced performance across coconut carrying, water-jug holding, and log moving earns the grand prize.",
+   "src": "L9692-9693",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "e2": {
+   "text": "Too Fast, Too Soon: (Strongman) exhausts (strongman.himself/herself) early and must rest; no injury, but an important lesson about pacing.",
+   "src": "L9694-9695",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9695",
+     "what": "injury",
+     "reason": "narrative: the contestant stops before any injury; nobody is hurt"
+    }
+   ]
+  },
+  "e3": {
+   "text": "The Unlikely Victory: An overlooked competitor wins through steady technique and endurance.",
+   "src": "L9696-9697",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9697",
+     "what": "Physical skill",
+     "reason": "rule 8: no game has a Physical skill"
+    }
+   ]
+  },
+  "e4": {
+   "text": "The Disputed Finish: Two contestants finish together. The elders declare a shared victory or call for a lighthearted rematch.",
+   "src": "L9698-9699",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_e": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "coda_v22_2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Champion Who Learned Humility: A strength champion later loses to a patient novice and offers sincere congratulations.",
+   "src": "L9955-9956",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v22_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "src": "L9963-9964",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v22_2",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v22_6",
+     "if": {
+      "all": [
+       {
+        "any": [
+         {
+          "visited": "a1"
+         },
+         {
+          "visited": "a4"
+         },
+         {
+          "visited": "b1"
+         },
+         {
+          "visited": "c1"
+         },
+         {
+          "visited": "d1"
+         },
+         {
+          "visited": "e1"
+         }
+        ]
+       },
+       {
+        "game": [
+         5
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e1"
+       },
+       {
+        "visited": "e2"
+       },
+       {
+        "visited": "e3"
+       },
+       {
+        "visited": "e4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "e4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

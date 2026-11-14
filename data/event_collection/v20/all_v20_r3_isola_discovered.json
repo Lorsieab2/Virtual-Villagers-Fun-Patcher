@@ -1,0 +1,472 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Has Isola Been Discovered?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r3_isola_discovered",
+  "source": "v26",
+  "lines": [
+   9285,
+   9311
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9285",
+  "ledger": [
+   {
+    "src": "L9341",
+    "kind": "note",
+    "why": "designer options ('may') for the VV5 variant"
+   },
+   {
+    "src": "L9333",
+    "kind": "structural",
+    "text": "VV1:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9334",
+    "kind": "structural",
+    "text": "VV2:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9335",
+    "kind": "structural",
+    "text": "VV3:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9337",
+    "kind": "structural",
+    "text": "VV4:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "structural",
+    "text": "VV5:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "note",
+    "text": "Heathens/",
+    "why": "the author's alternative name; VV5 narrative says Isolans (L4505-4507)"
+   },
+   {
+    "src": "L9340",
+    "kind": "note",
+    "text": "An Isolan elder may reveal old knowledge, be accused",
+    "why": "designer options ('may')"
+   },
+   {
+    "src": "L9351",
+    "kind": "instruction",
+    "text": "Exceptionally rarely,",
+    "why": "P8 is exceptionally rare: weight 1 against 20"
+   }
+  ],
+  "shared_lines": [
+   "L9333-9341",
+   "L9344-9352"
+  ]
+ },
+ "roles": {},
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "A second impossible object appears. Then a third. The villagers fear that powerful strangers know the island's location.",
+   "src": "L9286-9287",
+   "choices": [
+    {
+     "label": "PREPARE FOR POSSIBLE INVASION",
+     "next": "set_a",
+     "src": "L9289"
+    },
+    {
+     "label": "SEARCH FOR THE SOURCE",
+     "next": "set_b",
+     "src": "L9295"
+    },
+    {
+     "label": "KEEP THE DISCOVERIES SECRET",
+     "next": "set_c",
+     "src": "L9301"
+    },
+    {
+     "label": "ATTEMPT TO COMMUNICATE",
+     "next": "set_d",
+     "src": "L9307"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "text": "A second impossible object appears. Then a third. The villagers fear that powerful strangers know the island's location.\nThe Tribal Chief weighs suppression against inquiry; scholars, magicians, and naturalists disagree over what the object means.",
+     "src": "L9286-9287,L9335-9336"
+    },
+    {
+     "if": {
+      "game": [
+       4
+      ]
+     },
+     "text": "A second impossible object appears. Then a third. The villagers fear that powerful strangers know the island's location.\nAn artifact among the Tree of Life's roots sparks concern that outsiders have disturbed a sacred place.",
+     "src": "L9286-9287,L9337-9338"
+    },
+    {
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "text": "A second impossible object appears. Then a third. The villagers fear that powerful strangers know the island's location.\nVillagers and Isolans accuse one another of concealing artifacts.",
+     "src": "L9286-9287,L9339-9340"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Watch posts and patrols are organized.",
+   "src": "L9290",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a2": {
+   "text": "A lookout mistakes an animal for an invader, causing panic.",
+   "src": "L9291",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a3": {
+   "text": "A patrol discovers signs of an unfamiliar landing party.",
+   "src": "L9292",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The preparations exhaust food and labor; nobody arrives.",
+   "src": "L9293",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true,
+     "src": "L9293"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Explorers discover an old wreck with more impossible objects.",
+   "src": "L9296",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b2": {
+   "text": "A cave contains a secret collection of strange artifacts.",
+   "src": "L9297",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "text": "An unfamiliar campsite appears recently abandoned.",
+   "src": "L9298",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4": {
+   "text": "The objects may have washed ashore from a distant land.",
+   "src": "L9299",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The elders conceal the relics, but rumors persist.",
+   "src": "L9302",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c2": {
+   "text": "A researcher records the discovery despite an order of silence.",
+   "src": "L9303",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c3": {
+   "text": "Someone steals a relic for personal gain.",
+   "src": "L9304",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c4": {
+   "text": "A child innocently reveals the secret to everyone.",
+   "src": "L9305",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "d1": {
+   "text": "A great shore signal receives no answer.",
+   "src": "L9308",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d2": {
+   "text": "A distant light appears over the water.",
+   "src": "L9309",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d3": {
+   "text": "An unfamiliar object appears in apparent response.",
+   "src": "L9310",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d4": {
+   "text": "The signal attracts attention the elders deeply regret.",
+   "src": "L9311",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "coda_p6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Secret Society: Researchers meet privately to study the objects.",
+   "src": "L9349"
+  },
+  "coda_p7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Great Panic: Rumors disrupt work and empty the village stores.",
+   "src": "L9350",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true,
+     "src": "L9350"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9350",
+     "what": "empty the village stores",
+     "reason": "a large food loss, never below zero"
+    }
+   ]
+  },
+  "coda_p8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "First Contact: evidence shows the object was deliberately left by someone who knows Isola exists.",
+   "src": "L9351-9352"
+  },
+  "rare_coda_p8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_p8",
+     "weight": 1,
+     "rarity": "exceptionally_rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_p6",
+     "if": {
+      "visited": "c2"
+     }
+    },
+    {
+     "next": "coda_p7",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "rare_coda_p8",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

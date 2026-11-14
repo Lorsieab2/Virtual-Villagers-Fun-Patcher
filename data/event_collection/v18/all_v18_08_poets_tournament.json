@@ -1,0 +1,456 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Poets' Tournament",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_08_poets_tournament",
+  "source": "v26",
+  "lines": [
+   8735,
+   8762
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": "v18_trials",
+  "title_src": "L8735",
+  "ledger": [
+   {
+    "src": "L8736",
+    "kind": "structural",
+    "why": "games line"
+   },
+   {
+    "src": "L8737",
+    "kind": "note",
+    "why": "who competes: the trials name no villager (no game skill matches these contestants)"
+   },
+   {
+    "src": "L8744",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L8752",
+    "kind": "structural",
+    "why": "heading of the VV5-only outcomes"
+   },
+   {
+    "src": "L8760-8762",
+    "kind": "instruction",
+    "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A2, B1, B2); reputation is told only (rule 7)"
+   }
+  ]
+ },
+ "roles": {
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The trial",
+   "text": "Competitors must compose a verse about a randomly drawn subject: rain, exile, a coconut, an ancestor, the sea, or the village's most disagreeable goat.",
+   "src": "L8739",
+   "choices": [
+    {
+     "label": "Judge technical mastery.",
+     "next": "set_a",
+     "src": "L8741"
+    },
+    {
+     "label": "Judge emotional impact and originality.",
+     "next": "set_b",
+     "src": "L8742"
+    }
+   ]
+  },
+  "a1": {
+   "text": "A meticulous poet produces perfect meter but says nothing memorable. The judges split.",
+   "src": "L8745",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a2": {
+   "text": "An apprentice invents a graceful new verse form and wins the respect of the elders.",
+   "src": "L8746",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8760"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8760",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "a3": {
+   "text": "A contestant accidentally rhymes {@chief}'s title with an insult. The audience gasps, then laughs.",
+   "src": "L8747",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A rough, imperfect poem about a lost loved one moves the village to tears.",
+   "src": "L8748",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8760"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8760",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b2": {
+   "text": "A playful poem about a goat becomes a beloved festival chant.",
+   "src": "L8749",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8760"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8760",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b3": {
+   "text": "A rival plagiarizes an old verse and is exposed by its elderly author, who is sitting among the judges.",
+   "src": "L8750",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p1": {
+   "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",
+   "src": "L8753-8754",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p2": {
+   "text": "An accusation of favoritism forces the judges to disclose their criteria; the disputed result is upheld, reversed, or declared a tie.",
+   "src": "L8755-8756",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Competitors from both communities secretly practice together and publicly acknowledge each other when the results are announced.",
+   "src": "L8757-8758",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "visited": "b3"
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "visited": "a3"
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p1"
+       },
+       {
+        "visited": "p2"
+       },
+       {
+        "visited": "p3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "p2"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}
