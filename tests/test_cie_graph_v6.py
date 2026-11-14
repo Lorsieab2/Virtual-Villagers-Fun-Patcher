@@ -881,9 +881,10 @@ class FormatGaps(unittest.TestCase):
         self.assertEqual(sizes, {"small": ((10, 30), (5, 10), (-10, -5)), "normal": ((25, 50), (10, 20), (-20, -10)),
                                  "large": ((50, 75), (20, 40), (-40, -20)), "huge": ((75, 100), (30, 60), (-60, -30))})
 
-    def test_the_pilots_pass_both_ways(self):
-        """Track D's pilot files (data/event_collection), through their own loader, with and without Scrolling
-        Popups -- Between Life and Death and The Parent's Lesson included (G1)."""
+    def test_the_collection_files_pass(self):
+        """Every collection file (data/event_collection), through its own loader, with Scrolling Popups: the
+        collection's rows require it (lead's decision, 2026-11-14), so that is the fit every file must meet --
+        Between Life and Death and The Parent's Lesson included (G1)."""
         sys.path.insert(0, str(ROOT / "scripts"))
         import collection_check as cc
         shared = {"pools": cc.shared_pools()}
@@ -892,9 +893,8 @@ class FormatGaps(unittest.TestCase):
         self.assertGreaterEqual(len(files), 10)
         for p in files:
             g = cc.graph_for_engine(read(p))
-            for scrolling in (False, True):
-                with self.subTest(p.name, scrolling=scrolling):
-                    self.assertEqual(cg.validate(g, scrolling, shared)[1], [])
+            with self.subTest(p.name):
+                self.assertEqual(cg.validate(g, True, shared)[1], [])
 
 
 class TitlesCapsAndNoRoles(unittest.TestCase):
