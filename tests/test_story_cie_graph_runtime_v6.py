@@ -636,6 +636,33 @@ class NodeTitles(unittest.TestCase):
                 r.p.write(at, decide.encode() + b"\0")
                 self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
 
+    def test_placeholders_in_titles(self):
+        """17: on screen with the names (or pronouns when they do not fit); the log's entry in the readable form."""
+        from test_cie_graph_v6 import TITLED_NAMES
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for name, sex, want in (("Ana", "f", "Ana's"), ("W" * 23, "m", "Him's")):
+                with self.subTest(game=game, name=name):
+                    r = V6(game, [(0, sex, 30, name, 0, False), (1, "m", 30, "Bo", 0, False)])
+                    r.rolls([0] * 40)
+                    r.log(1)
+                    self.assertIsNone(r.queue6(compiled(TITLED_NAMES)))
+                    shown = r.walk_through([0])
+                    titles = r.titles()
+                    lg = cg.lower(cg.load(copy.deepcopy(TITLED_NAMES)))
+                    b = {"subject": cg.Binding(name, sex)}
+                    expect = cg.title_shown(lg, TITLED_NAMES["title"], int(game[2]), b)
+                    self.assertEqual(titles[0], expect)
+                    if game == "vv2" or name == "Ana":
+                        self.assertTrue(expect.startswith(want), expect)   # The Lost Children: 48 > 46 letters
+                    if game in ("vv1", "vv2"):
+                        self.assertTrue(shown[0][1].startswith(expect), shown[0][1])
+                    self.assertEqual(titles[-1], cg.title_shown(lg, TITLED_NAMES["nodes"]["y"]["title"],
+                                                                int(game[2]), b))
+                    _n, _now, filed = r.log()
+                    self.assertIn("Event: Someone's No Good, Very Bad Day", filed)
+
     def test_the_loader_refuses_a_bad_node_title(self):
         from test_cie_graph_v6 import TITLES
         data = bytearray(compiled(TITLES))

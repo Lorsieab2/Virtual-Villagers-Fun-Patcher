@@ -178,6 +178,11 @@ TITLES = {
 }
 
 
+TITLED_NAMES = copy.deepcopy(TITLES)
+TITLED_NAMES["title"] = "(Name1)'s No Good, Very Bad Day"
+TITLED_NAMES["nodes"]["y"]["title"] = "(NAME|HE/SHE) Decides For (his/her) Elders"
+del TITLED_NAMES["nodes"]["inv"]["title"]          # the opening "inv" shows the event's own title
+
 LABELS = {
     # Button labels too wide with the names show pronouns (cie-v6-binary.md 15): the object form by default, the
     # hint's form, in the case written.
@@ -264,6 +269,11 @@ def vector_cases() -> list[dict]:
         {"name": "label_names_vv5", "graph": LABELS, "game": 5, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
          "answers": [1], "facts": None},
+        {"name": "title_placeholders_vv3", "graph": TITLED_NAMES, "game": 3, "unicode": False, "rolls": [0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [0], "facts": None},
+        {"name": "title_placeholders_vv1", "graph": TITLED_NAMES, "game": 1, "unicode": False, "rolls": [0],
+         "bindings": {"subject": {"name": "Bartholomew Longname Junior", "sex": "m"}}, "answers": [0],
+         "facts": None},
         {"name": "named_stranger_vv5", "graph": VISITOR, "game": 5, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aipi", "sex": "f"}},
          "answers": [0], "facts": None},
@@ -986,8 +996,9 @@ class NodeTitles(unittest.TestCase):
         self.assertTrue(any("node inv: its popup title is" in p and "pixels wide" in p for p in t.problems_of(d)))
         d["nodes"]["inv"]["title"] = "x" * 48
         self.assertTrue(any("longer than 47" in p for p in t.problems_of(d)))
-        d["nodes"]["inv"]["title"] = "Bad (Name)"
-        self.assertTrue(any("node inv: its popup title has no placeholders" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "Bad (award)"
+        self.assertTrue(any("node inv: its popup title: (award) is not a placeholder a title can show" in p
+                            for p in t.problems_of(d)))
         d["nodes"]["inv"]["title"] = "Semi;colon"
         self.assertTrue(any("cannot show" in p for p in t.problems_of(d)))
         old = t.four_doors(5)
@@ -1013,6 +1024,67 @@ class NodeTitles(unittest.TestCase):
         self.assertEqual(cg.widest_title(g, ["", "Short", "Threeline Titleline Hereline"], layout, cg.GAMES[1]),
                          "Threeline Titleline Hereline")
         self.assertEqual(cg.widest_title(g, ["", "Short"], layout, cg.GAMES[1]), "The Revolution")
+
+
+class TitlePlaceholders(unittest.TestCase):
+    """Placeholders in titles (cie-v6-binary.md 17)."""
+
+    def graph(self) -> dict:
+        d = copy.deepcopy(TITLES)
+        d["title"] = "(Name1)'s No Good, Very Bad Day"
+        d["nodes"]["y"]["title"] = "(NAME|HE/SHE) Decides For (his/her) Elders"
+        return d
+
+    def test_valid_and_readable(self):
+        g = cg.load(self.graph())
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g)), cg.without_names(g))
+        self.assertEqual(cg.readable_title(g["title"]), "Someone's No Good, Very Bad Day")
+        self.assertEqual(cg.readable_title("(NAME|HE/SHE) Decides For (his/her) Elders"),
+                         "SOMEONE Decides For his or her Elders")
+        self.assertEqual(cg.readable_title("(Friend.He/She) and (gardener1) x" + "y" * 60)[:30],
+                         "He or she and someone xyyyyyyy")
+        self.assertEqual(len(cg.readable_title("(Name)" + "y" * 60)), cg.TITLE_BYTES)
+        self.assertEqual(cg.library_stem(g["title"]), "Someones No Good Very Bad Day")
+
+    def test_shown_with_names_or_pronouns(self):
+        g = cg.load(self.graph())
+        lg = cg.lower(g)
+        b = {"subject": cg.Binding("Ana", "f")}
+        self.assertEqual(cg.title_shown(lg, g["title"], 3, b), "Ana's No Good, Very Bad Day")
+        long = {"subject": cg.Binding("W" * 23, "m")}
+        self.assertEqual(cg.title_shown(lg, g["title"], 3, long), "Him's No Good, Very Bad Day")
+        self.assertEqual(cg.title_shown(lg, "(NAME|HE/SHE) Decides For (his/her) Elders", 4, long),
+                         "HE Decides For his Elders")
+        r = cg.simulate(g, 2, [1], b, [0])
+        self.assertEqual(r["titles"][-1], "ANA Decides For her Elders")
+
+    def test_refusals(self):
+        d = self.graph()
+        d["title"] = "{@tribe} Day"
+        self.assertTrue(any("the title holds placeholders only" in p for p in t.problems_of(d)))
+        d = self.graph()
+        d["roles"]["pal"] = {"kind": "villager", "optional": True}
+        d["title"] = "(pal) Day"
+        self.assertTrue(any("names pal, who may not be bound" in p for p in t.problems_of(d)))
+        d = self.graph()
+        d["roles"]["guest"] = {"kind": "stranger"}
+        d["title"] = "(Guest) Day"
+        self.assertTrue(any("a stranger has no name" in p for p in t.problems_of(d)))
+        d = self.graph()
+        d["title"] = "(Name1) (Name1) (Name1) (Name1) (Name1) (Name1) and (Name1)"
+        self.assertFalse([p for p in t.problems_of(d) if "title" in p], "as pronouns it fits")
+        d["title"] = "(Name1) And The Very Long Journey Across The Wide Sea"
+        self.assertTrue(any("the title is longer than 47 characters with the longest names" in p
+                            for p in t.problems_of(d)), "not even as pronouns")
+
+    def test_the_vv1_pages_take_the_title_as_shown(self):
+        d = self.graph()
+        d["games"] = [1]
+        g = cg.load(d)
+        game = cg.GAMES[1]
+        self.assertEqual(cg.title_worst(g, g["title"], game), "Him's No Good, Very Bad Day",
+                         "27 W's and the rest are 52 characters: A New Home shows the pronoun")
+        self.assertEqual(cg.widest_title(g, [""], game.plain, game), "Him's No Good, Very Bad Day")
 
 
 class NamedStrangers(unittest.TestCase):
