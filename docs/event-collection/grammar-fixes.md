@@ -25,6 +25,7 @@ list or after a quotation that already ends one.
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| L104 | `is.... ` | `is ` | The Cooking Contest | Four stray dots break the sentence "(Name1) is (A) (B)." (twice on the line); the owner said to drop them |
 | L135 | `works things out.` | `works things out` | The Cooking Contest, bank B | A full stop in the middle of the sentence the item is inserted into |
 | L138 | `has tried, failed and succeeded throughout life` | `who has tried, failed and succeeded throughout life` | The Cooking Contest, bank B | Every other B item starts "that" / "who"; without it the sentence has no verb link |
 | L163 | `has reliable friends.` | `has reliable friends` | The Cooking Contest, bank C | Stray full stop mid-sentence |
@@ -190,7 +191,7 @@ These stay as the owner wrote them. Some are handled another way; the rest are l
 | L6985-6986 | `the judges do not punish the other contestant for the attempted bribe` | Reads correctly (the innocent finalist is not punished); wording only |
 | L7183 | `not a proven resurrection` | Word choice ("creation of life" was suggested), not grammar |
 | L7684 | `for (him/her): he made it possible to learn` | The colon is correct and "possible to learn" needs no object: not a glaring mistake |
-| L7851 | `the villager finds a priceless treasure chest!` | An unlabelled fragment: owner question Q10. Shipped as a fifth "Investigate" outcome of The Secret Behind the Waterfall (its first letter capitalised, which the rules allow), told only |
+| L7851 | `the villager finds a priceless treasure chest!` | An unlabelled fragment: owner question Q10. Shipped as a fifth "Investigate" outcome of The Secret Behind the Waterfall (its first letter capitalised, which the rules allow), with a huge tech reward (the owner's answer) |
 | L8709, L8715 | living or deceased composer | Content: owner question |
 | L8747 | the Chief's title in an all-games event | The game-word rule (`{@chief}`) handles it |
 | L9679-9680, L9794-9798, L10187-10208 | designer rules inside display text | Ledger notes: never displayed |

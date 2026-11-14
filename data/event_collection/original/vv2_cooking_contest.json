@@ -1048,6 +1048,11 @@
  },
  "grammar_fixes": [
   {
+   "src": "L104",
+   "before": "is.... ",
+   "after": "is "
+  },
+  {
    "src": "L135",
    "before": "works things out.",
    "after": "works things out"
@@ -4156,7 +4161,7 @@
   "intro": {
    "name": "The finalists",
    "src": "L102,L104,L106",
-   "text": "Today is the last day of the annual Cooking Contest! After many grueling weeks, (cook1) and (cook2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion.\n(Cook1) is.... {A.1} {B}. (Cook2) is.... {A.2} {B2}.\n(Cook1)'s biggest strength is {C}, while (cook2)'s is {C2}. (Cook1)'s biggest weakness is {F}, while (cook2)'s is {F2}. The judges like how (cook1) prefers {DC} cuisine. Compared to (cook2), they believe (cook1)'s cooking style is {DS}. Overall, (cook1) seems to be {G}.",
+   "text": "Today is the last day of the annual Cooking Contest! After many grueling weeks, (cook1) and (cook2) have emerged victorious against many promising competitors. Now they just have to satisfy the judges in order to win the title of Culinary Champion.\n(Cook1) is {A.1} {B}. (Cook2) is {A.2} {B2}.\n(Cook1)'s biggest strength is {C}, while (cook2)'s is {C2}. (Cook1)'s biggest weakness is {F}, while (cook2)'s is {F2}. The judges like how (cook1) prefers {DC} cuisine. Compared to (cook2), they believe (cook1)'s cooking style is {DS}. Overall, (cook1) seems to be {G}.",
    "children": [
     {
      "next": "ready"
