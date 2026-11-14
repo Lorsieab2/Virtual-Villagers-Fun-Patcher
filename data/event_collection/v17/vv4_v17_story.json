@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree Remembers",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_v17_story",
+  "source": "v26",
+  "lines": [
+   8312,
+   8316
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8312",
+  "shared_lines": [
+   "L8274-8276"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8274-8276,L8313-8316",
+   "text": "The contests take place near the Tree of Life, with care not to damage its roots, waterways, nearby wildlife or ritual grounds. A critic who demands that beauty justify itself is about to meet a village that disagrees.\nTwo storytellers recite the village's history. One confuses an ancient blessing with a request for the Tree to grow enormous feet and walk away. The children collapse with laughter. An elder records the error as a festival joke while preserving the true verse.",
+   "text_only": [
+    {
+     "src": "L8315",
+     "what": "collapse",
+     "reason": "the children collapse with laughter; no structure is involved"
+    }
+   ],
+   "name": "The Tree Remembers",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "no_coda": {
+   "type": "branch"
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}
