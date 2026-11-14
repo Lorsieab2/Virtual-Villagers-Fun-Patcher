@@ -25,7 +25,7 @@
    {
     "src": "L9073",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    },
    {
@@ -80,7 +80,7 @@
    ]
   },
   "a1": {
-   "text": "Another cure works",
+   "text": "Another cure works.",
    "src": "L9073-9074",
    "text_only": [
     {
@@ -91,7 +91,7 @@
    ]
   },
   "a2": {
-   "text": "The patient dies",
+   "text": "The patient dies.",
    "src": "L9073-9074",
    "effects": [
     {
@@ -128,12 +128,21 @@
    ]
   },
   "b1": {
-   "text": "The patient survives amid controversy",
+   "text": "The patient survives amid controversy.",
    "src": "L9075-9076"
   },
   "b2": {
-   "text": "It fails",
-   "src": "L9075-9076"
+   "text": "It fails.",
+   "src": "L9075-9076",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9075"
+    }
+   ]
   },
   "b3": {
    "text": "The village reexamines what its medical duty means.",
@@ -154,6 +163,18 @@
    ]
   }
  },
+ "grammar_fixes": [
+  {
+   "src": "L9073",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9075",
+   "before": ";",
+   "after": "."
+  }
+ ],
  "requirement": {
   "min_eligible": 1
  }

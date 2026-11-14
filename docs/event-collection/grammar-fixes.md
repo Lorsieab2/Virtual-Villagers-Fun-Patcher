@@ -93,6 +93,35 @@ already names (approved by the lead as glaring, 2026-11-14).
 | L9065 | `right; mistaken but thoughtful; or notices` | `right; the apprentice is mistaken but thoughtful; or the apprentice notices` | V20 D10 The Child Who Corrected the Masters | As above (two outcomes) |
 | L9086 | `well; conflict` | `well; they conflict` | V20 D12 The Doctor Who Could Not Save Everyone | As above |
 
+Closing full stops (decision 7, review r1 minor 1, M8):
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L9034 | `;` | `.` | V20 The Physician Who Refused | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9036 | `;` | `.` | V20 The Physician Who Refused | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9038 | `;` | `.` | V20 The Physician Who Refused | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9043 | `;` | `.` | V20 The Patient Who Knew Too Much | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9045 | `;` | `.` | V20 The Patient Who Knew Too Much | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9050 | `;` | `.` | V20 The Medicine That Works Too Well | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9051 | `;` | `.` | V20 The Medicine That Works Too Well | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9052 | `;` | `.` | V20 The Medicine That Works Too Well | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9053 | `;` | `.` | V20 The Medicine That Works Too Well | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9058 | `;` | `.` | V20 The Healer's Secret | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9060 | `;` | `.` | V20 The Healer's Secret | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9065 | `;` | `.` | V20 The Child Who Corrected the Masters | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9067 | `;` | `.` | V20 The Child Who Corrected the Masters | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9068 | `;` | `.` | V20 The Child Who Corrected the Masters | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9073 | `;` | `.` | V20 The Ancient Oath | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9075 | `;` | `.` | V20 The Ancient Oath | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9082 | `;` | `.` | V20 The Doctor Who Could Not Save Everyone | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9083 | `;` | `.` | V20 The Doctor Who Could Not Save Everyone | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9084 | `;` | `.` | V20 The Doctor Who Could Not Save Everyone | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9086 | `;` | `.` | V20 The Doctor Who Could Not Save Everyone | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9087 | `;` | `.` | V20 The Doctor Who Could Not Save Everyone | Each outcome of the list is its own page and ends with a full stop (decision 7); the list's "or" is a separator |
+| L9584 | `; the contest` | `; The contest` | V22-1 The Great Isolan Drawing Competition | After the cut reward instruction the sentence starts here (review M8) |
+| L10008 | `retaliation; unlock` | `retaliation.` | V23-1 The Practical Joke | The page closes with a full stop once the sequel instruction is cut (decision 7) |
+| L10372 | `reputation, if` | `reputation.` | V24 The Revolutionary Invention, reaction R6 | The reaction closes with a full stop once the designer note is cut (decision 7) |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

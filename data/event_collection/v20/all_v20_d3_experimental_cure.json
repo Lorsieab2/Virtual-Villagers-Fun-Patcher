@@ -69,7 +69,16 @@
   },
   "a2": {
    "text": "Some improve, while others develop troubling complications.",
-   "src": "L8989"
+   "src": "L8989",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L8989"
+    }
+   ]
   },
   "a3": {
    "text": "No one improves, but the researchers learn about the illness.",

@@ -25,7 +25,7 @@
    {
     "src": "L9083",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    },
    {
@@ -37,7 +37,7 @@
    {
     "src": "L9087",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
   ]
@@ -81,7 +81,7 @@
    ]
   },
   "a1": {
-   "text": "Many survive",
+   "text": "Many survive.",
    "src": "L9082-9083",
    "text_only": [
     {
@@ -92,7 +92,7 @@
    ]
   },
   "a2": {
-   "text": "A family questions a death",
+   "text": "A family questions a death.",
    "src": "L9082-9083",
    "effects": [
     {
@@ -129,11 +129,11 @@
    ]
   },
   "b1": {
-   "text": "Chaos follows",
+   "text": "Chaos follows.",
    "src": "L9084-9085"
   },
   "b2": {
-   "text": "A critical patient worsens",
+   "text": "A critical patient worsens.",
    "src": "L9084-9085",
    "effects": [
     {
@@ -164,11 +164,11 @@
    ]
   },
   "c1": {
-   "text": "They coordinate well",
+   "text": "They coordinate well.",
    "src": "L9086-9087"
   },
   "c2": {
-   "text": "They conflict dangerously",
+   "text": "They conflict dangerously.",
    "src": "L9086-9087"
   },
   "c3": {
@@ -192,9 +192,34 @@
  },
  "grammar_fixes": [
   {
+   "src": "L9082",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9083",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9084",
+   "before": ";",
+   "after": "."
+  },
+  {
    "src": "L9086",
    "before": "well; conflict",
    "after": "well; they conflict"
+  },
+  {
+   "src": "L9086",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9087",
+   "before": ";",
+   "after": "."
   }
  ],
  "requirement": {

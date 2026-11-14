@@ -77,7 +77,15 @@
   },
   "a3": {
    "text": "The medicine fails, and the physicians grieve.",
-   "src": "L9021"
+   "src": "L9021",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9021"
+    }
+   ]
   },
   "set_a": {
    "type": "branch",
@@ -157,7 +165,15 @@
   },
   "c2": {
    "text": "The expedition returns too late.",
-   "src": "L9028"
+   "src": "L9028",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9028"
+    }
+   ]
   },
   "c3": {
    "text": "A child notices the needed plant growing near the hospital.",

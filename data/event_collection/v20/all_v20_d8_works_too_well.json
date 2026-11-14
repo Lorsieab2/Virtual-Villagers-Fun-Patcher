@@ -25,13 +25,13 @@
    {
     "src": "L9051",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    },
    {
     "src": "L9053",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
   ]
@@ -63,11 +63,11 @@
    ]
   },
   "a1": {
-   "text": "The healers improve it",
+   "text": "The healers improve it.",
    "src": "L9050-9051"
   },
   "a2": {
-   "text": "A patient develops complications",
+   "text": "A patient develops complications.",
    "src": "L9050-9051",
    "effects": [
     {
@@ -98,11 +98,11 @@
    ]
   },
   "b1": {
-   "text": "The cause of the drowsiness is discovered",
+   "text": "The cause of the drowsiness is discovered.",
    "src": "L9052-9053"
   },
   "b2": {
-   "text": "Patients protest the loss of relief",
+   "text": "Patients protest the loss of relief.",
    "src": "L9052-9053"
   },
   "b3": {
@@ -124,6 +124,28 @@
    ]
   }
  },
+ "grammar_fixes": [
+  {
+   "src": "L9050",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9051",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9052",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9053",
+   "before": ";",
+   "after": "."
+  }
+ ],
  "requirement": {
   "min_eligible": 1
  }

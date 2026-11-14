@@ -31,7 +31,7 @@
    {
     "src": "L9045",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
   ]
@@ -63,11 +63,11 @@
    ]
   },
   "a1": {
-   "text": "The patient is right",
+   "text": "The patient is right.",
    "src": "L9043-9044"
   },
   "a2": {
-   "text": "A different illness is discovered",
+   "text": "A different illness is discovered.",
    "src": "L9043-9044"
   },
   "a3": {
@@ -89,7 +89,7 @@
    ]
   },
   "b1": {
-   "text": "It works",
+   "text": "It works.",
    "src": "L9045-9046",
    "effects": [
     {
@@ -102,7 +102,7 @@
    ]
   },
   "b2": {
-   "text": "It fails",
+   "text": "It fails.",
    "src": "L9045-9046",
    "effects": [
     {
@@ -135,9 +135,19 @@
  },
  "grammar_fixes": [
   {
+   "src": "L9043",
+   "before": ";",
+   "after": "."
+  },
+  {
    "src": "L9045",
    "before": "it works; fails; or",
    "after": "it works; it fails; or"
+  },
+  {
+   "src": "L9045",
+   "before": ";",
+   "after": "."
   }
  ],
  "requirement": {

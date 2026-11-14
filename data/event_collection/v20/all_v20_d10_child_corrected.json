@@ -25,13 +25,13 @@
    {
     "src": "L9065",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    },
    {
     "src": "L9068",
     "kind": "structural",
-    "text": "; or",
+    "text": " or ",
     "why": "the separator of the outcome list; each outcome is its own page"
    }
   ]
@@ -63,11 +63,11 @@
    ]
   },
   "a1": {
-   "text": "The apprentice is right",
+   "text": "The apprentice is right.",
    "src": "L9065-9066"
   },
   "a2": {
-   "text": "The apprentice is mistaken but thoughtful",
+   "text": "The apprentice is mistaken but thoughtful.",
    "src": "L9065-9066"
   },
   "a3": {
@@ -89,11 +89,11 @@
    ]
   },
   "b1": {
-   "text": "The masters later discover the child was right",
+   "text": "The masters later discover the child was right.",
    "src": "L9067-9069"
   },
   "b2": {
-   "text": "The patient recovers but the apprentice loses confidence",
+   "text": "The patient recovers but the apprentice loses confidence.",
    "src": "L9067-9069",
    "effects": [
     {
@@ -129,6 +129,21 @@
    "src": "L9065",
    "before": "right; mistaken but thoughtful; or notices",
    "after": "right; the apprentice is mistaken but thoughtful; or the apprentice notices"
+  },
+  {
+   "src": "L9065",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9067",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9068",
+   "before": ";",
+   "after": "."
   }
  ],
  "requirement": {
