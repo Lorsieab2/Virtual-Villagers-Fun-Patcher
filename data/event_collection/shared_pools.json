@@ -133,7 +133,7 @@
   "v9_r1": {
    "items": [
     {
-     "text": "'I hope you lose every contest you ever enter,' (Name1) snaps. (Name2) goes pale. 'You were my friend.' Neither speaks for days.",
+     "text": "'I hope you lose every contest you ever enter,' (Subject) snaps. (Friend) goes pale. 'You were my friend.' Neither speaks for days.",
      "src": "L5229-5230"
     }
    ]
@@ -149,7 +149,7 @@
   "v9_r3": {
    "items": [
     {
-     "text": "(Name1) admits to a wrongdoing nobody accused (name1.him/her) of. The judge says, 'That is a separate matter, and we will not pretend it proves this charge.'",
+     "text": "(Subject) admits to a wrongdoing nobody accused (subject.him/her) of. The judge says, 'That is a separate matter, and we will not pretend it proves this charge.'",
      "src": "L5236-5238"
     }
    ]
@@ -341,7 +341,7 @@
   "v10_o1": {
    "items": [
     {
-     "text": "(Name1) finds that the usual conversations stop when (name1.he/she) approaches. A friend finally says, \"I don't know what to believe.\" The uncertainty hurts almost as much as the accusation.",
+     "text": "(Subject) finds that the usual conversations stop when (subject.he/she) approaches. A friend finally says, \"I don't know what to believe.\" The uncertainty hurts almost as much as the accusation.",
      "src": "L5933-5936"
     }
    ]
@@ -349,7 +349,7 @@
   "v10_o2": {
    "items": [
     {
-     "text": "The disastrous invention becomes a joke at every feast. At first (Name1) laughs along. Then one day (name1.he/she) doesn't. Someone finally notices.",
+     "text": "The disastrous invention becomes a joke at every feast. At first (Subject) laughs along. Then one day (subject.he/she) doesn't. Someone finally notices.",
      "src": "L5939-5941"
     }
    ]
@@ -365,7 +365,7 @@
   "v10_o4": {
    "items": [
     {
-     "text": "(Name1) establishes an \"INSTITUTE OF IMPROBABLE MATERIALS\" in a shed. Its first experiment involves fermented fruit juice, yeast, and a very expensive pearl. The village leaders demand an inventory.",
+     "text": "(Subject) establishes an \"INSTITUTE OF IMPROBABLE MATERIALS\" in a shed. Its first experiment involves fermented fruit juice, yeast, and a very expensive pearl. The village leaders demand an inventory.",
      "src": "L5949-5952"
     }
    ]
@@ -373,7 +373,7 @@
   "v10_o5": {
    "items": [
     {
-     "text": "After several wise recommendations, (Name1) is asked to advise the leaders regularly. (name1.He/She) accepts, then discovers the position involves listening to arguments about whose goat ate whose tree bark.",
+     "text": "After several wise recommendations, (Subject) is asked to advise the leaders regularly. (subject.He/She) accepts, then discovers the position involves listening to arguments about whose goat ate whose tree bark.",
      "src": "L5955-5958"
     }
    ]
@@ -459,7 +459,7 @@
   "v10_o14": {
    "items": [
     {
-     "text": "The council corrects a false accusation before the entire village. (Name1) accepts the apology but says, \"I wish you had asked me first.\"",
+     "text": "The council corrects a false accusation before the entire village. (Subject) accepts the apology but says, \"I wish you had asked me first.\"",
      "src": "L6005-6007"
     }
    ]
@@ -475,7 +475,7 @@
   "v10_o16": {
    "items": [
     {
-     "text": "The village grants (Name1) another opportunity under sensible supervision. (name1.He/She) succeeds quietly and resists the urge to make a speech.",
+     "text": "The village grants (Subject) another opportunity under sensible supervision. (subject.He/She) succeeds quietly and resists the urge to make a speech.",
      "src": "L6016-6018"
     }
    ]
@@ -491,7 +491,7 @@
   "v10_o18": {
    "items": [
     {
-     "text": "A child announces that (Name1) is now \"HEAD OF THE DEPARTMENT OF TERRIBLE IDEAS.\" (Name1) bows deeply and demands an office.",
+     "text": "A child announces that (Subject) is now \"HEAD OF THE DEPARTMENT OF TERRIBLE IDEAS.\" (Subject) bows deeply and demands an office.",
      "src": "L6026-6028"
     }
    ]
@@ -499,7 +499,7 @@
   "v10_o19": {
    "items": [
     {
-     "text": "After days of avoidance, someone sits beside (Name1) and offers a piece of bread. They do not discuss the scandal. Not yet.",
+     "text": "After days of avoidance, someone sits beside (Subject) and offers a piece of bread. They do not discuss the scandal. Not yet.",
      "src": "L6031-6033"
     }
    ]
@@ -507,7 +507,7 @@
   "v10_o20": {
    "items": [
     {
-     "text": "An elderly villager who once mocked (Name1) says, \"I was wrong about you.\" (Name1) answers, \"I've waited years to hear that.\"",
+     "text": "An elderly villager who once mocked (Subject) says, \"I was wrong about you.\" (Subject) answers, \"I've waited years to hear that.\"",
      "src": "L6036-6038"
     }
    ]
@@ -515,7 +515,7 @@
   "v10_o21": {
    "items": [
     {
-     "text": "(Name1) confesses to damaging the workshop, convinced that (name1.his/her) experiment caused it. A careful investigation shows the damage predated the experiment. The relief leaves (Name1) shaking.",
+     "text": "(Subject) confesses to damaging the workshop, convinced that (subject.his/her) experiment caused it. A careful investigation shows the damage predated the experiment. The relief leaves (Subject) shaking.",
      "src": "L6041-6045"
     }
    ]
@@ -523,7 +523,7 @@
   "v10_o22": {
    "items": [
     {
-     "text": "(Name1) admits taking the last piece of bread. The council points out that it was offered freely. (Name1) demands to be punished anyway. An elder prescribes an afternoon of rest.",
+     "text": "(Subject) admits taking the last piece of bread. The council points out that it was offered freely. (Subject) demands to be punished anyway. An elder prescribes an afternoon of rest.",
      "src": "L6048-6051"
     }
    ]
@@ -531,7 +531,7 @@
   "v10_o23": {
    "items": [
     {
-     "text": "The leaders offer (Name1) a senior role. (Name1) declines, saying, \"I like the work. I don't like meetings.\" The leaders respect the choice.",
+     "text": "The leaders offer (Subject) a senior role. (Subject) declines, saying, \"I like the work. I don't like meetings.\" The leaders respect the choice.",
      "src": "L6054-6057"
     }
    ]
@@ -539,7 +539,7 @@
   "v10_o24": {
    "items": [
     {
-     "text": "(Name1) offers to teach (Name2) a difficult skill. (Name2) refuses twice, then arrives before dawn on the third day, pretending to be passing by.",
+     "text": "(Subject) offers to teach (Friend) a difficult skill. (Friend) refuses twice, then arrives before dawn on the third day, pretending to be passing by.",
      "src": "L6060-6062"
     }
    ]
@@ -571,7 +571,7 @@
   "v10_o28": {
    "items": [
     {
-     "text": "(Name1) makes one impressive gesture, then immediately returns to old habits. The village declines to restore (name1.his/her) responsibilities until behavior improves.",
+     "text": "(Subject) makes one impressive gesture, then immediately returns to old habits. The village declines to restore (subject.his/her) responsibilities until behavior improves.",
      "src": "L6084-6087"
     }
    ]
@@ -587,10 +587,79 @@
   "v10_o30": {
    "items": [
     {
-     "text": "Years later, a young villager asks whether the famous snail-shell incident really happened. (Name1) sighs. \"Which version?\"",
+     "text": "Years later, a young villager asks whether the famous snail-shell incident really happened. (Subject) sighs. \"Which version?\"",
      "src": "L6095-6097"
     }
    ]
+  },
+  "v9_materials": {
+   "items": [
+    {
+     "text": "crushed-up snail shells",
+     "src": "L4524"
+    },
+    {
+     "text": "tree bark",
+     "src": "L4525"
+    },
+    {
+     "text": "volcanic ash",
+     "src": "L4526"
+    },
+    {
+     "text": "tough vines",
+     "src": "L4527"
+    },
+    {
+     "text": "animal rawhide",
+     "src": "L4528"
+    },
+    {
+     "text": "animal entrails",
+     "src": "L4529"
+    },
+    {
+     "text": "pulverized gemstones",
+     "src": "L4530"
+    },
+    {
+     "text": "polished pearls",
+     "src": "L4531"
+    },
+    {
+     "text": "eyeballs",
+     "src": "L4532"
+    },
+    {
+     "text": "spider silk",
+     "src": "L4533"
+    },
+    {
+     "text": "rotten wood",
+     "src": "L4534"
+    },
+    {
+     "text": "fermented yogurt",
+     "src": "L4535"
+    },
+    {
+     "text": "yeast",
+     "src": "L4536"
+    },
+    {
+     "text": "slugs",
+     "src": "L4537"
+    },
+    {
+     "text": "slug slime",
+     "src": "L4538"
+    },
+    {
+     "text": "cave guano",
+     "src": "L4539"
+    }
+   ],
+   "distinct": true
   }
  }
 }
