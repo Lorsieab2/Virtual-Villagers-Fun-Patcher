@@ -680,6 +680,76 @@ class NodeTitles(unittest.TestCase):
         self.assertIn("popup title", why)
 
 
+# Each game's record: (head, body) and its own parents (father name, mother name, father head, father body, mother
+# head, mother body); the adapters' (native/vvfp_story_upgrades/story_c<n>.inc).  A New Home keeps no parents.
+LOOKS = {"vv1": (0x360, 0x364), "vv2": (0x548, 0x54C), "vv3": (0xDF0, 0xDF4), "vv4": (0x1BB8, 0x1BBC),
+         "vv5": (0x1BB8, 0x1BBC)}
+PARENTS = {"vv2": (0x57D, 0x596, 0x5B0, 0x5B4, 0x5B8, 0x5BC), "vv3": (0xDF8, 0xE11, 0xE2C, 0xE30, 0xE34, 0xE38),
+           "vv4": (0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00),
+           "vv5": (0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00)}
+HEALING = {"vv1": 3, "vv2": 3, "vv3": 2, "vv4": 2, "vv5": 2}
+
+
+@emulated
+class FactsAndDraws(unittest.TestCase):
+    """Villager-fact conditions on a bound role, and the pool-draw condition (cie-v6-binary.md 8), every game."""
+
+    def test_age_skill_and_child(self):
+        from test_cie_graph_v6 import LITTLE
+        g = cg.load(copy.deepcopy(LITTLE))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for case, roll in (("young", 0), ("young", 1), ("old", 1), ("old", 2)):
+                with self.subTest(game=game, case=case, roll=roll):
+                    old = case == "old"
+                    r = V6(game, [(0, "f", 55 if old else 30, "Ana", 0, False), (1, "m", 6, "Kiki", 0, False)])
+                    v, L = r.v, r.v.L
+                    rec, kid = v.record(0), v.record(1)
+                    if old:
+                        value = 30
+                        r.p.write(rec + L["skills"] + 4 * HEALING[game],
+                                  struct.pack("<f" if L["floats"] else "<i", value))
+                        if game in PARENTS:
+                            fname, mname, fh, fb, mh, mb = PARENTS[game]
+                            head, body = LOOKS[game]
+                            r.p.write(kid + mname, b"Ana\0")
+                            r.p.put32(kid + mh, r.p.u32(rec + head))
+                            r.p.put32(kid + mb, r.p.u32(rec + body))
+                    child = old and game in PARENTS
+                    facts = {"harmable:subject", "age:subject:20:60"} | (
+                        {"age:subject:50:0", "skill_at_least:subject:Healing:20"} if old else set())
+                    if child:
+                        facts.add("has_living_child:subject")
+                    r.rolls([roll] + [0] * 40)           # (Ana is the only adult: no cast roll) the memory
+                    self.assertIsNone(r.queue6(compiled(LITTLE)))
+                    r.walk_through()
+                    want = cg.simulate(g, int(game[2]), [roll], {"subject": cg.Binding("Ana", "f")},
+                                       facts=frozenset(facts))
+                    self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
+                    words = want["popups"][0]
+                    self.assertIn("The years go by." if old else "There is time yet.", words)
+                    if old and roll == 1:
+                        self.assertIn("every wound she ever healed", words)
+                    if old and roll == 2:
+                        self.assertIn("a child who looks just like her" if child else "a song", words)
+
+    def test_drew_follows_the_material(self):
+        from test_cie_graph_v6 import ARBOR
+        g = cg.load(copy.deepcopy(ARBOR))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for roll in (0, 1, 2):
+                with self.subTest(game=game, roll=roll):
+                    r = V6(game, TWO)
+                    r.rolls([0, roll, 0] + [0] * 40)    # the cast, the material, the judges
+                    self.assertIsNone(r.queue6(compiled(ARBOR)))
+                    r.walk_through()
+                    want = cg.simulate(g, int(game[2]), [roll, 0], {"subject": cg.Binding("Ana", "f")})
+                    self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
+
+
 @emulated
 class SexWords(unittest.TestCase):
     """Role-sex word pairs (cie-v6-binary.md 5): the word of the role's sex, in every game."""

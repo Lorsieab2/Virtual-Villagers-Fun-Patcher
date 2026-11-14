@@ -239,7 +239,9 @@ writes its index). A role-based op on an alias or other role asks about the memb
 the patcher's walk takes each one either way (`harmable` as well); `simulate` takes them from `facts`
 (`"age:<role>:<min>:<max>"`, `"skill_at_least:<role>:<skill>:<min>"`, `"has_living_child:<role>"`, max 0 = none),
 and `drew` from the run's own picks. They may stand in a variant's, a child's or an item's `if`; never in a
-choice's `if` or the requirement's.
+choice's `if` or the requirement's; `drew` never in a variant's either (a page's text is laid out once its segment
+is walked, so only a child's draw and an item's draw see the picks "so far": the child after its node's own pools,
+an item when its instance is drawn).
 
 `role` (op 2) on an alias holds when the alias is bound (6.1). Choice `if` may use only game, patch, role,
 special_present, not, all, any.
