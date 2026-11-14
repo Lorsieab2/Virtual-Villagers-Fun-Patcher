@@ -66,7 +66,7 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* The Aspiring Adventurer (all five games): the owner's new island event. */
     "VVFP More Island Events.dll",
     /* Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
-       "Only children can see and pick up ..." for an adult dropped on a mushroom or collectible. */
+       its own message for an adult dropped on a mushroom or collectible. */
     "VVFP Adult Confused.dll",
     /* APPEND ONLY (see above). */
 };

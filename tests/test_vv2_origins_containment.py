@@ -60,6 +60,8 @@ REMAINING = {
     "vv2_everyone_collects_like_vv1",
     # companion only (its two job builders' award calls, at run time); owns no Origins bytes
     "vv2_collectibles_stay_collected",
+    # companion only (the adult dispatcher's Confused call, at run time); owns no Origins bytes
+    "vv2_adult_confused",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",

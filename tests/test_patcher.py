@@ -1202,8 +1202,10 @@ class ManifestTests(unittest.TestCase):
         # (vv2_scrolling_popups), no executable byte -- its companion writes its call sites at run time; 45 with
         # More Island Events (vv2_more_island_events), no executable byte -- its companion writes its five sites at
         # run time; 46 with Isola Grand Event Collection (vv2_isola_grand_event_collection), no executable byte --
-        # data files the Story / Cheat Upgrades companion reads.
-        self.assertEqual(len(feature_ids), 46)
+        # data files the Story / Cheat Upgrades companion reads; 47 with Adults Dropped on Mushrooms or Collectibles
+        # Are Confused (vv2_adult_confused), no executable byte -- its companion writes the adult dispatcher's
+        # Confused call at run time.
+        self.assertEqual(len(feature_ids), 47)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -4178,6 +4180,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_more_island_events",
             # Isola Grand Event Collection: data files the Story companion reads, no executable bytes.
             "vv2_isola_grand_event_collection",
+            # Adults Dropped on Mushrooms or Collectibles Are Confused: companion only, no executable bytes.
+            "vv2_adult_confused",
             },
         )
         for mode in ALL_MODES:
