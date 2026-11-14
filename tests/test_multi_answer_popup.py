@@ -1,4 +1,5 @@
-"""Island-event questions with 2, 3 or 4 answers (the owner, 2026-11-13: "Make the 2-4 option thing general").
+"""Island-event questions with 2 to 7 answers (the owner, 2026-11-13: "Make the 2-4 option thing general"; the Isola
+Grand Event Collection, 2026-11-14: up to seven, all on ONE page).
 
 Custom Island Events (format version 4), in the test build of "VVFP Story Upgrades.dll" mapped beside each game's
 rendered executable in the emulator (tests/test_story_cie_graph_runtime.py's Run):
@@ -21,6 +22,7 @@ rendered executable in the emulator (tests/test_story_cie_graph_runtime.py's Run
 from __future__ import annotations
 
 import copy
+import functools
 import struct
 import sys
 import unittest
@@ -705,6 +707,230 @@ class TheEncounterDialog(unittest.TestCase):
                 self.assertEqual(v.key(5, ord("3")), 1)
                 self.assertIn(SECOND[2][0], v.result())
                 self.assertEqual(stores(v.r)[1] - tech0, SECOND[2][1])
+
+
+# ---- Five to seven answers (format version 6, the Isola Grand Event Collection) ------------------------------------
+
+LONG = "Open the carved door of the old seed storehouse"   # a long label, still on the screen
+
+
+def many_doors(n: int, hide_in_12: bool = False) -> dict:
+    """n answers (each its own page and tech); with hide_in_12 the third is shown only in the later three games."""
+    choices = []
+    nodes = {}
+    for k in range(n):
+        label = LONG if k == n - 1 else f"Open door number {k + 1}"
+        c = {"label": label, "next": f"d{k}"}
+        if hide_in_12 and k == 2:
+            c["if"] = {"game": [3, 4, 5]}
+        choices.append(c)
+        nodes[f"d{k}"] = {"text": f"Behind door {k + 1}: tech.", "effects": [{"do": "tech", "amount": 10 * (k + 1)}]}
+    nodes["q"] = {"type": "question", "text": "(Name) finds many doors in the cliff.", "choices": choices}
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Many Doors", "games": [1, 2, 3, 4, 5],
+            "roles": {"subject": {"kind": "villager"}}, "start": "q", "nodes": nodes}
+
+
+@functools.lru_cache(maxsize=None)
+def many_cieg(n: int, hide_in_12: bool = False) -> bytes:
+    return cg.compile_graph(cg.load(many_doors(n, hide_in_12), scrolling=True))
+
+
+def many_labels(n: int, hide: bool, game: int) -> list[str]:
+    return [c["label"] for k, c in enumerate(many_doors(n, hide)["nodes"]["q"]["choices"])
+            if not (hide and k == 2 and game < 3)]
+
+
+@emulated
+class FiveToSevenInThePopup(unittest.TestCase):
+    """The Secret City, The Tree of Life, New Believers: 5, 6 and 7 answers in ONE column."""
+
+    def games(self):
+        for game in ("vv3", "vv4", "vv5"):
+            if have_stock(game):
+                yield game
+
+    def test_buttons_ids_layout_keys_and_clicks(self):
+        for game in self.games():
+            for n in (5, 6, 7):
+                for k in range(n):
+                    for by_key in (False, True):
+                        if by_key and k not in (0, n - 1):
+                            continue
+                        with self.subTest(game=game, answers=n, answer=k, by_key=by_key):
+                            v = Popup(game)
+                            v.r.reset()
+                            v.r.rolls([0] * 40)
+                            self.assertIsNone(v.r.queue(many_cieg(n)))
+                            v.present()
+                            self.assertEqual(sorted(v.buttons), list(range(1, n + 2)), "ids 4 to n + 1")
+                            labels = many_labels(n, False, 3)
+                            self.assertEqual([v.labels[i] for i in range(4, n + 2)], labels[2:])
+                            width, height = PANEL[2] - PANEL[0], PANEL[3] - PANEL[1]
+                            ys = [v.placed[i][1] for i in range(2, n + 2)]
+                            step = BUTTON_H + BUTTON_H // 4
+                            self.assertEqual(ys[-1], height - 2 * BUTTON_H, "the last where the game puts its second")
+                            self.assertEqual([b - a for a, b in zip(ys, ys[1:])], [step] * (n - 1),
+                                             "1.25 button heights apart, one column")
+                            for i in range(2, n + 2):
+                                self.assertEqual(v.placed[i][0], (width - BUTTON_W) // 2, "centred")
+                            self.assertGreaterEqual(ys[0], 0)
+                            self.assertEqual(v.room(), (n - 1) * step - (BUTTON_H + BUTTON_H // 2))
+                            tech0 = stores(v.r)[1]
+                            if by_key:
+                                self.assertEqual(v.key(5, ord("1") + n), 0, "no answer past the last")
+                                self.assertEqual(v.key(5, ord("1") + k), 1)
+                            else:
+                                v.click(2 + k)
+                            self.assertEqual(v.r.state()["choice"], k)
+                            self.assertIn(f"Behind door {k + 1}", v.text())
+                            self.assertEqual(stores(v.r)[1] - tech0, 10 * (k + 1), "its effect with its page")
+                            extra = [v.buttons[i] for i in range(4, n + 2)]
+                            v.click(1)
+                            self.assertTrue(set(extra) <= set(v.deleted), "ours deleted at the OK")
+
+
+@emulated
+class FiveToSevenEveryGame(unittest.TestCase):
+    """All five games through the companion's question entry points: the buttons a choice's `if` leaves (the
+    buttons close up), each button's choice, its page and effect."""
+
+    def test_every_button_maps_to_its_choice(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            g = int(game[2])
+            for n, hide in ((5, False), (6, False), (7, False), (7, True)):
+                labels = many_labels(n, hide, g)
+                choices = [k for k in range(n) if not (hide and k == 2 and g < 3)]
+                for b in range(len(labels)):
+                    with self.subTest(game=game, answers=n, hide=hide, button=b):
+                        r = Run(game)
+                        r.reset()
+                        r.rolls([0] * 40)
+                        r.log(1)
+                        self.assertIsNone(r.queue(many_cieg(n, hide)))
+                        q, shown = EveryGame.ask(self, r)
+                        self.assertEqual(shown[:5], labels[:5])
+                        got = []
+                        for k in range(len(labels)):
+                            at = r.p.export("VvfpStoryProbeChoiceLabel", r.n, k)
+                            got.append(r.p.cstring(at) if at else None)
+                        self.assertEqual(got, labels, "every shown label, the long one whole")
+                        self.assertEqual(r.p.export("VvfpStoryProbeChoiceLabel", r.n, len(labels)), 0)
+                        tech0 = stores(r)[1]
+                        result = EveryGame.resolve(self, r, b)
+                        choice = choices[b]
+                        self.assertIn(f"Behind door {choice + 1}", result)
+                        self.assertEqual(stores(r)[1] - tech0, 10 * (choice + 1))
+                        n_filed, _now, filed = r.log()
+                        self.assertEqual(n_filed, 1)
+                        self.assertIn("Choice: " + labels[b], filed)
+
+
+@emulated
+class FiveToSevenEncounter(unittest.TestCase):
+    """A New Home and The Lost Children: 5, 6 and 7 answers in the encounter dialog, ids 5 to n + 2, keys 1-7."""
+
+    def test_buttons_layout_and_every_answer(self):
+        for game in ("vv1", "vv2"):
+            if not have_stock(game):
+                continue
+            for n in (5, 6, 7):
+                for k in range(n):
+                    with self.subTest(game=game, answers=n, answer=k):
+                        v = Encounter(game)
+                        v.open(many_cieg(n))
+                        v.draw()
+                        self.assertEqual(sorted(v.made), list(range(5, n + 3)))
+                        labels = many_labels(n, False, 1)
+                        self.assertEqual([v.labels[i][0] for i in range(5, n + 3)], labels[2:])
+                        ids = [2, 3] + list(range(5, n + 3))
+                        ys = [v.placed[i][1] for i in ids]
+                        step = ENC_H + ENC_H // 4
+                        height = ENC_PANEL[3] - ENC_PANEL[1]
+                        self.assertEqual(ys[-1], height - 2 * ENC_H)
+                        self.assertEqual([b - a for a, b in zip(ys, ys[1:])], [step] * (n - 1))
+                        self.assertGreaterEqual(ys[0], 0)
+                        tech0 = stores(v.r)[1]
+                        if k in (0, n - 1):
+                            self.assertEqual(v.key(5, ord("1") + n), 0)
+                            self.assertEqual(v.key(5, ord("1") + k), 1)
+                        else:
+                            self.assertEqual(v.click(ids[k]), 1)
+                        self.assertEqual(v.r.state()["choice"], k)
+                        self.assertIn(f"Behind door {k + 1}", v.result())
+                        self.assertEqual(stores(v.r)[1] - tech0, 10 * (k + 1))
+
+
+# The 800 x 600 render check (risk R2).  The popup is built from the top: its margin (0x3C, the constructor's own,
+# native/shared/scroll_popup.h), the text, then the answers stacked from the bottom (the last two button heights
+# above the panel's bottom, OK below them).  Button heights: the emulator's stand-ins (42 the later three, 40 the
+# first two), at least the game art's tallest answer picture (popup_button1 / main_wide_button2: 32 px).
+TOP_MARGIN = 0x3C
+
+
+def stacked_height(h: int, n: int) -> int:
+    """Panel height from the first answer's top to the bottom: 2 h below the last's top, then (n - 1) steps."""
+    step = h + h // 4 if n > 4 else h + h // 2
+    return 2 * h + (n - 1) * step
+
+
+@emulated
+class SevenFitOnScreen(unittest.TestCase):
+    """Seven answers and at least three text lines fit an 800 x 600 screen in every game, with and without
+    Scrolling Popups -- measured on the layout the companion makes (ONE column; two columns are not needed)."""
+
+    def test_seven_answers_and_three_lines_fit_800_by_600(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            g = int(game[2])
+            h = BUTTON_H if g >= 3 else ENC_H
+            layout = cg.GAMES[g].question
+            for scrolling in (False, True):
+                with self.subTest(game=game, scrolling=scrolling):
+                    # The text lines a question page keeps beside seven answers (the companion's pagination).
+                    title = 5 if layout.with_title else 0       # the title, then four line breaks
+                    room = min(12, layout.lines - title - 3)     # story_graph.inc cg_answer_room for seven
+                    text_lines = layout.lines - title - room
+                    self.assertGreaterEqual(text_lines, 3, "at least three lines of text")
+                    # The popup: margin, the text (with scrolling it scrolls: three lines are the least shown),
+                    # then seven answers and OK.
+                    shown = 3 if scrolling else text_lines
+                    panel = TOP_MARGIN + LINE * (title + shown) + stacked_height(h, 7)
+                    self.assertLessEqual(panel, 600, "the whole popup on an 800 x 600 screen")
+                    self.assertLessEqual(panel, 768)
+                    # And the companion's own layout of the seven, on that panel: inside it, no two meeting, the
+                    # first below the text.
+                    if g >= 3:
+                        v = Popup(game)
+                        v.r.reset()
+                        v.r.rolls([0] * 40)
+                        v.r.p.export("VvfpStoryProbeGraphScroll", 1 if scrolling else 0)
+                        self.assertIsNone(v.r.queue(many_cieg(7)))
+                        global PANEL
+                        keep = PANEL
+                        PANEL = (144, 0, 656, panel)
+                        try:
+                            v.present()
+                        finally:
+                            PANEL = keep
+                        ys = [v.placed[i][1] for i in range(2, 9)]
+                    else:
+                        v = Encounter(game)
+                        global ENC_PANEL
+                        keep = ENC_PANEL
+                        ENC_PANEL = (100, 0, 700, panel)
+                        try:
+                            v.open(many_cieg(7))
+                            v.draw()
+                        finally:
+                            ENC_PANEL = keep
+                        ys = [v.placed[i][1] for i in [2, 3] + list(range(5, 10))]
+                    self.assertGreaterEqual(ys[0], TOP_MARGIN + LINE * (title + shown),
+                                            "the first answer below the text")
+                    self.assertTrue(all(b - a >= h for a, b in zip(ys, ys[1:])), "no two answers meet")
+                    self.assertLessEqual(ys[-1] + h, panel, "inside the panel")
 
 
 if __name__ == "__main__":

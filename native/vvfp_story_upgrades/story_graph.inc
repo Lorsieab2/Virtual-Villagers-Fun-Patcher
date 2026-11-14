@@ -1096,11 +1096,19 @@ static int cg_buttons(int node, int qi, unsigned char *map) {
     return cg_shown_choices(node, cg.game, map);
 }
 
-/* The text lines a question's popup keeps for its buttons past two (and its answer's first page, shown in it). */
-static int cg_answer_room(int node) {
+/* The text lines a question's popup keeps for its buttons past two (and its answer's first page, shown in it), in a
+   popup laid out as `l`: from five buttons never so many that a page keeps fewer than three lines of text below
+   the title the popup leads with (src/vv_cie_graph.py answer_room; the popup then grows past a two-button popup's
+   height by the rest: tests/test_multi_answer_popup.py's 800 x 600 render check). */
+static int cg_answer_room(int node, const ce_layout *l) {
     unsigned char map[CG_MAX_ANSWERS];
     int n = cg_buttons(node, -1, map);
-    return CG_ANSWER_LINES[n < 2 ? 2 : n];
+    int room = CG_ANSWER_LINES[n < 2 ? 2 : n];
+    int most = l->lines - (l->with_title ? 5 : 0) - 3;
+    if (n > CG_V4_ANSWERS && room > most) {
+        room = most > 0 ? most : 0;
+    }
+    return room;
 }
 
 /* The buttons of the question on screen (CG_ASKED), else two. */
@@ -2027,8 +2035,18 @@ static void cg_node_pools(const ce_adapter *a, int game, int node) {
 /* One segment from `from`: the nodes and every effect's roll, up to the next question (included) or the end.
    `game` and the bound roles and patches decide the conditions; the path so far counts as visited.  Per node: its
    effects' rolls, its pools (version 6; into `picks` -- NULL: the path's own), then the child drawn. */
+#ifdef VVFP_TEST
+static int test_graph_nurse = -1;      /* a record that starts nursing as the next walk begins (the harm guard) */
+#endif
+
 static void cg_walk(const ce_adapter *a, int game, int from, cg_history *h, cg_pick *picks, unsigned char *picked) {
     int node = from;
+#ifdef VVFP_TEST
+    if (test_graph_nurse >= 0 && a->record(test_graph_nurse) != NULL) {
+        *(int *)(a->record(test_graph_nurse) + a->off_pregnant) = 1;
+        test_graph_nurse = -1;
+    }
+#endif
     memset(h, 0, sizeof *h);
     cg_seg_pk = picks;
     cg_seg_pk_count = picked;
@@ -3053,9 +3071,9 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         w.title = cg.title;
         w.reserve = cg_pops[p].effects ? 2 : 0;
         if (question) {
-            w.reserve += cg_answer_room(cg_pops[p].question);
+            w.reserve += cg_answer_room(cg_pops[p].question, &q);
         } else if (p == 0 && after_question && from > 0) {
-            w.reserve += cg_answer_room(h->node[from - 1]);   /* shown in the answered question's popup */
+            w.reserve += cg_answer_room(h->node[from - 1], &first);   /* shown in the answered question's popup */
         }
         w.pages = &pages;
         w.scroll = cg_scrolls();
@@ -3330,7 +3348,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.first = &q;
     w.rest = &q;
     w.title = cg.title;
-    w.reserve = cg_answer_room(cg_g.start);
+    w.reserve = cg_answer_room(cg_g.start, &q);
     w.pages = pages;
     w.scroll = cg_scrolls();
     cg_paginate(&w, raw);
@@ -4679,6 +4697,18 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
     return refusal;
 }
 
+/* Record `record` starts nursing just before the next walk (after the roles are cast), -1 none. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphNurseAtWalk(int record) {
+    test_graph_nurse = record;
+}
+
+/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
+    out[0] = (int)CG_FILE_V3_STATE;
+    out[1] = (int)sizeof(cg_file_head);
+    out[2] = (int)sizeof(cg_state);
+}
+
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphQueueOrigin(int game, const unsigned char *data,
                                                                     unsigned int size, int origin, int cast_mode,
@@ -4693,8 +4723,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphQueueOrigin(int game, con
 }
 
 /* The version 6 run: out[0] picks, then (pool, instance, item) for each of the first `cap` picks; out[1 + 3 cap ..]:
-   the aliases' members (16), the relaxed roles, the cast, the origin, the asked question's buttons and its map (7).
-   The count of ints written. */
+   the aliases' members (16), the relaxed roles, the cast, the origin, the asked question's buttons and its map (7),
+   the path's effect count and its rolls (a, b; at most 64).  The count of ints written. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPicks(int *out, int cap) {
     int i, o = 1;
     out[0] = cg.pick_count;
@@ -4716,6 +4746,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPicks(int *out, int cap) 
         for (i = 0; i < CG_MAX_ANSWERS; ++i) {
             out[o++] = i < n ? map[i] : -1;
         }
+    }
+    out[o++] = cg.path.fx;             /* then the path's effect rolls (a, b), at most 64 */
+    for (i = 0; i < cg.path.fx && i < 64 && i < CG_MAX_FX; ++i) {
+        out[o++] = cg.path.fx_a[i];
+        out[o++] = cg.path.fx_b[i];
     }
     return o;
 }
@@ -4893,5 +4928,6 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSession(const void *file
     test_graph_told_count = 0;
     test_graph_structures = -1;
     test_graph_unicode = -1;
+    test_graph_nurse = -1;
 }
 #endif
