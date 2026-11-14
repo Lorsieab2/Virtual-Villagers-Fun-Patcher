@@ -149,8 +149,8 @@ class Checks(unittest.TestCase):
 
     def test_format_and_version(self):
         d = tiny()
-        d["version"] = 6
-        self.assertProblem(d, "version 6")
+        d["version"] = 7
+        self.assertProblem(d, "version 7")
         d = tiny()
         d["format"] = "x"
         self.assertProblem(d, "format")
@@ -485,8 +485,8 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertProblem(d, "characters the game cannot show")         # the double quote is version 2's
         d["nodes"]["p"]["text"] = "(Name) finds a door."
         self.assertProblem(d, "only be the start node in a version 1 event")
-        d["version"] = 6
-        self.assertProblem(d, "version 6 is not one this patcher reads")
+        d["version"] = 7
+        self.assertProblem(d, "version 7 is not one this patcher reads")
 
     def test_an_answer_shows_its_own_page_first(self):
         self.assertProblem(multi(l={"type": "branch", "children": [{"next": "q2"}]}),

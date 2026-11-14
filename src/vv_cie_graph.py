@@ -166,7 +166,7 @@ import re
 import struct
 import sys
 import zlib
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from fractions import Fraction
 from itertools import product
 from pathlib import Path
@@ -176,11 +176,13 @@ FORMAT = "vvfp-cie-graph"
 VERSION = 3                   # what new events are written in (a third answer makes an event version 4)
 VERSION_ANSWERS = 4           # the first version whose questions may have three or four answers
 VERSION_PER_GAME = 5          # the first version whose food / tech effect may give each game its own amount or range
-VERSIONS = (1, 2, 3, 4, 5)    # what this patcher reads
+VERSION_V6 = 6               # the Isola Grand Event Collection: pools, game words, aliases, requirements, 5-7 answers
+VERSIONS = (1, 2, 3, 4, 5, 6)  # what this patcher reads
 BINARY_MAGIC = b"CIEG"
-BINARY_VERSION = 4            # a graph is compiled as its own version (1, 2 and 3 byte for byte as before)
-MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; before: exactly 2)
-MAX_ANSWERS = 4               # the game's two-choice popup with up to two more buttons (vvfp_multi_answer.h)
+BINARY_VERSION = 6            # a graph is compiled as its own version (1 to 5 byte for byte as before)
+MIN_ANSWERS = 2               # a question's answers (version 4: 2..4; version 6: 2..7; before: exactly 2)
+MAX_ANSWERS = 7               # version 6: up to seven buttons (vvfp_multi_answer.h)
+MAX_ANSWERS_V4 = 4            # versions 4 and 5: the game's two-choice popup with up to two more buttons
 ANSWER_LINES = 3              # text lines a third or fourth answer's button takes (1.5 button heights of 20-px lines)
 NONE = 0xFFFF
 
@@ -360,6 +362,69 @@ CAUSES = ("custom", "unknown")
 COND_CODES = {"visited": 1, "role": 2, "game": 3, "patch": 4, "not": 5, "all": 6, "any": 7}
 COND_PUZZLE = 8              # version 3, the requirement only: a = the puzzle's name, b = its game
 SEX_CODES = {"any": 0, "male": 1, "female": 2, "random": 3}
+
+# ---- Version 6 (docs/event-collection/cie-v6-binary.md is the engine's contract) ---------------------------------
+
+V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage")     # the new "do" words
+EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16})
+EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
+                    "skill_set": CAP_SKILLS, "damage": 0})
+VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change")
+V6_CONDS = ("harmable", "special_present", "min_population", "min_children")
+COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12})
+STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
+SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
+SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
+PRESENT_CODES = {"golden_child": 1, "tribal_chief": 2}
+PROTECTED_MODES = ("auto", "exclude", "allow")
+PICK_CODES = {"random": 0, "highest": 1}
+ROLE_FLAG_HARM = 16
+ROLE_FLAG_PROTECT = 32
+LABEL_BYTES_V6 = 95           # a version 6 label (cg_labels[7][96])
+HEADER_BYTES_V6 = 96
+MAX_POOLS = 1000
+MAX_ITEMS = 8000
+MAX_INSTANCE = 8              # {A.1} .. {A.8}
+MAX_POOL_DEPTH = 3            # a pool's item may hold pool tokens, three deep at most
+MAX_PICKS = 256               # pool instances a run holds (CG_MAX_PICKS)
+DAMAGE_ANY = "any"
+POOL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_]{0,31}$")    # an author's pool name ("_" and "@" are the compiler's)
+COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
+KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
+PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
+               "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
+               "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter")}
+GLYPH_FALLBACK = {";": ",", "(": "-", ")": "-", "&": "and", "%": " percent"}
+FALLBACK_GAMES = (1, 2)       # A New Home and The Lost Children's fonts lack ; ( ) & %
+SIZES = {"small": (1, 2), "normal": (1, 1), "large": (2, 1), "huge": (3, 1)}     # multiply, divide (rounding down)
+SIZE_TABLE = {"food": {1: (200, 1500), 2: (100, 1500), 3: (200, 600), 4: (300, 300), 5: (50, 300)},
+              "tech": {1: (500, 4999), 2: (500, 3000), 3: (1000, 2000), 4: (500, 5000), 5: (500, 3000)}}
+AUTHORING_KEYS = ("name", "src", "text_only_reason")    # kept by normalize, never compiled (without_names drops them)
+SHARED_POOLS = Path(__file__).resolve().parents[1] / "data" / "event_collection" / "shared_pools.json"
+ACTIONS = Path(__file__).resolve().parents[1] / "data" / "cie_actions.json"
+_ACTION_TABLE: dict | None = None
+
+
+def size_range(kind: str, size: str, game: int) -> tuple[int, int]:
+    """A size word's amount range in `game` (design A3): the normal range halved, doubled or tripled."""
+    lo, hi = SIZE_TABLE[kind][game]
+    mul, div = SIZES[size]
+    return lo * mul // div, hi * mul // div
+
+
+def actions(game: int) -> dict[str, dict]:
+    """The game's Custom Island Event villager actions by label: {"group", "unsafe"} (data/cie_actions.json)."""
+    global _ACTION_TABLE
+    if _ACTION_TABLE is None:
+        _ACTION_TABLE = json.loads(ACTIONS.read_text(encoding="utf-8"))["games"]
+    return {a["label"]: a for a in _ACTION_TABLE[str(game)]}
+
+
+def glyph_fallback(text: str, game: int, unicode: bool = False) -> str:
+    """The text as A New Home and The Lost Children draw it without the Unicode Text companion (section 9)."""
+    if unicode or game not in FALLBACK_GAMES:
+        return text
+    return "".join(GLYPH_FALLBACK.get(c, c) for c in text)
 NODE_TYPES = ("popup", "question", "branch")
 UNITS = {"food": "food", "tech": "tech points"}
 
@@ -370,20 +435,29 @@ _NAME_ALIASES = {"name1": "subject", "name2": "friend"}
 
 
 def answer_letter(b: int) -> str:
-    """An answer as the chances table names it: A to D (a fifth, which the checks refuse, by its number)."""
-    return "ABCD"[b] if 0 <= b < 4 else str(b + 1)
+    """An answer as the chances table names it: A to G (an eighth, which the checks refuse, by its number)."""
+    return "ABCDEFG"[b] if 0 <= b < 7 else str(b + 1)
 
 
-def answer_room(answers: int) -> int:
+def answer_room(answers: int, lines: int | None = None) -> int:
     """The text lines a question's popup (and its answer's first page, shown in it) keeps for its buttons beyond the
-    game's two, so the popup is no taller than with two (story_graph.inc CG_ANSWER_LINES)."""
-    return ANSWER_LINES * max(0, answers - 2)
+    game's two, so the popup is no taller than with two (story_graph.inc CG_ANSWER_LINES).  Five to seven answers
+    (version 6) are spaced 1.25 button heights: ceil(2.5 n) - 6 lines, never more than the layout's lines less 3."""
+    if answers <= MAX_ANSWERS_V4:
+        return ANSWER_LINES * max(0, answers - 2)
+    room = -(-5 * answers // 2) - 6
+    return room if lines is None else max(0, min(room, lines - 3))
+
+
+V6_EXTRA_CHARS = ";/&%"       # version 6 text adds these (VV1/VV2 show them through GLYPH_FALLBACK)
 
 
 def text_char_ok(c: str, version: int = 1) -> bool:
     """story_custom.inc ce_text_char_ok, line breaks allowed; version 2 adds the double quote, which every game's
-    font draws (src/vv_font_glyphs.py: A New Home's and The Lost Children's fonts hold ! " ' , . ? / ` : -)."""
-    return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n" or (version >= 2 and c == '"')
+    font draws (src/vv_font_glyphs.py: A New Home's and The Lost Children's fonts hold ! " ' , . ? / ` : -);
+    version 6 adds ; / & % (docs/event-collection/cie-v6-binary.md section 5)."""
+    return (c.isascii() and c.isalnum()) or c in " .,!?:-'\n" or (version >= 2 and c == '"') \
+        or (version >= VERSION_V6 and c in V6_EXTRA_CHARS)
 
 
 # ---- Button labels (the owner, 2026-11-13: a label may run off its button, as long as it is readable) ----------
@@ -429,13 +503,29 @@ class GraphError(ValueError):
 # ---- Loading: shape checks and the normalized form ----------------------------------------------------------------
 
 
-def _norm_cond(c: Any, where: str, problems: list[str]) -> Any:
+def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any:
     if c is None:
         return None
     if not isinstance(c, dict) or len(c) != 1:
-        problems.append(f"{where}: a condition is one of visited / role / game / patch / not / all / any")
+        problems.append(f"{where}: a condition is one of visited / role / game / patch / not / all / any"
+                        + (" / harmable / special_present / min_population / min_children"
+                           if version >= VERSION_V6 else ""))
         return None
     (op, arg), = c.items()
+    if op in V6_CONDS:
+        if version < VERSION_V6:
+            problems.append(f"{where}: the condition {op} needs format version {VERSION_V6}")
+            return None
+        if op == "harmable" and not isinstance(arg, str):
+            problems.append(f"{where}: harmable names one role")
+            return None
+        if op == "special_present" and arg not in PRESENT_CODES:
+            problems.append(f"{where}: special_present is golden_child or tribal_chief")
+            return None
+        if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
+            problems.append(f"{where}: {op} is 1..255")
+            return None
+        return {op: arg}
     if op in ("visited", "role", "patch"):
         if not isinstance(arg, str):
             problems.append(f"{where}: {op} names one id")
@@ -448,13 +538,13 @@ def _norm_cond(c: Any, where: str, problems: list[str]) -> Any:
             return None
         return {"game": sorted(set(games))}
     if op == "not":
-        inner = _norm_cond(arg, where, problems)
+        inner = _norm_cond(arg, where, problems, version)
         return None if inner is None else {"not": inner}
     if op in ("all", "any"):
         if not isinstance(arg, list) or not arg or len(arg) > 255:
             problems.append(f"{where}: {op} takes 1..255 conditions")
             return None
-        parts = [_norm_cond(x, where, problems) for x in arg]
+        parts = [_norm_cond(x, where, problems, version) for x in arg]
         return None if any(p is None for p in parts) else {op: parts}
     problems.append(f"{where}: unknown condition {op!r}")
     return None
@@ -488,13 +578,50 @@ def per_game_parse(text: str) -> dict:
     return out
 
 
-def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> dict | None:
-    if not isinstance(e, dict) or e.get("do") not in EFFECT_CODES:
-        problems.append(f"{where}: an effect is {{\"do\": one of {', '.join(EFFECT_CODES)}}}")
+_EFFECTS_V1_5 = ("food", "tech", "pay_award", "kill", "vanish", "status", "health", "preference", "skill", "sick")
+
+
+def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, games: list[int] | None = None,
+                 default_role: str = "subject") -> dict | None:
+    v6 = version >= VERSION_V6
+    dos = _EFFECTS_V1_5 + (V6_EFFECTS if v6 else ())
+    if not isinstance(e, dict) or e.get("do") not in dos:
+        if isinstance(e, dict) and e.get("do") in V6_EFFECTS:
+            problems.append(f"{where}: {e['do']} needs format version {VERSION_V6}")
+        else:
+            problems.append(f"{where}: an effect is {{\"do\": one of {', '.join(dos)}}}")
         return None
     do = e["do"]
-    known = {"do"}
+    known = {"do"} | ({"src"} if v6 else set())
     out: dict[str, Any] = {"do": do}
+    if v6 and do in ("food", "tech") and "size" in e:
+        # Version 6: a size word (design A3), expanded here into each game's own range (a version 5 per_game).
+        known |= {"size", "loss", "scaled", "defer"}
+        size, loss = e.get("size"), e.get("loss", False)
+        if size not in SIZES or not isinstance(loss, bool):
+            problems.append(f"{where}: size is one of {', '.join(SIZES)}; loss is true or false")
+            size, loss = "normal", False
+        for k in ("amount", "max", "per_game"):
+            if k in e:
+                problems.append(f"{where}: give a size or an amount, not both")
+                break
+        per: dict[str, list[int]] = {}
+        for gn in games or []:
+            lo, hi = size_range(do, size, gn)
+            per[str(gn)] = [-hi, -lo] if loss else [lo, hi]
+        first = per[str(games[0])] if games else [1, 1]
+        out.update(amount=first[0], scaled=bool(e.get("scaled", False)), defer=bool(e.get("defer", False)))
+        if first[0] != first[1]:
+            out["max"] = first[1]
+        out["per_game"] = per
+        if out["defer"] and loss:
+            problems.append(f"{where}: an award (defer) is a gain")
+        if "src" in e:
+            out["src"] = e["src"]
+        extra = set(e) - known
+        if extra:
+            problems.append(f"{where}: {do} does not take {', '.join(sorted(extra))}")
+        return out
     if do in ("food", "tech"):
         known |= {"amount", "max", "scaled", "defer", "per_game"}
         amount = e.get("amount")
@@ -535,9 +662,57 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> d
             problems.append(f"{where}: an award (defer) is a gain")
     elif do == "pay_award":
         pass
+    elif do == "celebrate":
+        known.add("who")
+        who = e.get("who", "all")
+        if not isinstance(who, str):
+            problems.append(f"{where}: celebrate's who is all or a role")
+            who = "all"
+        out["who"] = who
+    elif do == "damage":
+        known |= {"structures", "min", "max"}
+        st = e.get("structures", DAMAGE_ANY)
+        if st != DAMAGE_ANY and (not isinstance(st, list) or not st or any(
+                not isinstance(x, str) or not x or not x.isascii() or "," in x for x in st)
+                or len(set(st)) != len(st)):
+            problems.append(f"{where}: damage structures is \"any\" or a list of the game's structure names")
+            st = DAMAGE_ANY
+        lo, hi = e.get("min"), e.get("max")
+        if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
+            problems.append(f"{where}: damage is 1..100 percent, min <= max")
+        out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
     else:
         known.add("role")
-        out["role"] = e.get("role", "subject")
+        out["role"] = e.get("role", default_role)
+        if do == "action":
+            known.add("action")
+            act = e.get("action")
+            if not isinstance(act, str) or not act or not act.isascii():
+                problems.append(f"{where}: action names the game's own action words")
+            out["action"] = act
+        elif do == "mood":
+            known.add("mood")
+            if e.get("mood") not in ("good", "bad"):
+                problems.append(f"{where}: mood is good or bad")
+            out["mood"] = e.get("mood")
+        elif do == "health_change":
+            known |= {"min", "max"}
+            lo, hi = e.get("min"), e.get("max")
+            if not (_int_in(lo, -99, 99) and _int_in(hi, -99, 99) and lo <= hi) or lo == hi == 0:
+                problems.append(f"{where}: health_change is -99..99, min <= max, not 0")
+            out.update(min=lo, max=hi)
+        elif do == "skill" and v6 and "set" in e:
+            known |= {"skills", "set"}
+            skills = e.get("skills")
+            if not isinstance(skills, list) or not skills or not all(isinstance(s, str) for s in skills) \
+                    or len(set(skills)) != len(skills):
+                problems.append(f"{where}: skill lists one or more different skills")
+                skills = []
+            if not _int_in(e.get("set"), 0, SKILL_ADD_MAX):
+                problems.append(f"{where}: skill set is 0..{SKILL_ADD_MAX}")
+            if "min" in e or "max" in e:
+                problems.append(f"{where}: a skill set takes no min or max")
+            out.update(skills=list(skills), set=e.get("set"))
         if do == "kill":
             known.add("cause")
             cause = e.get("cause", "custom")
@@ -563,7 +738,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> d
             if not isinstance(e.get("preference"), str):
                 problems.append(f"{where}: preference names the game's own word")
             out.update(list=e.get("list"), preference=e.get("preference"))
-        elif do == "skill":
+        elif do == "skill" and "set" not in out:
             known |= {"skills", "min", "max"}
             skills = e.get("skills")
             if not isinstance(skills, list) or not skills or not all(isinstance(s, str) for s in skills) \
@@ -571,17 +746,26 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1) -> d
                 problems.append(f"{where}: skill lists one or more different skills")
                 skills = []
             lo, hi = e.get("min"), e.get("max")
-            if not (_int_in(lo, 1, SKILL_ADD_MAX) and _int_in(hi, 1, SKILL_ADD_MAX) and lo <= hi):
-                problems.append(f"{where}: skill adds 1..{SKILL_ADD_MAX}, min <= max")
+            ok = _int_in(lo, 1, SKILL_ADD_MAX) and _int_in(hi, 1, SKILL_ADD_MAX) and lo <= hi
+            if v6 and not ok:
+                # Version 6: a loss too (both below 0), which makes the role harm-capable.
+                ok = _int_in(lo, -SKILL_ADD_MAX, -1) and _int_in(hi, -SKILL_ADD_MAX, -1) and lo <= hi
+            if not ok:
+                problems.append(f"{where}: skill adds 1..{SKILL_ADD_MAX}"
+                                + (f" (or takes -{SKILL_ADD_MAX}..-1)" if v6 else "") + ", min <= max")
             out.update(skills=list(skills), min=lo, max=hi)
+    if v6 and "src" in e:
+        out["src"] = e["src"]
     extra = set(e) - known
     if extra:
         problems.append(f"{where}: {do} does not take {', '.join(sorted(extra))}")
     return out
 
 
-def normalize(data: Any) -> tuple[dict, list[str]]:
-    """The graph with every default filled in, and the shape problems found."""
+def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
+    """The graph with every default filled in, and the shape problems found.  Version 6 sugar is expanded here: a
+    size word into per_game, a game word's "*" into each game, include_pools into pools (from `shared_pools`, a
+    dict or a path, default SHARED_POOLS), and every inline pick into its canonical form."""
     problems: list[str] = []
     if not isinstance(data, dict):
         return {}, ["the file is not a JSON object"]
@@ -591,6 +775,11 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
     if version not in VERSIONS:
         problems.append(f"version {version!r} is not one this patcher reads ({', '.join(map(str, VERSIONS))})")
         version = VERSION
+    v6 = version >= VERSION_V6
+    if not v6:
+        for key in ("words", "pools", "include_pools", "collection", "grammar_fixes"):
+            if key in data:
+                problems.append(f"{key} needs format version {VERSION_V6}")
     g: dict[str, Any] = {"format": FORMAT, "version": version}
     title = data.get("title")
     if not isinstance(title, str) or not title.strip():
@@ -639,20 +828,44 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                 fixed[str(gn)] = list(dict.fromkeys(names))
         if fixed:
             g["requirement"]["puzzles"] = {k: fixed[k] for k in sorted(fixed)}
+    if isinstance(req, dict):
+        extra = set(req) - {"min_eligible", "puzzles"} - ({"if"} if v6 else set())
+        if extra and v6:
+            problems.append(f"requirement: unknown fields {', '.join(sorted(extra))}")
+        if v6 and req.get("if") is not None:
+            # Version 6: the natural roll's and Pick Island Event's condition (Custom Island Events ignore it).
+            c = _norm_cond(req["if"], "requirement", problems, version)
+            if c is not None:
+                if _cond_ops(c) & {"visited", "harmable"}:
+                    problems.append("requirement: its condition cannot use visited or harmable")
+                g["requirement"]["if"] = c
 
     roles_in = data.get("roles")
     roles: dict[str, dict] = {}
     if not isinstance(roles_in, dict) or not roles_in:
         problems.append("roles is missing")
         roles_in = {}
+    kinds = ("villager", "stranger", "alias") if v6 else ("villager", "stranger")
     for rid, r in roles_in.items():
         where = f"role {rid}"
         if not ID_RE.match(rid):
             problems.append(f"{where}: an id is 1..32 letters, digits or _")
-        if not isinstance(r, dict) or r.get("kind") not in ("villager", "stranger"):
-            problems.append(f"{where}: kind is villager or stranger")
+        if not isinstance(r, dict) or r.get("kind") not in kinds:
+            problems.append(f"{where}: kind is villager, stranger or alias" if v6
+                            else f"{where}: kind is villager or stranger")
             continue
-        if r["kind"] == "stranger":
+        if v6 and rid.lower() in KEYWORDS:
+            problems.append(f"{where}: a role id cannot be {rid.lower()} (a placeholder word)")
+        if r["kind"] == "alias":
+            # Version 6: one of the listed villager roles, drawn at the start of the run.
+            extra = set(r) - {"kind", "of"}
+            of = r.get("of")
+            if not isinstance(of, list) or not of or len(of) > 16 or any(not isinstance(x, str) for x in of) \
+                    or len(set(of)) != len(of):
+                problems.append(f"{where}: an alias is \"of\": a list of other villager roles")
+                of = []
+            roles[rid] = {"kind": "alias", "of": list(of)}
+        elif r["kind"] == "stranger":
             extra = set(r) - {"kind", "sex"}
             sex = r.get("sex", "random")
             if sex not in ("random", "male", "female"):
@@ -667,10 +880,14 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
             min_age = r.get("min_age", 14)
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
-            roles[rid] = {"kind": "villager", "optional": bool(r.get("optional", False)), "sex": sex,
-                          "min_age": min_age, "exclude_nursing": bool(r.get("exclude_nursing", True)),
-                          "exclude_special": bool(r.get("exclude_special", True)),
-                          "believers_only": bool(r.get("believers_only", True))}
+            if v6:
+                extra -= {"max_age", "skill", "special", "protected"}
+                roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+            else:
+                roles[rid] = {"kind": "villager", "optional": bool(r.get("optional", False)), "sex": sex,
+                              "min_age": min_age, "exclude_nursing": bool(r.get("exclude_nursing", True)),
+                              "exclude_special": bool(r.get("exclude_special", True)),
+                              "believers_only": bool(r.get("believers_only", True))}
             gap = r.get("max_age_gap")
             if gap is not None:
                 # Version 3: at most `years` apart from another villager role (both bound: the purchase is refused
@@ -684,9 +901,30 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                     roles[rid]["max_age_gap"] = {"role": gap["role"], "years": gap["years"]}
         if extra:
             problems.append(f"{where}: unknown fields {', '.join(sorted(extra))}")
-    if roles and next(iter(roles)) != "subject":
-        problems.append("the first role is subject")
-    if "subject" in roles and (roles["subject"]["kind"] != "villager" or roles["subject"]["optional"]):
+    if v6:
+        # Version 6: any id; the first role is a villager the event needs (an unprefixed placeholder names
+        # "subject" when there is one, else the first role, as the companion's cg_parse_ph does).
+        first = next(iter(roles.values()), None)
+        if first is not None and (first["kind"] != "villager" or first["optional"]):
+            problems.append("the first role is a villager the event needs (not optional)")
+        lower = [r.lower() for r in roles]
+        if len(set(lower)) != len(lower):
+            problems.append("two role ids differ only in capitals")
+        for rid, r in roles.items():
+            if r["kind"] == "alias":
+                for m in r["of"]:
+                    if m == rid or roles.get(m, {}).get("kind") != "villager":
+                        problems.append(f"role {rid}: an alias's members are other villager roles ({m!r} is not)")
+                # Members in role order: the .cieg keeps them as a mask, and the draw takes them in that order.
+                r["of"] = [m for m in roles if m in r["of"]] + [m for m in r["of"] if m not in roles]
+            elif r["kind"] == "villager" and r.get("special") and \
+                    any(gn not in SPECIAL_GAMES[r["special"]] for gn in g["games"]):
+                problems.append(f"role {rid}: {r['special']} is only in "
+                                + ", ".join(GAMES[x].name for x in SPECIAL_GAMES[r["special"]]))
+    else:
+        if roles and next(iter(roles)) != "subject":
+            problems.append("the first role is subject")
+    if "subject" in roles and (roles["subject"]["kind"] != "villager" or roles["subject"].get("optional")):
         problems.append("subject is a villager the event needs (not optional)")
     if len(roles) > 16:
         problems.append("at most 16 roles")
@@ -711,7 +949,9 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"}
+                 "outcome", "name"} | ({"src", "text_only_reason"} if v6 else set())
+    canon = _canon_text if v6 else (lambda s: s)
+    default_role = default_role_of(roles) if v6 else "subject"
     for nid, n in nodes_in.items():
         where = f"node {nid}"
         if not ID_RE.match(nid):
@@ -734,13 +974,18 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
         if not isinstance(text, str):
             problems.append(f"{where}: text is a string")
             text = ""
+        text = canon(text)
         variants = []
+        vkeys = {"if", "text"} | ({"src"} if v6 else set())
         for i, v in enumerate(n.get("variants", []) or []):
-            if not isinstance(v, dict) or not isinstance(v.get("text"), str) or "if" not in v or set(v) - {"if", "text"}:
+            if not isinstance(v, dict) or not isinstance(v.get("text"), str) or "if" not in v or set(v) - vkeys:
                 problems.append(f"{where}: variant {i + 1} is {{\"if\": condition, \"text\": \"...\"}}")
                 continue
-            variants.append({"if": _norm_cond(v["if"], f"{where} variant {i + 1}", problems), "text": v["text"]})
-        effects = [x for x in (_norm_effect(e, f"{where} effect {i + 1}", problems, version)
+            variants.append({"if": _norm_cond(v["if"], f"{where} variant {i + 1}", problems, version),
+                             "text": canon(v["text"])})
+            if v6 and "src" in v:
+                variants[-1]["src"] = v["src"]
+        effects = [x for x in (_norm_effect(e, f"{where} effect {i + 1}", problems, version, g["games"], default_role)
                                for i, e in enumerate(n.get("effects", []) or [])) if x is not None]
         children = []
         for i, c in enumerate(n.get("children", []) or []):
@@ -757,15 +1002,26 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                 els = None
             if els is not None and "if" not in c:
                 problems.append(f"{cw}: an else needs an if")
-            children.append({"next": c["next"], "weight": w, "if": _norm_cond(c.get("if"), cw, problems),
+            children.append({"next": c["next"], "weight": w, "if": _norm_cond(c.get("if"), cw, problems, version),
                              "else": els})
         choices = []
+        ckeys = {"label", "next"} | ({"if", "src"} if v6 else set())
         for i, c in enumerate(n.get("choices", []) or []):
             if not isinstance(c, dict) or not isinstance(c.get("label"), str) or not isinstance(c.get("next"), str) \
-                    or set(c) - {"label", "next"}:
-                problems.append(f"{where} choice {i + 1}: a choice is {{\"label\": \"...\", \"next\": id}}")
+                    or set(c) - ckeys:
+                problems.append(f"{where} choice {i + 1}: a choice is {{\"label\": \"...\", \"next\": id}}"
+                                + (" (and \"if\")" if v6 else ""))
                 continue
             choices.append({"label": c["label"], "next": c["next"]})
+            if v6:
+                # Version 6: a choice shown only when its (static) condition holds.
+                cif = _norm_cond(c.get("if"), f"{where} choice {i + 1}", problems, version)
+                if cif is not None and _cond_ops(cif) - set(STATIC_CONDS):
+                    problems.append(f"{where} choice {i + 1}: a choice's if uses only game, patch, role and "
+                                    "special_present (with not, all, any)")
+                choices[-1]["if"] = cif
+                if "src" in c:
+                    choices[-1]["src"] = c["src"]
         els = n.get("else")
         if els is not None and not isinstance(els, str):
             problems.append(f"{where}: else names a node")
@@ -779,11 +1035,14 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
             problems.append(f"{where}: summary and outcome are plain ASCII words")
             summary, outcome = "", ""
         if t == "question":
-            if version >= VERSION_ANSWERS and not MIN_ANSWERS <= len(choices) <= MAX_ANSWERS:
-                problems.append(f"{where}: a question has {MIN_ANSWERS} to {MAX_ANSWERS} answers")
+            top = MAX_ANSWERS if v6 else MAX_ANSWERS_V4
+            if version >= VERSION_ANSWERS and not MIN_ANSWERS <= len(choices) <= top:
+                problems.append(f"{where}: a question has {MIN_ANSWERS} to {top} answers"
+                                + ("" if v6 or len(choices) < MIN_ANSWERS or len(choices) > MAX_ANSWERS
+                                   else f" (five to seven need format version {VERSION_V6})"))
             elif version < VERSION_ANSWERS and len(choices) != 2:
                 problems.append(f"{where}: a question has exactly two choices" + (
-                    " (three or four answers need format version 4)" if 2 < len(choices) <= MAX_ANSWERS else ""))
+                    " (three or four answers need format version 4)" if 2 < len(choices) <= MAX_ANSWERS_V4 else ""))
             if children or els is not None or popup != "new":
                 problems.append(f"{where}: a question has choices only (no children, else or append)")
             if version >= 2 and n.get("effects"):
@@ -800,8 +1059,268 @@ def normalize(data: Any) -> tuple[dict, list[str]]:
                       "else": els, "summary": summary, "outcome": outcome}
         if name:
             nodes[nid]["name"] = name   # only when given: a graph without names normalizes as before
+        if v6:
+            for k in ("src", "text_only_reason"):
+                if k in n:
+                    if not isinstance(n[k], str):
+                        problems.append(f"{where}: {k} is a string")
+                    nodes[nid][k] = n[k]
     g["nodes"] = nodes
+    if v6:
+        _normalize_v6_extras(data, g, problems, shared_pools)
     return g, problems
+
+
+# ---- Version 6: roles, words, pools, the collection block, inline picks -------------------------------------------
+
+
+def default_role_of(roles: dict) -> str:
+    """The role an unprefixed placeholder or effect names: "subject" when there is one, else the first role."""
+    return "subject" if "subject" in roles else next(iter(roles), "subject")
+
+
+def _cond_ops(c: Any) -> set[str]:
+    if c is None:
+        return set()
+    (op, arg), = c.items()
+    if op == "not":
+        return {op} | _cond_ops(arg)
+    if op in ("all", "any"):
+        out = {op}
+        for x in arg:
+            out |= _cond_ops(x)
+        return out
+    return {op}
+
+
+def _norm_role_v6(r: dict, where: str, problems: list[str], sex: str, min_age: Any) -> dict:
+    """A version 6 villager role: requirements (sex, ages, skill, special) and safety (protected, believers_only).
+    exclude_nursing / exclude_special normalise into protected (either false: "allow")."""
+    protected = r.get("protected")
+    if protected is None:
+        protected = "allow" if r.get("exclude_nursing", True) is False or r.get("exclude_special", True) is False \
+            else "auto"
+    elif "exclude_nursing" in r or "exclude_special" in r:
+        problems.append(f"{where}: give protected, not exclude_nursing or exclude_special")
+    if protected not in PROTECTED_MODES:
+        problems.append(f"{where}: protected is auto, exclude or allow")
+        protected = "auto"
+    max_age = r.get("max_age")
+    if max_age is not None and (not _int_in(max_age, 1, 80) or (_int_in(min_age, 0, 80) and max_age < min_age)):
+        problems.append(f"{where}: max_age is 1..80 years, at least min_age")
+    skill = r.get("skill")
+    if skill is not None:
+        names = skill.get("names") if isinstance(skill, dict) else None
+        smin = skill.get("min", 1) if isinstance(skill, dict) else None
+        pick = skill.get("pick", "random") if isinstance(skill, dict) else None
+        known_skills = {s for gm in GAMES.values() for s in gm.skills}
+        if not isinstance(skill, dict) or set(skill) - {"names", "min", "pick"} or not isinstance(names, list) \
+                or not names or any(n not in known_skills for n in names) or len(set(names)) != len(names) \
+                or not _int_in(smin, 0, 100) or pick not in PICK_CODES:
+            problems.append(f"{where}: skill is {{\"names\": [skills], \"min\": 0..100, \"pick\": random or "
+                            f"highest}} (skills: {', '.join(sorted(known_skills))})")
+            skill = None
+        else:
+            skill = {"names": list(names), "min": smin, "pick": pick}
+    special = r.get("special")
+    if special is not None and special not in SPECIAL_CODES:
+        problems.append(f"{where}: special is golden_child, tribal_chief or nursing_parent")
+        special = None
+    return {"kind": "villager", "optional": bool(r.get("optional", False)), "sex": sex, "min_age": min_age,
+            "max_age": max_age, "skill": skill, "special": special, "protected": protected,
+            "believers_only": bool(r.get("believers_only", True))}
+
+
+_INLINE_WEIGHT = re.compile(r"^(\d+):(.*)$", re.S)
+_TOKEN_V6 = re.compile(r"\\.|\([^()\n]*\)|\{[^{}\n]*\}")
+_POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
+
+
+def parse_inline(inner: str) -> list[tuple[int, str]] | None:
+    """'3:red|1:blue' -> [(3, 'red'), (1, 'blue')]; None when it is not an inline pick of two or more."""
+    if "|" not in inner:
+        return None
+    out = []
+    for alt in inner.split("|"):
+        m = _INLINE_WEIGHT.match(alt)
+        w, t = (int(m.group(1)), m.group(2)) if m else (1, alt)
+        out.append((w, t))
+    return out
+
+
+def inline_text(alts: list[tuple[int, str]]) -> str:
+    """The canonical inline pick: "{a|b}" with equal weights of 1, else every weight written."""
+    if all(w == 1 for w, _ in alts):
+        return "{" + "|".join(t for _, t in alts) + "}"
+    return "{" + "|".join(f"{w}:{t}" for w, t in alts) + "}"
+
+
+def _canon_text(text: str) -> str:
+    """Version 6 text with each inline pick in its canonical form (nothing else changes)."""
+    def one(m: re.Match) -> str:
+        raw = m.group(0)
+        if raw[0] != "{":
+            return raw
+        alts = parse_inline(raw[1:-1])
+        return raw if alts is None else inline_text(alts)
+    return _TOKEN_V6.sub(one, text) if isinstance(text, str) else text
+
+
+def text_tokens(text: str) -> list[tuple[str, str]]:
+    """Version 6 text as (kind, raw) pieces: "lit" (plain characters), "esc" (\\( or \\)), "ph" ((...)), "brace"
+    ({...}).  Stray markup characters stay inside "lit" pieces (the checks refuse them)."""
+    out: list[tuple[str, str]] = []
+    pos = 0
+    for m in _TOKEN_V6.finditer(text):
+        if m.start() > pos:
+            out.append(("lit", text[pos:m.start()]))
+        raw = m.group(0)
+        out.append(("esc" if raw[0] == "\\" else "ph" if raw[0] == "(" else "brace", raw))
+        pos = m.end()
+    if pos < len(text):
+        out.append(("lit", text[pos:]))
+    return out
+
+
+def parse_brace(inner: str) -> tuple:
+    """A brace token's inside: ("word", key) for @key, ("pool", name, instance) for NAME / NAME.k, ("inline",
+    [(w, text), ...]) for a|b; ("bad", why) otherwise."""
+    if inner.startswith("@"):
+        return ("word", inner[1:]) if ID_RE.match(inner[1:]) else ("bad", "a game word is {@word}")
+    alts = parse_inline(inner)
+    if alts is not None:
+        return ("inline", alts)
+    m = _POOL_TOKEN.match(inner)
+    if not m:
+        return ("bad", "a pool is {NAME} or {NAME.k}")
+    k = int(m.group(2) or 1)
+    if k > MAX_INSTANCE:
+        return ("bad", f"a pool's instance is 1..{MAX_INSTANCE}")
+    return ("pool", m.group(1), k)
+
+
+def _load_shared_pools(shared_pools: Any) -> tuple[dict, str | None]:
+    if isinstance(shared_pools, dict):
+        return shared_pools.get("pools", shared_pools), None
+    path = Path(shared_pools) if shared_pools is not None else SHARED_POOLS
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        return {}, f"include_pools: the shared pools cannot be read ({e})"
+    return data.get("pools", {}) if isinstance(data, dict) else {}, None
+
+
+def _norm_pool(name: str, p: Any, where: str, problems: list[str], version: int) -> dict:
+    if not isinstance(p, dict) or set(p) - {"items", "distinct", "src"} or not isinstance(p.get("items"), list) \
+            or not p["items"]:
+        problems.append(f"{where}: a pool is {{\"items\": [text or {{\"text\", \"weight\", \"if\"}}, ...], "
+                        "\"distinct\": bool}")
+        return {"items": [], "distinct": False}
+    items = []
+    for i, it in enumerate(p["items"]):
+        iw = f"{where} item {i + 1}"
+        if isinstance(it, str):
+            it = {"text": it}
+        if not isinstance(it, dict) or not isinstance(it.get("text"), str) or set(it) - {"text", "weight", "if", "src"}:
+            problems.append(f"{iw}: an item is text or {{\"text\": \"...\", \"weight\": n, \"if\": condition}}")
+            continue
+        w = it.get("weight", 1)
+        if not _int_in(w, 1, MAX_WEIGHT):
+            problems.append(f"{iw}: weight is a whole number 1..{MAX_WEIGHT}")
+        item = {"text": _canon_text(it["text"]), "weight": w, "if": _norm_cond(it.get("if"), iw, problems, version)}
+        if "src" in it:
+            item["src"] = it["src"]
+        items.append(item)
+    out = {"items": items, "distinct": bool(p.get("distinct", False))}
+    if "src" in p:
+        out["src"] = p["src"]
+    return out
+
+
+def _normalize_v6_extras(data: dict, g: dict, problems: list[str], shared_pools: Any) -> None:
+    """words, pools (and include_pools), collection and grammar_fixes of a version 6 graph, into `g`."""
+    version = g["version"]
+    words_in = data.get("words", {})
+    words: dict[str, dict[str, str]] = {}
+    if not isinstance(words_in, dict):
+        problems.append("words is {\"word\": {\"<game>\" or \"*\": \"text\"}}")
+        words_in = {}
+    for key, per in words_in.items():
+        where = f"word {key}"
+        if not ID_RE.match(str(key)) or not isinstance(per, dict) or not per \
+                or any(not isinstance(v, str) for v in per.values()):
+            problems.append(f"{where}: a game word is {{\"<game>\" or \"*\": \"text\"}}")
+            continue
+        out = {}
+        for gn in g["games"]:
+            text = per.get(str(gn), per.get("*"))
+            if text is None:
+                problems.append(f"{where}: no word for {GAMES[gn].name} (give it, or \"*\")")
+                continue
+            out[str(gn)] = text
+        for k in per:
+            if k != "*" and k not in {str(x) for x in g["games"]}:
+                problems.append(f"{where}: {k!r} is not one of the event's games")
+        words[key] = out
+    g["words"] = words
+
+    pools: dict[str, dict] = {}
+    pools_in = data.get("pools", {})
+    if not isinstance(pools_in, dict):
+        problems.append("pools is {\"NAME\": pool}")
+        pools_in = {}
+    for name, p in pools_in.items():
+        if not POOL_RE.match(str(name)):
+            problems.append(f"pool {name}: a pool name is 1..32 letters, digits or _, starting with a letter or digit")
+            continue
+        pools[name] = _norm_pool(name, p, f"pool {name}", problems, version)
+    include = data.get("include_pools", [])
+    if include:
+        if not isinstance(include, list) or any(not isinstance(x, str) for x in include):
+            problems.append("include_pools is a list of shared pool names")
+            include = []
+        shared, why = _load_shared_pools(shared_pools)
+        if why:
+            problems.append(why)
+        for name in include:
+            if name in pools:
+                problems.append(f"include_pools: {name} is also one of the event's own pools")
+            elif name not in shared:
+                problems.append(f"include_pools: {name} is not a shared pool")
+            elif not POOL_RE.match(name):
+                problems.append(f"include_pools: {name} is not a pool name")
+            else:
+                pools[name] = _norm_pool(name, shared[name], f"shared pool {name}", problems, version)
+    g["pools"] = pools
+
+    col = data.get("collection")
+    if col is not None:
+        keys = ("id", "source", "lines", "section", "credit", "draw_weight", "series")
+        if not isinstance(col, dict) or set(col) - set(keys):
+            problems.append("collection: its fields are " + ", ".join(keys))
+            col = {}
+        out = {"id": col.get("id"), "source": col.get("source", ""), "lines": col.get("lines"),
+               "section": col.get("section", ""), "credit": col.get("credit", ""),
+               "draw_weight": col.get("draw_weight", 1), "series": col.get("series")}
+        if not isinstance(out["id"], str) or not COLLECTION_ID_RE.match(out["id"]):
+            problems.append("collection: id is 1..64 of a-z, 0-9 and _")
+        lines = out["lines"]
+        if not (isinstance(lines, list) and len(lines) == 2 and all(_int_in(x, 1, 10 ** 7) for x in lines)
+                and lines[0] <= lines[1]):
+            problems.append("collection: lines is [first, last]")
+        for k in ("source", "section", "credit"):
+            if not isinstance(out[k], str):
+                problems.append(f"collection: {k} is text")
+        if not _int_in(out["draw_weight"], 1, MAX_WEIGHT):
+            problems.append(f"collection: draw_weight is 1..{MAX_WEIGHT}")
+        if out["series"] is not None and (not isinstance(out["series"], str)
+                                          or not COLLECTION_ID_RE.match(out["series"])):
+            problems.append("collection: series is null or 1..64 of a-z, 0-9 and _")
+        g["collection"] = out
+    if "grammar_fixes" in data:
+        if not isinstance(data["grammar_fixes"], list):
+            problems.append("grammar_fixes is a list")
+        g["grammar_fixes"] = data["grammar_fixes"]
 
 
 # ---- Placeholders --------------------------------------------------------------------------------------------------
@@ -874,6 +1393,311 @@ def worst_case(text: str, game: Game, award: tuple[str, int, bool] | None) -> st
             return "W" * game.name_room
         return max(PRONOUNS[p.what], key=len)
     return PLACEHOLDER_RE.sub(one, text)
+
+
+# ---- Version 6 text: placeholders, pools, game words, escapes (cie-v6-binary.md sections 5 and 6) -------------------
+
+
+def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
+    """A version 6 placeholder's inside: v5's, the four new pronouns, and the role shorthand (gardener1) /
+    (Gardener1) -- that role's name, the id matched ignoring capitals.  A keyword always wins."""
+    role, dot, word = token.rpartition(".")
+    if dot and not role:
+        return None
+    low = word.lower()
+    if not word:
+        return None
+    if low in ("award", "award_unit"):
+        return None if role else Placeholder(None, low, False)
+    if low in _NAME_ALIASES:
+        target = _NAME_ALIASES[low]
+        return None if role or target not in roles else Placeholder(target, "name", word[0].isupper())
+    if low == "name" or low in PRONOUNS_V6:
+        if word[0].isupper() != (word.split("/")[0][0].isupper()):
+            return None
+        rid = role or default_role_of(roles)
+        return Placeholder(rid, low, word[0].isupper()) if rid in roles else None
+    if role:
+        return None
+    for rid in roles:
+        if rid.lower() == low:
+            return Placeholder(rid, "name", word[0].isupper())
+    return None
+
+
+def _role_of_ph(p: Placeholder, roles: dict) -> dict | None:
+    return roles.get(p.role) if p.role else None
+
+
+def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
+              award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
+              aliases: dict[str, str] | None = None, _depth: int = 0) -> str:
+    """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
+    the item drawn; `aliases` maps an alias role to the member drawn.  The glyph fallback is applied last."""
+    picks = picks or {}
+    aliases = aliases or {}
+    out = []
+    for kind, raw in text_tokens(text):
+        if kind == "lit":
+            out.append(raw)
+        elif kind == "esc":
+            out.append(raw[1])
+        elif kind == "ph":
+            p = parse_placeholder_v6(raw[1:-1], g["roles"])
+            if p is None:
+                raise KeyError(f"not a placeholder: {raw}")
+            if p.what == "award":
+                out.append(str(award[1]) if award else "")
+                continue
+            if p.what == "award_unit":
+                out.append(UNITS[award[0]] if award else "")
+                continue
+            b = bindings[aliases.get(p.role, p.role)]
+            word = b.name if p.what == "name" else PRONOUNS_V6[p.what][0 if b.sex == "m" else 1]
+            out.append(word[0].upper() + word[1:] if p.capital and word else word)
+        else:
+            tok = parse_brace(raw[1:-1])
+            name, k = ("@" + tok[1], 1) if tok[0] == "word" else (tok[1], tok[2])
+            idx = picks.get((name, k))
+            if idx is None or _depth >= MAX_POOL_DEPTH:
+                continue
+            out.append(expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
+                                 aliases, _depth + 1))
+    text = "".join(out)
+    return text if _depth or game is None else glyph_fallback(text, game, unicode)
+
+
+def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0) -> str:
+    """Version 6 text at its widest in `game` (`g` lowered): the longest names, the longer pronouns, the widest
+    award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
+    the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
+    out = []
+    for kind, raw in text_tokens(text):
+        if kind == "lit":
+            out.append(raw)
+        elif kind == "esc":
+            out.append(raw[1])
+        elif kind == "ph":
+            p = parse_placeholder_v6(raw[1:-1], g["roles"])
+            if p is None:
+                out.append(raw)
+            elif p.what == "award":
+                if award is not None:
+                    widest = max(abs(x) for x in award[1]) if isinstance(award[1], tuple) else abs(award[1])
+                    out.append("9" * (AWARD_WIDEST if award[2] else len(str(widest))))
+            elif p.what == "award_unit":
+                out.append(UNITS[award[0]] if award else UNITS["tech"])
+            elif p.what == "name":
+                out.append("W" * game.name_room)
+            else:
+                out.append(max(PRONOUNS_V6[p.what], key=len))
+        else:
+            tok = parse_brace(raw[1:-1])
+            name = "@" + tok[1] if tok[0] == "word" else tok[1] if tok[0] == "pool" else None
+            pool = g["pools"].get(name) if name else None
+            if pool is None or _depth >= MAX_POOL_DEPTH:
+                continue
+            best = ""
+            for it in pool["items"]:
+                if holds is not None and not holds(it["if"]):
+                    continue
+                w = worst_v6(it["text"], g, game, award, holds, _depth + 1)
+                if len(w) > len(best):
+                    best = w
+            out.append(best)
+    text = "".join(out)
+    return text if _depth else glyph_fallback(text, game.number)
+
+
+def pool_refs(text: str) -> list[tuple[str, int]]:
+    """The (pool, instance) tokens of lowered version 6 text, in order (game words as ("@word", 1))."""
+    out = []
+    for kind, raw in text_tokens(text):
+        if kind == "brace":
+            tok = parse_brace(raw[1:-1])
+            if tok[0] == "word":
+                out.append(("@" + tok[1], 1))
+            elif tok[0] == "pool":
+                out.append((tok[1], tok[2]))
+    return out
+
+
+def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | None]]:
+    """The placeholders of version 6 text (escapes and braces skipped; those inside inline picks included)."""
+    out = []
+    for kind, raw in text_tokens(text):
+        if kind == "ph":
+            out.append((raw, parse_placeholder_v6(raw[1:-1], roles)))
+        elif kind == "brace":
+            tok = parse_brace(raw[1:-1])
+            if tok[0] == "inline":
+                for _w, alt in tok[1]:
+                    out.extend(placeholders_v6(alt, roles))
+    return out
+
+
+# ---- Version 6 lowering: what the .cieg holds (inline picks and game words as pools; the harm guards) -------------
+
+
+def _harmful(e: dict, games: Iterable[int]) -> bool:
+    """An effect that can harm its villager (cie-v6-binary.md section 7)."""
+    do = e["do"]
+    if do in ("kill", "vanish", "sick"):
+        return True
+    if do == "health":
+        return e["max"] < HEALTH_MAX
+    if do == "health_change":
+        return e["min"] < 0
+    if do == "preference":
+        return e["list"] == "dislikes"
+    if do == "skill":
+        return "set" not in e and e["min"] < 0
+    if do == "mood":
+        return e["mood"] == "bad"
+    if do == "action":
+        for gn in games:
+            a = actions(gn).get(e["action"])
+            if a is not None and (a["group"] == "MOOD" or a["unsafe"]):
+                return True
+    return False
+
+
+def effect_role(e: dict) -> str | None:
+    """The role an effect acts on, or None (food, tech, an award, damage, a celebration of everyone)."""
+    if e["do"] == "celebrate":
+        return None if e["who"] == "all" else e["who"]
+    return e.get("role") if e["do"] in VILLAGER_EFFECTS_V6 else None
+
+
+def harm_capable(g: dict) -> set[str]:
+    """Version 6: the roles a harmful effect can reach (an alias harmed makes each of its members harm-capable)."""
+    out: set[str] = set()
+    roles = g.get("roles", {})
+    for n in g.get("nodes", {}).values():
+        for e in n["effects"]:
+            r = effect_role(e)
+            if r is None or r not in roles or not _harmful(e, g["games"]):
+                continue
+            out.add(r)
+            if roles[r]["kind"] == "alias":
+                out.update(roles[r]["of"])
+    return out
+
+
+def protect_excluded(g: dict, rid: str, harm: set[str] | None = None) -> bool:
+    """Whether role `rid` keeps protected villagers out (flag 32)."""
+    r = g["roles"][rid]
+    if r["kind"] != "villager":
+        return False
+    if r["protected"] == "exclude":
+        return True
+    return r["protected"] == "auto" and rid in (harm if harm is not None else harm_capable(g))
+
+
+def _guard_for(g: dict, node: dict, harm: set[str]) -> Any:
+    """The harm guard of a child edge into `node`: harmable(r) for each protected-excluding role it harms."""
+    rs: list[str] = []
+    for e in node["effects"]:
+        r = effect_role(e)
+        if r is None or r not in g["roles"] or not _harmful(e, g["games"]):
+            continue
+        role = g["roles"][r]
+        guarded = any(protect_excluded(g, m, harm) for m in role["of"]) if role["kind"] == "alias" \
+            else protect_excluded(g, r, harm)
+        if guarded and r not in rs:
+            rs.append(r)
+    if not rs:
+        return None
+    return {"harmable": rs[0]} if len(rs) == 1 else {"all": [{"harmable": r} for r in rs]}
+
+
+def lower(g: dict) -> dict:
+    """A normalized version 6 graph as the .cieg holds it: each inline pick its own pool _iN (the text says
+    {_iN}), each game word the pool @word (one item per text, its condition the games using it), every pool's
+    items as {"text", "weight", "if"}, and each child's harm guard ("guard")."""
+    out = without_names(g)
+    pools: dict[str, dict] = {}
+    for name, p in out.get("pools", {}).items():
+        pools[name] = {"items": [{"text": it["text"], "weight": it["weight"], "if": it["if"]} for it in p["items"]],
+                       "distinct": p["distinct"]}
+    for word, per in out.get("words", {}).items():
+        texts: dict[str, list[int]] = {}
+        for gn, text in per.items():
+            texts.setdefault(text, []).append(int(gn))
+        pools["@" + word] = {"items": [{"text": t, "weight": 1, "if": {"game": sorted(gs)}}
+                                       for t, gs in texts.items()], "distinct": False}
+    inline: dict[str, dict] = {}
+
+    def sub(text: str) -> str:
+        def one(m: re.Match) -> str:
+            raw = m.group(0)
+            if raw[0] != "{":
+                return raw
+            alts = parse_inline(raw[1:-1])
+            if alts is None:
+                return raw
+            name = f"_i{len(inline) + 1}"
+            inline[name] = {"items": [{"text": t, "weight": w, "if": None} for w, t in alts], "distinct": False}
+            return "{" + name + "}"
+        return _TOKEN_V6.sub(one, text)
+
+    for n in out["nodes"].values():
+        n["text"] = sub(n["text"])
+        for v in n["variants"]:
+            v["text"] = sub(v["text"])
+    for name in list(pools):
+        if not name.startswith("@"):
+            for it in pools[name]["items"]:
+                it["text"] = sub(it["text"])
+    pools.update(inline)
+    out["pools"] = pools
+    harm = harm_capable(g)
+    for n in out["nodes"].values():
+        for c in n["children"]:
+            c["guard"] = _guard_for(g, out["nodes"][c["next"]], harm) if c["next"] in out["nodes"] else None
+    out["harm"] = sorted(harm)
+    return out
+
+
+def lift(lg: dict) -> dict:
+    """lower()'s inverse: the normalized graph (without its authoring keys) of a lowered one."""
+    out = copy.deepcopy(lg)
+    out.pop("harm", None)
+    pools = out.pop("pools", {})
+    words: dict[str, dict[str, str]] = {}
+    named: dict[str, dict] = {}
+    for name, p in pools.items():
+        if name.startswith("@"):
+            per: dict[str, str] = {}
+            for it in p["items"]:
+                for gn in it["if"]["game"]:
+                    per[str(gn)] = it["text"]
+            words[name[1:]] = {k: per[k] for k in sorted(per, key=int)}
+        elif not name.startswith("_"):
+            named[name] = p
+
+    def sub(text: str) -> str:
+        def one(m: re.Match) -> str:
+            raw = m.group(0)
+            if raw[0] == "{" and raw[1:3] == "_i" and raw[1:-1] in pools:
+                return inline_text([(it["weight"], it["text"]) for it in pools[raw[1:-1]]["items"]])
+            return raw
+        return _TOKEN_V6.sub(one, text)
+
+    for n in out["nodes"].values():
+        n["text"] = sub(n["text"])
+        for v in n["variants"]:
+            v["text"] = sub(v["text"])
+        for c in n["children"]:
+            c.pop("guard", None)
+    for p in named.values():
+        for it in p["items"]:
+            it["text"] = sub(it["text"])
+    out["words"] = words
+    out["pools"] = named
+    if "collection" in out:
+        out["collection"] = out.pop("collection")       # after words and pools, as normalize orders it
+    return out
 
 
 # ---- Line layout (story_custom.inc ce_wrap) and pages ------------------------------------------------------------
@@ -966,12 +1790,20 @@ class Context:
     game: int
     patches: frozenset[str]
     roles: frozenset[str]      # the roles bound in this run
+    facts: frozenset[str] = frozenset()      # version 6: "harmable:<role>", "special_present:<kind>",
+                                             # "min_population:<n>", "min_children:<n>" that hold
+    aliases: frozenset[tuple[str, str]] = frozenset()   # version 6: (alias, member drawn)
 
 
 def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if c is None:
         return True
     (op, arg), = c.items()
+    if op == "harmable":
+        member = dict(ctx.aliases).get(arg, arg)
+        return member in ctx.roles and f"harmable:{member}" in ctx.facts
+    if op in ("special_present", "min_population", "min_children"):
+        return f"{op}:{arg}" in ctx.facts
     if op == "visited":
         return arg in visited
     if op == "role":
@@ -990,15 +1822,81 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
 def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
     """Every game x every patch on or off x every optional role bound or not."""
     optional = [r for r, v in g["roles"].items() if v.get("optional")]
-    always = frozenset(r for r in g["roles"] if r not in optional)
+    always = frozenset(r for r in g["roles"] if r not in optional and g["roles"][r]["kind"] != "alias")
+    v6 = g.get("version", 1) >= VERSION_V6
     out = []
     for game in (games if games is not None else g["games"]):
         for pbits in product((False, True), repeat=len(g["patches"])):
             pset = frozenset(p for p, on in zip(g["patches"], pbits) if on)
             for rbits in product((False, True), repeat=len(optional)):
                 rset = always | {r for r, on in zip(optional, rbits) if on}
-                out.append(Context(game, pset, frozenset(rset)))
+                if not v6:
+                    out.append(Context(game, pset, frozenset(rset)))
+                    continue
+                rset = rset | {a for a, v in g["roles"].items()
+                               if v["kind"] == "alias" and any(m in rset for m in v["of"])}
+                for facts in _fact_sets(g, rset):
+                    out.append(Context(game, pset, frozenset(rset), facts))
     return out
+
+
+def _all_conds(g: dict) -> Iterable[Any]:
+    for n in g["nodes"].values():
+        for v in n["variants"]:
+            yield v["if"]
+        for c in n["children"]:
+            yield c["if"]
+        for c in n["choices"]:
+            yield c.get("if")
+    for p in g.get("pools", {}).values():
+        for it in p["items"]:
+            yield it["if"]
+
+
+def _cond_leaves(c: Any, out: list) -> None:
+    if c is None:
+        return
+    (op, arg), = c.items()
+    if op == "not":
+        _cond_leaves(arg, out)
+    elif op in ("all", "any"):
+        for x in arg:
+            _cond_leaves(x, out)
+    else:
+        out.append((op, arg))
+
+
+def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
+    """Version 6: every combination of the run-time facts the graph's conditions ask about.  A role that keeps
+    protected villagers out is always harmable when bound (it is cast unprotected); other roles' harmable, and
+    each special present, may go either way; the population and children thresholds rise together."""
+    harm = harm_capable(g)
+    base = {f"harmable:{r}" for r in bound if g["roles"][r]["kind"] == "villager" and protect_excluded(g, r, harm)}
+    leaves: list = []
+    for c in _all_conds(g):
+        _cond_leaves(c, leaves)
+    free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
+                   and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
+                  | {f"special_present:{a}" for op, a in leaves if op == "special_present"})
+    pops = sorted({a for op, a in leaves if op == "min_population"})
+    kids = sorted({a for op, a in leaves if op == "min_children"})
+    out = []
+    for bits in product((False, True), repeat=len(free)):
+        on = {f for f, b in zip(free, bits) if b}
+        for i in range(len(pops) + 1):
+            for j in range(len(kids) + 1):
+                out.append(frozenset(base | on | {f"min_population:{n}" for n in pops[:i]}
+                                     | {f"min_children:{n}" for n in kids[:j]}))
+    return out
+
+
+def default_facts(g: dict, bound: Iterable[str]) -> frozenset[str]:
+    """The facts a chances table assumes: every bound villager harmable, every threshold met, no special present."""
+    leaves: list = []
+    for c in _all_conds(g):
+        _cond_leaves(c, leaves)
+    return frozenset({f"harmable:{r}" for r in bound if g["roles"].get(r, {}).get("kind") == "villager"}
+                     | {f"{op}:{a}" for op, a in leaves if op in ("min_population", "min_children")})
 
 
 @dataclass
@@ -1039,7 +1937,8 @@ def node_text(node: dict, ctx: Context, visited: Iterable[str]) -> str:
 def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> list[tuple[str, int]]:
     out = []
     for c in node["children"]:
-        if cond_holds(c["if"], ctx, visited):
+        # Version 6: a child's harm guard (lower()) must hold too.
+        if cond_holds(c["if"], ctx, visited) and cond_holds(c.get("guard"), ctx, visited):
             out.append((c["next"], c["weight"]))
         elif c["else"] is not None:
             out.append((c["else"], c["weight"]))
@@ -1050,11 +1949,15 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
 
 def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[History]:
     """Every history of the graph in `ctx`, with its chance (each question button counts as 1).  Problems on a
-    history (an unbound role, an award never deferred, a dead end, ...) are added to `problems`."""
-    nodes = g["nodes"]
+    history (an unbound role, an award never deferred, a dead end, ...) are added to `problems`.  Version 6: the
+    walk runs over the lowered graph (lower()); each alias's member is a chance split at the start."""
+    v6 = g.get("version", 1) >= VERSION_V6
+    lg = lower(g) if v6 else g
+    nodes = lg["nodes"]
     game = GAMES[ctx.game]
     found: list[History] = []
     seen: set[str] = set()
+    ctx0 = ctx
 
     def say(msg: str) -> None:
         if problems is not None and msg not in seen:
@@ -1095,6 +1998,27 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 if award is None or paid:
                     say(f"node {nid} ({where}): pay_award with no award deferred on the way here")
                 paid = True
+            if v6:
+                if "set" in e and not game.caps & CAP_SKILLS:
+                    say(f"node {nid}: skill is not offered in {game.name}'s Custom Island Event")
+                r = effect_role(e)
+                if r is not None:
+                    kind = g["roles"].get(r, {}).get("kind")
+                    member = dict(ctx.aliases).get(r, r)
+                    if kind not in ("villager", "alias"):
+                        say(f"node {nid}: {do} acts on {r!r}, which is not a villager role")
+                    elif r not in ctx.roles:
+                        say(f"node {nid} ({where}): {do} acts on {r}, who may not be bound here")
+                    elif member in gone:
+                        say(f"node {nid} ({where}): {do} acts on {r}, who is already gone")
+                    if do in GONE_EFFECTS:
+                        gone = gone | {member}
+                    if do == "status" and e.get("status") not in game.statuses:
+                        say(f"node {nid}: status {e.get('status')} is not in {game.name}")
+                    if do == "preference" and e.get("preference") not in game.preferences:
+                        say(f"node {nid}: {e.get('preference')!r} is not one of {game.name}'s preferences")
+                effects.append((nid, e))
+                continue
             if do in VILLAGER_EFFECTS:
                 r = e["role"]
                 if r not in g["roles"] or g["roles"][r]["kind"] != "villager":
@@ -1127,7 +2051,14 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                                                  if asked else "the changes before this question need a page"))
             if len(answers) >= MAX_QUESTIONS_PER_RUN:
                 say(f"the history {' > '.join(path)} asks more than {MAX_QUESTIONS_PER_RUN} questions")
-            popups.append(Popup("question", text, nodes=[nid], room=answer_room(len(node["choices"]))))
+            if v6:
+                shown = [i for i, c in enumerate(node["choices"]) if cond_holds(c.get("if"), ctx, path)]
+                if len(shown) < MIN_ANSWERS:
+                    say(f"node {nid} ({where}): only {len(shown)} of its answers are shown; at least {MIN_ANSWERS}")
+                room = answer_room(len(shown), game.question.lines)
+            else:
+                room = answer_room(len(node["choices"]))
+            popups.append(Popup("question", text, nodes=[nid], room=room))
         elif node["type"] == "popup":
             paged = True
             if node["popup"] == "append":
@@ -1142,7 +2073,10 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 # An answer's first page is shown in the question's own popup: the same room for its buttons.
                 popups.append(Popup("plain" if not popups else "result", text, nodes=[nid],
                                     room=popups[-1].room if popups and popups[-1].layout == "question" else 0))
-        if node["type"] != "branch":
+        if node["type"] != "branch" and v6:
+            _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
+                          [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
+        elif node["type"] != "branch":
             for raw, p in placeholders(text):
                 if p is None:
                     say(f"node {nid}: {raw} is not a placeholder (parentheses are only placeholders)")
@@ -1156,18 +2090,28 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
                 elif award is None:
                     say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
-        if any(e["do"] in VILLAGER_EFFECTS for e in node["effects"]) and popups and node["type"] != "question":
+        villager_fx = VILLAGER_EFFECTS_V6 + ("celebrate",) if v6 else VILLAGER_EFFECTS
+        if any(e["do"] in villager_fx for e in node["effects"]) and popups and node["type"] != "question":
             popups[-1].effects = True
         if node["type"] != "branch" and popups:
-            popups[-1].worst = worst_case(popups[-1].text, game, award)
+            if v6:
+                popups[-1].worst = worst_v6(popups[-1].text, lg, game, award,
+                                            lambda c, _p=path: cond_holds(c, ctx, _p))
+            else:
+                popups[-1].worst = worst_case(popups[-1].text, game, award)
 
         if node["type"] == "question":
             for i, c in enumerate(node["choices"]):
+                if v6 and not cond_holds(c.get("if"), ctx, path):
+                    continue
                 if c["next"] in nodes:
                     visit(c["next"], i if choice is None else choice, path, chance, popups, award, paid, gone,
                           effects, answers + ((nid, i),), (True, False, False))
             return
-        kids = _resolved_children(node, ctx, path)
+        kctx = ctx
+        if v6 and gone:
+            kctx = replace(ctx, facts=ctx.facts - {f"harmable:{x}" for x in gone})
+        kids = _resolved_children(node, kctx, path)
         if not kids:
             if node["children"]:
                 say(f"node {nid} ({where}): no child applies on the history {' > '.join(path)}, and no else")
@@ -1185,9 +2129,56 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 visit(nxt, choice, path, chance * Fraction(w, total), popups, award, paid, gone, effects, answers,
                       (asked, paged, changed))
 
-    if g["start"] in nodes:
+    if g["start"] not in nodes:
+        return found
+    if not v6:
         visit(g["start"], None, (), Fraction(1), [], None, False, frozenset(), [])
+        return found
+    # Version 6: each alias is drawn at the start among its bound members, equally.
+    aliases = [(a, [m for m in r["of"] if m in ctx0.roles]) for a, r in g["roles"].items()
+               if r["kind"] == "alias"]
+    aliases = [(a, ms) for a, ms in aliases if ms]
+    combos = list(product(*[ms for _a, ms in aliases])) if aliases else [()]
+    for combo in combos:
+        ctx = replace(ctx0, aliases=frozenset((a, m) for (a, _ms), m in zip(aliases, combo)))
+        visit(g["start"], None, (), Fraction(1, len(combos)), [], None, False, frozenset(), [])
     return found
+
+
+def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, award, where: str, say,
+                  labels: list[str]) -> None:
+    """A version 6 node's text (and its shown labels) on one history: every placeholder's role bound, every pool
+    used with an item that can be drawn here, the award on the way."""
+    roles = lg["roles"]
+    texts = [text] + labels
+    done: set[str] = set()
+    k = 0
+    while k < len(texts):
+        t = texts[k]
+        k += 1
+        for raw, p in placeholders_v6(t, roles):
+            if p is None:
+                say(f"node {nid}: {raw} is not a placeholder (write \\( \\) for a parenthesis)")
+            elif p.role is not None:
+                role = roles.get(p.role)
+                if role is None:
+                    say(f"node {nid}: {raw} names no role")
+                elif p.what == "name" and role["kind"] == "stranger":
+                    say(f"node {nid}: {raw}: a stranger has no name")
+                elif p.role not in ctx.roles:
+                    say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
+            elif award is None:
+                say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
+        for name, _inst in pool_refs(t):
+            pool = lg["pools"].get(name)
+            if pool is None or name in done:
+                continue
+            done.add(name)
+            items = [it for it in pool["items"] if cond_holds(it["if"], ctx, path)]
+            if not items:
+                say(f"node {nid} ({where}): " + (f"no word {name[1:]} for this game" if name.startswith("@")
+                                                 else f"pool {name} has no item that can be drawn here"))
+            texts.extend(it["text"] for it in items)
 
 
 # ---- Validation ----------------------------------------------------------------------------------------------------
@@ -1205,7 +2196,7 @@ def _cond_refs(c: Any, out: list[tuple[str, str]]) -> None:
     if c is None:
         return
     (op, arg), = c.items()
-    if op in ("visited", "role", "patch"):
+    if op in ("visited", "role", "patch", "harmable"):
         out.append((op, arg))
     elif op == "not":
         _cond_refs(arg, out)
@@ -1214,7 +2205,144 @@ def _cond_refs(c: Any, out: list[tuple[str, str]]) -> None:
             _cond_refs(x, out)
 
 
-def _check_text(where: str, text: str, problems: list[str], version: int = 1) -> None:
+def _check_refs(g: dict, where: str, refs: list[tuple[str, str]], problems: list[str]) -> None:
+    for op, ref in refs:
+        if op == "visited" and ref not in g["nodes"]:
+            problems.append(f"{where}: visited {ref!r} names no node")
+        if op in ("role", "harmable") and ref not in g["roles"]:
+            problems.append(f"{where}: {op} {ref!r} names no role")
+        if op == "patch" and ref not in g["patches"]:
+            problems.append(f"{where}: patch {ref!r} is not in patches")
+
+
+def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: bool = False,
+                   uses: dict | None = None) -> None:
+    """Version 6 text: the character set, every placeholder, escape and brace token (cie-v6-binary.md 5).  `uses`
+    collects each pool's highest instance."""
+    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
+        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    bad: set[str] = set()
+    for kind, raw in text_tokens(text):
+        if kind == "lit":
+            bad |= {c for c in raw if not text_char_ok(c, VERSION_V6) or c in "(){}\\|@"}
+        elif kind == "esc":
+            if raw not in ("\\(", "\\)"):
+                problems.append(f"{where}: {raw} is not \\( or \\)")
+        elif kind == "ph":
+            if parse_placeholder_v6(raw[1:-1], g["roles"]) is None:
+                problems.append(f"{where}: {raw} is not a placeholder (write \\( \\) for a parenthesis)")
+        else:
+            tok = parse_brace(raw[1:-1])
+            if tok[0] == "bad":
+                problems.append(f"{where}: {raw}: {tok[1]}")
+            elif tok[0] == "word":
+                if tok[1] not in g.get("words", {}):
+                    problems.append(f"{where}: {raw} names no game word")
+            elif label:
+                problems.append(f"{where}: a label shows game words only, not {raw}")
+            elif tok[0] == "pool":
+                if tok[1] not in g.get("pools", {}):
+                    problems.append(f"{where}: {raw} names no pool")
+                elif uses is not None:
+                    uses[tok[1]] = max(uses.get(tok[1], 0), tok[2])
+            else:
+                for w, alt in tok[1]:
+                    if not _int_in(w, 1, MAX_WEIGHT) or not alt.strip():
+                        problems.append(f"{where}: {raw}: each choice is text, weight 1..{MAX_WEIGHT}")
+                        break
+                for alt_kind, alt_raw in text_tokens("".join(a for _w, a in tok[1])):
+                    if alt_kind == "lit":
+                        bad |= {c for c in alt_raw if not text_char_ok(c, VERSION_V6) or c in "(){}\\|@\n"}
+                    elif alt_kind == "ph" and parse_placeholder_v6(alt_raw[1:-1], g["roles"]) is None:
+                        problems.append(f"{where}: {alt_raw} is not a placeholder")
+    if bad:
+        problems.append(f"{where}: characters the game cannot show: {' '.join(repr(c) for c in sorted(bad))} "
+                        "(letters, digits, space and . , ! ? : - ' \" ; / & % only; markup ( ) { } | @ \\ only "
+                        "as placeholders, pools, game words and \\( \\))")
+
+
+def _pool_depth(g: dict, name: str, stack: tuple = ()) -> int:
+    """How deep pool `name` nests (1 = its items hold no pool); MAX_POOL_DEPTH + 1 on a loop."""
+    if name in stack or len(stack) > MAX_POOL_DEPTH:
+        return MAX_POOL_DEPTH + 1
+    deepest = 0
+    for it in g["pools"][name]["items"]:
+        for kind, raw in text_tokens(it["text"]):
+            if kind == "brace":
+                tok = parse_brace(raw[1:-1])
+                if tok[0] == "pool" and tok[1] in g["pools"]:
+                    deepest = max(deepest, _pool_depth(g, tok[1], stack + (name,)))
+    return 1 + deepest
+
+
+def _validate_v6(g: dict, problems: list[str]) -> None:
+    """Version 6's own checks: pools, game words, roles' requirements and safety, the new effects' words."""
+    uses: dict[str, int] = {}
+    for nid, n in g["nodes"].items():
+        if n["type"] != "branch":
+            _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)
+            for v in n["variants"]:
+                _check_text_v6(f"node {nid}", v["text"], [], g, uses=uses)
+    for name, p in g["pools"].items():
+        refs: list[tuple[str, str]] = []
+        for i, it in enumerate(p["items"]):
+            _check_text_v6(f"pool {name} item {i + 1}", it["text"], problems, g, uses=uses)
+            if not it["text"].strip():
+                problems.append(f"pool {name} item {i + 1}: an item has text")
+            _cond_refs(it["if"], refs)
+        _check_refs(g, f"pool {name}", refs, problems)
+        if _pool_depth(g, name) > MAX_POOL_DEPTH:
+            problems.append(f"pool {name}: its items nest pools more than {MAX_POOL_DEPTH} deep, or name "
+                            "themselves")
+    for name, k in uses.items():
+        p = g["pools"].get(name)
+        if p is not None and p["distinct"] and k > len(p["items"]):
+            problems.append(f"pool {name}: {k} different items are used; it has {len(p['items'])}")
+    for word, per in g["words"].items():
+        for gn, text in per.items():
+            _check_text_v6(f"word {word}", text, problems, g)
+            for kind, raw in text_tokens(text):
+                if kind == "brace":
+                    problems.append(f"word {word}: a game word holds no pools or words")
+    refs = []
+    _cond_refs(g["requirement"].get("if"), refs)
+    _check_refs(g, "requirement", refs, problems)
+    lg = lower(g)
+    if len(lg["pools"]) > MAX_POOLS or sum(len(p["items"]) for p in lg["pools"].values()) > MAX_ITEMS:
+        problems.append(f"at most {MAX_POOLS} pools and {MAX_ITEMS} items (game words and inline picks included)")
+    harm = harm_capable(g)
+    collection = "collection" in g
+    for rid, r in g["roles"].items():
+        if r["kind"] != "villager":
+            continue
+        if rid in harm and r["protected"] == "allow" and collection:
+            problems.append(f"role {rid}: can be harmed, so protected villagers stay out (protected cannot be "
+                            "allow in a collection event)")
+        if rid in harm and r["special"] and collection:
+            problems.append(f"role {rid}: a {r['special']} role is never harmed")
+        if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
+            problems.append(f"role {rid}: none of its skills is in the event's games")
+    all_skills = {s for gm in GAMES.values() for s in gm.skills}
+    for nid, n in g["nodes"].items():
+        for i, e in enumerate(n["effects"]):
+            where = f"node {nid} effect {i + 1}"
+            if e["do"] == "celebrate" and e["who"] != "all" and \
+                    g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias"):
+                problems.append(f"{where}: celebrate's who is all or a villager role")
+            if e["do"] == "action" and isinstance(e["action"], str) and \
+                    not any(e["action"] in actions(gn) for gn in g["games"]):
+                problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
+            if e["do"] == "skill":
+                for s in e["skills"]:
+                    if s not in all_skills:
+                        problems.append(f"{where}: {s!r} is not a skill in any game")
+
+
+def _check_text(where: str, text: str, problems: list[str], version: int = 1, g: dict | None = None,
+                label: bool = False) -> None:
+    if version >= VERSION_V6 and g is not None:
+        _check_text_v6(where, text, problems, g, label)
+        return
     if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
         problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
     for raw, p in placeholders(text):
@@ -1254,11 +2382,12 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     return problems
 
 
-def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
+def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tuple[dict, list[str]]:
     """(the normalized graph, every problem).  No problems = the graph may be compiled and played."""
-    g, problems = normalize(data)
+    g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
         return g, problems
+    v6 = g["version"] >= VERSION_V6
     nodes = g["nodes"]
     if g["start"] not in nodes:
         problems.append(f"start {g['start']!r} names no node")
@@ -1271,17 +2400,15 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
             _cond_refs(v["if"], refs)
         for c in n["children"]:
             _cond_refs(c["if"], refs)
-        for op, ref in refs:
-            if op == "visited" and ref not in nodes:
-                problems.append(f"node {nid}: visited {ref!r} names no node")
-            if op == "role" and ref not in g["roles"]:
-                problems.append(f"node {nid}: role {ref!r} names no role")
-            if op == "patch" and ref not in g["patches"]:
-                problems.append(f"node {nid}: patch {ref!r} is not in patches")
+        for c in n["choices"] if v6 else ():
+            _cond_refs(c.get("if"), refs)
+        _check_refs(g, f"node {nid}", refs, problems)
         if n["type"] != "branch":
-            _check_text(f"node {nid}", n["text"], problems, g["version"])
+            _check_text(f"node {nid}", n["text"], problems, g["version"], g)
             for i, v in enumerate(n["variants"]):
-                _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"])
+                _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"], g)
+    if v6:
+        _validate_v6(g, problems)
     if problems:
         return g, problems
 
@@ -1306,6 +2433,7 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
         return g, problems
 
     # The title and the labels, in every game.
+    lg_labels = lower(g) if v6 else None
     title = g["title"]
     if len(title) > TITLE_BYTES:
         problems.append(f"the title is longer than {TITLE_BYTES} characters")
@@ -1319,6 +2447,15 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
             problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
         for nid, n in nodes.items():
             for c in n["choices"]:
+                if v6:
+                    label = worst_v6(c["label"], lg_labels, game, None)
+                    if len(label) > LABEL_BYTES_V6:
+                        problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with "
+                                        f"the longest names; at most {LABEL_BYTES_V6}")
+                    elif label_px(gn, label) > label_max_px(gn):
+                        problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the "
+                                        f"longest names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
+                    continue
                 label = worst_case(c["label"], game, None)
                 if len(label) > min(game.label_width, BUTTON_BYTES):
                     problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with the "
@@ -1328,10 +2465,11 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
                                     f"names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
     for nid, n in nodes.items():
         for c in n["choices"]:
-            _check_text(f"node {nid} label", c["label"], problems, g["version"])
+            _check_text(f"node {nid} label", c["label"], problems, g["version"], g, label=True)
             if "\n" in c["label"]:
                 problems.append(f"node {nid}: a label is one line")
-            for raw, p in placeholders(c["label"]):
+            phs = placeholders_v6(c["label"], g["roles"]) if v6 else placeholders(c["label"])
+            for raw, p in phs:
                 if p is None or p.what in ("award", "award_unit") or (p.role and p.role not in g["roles"]):
                     problems.append(f"node {nid}: the label's {raw} is not a placeholder a label can show")
                 elif g["roles"][p.role].get("optional"):
@@ -1344,12 +2482,12 @@ def validate(data: Any, scrolling: bool = False) -> tuple[dict, list[str]]:
     return g, problems
 
 
-def load(path_or_data: Any, scrolling: bool = False) -> dict:
+def load(path_or_data: Any, scrolling: bool = False, shared_pools: Any = None) -> dict:
     """The normalized graph from a file (or parsed JSON); GraphError when it does not pass."""
     data = path_or_data
     if isinstance(path_or_data, (str, Path)):
         data = json.loads(Path(path_or_data).read_text(encoding="utf-8"))
-    g, problems = validate(data, scrolling)
+    g, problems = validate(data, scrolling, shared_pools)
     if problems:
         raise GraphError(problems)
     return g
@@ -1369,8 +2507,350 @@ assert _HEADER.size == 80 and _ROLE.size == 8 and _NODE.size == 28 and _CHILD.si
 assert _EFFECT.size == 16 and _COND.size == 8 and _VARIANT.size == 4
 
 
+_HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH I")
+_ROLE6 = struct.Struct("<BBBBHBB BBHBBH")
+_POOL = struct.Struct("<HHHBB")
+_ITEM = struct.Struct("<HHHH")
+assert _HEADER6.size == HEADER_BYTES_V6 and _ROLE6.size == 16 and _POOL.size == 8 and _ITEM.size == 8
+ROLE_FLAG_SAID_EXCLUDE = 64   # the author wrote protected "exclude" (decompiling only; the engine reads 32)
+ROLE_FLAG_SAID_ALLOW = 128    # the author wrote protected "allow"
+
+
+def _compile_v6(g: dict) -> bytes:
+    """A version 6 graph's .cieg (docs/event-collection/cie-v6-binary.md)."""
+    lg = lower(g)
+    harm = set(lg["harm"])
+    strings: list[str] = []
+    sidx: dict[str, int] = {}
+
+    def s(text: str | None) -> int:
+        if text is None or text == "":
+            return NONE
+        if text not in sidx:
+            text.encode("ascii")
+            sidx[text] = len(strings)
+            strings.append(text)
+        return sidx[text]
+
+    role_ids = list(lg["roles"])
+    node_ids = list(lg["nodes"])
+    nidx = {n: i for i, n in enumerate(node_ids)}
+    ridx = {r: i for i, r in enumerate(role_ids)}
+    pidx = {p: i for i, p in enumerate(lg["patches"])}
+    conds: list[bytes | None] = []
+
+    def cond(c: Any) -> int:
+        if c is None:
+            return NONE
+        at = len(conds)
+        conds.append(None)
+        _fill(at, c)
+        return at
+
+    def _fill(at: int, c: Any) -> None:
+        (op, arg), = c.items()
+        code = COND_CODES[op]
+        if op == "visited":
+            conds[at] = _COND.pack(code, 0, nidx[arg], 0, 0)
+        elif op in ("role", "harmable"):
+            conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
+        elif op == "game":
+            conds[at] = _COND.pack(code, 0, sum(1 << (x - 1) for x in arg), 0, 0)
+        elif op == "patch":
+            conds[at] = _COND.pack(code, 0, pidx[arg], 0, 0)
+        elif op == "special_present":
+            conds[at] = _COND.pack(code, 0, PRESENT_CODES[arg], 0, 0)
+        elif op in ("min_population", "min_children"):
+            conds[at] = _COND.pack(code, 0, arg, 0, 0)
+        elif op == "not":
+            conds[at] = _COND.pack(code, 1, cond(arg), 0, 0)
+        else:
+            first = len(conds)
+            conds.extend([None] * len(arg))
+            conds[at] = _COND.pack(code, len(arg), first, 0, 0)
+            for k, x in enumerate(arg):
+                _fill(first + k, x)
+
+    roles = b""
+    for r in role_ids:
+        v = lg["roles"][r]
+        if v["kind"] == "stranger":
+            roles += _ROLE6.pack(1, 0, SEX_CODES[v["sex"]], 0, s(r), 0, 0, 0, 0, NONE, 0, 0, 0)
+        elif v["kind"] == "alias":
+            mask = sum(1 << ridx[m] for m in v["of"])
+            roles += _ROLE6.pack(2, ROLE_FLAG_HARM if r in harm else 0, 0, 0, s(r), 0, 0, 0, 0, NONE, 0, 0, mask)
+        else:
+            protect = protect_excluded(g, r, harm)
+            flags = (1 if v["optional"] else 0) | (6 if protect else 0) | (8 if v["believers_only"] else 0) \
+                | (ROLE_FLAG_HARM if r in harm else 0) | (ROLE_FLAG_PROTECT if protect else 0) \
+                | {"auto": 0, "exclude": ROLE_FLAG_SAID_EXCLUDE, "allow": ROLE_FLAG_SAID_ALLOW}[v["protected"]]
+            gap = v.get("max_age_gap")
+            sk = v["skill"]
+            roles += _ROLE6.pack(0, flags, SEX_CODES[v["sex"]], v["min_age"], s(r),
+                                 ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
+                                 v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
+                                 s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
+                                 PICK_CODES[sk["pick"]] if sk else 0, 0)
+    nodes = children = effects = variants = b""
+    n_child = n_effect = n_variant = 0
+    for nid in node_ids:
+        n = lg["nodes"][nid]
+        v_first, c_first, e_first = n_variant, n_child, n_effect
+        for v in n["variants"]:
+            variants += _VARIANT.pack(cond(v["if"]), s(v["text"]))
+            n_variant += 1
+        for c in n["choices"]:
+            children += _CHILD.pack(nidx[c["next"]], 1, cond(c.get("if")), NONE, s(c["label"]), NONE)
+            n_child += 1
+        for c in n["children"]:
+            children += _CHILD.pack(nidx[c["next"]], c["weight"], cond(c["if"]),
+                                    nidx[c["else"]] if c["else"] else NONE, NONE, cond(c.get("guard")))
+            n_child += 1
+        for e in n["effects"]:
+            do = e["do"]
+            code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
+            r = effect_role(e)
+            role = ridx[r] if r is not None else 0xFF
+            flags, a, b, st = 0, 0, 0, NONE
+            if do in ("food", "tech"):
+                flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
+                b = e.get("max") or 0
+                if e.get("per_game"):
+                    st = s(per_game_text(e["per_game"]))
+            elif do == "kill":
+                st = s(e["cause"])
+            elif do == "status":
+                a = STATUS_CODES[e["status"]]
+            elif do in ("health", "health_change", "damage"):
+                a, b = e["min"], e["max"]
+                if do == "damage":
+                    st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
+            elif do == "preference":
+                flags, st = (4 if e["list"] == "dislikes" else 0), s(e["preference"])
+            elif do == "skill" and "set" in e:
+                a, st = e["set"], s(",".join(e["skills"]))
+            elif do == "skill":
+                a, b, st = e["min"], e["max"], s(",".join(e["skills"]))
+            elif do == "action":
+                st = s(e["action"])
+            elif do == "mood":
+                a = 1 if e["mood"] == "good" else -1
+            effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
+            n_effect += 1
+        nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
+                            1 if n["join"] == "paragraph" else 0, 0, s(nid), s(n["text"]),
+                            v_first if n["variants"] else NONE, len(n["variants"]),
+                            c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
+                            e_first if n["effects"] else NONE, len(n["effects"]), s(n["summary"]),
+                            s(n["outcome"]), 0)
+    patches = b"".join(_PATCH.pack(s(p)) for p in lg["patches"])
+    pools = items = b""
+    n_item = 0
+    for name, p in lg["pools"].items():
+        pools += _POOL.pack(s(name), n_item, len(p["items"]), 1 if p["distinct"] else 0, 0)
+        for it in p["items"]:
+            items += _ITEM.pack(s(it["text"]), it["weight"], cond(it["if"]), 0)
+            n_item += 1
+    title = s(lg["title"])
+    req_puzzles = [(int(gn), name) for gn, names in lg["requirement"].get("puzzles", {}).items() for name in names]
+    req_if = lg["requirement"].get("if")
+    requirement = NONE
+    if req_puzzles or req_if is not None:
+        requirement = len(conds)
+        count = len(req_puzzles) + (1 if req_if is not None else 0)
+        conds.append(_COND.pack(COND_CODES["all"], count, requirement + 1, 0, 0))
+        conds.extend([None] * count)
+        for k, (gn, name) in enumerate(req_puzzles):
+            conds[requirement + 1 + k] = _COND.pack(COND_PUZZLE, 0, s(name), gn, 0)
+        if req_if is not None:
+            _fill(requirement + 1 + len(req_puzzles), req_if)
+    col = NONE
+    if "collection" in lg:
+        col = s(json.dumps(lg["collection"], ensure_ascii=True, separators=(",", ":")))
+    blob = b""
+    offsets = []
+    for t in strings:
+        offsets.append(len(blob))
+        blob += t.encode("ascii") + b"\0"
+    for count in (len(role_ids), len(node_ids), n_child, n_effect, len(conds), n_variant, len(strings),
+                  len(lg["pools"]), n_item):
+        if count >= NONE:
+            raise GraphError(["the graph is too big for the .cieg format"])
+    sections = [roles, nodes, children, effects, b"".join(conds), variants, patches, pools, items,
+                b"".join(struct.pack("<I", o) for o in offsets) + blob]
+    at = _HEADER6.size
+    offs = []
+    for sec in sections:
+        offs.append(at)
+        at += len(sec)
+    head = _HEADER6.pack(BINARY_MAGIC, VERSION_V6, _HEADER6.size, at, 0,
+                         sum(1 << (x - 1) for x in lg["games"]), title, nidx[lg["start"]],
+                         lg["requirement"]["min_eligible"], len(role_ids), len(node_ids), n_child, n_effect,
+                         len(conds), n_variant, len(strings), len(lg["patches"]), requirement,
+                         offs[0], offs[1], offs[2], offs[3], offs[4], offs[5], offs[6], offs[9],
+                         offs[7], offs[8], len(lg["pools"]), n_item, 1, col, 0)
+    data = bytearray(head + b"".join(sections))
+    struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+    return bytes(data)
+
+
+def _decompile_v6(data: bytes) -> dict:
+    h = _HEADER6.unpack_from(data, 0)
+    (_magic, version, _hsize, _fsize, _crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect,
+     _n_cond, n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch,
+     o_string, o_pool, o_item, n_pool, _n_item, _flags, col, _z) = h
+    offs = [struct.unpack_from("<I", data, o_string + 4 * i)[0] for i in range(n_string)]
+    base = o_string + 4 * n_string
+
+    def s(i: int) -> str:
+        if i == NONE:
+            return ""
+        start_ = base + offs[i]
+        return data[start_:data.index(b"\0", start_)].decode("ascii")
+
+    roles_raw = [_ROLE6.unpack_from(data, o_role + i * _ROLE6.size) for i in range(n_role)]
+    role_ids = [s(r[4]) for r in roles_raw]
+    nodes_raw = [_NODE.unpack_from(data, o_node + i * _NODE.size) for i in range(n_node)]
+    node_ids = [s(n[4]) for n in nodes_raw]
+    patches = [s(_PATCH.unpack_from(data, o_patch + i * 2)[0]) for i in range(n_patch)]
+    sex_names = {v: k for k, v in SEX_CODES.items()}
+    code_cond = {v: k for k, v in COND_CODES.items()}
+    code_effect = {v: k for k, v in EFFECT_CODES.items()}
+    code_status = {v: k for k, v in STATUS_CODES.items()}
+    code_special = {v: k for k, v in SPECIAL_CODES.items()}
+    code_present = {v: k for k, v in PRESENT_CODES.items()}
+    code_pick = {v: k for k, v in PICK_CODES.items()}
+
+    def cond(i: int) -> Any:
+        if i == NONE:
+            return None
+        op, count, a, _b, _ = _COND.unpack_from(data, o_cond + i * _COND.size)
+        name = code_cond[op]
+        if name == "visited":
+            return {name: node_ids[a]}
+        if name in ("role", "harmable"):
+            return {name: role_ids[a]}
+        if name == "game":
+            return {name: [x for x in range(1, 6) if a & (1 << (x - 1))]}
+        if name == "patch":
+            return {name: patches[a]}
+        if name == "special_present":
+            return {name: code_present[a]}
+        if name in ("min_population", "min_children"):
+            return {name: a}
+        if name == "not":
+            return {name: cond(a)}
+        return {name: [cond(a + k) for k in range(count)]}
+
+    roles: dict[str, dict] = {}
+    for rid, raw in zip(role_ids, roles_raw):
+        kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
+        if kind == 1:
+            roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
+        elif kind == 2:
+            roles[rid] = {"kind": "alias", "of": [role_ids[k] for k in range(n_role) if mask & (1 << k)]}
+        else:
+            said = "exclude" if flags & ROLE_FLAG_SAID_EXCLUDE else "allow" if flags & ROLE_FLAG_SAID_ALLOW \
+                else "auto"
+            roles[rid] = {"kind": "villager", "optional": bool(flags & 1), "sex": sex_names[sex], "min_age": min_age,
+                          "max_age": max_age or None,
+                          "skill": {"names": s(skills).split(","), "min": smin, "pick": code_pick[pick]}
+                          if skills != NONE else None,
+                          "special": code_special.get(special), "protected": said,
+                          "believers_only": bool(flags & 8)}
+            if gap_role:
+                roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
+    nodes = {}
+    for nid, n in zip(node_ids, nodes_raw):
+        (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
+         outcome, _z4) = n
+        typ = NODE_TYPES[t]
+        variants = []
+        for k in range(v_count):
+            vc, vt = _VARIANT.unpack_from(data, o_variant + (v_first + k) * _VARIANT.size)
+            variants.append({"if": cond(vc), "text": s(vt)})
+        kids, choices = [], []
+        for k in range(c_count):
+            nxt, w, cc, ce, label, _guard = _CHILD.unpack_from(data, o_child + (c_first + k) * _CHILD.size)
+            if typ == "question":
+                choices.append({"label": s(label), "next": node_ids[nxt], "if": cond(cc)})
+            else:
+                kids.append({"next": node_ids[nxt], "weight": w, "if": cond(cc),
+                             "else": node_ids[ce] if ce != NONE else None})
+        effects = []
+        for k in range(e_count):
+            code, role, flags, _q, a, b, st, _ = _EFFECT.unpack_from(data, o_effect + (e_first + k) * _EFFECT.size)
+            do = code_effect[code]
+            e: dict[str, Any] = {"do": "skill" if do == "skill_set" else do}
+            if do in ("food", "tech"):
+                e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
+                if b:
+                    e["max"] = b
+                if st != NONE:
+                    e["per_game"] = per_game_parse(s(st))
+            elif do == "celebrate":
+                e["who"] = "all" if role == 0xFF else role_ids[role]
+            elif do == "damage":
+                words = s(st)
+                e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do != "pay_award":
+                e["role"] = role_ids[role]
+                if do == "kill":
+                    e["cause"] = s(st)
+                elif do == "status":
+                    e["status"] = code_status[a]
+                elif do in ("health", "health_change"):
+                    e.update(min=a, max=b)
+                elif do == "preference":
+                    e.update(list="dislikes" if flags & 4 else "likes", preference=s(st))
+                elif do == "skill":
+                    e.update(skills=s(st).split(","), min=a, max=b)
+                elif do == "skill_set":
+                    e.update(skills=s(st).split(","), set=a)
+                elif do == "action":
+                    e["action"] = s(st)
+                elif do == "mood":
+                    e["mood"] = "good" if a > 0 else "bad"
+            effects.append(e)
+        nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
+                      "text": s(text), "variants": variants, "effects": effects, "children": kids,
+                      "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
+                      "outcome": s(outcome)}
+    requirement: dict[str, Any] = {"min_eligible": min_el}
+    if req_cond != NONE:
+        _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
+        puzzles: dict[str, list[str]] = {}
+        req_if = None
+        for k in range(count):
+            op, _c, name, gn, _ = _COND.unpack_from(data, o_cond + (first + k) * _COND.size)
+            if op == COND_PUZZLE:
+                puzzles.setdefault(str(gn), []).append(s(name))
+            else:
+                req_if = cond(first + k)
+        if puzzles:
+            requirement["puzzles"] = {k: puzzles[k] for k in sorted(puzzles)}
+        if req_if is not None:
+            requirement["if"] = req_if
+    pools: dict[str, dict] = {}
+    for i in range(n_pool):
+        name, first, count, pflags, _ = _POOL.unpack_from(data, o_pool + i * _POOL.size)
+        its = []
+        for k in range(count):
+            it, w, c, _ = _ITEM.unpack_from(data, o_item + (first + k) * _ITEM.size)
+            its.append({"text": s(it), "weight": w, "if": cond(c)})
+        pools[s(name)] = {"items": its, "distinct": bool(pflags & 1)}
+    lg = {"format": FORMAT, "version": version, "title": s(title),
+          "games": [x for x in range(1, 6) if games_mask & (1 << (x - 1))], "patches": patches,
+          "requirement": requirement, "roles": roles, "start": node_ids[start], "nodes": nodes, "pools": pools}
+    if col != NONE:
+        lg["collection"] = json.loads(s(col))
+    return lift(lg)
+
+
 def compile_graph(g: dict) -> bytes:
     """The .cieg of a normalized, validated graph (load())."""
+    if g.get("version", 1) >= VERSION_V6:
+        return _compile_v6(g)
     strings: list[str] = []
     sidx: dict[str, int] = {}
 
@@ -1509,8 +2989,16 @@ def compile_graph(g: dict) -> bytes:
 def without_names(g: dict) -> dict:
     """`g` without its parts' names: what a .cieg holds of it (the names are the editor's, never compiled)."""
     out = copy.deepcopy(g)
+    out.pop("grammar_fixes", None)
     for n in out.get("nodes", {}).values():
-        n.pop("name", None)
+        for k in AUTHORING_KEYS:
+            n.pop(k, None)
+        for x in n.get("variants", []) + n.get("choices", []) + n.get("effects", []):
+            x.pop("src", None)
+    for p in out.get("pools", {}).values():
+        p.pop("src", None)
+        for it in p["items"]:
+            it.pop("src", None)
     return out
 
 
@@ -1523,12 +3011,15 @@ def decompile_graph(data: bytes) -> dict:
     (magic, version, hsize, fsize, crc, games_mask, title, start, min_el, n_role, n_node, n_child, n_effect, n_cond,
      n_variant, n_string, n_patch, req_cond, o_role, o_node, o_child, o_effect, o_cond, o_variant, o_patch, o_string,
      _z2) = h
-    if magic != BINARY_MAGIC or version not in VERSIONS or hsize != _HEADER.size or fsize != len(data):
-        raise GraphError(["not a version 1, 2, 3 or 4 .cieg file"])
+    want = HEADER_BYTES_V6 if version >= VERSION_V6 else _HEADER.size
+    if magic != BINARY_MAGIC or version not in VERSIONS or hsize != want or fsize != len(data) or len(data) < want:
+        raise GraphError(["not a version 1 to 6 .cieg file"])
     check = bytearray(data)
     struct.pack_into("<I", check, 12, 0)
     if zlib.crc32(bytes(check)) != crc:
         raise GraphError(["the .cieg file is damaged (checksum)"])
+    if version >= VERSION_V6:
+        return _decompile_v6(data)
     offs = [struct.unpack_from("<I", data, o_string + 4 * i)[0] for i in range(n_string)]
     base = o_string + 4 * n_string
 
@@ -1633,6 +3124,174 @@ def decompile_graph(data: bytes) -> dict:
             "requirement": requirement, "roles": roles, "start": node_ids[start], "nodes": nodes}
 
 
+# ---- Version 6: the engine's walk, roll for roll (cie-v6-binary.md section 6) --------------------------------------
+
+
+def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
+             patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False) -> dict:
+    """One run of a version 6 graph as the companion makes it, given the random stream `rolls` (each roll taken
+    `% n`; none is taken for n <= 1, as ce_random_below), the villagers bound (`bindings`: role -> Binding; a
+    villager role not listed is unbound; a stranger's Binding gives its sex) and the answer clicked at each
+    question (its choice index).  The facts (default_facts) are taken to stay as they are for the whole run.
+
+    Returns {"nodes", "fx" ([a, b] per effect made, as cg_roll_effect), "picks" ([pool, instance, item] in draw
+    order; item None when nothing could be drawn), "aliases" ({alias: member}), "popups" (each popup's text as the
+    player reads it, before paging), "rolls_used"}.  Scaling ("Island Events Scale ...") is not applied."""
+    lg = lower(g)
+    gm = GAMES[game]
+    stream = list(rolls)
+    used = [0]
+
+    def below(n: int) -> int:
+        if n <= 1:
+            return 0
+        if used[0] >= len(stream):
+            raise IndexError("the random stream ran out")
+        v = stream[used[0]]
+        used[0] += 1
+        return v % n
+
+    def roll_index(weights: list[int], roll: int) -> int:
+        for i, w in enumerate(weights[:-1]):
+            if roll < w:
+                return i
+            roll -= w
+        return len(weights) - 1
+
+    roles = lg["roles"]
+    bound = {r for r, v in roles.items() if v["kind"] == "stranger" or (v["kind"] == "villager" and r in bindings)}
+    aliases: dict[str, str] = {}
+    for a, v in roles.items():
+        if v["kind"] == "alias":
+            ms = [m for m in v["of"] if m in bound]
+            if ms:
+                aliases[a] = ms[below(len(ms))]
+                bound.add(a)
+    ctx = Context(game, frozenset(patches), frozenset(bound),
+                  default_facts(g, bound) if facts is None else frozenset(facts),
+                  frozenset(aliases.items()))
+
+    def roll_effect(e: dict) -> list[int]:
+        do = e["do"]
+        if do in ("food", "tech"):
+            lo, hi = e["amount"], e.get("max") or 0
+            per = (e.get("per_game") or {}).get(str(game))
+            if per is not None:
+                lo, hi = per
+                if hi == lo:
+                    hi = 0
+            if hi != 0:
+                lo += below(hi - lo + 1)
+            return [lo, 0]
+        if do in ("health", "health_change", "damage"):
+            return [e["min"] + below(e["max"] - e["min"] + 1), 0]
+        if do == "skill":
+            have = [s for s in e["skills"] if s in gm.skills]
+            va = gm.skills.index(have[below(len(have))]) if have else -1
+            if "set" in e:
+                return [va, e["set"]]
+            return [va, e["min"] + below(e["max"] - e["min"] + 1)]
+        return [0, 0]
+
+    def scan(text: str, visited: tuple, picks: list, depth: int = 0) -> None:
+        for name, k in pool_refs(text):
+            if any(p[0] == name and p[1] == k for p in picks) or name not in lg["pools"]:
+                continue
+            pool = lg["pools"][name]
+            eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], ctx, visited)]
+            if pool["distinct"]:
+                taken = {p[2] for p in picks if p[0] == name}
+                eligible = [i for i in eligible if i not in taken] or eligible
+            if not eligible:
+                picks.append([name, k, None])
+                continue
+            weights = [pool["items"][i]["weight"] for i in eligible]
+            idx = eligible[roll_index(weights, below(sum(weights)))]
+            picks.append([name, k, idx])
+            if depth + 1 < MAX_POOL_DEPTH + 1:
+                scan(pool["items"][idx]["text"], visited, picks, depth + 1)
+
+    def segment(start: str, path: list, picks: list) -> dict:
+        h = {"nodes": [], "fx": [], "picks": []}
+        nid: str | None = start
+        while nid is not None:
+            n = lg["nodes"][nid]
+            h["nodes"].append(nid)
+            visited = tuple(path + h["nodes"])
+            if n["type"] != "question":
+                for e in n["effects"]:
+                    h["fx"].append(roll_effect(e))
+            if n["type"] != "branch":
+                state = picks + h["picks"]
+                scan(node_text(n, ctx, visited), visited, state)
+                for c in n["choices"]:
+                    if cond_holds(c.get("if"), ctx, visited):
+                        scan(c["label"], visited, state)
+                h["picks"] = state[len(picks):]
+            if n["type"] == "question":
+                break
+            targets, weights = [], []
+            for c in n["children"]:
+                if cond_holds(c["if"], ctx, visited) and cond_holds(c.get("guard"), ctx, visited):
+                    targets.append(c["next"])
+                elif c["else"] is not None:
+                    targets.append(c["else"])
+                else:
+                    continue
+                weights.append(c["weight"])
+            if not targets:
+                nid = n["else"]
+                continue
+            nid = targets[roll_index(weights, below(sum(weights)))]
+        return h
+
+    path: list[str] = []
+    fx: list[list[int]] = []
+    picks: list[list] = []
+    seg = segment(lg["start"], path, picks)
+    answers = list(answers)
+    qi = 0
+    while True:
+        path += seg["nodes"]
+        fx += seg["fx"]
+        picks += seg["picks"]
+        last = lg["nodes"][path[-1]]
+        if last["type"] != "question":
+            break
+        visited = tuple(path)
+        shown = [i for i, c in enumerate(last["choices"]) if cond_holds(c.get("if"), ctx, visited)]
+        segs = {i: segment(last["choices"][i]["next"], path, picks) for i in shown}
+        pick = answers[qi]
+        qi += 1
+        if pick not in segs:
+            raise ValueError(f"answer {pick} is not shown at {path[-1]}")
+        seg = segs[pick]
+
+    # The popups, joined as walk() joins them, then read as the player reads them.
+    award = None
+    k = 0
+    for nid in path:
+        for e in lg["nodes"][nid]["effects"] if lg["nodes"][nid]["type"] != "question" else ():
+            if e["do"] in ("food", "tech") and e["defer"]:
+                award = (e["do"], fx[k][0])
+            k += 1
+    texts: list[str] = []
+    seen: tuple = ()
+    for nid in path:
+        n = lg["nodes"][nid]
+        seen = seen + (nid,)
+        if n["type"] == "branch":
+            continue
+        t = node_text(n, ctx, seen)
+        if n["type"] == "popup" and n["popup"] == "append" and texts:
+            texts[-1] = texts[-1] + (" " if n["join"] == "space" else "\n") + t if texts[-1] else t
+        else:
+            texts.append(t)
+    pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases) for t in texts]
+    return {"nodes": path, "fx": fx, "picks": picks, "aliases": aliases, "popups": popups, "rolls_used": used[0]}
+
+
 # ---- The chances of every outcome ----------------------------------------------------------------------------------
 
 
@@ -1665,13 +3324,17 @@ class Row:
     by_award: dict[str, Fraction]
 
 
-def chances(g: dict, game: int, patches: Iterable[str] = (), roles: Iterable[str] | None = None) \
-        -> dict[int | None, dict[str, list[Row]]]:
+def chances(g: dict, game: int, patches: Iterable[str] = (), roles: Iterable[str] | None = None,
+            facts: frozenset[str] | None = None) -> dict[int | None, dict[str, list[Row]]]:
     """For each question button (None without a question) -- or, when a question is asked after the start
     (version 2), each run of answers ((question, button), ...) -- "ends": each ending's chance out of every time
     those answers are given -- and "outcomes", the "In all" groups, each split by the award paid."""
     bound = frozenset(roles) if roles is not None else frozenset(g["roles"])
     ctx = Context(game, frozenset(patches), bound)
+    if g.get("version", 1) >= VERSION_V6:
+        bound = frozenset(r for r in bound if g["roles"][r]["kind"] != "alias") | {
+            a for a, v in g["roles"].items() if v["kind"] == "alias" and any(m in bound for m in v["of"])}
+        ctx = Context(game, frozenset(patches), bound, default_facts(g, bound) if facts is None else facts)
     out: dict[int | None, dict[str, list[Row]]] = {}
     ends: dict[int | None, dict[str, Row]] = {}
     groups: dict[int | None, dict[str, Row]] = {}
@@ -1715,18 +3378,26 @@ def chances_table(g: dict, game: int, patches: Iterable[str] = (), roles: Iterab
     """The "chances of every outcome" table, as the owner's design file sets it out."""
     lines = [f"{g['title']}: {GAMES[game].name}" + (f", with {', '.join(patches)}" if patches else "")]
     start = g["nodes"][g["start"]]
+
+    def lab(c: dict) -> str:
+        """A label with its game words as the game shows them (version 6)."""
+        if g.get("version", 1) < VERSION_V6:
+            return c["label"]
+        return re.sub(r"\{@([A-Za-z0-9_]+)\}", lambda m: g["words"].get(m.group(1), {}).get(str(game), m.group(0)),
+                      c["label"])
+
     for choice, rows in chances(g, game, patches, roles).items():
         lines.append("")
         if choice is None:
             lines.append("THE EVENT")
             out_of = "out of every time the event happens"
         elif isinstance(choice, tuple):
-            words = " > ".join(f"{part_name(g, q)} {answer_letter(b)}: {g['nodes'][q]['choices'][b]['label'].upper()}"
+            words = " > ".join(f"{part_name(g, q)} {answer_letter(b)}: {lab(g['nodes'][q]['choices'][b]).upper()}"
                                for q, b in choice)
             lines.append(f"CHOICES {words}")
             out_of = "out of every time these choices are picked"
         else:
-            label = start["choices"][choice]["label"]
+            label = lab(start["choices"][choice])
             lines.append(f"CHOICE {answer_letter(choice)}: {label.upper()}")
             out_of = "out of every time this choice is picked"
         lines.append(f"Each ending, {out_of}:")

@@ -39,7 +39,7 @@ strings. The engine must use the offsets, not the order.
 | Offset | Type | Meaning |
 |---|---|---|
 | 0 | `B` | kind: 0 villager, 1 stranger, **2 alias** |
-| 1 | `B` | flags: 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected** |
+| 1 | `B` | flags: 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
 | 2 | `B` | sex: 0 any, 1 male, 2 female, 3 random (strangers) |
 | 3 | `B` | min_age years |
 | 4 | `H` | id string |
@@ -129,8 +129,8 @@ strings. The engine must use the offsets, not the order.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
 6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; every pool instance as the pool's
-   longest eligible item (by characters; the first on a tie), expanded worst-case; then the glyph fallback in
-   VV1/VV2 (the fallback is longer, so this is the worst case).
+   longest eligible item, measured after its own worst-case expansion (the first on a tie); then the glyph
+   fallback in VV1/VV2 (the fallback is longer, so this is the worst case).
 
 ## 7. Harm and the protected filter
 
@@ -206,5 +206,17 @@ cg.SHARED_POOLS                       # default path: data/event_collection/shar
 ```
 
 `shared_pools` is a dict `{"pools": {name: POOL}}` or a path; by default `SHARED_POOLS` is read when a graph
-has `include_pools`. Authoring keys kept by `normalize` but never compiled: node `name`, `src` (on nodes,
-variants, choices, pools and items), node `text_only_reason`, graph `grammar_fixes`. `without_names` drops them.
+has `include_pools`; that file is `{"pools": {name: POOL}}`, POOL as in a graph. Authoring keys kept by
+`normalize` but never compiled: node `name`, `src` (on nodes, variants, choices, effects, pools and items), node
+`text_only_reason`, graph `grammar_fixes`. `without_names` drops them.
+
+## 13. Shared vectors
+
+`tests/data/cie_v6_expand_vectors.json` (rebuilt by `python tests/test_cie_graph_v6.py --write-vectors` from
+`simulate`). Each case gives the graph, the game, the rolls, the bindings, the answers, the facts and the Unicode
+flag; `expect` gives the path, every effect roll `[a, b]`, every pool pick `[pool, instance, item index]` in draw
+order, the aliases drawn, each popup's text before paging, the rolls used and the `.cieg` SHA-256.
+
+- Answer segments: at each question, every SHOWN answer's segment is walked in choice order from the same state
+  (each consumes its own rolls), then the clicked one is kept (as `cg_walk_answers` does today).
+- `simulate` assumes the facts stay the same for the whole run.
