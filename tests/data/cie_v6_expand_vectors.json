@@ -1,0 +1,2422 @@
+{
+ "_about": "Shared walk vectors for CIE graph format version 6 (docs/event-collection/cie-v6-binary.md section 6).  Each case: a graph, the game, the random stream (each roll taken % n; none for n <= 1), the villagers bound, the answer clicked at each question (its choice index), the run-time facts (null = every bound villager harmable, every threshold met) and whether the Unicode Text companion is on.  expect: the path, each effect's roll [a, b], each pool pick [pool, instance, item index] in draw order, the aliases drawn, each popup's text as the player reads it (before paging), the rolls used and the compiled .cieg's SHA-256.  Run by tests/test_cie_graph_v6.py and the engine's emulator tests.",
+ "cases": [
+  {
+   "name": "gardening_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Gardening Contest",
+    "games": [
+     3
+    ],
+    "collection": {
+     "id": "vv3_gardening_contest",
+     "source": "v26",
+     "lines": [
+      3043,
+      3096
+     ],
+     "section": "V6 additions",
+     "credit": "Test fixture: the design's worked example (A6).",
+     "draw_weight": 1
+    },
+    "requirement": {
+     "min_eligible": 2
+    },
+    "roles": {
+     "gardener1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1
+      }
+     },
+     "gardener2": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1
+      }
+     }
+    },
+    "pools": {
+     "A": {
+      "distinct": true,
+      "items": [
+       "neat rows with carefully labeled plants",
+       "a winding garden with shaded places to sit",
+       "hardy food plants that require little attention",
+       "flowers chosen to attract helpful insects",
+       "a mixture of familiar plants and experimental varieties",
+       "a traditional layout remembered by the elders"
+      ]
+     },
+     "END": {
+      "items": [
+       "The village gains a peaceful place to gather and learn.",
+       "The elder rests on a bench, pleased that the younger villagers listened without copying the past blindly.",
+       "A child presents both gardeners with a leaf labeled \"BEST.\"",
+       "A nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task.",
+       "The gardeners agree to compare notes again after the next harvest."
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "type": "question",
+      "name": "Two plans",
+      "text": "Two skilled gardeners have developed different plans for a small community garden near the village. (Gardener1) favors {A.1}, while (gardener2) favors {A.2}.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+      "choices": [
+       {
+        "label": "Combine the best features into one shared garden.",
+        "next": "shared"
+       },
+       {
+        "label": "Give each gardener a small plot to demonstrate the plan.",
+        "next": "plots"
+       }
+      ]
+     },
+     "shared": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "s1"
+       },
+       {
+        "next": "s2"
+       },
+       {
+        "next": "s3"
+       },
+       {
+        "next": "s4"
+       }
+      ]
+     },
+     "s1": {
+      "text": "The gardeners cooperate, creating a beautiful and useful space.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "gardener1",
+        "skills": [
+         "Farming"
+        ],
+        "min": 10,
+        "max": 20
+       },
+       {
+        "do": "skill",
+        "role": "gardener2",
+        "skills": [
+         "Farming"
+        ],
+        "min": 10,
+        "max": 20
+       }
+      ],
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s2": {
+      "text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s3": {
+      "text": "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s4": {
+      "text": "The gardeners realize that the combined plan needs more work than they can manage. They simplify it rather than overpromise.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "plots": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "p1"
+       },
+       {
+        "next": "p2"
+       },
+       {
+        "next": "p3"
+       },
+       {
+        "next": "p4"
+       }
+      ]
+     },
+     "p1": {
+      "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p2": {
+      "text": "One garden produces more food, while the other becomes a favorite resting place. Neither is declared a failure.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p3": {
+      "text": "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p4": {
+      "text": "A plant grows across the dividing line. The gardeners spend an absurd amount of time deciding who owns it.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "ending": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "{END}"
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    4,
+    1,
+    2,
+    3,
+    0,
+    5,
+    7,
+    2,
+    9,
+    3,
+    6,
+    8
+   ],
+   "bindings": {
+    "gardener1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "gardener2": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "shared",
+     "s3",
+     "ending"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "A",
+      1,
+      4
+     ],
+     [
+      "A",
+      2,
+      1
+     ],
+     [
+      "END",
+      1,
+      3
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Two skilled gardeners have developed different plans for a small community garden near the village. Ana favors a mixture of familiar plants and experimental varieties, while Bo favors a winding garden with shaded places to sit.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+     "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
+    ],
+    "rolls_used": 6,
+    "cieg_sha256": "56835195f2639017bfae270af62c66e0543b700538ca7aca5c08b1631dc84401"
+   }
+  },
+  {
+   "name": "gardening_vv3_plots",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Gardening Contest",
+    "games": [
+     3
+    ],
+    "collection": {
+     "id": "vv3_gardening_contest",
+     "source": "v26",
+     "lines": [
+      3043,
+      3096
+     ],
+     "section": "V6 additions",
+     "credit": "Test fixture: the design's worked example (A6).",
+     "draw_weight": 1
+    },
+    "requirement": {
+     "min_eligible": 2
+    },
+    "roles": {
+     "gardener1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1
+      }
+     },
+     "gardener2": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1
+      }
+     }
+    },
+    "pools": {
+     "A": {
+      "distinct": true,
+      "items": [
+       "neat rows with carefully labeled plants",
+       "a winding garden with shaded places to sit",
+       "hardy food plants that require little attention",
+       "flowers chosen to attract helpful insects",
+       "a mixture of familiar plants and experimental varieties",
+       "a traditional layout remembered by the elders"
+      ]
+     },
+     "END": {
+      "items": [
+       "The village gains a peaceful place to gather and learn.",
+       "The elder rests on a bench, pleased that the younger villagers listened without copying the past blindly.",
+       "A child presents both gardeners with a leaf labeled \"BEST.\"",
+       "A nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task.",
+       "The gardeners agree to compare notes again after the next harvest."
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "type": "question",
+      "name": "Two plans",
+      "text": "Two skilled gardeners have developed different plans for a small community garden near the village. (Gardener1) favors {A.1}, while (gardener2) favors {A.2}.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+      "choices": [
+       {
+        "label": "Combine the best features into one shared garden.",
+        "next": "shared"
+       },
+       {
+        "label": "Give each gardener a small plot to demonstrate the plan.",
+        "next": "plots"
+       }
+      ]
+     },
+     "shared": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "s1"
+       },
+       {
+        "next": "s2"
+       },
+       {
+        "next": "s3"
+       },
+       {
+        "next": "s4"
+       }
+      ]
+     },
+     "s1": {
+      "text": "The gardeners cooperate, creating a beautiful and useful space.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "gardener1",
+        "skills": [
+         "Farming"
+        ],
+        "min": 10,
+        "max": 20
+       },
+       {
+        "do": "skill",
+        "role": "gardener2",
+        "skills": [
+         "Farming"
+        ],
+        "min": 10,
+        "max": 20
+       }
+      ],
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s2": {
+      "text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s3": {
+      "text": "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "s4": {
+      "text": "The gardeners realize that the combined plan needs more work than they can manage. They simplify it rather than overpromise.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "plots": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "p1"
+       },
+       {
+        "next": "p2"
+       },
+       {
+        "next": "p3"
+       },
+       {
+        "next": "p4"
+       }
+      ]
+     },
+     "p1": {
+      "text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p2": {
+      "text": "One garden produces more food, while the other becomes a favorite resting place. Neither is declared a failure.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p3": {
+      "text": "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "p4": {
+      "text": "A plant grows across the dividing line. The gardeners spend an absurd amount of time deciding who owns it.",
+      "children": [
+       {
+        "next": "ending"
+       }
+      ]
+     },
+     "ending": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "{END}"
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    5,
+    5,
+    3,
+    1,
+    2,
+    4,
+    6,
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "bindings": {
+    "gardener1": {
+     "name": "Kai",
+     "sex": "m"
+    },
+    "gardener2": {
+     "name": "Lea",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    1
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "plots",
+     "p3",
+     "ending"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "A",
+      1,
+      5
+     ],
+     [
+      "A",
+      2,
+      0
+     ],
+     [
+      "END",
+      1,
+      4
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Two skilled gardeners have developed different plans for a small community garden near the village. Kai favors a traditional layout remembered by the elders, while Lea favors neat rows with carefully labeled plants.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+     "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
+    ],
+    "rolls_used": 6,
+    "cieg_sha256": "56835195f2639017bfae270af62c66e0543b700538ca7aca5c08b1631dc84401"
+   }
+  },
+  {
+   "name": "kitchen_vv1_trade",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Market Day",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     },
+     "Chief": {
+      "3": "The Chief",
+      "*": "The elders"
+     }
+    },
+    "requirement": {
+     "min_eligible": 2,
+     "if": {
+      "min_population": 4
+     }
+    },
+    "roles": {
+     "cook1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1,
+       "pick": "highest"
+      }
+     },
+     "cook2": {
+      "kind": "villager",
+      "min_age": 14,
+      "max_age": 60
+     },
+     "helper": {
+      "kind": "villager",
+      "optional": true,
+      "max_age": 13,
+      "min_age": 5
+     },
+     "either": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "trader": {
+      "kind": "stranger",
+      "sex": "female"
+     }
+    },
+    "pools": {
+     "DISH": {
+      "distinct": true,
+      "items": [
+       "a fish stew",
+       {
+        "text": "a {SPICE} soup",
+        "weight": 3
+       },
+       {
+        "text": "a coconut cake",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       },
+       "roasted roots \\(with salt & herbs\\)"
+      ]
+     },
+     "SPICE": {
+      "items": [
+       "hot",
+       {
+        "text": "sweet",
+        "weight": 2
+       }
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+      "children": [
+       {
+        "next": "ask"
+       }
+      ]
+     },
+     "ask": {
+      "type": "question",
+      "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+      "choices": [
+       {
+        "label": "Trade with {@chief}",
+        "next": "a"
+       },
+       {
+        "label": "Keep it",
+        "next": "b"
+       },
+       {
+        "label": "Share it",
+        "next": "c"
+       },
+       {
+        "label": "Sell it",
+        "next": "d"
+       },
+       {
+        "label": "Ask the Chief",
+        "next": "e",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       }
+      ]
+     },
+     "a": {
+      "text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+      "effects": [
+       {
+        "do": "health_change",
+        "role": "either",
+        "min": 5,
+        "max": 15
+       },
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": false,
+        "defer": true
+       },
+       {
+        "do": "pay_award"
+       }
+      ],
+      "children": [
+       {
+        "next": "a_end",
+        "weight": 2
+       },
+       {
+        "next": "b_end"
+       }
+      ]
+     },
+     "a_end": {
+      "popup": "append",
+      "text": "The village gains (award) (award_unit)."
+     },
+     "b_end": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "A storm damages a hut.",
+      "effects": [
+       {
+        "do": "damage",
+        "structures": "any",
+        "min": 10,
+        "max": 30
+       }
+      ]
+     },
+     "b": {
+      "text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "cook1",
+        "skills": [
+         "Farming",
+         "Building"
+        ],
+        "set": 100
+       }
+      ]
+     },
+     "c": {
+      "text": "Everyone shares; the trader joins in.",
+      "effects": [
+       {
+        "do": "celebrate",
+        "who": "all"
+       }
+      ]
+     },
+     "d": {
+      "text": "(Cook2) sells it and scowls.",
+      "effects": [
+       {
+        "do": "mood",
+        "role": "cook2",
+        "mood": "bad"
+       },
+       {
+        "do": "health_change",
+        "role": "cook2",
+        "min": -20,
+        "max": -10
+       }
+      ],
+      "children": [
+       {
+        "next": "d2",
+        "if": {
+         "role": "helper"
+        },
+        "else": "d3"
+       }
+      ]
+     },
+     "d2": {
+      "popup": "append",
+      "text": "(Helper) helps (helper.him/her)self.",
+      "effects": [
+       {
+        "do": "action",
+        "role": "helper",
+        "action": "Dancing"
+       }
+      ]
+     },
+     "d3": {
+      "popup": "append",
+      "text": "No one helps."
+     },
+     "e": {
+      "text": "{@Chief} approves."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    7,
+    3,
+    2,
+    9,
+    4,
+    1,
+    5,
+    8,
+    6,
+    2,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "bindings": {
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "trader": {
+     "name": "",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "ask",
+     "a",
+     "b_end"
+    ],
+    "fx": [
+     [
+      9,
+      0
+     ],
+     [
+      101,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      16,
+      0
+     ]
+    ],
+    "picks": [
+     [
+      "DISH",
+      1,
+      1
+     ],
+     [
+      "SPICE",
+      1,
+      1
+     ],
+     [
+      "DISH",
+      2,
+      3
+     ],
+     [
+      "@chief",
+      1,
+      0
+     ],
+     [
+      "@Chief",
+      1,
+      0
+     ],
+     [
+      "_i1",
+      1,
+      1
+     ]
+    ],
+    "aliases": {
+     "either": "cook2"
+    },
+    "popups": [
+     "Ana and Bo bring a sweet soup and roasted roots -with salt and herbs- to market, the elders watch. Bo says it is 100 percent ready.",
+     "The trader asks him to choose. The elders wait.",
+     "The trader smiles at himself. She nods.\nA storm damages a hut."
+    ],
+    "rolls_used": 11,
+    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+   }
+  },
+  {
+   "name": "kitchen_vv1_trade_unicode",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Market Day",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     },
+     "Chief": {
+      "3": "The Chief",
+      "*": "The elders"
+     }
+    },
+    "requirement": {
+     "min_eligible": 2,
+     "if": {
+      "min_population": 4
+     }
+    },
+    "roles": {
+     "cook1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1,
+       "pick": "highest"
+      }
+     },
+     "cook2": {
+      "kind": "villager",
+      "min_age": 14,
+      "max_age": 60
+     },
+     "helper": {
+      "kind": "villager",
+      "optional": true,
+      "max_age": 13,
+      "min_age": 5
+     },
+     "either": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "trader": {
+      "kind": "stranger",
+      "sex": "female"
+     }
+    },
+    "pools": {
+     "DISH": {
+      "distinct": true,
+      "items": [
+       "a fish stew",
+       {
+        "text": "a {SPICE} soup",
+        "weight": 3
+       },
+       {
+        "text": "a coconut cake",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       },
+       "roasted roots \\(with salt & herbs\\)"
+      ]
+     },
+     "SPICE": {
+      "items": [
+       "hot",
+       {
+        "text": "sweet",
+        "weight": 2
+       }
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+      "children": [
+       {
+        "next": "ask"
+       }
+      ]
+     },
+     "ask": {
+      "type": "question",
+      "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+      "choices": [
+       {
+        "label": "Trade with {@chief}",
+        "next": "a"
+       },
+       {
+        "label": "Keep it",
+        "next": "b"
+       },
+       {
+        "label": "Share it",
+        "next": "c"
+       },
+       {
+        "label": "Sell it",
+        "next": "d"
+       },
+       {
+        "label": "Ask the Chief",
+        "next": "e",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       }
+      ]
+     },
+     "a": {
+      "text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+      "effects": [
+       {
+        "do": "health_change",
+        "role": "either",
+        "min": 5,
+        "max": 15
+       },
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": false,
+        "defer": true
+       },
+       {
+        "do": "pay_award"
+       }
+      ],
+      "children": [
+       {
+        "next": "a_end",
+        "weight": 2
+       },
+       {
+        "next": "b_end"
+       }
+      ]
+     },
+     "a_end": {
+      "popup": "append",
+      "text": "The village gains (award) (award_unit)."
+     },
+     "b_end": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "A storm damages a hut.",
+      "effects": [
+       {
+        "do": "damage",
+        "structures": "any",
+        "min": 10,
+        "max": 30
+       }
+      ]
+     },
+     "b": {
+      "text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "cook1",
+        "skills": [
+         "Farming",
+         "Building"
+        ],
+        "set": 100
+       }
+      ]
+     },
+     "c": {
+      "text": "Everyone shares; the trader joins in.",
+      "effects": [
+       {
+        "do": "celebrate",
+        "who": "all"
+       }
+      ]
+     },
+     "d": {
+      "text": "(Cook2) sells it and scowls.",
+      "effects": [
+       {
+        "do": "mood",
+        "role": "cook2",
+        "mood": "bad"
+       },
+       {
+        "do": "health_change",
+        "role": "cook2",
+        "min": -20,
+        "max": -10
+       }
+      ],
+      "children": [
+       {
+        "next": "d2",
+        "if": {
+         "role": "helper"
+        },
+        "else": "d3"
+       }
+      ]
+     },
+     "d2": {
+      "popup": "append",
+      "text": "(Helper) helps (helper.him/her)self.",
+      "effects": [
+       {
+        "do": "action",
+        "role": "helper",
+        "action": "Dancing"
+       }
+      ]
+     },
+     "d3": {
+      "popup": "append",
+      "text": "No one helps."
+     },
+     "e": {
+      "text": "{@Chief} approves."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": true,
+   "rolls": [
+    7,
+    3,
+    2,
+    9,
+    4,
+    1,
+    5,
+    8,
+    6,
+    2,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "bindings": {
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "trader": {
+     "name": "",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "ask",
+     "a",
+     "b_end"
+    ],
+    "fx": [
+     [
+      9,
+      0
+     ],
+     [
+      101,
+      0
+     ],
+     [
+      0,
+      0
+     ],
+     [
+      16,
+      0
+     ]
+    ],
+    "picks": [
+     [
+      "DISH",
+      1,
+      1
+     ],
+     [
+      "SPICE",
+      1,
+      1
+     ],
+     [
+      "DISH",
+      2,
+      3
+     ],
+     [
+      "@chief",
+      1,
+      0
+     ],
+     [
+      "@Chief",
+      1,
+      0
+     ],
+     [
+      "_i1",
+      1,
+      1
+     ]
+    ],
+    "aliases": {
+     "either": "cook2"
+    },
+    "popups": [
+     "Ana and Bo bring a sweet soup and roasted roots (with salt & herbs) to market; the elders watch. Bo says it is 100% ready.",
+     "The trader asks him to choose. The elders wait.",
+     "The trader smiles at himself. She nods.\nA storm damages a hut."
+    ],
+    "rolls_used": 11,
+    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+   }
+  },
+  {
+   "name": "kitchen_vv1_keep",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Market Day",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     },
+     "Chief": {
+      "3": "The Chief",
+      "*": "The elders"
+     }
+    },
+    "requirement": {
+     "min_eligible": 2,
+     "if": {
+      "min_population": 4
+     }
+    },
+    "roles": {
+     "cook1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1,
+       "pick": "highest"
+      }
+     },
+     "cook2": {
+      "kind": "villager",
+      "min_age": 14,
+      "max_age": 60
+     },
+     "helper": {
+      "kind": "villager",
+      "optional": true,
+      "max_age": 13,
+      "min_age": 5
+     },
+     "either": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "trader": {
+      "kind": "stranger",
+      "sex": "female"
+     }
+    },
+    "pools": {
+     "DISH": {
+      "distinct": true,
+      "items": [
+       "a fish stew",
+       {
+        "text": "a {SPICE} soup",
+        "weight": 3
+       },
+       {
+        "text": "a coconut cake",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       },
+       "roasted roots \\(with salt & herbs\\)"
+      ]
+     },
+     "SPICE": {
+      "items": [
+       "hot",
+       {
+        "text": "sweet",
+        "weight": 2
+       }
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+      "children": [
+       {
+        "next": "ask"
+       }
+      ]
+     },
+     "ask": {
+      "type": "question",
+      "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+      "choices": [
+       {
+        "label": "Trade with {@chief}",
+        "next": "a"
+       },
+       {
+        "label": "Keep it",
+        "next": "b"
+       },
+       {
+        "label": "Share it",
+        "next": "c"
+       },
+       {
+        "label": "Sell it",
+        "next": "d"
+       },
+       {
+        "label": "Ask the Chief",
+        "next": "e",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       }
+      ]
+     },
+     "a": {
+      "text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+      "effects": [
+       {
+        "do": "health_change",
+        "role": "either",
+        "min": 5,
+        "max": 15
+       },
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": false,
+        "defer": true
+       },
+       {
+        "do": "pay_award"
+       }
+      ],
+      "children": [
+       {
+        "next": "a_end",
+        "weight": 2
+       },
+       {
+        "next": "b_end"
+       }
+      ]
+     },
+     "a_end": {
+      "popup": "append",
+      "text": "The village gains (award) (award_unit)."
+     },
+     "b_end": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "A storm damages a hut.",
+      "effects": [
+       {
+        "do": "damage",
+        "structures": "any",
+        "min": 10,
+        "max": 30
+       }
+      ]
+     },
+     "b": {
+      "text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "cook1",
+        "skills": [
+         "Farming",
+         "Building"
+        ],
+        "set": 100
+       }
+      ]
+     },
+     "c": {
+      "text": "Everyone shares; the trader joins in.",
+      "effects": [
+       {
+        "do": "celebrate",
+        "who": "all"
+       }
+      ]
+     },
+     "d": {
+      "text": "(Cook2) sells it and scowls.",
+      "effects": [
+       {
+        "do": "mood",
+        "role": "cook2",
+        "mood": "bad"
+       },
+       {
+        "do": "health_change",
+        "role": "cook2",
+        "min": -20,
+        "max": -10
+       }
+      ],
+      "children": [
+       {
+        "next": "d2",
+        "if": {
+         "role": "helper"
+        },
+        "else": "d3"
+       }
+      ]
+     },
+     "d2": {
+      "popup": "append",
+      "text": "(Helper) helps (helper.him/her)self.",
+      "effects": [
+       {
+        "do": "action",
+        "role": "helper",
+        "action": "Dancing"
+       }
+      ]
+     },
+     "d3": {
+      "popup": "append",
+      "text": "No one helps."
+     },
+     "e": {
+      "text": "{@Chief} approves."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    3,
+    2,
+    9,
+    4,
+    1,
+    5,
+    8,
+    6,
+    2,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "bindings": {
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "trader": {
+     "name": "",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    1
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "ask",
+     "b"
+    ],
+    "fx": [
+     [
+      2,
+      100
+     ]
+    ],
+    "picks": [
+     [
+      "DISH",
+      1,
+      1
+     ],
+     [
+      "SPICE",
+      1,
+      0
+     ],
+     [
+      "DISH",
+      2,
+      0
+     ],
+     [
+      "@chief",
+      1,
+      0
+     ],
+     [
+      "@Chief",
+      1,
+      0
+     ]
+    ],
+    "aliases": {
+     "either": "cook2"
+    },
+    "popups": [
+     "Ana and Bo bring a hot soup and a fish stew to market, the elders watch. Bo says it is 100 percent ready.",
+     "The trader asks him to choose. The elders wait.",
+     "Ana keeps it, her daughter cheers."
+    ],
+    "rolls_used": 10,
+    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+   }
+  },
+  {
+   "name": "kitchen_vv1_sell_helper",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Market Day",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     },
+     "Chief": {
+      "3": "The Chief",
+      "*": "The elders"
+     }
+    },
+    "requirement": {
+     "min_eligible": 2,
+     "if": {
+      "min_population": 4
+     }
+    },
+    "roles": {
+     "cook1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1,
+       "pick": "highest"
+      }
+     },
+     "cook2": {
+      "kind": "villager",
+      "min_age": 14,
+      "max_age": 60
+     },
+     "helper": {
+      "kind": "villager",
+      "optional": true,
+      "max_age": 13,
+      "min_age": 5
+     },
+     "either": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "trader": {
+      "kind": "stranger",
+      "sex": "female"
+     }
+    },
+    "pools": {
+     "DISH": {
+      "distinct": true,
+      "items": [
+       "a fish stew",
+       {
+        "text": "a {SPICE} soup",
+        "weight": 3
+       },
+       {
+        "text": "a coconut cake",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       },
+       "roasted roots \\(with salt & herbs\\)"
+      ]
+     },
+     "SPICE": {
+      "items": [
+       "hot",
+       {
+        "text": "sweet",
+        "weight": 2
+       }
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+      "children": [
+       {
+        "next": "ask"
+       }
+      ]
+     },
+     "ask": {
+      "type": "question",
+      "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+      "choices": [
+       {
+        "label": "Trade with {@chief}",
+        "next": "a"
+       },
+       {
+        "label": "Keep it",
+        "next": "b"
+       },
+       {
+        "label": "Share it",
+        "next": "c"
+       },
+       {
+        "label": "Sell it",
+        "next": "d"
+       },
+       {
+        "label": "Ask the Chief",
+        "next": "e",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       }
+      ]
+     },
+     "a": {
+      "text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+      "effects": [
+       {
+        "do": "health_change",
+        "role": "either",
+        "min": 5,
+        "max": 15
+       },
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": false,
+        "defer": true
+       },
+       {
+        "do": "pay_award"
+       }
+      ],
+      "children": [
+       {
+        "next": "a_end",
+        "weight": 2
+       },
+       {
+        "next": "b_end"
+       }
+      ]
+     },
+     "a_end": {
+      "popup": "append",
+      "text": "The village gains (award) (award_unit)."
+     },
+     "b_end": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "A storm damages a hut.",
+      "effects": [
+       {
+        "do": "damage",
+        "structures": "any",
+        "min": 10,
+        "max": 30
+       }
+      ]
+     },
+     "b": {
+      "text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "cook1",
+        "skills": [
+         "Farming",
+         "Building"
+        ],
+        "set": 100
+       }
+      ]
+     },
+     "c": {
+      "text": "Everyone shares; the trader joins in.",
+      "effects": [
+       {
+        "do": "celebrate",
+        "who": "all"
+       }
+      ]
+     },
+     "d": {
+      "text": "(Cook2) sells it and scowls.",
+      "effects": [
+       {
+        "do": "mood",
+        "role": "cook2",
+        "mood": "bad"
+       },
+       {
+        "do": "health_change",
+        "role": "cook2",
+        "min": -20,
+        "max": -10
+       }
+      ],
+      "children": [
+       {
+        "next": "d2",
+        "if": {
+         "role": "helper"
+        },
+        "else": "d3"
+       }
+      ]
+     },
+     "d2": {
+      "popup": "append",
+      "text": "(Helper) helps (helper.him/her)self.",
+      "effects": [
+       {
+        "do": "action",
+        "role": "helper",
+        "action": "Dancing"
+       }
+      ]
+     },
+     "d3": {
+      "popup": "append",
+      "text": "No one helps."
+     },
+     "e": {
+      "text": "{@Chief} approves."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    7,
+    3,
+    2,
+    9,
+    4,
+    1,
+    5,
+    8,
+    6,
+    2,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "bindings": {
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "trader": {
+     "name": "",
+     "sex": "f"
+    },
+    "helper": {
+     "name": "Cy",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    3
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "ask",
+     "d",
+     "d2"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ],
+     [
+      -20,
+      0
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [
+     [
+      "DISH",
+      1,
+      1
+     ],
+     [
+      "SPICE",
+      1,
+      1
+     ],
+     [
+      "DISH",
+      2,
+      3
+     ],
+     [
+      "@chief",
+      1,
+      0
+     ],
+     [
+      "@Chief",
+      1,
+      0
+     ]
+    ],
+    "aliases": {
+     "either": "cook2"
+    },
+    "popups": [
+     "Ana and Bo bring a sweet soup and roasted roots -with salt and herbs- to market, the elders watch. Bo says it is 100 percent ready.",
+     "The trader asks him to choose. The elders wait.",
+     "Bo sells it and scowls. Cy helps himself."
+    ],
+    "rolls_used": 11,
+    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+   }
+  },
+  {
+   "name": "kitchen_vv3_ask_chief",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Market Day",
+    "games": [
+     1,
+     3
+    ],
+    "words": {
+     "chief": {
+      "3": "the Chief",
+      "*": "the elders"
+     },
+     "Chief": {
+      "3": "The Chief",
+      "*": "The elders"
+     }
+    },
+    "requirement": {
+     "min_eligible": 2,
+     "if": {
+      "min_population": 4
+     }
+    },
+    "roles": {
+     "cook1": {
+      "kind": "villager",
+      "min_age": 14,
+      "skill": {
+       "names": [
+        "Farming"
+       ],
+       "min": 1,
+       "pick": "highest"
+      }
+     },
+     "cook2": {
+      "kind": "villager",
+      "min_age": 14,
+      "max_age": 60
+     },
+     "helper": {
+      "kind": "villager",
+      "optional": true,
+      "max_age": 13,
+      "min_age": 5
+     },
+     "either": {
+      "kind": "alias",
+      "of": [
+       "cook1",
+       "cook2"
+      ]
+     },
+     "trader": {
+      "kind": "stranger",
+      "sex": "female"
+     }
+    },
+    "pools": {
+     "DISH": {
+      "distinct": true,
+      "items": [
+       "a fish stew",
+       {
+        "text": "a {SPICE} soup",
+        "weight": 3
+       },
+       {
+        "text": "a coconut cake",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       },
+       "roasted roots \\(with salt & herbs\\)"
+      ]
+     },
+     "SPICE": {
+      "items": [
+       "hot",
+       {
+        "text": "sweet",
+        "weight": 2
+       }
+      ]
+     }
+    },
+    "start": "intro",
+    "nodes": {
+     "intro": {
+      "text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+      "children": [
+       {
+        "next": "ask"
+       }
+      ]
+     },
+     "ask": {
+      "type": "question",
+      "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+      "choices": [
+       {
+        "label": "Trade with {@chief}",
+        "next": "a"
+       },
+       {
+        "label": "Keep it",
+        "next": "b"
+       },
+       {
+        "label": "Share it",
+        "next": "c"
+       },
+       {
+        "label": "Sell it",
+        "next": "d"
+       },
+       {
+        "label": "Ask the Chief",
+        "next": "e",
+        "if": {
+         "game": [
+          3
+         ]
+        }
+       }
+      ]
+     },
+     "a": {
+      "text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+      "effects": [
+       {
+        "do": "health_change",
+        "role": "either",
+        "min": 5,
+        "max": 15
+       },
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": false,
+        "defer": true
+       },
+       {
+        "do": "pay_award"
+       }
+      ],
+      "children": [
+       {
+        "next": "a_end",
+        "weight": 2
+       },
+       {
+        "next": "b_end"
+       }
+      ]
+     },
+     "a_end": {
+      "popup": "append",
+      "text": "The village gains (award) (award_unit)."
+     },
+     "b_end": {
+      "popup": "append",
+      "join": "paragraph",
+      "text": "A storm damages a hut.",
+      "effects": [
+       {
+        "do": "damage",
+        "structures": "any",
+        "min": 10,
+        "max": 30
+       }
+      ]
+     },
+     "b": {
+      "text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+      "effects": [
+       {
+        "do": "skill",
+        "role": "cook1",
+        "skills": [
+         "Farming",
+         "Building"
+        ],
+        "set": 100
+       }
+      ]
+     },
+     "c": {
+      "text": "Everyone shares; the trader joins in.",
+      "effects": [
+       {
+        "do": "celebrate",
+        "who": "all"
+       }
+      ]
+     },
+     "d": {
+      "text": "(Cook2) sells it and scowls.",
+      "effects": [
+       {
+        "do": "mood",
+        "role": "cook2",
+        "mood": "bad"
+       },
+       {
+        "do": "health_change",
+        "role": "cook2",
+        "min": -20,
+        "max": -10
+       }
+      ],
+      "children": [
+       {
+        "next": "d2",
+        "if": {
+         "role": "helper"
+        },
+        "else": "d3"
+       }
+      ]
+     },
+     "d2": {
+      "popup": "append",
+      "text": "(Helper) helps (helper.him/her)self.",
+      "effects": [
+       {
+        "do": "action",
+        "role": "helper",
+        "action": "Dancing"
+       }
+      ]
+     },
+     "d3": {
+      "popup": "append",
+      "text": "No one helps."
+     },
+     "e": {
+      "text": "{@Chief} approves."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    7,
+    3,
+    2,
+    9,
+    4,
+    1,
+    5,
+    8,
+    6,
+    2,
+    11,
+    13,
+    17,
+    19,
+    23,
+    29
+   ],
+   "bindings": {
+    "cook1": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "cook2": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "trader": {
+     "name": "",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    4
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "intro",
+     "ask",
+     "e"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "DISH",
+      1,
+      1
+     ],
+     [
+      "SPICE",
+      1,
+      1
+     ],
+     [
+      "DISH",
+      2,
+      0
+     ],
+     [
+      "@chief",
+      1,
+      1
+     ],
+     [
+      "@Chief",
+      1,
+      1
+     ]
+    ],
+    "aliases": {
+     "either": "cook2"
+    },
+    "popups": [
+     "Ana and Bo bring a sweet soup and a fish stew to market; the Chief watch. Bo says it is 100% ready.",
+     "The trader asks him to choose. The Chief wait.",
+     "The Chief approves."
+    ],
+    "rolls_used": 11,
+    "cieg_sha256": "cb5e0f3c7c2c9d28cd49da99f5f434b207393da381366ace805a8585acca59b3"
+   }
+  },
+  {
+   "name": "guard_harmable",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Ledge",
+    "games": [
+     3
+    ],
+    "roles": {
+     "climber": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Climber) reaches the ledge.",
+      "children": [
+       {
+        "next": "fall",
+        "weight": 3
+       },
+       {
+        "next": "safe"
+       }
+      ]
+     },
+     "fall": {
+      "popup": "append",
+      "text": "(climber.He/She) slips and is gone.",
+      "effects": [
+       {
+        "do": "vanish",
+        "role": "climber"
+       }
+      ]
+     },
+     "safe": {
+      "popup": "append",
+      "text": "(climber.He/She) climbs down safely."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    0,
+    0
+   ],
+   "bindings": {
+    "climber": {
+     "name": "Dee",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": [
+    "harmable:climber"
+   ],
+   "expect": {
+    "nodes": [
+     "p",
+     "fall"
+    ],
+    "fx": [
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Dee reaches the ledge. She slips and is gone."
+    ],
+    "rolls_used": 1,
+    "cieg_sha256": "97c26f2627105e842f31297242189f94995141f7456eb510b1e91f35202321ec"
+   }
+  },
+  {
+   "name": "guard_protected_now",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Ledge",
+    "games": [
+     3
+    ],
+    "roles": {
+     "climber": {
+      "kind": "villager"
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Climber) reaches the ledge.",
+      "children": [
+       {
+        "next": "fall",
+        "weight": 3
+       },
+       {
+        "next": "safe"
+       }
+      ]
+     },
+     "fall": {
+      "popup": "append",
+      "text": "(climber.He/She) slips and is gone.",
+      "effects": [
+       {
+        "do": "vanish",
+        "role": "climber"
+       }
+      ]
+     },
+     "safe": {
+      "popup": "append",
+      "text": "(climber.He/She) climbs down safely."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    0,
+    0
+   ],
+   "bindings": {
+    "climber": {
+     "name": "Dee",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": [],
+   "expect": {
+    "nodes": [
+     "p",
+     "safe"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Dee reaches the ledge. She climbs down safely."
+    ],
+    "rolls_used": 0,
+    "cieg_sha256": "97c26f2627105e842f31297242189f94995141f7456eb510b1e91f35202321ec"
+   }
+  }
+ ]
+}
