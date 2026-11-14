@@ -65,6 +65,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     "VVFP Long Words.dll",
     /* The Aspiring Adventurer (all five games): the owner's new island event. */
     "VVFP More Island Events.dll",
+    /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+       child's pastime pick. */
+    "VVFP Children Play.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \

@@ -137,6 +137,8 @@ FILES = [
     "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds 2.5 times louder.
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
+    # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
+    "assets/children_play/VVFP Children Play.dll",
     # Island Events Scale With Population / With Stored Food and Tech Points (A New Home, The Tree of Life, New
     # Believers): the companion and the stored row's flag file.
     "assets/island_events_scale/VVFP Island Events Scale.dll",
@@ -318,6 +320,11 @@ FILES = [
     "data/vv4_yellow_fruit_trees_limited_feature.json",
     "data/vv4_yellow_fruit_refills_partially_feature.json",
     "data/vv4_louder_wind_flutes_feature.json",
+    "data/vv1_children_play_feature.json",
+    "data/vv2_children_play_feature.json",
+    "data/vv3_children_play_feature.json",
+    "data/vv4_children_play_feature.json",
+    "data/vv5_children_play_feature.json",
     "data/vv1_island_events_scale_with_population_feature.json",
     "data/vv1_island_events_scale_with_stored_amounts_feature.json",
     "data/vv4_island_events_scale_with_population_feature.json",
