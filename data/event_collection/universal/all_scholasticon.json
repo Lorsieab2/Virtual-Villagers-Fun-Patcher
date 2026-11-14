@@ -438,7 +438,17 @@
     {
      "next": "i4",
      "if": {
-      "role": "child"
+      "all": [
+       {
+        "role": "child"
+       },
+       {
+        "drew": {
+         "pool": "A",
+         "item": "determining how to build a bridge across a ravine without wasting wood"
+        }
+       }
+      ]
      }
     },
     {

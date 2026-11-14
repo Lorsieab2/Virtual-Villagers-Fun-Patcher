@@ -101,6 +101,12 @@ word with no sentence around it (review r2, M8, M18, M19).
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
+| L6907 | `praise; use the original contest's winner` | `praise.` | V13-A The Judge Who Feared No Dish, A2 | The page closes with a full stop once the routing note is cut (decision 7) |
+| L6875 | `thunderous, theatrical, and almost impossible to impress` | `(He/she) is thunderous, theatrical, and almost impossible to impress.` | V13-A The Judge Who Feared No Dish | The temperament bank (JUDGE TEMPERAMENT, no lead-in in the source) would show as a bare fragment with no subject or full stop; the judge is the subject |
+| L6876 | `quiet and devastating, speaking in a whisper that frightens everyone` | `(He/she) is quiet and devastating, speaking in a whisper that frightens everyone.` | V13-A The Judge Who Feared No Dish | As above |
+| L6877 | `warm toward earnest apprentices, merciless toward boastful masters` | `(He/she) is warm toward earnest apprentices, merciless toward boastful masters.` | V13-A The Judge Who Feared No Dish | As above |
+| L6878 | `astonishingly fair, but prone to comparisons involving dead fish` | `(He/she) is astonishingly fair, but prone to comparisons involving dead fish.` | V13-A The Judge Who Feared No Dish | As above |
+| L6879 | `perpetually furious at wasted food and unhygienic preparation` | `(He/she) is perpetually furious at wasted food and unhygienic preparation.` | V13-A The Judge Who Feared No Dish | As above |
 | L8206 | `The Children are asked` | `The children are asked` | V17-B The Children's Jury | Stray capital |
 | L7660 | `the same subject` | `the same subject, (subject),` | V14-02 The World's Simplest Explanation | The drawn subject is named inside the source's sentence instead of as a bare word |
 | L7739 | `something the adults overlooked.` | `something the adults overlooked: (discovery).` | V14-13 The Curious Little Explorer | The drawn discovery is named inside the source's sentence |

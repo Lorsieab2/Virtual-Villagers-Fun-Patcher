@@ -956,16 +956,15 @@
     "v13a": true
    },
    {
-    "src": "L6901",
-    "kind": "instruction",
-    "why": "the outcome's result, carried by its effect or text_only",
+    "src": "L6941",
+    "kind": "note",
+    "why": "a designer's list of possible reactions (\"may\"): never shown (decision 5)",
     "v13a": true
    },
    {
-    "src": "L6907",
-    "kind": "structural",
-    "text": "; use the original contest's winner",
-    "why": "route into the core (win2, the tie-breaker)",
+    "src": "L6901",
+    "kind": "instruction",
+    "why": "the outcome's result, carried by its effect or text_only",
     "v13a": true
    },
    {
@@ -1047,6 +1046,36 @@
   ]
  },
  "grammar_fixes": [
+  {
+   "src": "L6907",
+   "before": "praise; use the original contest's winner",
+   "after": "praise."
+  },
+  {
+   "src": "L6875",
+   "before": "thunderous, theatrical, and almost impossible to impress",
+   "after": "(He/she) is thunderous, theatrical, and almost impossible to impress."
+  },
+  {
+   "src": "L6876",
+   "before": "quiet and devastating, speaking in a whisper that frightens everyone",
+   "after": "(He/she) is quiet and devastating, speaking in a whisper that frightens everyone."
+  },
+  {
+   "src": "L6877",
+   "before": "warm toward earnest apprentices, merciless toward boastful masters",
+   "after": "(He/she) is warm toward earnest apprentices, merciless toward boastful masters."
+  },
+  {
+   "src": "L6878",
+   "before": "astonishingly fair, but prone to comparisons involving dead fish",
+   "after": "(He/she) is astonishingly fair, but prone to comparisons involving dead fish."
+  },
+  {
+   "src": "L6879",
+   "before": "perpetually furious at wasted food and unhygienic preparation",
+   "after": "(He/she) is perpetually furious at wasted food and unhygienic preparation."
+  },
   {
    "src": "L104",
    "before": "is.... ",
@@ -4102,23 +4131,23 @@
   "JUDGE_TEMPER": {
    "items": [
     {
-     "text": "Thunderous, theatrical, and almost impossible to impress",
+     "text": "(judge.He/She) is thunderous, theatrical, and almost impossible to impress.",
      "src": "L6875"
     },
     {
-     "text": "Quiet and devastating, speaking in a whisper that frightens everyone",
+     "text": "(judge.He/She) is quiet and devastating, speaking in a whisper that frightens everyone.",
      "src": "L6876"
     },
     {
-     "text": "Warm toward earnest apprentices, merciless toward boastful masters",
+     "text": "(judge.He/She) is warm toward earnest apprentices, merciless toward boastful masters.",
      "src": "L6877"
     },
     {
-     "text": "Astonishingly fair, but prone to comparisons involving dead fish",
+     "text": "(judge.He/She) is astonishingly fair, but prone to comparisons involving dead fish.",
      "src": "L6878"
     },
     {
-     "text": "Perpetually furious at wasted food and unhygienic preparation",
+     "text": "(judge.He/She) is perpetually furious at wasted food and unhygienic preparation.",
      "src": "L6879"
     }
    ]
@@ -7982,7 +8011,7 @@
   },
   "v13a_a2": {
    "src": "L6903-6907",
-   "text": "THE PERFECT DISH:\n(judge) tastes (cook2)'s dish. The hall falls silent. (judge.He/She) tastes it again, then a third time. \"Well,\" (judge.he/she) mutters, \"that's infuriating.\" Asked what is wrong, (judge) replies, \"Nothing.\" (cook2) wins the judge's praise",
+   "text": "THE PERFECT DISH:\n(judge) tastes (cook2)'s dish. The hall falls silent. (judge.He/She) tastes it again, then a third time. \"Well,\" (judge.he/she) mutters, \"that's infuriating.\" Asked what is wrong, (judge) replies, \"Nothing.\" (cook2) wins the judge's praise.",
    "children": [
     {
      "next": "win2"
@@ -8043,8 +8072,8 @@
    ]
   },
   "v13a_a6": {
-   "src": "L6937-6941",
-   "text": "THE FURIOUS APPRENTICE:\n(cook1) finally snaps. \"If you know so much, why don't YOU cook?\" (judge) calmly accepts. (judge.He/She) prepares a modest dish from the remaining ingredients, explaining every step. It is exquisite. (cook1) may apologize, study in silence, or vow to surpass the judge.",
+   "src": "L6937-6940",
+   "text": "THE FURIOUS APPRENTICE:\n(cook1) finally snaps. \"If you know so much, why don't YOU cook?\" (judge) calmly accepts. (judge.He/She) prepares a modest dish from the remaining ingredients, explaining every step. It is exquisite.",
    "text_only": [
     {
      "src": "L6942",

@@ -89,7 +89,7 @@
     {
       "source": "assets/event_collection/all_scholasticon.cieg",
       "destination": "Island Event Collection/all_scholasticon.cieg",
-      "sha256": "862116C4419B2E60AC5718E8847ABBB35DF9715564E19425FB425B8594FE7A5B"
+      "sha256": "47F58D43C4743AF6609528EFD60C3EEC549165FAC5F2D5C0FD57324A4B7F0BF5"
     },
     {
       "source": "assets/event_collection/all_secret_of_life.cieg",
@@ -349,7 +349,7 @@
     {
       "source": "assets/event_collection/vv2_cooking_contest.cieg",
       "destination": "Island Event Collection/vv2_cooking_contest.cieg",
-      "sha256": "5C5025523D4242A0A9288CF39167ACB5BAAEDAD1F4240712D3111CA70124D007"
+      "sha256": "A05F32F484013B89CA6686B6961AD5D13256AF113DD37FB65A800BBA34E40675"
     },
     {
       "source": "assets/event_collection/vv2_experimental_remedy.cieg",
