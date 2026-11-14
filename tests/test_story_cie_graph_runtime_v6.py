@@ -57,6 +57,11 @@ def norm(text: str) -> str:
     return " ".join(text.split())
 
 
+def runs(titles: list[str]) -> list[str]:
+    """The titles with each repeat in a row taken out (pages vs popups)."""
+    return [t for i, t in enumerate(titles) if i == 0 or titles[i - 1] != t]
+
+
 def compiled(graph: dict) -> bytes:
     """The graph compiled as the patcher compiles it (its fit checked for a game with Scrolling Popups: the pages
     are the engine's to lay out here)."""
@@ -94,8 +99,16 @@ if HAVE_EMULATOR:
             self.recorded: dict[int, list] = {}
             self.p.api_handlers.setdefault("GetSystemTimeAsFileTime",
                                            lambda q: (q.write(q.arg(0), bytes(8)) or 0, 4))
+            self.p.api_handlers.setdefault("CharUpperBuffA", self._upper)
             if people is not None:
                 self.place(people)
+
+        @staticmethod
+        def _upper(q):
+            """user32 CharUpperBuffA (stdcall: the text, its length; returns the length), as Windows-1252 does."""
+            at, n = q.arg(0), q.arg(1)
+            q.write(at, q.read(at, n).decode("cp1252").upper().encode("cp1252", "replace"))
+            return n, 8
 
         def observe(self, who=None):
             return self.watch() if getattr(self, "watch", None) else super().observe()
@@ -163,6 +176,14 @@ if HAVE_EMULATOR:
                 out.append(self.p.cstring(at, 4000) if at else "")
             return out
 
+        def titles(self) -> list[str]:
+            """Each display's popup title (cie-v6-binary.md 14)."""
+            out = []
+            for k in range(self.state()["count"]):
+                at = self.p.export("VvfpStoryProbeGraphTitle", k)
+                out.append(self.p.cstring(at) if at else "")
+            return out
+
         def labels(self, count: int = 7) -> list[str]:
             out = []
             for b in range(count):
@@ -225,7 +246,8 @@ def vector_village(case: dict):
 # Rolls the binding takes that the patcher's walk does not model, and where they come in the stream (a start
 # question's own words are drawn at the purchase, before the binding): (after this many rolls, [the rolls]).
 BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
-              "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0])}
+              "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0]),
+              "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1])}   # the stranger's name (16)
 
 
 @emulated
@@ -262,6 +284,9 @@ class SharedVectors(unittest.TestCase):
                    if m >= 0}
         self.assertEqual(aliases, e["aliases"])
         self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(e["popups"])), "the words the player reads")
+        self.assertEqual(runs(r.titles()), runs(e["titles"]), "the popup titles (cie-v6-binary.md 14)")
+        self.assertEqual([labels for kind, _t, labels in shown if kind == "question"], e["labels"],
+                         "the buttons as read (cie-v6-binary.md 15)")
         self.assertTrue(shown)
 
     def test_every_vector_in_its_game(self):
@@ -583,6 +608,148 @@ def put_tribe(r, game: str, name: str | None) -> None:
         manager = r.p.alloc(0x18000)
         r.p.put32(va, manager)
     r.p.write(manager + TRIBE_AT[game], (name or "").encode() + b"\0")
+
+
+@emulated
+class NodeTitles(unittest.TestCase):
+    """Per-node popup titles (cie-v6-binary.md 14) in every game."""
+
+    def test_the_title_in_force_on_each_page(self):
+        from test_cie_graph_v6 import TITLES
+        inv, decide = "The Revolutionary Invention", "The Elders Decide"
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)              # Ana; the opening "inv"
+                self.assertIsNone(r.queue6(compiled(TITLES)))
+                shown = r.walk_through([0])
+                self.assertEqual([k for k, _t, _l in shown], ["page", "question", "result", "page"])
+                self.assertEqual(r.titles(), [inv, inv, inv, decide],
+                                 "the answer's first page keeps the question popup's title")
+                if game in ("vv1", "vv2"):
+                    self.assertTrue(shown[0][1].startswith(inv), shown[0][1])
+                    self.assertTrue(shown[1][1].startswith(inv), shown[1][1])
+                    self.assertTrue(shown[3][1].startswith(decide), shown[3][1])
+                at = r.p.alloc(64)
+                r.p.write(at, decide.encode() + b"\0")
+                self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
+
+    def test_placeholders_in_titles(self):
+        """17: on screen with the names (or pronouns when they do not fit); the log's entry in the readable form."""
+        from test_cie_graph_v6 import TITLED_NAMES
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for name, sex, want in (("Ana", "f", "Ana's"), ("W" * 23, "m", "Him's")):
+                with self.subTest(game=game, name=name):
+                    r = V6(game, [(0, sex, 30, name, 0, False), (1, "m", 30, "Bo", 0, False)])
+                    r.rolls([0] * 40)
+                    r.log(1)
+                    self.assertIsNone(r.queue6(compiled(TITLED_NAMES)))
+                    shown = r.walk_through([0])
+                    titles = r.titles()
+                    lg = cg.lower(cg.load(copy.deepcopy(TITLED_NAMES)))
+                    b = {"subject": cg.Binding(name, sex)}
+                    expect = cg.title_shown(lg, TITLED_NAMES["title"], int(game[2]), b)
+                    self.assertEqual(titles[0], expect)
+                    if game == "vv2" or name == "Ana":
+                        self.assertTrue(expect.startswith(want), expect)   # The Lost Children: 48 > 46 letters
+                    if game in ("vv1", "vv2"):
+                        self.assertTrue(shown[0][1].startswith(expect), shown[0][1])
+                    self.assertEqual(titles[-1], cg.title_shown(lg, TITLED_NAMES["nodes"]["y"]["title"],
+                                                                int(game[2]), b))
+                    _n, _now, filed = r.log()
+                    self.assertIn("Event: Someone's No Good, Very Bad Day", filed)
+
+    def test_the_loader_refuses_a_bad_node_title(self):
+        from test_cie_graph_v6 import TITLES
+        data = bytearray(compiled(TITLES))
+        o_node, n_node = struct.unpack_from("<I", data, 48)[0], struct.unpack_from("<H", data, 28)[0]
+        names = Names(bytes(data))
+        branch = names.nodes.index("b")
+        inv_title = struct.unpack_from("<H", data, o_node + 28 * names.nodes.index("inv") + 26)[0]
+        struct.pack_into("<H", data, o_node + 28 * branch + 26, inv_title)   # a title on a branch
+        struct.pack_into("<I", data, 12, 0)
+        struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+        self.assertEqual(n_node, len(names.nodes))
+        r = V6("vv3" if have_stock("vv3") else GAME_IDS[0], TWO)
+        why = r.queue6(bytes(data))
+        self.assertIsNotNone(why)
+        self.assertIn("popup title", why)
+
+
+@emulated
+class SexWords(unittest.TestCase):
+    """Role-sex word pairs (cie-v6-binary.md 5): the word of the role's sex, in every game."""
+
+    def test_mother_or_father(self):
+        from test_cie_graph_v6 import LULLABY
+        g = cg.load(copy.deepcopy(LULLABY))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for name, sex in (("Bo", "m"), ("Ana", "f")):
+                with self.subTest(game=game, sex=sex):
+                    r = V6(game, [(0, sex, 30, name, 0, False)])
+                    r.rolls([0] * 40)
+                    r.log(1)
+                    self.assertIsNone(r.queue6(compiled(LULLABY)))
+                    r.walk_through()
+                    want = cg.simulate(g, int(game[2]), [], {"parent": cg.Binding(name, sex)})
+                    self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(want["popups"])))
+                    self.assertEqual(r.titles(), want["titles"])
+                    self.assertIn("Event: The Mother or father's Lullaby", r.log()[2])
+
+
+@emulated
+class NamedStrangers(unittest.TestCase):
+    """A named stranger draws a name from the game's own list, never a living villager's (cie-v6-binary.md 16)."""
+
+    def test_a_name_from_the_games_list_no_villager_has(self):
+        from test_cie_graph_v6 import VISITOR
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            female = cg.villager_names(int(game[2]))[1]
+            with self.subTest(game=game):
+                # A villager already called by the list's first and second names (any case): the stranger skips
+                # them, so roll 0 gives the third.
+                people = [(0, "f", 30, female[0], 0, False), (1, "m", 30, female[1].upper(), 0, False)]
+                r = V6(game, people)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(VISITOR)))
+                shown = r.walk_through([1])
+                who = female[2]
+                self.assertTrue(r.displays()[0].startswith(f"{who} arrives by canoe."), r.displays()[0])
+                self.assertIn(f"{who.upper()} LAUGHS.", r.displays()[0])
+                self.assertIn(f"Send her away", shown[1][2][1] if shown[1][0] == "question" else str(shown))
+
+
+@emulated
+class LabelPronouns(unittest.TestCase):
+    """A label too wide with the names shows pronouns (cie-v6-binary.md 15), in every game."""
+
+    def test_names_or_pronouns_by_the_screen(self):
+        from test_cie_graph_v6 import LABELS
+        people = [(0, "f", 30, "Rosalind", 0, False), (1, "m", 30, "Bartholomew", 0, False)]
+        lg = cg.lower(cg.load(copy.deepcopy(LABELS)))
+        b = {"subject": cg.Binding("Rosalind", "f"), "friend": cg.Binding("Bartholomew", "m")}
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = V6(game, people)
+                r.rolls([0, 0] + [0] * 40)
+                self.assertIsNone(r.queue6(compiled(LABELS)))
+                shown = r.walk_through([0])
+                want = [cg.label_shown(c["label"], lg, b, int(game[2])) for c in lg["nodes"]["q"]["choices"]]
+                self.assertEqual(shown[0][2], want)
+                if game == "vv5":
+                    self.assertIn("ROSALIND AND BARTHOLOMEW", want[0], "fits New Believers' wider screen")
+                else:
+                    self.assertTrue(want[0].startswith("TELL HER AND HE "), want[0])
 
 
 @emulated
