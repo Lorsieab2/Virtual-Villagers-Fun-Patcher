@@ -345,3 +345,29 @@ one; any other bit is refused). A named stranger has a first name, so `(visitor)
   none is left, over the whole list. Pronouns follow the sex drawn.
 - **Worst case:** `W` x the longest name in the game's two lists (A New Home 6, The Lost Children 7, the later three
   8). Python's `simulate` takes the stranger's name from `bindings` (as it does a villager's).
+
+## 17. Placeholders in titles
+
+A v6 title -- the event's (header +20) or a node's popup title (section 14) -- may hold placeholders: a name
+(`(Name1)`, `(name)`, `(visitor.Name)`, `(Gardener1)`, a named stranger's), a pronoun (`(his/her)`, `(role.He/She)`,
+the v6 pairs), in any case form (section 5), and a name's pronoun hint `(NAME1|HE/SHE)` (section 15). Nothing else:
+no award, no pool, game word or inline pick, no `\(`; a parenthesis is only a placeholder. A role a title names is
+never optional (an alias's or other's members included), so it is always bound. Example: `(Name1)'s No Good, Very
+Bad Day`.
+
+- **On screen** (engine, `cg_title_text`): the title expanded with the real names (`CG_EXPAND_REAL`, so the glyph
+  fallback in VV1/VV2 -- titles never hold those characters). When that does not fit -- 48 bytes or more; VV3-5 wider
+  than the title box in `ldwarialbold` (`story_title_widths.h`, built by `scripts/build_cie_title_widths.py` from
+  `data/font_glyph_tables.json`: 432 / 432 / 624 px); VV1/VV2 longer than `title_width` (51 / 46) -- every name in
+  it becomes its role's pronoun, as a label's (section 15: the object form, or the hint's, in the written case).
+- **Fit (Python):** each game checks the title's worst case (names `W` x the room: a villager's `name_room`, a named
+  stranger's longest list name; the longer pronoun); when that does not fit, the worst case with every name as the
+  longer pronoun of its form must. The pages of VV1/VV2 (which lead the text with the title) are laid out with the
+  worst case of the form that fits (names when they fit, else pronouns).
+- **The readable form** (the Island Events log's "Event:" line, "Disappeared in ...", Pick Island Event, the library,
+  the queue's messages; `readable_title` / `cg_readable_title`): every name placeholder becomes "someone" in the
+  case written (`(Name1)` -> `Someone`, `(NAME1)` -> `SOMEONE`, `(name1)` -> `someone`), every pronoun "he or she",
+  "his or her", "him or her", "himself or herself", "man or woman", "woman or man", "boy or girl", "son or daughter"
+  (the case written: `(He/She)` -> `He or she`, `(HE/SHE)` -> `HE OR SHE`). The result is cut to 47 bytes. E.g.
+  "Someone's No Good, Very Bad Day". The library's file name is made from this form.
+- `VvfpStoryGraphLogged` accepts the readable form, or the title armed (expanded).
