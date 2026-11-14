@@ -39,7 +39,7 @@ strings. The engine must use the offsets, not the order.
 | Offset | Type | Meaning |
 |---|---|---|
 | 0 | `B` | kind: 0 villager, 1 stranger, **2 alias**, **3 other** (G2) |
-| 1 | `B` | flags: 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
+| 1 | `B` | flags (a stranger, kind 1: 1 = **named**, section 16; nothing else): 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
 | 2 | `B` | sex: 0 any, 1 male, 2 female, 3 random (strangers) |
 | 3 | `B` | min_age years |
 | 4 | `H` | id string |
@@ -327,3 +327,21 @@ pronoun is the object form unless the placeholder carries a hint (section 5): `(
   name as the longer pronoun of its form fits (the engine then shows the pronoun form whenever the names do not).
 - **simulate** returns `labels`: for each question asked, its shown buttons' labels as the player reads them (the
   real names, or the pronoun form when they do not fit the game's screen).
+
+## 16. Named strangers
+
+JSON: `{"kind": "stranger", "sex": ..., "named": true}` (v6). Binary: the stranger's role flags = 1 (0 for a nameless
+one; any other bit is refused). A named stranger has a first name, so `(visitor)`, `(Visitor)`, `(VISITOR)` and
+`(visitor.name)` are valid for it (a nameless stranger's are still refused: "a stranger has no name").
+
+- **The name** is drawn at bind time from the game's OWN first-name lists -- the two lists its villager creator draws
+  a new villager's name from, male then female (`data/cie_villager_names.json`, built from the stock executables by
+  `scripts/build_cie_villager_names.py`, pinned by `tests/test_cie_graph_v6.py`). The engine reads the list of the
+  stranger's sex from the game at run time (`story_villager_names.h CG_NAMES_VA`: one comma-separated string each),
+  and uses the same list built into the DLL when the game's cannot be read (not letters and commas, or not readable).
+- **The draw**, in the bind's role order: the stranger's sex as for every stranger (one roll when random), then
+  `random_below(count)` over the list's names that no living villager has (compared with each living villager's
+  first name, the name before any space, ignoring case) and no named stranger bound earlier in the event has; when
+  none is left, over the whole list. Pronouns follow the sex drawn.
+- **Worst case:** `W` x the longest name in the game's two lists (A New Home 6, The Lost Children 7, the later three
+  8). Python's `simulate` takes the stranger's name from `bindings` (as it does a villager's).

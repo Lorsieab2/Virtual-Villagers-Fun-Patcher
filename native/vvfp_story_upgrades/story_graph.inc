@@ -179,6 +179,9 @@ enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
 enum { CG_IDLE = 0, CG_QUEUED = 1, CG_PRE = 2, CG_ASKED = 3, CG_CHAIN = 4, CG_DONE = 5 };
 enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_BELIEVERS = 8,
        CG_ROLE_HARM = 16, CG_ROLE_PROTECTED = 32 };
+#define CG_STRANGER_NAMED 1u          /* a stranger's flags: named (cie-v6-binary.md 16) */
+#include "story_villager_names.h"     /* each game's first-name lists (scripts/build_cie_villager_names.py) */
+
 /* The pronouns are CG_PH_HE .. CG_PH_MAN and CG_PH_HIMSELF .. CG_PH_SON (cg_pronoun). */
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
        CG_PH_HIMSELF, CG_PH_WOMAN_MAN, CG_PH_BOY, CG_PH_SON };
@@ -528,8 +531,9 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
             }
         }
     }
-    if (ph->what == CG_PH_NAME && cg_role_at(g, role)[0] == CG_ROLE_STRANGER) {
-        return 0;                     /* a stranger has no name */
+    if (ph->what == CG_PH_NAME && cg_role_at(g, role)[0] == CG_ROLE_STRANGER
+        && !(g->version >= 6 && (cg_role_at(g, role)[1] & CG_STRANGER_NAMED))) {
+        return 0;                     /* a stranger has no name (version 6: unless named, cie-v6-binary.md 16) */
     }
     ph->role = role;
     return 1;
@@ -815,8 +819,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
             || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
             || (r[0] == 1 && (r[2] < 1u || r[2] > 3u))
+            || (r[0] == 1 && g->version >= 6 && (r[1] & ~CG_STRANGER_NAMED) != 0u)
             || (i == 0 && ((r[0] != CG_ROLE_VILLAGER && !(g->version >= 6 && r[0] == CG_ROLE_STRANGER))
-                           || (r[1] & CG_ROLE_OPTIONAL)))
+                           || (r[0] == CG_ROLE_VILLAGER && (r[1] & CG_ROLE_OPTIONAL))))
             ) {
             return cg_bad("a role is not one this game can read");
         }
@@ -1637,6 +1642,134 @@ static void cg_draw_aliases(const ce_adapter *a, unsigned int bound) {
     }
 }
 
+/* ---- Named strangers (docs/event-collection/cie-v6-binary.md 16) ------------------------------------------ */
+
+/* The game's own first-name list of one sex (read where the game keeps it), else the same list built in. */
+static const char *cg_names_list(int game, int female) {
+    static char list[2048];
+    unsigned int n;
+    int ok = 1;
+    if (game < 1 || game > 5) {
+        return "";
+    }
+    n = CG_NAMES_BYTES[game][female];
+    if (n == 0u || n >= sizeof list) {
+        return CG_NAMES_TEXT[game][female];
+    }
+    __try {
+        memcpy(list, (const void *)(uintptr_t)CG_NAMES_VA[game][female], n);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 0;
+    }
+    list[n] = '\0';
+    {
+        unsigned int i;
+        for (i = 0; ok && i < n; ++i) {
+            char c = list[i];
+            ok = c == ',' || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+        }
+        ok = ok && list[0] != ',' && list[n - 1] == ',';
+    }
+    return ok ? list : CG_NAMES_TEXT[game][female];
+}
+
+/* `a` and `b` agree in their first `n` bytes, ignoring the case of A-Z. */
+static int cg_same_ci(const char *a, const char *b, int n) {
+    int i;
+    for (i = 0; i < n; ++i) {
+        char x = a[i], y = b[i];
+        x = (char)(x >= 'a' && x <= 'z' ? x - 'a' + 'A' : x);
+        y = (char)(y >= 'a' && y <= 'z' ? y - 'a' + 'A' : y);
+        if (x != y) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+/* Whether `name` (`n` bytes) is a living, listed villager's first name or a named stranger's bound before role
+   `upto`, ignoring case. */
+static int cg_name_taken(const ce_adapter *a, int upto, const char *name, int n) {
+    char have[CG_NAME_BYTES];
+    int i, k;
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        const unsigned char *rec = a->record(i);
+        if (rec == NULL || !a->listed(rec)) {
+            continue;
+        }
+        ce_copy_name(have, CG_NAME_BYTES, rec + a->off_name, a->name_bytes);
+        for (k = 0; have[k] != '\0' && have[k] != ' '; ++k) {
+        }
+        have[k] = '\0';
+        if (k == n && cg_same_ci(have, name, n)) {
+            return 1;
+        }
+    }
+    for (i = 0; i < upto; ++i) {
+        if (cg_role_at(&cg_g, i)[0] == CG_ROLE_STRANGER && lstrlenA(cg.name[i]) == n
+            && cg_same_ci(cg.name[i], name, n)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Stranger role `r`'s first name: random_below over the list of its sex's names nobody has (else the whole list). */
+static void cg_stranger_name(const ce_adapter *a, int game, int r) {
+    const char *list = cg_names_list(game, cg.female[r]);
+    int pass, count, pick = -1;
+    for (pass = 0; pass < 2 && pick < 0; ++pass) {
+        const char *s;
+        int k = 0;
+        count = 0;
+        for (s = list; *s != '\0';) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && (pass == 1 || !cg_name_taken(a, r, s, (int)(e - s)))) {
+                ++count;
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+        if (count == 0) {
+            continue;
+        }
+        pick = ce_random_below(a, count);
+        for (s = list; *s != '\0';) {
+            const char *e = s;
+            while (*e != '\0' && *e != ',') {
+                ++e;
+            }
+            if (e > s && (pass == 1 || !cg_name_taken(a, r, s, (int)(e - s)))) {
+                if (k++ == pick) {
+                    int n = (int)(e - s) < CG_NAME_BYTES - 1 ? (int)(e - s) : CG_NAME_BYTES - 1;
+                    memcpy(cg.name[r], s, (size_t)n);
+                    cg.name[r][n] = '\0';
+                    return;
+                }
+            }
+            s = *e == ',' ? e + 1 : e;
+        }
+    }
+}
+
+/* The longest name in the game's two lists: a named stranger's worst case. */
+static int cg_stranger_room(int game) {
+    int f, best = 0;
+    for (f = 0; f < 2 && game >= 1 && game <= 5; ++f) {
+        const char *s = CG_NAMES_TEXT[game][f];
+        int n = 0;
+        for (; *s != '\0'; ++s) {
+            n = *s == ',' ? 0 : n + 1;
+            if (n > best) {
+                best = n;
+            }
+        }
+    }
+    return best;
+}
+
 /* Bind every planned role (the game's random routine among those who keep the rest fillable), and each
    stranger's sex.  1 when bound. */
 static int cg_bind(int game) {
@@ -1671,6 +1804,10 @@ static int cg_bind(int game) {
         }
         if (spec[0] == 1) {
             cg.female[r] = spec[2] == 2 ? 1 : spec[2] == 1 ? 0 : ce_random_below(a, 2);
+            cg.name[r][0] = '\0';
+            if (cg_g.version >= 6 && (spec[1] & CG_STRANGER_NAMED)) {
+                cg_stranger_name(a, game, r);      /* cie-v6-binary.md 16 */
+            }
             continue;
         }
         if (!(left & (1u << r))) {
@@ -2495,14 +2632,17 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             put = mode == CG_EXPAND_WORST ? (lstrlenA(pair[1]) > lstrlenA(pair[0]) ? pair[1] : pair[0])
                                           : pair[role >= 0 && cg.female[role] ? 1 : 0];
         } else if (mode == CG_EXPAND_WORST) {
-            if (ph.what == CG_PH_NAME) {
+            if (ph.what == CG_PH_NAME && role >= 0 && cg_role_at(&cg_g, role)[0] == CG_ROLE_STRANGER) {
+                repeat = cg_stranger_room(cg.game);       /* 16: the longest name in the game's lists */
+            } else if (ph.what == CG_PH_NAME) {
                 repeat = name_room;
             } else {
                 const char *const *pair = cg_pronoun(ph.what);
                 put = lstrlenA(pair[1]) > lstrlenA(pair[0]) ? pair[1] : pair[0];
             }
         } else if (ph.what == CG_PH_NAME) {
-            put = role >= 0 && (cg.bound & (1u << role)) ? cg.name[role] : "";
+            put = role >= 0 && ((cg.bound & (1u << role)) || cg_role_at(&cg_g, role)[0] == CG_ROLE_STRANGER)
+                  ? cg.name[role] : "";             /* 16: a named stranger's drawn name */
         } else {
             put = cg_pronoun(ph.what)[role >= 0 && cg.female[role] ? 1 : 0];
         }

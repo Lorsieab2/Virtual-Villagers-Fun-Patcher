@@ -1161,7 +1161,7 @@ class Library:
         ttk.Label(page, justify="left", wraplength=500, text=(
             "Who takes part. The main villager is always needed. If no villager fits a role the event needs, the "
             "game refuses to queue the event and says so. (Name) shows a villager's full name when the Last Names "
-            "patch is on; a stranger has no name.")).pack(anchor="w")
+            "patch is on; a stranger has no name unless you tick \"Give this stranger a name\".")).pack(anchor="w")
         holder = ttk.Frame(page)
         holder.pack(fill="x", pady=(6, 0))
         columns = ("role", "kind", "needed", "sex", "age")
@@ -2676,6 +2676,19 @@ class Library:
             role["sex"] = next(k for k, v in sexes.items() if v == sex.get())
             self._role_changed()
         sex.bind("<<ComboboxSelected>>", set_sex)
+        if role["kind"] == "stranger" and v6:
+            # cie-v6-binary.md 16: a first name drawn from the game's own name lists.
+            named = tk.BooleanVar(master=self.window, value=bool(role.get("named")))
+
+            def set_named():
+                if named.get():
+                    role["named"] = True
+                else:
+                    role.pop("named", None)
+                self._role_changed()
+            ttk.Checkbutton(form, text="Give this stranger a name (one the game gives new villagers)",
+                            variable=named, command=set_named).grid(row=3, column=0, columnspan=2, sticky="w")
+            self.stranger_named_var = named
         if role["kind"] != "villager":
             return
         age = tk.StringVar(master=self.window, value=str(role["min_age"]))

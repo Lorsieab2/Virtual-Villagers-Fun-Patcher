@@ -194,6 +194,22 @@ LABELS = {
 }
 
 
+VISITOR = {
+    # A named stranger (cie-v6-binary.md 16): VV5's offscreen Isolan.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Visitor", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}, "visitor": {"kind": "stranger", "sex": "female", "named": True}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Visitor) arrives by canoe. (Name) greets (visitor.him/her); (VISITOR) LAUGHS.",
+              "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "What does (name) offer?", "choices": [
+            {"label": "Share a meal with (Visitor)", "next": "a"}, {"label": "Send (visitor.him/her) away", "next": "b"}]},
+        "a": {"text": "(Visitor) and (name) eat together."},
+        "b": {"text": "(Visitor) paddles away."},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -247,6 +263,12 @@ def vector_cases() -> list[dict]:
          "answers": [0], "facts": None},
         {"name": "label_names_vv5", "graph": LABELS, "game": 5, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Rosalind", "sex": "f"}, "friend": {"name": "Bartholomew", "sex": "m"}},
+         "answers": [1], "facts": None},
+        {"name": "named_stranger_vv5", "graph": VISITOR, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aipi", "sex": "f"}},
+         "answers": [0], "facts": None},
+        {"name": "named_stranger_vv1", "graph": VISITOR, "game": 1, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aika", "sex": "f"}},
          "answers": [1], "facts": None},
     ]
 
@@ -991,6 +1013,51 @@ class NodeTitles(unittest.TestCase):
         self.assertEqual(cg.widest_title(g, ["", "Short", "Threeline Titleline Hereline"], layout, cg.GAMES[1]),
                          "Threeline Titleline Hereline")
         self.assertEqual(cg.widest_title(g, ["", "Short"], layout, cg.GAMES[1]), "The Revolution")
+
+
+class NamedStrangers(unittest.TestCase):
+    """A named stranger (cie-v6-binary.md 16)."""
+
+    def test_the_lists_are_the_games_own(self):
+        names = json.loads(cg.VILLAGER_NAMES.read_text(encoding="utf-8"))["games"]
+        stock = ROOT / "research" / "stock-executables"
+        exes = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
+                5: "New Believers"}
+        for game, title in exes.items():
+            d = names[str(game)]
+            male, female = cg.villager_names(game)
+            self.assertGreater(len(male), 60)
+            self.assertEqual((d["male_bytes"], d["female_bytes"]),
+                             (len(",".join(male)) + 1, len(",".join(female)) + 1))
+            exe = stock / f"Virtual Villagers - {title}.exe"
+            if not exe.is_file():
+                continue
+            import pefile
+            pe = pefile.PE(str(exe), fast_load=True)
+            data = exe.read_bytes()
+            for va, names_ in ((d["male_va"], male), (d["female_va"], female)):
+                with self.subTest(game=game, va=hex(va)):
+                    off = pe.get_offset_from_rva(va - pe.OPTIONAL_HEADER.ImageBase)
+                    want = (",".join(names_) + ",").encode()
+                    self.assertEqual(data[off:off + len(want)], want, "the list at its address in the stock game")
+        self.assertEqual([cg.stranger_name_room(g) for g in range(1, 6)], [6, 7, 8, 8, 8])
+
+    def test_format(self):
+        g = cg.load(copy.deepcopy(VISITOR))
+        self.assertTrue(g["roles"]["visitor"]["named"])
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        o_role = struct.unpack_from("<I", blob, 44)[0]
+        self.assertEqual(blob[o_role + 16 + 1], 1, "the stranger's flags: named")
+        d = copy.deepcopy(VISITOR)
+        del d["roles"]["visitor"]["named"]
+        self.assertTrue(any("a stranger has no name" in p for p in t.problems_of(d)))
+        d["roles"]["visitor"]["named"] = "yes"
+        self.assertTrue(any("named is true or false" in p for p in t.problems_of(d)))
+        lg = cg.lower(g)
+        self.assertEqual(cg.worst_v6("(Visitor)!", lg, cg.GAMES[2], None), "WWWWWWW!")
+        r = cg.simulate(g, 5, [], {"subject": cg.Binding("Ana", "f"), "visitor": cg.Binding("Aipi", "f")}, [0])
+        self.assertEqual(r["popups"][0], "Aipi arrives by canoe. Ana greets her; AIPI LAUGHS.")
 
 
 class LabelPronouns(unittest.TestCase):
