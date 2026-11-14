@@ -446,7 +446,9 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
         rep.add("c COVERAGE", "no manifest row for collection.id")
         return
     a, b = row["lines"]
-    missing = [n for n in range(a, b + 1) if n not in consumed and not lib.is_blank_or_separator(n)]
+    # A line that is nothing but structural markers ("Go to (3).") needs no ledger entry.
+    missing = [n for n in range(a, b + 1) if n not in consumed and not lib.is_blank_or_separator(n)
+               and processed_line(n, cuts, fixes)]
     if missing:
         rep.add("c COVERAGE", f"{len(missing)} source lines consumed by nothing: {compress(missing)}")
     # Lines outside the event's own: only a section's shared text (a festival's setting paragraph that each of its
@@ -930,7 +932,7 @@ def ledger_summary(doc: dict) -> list[str]:
                 subs.update(lib.substitutions_in(lib.line(n)))
     if subs:
         out.append(f"  authoring substitutions: {', '.join(sorted(subs))}")
-    fallback = sorted({c for f in text_fields(doc) for c in f.text if c in lib.FONT_FALLBACK_VV12} |
+    fallback = sorted({c for f in text_fields(doc) for c in f.text if c in ";&%"} |
                       {"(" for f in text_fields(doc) if "\\(" in f.text})
     if fallback and set(doc.get("games", [])) & {1, 2}:
         out.append(f"  VV1/VV2 display fallback without Unicode Text: "
