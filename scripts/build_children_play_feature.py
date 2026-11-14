@@ -152,6 +152,18 @@ NON_CHANGES = [
 ]
 
 
+SAVE_SAFETY = {
+    3: "The action The Secret City records for a tag player (+0xF24) is the stock \"Running around\" (0x94), set by "
+       "the game's own do-action; the save keeps only the record's window +0xDC4..+0xEC4 (the writer 0x45EF80), so "
+       "neither the action, the tag text (+0xF28) nor the queue is ever saved.",
+    4: "The action The Tree of Life records for a tag player (+0x1CE0) is the stock \"Running around\" (0x46), set "
+       "by the game's own do-action; its readers (0x42EB09, 0x42F211, 0x42F266, 0x42F2D9, 0x42F330, 0x436897, "
+       "0x43A5EB, 0x46788F) test only other actions. The save keeps only the record's windows (0x45DB30: +0x1B8C, "
+       "+0x1C34, +0x1C5C and the likes and dislikes), so neither the action, the tag text (+0x1CE4) nor the queue is "
+       "ever saved; a load resets them (0x45D8A0).",
+}
+
+
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest().upper()
 
@@ -178,7 +190,7 @@ def row(game: int, dll_sha: str) -> dict:
         "output_tag": NAMES[game],
         "dependencies": [],
         "behavior_changes": BEHAVIOR[game],
-        "explicit_non_changes": NON_CHANGES,
+        "explicit_non_changes": NON_CHANGES + ([SAVE_SAFETY[game]] if game in SAVE_SAFETY else []),
         "evidence_status": ("the stock pastime picks, tag and sandcastle routines traced statically; the companion's "
                             "install, its odds over many picks, who plays and where, emulated on the rendered "
                             "executable in tests/test_children_play.py; runtime/player confirmation pending"),

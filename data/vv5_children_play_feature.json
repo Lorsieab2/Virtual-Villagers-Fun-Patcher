@@ -21,7 +21,7 @@
     {
       "source": "assets/children_play/VVFP Children Play.dll",
       "destination": "VVFP Children Play.dll",
-      "sha256": "7908971CFA7E36EA9602E0CFBC6356B232EA99E40AB62A9D9351E2699DC4DECE"
+      "sha256": "B32B81EA3157CBA611723E170C4C77975FE8566CB4B02A2659AB3A3B06997BE8"
     }
   ],
   "patches": [],

@@ -1507,6 +1507,28 @@ Origins-exclusive base, which the patcher installs automatically with it:
 there is no separate box to tick, and selecting this row also adds the
 Origins Upgrades buttons to the Tech and Villager Details screens.
 
+CHILDREN PLAY TAG AND BUILD SANDCASTLES (ALL FIVE GAMES)
+
+Children play tag and build sandcastles on the beach, as in the later
+games. Each game's row is named by what it adds:
+- Children Play Tag and Build Sandcastles (A New Home): both are new.
+- Children Build Sandcastles (and Tag More Often) (The Lost Children):
+  sandcastles are new; the game's own tag comes up as often.
+- Children Play Tag (The Secret City, The Tree of Life): tag is new; their
+  own sandcastles on the beach are unchanged.
+- Children Play Tag More Often (New Believers): the game's own tag comes up
+  as often (it has no ocean, so no sandcastles).
+Each time a child picks something to play, tag is 1 pick in 15 and
+sandcastles 1 pick in 15, a normal play choice; the child's other choices
+keep their usual odds. A child who dislikes playing never starts either.
+Tag: every child who is not sick and has empty hands joins (in The Secret
+City and The Tree of Life only children who do not dislike playing, never
+the Tribal Chief; in New Believers the game's own rule decides), the child
+who started is "It", and it needs at least two children. Sandcastles: one
+child walks to the beach at the water and bends over in the sand. In A New
+Home the Golden Child keeps his own choices but joins a game of tag. On by
+default. Needs no other patch. Not yet seen in a running game.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

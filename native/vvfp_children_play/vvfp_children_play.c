@@ -158,9 +158,9 @@ static int vv1_tag(unsigned char *array, int starter) {
         }
         ((tc1_fn)g->stop)(array, NULL, i);
         if (i == starter) {
-            put_text(r + g->text, "vvfp.children_play/vvfp_children_play.vv1_tag.s1", IT_WORDS);
+            put_text(r + g->text, "vvfp.children_play/vvfp_children_play.IT_WORDS.s0", IT_WORDS);
         } else {
-            put_text(r + g->text, "vvfp.children_play/vvfp_children_play.vv1_tag.s0", TAG_WORDS);
+            put_text(r + g->text, "vvfp.children_play/vvfp_children_play.TAG_WORDS.s0", TAG_WORDS);
         }
         for (round = 0; round < 4; ++round) {
             old_queue(g, array, i, 3, in_range(845, 120), in_range(659, 120), 0, CP_TAG_SPEED);
@@ -344,7 +344,7 @@ static int __fastcall pick1(void *self, void *edx, int arg) {
                 return 1;
             }
             if (slot == CP_SLOT_SAND) {
-                old_sandcastles(&VV1, VV1_BEACH, "vvfp.children_play/vvfp_children_play.vv1_sand.s0",
+                old_sandcastles(&VV1, VV1_BEACH, "vvfp.children_play/vvfp_children_play.SAND_WORDS.s0",
                                 (unsigned char *)self, arg);
                 return 1;
             }
@@ -358,7 +358,7 @@ static int __fastcall pick1(void *self, void *edx, int arg) {
                 return 1;
             }
             if (slot == CP_SLOT_SAND) {
-                old_sandcastles(&VV2, VV2_BEACH, "vvfp.children_play/vvfp_children_play.vv2_sand.s0",
+                old_sandcastles(&VV2, VV2_BEACH, "vvfp.children_play/vvfp_children_play.SAND_WORDS.s0",
                                 (unsigned char *)self, arg);
                 return 1;
             }

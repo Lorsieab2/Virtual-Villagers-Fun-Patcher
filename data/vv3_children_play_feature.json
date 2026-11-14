@@ -15,14 +15,15 @@
   "explicit_non_changes": [
     "No executable byte is patched: the companion replaces the call(s) at run time, only after verifying every one is the stock call; all are written or none.",
     "The stock pick, its choices and their odds among themselves are unchanged; a child who dislikes Playing gets it exactly as stock.",
-    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it)."
+    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it).",
+    "The action The Secret City records for a tag player (+0xF24) is the stock \"Running around\" (0x94), set by the game's own do-action; the save keeps only the record's window +0xDC4..+0xEC4 (the writer 0x45EF80), so neither the action, the tag text (+0xF28) nor the queue is ever saved."
   ],
   "evidence_status": "the stock pastime picks, tag and sandcastle routines traced statically; the companion's install, its odds over many picks, who plays and where, emulated on the rendered executable in tests/test_children_play.py; runtime/player confirmation pending",
   "companion_files": [
     {
       "source": "assets/children_play/VVFP Children Play.dll",
       "destination": "VVFP Children Play.dll",
-      "sha256": "7908971CFA7E36EA9602E0CFBC6356B232EA99E40AB62A9D9351E2699DC4DECE"
+      "sha256": "B32B81EA3157CBA611723E170C4C77975FE8566CB4B02A2659AB3A3B06997BE8"
     }
   ],
   "patches": [],

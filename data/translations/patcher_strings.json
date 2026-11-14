@@ -68951,6 +68951,37 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.TAG_WORDS.s0",
+   "english": "Playing tag",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.IT_WORDS.s0",
+   "english": "Playing tag - \"It\" ",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
+  },
+  {
+   "stem": "vvfp.children_play/vvfp_children_play.SAND_WORDS.s0",
+   "english": "Making sandcastles",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "a",
+   "context": "Children Play Tag and Build Sandcastles: a child's Details text (\"VVFP Children Play.dll\")",
+   "notes": "drawn by the game's text routine; at most 47 bytes"
   }
  ]
 }

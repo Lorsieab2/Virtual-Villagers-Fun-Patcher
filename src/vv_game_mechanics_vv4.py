@@ -18,6 +18,7 @@ import struct
 from pathlib import Path
 
 import vv_game_mechanics as gm
+import vv_game_mechanics_children_play as children_play
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_life as life
@@ -569,6 +570,8 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     for line, ok in CHANCE_V4:
         add("Chance and timers", line, ok)
     for line, ok in STEW_LINES:
+        add("Other", line, ok)
+    for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
     add("Other", stew_pot_line(speed), gm.RUNNING)
     add("Other", GRATE_LINE, gm.OWNER)

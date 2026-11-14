@@ -15,14 +15,15 @@
   "explicit_non_changes": [
     "No executable byte is patched: the companion replaces the call(s) at run time, only after verifying every one is the stock call; all are written or none.",
     "The stock pick, its choices and their odds among themselves are unchanged; a child who dislikes Playing gets it exactly as stock.",
-    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it)."
+    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it).",
+    "The action The Tree of Life records for a tag player (+0x1CE0) is the stock \"Running around\" (0x46), set by the game's own do-action; its readers (0x42EB09, 0x42F211, 0x42F266, 0x42F2D9, 0x42F330, 0x436897, 0x43A5EB, 0x46788F) test only other actions. The save keeps only the record's windows (0x45DB30: +0x1B8C, +0x1C34, +0x1C5C and the likes and dislikes), so neither the action, the tag text (+0x1CE4) nor the queue is ever saved; a load resets them (0x45D8A0)."
   ],
   "evidence_status": "the stock pastime picks, tag and sandcastle routines traced statically; the companion's install, its odds over many picks, who plays and where, emulated on the rendered executable in tests/test_children_play.py; runtime/player confirmation pending",
   "companion_files": [
     {
       "source": "assets/children_play/VVFP Children Play.dll",
       "destination": "VVFP Children Play.dll",
-      "sha256": "7908971CFA7E36EA9602E0CFBC6356B232EA99E40AB62A9D9351E2699DC4DECE"
+      "sha256": "B32B81EA3157CBA611723E170C4C77975FE8566CB4B02A2659AB3A3B06997BE8"
     }
   ],
   "patches": [],

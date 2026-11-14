@@ -468,5 +468,32 @@ class Defaults(unittest.TestCase):
             self.assertTrue(select_all_fun_patch_selection(row))
 
 
+class GameMechanics(unittest.TestCase):
+    """Each game's Game Mechanics page: the stock line always, the patch's line when it is in the game (or when that
+    cannot be told), never when it is known out."""
+
+    def test_lines(self) -> None:
+        import vv_game_mechanics as gm
+        for game in range(1, 6):
+            module = __import__(f"vv_game_mechanics_vv{game}")
+            row = f"vv{game}_children_play"
+            name = gm.feature_name(row)
+            for installed, shown in ((frozenset({row}), "is in the game"), (None, "could not be told"),
+                                     (frozenset(), None)):
+                with self.subTest(game=game, installed=installed):
+                    village = gm.Village(Path("."), game, 1, Path(f"{game}.ldw"), gm.blank_save(game, 1.8e9),
+                                         installed, 1.8e9, general=True)
+                    texts = [f.text for f in module.facts(village) if f.group == "Other"]
+                    self.assertTrue(any(t.startswith("Children's play:") for t in texts))
+                    patched = [t for t in texts if f'"{name}"' in t]
+                    if shown is None:
+                        self.assertEqual(patched, [])
+                    else:
+                        self.assertEqual(len(patched), 1)
+                        self.assertIn(shown, patched[0])
+                        self.assertIn("1 time in 15", patched[0])
+                        self.assertNotIn("0x", patched[0], "no exe addresses on the page")
+
+
 if __name__ == "__main__":
     unittest.main()
