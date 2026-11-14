@@ -186,7 +186,7 @@
      "src": "L5545"
     },
     {
-     "label": "TELL (subject.Him/Her) TO STOP BEFORE ANYONE IS HURT.",
+     "label": "TELL (SUBJECT) TO STOP BEFORE ANYONE IS HURT.",
      "next": "warning",
      "src": "L5546"
     }

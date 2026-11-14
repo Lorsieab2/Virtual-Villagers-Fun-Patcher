@@ -59,13 +59,14 @@
   "min_eligible": 1
  },
  "roles": {
-  "elder": {
-   "kind": "villager",
-   "min_age": 55
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
   }
  },
  "include_pools": [
   "v9_r4",
+  "v9_r5",
   "v9_r16",
   "v9_r20",
   "v9_r24",
@@ -270,10 +271,10 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_r4",
-     "if": {
-      "role": "elder"
-     }
+     "next": "coda_r4"
+    },
+    {
+     "next": "coda_r5"
     },
     {
      "next": "coda_r16"
@@ -316,6 +317,11 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "coda_r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r5}"
   }
  }
 }

@@ -74,6 +74,12 @@
   "villager": {
    "kind": "villager",
    "min_age": 14
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "optional": true,
+   "special": "nursing_parent"
   }
  },
  "include_pools": [
@@ -86,7 +92,10 @@
    "items": [
     {
      "text": "the villager now carries a baby",
-     "src": "L4289"
+     "src": "L4289",
+     "if": {
+      "visited": "intro_parent"
+     }
     },
     {
      "text": "the villager has gray in (villager.his/her) hair",
@@ -169,14 +178,75 @@
      "src": "L4325-4326"
     }
    ]
+  },
+  "AP": {
+   "items": [
+    {
+     "text": "the villager now carries a baby",
+     "src": "L4289",
+     "if": {
+      "visited": "intro_parent"
+     }
+    },
+    {
+     "text": "the villager has gray in (parent.his/her) hair",
+     "src": "L4290"
+    },
+    {
+     "text": "the villager has become a skilled healer",
+     "src": "L4291"
+    },
+    {
+     "text": "the villager has a child who looks just like (parent.him/her)",
+     "src": "L4292"
+    },
+    {
+     "text": "the villager walks with a little more care than before",
+     "src": "L4293"
+    },
+    {
+     "text": "the villager wears a small keepsake from an earlier home",
+     "src": "L4294"
+    },
+    {
+     "text": "the villager has learned to carve beautiful wooden toys",
+     "src": "L4295"
+    }
+   ],
+   "mirror_of": "A"
   }
  },
- "start": "intro",
+ "start": "start",
  "nodes": {
+  "start": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro_parent",
+     "if": {
+      "role": "parent"
+     },
+     "else": "intro"
+    },
+    {
+     "next": "intro"
+    }
+   ]
+  },
   "intro": {
    "name": "An old face",
    "src": "L4281-4299",
    "text": "A former Heathen-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {A}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "intro_parent": {
+   "name": "An old face",
+   "src": "L4281-4299",
+   "text": "A former Heathen-born villager and an Isolan visitor meet near the edge of the village. They recognize each other from years ago.\nFor a moment, neither speaks.\nThe visitor notices {AP}.\n\"You're different,\" says the visitor. \"So are you,\" replies the villager.",
    "children": [
     {
      "next": "memory"
@@ -189,7 +259,11 @@
    "text": "{MEMORY}",
    "children": [
     {
-     "next": "end"
+     "next": "end_parent",
+     "if": {
+      "visited": "intro_parent"
+     },
+     "else": "end"
     }
    ]
   },
@@ -249,6 +323,28 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "end_parent": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4329"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   }
  }
 }

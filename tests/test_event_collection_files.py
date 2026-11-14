@@ -112,7 +112,13 @@ class Manifest(unittest.TestCase):
 # here may fail ONLY with problems matching its pattern.
 #   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
+#   GAP-LABEL-NAME: a button label that holds a villager's name in capitals ("TELL (NAME1) TO STOP ...") is wider than
+#   the screen with the longest names, and the format has no all-caps name or pronoun form (lead/owner decision).
 KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
+    "all_impossible_invention.json": r"^a SCHEMA: .*the label 'TELL \(SUBJECT\) TO STOP .* runs off the screen with the "
+                                     r"longest names",
+    "all_unlikely_advisor.json": r"^a SCHEMA: .*the label 'INVITE \(SUBJECT\) TO SPEAK\.' runs off the screen with the "
+                                 r"longest names",
 }
 
 
