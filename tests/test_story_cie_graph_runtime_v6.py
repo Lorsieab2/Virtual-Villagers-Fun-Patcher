@@ -224,7 +224,8 @@ def vector_village(case: dict):
 
 # Rolls the binding takes that the patcher's walk does not model, and where they come in the stream (a start
 # question's own words are drawn at the purchase, before the binding): (after this many rolls, [the rolls]).
-BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0])}
+BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
+              "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0])}
 
 
 @emulated
@@ -248,6 +249,8 @@ class SharedVectors(unittest.TestCase):
             for role in protected:
                 idx = [p[3] for p in vector_village(case)].index(case["bindings"][role]["name"])
                 r.p.export("VvfpStoryProbeGraphNurseAtWalk", idx)
+        if "tribe" in case:
+            put_tribe(r, game, case["tribe"])
         self.assertIsNone(r.queue6(data))
         shown = r.walk_through(case["answers"])
         st = r.v6state()
@@ -573,16 +576,13 @@ def gap_graph(game: str, **extra) -> dict:
 
 
 def put_tribe(r, game: str, name: str | None) -> None:
-    """The tribe's name where the game's save manager keeps it (None: no manager, so no name)."""
+    """The tribe's name where the game's save manager keeps it (None: an unnamed village)."""
     va = TRIBE_MANAGER[game]
-    if name is None:
-        r.p.put32(va, 0)
-        return
     manager = r.p.u32(va)
     if manager == 0:
         manager = r.p.alloc(0x18000)
         r.p.put32(va, manager)
-    r.p.write(manager + TRIBE_AT[game], name.encode() + b"\0")
+    r.p.write(manager + TRIBE_AT[game], (name or "").encode() + b"\0")
 
 
 @emulated
@@ -635,7 +635,7 @@ class FormatGaps(unittest.TestCase):
                     g = gap_graph(game, roles={
                         "a": {"kind": "villager", "min_age": 14}, "b": {"kind": "villager", "min_age": 14},
                         "pick": {"kind": "alias", "of": ["a", "b"]}, "rest": {"kind": "other", "of": "pick"}})
-                    g["nodes"]["p"] = {"text": "(Pick) leads; (rest) follows (rest.him/her).",
+                    g["nodes"]["p"] = {"text": "(Pick) leads. (rest) follows (rest.him/her).",
                                        "effects": [{"do": "skill", "role": "rest", "skills": ["Farming"],
                                                     "set": 100}]}
                     r = V6(game, TWO)
@@ -645,7 +645,7 @@ class FormatGaps(unittest.TestCase):
                     r.walk_through()
                     picked = "Ana" if roll == 0 else "Bo"
                     rest, pron, idx = ("Bo", "him", 1) if roll == 0 else ("Ana", "her", 0)
-                    self.assertEqual(self.words(r), f"{picked} leads; {rest} follows {pron}.")
+                    self.assertEqual(self.words(r), f"{picked} leads. {rest} follows {pron}.")
                     self.assertEqual(r.v.skill(idx, FARMING[game]), 100, "the effect on the other member")
                     self.assertEqual(r.v.skill(1 - idx, FARMING[game]), 0)
 
@@ -666,14 +666,14 @@ class FormatGaps(unittest.TestCase):
             for name in ("Kalahuna", None):
                 with self.subTest(game=game, name=name):
                     g = gap_graph(game)
-                    g["nodes"]["p"]["text"] = "{@Tribe} gathers; (Name) speaks for {@tribe}."
+                    g["nodes"]["p"]["text"] = "{@Tribe} gathers. (Name) speaks for {@tribe}."
                     r = V6(game, TWO)
                     r.rolls([0] * 40)
                     put_tribe(r, game, name)
                     self.assertIsNone(r.queue6(compiled(g)))
                     r.walk_through()
-                    want = (f"{name} gathers; Ana speaks for {name}." if name
-                            else "The village gathers; Ana speaks for the village.")
+                    want = (f"{name} gathers. Ana speaks for {name}." if name
+                            else "The village gathers. Ana speaks for the village.")
                     self.assertEqual(self.words(r), want)
 
     def test_g6_quotes_in_the_title(self):
@@ -697,14 +697,14 @@ class FormatGaps(unittest.TestCase):
                         g["nodes"] = {"q": {"type": "question", "text": "A visitor greets (host).",
                                             "choices": [{"label": "Welcome her", "next": "p"},
                                                         {"label": "Wave", "next": "p"}]},
-                                      "p": {"text": "(Host) and the visitor talk; (visitor.he/she) smiles."}}
+                                      "p": {"text": "(Host) and the visitor talk. (visitor.He/She) smiles."}}
                     else:
-                        g["nodes"]["p"]["text"] = "(Host) and the visitor talk; (visitor.he/she) smiles."
+                        g["nodes"]["p"]["text"] = "(Host) and the visitor talk. (visitor.He/She) smiles."
                     r = V6(game, TWO)
                     r.rolls([0] * 40)
                     self.assertIsNone(r.queue6(compiled(g)))
                     shown = r.walk_through([0] if question else ())
-                    self.assertIn("Ana and the visitor talk; she smiles.", norm(" ".join(t for _k, t, _l in shown)))
+                    self.assertIn("Ana and the visitor talk. She smiles.", norm(" ".join(t for _k, t, _l in shown)))
 
 
 PIPELINE_EVENTS = ("v20/all_v20_between_life_and_death.json", "v22/all_v22_4_parents_lesson.json")
@@ -722,8 +722,10 @@ class PipelinePilots(unittest.TestCase):
             path = root / rel
             if not path.is_file():
                 self.skipTest(f"{rel} is not on this branch")
-            graph = json.loads(path.read_text(encoding="utf-8"))
-            g = cg.load(copy.deepcopy(graph), scrolling=False)
+            sys.path.insert(0, str(ROOT / "scripts"))
+            import collection_check as cc
+            graph = cc.graph_for_engine(json.loads(path.read_text(encoding="utf-8")))
+            g = cg.load(copy.deepcopy(graph), scrolling=False, shared_pools={"pools": cc.shared_pools()})
             data = cg.compile_graph(g)
             start = g["nodes"][g["start"]]
             for game in (f"vv{n}" for n in g["games"]):
@@ -741,8 +743,10 @@ class PipelinePilots(unittest.TestCase):
                         self.assertIsNone(why, why)
                         try:
                             shown = r.walk_through([choice] * 16)
-                        except (ValueError, IndexError):
-                            continue               # this choice is not shown in this game
+                        except ValueError as e:
+                            if "not in list" not in str(e):
+                                raise
+                            continue               # this choice is not shown in this game (its if)
                         self.assertIn(r.state()["phase"], (IDLE, DONE))
                         self.assertTrue(shown)
                         for _kind, text, _labels in shown:
