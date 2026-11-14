@@ -241,8 +241,18 @@
         "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
         "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
         "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
-        "Most need two villagers of 14 or more who are not nursing and not special. They come at the game's usual times; Story / Cheat Upgrades can pick them.",
+        "Most need two villagers of 14 or more who are not nursing and not special. They are rare and never change the game's own events' chances: they come through Story / Cheat Upgrades' separate rare roll, or Pick Island Event. Needs Story / Cheat Upgrades.",
         "Long text comes in pages (one popup with Scrolling Popups): click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_isola_grand_event_collection", "vv2_isola_grand_event_collection", "vv3_isola_grand_event_collection", "vv4_isola_grand_event_collection", "vv5_isola_grand_event_collection"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it (not Select All, not Classic VV Difficulty). Needs Story / Cheat Upgrades.",
+        "Adds the Isola Grand Event Collection: the owner's large collection of island events, with its credits beside the patcher's files.",
+        "They are rare and never change the game's own events' chances: after a natural island event a separate roll may bring one some hours later.",
+        "About three a week of game time; never in the village's first two events, never in trouble, never in place of a rescue event.",
+        "Pick Island Event lists them (and what each needs); the Custom Island Event library has them in its own group. Not yet tested in play."
       ]
     },
     {

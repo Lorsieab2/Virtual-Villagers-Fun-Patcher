@@ -673,11 +673,13 @@ static const char *sc_check(int game, int i, char *why, int cap) {
     int keep_cast = cg_cast_now, keep_origin = cg_origin_now, n;
     const char *refusal;
     if (cg.phase != CG_IDLE && cg.phase != CG_DONE) {
-        lstrcpynA(why, "another branching island event is still running", cap);
+        lstrcpynA(why, vvfp_tr("vvfp.story/story_collection.sc_check.s0",
+                               "another branching island event is still running", 200), cap);
         return why;
     }
     if (!sc_load_entry(i, &size) || !cg_load(&cg_g, sc_bytes, size)) {
-        lstrcpynA(why, "its file can not be read: install the patch again", cap);
+        lstrcpynA(why, vvfp_tr("vvfp.story/story_collection.sc_check.s1",
+                               "its file can not be read: install the patch again", 200), cap);
         return why;
     }
     cg_cast_now = CG_CAST_STRICT;
@@ -705,9 +707,8 @@ static int sc_pick_fill(int game) {
     for (i = 0; i < sc_count && sm_list.count < SM_MAX; ++i) {
         int m = sm_list.count;
         lstrcpynA(sm_list.title[m], sc_list[i].title, SM_TEXT);
-        lstrcpynA(sm_list.description[m],
-                  vvfp_tr("vvfp.story/story_collection.pick_description",
-                          "An event of the Isola Grand Event Collection.", SM_TEXT), SM_TEXT);
+        lstrcpynA(sm_list.description[m], vvfp_tr("vvfp.story/story_collection.sc_pick_fill.s0",
+                                                  "An event of the Isola Grand Event Collection.", 200), SM_TEXT);
         sm_list.k[m] = SM_COLL_BASE + i;
         sm_list.possible[m] = sc_check(game, i, sm_list.needs[m], SM_TEXT) == NULL;
         if (sm_list.possible[m]) {
@@ -742,7 +743,8 @@ static int sc_pick_buy(int game, HWND owner, int i) {
     }
     if (sc_check(game, i, why, sizeof why) != NULL || !sc_load_entry(i, &size)
         || !cg_queue_origin(game, sc_bytes, size, CG_ORIGIN_PICK, CG_CAST_STRICT)) {
-        wsprintfA(message, "%.300s can not happen right now: %.600s No tech points have been deducted.",
+        wsprintfA(message, vvfp_tr("vvfp.story/story_collection.sc_pick_buy.s0",
+                                   "%.300s can not happen right now: %.600s No tech points have been deducted.", 200),
                   sc_list[i].title, cg_queue_refusal()[0] != '\0' ? cg_queue_refusal() : why);
         vvfp_message_box(owner, message, "Pick Island Event", MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
         return 0;
@@ -777,7 +779,9 @@ static void sc_library_add(int game) {
         if (n <= 0 || lossy || GetFileAttributesA(cg_lib.path[cg_lib.count]) == INVALID_FILE_ATTRIBUTES) {
             continue;                  /* a folder the ANSI path cannot name: left out of the library only */
         }
-        wsprintfA(cg_lib.label[cg_lib.count], "Isola Grand Event Collection: %.80s", sc_list[i].title);
+        wsprintfA(cg_lib.label[cg_lib.count],
+                  vvfp_tr("vvfp.story/story_collection.sc_library_add.s0", "Isola Grand Event Collection: %.80s", 100),
+                  sc_list[i].title);
         ++cg_lib.count;
     }
 }

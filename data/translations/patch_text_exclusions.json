@@ -142,8 +142,13 @@
   },
   {
    "reason": "The Remembrance Ceremony and The Rumblings: their own lines in the Island Events log's one entry (the villagers at the ceremony, each damaged structure), written to the log file only. The words the events show are in the template and looked up by key (ceremony_text.inc).",
-   "files": ["native/vvfp_more_island_events/ceremony_core.inc", "native/vvfp_more_island_events/ceremony_games.inc"],
-   "functions": ["cr_remembrance", "cr_rumblings", "cr_log_line", "CR_V1_NAMES", "CR_V2_NAMES", "CR_V3_NAMES", "CR_V45_NAMES", "cr_story_busy", "cr_from_story"]
+   "files": ["native/vvfp_more_island_events/ceremony_core.inc", "native/vvfp_more_island_events/ceremony_games.inc", "native/shared/structure_damage.h"],
+   "functions": ["cr_remembrance", "cr_rumblings", "cr_log_line", "CR_V1_NAMES", "CR_V2_NAMES", "CR_V3_NAMES", "CR_V45_NAMES", "SD_V1_NAMES", "SD_V2_NAMES", "SD_V3_NAMES", "SD_V45_NAMES", "cr_from_story"]
+  },
+  {
+   "reason": "The Isola Grand Event Collection's folder and the save's roll file name (story_collection.inc): file and folder names the companion opens, never shown.",
+   "files": ["native/vvfp_story_upgrades/story_collection.inc"],
+   "match": "^(Island Event Collection|Island Event Collection Roll)$"
   }
  ]
 }

@@ -157,6 +157,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # The Aspiring Adventurer (the owner, 2026-11-12: on in Owner's Defaults and in Classic VV
                   # Difficulty).
                   or p.endswith("_more_island_events")
+                  # Isola Grand Event Collection (the owner, 2026-11-14: "Default ON in Owner's Defaults, OFF
+                  # everywhere else").
+                  or p.endswith("_isola_grand_event_collection")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
@@ -358,6 +361,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
         # Population (the owner, 2026-11-12).
         held_back |= {f"vv{n}_island_events_scale_with_stored_amounts" for n in (1, 4, 5)}
+        # ...and the Isola Grand Event Collection (the owner, 2026-11-14: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_isola_grand_event_collection" for n in range(1, 6)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
