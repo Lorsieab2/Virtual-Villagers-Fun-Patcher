@@ -43,12 +43,12 @@
      "src": "L9257"
     },
     {
-     "label": "CONFINE (Accused) IN A GUARDED SHELTER",
+     "label": "CONFINE (ACCUSED) IN A GUARDED SHELTER",
      "next": "set_b",
      "src": "L9266"
     },
     {
-     "label": "DEFEND (Accused) PUBLICLY",
+     "label": "DEFEND (ACCUSED) PUBLICLY",
      "next": "set_c",
      "src": "L9276"
     }

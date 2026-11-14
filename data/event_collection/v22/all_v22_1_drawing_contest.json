@@ -120,7 +120,7 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "The artists of Isola assemble beneath the shade of broad tropical leaves. There are bowls of crushed berry pigments, charcoal sticks, colored earth, barkcloth, smooth wood, and prepared leaves. A row of judges sits before a growing collection of drawings. (Artist) has entered the competition, although (artist.he/she) has not yet decided what to draw.\nAn enthusiastic organizer announces, \"May the finest artist win!\" From the back, someone mutters, \"May the judges know what art is.\"\nWHAT SHOULD (Artist) DRAW?",
+   "text": "The artists of Isola assemble beneath the shade of broad tropical leaves. There are bowls of crushed berry pigments, charcoal sticks, colored earth, barkcloth, smooth wood, and prepared leaves. A row of judges sits before a growing collection of drawings. (Artist) has entered the competition, although (artist.he/she) has not yet decided what to draw.\nAn enthusiastic organizer announces, \"May the finest artist win!\" From the back, someone mutters, \"May the judges know what art is.\"\nWHAT SHOULD (ARTIST) DRAW?",
    "src": "L9564-9568,L9570-9571,L9573",
    "children": [
     {
@@ -131,7 +131,7 @@
   "question": {
    "type": "question",
    "name": "The choice",
-   "text": "WHAT SHOULD (Artist) DRAW?",
+   "text": "WHAT SHOULD (ARTIST) DRAW?",
    "src": "L9573",
    "choices": [
     {

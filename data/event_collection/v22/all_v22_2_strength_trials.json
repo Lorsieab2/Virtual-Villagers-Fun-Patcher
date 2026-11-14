@@ -102,7 +102,7 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "To celebrate the village's hardworking builders, farmers, and gatherers, the elders announce a friendly strength competition. Coconuts are stacked, water-filled clay jugs are carefully inspected, sturdy fallen logs are marked, and a large stone is placed at the edge of the clearing. (Strongman) volunteers. Several spectators immediately begin arguing about which feat should count as the greatest demonstration of strength.\nWHAT CHALLENGE SHOULD (Strongman) ATTEMPT?",
+   "text": "To celebrate the village's hardworking builders, farmers, and gatherers, the elders announce a friendly strength competition. Coconuts are stacked, water-filled clay jugs are carefully inspected, sturdy fallen logs are marked, and a large stone is placed at the edge of the clearing. (Strongman) volunteers. Several spectators immediately begin arguing about which feat should count as the greatest demonstration of strength.\nWHAT CHALLENGE SHOULD (STRONGMAN) ATTEMPT?",
    "src": "L9633-9638,L9640",
    "children": [
     {
@@ -120,7 +120,7 @@
   "question": {
    "type": "question",
    "name": "The choice",
-   "text": "WHAT CHALLENGE SHOULD (Strongman) ATTEMPT?",
+   "text": "WHAT CHALLENGE SHOULD (STRONGMAN) ATTEMPT?",
    "src": "L9640",
    "choices": [
     {

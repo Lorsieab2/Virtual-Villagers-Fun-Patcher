@@ -119,7 +119,7 @@
  "nodes": {
   "intro": {
    "name": "The beginning",
-   "text": "The healers and herbalists assemble around low tables laden with island plants, clean water, gourds, stone bowls, and carefully labeled samples. The judges announce several possible contests. Some reward a useful preparation; others are demonstrations of harmless magical craft. (Brewer) chooses an entry. A rival declares that (rival.his/her) mixture will be \"the most powerful potion Isola has ever seen.\"\nWHAT KIND OF POTION SHOULD (Brewer) MAKE?",
+   "text": "The healers and herbalists assemble around low tables laden with island plants, clean water, gourds, stone bowls, and carefully labeled samples. The judges announce several possible contests. Some reward a useful preparation; others are demonstrations of harmless magical craft. (Brewer) chooses an entry. A rival declares that (rival.his/her) mixture will be \"the most powerful potion Isola has ever seen.\"\nWHAT KIND OF POTION SHOULD (BREWER) MAKE?",
    "src": "L9708-9713,L9715",
    "children": [
     {
@@ -130,7 +130,7 @@
   "question": {
    "type": "question",
    "name": "The choice",
-   "text": "WHAT KIND OF POTION SHOULD (Brewer) MAKE?",
+   "text": "WHAT KIND OF POTION SHOULD (BREWER) MAKE?",
    "src": "L9715",
    "choices": [
     {

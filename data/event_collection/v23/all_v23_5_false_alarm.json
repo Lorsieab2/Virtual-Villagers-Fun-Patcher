@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The False Alarm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_5_false_alarm",
+  "source": "v26",
+  "lines": [
+   10077,
+   10093
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10077",
+  "ledger": [
+   {
+    "src": "L10093",
+    "kind": "instruction",
+    "text": ", very rarely",
+    "why": "c4 is very rare: weight 2 against 20"
+   }
+  ]
+ },
+ "roles": {
+  "alarmist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Alarmist) races into the village shouting, \"SOMETHING TERRIBLE IS HAPPENING!\"",
+   "src": "L10078",
+   "choices": [
+    {
+     "label": "Investigate.",
+     "next": "set_a",
+     "src": "L10079"
+    },
+    {
+     "label": "Sound the alarm.",
+     "next": "set_b",
+     "src": "L10084"
+    },
+    {
+     "label": "Ask for details first.",
+     "next": "set_c",
+     "src": "L10089"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The 'monster' is a fallen tree silhouetted against the sky.",
+   "src": "L10080"
+  },
+  "a2": {
+   "text": "The 'ghostly voice' is wind passing through hollow bamboo.",
+   "src": "L10081"
+  },
+  "a3": {
+   "text": "The 'volcanic cloud' is dust kicked up by running villagers.",
+   "src": "L10082"
+  },
+  "a4": {
+   "text": "A real fallen branch threatens a path; the villagers clear it.",
+   "src": "L10083"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Everyone abandons work and runs about in confusion.",
+   "src": "L10085"
+  },
+  "b2": {
+   "text": "The emergency response is impressively orderly.",
+   "src": "L10086"
+  },
+  "b3": {
+   "text": "An elder demands an explanation and receives a sheepish apology.",
+   "src": "L10087"
+  },
+  "b4": {
+   "text": "The alarm exposes an unrelated prank.",
+   "src": "L10088"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The misunderstanding is resolved before panic spreads.",
+   "src": "L10090"
+  },
+  "c2": {
+   "text": "(Alarmist) grows increasingly embarrassed while explaining.",
+   "src": "L10091"
+  },
+  "c3": {
+   "text": "The explanation sounds more implausible than the warning.",
+   "src": "L10092"
+  },
+  "c4": {
+   "text": "Something genuinely extraordinary is found.",
+   "src": "L10093"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 20
+    },
+    {
+     "next": "c3",
+     "weight": 20
+    },
+    {
+     "next": "c4",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

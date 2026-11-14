@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prank War",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_6_prank_war",
+  "source": "v26",
+  "lines": [
+   10095,
+   10110
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10095",
+  "ledger": []
+ },
+ "roles": {
+  "prankster1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "prankster2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Prankster1) and (prankster2) have exchanged harmless jokes for days. Now each is determined to have the last laugh.",
+   "src": "L10096-10097",
+   "choices": [
+    {
+     "label": "Declare a winner.",
+     "next": "set_a",
+     "src": "L10098"
+    },
+    {
+     "label": "Escalate with another harmless joke.",
+     "next": "set_b",
+     "src": "L10102"
+    },
+    {
+     "label": "End the rivalry.",
+     "next": "set_c",
+     "src": "L10107"
+    }
+   ]
+  },
+  "a1": {
+   "text": "One admits defeat graciously and congratulates the other.",
+   "src": "L10099"
+  },
+  "a2": {
+   "text": "The reluctant elder judge announces a tie and flees.",
+   "src": "L10100",
+   "text_only": [
+    {
+     "src": "L10100",
+     "what": "flees",
+     "reason": "narrative: the elder hurries off; nobody leaves the village"
+    }
+   ]
+  },
+  "a3": {
+   "text": "Both competitors are caught by their own tricks.",
+   "src": "L10101"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The entire village laughs at a brilliantly timed surprise.",
+   "src": "L10103"
+  },
+  "b2": {
+   "text": "The joke fails spectacularly and the pranksters are embarrassed.",
+   "src": "L10104"
+  },
+  "b3": {
+   "text": "A valuable clay vessel is broken; the pranksters repair or replace it.",
+   "src": "L10105"
+  },
+  "b4": {
+   "text": "An elaborate trick accidentally helps solve a practical problem.",
+   "src": "L10106"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The two arrange a joyful communal celebration.",
+   "src": "L10108",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L10108"
+    }
+   ]
+  },
+  "c2": {
+   "text": "Both apologize to anyone inconvenienced.",
+   "src": "L10109"
+  },
+  "c3": {
+   "text": "The rivalry becomes an annual friendly tradition with clear rules.",
+   "src": "L10110"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ }
+}
