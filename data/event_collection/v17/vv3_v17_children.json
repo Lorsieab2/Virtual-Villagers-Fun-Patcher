@@ -56,6 +56,16 @@
    "name": "The Chief for a Moment",
    "children": [
     {
+     "next": "u"
+    }
+   ]
+  },
+  "u": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_u}",
+   "children": [
+    {
      "next": "coda"
     }
    ]
@@ -137,6 +147,7 @@
   }
  },
  "include_pools": [
+  "v17_u",
   "v8_c1",
   "v8_c6",
   "v8_c8",

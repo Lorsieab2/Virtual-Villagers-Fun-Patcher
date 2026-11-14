@@ -78,7 +78,7 @@
    ],
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -94,7 +94,7 @@
    ],
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -103,7 +103,7 @@
    "text": "An unresolved adult disagreement",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -112,7 +112,7 @@
    "text": "A child asking why grownups cannot lose as gracefully as children",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -130,6 +130,26 @@
     },
     {
      "next": "o4"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -210,6 +230,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",

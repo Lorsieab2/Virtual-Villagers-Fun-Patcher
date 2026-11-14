@@ -62,7 +62,7 @@
    "text": "The losing side may protest.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -71,7 +71,7 @@
    "text": "Compare sources and publicly identify what is known and uncertain.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -80,13 +80,33 @@
    "text": "Preserve two attributed versions in the village record.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
   "d": {
    "src": "L8441-8442",
    "text": "A comic misrecitation may become a festival legend, but it must not silently overwrite sacred history.",
+   "children": [
+    {
+     "next": "p"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
    "children": [
     {
      "next": "coda"
@@ -170,6 +190,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",

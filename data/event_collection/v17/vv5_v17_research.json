@@ -87,7 +87,7 @@
    "text": "Honest coincidence",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -96,7 +96,7 @@
    "text": "Misremembered teaching",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -105,7 +105,7 @@
    "text": "Deliberate copying proved by evidence",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -122,7 +122,7 @@
    ],
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -140,6 +140,26 @@
     },
     {
      "next": "e4"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -220,6 +240,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",

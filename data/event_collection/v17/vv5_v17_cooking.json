@@ -78,7 +78,7 @@
    "text": "(Visitor)'s dish wins fairly, and a furious villager accuses the judges of surrendering tradition.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -87,7 +87,7 @@
    "text": "(Competitor)'s dish wins, but an Isolan elder calls it stolen from an old shared recipe.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -107,7 +107,7 @@
    "text": "Each community's harshest critic unknowingly praises the other's cook.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -116,7 +116,7 @@
    "text": "A bowl is mislabeled; organizers discover it and repeat the tasting before announcing a winner.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -136,7 +136,7 @@
    "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -145,7 +145,7 @@
    "text": "A fermented experiment smells so appalling that BOTH communities evacuate the square together. Their first unanimous agreement: never cook that again.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -165,7 +165,7 @@
    "text": "The cooks discover a common ancestral method.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -174,7 +174,7 @@
    "text": "They disagree respectfully and serve separate dishes, with neither forced to renounce the original recipe.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -186,6 +186,26 @@
     },
     {
      "next": "d2"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
+   "children": [
+    {
+     "next": "coda"
     }
    ]
   },
@@ -266,6 +286,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",

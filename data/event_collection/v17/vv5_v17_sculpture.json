@@ -69,7 +69,7 @@
    ],
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -78,7 +78,7 @@
    "text": "Ask the artists to explain the imagery before voting.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
@@ -87,13 +87,33 @@
    "text": "A mixed jury may split, agree, or uncover an unintentional insult.",
    "children": [
     {
-     "next": "coda"
+     "next": "p"
     }
    ]
   },
   "d": {
    "src": "L8429-8430",
    "text": "A collaborative memorial may be accepted, rejected or redesigned; no community's sacred imagery is used without discussion.",
+   "children": [
+    {
+     "next": "p"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
    "children": [
     {
      "next": "coda"
@@ -177,6 +197,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",

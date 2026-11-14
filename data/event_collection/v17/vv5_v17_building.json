@@ -48,6 +48,26 @@
    "name": "The Bridge Between Neighbors",
    "children": [
     {
+     "next": "p"
+    }
+   ]
+  },
+  "p": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_p}",
+   "children": [
+    {
+     "next": "e"
+    }
+   ]
+  },
+  "e": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e}",
+   "children": [
+    {
      "next": "coda"
     }
    ]
@@ -129,6 +149,8 @@
   }
  },
  "include_pools": [
+  "v17_p",
+  "v17_e",
   "v8_c1",
   "v8_c6",
   "v8_c8",
