@@ -751,6 +751,30 @@ class FactsAndDraws(unittest.TestCase):
 
 
 @emulated
+class ItemEndMarks(unittest.TestCase):
+    """No "!." or "?." (cie-v6-binary.md 6, step 5): every draw of The Echo reads as the patcher's walk, in every
+    game."""
+
+    def test_the_full_stop_after_a_mark_is_dropped(self):
+        from test_cie_graph_v6 import ECHO
+        g = cg.load(copy.deepcopy(ECHO))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for rolls in ([0, 0, 0, 0, 1], [1, 1, 1, 2], [2, 2, 0, 2, 0], [0, 1, 0, 1, 2]):
+                with self.subTest(game=game, rolls=rolls):
+                    r = V6(game, [(0, "f", 30, "Ana", 0, False)])
+                    r.rolls(rolls + [0] * 40)
+                    self.assertIsNone(r.queue6(compiled(ECHO)))
+                    r.walk_through()
+                    want = cg.simulate(g, int(game[2]), rolls, {"subject": cg.Binding("Ana", "f")})
+                    shown = norm(" ".join(r.displays()))
+                    self.assertEqual(shown, norm(" ".join(want["popups"])))
+                    self.assertNotIn("!.", shown)
+                    self.assertNotIn("?.", shown)
+
+
+@emulated
 class SexWords(unittest.TestCase):
     """Role-sex word pairs (cie-v6-binary.md 5): the word of the role's sex, in every game."""
 

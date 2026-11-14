@@ -2681,8 +2681,12 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             }
             if (n > 0) {
                 if (depth < CG_POOL_DEPTH) {
-                    o += cg_expand_in(cg_pool_text(pool, instance, mode), out + o, cap - o, mode, name_room,
-                                      award_kind, award, depth + 1);
+                    int got = cg_expand_in(cg_pool_text(pool, instance, mode), out + o, cap - o, mode, name_room,
+                                           award_kind, award, depth + 1);
+                    o += got;
+                    if (got > 0 && (out[o - 1] == '!' || out[o - 1] == '?') && s[n] == '.') {
+                        ++s;    /* cie-v6-binary.md 6, step 5: no "!." / "?." after a pool's item */
+                    }
                 }
                 s += n;
                 continue;

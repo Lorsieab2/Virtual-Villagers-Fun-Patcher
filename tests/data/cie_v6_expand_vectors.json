@@ -4699,6 +4699,499 @@
     "rolls_used": 0,
     "cieg_sha256": "dbe88d1940321e4e22b53d089965ffd6e7939c68b0fcb59baea8806855449109"
    }
+  },
+  {
+   "name": "item_end_marks_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Echo",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "pools": {
+     "SHOUT": {
+      "items": [
+       "Yikes!",
+       "What now?",
+       "hello there"
+      ]
+     },
+     "SIGN": {
+      "items": [
+       "a sign that says {SHOUT.2}",
+       "a quiet path"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. {SHOUT.3} ends it."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "SHOUT",
+      1,
+      0
+     ],
+     [
+      "_i1",
+      1,
+      0
+     ],
+     [
+      "SIGN",
+      1,
+      0
+     ],
+     [
+      "SHOUT",
+      2,
+      0
+     ],
+     [
+      "SHOUT",
+      3,
+      1
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Ana shouts Yikes! The echo answers Hooray! She sees a sign that says Yikes! What now? ends it."
+    ],
+    "titles": [
+     "The Echo"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
+   }
+  },
+  {
+   "name": "item_end_marks_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Echo",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "pools": {
+     "SHOUT": {
+      "items": [
+       "Yikes!",
+       "What now?",
+       "hello there"
+      ]
+     },
+     "SIGN": {
+      "items": [
+       "a sign that says {SHOUT.2}",
+       "a quiet path"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. {SHOUT.3} ends it."
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [
+    1,
+    1,
+    1,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "SHOUT",
+      1,
+      1
+     ],
+     [
+      "_i1",
+      1,
+      1
+     ],
+     [
+      "SIGN",
+      1,
+      1
+     ],
+     [
+      "SHOUT",
+      3,
+      2
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it."
+    ],
+    "titles": [
+     "The Echo"
+    ],
+    "labels": [],
+    "rolls_used": 4,
+    "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
+   }
+  },
+  {
+   "name": "item_end_marks_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Echo",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "pools": {
+     "SHOUT": {
+      "items": [
+       "Yikes!",
+       "What now?",
+       "hello there"
+      ]
+     },
+     "SIGN": {
+      "items": [
+       "a sign that says {SHOUT.2}",
+       "a quiet path"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. {SHOUT.3} ends it."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    2,
+    2,
+    0,
+    2,
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "SHOUT",
+      1,
+      2
+     ],
+     [
+      "_i1",
+      1,
+      2
+     ],
+     [
+      "SIGN",
+      1,
+      0
+     ],
+     [
+      "SHOUT",
+      2,
+      2
+     ],
+     [
+      "SHOUT",
+      3,
+      0
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Ana shouts hello there. The echo answers nothing. She sees a sign that says hello there. Yikes! ends it."
+    ],
+    "titles": [
+     "The Echo"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
+   }
+  },
+  {
+   "name": "item_end_marks_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Echo",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "pools": {
+     "SHOUT": {
+      "items": [
+       "Yikes!",
+       "What now?",
+       "hello there"
+      ]
+     },
+     "SIGN": {
+      "items": [
+       "a sign that says {SHOUT.2}",
+       "a quiet path"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. {SHOUT.3} ends it."
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [
+    0,
+    1,
+    0,
+    1,
+    2
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "SHOUT",
+      1,
+      0
+     ],
+     [
+      "_i1",
+      1,
+      1
+     ],
+     [
+      "SIGN",
+      1,
+      0
+     ],
+     [
+      "SHOUT",
+      2,
+      1
+     ],
+     [
+      "SHOUT",
+      3,
+      2
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Bo shouts Yikes! The echo answers Oh no? He sees a sign that says What now? hello there ends it."
+    ],
+    "titles": [
+     "The Echo"
+    ],
+    "labels": [],
+    "rolls_used": 5,
+    "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
+   }
+  },
+  {
+   "name": "item_end_marks_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Echo",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "pools": {
+     "SHOUT": {
+      "items": [
+       "Yikes!",
+       "What now?",
+       "hello there"
+      ]
+     },
+     "SIGN": {
+      "items": [
+       "a sign that says {SHOUT.2}",
+       "a quiet path"
+      ]
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. {SHOUT.3} ends it."
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [
+    1,
+    2,
+    1,
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p"
+    ],
+    "fx": [],
+    "picks": [
+     [
+      "SHOUT",
+      1,
+      1
+     ],
+     [
+      "_i1",
+      1,
+      2
+     ],
+     [
+      "SIGN",
+      1,
+      1
+     ],
+     [
+      "SHOUT",
+      3,
+      0
+     ]
+    ],
+    "aliases": {},
+    "popups": [
+     "Ana shouts What now? The echo answers nothing. She sees a quiet path. Yikes! ends it."
+    ],
+    "titles": [
+     "The Echo"
+    ],
+    "labels": [],
+    "rolls_used": 4,
+    "cieg_sha256": "9a6928f757e21ac9dd0734404cee22e87f84722720beb54d325ebca26804767a"
+   }
   }
  ]
 }

@@ -249,6 +249,20 @@ LABELS = {
 }
 
 
+ECHO = {
+    # No "!." or "?." (cie-v6-binary.md 6, step 5): an inserted item ending in "!" or "?" drops the "." right after
+    # its token -- a pool's, an inline pick's and a nested one's (SIGN's item ends in SHOUT.2) -- and only that one.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Echo", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "pools": {"SHOUT": {"items": ["Yikes!", "What now?", "hello there"]},
+              "SIGN": {"items": ["a sign that says {SHOUT.2}", "a quiet path"]}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) shouts {SHOUT}. The echo answers {Hooray!|Oh no?|nothing}. (He/She) sees {SIGN}. "
+                      "{SHOUT.3} ends it."},
+    },
+}
+
 VISITOR = {
     # A named stranger (cie-v6-binary.md 16): VV5's offscreen Isolan.
     "format": "vvfp-cie-graph", "version": 6, "title": "The Visitor", "games": [1, 2, 3, 4, 5],
@@ -344,6 +358,16 @@ def vector_cases() -> list[dict]:
         {"name": "named_stranger_vv1", "graph": VISITOR, "game": 1, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aika", "sex": "f"}},
          "answers": [1], "facts": None},
+        {"name": "item_end_marks_vv1", "graph": ECHO, "game": 1, "unicode": False, "rolls": [0, 0, 0, 0, 1],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "item_end_marks_vv2", "graph": ECHO, "game": 2, "unicode": False, "rolls": [1, 1, 1, 2],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
+        {"name": "item_end_marks_vv3", "graph": ECHO, "game": 3, "unicode": False, "rolls": [2, 2, 0, 2, 0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "item_end_marks_vv4", "graph": ECHO, "game": 4, "unicode": False, "rolls": [0, 1, 0, 1, 2],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
+        {"name": "item_end_marks_vv5", "graph": ECHO, "game": 5, "unicode": False, "rolls": [1, 2, 1, 0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
     ]
 
 
@@ -429,6 +453,19 @@ class SharedVectors(unittest.TestCase):
         self.assertEqual(by["guard_harmable"]["nodes"], ["p", "fall"])
         self.assertEqual(by["guard_protected_now"]["nodes"], ["p", "safe"])
         self.assertEqual(by["guard_protected_now"]["rolls_used"], 0)   # one child left, weight 1: no roll
+        # No "!." or "?." after an inserted item (6, step 5); an item without the mark keeps the ".".
+        self.assertEqual(by["item_end_marks_vv1"]["popups"],
+                         ["Ana shouts Yikes! The echo answers Hooray! She sees a sign that says Yikes! "
+                          "What now? ends it."])
+        self.assertEqual(by["item_end_marks_vv2"]["popups"],
+                         ["Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it."])
+        self.assertEqual(by["item_end_marks_vv3"]["popups"],
+                         ["Ana shouts hello there. The echo answers nothing. She sees a sign that says hello "
+                          "there. Yikes! ends it."])
+        for game in range(1, 6):
+            for text in by[f"item_end_marks_vv{game}"]["popups"]:
+                self.assertNotIn("!.", text)
+                self.assertNotIn("?.", text)
 
 
 class ActionsTable(unittest.TestCase):
@@ -519,6 +556,34 @@ class Pools(unittest.TestCase):
         d["nodes"]["p"]["text"] = "{X} {X.2}"
         lg = cg.lower(cg.load(d))
         self.assertEqual(cg.worst_v6("{X} {X.2}", lg, cg.GAMES[3], None), "a much longer item a much longer item")
+
+    def test_an_item_ending_in_a_mark_drops_the_next_full_stop(self):
+        # cie-v6-binary.md 6, step 5: only a "." right after the token, only behind "!" or "?", at any depth.
+        d = v6(pools={"X": {"items": ["Wow!", "why?", "so", "{Y}"]}, "Y": {"items": ["deep!"]}})
+        d["nodes"]["p"]["text"] = "{X}. {X.2}... {X.3} . {X.4}.(Hero)"
+        lg = cg.lower(cg.load(d))
+        b = {"hero": cg.Binding("Al", "m"), "pal": cg.Binding("Bea", "f")}
+        picks = {("X", 1): 0, ("X", 2): 1, ("X", 3): 0, ("X", 4): 3, ("Y", 1): 0}
+        self.assertEqual(cg.expand_v6(d["nodes"]["p"]["text"], lg, b, picks), "Wow! why?.. Wow! . deep!Al")
+        picks = {("X", 1): 2, ("X", 2): 2, ("X", 3): 2, ("X", 4): 2}
+        self.assertEqual(cg.expand_v6(d["nodes"]["p"]["text"], lg, b, picks), "so. so... so . so.Al")
+
+    def test_the_worst_case_counts_the_full_stop_an_item_keeps(self):
+        # The fit takes the widest item-and-stop, so it is never narrower than any text the engine can show.
+        for items, want in ((["abcde!", "abcdef"], "abcdef."), (["abcdef!", "abcdef"], "abcdef!"),
+                            (["abcdefg?", "abcdef"], "abcdefg?"), (["abc", "ab!"], "abc.")):
+            with self.subTest(items=items):
+                d = v6(pools={"X": {"items": items}})
+                d["nodes"]["p"]["text"] = "{X}."
+                lg = cg.lower(cg.load(d))
+                worst = cg.worst_v6("{X}.", lg, cg.GAMES[3], None)
+                self.assertEqual(worst, want)
+                b = {"hero": cg.Binding("Al", "m"), "pal": cg.Binding("Bea", "f")}
+                shown = [cg.expand_v6("{X}.", lg, b, {("X", 1): k}) for k in range(len(items))]
+                self.assertEqual(len(worst), max(len(x) for x in shown))
+        d = v6(pools={"X": {"items": ["abcde!", "abcdef"]}})
+        lg = cg.lower(cg.load(d))
+        self.assertEqual(cg.worst_v6("{X} .", lg, cg.GAMES[3], None), "abcde! .")   # no "." right after it
 
     def test_include_pools(self):
         shared = {"pools": {"mats": {"items": ["wood", "stone"]}}}

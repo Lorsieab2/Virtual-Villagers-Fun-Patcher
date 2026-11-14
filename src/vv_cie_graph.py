@@ -1634,6 +1634,11 @@ def _role_of_ph(p: Placeholder, roles: dict) -> dict | None:
     return roles.get(p.role) if p.role else None
 
 
+# An inserted pool item (an inline pick's included) whose text ends in one of these drops the template's "." right
+# after its token (cie-v6-binary.md section 6, step 5): "{Yikes!|Oh no!}." reads "Yikes!", never "Yikes!.".
+ITEM_END_MARKS = ("!", "?")
+
+
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
@@ -1644,7 +1649,11 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
     picks = picks or {}
     aliases = aliases or {}
     out = []
+    drop_dot = False
     for kind, raw in text_tokens(text):
+        if drop_dot and kind == "lit" and raw.startswith("."):
+            raw = raw[1:]                       # section 6 step 5: no "!." / "?." after a pool's item
+        drop_dot = False
         if kind == "lit":
             out.append(raw)
         elif kind == "esc":
@@ -1677,8 +1686,10 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             idx = picks.get((name, k))
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
-            out.append(expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                                 aliases, _depth + 1, tribe))
+            item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
+                             aliases, _depth + 1, tribe)
+            out.append(item)
+            drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
     return text if _depth or game is None else glyph_fallback(text, game, unicode)
 
@@ -1689,7 +1700,12 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
     award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
     the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
     out = []
-    for kind, raw in text_tokens(text):
+    tokens = list(text_tokens(text))
+    drop_dot = False
+    for at, (kind, raw) in enumerate(tokens):
+        if drop_dot and kind == "lit" and raw.startswith("."):
+            raw = raw[1:]                       # section 6 step 5: no "!." / "?." after a pool's item
+        drop_dot = False
         if kind == "lit":
             out.append(raw)
         elif kind == "esc":
@@ -1724,14 +1740,19 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             pool = g["pools"].get(name) if name else None
             if pool is None or _depth >= MAX_POOL_DEPTH:
                 continue
-            best = ""
+            # A "." right after the token is dropped behind an item ending in "!" or "?" (step 5), so each item
+            # is measured with the "." it keeps: the longest item and full stop together wins (the first on a tie).
+            dot = at + 1 < len(tokens) and tokens[at + 1][0] == "lit" and tokens[at + 1][1].startswith(".")
+            best, best_len = "", 0
             for it in pool["items"]:
                 if holds is not None and not holds(it["if"]):
                     continue
                 w = worst_v6(it["text"], g, game, award, holds, _depth + 1)
-                if len(w) > len(best):
-                    best = w
+                size = len(w) + (1 if dot and not w.endswith(ITEM_END_MARKS) else 0)
+                if size > best_len:
+                    best, best_len = w, size
             out.append(best)
+            drop_dot = best.endswith(ITEM_END_MARKS)
     text = "".join(out)
     return text if _depth else glyph_fallback(text, game.number)
 

@@ -182,12 +182,20 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
    - skill (9) may now be negative (both of min, max in -100..-1): same roll, `lo + random_below(hi - lo + 1)`.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
+   - **No "!." or "?.":** when an inserted pool item (an inline pick's and a game word's included; never
+     `{@tribe}`) expands to a non-empty text ending in `!` or `?`, and the very next character of the text holding
+     the token is `.`, that one `.` is dropped: `{_i1}.` with the item `Yikes!` reads `Yikes!`. It applies at every
+     depth (an item's own tokens first) and in every mode that fills pools (`CG_EXPAND_AWARD`, `CG_EXPAND_WORST`,
+     `CG_EXPAND_REAL`; Python `expand_v6`, `worst_v6`). Only the one character right after the token counts: a
+     space, a placeholder or another token in between keeps the `.`.
 6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; then the glyph fallback in VV1/VV2.
    - **Pages (engine).** `cg_fits` pages a popup with `CG_EXPAND_WORST`, and `cg_pool_text` returns the instance's
      DRAWN item when the run holds a pick (always, once the walk is done): pages are laid out with the drawn
      items and the longest names. Only with no pick does it take the longest eligible item by its raw bytes.
    - **Fit check (Python, `worst_v6`).** No run exists, so every pool instance is the pool's longest eligible
-     item measured after its own worst-case expansion (the first on a tie). That is never shorter than any item
+     item measured after its own worst-case expansion (the first on a tie). When the token is followed by `.`,
+     each item is measured together with that `.` as step 5 leaves it (an item ending in `!` or `?` counts
+     without it), so the widest item-and-stop is taken. That is never shorter than any item
      the engine can draw, so whatever Python accepts the engine can page; Python may refuse a little more than
      strictly needed. `simulate` returns each popup's whole text, before paging.
 
