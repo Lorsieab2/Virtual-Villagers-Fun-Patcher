@@ -2850,6 +2850,190 @@
     "rolls_used": 12,
     "cieg_sha256": "33f15bf464743cb6e27e67516c7a9832849b8cc830d00ec2811b9f8df403d521"
    }
+  },
+  {
+   "name": "caps_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Village Idiot and the Impossible Invention",
+    "games": [
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     },
+     "friend": {
+      "kind": "villager"
+     }
+    },
+    "start": "q",
+    "nodes": {
+     "q": {
+      "type": "question",
+      "text": "(Name) builds a machine; (friend.he/she) watches.",
+      "choices": [
+       {
+        "label": "TELL (HIM/HER) TO STOP BEFORE ANYONE IS HURT.",
+        "next": "a"
+       },
+       {
+        "label": "LET (HIM/HER) FINISH, WITH (FRIEND.HIM/HER) WATCHING.",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "(NAME) STOPS. (FRIEND.HE/SHE) CHEERS FOR (HIM/HER)."
+     },
+     "b": {
+      "text": "(Name) finishes; (friend.Name) claps."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "q",
+     "a"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana builds a machine; he watches.",
+     "ANA STOPS. HE CHEERS FOR HER."
+    ],
+    "rolls_used": 0,
+    "cieg_sha256": "be7bd6e8550d050603fa2e7b3b37220ce80bc5e77b76e3d8a7a39c5726134268"
+   }
+  },
+  {
+   "name": "no_roles_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "A Stranger on the Sand",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {},
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "A stranger lies ill on the sand; the healers gather.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "What do the healers do?",
+      "choices": [
+       {
+        "label": "Tend the stranger",
+        "next": "a"
+       },
+       {
+        "label": "Send for help",
+        "next": "b"
+       }
+      ]
+     },
+     "a": {
+      "text": "The stranger recovers and leaves {a gift|2:a song} behind.",
+      "effects": [
+       {
+        "do": "food",
+        "size": "small",
+        "scaled": true
+       }
+      ]
+     },
+     "b": {
+      "text": "{@Tribe} comes; the stranger is gone by morning.",
+      "children": [
+       {
+        "next": "b1"
+       },
+       {
+        "next": "b2",
+        "weight": 3
+       }
+      ]
+     },
+     "b1": {
+      "popup": "append",
+      "text": "No one knows where."
+     },
+     "b2": {
+      "popup": "append",
+      "text": "Footprints lead to the sea."
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [
+    3,
+    1,
+    4,
+    1,
+    5
+   ],
+   "bindings": {},
+   "answers": [
+    1
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "b",
+     "b1"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "A stranger lies ill on the sand; the healers gather.",
+     "What do the healers do?",
+     "The village comes; the stranger is gone by morning. No one knows where."
+    ],
+    "rolls_used": 3,
+    "cieg_sha256": "80871f2cdb7ce2354be717c13d9fe8aaa031e63c8b41136dd8d7ff264ca37b0c"
+   }
   }
  ]
 }

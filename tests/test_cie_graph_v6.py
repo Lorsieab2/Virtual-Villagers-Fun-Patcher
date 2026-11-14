@@ -123,6 +123,40 @@ GAPS = {
 }
 
 
+CAPS = {
+    # The owner's ALL-CAPS labels: all-caps placeholders give the words in capitals; a long VV3 title by pixels.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Village Idiot and the Impossible Invention",
+    "games": [3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}, "friend": {"kind": "villager"}},
+    "start": "q",
+    "nodes": {
+        "q": {"type": "question", "text": "(Name) builds a machine; (friend.he/she) watches.", "choices": [
+            {"label": "TELL (HIM/HER) TO STOP BEFORE ANYONE IS HURT.", "next": "a"},
+            {"label": "LET (HIM/HER) FINISH, WITH (FRIEND.HIM/HER) WATCHING.", "next": "b"}]},
+        "a": {"text": "(NAME) STOPS. (FRIEND.HE/SHE) CHEERS FOR (HIM/HER)."},
+        "b": {"text": "(Name) finishes; (friend.Name) claps."},
+    },
+}
+
+NO_ROLES = {
+    # No roles at all: the only patient is story text (as V20 crisis D1).
+    "format": "vvfp-cie-graph", "version": 6, "title": "A Stranger on the Sand", "games": [1, 2, 3, 4, 5],
+    "roles": {},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "A stranger lies ill on the sand; the healers gather.", "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "What do the healers do?", "choices": [
+            {"label": "Tend the stranger", "next": "a"}, {"label": "Send for help", "next": "b"}]},
+        "a": {"text": "The stranger recovers and leaves {a gift|2:a song} behind.",
+              "effects": [{"do": "food", "size": "small", "scaled": True}]},
+        "b": {"text": "{@Tribe} comes; the stranger is gone by morning.",
+              "children": [{"next": "b1"}, {"next": "b2", "weight": 3}]},
+        "b1": {"popup": "append", "text": "No one knows where."},
+        "b2": {"popup": "append", "text": "Footprints lead to the sea."},
+    },
+}
+
+
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
 
@@ -162,6 +196,11 @@ def vector_cases() -> list[dict]:
         {"name": "gaps_vv3_no_tribe", "graph": GAPS, "game": 3, "unicode": False, "rolls": [0, 1, 1, 0, 9, 4, 2, 6, 8, 3, 7, 1, 5, 2, 0, 6, 4, 9, 3, 8],
          "bindings": {"judge": {"name": "", "sex": "f"}, "cook1": {"name": "Ana", "sex": "f"},
                       "cook2": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None, "tribe": None},
+        {"name": "caps_vv3", "graph": CAPS, "game": 3, "unicode": False, "rolls": [0, 0, 0, 0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}, "friend": {"name": "Bo", "sex": "m"}},
+         "answers": [0], "facts": None},
+        {"name": "no_roles_vv5", "graph": NO_ROLES, "game": 5, "unicode": False, "rolls": [3, 1, 4, 1, 5],
+         "bindings": {}, "answers": [1], "facts": None},
     ]
 
 
@@ -762,6 +801,82 @@ class FormatGaps(unittest.TestCase):
             for scrolling in (False, True):
                 with self.subTest(p.name, scrolling=scrolling):
                     self.assertEqual(cg.validate(g, scrolling, shared)[1], [])
+
+
+class TitlesCapsAndNoRoles(unittest.TestCase):
+    """The content round's three: VV3-5 titles by pixels, ALL-CAPS placeholders, an event with no roles."""
+
+    OWNER_TITLES = ("The Little Things They Remember", "The Duel of the Terrible Inventors",
+                    "The Trial of the Shattered Pearls", "The Magician and the Naturalist",
+                    "The Village Idiot and the Impossible Invention")
+
+    def test_titles_by_pixels(self):
+        # The measure, pinned against the emulated stock dialog (tests/scrolling_popups_emulation.py: the body draw
+        # VV3 0x418510 calls the centred draw 0x40A070 with the title [dialog+0x54] in the dialog's font): one line,
+        # centred; these glyph extents were read from its blits in VV3, VV4 and VV5 alike.
+        for game in (3, 4, 5):
+            self.assertEqual([cg.title_px(game, t) for t in ("The Mysterious Footprints", self.OWNER_TITLES[0],
+                                                             self.OWNER_TITLES[4], "W" * 47)],
+                             [229, 298, 399, 799], game)
+        self.assertEqual(cg.TITLE_BOX_PX, {3: 432, 4: 432, 5: 624})
+        for title in self.OWNER_TITLES:
+            d = v6(games=[3, 4, 5], title=title)
+            self.assertEqual(t.problems_of(d), [], title)
+        self.assertTrue(all("pixels wide" in p for p in t.problems_of(v6(games=[3, 4, 5], title="W" * 47))))
+        # Versions 1-5 keep their 30 characters.
+        d = t.four_doors(5)
+        d["title"] = self.OWNER_TITLES[0]
+        self.assertTrue(any("longer than its 30 characters" in p for p in t.problems_of(d)))
+
+    def test_all_caps_placeholders(self):
+        roles = {"subject": {"kind": "villager"}, "friend": {"kind": "villager"}}
+        for token, what, role in (("NAME1", "name", "subject"), ("HIM/HER", "him/her", "subject"),
+                                  ("FRIEND.HE/SHE", "he/she", "friend"), ("FRIEND", "name", "friend"),
+                                  ("HIMSELF/HERSELF", "himself/herself", "subject")):
+            p = cg.parse_placeholder_v6(token, roles)
+            self.assertEqual((p.what, p.role, p.upper), (what, role, True), token)
+        self.assertFalse(cg.parse_placeholder_v6("Name1", roles).upper)
+        g = cg.lower(cg.load(CAPS, True))
+        b = {"subject": cg.Binding("Ana", "f"), "friend": cg.Binding("Bo", "m")}
+        self.assertEqual(cg.expand_v6("TELL (NAME1) TO STOP; (FRIEND.HE/SHE) AND (HIM/HER).", g, b),
+                         "TELL ANA TO STOP; HE AND HER.")
+        # The fit measures them as written (names W x the room; pronouns in capitals).
+        self.assertEqual(cg.worst_v6("(HIS/HER) (NAME)", g, cg.GAMES[3], None), "HIS " + "W" * 23)
+        for scrolling in (False, True):
+            self.assertEqual(cg.validate(CAPS, scrolling)[1], [])
+        # The fit is kept: an all-caps NAME in that label runs off the screen with the longest name, so the content
+        # uses the all-caps pronoun there.
+        d = copy.deepcopy(CAPS)
+        d["nodes"]["q"]["choices"][0]["label"] = "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT."
+        self.assertTrue(any("runs off the screen" in p for p in t.problems_of(d, True)))
+
+    def test_no_roles(self):
+        for scrolling in (False, True):
+            self.assertEqual(cg.validate(NO_ROLES, scrolling)[1], [])
+        g = cg.load(NO_ROLES)
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 26)[0], 0)              # role count 0
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        for bad in ({"text": "(Name) waits."}, {"text": "Waits.", "effects": [{"do": "kill"}]},
+                    {"text": "Waits.", "effects": [{"do": "mood", "role": "x", "mood": "bad"}]}):
+            d = copy.deepcopy(NO_ROLES)
+            d["nodes"]["b1"] = dict(bad, popup="append")
+            self.assertTrue(t.problems_of(d), bad)
+        d = copy.deepcopy(NO_ROLES)
+        d["version"] = 5
+        self.assertTrue(any("roles is missing" in p for p in t.problems_of(d)))
+        # Track D's checker takes it too.
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import collection_check as cc
+        doc = dict(copy.deepcopy(NO_ROLES), collection={"id": "test_no_roles", "lines": [1, 2]})
+        doc["nodes"]["b"]["children"][1]["weight"] = 1          # (the checker wants equal odds without a source)
+        for check in (cc.check_safety, cc.check_engine, cc.check_chances):
+            rep = cc.Report("no roles")
+            check(doc, rep)
+            self.assertEqual(rep.problems, [], check.__name__)
+        rep = cc.Report("no roles")
+        cc.check_tokens(doc, None, rep)
+        self.assertEqual(rep.problems, [])
 
 
 class Fit(unittest.TestCase):
