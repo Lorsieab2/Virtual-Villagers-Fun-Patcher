@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Medicine That Works Too Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d8_works_too_well",
+  "source": "v26",
+  "lines": [
+   9048,
+   9053
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9048",
+  "ledger": [
+   {
+    "src": "L9051",
+    "kind": "structural",
+    "text": "; or",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9053",
+    "kind": "structural",
+    "text": "; or",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A new pain remedy leaves patients too sleepy to eat or work.",
+   "src": "L9049",
+   "choices": [
+    {
+     "label": "Continue cautiously",
+     "next": "set_a",
+     "src": "L9050"
+    },
+    {
+     "label": "Suspend it",
+     "next": "set_b",
+     "src": "L9052"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The healers improve it",
+   "src": "L9050-9051"
+  },
+  "a2": {
+   "text": "A patient develops complications",
+   "src": "L9050-9051",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9050"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The village begins overusing it.",
+   "src": "L9050-9051"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The cause of the drowsiness is discovered",
+   "src": "L9052-9053"
+  },
+  "b2": {
+   "text": "Patients protest the loss of relief",
+   "src": "L9052-9053"
+  },
+  "b3": {
+   "text": "A safer remedy is found.",
+   "src": "L9052-9053"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

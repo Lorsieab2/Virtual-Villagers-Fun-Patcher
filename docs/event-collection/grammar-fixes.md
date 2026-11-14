@@ -77,6 +77,22 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L561 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (5) | The full stop belongs after the list, not inside one option |
 | L623 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (8) | As above |
 
+### Part 3b (content agent 4: V18-V26)
+
+The compact medical crises (V20 D6-D12) list each choice's outcomes as "the patient recovers; or dies; or ...". Each
+outcome is its own page, so an outcome without its subject would read "Dies". Each fix restores the subject the line
+already names (approved by the lead as glaring, 2026-11-14).
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L9034 | `or dies;` | `or the patient dies;` | V20 D6 The Physician Who Refused | The outcome has no subject |
+| L9036 | `fails; or is wisely` | `the procedure fails; or the procedure is wisely` | V20 D6 The Physician Who Refused | As above (two outcomes) |
+| L9038 | `argue too long; or hear a` | `they argue too long; or they hear a` | V20 D6 The Physician Who Refused | As above (two outcomes) |
+| L9045 | `it works; fails; or` | `it works; it fails; or` | V20 D7 The Patient Who Knew Too Much | As above |
+| L9058 | `forgives; demands accountability;` | `forgives; the patient demands accountability;` | V20 D9 The Healer's Secret | As above |
+| L9065 | `right; mistaken but thoughtful; or notices` | `right; the apprentice is mistaken but thoughtful; or the apprentice notices` | V20 D10 The Child Who Corrected the Masters | As above (two outcomes) |
+| L9086 | `well; conflict` | `well; they conflict` | V20 D12 The Doctor Who Could Not Save Everyone | As above |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.
