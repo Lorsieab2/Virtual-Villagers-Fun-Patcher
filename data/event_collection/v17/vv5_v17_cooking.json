@@ -1,0 +1,646 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Questionable Feast",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_v17_cooking",
+  "source": "v26",
+  "lines": [
+   8384,
+   8401
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8384"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "competitor": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "visitor": {
+   "kind": "stranger",
+   "named": true
+  },
+  "isolan": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "judge1": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8385-8388",
+   "text": "(Competitor) and (Visitor) prepare signature dishes. A formidable Isolan cook joins the panel and tastes (Competitor)'s stew. \"This fish has suffered enough,\" (isolan.he/she) announces. (Judge1) replies, \"Then judge the flavor, not the family that cooked it.\" The crowd goes silent.",
+   "name": "The Questionable Feast",
+   "type": "question",
+   "choices": [
+    {
+     "label": "Open tasting.",
+     "next": "pick_a",
+     "src": "L8389"
+    },
+    {
+     "label": "Blind tasting.",
+     "next": "pick_b",
+     "src": "L8392"
+    },
+    {
+     "label": "Shared cooking.",
+     "next": "pick_c",
+     "src": "L8395"
+    },
+    {
+     "label": "Let cooks defend their traditions.",
+     "next": "pick_d",
+     "src": "L8399"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_a"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_b"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_c"
+    }
+   ]
+  },
+  "pick_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_d"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L8389-8390",
+   "text": "(Visitor)'s dish wins fairly, and a furious villager accuses the judges of surrendering tradition.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L8390-8391",
+   "text": "(Competitor)'s dish wins, but an Isolan elder calls it stolen from an old shared recipe.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L8392-8393",
+   "text": "Each community's harshest critic unknowingly praises the other's cook.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "b2": {
+   "src": "L8393-8394",
+   "text": "A bowl is mislabeled; organizers discover it and repeat the tasting before announcing a winner.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L8395-8396",
+   "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L8396-8398",
+   "text": "A fermented experiment smells so appalling that BOTH communities evacuate the square together. Their first unanimous agreement: never cook that again.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "d1": {
+   "src": "L8399-8400",
+   "text": "The cooks discover a common ancestral method.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "d2": {
+   "src": "L8400-8401",
+   "text": "They disagree respectfully and serve separate dishes, with neither forced to renounce the original recipe.",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "pp1": {
+   "text": "{v17_p1}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp2": {
+   "text": "{v17_p2}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp3": {
+   "text": "{v17_p3}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp4": {
+   "text": "{v17_p4}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp5": {
+   "text": "{v17_p5}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp6": {
+   "text": "{v17_p6}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp7": {
+   "text": "{v17_p7}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp8": {
+   "text": "{v17_p8}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp9": {
+   "text": "{v17_p9}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp10": {
+   "text": "{v17_p10}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pp1",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp2",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp3"
+    },
+    {
+     "next": "pp4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp5",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp6",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp7",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp8",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp10"
+    }
+   ]
+  },
+  "ep1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "ep2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e2}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "ep3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e3}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "ep4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "ep5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "epi": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ep1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep2"
+    },
+    {
+     "next": "ep3"
+    },
+    {
+     "next": "ep4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep5"
+    }
+   ]
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_p1",
+  "v17_p2",
+  "v17_p3",
+  "v17_p4",
+  "v17_p5",
+  "v17_p6",
+  "v17_p7",
+  "v17_p8",
+  "v17_p9",
+  "v17_p10",
+  "v17_e1",
+  "v17_e2",
+  "v17_e3",
+  "v17_e4",
+  "v17_e5",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

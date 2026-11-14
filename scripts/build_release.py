@@ -114,6 +114,8 @@ FILES = [
     "assets/stuck_walks/VVFP Stuck Walks.dll",
     # Fix Vanilla Bugs (A New Home ...): a villager whose walk gives up while holding something finds another way.
     "assets/keep_carried/VVFP Keep Carried.dll",
+    # Fix Vanilla Bugs (The Lost Children ... New Believers): a word wider than its box no longer hangs the layout.
+    "assets/long_words/VVFP Long Words.dll",
     # Push Clouds Away on the Overview Map (The Secret City): the overview map's clouds move away from the mouse.
     "assets/push_clouds/VVFP Push Clouds.dll",
     # Popup When Believers Become Heathens (New Believers): counts the believers the Faith drift turns Heathen.
@@ -141,6 +143,15 @@ FILES = [
     "assets/island_events_scale/VVFP Island Events Scale Stored.txt",
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the companion.
     "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (all five games): the companion, and the four scrollbar pictures A New Home and The Lost
+    # Children borrow from The Secret City (shipped to Images\ as new files).
+    "assets/scrolling_popups/VVFP Scrolling Popups.dll",
+    "assets/scrolling_popups/vvfp_scroll_up.png",
+    "assets/scrolling_popups/vvfp_scroll_down.png",
+    "assets/scrolling_popups/vvfp_scroll_track.png",
+    "assets/scrolling_popups/vvfp_scroll_knob.png",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "assets/more_island_events/VVFP More Island Events.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",
@@ -313,6 +324,21 @@ FILES = [
     "data/vv4_island_events_scale_with_stored_amounts_feature.json",
     "data/vv5_island_events_scale_with_population_feature.json",
     "data/vv5_island_events_scale_with_stored_amounts_feature.json",
+    "data/vv1_scrolling_popups_feature.json",
+    "data/vv2_scrolling_popups_feature.json",
+    "data/vv3_scrolling_popups_feature.json",
+    "data/vv4_scrolling_popups_feature.json",
+    "data/vv5_scrolling_popups_feature.json",
+    "data/vv1_more_island_events_feature.json",
+    "data/vv2_more_island_events_feature.json",
+    "data/vv3_more_island_events_feature.json",
+    "data/vv4_more_island_events_feature.json",
+    "data/vv5_more_island_events_feature.json",
+    "data/vv1_isola_grand_event_collection_feature.json",
+    "data/vv2_isola_grand_event_collection_feature.json",
+    "data/vv3_isola_grand_event_collection_feature.json",
+    "data/vv4_isola_grand_event_collection_feature.json",
+    "data/vv5_isola_grand_event_collection_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
@@ -508,6 +534,20 @@ FILES = [
     "src/vv_game_mechanics_life.py",
     "src/vv_game_mechanics_nursery.py",
     "src/vv_game_mechanics_tech_time.py",
+    "src/vv_game_mechanics_adventurer.py",
+    "src/vv_aspiring_adventurer.py",
+    "src/vv_cave_explorers.py",
+    "src/vv_the_climb.py",
+    "src/vv_troubling_signs.py",
+    "src/vv_diving_for_treasure.py",
+    "src/vv_playful_dolphins.py",
+    "src/vv_mysterious_mask.py",
+    "src/vv_remembrance_ceremony.py",
+    "src/vv_the_rumblings.py",
+    "src/vv_game_mechanics_ceremony.py",
+    # Isola Grand Event Collection on the Game Mechanics pages, and its index of sections and deadly events.
+    "src/vv_game_mechanics_collection.py",
+    "data/event_collection_index.json",
     # Farmers needed: the shared arithmetic and each game's measured trips (found by name).
     "src/vv_game_mechanics_farmers.py",
     "src/vv_game_mechanics_farmers_vv1.py",
@@ -541,6 +581,17 @@ FILES = [
     # Stew Recipes (Tools tab): its window and the pages of The Lost Children, The Secret City, The Tree of Life.
     "src/vv_stew_recipes_window.py",
     "src/vv_stew_recipes.py",
+    # Custom Island Event Library (Tools tab): its window, the branching event format with its checks, .cieg
+    # compiler and chances, and the shipped examples its "New from The Aspiring Adventurer" / "New from The Cave
+    # Explorers" copy.
+    "src/vv_cie_library_window.py",
+    "src/vv_cie_graph.py",
+    "data/cie_graphs/the_aspiring_adventurer.json",
+    "data/cie_graphs/the_cave_explorers.json",
+    # ... the label widths its checks measure labels with, and each game's villager actions (version 6 effects).
+    "data/cie_label_widths.json",
+    "data/cie_actions.json",
+    "data/cie_villager_names.json",      # each game's first-name lists (named strangers, cie-v6-binary.md 16)
     "src/vv_game_mechanics_hidden.py",
     "src/vv_game_mechanics_hidden_vv1.py",
     "src/vv_game_mechanics_hidden_vv2.py",
@@ -728,6 +779,11 @@ def _public_translation_files() -> tuple[list[str], list[str]]:
 
 TRANSLATION_FILES, TEST_TRANSLATION_FILES = _public_translation_files()
 FILES += TRANSLATION_FILES
+
+# The Isola Grand Event Collection's compiled events, each game's manifest.txt and the credits
+# (scripts/build_event_collection_features.py writes them; the five rows pin each one).
+FILES += sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "assets" / "event_collection").rglob("*")
+                if path.is_file())
 
 
 def _assert_translations_valid(files: list[str]) -> None:

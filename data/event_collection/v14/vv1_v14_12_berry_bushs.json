@@ -1,0 +1,59 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Berry Bush's Blessing",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v14_12_berry_bushs",
+  "source": "v26",
+  "lines": [
+   7729,
+   7735
+  ],
+  "section": "v14",
+  "credit": "ORIGINAL CONCEPTS & CREATIVE DIRECTION: Lorsieab2 — the Golden Child\nsolves equations beyond his peers, explains advanced subjects simply,\ncomposes a song alone, invents an instrument, summons rainbows and storms,\nwaters and regrows crops/berry bush, and helps children discover plants,\nanimals, fungi, stars, planets and hidden places. Also requested more\nage-appropriate actions suggesting an adult's insight in a child's body.\nADDITIONAL CONCEPTS, EVENT PROSE & EXPANSIONS: ChatGPT — the further\nchild-scholar, music, empathy, play, invention and social scenarios below.",
+  "draw_weight": 1,
+  "series": "v14_golden_child",
+  "title_src": "L7729",
+  "ledger": [
+   {
+    "src": "L7732",
+    "kind": "instruction",
+    "text": "Outcome: replenish berry",
+    "why": "the scene's outcome, carried by its effect or text_only reason"
+   },
+   {
+    "src": "L7733-7735",
+    "kind": "instruction",
+    "why": "the rest of the scene's outcome instruction"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The Berry Bush's Blessing",
+   "src": "L7730-7732",
+   "text": "The boy sits beside the nearly bare berry bush, touches a leaf and hums. Blossoms appear, followed by ripe berries. He immediately eats one and offers another to the youngest child nearby.",
+   "text_only": [
+    {
+     "src": "L7732-7735",
+     "what": "the outcome",
+     "reason": "rule 8: replenishing the berry bush is not a game effect; the source's own fallback is a harmless narrative version"
+    }
+   ]
+  }
+ }
+}

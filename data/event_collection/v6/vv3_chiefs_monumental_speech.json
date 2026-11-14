@@ -1,0 +1,315 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Monumental Speech",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_chiefs_monumental_speech",
+  "source": "v26",
+  "lines": [
+   2996,
+   3041
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2998",
+  "ledger": [
+   {
+    "src": "L2997",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2999",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L3008",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3016",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3026",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3040-3041",
+    "kind": "note",
+    "why": "protection note: the Chief is cast as the special tribal_chief role, which no effect harms; the event has no effect"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3006",
+   "before": "begins: (A).",
+   "after": "begins: (A)"
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chief": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "tribal_chief"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "\"My fellow villagers, today we honor the work of many hands...\"",
+     "src": "L3009"
+    },
+    {
+     "text": "\"There comes a time in every village's history...\"",
+     "src": "L3010"
+    },
+    {
+     "text": "\"I promise to keep this brief.\"",
+     "src": "L3011"
+    },
+    {
+     "text": "\"I have prepared a few words. Actually, quite a few.\"",
+     "src": "L3012"
+    }
+   ]
+  },
+  "RESULT": {
+   "items": [
+    {
+     "text": "The Chief laughs and finishes the speech in (chief.his/her) own words. The villagers applaud warmly.",
+     "src": "L3027-3028"
+    },
+    {
+     "text": "The elder quietly helps retrieve the notes. The ceremony resumes.",
+     "src": "L3029",
+     "if": {
+      "visited": "b2"
+     }
+    },
+    {
+     "text": "The child is promised snacks AFTER the speech. The Chief then decides that a shorter speech might be wise.",
+     "src": "L3030-3031",
+     "if": {
+      "visited": "b1"
+     }
+    },
+    {
+     "text": "The Chief abandons the speech and invites villagers to share their own stories. Several speak with unexpected eloquence.",
+     "src": "L3032-3033"
+    },
+    {
+     "text": "The Chief delivers the entire shopping list without noticing. The crowd is baffled but impressed by the passion shown for beans.",
+     "src": "L3034-3035",
+     "if": {
+      "visited": "b3"
+     }
+    },
+    {
+     "text": "The speech ends quietly. Later, the Chief tells a friend that leadership is sometimes less about appearing impressive than being willing to laugh at oneself.",
+     "src": "L3036-3038"
+    }
+   ]
+  },
+  "B1": {
+   "items": [
+    {
+     "text": "a child loudly asks when the snacks will be served",
+     "src": "L3017"
+    }
+   ]
+  },
+  "B2": {
+   "items": [
+    {
+     "text": "a gust of wind carries away the speech notes",
+     "src": "L3018"
+    }
+   ]
+  },
+  "B3": {
+   "items": [
+    {
+     "text": "the Chief realizes (chief.he/she) is holding a shopping list",
+     "src": "L3019"
+    }
+   ]
+  },
+  "B4": {
+   "items": [
+    {
+     "text": "an elder starts applauding halfway through the first sentence",
+     "src": "L3020"
+    }
+   ]
+  },
+  "B5": {
+   "items": [
+    {
+     "text": "a nearby bird perfectly imitates the Chief's voice",
+     "src": "L3021"
+    }
+   ]
+  },
+  "B6": {
+   "items": [
+    {
+     "text": "the Chief forgets a carefully rehearsed phrase and improvises",
+     "src": "L3022"
+    }
+   ]
+  },
+  "B7": {
+   "items": [
+    {
+     "text": "a father gently rocks his baby, who begins squeaking precisely whenever the Chief pauses",
+     "src": "L3023-3024"
+    }
+   ]
+  }
+ },
+ "start": "speech",
+ "nodes": {
+  "speech": {
+   "name": "The speech",
+   "src": "L3002-3006",
+   "text": "The tribal Chief has prepared a speech celebrating the village's progress. It is supposed to be {short and inspiring|formal and dignified|heartfelt and personal}. The entire village gathers to listen.\nThe Chief begins: {A}",
+   "text_only": [
+    {
+     "src": "L3002",
+     "what": "a speech celebrating the village's progress",
+     "reason": "the speech's subject, not the villagers' Celebrating action; the source asks for no effect (L3041)"
+    }
+   ],
+   "children": [
+    {
+     "next": "interrupt"
+    }
+   ]
+  },
+  "interrupt": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    },
+    {
+     "next": "b5"
+    },
+    {
+     "next": "b6"
+    },
+    {
+     "next": "b7"
+    }
+   ]
+  },
+  "b1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B1}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B2}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B3}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B4}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B5}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B6}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "b7": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3014",
+   "text": "Unfortunately, {B7}.",
+   "children": [
+    {
+     "next": "result"
+    }
+   ]
+  },
+  "result": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{RESULT}"
+  }
+ }
+}

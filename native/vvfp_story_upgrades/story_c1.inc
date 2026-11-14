@@ -924,8 +924,9 @@ static const ce_adapter C1_ADAPTER = {
        15 lines (the longest and tallest stock encounter texts, at its 450
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
-       title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role,
+       title included; labels of up to 39 characters (the bytes kept), as wide as the screen
+   shows whole (story_label_widths.h; the owner, 2026-11-13: a label may run off its button while it is readable). */
+    49, 13, 49, 13, 1, 39, c1_rand_below, NULL, c1_role,
     C1_PROBE, (int)(sizeof C1_PROBE / sizeof C1_PROBE[0]),
     NULL,
     "Do this at your own risk: the game never makes anyone else the Golden Child. Each "
@@ -1001,6 +1002,7 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
 #define CHOICE_VARIANT_NONE 0x7F4B1A2D     /* past every stock jump table */
 
 static void *c1_choice_dialog;
+static const mb_client CS12_CLIENT;            /* story_c2.inc: the shared popup's client, both games */
 static char c1_choice_title[CE_TITLE_BYTES];
 
 /* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
@@ -1038,6 +1040,20 @@ static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int que
     if (other > lines) {
         lines = other;
     }
+    {
+        /* Three or four answers (format version 4): every answer's first page, and room for the extra buttons
+           (vvfp_multi_answer_12.h). */
+        int b, n = ce_choice_answers(game);
+        for (b = 2; b < n; ++b) {
+            int more = ce_choice_tallest(game, b, tallest, sizeof tallest);
+            if (more > lines) {
+                lines = more;
+            }
+        }
+        if (n > 2) {
+            lines += mb_room_lines(game, dialog, n);
+        }
+    }
     if (featured >= 0) {
         choice_open_gap((char *)dialog + question, C1_DLG_TEXT_BYTES);
         lines += CHOICE_PICTURE_LINES;
@@ -1070,6 +1086,11 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     }
     d[C1_DLG_RESULT] = '\0';
     c1_choice_dialog = dialog;
+    if (ce_choice_answers(1) > 2) {
+        mb_attach(1, &CS12_CLIENT, dialog);   /* its third and fourth buttons at its first draw */
+    } else {
+        mb_forget(dialog);
+    }
     return 1;
 }
 

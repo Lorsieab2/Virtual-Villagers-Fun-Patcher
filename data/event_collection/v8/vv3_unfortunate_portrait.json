@@ -1,0 +1,542 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfortunate Portrait",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "vv3_unfortunate_portrait",
+  "source": "v26",
+  "lines": [
+   3950,
+   4025
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3951",
+  "ledger": [
+   {
+    "src": "L3950",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3952",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L3953",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3967",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3984",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3991",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3997",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4004",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4012",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4023-4024",
+    "kind": "note",
+    "why": "designer note: the Chief is text only and never targeted"
+   },
+   {
+    "src": "L4025",
+    "kind": "instruction",
+    "why": "the Research or Building effect on the ending page"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "artist": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c10",
+  "v8_c16"
+ ],
+ "pools": {
+  "REVISION": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The artist is relieved and fixes the obvious mistakes.",
+     "src": "L3985"
+    },
+    {
+     "text": "The artist is offended, then admits that the hat really was a bit much.",
+     "src": "L3986-3987",
+     "if": {
+      "visited": "intro_a5"
+     }
+    },
+    {
+     "text": "The revised portrait looks even less like the Chief. Everyone agrees to stop while they are ahead.",
+     "src": "L3988-3989"
+    }
+   ]
+  },
+  "DISPLAY": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The children love the portrait. The Chief slowly grows fond of it.",
+     "src": "L3992"
+    },
+    {
+     "text": "The Chief accepts the joke with dignity, but requests a less prominent location.",
+     "src": "L3993-3994"
+    },
+    {
+     "text": "The portrait becomes a famous village curiosity.",
+     "src": "L3995"
+    }
+   ]
+  },
+  "EXPLAIN": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The artist explains a thoughtful symbolic choice that the audience had misunderstood.",
+     "src": "L3998-3999"
+    },
+    {
+     "text": "The artist says, \"The enormous nose represents wisdom.\" The Chief replies, \"Does it.\"",
+     "src": "L4000-4001",
+     "if": {
+      "visited": "intro_a1"
+     }
+    },
+    {
+     "text": "The artist admits (artist.he/she) simply cannot draw noses.",
+     "src": "L4002",
+     "if": {
+      "visited": "intro_a1"
+     }
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The portrait hangs in a quiet corner, where visitors occasionally stop to admire - or question - it.",
+     "src": "L4013-4014",
+     "if": {
+      "not": {
+       "visited": "dec3"
+      }
+     }
+    },
+    {
+     "text": "The artist and Chief share a laugh after the crowd leaves.",
+     "src": "L4015"
+    },
+    {
+     "text": "A child produces a much better drawing in five minutes. The artist asks for lessons.",
+     "src": "L4016-4017"
+    },
+    {
+     "text": "The Chief privately admits that the portrait captures something true, even if the nose is unforgivable.",
+     "src": "L4018-4019",
+     "if": {
+      "visited": "intro_a1"
+     }
+    },
+    {
+     "text": "The portrait is put away carefully, not destroyed. Someday it may be a cherished reminder of this moment.",
+     "src": "L4020-4021"
+    }
+   ]
+  },
+  "PROBLEM1": {
+   "items": [
+    {
+     "text": "a nose of astonishing proportions",
+     "src": "L3968"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM2": {
+   "items": [
+    {
+     "text": "a magnificent mane of hair that the Chief does not possess",
+     "src": "L3969"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM3": {
+   "items": [
+    {
+     "text": "an expression of profound constipation",
+     "src": "L3970"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM4": {
+   "items": [
+    {
+     "text": "six fingers on one hand",
+     "src": "L3971"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM5": {
+   "items": [
+    {
+     "text": "an enormous ceremonial hat that nobody has ever seen",
+     "src": "L3972"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM6": {
+   "items": [
+    {
+     "text": "a tiny body and an inexplicably enormous head",
+     "src": "L3973"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM7": {
+   "items": [
+    {
+     "text": "a suspicious resemblance to the artist's pet lizard",
+     "src": "L3974"
+    }
+   ],
+   "set": "A"
+  },
+  "PROBLEM8": {
+   "items": [
+    {
+     "text": "a heroic pose that makes the Chief look ready to attack the sun",
+     "src": "L3975"
+    }
+   ],
+   "set": "A"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro_a1"
+    },
+    {
+     "next": "intro_a2"
+    },
+    {
+     "next": "intro_a3"
+    },
+    {
+     "next": "intro_a4"
+    },
+    {
+     "next": "intro_a5"
+    },
+    {
+     "next": "intro_a6"
+    },
+    {
+     "next": "intro_a7"
+    },
+    {
+     "next": "intro_a8"
+    }
+   ]
+  },
+  "intro_a1": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM1}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a2": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM2}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a3": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM3}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a4": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM4}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a5": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM5}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a6": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM6}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a7": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM7}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a8": {
+   "name": "The commission",
+   "src": "L3955-3965",
+   "text": "The villagers have decided to commission a portrait of their Chief to commemorate an important achievement.\nThe Chief {politely objects|pretends not to care|is secretly thrilled|worries the whole thing is unnecessary}.\nThe artist, (Artist), is {a talented but impatient adult|a shy apprentice|an elder with a very distinctive style|a Master Builder who has never painted anything in (artist.his/her) life}.\nWhen the portrait is unveiled, it depicts the Chief with {PROBLEM8}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The unveiling",
+   "src": "L3977",
+   "text": "The crowd falls silent.",
+   "choices": [
+    {
+     "label": "PRAISE THE EFFORT AND REQUEST A REVISION.",
+     "next": "revision",
+     "src": "L3979"
+    },
+    {
+     "label": "DISPLAY IT AS AN UNUSUAL WORK OF ART.",
+     "next": "display",
+     "src": "L3980"
+    },
+    {
+     "label": "ASK THE ARTIST TO EXPLAIN THE SYMBOLISM.",
+     "next": "explain",
+     "src": "L3981"
+    },
+    {
+     "label": "LET THE CHIEF DECIDE.",
+     "next": "decision",
+     "src": "L3982"
+    }
+   ]
+  },
+  "revision": {
+   "text": "{REVISION}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "display": {
+   "text": "{DISPLAY}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "explain": {
+   "text": "{EXPLAIN}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "decision": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "dec1"
+    },
+    {
+     "next": "dec2"
+    },
+    {
+     "next": "dec3"
+    },
+    {
+     "next": "dec4"
+    }
+   ],
+   "set": "(4)"
+  },
+  "dec1": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L4005",
+   "text": "The Chief thanks the artist and asks for a small revision."
+  },
+  "dec2": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L4006",
+   "text": "The Chief displays the portrait proudly, flaws and all."
+  },
+  "dec3": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L4007-4008",
+   "text": "The Chief declines to display it publicly but keeps it as a gift, explaining the choice kindly."
+  },
+  "dec4": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L4009-4010",
+   "text": "The Chief declares that the village needs fewer portraits and more benches. The artist offers to paint a bench."
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "artist",
+     "skills": [
+      "Research",
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4025"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c16"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

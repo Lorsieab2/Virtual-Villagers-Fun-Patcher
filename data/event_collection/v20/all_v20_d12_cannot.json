@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Doctor Who Could Not Save Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d12_cannot",
+  "source": "v26",
+  "lines": [
+   9080,
+   9087
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9080",
+  "ledger": [
+   {
+    "src": "L9083",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9085",
+    "kind": "structural",
+    "text": "or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9087",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "Several injured villagers arrive at once after a disaster.",
+   "src": "L9081",
+   "choices": [
+    {
+     "label": "Prioritize immediate, treatable danger",
+     "next": "set_a",
+     "src": "L9082"
+    },
+    {
+     "label": "Treat in arrival order",
+     "next": "set_b",
+     "src": "L9084"
+    },
+    {
+     "label": "Let healers choose independently",
+     "next": "set_c",
+     "src": "L9086"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9081",
+     "what": "injured",
+     "reason": "the arrival of the injured is the setting; the patient's worsening (b2) is the health loss"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Many survive.",
+   "src": "L9082-9083",
+   "text_only": [
+    {
+     "src": "L9083",
+     "what": "death",
+     "reason": "the line lists all of this choice's outcomes; the death is another page's"
+    }
+   ]
+  },
+  "a2": {
+   "text": "A family questions a death.",
+   "src": "L9082-9083",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9082"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The hospital establishes a new emergency system.",
+   "src": "L9082-9083",
+   "text_only": [
+    {
+     "src": "L9083",
+     "what": "death",
+     "reason": "the line lists all of this choice's outcomes; the death is another page's"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Chaos follows.",
+   "src": "L9084-9085"
+  },
+  "b2": {
+   "text": "A critical patient worsens.",
+   "src": "L9084-9085",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9084"
+    }
+   ]
+  },
+  "b3": {
+   "text": "Everyone is stabilized through remarkable luck.",
+   "src": "L9084-9085"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  },
+  "c1": {
+   "text": "They coordinate well.",
+   "src": "L9086-9087"
+  },
+  "c2": {
+   "text": "They conflict dangerously.",
+   "src": "L9086-9087"
+  },
+  "c3": {
+   "text": "An apprentice organizes supplies and saves time.",
+   "src": "L9086-9087"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9082",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9083",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9084",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9086",
+   "before": "well; conflict",
+   "after": "well; they conflict"
+  },
+  {
+   "src": "L9086",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9087",
+   "before": ";",
+   "after": "."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

@@ -1,0 +1,441 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Field Day",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_field_day",
+  "source": "v26",
+  "lines": [
+   2569,
+   2645
+  ],
+  "section": "vv5_isolan",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* VV5 woodworking showcase, potluck dispute, laundry misunderstanding,\n  neighborly games, keeper of little things and festival events:\n  event prose/branches by ChatGPT; overarching VV5 two-community setup,\n  Guardians of Harmony naming and gameplay constraints by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2571",
+  "ledger": [
+   {
+    "src": "L2570",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2572",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L2581",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2600",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2607",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2614",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2622",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2631",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2643",
+    "kind": "instruction",
+    "text": "Rewards: small experience in a relevant supported skill,",
+    "why": "the skill effect on the ending page"
+   },
+   {
+    "src": "L2644",
+    "kind": "note",
+    "text": "or narrative-only. Never award player-villager skill points",
+    "why": "reward rule: only the cast villager gains; Isolans are never cast"
+   },
+   {
+    "src": "L2645",
+    "kind": "note",
+    "why": "reward rule: only the cast villager gains; Isolans are never cast"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "player": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a relay race carrying coconuts",
+     "src": "L2582"
+    },
+    {
+     "text": "a contest to stack stones without knocking them over",
+     "src": "L2583"
+    },
+    {
+     "text": "a guessing game involving objects hidden in baskets",
+     "src": "L2584"
+    },
+    {
+     "text": "a singing competition",
+     "src": "L2585"
+    },
+    {
+     "text": "a cooperative puzzle race",
+     "src": "L2586"
+    },
+    {
+     "text": "a game of balancing wooden spoons",
+     "src": "L2587"
+    },
+    {
+     "text": "a contest to build the tallest tower of harmless materials",
+     "src": "L2588"
+    },
+    {
+     "text": "a scavenger hunt for ordinary island objects",
+     "src": "L2589"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "Both communities enjoy a peaceful afternoon and agree to play again next season.",
+     "src": "L2632-2633"
+    },
+    {
+     "text": "The winners share their prize with the other team.",
+     "src": "L2634",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "text": "The losing team practices quietly for next year.",
+     "src": "L2635",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "text": "The judge announces that the real winner is friendship. Both teams groan. The judge laughs.",
+     "src": "L2636-2637"
+    },
+    {
+     "text": "A coconut rolls away with the score sheet attached. Nobody can prove who won. Everyone goes home happy.",
+     "src": "L2638-2639",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "c1"
+        },
+        {
+         "visited": "c2"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "text": "The two team captains shake hands, then immediately start arguing about next year's rules.",
+     "src": "L2640-2641"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The games",
+   "src": "L2575-2577,L2579",
+   "text": "The Isolan neighbors have invited the village to an afternoon of games. Nobody is entirely sure who suggested the event, but both communities seem eager to participate.\nThe visiting organizers have prepared {A}.",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "How to play",
+   "src": "L2591-2593",
+   "text": "A neutral visitor agrees to keep score. Both teams promise to follow the rules, although one player is already asking whether the rules are negotiable.",
+   "choices": [
+    {
+     "label": "Compete seriously.",
+     "next": "serious",
+     "src": "L2595"
+    },
+    {
+     "label": "Focus on having fun.",
+     "next": "fun",
+     "src": "L2596"
+    },
+    {
+     "label": "Mix the teams for a cooperative round.",
+     "next": "mixed",
+     "src": "L2597"
+    },
+    {
+     "label": "Ask the children to invent an extra challenge.",
+     "next": "kids",
+     "src": "L2598"
+    }
+   ]
+  },
+  "serious": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L2601",
+   "text": "The village wins narrowly. The Isolans request a rematch.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L2602",
+   "text": "The Isolans win decisively. The village congratulates them.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c3": {
+   "src": "L2603",
+   "text": "The game ends in a tie. Both teams demand a recount.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c4": {
+   "src": "L2604-2605",
+   "text": "A player accidentally drops the coconut at the finish line. The judge applies the rule consistently.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "fun": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "u1"
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3"
+    }
+   ]
+  },
+  "u1": {
+   "src": "L2608",
+   "text": "The teams cheer for each other's successes.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "u2": {
+   "src": "L2609-2610",
+   "text": "A participant makes a spectacularly silly mistake and laughs harder than anyone else.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "u3": {
+   "src": "L2611-2612",
+   "text": "The competitors forget to keep score. The judge shrugs and declares the afternoon a success.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "mixed": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L2615-2616",
+   "text": "The villagers discover that working together is easier than shouting instructions across the field.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L2617-2618",
+   "text": "The teams invent clever strategies by combining different strengths.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L2619-2620",
+   "text": "A minor disagreement is resolved by changing roles and trying again.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "kids": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    },
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k4"
+    }
+   ]
+  },
+  "k1": {
+   "src": "L2623",
+   "text": "The children invent a perfectly reasonable new game.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k2": {
+   "src": "L2624-2625",
+   "text": "The children insist that everyone hop on one foot while carrying a spoon. The adults regret agreeing.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k3": {
+   "src": "L2626-2627",
+   "text": "The children declare that the winners must sing a song about the losers. The judge vetoes the rule.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k4": {
+   "src": "L2628-2629",
+   "text": "The children make the adults solve a puzzle they finished hours ago. The adults struggle terribly.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "player",
+     "skills": [
+      "Building",
+      "Research",
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2643"
+    }
+   ]
+  }
+ }
+}

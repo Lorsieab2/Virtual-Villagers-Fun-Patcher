@@ -375,6 +375,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                          + (" This village has had no tier C result yet, so its next ring is tier C." if gong_first
                             else ""), gm.SAVE)
     out.extend(events.event_facts(village, extra=catalog.EXTRA))
+    out.extend(events.collection_facts(village))       # Isola Grand Event Collection, with its patch only
 
     # -- Other ---------------------------------------------------------------------------
     # The fuel (0x4624CF..0x46253F): only on a fire still burning, its end becomes the clock + 0x8CA0, 0x11940 or

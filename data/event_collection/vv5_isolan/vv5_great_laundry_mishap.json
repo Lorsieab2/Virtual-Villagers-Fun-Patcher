@@ -1,0 +1,445 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Laundry Mishap",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_great_laundry_mishap",
+  "source": "v26",
+  "lines": [
+   2489,
+   2567
+  ],
+  "section": "vv5_isolan",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* VV5 woodworking showcase, potluck dispute, laundry misunderstanding,\n  neighborly games, keeper of little things and festival events:\n  event prose/branches by ChatGPT; overarching VV5 two-community setup,\n  Guardians of Harmony naming and gameplay constraints by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2491",
+  "ledger": [
+   {
+    "src": "L2490",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2492",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L2500",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2519",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2527",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2535",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2543",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2554",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2565-2567",
+    "kind": "instruction",
+    "why": "the Building or Research effect on w3 (the labeling system)"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "finder": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "claimer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "isolan": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "owner": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "kid": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a brilliantly colored scarf",
+     "src": "L2501"
+    },
+    {
+     "text": "a pair of enormous trousers",
+     "src": "L2502"
+    },
+    {
+     "text": "a ceremonial sash",
+     "src": "L2503"
+    },
+    {
+     "text": "a shirt with far too many sleeves",
+     "src": "L2504"
+    },
+    {
+     "text": "a child's tiny knitted hat",
+     "src": "L2505"
+    },
+    {
+     "text": "a cloak covered in decorative patches",
+     "src": "L2506"
+    },
+    {
+     "text": "a cloth bag embroidered with flowers",
+     "src": "L2507"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The item is returned. The neighbors share a friendly conversation and go about their day.",
+     "src": "L2555-2556",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "w2"
+        },
+        {
+         "visited": "f2"
+        },
+        {
+         "visited": "s2"
+        },
+        {
+         "visited": "f4"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "text": "(Finder) and the Isolan visitor exchange sewing tips.",
+     "src": "L2557"
+    },
+    {
+     "text": "The owner is embarrassed but grateful. \"I was looking everywhere for that!\"",
+     "src": "L2558-2559",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "w2"
+        },
+        {
+         "visited": "f2"
+        },
+        {
+         "visited": "s2"
+        },
+        {
+         "visited": "f4"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "text": "A villager suggests a grand annual laundry festival. The others firmly reject the proposal.",
+     "src": "L2560-2561"
+    },
+    {
+     "text": "The incident becomes a small joke between the communities. Nothing more dramatic comes of it.",
+     "src": "L2562-2563"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The basket",
+   "src": "L2495-2496,L2498,L2509-2510",
+   "text": "A basket of freshly washed clothing has appeared between the two communities. Unfortunately, nobody knows who owns it.\n(Finder) discovers {A} among the laundry.\nAn Isolan visitor insists that the item belongs to (isolan.his/her) community. (Claimer) insists it belongs to the village.",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "Whose is it",
+   "src": "L2512",
+   "text": "The problem is that neither can actually prove it.",
+   "choices": [
+    {
+     "label": "Ask around politely.",
+     "next": "asking",
+     "src": "L2514"
+    },
+    {
+     "label": "Compare the patterns and stitching.",
+     "next": "stitch",
+     "src": "L2515"
+    },
+    {
+     "label": "Hold the item until someone claims it.",
+     "next": "wait",
+     "src": "L2516"
+    },
+    {
+     "label": "Put on an impromptu fashion show to find the owner.",
+     "next": "show",
+     "src": "L2517"
+    }
+   ]
+  },
+  "asking": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L2520-2521",
+   "text": "The owner is found immediately. Everyone apologizes for the confusion.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L2522-2523",
+   "text": "Several villagers claim the item, each with a surprisingly convincing explanation.",
+   "children": [
+    {
+     "next": "wait"
+    }
+   ]
+  },
+  "a3": {
+   "src": "L2524-2525",
+   "text": "The real owner admits (owner.he/she) left the item behind after visiting the other community.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "stitch": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L2528-2529",
+   "text": "An elder recognizes the distinctive stitching and identifies the owner.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L2530-2531",
+   "text": "The pattern is common to both communities. The villagers discover they have been sharing techniques for years.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L2532-2533",
+   "text": "A child recognizes the item because (kid.he/she) accidentally sewed one sleeve on backward.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "wait": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "w1"
+    },
+    {
+     "next": "w2"
+    },
+    {
+     "next": "w3"
+    }
+   ]
+  },
+  "w1": {
+   "src": "L2536-2537",
+   "text": "The owner arrives the next morning, grateful that the item was kept safe.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "w2": {
+   "src": "L2538-2539",
+   "text": "Nobody claims it. The villagers agree to store it until the next gathering.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "w3": {
+   "src": "L2540-2541",
+   "text": "The two communities decide to make a simple system for labeling shared laundry.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Building",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2565"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "show": {
+   "src": "L2544-2545",
+   "text": "(Finder) declares that the easiest way to identify the owner is to have volunteers model the mysterious garment.",
+   "children": [
+    {
+     "next": "show_set"
+    }
+   ]
+  },
+  "show_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    },
+    {
+     "next": "f4"
+    }
+   ]
+  },
+  "f1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2546",
+   "text": "The true owner laughs and claims it immediately.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2547-2548",
+   "text": "The garment is far too small for the volunteer. The crowd applauds the effort anyway.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2549-2550",
+   "text": "The Isolan visitor reveals that the item is actually a tablecloth. The volunteer slowly removes it.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2551-2552",
+   "text": "A child announces that the garment belongs to the village's laundry basket. Nobody finds this helpful.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}"
+  }
+ }
+}

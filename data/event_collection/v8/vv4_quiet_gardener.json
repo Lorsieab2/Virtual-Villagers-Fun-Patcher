@@ -1,0 +1,268 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Gardener",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_quiet_gardener",
+  "source": "v26",
+  "lines": [
+   4149,
+   4197
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4150",
+  "ledger": [
+   {
+    "src": "L4149",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4151",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4152",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4168",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4178",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4187",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4196",
+    "kind": "instruction",
+    "why": "the Farming or Building effects on the ending page"
+   },
+   {
+    "src": "L4197",
+    "kind": "note",
+    "why": "designer note on tone"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "include_pools": [
+  "v8_c7",
+  "v8_c10",
+  "v8_c16_elder"
+ ],
+ "pools": {
+  "PATH": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The villagers lay a stable, accessible path, taking care not to damage the plants. The elder thanks them.",
+     "src": "L4169-4170"
+    },
+    {
+     "text": "The first design would uproot an important plant. The elder explains why it matters; the builders revise it.",
+     "src": "L4171-4172"
+    },
+    {
+     "text": "A child decorates the path with pebbles. The result is charming but uneven. The builders adjust it for safety.",
+     "src": "L4173-4174"
+    },
+    {
+     "text": "The elder insists (elder.he/she) can manage alone. The younger villager respects the answer and offers help if wanted.",
+     "src": "L4175-4176"
+    }
+   ]
+  },
+  "STORY": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The elder recalls a friend who planted the first seeds.",
+     "src": "L4179"
+    },
+    {
+     "text": "The elder admits the garden was originally a failed experiment. \"It was ugly. We loved it anyway.\"",
+     "src": "L4180-4181"
+    },
+    {
+     "text": "The elder laughs about an argument over where to plant a single flower. The argument lasted three days.",
+     "src": "L4182-4183"
+    },
+    {
+     "text": "The elder says some memories are private. The younger villager accepts that without pressing.",
+     "src": "L4184-4185"
+    }
+   ]
+  },
+  "END": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The younger villager visits again the next morning. This time, they work quietly side by side.",
+     "src": "L4188-4189"
+    },
+    {
+     "text": "The elder gives the child a seed and explains how to care for it.",
+     "src": "L4190"
+    },
+    {
+     "text": "The garden remains small. Its meaning does not.",
+     "src": "L4191"
+    },
+    {
+     "text": "The elder sits in the shade, listening to the leaves.",
+     "src": "L4192"
+    },
+    {
+     "text": "A flower blooms in an unexpected place. The elder smiles, and for a moment looks very young.",
+     "src": "L4193-4194"
+    }
+   ]
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The small garden",
+   "src": "L4154-4163",
+   "text": "An older villager, (Elder), has been tending a small garden near the Tree of Life. The garden is not particularly productive, but (elder.he/she) visits it every morning.\nA younger villager, (Young), asks why.\n\"Because I planted it with someone I loved,\" says the elder.\n(Young) notices that the path is difficult to walk, especially for villagers who move more slowly or need assistance.",
+   "choices": [
+    {
+     "label": "IMPROVE THE PATH WITH THE ELDER'S PERMISSION.",
+     "next": "path",
+     "src": "L4165"
+    },
+    {
+     "label": "ASK THE ELDER TO TELL THE GARDEN'S STORY.",
+     "next": "story",
+     "src": "L4166"
+    }
+   ]
+  },
+  "path": {
+   "text": "{PATH}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "story": {
+   "text": "{STORY}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Farming",
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4196"
+    },
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Farming",
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4196"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16_elder}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c7"
+    },
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c16"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

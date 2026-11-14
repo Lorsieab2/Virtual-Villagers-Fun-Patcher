@@ -1,0 +1,262 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "It's Alive!",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_its_alive",
+  "source": "v26",
+  "lines": [
+   7101,
+   7199
+  ],
+  "section": "v13",
+  "credit": "AUTHORSHIP AND IDEA CREDIT — V13\nOriginal creative direction, requested competition critic archetypes, and\nfive specific outcome concepts: Lorsieab2.\nOriginal event text, new characters, individual dialogue, additional\noutcomes, branching and implementation notes below: ChatGPT (OpenAI).\nThe Cooking Contest's original text and randomized framework remain\ncredited to Lorsieab2. These are OPTIONAL ADD-ON branches, not rewrites\nof the original. The other competition add-ons preserve the authorship\nof their existing base events as identified in the V12 credit ledger.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7102",
+  "ledger": [
+   {
+    "src": "L7103",
+    "kind": "structural",
+    "why": "section subheading"
+   },
+   {
+    "src": "L7197-7199",
+    "kind": "instruction",
+    "why": "the results line: Research experience on C5 (the researcher records observations); the rest told only"
+   },
+   {
+    "src": "L7114",
+    "kind": "structural",
+    "text": "(A1-A4)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7115",
+    "kind": "structural",
+    "text": "(B1-B4)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7116",
+    "kind": "structural",
+    "text": "(C1-C5)",
+    "why": "the choice's outcome range"
+   },
+   {
+    "src": "L7157",
+    "kind": "structural",
+    "text": " (VV3-VV5 ONLY)",
+    "why": "the game limit, stripped with its space so the heading keeps its colon"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The construct",
+   "src": "L7106-7110,L7112",
+   "text": "(researcher), a gifted but secretive researcher, unveils a human-shaped figure built from carved wood, clay, tough vines, animal rawhide, polished stones and intricate joints. (researcher.He/She) insists it is more than a sculpture. The figure turns its head, lifts an arm, and whispers something nobody can quite understand.\nThe crowd falls silent. Then the figure takes three steps.",
+   "choices": [
+    {
+     "label": "Praise (researcher) for creating something alive.",
+     "next": "set_a",
+     "src": "L7114"
+    },
+    {
+     "label": "Demand an inquiry into forbidden practices.",
+     "next": "set_b",
+     "src": "L7115"
+    },
+    {
+     "label": "Examine the construct before making any claims.",
+     "next": "set_c",
+     "src": "L7116"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L7118-7123",
+   "text": "THE COLLAPSE:\nThe villagers cheer that (researcher) has created life like the spirits of old. The construct raises its arms in triumph, takes a fourth step, and collapses into an untidy pile of wood and clay. The researcher weeps over the pieces. An apprentice quietly asks whether this means the creature has died. Nobody knows how to answer.",
+   "text_only": [
+    {
+     "src": "L7118",
+     "what": "THE COLLAPSE",
+     "reason": "the construct falls apart; no structure is involved"
+    },
+    {
+     "src": "L7121",
+     "what": "collapses",
+     "reason": "the construct falls apart; no structure is involved"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L7125-7129",
+   "text": "THE NEW CREATOR:\n(researcher) is praised as a maker blessed by the spirits. (researcher.He/She) accepts the title with alarming enthusiasm and orders a ceremonial crown. Before the crown arrives, the construct falls apart. The crowd debates whether divine favor has a very short duration."
+  },
+  "a3": {
+   "src": "L7131-7135",
+   "text": "THE HEARTBREAK:\nThe construct appears to recognize its maker. It reaches toward (researcher) and makes a sound like a child trying to speak. Then its joints give way. (researcher) spends the night rebuilding it, sobbing that (researcher.he/she) had barely begun to know (researcher.his/her) creation."
+  },
+  "a4": {
+   "src": "L7137-7141",
+   "text": "THE FRAUD:\nA hidden apprentice emerges from behind a screen, admitting to pulling concealed vine cords. The audience boos. (researcher) says it was meant as a demonstration of clever mechanisms, not life itself. The village must decide whether the presentation was dishonest."
+  },
+  "b1": {
+   "src": "L7143-7148",
+   "text": "THE ACCUSATION:\nA devotee shouts, \"WITCHCRAFT!\" Another calls it necromancy. A third says that if the spirits wished wood to walk, trees would have legs. The leaders insist on a hearing, not a mob. (researcher) may explain the mechanism, admit uncertainty, or refuse to speak. No punishment is imposed solely on rumor."
+  },
+  "b2": {
+   "src": "L7150-7155",
+   "text": "BLASPHEMY AGAINST NATURE:\nA respected elder argues that making a thinking creature from lifeless materials would violate the natural order. Another elder asks whether making a canoe also violates nature. The debate lasts until the construct collapses. Neither side considers the matter settled.",
+   "text_only": [
+    {
+     "src": "L7154",
+     "what": "collapses",
+     "reason": "the construct falls apart; no structure is involved"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "text": "BLASPHEMY AGAINST NATURE:\nA respected elder argues that making a thinking creature from lifeless materials would violate the natural order. Another elder asks whether making a canoe also violates nature. The debate lasts until the construct collapses. Neither side considers the matter settled. In VV3-VV5, a Naturalist may voice the objection.",
+     "src": "L7150-7155"
+    }
+   ]
+  },
+  "b3": {
+   "src": "L7157-7161",
+   "text": "BLASPHEMY AGAINST MAGIC:\nA Magician accuses (researcher) of imitating sacred acts without understanding their consequences. A rival Magician replies that fear is not proof of wrongdoing. The figure crumbles before either can complete the argument. The village calls for patient study."
+  },
+  "b4": {
+   "src": "L7163-7167",
+   "text": "THE APOLOGY:\n(researcher) admits having exaggerated the claim of sentience. (researcher.He/She) explains that the movement came from cleverly balanced joints and concealed tension in the vines. The frightened villagers are relieved, then annoyed. (researcher) apologizes for the deception."
+  },
+  "c1": {
+   "src": "L7169-7172",
+   "text": "THE HIDDEN CORDS:\nThe builders discover fine cords behind the figure. The construct was a marvelous puppet. (researcher) becomes a respected maker of moving sculptures, though the devotees remain suspicious of the performance."
+  },
+  "c2": {
+   "src": "L7174-7177",
+   "text": "THE WIND:\nThe figure moved because a strong gust filled a hidden sail and released a wooden catch. Its whispered words were wind through a reed. The researcher looks disappointed. The builders look delighted."
+  },
+  "c3": {
+   "src": "L7179-7183",
+   "text": "THE UNEXPLAINED:\nThe scholars cannot identify what made the figure move. Its eyes seemed to follow them, and it spoke a name nobody had taught it. Before further examination, the joints fail. The pieces are kept for study. The event ends in mystery, not a proven resurrection."
+  },
+  "c4": {
+   "src": "L7185-7188",
+   "text": "THE LITTLE CREATURE:\nA small animal scurries out from the hollow chest. Everyone screams. (researcher) screams loudest. The movement was real, but the intelligence belonged to a very irritated lizard. The village names it Professor."
+  },
+  "c5": {
+   "src": "L7190-7195",
+   "text": "THE LESSON:\n(researcher) insists that a few moments of movement were worth years of work. The healers ask whether (researcher.he/she) had considered the welfare of any being (researcher.he/she) might truly create. For once, (researcher) has no answer. (researcher.He/She) begins recording ethical questions alongside experimental observations.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L7198"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "set": "A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  }
+ }
+}

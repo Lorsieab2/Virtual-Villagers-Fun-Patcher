@@ -1,0 +1,4 @@
+LIBRARY "VVFP Long Words"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpLongWordsInstalled=_VvfpLongWordsInstalled@0

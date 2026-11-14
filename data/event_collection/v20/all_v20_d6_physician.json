@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Physician Who Refused",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d6_physician",
+  "source": "v26",
+  "lines": [
+   9031,
+   9039
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9031",
+  "ledger": [
+   {
+    "src": "L9034",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9036",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9038",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A master healer refuses a risky procedure; an apprentice believes it is the patient's only chance.",
+   "src": "L9032-9033",
+   "choices": [
+    {
+     "label": "Support the master",
+     "next": "set_a",
+     "src": "L9034"
+    },
+    {
+     "label": "Support the apprentice",
+     "next": "set_b",
+     "src": "L9036"
+    },
+    {
+     "label": "Convene the healers",
+     "next": "set_c",
+     "src": "L9038"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The patient recovers.",
+   "src": "L9034-9035",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9034"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9034",
+     "what": "dies",
+     "reason": "the line lists all of this choice's outcomes; the death is another page's"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The patient dies.",
+   "src": "L9034-9035",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L9034"
+    }
+   ]
+  },
+  "a3": {
+   "text": "Later findings prove the master's caution justified.",
+   "src": "L9034-9035",
+   "text_only": [
+    {
+     "src": "L9034",
+     "what": "dies",
+     "reason": "the line lists all of this choice's outcomes; the death is another page's"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The procedure succeeds.",
+   "src": "L9036-9037"
+  },
+  "b2": {
+   "text": "The procedure fails.",
+   "src": "L9036-9037",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L9036"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The procedure is wisely halted when a previously unseen danger becomes apparent.",
+   "src": "L9036-9037"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  },
+  "c1": {
+   "text": "They reach consensus.",
+   "src": "L9038-9039"
+  },
+  "c2": {
+   "text": "They argue too long.",
+   "src": "L9038-9039"
+  },
+  "c3": {
+   "text": "They hear a third solution from a quiet assistant.",
+   "src": "L9038-9039"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9034",
+   "before": "or dies;",
+   "after": "or the patient dies;"
+  },
+  {
+   "src": "L9034",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9036",
+   "before": "fails; or is wisely",
+   "after": "the procedure fails; or the procedure is wisely"
+  },
+  {
+   "src": "L9036",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9038",
+   "before": "argue too long; or hear a",
+   "after": "they argue too long; or they hear a"
+  },
+  {
+   "src": "L9038",
+   "before": ";",
+   "after": "."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

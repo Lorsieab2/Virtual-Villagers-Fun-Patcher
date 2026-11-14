@@ -1101,6 +1101,7 @@ static void cod_save_done(int slot, const void *save_buffer) {
                (cod_cie.inc). */
             cie_saved(slot);
         }
+        cw_saved(slot);   /* ...and their own cause words (cod_cie_words.inc), to match */
         saved_slot = slot;
         /* Every grave in the Deaths log first, so the reconciliation knows
            the villagers whose graves were recorded from now. */

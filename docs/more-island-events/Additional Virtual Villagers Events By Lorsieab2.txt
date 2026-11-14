@@ -1,0 +1,812 @@
+MORE ISLAND EVENTS -- YOUR NEW EVENTS, TEXT AND ODDS
+Part of the "More Island Events" patch (v1.35.97). Every new island event is in this one file.
+
+THE EVENTS IN THIS FILE
+  The Aspiring Adventurer ...... all five games
+  The Cave Explorers ........... A New Home
+  The Climb .................... The Lost Children
+  The Troubling Signs .......... The Secret City
+  Diving for Treasure .......... The Secret City
+  The Mysterious Mask .......... The Tree of Life
+  The Playful Dolphins ......... The Tree of Life
+  The Remembrance Ceremony ..... all five games
+  The Rumblings ................ all five games
+
+RULES FOR EVERY EVENT
+- Your story text is unaltered, except the obvious mistakes you asked me to fix (each event's heading says which).
+- (name) is always the villager's full name.
+- Protected villagers are never picked unless you said otherwise: nursing villagers (mother or father), the Golden Child, The Secret City's Tribal Chief, The Lost Children's totems, and anyone that game's own island events never pick. Everyone else is fair game. (Exceptions you made: The Troubling Signs needs the chief; The Remembrance Ceremony includes everyone.)
+- Each event is exactly as likely as one stock island event, and can happen again.
+- What an ending does (deaths, disappearances, rewards, skills) happens when its page shows, and the Island Events log gets one entry per event that always matches the save.
+- A villager who "masters" a skill has it set to 100.
+
+REWARDS: a random amount in the range that game's own island events give, then scaled with the village like that game's other island events.
+  A New Home ........... food 200 to 1,500    tech points 500 to 4,999
+  The Lost Children .... food 100 to 1,500    tech points 500 to 3,000
+  The Secret City ...... food 200 to 600      tech points 1,000 to 2,000
+  The Tree of Life ..... food 300             tech points 500 to 5,000
+  New Believers ........ food 50 to 300       tech points 500 to 3,000
+  A small reward is half a normal one, a large reward twice, a huge reward three times. A loss shows the full amount drawn, but stores never go below 0.
+
+
+==========================================================================
+THE ASPIRING ADVENTURER (all five games)
+==========================================================================
+Revised text, 12 November 2026. A New Home, The Lost Children, The Secret City and The Tree of Life share one version (VV1-VV4). New Believers (VV5) differs only in lost ending 2.
+
+How to read this:
+- (he/she), (his/her), (him/her) and (He/She) follow the adventurer's sex.
+- (Name) / (name) is the adventurer. In ending A8, (name1) is the adventurer and (name2) is the friend who comes to help.
+- In endings A4 and A6, the stranger's (man/woman) and (his/her) follow the stranger's own sex, picked at random.
+- (award) is the amount actually given: food for the meat, tech points for the chest.
+- Changes from your draft: "their" changed to (his/her) where it means the adventurer; "and (he/she) stuffs" added in the chest find; lost ending 2 says "another tribe" outside New Believers; ending A9 added.
+
+
+---------------------------------------------------------------------
+REQUIREMENTS TO HAPPEN
+---------------------------------------------------------------------
+
+The event can happen only when at least TWO ELIGIBLE villagers are in the village: two who could each be picked by the rules in "Who is never picked" below. With fewer than two, it cannot happen.
+
+When it can happen, it takes an equal share of the island-event draw, like the game's own events. It uses the game's usual timing between island events. Pick Island Event can also choose it, under the same requirement.
+
+Exception: Custom Island Events (Story / Cheat Upgrades). There the player decides, so this requirement does not apply.
+
+
+---------------------------------------------------------------------
+WHO IS NEVER PICKED (the adventurer, or the friend in ending A8)
+---------------------------------------------------------------------
+
+In every game:
+- anyone under 14 (children and babies);
+- anyone nursing a baby, mother or father;
+- anyone dead (a body or grave), or not in the village.
+
+And in each game:
+- A New Home: the Golden Child.
+- The Lost Children: the Esteemed Elders' totem statues.
+- The Secret City: the tribal chief.
+- The Tree of Life: no one else.
+- New Believers: every Heathen (believers only), the chief, the Retired Chief and the other special roles the game itself never sends on events, and Reanimated spirits.
+
+The friend in ending A8 is never the adventurer. Because the event needs two villagers who can be picked, there is always a friend, so A8 can always happen. (Only a Custom Island Event, which skips that requirement, could leave no one to be the friend; then A8 becomes A5.)
+With fewer than two villagers who can be picked, the event does not happen (except through Custom Island Events).
+
+
+---------------------------------------------------------------------
+VV1-VV4 VERSION (A New Home, The Lost Children, The Secret City, The Tree of Life)
+---------------------------------------------------------------------
+
+EVENT TEXT
+
+(Name) is an aspiring adventurer. Every morning (he/she) goes off in the jungle to scavenge for useful things. Although (name) has an eye for treasure, sometimes (his/her) ambition gets the best of (him/her). (Name) has managed to escape from sticky situations so far, but the others have cautioned (him/her) repeatedly about exploring alone.
+During (his/her) travels, (he/she) sees something glinting in the corner of (his/her) eye. (Name) feels compelled to see what it is, but is unsure whether to leave the known-safe path in order to investigate.
+
+Choice A: Go investigate!
+Choice B: Stay on the safe path
+
+
+---------------------------------------------------------------------
+CHOICE A: GO INVESTIGATE!
+---------------------------------------------------------------------
+
+First popup (the opening, then ONE of the three finds; the find's text follows "(he/she) finds..." in the same popup):
+
+Against (his/her) better judgement, (name) leaves the beaten path to check out the strange sight. As (he/she) pushes through the foliage, the area gets noticeably darker and colder. The hairs on (name)'s neck stand on end as (he/she) gets closer to the spot. When (name) approaches, (he/she) finds...
+
+Find 1 -- the pile of dirt. Chance 50%. No reward. Next: A7 or A9 (survives), or A2, A3, A4 or A6 (deadly).
+nothing but a pile of dirt.
+
+Find 2 -- the meat. Chance 25%. Reward: food (a random amount, see REWARDS below), given only if the ending is A1, A5 or A8. Next: A1, A5 or A8 (survives), or A2, A3, A4 or A6 (deadly).
+a large stack of meat, sitting perfectly on a cloth! (Name)'s stomach growls upon seeing the bounty, and (he/she) hastily grabs as much as (he/she) can and starts stuffing it in (his/her) knapsack.
+
+Find 3 -- the artifacts. Chance 25%. Reward: tech points (a random amount, see REWARDS below), given only if the ending is A1, A5 or A8. Next: A1, A5 or A8 (survives), or A2, A3, A4 or A6 (deadly).
+a large golden chest full of artifacts! (Name)'s eyes widen at the sight, and (he/she) stuffs as much treasure as (he/she) can fit in (his/her) knapsack.
+
+
+Second popup (ONE ending). After any find: 50% a surviving ending, 50% a deadly ending, equal odds within each half.
+
+Ending A1 -- SURVIVES, gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds.
+(Name) waits for a while, and seeing no one else around, concludes that (he/she) can get away safely. (He/she) triumphantly goes back to the village and raves about (his/her) latest discovery, to the joy of the villagers. Your villagers gain (award) food/tech points.
+
+Ending A2 -- DIES (the beast), remains returned: gets a grave, "Unknown causes". After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.
+Later on, some hunters come to check on the trap, and see the unfortunate aftermath. They manage to recover (name)'s remains and return them to the village. The villagers mourn for (name) greatly and lament that things had to turn out this way.
+
+Ending A3 -- DISAPPEARS (the beast), remains never found: gone for good, no grave. After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is the wide toothy grin of a large beast, and the terror of (his/her) face reflected in its eyes.
+Later on, some hunters come to check on the trap, and see the unfortunate aftermath. They try to recover (name)'s remains, but are unsuccessful. They bring the sad news to the village along with their condolences. The villagers mourn for (name) greatly and lament that things had to turn out this way.
+
+Ending A4 -- DIES (the knife), remains recovered: gets a grave, "Unknown causes". After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is a strange (man/woman) brandishing a knife with a wide grin on (his/her) face...
+After several days, the villagers get worried about (name) and send out a search party. Eventually, they find the grisly scene, and manage to recover (his/her) remains. For 3 days the village mourns (name)'s death as they lay (him/her) to rest. They vow never to let something like this happen again.
+
+Ending A5 -- SURVIVES (escapes the trap), gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+Miraculously, (name) manages to escape the trap, and quickly runs back to the safety of the village. Heart pounding, (he/she) frantically warns others about (his/her) misadventure, to the relief of all the villagers. (Name) vows to never do something like that EVER again! Your villagers gain (award) food/tech points.
+
+Ending A6 -- DISAPPEARS (the knife), no trace found: gone for good, no grave. After any find. Chance 1 in 8 after any find.
+As (name) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+The last thing (name) sees is a strange (man/woman) brandishing a knife with a wide grin on (his/her) face...
+After several days, the villagers get worried about (name) and send out a search party. Although they try their hardest, they cannot find any trace of (him/her). For 3 days the village mourns (name)'s disappearance and vow to never let something like this happen again.
+
+Ending A7 -- SURVIVES, no reward. Only after the pile of dirt. Chance 1 in 4 after the dirt.
+(Name) is disappointed that (he/she) wasted (his/her) time, and manages to make it back to the village safely.
+
+Ending A9 -- SURVIVES, no reward. Only after the pile of dirt. Chance 1 in 4 after the dirt.
+(Name) laughs at the pitiable sight and walks back to the village with a smile. (He/she) will definitely have a funny story to tell over dinner.
+
+Ending A8 -- SURVIVES (a friend comes to help), gets the reward. Only after the meat or the artifacts. Chance 1 in 6 after those finds. (name2) is a second villager who can be picked, never the adventurer; one always exists because the event needs two.
+As (name1) turns to leave, (he/she) unexpectedly steps into a trap! Now panicking, (he/she) struggles with all (his/her) might to break free, causing a big ruckus. (He/she) hears something coming, and braces for the worst...
+Luckily, it's just one of (his/her) old friends! Apparently, they got worried, and brought extra supplies to help (name1) out... Together (name1) and (name2) return to the safety of the village, to the relief of all the villagers. (Name1) thanks (name2) for saving (his/her) life and vows to never do something like that EVER again! Your villagers gain (award) food/tech points.
+
+
+---------------------------------------------------------------------
+CHOICE B: STAY ON THE SAFE PATH
+---------------------------------------------------------------------
+
+First popup (the opening, then ONE of the two lines below, in the same popup):
+
+(Name) decides it's far too dangerous to leave the safety of the path...
+
+Home safe -- chance 90%. Nothing else happens; the event ends here:
+And manages to make it home safely.
+Lost -- chance 10%. Then the second popup:
+And starts heading home. Unfortunately, something goes horribly wrong and (he/she) gets hopelessly lost in the jungle. Days pass with no sign of (name)...
+
+
+Second popup, only if lost (ONE ending, each 1 in 6):
+
+Lost ending 1 -- INJURED, brought to the healers. Then a third popup with ONE of the three healer outcomes below (each 1 in 3):
+...until a scout spots (name) wandering disoriented. (He/she) is heavily injured, and is quickly brought to the healers...
+
+  Healers 1 -- DIES: gets a grave, "Unknown causes".
+  Although they try everything in their power to save (name), (he/she) quietly passes away, to the grief of all the villagers. In the end, they can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+  Healers 2 -- SURVIVES: full recovery, nothing else changes.
+  After many medical procedures, (name) eventually makes a full recovery. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly.
+
+  Healers 3 -- SURVIVES, DISABLED: health set to 10-50% (at random) and now dislikes running.
+  After many medical procedures, (name) manages to recover, although is left permanently disabled. (Name) recounts (his/her) harrowing misadventure to the worried villagers, and (he/she) vows never to make that mistake again. The villagers are relieved that (name) has managed to survive (his/her) ordeal and embrace (him/her) tightly.
+
+Lost ending 2 (VV1-VV4) -- GONE FOR GOOD: joined another tribe; leaves the village, no grave.
+...until a scout spots (name) walking about. (Name) seems to have joined another tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+Lost ending 3 -- SURVIVES, the survivalist: gains 20 to 30 points (at random) in one of Farming, Building, Research or Healing (at random).
+...until a scout spots (name) walking about. (Name) notices the scout and returns home with them, to the great relief of the villagers. (He/she) recounts (his/her) misadventure to the worried villagers, who learn that (he/she) got lost in the dark. Luckily, (name) was prepared and managed to survive. (Name) is proving to be a great survivalist, and now teaches others the art of bushcraft!
+
+Lost ending 4 -- DIES (fallen tree): gets a grave, "Unknown causes".
+...until a scout spots (name)'s remains under a fallen tree. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+Lost ending 5 -- DIES (stony cliff): gets a grave, "Unknown causes".
+...until a scout spots (name)'s remains at the bottom of a stony cliff. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+Lost ending 6 -- DISAPPEARS: never seen again, no grave.
+...and (he/she) is never seen again. In the end, the villagers can only speculate about what happened to poor (name), and forbid anyone from ever going out in the jungle alone again.
+
+
+---------------------------------------------------------------------
+VV5 VERSION (New Believers)
+---------------------------------------------------------------------
+
+Everything is the same as the VV1-VV4 version above, except lost ending 2:
+
+Lost ending 2 (VV5) -- BECOMES A HEATHEN: a real conversion (stays in the village as a Heathen, no longer a believer).
+...until a scout spots (name) walking about. (Name) is seen wearing a mask and seems to have joined the heathens' tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+With the "Guardians of Isola" patch, "heathens'" reads "Isolans'":
+...until a scout spots (name) walking about. (Name) is seen wearing a mask and seems to have joined the Isolans' tribe. (He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.
+
+
+---------------------------------------------------------------------
+HOW IT PLAYS (not shown in the game)
+---------------------------------------------------------------------
+
+Who: one villager aged 14 or older (never anyone under 14; the event needs at least two who can be picked), never a villager nursing a baby (mother or father), never the Golden Child, The Secret City's tribal chief or any other special villager; in New Believers, believers only. The friend in ending A8 follows the same rules.
+
+Choice A:
+- Find: nothing 50%, meat 25% (food), artifacts 25% (tech points).
+- Ending: half the time a surviving ending, half the time a deadly one.
+  - Surviving with a find: A1, A5 or A8 (A8 is always possible: the event needs two villagers who can be picked).
+  - Surviving after finding nothing: A7 or A9.
+  - Deadly: A2 or A4 (dies, gets a grave), A3 or A6 (disappears, no grave).
+  - The reward is given only in A1, A5 and A8.
+
+Choice B:
+- Home safe 90%, lost 10%.
+- Lost endings 1 to 6, each 1 in 6:
+  - 1: brought to the healers, then one of three, each 1 in 3:
+    - dies, gets a grave;
+    - full recovery;
+    - health left at 10-50% and now dislikes running.
+  - 2: New Believers: becomes a Heathen. Other games: gone for good, no grave.
+  - 3: gains 20 to 30 points (at random) in Farming, Building, Research or Healing (one at random).
+  - 4 and 5: dies, gets a grave.
+  - 6: disappears, no grave.
+
+Deaths count as "Unknown causes". The reward follows "Island Events Scale With Population" or "...With Stored Food and Tech Points" when either is ticked.
+
+REWARDS (the owner, 2026-11-12: "a random tech and food point award, scaling"):
+The amount is random, in the range that game's own island events give, then scaled with the village like the game's other island events.
+  A New Home ........... food 200 to 1,500    tech points 500 to 4,999
+  The Lost Children .... food 100 to 1,500    tech points 500 to 3,000
+  The Secret City ...... food 200 to 600      tech points 1,000 to 2,000
+  The Tree of Life ..... food 300             tech points 500 to 5,000
+  New Believers ........ food 50 to 300       tech points 500 to 3,000
+
+
+---------------------------------------------------------------------
+THE CHANCES OF EVERY OUTCOME
+---------------------------------------------------------------------
+
+CHOICE A: GO INVESTIGATE!
+
+Step by step:
+  Find 1, pile of dirt ......................... 50%
+     then A7 or A9 (home safe, nothing) ........ 25% each
+     then A2, A3, A4 or A6 ..................... 12.5% each
+  Find 2, meat (food) .......................... 25%
+     then A1, A5 or A8 (home with the food) .... 16.67% each (1 in 6)
+     then A2, A3, A4 or A6 ..................... 12.5% each
+  Find 3, artifacts (tech points) .............. 25%
+     then A1, A5 or A8 (home with the tech) .... 16.67% each (1 in 6)
+     then A2, A3, A4 or A6 ..................... 12.5% each
+
+Each ending, out of every time a villager investigates:
+  A1 (gets away safely, reward) ................ 8.33%  (4.17% food, 4.17% tech)
+  A5 (escapes the trap, reward) ................ 8.33%  (4.17% food, 4.17% tech)
+  A8 (saved by a friend, reward) ............... 8.33%  (4.17% food, 4.17% tech)
+  A7 (found only dirt, disappointed) ........... 12.5%
+  A9 (found only dirt, laughs it off) .......... 12.5%
+  A2 (the beast; dies, grave) .................. 12.5%
+  A3 (the beast; remains lost, disappears) ..... 12.5%
+  A4 (the knife; dies, grave) .................. 12.5%
+  A6 (the knife; no trace, disappears) ......... 12.5%
+  (A8 is always possible, since the event needs two villagers who can be picked. Only through Custom Island Events, which skip that requirement, could no friend exist; then A8 becomes A5.)
+
+In all, after investigating:
+  comes home safe ............................. 50%
+     with food ................................ 12.5%
+     with tech points ......................... 12.5%
+     with nothing (A7, A9) .................... 25%
+  dies and gets a grave (A2, A4) .............. 25%
+  disappears, no grave (A3, A6) ............... 25%
+
+
+CHOICE B: STAY ON THE SAFE PATH
+
+Step by step:
+  Home safe .................................... 90%
+  Lost ......................................... 10%
+     then each lost ending 1 to 6 .............. 1 in 6 (16.67%)
+     lost ending 1 (healers), then each of the three outcomes ... 1 in 3
+
+Each outcome, out of every time a villager stays on the path:
+  Home safe .................................... 90%
+  Lost 1, healers: dies, grave ................. 0.56%
+  Lost 1, healers: full recovery ............... 0.56%
+  Lost 1, healers: disabled (10-50% health, dislikes running) ... 0.56%
+  Lost 2, joins the other tribe ................ 1.67%  (New Believers: becomes a Heathen; other games: gone for good, no grave)
+  Lost 3, survivalist (+20 to 30 in one skill) . 1.67%
+  Lost 4, fallen tree: dies, grave ............. 1.67%
+  Lost 5, stony cliff: dies, grave ............. 1.67%
+  Lost 6, never seen again: disappears ......... 1.67%
+
+In all, after staying on the path:
+  comes home alive ............................. 92.78%  (90% safe, 1.67% survivalist, 0.56% full recovery, 0.56% disabled)
+  dies and gets a grave ........................ 3.89%
+  disappears, no grave ......................... 1.67%
+  joins the other tribe ........................ 1.67%  (New Believers: Heathen; other games: gone for good)
+
+
+==========================================================================
+THE CAVE EXPLORERS (A New Home)
+==========================================================================
+
+REQUIREMENTS TO HAPPEN
+- The Cave puzzle is completed.
+- There are two eligible villagers, both 18 or older and at most 5 years apart in age.
+- Custom Island Events can queue it anyway, as long as such a pair exists.
+
+WHO IS NEVER PICKED
+- Anyone under 18.
+- A nursing mother or father.
+- Special villagers (such as the Golden Child).
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses "Explore the Cave" or "Don't explore".
+
+(name1) has been curious about the cave. (He/she) wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. (name1) is trying to convince (name2), (his/her) special friend, to come with (him/her). (name2) is also curious, but is not sure whether to sneak off from work to go spelunking.  “We’ll be safer if we’re together. Come on, it’ll be fun!”, says (name1). “So, what do you say?”
+
+--------------------------------------------------------------------------
+Don't explore -- NOTHING HAPPENS. The event ends here.
+
+“Sorry, I’m not going,” says (name2). “What if we get lost? What if people discover we’re gone? We’ll get in trouble. I don’t want to risk getting hurt. And neither should you,” (he/she) says. “Please reconsider. Let the tribe handle this and maybe we can tag along later.” (Name1) is saddened, but realizes that (name2) is right. After much reflection, (he/she) thanks (him/her) for setting their mind straight. “I may not always have my best interests in mind, but I’m glad to have such a good friend looking out for me!” (name2) promises to protect (name1) if (he/she) will do the same. “Of course! After all, I’m here for you!” (name1) and (name2) may not always get along, but one thing’s for certain: their bond is stronger than ever.
+
+--------------------------------------------------------------------------
+Explore the Cave. Then the player chooses "Proceed Further" or "Stay Here".
+
+“Okay, let’s go!” (name2) says. (name1) and (name2) pack up their supplies and steal away to the cave in secret. By torchlight, they see intricate drawings depicting the island’s history painted on the walls, and numerous artifacts scattered around the area. “Fascinating!” (name2) says. “I never thought I’d see such beautiful things!”
+“Toldja it’d be worth it,” says (name1), beaming. (He/she) asks (name2) if they should head in further to see if any more things can be found.
+
+==========================================================================
+PROCEED FURTHER. Then by chance: A (the chase) 50%, or B (the dig) 50%.
+
+The two head in deeper. The place becomes darker and narrower until only a small sliver of light remains.
+
+--------------------------------------------------------------------------
+A -- THE CHASE (50%)
+The screamer is name1 or name2 at random; (other name) is the other one.
+
+Suddenly (screamer) screams. (He/she) tries to run to (other name), but they can’t see each other, and their torches have all burned out. All they can hear is their voices echoing throughout the chamber, and some loud, ominous stomping. “What’s wrong?!” says (other name).
+
+The screamer answers with ONE of these, at random (1 in 4 each):
+  “I stepped on something slimy!”
+  “I felt something scratch me!”
+  “I ran into something sticky!”
+  “I heard something growling!”
+
+Then (the screamer speaks):
+“Quick, run! Something’s chasing us!” (he/she) cries. Unfortunately, they have ventured too deep, and they are not sure where the exit is. They see two light-streaked tunnels in front of them: one on the left, and one on the right. Neither of them remembers exactly where they came from, and whatever (screamer) encountered seems to be coming closer. Which path should they run down?
+
+The player chooses "Run towards the left path" or "Run towards the right path" (the odds are the same either way):
+(name1) and (name2) run down the left/right path screaming like little children. Things whiz by until the tunnel grows brighter and brighter. Suddenly as they reach the end they are blinded by dazzling white sunshine.
+
+Then ONE ending:
+
+A1 -- THEY FALL OUT. Chance 10%. Nothing else happens.
+As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. “W-we w-went in th-the c-cave, and heard s-something c-chasing us,” (name1) stammers. “We barely made it out alive!” (name2), frightened, starts crying. “This was YOUR idea! We almost got ourselves killed because of your stupid plan! I should have never agreed to come along!” (name2) shouts.
+(name1) and (name2)’s argument lasts for a while until both storm off to their homes. Although thankfully unhurt, neither of them wants anything to do with each other anymore.
+
+A2 -- THEY MAKE UP. Chance 80%. Nothing else happens.
+As they burst out of the cave, they flop onto familiar ground. They pant heavily as their friends, family and soon the entire village crowds around them in concern. “W-we w-went in th-the c-cave, and heard s-something c-chasing us,” (name1) stammers. Suddenly, (name2) starts crying. “It was terrifying! If we hadn’t made it out…” “I’m so sorry, (name2),” (name1) says. “I should have listened to you. You were right all along, about everything.” The two embrace, sobbing for a while as the others help care for them. They quickly make amends and promise never to let each other do anything like that again.
+
+A3 -- THE CHASM: BOTH DISAPPEAR. Chance 10%. Both are gone for good, with no graves and no food. The one who slips is name1 or name2 at random.
+As they burst out of the cave, they flop onto what seems to be solid ground. However, (random name)’s foot slips and (he/she) falls down a slippery chasm. Horrified, (other name) has no time to react before (he/she), too tumbles down the winding waterfall. All that’s left of them is their fading screams and a bowl of fresh berries.
+
+--------------------------------------------------------------------------
+B -- THE DIG (50%)
+The finder is name1 or name2 at random.
+
+The two trek on, searching high and low for anything they can find. After a while with no luck, (finder) finds something buried in the ground. Wow! It’s
+
+then ONE find:
+
+B1 -- GOLD COINS. Chance 30%. Normal tech reward.
+a sack of gold coins! (name1) and (name2) haul the heavy sack back home to the delight of the villagers. Your village gains (award) tech points.
+
+B2 -- THE MAP: BOTH LEAVE. Chance 10%. Both leave the village for good, with no graves.
+a map! (name1) and (name2) follow the map to a strange place that was previously unknown by the villagers. No one knows where they went, but they left a note saying they were ‘alive and well’ along with a drawing of their whereabouts. ‘I hope you’ll come and follow us someday,’ the note says. ‘You’ll love it here. – (name1) and (name2)’
+
+B3 -- THE TREASURE MAP. Chance 30%. Huge tech reward (3 times normal).
+a treasure map! (name1) and (name2) follow the map to the X marked on the ground, where they dig up a large chest full of jewels and gold! They drag the chest all the way back home to the utter delight of the villagers. Your villagers gain (huge award) of tech points.
+
+B4 -- PRESERVED FOOD. Chance 30%. Large food reward (2 times normal).
+a sack of preserved food! (name1) and (name2) haul the large sack back to the village, to the delight of the villagers. Your villagers gain (large award) food.
+
+==========================================================================
+STAY HERE. Then the player chooses “You’re right, I’ll return them.” or “Curses schmurses. I’m keeping them.”
+
+(name2) is too enamored by all the glittering sights and objects and decides to stay put. (he/she) tries to take some to show the researchers, but (name1) stops them. “Wait. I don’t think that’s a good idea. What if you get cursed or something?” What should (name2) say?
+
+--------------------------------------------------------------------------
+“You’re right, I’ll return them.” -- A NORMAL REWARD: food (50%) or tech points (50%). Nobody is harmed.
+(Name2) carefully rearranges the objects exactly where (he/she) found them, and offers a quick prayer of apology to the spirits. When the two return home, they find that someone has left a bundle of (food/strange devices) at their doorsteps. Your villagers gain (award) (food/tech points).
+
+--------------------------------------------------------------------------
+“Curses schmurses. I’m keeping them.”
+(Name2) decides to take some of the objects for further study. “Surely the researchers will want to come here now.” When they return home,
+
+then ONE ending:
+
+K1 -- THE CURSE: BOTH DIE. Chance 25%. Two graves, “Unknown causes”.
+(name2) suddenly feels a strange pain in their chest. Over the next few days (he/she) develops a high fever and convulsions. No matter what the healers do, (name2) becomes weaker and weaker, until (he/she) passes away in agony. (name1), in (his/her) guilt, stops eating until (he/she) too, quietly passes away. The villagers mourn for them both, and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (name1) and (name2), to rest in peace.
+
+K2 -- THE CURSE: NAME2 DIES. Chance 25%. One grave, “Unknown causes”.
+(name2) suddenly feels a strange pain in their chest. Over the next few days (he/she) develops a high fever and convulsions. No matter what the healers do, (name2) becomes weaker and weaker, until (he/she) passes away in agony. The villagers mourn for (him/her), and upon discovering the stolen artifacts, perform a complicated ritual to appease any angered spirits. Hopefully, this will put them, and poor (name2), to rest in peace.
+
+K3 -- THE RESEARCHERS. Chance 50%. Normal tech reward.
+(name2) informs the researchers about the objects (name1) and (name2) found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island’s history and previous inhabitants. Your villagers gain (award) tech points.
+
+--------------------------------------------------------------------------
+THE CAVE EXPLORERS -- CHANCES
+The player's choices decide the branch; chance decides the rest.
+
+Proceed Further:
+  A, the chase ............................. 50%
+     they fall out (A1) .................... 5%   (10% of the chase)
+     they make up (A2) ..................... 40%  (80% of the chase)
+     both disappear down the chasm (A3) .... 5%   (10% of the chase)
+  B, the dig ............................... 50%
+     gold coins, normal tech (B1) .......... 15%  (30% of the dig)
+     the map, both leave for good (B2) ..... 5%   (10% of the dig)
+     treasure, huge tech (B3) .............. 15%  (30% of the dig)
+     preserved food, large food (B4) ....... 15%  (30% of the dig)
+  So after Proceed Further: 10% lose both villagers, 45% a reward, 45% nothing.
+
+Stay Here, return them:
+  food ..................................... 50%
+  tech points .............................. 50%
+
+Stay Here, keep them:
+  both die (K1) ............................ 25%
+  name2 dies (K2) .......................... 25%
+  the researchers, normal tech (K3) ........ 50%
+
+Don't explore: nothing happens.
+
+
+==========================================================================
+THE CLIMB (The Lost Children)
+==========================================================================
+
+REQUIREMENTS TO HAPPEN
+- There is at least one eligible villager: 18 or older, and at least a Trainee in Research (20 points or more).
+- Custom Island Events can queue it anyway, as long as such a villager exists.
+
+WHO IS NEVER PICKED
+- Anyone under 18.
+- Anyone below 20 Research.
+- A nursing mother or father.
+- Special villagers.
+
+The same villager is (name) throughout.
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses "Go with the plan" or "Follow the scientists' advice".
+
+(name) is known for their crazy, spontaneous, yet sometimes genius ideas. (he/she) is an avid researcher and has been studying the tribe’s history for a long time. (he/she) believes that two of the tribe’s founders fell down the Great Falls, but nothing definitive is known about their origins. (name) proposes trying to retrace their steps by climbing the waterfall and offers to devise a plan. The others are skeptical about (his/her) claims and warn (him/her) not to take matters into (his/her) own hands without further proof. (name) knows that the plan could be dangerous, but what if (he/she) is right? Should (he/she) go through with (his/her) plan, or follow the other researchers’ advice?
+
+--------------------------------------------------------------------------
+Go with the plan. Then ONE ending, 50% each.
+
+(Name) revises (his/her) plan until (he/she) believes it is practically foolproof. At dawn the next morning, (he/she) sneaks out of the hut before anyone else has woken up and makes their way toward the waterfall. Setting up (his/her) climbing gear, (he/she) makes the perilous ascent up the falls.
+
+C1 -- THE FALL: DIES. Chance 50%. A grave, “Unknown causes”.
+For several hours, (he/she) carefully scales the jagged rocks until (he/she) can almost see over the edge of the falls. Just a little further… Oops! (name)’s hand loses its grip and (he/she) falls many dozens of meters to the hard, unforgiving ground. When the villagers wake up, they discover (name)’s body and weep bitterly for their fallen colleague. (He/she) will be remembered as a passionate dreamer that dared to do the impossible.
+
+C2 -- THE SUMMIT: SUCCEEDS. Chance 50%. Research becomes fully mastered, the village gains a large tech reward (2 times normal), and every villager celebrates.
+For several hours, (he/she) carefully scales the jagged rocks until (he/she) can almost see over the edge of the falls. Just a little further… With one last stretch, (name) climbs onto the final rock and stands in victory. From this height, (he/she) can see over the entire village and jungle canopy. (He/she) thinks (he/she) can even see other settlements from up here! Behind (him/her), (he/she) hears the rushing of the falls echoing through a large cave mouth leading to somewhere unknown. Checking (his/her) notes and doing some quick calculations, (he/she) is almost certain the cave tunnel must lead somewhere close to the Southern Shore of Isola. (Name) fervently writes down (his/her) deductions and makes a detailed sketch of the area before making the careful descent back home. That day, (he/she) presents (his/her) findings to the others, who work together to perfect (his/her) plan. Over several months they send an expedition team to the perilous peak, and confirm that (name) was right about everything. They name (name) a Distinguished Scientist, and recognize (his/her) achievements in a grand ceremony. (name) is certainly setting a name for (himself/herself) throughout the entire scientific community! Your village gains (award) tech points.
+
+--------------------------------------------------------------------------
+Follow the scientists' advice -- GAINS 10 to 20 RESEARCH (at random). Nothing else happens.
+
+(name) admits that (his/her) plan still needs some refining. (He/she) goes back to the drawing board to double-check it. After scrutinizing it thoroughly, even (he/she) sees glaring flaws in its execution, and writes a report detailing all (his/her) mistakes. The next day (he/she) consults (his/her) senior colleagues to help (him/her) work out the kinks in (his/her) plan, and over time (name) learns many things from their strict guidance. It turns out (he/she) had much to learn, but was too blinded by ambition to notice their shortcomings. (Name) promises to be more humble and learn from (his/her) elders before stubbornly taking matters into (his/her) own hands.
+
+--------------------------------------------------------------------------
+THE CLIMB -- CHANCES
+  Go with the plan:
+    dies in the fall (C1) .................. 50%
+    reaches the top (C2) ................... 50%
+  Follow the scientists' advice: always +10 to 20 Research.
+
+
+==========================================================================
+THE TROUBLING SIGNS (The Secret City)
+==========================================================================
+Your text, with the obvious mistakes fixed as you asked: the quote marks around "(random name) says", "Either" starting a new sentence, and your tribe's own name in place of "Kalahuna".
+
+REQUIREMENTS TO HAPPEN
+- The village has a Tribal Chief wearing the chief's robe.
+- 5 eligible villagers aged 18 or older to travel (they leave for good).
+- 4 more eligible villagers aged 18 or older to be the advisors, one for each group (they stay).
+- A population of 61 or more (the same requirement as The Lost Children's "A Dangerous Mission").
+- Family ties don't matter.
+
+WHO IS NEVER PICKED (as a traveller or an advisor)
+- The chief.
+- Anyone under 18.
+- Protected villagers: a nursing mother or father, and anyone The Secret City's own island events never pick.
+
+(name) is the chief throughout. (random name) is the advisor of the group the chief asked. (tribe name) is the name the player typed when the village was started.
+
+--------------------------------------------------------------------------
+First popup (the opening):
+
+(Name), the tribal chief, has been noticing something troubling. For the past 9 months, (he/she) has heard reports of fish floating dead on the water. Crop harvests have been failing, and birds have been falling out of the sky. Even the villagers have started to feel weak and tired, almost to the point of being unable to work. The scientists and healers have been trying to investigate but have not found a definite explanation for these occurrences.
+With so little information to go on, and the problems mounting further, (name) must make a decision quickly for the sake of the village. But, who should (name) go to for advice?
+
+The player chooses one of FOUR advisors (one popup, four buttons). No chance is involved in this event.
+
+Choice 1 -- "Consult the spiritual leaders":
+The spiritual leaders believe that the village should pray and offer gifts. Surely these unfortunate occurrences must stem from transgressions the villagers have made towards the things that guide their fate. “Make haste. The spirits are patient and kind, but such transgressions are not easily forgiven,” (random name) says. “One must be pure of heart, mind and body to right what is wrong. It will take time. Time which grows ever shorter.” Chief (name) thanks the spiritual leaders for their wise counsel and makes (his/her) decree.
+
+Choice 2 -- "Ask the magicians for advice":
+The magicians think that the factions are in imbalance, and believe that the magical forces that strengthen Isola have been weakened. “The magic that flows within all things is waning,” (random name) says. “Either our connection, or its source. We must figure out which is true, and remedy it.” Chief (name) thanks the magicians for their wise counsel, and makes (his/her) decree.
+
+Choice 3 -- "Call the naturalists to a discussion":
+The naturalists believe that the factions are in imbalance, and that the natural forces that keep Isola healthy have been disrupted. “The natural cycle of rebirth and renewal is fading,” (random name) says. “Soon enough, all of Isola will perish if nothing is done. We must figure out what is destroying it and stop it.” Chief (name) thanks the naturalists for their wise counsel, and makes (his/her) decree.
+
+Choice 4 -- "Talk with the scientists and healers":
+The scientists and healers believe that some organic phenomenon is causing the animals and plants to wither and die. “Perhaps they are being poisoned,” (random name) says. “Or, something in their environment is adversely affecting their health. Whatever it is, we must do some in-depth experimentation to get to the bottom of this disaster.” Chief (name) thanks the scientists and healers for their wise counsel, and makes (his/her) decree.
+
+then (the next page, same for every advisor):
+“Hear me, O (tribe name)! Your Chief speaks!” (name) calls from on high. A crowd gathers in the amphitheater to listen to (his/her) words.
+
+then, depending on who the Chief asked (the decree page; the effects happen here):
+
+T1 -- after the spiritual leaders: FIVE VILLAGERS LEAVE FOR GOOD (no graves), and the village LOSES food (a normal amount, scaled; never below zero).
+“I have consulted with the spiritual leaders, and have heard your cries for help. There is much we know, and much we don’t know about the strange misfortunes befalling our village. But I believe we have a plan to fix them!
+Look amongst yourselves, all who are eligible to work, and from you pick five to represent our tribe. You alone will travel to find the cause of our suffering, and heal it, for the sake of us all. Now go forth, and discuss your plans with my advisors. They will guide you on your sacred mission. May Isola help us all.”
+On the day of departure, (name) meets personally with the chosen representatives and wishes them well on their journey. As they leave, the tribe prays for a whole week, offering gifts of food to the spirits in hopes of granting them salvation. Your village loses (award) food.
+
+T2 -- after the magicians: FIVE VILLAGERS LEAVE FOR GOOD (no graves), and the village GAINS tech points (a normal amount, scaled).
+“I have consulted with the magicians, and have heard your cries for help. There is much we know, and much we don’t know about the strange misfortunes befalling our village. But I believe we have a plan to fix them!
+Look amongst yourselves, all who are eligible to work, and from you pick five to represent our tribe. You alone will travel to find the cause of our suffering, and heal it, for the sake of us all. Now go forth, and discuss your plans with my advisors. They will guide you on your sacred mission. May Isola help us all.”
+On the day of departure, (name) meets personally with the chosen representatives and wishes them well on their journey. As they leave, the tribe spends a whole week focusing their mental and physical energies towards honing their innate potential. Gradually, they gain strength as well as dexterity and clarity. This newfound strength pushes the villagers to accomplish extraordinary things that temporarily improve their living conditions. Your villagers gain (award) tech points.
+
+T3 -- after the naturalists: FIVE VILLAGERS LEAVE FOR GOOD (no graves), and the village GAINS food (a normal amount, scaled).
+“I have consulted with the naturalists, and have heard your cries for help. There is much we know, and much we don’t know about the strange misfortunes befalling our village. But I believe we have a plan to fix them!
+Look amongst yourselves, all who are eligible to work, and from you pick five to represent our tribe. You alone will travel to find the cause of our suffering, and heal it, for the sake of us all. Now go forth, and discuss your plans with my advisors. They will guide you on your sacred mission. May Isola help us all.”
+On the day of departure, (name) meets personally with the chosen representatives and wishes them well on their journey. As they leave, the tribe spends a whole week fortifying the earth and environment. The care and nourishment given by the villagers temporarily boosts the village’s food production. Your villagers gain (award) food.
+
+T4 -- after the scientists and healers: FIVE VILLAGERS LEAVE FOR GOOD (no graves), and the village LOSES tech points (a normal amount, scaled; never below zero).
+“I have consulted with the scientists and healers, and have heard your cries for help. There is much we know, and much we don’t know about the strange misfortunes befalling our village. But I believe we have a plan to fix them!
+Look amongst yourselves, all who are eligible to work, and from you pick five to represent our tribe. You alone will travel to find the cause of our suffering, and heal it, for the sake of us all. Now go forth, and discuss your plans with my advisors. They will guide you on your sacred mission. May Isola help us all.”
+On the day of departure, (name) meets personally with the chosen representatives and wishes them well on their journey. As they leave, the tribe spends a whole week taking samples of everything into small containers. The scientists and healers suspend other projects to run tests on the abiotic and biotic samples, which yield some inconsistent results.
+Your village loses (award) tech points.
+
+--------------------------------------------------------------------------
+THE TROUBLING SIGNS -- CHANCES
+The player's choice decides everything; five villagers always leave.
+  Spiritual leaders ......... lose food
+  Magicians ................. gain tech points
+  Naturalists ............... gain food
+  Scientists and healers .... lose tech points
+
+==========================================================================
+DIVING FOR TREASURE (The Secret City)
+==========================================================================
+Your text, with the obvious mistakes fixed (name1 -> name, "he apologizes" -> (he/she), their/them meaning the diver -> his/her forms, "It's a large").
+
+WHO: any eligible villager aged 18 or older (not protected). A spouse or children are NOT required (owner: "Any adult works regardless of if they have children or a spouse").
+(random name), the head Doctor = any random adult (18 or older, not protected), never the diver. "Head Doctor" is flavor text only.
+
+Opening:
+(name) is a diver. (He/she) regularly swims around the sea using a complex setup of reeds and animal skins to carry air. During one of (his/her) dives, (he/she) sees something shimmering deep down in the bottom of the reef. Should (he/she) swim down and look?
+
+Choice "Swim deeper":
+(name) swims deeper towards the shimmering object. (He/she) can feel the pressure of the ocean getting heavier and heavier all around (him/her). Just a little bit closer, and…
+
+then ONE of A, B, C, D (25% each):
+
+A (25%) -- normal tech reward:
+It’s an abandoned net wrapped around a seaweed-encrusted crate. When (name) surfaces, (he/she) cracks it open to find a bunch of golden doubloons! Your village gains (award) tech points.
+
+B (25%) -- nothing happens:
+It’s a chewed-up buoy, which to (name), is some heavy striped ball. Whatever it is, it certainly has no use now. (name) lets go of the mysterious heavy ball and swims up to the surface. Maybe next time (he/she) will find something worthwhile.
+
+C (25%) -- normal food reward:
+It’s a large rectangular shipping container, all rusted from the salt. To (name), it’s just some random container, but it must contain something to be so heavy. (He/she) carefully swims to the surface and hauls it ashore. Turns out, it’s full of exotic ingredients, the likes of which (name) has never seen before! Your village gains (award) food.
+
+D (25%) -- the air tank:
+POP! Before (name) can react, one of (his/her) makeshift air tanks pops like a balloon. (He/she) stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. (name) forgets (his/her) training and starts clawing through the water like a drowning animal.
+
+then:
+
+D1 (75%) -- survives, now DISLIKES SWIMMING (the game's own dislike):
+After some agonizingly long minutes, (name) heaves (himself/herself) ashore, gasping for breath. (His/her) eyes, nose and mouth sting from the salty water, and (he/she) is dazed for a while. Eventually, (name) manages to recover enough to make (his/her) way to the healers’. (name) spends several days recovering from (his/her) near-death experience and is now afraid of the unforgiving ocean.
+
+D2 (25%) -- sinks:
+After some agonizingly long minutes, (name) struggles harder and harder to make it to the surface. (His/her) body becomes weaker and more painful with every stroke and (his/her) lungs are ready to burst. The sunlight starts becoming fainter as (name) begins sinking towards the briny blue depths…
+(name)’s last thoughts before inhaling water are of (his/her) family, and the foolish dreams (he/she) once had of taming the great, blue ocean…
+
+then ONE of:
+
+D2a (17%) -- DIES: a grave, "Unknown causes":
+Eventually, (name)’s body washes ashore, to the dismay and grief of the villagers. They bury (name) and mournfully lament the loss of a great sea explorer.
+
+D2b (17%) -- DISAPPEARS: gone for good, no grave:
+Several days pass, and (name)’s body is never found. (name)’s friends, family and the entire village gather to remember (name) and mourn the loss of a great sea explorer.
+
+D2c (66%) -- RESCUED: lives, gains 10 to 20 Healing (random):
+“Thank goodness, (he/she)’s alive!” (name) coughs hard, bringing up water. “Wh-where am I?!” (he/she) sputters. (Name) opens (his/her) eyes to see the faces of many doctors, friends, as well as (his/her) family huddled over (him/her). (random name), the head Doctor, says, “We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.” (name) sits up to see worried loved ones crying in distress, and is moved with pity. (He/she) goes to hug them and thanks everyone for saving (his/her) life.
+Once (he/she) has sufficiently recovered from (his/her) near-death experience, (he/she) makes a silent, solemn vow to the majestic Ocean. In (his/her) heart, (he/she) apologizes for almost throwing (his/her) life away for the sake of some tempting treasure, and promises never to take Them for granted again. (name) devotes (himself/herself) to the healing arts in gratitude towards those who saved (him/her) that day.
+
+Choice "Better not" -- gains 10 to 20 Parenting (random):
+(name) knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean’s patience could spell death, and (name) has a family waiting back home. (name) hangs up (his/her) diving equipment to be a gentle (father/mother) to (his/her) spouse and children.
+
+CHANCES
+  Swim deeper: A doubloons 25% | B buoy 25% | C container 25% | D air tank 25%
+    D: survives, dislikes swimming 18.75% overall (75% of D)
+       sinks 6.25% overall (25% of D): dies ~1.06%, disappears ~1.06%, rescued ~4.13%
+  Better not: always +10 to 20 Parenting.
+
+==========================================================================
+THE MYSTERIOUS MASK (The Tree of Life)
+==========================================================================
+Your text, with the grammar mistakes fixed as you asked.
+
+REQUIREMENTS TO HAPPEN
+- A population of 61 or more (the same requirement as The Lost Children's "A Dangerous Mission").
+- At least 2 eligible children under 14, any age below that (the group); up to 4 are picked when there are more (the owner: "preferably 3-4").
+- 5 eligible adults aged 18 or older (the expedition).
+- At least two eligible villagers overall (The Aspiring Adventurer's rule; always true here).
+- Family ties don't matter: the volunteers may be the children's parents.
+
+WHO IS NEVER PICKED
+- Protected villagers: nursing mothers or fathers, and anyone The Tree of Life's own island events never pick (bodies and ghosts).
+
+(name1) = the child who finds the mask; (name2) = another child in the group; the rest of the group are "the other children".
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses ONE of FOUR (one popup, four buttons):
+"Wait for their parents to come" / "Cry for help" / "Walk towards the clearing" / "Walk towards the forest"
+
+Little (name1) has been playing with the other children at the edge of the forest. One day, towards the forbidden clearing, (he/she) spots a strange carved mask unlike anything (he/she) has ever seen! The other children wonder if someone dropped it, and (name2) questions if the mask’s owner lives somewhere nearby. Naturally, the children are afraid of strangers, even more so after hearing about the strange disappearances in the middle of the night, so no one moves a muscle. (name2) innocently says “We should go ask our Mommies and Daddies about it! Maybe someone’s looking for it!” But unfortunately, no one knows where their parents are or what direction the village is in. Being the finder, the other kids look to (name1) to decide what to do. What shall they do?
+
+--------------------------------------------------------------------------
+W -- "Wait for their parents to come" (then F, the "waited" version):
+The children wait all day for their parents to come. Eventually, they come and walk everyone back to the village. Little (name1) shows the mask to (his/her) parents, who are alarmed and send for the elders. As night falls, (name1) watches the elders chatter next to the fire.
+
+H -- "Cry for help" (then F, the "cried" version):
+(name1) does not know what to do, and immediately begins crying for help. The other children, being scared and lost, cry as well. The startled parents come running through the bushes and pick up their poor little darlings. That night, little (name1) tells (his/her) parents about the strange mask. Alarmed, they immediately call the elders to discuss this discovery. (name1) watches forlornly as the elders chatter beside the fire.
+
+"Walk towards the clearing" (then A or B, 50% each):
+Brave (name1) grabs the mask and takes a step towards the clearing. The other children follow behind (him/her), and
+
+"Walk towards the forest" (then A or B, 50% each; the same odds as the clearing):
+Brave (name1) grabs the mask and takes a step towards the forest. The other children follow behind (him/her), and
+
+A -- HOME SAFE (50% after either walk; then F, the "made it back" version):
+they eventually make it back to the village. That evening, (name1) tells (his/her) parents what they saw, and shows them the mysterious mask. Alarmed, (name1)’s parents tell the elders, who converse by moonlight next to the fire.
+
+B -- LOST (50% after either walk; then C or D):
+they stumble into a dense part of the jungle. Night falls, and no one can see anything through the mist except their own shadows. Crack! Suddenly they hear the breaking of twigs beneath feet, and before anyone can react
+
+C -- CAPTURED (25% after B; owner: "halved", so most outcomes end with the children safe). EVERY CHILD IN THE GROUP DISAPPEARS for good, no graves. Then F, the "captured" version:
+a group of masked strangers captures them and whisks them away to an unknown location. The worried parents spot their footsteps in the mud several hours later, along with the mask (name1) found earlier. Fearing for the children’s safety, they beg the elders to take action.
+
+D -- RESCUED (75% after B; then F, the "rescued" version):
+a group of trusted adults from the village come and scoop them up. Startled, the children begin to cry. (name1) manages to hold back (his/her) tears until they arrive back home, to which (he/she) bursts into a loud sob. (His/her) parents notice the strange mask and ask (him/her) where (he/she) got it from, to which (name1) tells the adults the entire story. Fearing for the children’s safety, they beg the elders to take action.
+
+--------------------------------------------------------------------------
+F -- THE ELDERS (every path ends here). THE 5 ADULT VOLUNTEERS LEAVE FOR GOOD, no graves, in every ending.
+
+After a long and tense discussion, the elders gather the villagers around the fire at daybreak. “Recently, our village has been the victim of strange happenings involving masked people.
+
+then ONE of (matching what happened):
+(captured) Just last night, a group of our children were possibly kidnapped and taken away to some hidden location in the jungle. This mask was found at the scene.”
+(rescued) Just last night, a group of our children were found wandering in the jungle. Someone could have kidnapped them, or worse. Luckily, our trusted scouts found them and successfully returned them home. This mask was found at the scene.”
+(made it back) Just last night, our children got lost while playing in the jungle. They managed to make it back, thank goodness, but they found this mask sitting at the edge. It must have been planted there by someone.”
+(waited) Just last night, our children found this strange mask in the jungle, and they stayed put until their parents could come and notify us.”
+(cried) Just last night, our children found this strange mask in the jungle, and they cried for help. Their parents notified us about the incident as soon as they could.”
+
+then:
+“We believe some foul play is happening. We understand that you are worried, and that everyone’s safety is at risk. However, we need to get to the bottom of this. We cannot rest until this matter is settled. We need five able-bodied volunteers to come with us and form an expedition to find the makers of these masks. Only then will we know if they are truly a threat to our people.”
+Five adults raise their hands and proceed into the elders’ hut. After much planning, the expedition team travels to the site where (name1) found the mask, and heads off into parts unknown.
+The parents of (name1), (name2) and the other kids wish the team good luck, and for justice for their children. The other villagers rally behind them, and hope for an end to the madness.
+
+--------------------------------------------------------------------------
+THE MYSTERIOUS MASK -- CHANCES
+The player's choice decides the start; chance decides the rest. The 5 volunteers always leave.
+  Wait for their parents ..... children safe
+  Cry for help ............... children safe
+  Walk (clearing or forest):
+    home safe (A) ............ 50%
+    lost, then rescued (D) ... 37.5%  (75% of lost)
+    lost, then captured (C) .. 12.5%  (25% of lost) -- every child in the group disappears
+
+==========================================================================
+THE PLAYFUL DOLPHINS (The Tree of Life)
+==========================================================================
+Your text, with the grammar fixed; "leaves the beach"; "aquaculture" kept.
+
+REQUIREMENTS TO HAPPEN
+- One eligible villager aged 14 or older (owner: "14 and up").
+- It does NOT need the fishing nets (or any puzzle) to be completed.
+- At least two eligible villagers overall (The Aspiring Adventurer's rule).
+
+WHO IS NEVER PICKED
+- Anyone under 14.
+- Protected villagers: nursing mothers or fathers, and anyone The Tree of Life's own island events never pick (bodies and ghosts).
+
+--------------------------------------------------------------------------
+First popup (the opening). The player chooses "Swim towards the dolphins" or "Hang back".
+
+(Name) has been swimming underwater as a hobby. One day, (he/she) spots a pod of dolphins playing just offshore! They seem to be chasing something, but (name) is unsure whether (he/she) can hold (his/her) breath long enough to see what. What should (he/she) do?
+
+--------------------------------------------------------------------------
+"Swim towards the dolphins" (then A or B, 50% each):
+(name) swims towards the dolphins, being careful not to disturb them.
+
+A -- THE HUNT. Chance 50%. FARMING SET TO 100 (fully mastered), and a LARGE food reward (2 times normal):
+(He/she) gleefully watches the clever dolphins herd shoals of fish through giant bubble rings, disorienting them enough to become easy prey. “What magnificent creatures!” (he/she) thinks.
+Later, (he/she) shares (his/her) observations with the researchers and farmers, which revolutionize their catches that season. (name) becomes a skilled (fisherman/fisherwoman) and is lauded as a pioneer of aquaculture. Your villagers gain (award) food.
+
+B -- THE TAIL SLAP. Chance 50%. LOSES 30 to 50% HEALTH (at random; never dies from it):
+Ouch! (name) is blinded by the slap of a large fluke in (his/her) face. (He/she) must have gotten too close to one of them and accidentally gotten hit by their tail flipper. (name) holds (his/her) nose to prevent any more red coming out. Luckily, (name) is not too far from the surface, but if (he/she) had been any deeper… (he/she) shudders to think about what might happen. (He/she) surfaces, leaves the beach, and heads off to the doctors for some medical treatment.
+
+--------------------------------------------------------------------------
+"Hang back" -- a SMALL food reward (half a normal amount):
+(name) doubts that it’s a good idea to follow the dolphins. They clearly seem to be busy doing something important, and (he/she) is second-guessing whether they’re playing anyway. (name) resolves to stick to the shallows and gather shellfish and seaweed on the nearby rocks. Your village gains (award) food.
+
+--------------------------------------------------------------------------
+THE PLAYFUL DOLPHINS -- CHANCES
+  Swim towards the dolphins:
+    the hunt: Farming 100, large food (A) ...... 50%
+    the tail slap: loses 30-50% health (B) ..... 50%
+  Hang back: always a small food reward.
+
+==========================================================================
+THE REMEMBRANCE CEREMONY (all five games)
+==========================================================================
+Your text, unchanged.
+
+REQUIREMENTS TO HAPPEN
+- At least one grave (someone buried), in all five games.
+- New Believers also: every Heathen has converted (the hovel is empty for good).
+- It does NOT need the "Memorial Actions Can Also Occur at the Heathen Hovel" patch (see the effects).
+- It can happen again, as likely as one stock event each time.
+
+WHO TAKES PART
+- Everyone joins in: children, nursing mothers and fathers, and protected villagers too; no one is left out (the owner's exception). Each villager is sent on their own, so the game's usual group filters (such as The Secret City leaving out 14 to 17 year olds) don't apply. In New Believers, believers only: Heathens never take part.
+
+--------------------------------------------------------------------------
+One popup (no choice, just OK):
+
+Today is the Day of Remembrance. The villagers are gathering to honor those that came before them, and to thank them for all the sacrifices they have made. Throughout the day they share stories about their ancestors and loved ones, partake in a grand feast, and acknowledge that all experiences, good and bad, form parts of their future.
+
+EFFECTS (not mentioned in the popup)
+- Each villager taking part Honors the Dead or Reflects (50% each). New Believers: Honoring the Dead at the mausoleum; with the "Memorial Actions Can Also Occur at the Heathen Hovel" patch, some go to the former Heathen hovel to Honor the Dead or Reflect, as that patch does. The Tree of Life: Honoring the Dead at the graveyard. The other games: their own graveyard or memorial actions (Honoring the Dead, and Reflecting where the game has it).
+- The feast quietly uses 10 food for every villager, never below 0 (the same as Blessings Day in A New Home, The Lost Children and The Secret City).
+
+AS BUILT (your decisions of 13 November 2026)
+- Every game needs at least ONE grave (the game's own grave count; the stock Day of Honor asks for two in The Secret City, The Tree of Life and New Believers). New Believers also needs The Last Heathen done -- every Heathen converted and the old hovel fixed up, which the game saves for good.
+- Each villager is sent on their own, the way the game's own Day of Honor sends each one, so the game's group rules leave no one out. Babies still being carried are not villagers yet, so they stay with their mothers.
+- Where each villager goes and what they do:
+    A New Home ........... the cemetery: Honoring the Dead (the game has no Reflecting)
+    The Lost Children .... the memorial: Honoring the Dead or Reflecting, 50% each
+    The Secret City ...... the graveyard (it has no mausoleum): Honoring the Dead or Reflecting, 50% each
+    The Tree of Life ..... the graveyard: Honoring the Dead
+    New Believers ........ the mausoleum: Honoring the Dead. With "Memorial Actions Can Also Occur at the Heathen Hovel": the old Heathen hovel instead 50% of the time, where they Honor the Dead or Reflect (50% each) the way that patch sends them. Without that patch Reflecting is never used.
+
+THE REMEMBRANCE CEREMONY -- CHANCES
+  Its own place in the draw, as likely as one stock island event.
+  New Believers with the hovel patch: the mausoleum (Honoring the Dead) 50%; the hovel, Honoring the Dead 25%; the hovel, Reflecting 25%.
+
+==========================================================================
+THE RUMBLINGS (all five games)
+==========================================================================
+Your text, unchanged.
+
+REQUIREMENTS TO HAPPEN
+- Every puzzle in that game is completed (the owner: "to compensate for this, this event needs all puzzles in their games to be completed").
+- At least one finished population hut, clothing hut, love hut, hospital or nursery school (whichever that game has).
+- It can happen again, as likely as one stock event each time.
+
+--------------------------------------------------------------------------
+One popup (no choice, just OK):
+
+One morning, the village becomes wracked with a violent shaking. Things start flying off shelves, pottery smashes on the floor, and everyone starts taking cover under nearby structures. The villagers are frightened, but luckily, no one is hurt. A lot of loose rubble is strewn about and some structures have been visibly damaged. It looks like the builders have more work cut out for them.
+
+EFFECTS
+- Each finished population hut, clothing hut, love hut, hospital and nursery school is damaged at 25% each; at least one always is, and an unlucky village can have all of them damaged.
+- A damaged structure loses 10 to 100% of its building progress (at random), and the builders must rebuild it.
+- At 100% the structure is back to unbuilt, as in the original game: a full rebuild. In The Tree of Life and New Believers, where unbuilt huts can be moved, this lets the player rearrange the village without starting over.
+- Buildings that are puzzles are never damaged (A New Home's first hut; The Lost Children's Hospital, Sewing Hut and Lovely Hut), and New Believers' nursery is left out. Solved puzzles stay solved. No one is hurt or dies.
+- The Secret City's two starting huts lose only the work done after the new-village start.
+- A badly damaged building may need you to drop a villager on it to restart, as in the original game. Rebuilding repeats its celebration and tip; the "3 huts" trophy still needs three different huts.
+- If a damaged population hut leaves the village over its limit, nobody leaves; no new babies come until it is rebuilt.
+
+AS BUILT (your decisions of 13 November 2026)
+- "Every puzzle" is the game's own Puzzles screen: 16 puzzles in A New Home, The Lost Children, The Secret City and The Tree of Life, 11 in New Believers.
+- The structures it can damage (a structure that is itself a puzzle is never damaged, so solved puzzles really stay solved):
+    A New Home ........... the second and third population huts (never the first, "The Hut" puzzle)
+    The Lost Children .... the three population huts (never the Lovely Hut, the Hospital or the Sewing Hut: all three are puzzles)
+    The Secret City ...... the three population huts and the clothing hut
+    The Tree of Life ..... the three population huts, the clothing hut, the love shack, the nursery school and the hospital
+    New Believers ........ the three population huts, the clothing hut and the love shack (never the nursery school)
+- The Secret City's first two huts and The Lost Children's first hut start part built in a new village: the 10 to 100% is counted on the work above that, so 100% puts them back exactly where a new village starts them.
+- A heavily damaged structure needs a villager dropped on it before the builders start again, as for a new building site in the stock game.
+- When it is finished again the game shows its own celebration, tip and completion message again.
+- The Tree of Life: a damaged nursery school's teacher stops teaching until it is rebuilt.
+- The Tree of Life and New Believers' "3 huts" trophy: while it is still locked, a damaged population hut's count is taken back, so rebuilding it counts it again and the trophy still needs three different huts. (The game saves that count with the village, beside the stored food.)
+
+THE RUMBLINGS -- CHANCES
+  Its own place in the draw, as likely as one stock island event.
+  Each finished structure ..... damaged 25% (if none is, one of them at random)
+  Each damaged one loses ...... 10% to 100% of its building work, each whole percent equally likely (100%: unbuilt)

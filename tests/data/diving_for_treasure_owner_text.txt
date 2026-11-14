@@ -1,0 +1,41 @@
+Diving for Treasure. -- any villager aged 18 or older (not protected); (random name), the head Doctor, is any other such villager (flavour text)
+
+(name) is a diver. (He/she) regularly swims around the sea using a complex setup of reeds and animal skins to carry air. During one of (his/her) dives, (he/she) sees something shimmering deep down in the bottom of the reef. Should (he/she) swim down and look?
+
+Swim deeper:
+(name) swims deeper towards the shimmering object. (He/she) can feel the pressure of the ocean getting heavier and heavier all around (him/her). Just a little bit closer, and…
+
+-- then ONE of A, B, C, D (25% each)
+
+-- A: normal tech reward
+It’s an abandoned net wrapped around a seaweed-encrusted crate. When (name) surfaces, (he/she) cracks it open to find a bunch of golden doubloons! Your village gains (award) tech points.
+
+-- B: nothing happens
+It’s a chewed-up buoy, which to (name), is some heavy striped ball. Whatever it is, it certainly has no use now. (name) lets go of the mysterious heavy ball and swims up to the surface. Maybe next time (he/she) will find something worthwhile.
+
+-- C: normal food reward
+It’s a large rectangular shipping container, all rusted from the salt. To (name), it’s just some random container, but it must contain something to be so heavy. (He/she) carefully swims to the surface and hauls it ashore. Turns out, it’s full of exotic ingredients, the likes of which (name) has never seen before! Your village gains (award) food.
+
+-- D: the air tank
+POP! Before (name) can react, one of (his/her) makeshift air tanks pops like a balloon. (He/she) stares wide-eyed in horror as the air rises to the surface in a large bubble before exploding in a deafening blast. (name) forgets (his/her) training and starts clawing through the water like a drowning animal.
+
+-- D1 (75%): survives, now dislikes swimming
+After some agonizingly long minutes, (name) heaves (himself/herself) ashore, gasping for breath. (His/her) eyes, nose and mouth sting from the salty water, and (he/she) is dazed for a while. Eventually, (name) manages to recover enough to make (his/her) way to the healers’. (name) spends several days recovering from (his/her) near-death experience and is now afraid of the unforgiving ocean.
+
+-- D2 (25%): sinks
+After some agonizingly long minutes, (name) struggles harder and harder to make it to the surface. (His/her) body becomes weaker and more painful with every stroke and (his/her) lungs are ready to burst. The sunlight starts becoming fainter as (name) begins sinking towards the briny blue depths…
+(name)’s last thoughts before inhaling water are of (his/her) family, and the foolish dreams (he/she) once had of taming the great, blue ocean…
+
+-- D2a (17%): dies, a grave, "Unknown causes"
+Eventually, (name)’s body washes ashore, to the dismay and grief of the villagers. They bury (name) and mournfully lament the loss of a great sea explorer.
+
+-- D2b (17%): disappears, no grave
+Several days pass, and (name)’s body is never found. (name)’s friends, family and the entire village gather to remember (name) and mourn the loss of a great sea explorer.
+
+-- D2c (66%): rescued, +10 to 20 Healing
+“Thank goodness, (he/she)’s alive!” (name) coughs hard, bringing up water. “Wh-where am I?!” (he/she) sputters. (Name) opens (his/her) eyes to see the faces of many doctors, friends, as well as (his/her) family huddled over (him/her). (random name), the head Doctor, says, “We found you unconscious here on the shore. We performed lifesaving measures until you started moving again.” (name) sits up to see worried loved ones crying in distress, and is moved with pity. (He/she) goes to hug them and thanks everyone for saving (his/her) life.
+Once (he/she) has sufficiently recovered from (his/her) near-death experience, (he/she) makes a silent, solemn vow to the majestic Ocean. In (his/her) heart, (he/she) apologizes for almost throwing (his/her) life away for the sake of some tempting treasure, and promises never to take Them for granted again. (name) devotes (himself/herself) to the healing arts in gratitude towards those who saved (him/her) that day.
+
+Better not:
+-- +10 to 20 Parenting
+(name) knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean’s patience could spell death, and (name) has a family waiting back home. (name) hangs up (his/her) diving equipment to be a gentle (father/mother) to (his/her) spouse and children.

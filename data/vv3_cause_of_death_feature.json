@@ -19,6 +19,7 @@
   "behavior_changes": [
     "After the burial's Roster of the Dead write, the Death record is written with the cause, skill line and epitaph the game gave the grave; a body the game removes unburied gets \"no grave\".",
     "The listed removals of a living villager write a Disappeared record before the game takes them; the Custom Island Event's \"Disappears\" is reported by the Story / Cheat Upgrades DLL.",
+    "A branching Custom Island Event's death that names its own cause is reported by the Story / Cheat Upgrades DLL with those words (VvfpCauseKilledBy): the Death record's cause line says them, and so does the grave (the grave dialog's cause lookup, and the Roster of the Dead's, pointed at the companion at run time: the game's own lookup runs, and only a grave whose cause is -1 with the author's words gets them), kept by the body's fingerprint in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Custom Island Event Deaths\\Virtual Villagers 3 Custom Island Event Causes - Save <n>.dat' until nothing needs them (written at each save; deleted by Start Over).",
     "Graves with no Death record: VvfpCauseScanGraves counts, writing nothing, the graves the village's Deaths log has no record for (the first-load check lists them for the player); VvfpCauseRepairGraves records the player's answer. Only after Repair, at each save of that village in the session, each such grave gets a Death record from the grave, filed by RecordGravesMissingFromLog in \"VVFP Parentage Export.dll\" (which counts the log's own and held records first, and takes the head, body, likes and dislikes from the Village History log); a villager the previous save held who was buried unseen is then not an Unaccounted record. The graves whose record is in the log are kept in 'Virtual Villagers Fun Patcher\\Save <n>\\Data\\Deaths\\Virtual Villagers 3 Graves Logged - Save <n>.dat' (written atomically; deleted by Start Over).",
     "The grave's Done writes an Epitaph changed record when the epitaph's text changed; spaces typed before or after the same words are not a change.",
     "Every villager the game's own creators make is noted as an arrival; after each save the village is compared with the roster kept at the save before, and any departure with no Death or Disappeared record, or arrival with no known arrival, is written to the Unaccounted Villagers log.",
@@ -36,7 +37,7 @@
     {
       "source": "assets/cause_of_death/VVFP Cause of Death.dll",
       "destination": "VVFP Cause of Death.dll",
-      "sha256": "DC8AA1035FB294D85E1B866B3D2380C0F486E3882A3C160384CCCD2FE5A7BD76"
+      "sha256": "317C891F8A8C5CB443BEF0DD277AF4DEB10754906E6AE46982254C6075DC4C23"
     }
   ],
   "patches": [],

@@ -16,6 +16,7 @@ EXPORTS
     RecordBirthsMissingFromLog=_RecordBirthsMissingFromLog@24
     VillageCustomTitle=_VillageCustomTitle@16
     WriteVillageEventRecord=_WriteVillageEventRecord@8
+    WriteVillageEventEntry=_WriteVillageEventEntry@20
     VillagePreferenceListText=_VillagePreferenceListText@20
     AppearanceAlreadyLogged=_AppearanceAlreadyLogged@24
     AppearanceChangedAtSave=_AppearanceChangedAtSave@12

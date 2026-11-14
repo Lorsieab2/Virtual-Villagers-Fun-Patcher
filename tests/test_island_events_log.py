@@ -25,7 +25,9 @@ VS_TOOLS = Path(r"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools
 CL = VS_TOOLS / "bin" / "Hostx64" / "x86" / "cl.exe"
 SDK = Path(r"C:\Program Files (x86)\Windows Kits\10")
 SDK_VERSION = "10.0.26100.0"
-CHECKS = 5 * 18 + 4 + 1 + 3 * 4  # eighteen checks in each of the five games (seven of them the time skip's);
+CHECKS = 5 * 25 + 4 + 1 + 3 * 4  # twenty-five checks in each of the five games (seven of them the time skip's,
+                                 # five a branching Custom Island Event's one log entry, two More Island Events'
+                                 # dialog, whose own one entry the game's bracket leaves alone);
                                  # the look-alikes in the four
                                  # that have them; A New Home's conception with no father recorded;
                                  # the two-choice answer in the three later games

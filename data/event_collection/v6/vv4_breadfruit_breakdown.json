@@ -1,0 +1,491 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breadfruit Breakdown",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_breadfruit_breakdown",
+  "source": "v26",
+  "lines": [
+   3098,
+   3172
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3100",
+  "ledger": [
+   {
+    "src": "L3099",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L3101",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L3112",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3127",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3135",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3144",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3151",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3160",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3171",
+    "kind": "instruction",
+    "why": "the food and Farming effects on the ending page"
+   },
+   {
+    "src": "L3172",
+    "kind": "note",
+    "why": "designer rule: every ending serves properly prepared breadfruit"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3136",
+   "before": "Cook1 wins for flavor; Cook2 accepts",
+   "after": "(Cook1) wins for flavor; (cook2) accepts"
+  },
+  {
+   "src": "L3137",
+   "before": "Cook2 wins for texture; Cook1 requests",
+   "after": "(Cook2) wins for texture; (cook1) requests"
+  }
+ ],
+ "words": {
+  "chief": {
+   "*": "the village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "onecook": {
+   "kind": "alias",
+   "of": [
+    "cook1",
+    "cook2"
+   ]
+  },
+  "othercook": {
+   "kind": "other",
+   "of": "onecook"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "distinct": true,
+   "items": [
+    {
+     "text": "roasting brings out the best flavor",
+     "src": "L3113"
+    },
+    {
+     "text": "steaming produces a softer texture",
+     "src": "L3114"
+    },
+    {
+     "text": "the simplest recipe is always the best",
+     "src": "L3115"
+    },
+    {
+     "text": "a feast should include several seasonings",
+     "src": "L3116"
+    },
+    {
+     "text": "traditional methods deserve respect",
+     "src": "L3117"
+    },
+    {
+     "text": "new ideas are worth trying carefully",
+     "src": "L3118"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The villagers share a warm meal and exchange recipes.",
+     "src": "L3161"
+    },
+    {
+     "text": "A father enjoys the food while keeping his infant comfortably beside him. He offers a surprisingly sharp critique of the seasoning.",
+     "src": "L3162-3164"
+    },
+    {
+     "text": "The elder is pleased to see an old recipe remembered, even if the younger cooks have changed it a little.",
+     "src": "L3165-3166"
+    },
+    {
+     "text": "The children ask for dessert. The cooks announce that the breadfruit WAS dessert. The children look betrayed.",
+     "src": "L3167-3168"
+    },
+    {
+     "text": "The cooks clean up together, already discussing next year's feast.",
+     "src": "L3169"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The breadfruit",
+   "src": "L3104-3110",
+   "text": "The villagers have harvested a quantity of breadfruit. It must be prepared properly before anyone eats it, but the cooks cannot agree on the best method.\n(Cook1) insists that {A.1}. (Cook2) argues that {A.2}. An elder claims to remember an old recipe, though the details have become rather fuzzy. A child asks whether they can just eat dessert.",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to do",
+   "src": "L3120",
+   "text": "What should the village do?",
+   "choices": [
+    {
+     "label": "Prepare a traditional recipe with the elder's guidance.",
+     "next": "old",
+     "src": "L3122"
+    },
+    {
+     "label": "Let the cooks compete with properly prepared dishes.",
+     "next": "cookoff",
+     "src": "L3123"
+    },
+    {
+     "label": "Make a shared meal using several safe preparations.",
+     "next": "shared",
+     "src": "L3124"
+    },
+    {
+     "label": "Ask the children to help plan the presentation.",
+     "next": "kids",
+     "src": "L3125"
+    }
+   ]
+  },
+  "old": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    },
+    {
+     "next": "o4"
+    }
+   ]
+  },
+  "o1": {
+   "src": "L3128",
+   "text": "The elder remembers every step, and the meal is delicious.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "o2": {
+   "src": "L3129-3130",
+   "text": "The elder remembers two conflicting versions. The cooks test small batches rather than guessing recklessly.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "o3": {
+   "src": "L3131-3132",
+   "text": "The elder admits that (elder.he/she) always disliked the recipe. Everyone laughs and makes something else.",
+   "text_only": [
+    {
+     "src": "L3131",
+     "what": "the elder disliked the recipe",
+     "reason": "an unnamed elder's old opinion, not a game preference"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "o4": {
+   "src": "L3133",
+   "text": "The cooks preserve the recipe in the village's records.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "cookoff": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L3136",
+   "text": "(Cook1) wins for flavor; (cook2) accepts the result graciously.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L3137",
+   "text": "(Cook2) wins for texture; (cook1) requests a rematch next year.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c3": {
+   "src": "L3138",
+   "text": "The judges declare a tie, then ask for seconds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c4": {
+   "src": "L3139-3140",
+   "text": "The dishes are both safe but so different that the judges decide personal preference cannot settle the argument.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "c5": {
+   "src": "L3141-3142",
+   "text": "The cooks become intensely competitive until an elder reminds them that the village was supposed to be having lunch.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "shared": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L3145",
+   "text": "The cooks work together and discover a delightful combination.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L3146",
+   "text": "The meal is simple and satisfying. Nobody makes a speech.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L3147",
+   "text": "One cook learns a technique from the other and thanks (othercook.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "s4": {
+   "src": "L3148-3149",
+   "text": "The cooks agree on every step except the garnish. The argument lasts longer than the cooking.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "kids": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    },
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k4"
+    }
+   ]
+  },
+  "k1": {
+   "src": "L3152",
+   "text": "The children arrange the food into a beautiful display.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3152",
+     "what": "the food display",
+     "reason": "narrative: the food is arranged, not gained; the reward is on the ending page (L3171)"
+    }
+   ]
+  },
+  "k2": {
+   "src": "L3153-3154",
+   "text": "A child creates a breadfruit sculpture shaped like {@chief}. The resemblance is unfortunate.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k3": {
+   "src": "L3155-3156",
+   "text": "The children make place cards for everyone, including a frog. The frog does not attend.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k4": {
+   "src": "L3157-3158",
+   "text": "The cooks appreciate the help, but keep the children away from hot equipment and sharp tools.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3171"
+    },
+    {
+     "do": "skill",
+     "role": "cook1",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L3171"
+    },
+    {
+     "do": "skill",
+     "role": "cook2",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L3171"
+    }
+   ]
+  }
+ }
+}

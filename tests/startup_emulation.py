@@ -162,8 +162,19 @@ class StartupMachine:
         mu.mem_map(CRT_RETURN_SENTINEL, 0x1000)
         mu.mem_write(CRT_RETURN_SENTINEL, b"\xF4")
         mu.hook_add(UC_HOOK_CODE, self._code)
-        mu.hook_add(UC_HOOK_MEM_READ | UC_HOOK_MEM_WRITE, self._memory,
-                    begin=EXE_BASE, end=self.exe_end - 1)
+        self.recording = True
+        self._memory_hook = mu.hook_add(UC_HOOK_MEM_READ | UC_HOOK_MEM_WRITE, self._memory,
+                                        begin=EXE_BASE, end=self.exe_end - 1)
+
+    def stop_recording(self) -> None:
+        """No more entries in `accesses` (what `audit` sorts: the run to WinMain).  A harness that keeps running
+        the game after WinMain calls this: every instruction it runs would otherwise add an entry nothing reads,
+        and a long test file grows by many millions of them (gigabytes)."""
+        self.recording = False
+        if self._memory_hook is not None:
+            self.mu.hook_del(self._memory_hook)
+            self._memory_hook = None
+        self.accesses.clear()
 
     # -- the thread ---------------------------------------------------------
     def _map_thread_block(self) -> None:
@@ -244,7 +255,7 @@ class StartupMachine:
         if address == self.stop_at:
             mu.emu_stop()
             return
-        if EXE_BASE <= address < self.exe_end:
+        if self.recording and EXE_BASE <= address < self.exe_end:
             self.accesses.append(Access("exec", address, size, address))
         name = self.stub_names.get(address)
         if name is not None:
@@ -356,7 +367,10 @@ class StartupMachine:
             address = arg(0)
             section, characteristics = self.section_of(address)
             protect = 0x20 if characteristics & 0x20000000 else 0x04
-            mu.mem_write(arg(1), struct.pack("<7I", address & ~0xFFF, EXE_BASE, protect, 0x1000,
+            # The allocation an address is in, as Windows reports it: a loaded companion's own image base for an
+            # address inside it (a companion asks whether a call's target is in another companion), else the game's.
+            owner = next((m.base for m in self.modules.values() if m.base <= address < m.base + m.size), EXE_BASE)
+            mu.mem_write(arg(1), struct.pack("<7I", address & ~0xFFF, owner, protect, 0x1000,
                                              0x1000, protect, 0x1000000))
             ret(28)
         elif name == "VirtualAlloc":

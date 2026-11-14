@@ -341,6 +341,19 @@ LOUDER_FLUTES_FEATURE_PATHS = (ROOT / "data" / "vv4_louder_wind_flutes_feature.j
 ISLAND_EVENTS_SCALE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_island_events_scale_with_{kind}_feature.json"
     for n in (1, 4, 5) for kind in ("population", "stored_amounts"))
+# Scrolling Popups (all five games; the owner, 2026-11-12): companion only, "VVFP Scrolling Popups.dll" (and, in A
+# New Home and The Lost Children, four borrowed scrollbar pictures to Images\), started by VVFP Startup.dll from its
+# second word; scripts/build_scrolling_popups_features.py.
+SCROLLING_POPUPS_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_scrolling_popups_feature.json" for n in (1, 2, 3, 4, 5))
+# The Aspiring Adventurer (all five games; the owner, 2026-11-12): a new island event, companion only, "VVFP Aspiring
+# Adventurer.dll", started by VVFP Startup.dll from its second word; scripts/build_more_island_events.py.
+MORE_ISLAND_EVENTS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_more_island_events_feature.json" for n in range(1, 6))
+# Isola Grand Event Collection (all five games; v1.35.97): the owner's collection of island events as data, run by
+# Story / Cheat Upgrades (its prerequisite); listed right after More Island Events; off by default, on in Owner's
+# Defaults; scripts/build_event_collection_features.py.
+EVENT_COLLECTION_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{n}_isola_grand_event_collection_feature.json" for n in range(1, 6))
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4208,7 +4221,9 @@ def _load_fun_patch_records(
                          + SCIENCE_COLLECTIBLES_FEATURE_PATHS
                          + CLASSIC_DIFFICULTY_FEATURE_PATHS + COLLECTIBLE_SPAWN_FEATURE_PATHS
                          + YELLOW_FRUIT_FEATURE_PATHS + LEGACY_OF_ISOLA_FEATURE_PATHS
-                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS):
+                         + LOUDER_FLUTES_FEATURE_PATHS + ISLAND_EVENTS_SCALE_FEATURE_PATHS
+                         + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
+                         + EVENT_COLLECTION_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
@@ -11149,7 +11164,8 @@ def _remove_unselected_companions(
     # overwrite: the transparency log by name, a patch log (under its name or
     # an older patcher's "<exe>.patch-log.json") only when the patcher signed
     # it, so a player's file of a similar name is kept.
-    reports = [Path(patcher_files.TRANSPARENCY_FILENAME)]
+    reports = [Path(patcher_files.TRANSPARENCY_FILENAME), Path(patcher_files.INSTALLED_PATCHES_FILENAME),
+               Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts)]
     for folder in (Path(), Path(patcher_files.PATCHER_FILES_FOLDER)):
         for log_path in _signed_patch_logs(long_staging / folder):
             reports.append(folder / log_path.name)
@@ -11228,6 +11244,9 @@ def _patcher_owned_companion_keys(build: Build, output_folder: Path) -> set[str]
     # describe the previous build, and the new build writes its own.
     owned.add(patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix().casefold())
     owned.add(patcher_files.TRANSPARENCY_FILENAME.casefold())
+    # ...and the installed patches' list, which describes the previous build too.
+    owned.add(patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix().casefold())
+    owned.add(patcher_files.INSTALLED_PATCHES_FILENAME.casefold())
     # Read through long_path; only a file that is the patcher's own log
     # (_log_data signs every one) is owned, under its name or an older
     # patcher's "<exe>.patch-log.json": a re-patch replaces the older name.
@@ -12732,7 +12751,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "EB05441138F7194BFBA4977B90B57825BC3FC7FB80FDECBBE3C05C217414D027",
+    "sha256": "6C06B382391FDF883745472616917B62715037126CAC44B4A0C0DB6FE6222173",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12832,6 +12851,13 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
     # right after the carry step, never again at delivery.
     "VVFP Collectibles Stay Collected.dll",
+    # Scrolling Popups (all five games): scrollbars on popups whose text does not fit.
+    "VVFP Scrolling Popups.dll",
+    # Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its
+    # box gets a line of its own instead of hanging the game's line layout.
+    "VVFP Long Words.dll",
+    # The Aspiring Adventurer (all five games): the owner's new island event.
+    "VVFP More Island Events.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
@@ -13688,6 +13714,27 @@ def _finalize_published_bytes(
     )
 
 
+def installed_patches_text(
+    build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str] = ()
+) -> str:
+    """The installed patches' list (patcher_files.INSTALLED_PATCHES_FILENAME): the game build's id and every fun patch
+    installed -- one id per line, sorted, "#" lines notes -- for Custom Island Events' patch conditions
+    (native/vvfp_story_upgrades/story_graph.inc cg_installed_has: an event names a patch by its id without the
+    "vv<N>_" prefix)."""
+    ids = sorted({build.id} | {patch.id for patch in fun_patches} - set(disabled_ids))
+    return ("# The patches the Virtual Villagers Fun Patcher installed in this game, one id per line.\n"
+            "# Written at every patch; Custom Island Events' patch conditions read it.\n"
+            + "".join(f"{patch_id}\n" for patch_id in ids))
+
+
+def _write_installed_patches(
+    staging_folder: Path, build: Build, fun_patches: list[FunPatch], disabled_ids: tuple[str, ...] | list[str]
+) -> None:
+    path = patcher_files.long_path(staging_folder / Path(*patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.parts))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(installed_patches_text(build, fun_patches, disabled_ids).encode("ascii"))
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -13804,6 +13851,7 @@ def apply_patch(
             staging_folder, build, fun_patches
         )
         companions = _copy_companion_files(staging_folder, fun_patches)
+        _write_installed_patches(staging_folder, build, fun_patches, playtest_disabled_feature_ids)
         converted: list[dict[str, str]] = []
         for item in companions:
             relative, _ = _companion_relative_destination(Path(item["path"]), staging_folder)
@@ -13823,6 +13871,7 @@ def apply_patch(
             build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        log_data["installed_patches_path"] = patcher_files.INSTALLED_PATCHES_RELATIVE_PATH.as_posix()
         log_data["removed_unselected_companions"] = removed_companions
         save_copy: dict[str, Any] | None = None
         if copy_saves:

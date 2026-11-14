@@ -5,6 +5,7 @@ EXPORTS
     VvfpCauseVillageReset=_VvfpCauseVillageReset@8
     VvfpCauseVanished=_VvfpCauseVanished@8
     VvfpCauseKilled=_VvfpCauseKilled@8
+    VvfpCauseVanishedBy=_VvfpCauseVanishedBy@12
     VvfpCauseNoteArrival=_VvfpCauseNoteArrival@8
     VvfpCauseNamesVillage=_VvfpCauseNamesVillage@0
     VvfpCauseArmSave=_VvfpCauseArmSave@4
@@ -21,3 +22,4 @@ EXPORTS
     VvfpCauseArrivedParents=_VvfpCauseArrivedParents@12
     VvfpCauseVillager=_VvfpCauseVillager@20
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
+    VvfpCauseKilledBy=_VvfpCauseKilledBy@12

@@ -166,8 +166,11 @@ class Harnesses(unittest.TestCase):
         # (native/shared/per_save.h): the bad file set up in the save's own folder (1), and a graves file
         # still in the older layout's Graves\ read and written there, Start Over clearing both places (5); and 10
         # for section 12, A New Home's Golden Child: his grave marked at the burial (flag 2, version 3), "Golden
-        # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session.
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10, result.stdout)
+        # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session;
+        # and 5 for VvfpCauseKilledBy (v1.35.97): the export, the 'VCW1' file with the author's words, the Death
+        # record in those words, the words dropped once used, Start Over deleting the file.
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10 + 5, result.stdout)
+        self.assertIn("  ok   the body's Death record says the author's words", result.stdout)
         self.assertIn("  ok   his grave's Job line: Golden Child", result.stdout)
         self.assertIn("  ok   version 3: the child's grave flags 0, epitaph 12; the Golden Child's flag 2, epitaph 13",
                       result.stdout)

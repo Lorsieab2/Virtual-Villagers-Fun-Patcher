@@ -1,0 +1,746 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everybody's a Winner?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_everybodys_winner",
+  "source": "v26",
+  "lines": [
+   1661,
+   1822
+  ],
+  "section": "universal",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification\n  Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan\n  Storytelling Contest): event prose and branching written by ChatGPT,\n  developed in response to Lorsieab2's requested scope and themes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1662",
+  "ledger": [
+   {
+    "src": "L1663",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L1670",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1698",
+    "kind": "structural",
+    "text": "Go to (1).",
+    "why": "route"
+   },
+   {
+    "src": "L1702",
+    "kind": "structural",
+    "text": "Go to (2).",
+    "why": "route"
+   },
+   {
+    "src": "L1707",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L1712",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L1714",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1733",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1748",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1764",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1777",
+    "kind": "structural",
+    "why": "bank heading: optional rare branch after the outcome (weight 5 against 20)"
+   },
+   {
+    "src": "L1791",
+    "kind": "structural",
+    "why": "bank heading: (6) or (7) ends the event, equally"
+   },
+   {
+    "src": "L1806",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1820-1821",
+    "kind": "instruction",
+    "why": "the child's small Research effect or the small Tech effect on the ending page (two equal copies)"
+   },
+   {
+    "src": "L1822",
+    "kind": "note",
+    "why": "designer note, never displayed"
+   }
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "kid": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "parent": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "storytelling",
+     "src": "L1671"
+    },
+    {
+     "text": "drawing",
+     "src": "L1672"
+    },
+    {
+     "text": "dancing",
+     "src": "L1673"
+    },
+    {
+     "text": "singing",
+     "src": "L1674"
+    },
+    {
+     "text": "solving puzzles",
+     "src": "L1675"
+    },
+    {
+     "text": "making toys",
+     "src": "L1676"
+    },
+    {
+     "text": "reciting poetry",
+     "src": "L1677"
+    },
+    {
+     "text": "gardening",
+     "src": "L1678"
+    },
+    {
+     "text": "building tiny models",
+     "src": "L1679"
+    },
+    {
+     "text": "demonstrating a new skill",
+     "src": "L1680"
+    }
+   ]
+  },
+  "RID": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "A frog wanders onto the judging table. The children declare it the winner for \"Outstanding Participation.\" The frog appears entirely indifferent.",
+     "src": "L1792-1794"
+    },
+    {
+     "text": "The prize ribbon blows away in a sudden gust of wind. The children spend the afternoon chasing it through the village.",
+     "src": "L1795-1796"
+    },
+    {
+     "text": "{@Chief} accidentally awards the grand prize to the wrong child, then to the wrong parent, then to the schoolteacher. Eventually, the actual winner receives it.",
+     "src": "L1797-1799",
+     "if": {
+      "any": [
+       {
+        "visited": "one"
+       },
+       {
+        "visited": "sp1"
+       }
+      ]
+     }
+    },
+    {
+     "text": "Every child receives a trophy so large that nobody can carry theirs home. The adults reconsider their budgeting.",
+     "src": "L1800-1801"
+    },
+    {
+     "text": "A child enters a drawing made by a coconut rolling through wet paint. The judges spend an embarrassing amount of time discussing its artistic significance.",
+     "src": "L1802-1804"
+    }
+   ]
+  },
+  "QUIET": {
+   "set": "(7)",
+   "items": [
+    {
+     "text": "The teacher explains that losing a contest does not mean being less worthy of kindness or respect. The children return to their games.",
+     "src": "L1807-1809"
+    },
+    {
+     "text": "The winner congratulates the other children, and several promise to try again next year.",
+     "src": "L1810-1811",
+     "if": {
+      "any": [
+       {
+        "visited": "one"
+       },
+       {
+        "visited": "sp1"
+       }
+      ]
+     }
+    },
+    {
+     "text": "The adults agree to announce the judging criteria before future competitions. Nobody gets everything they want, but everyone understands the rules.",
+     "src": "L1812-1814"
+    },
+    {
+     "text": "One child decides that (kid.he/she) would rather create things for fun than compete. The teacher supports the decision.",
+     "src": "L1815-1816"
+    },
+    {
+     "text": "The parents go home, the ribbons are put away, and the children spend the evening laughing together.",
+     "src": "L1817-1818"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The contest",
+   "src": "L1666-1668,L1682-1691",
+   "text": "The village's children have been preparing for the annual {A} competition for weeks. Some have practiced every day. Others only joined because their friends were participating.\nAt last, the children gather to present their work. The parents and teachers are delighted - until someone asks who will receive the prize.\nOne parent insists that every child should be a winner. Another argues that choosing a single winner teaches children that effort and skill deserve recognition.\nA third parent suggests canceling the entire ceremony. Nobody pays much attention to that suggestion.",
+   "text_only": [
+    {
+     "src": "L1688",
+     "what": "skill deserves recognition",
+     "reason": "narrative: a parent's argument, not a skill gain"
+    }
+   ],
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "The prize",
+   "src": "L1693",
+   "text": "What should the adults do?",
+   "choices": [
+    {
+     "label": "GIVE EVERY CHILD THE SAME PRIZE",
+     "next": "same",
+     "src": "L1695"
+    },
+    {
+     "label": "CHOOSE ONE WINNER",
+     "next": "one",
+     "src": "L1700"
+    },
+    {
+     "label": "CREATE SEVERAL DISTINCT AWARDS",
+     "next": "multi",
+     "src": "L1704"
+    },
+    {
+     "label": "ASK THE CHILDREN WHAT THEY THINK",
+     "next": "speak",
+     "src": "L1709"
+    }
+   ]
+  },
+  "same": {
+   "src": "L1696-1698",
+   "text": "The teacher announces that every child will receive a ribbon. The children {cheer|look confused|whisper among themselves|immediately begin comparing ribbons}.",
+   "children": [
+    {
+     "next": "same_set"
+    }
+   ]
+  },
+  "one": {
+   "src": "L1701-1702",
+   "text": "The judges carefully evaluate the entries and announce that one child will receive the grand prize.",
+   "children": [
+    {
+     "next": "one_set"
+    }
+   ]
+  },
+  "multi": {
+   "src": "L1705-1706",
+   "text": "The judges decide to recognize different achievements, such as creativity, improvement, teamwork, and technical skill.",
+   "text_only": [
+    {
+     "src": "L1706",
+     "what": "technical skill",
+     "reason": "an award category, not a skill gain"
+    }
+   ],
+   "children": [
+    {
+     "next": "multi_set"
+    }
+   ]
+  },
+  "speak": {
+   "src": "L1710-1711",
+   "text": "The teacher gathers the children and asks what would make the competition feel fair to them. The answers are surprisingly varied.",
+   "children": [
+    {
+     "next": "speak_set"
+    }
+   ]
+  },
+  "sa1": {
+   "src": "L1715-1716",
+   "text": "The children are delighted. They proudly wear their ribbons and spend the rest of the day playing together.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sa2": {
+   "src": "L1717-1719",
+   "text": "One child asks why (kid.he/she) practiced for weeks if everyone was going to receive the same award. The teacher listens and promises clearer rules next time.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sa3": {
+   "src": "L1720-1722",
+   "text": "A shy child is relieved that nobody has to feel embarrassed. Another child admits that (kid.he/she) wanted to know how well (kid.he/she) actually did.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sa4": {
+   "src": "L1723-1725",
+   "text": "The children begin arguing over whose ribbon is shinier. The adults realize that equal prizes do not necessarily eliminate competition.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sa5": {
+   "src": "L1726-1729",
+   "text": "One child proudly announces that (kid.he/she) has won first place. So does every other child. {@Chief} has to explain that there cannot be thirty-seven first-place winners in a contest with only twelve entrants.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sa6": {
+   "src": "L1730-1731",
+   "text": "The children decide to exchange ribbons with one another. By evening, nobody remembers which ribbon belonged to whom.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "same_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "sa1"
+    },
+    {
+     "next": "sa2"
+    },
+    {
+     "next": "sa3"
+    },
+    {
+     "next": "sa4"
+    },
+    {
+     "next": "sa5"
+    },
+    {
+     "next": "sa6"
+    }
+   ]
+  },
+  "on1": {
+   "src": "L1734-1735",
+   "text": "The winner is overjoyed, while the other children applaud. The teacher thanks everyone for their hard work.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "on2": {
+   "src": "L1736-1737",
+   "text": "A disappointed child cries. The teacher comforts (kid.him/her) without pretending that losing is always pleasant.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "on3": {
+   "src": "L1738-1739",
+   "text": "One parent accuses the judges of favoritism. The judges explain their criteria and offer to review the results.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "on4": {
+   "src": "L1740-1741",
+   "text": "The winning child shares the prize with a friend. The judges remind everyone that the award still belongs to the winner.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "on5": {
+   "src": "L1742-1744",
+   "text": "The winner admits that (kid.he/she) doesn't enjoy competing and only entered to make (kid.his/her) parents happy. The adults have a thoughtful conversation about expectations.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "on6": {
+   "src": "L1745-1746",
+   "text": "A child who lost asks the winner for advice. The two begin practicing together for next year.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "one_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "on1"
+    },
+    {
+     "next": "on2"
+    },
+    {
+     "next": "on3"
+    },
+    {
+     "next": "on4"
+    },
+    {
+     "next": "on5"
+    },
+    {
+     "next": "on6"
+    }
+   ]
+  },
+  "mu1": {
+   "src": "L1749-1750",
+   "text": "The children appreciate being recognized for different strengths. The ceremony ends peacefully.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "mu2": {
+   "src": "L1751-1753",
+   "text": "One child receives the \"Most Improved\" award and asks, \"Does that mean I was the worst before?\" The teacher hurriedly explains what the award was meant to celebrate.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L1753",
+     "what": "celebrate",
+     "reason": "narrative: what the award honours, not the Celebrating action"
+    }
+   ]
+  },
+  "mu3": {
+   "src": "L1754-1756",
+   "text": "The judges invent so many categories that the ceremony lasts until sunset. Even the person handing out ribbons receives a ribbon.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "mu4": {
+   "src": "L1757-1759",
+   "text": "Two children disagree about whether \"Most Creative\" is better than \"Best Overall.\" The adults admit that the awards need clearer descriptions.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "mu5": {
+   "src": "L1760-1762",
+   "text": "The children invent their own awards: \"Best Friend,\" \"Funniest Drawing,\" and \"Most Likely to Eat the Prize.\" The teachers reluctantly allow the last one.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "multi_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "mu1"
+    },
+    {
+     "next": "mu2"
+    },
+    {
+     "next": "mu3"
+    },
+    {
+     "next": "mu4"
+    },
+    {
+     "next": "mu5"
+    }
+   ]
+  },
+  "sp1": {
+   "src": "L1765-1766",
+   "text": "Most children vote for one winner, provided the rules are fair. The adults are surprised by their willingness to compete.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sp2": {
+   "src": "L1767-1768",
+   "text": "Most children prefer participation ribbons. The judges agree, but promise honest feedback for anyone who wants it.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sp3": {
+   "src": "L1769-1770",
+   "text": "The children propose a group challenge instead, where everyone works toward a shared goal.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sp4": {
+   "src": "L1771-1772",
+   "text": "The children disagree just as much as their parents. The teacher sighs. Apparently, democracy is complicated.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "sp5": {
+   "src": "L1773-1775",
+   "text": "One child asks why adults are arguing about a contest that the children were enjoying perfectly well. The parents fall silent.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "speak_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "sp1"
+    },
+    {
+     "next": "sp2"
+    },
+    {
+     "next": "sp3"
+    },
+    {
+     "next": "sp4"
+    },
+    {
+     "next": "sp5"
+    }
+   ]
+  },
+  "rare": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ending",
+     "weight": 20
+    },
+    {
+     "next": "dispute",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "dispute": {
+   "name": "A parental dispute",
+   "src": "L1778-1789",
+   "text": "Two parents begin arguing so loudly that the children stop paying attention to the ceremony.\nOne parent {accuses the judges of favoritism|insists that (parent.his/her) child deserves a prize|demands a complete recount}. The other {defends the rules|argues for equal recognition|asks everyone to calm down}.\nA child finally says, \"Can we PLEASE just finish the contest?\"\nThe parents {apologize|continue arguing until {@chief} intervenes|realize that they are embarrassing their children}.",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "rid_r"
+    },
+    {
+     "next": "rid_t"
+    },
+    {
+     "next": "qu_r"
+    },
+    {
+     "next": "qu_t"
+    }
+   ]
+  },
+  "rid_r": {
+   "name": "The ending",
+   "text": "{RID}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1820"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L1820",
+     "what": "Learning experience",
+     "reason": "rule 8: no game has a Learning skill; the source's alternative, Research, is given"
+    }
+   ]
+  },
+  "rid_t": {
+   "name": "The ending",
+   "text": "{RID}",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1821"
+    }
+   ]
+  },
+  "qu_r": {
+   "name": "The ending",
+   "text": "{QUIET}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1820"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L1820",
+     "what": "Learning experience",
+     "reason": "rule 8: no game has a Learning skill; the source's alternative, Research, is given"
+    }
+   ]
+  },
+  "qu_t": {
+   "name": "The ending",
+   "text": "{QUIET}",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1821"
+    }
+   ]
+  }
+ }
+}

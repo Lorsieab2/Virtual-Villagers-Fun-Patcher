@@ -1,0 +1,269 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Isolan Decathlon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_decathlon",
+  "source": "v26",
+  "lines": [
+   8885,
+   8900
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8885",
+  "ledger": [
+   {
+    "src": "L8898-8900",
+    "kind": "note",
+    "why": "naming note and the section's end line, never displayed"
+   },
+   {
+    "src": "L8886",
+    "kind": "note",
+    "text": "An optional multi-discipline festival combines ten randomly selected",
+    "why": "designer framing (review M10), never displayed"
+   },
+   {
+    "src": "L8887",
+    "kind": "note",
+    "text": "trials from the twelve events above.",
+    "why": "designer framing (review M10), never displayed"
+   },
+   {
+    "src": "L8893",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: d3 is shown in VV5 only"
+   }
+  ]
+ },
+ "roles": {
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The Decathlon",
+   "text": "A champion must demonstrate more than one kind of talent; teams can win through complementary strengths.",
+   "src": "L8886-8888",
+   "children": [
+    {
+     "next": "set_d"
+    }
+   ]
+  },
+  "d1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The overall favorite dominates the physical contests but loses the Scholasticon round to an unassuming novice.",
+   "src": "L8890-8891",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A boastful champion refuses help and loses to a cooperative team.",
+   "src": "L8892",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mixed team wins; both communities argue over whose victory it is until the champions insist the prize belongs to everyone.",
+   "src": "L8893-8894",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The judges cannot agree whether poetry outweighs stick-game skill. They introduce separate laurels for mind, art, and athletic achievement.",
+   "src": "L8895-8896",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8895",
+     "what": "skill",
+     "reason": "narrative: the judges weigh kinds of skill; rule 7, laurels are told only"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "set": "D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c9",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

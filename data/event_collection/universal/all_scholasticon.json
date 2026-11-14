@@ -1,0 +1,930 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grand Isolan Scholasticon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_scholasticon",
+  "source": "v26",
+  "lines": [
+   1156,
+   1329
+  ],
+  "section": "universal",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification\n  Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan\n  Storytelling Contest): event prose and branching written by ChatGPT,\n  developed in response to Lorsieab2's requested scope and themes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1157",
+  "ledger": [
+   {
+    "src": "L1158",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L1176",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1194",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1216",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L1223",
+    "kind": "structural",
+    "text": "Go to (2).",
+    "why": "route"
+   },
+   {
+    "src": "L1230",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L1232",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1250",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1267",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1269",
+    "kind": "instruction",
+    "text": "The village gains Tech",
+    "why": "the tech and Research effects on c1"
+   },
+   {
+    "src": "L1270",
+    "kind": "instruction",
+    "text": "points; both gain Research experience.",
+    "why": "the tech and Research effects on c1"
+   },
+   {
+    "src": "L1277",
+    "kind": "instruction",
+    "text": "The village gains Tech.",
+    "why": "the tech effect on c4"
+   },
+   {
+    "src": "L1281",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1283",
+    "kind": "instruction",
+    "text": "The winner gains Research experience; the village gains Tech points.",
+    "why": "the effects on j1"
+   },
+   {
+    "src": "L1285",
+    "kind": "instruction",
+    "text": "The winner gains Research experience.",
+    "why": "the effect on j2"
+   },
+   {
+    "src": "L1291",
+    "kind": "instruction",
+    "text": "The village gains Tech points.",
+    "why": "the tech effect on j5"
+   },
+   {
+    "src": "L1293",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1305",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1319",
+    "kind": "instruction",
+    "why": "the child's Research effect"
+   },
+   {
+    "src": "L1322",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1329",
+    "kind": "instruction",
+    "why": "the Research effects: one or both researchers, equally (q1, q2, q3)"
+   }
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher1": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "researcher2": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "optional": true
+  },
+  "oner": {
+   "kind": "alias",
+   "of": [
+    "researcher1",
+    "researcher2"
+   ]
+  },
+  "otherr": {
+   "kind": "other",
+   "of": "oner"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "determining how to build a bridge across a ravine without wasting wood",
+     "src": "L1177"
+    },
+    {
+     "text": "calculating the height of an ancient monument without climbing it",
+     "src": "L1178"
+    },
+    {
+     "text": "designing a stable tower with an absurdly small foundation",
+     "src": "L1179"
+    },
+    {
+     "text": "determining how much food the village needs to survive a long drought",
+     "src": "L1180"
+    },
+    {
+     "text": "working out the safest arrangement of supports for a new building",
+     "src": "L1181"
+    },
+    {
+     "text": "dividing an irregular plot of farmland fairly between several families",
+     "src": "L1182"
+    },
+    {
+     "text": "predicting when the shadows of two distant monuments will meet",
+     "src": "L1183"
+    },
+    {
+     "text": "finding a way to move an enormous stone using only simple tools",
+     "src": "L1184"
+    },
+    {
+     "text": "determining whether an oddly shaped vessel can hold enough water",
+     "src": "L1185"
+    },
+    {
+     "text": "proving that two apparently different geometric designs have equal area",
+     "src": "L1186"
+    },
+    {
+     "text": "discovering why the village's measuring sticks never seem to agree",
+     "src": "L1187"
+    },
+    {
+     "text": "solving an ancient puzzle carved into the ruins, which may or may not have been intended as a puzzle in the first place",
+     "src": "L1188-1189"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "methodical and painfully thorough",
+     "src": "L1195"
+    },
+    {
+     "text": "brilliant, but rather absentminded",
+     "src": "L1196"
+    },
+    {
+     "text": "fond of drawing diagrams on every available surface",
+     "src": "L1197"
+    },
+    {
+     "text": "suspicious of any answer that seems too simple",
+     "src": "L1198"
+    },
+    {
+     "text": "convinced that the ancestors already solved the problem",
+     "src": "L1199"
+    },
+    {
+     "text": "determined to prove (researcher1.his/her) rival wrong",
+     "src": "L1200"
+    },
+    {
+     "text": "willing to admit when (researcher1.he/she) doesn't know something",
+     "src": "L1201"
+    },
+    {
+     "text": "prone to making wild guesses and then testing them",
+     "src": "L1202"
+    },
+    {
+     "text": "obsessed with precision",
+     "src": "L1203"
+    },
+    {
+     "text": "remarkably good at spotting patterns",
+     "src": "L1204"
+    },
+    {
+     "text": "better at practical demonstrations than explanations",
+     "src": "L1205"
+    },
+    {
+     "text": "more interested in the problem than in winning",
+     "src": "L1206"
+    }
+   ]
+  },
+  "B2": {
+   "set": "B",
+   "mirror_of": "B",
+   "distinct_from": [
+    "B"
+   ],
+   "items": [
+    {
+     "text": "methodical and painfully thorough",
+     "src": "L1195"
+    },
+    {
+     "text": "brilliant, but rather absentminded",
+     "src": "L1196"
+    },
+    {
+     "text": "fond of drawing diagrams on every available surface",
+     "src": "L1197"
+    },
+    {
+     "text": "suspicious of any answer that seems too simple",
+     "src": "L1198"
+    },
+    {
+     "text": "convinced that the ancestors already solved the problem",
+     "src": "L1199"
+    },
+    {
+     "text": "determined to prove (researcher2.his/her) rival wrong",
+     "src": "L1200"
+    },
+    {
+     "text": "willing to admit when (researcher2.he/she) doesn't know something",
+     "src": "L1201"
+    },
+    {
+     "text": "prone to making wild guesses and then testing them",
+     "src": "L1202"
+    },
+    {
+     "text": "obsessed with precision",
+     "src": "L1203"
+    },
+    {
+     "text": "remarkably good at spotting patterns",
+     "src": "L1204"
+    },
+    {
+     "text": "better at practical demonstrations than explanations",
+     "src": "L1205"
+    },
+    {
+     "text": "more interested in the problem than in winning",
+     "src": "L1206"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The problem",
+   "src": "L1161-1172,L1174",
+   "text": "The village's researchers have been arguing for days. Apparently, there is a problem so complicated that even the most learned villagers cannot agree on the answer.\nSome believe it is a matter of mathematics. Others insist that it is a problem of engineering. One particularly stubborn researcher believes that the entire problem is nonsense.\nAt last, (researcher1) and (researcher2) agree to settle the matter with a competition. {@Chief} has offered {a generous prize|a handsome trophy|a lifetime supply of writing materials|a rather impressive coconut} to whoever can find the best solution.\nThe problem is... {A}.",
+   "text_only": [
+    {
+     "src": "L1170-1171",
+     "what": "a prize or trophy",
+     "reason": "rule 7: prizes are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to encourage",
+   "src": "L1191-1192,L1208",
+   "text": "(Researcher1) is {B}, while (researcher2) is {B2}. They have until sundown to present their work.\nWhat should the village encourage?",
+   "choices": [
+    {
+     "label": "LET THEM WORK INDEPENDENTLY",
+     "next": "indep",
+     "src": "L1210"
+    },
+    {
+     "label": "REQUIRE A PUBLIC DEMONSTRATION",
+     "next": "demo",
+     "src": "L1218"
+    },
+    {
+     "label": "LET THEM COLLABORATE",
+     "next": "collab",
+     "src": "L1225"
+    }
+   ]
+  },
+  "indep": {
+   "src": "L1211-1215",
+   "text": "The two researchers separate their materials and get to work. (Researcher1) {fills several pages with calculations|builds a miniature model|draws a complicated diagram|stares at the problem for hours}. Meanwhile, (researcher2) {tries a completely different method|consults old records|makes measurements in the field|starts over twice}.",
+   "children": [
+    {
+     "next": "ind_set"
+    }
+   ]
+  },
+  "demo": {
+   "src": "L1219-1223",
+   "text": "{@Chief} declares that a solution is only useful if the village can understand how it works. The researchers must explain their reasoning and demonstrate their ideas before the judges. One researcher looks delighted. The other looks as though (otherr.he/she) would rather face a swarm of bees.",
+   "children": [
+    {
+     "next": "demo_set"
+    }
+   ]
+  },
+  "collab": {
+   "src": "L1226-1229",
+   "text": "Perhaps the researchers are wasting time trying to defeat each other. {@Chief} suggests that they work together instead. (Researcher1) {agrees immediately|hesitates|looks offended}. (Researcher2) {smiles|grumbles|asks whether the prize will be shared}.",
+   "children": [
+    {
+     "next": "col_set"
+    }
+   ]
+  },
+  "ind_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "i1"
+    },
+    {
+     "next": "i2"
+    },
+    {
+     "next": "i3"
+    },
+    {
+     "next": "i4",
+     "if": {
+      "all": [
+       {
+        "role": "child"
+       },
+       {
+        "drew": {
+         "pool": "A",
+         "item": "determining how to build a bridge across a ravine without wasting wood"
+        }
+       }
+      ]
+     }
+    },
+    {
+     "next": "i5"
+    },
+    {
+     "next": "i6"
+    }
+   ]
+  },
+  "i1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1233-1235",
+   "text": "Both researchers arrive at the same correct answer by entirely different methods. They argue over whose method is more elegant, then reluctantly admit that both are useful.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ]
+  },
+  "i2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1236-1238",
+   "text": "(Researcher1) produces a brilliant solution but cannot explain it clearly. (Researcher2) gives a less impressive answer with a wonderful explanation. The judges must decide what matters most.",
+   "children": [
+    {
+     "next": "argue"
+    }
+   ]
+  },
+  "i3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1239-1241",
+   "text": "One researcher discovers a tiny error in the other's calculations. The embarrassed competitor corrects it, then finds a flaw in the first researcher's model. Neither gets to feel superior for long.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ]
+  },
+  "i4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1242-1244",
+   "text": "Both researchers confidently present the WRONG answer. A child points out that they have forgotten to account for the weight of the bridge itself. The researchers stare at each other in horror.",
+   "children": [
+    {
+     "next": "childobs"
+    }
+   ]
+  },
+  "i5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1245-1246",
+   "text": "The researchers solve different parts of the problem. Neither can finish alone, but their combined work provides the answer.",
+   "children": [
+    {
+     "next": "col_set"
+    }
+   ]
+  },
+  "i6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1247-1248",
+   "text": "Both researchers run out of time. {@Chief} awards no prize, but asks them to continue their work tomorrow.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "demo_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    },
+    {
+     "next": "d5"
+    },
+    {
+     "next": "d6"
+    }
+   ]
+  },
+  "d1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1251-1252",
+   "text": "The model works perfectly! The audience applauds. The researchers are {overjoyed|relieved|astonished that nobody noticed the glue}.",
+   "children": [
+    {
+     "next": "judges"
+    }
+   ]
+  },
+  "d2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1254-1255",
+   "text": "The model collapses before anyone touches it. A very awkward silence follows. The researchers agree to investigate what went wrong.",
+   "text_only": [
+    {
+     "src": "L1254",
+     "what": "the model collapses",
+     "reason": "a model, not a village structure: nothing is damaged"
+    }
+   ],
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "d3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1256-1258",
+   "text": "The explanation is so complicated that the judges fall asleep. The design is sound, but someone must translate it into language ordinary villagers can understand.",
+   "children": [
+    {
+     "next": "argue"
+    }
+   ]
+  },
+  "d4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1259-1260",
+   "text": "A spectator asks a simple question that neither researcher considered. They return to their calculations, embarrassed but grateful.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "d5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1261-1262",
+   "text": "The demonstration works, but only because a child has been holding up the model from behind the table. The judges demand a fair retest.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "d6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1264-1265",
+   "text": "The researchers discover that their supposedly ancient measurement was taken using a bent stick. They agree to start over.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "col_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  },
+  "c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1268-1270",
+   "text": "After a few disagreements, the researchers combine their ideas into a design neither could have produced alone.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1269"
+    },
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1270"
+    },
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1270"
+    }
+   ]
+  },
+  "c2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1271-1272",
+   "text": "They spend the entire afternoon arguing about who gets to hold the measuring stick. No solution is reached.",
+   "children": [
+    {
+     "next": "quiet"
+    }
+   ]
+  },
+  "c3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1273-1274",
+   "text": "(Researcher1) discovers the theory, while (researcher2) develops a practical method. They share the prize and celebrate quietly.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "researcher1",
+     "src": "L1274"
+    },
+    {
+     "do": "celebrate",
+     "who": "researcher2",
+     "src": "L1274"
+    }
+   ]
+  },
+  "c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1275-1277",
+   "text": "The collaboration reveals that the problem was based on a false assumption. The researchers explain this to {@chief}, who is {impressed|disappointed|secretly relieved}.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1277"
+    }
+   ]
+  },
+  "c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1278-1279",
+   "text": "The two become close friends and continue working together. Their next project is already causing arguments."
+  },
+  "judges": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "j1"
+    },
+    {
+     "next": "j2"
+    },
+    {
+     "next": "j3"
+    },
+    {
+     "next": "j4"
+    },
+    {
+     "next": "j5"
+    }
+   ]
+  },
+  "j1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1282-1283",
+   "text": "(Researcher1) wins for accuracy. (Researcher2) congratulates (researcher1.him/her).",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1283"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1283"
+    }
+   ]
+  },
+  "j2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1284-1285",
+   "text": "(Researcher2) wins for elegance and clarity. (Researcher1) demands to see the scoring rubric.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1285"
+    }
+   ]
+  },
+  "j3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1286-1287",
+   "text": "The judges declare a tie. Both researchers are delighted - until they realize they must share the trophy.",
+   "text_only": [
+    {
+     "src": "L1287",
+     "what": "the trophy",
+     "reason": "rule 7: trophies are told only"
+    }
+   ]
+  },
+  "j4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1288-1289",
+   "text": "The judges award the prize to the child who spotted the crucial mistake. The researchers {laugh|applaud|look deeply embarrassed}.",
+   "text_only": [
+    {
+     "src": "L1288",
+     "what": "the prize",
+     "reason": "rule 7: prizes are told only"
+    }
+   ]
+  },
+  "j5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1290-1291",
+   "text": "No winner is declared because both solutions are useful in different circumstances.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1291"
+    }
+   ]
+  },
+  "argue": {
+   "name": "What counts",
+   "src": "L1294-1303",
+   "text": "The judges cannot agree whether the best solution should be {the most accurate|the easiest to explain|the cheapest to build|the safest|the most elegant|the quickest to carry out}.\nAfter a long discussion, they {publish a set of standards for future competitions|ask the villagers to vote|award a joint victory|postpone the decision until the designs are tested}.\n(Researcher1) and (researcher2) learn that solving a problem is not always the same as deciding which solution is best."
+  },
+  "childobs": {
+   "name": "The child",
+   "src": "L1306-1320",
+   "text": "A young villager, (child), quietly asks, \"But what about {the weight of the bridge|the missing corner|the extra support|the water that leaks out|the shadow on the other side}?\"\nThe researchers freeze.\nApparently, the answer was sitting right in front of them.\n(Researcher1) {laughs at (researcher1.himself/herself)|thanks the child|offers to teach (child.him/her) more mathematics}. (Researcher2) {looks mortified|congratulates the child|immediately begins checking every other calculation}.\nThe researchers return to work.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1319"
+    }
+   ]
+  },
+  "quiet": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "q1"
+    },
+    {
+     "next": "q2"
+    },
+    {
+     "next": "q3"
+    }
+   ]
+  },
+  "q1": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    }
+   ]
+  },
+  "q2": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    }
+   ]
+  },
+  "q3": {
+   "name": "A quiet failure",
+   "src": "L1323-1327",
+   "text": "By sundown, the problem remains unsolved. Nobody has won the prize. The researchers pack away their tools, tired and disappointed.\nStill, the village now knows more about the problem than it did yesterday. Perhaps that is progress enough for one day.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    },
+    {
+     "do": "skill",
+     "role": "researcher2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1329"
+    }
+   ]
+  }
+ }
+}

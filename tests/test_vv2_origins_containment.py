@@ -63,6 +63,8 @@ REMAINING = {
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",
+    # Scrolling Popups: runtime detours only (its companion); owns no Origins bytes
+    "vv2_scrolling_popups",
     # the pairing handler's woman-50 refusal, re-encoded in place behind a
     # drop test; owns no Origins bytes
     "vv2_manual_drop_breeding_overrides_birth_control",
@@ -218,6 +220,10 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_story_cheat_upgrades",
                 # ...and its tech-point prices, which require it.
                 "vv2_story_cheat_upgrades_cost_tech_points",
+                # More Island Events and the Isola Grand Event Collection: both require Story / Cheat
+                # Upgrades (the separate rare roll runs them), so selecting them resolves the Origins base in.
+                "vv2_more_island_events",
+                "vv2_isola_grand_event_collection",
                 # Show Cause of Death on Graves: loaded by the Origins
                 # companion, so it declares the Origins base.
                 "vv2_cause_of_death",

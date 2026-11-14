@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strange Coincidence",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_3_strange",
+  "source": "v26",
+  "lines": [
+   10033,
+   10060
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10033",
+  "ledger": [
+   {
+    "src": "L10050",
+    "kind": "instruction",
+    "text": "Small Tech reward.",
+    "why": "the small tech effect on b4"
+   },
+   {
+    "src": "L10058",
+    "kind": "instruction",
+    "text": "Exceptionally rarely,",
+    "why": "c4 is exceptionally rare: weight 1 against 20"
+   }
+  ]
+ },
+ "roles": {},
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "A coconut falls exactly as an elder mentions falling fruit. A bird calls when a child predicts a bird call. A fire goes out when a storyteller speaks of darkness. Some laugh; others are unsettled.",
+   "src": "L10034-10036",
+   "choices": [
+    {
+     "label": "LAUGH IT OFF",
+     "next": "set_a",
+     "src": "L10038"
+    },
+    {
+     "label": "INVESTIGATE",
+     "next": "set_b",
+     "src": "L10045"
+    },
+    {
+     "label": "TREAT IT AS A WARNING",
+     "next": "set_c",
+     "src": "L10052"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Nothing Unusual: Everyone enjoys the coincidence and returns to work.",
+   "src": "L10039"
+  },
+  "a2": {
+   "text": "The Skeptic's Embarrassment: A researcher dismisses the stories just as another extraordinary coincidence occurs.",
+   "src": "L10040-10041"
+  },
+  "a3": {
+   "text": "The Child's Explanation: A child discovers a loose branch, familiar bird calls, and a gust of wind. The mystery dissolves.",
+   "src": "L10042-10043"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The Hidden Prankster: Someone carefully arranged the occurrences.",
+   "src": "L10046"
+  },
+  "b2": {
+   "text": "The Natural Explanation: Wind and animal behavior account for them.",
+   "src": "L10047"
+  },
+  "b3": {
+   "text": "The Unanswered Mystery: All but one incident can be explained.",
+   "src": "L10048"
+  },
+  "b4": {
+   "text": "The Unexpected Discovery: Investigators find an overlooked spring, cave opening, or useful plant.",
+   "src": "L10049-10050",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10050"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "False Alarm: The villagers prepare for disaster; nothing happens.",
+   "src": "L10053"
+  },
+  "c2": {
+   "text": "Lucky Warning: Precautions accidentally protect stored food from an unrelated heavy rain.",
+   "src": "L10054-10055",
+   "text_only": [
+    {
+     "src": "L10054",
+     "what": "food",
+     "reason": "narrative: stored food is protected, not changed"
+    }
+   ]
+  },
+  "c3": {
+   "text": "The Great Panic: Rumors grow until someone insists Isola itself will vanish by sunset. It does not.",
+   "src": "L10056-10057",
+   "text_only": [
+    {
+     "src": "L10057",
+     "what": "vanish",
+     "reason": "narrative: a rumor; nothing vanishes"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Prophecy Fulfilled: an actual strange phenomenon occurs. The researchers record it without claiming to understand it.",
+   "src": "L10058-10060"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 20
+    },
+    {
+     "next": "c3",
+     "weight": 20
+    },
+    {
+     "next": "c4",
+     "weight": 1,
+     "rarity": "exceptionally_rare"
+    }
+   ]
+  }
+ }
+}

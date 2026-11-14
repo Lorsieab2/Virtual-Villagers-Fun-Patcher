@@ -1,0 +1,1285 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Isolan Storytelling Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_storytelling",
+  "source": "v26",
+  "lines": [
+   1824,
+   2059
+  ],
+  "section": "universal",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification\n  Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan\n  Storytelling Contest): event prose and branching written by ChatGPT,\n  developed in response to Lorsieab2's requested scope and themes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1825",
+  "ledger": [
+   {
+    "src": "L1826",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L1845",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1860",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1880",
+    "kind": "structural",
+    "text": "Go to (1).",
+    "why": "route"
+   },
+   {
+    "src": "L1886",
+    "kind": "structural",
+    "text": "Go to (2).",
+    "why": "route"
+   },
+   {
+    "src": "L1890",
+    "kind": "structural",
+    "text": "Go to (3).",
+    "why": "route"
+   },
+   {
+    "src": "L1892",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1906",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1921",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1936",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1940",
+    "kind": "structural",
+    "why": "bank reference"
+   },
+   {
+    "src": "L1942",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1944",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1946",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1948",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1950",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1952-1953",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1955-1956",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1958",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1961-1962",
+    "kind": "note",
+    "why": "the original teaching, for the writer; never displayed"
+   },
+   {
+    "src": "L1974",
+    "kind": "structural",
+    "why": "route"
+   },
+   {
+    "src": "L1976",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1978",
+    "kind": "instruction",
+    "text": "The winner gains Devotion experience.",
+    "why": "the Devotion effect on v1"
+   },
+   {
+    "src": "L1981",
+    "kind": "instruction",
+    "why": "the Devotion effect on v2"
+   },
+   {
+    "src": "L1982",
+    "kind": "instruction",
+    "text": "receive a small",
+    "why": "the small Devotion effects on v3"
+   },
+   {
+    "src": "L1983",
+    "kind": "instruction",
+    "text": "Devotion reward and",
+    "why": "the small Devotion effects on v3"
+   },
+   {
+    "src": "L1988",
+    "kind": "instruction",
+    "text": "; the village gains Tech points",
+    "why": "the tech effect on v5"
+   },
+   {
+    "src": "L1992",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2003",
+    "kind": "instruction",
+    "why": "the small Devotion or Research effects on the lesson page"
+   },
+   {
+    "src": "L2005",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2030",
+    "kind": "structural",
+    "why": "bank heading: rare after the fumble's aftermath (weight 5 against 20), only for the four misquotes its list names"
+   },
+   {
+    "src": "L2044",
+    "kind": "structural",
+    "why": "bank heading: the quiet ending closes every path but the legend"
+   },
+   {
+    "src": "L2052-2059",
+    "kind": "note",
+    "why": "reward notes for the writer: Devotion is primary; Tech for the records (v5)"
+   }
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "devotee1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "devotee2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "one": {
+   "kind": "alias",
+   "of": [
+    "devotee1",
+    "devotee2"
+   ]
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a patient student who has practiced for months",
+     "src": "L1846"
+    },
+    {
+     "text": "a confident storyteller who enjoys an audience",
+     "src": "L1847"
+    },
+    {
+     "text": "a nervous novice who keeps forgetting (devotee1.his/her) lines",
+     "src": "L1848"
+    },
+    {
+     "text": "a stern traditionalist who insists every word matters",
+     "src": "L1849"
+    },
+    {
+     "text": "a creative spirit who likes to embellish the details",
+     "src": "L1850"
+    },
+    {
+     "text": "a humble devotee who simply wants to honor the ancestors",
+     "src": "L1851"
+    },
+    {
+     "text": "a talented speaker with a terrible memory",
+     "src": "L1852"
+    },
+    {
+     "text": "a meticulous scholar who has memorized every pause",
+     "src": "L1853"
+    },
+    {
+     "text": "an eccentric villager who believes the spirits will help",
+     "src": "L1854"
+    },
+    {
+     "text": "a former champion determined to defend (devotee1.his/her) title",
+     "src": "L1855"
+    },
+    {
+     "text": "a quiet soul who rarely speaks in public",
+     "src": "L1856"
+    },
+    {
+     "text": "someone who is very good at remembering stories, but not necessarily understanding them",
+     "src": "L1857-1858"
+    }
+   ]
+  },
+  "A2": {
+   "set": "A",
+   "mirror_of": "A",
+   "distinct_from": [
+    "A"
+   ],
+   "items": [
+    {
+     "text": "a patient student who has practiced for months",
+     "src": "L1846"
+    },
+    {
+     "text": "a confident storyteller who enjoys an audience",
+     "src": "L1847"
+    },
+    {
+     "text": "a nervous novice who keeps forgetting (devotee2.his/her) lines",
+     "src": "L1848"
+    },
+    {
+     "text": "a stern traditionalist who insists every word matters",
+     "src": "L1849"
+    },
+    {
+     "text": "a creative spirit who likes to embellish the details",
+     "src": "L1850"
+    },
+    {
+     "text": "a humble devotee who simply wants to honor the ancestors",
+     "src": "L1851"
+    },
+    {
+     "text": "a talented speaker with a terrible memory",
+     "src": "L1852"
+    },
+    {
+     "text": "a meticulous scholar who has memorized every pause",
+     "src": "L1853"
+    },
+    {
+     "text": "an eccentric villager who believes the spirits will help",
+     "src": "L1854"
+    },
+    {
+     "text": "a former champion determined to defend (devotee2.his/her) title",
+     "src": "L1855"
+    },
+    {
+     "text": "a quiet soul who rarely speaks in public",
+     "src": "L1856"
+    },
+    {
+     "text": "someone who is very good at remembering stories, but not necessarily understanding them",
+     "src": "L1857-1858"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "the founding of the village",
+     "src": "L1861"
+    },
+    {
+     "text": "a terrible storm survived by the ancestors",
+     "src": "L1862"
+    },
+    {
+     "text": "the first discovery of the island's sacred plants",
+     "src": "L1863"
+    },
+    {
+     "text": "an ancient dispute settled through wisdom",
+     "src": "L1864"
+    },
+    {
+     "text": "a mysterious spirit that guided lost villagers home",
+     "src": "L1865"
+    },
+    {
+     "text": "the importance of sharing food during difficult times",
+     "src": "L1866"
+    },
+    {
+     "text": "a brave healer who saved a village",
+     "src": "L1867"
+    },
+    {
+     "text": "a lesson about honesty and keeping promises",
+     "src": "L1868"
+    },
+    {
+     "text": "a legendary journey across the sea",
+     "src": "L1869"
+    },
+    {
+     "text": "a warning against greed, pride, and needless cruelty",
+     "src": "L1870"
+    },
+    {
+     "text": "the origins of a curious Isolan custom",
+     "src": "L1871"
+    },
+    {
+     "text": "the time the ancestors nearly destroyed a feast by arguing over who deserved the largest portion",
+     "src": "L1872-1873"
+    }
+   ]
+  },
+  "LEG": {
+   "items": [
+    {
+     "text": "steal from their neighbors",
+     "src": "L2033",
+     "if": {
+      "visited": "c1"
+     }
+    },
+    {
+     "text": "throw coconuts at their elders",
+     "src": "L2033",
+     "if": {
+      "visited": "c4"
+     }
+    },
+    {
+     "text": "waste the harvest",
+     "src": "L2034",
+     "if": {
+      "visited": "c3"
+     }
+    },
+    {
+     "text": "push {@chief} into the pond",
+     "src": "L2034",
+     "if": {
+      "visited": "c7"
+     }
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The contest",
+   "src": "L1829-1840",
+   "text": "The village has gathered for an important celebration of Isola's history. For generations, the elders have passed down stories about the ancestors, the spirits, the island, and the lessons that helped the villagers survive.\nToday, two devoted villagers, (devotee1) and (devotee2), will compete to see who can recite the ancient stories most accurately.\nThe rules seem simple enough: remember the story, speak clearly, and try not to embarrass yourself in front of the entire village.\nOf course, that last part may be easier said than done.",
+   "text_only": [
+    {
+     "src": "L1829",
+     "what": "a celebration",
+     "reason": "narrative: the occasion, not the Celebrating action"
+    }
+   ],
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to value",
+   "src": "L1842-1843,L1875",
+   "text": "(Devotee1) is {A}, while (devotee2) is {A2}. The story they must recite concerns {B}.\nWhat should the judges value most?",
+   "choices": [
+    {
+     "label": "ACCURACY ABOVE ALL",
+     "next": "acc",
+     "src": "L1877"
+    },
+    {
+     "label": "MEANING ABOVE MEMORIZATION",
+     "next": "mean",
+     "src": "L1882"
+    },
+    {
+     "label": "BOTH ACCURACY AND UNDERSTANDING",
+     "next": "both",
+     "src": "L1888"
+    }
+   ]
+  },
+  "acc": {
+   "src": "L1878-1880",
+   "text": "The judges announce that every word must be recited exactly as it was taught. (Devotee1) {nods confidently|swallows hard}. (Devotee2) {smiles|looks suddenly worried}.",
+   "children": [
+    {
+     "next": "acc_set"
+    }
+   ]
+  },
+  "mean": {
+   "src": "L1883-1886",
+   "text": "The judges announce that understanding the lesson matters more than reciting every syllable perfectly. One competitor looks relieved. The other mutters that the rules have become rather suspicious.",
+   "children": [
+    {
+     "next": "mean_set"
+    }
+   ]
+  },
+  "both": {
+   "src": "L1889-1890",
+   "text": "The judges require each competitor to recite the story and explain what it means.",
+   "children": [
+    {
+     "next": "both_set"
+    }
+   ]
+  },
+  "acc1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1893-1894",
+   "text": "Both competitors recite the story flawlessly. The judges must decide whose delivery was better.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "acc2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1895-1897",
+   "text": "One competitor remembers every word but speaks so quietly that nobody can hear. The judges ask (one.him/her) to repeat it.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "acc3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1898-1899",
+   "text": "One competitor forgets a line and improvises a surprisingly convincing replacement. An elder notices immediately.",
+   "children": [
+    {
+     "next": "fumble"
+    }
+   ]
+  },
+  "acc4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1900-1902",
+   "text": "A sudden sneeze interrupts the most solemn passage. The competitor loses (one.his/her) place. The audience tries very hard not to laugh.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "acc5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1903-1904",
+   "text": "One competitor makes a tiny mistake with enormous consequences.",
+   "children": [
+    {
+     "next": "fumble"
+    }
+   ]
+  },
+  "acc_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "acc1"
+    },
+    {
+     "next": "acc2"
+    },
+    {
+     "next": "acc3"
+    },
+    {
+     "next": "acc4"
+    },
+    {
+     "next": "acc5"
+    }
+   ]
+  },
+  "mean1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1907-1908",
+   "text": "The competitors offer different but thoughtful interpretations. The judges declare that both have learned something valuable.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "mean2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1909-1911",
+   "text": "One competitor gives a beautiful explanation but gets several details wrong. The elders praise the insight while correcting the mistakes.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "mean3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1912-1914",
+   "text": "One competitor admits that (one.he/she) memorized the story without understanding it. The judges offer to teach (one.him/her).",
+   "children": [
+    {
+     "next": "lesson"
+    }
+   ]
+  },
+  "mean4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1915-1917",
+   "text": "The competitors disagree about the story's moral. A lively discussion follows, but neither is declared a heretic.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "mean5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1918-1919",
+   "text": "A child asks a question that none of the adults can answer. The elders agree to consult the oldest records.",
+   "children": [
+    {
+     "next": "lesson"
+    }
+   ]
+  },
+  "mean_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "mean1"
+    },
+    {
+     "next": "mean2"
+    },
+    {
+     "next": "mean3"
+    },
+    {
+     "next": "mean4"
+    },
+    {
+     "next": "mean5"
+    }
+   ]
+  },
+  "both1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1922-1923",
+   "text": "One competitor delivers a flawless recitation and an equally impressive explanation. The judges are delighted.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "both2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1924-1925",
+   "text": "One competitor recites perfectly but cannot explain the lesson. The other forgets a few words but understands it deeply.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "both3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1926-1928",
+   "text": "Both competitors stumble, then help each other remember the missing lines. The judges debate whether cooperation should be rewarded in a competition.",
+   "children": [
+    {
+     "next": "verdict"
+    }
+   ]
+  },
+  "both4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1929-1930",
+   "text": "One competitor accidentally reverses the meaning of a sacred instruction. The entire village freezes.",
+   "children": [
+    {
+     "next": "fumble"
+    }
+   ]
+  },
+  "both5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1931-1934",
+   "text": "The competitors reveal that two different versions of the story have been taught for generations. The elders begin comparing records instead of declaring either contestant wrong.",
+   "children": [
+    {
+     "next": "lesson"
+    }
+   ]
+  },
+  "both_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "both1"
+    },
+    {
+     "next": "both2"
+    },
+    {
+     "next": "both3"
+    },
+    {
+     "next": "both4"
+    },
+    {
+     "next": "both5"
+    }
+   ]
+  },
+  "fumble": {
+   "name": "The fumble",
+   "src": "L1937-1938",
+   "text": "(One) stands proudly before the village and declares, in a loud and confident voice:",
+   "children": [
+    {
+     "next": "c_set"
+    }
+   ]
+  },
+  "c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1943",
+   "text": "\"Thou shalt steal from thy neighbors!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1945",
+   "text": "\"Always betray a friend in times of need!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1947",
+   "text": "\"The spirits command us to waste every harvest!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1949",
+   "text": "\"Honor thy elders by throwing coconuts at them!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1951",
+   "text": "\"The wise villager eats the sacred herbs without asking questions!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1954",
+   "text": "\"A generous heart must keep all the food for itself!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L1954",
+     "what": "food",
+     "reason": "narrative: a misquoted teaching"
+    }
+   ]
+  },
+  "c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1957",
+   "text": "\"When in doubt, push {@chief} into the pond!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1959-1960",
+   "text": "\"And so the ancestors decreed that all villagers must dance naked around the cooking fire!\"",
+   "children": [
+    {
+     "next": "freeze"
+    }
+   ]
+  },
+  "c_set": {
+   "type": "branch",
+   "set": "C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    },
+    {
+     "next": "c6"
+    },
+    {
+     "next": "c7"
+    },
+    {
+     "next": "c8"
+    }
+   ]
+  },
+  "freeze": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1964-1972",
+   "text": "For a moment, nobody moves.\nThen {a child bursts out laughing|an elder drops (elder.his/her) notes|{@chief} raises an eyebrow|the audience begins whispering|someone asks whether the village laws have changed}.\n(One) {turns bright red|insists (one.he/she) said it correctly|realizes the mistake halfway through a bow|looks as though (one.he/she) might sink into the earth}.",
+   "children": [
+    {
+     "next": "after_set"
+    }
+   ]
+  },
+  "af1": {
+   "src": "L2006-2008",
+   "text": "The competitor immediately corrects (one.himself/herself). The audience laughs, then applauds the honesty. The judges deduct a few points but allow (one.him/her) to continue.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af2": {
+   "src": "L2009-2011",
+   "text": "The competitor is so mortified that (one.he/she) runs away. Later, the teacher finds (one.him/her) and explains that one embarrassing mistake does not erase months of hard work.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af3": {
+   "src": "L2012-2014",
+   "text": "The judges ask the competitor to explain the actual lesson. To everyone's surprise, (one.he/she) does so beautifully. The judges award partial credit.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af4": {
+   "src": "L2015-2016",
+   "text": "{@Chief} jokingly asks whether (one.he/she) must now throw coconuts at the elders. The elders unanimously vote NO.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af5": {
+   "src": "L2017-2019",
+   "text": "A mischievous child begins repeating the incorrect version around the village. The teacher spends the next week correcting it.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af6": {
+   "src": "L2020-2022",
+   "text": "The competitor insists that the altered story is an improvement. The elders {laugh politely|disagree firmly|ask (one.him/her) to submit it as an original story instead}.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af7": {
+   "src": "L2023-2025",
+   "text": "The other competitor quietly offers (one.him/her) a drink of water and helps (one.him/her) find the correct line. The judges are impressed by the kindness.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "af8": {
+   "src": "L2026-2028",
+   "text": "The judges cannot stop laughing long enough to announce the winner. The ceremony is postponed until everyone regains their composure.",
+   "children": [
+    {
+     "next": "legend_or_end"
+    }
+   ]
+  },
+  "after_set": {
+   "type": "branch",
+   "set": "(7)",
+   "children": [
+    {
+     "next": "af1"
+    },
+    {
+     "next": "af2"
+    },
+    {
+     "next": "af3"
+    },
+    {
+     "next": "af4",
+     "if": {
+      "visited": "c4"
+     }
+    },
+    {
+     "next": "af5"
+    },
+    {
+     "next": "af6"
+    },
+    {
+     "next": "af7"
+    },
+    {
+     "next": "af8"
+    }
+   ]
+  },
+  "legend_or_end": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "end",
+     "weight": 20
+    },
+    {
+     "next": "legend",
+     "weight": 5,
+     "rarity": "rare",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "c7"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "legend": {
+   "name": "A legend",
+   "src": "L2031-2042",
+   "text": "Years later, villagers still remember the day that (one) accidentally commanded everyone to {LEG}.\nThe original story is carefully preserved. The mistake becomes a harmless joke told at village gatherings.\n(One) {laughs along whenever it is mentioned|groans every single time|secretly enjoys the attention}.\nPerhaps devotion includes learning to laugh at oneself."
+  },
+  "v4": {
+   "src": "L1984-1985",
+   "text": "The judges award no prize, explaining that both contestants need more practice. The competitors agree to return next year.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "v5": {
+   "src": "L1986-1988",
+   "text": "The judges decide that the two versions of the story are equally valuable historical traditions. Both are recorded for future generations.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1988"
+    }
+   ]
+  },
+  "v6": {
+   "src": "L1989-1990",
+   "text": "The competitors are so busy congratulating each other that they forget to collect the prize. A child runs after them.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "verdict": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "v1_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v1_r"
+    },
+    {
+     "next": "v2_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v2_r"
+    },
+    {
+     "next": "v3_5",
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "else": "v3_r"
+    },
+    {
+     "next": "v4"
+    },
+    {
+     "next": "v5"
+    },
+    {
+     "next": "v6"
+    }
+   ]
+  },
+  "lesson": {
+   "name": "A quiet lesson",
+   "src": "L1993-2001",
+   "text": "After the ceremony, an elder invites the competitors to sit down.\n\"Stories are not merely words to be repeated,\" (elder.he/she) says. \"They are memories. They are questions. Sometimes, they are warnings. And sometimes, even the elders must admit that they do not know everything.\"\nThe competitors listen quietly. They may not have won the contest, but they leave with a deeper appreciation for the stories they carry.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Devotion",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2003"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2003"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "name": "Quiet ending",
+   "src": "L2045-2050",
+   "text": "When the ceremony is over, the villagers return to their daily lives. The elders carefully put away their records. The children continue asking questions.",
+   "variants": [
+    {
+     "if": {
+      "visited": "fumble"
+     },
+     "text": "When the ceremony is over, the villagers return to their daily lives. The elders carefully put away their records. The children continue asking questions.\nAnd somewhere in the village, one thoroughly embarrassed storyteller is practicing the word \"NOT\" over and over again.",
+     "src": "L2045-2050"
+    }
+   ]
+  },
+  "v1_5": {
+   "src": "L1977-1978",
+   "text": "(Devotee1) wins for accuracy. (Devotee2) congratulates (devotee1.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1978"
+    }
+   ]
+  },
+  "v1_r": {
+   "src": "L1977-1978",
+   "text": "(Devotee1) wins for accuracy. (Devotee2) congratulates (devotee1.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1978"
+    }
+   ]
+  },
+  "v2_5": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    }
+   ]
+  },
+  "v2_r": {
+   "src": "L1979-1981",
+   "text": "(Devotee2) wins for understanding and delivery. (Devotee1) looks disappointed, but applauds.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1981"
+    }
+   ]
+  },
+  "v3_5": {
+   "src": "L1982-1983",
+   "text": "The judges declare a tie. Both competitors are invited to teach the children.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    }
+   ]
+  },
+  "v3_r": {
+   "src": "L1982-1983",
+   "text": "The judges declare a tie. Both competitors are invited to teach the children.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "devotee1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    },
+    {
+     "do": "skill",
+     "role": "devotee2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1983"
+    }
+   ]
+  }
+ }
+}

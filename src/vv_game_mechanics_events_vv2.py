@@ -74,6 +74,12 @@ RULES = (
          f"{each(22, TWO, 20)} ({each(22, TWO, 100)} of the first event), each sack or vial {share(40, SACK)}. How "
          "it is worked out: with E of them possible, each gets 1/E x (1 - (1 - E/28)^10) of the single-result 40% "
          "(22 in place of 28 for two-choice), and the fallback event gets the rest."),
+    # More Island Events (the owner, 2026-11-14: the stock island events' chances never change): adv_vv2.inc answers
+    # 21 or 22 only while one of its events is due (the rare roll or Pick Island Event); the stock draw is untouched.
+    Line("With the patcher's \"More Island Events\" (in this game): its events never take a share of these draws, "
+         "so every chance above stays as it is; The Aspiring Adventurer and The Climb come only through Story / "
+         "Cheat Upgrades' separate rare roll or Pick Island Event (see each event).",
+         only_with="vv2_more_island_events"),
     Line("With the patcher's \"Restore Missing Island Events\" (in this game): The Mosquito Swarm, The Dragonfly "
          "Migration and Science Awareness Day pass their draw like an unconditional event, and draw 4 shows one "
          "of three lore pages (The Tattered Diary, The Doctrine of Magicians, The Doctrine of Naturalists, a third "
@@ -330,3 +336,14 @@ EXTRA = (
              "instead.", only_with=GONG_FIX),
     )),
 )
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+# The Climb (the owner, 2026-11-12, The Lost Children only): the same companion.
+from vv_game_mechanics_adventurer import adventurer_event, the_climb_event  # noqa: E402
+
+EVENTS = EVENTS + (adventurer_event(2), the_climb_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(2), rumblings_event(2))

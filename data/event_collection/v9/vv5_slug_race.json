@@ -1,0 +1,482 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Slug Race",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_slug_race",
+  "source": "v26",
+  "lines": [
+   5080,
+   5141
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5081",
+  "ledger": [
+   {
+    "src": "L5080",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5082",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5083",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5102",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5109",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5115",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5121",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5128",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5132",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5136",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_r10",
+  "v9_r14",
+  "v9_r16",
+  "v9_r21",
+  "v9_r26"
+ ],
+ "pools": {
+  "END": {
+   "set": "(7)",
+   "items": [
+    {
+     "text": "The trophy is a polished pearl too large for the slug to carry.",
+     "src": "L5137"
+    },
+    {
+     "text": "The winning slug escapes with the ceremonial ribbon.",
+     "src": "L5138"
+    },
+    {
+     "text": "A father remarks that his baby could have crawled the course faster.",
+     "src": "L5139"
+    },
+    {
+     "text": "The children become friends; their parents remain fiercely competitive.",
+     "src": "L5140"
+    },
+    {
+     "text": "The judge says, 'I trained for years to judge craftsmanship. Not this.'",
+     "src": "L5141"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The race",
+   "src": "L5085-5091",
+   "text": "At a shared village gathering, an Isolan child enters a slug in a friendly racing contest. A child from the player's tribe claims the slug has been secretly coated in extra slime to cheat.\nThe Isolan team captain is outraged. The village captain is equally outraged. The neutral judge asks whether anyone has established that adding slime would even help a slug.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Objection!",
+   "src": "L5093-5095",
+   "text": "'OBJECTION!' shouts a spectator. 'On what grounds?' asks the judge. 'IT'S DISGUSTING!'",
+   "choices": [
+    {
+     "label": "Test the race rules and inspect the course.",
+     "next": "science",
+     "src": "L5097"
+    },
+    {
+     "label": "Let the children explain their accusations.",
+     "next": "children",
+     "src": "L5098"
+    },
+    {
+     "label": "Offer a rematch with equal conditions.",
+     "next": "rematch",
+     "src": "L5099"
+    },
+    {
+     "label": "Hold a formal mock trial for the adults' amusement.",
+     "next": "mock",
+     "src": "L5100"
+    }
+   ]
+  },
+  "science": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L5103",
+   "text": "The slime has no measurable advantage. The slug is cleared.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L5104",
+   "text": "The course was tilted. All racers get a fair rematch.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L5105",
+   "text": "The slug had crawled off before the contest began.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "s4": {
+   "src": "L5106-5107",
+   "text": "The 'extra slime' is spilled fermented yogurt. The race is postponed until the course is cleaned.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "children": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L5110",
+   "text": "One child admits inventing the accusation out of jealousy.",
+   "children": [
+    {
+     "next": "apology"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L5111",
+   "text": "The child genuinely misunderstood what (child.he/she) saw.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "c3": {
+   "src": "L5112",
+   "text": "Both children confess to cheating, but neither has done anything.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "c4": {
+   "src": "L5113",
+   "text": "The Isolan child says, 'I just wanted my slug to be special.'",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "rematch": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    },
+    {
+     "next": "r4"
+    }
+   ]
+  },
+  "r1": {
+   "src": "L5116",
+   "text": "The village slug wins. Both teams cheer.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "r2": {
+   "src": "L5117",
+   "text": "The Isolan slug wins. The village child congratulates the rival.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "r3": {
+   "src": "L5118",
+   "text": "Both slugs refuse to move. The judge declares a draw.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "r4": {
+   "src": "L5119",
+   "text": "The slugs crawl in opposite directions. The judge retires.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "mock": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    },
+    {
+     "next": "m4"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L5122",
+   "text": "The neutral judge demands to hear from the slug. The slug remains silent.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L5123",
+   "text": "A villager produces a chart of slime viscosity. Everyone groans.",
+   "children": [
+    {
+     "next": "acquittal"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L5124-5125",
+   "text": "An elder insists the slug deserves legal counsel. The children appoint a very small wooden spoon as its lawyer.",
+   "children": [
+    {
+     "next": "ridiculous"
+    }
+   ]
+  },
+  "m4": {
+   "src": "L5126",
+   "text": "The adults get so heated that the children ask them to stop.",
+   "children": [
+    {
+     "next": "apology"
+    }
+   ]
+  },
+  "acquittal": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5129-5130",
+   "text": "The judge finds no proven cheating. The accusers must correct their claims. Both communities agree that a slug's dignity has survived.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "apology": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5133-5134",
+   "text": "The child apologizes, and the adults apologize for making the dispute worse. The Isolan child may accept immediately or need time.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "ridiculous": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_r10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r10}"
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r16}"
+  },
+  "coda_r21": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r21}"
+  },
+  "coda_r26": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r26}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r10",
+     "if": {
+      "visited": "mock"
+     }
+    },
+    {
+     "next": "coda_r14",
+     "if": {
+      "visited": "apology"
+     }
+    },
+    {
+     "next": "coda_r16",
+     "if": {
+      "visited": "children"
+     }
+    },
+    {
+     "next": "coda_r21",
+     "if": {
+      "visited": "mock"
+     }
+    },
+    {
+     "next": "coda_r26"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

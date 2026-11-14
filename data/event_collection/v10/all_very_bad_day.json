@@ -1,0 +1,965 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "(Name1)'s No Good, Very Bad Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_very_bad_day",
+  "source": "v26",
+  "lines": [
+   5385,
+   5522
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5386",
+  "ledger": [
+   {
+    "src": "L5385",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5387",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5388",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5394",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5414",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5421",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5429",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5437",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5443",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5449",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5456",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5464",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5471",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5482",
+    "kind": "structural",
+    "why": "route: every (9) item goes to (11)"
+   },
+   {
+    "src": "L5484",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5494",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5505",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5515",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "confessor": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v10_o1",
+  "v10_o3",
+  "v10_o14",
+  "v10_o15",
+  "v10_o16",
+  "v10_o17",
+  "v10_o19",
+  "v10_o20",
+  "v10_o24",
+  "v10_o28"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "ruining a festival centerpiece with slug slime",
+     "src": "L5395"
+    },
+    {
+     "text": "pulverizing someone else's polished pearls for paint",
+     "src": "L5396"
+    },
+    {
+     "text": "stealing a pouch of gemstones",
+     "src": "L5397"
+    },
+    {
+     "text": "replacing good timber with rotten wood",
+     "src": "L5398"
+    },
+    {
+     "text": "contaminating a display with cave guano",
+     "src": "L5399"
+    },
+    {
+     "text": "secretly sabotaging a rival's sculpture",
+     "src": "L5400"
+    },
+    {
+     "text": "lying about who invented the new snail-shell plaster",
+     "src": "L5401"
+    },
+    {
+     "text": "mocking a child's carefully made gift",
+     "src": "L5402"
+    }
+   ]
+  },
+  "OSTRACISM": {
+   "set": "(9)",
+   "items": [
+    {
+     "text": "Nobody sits beside (Subject) at the feast. An elderly villager moves over and says, \"There's room here.\"",
+     "src": "L5472-5473"
+    },
+    {
+     "text": "Children repeat the accusation as a cruel rhyme. Their teacher intervenes and explains why it is wrong.",
+     "src": "L5474-5475"
+    },
+    {
+     "text": "A friend leaves a meal at (Subject)'s door but is too frightened to stay. (Subject) feels grateful and hurt.",
+     "src": "L5476-5477"
+    },
+    {
+     "text": "(Subject) begins to believe the rumors. A healer reminds (subject.him/her) that public opinion is not evidence.",
+     "src": "L5478-5479"
+    },
+    {
+     "text": "The leaders formally end the exclusion and invite (Subject) back, acknowledging that trust may take time.",
+     "src": "L5480-5481"
+    }
+   ]
+  },
+  "UNRESOLVED": {
+   "set": "(10)",
+   "items": [
+    {
+     "text": "The rivals continue to hate each other's guts, but agree not to interfere with each other's work.",
+     "src": "L5485-5486"
+    },
+    {
+     "text": "One says, \"I don't forgive you.\" The other replies, \"I didn't ask you to. I asked you to stop lying.\"",
+     "src": "L5487-5488"
+    },
+    {
+     "text": "They work together during an emergency, then resume avoiding each other afterward.",
+     "src": "L5489-5490"
+    },
+    {
+     "text": "The leaders require a neutral witness whenever the two share materials until the dispute is resolved.",
+     "src": "L5491-5492"
+    }
+   ]
+  },
+  "AFTERMATH": {
+   "set": "(11)",
+   "items": [
+    {
+     "text": "(Subject) becomes a respected advocate for fair hearings.",
+     "src": "L5495"
+    },
+    {
+     "text": "(Subject) remains unpopular, but is no longer excluded.",
+     "src": "L5496"
+    },
+    {
+     "text": "A former accuser asks for advice; (Subject) chooses whether to help.",
+     "src": "L5497-5498"
+    },
+    {
+     "text": "The villagers remember the scandal long after the truth is established. (Subject) learns to live with the discomfort without pretending it is fair.",
+     "src": "L5499-5501"
+    },
+    {
+     "text": "A child publicly says, \"You were right.\" It means more than the council's entire speech.",
+     "src": "L5502-5503"
+    }
+   ]
+  },
+  "CONFESSOR": {
+   "set": "(12)",
+   "items": [
+    {
+     "text": "The confessor must publicly correct the story and help repair the damage.",
+     "src": "L5506-5507"
+    },
+    {
+     "text": "The confessor is embarrassed by the attention and learns to ask questions before assuming guilt.",
+     "src": "L5508-5509"
+    },
+    {
+     "text": "The confession itself becomes a village joke; a teacher stops the teasing when it turns cruel.",
+     "src": "L5510-5511"
+    },
+    {
+     "text": "The confessor explains why (confessor.he/she) was frightened. The adults listen rather than treating the lie as a joke.",
+     "src": "L5512-5513"
+    }
+   ]
+  },
+  "ACCOUNT": {
+   "set": "(13)",
+   "items": [
+    {
+     "text": "Restitution is accepted, but forgiveness is not immediate.",
+     "src": "L5516"
+    },
+    {
+     "text": "The wrongdoer becomes a temporary laughingstock, then slowly earns trust by doing ordinary reliable work.",
+     "src": "L5517-5518"
+    },
+    {
+     "text": "The wrongdoer refuses to improve and is excluded from managing shared supplies for a while.",
+     "src": "L5519-5520"
+    },
+    {
+     "text": "An apprentice says, \"You taught me better than this.\" That hurts more than the formal penalty.",
+     "src": "L5521-5522"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The accusation",
+   "src": "L5390-5392",
+   "text": "A villager named (Subject) is accused of {A}. By sunset, nearly everyone knows the story. Unfortunately, nearly everyone knows a DIFFERENT version of it.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Two sides",
+   "src": "L5404-5407",
+   "text": "(Subject) is {furious and defiant|ashamed and silent|bewildered by the accusation|too proud to ask for help}. (Friend), the accuser, is {genuinely convinced|jealous|repeating a rumor|covering up (friend.his/her) own mistake}.",
+   "choices": [
+    {
+     "label": "HOLD A FAIR HEARING BEFORE IMPOSING PENALTIES.",
+     "next": "hearing",
+     "src": "L5409"
+    },
+    {
+     "label": "ASK BOTH SIDES TO PRODUCE EVIDENCE.",
+     "next": "evidence",
+     "src": "L5410"
+    },
+    {
+     "label": "LET THE VILLAGE COUNCIL IMPOSE A SHORT COOLING-OFF PERIOD.",
+     "next": "cooling",
+     "src": "L5411"
+    },
+    {
+     "label": "ASK A TRUSTED ELDER TO MEDIATE.",
+     "next": "mediation",
+     "src": "L5412"
+    }
+   ]
+  },
+  "hearing": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "h1"
+    },
+    {
+     "next": "h2"
+    },
+    {
+     "next": "h3"
+    }
+   ]
+  },
+  "h1": {
+   "src": "L5415",
+   "text": "Witnesses contradict one another.",
+   "children": [
+    {
+     "next": "proof"
+    }
+   ]
+  },
+  "h2": {
+   "src": "L5416-5417",
+   "text": "An apprentice produces a labeled jar proving the material was borrowed with permission.",
+   "children": [
+    {
+     "next": "exon"
+    }
+   ]
+  },
+  "h3": {
+   "src": "L5418-5419",
+   "text": "(Subject) angrily insults the council. The hearing continues; rudeness is not proof of guilt.",
+   "children": [
+    {
+     "next": "proof"
+    }
+   ]
+  },
+  "evidence": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "v1"
+    },
+    {
+     "next": "v2"
+    },
+    {
+     "next": "v3"
+    },
+    {
+     "next": "v4"
+    }
+   ]
+  },
+  "v1": {
+   "src": "L5422",
+   "text": "The supposed stolen pearls are found inside a hollow coconut.",
+   "children": [
+    {
+     "next": "exon"
+    }
+   ]
+  },
+  "v2": {
+   "src": "L5423-5424",
+   "text": "A smear of slug slime implicates the wrong person because three villagers used the same tool.",
+   "children": [
+    {
+     "next": "proof"
+    }
+   ]
+  },
+  "v3": {
+   "src": "L5425-5426",
+   "text": "A written confession appears, but the handwriting belongs to someone else.",
+   "children": [
+    {
+     "next": "false"
+    }
+   ]
+  },
+  "v4": {
+   "src": "L5427",
+   "text": "The evidence shows (Subject) knowingly sabotaged the work.",
+   "children": [
+    {
+     "next": "wrong"
+    }
+   ]
+  },
+  "cooling": {
+   "src": "L5430-5431",
+   "text": "The leaders ask the disputants to avoid each other for two days, without cutting anyone off from food, shelter, healthcare, or family.",
+   "text_only": [
+    {
+     "src": "L5431",
+     "what": "food, shelter, healthcare",
+     "reason": "a promise that nothing is taken away; no food or health changes"
+    }
+   ],
+   "children": [
+    {
+     "next": "cooling_set"
+    }
+   ]
+  },
+  "cooling_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    },
+    {
+     "next": "k3"
+    }
+   ]
+  },
+  "k1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5432",
+   "text": "The pause prevents a fight, but rumors worsen.",
+   "children": [
+    {
+     "next": "proof"
+    }
+   ]
+  },
+  "k2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5433",
+   "text": "(Subject) feels ostracised and begins to withdraw.",
+   "children": [
+    {
+     "next": "ostracism"
+    }
+   ]
+  },
+  "k3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5434-5435",
+   "text": "(Friend) realizes the punishment was premature and asks for the case to be reopened.",
+   "children": [
+    {
+     "next": "exon"
+    }
+   ]
+  },
+  "mediation": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    }
+   ]
+  },
+  "d1": {
+   "src": "L5438",
+   "text": "The elder uncovers a misunderstanding.",
+   "children": [
+    {
+     "next": "exon"
+    }
+   ]
+  },
+  "d2": {
+   "src": "L5439-5440",
+   "text": "The elder is biased toward (Friend). A second, neutral mediator is appointed.",
+   "children": [
+    {
+     "next": "proof"
+    }
+   ]
+  },
+  "d3": {
+   "src": "L5441",
+   "text": "The two agree on what happened but not what it meant.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "proof": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5444",
+   "text": "The council announces that suspicion is not a verdict.",
+   "children": [
+    {
+     "next": "proof_set"
+    }
+   ]
+  },
+  "proof_set": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "pr1"
+    },
+    {
+     "next": "pr2"
+    },
+    {
+     "next": "pr3"
+    }
+   ]
+  },
+  "pr1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5445",
+   "text": "Some villagers apologize. Others continue whispering.",
+   "children": [
+    {
+     "next": "ostracism"
+    }
+   ]
+  },
+  "pr2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5446",
+   "text": "A child asks why everyone believed the worst so quickly.",
+   "children": [
+    {
+     "next": "ostracism"
+    }
+   ]
+  },
+  "pr3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5447",
+   "text": "The accuser becomes furious and refuses to accept the finding.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
+  },
+  "exon": {
+   "src": "L5450",
+   "text": "(Subject) is cleared. The leaders correct the public record.",
+   "children": [
+    {
+     "next": "exon_set"
+    }
+   ],
+   "name": "Exoneration"
+  },
+  "exon_set": {
+   "type": "branch",
+   "set": "(6)",
+   "children": [
+    {
+     "next": "x1"
+    },
+    {
+     "next": "x2"
+    },
+    {
+     "next": "x3"
+    }
+   ]
+  },
+  "x1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5451-5452",
+   "text": "The village celebrates the discovery, but (Subject) does not feel ready to celebrate with them.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L5451"
+    }
+   ],
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ]
+  },
+  "x2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5453",
+   "text": "(Friend) admits the mistake and apologizes without excuses.",
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ]
+  },
+  "x3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5454",
+   "text": "(Subject) refuses the apology for now.",
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ]
+  },
+  "false": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5457",
+   "text": "A third villager admits writing the confession.",
+   "children": [
+    {
+     "next": "false_set"
+    }
+   ]
+  },
+  "false_set": {
+   "type": "branch",
+   "set": "(7)",
+   "children": [
+    {
+     "next": "fc1"
+    },
+    {
+     "next": "fc2"
+    },
+    {
+     "next": "fc3"
+    }
+   ]
+  },
+  "fc1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5458",
+   "text": "(confessor.He/She) hoped to protect a friend.",
+   "children": [
+    {
+     "next": "confessor"
+    }
+   ]
+  },
+  "fc2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5459-5460",
+   "text": "(confessor.He/She) wanted attention and did not expect the rumor to become serious.",
+   "children": [
+    {
+     "next": "confessor"
+    }
+   ]
+  },
+  "fc3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5461-5462",
+   "text": "(confessor.He/She) genuinely believed (confessor.he/she) was responsible, having confused two similar jars.",
+   "children": [
+    {
+     "next": "confessor"
+    }
+   ]
+  },
+  "wrong": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5465",
+   "text": "(Subject) admits the sabotage after the evidence is presented.",
+   "children": [
+    {
+     "next": "wrong_set"
+    }
+   ]
+  },
+  "wrong_set": {
+   "type": "branch",
+   "set": "(8)",
+   "children": [
+    {
+     "next": "wd1"
+    },
+    {
+     "next": "wd2"
+    },
+    {
+     "next": "wd3"
+    }
+   ]
+  },
+  "wd1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5466",
+   "text": "(subject.He/She) repairs the damage and loses the competition prize.",
+   "children": [
+    {
+     "next": "account"
+    }
+   ]
+  },
+  "wd2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5467",
+   "text": "(subject.He/She) is suspended from judging future contests for a time.",
+   "children": [
+    {
+     "next": "account"
+    }
+   ]
+  },
+  "wd3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5468-5469",
+   "text": "(subject.He/She) refuses to apologize. The community maintains proportionate boundaries.",
+   "children": [
+    {
+     "next": "account"
+    }
+   ]
+  },
+  "ostracism": {
+   "name": "Temporary ostracism",
+   "text": "{OSTRACISM}",
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ]
+  },
+  "unresolved": {
+   "name": "Unresolved conflict",
+   "text": "{UNRESOLVED}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "aftermath": {
+   "text": "{AFTERMATH}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "name": "Reputation aftermath"
+  },
+  "confessor": {
+   "name": "The confessor's consequences",
+   "text": "{CONFESSOR}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "account": {
+   "name": "Accountability",
+   "text": "{ACCOUNT}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_o1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o1}"
+  },
+  "coda_o3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o3}"
+  },
+  "coda_o14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o14}"
+  },
+  "coda_o15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o15}"
+  },
+  "coda_o16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o16}"
+  },
+  "coda_o17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o17}"
+  },
+  "coda_o19": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o19}"
+  },
+  "coda_o20": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o20}"
+  },
+  "coda_o24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o24}"
+  },
+  "coda_o28": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o28}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o1",
+     "if": {
+      "visited": "ostracism"
+     }
+    },
+    {
+     "next": "coda_o3",
+     "if": {
+      "visited": "ostracism"
+     }
+    },
+    {
+     "next": "coda_o14",
+     "if": {
+      "visited": "exon"
+     }
+    },
+    {
+     "next": "coda_o15",
+     "if": {
+      "any": [
+       {
+        "visited": "wrong"
+       },
+       {
+        "visited": "x3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_o16",
+     "if": {
+      "visited": "wrong"
+     }
+    },
+    {
+     "next": "coda_o17",
+     "if": {
+      "visited": "unresolved"
+     }
+    },
+    {
+     "next": "coda_o19",
+     "if": {
+      "visited": "ostracism"
+     }
+    },
+    {
+     "next": "coda_o20",
+     "if": {
+      "visited": "exon"
+     }
+    },
+    {
+     "next": "coda_o24",
+     "if": {
+      "visited": "exon"
+     }
+    },
+    {
+     "next": "coda_o28",
+     "if": {
+      "visited": "wrong"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

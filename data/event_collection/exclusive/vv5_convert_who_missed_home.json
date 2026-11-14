@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Convert Who Missed Home",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_convert_who_missed_home",
+  "source": "v26",
+  "lines": [
+   8008,
+   8017
+  ],
+  "section": "exclusive",
+  "credit": "Creative direction: Lorsieab2 (request for additional exclusive events, established Isola setting, and relocation of the child-chief event from VV2 to VV3).\nNew event concepts, dialogue, and outcome writing: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8008",
+  "ledger": [
+   {
+    "src": "L8015",
+    "kind": "instruction",
+    "text": "Gain a small food reward.",
+    "why": "carried by the outcome's effect"
+   },
+   {
+    "src": "L8017",
+    "kind": "instruction",
+    "text": "Gain tech.",
+    "why": "carried by the outcome's effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "The Convert Who Missed Home",
+   "src": "L8009",
+   "text": "A recently converted Isolan is seen sitting alone, staring toward a familiar part of the island.",
+   "choices": [
+    {
+     "label": "Invite the villager to speak.",
+     "next": "set_a",
+     "src": "L8010"
+    },
+    {
+     "label": "Arrange a shared activity.",
+     "next": "set_b",
+     "src": "L8014"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L8011",
+   "text": "The villager shares memories of family and old customs. Neighbors offer companionship."
+  },
+  "a2": {
+   "src": "L8012",
+   "text": "The villager admits to fearing rejection. A former rival offers a sincere apology."
+  },
+  "a3": {
+   "src": "L8013",
+   "text": "The villager asks for time alone and later returns to join the others."
+  },
+  "b1": {
+   "src": "L8015",
+   "text": "Working side by side helps old tensions soften.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8015"
+    }
+   ]
+  },
+  "b2": {
+   "src": "L8016",
+   "text": "A misunderstanding briefly renews an argument before everyone apologizes."
+  },
+  "b3": {
+   "src": "L8017",
+   "text": "The villager teaches the children a traditional craft, preserving a piece of Isolan history.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8017"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ }
+}

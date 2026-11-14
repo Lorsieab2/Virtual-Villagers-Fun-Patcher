@@ -1,0 +1,266 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lullaby",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_lullaby",
+  "source": "v26",
+  "lines": [
+   3174,
+   3235
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3176",
+  "ledger": [
+   {
+    "src": "L3175",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L3177",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L3184",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3201",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3212",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3222",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3234-3235",
+    "kind": "note",
+    "why": "gameplay note: the nursing parent is cast as the special nursing_parent role (harmless); the event has no effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "nursing_parent"
+  },
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "older": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "beautiful but extraordinarily loud",
+     "src": "L3185"
+    },
+    {
+     "text": "gentle and soothing",
+     "src": "L3186"
+    },
+    {
+     "text": "complicated enough to confuse the birds",
+     "src": "L3187"
+    },
+    {
+     "text": "repetitive enough to drive everyone mad",
+     "src": "L3188"
+    },
+    {
+     "text": "surprisingly catchy",
+     "src": "L3189"
+    },
+    {
+     "text": "mostly improvised, with an alarming number of wrong notes",
+     "src": "L3190"
+    }
+   ]
+  },
+  "END": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The infant rests peacefully, and the parent enjoys a few quiet minutes among friends.",
+     "src": "L3223-3224"
+    },
+    {
+     "text": "The parent thanks the musician for listening instead of assuming what the family needed.",
+     "src": "L3225-3226"
+    },
+    {
+     "text": "The elder teaches the older child the old melody, preserving a small piece of the village's history.",
+     "src": "L3227-3228"
+    },
+    {
+     "text": "The musician writes a new verse about a baby who refuses to sleep. The parent laughs a little too knowingly.",
+     "src": "L3229-3230"
+    },
+    {
+     "text": "Nothing remarkable happens. A baby sleeps, the adults talk softly, and village life continues.",
+     "src": "L3231-3232"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The song",
+   "src": "L3180-3182,L3192-3194,L3196",
+   "text": "A nursing (parent.mother/father), (parent), is trying to settle (parent.his/her) infant for a nap. Nearby, (musician) has begun practicing a new song. The melody is {A}.\nThe baby {seems content|begins fussing|falls asleep|watches the musician with wide eyes}. An elder suggests an old lullaby, while an older child insists that (older.he/she) knows a better one.\nWhat should the villagers do?",
+   "choices": [
+    {
+     "label": "Ask the musician to adapt the song to the family's needs.",
+     "next": "adapt",
+     "src": "L3198"
+    },
+    {
+     "label": "Invite the elder and child to perform a quiet lullaby.",
+     "next": "family",
+     "src": "L3199"
+    }
+   ]
+  },
+  "adapt": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L3202-3203",
+   "text": "The musician softens the melody. The baby settles, and the parent thanks (musician.him/her).",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L3204-3205",
+   "text": "The musician slows the song so much that everyone else nearly falls asleep too.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "a3": {
+   "src": "L3206-3207",
+   "text": "The musician asks the parent what would help. The parent requests a little quiet instead, and the musician agrees.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "a4": {
+   "src": "L3208-3210",
+   "text": "The musician tries to sing softly but keeps forgetting and bursting into a dramatic chorus. The group laughs and takes the rehearsal farther away.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "family": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    },
+    {
+     "next": "f4"
+    }
+   ]
+  },
+  "f1": {
+   "src": "L3213-3214",
+   "text": "The elder sings a gentle tune remembered from childhood. The parent joins in quietly.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f2": {
+   "src": "L3215-3216",
+   "text": "The child sings with enormous confidence and almost no sense of pitch. The baby seems fascinated.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f3": {
+   "src": "L3217-3218",
+   "text": "The elder and child disagree over the words, then discover they learned different versions of the same song.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f4": {
+   "src": "L3219-3220",
+   "text": "The baby falls asleep before anyone begins. Everyone exchanges relieved looks and agrees not to make another sound.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}"
+  }
+ }
+}

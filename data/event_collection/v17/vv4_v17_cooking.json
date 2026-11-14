@@ -1,0 +1,431 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Roots and River Feast",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_v17_cooking",
+  "source": "v26",
+  "lines": [
+   8278,
+   8289
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8278",
+  "shared_lines": [
+   "L8274-8276"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8274-8276,L8279-8281",
+   "text": "The contests take place near the Tree of Life, with care not to damage its roots, waterways, nearby wildlife or ritual grounds. A critic who demands that beauty justify itself is about to meet a village that disagrees.\nTwo cooks prepare meals from safely gathered foods. The feared judge announces, \"If the Tree of Life could taste this, it would shed its leaves in protest.\" The crowd gasps; the judge insists (judge.he/she) meant the stew.",
+   "name": "The Roots and River Feast",
+   "type": "question",
+   "choices": [
+    {
+     "label": "Taste publicly.",
+     "next": "pick_a",
+     "src": "L8282"
+    },
+    {
+     "label": "Blind tasting.",
+     "next": "pick_b",
+     "src": "L8285"
+    },
+    {
+     "label": "Explain the gathering methods.",
+     "next": "pick_c",
+     "src": "L8287"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_a"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_b"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_c"
+    }
+   ]
+  },
+  "a1": {
+   "src": "L8282",
+   "text": "An ugly green dish proves magnificent.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "a2": {
+   "src": "L8282-8284",
+   "text": "A catastrophically pungent pot drives everyone away from the feast; it is discarded and the cooks must start again.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L8285",
+   "text": "A modest cook beats the village favorite.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "b2": {
+   "src": "L8286",
+   "text": "The judge recognizes a childhood recipe and becomes emotional.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "c1": {
+   "src": "L8287-8288",
+   "text": "The judges reward a cook who protected fragile plants.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "c2": {
+   "src": "L8288-8289",
+   "text": "One ingredient is identified as unsafe and removed; no one eats it.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u2": {
+   "text": "{v17_u2}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u3": {
+   "text": "{v17_u3}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

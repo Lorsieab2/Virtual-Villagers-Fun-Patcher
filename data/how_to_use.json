@@ -228,8 +228,31 @@
         "Food Gains are Flat, like VV1-3 (Harder Games), Hungrier Villagers (2-10x Meals), 2-10x Tech Cost, Science Collectibles Only Count When Complete,",
         "and Harder Fishing Unlock in VV4, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited (The Tree of Life)",
         "or Faith Loss is Doubled/Gains Halved (New Believers), and Sickness works like VV1-3 and Difficulty Settings (so Hard can be chosen),",
-        "and Island Events Scale With Population (like The Lost Children).",
+        "and Island Events Scale With Population (like The Lost Children) and More Island Events.",
         "Set how hard with the two sliders. Owner's Defaults ticks it and sets both to 2. Unticking any of its patches unticks it too."
+      ]
+    },
+    {
+      "ids": ["vv1_more_island_events", "vv2_more_island_events", "vv3_more_island_events", "vv4_more_island_events", "vv5_more_island_events"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it, and so does Classic VV Difficulty (The Tree of Life, New Believers). Needs Story / Cheat Upgrades.",
+        "Adds the owner's island events. The Aspiring Adventurer (all games): a villager sees something glinting off the path.",
+        "Choose \"Go investigate!\" (food, tech points, or a death or disappearance) or \"Stay on the safe path\" (home 9 times in 10).",
+        "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
+        "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
+        "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
+        "Most need two villagers of 14 or more, not nursing, not special. Rare, never in the game's own draw: a separate roll or Pick Island Event brings them.",
+        "Long text comes in pages (one popup with Scrolling Popups): click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_isola_grand_event_collection", "vv2_isola_grand_event_collection", "vv3_isola_grand_event_collection", "vv4_isola_grand_event_collection", "vv5_isola_grand_event_collection"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it, nor Classic VV Difficulty. Needs Story / Cheat Upgrades and Scrolling Popups.",
+        "Adds the Isola Grand Event Collection: the owner's large collection of island events, with its credits beside the patcher's files.",
+        "They are rare and never change the game's own events' chances: after a natural island event a separate roll may bring one some hours later.",
+        "About three a week of game time; never in the village's first two events, never in trouble, never in place of a rescue event.",
+        "Pick Island Event lists them (and what each needs); the Custom Island Event library has them in its own group. Not yet tested in play."
       ]
     },
     {
@@ -315,6 +338,15 @@
         "Each island-event food or tech-point gain or loss becomes the game's amount plus a tenth of the food or tech points stored at that moment.",
         "With 5,000 food stored, +300 food becomes +800 and -300 food becomes -800 (a loss still takes no more than there is).",
         "Cannot be ticked with Island Events Scale With Population (like The Lost Children), nor with Classic VV Difficulty. Not yet tested in play."
+      ]
+    },
+    {
+      "ids": ["vv1_scrolling_popups", "vv2_scrolling_popups", "vv3_scrolling_popups", "vv4_scrolling_popups", "vv5_scrolling_popups"],
+      "guide": [
+        "Off by default; Owner's Defaults ticks it.",
+        "A popup (island events, message boxes) is never bigger than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
+        "scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar. A very long word gets a sideways bar.",
+        "A popup whose text fits looks exactly as before. More Island Events and Custom Island Events show each popup whole, not in pages. No keyboard scrolling. Not yet tested in play."
       ]
     },
     {
@@ -1017,6 +1049,7 @@
         "The Golden Child's grave always gets a child's epitaph, and with Children's Graves Say Apprentice ticked it says \"Golden Child\" under Job.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves get an epitaph but no cause: how they died was never recorded.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1027,6 +1060,7 @@
         "With Children's Graves Say Apprentice ticked, a villager who died before age 14 is shown as \"Apprentice\" plus their job on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves show no cause: how they died was never recorded.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1037,6 +1071,7 @@
         "A villager who leaves or appears with no record is written to the Unaccounted Villagers log.",
         "Nothing to click in the game; open the log files to read them.",
         "Graves from before the log are added only when you use Repair Saves & Logs.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1161,7 +1196,7 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "2-10x Tech Cost (all five games) and Classic VV Difficulty are not ticked either.",
+        "2-10x Tech Cost (all five games), Classic VV Difficulty and Isola Grand Event Collection are not ticked either.",
         "It does not change the population mode."
       ]
     },
@@ -1173,7 +1208,7 @@
         "harder ones: 2-10x Tech Cost, 2-10x Sickness, Hungrier Villagers (2-10x Meals), Faith Loss is Doubled/Gains Halved, Classic VV Difficulty,",
         "Food Gains are Flat, like VV1-3 (Harder Games), Harder Fishing Unlock in VV4, Sickness works like VV1-3, All Fruit Trees Refill to Full,",
         "Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
-        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
+        "Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped, Scrolling Popups, More Island Events, Isola Grand Event Collection,",
         "Island Events Scale With Population (like The Lost Children), Island Events Scale With Stored Food and Tech Points,",
         "Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors."
       ]
@@ -1467,6 +1502,19 @@
         "The Lost Children's plants have no names in the game, so the patcher names them by colour.",
         "It also says which stews solve puzzles and what else they need, how much food a stew takes, and whether a stew can kill.",
         "It reads nothing from your saves and changes nothing. A line in red marked UNCONFIRMED is one the game's code does not settle."
+      ]
+    },
+    "custom_island_event_library": {
+      "title": "Custom Island Event Library",
+      "guide": [
+        "Write your own island events with questions, choices and random outcomes, then pick one to happen from Custom Island Events in the game.",
+        "Any part can be a question with two to four buttons, as often as you like; each answer shows a page of its own first.",
+        "An award can be a range, and differ per game. An event can need puzzles solved first, roles at most so many years apart, and check the game's patches.",
+        "Each event is kept in the save folder of the game chosen at the top; the game lists only the events that pass every check.",
+        "The tree on the left shows every part by its name (Rename on the Text tab); the tabs on the right edit the chosen part: its text, its ways on and weights, its changes.",
+        "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits, scrolling if the game has Scrolling Popups.",
+        "If no villager fits a role the event needs, the game refuses to queue the event. (Name) is the full name when Last Names is on.",
+        "Delete moves an event to the Recycle Bin. Export and Import share an event as a file. The two New from buttons start from the shipped examples."
       ]
     },
     "picture_studio": {

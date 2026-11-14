@@ -1,0 +1,397 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Falls Riddle",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_v17_research",
+  "source": "v26",
+  "lines": [
+   8180,
+   8184
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8180",
+  "shared_lines": [
+   "L8164-8165",
+   "L8066-8073"
+  ],
+  "ledger": [
+   {
+    "src": "L8183",
+    "kind": "instruction",
+    "text": "Tech reward; no new puzzle",
+    "why": "the tech effect"
+   },
+   {
+    "src": "L8184",
+    "kind": "instruction",
+    "why": "no puzzle flag is changed"
+   },
+   {
+    "src": "L8066",
+    "kind": "structural",
+    "text": "INTRO:",
+    "why": "the framework's intro label"
+   },
+   {
+    "src": "L8067",
+    "kind": "note",
+    "text": "In VV5, one competitor may instead be an event-only Isolan",
+    "why": "VV5 only (an Isolan competitor); VV5 asks its political question instead"
+   },
+   {
+    "src": "L8068",
+    "kind": "note",
+    "text": "visitor (Visitor), and a judge may belong to either community.",
+    "why": "VV5 only, as above"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": "to judge",
+    "why": "fit: 'to judge' makes the button 38 px wider than the screen with the longest names; the label stops before it (owner decision)"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": ", where the game setting makes that meaningful.",
+    "why": "designer rule, never shown"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "comp1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "comp2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "alias",
+   "of": [
+    "comp1",
+    "comp2"
+   ]
+  }
+ },
+ "start": "setting",
+ "nodes": {
+  "setting": {
+   "name": "The festival",
+   "src": "L8164-8165",
+   "text": "The village gathers beneath the sound of the Great Falls. The Lost Children help prepare decorations, keep score and, sometimes, interfere spectacularly.",
+   "children": [
+    {
+     "next": "common"
+    }
+   ]
+  },
+  "common": {
+   "type": "question",
+   "name": "The competition",
+   "src": "L8066-8067",
+   "text": "Two villagers (Comp1) and (comp2) enter a competition before an excited crowd.",
+   "choices": [
+    {
+     "label": "Trust the appointed judges and let the contest proceed.",
+     "next": "contest",
+     "src": "L8069"
+    },
+    {
+     "label": "Require a blind or anonymous test of the entries.",
+     "next": "contest",
+     "src": "L8070"
+    },
+    {
+     "label": "Invite the competitors to explain or demonstrate their work.",
+     "next": "contest",
+     "src": "L8071"
+    },
+    {
+     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
+     "next": "contest",
+     "src": "L8072-8073"
+    }
+   ]
+  },
+  "contest": {
+   "src": "L8181-8183",
+   "text": "Scientists compete to explain the waterfall's currents using carved models. A Lost Child solves the final problem with pebbles and is delighted when the experts admit the answer is correct.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8183"
+    }
+   ],
+   "name": "The Great Falls Riddle",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u2": {
+   "text": "{v17_u2}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u3": {
+   "text": "{v17_u3}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u5": {
+   "text": "{v17_u5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1"
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3"
+    },
+    {
+     "next": "u5"
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8"
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u5",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

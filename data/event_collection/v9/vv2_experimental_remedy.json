@@ -1,0 +1,504 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Experimental Remedy",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_experimental_remedy",
+  "source": "v26",
+  "lines": [
+   4733,
+   4794
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4734",
+  "ledger": [
+   {
+    "src": "L4733",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4735",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4736",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4751",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4757",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4765",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4772",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4779",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4786",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4791",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4794",
+    "kind": "note",
+    "text": "No actual game-role change unless supported by the patch.",
+    "why": "designer note: the removal is story only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v9_materials",
+  "v9_r14",
+  "v9_r16",
+  "v9_r17",
+  "v9_r22",
+  "v9_r24"
+ ],
+ "pools": {
+  "COMEDY": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The healer writes 'NOT FOR PATIENTS' on the jar in huge letters.",
+     "src": "L4780"
+    },
+    {
+     "text": "The researcher offers the mixture to a builder for nonmedical testing.",
+     "src": "L4781"
+    },
+    {
+     "text": "The apprentice asks whether 'miracle cure' can be renamed 'miracle glue.'",
+     "src": "L4782"
+    },
+    {
+     "text": "A father holding a sleeping infant says, 'Please stop yelling about the slime. Some of us are trying to keep a baby asleep.'",
+     "src": "L4783-4784"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "A miracle cure",
+   "src": "L4738-4740",
+   "text": "A talented but overconfident researcher has prepared an 'astonishing new remedy' containing {v9_materials} and {v9_materials.2}. A healer takes one look at the mixture and says, 'Absolutely not.'",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "Absolutely not",
+   "src": "L4742-4744",
+   "text": "The researcher insists it is {a breakthrough|an ancient formula|a harmless demonstration|a triumph of science}. An apprentice admits (apprentice.he/she) has already labeled the jar 'MIRACLE CURE.'",
+   "text_only": [
+    {
+     "src": "L4749",
+     "what": "the disappearance of hospital supplies",
+     "reason": "supplies go missing, not a villager"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Quarantine the mixture and inspect the notes.",
+     "next": "notes",
+     "src": "L4746"
+    },
+    {
+     "label": "Hold a public scientific demonstration with NO ingestion.",
+     "next": "demo",
+     "src": "L4747"
+    },
+    {
+     "label": "Ask the researcher to explain the evidence.",
+     "next": "evidence",
+     "src": "L4748"
+    },
+    {
+     "label": "Investigate the suspicious disappearance of hospital supplies.",
+     "next": "supplies",
+     "src": "L4749"
+    }
+   ]
+  },
+  "notes": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "n1"
+    },
+    {
+     "next": "n2"
+    },
+    {
+     "next": "n3"
+    },
+    {
+     "next": "n4"
+    }
+   ]
+  },
+  "n1": {
+   "src": "L4752",
+   "text": "The recipe was copied incorrectly from a pottery manual.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "n2": {
+   "src": "L4753",
+   "text": "The mixture was intended as wall pigment, not medicine.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "n3": {
+   "src": "L4754",
+   "text": "The researcher admits (researcher.he/she) was desperate for recognition.",
+   "children": [
+    {
+     "next": "humbling"
+    }
+   ]
+  },
+  "n4": {
+   "src": "L4755",
+   "text": "The apprentice altered the label as a joke and apologizes.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "demo": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "d1": {
+   "src": "L4758-4759",
+   "text": "The paste hardens around a wooden spoon. 'Useful,' says a builder. 'Not on a patient,' says the healer.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "d2": {
+   "src": "L4760-4761",
+   "text": "The mixture foams spectacularly. The researcher cheers; the healer moves the audience farther away.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "d3": {
+   "src": "L4762",
+   "text": "Nothing happens. The researcher calls this 'remarkable stability.'",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "d4": {
+   "src": "L4763",
+   "text": "The smell empties the demonstration area.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "evidence": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "v1"
+    },
+    {
+     "next": "v2"
+    },
+    {
+     "next": "v3"
+    }
+   ]
+  },
+  "v1": {
+   "src": "L4766",
+   "text": "The researcher cannot cite a single safe test. The claim is withdrawn.",
+   "children": [
+    {
+     "next": "humbling"
+    }
+   ]
+  },
+  "v2": {
+   "src": "L4767-4768",
+   "text": "A child asks why something that smells awful must be medicine. The researcher admits it needn't be.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "v3": {
+   "src": "L4769-4770",
+   "text": "A respected elder recognizes the substance as a traditional craft material and explains the misunderstanding.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "supplies": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L4773",
+   "text": "The apprentice moved the bandages to make room for the jars.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L4774-4775",
+   "text": "A rival scientist hid a ledger, hoping to embarrass the researcher. The rival admits it and must repair the harm.",
+   "children": [
+    {
+     "next": "disciplinary"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L4776-4777",
+   "text": "The supplies are found on their proper shelf. Everyone looks at the inventory labels with renewed suspicion.",
+   "children": [
+    {
+     "next": "comedy"
+    }
+   ]
+  },
+  "comedy": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{COMEDY}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "humbling": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4787-4789",
+   "text": "The researcher admits (researcher.he/she) wanted a discovery so badly that (researcher.he/she) ignored reasonable criticism. The healer says, 'You can try again. But not by gambling with someone else's health.'",
+   "text_only": [
+    {
+     "src": "L4789",
+     "what": "someone else's health",
+     "reason": "spoken caution; nobody's health changes"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "disciplinary": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4792-4794",
+   "text": "The hospital holds a fair inquiry. The rival may receive a warning, restitution, or removal from a voluntary research assignment in the story.",
+   "text_only": [
+    {
+     "src": "L4792-4794",
+     "what": "removal from a research assignment",
+     "reason": "rule 7: an assignment is told only; the source says so (L4794)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_r14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r14}"
+  },
+  "coda_r16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r16}"
+  },
+  "coda_r17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r17}"
+  },
+  "coda_r22": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r22}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r14",
+     "if": {
+      "visited": "m2"
+     }
+    },
+    {
+     "next": "coda_r16",
+     "if": {
+      "visited": "v2"
+     }
+    },
+    {
+     "next": "coda_r17"
+    },
+    {
+     "next": "coda_r22",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_r24",
+     "if": {
+      "visited": "m2"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

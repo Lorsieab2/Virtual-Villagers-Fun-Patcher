@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Lives, One Decision",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d1_two_lives",
+  "source": "v26",
+  "lines": [
+   8950,
+   8968
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L8950",
+  "ledger": []
+ },
+ "roles": {},
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A pregnant villager lies gravely ill; the healers fear for both mother and unborn child. A dangerous intervention might save them both, but a gentler approach might leave too little time.",
+   "src": "L8951-8953",
+   "choices": [
+    {
+     "label": "Attempt the dangerous intervention.",
+     "next": "set_a",
+     "src": "L8954"
+    },
+    {
+     "label": "Choose the gentler treatment.",
+     "next": "set_b",
+     "src": "L8960"
+    },
+    {
+     "label": "Explain the risks and ask the mother.",
+     "next": "set_c",
+     "src": "L8965"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8951-8953",
+     "what": "a pregnant villager and her unborn child",
+     "reason": "decision Q11: the patient is an uncast stranger, so no villager is affected by the pregnancy content; told only"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Both survive; the mother later honors the physician in her child's name.",
+   "src": "L8955"
+  },
+  "a2": {
+   "text": "The mother survives but the child dies; a solemn mourning follows.",
+   "src": "L8956",
+   "text_only": [
+    {
+     "src": "L8956",
+     "what": "dies",
+     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The child survives but the mother dies; the family remembers her courage.",
+   "src": "L8957",
+   "text_only": [
+    {
+     "src": "L8957",
+     "what": "dies",
+     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+    }
+   ]
+  },
+  "a4": {
+   "text": "Neither survives; the healer questions whether the decision was right.",
+   "src": "L8958"
+  },
+  "a5": {
+   "text": "Both survive, though the mother requires prolonged care.",
+   "src": "L8959"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a5"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Both recover against expectation.",
+   "src": "L8961"
+  },
+  "b2": {
+   "text": "The mother survives but loses the baby.",
+   "src": "L8962"
+  },
+  "b3": {
+   "text": "The condition worsens, demanding a desperate intervention.",
+   "src": "L8963"
+  },
+  "b4": {
+   "text": "Both die; villagers disagree about whether waiting was a mistake.",
+   "src": "L8964",
+   "text_only": [
+    {
+     "src": "L8964",
+     "what": "die",
+     "reason": "D1 (decision Q11): the patient is an uncast stranger, so no villager is affected; told only"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "She elects intervention; both survive.",
+   "src": "L8966"
+  },
+  "c2": {
+   "text": "She chooses gentler care; her recovery is prolonged and uncertain.",
+   "src": "L8967"
+  },
+  "c3": {
+   "text": "Her relatives object to her decision, but the healers honor her wishes.",
+   "src": "L8968"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ }
+}

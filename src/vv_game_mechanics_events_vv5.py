@@ -251,3 +251,13 @@ EVENTS = with_scaling(5, EVENTS, frozenset({
     "The Pesky Critter", "Mushroom Day!", "News From Another Tribe (a message)", "Spying on the Heathens",
     "You're Doing It Wrong!", "Outreach?", "The Advanced Artifacts", "Trick Or Trade", "The Aphids in the Noni Bush",
     "The Defector", "The Straw Hat", "The Strange Nectar"}))
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+from vv_game_mechanics_adventurer import adventurer_event  # noqa: E402
+
+EVENTS = EVENTS + (adventurer_event(5),)
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(5), rumblings_event(5))

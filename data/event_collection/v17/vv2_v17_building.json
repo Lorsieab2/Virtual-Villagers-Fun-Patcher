@@ -1,0 +1,285 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bridge That Should Not Stand",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_v17_building",
+  "source": "v26",
+  "lines": [
+   8171,
+   8178
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8171",
+  "shared_lines": [
+   "L8164-8165"
+  ],
+  "ledger": [
+   {
+    "src": "L8178",
+    "kind": "note",
+    "text": "; do not let children test an unverified bridge",
+    "why": "designer rule, never shown"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {},
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "src": "L8164-8165,L8172-8175",
+   "text": "The village gathers beneath the sound of the Great Falls. The Lost Children help prepare decorations, keep score and, sometimes, interfere spectacularly.\nA competition to span a shallow stream produces a beautiful bridge and an impossibly thin structure of woven reeds. The master builder calls the second \"a fishing net with delusions.\" The reed bridge supports three adults, then sways so alarmingly that nobody volunteers to be fourth.",
+   "name": "The Bridge That Should Not Stand",
+   "type": "question",
+   "choices": [
+    {
+     "label": "Reward the safe, reliable bridge.",
+     "next": "pick_a",
+     "src": "L8176"
+    },
+    {
+     "label": "Permit a supervised second test",
+     "next": "b",
+     "src": "L8177"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "b": {
+   "src": "L8177-8178",
+   "text": "The unusual design may prove sound or require reinforcement.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u2": {
+   "text": "{v17_u2}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u3": {
+   "text": "{v17_u3}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u5": {
+   "text": "{v17_u5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1",
+     "if": {
+      "visited": "b"
+     }
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3",
+     "if": {
+      "visited": "b"
+     }
+    },
+    {
+     "next": "u4",
+     "if": {
+      "visited": "b"
+     }
+    },
+    {
+     "next": "u5",
+     "if": {
+      "visited": "b"
+     }
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8",
+     "if": {
+      "visited": "b"
+     }
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10",
+     "if": {
+      "visited": "b"
+     }
+    }
+   ]
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "pick_a"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u5",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

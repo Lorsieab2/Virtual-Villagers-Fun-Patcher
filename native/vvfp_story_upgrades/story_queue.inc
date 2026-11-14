@@ -314,14 +314,21 @@ static void sq_capture(int game, sq_file *f) {
             f->pick_outcome = 1;
             f->pick_settings = oc.set;
         }
+    } else if (sm_armed(game) >= 0 && story_village_is(game, &pick_village)) {
+        f->have |= SQ_PICK;                 /* a More Island Events event (story_more_events.inc) */
+        f->pick_slot = pick_slot;
+        f->pick_index = sm_queue_index(game);
     }
-    if (ce_armed && ce_armed_event.game == game && story_village_is(game, &ce_armed_village)) {
+    /* A branching event's page or question is never written here: its own file keeps the whole run
+       (story_graph.inc), so this file's layout is unchanged. */
+    if (ce_armed && ce_armed_event.game == game && story_village_is(game, &ce_armed_village)
+        && !cg_owns_armed(game)) {
         f->have |= SQ_CUSTOM;
         f->ce = ce_armed_event;
         f->ce_is_choice = ce_armed_is_choice;
         f->ce_is_notice = ce_armed_is_notice;
     } else if (ce_asked && ce_asked_game == game && ce_asked_event.game == game
-               && story_village_is(game, &ce_asked_village)) {
+               && story_village_is(game, &ce_asked_village) && !cg_owns_asked(game)) {
         f->have |= SQ_CUSTOM | SQ_ASKED;    /* the question waiting for a click */
         f->ce = ce_asked_event;
         f->ce_is_choice = 1;
@@ -432,6 +439,9 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
             oc_arm(game, pick_slot, &f->pick_settings);
         }
         restored |= SQ_PICK;
+    } else if ((f->have & SQ_PICK) && pick_slot < 0 && f->pick_index <= SM_QUEUE_BASE
+               && sm_queue_restore(game, f->pick_index, f->pick_slot)) {
+        restored |= SQ_PICK;                /* a More Island Events event (story_more_events.inc) */
     }
     if ((f->have & SQ_CUSTOM) && !ce_armed && f->ce.game == game
         && (!f->ce_is_choice || choice != NULL)) {
@@ -562,6 +572,10 @@ static void sq_sync(int game, int lazy) {
         } else if (read != 0) {
             sq_remove(game, slot);          /* malformed or another layout: nothing it says can be used */
         }
+        cg_village_seen(game, slot, roster);   /* a branching event's run, put back (story_graph.inc) */
+    }
+    if (!lazy) {
+        cg_flush_file(game, slot, roster);
     }
     if (lazy || sq_blocked) {
         return;
@@ -660,6 +674,7 @@ static void sq_village_reset(int game, int slot) {
     if (game >= 1 && game <= 5 && slot >= 1 && slot <= 5) {
         sq_remove(game, slot);
     }
+    cg_village_reset(game, slot);           /* and a branching event's run (story_graph.inc) */
     sq_have_village = 0;
     sq_written_known = 0;
 }

@@ -1,0 +1,1901 @@
+{
+ "format": "vvfp-event-collection-pools",
+ "version": 1,
+ "pools": {
+  "v8_c1": {
+   "items": [
+    {
+     "text": "After the competition, the winner discovers that the loser has already gone home. The winner {finds (coda1.him/her) to offer a sincere compliment|decides to give (coda1.him/her) space|asks the judges to acknowledge the loser's contribution}.",
+     "src": "L4336-4339"
+    }
+   ]
+  },
+  "v8_c2": {
+   "items": [
+    {
+     "text": "The adult kneels to the child's eye level. \"I was impatient. You didn't deserve that.\" The child {forgives (coda1.him/her)|says (coda2.he/she) is still upset|asks whether they can try again tomorrow}. The adult accepts the answer.",
+     "src": "L4342-4346"
+    }
+   ]
+  },
+  "v8_c3": {
+   "items": [
+    {
+     "text": "The child hears the apology but shakes (coda1.his/her) head. \"Not yet.\" The adult says, \"Alright. I will do better whether or not you're ready to forgive me.\" No forced reconciliation occurs.",
+     "src": "L4349-4353"
+    }
+   ]
+  },
+  "v8_c4": {
+   "items": [
+    {
+     "text": "An elder gives advice that turns out to be mistaken. At first, (coda1.he/she) insists the younger villagers must have misunderstood. Then the evidence becomes impossible to ignore. \"Well,\" the elder says. \"I suppose being old doesn't make me right about everything.\" A child asks whether this means the elder will stop giving advice. \"Absolutely not.\"",
+     "src": "L4356-4362"
+    }
+   ]
+  },
+  "v8_c5": {
+   "items": [
+    {
+     "text": "A nursing parent finally finds a quiet place to sit with the baby. Someone approaches with a request, sees the exhausted expression, and quietly turns away. For five glorious minutes, nobody needs anything else from (coda1.him/her).",
+     "src": "L4365-4368"
+    }
+   ]
+  },
+  "v8_c6": {
+   "items": [
+    {
+     "text": "The losing contestant looks at (coda1.his/her) finished work. It is better than anything (coda1.he/she) could have made last year. No trophy can change that.",
+     "src": "L4371-4373"
+    }
+   ]
+  },
+  "v8_c7": {
+   "items": [
+    {
+     "text": "Someone mentions a former villager who would have loved the event. The conversation goes quiet. Then one person recalls a ridiculous thing the absent friend once said. They laugh, and the laughter does not erase the sadness.",
+     "src": "L4376-4379"
+    }
+   ]
+  },
+  "v8_c8": {
+   "items": [
+    {
+     "text": "A competitor discovers that a rival has knowingly cheated. \"Don't you DARE call it a misunderstanding,\" (coda1.he/she) says. The culprit is given a chance to explain, but the organizers do not excuse the wrongdoing merely because the culprit feels ashamed. The result is corrected; restitution is required where appropriate. Forgiveness is optional.",
+     "src": "L4382-4387"
+    }
+   ]
+  },
+  "v8_c9": {
+   "items": [
+    {
+     "text": "The judges announce the wrong name. The crowd cheers. The real winner stands frozen. When the mistake is discovered, the judges correct it publicly and apologize to BOTH villagers. The mistaken winner is allowed to feel disappointed without being blamed for the judges' error.",
+     "src": "L4390-4394"
+    }
+   ]
+  },
+  "v8_c10": {
+   "items": [
+    {
+     "text": "A child notices that an elder has been standing for a long time. Without being asked, the child brings a stool. The elder says nothing at first, then reaches over and pats the child's hand.",
+     "src": "L4397-4399"
+    }
+   ]
+  },
+  "v8_c11": {
+   "items": [
+    {
+     "text": "A villager laughs at a competitor's mistake. The competitor looks genuinely hurt. The laughter dies down. The joker apologizes, not with a grand speech but by acknowledging exactly what was unkind. The competitor may accept, decline, or simply change the subject.",
+     "src": "L4402-4406"
+    }
+   ]
+  },
+  "v8_c12": {
+   "items": [
+    {
+     "text": "A famously critical Master Builder examines an apprentice's work. After a long silence, (coda1.he/she) says, \"That joint is acceptable.\" The apprentice looks as though (coda2.he/she) has been crowned ruler of the entire island.",
+     "src": "L4409-4412"
+    }
+   ]
+  },
+  "v8_c13": {
+   "items": [
+    {
+     "text": "A parent finishes a project while caring for an infant and hears someone praise only the baby's cuteness. The parent smiles, then says, \"Thank you. I worked hard on the project, too.\" The other villager recognizes the oversight and offers a genuine compliment.",
+     "src": "L4415-4420"
+    }
+   ]
+  },
+  "v8_c14": {
+   "items": [
+    {
+     "text": "A villager claims to have saved the entire competition by catching a falling coconut. Another points out that the coconut was rolling slowly along the ground. \"It was a VERY determined coconut,\" comes the reply.",
+     "src": "L4423-4426"
+    }
+   ]
+  },
+  "v8_c15": {
+   "items": [
+    {
+     "text": "After a long day of arguments, the rivals sit down to eat. They do not discuss the contest. One passes the salt. The other says, \"Thanks.\" Nothing is solved. Something is less difficult.",
+     "src": "L4429-4432"
+    }
+   ]
+  },
+  "v8_c16": {
+   "items": [
+    {
+     "text": "An elder watches a child demonstrate a skill (coda1.he/she) once taught. The child's hands move with confidence. \"You're getting good at this,\" the elder says. \"I had a good teacher,\" the child replies. The elder looks away before the child can see the tears.",
+     "src": "L4435-4439"
+    }
+   ]
+  },
+  "v9_r1": {
+   "items": [
+    {
+     "text": "'I hope you lose every contest you ever enter,' (Subject) snaps. (Friend) goes pale. 'You were my friend.' Neither speaks for days.",
+     "src": "L5229-5230"
+    }
+   ]
+  },
+  "v9_r2": {
+   "items": [
+    {
+     "text": "The two adults shove each other. Other adults intervene promptly. No one is seriously hurt. The organizers suspend the contest and require accountability before either may return.",
+     "src": "L5232-5234"
+    }
+   ]
+  },
+  "v9_r3": {
+   "items": [
+    {
+     "text": "(Subject) admits to a wrongdoing nobody accused (subject.him/her) of. The judge says, 'That is a separate matter, and we will not pretend it proves this charge.'",
+     "src": "L5236-5238"
+    }
+   ]
+  },
+  "v9_r4": {
+   "items": [
+    {
+     "text": "An elder confesses to protect a grandchild. The grandchild says, 'Please stop. I don't want you punished for something I did.'",
+     "src": "L5240-5241"
+    }
+   ]
+  },
+  "v9_r5": {
+   "items": [
+    {
+     "text": "A villager confesses because (coda1.he/she) genuinely believes a careless thought caused the disaster. A trusted adult explains the difference between wishing, fearing, and acting.",
+     "src": "L5243-5245"
+    }
+   ]
+  },
+  "v9_r6": {
+   "items": [
+    {
+     "text": "The guilty villager is cleared by accident. (coda1.He/She) returns at sunset and tells the truth, trembling. The wronged person asks, 'Why now?' 'Because you deserved to know.'",
+     "src": "L5247-5249"
+    }
+   ]
+  },
+  "v9_r7": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (coda1.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
+  },
+  "v9_r8": {
+   "items": [
+    {
+     "text": "A former enemy repairs the broken object in secret. The owner recognizes the workmanship. Neither knows how to begin the conversation.",
+     "src": "L5254-5255"
+    }
+   ]
+  },
+  "v9_r9": {
+   "items": [
+    {
+     "text": "The judge announces a verdict, then realizes the evidence was misread. The hearing is reopened. The judge apologizes publicly.",
+     "src": "L5257-5258"
+    }
+   ]
+  },
+  "v9_r10": {
+   "items": [
+    {
+     "text": "A pompous prosecutor drops a pile of bark-paper documents into slug slime. The court recesses while everyone tries not to laugh.",
+     "src": "L5260-5261"
+    }
+   ]
+  },
+  "v9_r11": {
+   "items": [
+    {
+     "text": "The 'prison' is a harmless, story-only holding room where an adult culprit waits for a hearing; the guard is bored, the culprit is indignant, and no game-state removal occurs.",
+     "src": "L5263-5265"
+    }
+   ]
+  },
+  "v9_r12": {
+   "items": [
+    {
+     "text": "The accused spends a sleepless night in story-only custody before new evidence clears (coda1.him/her). The leader apologizes and offers restitution. The experience is not waved away as a joke.",
+     "src": "L5267-5269"
+    }
+   ]
+  },
+  "v9_r13": {
+   "items": [
+    {
+     "text": "The culprit's punishment is to rebuild the object (coda1.he/she) destroyed. The victim watches and says, 'That doesn't make us even.' 'I know,' the culprit replies.",
+     "src": "L5271-5273"
+    }
+   ]
+  },
+  "v9_r14": {
+   "items": [
+    {
+     "text": "The rivals exchange apologies that are technically sincere but extremely badly phrased. 'I'm sorry you're such an irritating person.' 'THAT IS NOT AN APOLOGY.' They try again.",
+     "src": "L5275-5277"
+    }
+   ]
+  },
+  "v9_r15": {
+   "items": [
+    {
+     "text": "An elderly witness is confidently wrong. When corrected, (coda1.he/she) says, 'I have been wrong before. Not often, mind you.'",
+     "src": "L5279-5280"
+    }
+   ]
+  },
+  "v9_r16": {
+   "items": [
+    {
+     "text": "A child presents an airtight argument. The adults ignore it until a Master Scientist repeats the same point. The child is furious. The scientist gives the child public credit.",
+     "src": "L5282-5284"
+    }
+   ]
+  },
+  "v9_r17": {
+   "items": [
+    {
+     "text": "A nursing mother or father, baby asleep in (coda1.his/her) arms, settles the dispute with one calm observation. Everyone thanks the parent. The parent says, 'Excellent. Now go argue somewhere else.'",
+     "src": "L5286-5288"
+    }
+   ]
+  },
+  "v9_r18": {
+   "items": [
+    {
+     "text": "A villager discovers the person who hurt (coda1.him/her) is crying. (coda1.He/She) offers water, but not forgiveness. Both acts are sincere.",
+     "src": "L5290-5291"
+    }
+   ]
+  },
+  "v9_r19": {
+   "items": [
+    {
+     "text": "The rivals agree to work together. One says, 'I still despise your handwriting.' The other says, 'I still despise your face.' Their joint project is excellent.",
+     "src": "L5293-5295"
+    }
+   ]
+  },
+  "v9_r20": {
+   "items": [
+    {
+     "text": "The supposed victim admits staging the disappearance to attract attention. The leader is furious. The villager must repair the harm, including apologizing to those falsely accused.",
+     "src": "L5297-5299"
+    }
+   ]
+  },
+  "v9_r21": {
+   "items": [
+    {
+     "text": "The court is interrupted by a child demanding to know whether slugs have property rights. The judge closes (coda1.his/her) eyes.",
+     "src": "L5301-5302"
+    }
+   ]
+  },
+  "v9_r22": {
+   "items": [
+    {
+     "text": "The inventor's spectacular creation disintegrates into rotten wood dust. The rival laughs, then sees the inventor's face and stops.",
+     "src": "L5304-5305"
+    }
+   ]
+  },
+  "v9_r23": {
+   "items": [
+    {
+     "text": "'I thought if I won, you'd finally be proud of me,' the apprentice whispers. The mentor says, 'I should have told you sooner.'",
+     "src": "L5307-5308"
+    }
+   ]
+  },
+  "v9_r24": {
+   "items": [
+    {
+     "text": "No one reconciles. The village still needs dinner. Two bitter enemies pass bowls across the table without speaking. It is a start.",
+     "src": "L5310-5311"
+    }
+   ]
+  },
+  "v9_r25": {
+   "items": [
+    {
+     "text": "The whole argument began because somebody labeled a jar of crushed snail shells 'PEARLS.' The inventor refuses to change the label.",
+     "src": "L5313-5314"
+    }
+   ]
+  },
+  "v9_r26": {
+   "items": [
+    {
+     "text": "The neutral judge resigns from all future slug-related litigation. A child asks whether this includes snails. The judge says, 'Especially.'",
+     "src": "L5316-5317"
+    }
+   ]
+  },
+  "v10_o1": {
+   "items": [
+    {
+     "text": "(Subject) finds that the usual conversations stop when (subject.he/she) approaches. A friend finally says, \"I don't know what to believe.\" The uncertainty hurts almost as much as the accusation.",
+     "src": "L5933-5936"
+    }
+   ]
+  },
+  "v10_o2": {
+   "items": [
+    {
+     "text": "The disastrous invention becomes a joke at every feast. At first (Subject) laughs along. Then one day (subject.he/she) doesn't. Someone finally notices.",
+     "src": "L5939-5941"
+    }
+   ]
+  },
+  "v10_o3": {
+   "items": [
+    {
+     "text": "A cruel nickname catches on. A teacher challenges it: \"One foolish decision does not define a person.\" A child repeats the lesson more loudly than expected.",
+     "src": "L5944-5946"
+    }
+   ]
+  },
+  "v10_o4": {
+   "items": [
+    {
+     "text": "(Subject) establishes an \"INSTITUTE OF IMPROBABLE MATERIALS\" in a shed. Its first experiment involves fermented fruit juice, yeast, and a very expensive pearl. The village leaders demand an inventory.",
+     "src": "L5949-5952"
+    }
+   ]
+  },
+  "v10_o5": {
+   "items": [
+    {
+     "text": "After several wise recommendations, (Subject) is asked to advise the leaders regularly. (subject.He/She) accepts, then discovers the position involves listening to arguments about whose goat ate whose tree bark.",
+     "src": "L5955-5958"
+    }
+   ]
+  },
+  "v10_o6": {
+   "items": [
+    {
+     "text": "The former troublemaker becomes a teacher and warns the children not to repeat (coda1.his/her) mistakes. Naturally, they ask for detailed instructions.",
+     "src": "L5961-5963"
+    }
+   ]
+  },
+  "v10_o7": {
+   "items": [
+    {
+     "text": "The experienced healer is selected to coordinate care. (coda1.He/She) insists that the title is less important than training, hygiene, and listening to patients.",
+     "src": "L5966-5969"
+    }
+   ]
+  },
+  "v10_o8": {
+   "items": [
+    {
+     "text": "The new research lead announces a strict rule: \"NO MORE UNLABELED POWDERS.\" Someone asks whether this includes pulverized gemstones. \"ESPECIALLY THOSE.\"",
+     "src": "L5972-5975"
+    }
+   ]
+  },
+  "v10_o9": {
+   "items": [
+    {
+     "text": "The village's most dependable farmer is asked to coordinate the harvest. The first decree is that nobody may use cave guano as table seasoning.",
+     "src": "L5978-5980"
+    }
+   ]
+  },
+  "v10_o10": {
+   "items": [
+    {
+     "text": "The Master Builder receives the office after years of dependable work. (coda1.He/She) celebrates by repairing the same crooked bench that started (coda1.his/her) career.",
+     "src": "L5983-5986"
+    }
+   ]
+  },
+  "v10_o11": {
+   "items": [
+    {
+     "text": "The community honors a villager known for patient service and wisdom. The villager declines an elaborate crown and asks for a quieter ceremony.",
+     "src": "L5989-5991"
+    }
+   ]
+  },
+  "v10_o12": {
+   "items": [
+    {
+     "text": "The Magician's appointment is celebrated with an elaborate ritual. The ceremony goes perfectly until the decorative vines catch on a stool.",
+     "src": "L5994-5996",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "v10_o13": {
+   "items": [
+    {
+     "text": "The Naturalist is appointed after years of careful stewardship. The first public address is interrupted by a slug crawling over the notes. The Naturalist calls it \"an excellent teaching opportunity.\"",
+     "src": "L5999-6002",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "v10_o14": {
+   "items": [
+    {
+     "text": "The council corrects a false accusation before the entire village. (Subject) accepts the apology but says, \"I wish you had asked me first.\"",
+     "src": "L6005-6007"
+    }
+   ]
+  },
+  "v10_o15": {
+   "items": [
+    {
+     "text": "The wrongdoer apologizes sincerely. The injured person says, \"I believe you're sorry. I am still angry.\" The apology remains valid; the anger remains real.",
+     "src": "L6010-6013"
+    }
+   ]
+  },
+  "v10_o16": {
+   "items": [
+    {
+     "text": "The village grants (Subject) another opportunity under sensible supervision. (subject.He/She) succeeds quietly and resists the urge to make a speech.",
+     "src": "L6016-6018"
+    }
+   ]
+  },
+  "v10_o17": {
+   "items": [
+    {
+     "text": "The two villagers never become friends. They do, however, stop trying to ruin each other's work. The village considers this tremendous progress.",
+     "src": "L6021-6023"
+    }
+   ]
+  },
+  "v10_o18": {
+   "items": [
+    {
+     "text": "A child announces that (Subject) is now \"HEAD OF THE DEPARTMENT OF TERRIBLE IDEAS.\" (Subject) bows deeply and demands an office.",
+     "src": "L6026-6028"
+    }
+   ]
+  },
+  "v10_o19": {
+   "items": [
+    {
+     "text": "After days of avoidance, someone sits beside (Subject) and offers a piece of bread. They do not discuss the scandal. Not yet.",
+     "src": "L6031-6033"
+    }
+   ]
+  },
+  "v10_o20": {
+   "items": [
+    {
+     "text": "An elderly villager who once mocked (Subject) says, \"I was wrong about you.\" (Subject) answers, \"I've waited years to hear that.\"",
+     "src": "L6036-6038"
+    }
+   ]
+  },
+  "v10_o21": {
+   "items": [
+    {
+     "text": "(Subject) confesses to damaging the workshop, convinced that (subject.his/her) experiment caused it. A careful investigation shows the damage predated the experiment. The relief leaves (Subject) shaking.",
+     "src": "L6041-6045"
+    }
+   ]
+  },
+  "v10_o22": {
+   "items": [
+    {
+     "text": "(Subject) admits taking the last piece of bread. The council points out that it was offered freely. (Subject) demands to be punished anyway. An elder prescribes an afternoon of rest.",
+     "src": "L6048-6051"
+    }
+   ]
+  },
+  "v10_o23": {
+   "items": [
+    {
+     "text": "The leaders offer (Subject) a senior role. (Subject) declines, saying, \"I like the work. I don't like meetings.\" The leaders respect the choice.",
+     "src": "L6054-6057"
+    }
+   ]
+  },
+  "v10_o24": {
+   "items": [
+    {
+     "text": "(Subject) offers to teach (Friend) a difficult skill. (Friend) refuses twice, then arrives before dawn on the third day, pretending to be passing by.",
+     "src": "L6060-6062"
+    }
+   ]
+  },
+  "v10_o25": {
+   "items": [
+    {
+     "text": "A defeated contestant shouts until (coda1.his/her) voice cracks, then bursts into tears. The organizers give (coda1.him/her) space. Later, (coda1.he/she) apologizes for the insults, not for feeling disappointed.",
+     "src": "L6065-6069"
+    }
+   ]
+  },
+  "v10_o26": {
+   "items": [
+    {
+     "text": "The village unveils a commemorative statue of its new advisor. The advisor stares at it. \"Why do I have seven teeth?\" The sculptor replies, \"Artistic freedom.\"",
+     "src": "L6072-6075"
+    }
+   ]
+  },
+  "v10_o27": {
+   "items": [
+    {
+     "text": "A quiet worker is appointed head of a field after years of unglamorous service. The loudest candidate complains. An apprentice says, \"You never noticed who did the work.\"",
+     "src": "L6078-6081"
+    }
+   ]
+  },
+  "v10_o28": {
+   "items": [
+    {
+     "text": "(Subject) makes one impressive gesture, then immediately returns to old habits. The village declines to restore (subject.his/her) responsibilities until behavior improves.",
+     "src": "L6084-6087"
+    }
+   ]
+  },
+  "v10_o29": {
+   "items": [
+    {
+     "text": "A child asks the adults why they are laughing at someone who is trying to learn. Nobody has a satisfying answer.",
+     "src": "L6090-6092"
+    }
+   ]
+  },
+  "v10_o30": {
+   "items": [
+    {
+     "text": "Years later, a young villager asks whether the famous snail-shell incident really happened. (Subject) sighs. \"Which version?\"",
+     "src": "L6095-6097"
+    }
+   ]
+  },
+  "v9_materials": {
+   "items": [
+    {
+     "text": "crushed-up snail shells",
+     "src": "L4524"
+    },
+    {
+     "text": "tree bark",
+     "src": "L4525"
+    },
+    {
+     "text": "volcanic ash",
+     "src": "L4526"
+    },
+    {
+     "text": "tough vines",
+     "src": "L4527"
+    },
+    {
+     "text": "animal rawhide",
+     "src": "L4528"
+    },
+    {
+     "text": "animal entrails",
+     "src": "L4529"
+    },
+    {
+     "text": "pulverized gemstones",
+     "src": "L4530"
+    },
+    {
+     "text": "polished pearls",
+     "src": "L4531"
+    },
+    {
+     "text": "eyeballs",
+     "src": "L4532"
+    },
+    {
+     "text": "spider silk",
+     "src": "L4533"
+    },
+    {
+     "text": "rotten wood",
+     "src": "L4534"
+    },
+    {
+     "text": "fermented yogurt",
+     "src": "L4535"
+    },
+    {
+     "text": "yeast",
+     "src": "L4536"
+    },
+    {
+     "text": "slugs",
+     "src": "L4537"
+    },
+    {
+     "text": "slug slime",
+     "src": "L4538"
+    },
+    {
+     "text": "cave guano",
+     "src": "L4539"
+    }
+   ],
+   "distinct": true
+  },
+  "v8_c2_builder_child": {
+   "items": [
+    {
+     "text": "The adult kneels to the child's eye level. \"I was impatient. You didn't deserve that.\" The child {forgives (builder.him/her)|says (child.he/she) is still upset|asks whether they can try again tomorrow}. The adult accepts the answer.",
+     "src": "L4342-4346"
+    }
+   ]
+  },
+  "v8_c12_builder_child": {
+   "items": [
+    {
+     "text": "A famously critical Master Builder examines an apprentice's work. After a long silence, (builder.he/she) says, \"That joint is acceptable.\" The apprentice looks as though (child.he/she) has been crowned ruler of the entire island.",
+     "src": "L4409-4412"
+    }
+   ]
+  },
+  "v8_c16_elder": {
+   "items": [
+    {
+     "text": "An elder watches a child demonstrate a skill (elder.he/she) once taught. The child's hands move with confidence. \"You're getting good at this,\" the elder says. \"I had a good teacher,\" the child replies. The elder looks away before the child can see the tears.",
+     "src": "L4435-4439"
+    }
+   ]
+  },
+  "v8_c5_parent": {
+   "items": [
+    {
+     "text": "A nursing parent finally finds a quiet place to sit with the baby. Someone approaches with a request, sees the exhausted expression, and quietly turns away. For five glorious minutes, nobody needs anything else from (parent.him/her).",
+     "src": "L4365-4368"
+    }
+   ]
+  },
+  "v8_c4_elder": {
+   "items": [
+    {
+     "text": "An elder gives advice that turns out to be mistaken. At first, (elder.he/she) insists the younger villagers must have misunderstood. Then the evidence becomes impossible to ignore. \"Well,\" the elder says. \"I suppose being old doesn't make me right about everything.\" A child asks whether this means the elder will stop giving advice. \"Absolutely not.\"",
+     "src": "L4356-4362"
+    }
+   ]
+  },
+  "v9_r5_child": {
+   "items": [
+    {
+     "text": "A villager confesses because (child.he/she) genuinely believes a careless thought caused the disaster. A trusted adult explains the difference between wishing, fearing, and acting.",
+     "src": "L5243-5245"
+    }
+   ]
+  },
+  "v9_r7_friend": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (friend.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
+  },
+  "v9_r13_culprit": {
+   "items": [
+    {
+     "text": "The culprit's punishment is to rebuild the object (culprit.he/she) destroyed. The victim watches and says, 'That doesn't make us even.' 'I know,' the culprit replies.",
+     "src": "L5271-5273"
+    }
+   ]
+  },
+  "v9_r7_apprentice": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (apprentice.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
+  },
+  "v17_u1": {
+   "items": [
+    {
+     "text": "A boastful master loses to a nervous novice and offers a grudging lesson.",
+     "src": "L8076"
+    }
+   ]
+  },
+  "v17_u2": {
+   "items": [
+    {
+     "text": "The severe judge delivers a devastating critique, then recognizes the contestant's ingenuity and publicly apologizes.",
+     "src": "L8077-8078"
+    }
+   ]
+  },
+  "v17_u3": {
+   "items": [
+    {
+     "text": "A judge's favorite wins despite a clear flaw; the crowd demands a fair second test, which may vindicate or overturn the result.",
+     "src": "L8079-8080"
+    }
+   ]
+  },
+  "v17_u4": {
+   "items": [
+    {
+     "text": "The most hideous entry wins the audience's affection but not the technical prize. Its maker is delighted to be loved and furious to have lost.",
+     "src": "L8081-8082"
+    }
+   ]
+  },
+  "v17_u5": {
+   "items": [
+    {
+     "text": "A beautifully finished entry fails its practical test; an ugly but useful entry wins. The losers spend the evening arguing about what 'best' means.",
+     "src": "L8083-8084"
+    }
+   ]
+  },
+  "v17_u6": {
+   "items": [
+    {
+     "text": "A child inadvertently points out a flaw missed by every master.",
+     "src": "L8085"
+    }
+   ]
+  },
+  "v17_u7": {
+   "items": [
+    {
+     "text": "A contestant recites a familiar verse so badly that it becomes a popular comic song; an elder insists the original must still be taught accurately.",
+     "src": "L8086-8087"
+    }
+   ]
+  },
+  "v17_u8": {
+   "items": [
+    {
+     "text": "A competitor withdraws to help a rival whose work is falling apart; the crowd remembers the kindness longer than the announced winner.",
+     "src": "L8088-8089"
+    }
+   ]
+  },
+  "v17_u9": {
+   "items": [
+    {
+     "text": "The critic is caught accepting a gift. A second panel hears the evidence; no contestant is punished without proof of involvement.",
+     "src": "L8090-8091"
+    }
+   ]
+  },
+  "v17_u10": {
+   "items": [
+    {
+     "text": "Nobody wins because the judges discover an unsafe method. A practical lesson is held instead; prizes are postponed, not confiscated.",
+     "src": "L8092-8093"
+    }
+   ]
+  },
+  "v17_p1": {
+   "items": [
+    {
+     "text": "THE INSULT: A judge calls the rival tradition backward. The visitors threaten to leave. The organizers can demand a public apology or appoint a new judge; the competition resumes only if both sides agree.",
+     "src": "L8355-8357"
+    }
+   ]
+  },
+  "v17_p2": {
+   "items": [
+    {
+     "text": "THE ACCUSATION: The losing team alleges favoritism. A review finds either a real irregularity, a sincere misunderstanding, or no proof. No guilt or punishment is assigned before the review.",
+     "src": "L8358-8360"
+    }
+   ]
+  },
+  "v17_p3": {
+   "items": [
+    {
+     "text": "THE SECRET ALLIANCE: Two competitors have quietly been exchanging techniques for months. Their neighbors call it betrayal; the pair insist that sharing a recipe or craft does not surrender a belief.",
+     "src": "L8361-8363"
+    }
+   ]
+  },
+  "v17_p4": {
+   "items": [
+    {
+     "text": "THE SYMBOL: A winning entry includes a sign sacred to one community. Some cheer; others feel appropriated. The maker explains intent, listens to objections, and may revise the design without being forced.",
+     "src": "L8364-8366"
+    }
+   ]
+  },
+  "v17_p5": {
+   "items": [
+    {
+     "text": "THE UNEXPECTED VOTE: An Isolan judge gives first place to the player's villager. A player-tribe judge favors the Isolan entry. Both face angry whispers and defend the evidence behind their decisions.",
+     "src": "L8367-8369"
+    }
+   ]
+  },
+  "v17_p6": {
+   "items": [
+    {
+     "text": "THE BOYCOTT: A faction refuses to compete under the proposed rules. The organizers can postpone, negotiate or proceed with fewer entries; the absence is not falsely described as reconciliation.",
+     "src": "L8370-8372"
+    }
+   ]
+  },
+  "v17_p7": {
+   "items": [
+    {
+     "text": "THE SHARED VICTORY: A joint entry wins, but both communities argue over whose name should appear first. A child proposes writing both.",
+     "src": "L8373-8374"
+    }
+   ]
+  },
+  "v17_p8": {
+   "items": [
+    {
+     "text": "THE DEFEAT WITH DIGNITY: The losing competitor congratulates the winner publicly, then privately admits that the result still hurts.",
+     "src": "L8375-8376"
+    }
+   ]
+  },
+  "v17_p9": {
+   "items": [
+    {
+     "text": "THE TROPHY DISPUTE: The communities cannot agree where to display the award. They may alternate custody, make two commemorative carvings, or leave it with the actual winner regardless of affiliation.",
+     "src": "L8377-8379"
+    }
+   ]
+  },
+  "v17_p10": {
+   "items": [
+    {
+     "text": "THE UNWANTED HERO: A critic praises the rival community's work and becomes unpopular at home. The critic refuses to retract a fair judgment merely to satisfy the crowd.",
+     "src": "L8380-8382"
+    }
+   ]
+  },
+  "v17_e1": {
+   "items": [
+    {
+     "text": "The visitors depart with a trophy and a few new friends. Some elders still distrust the other community, but the children plan a rematch.",
+     "src": "L8464-8465"
+    }
+   ]
+  },
+  "v17_e2": {
+   "items": [
+    {
+     "text": "The festival ends in argument. A judge's careful written account prevents rumors from becoming accepted history.",
+     "src": "L8466-8467"
+    }
+   ]
+  },
+  "v17_e3": {
+   "items": [
+    {
+     "text": "The harshest critics meet privately and exchange recipes, techniques and insults with surprising affection.",
+     "src": "L8468-8469"
+    }
+   ]
+  },
+  "v17_e4": {
+   "items": [
+    {
+     "text": "The trophy is broken during the closing ceremony. Both communities accuse each other, then discover that a goat knocked it over.",
+     "src": "L8470-8471"
+    }
+   ]
+  },
+  "v17_e5": {
+   "items": [
+    {
+     "text": "No grand reconciliation occurs. Two competitors simply agree to practice together next season. For now, that is enough.",
+     "src": "L8472-8473"
+    }
+   ]
+  },
+  "v20_relics": {
+   "items": [
+    {
+     "text": "A smooth glowing black rectangle \\(smartphone\\).",
+     "src": "L9191"
+    },
+    {
+     "text": "A little box of voices \\(battery-powered radio\\).",
+     "src": "L9192"
+    },
+    {
+     "text": "A tiny fire-making wand \\(disposable lighter\\).",
+     "src": "L9193"
+    },
+    {
+     "text": "Two transparent seeing-stones joined by metal \\(eyeglasses\\).",
+     "src": "L9194"
+    },
+    {
+     "text": "A writing stick that needs no ink bowl \\(ballpoint pen\\).",
+     "src": "L9195"
+    },
+    {
+     "text": "A circle that remembers numbers \\(digital wristwatch\\).",
+     "src": "L9196"
+    },
+    {
+     "text": "A sealed cylinder marked with unknown symbols \\(battery\\).",
+     "src": "L9197"
+    },
+    {
+     "text": "A metal vessel containing strangely preserved food \\(food tin\\).",
+     "src": "L9198"
+    },
+    {
+     "text": "A portrait of impossible precision \\(printed photograph\\).",
+     "src": "L9199"
+    },
+    {
+     "text": "A singing shell with a turning handle \\(wind-up music box\\).",
+     "src": "L9200"
+    },
+    {
+     "text": "A tube emitting cold light without flame \\(LED flashlight\\).",
+     "src": "L9201"
+    },
+    {
+     "text": "A tiny metal-and-resin token with no visible purpose \\(USB drive\\).",
+     "src": "L9202"
+    }
+   ]
+  },
+  "v26_food": {
+   "items": [
+    {
+     "text": "breadfruit flour",
+     "src": "L10460"
+    },
+    {
+     "text": "grated taro",
+     "src": "L10460"
+    },
+    {
+     "text": "mashed yam",
+     "src": "L10460"
+    },
+    {
+     "text": "roasted sweet potato",
+     "src": "L10460"
+    },
+    {
+     "text": "green banana",
+     "src": "L10460-10461"
+    },
+    {
+     "text": "ripe banana",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut milk",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut cream",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut water",
+     "src": "L10461"
+    },
+    {
+     "text": "coconut flesh",
+     "src": "L10461-10462"
+    },
+    {
+     "text": "shredded coconut",
+     "src": "L10462"
+    },
+    {
+     "text": "palm sugar",
+     "src": "L10462"
+    },
+    {
+     "text": "wild honey",
+     "src": "L10462"
+    },
+    {
+     "text": "sugarcane syrup",
+     "src": "L10462"
+    },
+    {
+     "text": "fruit juice",
+     "src": "L10462-10463"
+    },
+    {
+     "text": "fermented fruit",
+     "src": "L10463"
+    },
+    {
+     "text": "sour citrus",
+     "src": "L10463"
+    },
+    {
+     "text": "guava",
+     "src": "L10463"
+    },
+    {
+     "text": "papaya",
+     "src": "L10463"
+    },
+    {
+     "text": "mango",
+     "src": "L10463"
+    },
+    {
+     "text": "starfruit",
+     "src": "L10463"
+    },
+    {
+     "text": "passionfruit",
+     "src": "L10464"
+    },
+    {
+     "text": "sea grapes",
+     "src": "L10464"
+    },
+    {
+     "text": "seaweed",
+     "src": "L10464"
+    },
+    {
+     "text": "edible flowers",
+     "src": "L10464"
+    },
+    {
+     "text": "fragrant leaves",
+     "src": "L10464"
+    },
+    {
+     "text": "banana leaves used as wrappers",
+     "src": "L10465"
+    },
+    {
+     "text": "fresh herbs",
+     "src": "L10465"
+    },
+    {
+     "text": "toasted seeds",
+     "src": "L10465"
+    },
+    {
+     "text": "ground nuts",
+     "src": "L10465"
+    },
+    {
+     "text": "rice where available",
+     "src": "L10466"
+    },
+    {
+     "text": "edible roots",
+     "src": "L10466"
+    },
+    {
+     "text": "wild mushrooms identified as safe",
+     "src": "L10466"
+    },
+    {
+     "text": "fish",
+     "src": "L10467"
+    },
+    {
+     "text": "smoked fish",
+     "src": "L10467"
+    },
+    {
+     "text": "shellfish",
+     "src": "L10467"
+    },
+    {
+     "text": "sea salt",
+     "src": "L10467"
+    },
+    {
+     "text": "brine",
+     "src": "L10467"
+    },
+    {
+     "text": "ocean water used only in appropriate cooking processes",
+     "src": "L10467-10468"
+    },
+    {
+     "text": "river water made safe for drinking",
+     "src": "L10468"
+    },
+    {
+     "text": "crushed ice or snow in exceptional settings",
+     "src": "L10468-10469"
+    }
+   ]
+  },
+  "v26_food_samples": {
+   "items": [
+    {
+     "text": "Sweet breadfruit cakes wrapped in banana leaves with guava syrup.",
+     "src": "L10472"
+    },
+    {
+     "text": "Roasted taro with coconut cream, herbs, and a pinch of sea salt.",
+     "src": "L10473"
+    },
+    {
+     "text": "A chilled fruit drink made from papaya, citrus, and crushed ice.",
+     "src": "L10474"
+    },
+    {
+     "text": "Smoked fish with sea grapes, toasted seeds, and fragrant leaves.",
+     "src": "L10475"
+    },
+    {
+     "text": "A tart fermented-fruit sauce that the entire village debates.",
+     "src": "L10476"
+    },
+    {
+     "text": "Thin breadfruit crisps served with a savory herb-and-coconut dip.",
+     "src": "L10477"
+    },
+    {
+     "text": "A layered sweet made with mashed yam, fruit pulp, and wild honey.",
+     "src": "L10478"
+    },
+    {
+     "text": "A bubbling beverage that is either a triumph or a sticky disaster.",
+     "src": "L10479"
+    }
+   ]
+  },
+  "v26_healing": {
+   "items": [
+    {
+     "text": "clean cloth",
+     "src": "L10482"
+    },
+    {
+     "text": "ripped-up cloth for nonsterile crafts",
+     "src": "L10482"
+    },
+    {
+     "text": "fresh bandages",
+     "src": "L10482"
+    },
+    {
+     "text": "woven grass splints",
+     "src": "L10482-10483"
+    },
+    {
+     "text": "smooth bamboo",
+     "src": "L10483"
+    },
+    {
+     "text": "boiled water",
+     "src": "L10483"
+    },
+    {
+     "text": "clean river water",
+     "src": "L10483"
+    },
+    {
+     "text": "sea salt",
+     "src": "L10483"
+    },
+    {
+     "text": "medicinal herbs",
+     "src": "L10484"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10484"
+    },
+    {
+     "text": "resin",
+     "src": "L10484"
+    },
+    {
+     "text": "wax",
+     "src": "L10484"
+    },
+    {
+     "text": "clay jars",
+     "src": "L10484"
+    },
+    {
+     "text": "ceramic bowls",
+     "src": "L10484"
+    },
+    {
+     "text": "ground mineral pigments",
+     "src": "L10484-10485"
+    },
+    {
+     "text": "plaster for casts or repairs",
+     "src": "L10485"
+    },
+    {
+     "text": "healing potions",
+     "src": "L10485"
+    },
+    {
+     "text": "previously brewed remedies",
+     "src": "L10485-10486"
+    },
+    {
+     "text": "strange stews",
+     "src": "L10486"
+    },
+    {
+     "text": "alchemical reagents",
+     "src": "L10486"
+    },
+    {
+     "text": "white powder of unknown identity",
+     "src": "L10486-10487"
+    },
+    {
+     "text": "smelly salts",
+     "src": "L10487"
+    },
+    {
+     "text": "sulfur",
+     "src": "L10487"
+    },
+    {
+     "text": "fish oil",
+     "src": "L10487"
+    },
+    {
+     "text": "plant oils",
+     "src": "L10487"
+    },
+    {
+     "text": "aromatic flowers",
+     "src": "L10487-10488"
+    },
+    {
+     "text": "moss",
+     "src": "L10488"
+    },
+    {
+     "text": "feathers used as tools",
+     "src": "L10488"
+    },
+    {
+     "text": "preserved hospital supplies",
+     "src": "L10488"
+    }
+   ]
+  },
+  "v26_healing_samples": {
+   "items": [
+    {
+     "text": "A plaster-and-bamboo support is surprisingly comfortable.",
+     "src": "L10491"
+    },
+    {
+     "text": "A carefully labeled herbal remedy becomes the hospital's pride.",
+     "src": "L10492"
+    },
+    {
+     "text": "A mislabeled white powder forces the healer to discard a batch.",
+     "src": "L10493"
+    },
+    {
+     "text": "A pungent salt jar clears the room before anyone tests it.",
+     "src": "L10494"
+    },
+    {
+     "text": "A sticky resin dressing inspires a better storage container.",
+     "src": "L10495"
+    },
+    {
+     "text": "An experimental stew smells so awful that nobody volunteers to taste it.",
+     "src": "L10496"
+    }
+   ]
+  },
+  "v26_building": {
+   "items": [
+    {
+     "text": "fallen timber",
+     "src": "L10499"
+    },
+    {
+     "text": "driftwood",
+     "src": "L10499"
+    },
+    {
+     "text": "seasoned hardwood",
+     "src": "L10499"
+    },
+    {
+     "text": "flexible branches",
+     "src": "L10499"
+    },
+    {
+     "text": "bamboo",
+     "src": "L10499"
+    },
+    {
+     "text": "palm fronds",
+     "src": "L10500"
+    },
+    {
+     "text": "woven reeds",
+     "src": "L10500"
+    },
+    {
+     "text": "woven grass",
+     "src": "L10500"
+    },
+    {
+     "text": "coconut shells",
+     "src": "L10500"
+    },
+    {
+     "text": "coconut fibers",
+     "src": "L10500"
+    },
+    {
+     "text": "coir rope",
+     "src": "L10501"
+    },
+    {
+     "text": "barkcloth",
+     "src": "L10501"
+    },
+    {
+     "text": "ripped-up cloth",
+     "src": "L10501"
+    },
+    {
+     "text": "animal skins",
+     "src": "L10501"
+    },
+    {
+     "text": "animal hides",
+     "src": "L10501"
+    },
+    {
+     "text": "animal leather",
+     "src": "L10501-10502"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10502"
+    },
+    {
+     "text": "feathers",
+     "src": "L10502"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10502"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10502"
+    },
+    {
+     "text": "shells",
+     "src": "L10502"
+    },
+    {
+     "text": "pebbles",
+     "src": "L10503"
+    },
+    {
+     "text": "crushed rocks",
+     "src": "L10503"
+    },
+    {
+     "text": "gravel",
+     "src": "L10503"
+    },
+    {
+     "text": "dirt",
+     "src": "L10503"
+    },
+    {
+     "text": "mud",
+     "src": "L10503"
+    },
+    {
+     "text": "river clay",
+     "src": "L10503"
+    },
+    {
+     "text": "wet sand",
+     "src": "L10503"
+    },
+    {
+     "text": "dry sand",
+     "src": "L10503-10504"
+    },
+    {
+     "text": "limestone",
+     "src": "L10504"
+    },
+    {
+     "text": "plaster",
+     "src": "L10504"
+    },
+    {
+     "text": "resin",
+     "src": "L10504"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10504"
+    },
+    {
+     "text": "rubber",
+     "src": "L10504"
+    },
+    {
+     "text": "natural latex",
+     "src": "L10504"
+    },
+    {
+     "text": "charcoal",
+     "src": "L10505"
+    },
+    {
+     "text": "ash",
+     "src": "L10505"
+    },
+    {
+     "text": "glass",
+     "src": "L10505"
+    },
+    {
+     "text": "sea glass",
+     "src": "L10505"
+    },
+    {
+     "text": "metal",
+     "src": "L10505"
+    },
+    {
+     "text": "copper",
+     "src": "L10505"
+    },
+    {
+     "text": "bronze",
+     "src": "L10505"
+    },
+    {
+     "text": "iron",
+     "src": "L10505"
+    },
+    {
+     "text": "stone blades",
+     "src": "L10505-10506"
+    },
+    {
+     "text": "polished stones",
+     "src": "L10506"
+    },
+    {
+     "text": "paper",
+     "src": "L10506"
+    },
+    {
+     "text": "woven mats",
+     "src": "L10506"
+    },
+    {
+     "text": "pigments",
+     "src": "L10506"
+    },
+    {
+     "text": "carved bone",
+     "src": "L10506"
+    }
+   ]
+  },
+  "v26_building_samples": {
+   "items": [
+    {
+     "text": "Fallen timber beams tied with coconut-fiber rope.",
+     "src": "L10509"
+    },
+    {
+     "text": "A rainproof roof of overlapping palm fronds and resin-sealed reeds.",
+     "src": "L10510"
+    },
+    {
+     "text": "A flexible bridge of bamboo, woven grass, and braided coir.",
+     "src": "L10511"
+    },
+    {
+     "text": "A decorative wall of river stones, mud plaster, and sea glass.",
+     "src": "L10512"
+    },
+    {
+     "text": "A wind-driven mechanism using wood, leather straps, and metal gears.",
+     "src": "L10513"
+    },
+    {
+     "text": "A waterproof basket woven from reeds and sealed with tree sap.",
+     "src": "L10514"
+    },
+    {
+     "text": "A paper-and-bamboo star chart protected in a carved wooden case.",
+     "src": "L10515"
+    },
+    {
+     "text": "A springy sandal made with rubber, woven cloth, and soft leather.",
+     "src": "L10516"
+    }
+   ]
+  },
+  "v26_specimens": {
+   "items": [
+    {
+     "text": "sulfur",
+     "src": "L10519"
+    },
+    {
+     "text": "volcanic ash",
+     "src": "L10519"
+    },
+    {
+     "text": "mineral crystals",
+     "src": "L10519"
+    },
+    {
+     "text": "powdered limestone",
+     "src": "L10519"
+    },
+    {
+     "text": "white powder",
+     "src": "L10519-10520"
+    },
+    {
+     "text": "smelly salts",
+     "src": "L10520"
+    },
+    {
+     "text": "alchemical reagents",
+     "src": "L10520"
+    },
+    {
+     "text": "resin",
+     "src": "L10520"
+    },
+    {
+     "text": "rubber",
+     "src": "L10520"
+    },
+    {
+     "text": "ambergris",
+     "src": "L10520"
+    },
+    {
+     "text": "rafflesia musk",
+     "src": "L10521"
+    },
+    {
+     "text": "fermented fruit",
+     "src": "L10521"
+    },
+    {
+     "text": "rotting meat",
+     "src": "L10521"
+    },
+    {
+     "text": "dung",
+     "src": "L10521"
+    },
+    {
+     "text": "pig sweat",
+     "src": "L10521"
+    },
+    {
+     "text": "animal entrails",
+     "src": "L10521-10522"
+    },
+    {
+     "text": "animal skins",
+     "src": "L10522"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10522"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10522"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10522"
+    },
+    {
+     "text": "shed feathers",
+     "src": "L10522-10523"
+    },
+    {
+     "text": "firefly wings",
+     "src": "L10523"
+    },
+    {
+     "text": "butterfly chrysalises",
+     "src": "L10523"
+    },
+    {
+     "text": "insect bits",
+     "src": "L10523"
+    },
+    {
+     "text": "grubs",
+     "src": "L10523"
+    },
+    {
+     "text": "worms",
+     "src": "L10524"
+    },
+    {
+     "text": "empty cocoons",
+     "src": "L10524"
+    },
+    {
+     "text": "river sediment",
+     "src": "L10524"
+    },
+    {
+     "text": "ocean salt",
+     "src": "L10524"
+    },
+    {
+     "text": "sand",
+     "src": "L10524"
+    },
+    {
+     "text": "glass",
+     "src": "L10524"
+    },
+    {
+     "text": "pebbles",
+     "src": "L10524"
+    },
+    {
+     "text": "crushed rocks",
+     "src": "L10525"
+    },
+    {
+     "text": "tree sap",
+     "src": "L10525"
+    },
+    {
+     "text": "plant dyes",
+     "src": "L10525"
+    },
+    {
+     "text": "strange stews",
+     "src": "L10525"
+    },
+    {
+     "text": "unidentified bottles from forgotten ruins",
+     "src": "L10525-10526"
+    }
+   ]
+  },
+  "v26_clothing": {
+   "items": [
+    {
+     "text": "barkcloth",
+     "src": "L10535"
+    },
+    {
+     "text": "paper",
+     "src": "L10535"
+    },
+    {
+     "text": "dyed cloth",
+     "src": "L10535"
+    },
+    {
+     "text": "torn cloth",
+     "src": "L10535"
+    },
+    {
+     "text": "woven grass",
+     "src": "L10535"
+    },
+    {
+     "text": "woven reeds",
+     "src": "L10535"
+    },
+    {
+     "text": "palm fronds",
+     "src": "L10536"
+    },
+    {
+     "text": "banana leaves",
+     "src": "L10536"
+    },
+    {
+     "text": "coconut fibers",
+     "src": "L10536"
+    },
+    {
+     "text": "polished coconut shells",
+     "src": "L10536"
+    },
+    {
+     "text": "feathers",
+     "src": "L10537"
+    },
+    {
+     "text": "animal fur",
+     "src": "L10537"
+    },
+    {
+     "text": "hides",
+     "src": "L10537"
+    },
+    {
+     "text": "leather",
+     "src": "L10537"
+    },
+    {
+     "text": "fish scales",
+     "src": "L10537"
+    },
+    {
+     "text": "lizard scales",
+     "src": "L10537"
+    },
+    {
+     "text": "shell beads",
+     "src": "L10538"
+    },
+    {
+     "text": "sea glass",
+     "src": "L10538"
+    },
+    {
+     "text": "colored sand",
+     "src": "L10538"
+    },
+    {
+     "text": "clay pigments",
+     "src": "L10538"
+    },
+    {
+     "text": "mineral powder",
+     "src": "L10538"
+    },
+    {
+     "text": "charcoal ink",
+     "src": "L10539"
+    },
+    {
+     "text": "flower petals",
+     "src": "L10539"
+    },
+    {
+     "text": "fragrant herbs",
+     "src": "L10539"
+    },
+    {
+     "text": "resin",
+     "src": "L10539"
+    },
+    {
+     "text": "carved wood",
+     "src": "L10539"
+    },
+    {
+     "text": "hammered metal ornaments",
+     "src": "L10540"
+    },
+    {
+     "text": "polished pebbles",
+     "src": "L10540"
+    }
+   ]
+  },
+  "v26_clothing_samples": {
+   "items": [
+    {
+     "text": "A ceremonial cape of dyed barkcloth and iridescent fish scales.",
+     "src": "L10543"
+    },
+    {
+     "text": "A fashionable hat woven from palm fronds and bright feathers.",
+     "src": "L10544"
+    },
+    {
+     "text": "A mosaic portrait made of sea glass, sand, and colored pebbles.",
+     "src": "L10545"
+    },
+    {
+     "text": "A ridiculous new dance performed in jingling coconut-shell anklets.",
+     "src": "L10546"
+    },
+    {
+     "text": "A paper-and-reed lantern festival that becomes a village tradition.",
+     "src": "L10547"
+    },
+    {
+     "text": "A leather-and-feather costume that everyone either loves or mocks.",
+     "src": "L10548"
+    }
+   ]
+  },
+  "v26_invention_examples": {
+   "items": [
+    {
+     "text": "A glass lens framed in bronze reveals tiny creatures in pond water.",
+     "src": "L10559"
+    },
+    {
+     "text": "A clay vessel, sea salt, and an unusual cooling technique produce a surprising new way to preserve food.",
+     "src": "L10560-10561"
+    },
+    {
+     "text": "A machine built from driftwood, rubber, and metal springs leaps across the workshop and is declared either genius or a menace.",
+     "src": "L10562-10563"
+    },
+    {
+     "text": "An artist's layered paper and mineral pigments create a new technique for recording maps and stories.",
+     "src": "L10564-10565"
+    },
+    {
+     "text": "A curious scholar notices patterns in firefly flashes and begins recording observations on barkcloth.",
+     "src": "L10566-10567"
+    },
+    {
+     "text": "A tailor invents a spectacularly impractical feathered cape that becomes the season's most copied fashion.",
+     "src": "L10568-10569"
+    }
+   ]
+  }
+ }
+}

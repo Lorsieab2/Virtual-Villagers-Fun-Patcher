@@ -1,0 +1,927 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Doctors' Dilemma",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_doctors_dilemma",
+  "source": "v26",
+  "lines": [
+   1474,
+   1659
+  ],
+  "section": "universal",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* Universal events 1–5 (Grand Isolan Scholasticon; Great Beautification\n  Project; Doctors' Dilemma; Everybody's a Winner?; Great Isolan\n  Storytelling Contest): event prose and branching written by ChatGPT,\n  developed in response to Lorsieab2's requested scope and themes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1475",
+  "ledger": [
+   {
+    "src": "L1476",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L1483",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1495",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1503",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1518-1521",
+    "kind": "instruction",
+    "why": "consent rule for the engine and author, never displayed (inventory part 1, event 6)"
+   },
+   {
+    "src": "L1545",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1556",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1569",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1583",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1596-1598",
+    "kind": "instruction",
+    "why": "(5) is drawn with equal weights, independent of the choice"
+   },
+   {
+    "src": "L1600",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L1608",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L1622-1624",
+    "kind": "note",
+    "why": "designer note, never displayed"
+   },
+   {
+    "src": "L1626",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L1641-1642",
+    "kind": "instruction",
+    "why": "the kill effect on the death page"
+   },
+   {
+    "src": "L1644",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L1656-1657",
+    "kind": "instruction",
+    "why": "the reward branch after the aftermath (one of the three, equally)"
+   },
+   {
+    "src": "L1658-1659",
+    "kind": "note",
+    "why": "designer note, never displayed"
+   }
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  },
+  "Chief": {
+   "3": "The Chief",
+   "*": "The village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer1": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "healer2": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "leader": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "healer3": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a severe infection that has spread despite ordinary treatment",
+     "src": "L1484"
+    },
+    {
+     "text": "an injury that threatens the use of one of (patient.his/her) limbs",
+     "src": "L1485"
+    },
+    {
+     "text": "a dangerous fever with an uncertain cause",
+     "src": "L1486"
+    },
+    {
+     "text": "a complicated illness requiring a scarce medicinal ingredient",
+     "src": "L1487"
+    },
+    {
+     "text": "an accident that has left (patient.him/her) unconscious",
+     "src": "L1488"
+    },
+    {
+     "text": "a condition that may worsen if treatment is delayed",
+     "src": "L1489"
+    },
+    {
+     "text": "a mysterious illness that the healers have never encountered before",
+     "src": "L1490"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "to attempt a risky treatment that might save the patient's life",
+     "src": "L1496",
+     "if": {
+      "visited": "pair1"
+     }
+    },
+    {
+     "text": "to use the last supply of a rare medicinal ingredient",
+     "src": "L1497",
+     "if": {
+      "visited": "pair2"
+     }
+    },
+    {
+     "text": "to transfer the patient to a distant healing site",
+     "src": "L1498",
+     "if": {
+      "visited": "pair3"
+     }
+    },
+    {
+     "text": "to continue established treatment and monitor (patient.him/her) closely",
+     "src": "L1499",
+     "if": {
+      "visited": "pair4"
+     }
+    },
+    {
+     "text": "to isolate the patient until the cause of the illness is known",
+     "src": "L1500",
+     "if": {
+      "visited": "pair5"
+     }
+    },
+    {
+     "text": "to respect the patient's refusal of a proposed treatment",
+     "src": "L1501",
+     "if": {
+      "visited": "pair6"
+     }
+    }
+   ]
+  },
+  "C": {
+   "set": "C",
+   "items": [
+    {
+     "text": "the treatment could cause serious complications",
+     "src": "L1504",
+     "if": {
+      "visited": "pair1"
+     }
+    },
+    {
+     "text": "another patient may need the medicine just as urgently",
+     "src": "L1505",
+     "if": {
+      "visited": "pair2"
+     }
+    },
+    {
+     "text": "the journey itself may be dangerous",
+     "src": "L1506",
+     "if": {
+      "visited": "pair3"
+     }
+    },
+    {
+     "text": "waiting could allow the illness to progress",
+     "src": "L1507",
+     "if": {
+      "visited": "pair4"
+     }
+    },
+    {
+     "text": "isolation may separate the patient from loved ones unnecessarily",
+     "src": "L1508",
+     "if": {
+      "visited": "pair5"
+     }
+    },
+    {
+     "text": "the patient may not have understood the consequences of refusing",
+     "src": "L1509",
+     "if": {
+      "visited": "pair6"
+     }
+    }
+   ]
+  },
+  "AFTER": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "{@Chief} revises the law to clarify emergency exceptions.",
+     "src": "L1645"
+    },
+    {
+     "text": "The healers improve the way they explain treatments and risks.",
+     "src": "L1646"
+    },
+    {
+     "text": "The village creates a fairer process for allocating scarce medicine.",
+     "src": "L1647"
+    },
+    {
+     "text": "The healers remain divided, but agree to treat one another respectfully and review the evidence as it develops.",
+     "src": "L1648-1649"
+    },
+    {
+     "text": "(Healer1) and (healer2) quietly apologize for harsh words exchanged during the crisis.",
+     "src": "L1650-1651"
+    },
+    {
+     "text": "The village holds a small ceremony in honor of the patient.",
+     "src": "L1652",
+     "if": {
+      "visited": "death"
+     }
+    },
+    {
+     "text": "Nothing dramatic happens. The healers return to work, carrying what they learned into the next difficult decision.",
+     "src": "L1653-1654"
+    }
+   ]
+  },
+  "RULE": {
+   "set": "rule",
+   "items": [
+    {
+     "text": "{@chief}'s approval for certain treatments",
+     "src": "L1511-1512"
+    },
+    {
+     "text": "the protection of scarce medicine",
+     "src": "L1512"
+    },
+    {
+     "text": "isolation during suspected outbreaks",
+     "src": "L1513"
+    },
+    {
+     "text": "a formal decision by the healers",
+     "src": "L1513"
+    }
+   ]
+  }
+ },
+ "start": "pairs",
+ "nodes": {
+  "intro": {
+   "name": "The patient",
+   "src": "L1479-1481,L1492-1493,L1511-1513,L1515-1516",
+   "text": "A villager, (patient), has been brought to the hospital in serious condition. The healers believe that (patient.he/she) is suffering from {A}, but they cannot agree on what to do next.\n(Healer1) believes that the best course of action is {B}. (Healer2) disagrees, arguing that {C}.\nTo make matters worse, the village has a rule requiring {RULE}.\nThe rule was intended to protect the villagers. But in this case, following it might not be the same as doing what seems compassionate.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "What to do",
+   "src": "L1523",
+   "text": "What should the healers do?",
+   "choices": [
+    {
+     "label": "FOLLOW THE ESTABLISHED RULE",
+     "next": "rule",
+     "src": "L1525"
+    },
+    {
+     "label": "SEEK AN EXCEPTION",
+     "next": "exception",
+     "src": "L1530"
+    },
+    {
+     "label": "PRIORITIZE THE PATIENT'S INFORMED CHOICE",
+     "next": "voice",
+     "src": "L1535"
+    },
+    {
+     "label": "CALL A COUNCIL OF HEALERS",
+     "next": "council",
+     "src": "L1541"
+    }
+   ]
+  },
+  "rule": {
+   "src": "L1526-1528",
+   "text": "The healers follow the village's procedure, even though it may take precious time. (Healer1) is {relieved|frustrated|anxious}. (Healer2) insists that rules exist for a reason.",
+   "children": [
+    {
+     "next": "rule_set"
+    }
+   ]
+  },
+  "rule_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    },
+    {
+     "next": "r4"
+    }
+   ]
+  },
+  "r1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1546-1547",
+   "text": "The approval arrives in time. The patient receives treatment.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "r2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1548-1549",
+   "text": "The rule prevents a dangerous and poorly understood treatment. The healers use a safer alternative.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "r3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1550-1552",
+   "text": "The delay causes a serious disagreement among the healers. By the time approval arrives, the patient's condition has changed.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "r4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1553-1554",
+   "text": "The healers discover that the rule was never intended for emergencies. {@Chief} clarifies it for future cases.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "exception": {
+   "src": "L1531-1533",
+   "text": "The healers explain the situation to {@chief} and request permission to depart from the usual procedure. {@Chief} {listens carefully|looks deeply troubled|asks a great many questions}.",
+   "children": [
+    {
+     "next": "exception_set"
+    }
+   ]
+  },
+  "exception_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1557-1558",
+   "text": "{@Chief} grants an exception after hearing the medical evidence and the patient's wishes.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "e2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1559-1561",
+   "text": "{@Chief} refuses, fearing that an exception would be unfair to other villagers. The healers seek another acceptable treatment.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "e3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1562-1564",
+   "text": "{@Chief} admits that (leader.he/she) does not understand the medicine well enough to decide alone. The healers are asked to explain their reasoning before the council.",
+   "children": [
+    {
+     "next": "council_set"
+    }
+   ]
+  },
+  "e4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1565-1567",
+   "text": "{@Chief} authorizes emergency treatment, then orders a review of the village's laws so the same dilemma is less likely to recur.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "voice": {
+   "src": "L1536-1538",
+   "text": "The healers explain the available treatments, their risks, and the uncertainties. They listen to what (patient) wants, or consult (patient.his/her) appropriate representative if (patient.he/she) cannot decide.",
+   "children": [
+    {
+     "next": "voice_set"
+    }
+   ]
+  },
+  "voice_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "v1"
+    },
+    {
+     "next": "v2"
+    },
+    {
+     "next": "v3"
+    },
+    {
+     "next": "v4"
+    },
+    {
+     "next": "v5"
+    }
+   ]
+  },
+  "v1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1570-1571",
+   "text": "(Patient) accepts the proposed treatment after asking several difficult questions.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "v2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1572-1574",
+   "text": "(Patient) refuses the risky treatment and chooses a less aggressive approach. The healers respect the informed decision.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "v3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1575-1576",
+   "text": "The patient cannot communicate, but a trusted representative describes (patient.his/her) previously expressed wishes.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "v4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1577-1578",
+   "text": "The patient asks for time to speak with loved ones. If medically possible, the healers give (patient.him/her) that time.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "v5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1579-1581",
+   "text": "The patient says, \"I don't want everyone arguing about me as though I'm not here.\" The healers fall silent and listen.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "council": {
+   "src": "L1542-1543",
+   "text": "The healers gather their colleagues to review the evidence, consider the patient's wishes, and decide what can be justified.",
+   "children": [
+    {
+     "next": "council_set"
+    }
+   ]
+  },
+  "council_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    },
+    {
+     "next": "c5"
+    }
+   ]
+  },
+  "c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1584-1585",
+   "text": "The healers reach a consensus after reviewing the available evidence.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "c2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1586-1587",
+   "text": "The healers disagree, but identify a reasonable compromise that respects the patient's wishes.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "c3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1588-1589",
+   "text": "One healer admits that (healer3.he/she) was mistaken about an important detail. The others thank (healer3.him/her) for speaking up.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1590-1592",
+   "text": "The discussion reveals that two patients need the same scarce medicine. The healers use consistent clinical criteria rather than favoritism to decide how it should be allocated.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L1593-1594",
+   "text": "The council remains divided. The healers document the uncertainty and choose a defensible course of action.",
+   "children": [
+    {
+     "next": "outcome"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "recovery"
+    },
+    {
+     "next": "disability"
+    },
+    {
+     "next": "death"
+    }
+   ]
+  },
+  "recovery": {
+   "name": "Full recovery",
+   "src": "L1601-1606",
+   "text": "After several difficult days, (patient)'s condition begins to improve. The fever subsides, (patient.his/her) strength returns, and the healers are finally able to breathe a sigh of relief.\n(patient.He/She) eventually makes a full recovery. The village celebrates quietly, grateful that the treatment worked.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L1606"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "disability": {
+   "name": "Lasting effects",
+   "src": "L1609-1620",
+   "text": "(Patient) survives, but the illness or injury has lasting effects. (patient.He/She) now has {reduced mobility in one limb|persistent weakness|difficulty with certain tasks|a lasting impairment that requires assistance}.\nThe healers explain what they know and what remains uncertain. The village helps (patient.him/her) adapt, making room for (patient.his/her) needs without treating (patient.him/her) as helpless.\n(Patient) {returns to familiar work in a different way|learns a new skill|accepts help from friends|teaches others something about patience and perseverance}.",
+   "text_only": [
+    {
+     "src": "L1609-1612",
+     "what": "a lasting disability",
+     "reason": "rule 9: no game has a lasting disability; the source itself says to apply one only if the patcher supports it coherently (L1623-1624)"
+    },
+    {
+     "src": "L1619",
+     "what": "learns a new skill",
+     "reason": "one of four story endings, not a skill reward"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "death": {
+   "name": "Death",
+   "src": "L1627-1639",
+   "text": "Despite the healers' efforts, (patient) grows weaker. One evening, (patient.he/she) dies.\nThe village is devastated. (Healer1) wonders whether another decision might have changed the outcome. (Healer2) reminds (healer1.him/her) that uncertainty cannot always be eliminated.\nThe villagers gather to remember (patient). Some are angry. Some are silent. Others simply sit together.\nThe healers review the case carefully - not to find someone to blame automatically, but to understand whether anything could have been done differently.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L1628"
+    }
+   ],
+   "children": [
+    {
+     "next": "rewards"
+    }
+   ]
+  },
+  "rewards": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "after_healing"
+    },
+    {
+     "next": "after_research"
+    },
+    {
+     "next": "after_tech"
+    }
+   ]
+  },
+  "after_healing": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{AFTER}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer1",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1656"
+    },
+    {
+     "do": "skill",
+     "role": "healer2",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L1656"
+    }
+   ]
+  },
+  "after_research": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{AFTER}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1656"
+    },
+    {
+     "do": "skill",
+     "role": "healer2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1656"
+    }
+   ]
+  },
+  "after_tech": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{AFTER}",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L1657"
+    }
+   ]
+  },
+  "pair1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair4": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair5": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair6": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pairs": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pair1"
+    },
+    {
+     "next": "pair2"
+    },
+    {
+     "next": "pair3"
+    },
+    {
+     "next": "pair4"
+    },
+    {
+     "next": "pair5"
+    },
+    {
+     "next": "pair6"
+    }
+   ]
+  }
+ }
+}
