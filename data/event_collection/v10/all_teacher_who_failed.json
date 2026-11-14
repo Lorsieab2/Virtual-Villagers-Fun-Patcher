@@ -1,0 +1,275 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teacher Who Failed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_teacher_who_failed",
+  "source": "v26",
+  "lines": [
+   5683,
+   5728
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5684",
+  "ledger": [
+   {
+    "src": "L5683",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5685",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5686",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5708",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5718",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5728",
+    "kind": "note",
+    "why": "the teacher reputation is story only (rule 7)"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v10_o6",
+  "v10_o16",
+  "v10_o20",
+  "v10_o23",
+  "v10_o29"
+ ],
+ "pools": {
+  "WRONG": {
+   "items": [
+    {
+     "text": "a child asks a question (Subject) cannot answer",
+     "src": "L5696"
+    },
+    {
+     "text": "the demonstration collapses into a pile of rotten wood",
+     "src": "L5697"
+    },
+    {
+     "text": "(Subject) discovers (subject.he/she) has brought the wrong notes",
+     "src": "L5698"
+    },
+    {
+     "text": "the children know more about the subject than expected",
+     "src": "L5699"
+    },
+    {
+     "text": "a child politely points out that the teacher is contradicting (subject.himself/herself)",
+     "src": "L5700-5701"
+    },
+    {
+     "text": "a snail crawls across the teaching materials, stealing everyone's attention",
+     "src": "L5702-5703"
+    }
+   ]
+  },
+  "DEV": {
+   "items": [
+    {
+     "text": "(Subject) admits not knowing and promises to investigate.",
+     "src": "L5709"
+    },
+    {
+     "text": "(Subject) apologizes for snapping at a student.",
+     "src": "L5710"
+    },
+    {
+     "text": "(Subject) turns the failed demonstration into a lesson about testing and revision.",
+     "src": "L5711-5712"
+    },
+    {
+     "text": "(Subject) asks an elder to share a complementary perspective on the topic.",
+     "src": "L5713-5714"
+    },
+    {
+     "text": "(Subject) realizes teaching is harder than doing, and seeks guidance from an experienced instructor.",
+     "src": "L5715-5716"
+    }
+   ]
+  },
+  "END": {
+   "items": [
+    {
+     "text": "The students ask (Subject) to return next week.",
+     "src": "L5719"
+    },
+    {
+     "text": "(Subject) becomes a regular school teacher after demonstrating patience and reliability.",
+     "src": "L5720-5721"
+    },
+    {
+     "text": "(Subject) decides to remain an occasional guest teacher.",
+     "src": "L5722"
+    },
+    {
+     "text": "A child announces that this was the best lesson because \"the teacher made the biggest mistake.\"",
+     "src": "L5723-5724"
+    },
+    {
+     "text": "(Subject) leaves exhausted, then begins planning a better lesson before reaching home.",
+     "src": "L5725-5726"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The first lesson",
+   "src": "L5688-5695",
+   "text": "(Subject), a highly skilled {builder|healer|farmer|researcher|devotee}, has been invited to teach at the local school.\nThe first lesson concerns {a practical skill|a difficult question|a village tradition|a demonstration with safe materials}. The pupils are excited.\nThe lesson goes wrong when:",
+   "children": [
+    {
+     "next": "wrong"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L5691",
+     "what": "a practical skill",
+     "reason": "the lesson's topic, not a skill reward"
+    }
+   ]
+  },
+  "wrong": {
+   "popup": "append",
+   "join": "space",
+   "text": "{WRONG}",
+   "children": [
+    {
+     "next": "react"
+    }
+   ]
+  },
+  "react": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5705-5706",
+   "text": "(Subject) {blushes|gets defensive|laughs at (subject.himself/herself)|takes a moment to recover}.",
+   "children": [
+    {
+     "next": "dev"
+    }
+   ]
+  },
+  "dev": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{DEV}",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o6"
+    },
+    {
+     "next": "coda_o16"
+    },
+    {
+     "next": "coda_o20"
+    },
+    {
+     "next": "coda_o23"
+    },
+    {
+     "next": "coda_o29"
+    }
+   ]
+  },
+  "coda_o6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o6}"
+  },
+  "coda_o16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o16}"
+  },
+  "coda_o20": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o20}"
+  },
+  "coda_o23": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o23}"
+  },
+  "coda_o29": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o29}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

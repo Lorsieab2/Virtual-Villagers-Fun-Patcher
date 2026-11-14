@@ -1,0 +1,451 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlikely Advisor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_unlikely_advisor",
+  "source": "v26",
+  "lines": [
+   5607,
+   5681
+  ],
+  "section": "v10",
+  "credit": "* V10 reputation, appointment, school and rivalry events: event prose\n  and detailed branching by ChatGPT. Requested social outcomes and\n  leadership roles, including ostracism, laughingstock, village idiot,\n  mad scientist, trusted advisor, teacher and heads of professions:\n  Lorsieab2. VV3–VV5-only Magic/Nature faction rule: Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5608",
+  "ledger": [
+   {
+    "src": "L5607",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5609",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5610",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L5616",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5633",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5639",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5646",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5652",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5658",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5668",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5679-5681",
+    "kind": "note",
+    "why": "the advisor reputation is story only (rule 7); the VV3 Chief is never replaced or targeted"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "include_pools": [
+  "v10_o5",
+  "v10_o16",
+  "v10_o20",
+  "v10_o23",
+  "v10_o26",
+  "v10_o27"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "how to divide a scarce harvest fairly",
+     "src": "L5617"
+    },
+    {
+     "text": "whether to rebuild a damaged workshop or a damaged path first",
+     "src": "L5618"
+    },
+    {
+     "text": "how to settle a long-running rivalry between artisans",
+     "src": "L5619"
+    },
+    {
+     "text": "whether to fund an ambitious but poorly tested invention",
+     "src": "L5620"
+    },
+    {
+     "text": "how to allocate teaching time between beginners and experts",
+     "src": "L5621"
+    },
+    {
+     "text": "how to preserve an elder's old records without changing them",
+     "src": "L5622"
+    }
+   ]
+  },
+  "SPEAK": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "(Subject) offers a simple, effective compromise.",
+     "src": "L5634"
+    },
+    {
+     "text": "(Subject) freezes under attention. A friend helps (subject.him/her) explain the idea.",
+     "src": "L5635-5636"
+    },
+    {
+     "text": "(Subject) points out an overlooked risk.",
+     "src": "L5637"
+    }
+   ]
+  },
+  "WRITE": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The proposal is detailed and persuasive.",
+     "src": "L5640"
+    },
+    {
+     "text": "The proposal contains a flaw; (Subject) corrects it when questioned.",
+     "src": "L5641-5642"
+    },
+    {
+     "text": "The proposal is written on tree bark because (Subject) could not find paper. It works anyway.",
+     "src": "L5643-5644"
+    }
+   ]
+  },
+  "DISCUSS": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The crowd agrees on a sensible compromise.",
+     "src": "L5647"
+    },
+    {
+     "text": "A loud rival interrupts. The leaders enforce speaking turns.",
+     "src": "L5648-5649"
+    },
+    {
+     "text": "A child asks an unexpectedly perceptive question.",
+     "src": "L5650"
+    }
+   ]
+  },
+  "GROUP": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "Several perspectives reveal a better plan.",
+     "src": "L5653"
+    },
+    {
+     "text": "The group disagrees but records the tradeoffs honestly.",
+     "src": "L5654"
+    },
+    {
+     "text": "The meeting lasts so long that a parent brings the baby, a blanket, and a snack.",
+     "src": "L5655-5656"
+    }
+   ]
+  },
+  "PERSONAL": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "(Subject) is proud but worries about the responsibility.",
+     "src": "L5669"
+    },
+    {
+     "text": "A former critic says, \"I underestimated you.\" (Subject) replies, \"Yes. You did.\"",
+     "src": "L5670-5671"
+    },
+    {
+     "text": "(Subject) brings the first official advice to the leaders: \"Please make these meetings shorter.\"",
+     "src": "L5672-5673"
+    },
+    {
+     "text": "The title changes little. (Subject) still returns home to help with supper.",
+     "src": "L5674-5675"
+    },
+    {
+     "text": "A child asks whether advisors get crowns. (Subject) says, \"Unfortunately, only headaches.\"",
+     "src": "L5676-5677"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The dispute",
+   "src": "L5612-5614",
+   "text": "A difficult dispute has stalled the village council: {A}. Several Master villagers have offered conflicting opinions. A quiet villager, (Subject), has been listening.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "A quiet voice",
+   "src": "L5624-5626",
+   "text": "(Subject) is {a shy apprentice|an overlooked parent|a former laughingstock|an elderly gardener|a quiet researcher|a villager whose earlier advice was ignored}.",
+   "choices": [
+    {
+     "label": "INVITE (subject.Him/Her) TO SPEAK.",
+     "next": "speak",
+     "src": "L5628"
+    },
+    {
+     "label": "ASK FOR A WRITTEN PROPOSAL.",
+     "next": "write",
+     "src": "L5629"
+    },
+    {
+     "label": "HOLD A PUBLIC DISCUSSION.",
+     "next": "discuss",
+     "src": "L5630"
+    },
+    {
+     "label": "APPOINT A SMALL, DIVERSE ADVISORY GROUP.",
+     "next": "group",
+     "src": "L5631"
+    }
+   ]
+  },
+  "speak": {
+   "text": "{SPEAK}",
+   "children": [
+    {
+     "next": "appointment"
+    }
+   ]
+  },
+  "write": {
+   "text": "{WRITE}",
+   "children": [
+    {
+     "next": "appointment"
+    }
+   ]
+  },
+  "discuss": {
+   "text": "{DISCUSS}",
+   "children": [
+    {
+     "next": "appointment"
+    }
+   ]
+  },
+  "group": {
+   "text": "{GROUP}",
+   "children": [
+    {
+     "next": "appointment"
+    }
+   ]
+  },
+  "appointment": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "ap1"
+    },
+    {
+     "next": "ap2"
+    },
+    {
+     "next": "ap3"
+    },
+    {
+     "next": "ap4"
+    }
+   ]
+  },
+  "ap1": {
+   "name": "Appointment",
+   "src": "L5659-5660",
+   "text": "The leaders invite (Subject) to serve as a trusted advisor for a trial period.",
+   "text_only": [
+    {
+     "src": "L5659-5660",
+     "what": "a trusted advisor",
+     "reason": "rule 7: an appointment is told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "personal"
+    }
+   ]
+  },
+  "ap2": {
+   "name": "Appointment",
+   "src": "L5661-5662",
+   "text": "The leaders thank (Subject) but decide the proposal needs more evidence.",
+   "children": [
+    {
+     "next": "personal"
+    }
+   ]
+  },
+  "ap3": {
+   "name": "Appointment",
+   "src": "L5663-5664",
+   "text": "(Subject) declines a formal title but agrees to offer advice when asked.",
+   "children": [
+    {
+     "next": "personal"
+    }
+   ]
+  },
+  "ap4": {
+   "name": "Appointment",
+   "src": "L5665-5666",
+   "text": "The leaders adopt the proposal and credit (Subject) publicly.",
+   "children": [
+    {
+     "next": "personal"
+    }
+   ]
+  },
+  "personal": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{PERSONAL}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o5",
+     "if": {
+      "any": [
+       {
+        "visited": "ap1"
+       },
+       {
+        "visited": "ap3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_o16"
+    },
+    {
+     "next": "coda_o20"
+    },
+    {
+     "next": "coda_o23"
+    },
+    {
+     "next": "coda_o26",
+     "if": {
+      "visited": "ap1"
+     }
+    },
+    {
+     "next": "coda_o27"
+    }
+   ]
+  },
+  "coda_o5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o5}"
+  },
+  "coda_o16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o16}"
+  },
+  "coda_o20": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o20}"
+  },
+  "coda_o23": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o23}"
+  },
+  "coda_o26": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o26}"
+  },
+  "coda_o27": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v10_o27}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}
