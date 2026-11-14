@@ -82,6 +82,7 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | L2835 | `replies, (A).` | `replies, (A)` | The Elder's Favorite Stone | Every (A) reply is a full quotation ending in its own full stop; a second full stop follows the closing quote |
+| L3006 | `begins: (A).` | `begins: (A)` | The Chief's Monumental Speech | Every (A) opening is a full quotation ending in its own full stop or ellipsis; a second full stop follows the closing quote |
 
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
