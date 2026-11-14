@@ -18,7 +18,8 @@
    came (the later games' slot-0 pick is delivered or refused here, as any picked event). */
 
 #define SM_ROW 0x10000                  /* a list entry's data: SM_ROW + the registry index */
-#define SM_MAX 32                       /* registry entries looked at */
+#define SM_MAX 256                      /* list entries: the registry's, then the collection's */
+#define SM_COLL_BASE 0x4000             /* a list entry's k for collection entry i: SM_COLL_BASE + i */
 #define SM_INDEX 0x3E                   /* A New Home / The Lost Children: the family's index of a More pick */
 #define SM_QUEUE_BASE (-1000)           /* the queue file's pick_index of a More pick: SM_QUEUE_BASE - k */
 #define SM_TEXT 400
@@ -62,7 +63,7 @@ static int sm_info(int game, int k, char *title, char *description, char *needs)
 }
 
 /* The More entries of `game` (none without More Island Events). */
-static void sm_fill(int game) {
+static void sm_fill_more(int game) {
     sm_count_fn count = (sm_count_fn)(void *)sm_proc("VvfpMoreIslandEventsPickCount");
     int k, n = count != NULL && sm_installed(game) ? count() : 0;
     sm_list.count = 0;
@@ -78,11 +79,27 @@ static void sm_fill(int game) {
     }
 }
 
+/* The list's entries after the game's own: More Island Events' events, then the Isola Grand Event Collection's
+   (when that row is installed: story_collection.inc sc_pick_fill), each possible now or with what it needs. */
+static void sm_fill(int game) {
+    sm_fill_more(game);
+    (void)sc_pick_fill(game);
+}
+
 /* "<title> needs <what it needs>." */
 static void sm_refusal(const char *title, const char *needs, char *out, int cap) {
     char text[SM_TEXT * 3];
     wsprintfA(text, vvfp_tr("vvfp.story/story_more_events.sm_refusal.s0", "%s needs %s.", 200), title, needs);
     lstrcpynA(out, text, cap);
+}
+
+/* The plain refusal of list entry `m` chosen while it can not happen. */
+static void sm_refusal_of(int m, char *out, int cap) {
+    if (sm_list.k[m] >= SM_COLL_BASE) {
+        wsprintfA(out, "%.300s can not happen right now: %.600s", sm_list.title[m], sm_list.needs[m]);
+        return;
+    }
+    sm_refusal(sm_list.title[m], sm_list.needs[m], out, cap);
 }
 
 typedef int (__stdcall *sm_single_fn)(int k);
@@ -135,6 +152,7 @@ static int sm_arm(int game, int k) {
     pick_event = &sm_event;
     pick_village = story_village_now(game);
     pick_more = k;
+    pick_natural = 0;
     return 1;
 }
 
@@ -170,7 +188,7 @@ __declspec(dllexport) void __stdcall VvfpStoryMoreEventDone(int game, int delive
         last_failed_event = NULL;
     } else {
         STORY_COUNT(refused);
-        last_failed_event = &sm_event;
+        last_failed_event = pick_natural ? NULL : &sm_event;
         last_failed_lapsed = 0;
     }
 }
@@ -178,7 +196,11 @@ __declspec(dllexport) void __stdcall VvfpStoryMoreEventDone(int game, int delive
 /* The purchase of registry entry `k` once chosen in the list: confirmed, checked again, armed. */
 static int sm_buy(int game, HWND owner, int k) {
     char message[1800];
-    int state = sm_describe(game, k);
+    int state;
+    if (k >= SM_COLL_BASE) {
+        return sc_pick_buy(game, owner, k - SM_COLL_BASE);   /* an Isola Grand Event Collection event */
+    }
+    state = sm_describe(game, k);
     if (state < 0) {
         return 0;
     }
@@ -226,5 +248,6 @@ static int sm_queue_restore(int game, int pick_index, int slot) {
     pick_tick = STORY_TICK();           /* its ten minutes start again */
     pick_village = story_village_now(game);
     pick_more = k;
+    pick_natural = 0;
     return 1;
 }

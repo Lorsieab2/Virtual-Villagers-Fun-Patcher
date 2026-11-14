@@ -136,3 +136,11 @@ EXPORTS
     VvfpStoryProbeGraphQueueOrigin=_VvfpStoryProbeGraphQueueOrigin@24
     VvfpStoryProbeGraphPicks=_VvfpStoryProbeGraphPicks@8
     VvfpStoryProbeGraphFacts=_VvfpStoryProbeGraphFacts@12
+    VvfpStoryProbeCollectionStep=_VvfpStoryProbeCollectionStep@4
+    VvfpStoryProbeCollectionReset=_VvfpStoryProbeCollectionReset@0
+    VvfpStoryProbeCollectionManifest=_VvfpStoryProbeCollectionManifest@12
+    VvfpStoryProbeCollectionChoose=_VvfpStoryProbeCollectionChoose@12
+    VvfpStoryProbeCollectionTrouble=_VvfpStoryProbeCollectionTrouble@4
+    VvfpStoryProbeCollectionFile=_VvfpStoryProbeCollectionFile@4
+    VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
+    VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4

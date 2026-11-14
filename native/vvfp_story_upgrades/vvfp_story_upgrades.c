@@ -127,6 +127,9 @@ static int pick_game;
 static DWORD pick_tick;
 static const story_event *pick_event;
 static story_village pick_village;
+/* 1 while the armed pick is the Isola Grand Event Collection's rare roll's (story_collection.inc): it was never the
+   player's, so its lapse or refusal is never told to the player. */
+static int pick_natural;
 /* The outcome of the last pick, shown the next time the chooser opens when
    the game could not run it. */
 static const story_event *last_failed_event;
@@ -204,6 +207,11 @@ static const char *cg_label(int button);   /* the asked question's button labels
 static int cg_featured(int game);
 static int cg_busy(int game);
 static void cg_tick(int game);
+/* Defined with the Isola Grand Event Collection's rare roll (story_collection.inc), used earlier. */
+static void sc_tick(int game);
+static int sc_pick_fill(int game);
+static int sc_pick_buy(int game, HWND owner, int i);
+static void sc_library_add(int game);
 static void cg_village_seen(int game, int slot, const unsigned int *roster);
 static void cg_flush_file(int game, int slot, const unsigned int *roster);
 static void cg_village_reset(int game, int slot);
@@ -308,7 +316,7 @@ static int drop_lapsed_pick(void) {
     if (pick_slot >= 0 && STORY_TICK() - pick_tick > PICK_TIMEOUT_MS) {
         pick_slot = -1;
         oc_lapsed();
-        last_failed_event = pick_event;
+        last_failed_event = pick_natural ? NULL : pick_event;
         last_failed_lapsed = 1;
         STORY_COUNT(lapsed);
         return 1;
@@ -353,7 +361,7 @@ static int choose_from_table(int game, unsigned int table, int current) {
     }
     STORY_COUNT(refused);
     oc_refused(game);
-    last_failed_event = event;
+    last_failed_event = pick_natural ? NULL : event;
     last_failed_lapsed = 0;
     return current;
 }
@@ -1047,6 +1055,8 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     ce_requeue_tick(game);
     /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
     cg_tick(game);
+    /* The Isola Grand Event Collection's separate rare roll after a natural island event (story_collection.inc). */
+    sc_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1177,6 +1187,7 @@ static int arm_pick(int game, const story_event *event) {
     pick_tick = STORY_TICK();
     pick_event = event;
     pick_village = story_village_now(game);
+    pick_natural = 0;
     return 1;
 }
 
@@ -1308,6 +1319,7 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
 #include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
+#include "story_collection.inc" /* the Isola Grand Event Collection's separate rare roll (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
