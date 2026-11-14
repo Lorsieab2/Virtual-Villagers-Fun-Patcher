@@ -661,12 +661,8 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
             used_roles.add(m)
             if m not in roles:
                 rep.add("d TOKENS", f"role {rid}: alias member {m!r} is not declared")
-    # G7: an event whose figures are all text ("Two villagers quarrel") still needs one role, which the format
-    # requires; a lone stranger is that role and needs no token.
-    lone_stranger = len(roles) == 1 and next(iter(roles.values()), {}).get("kind") == "stranger"
     for rid in roles:
-        if rid not in used_roles and not roles[rid].get("special") and not lone_stranger:
-            # casting a special villager is the need
+        if rid not in used_roles and not roles[rid].get("special"):   # casting a special villager is the need
             rep.add("d TOKENS", f"role {rid} is declared but never used")
     # bank sizes against the manifest
     if row is not None:

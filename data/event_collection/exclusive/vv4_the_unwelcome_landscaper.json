@@ -34,12 +34,7 @@
  "requirement": {
   "min_eligible": 1
  },
- "roles": {
-  "figure": {
-   "kind": "stranger",
-   "sex": "random"
-  }
- },
+ "roles": {},
  "start": "question",
  "nodes": {
   "question": {
