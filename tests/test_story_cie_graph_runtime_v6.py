@@ -290,6 +290,8 @@ class SharedVectors(unittest.TestCase):
         self.assertTrue(shown)
 
     def test_every_vector_in_its_game(self):
+        if not any(have_stock(f"vv{case['game']}") for case in VECTORS["cases"]):
+            self.skipTest("needs the stock executables")      # GitHub CI has none: skip, never fail
         ran = 0
         for case in VECTORS["cases"]:
             if not have_stock(f"vv{case['game']}"):
@@ -977,6 +979,8 @@ class PipelinePilots(unittest.TestCase):
     game they list without Scrolling Popups: every button, each answer's popup of its own."""
 
     def test_the_seven_button_pilots_run_without_scrolling(self):
+        if not any(have_stock(f"vv{n}") for n in range(1, 6)):
+            self.skipTest("needs the stock executables")      # GitHub CI has none: skip, never fail
         root = ROOT / "data" / "event_collection"
         ran = 0
         for rel in PIPELINE_EVENTS:
