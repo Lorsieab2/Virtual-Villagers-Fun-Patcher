@@ -116,6 +116,20 @@ class UpgradeKeepsRoleObjects(unittest.TestCase):
             self.assertEqual(role["protected"], "auto")
 
 
+class ItemSelectionNeverLoops(unittest.TestCase):
+    def test_the_reselect_echo_does_not_rebuild(self) -> None:
+        lib = w.Library.__new__(w.Library)
+        lib._loading, lib.item_index = False, 2
+        built = []
+        lib.show_lists = lambda: built.append(lib.item_index)
+        lib.items_table = type("T", (), {"selection": lambda self: ("2",)})()
+        lib._item_selected()                         # show_lists' own selection_set(2) echoing back
+        self.assertEqual(built, [])
+        lib.items_table = type("T", (), {"selection": lambda self: ("4",)})()
+        lib._item_selected()                         # a real new pick rebuilds once
+        self.assertEqual(built, [4])
+
+
 class PerGameAmountWords(unittest.TestCase):
     def test_the_changes_list_names_each_games_amount(self) -> None:
         words = w.describe_effect({"do": "food", "amount": 100, "per_game": {"1": [200, 1500], "4": [300, 300]}})

@@ -622,6 +622,8 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
             problems.append(f"{where}: has_living_child names one role")
             return None
         if op == "age":
+            if isinstance(arg, dict) and arg.get("max", 0) is None:
+                arg = {k: v for k, v in arg.items() if k != "max"}     # the normalized "no upper bound" reads back
             if not isinstance(arg, dict) or set(arg) - {"role", "min", "max"} or not isinstance(arg.get("role"), str) \
                     or ("min" not in arg and "max" not in arg) \
                     or not _int_in(arg.get("min", 0), 0, 120) or not _int_in(arg.get("max", 120), 1, 120) \

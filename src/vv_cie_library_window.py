@@ -1369,7 +1369,7 @@ class Library:
         if self._loading:
             return
         picked = self.items_table.selection()
-        if picked:
+        if picked and int(picked[0]) != self.item_index:      # show_lists reselects it: never loop on that echo
             self.item_index = int(picked[0])
             self.show_lists()
 

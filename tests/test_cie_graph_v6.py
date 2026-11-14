@@ -1253,6 +1253,14 @@ class FactsAndDraws(unittest.TestCase):
         self.assertIn("names no villager role", problems({"has_living_child": "nobody"}))
         self.assertIn("age is", problems({"age": {"role": "subject", "min": 60, "max": 20}}))
 
+    def test_normalize_is_idempotent_for_an_open_age(self):
+        """{"min": 50} normalizes to "max": None; validating that again must pass (import, then save)."""
+        once, problems = cg.normalize(copy.deepcopy(LITTLE))
+        self.assertEqual(problems, [])
+        twice, problems = cg.normalize(copy.deepcopy(once))
+        self.assertEqual(problems, [])
+        self.assertEqual(once, twice)
+
     def test_simulate(self):
         g = cg.load(copy.deepcopy(LITTLE))
         b = {"subject": cg.Binding("Ana", "f")}
