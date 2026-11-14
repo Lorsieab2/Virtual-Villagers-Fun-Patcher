@@ -114,9 +114,8 @@
     {
      "do": "damage",
      "structures": "any",
-     "min": 50,
-     "max": 100,
-     "src": "L5039"
+     "src": "L5039",
+     "size": "huge"
     }
    ],
    "children": [
@@ -148,16 +147,21 @@
    "set": "(1)",
    "children": [
     {
-     "next": "r1"
+     "next": "r1",
+     "weight": 20
     },
     {
-     "next": "r2"
+     "next": "r2",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "r3"
+     "next": "r3",
+     "weight": 20
     },
     {
-     "next": "r4"
+     "next": "r4",
+     "weight": 20
     }
    ]
   },
@@ -202,16 +206,21 @@
    "set": "(2)",
    "children": [
     {
-     "next": "h1"
+     "next": "h1",
+     "weight": 20
     },
     {
-     "next": "h2"
+     "next": "h2",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "h3"
+     "next": "h3",
+     "weight": 20
     },
     {
-     "next": "h4"
+     "next": "h4",
+     "weight": 20
     }
    ]
   },

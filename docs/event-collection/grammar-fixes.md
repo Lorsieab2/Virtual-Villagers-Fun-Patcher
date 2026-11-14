@@ -77,6 +77,19 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L561 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (5) | The full stop belongs after the list, not inside one option |
 | L623 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (8) | As above |
 
+### V10 (review r1, minor 1)
+
+Each "goes wrong when:" item ends the page's sentence, so it needs its full stop.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L5696 | `cannot answer` | `cannot answer.` | V10 The Teacher Who Failed | The page's sentence has no closing full stop |
+| L5697 | `rotten wood` | `rotten wood.` | V10 The Teacher Who Failed | As above |
+| L5698 | `the wrong notes` | `the wrong notes.` | V10 The Teacher Who Failed | As above |
+| L5699 | `than expected` | `than expected.` | V10 The Teacher Who Failed | As above |
+| L5701 | `(himself/herself)` | `(himself/herself).` | V10 The Teacher Who Failed | As above |
+| L5703 | `everyone's attention` | `everyone's attention.` | V10 The Teacher Who Failed | As above |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.

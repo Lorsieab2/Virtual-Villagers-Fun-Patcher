@@ -78,27 +78,27 @@
   "WRONG": {
    "items": [
     {
-     "text": "a child asks a question (Subject) cannot answer",
+     "text": "a child asks a question (Subject) cannot answer.",
      "src": "L5696"
     },
     {
-     "text": "the demonstration collapses into a pile of rotten wood",
+     "text": "the demonstration collapses into a pile of rotten wood.",
      "src": "L5697"
     },
     {
-     "text": "(Subject) discovers (subject.he/she) has brought the wrong notes",
+     "text": "(Subject) discovers (subject.he/she) has brought the wrong notes.",
      "src": "L5698"
     },
     {
-     "text": "the children know more about the subject than expected",
+     "text": "the children know more about the subject than expected.",
      "src": "L5699"
     },
     {
-     "text": "a child politely points out that the teacher is contradicting (subject.himself/herself)",
+     "text": "a child politely points out that the teacher is contradicting (subject.himself/herself).",
      "src": "L5700-5701"
     },
     {
-     "text": "a snail crawls across the teaching materials, stealing everyone's attention",
+     "text": "a snail crawls across the teaching materials, stealing everyone's attention.",
      "src": "L5702-5703"
     }
    ]
@@ -271,5 +271,37 @@
   "no_coda": {
    "type": "branch"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L5696",
+   "before": "cannot answer",
+   "after": "cannot answer."
+  },
+  {
+   "src": "L5697",
+   "before": "rotten wood",
+   "after": "rotten wood."
+  },
+  {
+   "src": "L5698",
+   "before": "the wrong notes",
+   "after": "the wrong notes."
+  },
+  {
+   "src": "L5699",
+   "before": "than expected",
+   "after": "than expected."
+  },
+  {
+   "src": "L5701",
+   "before": "(himself/herself)",
+   "after": "(himself/herself)."
+  },
+  {
+   "src": "L5703",
+   "before": "everyone's attention",
+   "after": "everyone's attention."
+  }
+ ]
 }

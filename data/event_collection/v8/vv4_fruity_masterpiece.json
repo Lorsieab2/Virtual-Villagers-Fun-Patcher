@@ -66,8 +66,8 @@
   ]
  },
  "words": {
-  "chief": {
-   "*": "the village leader"
+  "breadfruit_chief": {
+   "*": "the Chief"
   }
  },
  "requirement": {
@@ -148,7 +148,7 @@
      "src": "L4118-4120"
     },
     {
-     "text": "The child makes a breadfruit crown and insists {@chief} of Breadfruit must be addressed properly.",
+     "text": "The child makes a breadfruit crown and insists {@breadfruit_chief} of Breadfruit must be addressed properly.",
      "src": "L4121-4122"
     },
     {
@@ -195,7 +195,10 @@
     },
     {
      "text": "The breadfruit sculpture is displayed for one afternoon, then eaten because it is, after all, food.",
-     "src": "L4142-4143"
+     "src": "L4142-4143",
+     "if": {
+      "visited": "art"
+     }
     },
     {
      "text": "The cook admits that a meal doesn't have to be impressive to be worth sharing.",

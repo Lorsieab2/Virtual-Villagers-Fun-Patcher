@@ -202,16 +202,21 @@
    "set": "(1)",
    "children": [
     {
-     "next": "e1"
+     "next": "e1",
+     "weight": 20
     },
     {
-     "next": "e2"
+     "next": "e2",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "e3"
+     "next": "e3",
+     "weight": 20
     },
     {
-     "next": "e4"
+     "next": "e4",
+     "weight": 20
     }
    ]
   },
@@ -310,16 +315,21 @@
    "set": "(3)",
    "children": [
     {
-     "next": "m1"
+     "next": "m1",
+     "weight": 20
     },
     {
-     "next": "m2"
+     "next": "m2",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "m3"
+     "next": "m3",
+     "weight": 20
     },
     {
-     "next": "m4"
+     "next": "m4",
+     "weight": 20
     }
    ]
   },
@@ -364,16 +374,21 @@
    "set": "(4)",
    "children": [
     {
-     "next": "h1"
+     "next": "h1",
+     "weight": 20
     },
     {
-     "next": "h2"
+     "next": "h2",
+     "weight": 20
     },
     {
-     "next": "h3"
+     "next": "h3",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "h4"
+     "next": "h4",
+     "weight": 20
     }
    ]
   },

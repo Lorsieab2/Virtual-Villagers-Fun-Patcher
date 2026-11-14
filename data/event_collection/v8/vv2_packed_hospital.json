@@ -133,31 +133,6 @@
   "v8_c10"
  ],
  "pools": {
-  "A": {
-   "set": "A",
-   "items": [
-    {
-     "text": "a roll of clean bandages",
-     "src": "L3820"
-    },
-    {
-     "text": "the hospital's only working measuring stick",
-     "src": "L3821"
-    },
-    {
-     "text": "a basket of freshly washed cloths",
-     "src": "L3822"
-    },
-    {
-     "text": "the inventory ledger",
-     "src": "L3823"
-    },
-    {
-     "text": "a very important wooden spoon used for mixing harmless salves",
-     "src": "L3824"
-    }
-   ]
-  },
   "B": {
    "set": "B",
    "items": [
@@ -217,23 +192,6 @@
     }
    ]
   },
-  "ELDER": {
-   "set": "(3)",
-   "items": [
-    {
-     "text": "The elder suggests a simple repair to the waiting bench. The healer thanks (elder.him/her).",
-     "src": "L3858-3859"
-    },
-    {
-     "text": "The elder offers a long story about how hospitals used to work. Some of it is useful. Much of it is not.",
-     "src": "L3860-3861"
-    },
-    {
-     "text": "The elder declares the hospital's decor depressing and offers to carve a cheerful wooden sign.",
-     "src": "L3862-3863"
-    }
-   ]
-  },
   "PARENT": {
    "set": "(4)",
    "items": [
@@ -256,15 +214,24 @@
    "items": [
     {
      "text": "The healer discovers that the missing inventory ledger was under (healer.his/her) own arm all along.",
-     "src": "L3874-3875"
+     "src": "L3874-3875",
+     "if": {
+      "visited": "intro_a4"
+     }
     },
     {
      "text": "A child wanders in carrying the missing spoon, asking why everyone is looking for the \"tiny paddle.\"",
-     "src": "L3876-3877"
+     "src": "L3876-3877",
+     "if": {
+      "visited": "intro_a5"
+     }
     },
     {
      "text": "The elder's carved sign reads \"HOSPITAL: PLEASE REMAIN ALIVE.\" The healer requests a revision.",
-     "src": "L3878-3879"
+     "src": "L3878-3879",
+     "if": {
+      "visited": "el3"
+     }
     },
     {
      "text": "The baby laughs for the first time all afternoon. Every exhausted adult in the room smiles.",
@@ -300,14 +267,119 @@
      "src": "L3891"
     }
    ]
+  },
+  "MISSING1": {
+   "items": [
+    {
+     "text": "a roll of clean bandages",
+     "src": "L3820"
+    }
+   ],
+   "set": "A"
+  },
+  "MISSING2": {
+   "items": [
+    {
+     "text": "the hospital's only working measuring stick",
+     "src": "L3821"
+    }
+   ],
+   "set": "A"
+  },
+  "MISSING3": {
+   "items": [
+    {
+     "text": "a basket of freshly washed cloths",
+     "src": "L3822"
+    }
+   ],
+   "set": "A"
+  },
+  "MISSING4": {
+   "items": [
+    {
+     "text": "the inventory ledger",
+     "src": "L3823"
+    }
+   ],
+   "set": "A"
+  },
+  "MISSING5": {
+   "items": [
+    {
+     "text": "a very important wooden spoon used for mixing harmless salves",
+     "src": "L3824"
+    }
+   ],
+   "set": "A"
   }
  },
  "start": "intro",
  "nodes": {
   "intro": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro_a1"
+    },
+    {
+     "next": "intro_a2"
+    },
+    {
+     "next": "intro_a3"
+    },
+    {
+     "next": "intro_a4"
+    },
+    {
+     "next": "intro_a5"
+    }
+   ]
+  },
+  "intro_a1": {
    "name": "A busy day",
    "src": "L3811-3817",
-   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {A}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {MISSING1}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a2": {
+   "name": "A busy day",
+   "src": "L3811-3817",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {MISSING2}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a3": {
+   "name": "A busy day",
+   "src": "L3811-3817",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {MISSING3}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a4": {
+   "name": "A busy day",
+   "src": "L3811-3817",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {MISSING4}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "intro_a5": {
+   "name": "A busy day",
+   "src": "L3811-3817",
+   "text": "The hospital is unusually busy. Nobody is in immediate danger, but everything that can go wrong seems determined to do so.\nA healer, (Healer), is trying to organize supplies. A young apprentice, (Apprentice), has misplaced {MISSING5}. Meanwhile, a parent holding a sleepy infant is waiting for a routine consultation, and an elderly villager has come in to complain about {B}.",
    "children": [
     {
      "next": "question"
@@ -359,12 +431,46 @@
    ]
   },
   "elder": {
-   "text": "{ELDER}",
+   "type": "branch",
+   "children": [
+    {
+     "next": "el1"
+    },
+    {
+     "next": "el2"
+    },
+    {
+     "next": "el3"
+    }
+   ],
+   "set": "(3)"
+  },
+  "el1": {
    "children": [
     {
      "next": "straw"
     }
-   ]
+   ],
+   "src": "L3858-3859",
+   "text": "The elder suggests a simple repair to the waiting bench. The healer thanks (elder.him/her)."
+  },
+  "el2": {
+   "children": [
+    {
+     "next": "straw"
+    }
+   ],
+   "src": "L3860-3861",
+   "text": "The elder offers a long story about how hospitals used to work. Some of it is useful. Much of it is not."
+  },
+  "el3": {
+   "children": [
+    {
+     "next": "straw"
+    }
+   ],
+   "src": "L3862-3863",
+   "text": "The elder declares the hospital's decor depressing and offers to carve a cheerful wooden sign."
   },
   "parent": {
    "text": "{PARENT}",

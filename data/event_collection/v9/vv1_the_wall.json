@@ -239,19 +239,25 @@
    "set": "(1)",
    "children": [
     {
-     "next": "i1"
+     "next": "i1",
+     "weight": 20
     },
     {
-     "next": "i2"
+     "next": "i2",
+     "weight": 20
     },
     {
-     "next": "i3"
+     "next": "i3",
+     "weight": 20
     },
     {
-     "next": "i4"
+     "next": "i4",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "i5"
+     "next": "i5",
+     "weight": 20
     }
    ]
   },
@@ -314,16 +320,21 @@
    "set": "(2)",
    "children": [
     {
-     "next": "h1"
+     "next": "h1",
+     "weight": 20
     },
     {
-     "next": "h2"
+     "next": "h2",
+     "weight": 20
     },
     {
-     "next": "h3"
+     "next": "h3",
+     "weight": 20
     },
     {
-     "next": "h4"
+     "next": "h4",
+     "weight": 5,
+     "rarity": "rare"
     }
    ]
   },

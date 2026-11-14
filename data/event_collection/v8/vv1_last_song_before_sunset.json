@@ -85,34 +85,6 @@
   "v8_c16"
  ],
  "pools": {
-  "DEV": {
-   "items": [
-    {
-     "text": "The elder forgets a verse. The parent remembers it, and they finish the song together.",
-     "src": "L3781-3782"
-    },
-    {
-     "text": "The child invents an absurd extra verse about a dancing crab. The elder is scandalized for precisely three seconds.",
-     "src": "L3783-3784"
-    },
-    {
-     "text": "The elder explains that the song used to be sung by someone (elder.he/she) misses. The child listens without interrupting.",
-     "src": "L3785-3786"
-    },
-    {
-     "text": "The baby wakes and begins crying. The parent hums the melody, and the baby gradually settles.",
-     "src": "L3787-3788"
-    },
-    {
-     "text": "The elder sings terribly off-key. The child joins in, somehow making the song even worse. Nobody asks them to stop.",
-     "src": "L3789-3790"
-    },
-    {
-     "text": "The child asks whether the elder will always remember the song. The elder says, \"I hope so. But perhaps you can remember it too.\"",
-     "src": "L3791-3792"
-    }
-   ]
-  },
   "END": {
    "items": [
     {
@@ -129,7 +101,10 @@
     },
     {
      "text": "The elder laughs and says the ancestors would be horrified by the new crab verse. The child looks immensely proud.",
-     "src": "L3798-3799"
+     "src": "L3798-3799",
+     "if": {
+      "visited": "dev2"
+     }
     },
     {
      "text": "The elder hums one last line, quietly enough that only the nearest listeners hear it.",
@@ -158,14 +133,93 @@
    ]
   },
   "dev": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "dev1"
+    },
+    {
+     "next": "dev2"
+    },
+    {
+     "next": "dev3"
+    },
+    {
+     "next": "dev4"
+    },
+    {
+     "next": "dev5"
+    },
+    {
+     "next": "dev6"
+    }
+   ]
+  },
+  "dev1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{DEV}",
    "children": [
     {
      "next": "end"
     }
-   ]
+   ],
+   "src": "L3781-3782",
+   "text": "The elder forgets a verse. The parent remembers it, and they finish the song together."
+  },
+  "dev2": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3783-3784",
+   "text": "The child invents an absurd extra verse about a dancing crab. The elder is scandalized for precisely three seconds."
+  },
+  "dev3": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3785-3786",
+   "text": "The elder explains that the song used to be sung by someone (elder.he/she) misses. The child listens without interrupting."
+  },
+  "dev4": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3787-3788",
+   "text": "The baby wakes and begins crying. The parent hums the melody, and the baby gradually settles."
+  },
+  "dev5": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3789-3790",
+   "text": "The elder sings terribly off-key. The child joins in, somehow making the song even worse. Nobody asks them to stop."
+  },
+  "dev6": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3791-3792",
+   "text": "The child asks whether the elder will always remember the song. The elder says, \"I hope so. But perhaps you can remember it too.\""
   },
   "end": {
    "popup": "append",

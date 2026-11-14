@@ -382,16 +382,22 @@
    "set": "(4)",
    "children": [
     {
-     "next": "t1"
+     "next": "t1",
+     "weight": 20
     },
     {
-     "next": "t2"
+     "next": "t2",
+     "weight": 20
     },
     {
-     "next": "t3"
+     "next": "t3",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "t4"
+     "next": "t4",
+     "weight": 5,
+     "rarity": "rare"
     }
    ]
   },

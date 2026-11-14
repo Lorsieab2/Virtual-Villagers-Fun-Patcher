@@ -141,27 +141,6 @@
     }
    ]
   },
-  "PARADE": {
-   "set": "(4)",
-   "items": [
-    {
-     "text": "Children parade with painted bark crowns and harmless wooden sculptures.",
-     "src": "L5018"
-    },
-    {
-     "text": "A child names a rotten-wood statue 'THE GREAT STINKING LEADER.'",
-     "src": "L5019"
-    },
-    {
-     "text": "An elder enters a sculpture of a snail and wins the crowd's affection.",
-     "src": "L5020"
-    },
-    {
-     "text": "The adults become so competitive that the children have to remind them the parade is supposed to be fun.",
-     "src": "L5021-5022"
-    }
-   ]
-  },
   "END": {
    "set": "(5)",
    "items": [
@@ -187,7 +166,10 @@
     },
     {
      "text": "The child keeps the wooden snail sculpture for years.",
-     "src": "L5032"
+     "src": "L5032",
+     "if": {
+      "visited": "pa3"
+     }
     }
    ]
   }
@@ -271,12 +253,58 @@
    ]
   },
   "parade": {
-   "text": "{PARADE}",
+   "type": "branch",
+   "children": [
+    {
+     "next": "pa1"
+    },
+    {
+     "next": "pa2"
+    },
+    {
+     "next": "pa3"
+    },
+    {
+     "next": "pa4"
+    }
+   ],
+   "set": "(4)"
+  },
+  "pa1": {
    "children": [
     {
      "next": "ending"
     }
-   ]
+   ],
+   "src": "L5018",
+   "text": "Children parade with painted bark crowns and harmless wooden sculptures."
+  },
+  "pa2": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5019",
+   "text": "A child names a rotten-wood statue 'THE GREAT STINKING LEADER.'"
+  },
+  "pa3": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5020",
+   "text": "An elder enters a sculpture of a snail and wins the crowd's affection."
+  },
+  "pa4": {
+   "children": [
+    {
+     "next": "ending"
+    }
+   ],
+   "src": "L5021-5022",
+   "text": "The adults become so competitive that the children have to remind them the parade is supposed to be fun."
   },
   "ending": {
    "popup": "append",
