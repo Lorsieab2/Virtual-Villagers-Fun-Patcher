@@ -35,12 +35,6 @@
     "why": "the small tech effect on b3"
    },
    {
-    "src": "L10008",
-    "kind": "instruction",
-    "text": "; unlock",
-    "why": "a text_only reason on c3 (rule 9)"
-   },
-   {
     "src": "L10009",
     "kind": "instruction",
     "text": "THE PRANK WAR.",
@@ -192,7 +186,7 @@
    "src": "L10007"
   },
   "c3": {
-   "text": "The Prank War: (Target) organizes a friendly retaliation",
+   "text": "The Prank War: (Target) organizes a friendly retaliation.",
    "src": "L10008-10009",
    "text_only": [
     {
@@ -224,6 +218,13 @@
    ]
   }
  },
+ "grammar_fixes": [
+  {
+   "src": "L10008",
+   "before": "retaliation; unlock",
+   "after": "retaliation."
+  }
+ ],
  "requirement": {
   "min_eligible": 2
  }
