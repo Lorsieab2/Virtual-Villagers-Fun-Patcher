@@ -476,7 +476,11 @@ def _items() -> list[Entry]:
               "each collect it, so it is multiplied.", UNCONFIRMED),
              # The release listener 0x42DEB0: the area 14 test (0x42DF1A) is NOPed (vv3_collectibles_stay_collected).
              (patch("vv3_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
-              "child puts it down, once, not only at the food bin.", VERIFIED_C))),
+              "child puts it down, once, not only at the food bin.", VERIFIED_C),
+             # The drop's call 0x42D377 (data/builds.json vv3_adult_confused: "VVFP Adult Confused.dll").
+             (patch("vv3_adult_confused") + ": a villager of 14 or more dropped on a mushroom does the game's own "
+              "Confused action and the status line says \"Only children can see and pick up mushrooms.\" (in the "
+              "normal game the grown-up just stands there).", VERIFIED_C))),
         Entry(ITEM, "Collectibles", (
             "four collections, the Tablet only once The Ruins is at least 2% done. A piece "
             "already owned pays 100, 250 or 1,500 tech points (common, uncommon, rare) instead; Tablet pieces "
@@ -484,7 +488,11 @@ def _items() -> list[Entry]:
             "by 25."), VERIFIED_C,
             # The release listener 0x42DEB0: the area 25 test (0x42DEEA) is NOPed (vv3_collectibles_stay_collected).
             ((patch("vv3_collectibles_stay_collected") + ": a piece a child has picked up counts wherever the child "
-              "puts it down, once, with its messages, not only at the collection spot.", VERIFIED_C),)),
+              "puts it down, once, with its messages, not only at the collection spot.", VERIFIED_C),
+             # The drop's call 0x42D391 (data/builds.json vv3_adult_confused).
+             (patch("vv3_adult_confused") + ": a villager of 14 or more dropped on a collectible does the game's own "
+              "Confused action and the status line says \"Only children can see and pick up collectibles.\" (in "
+              "the normal game the grown-up just stands there).", VERIFIED_C))),
         # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The
         # pickup 0x42DF17..0x42E056: item kinds 0x34..0x63, 12 to a collection (0x42DE40: complete at 12 found); the
         # first 4 of each common (0x42D660), the next 4 uncommon (0x42D6A0), the last 4 rare (0x42D6E0); a piece found

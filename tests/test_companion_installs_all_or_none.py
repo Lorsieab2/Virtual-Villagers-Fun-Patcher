@@ -387,6 +387,11 @@ CASES = [
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
          (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the drop's adult area call (VV1), the
+    # adult dispatcher's Confused call (VV2), the drop's mushroom / collectible do-action calls (VV3-VV5).
+    Case("Adult Confused", "assets/adult_confused/VVFP Adult Confused.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_adult_confused"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpAdultConfusedInstalled"))[1]),
     # Scrolling Popups (all five games): the mouse dispatcher's call, the popups' size calls, their text calls.
     Case("Scrolling Popups", "assets/scrolling_popups/VVFP Scrolling Popups.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_scrolling_popups"],

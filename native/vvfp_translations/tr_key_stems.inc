@@ -4,6 +4,8 @@
    data/translations/patcher_strings.json).  Such a row is never put in the content map. */
 
 static const char *const TR_KEY_STEMS[] = {
+    "vvfp.adult_confused/vvfp_adult_confused.COLLECTIBLES.s0",
+    "vvfp.adult_confused/vvfp_adult_confused.MUSHROOMS.s0",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.0",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.1",
     "vvfp.cod/vvfp_cause_of_death.CAUSE_WORDS.2",

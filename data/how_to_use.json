@@ -503,6 +503,15 @@
       ]
     },
     {
+      "ids": ["vv1_adult_confused", "vv2_adult_confused", "vv3_adult_confused", "vv4_adult_confused", "vv5_adult_confused"],
+      "guide": [
+        "On by default. Drop a villager of 14 or more on a mushroom or collectible: they act Confused, and the game's message line",
+        "says \"Only children can see and pick up mushrooms.\" or \"Only children can see and pick up collectibles.\"",
+        "Children still pick them up as before. The Lost Children already showed Confused; only its message changes.",
+        "The game's one-time tip about confused villagers may appear the first time. Nothing to click. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_super_secret_golden_mushroom", "vv2_super_secret_golden_mushroom", "vv3_super_secret_golden_mushroom", "vv4_super_secret_golden_mushroom", "vv5_super_secret_golden_mushroom"],
       "guide": [
         "Adds a golden spotted mushroom to the island.",

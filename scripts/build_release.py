@@ -152,6 +152,8 @@ FILES = [
     "assets/scrolling_popups/vvfp_scroll_knob.png",
     # The Aspiring Adventurer (all five games): the owner's new island event.
     "assets/more_island_events/VVFP More Island Events.dll",
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the companion.
+    "assets/adult_confused/VVFP Adult Confused.dll",
     "assets/vv2_totems/VVFP VV2 Totems.dll",
     "assets/easier_healing/VVFP VV1 Easier Healing.dll",
     "assets/research_at_max/VVFP VV1 Research At Max.dll",

@@ -130,7 +130,7 @@ STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
 PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_mommy_puzzle",
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
-           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected")
+           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused")
 
 
 # ---------------------------------------------------------------------------
@@ -477,7 +477,12 @@ def _item_entries() -> list[Entry]:
                # (vv5_collectibles_stay_collected).
                (f"{_feature('vv5_collectibles_stay_collected')}: a mushroom, relic or lab gear piece a child has "
                 "picked up counts wherever the child puts it down, once, not only at its own place (the food bin, "
-                "the relic spot, the lab).", VERIFIED_C))),
+                "the relic spot, the lab).", VERIFIED_C),
+               # The drop's calls 0x413700 / 0x41371A (data/builds.json vv5_adult_confused).
+               (f"{_feature('vv5_adult_confused')}: a villager of 14 or more dropped on a mushroom, relic or lab gear "
+                "piece does the game's own Confused action and the status line says \"Only children can see and "
+                "pick up mushrooms.\" or \"Only children can see and pick up collectibles.\" (in the normal game "
+                "the grown-up just stands there).", VERIFIED_C))),
         Entry(ITEM, "Relics (the first collectible set, 24 pieces)", "appear on the island at random, 82% common, 13% "
                                                                      "uncommon, 5% rare; see Collectibles", (
             "each piece owned raises the Divine Energy cap by 3 while the set is incomplete (69 with 23 pieces); all "

@@ -12751,7 +12751,7 @@ STARTUP_LOADER_DLL = "VVFP Startup.dll"
 STARTUP_LOADER_COMPANION = {
     "source": "assets/startup/VVFP Startup.dll",
     "destination": STARTUP_LOADER_DLL,
-    "sha256": "6C06B382391FDF883745472616917B62715037126CAC44B4A0C0DB6FE6222173",
+    "sha256": "23856ABCA6625162B7249AC64583AB6CE638E954816E975BED4488DB95B81B43",
 }
 STARTUP_LOADER_EXPORT = "VvfpStartup"
 # The companions VvfpStartup(game, shipped) may load, by bit: bit 0 the
@@ -12858,6 +12858,9 @@ STARTUP_LOADER_COMPANIONS_2 = (
     "VVFP Long Words.dll",
     # The Aspiring Adventurer (all five games): the owner's new island event.
     "VVFP More Island Events.dll",
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+    # "Only children can see and pick up ..." for an adult dropped on a mushroom or collectible.
+    "VVFP Adult Confused.dll",
 )
 # Companions the loader never starts: another shipped companion loads each by
 # its full path in the patcher's folder (vvfp_load_patcher_dll) the first time
