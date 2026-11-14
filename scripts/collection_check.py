@@ -3,6 +3,7 @@
     python scripts/collection_check.py                  # every data/event_collection/<section>/<id>.json
     python scripts/collection_check.py FILE [FILE ...]  # just these
     python scripts/collection_check.py --report FILE    # also print the ledger summary (owner packet material)
+    python scripts/collection_check.py --allow-report   # every harm-capable role with protected allow (owner review)
 
 The checks (each problem names its check):
   a SCHEMA    vv_cie_graph.normalize / validate for every game listed (needs the v6 format: ENGINE SEAM below)
@@ -20,8 +21,9 @@ The checks (each problem names its check):
   e EFFECTS   the effects keyword table over each node's source lines: each hit is an effect of that kind on the
               node or a text_only entry with a reason; food / tech by size words (design A3), skills by the skill
               size table, skill names that exist in the event's games
-  f SAFETY    the harm-capable roles (derived here independently of the compiler) never allow protected villagers
-              and are never special roles; VV5 roles are believers only
+  f SAFETY    the harm-capable roles (derived here independently of the compiler): a special role among them needs
+              protected allow (the owner's model of 2026-11-14; --allow-report lists every allow on a harmed role
+              for the owner); VV5 roles are believers only
   g ROUND     normalize -> compile -> decompile -> normalize gives the graph back; compile is deterministic (needs
               the v6 format: ENGINE SEAM)
   h CHANCES   every node reachable; a split's weights equal unless a rarity word gives them (rare 1/4, very rare
@@ -863,7 +865,7 @@ def check_effects(doc: dict, rep: Report) -> None:
     _ = cuts_whole
 
 
-HARMFUL = {"kill", "vanish", "sick"}
+HARMFUL = {"kill", "vanish", "sick", "die_unrecovered", "baby_lost"}
 
 
 def harmful(e: dict) -> bool:
@@ -904,10 +906,11 @@ def check_safety(doc: dict, rep: Report) -> None:
                 rep.add("f SAFETY", f"celebrate names an unknown role {e['who']!r}")
     for rid, r in roles.items():
         if rid in harm:
-            if r.get("protected") == "allow":
-                rep.add("f SAFETY", f"role {rid}: can be harmed, so protected villagers can never be allowed")
-            if r.get("special"):
-                rep.add("f SAFETY", f"role {rid}: a special villager ({r['special']}) is never harmed")
+            # The owner's protection model (2026-11-14): "allow" on a harmed role is the author's choice where the
+            # event makes sense; each is listed by --allow-report for the owner.  A harmed special role needs it.
+            if r.get("special") and r.get("protected") != "allow":
+                rep.add("f SAFETY", f"role {rid}: a special villager ({r['special']}) who can be harmed needs "
+                                    "protected allow")
             if r.get("kind") == "stranger":
                 rep.add("f SAFETY", f"role {rid}: a stranger cannot take a villager effect")
         if r.get("special") and r["special"] not in SPECIALS:
@@ -915,6 +918,31 @@ def check_safety(doc: dict, rep: Report) -> None:
         if 5 in doc.get("games", []) and r.get("kind", "villager") == "villager" and r.get("believers_only") is False:
             rep.add("f SAFETY", f"role {rid}: New Believers' Heathens are never cast (believers_only)")
     rep.notes.append(f"harm-capable roles: {', '.join(sorted(harm)) or 'none'}")
+
+
+def _members(roles: dict, rid) -> list[str]:
+    """An alias's members, or an other role's alias's; [] for the rest."""
+    r = roles.get(rid, {}) if isinstance(rid, str) else {}
+    if r.get("kind") == "other":
+        r = roles.get(r.get("of"), {})
+    of = r.get("of") if r.get("kind") == "alias" else None
+    return list(of) if isinstance(of, list) else []
+
+
+def allow_on_harm(doc: dict) -> list[tuple[str, str, list[str]]]:
+    """Every harm-capable role whose author wrote protected "allow": (role, special or "", the harmful effects that
+    reach it, as "node: do").  The owner reviews each (cie-v6-binary.md 7)."""
+    roles = doc.get("roles", {}) or {}
+    harm = harm_roles(doc)
+    out = []
+    for rid, r in roles.items():
+        if rid not in harm or r.get("protected") != "allow":
+            continue
+        what = [f"{nid}: {e['do']}" for nid, n in (doc.get("nodes", {}) or {}).items()
+                for e in n.get("effects", []) or [] if harmful(e)
+                and (e.get("role") == rid or rid in _members(roles, e.get("role")))]
+        out.append((rid, r.get("special") or "", what))
+    return out
 
 
 def check_chances(doc: dict, rep: Report) -> None:
@@ -1247,8 +1275,20 @@ def main(argv=None) -> int:
     ap.add_argument("files", nargs="*", type=Path)
     ap.add_argument("--report", action="store_true", help="print each file's ledger summary")
     ap.add_argument("--format", action="store_true", help="rewrite the files in canonical form, then check")
+    ap.add_argument("--allow-report", action="store_true",
+                    help="list every harm-capable role with protected allow (for the owner's review), and stop")
     args = ap.parse_args(argv)
     files = [p.resolve() for p in args.files] or collection_files()
+    if args.allow_report:
+        n = 0
+        for p in files:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+            for rid, special, what in allow_on_harm(doc):
+                n += 1
+                print(f"{p.relative_to(lib.ROOT) if p.is_relative_to(lib.ROOT) else p}: role {rid}"
+                      f"{f' ({special})' if special else ''} may be harmed: {'; '.join(what)}")
+        print(f"{n} harm-capable role(s) with protected allow in {len(files)} file(s)")
+        return 0
     rows = manifest_rows()
     bad = 0
     for p in files:

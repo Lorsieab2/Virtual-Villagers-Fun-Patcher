@@ -5408,6 +5408,369 @@
     "rolls_used": 0,
     "cieg_sha256": "fa0d4b5580743739ee677618989622441db883d702f4402f2fcc6d1a99ee7ea1"
    }
+  },
+  {
+   "name": "looks_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Strange Pool",
+    "games": [
+     1,
+     3,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) swims in the strange pool and comes out looking different.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random",
+        "body": 4
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) follows, and changes too.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "friend",
+        "body": "random"
+       }
+      ],
+      "children": [
+       {
+        "next": "r"
+       }
+      ]
+     },
+     "r": {
+      "text": "(Friend) dives again and never comes up.",
+      "effects": [
+       {
+        "do": "die_unrecovered",
+        "role": "friend",
+        "cause": "unknown"
+       }
+      ]
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    25,
+    7
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "r"
+    ],
+    "fx": [
+     [
+      6,
+      4
+     ],
+     [
+      -1,
+      7
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana swims in the strange pool and comes out looking different.",
+     "Bo follows, and changes too.",
+     "Bo dives again and never comes up."
+    ],
+    "titles": [
+     "The Strange Pool",
+     "The Strange Pool",
+     "The Strange Pool"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "ca1f634d5737e8d577ee4d11256ac5792d74998b180bcfeedbec2b15a92c4879"
+   }
+  },
+  {
+   "name": "looks_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Strange Pool",
+    "games": [
+     1,
+     3,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) swims in the strange pool and comes out looking different.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random",
+        "body": 4
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) follows, and changes too.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "friend",
+        "body": "random"
+       }
+      ],
+      "children": [
+       {
+        "next": "r"
+       }
+      ]
+     },
+     "r": {
+      "text": "(Friend) dives again and never comes up.",
+      "effects": [
+       {
+        "do": "die_unrecovered",
+        "role": "friend",
+        "cause": "unknown"
+       }
+      ]
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    25,
+    7
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    },
+    "friend": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "r"
+    ],
+    "fx": [
+     [
+      25,
+      4
+     ],
+     [
+      -1,
+      7
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana swims in the strange pool and comes out looking different.",
+     "Bo follows, and changes too.",
+     "Bo dives again and never comes up."
+    ],
+    "titles": [
+     "The Strange Pool",
+     "The Strange Pool",
+     "The Strange Pool"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "ca1f634d5737e8d577ee4d11256ac5792d74998b180bcfeedbec2b15a92c4879"
+   }
+  },
+  {
+   "name": "looks_vv5",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Strange Pool",
+    "games": [
+     1,
+     3,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager",
+      "min_age": 14
+     },
+     "friend": {
+      "kind": "villager",
+      "min_age": 14
+     }
+    },
+    "start": "p",
+    "nodes": {
+     "p": {
+      "text": "(Name) swims in the strange pool and comes out looking different.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "subject",
+        "head": "random",
+        "body": 4
+       }
+      ],
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "text": "(Friend) follows, and changes too.",
+      "effects": [
+       {
+        "do": "appearance",
+        "role": "friend",
+        "body": "random"
+       }
+      ],
+      "children": [
+       {
+        "next": "r"
+       }
+      ]
+     },
+     "r": {
+      "text": "(Friend) dives again and never comes up.",
+      "effects": [
+       {
+        "do": "die_unrecovered",
+        "role": "friend",
+        "cause": "unknown"
+       }
+      ]
+     }
+    }
+   },
+   "game": 5,
+   "unicode": false,
+   "rolls": [
+    0,
+    28
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    },
+    "friend": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "p",
+     "q",
+     "r"
+    ],
+    "fx": [
+     [
+      0,
+      4
+     ],
+     [
+      -1,
+      28
+     ],
+     [
+      0,
+      0
+     ]
+    ],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo swims in the strange pool and comes out looking different.",
+     "Ana follows, and changes too.",
+     "Ana dives again and never comes up."
+    ],
+    "titles": [
+     "The Strange Pool",
+     "The Strange Pool",
+     "The Strange Pool"
+    ],
+    "labels": [],
+    "rolls_used": 2,
+    "cieg_sha256": "ca1f634d5737e8d577ee4d11256ac5792d74998b180bcfeedbec2b15a92c4879"
+   }
   }
  ]
 }

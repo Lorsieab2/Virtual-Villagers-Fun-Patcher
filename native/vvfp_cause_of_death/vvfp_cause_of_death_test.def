@@ -50,3 +50,5 @@ EXPORTS
     VvfpCauseTestCreationFields=_VvfpCauseTestCreationFields@8
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
     VvfpCauseKilledBy=_VvfpCauseKilledBy@12
+    VvfpCauseDiedUnrecovered=_VvfpCauseDiedUnrecovered@12
+    VvfpCauseBabyLost=_VvfpCauseBabyLost@12
