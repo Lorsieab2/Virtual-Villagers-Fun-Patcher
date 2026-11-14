@@ -75,11 +75,8 @@
  },
  "include_pools": [
   "v9_materials",
-  "v9_r16",
   "v9_r17",
-  "v9_r19",
-  "v9_r22",
-  "v9_r24"
+  "v9_r22"
  ],
  "pools": {
   "SORT": {
@@ -316,6 +313,16 @@
     }
    ]
   },
+  "coda_r17": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r17}"
+  },
+  "coda_r22": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r22}"
+  },
   "coda": {
    "type": "branch",
    "children": [
@@ -331,46 +338,13 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_r16"
-    },
-    {
      "next": "coda_r17"
     },
     {
-     "next": "coda_r19"
-    },
-    {
      "next": "coda_r22"
-    },
-    {
-     "next": "coda_r24"
     }
-   ]
-  },
-  "coda_r16": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r16}"
-  },
-  "coda_r17": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r17}"
-  },
-  "coda_r19": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r19}"
-  },
-  "coda_r22": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r22}"
-  },
-  "coda_r24": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r24}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

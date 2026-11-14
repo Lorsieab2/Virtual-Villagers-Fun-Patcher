@@ -82,12 +82,10 @@
   "v10_o2",
   "v10_o3",
   "v10_o4",
-  "v10_o8",
   "v10_o16",
   "v10_o18",
   "v10_o20",
-  "v10_o29",
-  "v10_o30"
+  "v10_o29"
  ],
  "pools": {
   "RESULT": {
@@ -349,49 +347,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_o2"
-    },
-    {
-     "next": "coda_o3"
-    },
-    {
-     "next": "coda_o4"
-    },
-    {
-     "next": "coda_o8"
-    },
-    {
-     "next": "coda_o16"
-    },
-    {
-     "next": "coda_o18"
-    },
-    {
-     "next": "coda_o20"
-    },
-    {
-     "next": "coda_o29"
-    },
-    {
-     "next": "coda_o30"
-    }
-   ]
-  },
   "coda_o2": {
    "popup": "append",
    "join": "paragraph",
@@ -406,11 +361,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v10_o4}"
-  },
-  "coda_o8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v10_o8}"
   },
   "coda_o16": {
    "popup": "append",
@@ -432,10 +382,69 @@
    "join": "paragraph",
    "text": "{v10_o29}"
   },
-  "coda_o30": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v10_o30}"
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o2",
+     "if": {
+      "any": [
+       {
+        "visited": "t2"
+       },
+       {
+        "visited": "t3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_o3"
+    },
+    {
+     "next": "coda_o4",
+     "if": {
+      "visited": "mad"
+     }
+    },
+    {
+     "next": "coda_o16",
+     "if": {
+      "visited": "warning"
+     }
+    },
+    {
+     "next": "coda_o18"
+    },
+    {
+     "next": "coda_o20",
+     "if": {
+      "any": [
+       {
+        "visited": "result"
+       },
+       {
+        "visited": "human"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_o29"
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

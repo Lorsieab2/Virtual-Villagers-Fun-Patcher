@@ -65,12 +65,8 @@
   }
  },
  "include_pools": [
-  "v9_r4",
   "v9_r5",
-  "v9_r16",
-  "v9_r20",
-  "v9_r24",
-  "v9_r25"
+  "v9_r24"
  ],
  "pools": {
   "NOTHEFT": {
@@ -256,6 +252,16 @@
     }
    ]
   },
+  "coda_r5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r5}"
+  },
+  "coda_r24": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v9_r24}"
+  },
   "coda": {
    "type": "branch",
    "children": [
@@ -271,57 +277,19 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_r4"
-    },
-    {
      "next": "coda_r5"
     },
     {
-     "next": "coda_r16"
-    },
-    {
-     "next": "coda_r20"
-    },
-    {
-     "next": "coda_r24"
-    },
-    {
-     "next": "coda_r25"
+     "next": "coda_r24",
+     "if": {
+      "visited": "theft"
+     }
     }
-   ]
-  },
-  "coda_r4": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r4}"
-  },
-  "coda_r16": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r16}"
-  },
-  "coda_r20": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r20}"
-  },
-  "coda_r24": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r24}"
-  },
-  "coda_r25": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r25}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
-  },
-  "coda_r5": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r5}"
   }
  }
 }

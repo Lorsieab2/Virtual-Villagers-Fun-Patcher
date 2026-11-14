@@ -121,15 +121,11 @@
   "parent": {
    "kind": "stranger",
    "sex": "random"
-  },
-  "coda1": {
-   "kind": "stranger",
-   "sex": "random"
   }
  },
  "include_pools": [
-  "v8_c4",
-  "v8_c5",
+  "v8_c4_elder",
+  "v8_c5_parent",
   "v8_c10"
  ],
  "pools": {
@@ -576,14 +572,32 @@
     }
    ]
   },
+  "coda_c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c4_elder}"
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5_parent}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
   "coda": {
    "type": "branch",
    "children": [
     {
-     "next": "coda_pick"
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "no_coda"
+     "next": "no_coda",
+     "weight": 20
     }
    ]
   },
@@ -591,7 +605,10 @@
    "type": "branch",
    "children": [
     {
-     "next": "coda_c4"
+     "next": "coda_c4",
+     "if": {
+      "visited": "el2"
+     }
     },
     {
      "next": "coda_c5"
@@ -599,22 +616,8 @@
     {
      "next": "coda_c10"
     }
-   ]
-  },
-  "coda_c4": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c4}"
-  },
-  "coda_c5": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c5}"
-  },
-  "coda_c10": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c10}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

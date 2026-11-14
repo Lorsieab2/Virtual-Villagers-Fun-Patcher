@@ -238,14 +238,27 @@
     }
    ]
   },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16}"
+  },
   "coda": {
    "type": "branch",
    "children": [
     {
-     "next": "coda_pick"
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "no_coda"
+     "next": "no_coda",
+     "weight": 20
     }
    ]
   },
@@ -258,17 +271,8 @@
     {
      "next": "coda_c16"
     }
-   ]
-  },
-  "coda_c10": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c10}"
-  },
-  "coda_c16": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c16}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

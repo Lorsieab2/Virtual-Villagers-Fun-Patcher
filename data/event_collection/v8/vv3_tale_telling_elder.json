@@ -94,11 +94,11 @@
   }
  },
  "include_pools": [
-  "v8_c4",
+  "v8_c4_elder",
   "v8_c5",
   "v8_c7",
   "v8_c10",
-  "v8_c16"
+  "v8_c16_elder"
  ],
  "pools": {
   "A": {
@@ -235,14 +235,42 @@
     }
    ]
   },
+  "coda_c4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c4_elder}"
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5}"
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16_elder}"
+  },
   "coda": {
    "type": "branch",
    "children": [
     {
-     "next": "coda_pick"
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "no_coda"
+     "next": "no_coda",
+     "weight": 20
     }
    ]
   },
@@ -264,32 +292,8 @@
     {
      "next": "coda_c16"
     }
-   ]
-  },
-  "coda_c4": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c4}"
-  },
-  "coda_c5": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c5}"
-  },
-  "coda_c7": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c7}"
-  },
-  "coda_c10": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c10}"
-  },
-  "coda_c16": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c16}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

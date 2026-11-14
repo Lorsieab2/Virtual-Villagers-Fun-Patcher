@@ -92,8 +92,6 @@
  "include_pools": [
   "v9_r4",
   "v9_r5",
-  "v9_r6",
-  "v9_r9",
   "v9_r10",
   "v9_r15",
   "v9_r16",
@@ -444,46 +442,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_r4"
-    },
-    {
-     "next": "coda_r5"
-    },
-    {
-     "next": "coda_r6"
-    },
-    {
-     "next": "coda_r9"
-    },
-    {
-     "next": "coda_r10"
-    },
-    {
-     "next": "coda_r15"
-    },
-    {
-     "next": "coda_r16"
-    },
-    {
-     "next": "coda_r25"
-    }
-   ]
-  },
   "coda_r4": {
    "popup": "append",
    "join": "paragraph",
@@ -493,16 +451,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v9_r5}"
-  },
-  "coda_r6": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r6}"
-  },
-  "coda_r9": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r9}"
   },
   "coda_r10": {
    "popup": "append",
@@ -523,6 +471,53 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v9_r25}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r4",
+     "if": {
+      "visited": "false"
+     }
+    },
+    {
+     "next": "coda_r5",
+     "if": {
+      "visited": "false"
+     }
+    },
+    {
+     "next": "coda_r10",
+     "if": {
+      "visited": "courtroom"
+     }
+    },
+    {
+     "next": "coda_r15"
+    },
+    {
+     "next": "coda_r16"
+    },
+    {
+     "next": "coda_r25",
+     "if": {
+      "visited": "e2"
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

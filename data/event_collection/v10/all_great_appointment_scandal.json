@@ -545,40 +545,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_o17"
-    },
-    {
-     "next": "coda_o19"
-    },
-    {
-     "next": "coda_o23"
-    },
-    {
-     "next": "coda_o24"
-    },
-    {
-     "next": "coda_o25"
-    },
-    {
-     "next": "coda_o27"
-    }
-   ]
-  },
   "coda_o17": {
    "popup": "append",
    "join": "paragraph",
@@ -608,6 +574,50 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v10_o27}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o17"
+    },
+    {
+     "next": "coda_o19",
+     "if": {
+      "visited": "scandal"
+     }
+    },
+    {
+     "next": "coda_o23"
+    },
+    {
+     "next": "coda_o24"
+    },
+    {
+     "next": "coda_o25",
+     "if": {
+      "visited": "appoint"
+     }
+    },
+    {
+     "next": "coda_o27",
+     "if": {
+      "visited": "appoint"
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

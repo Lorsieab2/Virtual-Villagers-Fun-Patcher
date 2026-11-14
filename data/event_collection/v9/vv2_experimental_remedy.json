@@ -105,8 +105,7 @@
   "v9_r16",
   "v9_r17",
   "v9_r22",
-  "v9_r24",
-  "v9_r25"
+  "v9_r24"
  ],
  "pools": {
   "COMEDY": {
@@ -416,40 +415,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_r14"
-    },
-    {
-     "next": "coda_r16"
-    },
-    {
-     "next": "coda_r17"
-    },
-    {
-     "next": "coda_r22"
-    },
-    {
-     "next": "coda_r24"
-    },
-    {
-     "next": "coda_r25"
-    }
-   ]
-  },
   "coda_r14": {
    "popup": "append",
    "join": "paragraph",
@@ -475,10 +440,62 @@
    "join": "paragraph",
    "text": "{v9_r24}"
   },
-  "coda_r25": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v9_r25}"
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r14",
+     "if": {
+      "visited": "m2"
+     }
+    },
+    {
+     "next": "coda_r16",
+     "if": {
+      "visited": "v2"
+     }
+    },
+    {
+     "next": "coda_r17"
+    },
+    {
+     "next": "coda_r22",
+     "if": {
+      "any": [
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_r24",
+     "if": {
+      "visited": "m2"
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

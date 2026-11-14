@@ -406,37 +406,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_r10"
-    },
-    {
-     "next": "coda_r14"
-    },
-    {
-     "next": "coda_r16"
-    },
-    {
-     "next": "coda_r21"
-    },
-    {
-     "next": "coda_r26"
-    }
-   ]
-  },
   "coda_r10": {
    "popup": "append",
    "join": "paragraph",
@@ -461,6 +430,50 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v9_r26}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r10",
+     "if": {
+      "visited": "mock"
+     }
+    },
+    {
+     "next": "coda_r14",
+     "if": {
+      "visited": "apology"
+     }
+    },
+    {
+     "next": "coda_r16",
+     "if": {
+      "visited": "children"
+     }
+    },
+    {
+     "next": "coda_r21",
+     "if": {
+      "visited": "mock"
+     }
+    },
+    {
+     "next": "coda_r26"
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

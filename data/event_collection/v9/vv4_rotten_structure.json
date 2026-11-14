@@ -292,50 +292,10 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_r7"
-    },
-    {
-     "next": "coda_r8"
-    },
-    {
-     "next": "coda_r9"
-    },
-    {
-     "next": "coda_r13"
-    },
-    {
-     "next": "coda_r14"
-    },
-    {
-     "next": "coda_r18"
-    },
-    {
-     "next": "coda_r23"
-    },
-    {
-     "next": "coda_r24"
-    }
-   ]
-  },
   "coda_r7": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v9_r7}"
+   "text": "{v9_r7_apprentice}"
   },
   "coda_r8": {
    "popup": "append",
@@ -372,12 +332,65 @@
    "join": "paragraph",
    "text": "{v9_r24}"
   },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_r7",
+     "if": {
+      "visited": "wrongful"
+     }
+    },
+    {
+     "next": "coda_r8"
+    },
+    {
+     "next": "coda_r9",
+     "if": {
+      "visited": "hearing"
+     }
+    },
+    {
+     "next": "coda_r13",
+     "if": {
+      "visited": "misconduct"
+     }
+    },
+    {
+     "next": "coda_r14"
+    },
+    {
+     "next": "coda_r18"
+    },
+    {
+     "next": "coda_r23"
+    },
+    {
+     "next": "coda_r24",
+     "if": {
+      "visited": "mixed"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
   "no_coda": {
    "type": "branch"
   }
  },
  "include_pools": [
-  "v9_r7",
+  "v9_r7_apprentice",
   "v9_r8",
   "v9_r9",
   "v9_r13",

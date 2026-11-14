@@ -289,41 +289,6 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
-    }
-   ]
-  },
-  "coda_pick": {
-   "type": "branch",
-   "children": [
-    {
-     "next": "coda_c7"
-    },
-    {
-     "next": "coda_c10"
-    }
-   ]
-  },
-  "coda_c7": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c7}"
-  },
-  "coda_c10": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c10}"
-  },
-  "no_coda": {
-   "type": "branch"
-  },
   "end_parent": {
    "popup": "append",
    "join": "paragraph",
@@ -345,6 +310,45 @@
      "next": "coda"
     }
    ]
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c7"
+    },
+    {
+     "next": "coda_c10"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  }
 }

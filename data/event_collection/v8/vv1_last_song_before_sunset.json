@@ -72,17 +72,13 @@
    "kind": "villager",
    "min_age": 14,
    "special": "nursing_parent"
-  },
-  "coda1": {
-   "kind": "stranger",
-   "sex": "random"
   }
  },
  "include_pools": [
-  "v8_c5",
+  "v8_c5_parent",
   "v8_c7",
   "v8_c10",
-  "v8_c16"
+  "v8_c16_elder"
  ],
  "pools": {
   "END": {
@@ -231,14 +227,37 @@
     }
    ]
   },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5_parent}"
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16_elder}"
+  },
   "coda": {
    "type": "branch",
    "children": [
     {
-     "next": "coda_pick"
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
     },
     {
-     "next": "no_coda"
+     "next": "no_coda",
+     "weight": 20
     }
    ]
   },
@@ -257,27 +276,8 @@
     {
      "next": "coda_c16"
     }
-   ]
-  },
-  "coda_c5": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c5}"
-  },
-  "coda_c7": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c7}"
-  },
-  "coda_c10": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c10}"
-  },
-  "coda_c16": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c16}"
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"

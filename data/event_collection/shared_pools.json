@@ -660,6 +660,78 @@
     }
    ],
    "distinct": true
+  },
+  "v8_c2_builder_child": {
+   "items": [
+    {
+     "text": "The adult kneels to the child's eye level. \"I was impatient. You didn't deserve that.\" The child {forgives (builder.him/her)|says (child.he/she) is still upset|asks whether they can try again tomorrow}. The adult accepts the answer.",
+     "src": "L4342-4346"
+    }
+   ]
+  },
+  "v8_c12_builder_child": {
+   "items": [
+    {
+     "text": "A famously critical Master Builder examines an apprentice's work. After a long silence, (builder.he/she) says, \"That joint is acceptable.\" The apprentice looks as though (child.he/she) has been crowned ruler of the entire island.",
+     "src": "L4409-4412"
+    }
+   ]
+  },
+  "v8_c16_elder": {
+   "items": [
+    {
+     "text": "An elder watches a child demonstrate a skill (elder.he/she) once taught. The child's hands move with confidence. \"You're getting good at this,\" the elder says. \"I had a good teacher,\" the child replies. The elder looks away before the child can see the tears.",
+     "src": "L4435-4439"
+    }
+   ]
+  },
+  "v8_c5_parent": {
+   "items": [
+    {
+     "text": "A nursing parent finally finds a quiet place to sit with the baby. Someone approaches with a request, sees the exhausted expression, and quietly turns away. For five glorious minutes, nobody needs anything else from (parent.him/her).",
+     "src": "L4365-4368"
+    }
+   ]
+  },
+  "v8_c4_elder": {
+   "items": [
+    {
+     "text": "An elder gives advice that turns out to be mistaken. At first, (elder.he/she) insists the younger villagers must have misunderstood. Then the evidence becomes impossible to ignore. \"Well,\" the elder says. \"I suppose being old doesn't make me right about everything.\" A child asks whether this means the elder will stop giving advice. \"Absolutely not.\"",
+     "src": "L4356-4362"
+    }
+   ]
+  },
+  "v9_r5_child": {
+   "items": [
+    {
+     "text": "A villager confesses because (child.he/she) genuinely believes a careless thought caused the disaster. A trusted adult explains the difference between wishing, fearing, and acting.",
+     "src": "L5243-5245"
+    }
+   ]
+  },
+  "v9_r7_friend": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (friend.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
+  },
+  "v9_r13_culprit": {
+   "items": [
+    {
+     "text": "The culprit's punishment is to rebuild the object (culprit.he/she) destroyed. The victim watches and says, 'That doesn't make us even.' 'I know,' the culprit replies.",
+     "src": "L5271-5273"
+    }
+   ]
+  },
+  "v9_r7_apprentice": {
+   "items": [
+    {
+     "text": "The accused is cleared, but the accusation has cost (apprentice.him/her) a friendship. 'Being innocent doesn't give me back what you said.'",
+     "src": "L5251-5252"
+    }
+   ]
   }
  }
 }

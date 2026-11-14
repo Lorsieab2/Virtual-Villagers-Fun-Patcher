@@ -85,8 +85,7 @@
   "v10_o12",
   "v10_o13",
   "v10_o15",
-  "v10_o17",
-  "v10_o29"
+  "v10_o17"
  ],
  "pools": {
   "A": {
@@ -185,39 +184,6 @@
      "src": "L5904-5905"
     }
    ]
-  },
-  "OUTCOMES": {
-   "set": "(5)",
-   "items": [
-    {
-     "text": "They reconcile and become occasional collaborators.",
-     "src": "L5908"
-    },
-    {
-     "text": "They still hate each other, but now respect each other's competence.",
-     "src": "L5909-5910"
-    },
-    {
-     "text": "One publicly admits (one.he/she) was wrong. The other nearly faints.",
-     "src": "L5911-5912"
-    },
-    {
-     "text": "Their feud becomes a running village joke, until the leaders ask the audience to stop encouraging the shouting.",
-     "src": "L5913-5915"
-    },
-    {
-     "text": "The Magician is recognized as head magician after a long record of service, while the Naturalist becomes head naturalist.",
-     "src": "L5916-5918"
-    },
-    {
-     "text": "Neither receives a title. Both are told to spend a week learning how to listen.",
-     "src": "L5919-5920"
-    },
-    {
-     "text": "One says, \"I will never agree with you.\" The other replies, \"Good. I'd worry if you did.\"",
-     "src": "L5921-5922"
-    }
-   ]
   }
  },
  "start": "intro",
@@ -293,9 +259,35 @@
    ]
   },
   "outcome": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "oc1"
+    },
+    {
+     "next": "oc2"
+    },
+    {
+     "next": "oc3"
+    },
+    {
+     "next": "oc4"
+    },
+    {
+     "next": "oc5"
+    },
+    {
+     "next": "oc6"
+    },
+    {
+     "next": "oc7"
+    }
+   ]
+  },
+  "oc1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{OUTCOMES}",
    "text_only": [
     {
      "src": "L5916-5918",
@@ -307,38 +299,117 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "src": "L5908",
+   "text": "They reconcile and become occasional collaborators."
   },
-  "coda": {
-   "type": "branch",
+  "oc2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
-   ]
+   ],
+   "src": "L5909-5910",
+   "text": "They still hate each other, but now respect each other's competence."
   },
-  "coda_pick": {
-   "type": "branch",
+  "oc3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
    "children": [
     {
-     "next": "coda_o12"
-    },
-    {
-     "next": "coda_o13"
-    },
-    {
-     "next": "coda_o15"
-    },
-    {
-     "next": "coda_o17"
-    },
-    {
-     "next": "coda_o29"
+     "next": "coda"
     }
-   ]
+   ],
+   "src": "L5911-5912",
+   "text": "One publicly admits (one.he/she) was wrong. The other nearly faints."
+  },
+  "oc4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "src": "L5913-5915",
+   "text": "Their feud becomes a running village joke, until the leaders ask the audience to stop encouraging the shouting."
+  },
+  "oc5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "src": "L5916-5918",
+   "text": "The Magician is recognized as head magician after a long record of service, while the Naturalist becomes head naturalist."
+  },
+  "oc6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "src": "L5919-5920",
+   "text": "Neither receives a title. Both are told to spend a week learning how to listen."
+  },
+  "oc7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text_only": [
+    {
+     "src": "L5916-5918",
+     "what": "head magician and head naturalist",
+     "reason": "rule 7: titles are told only"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "src": "L5921-5922",
+   "text": "One says, \"I will never agree with you.\" The other replies, \"Good. I'd worry if you did.\""
   },
   "coda_o12": {
    "popup": "append",
@@ -360,10 +431,43 @@
    "join": "paragraph",
    "text": "{v10_o17}"
   },
-  "coda_o29": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v10_o29}"
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_o12",
+     "if": {
+      "visited": "oc5"
+     }
+    },
+    {
+     "next": "coda_o13",
+     "if": {
+      "visited": "oc5"
+     }
+    },
+    {
+     "next": "coda_o15"
+    },
+    {
+     "next": "coda_o17",
+     "if": {
+      "visited": "oc2"
+     }
+    }
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
