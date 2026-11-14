@@ -108,9 +108,6 @@ static int cr_story_busy(int game) {
 
 /* ---- A New Home ------------------------------------------------------------------------------------------------ */
 
-static const char *const CR_V1_NAMES[2] = { "the second population hut", "the third population hut" };
-static const unsigned int CR_V1_FLAG[2] = { 0x9FF0u, 0x9FF8u };
-static const int CR_V1_DONE_AT[2] = { 400, 600 };
 static const unsigned int CR_V1_PUZZLES[16] = {
     0x9FA8, 0x9FB0, 0x9FB8, 0x9FC0, 0x9FC8, 0x9FD8, 0x9FE0, 0x9FE8,
     0xA000, 0xA008, 0xA050, 0xA058, 0xA080, 0xA088, 0xA090, 0xA098 };   /* the Puzzles screen's (Statistics 0x4333C0) */
@@ -157,38 +154,20 @@ static int cr_v1_puzzles(void) {
 }
 
 static int cr_v1_finished(int k) {
-    unsigned char *world = VV1_WORLD();
-    return world != NULL && k >= 0 && k < 2 && world[CR_V1_FLAG[k]] != 0;
+    return sd_finished(1, k);
 }
 
 static void cr_v1_damage(int k, int loss) {
-    unsigned char *world = VV1_WORLD();
-    unsigned char *array = VV1_ARRAY();
-    void *nav, *scene;
-    world[CR_V1_FLAG[k]] = 0;
-    *(int *)(world + CR_V1_FLAG[k] - 4) = CR_V1_DONE_AT[k] * (100 - loss) / 100;
-    nav = *(void **)(array + 0x3E014);
-    scene = *(void **)(array + 0x3E024);
-    if (nav != NULL) {
-        ADV_TC0(0x414590u, nav);
-    }
-    if (scene != NULL) {
-        ADV_TC0(0x416380u, scene);
-    }
+    sd_damage(1, k, loss, NULL, 0);
 }
 
 static const cr_game CR_VV1 = {
     1, v1_count, v1_rand, cr_v1_graves, NULL, cr_v1_goes, cr_v1_send, cr_v1_feast,
-    cr_v1_puzzles, 2, CR_V1_NAMES, cr_v1_finished, cr_v1_damage, 40
+    cr_v1_puzzles, 2, SD_V1_NAMES, cr_v1_finished, cr_v1_damage, 40
 };
 
 /* ---- The Lost Children ---------------------------------------------------------------------------------------- */
 
-static const char *const CR_V2_NAMES[3] = {
-    "the first population hut", "the second population hut", "the third population hut" };
-static const unsigned int CR_V2_FLAG[3] = { 0x2E818u, 0x2E820u, 0x2E828u };
-static const int CR_V2_DONE_AT[3] = { 450, 700, 900 };
-static const int CR_V2_START[3] = { 205, 0, 0 };
 static const unsigned int CR_V2_PUZZLES[16] = {
     0x2E768, 0x2E770, 0x2E778, 0x2E780, 0x2E788, 0x2E790, 0x2E798, 0x2E7A0,
     0x2E7A8, 0x2E7B0, 0x2E7B8, 0x2E7C0, 0x2E7C8, 0x2E7D8, 0x2E7E0, 0x2E7E8 };   /* the Puzzles screen's */
@@ -236,39 +215,22 @@ static int cr_v2_puzzles(void) {
 }
 
 static int cr_v2_finished(int k) {
-    unsigned char *world = VV2_WORLD();
-    return world != NULL && k >= 0 && k < 3 && world[CR_V2_FLAG[k]] != 0;
+    return sd_finished(2, k);
 }
 
 static void cr_v2_damage(int k, int loss) {
-    unsigned char *world = VV2_WORLD();
-    unsigned char *pool = VV2_POOL();
-    void *scene, *map;
-    world[CR_V2_FLAG[k]] = 0;
-    *(int *)(world + CR_V2_FLAG[k] - 4) = CR_V2_START[k] + (CR_V2_DONE_AT[k] - CR_V2_START[k]) * (100 - loss) / 100;
-    scene = *(void **)(pool + 0xE574D8);
-    map = *(void **)(pool + 0xE574E8);
-    if (scene != NULL) {
-        ADV_TC0(0x418660u, scene);
-    }
-    if (map != NULL) {
-        ADV_TC0(0x41C1D0u, map);
-    }
+    sd_damage(2, k, loss, NULL, 0);
 }
 
 static const cr_game CR_VV2 = {
     2, v2_count, v2_rand, cr_v2_graves, NULL, cr_v2_goes, cr_v2_send, cr_v2_feast,
-    cr_v2_puzzles, 3, CR_V2_NAMES, cr_v2_finished, cr_v2_damage, 40
+    cr_v2_puzzles, 3, SD_V2_NAMES, cr_v2_finished, cr_v2_damage, 40
 };
 
 /* ---- The Secret City -------------------------------------------------------------------------------------------- */
 
-static const char *const CR_V3_NAMES[4] = {
-    "the first population hut", "the second population hut", "the third population hut", "the clothing hut" };
-static const int CR_V3_STATE[4] = { 1, 2, 3, 3 };          /* the new village's (0x4322F0; the clothing hut's 4 -> 3) */
 static const int CR_V3_PUZZLE_DONE_AT[16] = { 1, 1, 5, 700, 1, 1, 1800, 1400, 2, 1, 1, 6, 1, 1, 1, 1 };
 #define CR_V3_PROJECTS 0x594990u
-#define CR_V3_HUTS 0x594620u
 
 static int cr_v3_graves(void) {
     return CR_TC0R(0x454B10u, 0x5973F0u);
@@ -309,129 +271,30 @@ static int cr_v3_puzzles(void) {
     return 1;
 }
 
-static int cr_v3_id(int k) {
-    return *(const int *)(uintptr_t)(0x49D0D0u + 4u * (unsigned int)k);
-}
-
-static int cr_v3_done_at(int id) {
-    return *(const int *)(uintptr_t)(0x49D230u + 4u * (unsigned int)id);
-}
-
 static int cr_v3_finished(int k) {
-    int id = cr_v3_id(k), done_at = cr_v3_done_at(id);
-    return done_at >= 1 && *(const int *)(uintptr_t)(CR_V3_PROJECTS + 8u * (unsigned int)id) >= done_at;
+    return sd_finished(3, k);
 }
 
 static void cr_v3_damage(int k, int loss) {
-    unsigned char *hut = (unsigned char *)(uintptr_t)(CR_V3_HUTS + 4u + 0x14u * (unsigned int)k);
-    int id = cr_v3_id(k), done_at = cr_v3_done_at(id);
-    int left = *(const int *)(uintptr_t)(0x49D0E0u + 4u * (unsigned int)CR_V3_STATE[k]);   /* the new village's */
-    int start = done_at - left;
-    int progress = start + (done_at - start) * (100 - loss) / 100;
-    int handle = *(int *)(hut + 0xC);
-    if (handle != -1) {
-        ADV_TC1(0x429B00u, 0x58C338u, handle);
-        *(int *)(hut + 0xC) = -1;
-    }
-    *(int *)(hut + 4) = CR_V3_STATE[k];
-    ADV_TC2(0x435970u, CR_V3_PROJECTS, id, done_at - progress);
-    hut[0] = (unsigned char)(loss < 100);
-    *(int *)(hut + 8) = loss < 100 ? left : 0;
+    sd_damage(3, k, loss, NULL, 0);
 }
 
 /* ---- The Tree of Life and New Believers ------------------------------------------------------------------------ */
 
-typedef struct {
-    int id;
-    unsigned int object;
-} cr_building;
-
-static const cr_building CR_V4_BUILDINGS[7] = {
-    { 19, 0x4D8588u }, { 20, 0x4D8250u }, { 21, 0x4D8478u }, { 22, 0x4D82D8u }, { 23, 0x4D83F0u },
-    { 24, 0x4D8500u }, { 25, 0x4D8360u } };
-static const cr_building CR_V5_BUILDINGS[5] = {
-    { 19, 0x51DCD8u }, { 20, 0x51DA28u }, { 21, 0x51DBC8u }, { 22, 0x51DAB0u }, { 23, 0x51DB40u } };
-static const char *const CR_V45_NAMES[7] = {
-    "the first population hut", "the second population hut", "the third population hut", "the clothing hut",
-    "the love shack", "the nursery school", "the hospital" };
 static const int CR_V5_PUZZLES[11] = { 2, 3, 4, 6, 7, 8, 10, 11, 12, 14, 15 };   /* the Puzzles screen's */
 
-typedef struct {
-    const cr_building *buildings;
-    unsigned int projects, done_at, setter, pool, release;
-    unsigned int set_state_slot;               /* the building's set state: vtable + this */
-} cr_late;
-
-static const cr_late CR_LATE[2] = {
-    { CR_V4_BUILDINGS, 0x4D8BF8u, 0x4D8B20u, 0x438A10u, 0x4D69D0u, 0x41D6B0u, 0x40u },
-    { CR_V5_BUILDINGS, 0x51E008u, 0x51DF30u, 0x43AF50u, 0x51CF40u, 0x41E710u, 0x44u },
-};
-
-static const cr_late *cr_late_of(void) {
-    return &CR_LATE[g_tg->game == 4 ? 0 : 1];
-}
-
-static int cr_project_done(const cr_late *l, int id) {
-    int done_at = *(const int *)(uintptr_t)(l->done_at + 4u * (unsigned int)id);
-    return done_at >= 1 && *(const int *)(uintptr_t)(l->projects + 8u * (unsigned int)id) >= done_at;
-}
-
 static int cr_v45_finished(int k) {
-    const cr_late *l = cr_late_of();
-    const cr_building *b = &l->buildings[k];
-    return *(const int *)(uintptr_t)(b->object + 8u) == b->id && cr_project_done(l, b->id);
-}
-
-/* The Tree of Life's nursery school teacher let go (assignment 0x10, 0x4377BC; the stop as at 0x437688). */
-static void cr_v4_release_teacher(void) {
-    int i;
-    for (i = 0; i < g_records; ++i) {
-        unsigned char *r = t_record(i);
-        if (r != NULL && r[0x1CC4] != 0 && *(int *)(r + 0x1C54) == 0x10) {
-            *(int *)(r + 0x1C54) = 0;
-            ADV_TC0(0x468C60u, r);
-        }
-    }
+    return sd_finished(g_tg->game, k);
 }
 
 static void cr_v45_damage(int k, int loss) {
-    const cr_late *l = cr_late_of();
-    const cr_building *b = &l->buildings[k];
-    unsigned char *o = (unsigned char *)(uintptr_t)b->object;
-    int done_at = *(const int *)(uintptr_t)(l->done_at + 4u * (unsigned int)b->id);
-    int progress = done_at * (100 - loss) / 100;
-    void **vtable = *(void ***)o;
-    int handle = *(int *)(o + 0x3C);
-    if (handle != -1) {
-        ADV_TC1(l->release, l->pool, handle);
-        *(int *)(o + 0x3C) = -1;
-    }
-    ((adv_tc1)vtable[l->set_state_slot / 4])(o, NULL, 3);
-    if (loss < 100) {
-        ADV_TC2(l->setter, l->projects, b->id, done_at - progress);
-    }
-    o[0x30] = (unsigned char)(loss < 100);
-    if (k < 3) {
-        /* The "3 huts" trophy (The Tree of Life 0x2D, New Believers 0x31: done at 3, 0x4B8524 / 0x4C6544) counts
-           each population hut's completion (0x412F90 / 0x413450: +1 while locked).  Still locked, the damaged hut's
-           count is taken back, so rebuilding it counts it again and the trophy still needs three different huts.
-           The table is saved with the village (the state's +0x328: 0x41F06A / 0x42452A copy it, 0x41FC47 / 0x42573E
-           load it, beside the food store), so the count stays right across a save. */
-        unsigned char *trophy = (unsigned char *)(uintptr_t)(g_tg->game == 4 ? 0x4CBB98u + 0x2Du * 12u
-                                                                                : 0x4DB358u + 0x31u * 12u);
-        if (trophy[0] == 0 && *(int *)(trophy + 4) > 0) {
-            --*(int *)(trophy + 4);
-        }
-    }
-    if (g_tg->game == 4 && b->id == 24) {
-        cr_v4_release_teacher();
-    }
+    sd_damage(g_tg->game, k, loss, t_record, g_records);
 }
 
 static int cr_v4_puzzles(void) {
     int id;
     for (id = 0; id < 16; ++id) {
-        if (!cr_project_done(&CR_LATE[0], id)) {
+        if (!sd_late_done(&SD_LATE[0], id)) {
             return 0;
         }
     }
@@ -441,7 +304,7 @@ static int cr_v4_puzzles(void) {
 static int cr_v5_puzzles(void) {
     int k;
     for (k = 0; k < 11; ++k) {
-        if (!cr_project_done(&CR_LATE[1], CR_V5_PUZZLES[k])) {
+        if (!sd_late_done(&SD_LATE[1], CR_V5_PUZZLES[k])) {
             return 0;
         }
     }
@@ -544,15 +407,15 @@ static int cr_v5_feast(void) {
 
 static const cr_game CR_VV3 = {
     3, t_count, t_rand, cr_v3_graves, NULL, cr_v3_goes, cr_v3_send, cr_v3_feast,
-    cr_v3_puzzles, 4, CR_V3_NAMES, cr_v3_finished, cr_v3_damage, 0
+    cr_v3_puzzles, 4, SD_V3_NAMES, cr_v3_finished, cr_v3_damage, 0
 };
 static const cr_game CR_VV4 = {
     4, t_count, t_rand, cr_v4_graves, NULL, cr_v4_goes, cr_v4_send, cr_v4_feast,
-    cr_v4_puzzles, 7, CR_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
+    cr_v4_puzzles, 7, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
 };
 static const cr_game CR_VV5 = {
     5, t_count, t_rand, cr_v5_graves, cr_v5_heathens_done, cr_v5_goes, cr_v5_send, cr_v5_feast,
-    cr_v5_puzzles, 5, CR_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
+    cr_v5_puzzles, 5, SD_V45_NAMES, cr_v45_finished, cr_v45_damage, 0
 };
 
 static const cr_game *g_cr;              /* the installed game's, NULL when not installed */

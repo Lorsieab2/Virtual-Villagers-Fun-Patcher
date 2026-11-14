@@ -2293,7 +2293,7 @@ static const char *ce_choice_label(int game, int button) {
     if (!ce_choice_asked(game) || button < 0 || button >= ce_choice_answers(game)) {
         return NULL;
     }
-    return button < 2 ? ce_choice_store[ce_asked_store].labels[button] : cg_labels_more[button - 2];
+    return cg_owns_asked(game) ? cg_label(button) : ce_choice_store[ce_asked_store].labels[button];
 }
 
 /* The asked question's title (for a game that shows the title on its own),
