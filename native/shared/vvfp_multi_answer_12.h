@@ -375,11 +375,219 @@ static unsigned int mb_game_vtable(const void *popup, int *room) {
 }
 
 /* Another dialog is built on the same stack: forget this one (its buttons are deleted at the next mb_attach). */
+static void mb_op_forget(void);
+
 static void mb_forget(void *dialog) {
     if (dialog != NULL && dialog == g_mb.dialog) {
         g_mb.dialog = NULL;
         g_mb.made = 0;
+        mb_op_forget();
     }
+}
+
+/* ---- ONE popup per island event (native/shared/one_popup.h) ---------------------------------------------------
+
+   With Scrolling Popups, a new island event runs whole in this dialog: its text in the question field (+0x74 /
+   +0x7C; the result field and its flag +0x50 are never used), its choices drawn by Scrolling Popups after the text
+   (VvfpOnePopupRows / VvfpOnePopupPick), the game's two answers always off, OK on only while no choice is asked.
+   A choice (a row, or the keys 1 to 7) gives the client's pick, whose text replaces the shown one; OK gives the
+   client's ok, which keeps the popup when it shows another text, else the game's OK closes it.  The buttons follow
+   the client at every draw (as above: a draw is never inside a button's own click) and right after a pick or OK. */
+#include "one_popup.h"
+
+typedef struct {
+    int (*rows)(void *dialog, op_rows *out);    /* the choices shown now (0: OK), their words */
+    int (*pick)(void *dialog, int k);           /* choice k: its text in place; 1 when taken */
+    int (*ok)(void *dialog);                    /* OK: 1 when another text replaced the shown one (the popup stays) */
+} mb_op_client;
+
+static const mb_op_client *g_mb_op;            /* non-NULL: g_mb.dialog is a one-popup event */
+static int g_mb_ab_on;                          /* the game's two answers still attached */
+static int g_mb_ok_on;                          /* OK attached */
+static int g_mb_ok_made;                        /* the constructor is done (the dialog drawn once): OK exists */
+
+static void mb_op_forget(void) {
+    g_mb_op = NULL;
+}
+
+/* The choices shown now (and their words when `out`), 0 when none or not ours. */
+static int mb_op_count(void *dialog, op_rows *out) {
+    static op_rows scratch;
+    op_rows *r = out != NULL ? out : &scratch;
+    if (g_mb_op == NULL || dialog == NULL || dialog != g_mb.dialog) {
+        return 0;
+    }
+    r->rows = 0;
+    if (!g_mb_op->rows(dialog, r)) {
+        return 0;
+    }
+    return r->rows > 0 && r->rows <= OP_MAX_ROWS ? r->rows : 0;
+}
+
+/* The game's buttons as the client's state says: its two answers off, OK on only while nothing is asked. */
+static void mb_op_sync(void *dialog) {
+    const mb_game *g = g_mb.g;
+    int asking = mb_op_count(dialog, NULL) > 0;
+    __try {
+        if (g_mb_ab_on) {
+            mb_call1(g->remove, dialog, mb_field(dialog, g->button_a));
+            mb_call1(g->remove, dialog, mb_field(dialog, g->button_b));
+            g_mb_ab_on = 0;
+        }
+        if (asking && g_mb_ok_on) {
+            mb_call1(g->remove, dialog, mb_field(dialog, g->ok));
+            g_mb_ok_on = 0;
+        } else if (!asking && !g_mb_ok_on) {
+            mb_call1(g->attach, dialog, mb_field(dialog, g->ok));
+            g_mb_ok_on = 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+static void __fastcall mb_op_draw(void *dialog, void *unused) {
+    (void)unused;
+    if (dialog == g_mb.dialog && g_mb_op != NULL) {
+        g_mb_ok_made = 1;
+        mb_op_sync(dialog);
+    }
+    ((mb_draw_fn)(uintptr_t)g_mb.g->draw)(dialog, NULL);
+}
+
+/* Choice k picked (a row or a key): the client's text in place, the buttons after it.  1 when taken. */
+static int mb_op_pick(void *dialog, int k) {
+    int n = mb_op_count(dialog, NULL);
+    if (k < 0 || k >= n) {
+        return 0;
+    }
+    __try {
+        void *sound = mb_field(dialog, g_mb.g->sound_field);
+        if (sound != NULL) {
+            mb_call1(g_mb.g->sound, sound, (void *)(uintptr_t)g_mb.g->sound_id);   /* the game's answer click */
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    if (!g_mb_op->pick(dialog, k)) {
+        return 0;
+    }
+    ((unsigned char *)dialog)[0x50] = 0;          /* the question field is the one shown, always */
+    mb_op_sync(dialog);
+    return 1;
+}
+
+/* The dialog's click handler (+0x0C) for a one-popup event: OK goes to the client first (another text keeps the
+   popup), the game's two answers are never on screen (a click from them is dropped), the rest is the game's. */
+static char __fastcall mb_op_message(void *dialog, void *unused, int message, int id) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused;
+    __try {
+        if (message == 8 && dialog == g_mb.dialog && g_mb_op != NULL) {
+            if (id == *(int *)(d + 0x5C)) {
+                if (mb_op_count(dialog, NULL) > 0) {
+                    return 1;                          /* asking: no OK */
+                }
+                if (g_mb_op->ok(dialog)) {
+                    d[0x50] = 0;
+                    mb_op_sync(dialog);
+                    return 1;                          /* another text: the popup stays */
+                }
+                g_mb_op = NULL;                         /* the event is over: the game's OK closes it */
+            } else if (id == *(int *)(d + 0x54) || id == *(int *)(d + 0x58)) {
+                return 1;
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return ((mb_message_fn)(uintptr_t)g_mb.g->click)(dialog, NULL, message, id);
+}
+
+/* The keyboard handler (+0x08): Enter / Esc is OK while no choice is asked, the keys 1 to N the choices. */
+static char __fastcall mb_op_key(void *dialog, void *unused, int type, int code, int raw) {
+    unsigned char *d = (unsigned char *)dialog;
+    (void)unused; (void)raw;
+    __try {
+        int n;
+        if (dialog != g_mb.dialog || g_mb_op == NULL) {
+            return 0;
+        }
+        n = mb_op_count(dialog, NULL);
+        if (type == 6 && (code == 0x3EB || code == 0x3E8) && n == 0) {
+            mb_op_message(dialog, NULL, 8, *(int *)(d + 0x5C));
+            return 1;
+        }
+        if (type == 5 && code >= '1' && code < '1' + n) {
+            return (char)mb_op_pick(dialog, code - '1');
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return 0;
+}
+
+/* The dialog being built (the setup call, inside the constructor) is a one-popup event: our virtual table with the
+   draw, click and key handlers above.  Its buttons are put right at its first draw (the constructor attaches the
+   game's two answers after the setup call).  0 when not done. */
+static int mb_attach_op(int game, const mb_op_client *client, void *dialog) {
+    const mb_game *g = mb_game_of(game);
+    unsigned char *d = (unsigned char *)dialog;
+    int k;
+    for (k = 0; k < MB_EXTRA; ++k) {
+        if (g_mb.buttons[k] != NULL) {
+            mb_delete(g_mb.buttons[k]);
+            g_mb.buttons[k] = NULL;
+        }
+    }
+    g_mb.made = 0;
+    g_mb.dialog = NULL;
+    g_mb_op = NULL;
+    if (g == NULL || client == NULL || dialog == NULL || *(unsigned int *)d != g->dialog_vtable) {
+        return 0;
+    }
+    g_mb.g = g;
+    g_mb.c = NULL;
+    g_mb.dialog = dialog;
+    g_mb.room_px = 0;
+    g_mb_room_px = 0;
+    g_mb_op = client;
+    g_mb_ab_on = 1;
+    g_mb_ok_on = 0;
+    g_mb_ok_made = 0;
+    memcpy(g_mb.dvt, (const void *)(uintptr_t)(g->dialog_vtable - 4u), sizeof g_mb.dvt);
+    g_mb.dvt[1 + 2] = (unsigned int)(uintptr_t)mb_op_key;
+    g_mb.dvt[1 + 3] = (unsigned int)(uintptr_t)mb_op_message;
+    g_mb.dvt[1 + 12] = (unsigned int)(uintptr_t)mb_op_draw;
+    *(unsigned int **)d = &g_mb.dvt[1];
+    return 1;
+}
+
+/* The room OK keeps below the content: 5/2 of its height, as the game's plain popup keeps; before the constructor
+   has made OK (its panel is sized first), 5/2 of the answers' picture's 32 pixels. */
+#define MB_OP_RESERVE_BEFORE (5 * 32 / 2)
+static int mb_op_reserve(void) {
+    int h = 0;
+    __try {
+        void *ok = mb_field(g_mb.dialog, g_mb.g->ok);
+        h = ok != NULL && g_mb_ok_made ? mb_vcall(ok, 0x10) : 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        h = 0;
+    }
+    return h > 0 && h < 200 ? 5 * h / 2 : MB_OP_RESERVE_BEFORE;
+}
+
+/* For Scrolling Popups (VvfpOnePopupRows): 1 when `popup` is the one-popup event here, `out` filled -- the choices,
+   their words and the room OK keeps below the content (5/2 of its height, as the game's plain popup keeps). */
+static int mb_op_rows(const void *popup, op_rows *out) {
+    int r = 0;
+    __try {
+        if (popup != NULL && popup == g_mb.dialog && g_mb_op != NULL && out != NULL
+            && out->size == (int)sizeof(op_rows)) {
+            out->rows = mb_op_count(g_mb.dialog, out);
+            out->reserve = mb_op_reserve();
+            r = 1;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        r = 0;
+    }
+    return r;
 }
 
 #endif

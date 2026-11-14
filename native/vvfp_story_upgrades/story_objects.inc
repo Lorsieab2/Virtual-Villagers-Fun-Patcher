@@ -151,6 +151,7 @@ static char choice_padded[2000];
    of every answer, padded with blank lines worth the extra buttons' room.  With two answers nothing here is used. */
 static int cs_multi;                     /* the question handed to the presenter has 3 or 4 answers */
 static void *cs_dialog;                  /* the dialog the presenter builds for it */
+static int cs_op;                        /* ... a one-popup event (vvfp_multi_answer.h ma_op_*): its whole run */
 
 static int __fastcall choice_object_question(void *self, void *unused_edx) {
     (void)self;
@@ -194,6 +195,10 @@ static int __fastcall choice_object_pose(void *self, void *unused_edx) {
 static int __fastcall choice_object_result(void *self, void *unused_edx, int choice) {
     (void)self;
     (void)unused_edx;
+    if (cs_op) {
+        ce_strings[1].text = ce_body_text;     /* one popup: its panel is sized for the text shown first */
+        return ce_strings[1].id;
+    }
     if (!choice_answered && choice_answers > 2) {
         const char *text = choice_tallest[choice_tallest_at];
         __try {
@@ -232,11 +237,52 @@ static void __fastcall choice_object_apply(void *self, void *unused_edx, int cho
     (void)self;
     (void)unused_edx;
     (void)choice;
+    if (cs_op) {
+        ma_op_forget();               /* one popup: the event is over */
+        cs_op = 0;
+    }
     if (cs_multi) {
         ma_forget();                  /* the popup closes: our buttons went at this OK */
         cs_multi = 0;
     }
 }
+
+/* ---- One popup per island event (native/shared/one_popup.h): the client of vvfp_multi_answer.h ma_op_* ---- */
+
+static int cs_op_rows(void *dialog, op_rows *out) {
+    int k, n = cg_op_rows(choice_game);
+    (void)dialog;
+    out->rows = n;
+    for (k = 0; k < n && k < OP_MAX_ROWS; ++k) {
+        lstrcpynA(out->labels[k], cg_label(k), OP_LABEL_BYTES);
+    }
+    return 1;
+}
+
+/* The text just made (choice_result) shown: the dialog's own field, and the title in force on it. */
+static void cs_op_show(void *dialog) {
+    lstrcpynA((char *)dialog + 0x58, choice_result, 2000);
+    lstrcpynA(ce_title_text, cg_op_title(), sizeof ce_title_text);
+}
+
+static int cs_op_pick(void *dialog, int k) {
+    if (!ce_choice_resolve(choice_game, k, choice_result, sizeof choice_result)) {
+        return 0;
+    }
+    choice_answered = 1;
+    cs_op_show(dialog);
+    return 1;
+}
+
+static int cs_op_ok(void *dialog) {
+    if (!cg_op_ok(choice_game, choice_result, sizeof choice_result)) {
+        return 0;
+    }
+    cs_op_show(dialog);
+    return 1;
+}
+
+static const ma_op_client CS_OP_CLIENT = { cs_op_rows, cs_op_pick, cs_op_ok };
 
 /* ---- The shared multi-answer popup's client ---- */
 
@@ -279,6 +325,11 @@ static void __cdecl cs_after_ctor(void *dialog) {
         if (!cs_multi || d == NULL || g == NULL || *(void **)(d + 0x50) != (void *)&ce_object || d[0x4C] == 0) {
             return;
         }
+        if (cs_op) {
+            ma_op_expect(choice_game, &CS_OP_CLIENT, dialog);
+            ma_op_attach(dialog);       /* one popup: our virtual table, the game's answers hidden */
+            return;
+        }
         for (k = 0; k < choice_answers; ++k) {
             words[k] = choice_labels[k];
         }
@@ -295,6 +346,28 @@ __declspec(dllexport) int __stdcall VvfpStoryButtonRoom(const void *popup) {
     return ma_room(popup);
 }
 
+/* For Scrolling Popups (native/shared/one_popup.h): the one-popup event's choices, in any game.  The later three
+   games' dialog is known from the presenter's stack slot before its constructor sizes it. */
+__declspec(dllexport) int __stdcall VvfpOnePopupRows(const void *popup, op_rows *out) {
+    if (cs_op && popup != NULL && popup == cs_dialog && g_ma_op_dialog != cs_dialog) {
+        ma_op_expect(choice_game, &CS_OP_CLIENT, cs_dialog);
+    }
+    if (ma_op_rows(popup, out)) {
+        return 1;
+    }
+    return mb_op_rows(popup, out);
+}
+
+__declspec(dllexport) int __stdcall VvfpOnePopupPick(const void *popup, int k) {
+    if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL) {
+        return ma_op_pick((void *)popup, k);
+    }
+    if (popup != NULL && popup == g_mb.dialog && g_mb_op != NULL) {
+        return mb_op_pick((void *)popup, k);
+    }
+    return 0;
+}
+
 /* The question object of `game`, built from the two-choice vtable `source`
    with the title method `title`, featuring the picked villager or a random
    living one (ce_choice_featured); NULL when no question is armed (or nobody
@@ -309,6 +382,7 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     void *object;
     int b;
     cs_multi = 0;
+    cs_op = 0;
     if (a == NULL || !ce_choice_pending(game) || ce_held(game, 1)) {
         return NULL;
     }
@@ -322,6 +396,37 @@ static void *choice_object(int game, unsigned int string_table, int title_id, in
     }
     if (!ce_choice_begin(game, ce_body_text, 2000)) {
         return NULL;
+    }
+    if (cg_op_begun_take(game)) {
+        /* One popup: the whole event in the presenter's dialog (cs_after_ctor), its choices drawn by Scrolling
+           Popups; nothing to size for but the text shown first. */
+        int n = cg_op_rows(game);
+        cs_op = 1;
+        cs_multi = 1;                 /* the stubs' own path: the dialog known before and after its constructor */
+        choice_answers = n >= 2 ? n : 2;
+        for (b = 0; b < MA_MAX_ANSWERS; ++b) {
+            lstrcpynA(choice_labels[b], b < n ? cg_label(b) : "", sizeof choice_labels[b]);
+            choice_tallest[b][0] = '\0';
+        }
+        choice_tallest_at = 0;
+        lstrcpynA(ce_title_text, cg_op_title(), sizeof ce_title_text);
+        choice_result[0] = '\0';
+        choice_answered = 0;
+        choice_game = game;
+        functions[0] = title;
+        functions[1] = (void *)choice_object_question;
+        functions[2] = (void *)choice_object_first_label;
+        functions[3] = (void *)choice_object_second_label;
+        functions[4] = (void *)choice_object_villager;
+        functions[5] = (void *)choice_object_nobody;
+        functions[6] = (void *)choice_object_pose;
+        functions[7] = (void *)choice_object_result;
+        functions[8] = (void *)choice_object_apply;
+        functions[9] = (void *)choice_object_choose;
+        functions[10] = (void *)ce_object_true;
+        object = ce_build_object(source, slots, functions, 11);
+        ce_object.villager = villager;
+        return object;
     }
     choice_answers = ce_choice_answers(game);
     choice_tallest_at = 0;

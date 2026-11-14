@@ -135,8 +135,10 @@
 #define CG_MAX_PAGES 24
 #define CG_NAME_BYTES 32
 #define CG_TEXT_MAX 1990                /* a popup's (and a page's) bytes: the later games build theirs in 2,000 */
-#define CG_RAW_BYTES 4096
-#define CG_PAGE_BYTES 2400
+#define CG_TEXT_MAX_12 8000             /* ... A New Home's and The Lost Children's ONE popup (their dialogs hold 9,999;
+                                           src/vv_cie_graph.py ONE_POPUP_TEXT_MAX_12) */
+#define CG_RAW_BYTES 8192
+#define CG_PAGE_BYTES 8200
 #define CG_DISPLAY_BYTES 49152
 #define CG_MAX_DISPLAYS 96
 #define CG_CAUSE_BYTES 64
@@ -1246,12 +1248,30 @@ static int cg_answer_room(int node, const ce_layout *l) {
 /* G1: question `node` (asked as question `qi`) shows five or more buttons, so its answer's first page starts a fresh
    popup (the notice's: no room for buttons) instead of sharing the question's (docs/event-collection/cie-v6-binary.md
    11).  Two to four: as before. */
+static int cg_one_popup(void);
+
 static int cg_fresh_after(int node, int qi) {
     unsigned char map[CG_MAX_ANSWERS];
-    return cg_g.version >= 6 && node >= 0 && cg_buttons(node, qi, map) > CG_V4_ANSWERS;
+    return !cg_one_popup() && cg_g.version >= 6 && node >= 0 && cg_buttons(node, qi, map) > CG_V4_ANSWERS;
 }
 
 static int cg_answer_fresh_game;       /* the game whose last answer's page comes in a fresh popup (G1) */
+static int cg_op_in_place;             /* one popup: a question asked in the popup already on screen (no count) */
+static int cg_op_begun;                /* one popup: the game whose event ce_choice_begin just opened (its host takes it) */
+
+/* One popup: whether ce_choice_begin just opened this game's event as a one-popup event (taken once). */
+static int cg_op_begun_take(int game) {
+    int r = game != 0 && cg_op_begun == game;
+    cg_op_begun = 0;
+    return r;
+}
+
+static char cg_shown_title[CE_TITLE_BYTES];   /* (defined below) */
+
+/* One popup: the title in force on the text shown last. */
+static const char *cg_op_title(void) {
+    return cg_shown_title;
+}
 
 /* The buttons of the question on screen (CG_ASKED), else two. */
 static int cg_asked_answers(void) {
@@ -2826,13 +2846,30 @@ static int cg_scrolls(void) {
     return installed != NULL && installed() != 0;
 }
 
+/* ONE popup per island event (the owner, 2026-11-14; native/shared/one_popup.h): with Scrolling Popups the event
+   runs in ONE popup from start to finish -- the text from the start (or from an answer) up to and including the
+   next question, or the ending, is one text (cg_group), its choices drawn after it by Scrolling Popups; a choice
+   clicked shows the next text in the same popup (cg_resolve), OK ends it.  Without Scrolling Popups: pages, as
+   before. */
+static int cg_one_popup(void) {
+    return cg_scrolls();
+}
+
+static int ce_game_of(const ce_adapter *a);
+
+/* The bytes one popup's text may hold: A New Home's and The Lost Children's encounter dialog holds 9,999, the later
+   games' popups 2,000. */
+static int cg_text_max(const ce_adapter *a) {
+    return cg_one_popup() && ce_game_of(a) >= 1 && ce_game_of(a) <= 2 ? CG_TEXT_MAX_12 : CG_TEXT_MAX;
+}
+
 /* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup
    scrolls -- its lines. */
 static int cg_fits(cg_pager *w, const char *text) {
     static char worst[CG_RAW_BYTES + 512];
     const ce_layout *l = w->pages->count == 0 ? w->first : w->rest;
     int n = cg_expand(text, worst, sizeof worst, CG_EXPAND_WORST, w->a->name_room, -1, 0);
-    if (n > CG_TEXT_MAX || n >= (int)sizeof worst - 1) {
+    if (n > cg_text_max(w->a) || n >= (int)sizeof worst - 1) {
         return 0;
     }
     return w->scroll || ce_lines_used_in(l, w->title, worst) <= l->lines - w->reserve;
@@ -3663,7 +3700,22 @@ static void cg_group(int game, const cg_history *h, int from) {
             int start = 0;
             unsigned short nt = cg_node_title(node);
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, award);
-            if (n[0] == CG_QUESTION || n[1] == 0 || cg_pop_count == 0 || cg_pops[cg_pop_count - 1].question >= 0) {
+            if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0) {
+                /* ONE popup: every node up to the question (or the ending) joins the segment's one text; what was
+                   a popup of its own (a question, a new popup) after a blank line (src/vv_cie_graph.py one_popup) */
+                p = &cg_pops[cg_pop_count - 1];
+                if (lstrlenA(p->raw) + 2 + lstrlenA(text) + 1 < (int)sizeof p->raw) {
+                    start = lstrlenA(p->raw) + (p->raw[0] != '\0' ? (n[0] == CG_QUESTION || n[1] == 0 ? 2 : 1) : 0);
+                    if (p->raw[0] != '\0') {
+                        lstrcatA(p->raw, n[0] == CG_QUESTION || n[1] == 0 ? "\n\n" : n[2] ? "\n" : " ");
+                    }
+                    lstrcatA(p->raw, text);
+                }
+                if (n[0] == CG_QUESTION) {
+                    p->question = node;
+                }
+            } else if (n[0] == CG_QUESTION || n[1] == 0 || cg_pop_count == 0
+                       || cg_pops[cg_pop_count - 1].question >= 0) {
                 if (cg_pop_count < CG_MAX_POPUPS) {
                     p = &cg_pops[cg_pop_count++];
                     memset(p, 0, sizeof *p);
@@ -4075,9 +4127,11 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
 
 /* The next display is a question's own popup (its earlier pages shown, or none): the start's, before the run is
    laid out, or any question's (version 2) once it is; a question asked again after a restore. */
+static int cg_start_may_ask(void);
+
 static int cg_next_is_question(void) {
     switch (cg.phase) {
-    case CG_QUEUED: return cg.question && cg.pre_pages == 0;
+    case CG_QUEUED: return (cg.question && cg.pre_pages == 0) || (cg_one_popup() && cg_start_may_ask());
     case CG_ASKED: return 1;
     case CG_CHAIN:
         return cg.display_next < cg.display_count && cg.display_kind[cg.display_next] == CGD_QUESTION;
@@ -4121,8 +4175,11 @@ static int cg_arm(int game, int due) {
         cg_choice_stub.featured_record = 0;
         cg_choice_stub.featured_identity = 0;
         for (b = 0; b < 2; ++b) {
-            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(cg_node_at(&cg_g, node) + 12) + b);
-            lstrcpynA(cg_choice_stub.labels[b], cg_s(&cg_g, cg_u16(c + 8)), CE_BUTTON_BYTES);
+            const unsigned char *n = cg_node_at(&cg_g, node);
+            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(n + 12) + b);
+            /* One popup: the start may be a page before the question (its labels come when it is asked). */
+            lstrcpynA(cg_choice_stub.labels[b], n[0] == CG_QUESTION ? cg_s(&cg_g, cg_u16(c + 8)) : "",
+                      CE_BUTTON_BYTES);
             cg_choice_stub.outcome_count[b] = 1;
             cg_choice_stub.outcomes[b][0].chance = 1;
         }
@@ -4284,19 +4341,34 @@ static void cg_begin_question(int game, char *text, int size) {
         return;
     }
     cg_display_armed = 0;
+    if (cg_one_popup() && !cg_op_in_place) {
+        cg_op_begun = game;            /* the host shows the whole event in this popup */
+    }
     if (cg.phase == CG_QUEUED) {
         cg_start_run(a, game);         /* a start question with no earlier page */
     }
     k = cg.phase == CG_ASKED ? cg.asking : cg.display_next;
+    if (cg_one_popup() && k >= 0 && k < cg.display_count && cg.display_kind[k] != CGD_QUESTION) {
+        /* One popup: the event's text before any question (a start whose walk asked none) -- shown with its
+           effects, OK ends it. */
+        cg_show(a, game, k, text, size);
+        if (cg.display_next >= cg.display_count) {
+            cg_finish();
+        }
+        cg_dirty = 1;
+        return;
+    }
     if (k < 0 || k >= cg.display_count || cg.display_kind[k] != CGD_QUESTION) {
         if (size > 0) {
             text[0] = '\0';
         }
         return;
     }
-    counted = cg.question && cg.answers == 0;   /* the start's question: the island event itself */
-    if (!counted) {
-        ce_uncount_notice(game);       /* a later question: a notice's count */
+    /* The start's question (one popup: the event's first text) is the island event itself; a later question's
+       popup is a notice's count (one popup: only after a reload, which brings its question back in a popup). */
+    counted = cg_one_popup() ? k == 0 : cg.question && cg.answers == 0;
+    if (!counted && !cg_op_in_place) {
+        ce_uncount_notice(game);
     }
     node = cg.display_node[k];
     if (cg.job_count[k] > 0 && cg.applied_when[k] == 0) {
@@ -4409,6 +4481,18 @@ static int cg_resolve(int game, int button, char *text, int size) {
         cg_dirty = 1;
         return 1;
     }
+    if (cg_one_popup() && first < cg.display_count && cg.display_kind[first] == CGD_QUESTION) {
+        /* One popup: the answer's text ends in another question -- asked in the same popup, its choices after
+           its text (its effects with it). */
+        cg_op_in_place = 1;
+        cg_begin_question(game, text, size);
+        cg_op_in_place = 0;
+        ce_asked = 1;
+        ce_asked_game = game;
+        lstrcpynA(ce_asked_title, cg_shown_title, sizeof ce_asked_title);
+        cg_dirty = 1;
+        return 1;
+    }
     if (first < cg.display_count) {
         cg_show(a, game, first, text, size);
     } else if (size > 0) {
@@ -4419,6 +4503,82 @@ static int cg_resolve(int game, int button, char *text, int size) {
     }
     cg_dirty = 1;
     return 1;
+}
+
+/* One popup: the game's OK on the event's popup.  When the run has a text still to show (a text longer than the
+   popup holds, split: never otherwise), it replaces the one shown, in the same popup, and 1 is returned (the
+   popup stays); 0 when the event is over (OK closes the popup, as the game's). */
+static int cg_op_ok(int game, char *text, int size) {
+    const ce_adapter *a = ce_adapter_for(game);
+    if (a == NULL || !cg_one_popup() || cg.game != game || cg.phase != CG_CHAIN
+        || cg.display_next >= cg.display_count) {
+        return 0;
+    }
+    if (cg.display_kind[cg.display_next] == CGD_QUESTION) {
+        cg_op_in_place = 1;
+        cg_begin_question(game, text, size);
+        cg_op_in_place = 0;
+        ce_asked = 1;
+        ce_asked_game = game;
+        lstrcpynA(ce_asked_title, cg_shown_title, sizeof ce_asked_title);
+    } else {
+        cg_show(a, game, cg.display_next, text, size);
+        if (cg.display_next >= cg.display_count) {
+            cg_finish();
+        }
+    }
+    cg_dirty = 1;
+    return 1;
+}
+
+/* One popup: the choices the popup shows now (0 while OK shows), their words cg_label(0..). */
+static int cg_op_rows(int game) {
+    unsigned char map[CG_MAX_ANSWERS];
+    if (!cg_one_popup() || cg.game != game || cg.phase != CG_ASKED || cg.asking < 0 || cg.asking >= cg.display_count) {
+        return 0;
+    }
+    return cg_buttons(cg.display_node[cg.asking], cg.answers, map);
+}
+
+/* One popup: whether the start's segment can ask a question -- a question reachable from the start through
+   pages and branches (every child, every else) -- so the run is armed as a question and its one popup is the
+   game's question popup, which shows choices.  (A start whose walk then asks none shows its text with OK.) */
+static int cg_start_may_ask(void) {
+    static short stack[CG_MAX_NODES];
+    static unsigned char seen[CG_MAX_NODES];
+    int top = 0, k;
+    if (cg_g.start < 0 || cg_g.start >= cg_g.n_node || cg_g.n_node > CG_MAX_NODES) {
+        return 0;
+    }
+    memset(seen, 0, (size_t)cg_g.n_node);
+    stack[top++] = (short)cg_g.start;
+    seen[cg_g.start] = 1;
+    while (top > 0) {
+        int node = stack[--top];
+        const unsigned char *n = cg_node_at(&cg_g, node);
+        int next[2];
+        if (n[0] == CG_QUESTION) {
+            return 1;
+        }
+        for (k = 0; k < (int)cg_u16(n + 14); ++k) {
+            const unsigned char *c = cg_child_at(&cg_g, (int)cg_u16(n + 12) + k);
+            int j;
+            next[0] = (int)cg_u16(c);
+            next[1] = (int)cg_u16(c + 6);
+            for (j = 0; j < 2; ++j) {
+                if (next[j] >= 0 && next[j] < cg_g.n_node && next[j] != (int)CG_NONE && !seen[next[j]]) {
+                    seen[next[j]] = 1;
+                    stack[top++] = (short)next[j];
+                }
+            }
+        }
+        k = (int)cg_u16(n + 16);
+        if (k != (int)CG_NONE && k >= 0 && k < cg_g.n_node && !seen[k]) {
+            seen[k] = 1;
+            stack[top++] = (short)k;
+        }
+    }
+    return 0;
 }
 
 /* ce_choice_tallest: the result `button` will show first, with room for its refusal lines when that page makes a
@@ -5567,6 +5727,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
 /* Scrolling Popups installed (1) or not (0) for the layout of the pages, -1 = as its companion says. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphScroll(int on) {
     test_graph_scroll = on;
+}
+
+/* One popup (native/shared/one_popup.h): the choices the popup shows now; OK on it (1: another text replaced the
+   shown one, written to `text`); whether ce_choice_begin just opened `game`'s event as one popup (taken once). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupRows(int game) {
+    return cg_op_rows(game);
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupOk(int game, char *text, int size) {
+    return cg_op_ok(game, text, size);
+}
+
+__declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupBegun(int game) {
+    return cg_op_begun_take(game);
 }
 
 /* The installed patches' list as the patcher would write it (NULL: none, as an older patch), then the patches the

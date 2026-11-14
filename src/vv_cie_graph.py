@@ -2704,13 +2704,42 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
                         "digits, space and . , ! ? : - ' only" + (', and "' if version >= 2 else '') + ")")
 
 
+ONE_POPUP_JOIN = "\n\n"        # what joins two parts of one popup's text that were once popups of their own
+
+
+def one_popup(popups: list[Popup]) -> list[Popup]:
+    """The popups of one history as ONE popup per island event shows them (the owner, 2026-11-14; scrolling only,
+    native/shared/one_popup.h, story_graph.inc cg_group): the text from the start (or from an answer) up to and
+    including the next question, or the ending, is one text -- what were popups of their own joined by a blank line
+    (ONE_POPUP_JOIN), the question's words last, its choices after them.  Each is shown in the event's one popup,
+    replacing the one before."""
+    out: list[Popup] = []
+    for pop in popups:
+        if out and out[-1].layout != "question":
+            last = out[-1]
+            last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
+            last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
+            last.effects = last.effects or pop.effects
+            last.nodes = last.nodes + pop.nodes
+            last.titles = last.titles + [t for t in pop.titles if t not in last.titles]
+            if pop.layout == "question":
+                last.layout = "question"
+                last.room = pop.room
+                last.answers = pop.answers
+            continue
+        out.append(Popup(pop.layout, pop.text, pop.worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
+                         list(pop.titles)))
+    return out
+
+
 def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
-    """The popups of `paths` (one context's) against the game's popups."""
+    """The popups of `paths` (one context's) against the game's popups.  With scrolling each island event is ONE
+    popup (one_popup): only the bytes the game's popup holds count, for each text it shows."""
     problems: list[str] = []
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
-        for pop in p.popups:
+        for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
                 continue

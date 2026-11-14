@@ -200,6 +200,11 @@ static int cg_resolve(int game, int button, char *text, int size);
 static int cg_tallest(int game, int button, char *out, int size);
 static int cg_asked_answers(void);
 static int cg_answer_closes(int game);   /* G1: the question popup closes at the click */
+/* One popup per island event (story_graph.inc; native/shared/one_popup.h). */
+static int cg_op_begun_take(int game);
+static int cg_op_rows(int game);
+static int cg_op_ok(int game, char *text, int size);
+static const char *cg_op_title(void);
 /* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
 static int cs_multi;
 static void *cs_dialog;

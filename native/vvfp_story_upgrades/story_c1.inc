@@ -1003,6 +1003,8 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
 
 static void *c1_choice_dialog;
 static const mb_client CS12_CLIENT;            /* story_c2.inc: the shared popup's client, both games */
+static void cs12_op_setup(int game, unsigned char *d, unsigned int question, unsigned int subject,
+                          unsigned int variant, void *villagers, unsigned int select);   /* story_c2.inc: one popup */
 static char c1_choice_title[CE_TITLE_BYTES];
 
 /* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
@@ -1074,6 +1076,13 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
         c1_choice_dialog = NULL;
         return (char)TC0(0x4189E0u, dialog);
+    }
+    if (cg_op_begun_take(1)) {
+        /* One popup: the whole event in this dialog (story_c2.inc cs12_op_setup). */
+        d[C1_DLG_RESULT] = '\0';
+        c1_choice_dialog = NULL;
+        cs12_op_setup(1, d, C1_DLG_QUESTION, C1_DLG_SUBJECT, C1_DLG_VARIANT, villagers, 0x43A160u);
+        return 1;
     }
     featured = ce_choice_featured(1);
     choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title,
