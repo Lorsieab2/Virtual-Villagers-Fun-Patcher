@@ -334,6 +334,11 @@ FILES = [
     "data/vv3_more_island_events_feature.json",
     "data/vv4_more_island_events_feature.json",
     "data/vv5_more_island_events_feature.json",
+    "data/vv1_isola_grand_event_collection_feature.json",
+    "data/vv2_isola_grand_event_collection_feature.json",
+    "data/vv3_isola_grand_event_collection_feature.json",
+    "data/vv4_isola_grand_event_collection_feature.json",
+    "data/vv5_isola_grand_event_collection_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
@@ -771,6 +776,11 @@ def _public_translation_files() -> tuple[list[str], list[str]]:
 
 TRANSLATION_FILES, TEST_TRANSLATION_FILES = _public_translation_files()
 FILES += TRANSLATION_FILES
+
+# The Isola Grand Event Collection's compiled events, each game's manifest.txt and the credits
+# (scripts/build_event_collection_features.py writes them; the five rows pin each one).
+FILES += sorted(path.relative_to(ROOT).as_posix() for path in (ROOT / "assets" / "event_collection").rglob("*")
+                if path.is_file())
 
 
 def _assert_translations_valid(files: list[str]) -> None:
