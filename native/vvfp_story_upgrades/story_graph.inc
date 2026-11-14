@@ -421,6 +421,7 @@ typedef struct {
     int role;                         /* -1: the award */
     int what;                         /* CG_PH_* */
     int capital;
+    int caps;                         /* version 6: written ALL CAPS ("(NAME1)", "(HE/SHE)"): the word in capitals */
 } cg_ph;
 
 /* A placeholder's inside ("friend.His/Her"), src/vv_cie_graph.py parse_placeholder.  0 when it is not one. */
@@ -443,8 +444,17 @@ static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
     if (dot == 0 || wn <= 0) {
         return 0;
     }
+    {
+        /* Version 6: ALL CAPS -- at least two letters, none lower case (docs/event-collection/cie-v6-binary.md 5). */
+        int letters = 0, lower = 0;
+        for (i = 0; i < n; ++i) {
+            letters += (tok[i] >= 'A' && tok[i] <= 'Z') || (tok[i] >= 'a' && tok[i] <= 'z');
+            lower += tok[i] >= 'a' && tok[i] <= 'z';
+        }
+        ph->caps = g->version >= 6 && letters >= 2 && lower == 0;
+    }
     if (dot > 0) {
-        role = cg_role_by_id(g, tok, dot);
+        role = ph->caps ? cg_role_by_id_ci(g, tok, dot) : cg_role_by_id(g, tok, dot);
         if (role < 0) {
             return 0;
         }
@@ -484,6 +494,9 @@ static int cg_parse_ph(const cg_graph *g, const char *tok, int n, cg_ph *ph) {
         if (role < 0) {
             role = cg_role_by_id(g, "subject", 7);
             if (role < 0) {
+                if (g->n_role < 1) {
+                    return 0;          /* version 6: a graph with no roles has no one to name */
+                }
                 role = 0;
             }
         }
@@ -729,7 +742,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             return cg_bad("its pools do not fit in the file");
         }
     }
-    if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < 1 || g->n_role > CG_MAX_ROLES || g->n_node < 1
+    if (g->games == 0u || (g->games & ~0x1Fu) != 0u || g->n_role < (g->version >= 6 ? 0 : 1) || g->n_role > CG_MAX_ROLES || g->n_node < 1
         || g->n_node > CG_MAX_NODES || g->n_patch > 8 || g->n_child >= 0xFFFF || g->n_effect >= 0xFFFF
         || g->n_cond >= 0xFFFF || g->n_variant >= 0xFFFF || g->n_string >= 0xFFFF
         || !cg_section(g, g->o_role, g->n_role, g->role_bytes) || !cg_section(g, g->o_node, g->n_node, 28)
@@ -2449,7 +2462,7 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             put = cg_pronoun(ph.what)[role >= 0 && cg.female[role] ? 1 : 0];
         }
         if (put != NULL) {
-            int first = 1;
+            int first = 1, from = o;
             for (; *put != '\0' && o < cap - 1; ++put) {
                 char c = *put;
                 if (first && ph.capital && c >= 'a' && c <= 'z') {
@@ -2457,6 +2470,9 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                 }
                 first = 0;
                 out[o++] = c;
+            }
+            if (ph.caps && o > from) {
+                CharUpperBuffA(out + from, (DWORD)(o - from));   /* ALL CAPS: the word in capitals */
             }
         }
         while (repeat-- > 0 && o < cap - 1) {

@@ -94,8 +94,16 @@ if HAVE_EMULATOR:
             self.recorded: dict[int, list] = {}
             self.p.api_handlers.setdefault("GetSystemTimeAsFileTime",
                                            lambda q: (q.write(q.arg(0), bytes(8)) or 0, 4))
+            self.p.api_handlers.setdefault("CharUpperBuffA", self._upper)
             if people is not None:
                 self.place(people)
+
+        @staticmethod
+        def _upper(q):
+            """user32 CharUpperBuffA (stdcall: the text, its length; returns the length), as Windows-1252 does."""
+            at, n = q.arg(0), q.arg(1)
+            q.write(at, q.read(at, n).decode("cp1252").upper().encode("cp1252", "replace"))
+            return n, 8
 
         def observe(self, who=None):
             return self.watch() if getattr(self, "watch", None) else super().observe()
