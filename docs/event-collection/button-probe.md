@@ -37,6 +37,28 @@ straight in, from our own buffer (`MB_LABEL_BYTES`).
 
 ## Conclusion
 
-Nothing blocks seven answers on one page: the ids and the label capacity are both clear. The open question is the
-remaining risk, R2: whether seven stacked buttons leave room for the text on an 800 x 600 screen. The render test in
-`tests/test_multi_answer_popup.py` answers it.
+Nothing blocks seven answers on one page: the ids and the label capacity are both clear.
+
+## Seven on one screen (risk R2)
+
+One column, as decided (Q12). From five answers the buttons stand 1.25 button heights apart instead of 1.5, so seven
+take 8.75 heights instead of 10.5 (`ma_step` / `mb_step`).
+
+The question page keeps `CG_ANSWER_LINES` text lines for the buttons past two: 3, 6, 7, 10 and 12 lines for 3 to 7
+answers. That is the extra height in 20-pixel lines, rounded up (for six answers 9.5 becomes 10, where
+`vv_cie_graph.answer_room` says `ceil(2.5 n) - 6` = 9).
+
+From five answers that reserve is capped so that a page always keeps 3 lines of text below the title the popup
+leads with. Without the cap, The Secret City, The Tree of Life and New Believers (11 question lines) and A New Home
+(13 lines, 5 of them the title) could not page the text at all.
+
+The popup then grows past a two-answer popup's height by the rest of the reserve.
+`tests/test_multi_answer_popup.py SevenFitOnScreen` checks every game, with and without Scrolling Popups. It
+measures the panel as the companion lays it out: the constructor's 0x3C margin, the title, at least 3 text lines,
+then 7 answers and OK. The panel is at most 600 pixels, and the companion's placed buttons sit inside it, below the
+text, with no two meeting. **Two columns are not needed.**
+
+UNCONFIRMED: the button heights are the emulator stand-ins (42 pixels in the later three games, 40 in the first two).
+The game art's widest answer pictures are 32 pixels tall (`popup_button1`, `main_wide_button2`), so the real
+heights are probably smaller. A New Home's 7-answer question is the tightest case, at 600 of 600 pixels with 40-pixel
+buttons, so it needs a live look.
