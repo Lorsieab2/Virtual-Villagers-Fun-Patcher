@@ -27,6 +27,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+import vv_aspiring_adventurer as adv  # noqa: E402
 import vv_cie_graph as cg  # noqa: E402
 
 AA = ROOT / "data" / "cie_graphs" / "the_aspiring_adventurer.json"
@@ -83,9 +84,14 @@ class AspiringAdventurer(unittest.TestCase):
                 self.assertEqual(a[e], Fraction(1, 12), (game, e))
                 self.assertEqual(cg.percent(a[e]), "8.33%")
             self.assertEqual(outs["comes home safe"].chance, Fraction(1, 2))
+            # The real event's normal award, each game's own range (src/vv_aspiring_adventurer.py AWARD_RANGES).
+            words = {}
+            for kind, unit in (("food", "food"), ("tech", "tech points")):
+                lo, hi = adv.AWARD_RANGES[game][kind]
+                words[kind] = f"+{lo:,} {unit}" if lo == hi else f"+{lo:,} to {hi:,} {unit}"
             self.assertEqual(outs["comes home safe"].by_award,
-                             {"nothing": Fraction(1, 4), "+500 food": Fraction(1, 8),
-                              "+2,000 tech points": Fraction(1, 8)})
+                             {"nothing": Fraction(1, 4), words["food"]: Fraction(1, 8),
+                              words["tech"]: Fraction(1, 8)})
             self.assertEqual(outs["dies and gets a grave"].chance, Fraction(1, 4))
             self.assertEqual(outs["disappears, no grave"].chance, Fraction(1, 4))
 
@@ -128,7 +134,8 @@ class AspiringAdventurer(unittest.TestCase):
         table = cg.chances_table(self.g, 1)
         self.assertIn("CHOICE A: GO INVESTIGATE!", table)
         self.assertIn("CHOICE B: STAY ON THE SAFE PATH", table)
-        self.assertRegex(table, r"A1 \(gets away safely, reward\) \.+ 8\.33%  \(4\.17% \+500 food, 4\.17% \+2,000")
+        self.assertRegex(table, r"A1 Waits, then gets away safely \(gets away safely, reward\) \.+ 8\.33%  "
+                                r"\(4\.17% \+200 to 1,500 food, 4\.17% \+500 to 4,999 tech points\)")
         self.assertRegex(table, r"comes home alive \.+ 92\.78%")
 
 
@@ -142,8 +149,8 @@ class Checks(unittest.TestCase):
 
     def test_format_and_version(self):
         d = tiny()
-        d["version"] = 5
-        self.assertProblem(d, "version 5")
+        d["version"] = 6
+        self.assertProblem(d, "version 6")
         d = tiny()
         d["format"] = "x"
         self.assertProblem(d, "format")
@@ -275,7 +282,7 @@ class Binary(unittest.TestCase):
         for data in (aa_data(), tiny()):
             g = cg.load(data)
             blob = cg.compile_graph(g)
-            self.assertEqual(cg.decompile_graph(blob), g)
+            self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))     # names are never compiled
             self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
             # The normalized graph is itself a valid graph.
             self.assertEqual(cg.load(copy.deepcopy(g)), g)
@@ -284,7 +291,7 @@ class Binary(unittest.TestCase):
         blob = cg.compile_graph(cg.load(AA))
         self.assertEqual(blob[:4], b"CIEG")
         version, hsize, fsize = struct.unpack_from("<HHI", blob, 4)
-        self.assertEqual((version, hsize, fsize), (1, 80, len(blob)))
+        self.assertEqual((version, hsize, fsize), (5, 80, len(blob)))      # per-game award ranges (v1.35.97)
         self.assertEqual(struct.unpack_from("<I", blob, 16)[0], 0b11111)
         self.assertEqual(struct.unpack_from("<H", blob, 24)[0], 2)          # requirement kept for shipped events
 
@@ -411,7 +418,7 @@ class Library(unittest.TestCase):
             j, b = cg.save_to_library(g, tmp)
             self.assertEqual(j.parent, Path(tmp) / "Virtual Villagers Fun Patcher" / "Custom Island Events")
             self.assertEqual(j.name, "The Aspiring Adventurer.json")
-            self.assertEqual(cg.decompile_graph(b.read_bytes()), g)
+            self.assertEqual(cg.decompile_graph(b.read_bytes()), cg.without_names(g))
             (j.parent / "Broken.json").write_text("{", encoding="utf-8")
             lib = cg.read_library(tmp)
             self.assertEqual(lib["The Aspiring Adventurer"], (g, []))
@@ -478,8 +485,8 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertProblem(d, "characters the game cannot show")         # the double quote is version 2's
         d["nodes"]["p"]["text"] = "(Name) finds a door."
         self.assertProblem(d, "only be the start node in a version 1 event")
-        d["version"] = 5
-        self.assertProblem(d, "version 5 is not one this patcher reads")
+        d["version"] = 6
+        self.assertProblem(d, "version 6 is not one this patcher reads")
 
     def test_an_answer_shows_its_own_page_first(self):
         self.assertProblem(multi(l={"type": "branch", "children": [{"next": "q2"}]}),
@@ -511,7 +518,7 @@ class QuestionsAnywhere(unittest.TestCase):
         self.assertEqual(struct.unpack_from("<H", b1, 4)[0], 1)
         self.assertEqual(cg.decompile_graph(b1), v1)
         bad = bytearray(blob)
-        struct.pack_into("<H", bad, 4, 5)
+        struct.pack_into("<H", bad, 4, 6)
         struct.pack_into("<I", bad, 12, 0)
         struct.pack_into("<I", bad, 12, __import__("zlib").crc32(bytes(bad)))
         with self.assertRaises(cg.GraphError):
@@ -741,8 +748,10 @@ class Version4(unittest.TestCase):
                          ["The red door", "The blue door", "The green door", "The gold door"])
 
     def test_the_shipped_examples_compile_to_the_same_bytes(self):
-        # Compiled before format version 4 (the module at 538ddc27): versions 1 to 3 are unchanged.
-        pins = {"the_aspiring_adventurer.json": "a8eefacb036a67e1534fbb0685ecc3e41963ed837ba971379733a9b0892e4c2c",
+        # Compiled before format version 4 (the module at 538ddc27): versions 1 to 3 are unchanged.  The Aspiring
+        # Adventurer re-pinned in v1.35.97: its awards are the real event's per-game ranges (format version 5); the
+        # parts' names are never compiled (The Cave Explorers' bytes are the same with them).
+        pins = {"the_aspiring_adventurer.json": "5801bf94439645f9035a1e6453f98ce2404f5f59b8e17b80d357e22acc579109",
                 "the_cave_explorers.json": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be"}
         for name, digest in pins.items():
             blob = cg.compile_graph(cg.load(ROOT / "data" / "cie_graphs" / name))
@@ -775,6 +784,93 @@ class Version4(unittest.TestCase):
     def assertProblem(self, data, words):
         found = problems_of(data)
         self.assertTrue(any(words in p for p in found), f"{words!r} not in {found}")
+
+
+class PartNames(unittest.TestCase):
+    """v1.35.97 (the owner: code labels are never UI): a part may have a plain-words name, which the editor shows in
+    place of its internal id; it is never compiled."""
+
+    def test_every_shipped_part_has_a_plain_unique_name(self):
+        for path in (AA, CAVE):
+            g = cg.load(path)
+            names = [n.get("name", "") for n in g["nodes"].values()]
+            with self.subTest(example=path.name):
+                self.assertTrue(all(names), [nid for nid, n in g["nodes"].items() if not n.get("name")])
+                self.assertEqual(len(names), len(set(names)), "unique")
+                for name in names:
+                    self.assertIsNone(cg.name_problem(name), name)
+                    self.assertNotIn("_", name)
+
+    def test_a_name_is_plain_words(self):
+        self.assertIsNone(cg.name_problem("Finds a pile of dirt"))
+        for bad in ("", " x", "find_dirt", "x" * (cg.NAME_MAX + 1), "line\nbreak"):
+            self.assertIsNotNone(cg.name_problem(bad), bad)
+        d = tiny()
+        first = next(iter(d["nodes"]))
+        d["nodes"][first]["name"] = "bad_name"
+        self.assertTrue(any("its name" in p for p in problems_of(d)))
+
+    def test_names_are_never_compiled(self):
+        g = cg.load(AA)
+        self.assertEqual(cg.compile_graph(g), cg.compile_graph(cg.without_names(g)))
+        self.assertEqual(cg.part_name(g, "find_dirt"), "Finds a pile of dirt")
+        self.assertEqual(cg.part_name(cg.without_names(g), "find_dirt"), "find_dirt")
+
+
+class AspiringAdventurerAwards(unittest.TestCase):
+    """The shipped example's awards are the real event's: each game's normal range (src/vv_aspiring_adventurer.py
+    AWARD_RANGES), in ONE reward step per find (format version 5 per_game), drawn at random and scaled; the original
+    parts and odds (no per-game split parts)."""
+
+    def test_each_games_range_in_one_step(self):
+        g = cg.load(AA)
+        self.assertEqual(g["version"], 5)
+        self.assertEqual(len(g["nodes"]), 30)
+        self.assertFalse([nid for nid in g["nodes"] if "_award_" in nid])
+        for kind, find in (("food", "find_meat"), ("tech", "find_chest")):
+            (e,) = g["nodes"][find]["effects"]
+            self.assertEqual((e["do"], e["scaled"], e["defer"]), (kind, True, True))
+            self.assertEqual([c["next"] for c in g["nodes"][find]["children"]], ["find_safe", "deadly"])
+            for game in range(1, 6):
+                lo, hi = adv.AWARD_RANGES[game][kind]
+                self.assertEqual(e["per_game"][str(game)], [lo, hi], (kind, game))
+                self.assertEqual(cg.effect_amount(e, game), lo if lo == hi else (lo, hi))
+
+
+class PerGameAmounts(unittest.TestCase):
+    """Format version 5 (the owner, v1.35.97): a food / tech effect may give each game its own amount or range."""
+
+    def graph(self, version=5, per=None):
+        d = tiny(a={"text": "(Name) finds (award) (award_unit).", "effects": [
+            {"do": "food", "amount": 100, "per_game": per if per is not None else {"3": [700, 700], "5": [50, 300]},
+             "defer": True}, {"do": "pay_award"}], "children": [{"next": "c", "weight": 3}, {"next": "d"}]})
+        d["version"] = version
+        return d
+
+    def test_versions(self):
+        self.assertIn(5, cg.VERSIONS)
+        self.assertEqual(problems_of(self.graph()), [])
+        self.assertTrue(any("version 5" in p for p in problems_of(self.graph(version=4))))
+        for bad in ({"6": [1, 2]}, {"3": [5, 1]}, {"3": [0, 5]}, {"3": [-5, 5]}, {"3": "x"}):
+            self.assertTrue(problems_of(self.graph(per=bad)), bad)
+
+    def test_round_trip_and_older_versions_unchanged(self):
+        g = cg.load(self.graph())
+        blob = cg.compile_graph(g)
+        self.assertEqual(struct.unpack_from("<H", blob, 4)[0], 5)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        self.assertEqual(cg.compile_graph(cg.decompile_graph(blob)), blob)
+        self.assertIn(b"3:700-700;5:50-300", blob)
+        v1 = cg.load(tiny())
+        self.assertEqual(struct.unpack_from("<H", cg.compile_graph(v1), 4)[0], 1)
+
+    def test_each_game_its_own_amount_others_the_plain_one(self):
+        g = cg.load(self.graph())
+        e = next(e for n in g["nodes"].values() for e in n["effects"] if e["do"] == "food")
+        self.assertEqual([cg.effect_amount(e, n) for n in range(1, 6)], [100, 100, 700, 100, (50, 300)])
+        for game, words in ((1, "+100 food"), (3, "+700 food"), (5, "+50 to 300 food")):
+            outcomes = [r for rows in cg.chances(g, game).values() for r in rows["outcomes"]]
+            self.assertTrue(any(words in r.by_award for r in outcomes), (game, [r.by_award for r in outcomes]))
 
 
 if __name__ == "__main__":

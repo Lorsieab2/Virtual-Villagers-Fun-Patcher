@@ -241,8 +241,8 @@
         "Also: The Cave Explorers (A New Home), The Climb (The Lost Children), The Troubling Signs and Diving for Treasure (The Secret City).",
         "The Tree of Life: The Playful Dolphins and The Mysterious Mask (four answers: click, or press 1 to 4).",
         "All games: The Remembrance Ceremony (needs a grave; everyone honors the dead, the feast uses food) and The Rumblings (all puzzles solved; huts damaged).",
-        "Most need two villagers of 14 or more who are not nursing and not special. They come like the game's own events, at their usual times.",
-        "Long text comes in pages: click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
+        "Most need two villagers of 14 or more who are not nursing and not special. They come at the game's usual times; Story / Cheat Upgrades can pick them.",
+        "Long text comes in pages (one popup with Scrolling Popups): click OK for the next. Game Mechanics lists every outcome and its chance. Not yet tested in play."
       ]
     },
     {
@@ -336,7 +336,7 @@
         "Off by default; Owner's Defaults ticks it.",
         "A popup (island events, message boxes) is never bigger than the screen. When its text does not fit, a scrollbar appears, drawn with the game's own pictures:",
         "scroll with the mouse wheel over the popup, the arrows, by dragging the knob or by clicking the bar. A very long word gets a sideways bar.",
-        "A popup whose text fits looks exactly as before. No keyboard scrolling. Not yet tested in play."
+        "A popup whose text fits looks exactly as before. More Island Events and Custom Island Events show each popup whole, not in pages. No keyboard scrolling. Not yet tested in play."
       ]
     },
     {
@@ -1039,6 +1039,7 @@
         "The Golden Child's grave always gets a child's epitaph, and with Children's Graves Say Apprentice ticked it says \"Golden Child\" under Job.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves get an epitaph but no cause: how they died was never recorded.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1049,6 +1050,7 @@
         "With Children's Graves Say Apprentice ticked, a villager who died before age 14 is shown as \"Apprentice\" plus their job on the grave and in the Deaths log.",
         "Every death is also written to the Deaths log, in your save folder (Documents\\LDW\\<game> - Modded) under Virtual Villagers Fun Patcher\\Save <slot>\\Logs.",
         "Old graves show no cause: how they died was never recorded.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1059,6 +1061,7 @@
         "A villager who leaves or appears with no record is written to the Unaccounted Villagers log.",
         "Nothing to click in the game; open the log files to read them.",
         "Graves from before the log are added only when you use Repair Saves & Logs.",
+        "A death in a Custom Island Event that names its own cause shows those words on the grave and in the Deaths log.",
         "Tick Write Births and Conceptions Log to Text File too, or no log is written."
       ]
     },
@@ -1496,10 +1499,10 @@
       "guide": [
         "Write your own island events with questions, choices and random outcomes, then pick one to happen from Custom Island Events in the game.",
         "Any part can be a question with two to four buttons, as often as you like; each answer shows a page of its own first.",
-        "An award can be a range, drawn at random. An event can need puzzles solved first, and two roles at most so many years apart.",
+        "An award can be a range, and differ per game. An event can need puzzles solved first, roles at most so many years apart, and check the game's patches.",
         "Each event is kept in the save folder of the game chosen at the top; the game lists only the events that pass every check.",
-        "The tree on the left shows every part of the event; the tabs on the right edit the chosen part: its text, its ways on and their weights, and its changes.",
-        "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits on each game's screen.",
+        "The tree on the left shows every part by its name (Rename on the Text tab); the tabs on the right edit the chosen part: its text, its ways on and weights, its changes.",
+        "The Check tab lists every problem (click one to go to it) and the chances of every outcome. The fit meter shows the text fits, scrolling if the game has Scrolling Popups.",
         "If no villager fits a role the event needs, the game refuses to queue the event. (Name) is the full name when Last Names is on.",
         "Delete moves an event to the Recycle Bin. Export and Import share an event as a file. The two New from buttons start from the shipped examples."
       ]

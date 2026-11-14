@@ -588,10 +588,15 @@ static unsigned int g_cr_cases;          /* the stock cases: 15 / 28 */
 static cr_roll_fn g_cr_inner;
 static int g_cr_can[CR_EVENTS];
 static int g_cr_listed;                  /* the events widening the draw now, 0: not widened */
+static int g_cr_picked;                  /* Pick Island Event's event: the draw's next answer is its case, once */
 static int g_cr_result;
 
 static int __cdecl cr_draw(int bound) {
     cr_roll_fn inner = g_cr_inner != NULL ? g_cr_inner : (cr_roll_fn)(uintptr_t)g_cr_stock_rand;
+    if (g_cr_picked) {
+        g_cr_picked = 0;                 /* Pick Island Event's: its case, once (mie_pick.inc) */
+        return (int)g_cr_cases;
+    }
     return inner(bound + g_cr_listed);
 }
 
@@ -609,9 +614,15 @@ static void cr_v12_construct(void *event, int type, int magnitude, unsigned int 
     int widened = 0;
     adv_log_reset();                     /* an island event is drawn: whatever was ours is over */
     g_cr_listed = 0;
+    g_cr_picked = 0;
     __try {
-        if (g_cr != NULL && !cr_story_busy(g_cr->game)) {
-            int n = cr_listable(g_cr, g_cr_can);
+        int picked = g_cr != NULL ? mp_due_cr(g_cr->game) : -1;
+        if (picked >= 0 && !cr_possible_safe(g_cr, picked)) {
+            mp_done(g_cr->game, 0);      /* Pick Island Event's, no longer possible: the game's own draw */
+            picked = -1;
+        }
+        if (g_cr != NULL && (picked >= 0 || !cr_story_busy(g_cr->game))) {
+            int n = picked >= 0 ? (g_cr_can[0] = picked, 1) : cr_listable(g_cr, g_cr_can);
             memcpy(held, (const void *)(uintptr_t)g_cr_draw_site, sizeof held);
             if (n > 0 && held[0] == 0xE8) {
                 unsigned int target = g_cr_draw_site + 5u + *(const unsigned int *)(held + 1);
@@ -620,6 +631,7 @@ static void cr_v12_construct(void *event, int type, int magnitude, unsigned int 
                     vvfp_site_branch(&w, g_cr_draw_site, 5, held, 0xE8, (const void *)cr_draw);
                     widened = vvfp_install_sites(&w, 1);
                     g_cr_listed = widened ? n : 0;
+                    g_cr_picked = widened && picked >= 0;
                 }
             }
         }
@@ -674,6 +686,9 @@ static int __cdecl cr_v12_case(int draw, unsigned char *event) {
         if (g_cr != NULL && g_cr_listed > 0 && k >= 0 && k < g_cr_listed && event != NULL) {
             int which = g_cr_can[k];
             g_cr_listed = 0;                 /* drawn: the rest of this run is the stock draw's */
+            if (mp_due_cr(g_cr->game) == which) {
+                mp_done(g_cr->game, 1);      /* Pick Island Event's: it came */
+            }
             cr_happen(g_cr, which);
             cr_v12_text((char *)event + 0x277F, 0x270F);
             handled = 1;

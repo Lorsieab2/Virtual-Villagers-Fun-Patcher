@@ -204,6 +204,56 @@ static int cg_str_ok(const cg_graph *g, unsigned int i, int may_be_none) {
     return i == CG_NONE ? may_be_none : (int)i < g->n_string;
 }
 
+/* A version 5 food / tech effect's per-game amounts, "<game>:<min>-<max>;..." (src/vv_cie_graph.py per_game_text):
+   1 with game `game`'s into *lo / *hi, 0 when it is not listed, -1 when the text is not that shape. */
+static int cg_num(const char **p, int *out) {
+    int neg = 0, v = 0, digits = 0;
+    if (**p == '-') {
+        neg = 1;
+        ++*p;
+    }
+    while (**p >= '0' && **p <= '9' && digits < 9) {
+        v = v * 10 + (**p - '0');
+        ++*p;
+        ++digits;
+    }
+    *out = neg ? -v : v;
+    return digits > 0;
+}
+
+static int cg_per_game(const char *text, int game, int *lo, int *hi) {
+    const char *p = text;
+    int found = 0, last = 0;
+    while (*p != '\0') {
+        int g, a, b;
+        if (*p < '1' || *p > '5' || p[1] != ':') {
+            return -1;
+        }
+        g = *p - '0';
+        p += 2;
+        if (g <= last || !cg_num(&p, &a) || *p != '-') {
+            return -1;
+        }
+        ++p;
+        if (!cg_num(&p, &b) || (*p != ';' && *p != '\0')) {
+            return -1;
+        }
+        if (*p == ';') {
+            ++p;
+            if (*p == '\0') {
+                return -1;
+            }
+        }
+        last = g;
+        if (g == game) {
+            *lo = a;
+            *hi = b;
+            found = 1;
+        }
+    }
+    return found;
+}
+
 static int cg_role_by_id(const cg_graph *g, const char *id, int length) {
     int r;
     for (r = 0; r < g->n_role; ++r) {
@@ -381,9 +431,9 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     memset(g, 0, sizeof *g);
     g->d = data;
     g->size = size;
-    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 4u
+    if (size < CG_HEADER_BYTES || memcmp(h, "CIEG", 4) != 0 || cg_u16(h + 4) < 1u || cg_u16(h + 4) > 5u
         || cg_u16(h + 6) != CG_HEADER_BYTES || cg_u32(h + 8) != size) {
-        return cg_bad("it is not a version 1, 2, 3 or 4 .cieg file");
+        return cg_bad("it is not a version 1, 2, 3, 4 or 5 .cieg file");
     }
     g->version = (int)cg_u16(h + 4);
     if (size > CG_MAX_FILE) {
@@ -488,7 +538,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     for (i = 0; i < g->n_effect; ++i) {
         const unsigned char *e = cg_effect_at(g, i);
-        int a = (int)cg_u32(e + 4), b = (int)cg_u32(e + 8);
+        int a = (int)cg_u32(e + 4), b = (int)cg_u32(e + 8), lo, hi;
         unsigned int str = cg_u16(e + 12);
         int villager = e[0] >= CGE_KILL && e[0] <= CGE_SICK;
         int ok = e[0] >= CGE_FOOD && e[0] <= CGE_SICK;
@@ -501,6 +551,17 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 /* b: version 3's range top (0: the amount alone), above the amount, the same side of 0. */
                 ok = a != 0 && a <= CE_MAX_AMOUNT && a >= -CE_MAX_AMOUNT
                      && (b == 0 || (g->version >= 3 && b > a && b <= CE_MAX_AMOUNT && (b > 0) == (a > 0)));
+                /* Version 5: the string is each game's own amount or range ("1:200-1500;5:50-300"), every one
+                   valid; before it a food / tech effect has none. */
+                if (ok && str != CG_NONE) {
+                    int game;
+                    ok = g->version >= 5 && cg_str_ok(g, str, 0) && cg_s(g, str)[0] != '\0';
+                    for (game = 1; ok && game <= 5; ++game) {
+                        int found = cg_per_game(cg_s(g, str), game, &lo, &hi);
+                        ok = found >= 0 && (found == 0 || (lo != 0 && hi >= lo && (lo > 0) == (hi > 0)
+                                                           && lo >= -CE_MAX_AMOUNT && hi <= CE_MAX_AMOUNT));
+                    }
+                }
                 break;
             case CGE_KILL: {
                 const char *cause = cg_s(g, str);
@@ -686,6 +747,7 @@ static ce_event cg_one;                /* one villager's change, through ce_appl
 
 #ifdef VVFP_TEST
 static int test_graph_patches = -1;    /* the patches on, -1 = as seen */
+static int test_graph_scroll = -1;     /* Scrolling Popups installed (1) or not (0), -1 = as its companion says */
 static int test_graph_scale = -1;      /* the scale mode, -1 = as the companion says */
 static int test_graph_puzzles = -1;    /* the puzzles solved (bit = the adapter's index), -1 = as the game says */
 static short test_graph_force[64];     /* nodes a draw picks whenever one of them can be drawn */
@@ -1174,12 +1236,18 @@ static int cg_skills(const ce_adapter *a, const unsigned char *e, int pick) {
     return pick >= 0 ? -1 : n;
 }
 
-/* An effect's own roll as its node is reached, into the history. */
+/* An effect's own roll as its node is reached, into the history (cg_per_game: above the loader). */
 static void cg_roll_effect(const ce_adapter *a, int game, const unsigned char *e, cg_history *h) {
     int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
     int va = 0, vb = 0;
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
+        /* Version 5: this game's own amount or range, when the effect lists one. */
+        if (cg_u16(e + 12) != CG_NONE && cg_per_game(cg_s(&cg_g, cg_u16(e + 12)), game, &lo, &hi) == 1) {
+            if (hi == lo) {
+                hi = 0;
+            }
+        }
         if (hi != 0) {
             /* Version 3: a range, each amount equally likely (the game's random routine), then scaled as a fixed
                amount is. */
@@ -1342,17 +1410,41 @@ typedef struct {
     const char *title;
     int reserve;                       /* lines kept free on every page */
     cg_pages *pages;
+    int scroll;                        /* Scrolling Popups is installed: a page is as tall as the text (cg_scrolls) */
     const char *src;                   /* the popup's text being laid out ... */
     int consumed;                      /* ... and how much of it the pages so far hold */
     char page[CG_RAW_BYTES];
 } cg_pager;
 
-/* `text` (raw: names not filled) fits page `pages->count` at its widest. */
+/* Whether "VVFP Scrolling Popups.dll" is installed in the game (VvfpScrollingPopupsInstalled: every one of its sites,
+   which include every game's island-event popups): then a popup scrolls, so its text is never split into pages --
+   each popup is ONE page, as tall as its text, limited only by the bytes the game's popup holds (CG_TEXT_MAX), as
+   the patcher's own fit check counts it with scrolling (src/vv_cie_graph.py).  Without it the text is paged to fit
+   the screen, as before. */
+static int cg_scrolls(void) {
+    typedef int (__stdcall *sp_installed_fn)(void);
+    HMODULE module;
+    sp_installed_fn installed;
+#ifdef VVFP_TEST
+    if (test_graph_scroll >= 0) {
+        return test_graph_scroll;
+    }
+#endif
+    module = GetModuleHandleA("VVFP Scrolling Popups.dll");
+    installed = module != NULL ? (sp_installed_fn)(void *)GetProcAddress(module, "VvfpScrollingPopupsInstalled") : NULL;
+    return installed != NULL && installed() != 0;
+}
+
+/* `text` (raw: names not filled) fits page `pages->count` at its widest: its bytes, and -- unless the popup
+   scrolls -- its lines. */
 static int cg_fits(cg_pager *w, const char *text) {
     static char worst[CG_RAW_BYTES + 512];
     const ce_layout *l = w->pages->count == 0 ? w->first : w->rest;
     int n = cg_expand(text, worst, sizeof worst, CG_EXPAND_WORST, w->a->name_room, -1, 0);
-    return n <= CG_TEXT_MAX && n < (int)sizeof worst - 1 && ce_lines_used_in(l, w->title, worst) <= l->lines - w->reserve;
+    if (n > CG_TEXT_MAX || n >= (int)sizeof worst - 1) {
+        return 0;
+    }
+    return w->scroll || ce_lines_used_in(l, w->title, worst) <= l->lines - w->reserve;
 }
 
 static void cg_flush(cg_pager *w) {
@@ -1468,7 +1560,7 @@ static int cg_compose_once(const ce_layout *l, const char *title, const char *te
     w.out = out;
     w.size = size;
     w.width = l->width;
-    w.max_lines = l->lines - 1;
+    w.max_lines = cg_scrolls() ? 1000 : l->lines - 1;     /* a scrolling popup has room for every line */
     out[0] = '\0';
     if (l->with_title) {
         ce_wrap(&w, title);
@@ -1890,6 +1982,7 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             w.reserve += cg_answer_room(h->node[from - 1]);   /* shown in the answered question's popup */
         }
         w.pages = &pages;
+        w.scroll = cg_scrolls();
         cg_paginate(&w, cg_pops[p].raw);
         for (k = 0; k < pages.count; ++k) {
             int d, kind = CGD_PAGE;
@@ -2159,6 +2252,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.title = cg.title;
     w.reserve = cg_answer_room(cg_g.start);
     w.pages = pages;
+    w.scroll = cg_scrolls();
     cg_paginate(&w, raw);
 }
 
@@ -2538,8 +2632,75 @@ static void cg_role_words(int game, int r, char *out, int size) {
     (void)size;
 }
 
-/* Whether the patches named by the event are on: Guardians of Isola's rewrite (New Believers) is seen in the
-   game's own text, as the Faith popup sees it; any other patch is off. */
+/* ---- The installed patches (v1.35.97) ----------------------------------------------------------------------
+
+   The patcher writes the ids of the patches it installed into this game -- every fun patch, the game build's own id
+   (a "#" line is a note) -- one per line, into "<game folder>\Virtual Villagers Fun Patcher Files\VVFP Installed
+   Patches.txt" (src/vv_fun_patcher.py _write_installed_patches), at every patch, so the list always describes the
+   installed build (a re-patch rewrites it; an unpatched game has none).  It is read once a run: the patches never
+   change while the game runs.  An event's patch id is its short name: the line itself, or the line without its
+   "vv<N>_" game prefix in game N ("guardians_of_isola" matches "vv5_guardians_of_isola..."; a build id's "_rewrite"
+   ending too). */
+#define CG_INSTALLED_LEAF "VVFP Installed Patches.txt"
+#define CG_INSTALLED_BYTES 16384
+static int cg_installed_state = -1;    /* -1 not read yet, 0 no list (an older patch), 1 read */
+static char cg_installed[CG_INSTALLED_BYTES];
+
+static void cg_installed_load(void) {
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    HANDLE file;
+    DWORD got = 0;
+    if (cg_installed_state >= 0) {
+        return;
+    }
+    cg_installed_state = 0;
+    cg_installed[0] = '\0';
+    if (vvfp_patcher_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, CG_INSTALLED_LEAF) == 0) {
+        return;
+    }
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return;
+    }
+    if (ReadFile(file, cg_installed, CG_INSTALLED_BYTES - 1, &got, NULL)) {
+        cg_installed[got] = '\0';
+        cg_installed_state = 1;
+    }
+    CloseHandle(file);
+}
+
+/* Whether the short name `id` names an installed patch of `game` (cg_installed_state 1). */
+static int cg_installed_has(int game, const char *id) {
+    const char *p = cg_installed;
+    int n = lstrlenA(id);
+    while (*p != '\0') {
+        const char *end = p, *at = p;
+        int len;
+        while (*end != '\0' && *end != '\n' && *end != '\r') {
+            ++end;
+        }
+        if (*at != '#') {
+            if (end - at > 4 && at[0] == 'v' && at[1] == 'v' && at[2] == (char)('0' + game) && at[3] == '_') {
+                at += 4;                /* the game's prefix */
+            }
+            len = (int)(end - at);
+            if (len >= n && memcmp(at, id, (size_t)n) == 0
+                && (len == n || (len == n + 8 && memcmp(at + n, "_rewrite", 8) == 0))) {
+                return 1;
+            }
+        }
+        p = end;
+        while (*p == '\n' || *p == '\r') {
+            ++p;
+        }
+    }
+    return 0;
+}
+
+/* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
+   it (a game patched by an older patcher) only Guardians of Isola's rewrite (New Believers), seen in the game's own
+   text as the Faith popup sees it -- which is also asked with the list, as before. */
 static unsigned int cg_patches_on(int game) {
     unsigned int on = 0;
     int i;
@@ -2548,9 +2709,11 @@ static unsigned int cg_patches_on(int game) {
         return (unsigned int)test_graph_patches;
     }
 #endif
+    cg_installed_load();
     for (i = 0; i < cg_g.n_patch; ++i) {
         const char *id = cg_s(&cg_g, cg_u16(cg_g.d + cg_g.o_patch + 2u * (unsigned int)i));
-        if (game == 5 && lstrcmpA(id, "guardians_of_isola") == 0 && faith_notice_left_the_tribe()) {
+        if ((cg_installed_state == 1 && cg_installed_has(game, id))
+            || (game == 5 && lstrcmpA(id, "guardians_of_isola") == 0 && faith_notice_left_the_tribe())) {
             on |= 1u << i;
         }
     }
@@ -3250,6 +3413,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphForce(const int *nodes, 
     }
     test_graph_patches = patches;
     test_graph_scale = scale;
+}
+
+/* Scrolling Popups installed (1) or not (0) for the layout of the pages, -1 = as its companion says. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphScroll(int on) {
+    test_graph_scroll = on;
+}
+
+/* The installed patches' list as the patcher would write it (NULL: none, as an older patch), then the patches the
+   loaded graph names that are on in `game` (cg_patches_on), as a bit mask. */
+__declspec(dllexport) unsigned int __stdcall VvfpStoryProbeInstalledPatches(int game, const char *text) {
+    test_graph_patches = -1;
+    cg_installed_state = text != NULL ? 1 : 0;
+    lstrcpynA(cg_installed, text != NULL ? text : "", CG_INSTALLED_BYTES);
+    return cg_patches_on(game);
 }
 
 /* The puzzles solved for the graph's checks (bit = the adapter's puzzle index; -1 = as the game says). */

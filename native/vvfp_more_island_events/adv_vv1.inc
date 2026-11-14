@@ -345,9 +345,30 @@ static void v1_fill(unsigned char *d) {
 static int __cdecl v1_choose(void *dialog) {
     unsigned char *world = VV1_WORLD();
     int m, adv_ok, cave_ok, draw;
+    const adv_flow *picked;
     adv_log_reset();                   /* an encounter is drawn: whatever was ours is over */
     __try {
-        if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()) {
+        /* Pick Island Event chose one of ours (mie_pick.inc): that one, when it can happen; else the stock draw. */
+        picked = mp_due_flow(1);
+        if (picked != NULL) {
+            int is_cave = picked == &CAVE_FLOW;
+            int ok = world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1
+                && (is_cave ? cave_possible(&ADV_VV1) && cave_begin(&ADV_VV1)
+                            : adv_possible(&ADV_VV1) && adv_begin(&ADV_VV1));
+            mp_done(1, ok);
+            if (ok) {
+                v1_flow = picked;
+                v1_node = 0;
+                v1_ending = -1;
+                v1_fill((unsigned char *)dialog);
+                adv_log_event(1, g_vv12_title);
+                v1_effects_page = -1;
+                v1_dialog = dialog;
+                v1_stage = ADV_STAGE_QUESTION;
+                v1_page = 0;
+                return -2;
+            }
+        } else if (world != NULL && VV1_ARRAY() != NULL && *(int *)(world + 0x9E40) > 1 && !v1_story_busy()) {
             adv_ok = adv_possible(&ADV_VV1);
             cave_ok = cave_possible(&ADV_VV1);
             if (adv_ok || cave_ok) {

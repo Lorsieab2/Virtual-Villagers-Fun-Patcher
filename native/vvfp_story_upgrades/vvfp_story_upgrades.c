@@ -1163,6 +1163,7 @@ static void label_of(const story_event *e, char *out, size_t size) {
     }
 }
 
+#include "story_more_events.inc"   /* Pick Island Event: More Island Events' events (v1.35.97) */
 #include "story_outcomes_ui.inc"
 
 /* Arms `event` for `game`: makes the island event due and remembers the
@@ -1250,6 +1251,9 @@ static int story_pick_island_event(int game, HWND owner) {
     chosen = chooser_run(game, g, owner);
     if (chosen < 0) {
         return 0;
+    }
+    if (chosen >= SM_ROW) {
+        return sm_buy(game, owner, sm_list.k[chosen - SM_ROW]);   /* a More Island Events event */
     }
     event = &g->events[chosen];
     settings = &chooser.settings[chosen];
@@ -1445,6 +1449,35 @@ __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int positio
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeArmedSlot(void) {
     return pick_slot;
+}
+
+/* Arms More Island Events' registry entry `k` WITHOUT any dialog or making the island event due (the tests drive the
+   draw), at test tick `tick`: the slot armed, or -1 when the entry is not in this game. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreArm(int game, int k, DWORD tick) {
+    if (game < 1 || game > 5 || sm_describe(game, k) < 0) {
+        return -1;
+    }
+    test_tick = tick;
+    install_state[game] = 1;
+    pick_slot = sm_slot_of(game, k);
+    pick_game = game;
+    pick_tick = tick;
+    pick_event = &sm_event;
+    pick_village = story_village_now(game);
+    pick_more = k;
+    return pick_slot;
+}
+
+/* The Pick Island Event list's More Island Events entries for `game` as the chooser fills them: their registry
+   indices in k[], 1 / 0 possible now in possible[] (at most `cap`); the count. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreList(int game, int *k, int *possible, int cap) {
+    int i;
+    sm_fill(game);
+    for (i = 0; i < sm_list.count && i < cap; ++i) {
+        k[i] = sm_list.k[i];
+        possible[i] = sm_list.possible[i];
+    }
+    return sm_list.count;
 }
 
 /* Arms `event` for `game` exactly as the dialog's purchase does, without

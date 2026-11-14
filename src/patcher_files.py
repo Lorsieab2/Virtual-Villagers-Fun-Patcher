@@ -166,6 +166,10 @@ PATCH_LOG_FILENAME = "VVFP Patch Log.json"
 PATCH_LOG_SUFFIX = ".patch-log.json"   # the older name's ending
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
 TRANSPARENCY_RELATIVE_PATH = PurePosixPath(PATCHER_FILES_FOLDER) / TRANSPARENCY_FILENAME
+# The ids of the patches installed in this game, one per line (v1.35.97): Custom Island Events' patch conditions read
+# it (native/vvfp_story_upgrades/story_graph.inc cg_installed_load). Written at every patch.
+INSTALLED_PATCHES_FILENAME = "VVFP Installed Patches.txt"
+INSTALLED_PATCHES_RELATIVE_PATH = PurePosixPath(PATCHER_FILES_FOLDER) / INSTALLED_PATCHES_FILENAME
 
 # Windows' classic path limit: a path of at most MAX_PATH - 1 characters. The
 # games are 32-bit programs that are not long-path aware, so Windows will not

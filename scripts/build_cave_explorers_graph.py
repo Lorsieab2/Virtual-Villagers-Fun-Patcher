@@ -74,6 +74,49 @@ def award(key: str) -> list[dict]:
     return [{"do": kind, "amount": lo, "max": hi, "scaled": True, "defer": True}, {"do": "pay_award"}]
 
 
+# Each part's name, as the library's editor shows it (the owner: what the author sees is plain words, never a code
+# label); the ids stay internal.
+PART_NAMES = {
+    "intro": "Curious about the cave",
+    "dont": "Don't explore",
+    "explore": "Explore the cave",
+    "explore_q": "Proceed further or stay here?",
+    "deeper": "Head in deeper",
+    "a_scream": "Who screams",
+    "a_s1": "The first friend screams",
+    "a_s2": "The second friend screams",
+    "wrong_1": "Stepped on something slimy",
+    "wrong_2": "Something scratched them",
+    "wrong_3": "Ran into something sticky",
+    "wrong_4": "Heard something growling",
+    "run_q": "Run left or right?",
+    "run_left": "Run down the left path",
+    "run_right": "Run down the right path",
+    "argue": "Out of the cave, then argue",
+    "argue_2": "The argument",
+    "makeup": "Out of the cave, they make up",
+    "chasm": "Who slips into the chasm",
+    "chasm_1": "The first friend slips first",
+    "chasm_2": "The second friend slips first",
+    "b_search": "Search for anything",
+    "b_find_1": "Find something (first way)",
+    "b_find_2": "Find something (second way)",
+    "find_map": "Find a map",
+    "find_coins": "Find gold coins",
+    "find_treasure": "Find a treasure map",
+    "find_food": "Find preserved food",
+    "stay": "Stay here",
+    "stay_q": "Return the objects or keep them?",
+    "return": "What they return",
+    "return_food": "Return the food",
+    "return_tech": "Return the tech points",
+    "keep": "Keep the objects",
+    "keep_research": "Tell the researchers",
+    "keep_both": "Both die",
+    "keep_one": "The second friend dies",
+}
+
+
 def build() -> dict:
     stay_first, stay_rest = TEXT["STAY"].split(' "Wait.', 1)
     stay_rest = '"Wait.' + stay_rest
@@ -156,6 +199,7 @@ def build() -> dict:
     n["keep_one"] = {"popup": "append", "text": text("KEEP_ONE"),
                      "effects": [{"do": "kill", "role": "friend", "cause": "unknown"}],
                      "summary": "name2 dies", "outcome": "name2 dies, a grave"}
+    n = {nid: {"name": PART_NAMES[nid], **node} for nid, node in n.items()}
     return {
         "format": "vvfp-cie-graph", "version": 3, "title": cave.TITLE, "games": [cave.GAME], "patches": [],
         "requirement": {"min_eligible": 2, "puzzles": {str(cave.GAME): ["The Cave"]}},

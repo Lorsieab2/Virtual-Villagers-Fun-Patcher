@@ -99,6 +99,51 @@ game's own code, with its own choices, random outcomes and amounts -- except
 the outcomes the player sets (below), which are the game's own rolls answered
 with the chosen value.
 
+### More Island Events' events (v1.35.97)
+
+With the More Island Events patch installed, the list ends with that patch's
+events of the game played -- its registry, `native/vvfp_more_island_events/
+mie_pick.inc` (`MIE_PICKS`, one line per event: games, title, its own test, what
+it needs in plain words, one sentence, and how its game's draw knows it):
+
+| Game | Events |
+| --- | --- |
+| A New Home | The Aspiring Adventurer, The Cave Explorers, The Remembrance Ceremony, The Rumblings |
+| The Lost Children | The Aspiring Adventurer, The Climb, The Remembrance Ceremony, The Rumblings |
+| The Secret City | The Aspiring Adventurer, The Troubling Signs, Diving for Treasure, The Remembrance Ceremony, The Rumblings |
+| The Tree of Life | The Aspiring Adventurer, The Playful Dolphins, The Mysterious Mask, The Remembrance Ceremony, The Rumblings |
+| New Believers | The Aspiring Adventurer, The Remembrance Ceremony, The Rumblings |
+
+The Remembrance Ceremony and The Rumblings are single-result events: in A New Home and The Lost Children the pick
+steers the chooser to the island events (not the two-choice ones), and the ceremony's own widened case draw
+(ceremony_games.inc cr_v12_construct) answers its case once for the pick.  Their refusals: "The Remembrance Ceremony
+needs at least one grave" (New Believers: "... and The Last Heathen achieved"), "The Rumblings needs every puzzle
+solved and a finished hut".
+
+Each is possible exactly when its own draw would take it: the event's test over
+the game's eligible villagers (the owner's protected villagers never count,
+except The Troubling Signs' chief, the owner's exception), and in A New Home and
+The Lost Children never before the village's first island events. One that is
+not possible is listed "- not possible right now" with what it needs; OK says so
+in a box ("The Climb needs a villager of 18 or more who is at least a Trainee in
+Research and may go.") and nothing is bought. Without More Island Events none is
+listed. They have no settings: each plays by its own odds.
+
+A pick is armed as any pick (the island event due, the same lock and lapse, the
+queue file: its `pick_index` is -1000 - the registry index, which older builds
+leave alone). The game's chooser is steered to the family the event is drawn in
+(A New Home the villager encounters, The Lost Children family A, both with the
+index 0x3E that no stock roll reaches; the later games the event table's slot 0,
+where More Island Events keeps its events). That companion's draw asks
+`VvfpStoryMoreEventDue(game)` which event is due and takes it instead of drawing:
+A New Home's encounter setup begins it, The Lost Children's family-A draw
+returns its own number (its keep test still runs), and the later games'
+selector puts its object in slot 0, which this pick then presents only when the
+object's own condition holds. A New Home and The Lost Children report back with
+`VvfpStoryMoreEventDone(game, delivered)`. An event that can no longer happen
+when due is refused as any picked event: the game's own choice runs and the next
+Pick Island Event says why. No executable byte is written for any of this.
+
 ### Events not offered (developer-dead)
 
 Since v1.35.46 a developer-dead event is offered when it was **proven to work**:
@@ -862,6 +907,53 @@ The runtime is native/vvfp_story_upgrades/story_graph.inc:
   resumes from the first page whose effects the save does not hold, so no
   effect is made twice or lost. The file stays after the last page until a
   save holds it.
+- Part names (v1.35.97, the owner: code labels are never UI): a part may have
+  a "name" in plain words (src/vv_cie_graph.py name_problem: 1 to 60 letters,
+  digits, spaces and . , ! ? : - ' ( ) /), which the library's editor shows
+  everywhere in place of the part's internal id (the tree, the lists of parts,
+  "after ..." conditions, the Check tab's problems, the chances table). Names
+  are never compiled: a .cieg is the same bytes with or without them
+  (without_names). Both shipped examples name every part (The Cave Explorers'
+  in scripts/build_cave_explorers_graph.py PART_NAMES). The Aspiring Adventurer
+  example's meat and chest awards are the real event's per-game normal ranges
+  (src/vv_aspiring_adventurer.py AWARD_RANGES), in ONE reward step each (format
+  version 5, below); its parts, text and odds are the original's.
+- Per-game amounts (v1.35.97, format version 5): a food / tech effect may carry
+  "per_game": {"<game>": [min, max], ...}, each listed game's own amount
+  (min = max) or range, drawn and scaled as a version 3 range is; a game not
+  listed uses the effect's own amount (and max).  In the .cieg it is the
+  effect's string "<game>:<min>-<max>;..." (story_graph.inc cg_per_game, checked
+  as the file loads); versions 1 to 4 load, compile and play as before.  The
+  editor's Changes tab: "Different amounts per game", a row per game the event
+  is made for; the Check tab checks each.
+- Scrolling Popups in the editor (v1.35.97): the fit check's "with scrolling"
+  is no longer a tick box. The library window finds the chosen game's folders
+  for its save folder (the patcher's own _game_folders_for) and reads the first
+  patched one (src/vv_cie_library_window.py scrolling_installed): its installed
+  patches' list names "vv<N>_scrolling_popups", or -- patched before the list
+  -- its patcher folder holds "VVFP Scrolling Popups.dll". Not found: checked
+  as without scrolling (pages), the stricter fit.
+- Popups whole with Scrolling Popups (v1.35.97): when "VVFP Scrolling Popups.dll"
+  is installed (VvfpScrollingPopupsInstalled, asked as the run is laid out:
+  story_graph.inc cg_scrolls) a popup's text is never split: cg_fits counts only
+  the bytes the game's popup holds, not its lines, and the display is composed
+  without a line limit, so each popup is one page that scrolls -- as the
+  patcher's fit check counts it with scrolling. The effects wait for their own
+  page and the log keeps one entry, as before. More Island Events does the same
+  (native/vvfp_more_island_events/adv_core.inc adv_scrolls): its question is one
+  popup and each answer's result one popup, its popups joined a paragraph apart.
+- Patch conditions (v1.35.97): the patcher writes the ids of everything it
+  installed -- the game build's id and every fun patch, one per line, "#" lines
+  notes -- into "Virtual Villagers Fun Patcher Files\VVFP Installed
+  Patches.txt" at every patch (a re-patch rewrites it; a source folder's older
+  list is dropped like its other reports). The companion reads it once a run
+  (story_graph.inc cg_installed_load): an event's patch id is the short name,
+  the line itself or the line without its "vv<N>_" prefix in game N (so
+  "scrolling_popups" is on in The Secret City when "vv3_scrolling_popups" is
+  listed; a build id's "_rewrite" ending matches too); another game's patch
+  never counts. A game patched before this list existed has none: then, as
+  before, only Guardians of Isola's rewrite is seen (in the game's own text),
+  which is also still asked with the list.
 
 ### Custom titles
 

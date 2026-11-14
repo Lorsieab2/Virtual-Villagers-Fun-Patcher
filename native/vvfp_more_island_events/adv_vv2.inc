@@ -189,8 +189,22 @@ typedef int (__cdecl *v2_roll_fn)(int bound);
 static v2_roll_fn v2_roll_inner;       /* what the draw's call reached: the game's rand, or Story's own roll */
 
 /* The family-A draw, one wider for each event past the first (whose slot, 21, the stock draw already holds). */
+static int __cdecl v2_keep(int event);
+
 static int __cdecl v2_draw(int bound) {
     v2_roll_fn inner = v2_roll_inner != NULL ? v2_roll_inner : (v2_roll_fn)(uintptr_t)0x4031A0u;
+    /* Pick Island Event chose one of ours (mie_pick.inc): its own draw, once, when it can happen. */
+    const adv_flow *picked = mp_due_flow(2);
+    if (picked != NULL) {
+        int k;
+        for (k = 0; k < V2_EVENT_COUNT; ++k) {
+            if (V2_EVENTS[k] == picked && v2_keep(V2_DRAW_FIRST + k)) {
+                mp_done(2, 1);
+                return V2_DRAW_FIRST + k;
+            }
+        }
+        mp_done(2, 0);
+    }
     return inner(bound + V2_EVENT_COUNT - 1);
 }
 

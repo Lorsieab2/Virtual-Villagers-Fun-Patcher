@@ -358,11 +358,14 @@ def description(game: int) -> str:
         "reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island "
         "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
         + ". Deaths are the game's own (\"Unknown causes\", with a grave); a disappearance is logged as one in the "
-        "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next); the effects wait "
+        "Deaths log. The popups show the owner's text in pages that fit the screen (OK shows the next) -- with Scrolling "
+        "Popups installed, one scrolling popup for the question and one for each answer's result; the effects wait "
         "for the page that tells them, and the Island Events log keeps one entry for each event."
         + (CAVE_DESCRIPTION if game == 1 else CLIMB_DESCRIPTION if game == 2 else TROUBLING_DESCRIPTION + DIVE_DESCRIPTION
            if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "")
-        + ceremony_description(game) + " " + classic + " **Needs no other patch.** "
+        + ceremony_description(game) + " With Story / Cheat Upgrades, Pick Island Event lists each of these events "
+        "and picks one whenever its own requirements hold (otherwise it says what the event needs). " + classic
+        + " **Needs no other patch.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
     )

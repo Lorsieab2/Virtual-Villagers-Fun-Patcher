@@ -67547,7 +67547,7 @@
   },
   {
    "stem": "vvfp.story/story_graph.cg_load.s24",
-   "english": "it is not a version 1, 2, 3 or 4 .cieg file",
+   "english": "it is not a version 1, 2, 3, 4 or 5 .cieg file",
    "games": [
     "vv1",
     "vv2",
@@ -67585,20 +67585,6 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
    "notes": "a patcher window"
   },
   {
@@ -68143,6 +68129,289 @@
    "mechanism": "b",
    "context": "VVFP More Island Events.dll (the island event The Rumblings, all five games: its popup, in the game's own island-event popup)",
    "notes": "a patcher text shown by the game in its island-event popup (one popup, OK only)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_more_events.sm_refusal.s0",
+   "english": "%s needs %s.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.aspiring_adventurer.description",
+   "english": "A villager sees something glinting off the safe path: investigate it or stay on the path.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.aspiring_adventurer.needs",
+   "english": "two villagers of 14 or more who may go (not nursing a baby, and none the game keeps out of island events)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.cave_explorers.description",
+   "english": "Two friends wonder what the cave hides, and decide whether to explore it.",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.cave_explorers.needs",
+   "english": "The Cave puzzle solved, and two villagers of 18 or more, at most 5 years apart, who may go",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_climb.description",
+   "english": "A villager wants to climb the Great Falls: follow the plan, or the scientists' advice.",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_climb.needs",
+   "english": "a villager of 18 or more who is at least a Trainee in Research and may go",
+   "games": [
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.troubling_signs.description",
+   "english": "The Tribal Chief asks one of four advisors what the troubling signs mean.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.troubling_signs.needs",
+   "english": "the Tribal Chief wearing the chief's robe, a population of 61 or more, nine other villagers who may be picked, and a name for the tribe",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.diving_for_treasure.description",
+   "english": "A villager wants to dive for treasure: swim deeper, or better not.",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.diving_for_treasure.needs",
+   "english": "two villagers of 18 or more who may be picked",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.playful_dolphins.description",
+   "english": "A villager sees dolphins playing: swim towards them, or hang back.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.playful_dolphins.needs",
+   "english": "two villagers of 14 or more who may be picked",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.mysterious_mask.description",
+   "english": "Children find a strange mask, and the village decides what to do about it.",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.mysterious_mask.needs",
+   "english": "a population of 61 or more, two to four children under 14 and five villagers of 18 or more who may be picked",
+   "games": [
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.description",
+   "english": "The whole village honors the dead, and the feast uses food.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony.needs",
+   "english": "at least one grave",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.description",
+   "english": "The whole village honors the dead, and the feast uses food.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.remembrance_ceremony_nb.needs",
+   "english": "at least one grave and The Last Heathen achieved (every Heathen converted)",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_rumblings.description",
+   "english": "The ground shakes and damages some of the village's huts.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.the_rumblings.needs",
+   "english": "every puzzle solved and a finished hut",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and as \"<event> needs <this>.\" (lower case, no full stop)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/mie_pick.first_events",
+   "english": "the village's first island events to have happened",
+   "games": [
+    "vv1",
+    "vv2"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)",
+   "notes": "a patcher window: what an event needs before the village's first island events have happened (lower case, no full stop)",
    "route": "key"
   }
  ]

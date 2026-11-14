@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -366,6 +367,50 @@ def dive_template_rows() -> list[dict]:
     return out
 
 
+PICK_INC = ROOT / "native" / "vvfp_more_island_events" / "mie_pick.inc"
+PICK_STEM = "vvfp.more_island_events/mie_pick"
+PICK_CONTEXT = "VVFP More Island Events.dll (Pick Island Event's list of the More Island Events events)"
+PICK_GAMES = {"1": "vv1", "2": "vv2", "3": "vv3", "4": "vv4", "5": "vv5"}
+
+
+def pick_entries() -> list[dict]:
+    """The registry MIE_PICKS of mie_pick.inc, one line per event: its games, key, what it needs and its sentence
+    (adjacent C literals joined as C joins them)."""
+    text = PICK_INC.read_text(encoding="utf-8")
+    body = text[text.index("static const mie_pick MIE_PICKS[] = {"):]
+    body = body[:body.index("\n};")]
+    out = []
+    for block in re.findall(r"\{ (MIE_[^{}]*?)\},", body, re.S):
+        literals = ["".join(re.findall(r'"((?:[^"\\]|\\.)*)"', group))
+                    for group in re.findall(r'(?:"(?:[^"\\]|\\.)*"\s*)+', block)]
+        games = (["vv1", "vv2", "vv3", "vv4", "vv5"] if block.startswith("MIE_ALL_GAMES")
+                 else [PICK_GAMES[g] for g in re.findall(r"MIE_IN\((\d)\)", block.split(",")[0])])
+        key, needs, description = literals[0], literals[1], literals[2]
+        out.append({"key": key, "games": games, "needs": needs, "description": description})
+    return out
+
+
+def pick_template_rows() -> list[dict]:
+    out = []
+    for e in pick_entries():
+        out.append({"stem": f"{PICK_STEM}.{e['key']}.description", "english": e["description"], "games": e["games"],
+                    "mechanism": "b", "context": PICK_CONTEXT,
+                    "notes": "a patcher window: one sentence about the event, in Pick Island Event's list",
+                    "route": "key"})
+        out.append({"stem": f"{PICK_STEM}.{e['key']}.needs", "english": e["needs"], "games": e["games"],
+                    "mechanism": "b", "context": PICK_CONTEXT,
+                    "notes": "a patcher window: what the event needs, shown after \"Not possible right now:\" and "
+                             "as \"<event> needs <this>.\" (lower case, no full stop)",
+                    "route": "key"})
+    out.append({"stem": f"{PICK_STEM}.first_events",
+                "english": "the village's first island events to have happened", "games": ["vv1", "vv2"],
+                "mechanism": "b", "context": PICK_CONTEXT,
+                "notes": "a patcher window: what an event needs before the village's first island events have "
+                         "happened (lower case, no full stop)",
+                "route": "key"})
+    return out
+
+
 TROUBLING_PERSONS = {"c": "the Tribal Chief", "a": "the advisor of the group the chief asked",
                      "t": "the tribe's name (the player's)"}
 
@@ -455,7 +500,8 @@ def template_rows() -> list[dict]:
                     else (["vv1", "vv2", "vv3", "vv4"] if key == "L2_OTHER" else ["vv1", "vv2", "vv3", "vv4", "vv5"]),
                     "mechanism": "b", "context": adv.CONTEXT, "notes": "; ".join(notes), "route": "key"})
     return (out + cave_template_rows() + climb_template_rows() + troubling_template_rows()
-            + dive_template_rows() + dolphin_template_rows() + mask_template_rows() + ceremony_template_rows())
+            + dive_template_rows() + dolphin_template_rows() + mask_template_rows() + ceremony_template_rows()
+            + pick_template_rows())
 
 
 def write_template_rows() -> None:
@@ -472,7 +518,7 @@ def write_template_rows() -> None:
         elif not r["stem"].startswith((adv.STEM + ".", cave.STEM + ".", climb.STEM + ".", troubling.STEM + ".",
                                                 diving.STEM + ".", dolphins.STEM + ".",
                                                 mask.STEM + ".", remembrance.STEM + ".",
-                                                rumblings.STEM + ".")):
+                                                rumblings.STEM + ".", PICK_STEM + ".")):
             out.append(r)
     out += [r for r in ours if r["stem"] not in index]
     document["strings"] = out

@@ -127,3 +127,9 @@ EXPORTS
     VvfpMultiAnswerGameVtable=_VvfpMultiAnswerGameVtable@8
     VvfpStoryProbeGraphLog=_VvfpStoryProbeGraphLog@16
     VvfpStoryProbeGraphSent=_VvfpStoryProbeGraphSent@12
+    VvfpStoryMoreEventDue=_VvfpStoryMoreEventDue@4
+    VvfpStoryMoreEventDone=_VvfpStoryMoreEventDone@8
+    VvfpStoryProbeMoreArm=_VvfpStoryProbeMoreArm@12
+    VvfpStoryProbeMoreList=_VvfpStoryProbeMoreList@16
+    VvfpStoryProbeInstalledPatches=_VvfpStoryProbeInstalledPatches@8
+    VvfpStoryProbeGraphScroll=_VvfpStoryProbeGraphScroll@4

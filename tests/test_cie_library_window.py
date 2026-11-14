@@ -24,6 +24,52 @@ WINDOWS_LIMIT = 32767
 PAGE_BUDGET = 4000
 
 
+class ScrollingPopupsDetected(unittest.TestCase):
+    """v1.35.97: whether the chosen game's popups scroll is read from the game's installed patches, never ticked by
+    hand: its installed patches' list, else (a game patched before the list) its Scrolling Popups companion."""
+
+    def folder(self, tmp: str, name: str, listing: str | None = None, dll: bool = False, files: bool = True) -> Path:
+        root = Path(tmp) / name
+        root.mkdir()
+        inner = root / w.patcher_files.PATCHER_FILES_FOLDER
+        if files:
+            inner.mkdir()
+        if listing is not None:
+            (inner / w.patcher_files.INSTALLED_PATCHES_FILENAME).write_text(listing, encoding="ascii")
+        if dll:
+            (inner / "VVFP Scrolling Popups.dll").write_bytes(b"MZ")
+        return root
+
+    def test_from_the_list_else_the_companion(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            on = self.folder(tmp, "on", "# notes\nvv3\nvv3_scrolling_popups\n")
+            off = self.folder(tmp, "off", "vv3\nvv3_more_island_events\n", dll=True)   # the list decides
+            other = self.folder(tmp, "other", "vv4\nvv4_scrolling_popups\n")
+            old_on = self.folder(tmp, "old_on", dll=True)
+            old_off = self.folder(tmp, "old_off")
+            stock = self.folder(tmp, "stock", files=False)
+            self.assertIs(w.scrolling_installed(3, [on]), True)
+            self.assertIs(w.scrolling_installed(3, [off]), False)
+            self.assertIs(w.scrolling_installed(3, [other]), False)            # another game's never counts
+            self.assertIs(w.scrolling_installed(3, [old_on]), True)
+            self.assertIs(w.scrolling_installed(3, [old_off]), False)
+            self.assertIsNone(w.scrolling_installed(3, [stock, Path(tmp) / "missing"]))
+            self.assertIs(w.scrolling_installed(3, [Path(tmp) / "missing", stock, on]), True)   # the first patched
+
+    def test_no_tick_box(self) -> None:
+        source = Path(w.__file__).read_text(encoding="utf-8")
+        self.assertNotIn("ttk.Checkbutton(buttons, text=SCROLLING", source)
+        self.assertIn("self.detect_scrolling()", source)
+
+
+class PerGameAmountWords(unittest.TestCase):
+    def test_the_changes_list_names_each_games_amount(self) -> None:
+        words = w.describe_effect({"do": "food", "amount": 100, "per_game": {"1": [200, 1500], "4": [300, 300]}})
+        self.assertIn("A New Home: 200 to 1,500", words)
+        self.assertIn("The Tree of Life: 300", words)
+        self.assertIn("Different amounts per game", w.PER_GAME_WORDS)
+
+
 class Helpers(unittest.TestCase):
     def test_the_example_and_a_new_event_pass_every_check(self) -> None:
         for g in (w.example_event(), w.new_event(), w.example_event(w.CAVE_EXAMPLE)):
@@ -36,12 +82,15 @@ class Helpers(unittest.TestCase):
         self.assertEqual(len(parts), len(set(parts)))                     # each part once
         self.assertEqual(set(parts), set(w.example_event()["nodes"]))     # and every part
         links = [words for _i, _p, words, kind, _t in rows if kind == "link"]
-        self.assertTrue(any("deadly  (shared: shown above)" in words for words in links), links)
+        # Each part by its plain-words name, never its id (the owner: code labels are never UI).
+        self.assertTrue(any("A deadly ending  (shared: shown above)" in words for words in links), links)
         buttons = [words for _i, _p, words, kind, _t in rows if kind == "choice"]
         self.assertEqual(buttons, ["Button A: Go investigate!", "Button B: Stay on the safe path"])
-        self.assertTrue(any(words.startswith("2 in 4: find_dirt") for _i, _p, words, _k, _t in rows))
-        self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8") for _i, _p, words, _k, _t
+        self.assertTrue(any(words.startswith("2 in 4: Finds a pile of dirt: nothing but") for _i, _p, words, _k, _t
                             in rows))
+        self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8 Saved by a friend")
+                            for _i, _p, words, _k, _t in rows))
+        self.assertFalse(any("find_dirt" in words or "a_open" in words for _i, _p, words, _k, _t in rows))
 
     def test_a_loop_and_a_broken_link_never_hang_the_tree(self) -> None:
         g = w.new_event()
@@ -80,7 +129,8 @@ class Helpers(unittest.TestCase):
         self.assertEqual(w.problem_node("The Secret City: the popup of b_open+b_lost takes 11 pages", nodes),
                          "b_open")
         # The window's own words never show a code label.
-        shown = " ".join([w.INTRO, w.HELP_TEXT, w.SCROLLING, *w.EFFECT_NAMES.values(), *w.RISKY.values(),
+        shown = " ".join([w.INTRO, w.HELP_TEXT, w.SCROLLING, w.NOT_SCROLLING, w.SCROLLING_UNKNOWN,
+                          *w.EFFECT_NAMES.values(), *w.RISKY.values(),
                           *w.TYPE_WORDS.values(), *w.POPUP_WORDS.values(), *w.KIND_WORDS.values()])
         for word in ("node", "json", "cieg", "graph", "defer", "pay_award", "branch", "optional"):
             self.assertNotIn(word, shown.lower())
@@ -125,7 +175,7 @@ class Helpers(unittest.TestCase):
                              (folder / "My Adventure.json", folder / "My Adventure.cieg", []))
             self.assertEqual(sorted(p.name for p in folder.iterdir()), ["My Adventure.cieg", "My Adventure.json"])
             back = cg.decompile_graph(saved.cieg.read_bytes())
-            self.assertEqual(back, cg.load(json.loads(saved.json.read_text(encoding="utf-8"))))
+            self.assertEqual(back, cg.without_names(cg.load(json.loads(saved.json.read_text(encoding="utf-8")))))
             self.assertEqual(w.read_event(saved.json), g)
             self.assertEqual(w.library_events(Path(tmp)), [("My Adventure", 0)])
             # An event with problems: its .json alone, and the library says it has problems.
@@ -358,7 +408,7 @@ class Window(unittest.TestCase):
 
     def test_a_weight_edited_changes_the_chances(self) -> None:
         self.assertEqual(self.out["weight"], 6)
-        self.assertEqual(self.out["row"][:3], ["find_dirt", "6", "75%"])
+        self.assertEqual(self.out["row"][:3], ["Finds a pile of dirt", "6", "75%"])
         self.assertTrue(self.out["chances_before"].endswith("12.5%"), self.out["chances_before"])
         self.assertNotEqual(self.out["chances_before"], self.out["chances_after"])
         self.assertTrue(self.out["chances_after"].endswith("18.75%"), self.out["chances_after"])
@@ -375,7 +425,7 @@ class Window(unittest.TestCase):
         self.assertEqual((json_path.name, cieg_path.name), ("My Adventure.json", "My Adventure.cieg"))
         g = cg.load(json.loads(self.json_bytes.decode("utf-8")))
         self.assertEqual(g["nodes"]["a_open"]["children"][0]["weight"], 6)
-        self.assertEqual(cg.decompile_graph(self.cieg_bytes), g)
+        self.assertEqual(cg.decompile_graph(self.cieg_bytes), cg.without_names(g))   # names never compiled
         self.assertEqual(cg.compile_graph(g), self.cieg_bytes)
         self.assertEqual(self.out["library"], ["My Adventure"])
         self.assertFalse(self.out["dirty_after_save"])
