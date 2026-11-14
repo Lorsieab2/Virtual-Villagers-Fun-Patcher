@@ -181,6 +181,7 @@ enum { CG_ROLE_OPTIONAL = 1, CG_ROLE_NURSING = 2, CG_ROLE_SPECIAL = 4, CG_ROLE_B
        CG_ROLE_HARM = 16, CG_ROLE_PROTECTED = 32 };
 #define CG_STRANGER_NAMED 1u          /* a stranger's flags: named (cie-v6-binary.md 16) */
 #include "story_villager_names.h"     /* each game's first-name lists (scripts/build_cie_villager_names.py) */
+#include "story_title_widths.h"       /* the later games' title font widths (scripts/build_cie_title_widths.py) */
 
 /* The pronouns are CG_PH_HE .. CG_PH_MAN and CG_PH_HIMSELF .. CG_PH_SON (cg_pronoun). */
 enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, CG_PH_UNIT,
@@ -727,11 +728,24 @@ static int cg_pools_ok(const cg_graph *g) {
 static int cg_title_ok(const cg_graph *g, const char *title) {
     const char *t;
     for (t = title; *t != '\0'; ++t) {
+        if (*t == '(' && g->version >= 6) {
+            /* Version 6: a placeholder naming a role (section 17): a name, a pronoun, a name's hint. */
+            const char *e = t + 1;
+            cg_ph ph;
+            while (*e != '\0' && *e != ')' && *e != '(' && *e != '\n') {
+                ++e;
+            }
+            if (*e != ')' || !cg_parse_ph(g, t + 1, (int)(e - t - 1), &ph) || ph.role < 0) {
+                return 0;
+            }
+            t = e;
+            continue;
+        }
         if (!ce_text_char_ok(*t) && !(*t == '"' && g->version >= 6)) {
             return 0;
         }
     }
-    return title[0] != '\0' && lstrlenA(title) < CE_TITLE_BYTES;
+    return title[0] != '\0' && lstrlenA(title) < (g->version >= 6 ? CG_LABEL_V6 : CE_TITLE_BYTES);
 }
 
 static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
@@ -2935,9 +2949,109 @@ static unsigned short cg_node_title(int node) {
     return n[0] != CG_BRANCH && cg_u16(n + 26) != CG_NONE ? (unsigned short)(cg_u16(n + 26) + 1u) : 0;
 }
 
-/* The words of title `t` (0: the event's own) into `out`. */
+/* 17: a title as shown fits the game: under CE_TITLE_BYTES, and the later games' title box in ldwarialbold
+   (story_title_widths.h), the first two games' title_width (src/vv_cie_graph.py GAMES). */
+static int cg_title_fits(const char *text) {
+    static const int TITLE_WIDTH_V12[3] = { 0, 51, 46 };
+    int n = lstrlenA(text);
+    if (n >= CE_TITLE_BYTES) {
+        return 0;
+    }
+    if (cg.game >= 3 && cg.game <= 5) {
+        int px = 0, i;
+        for (i = 0; i < n; ++i) {
+            unsigned char c = (unsigned char)text[i];
+            px += CG_TITLE_PX[cg.game - 3][(c >= 32 && c < 127 ? c : 'A') - 32];
+        }
+        px += n > 0 ? CG_TITLE_SPACING[cg.game - 3] * (n - 1) : 0;
+        return px <= CG_TITLE_BOX_PX[cg.game - 3];
+    }
+    return cg.game < 1 || cg.game > 2 || n <= TITLE_WIDTH_V12[cg.game];
+}
+
+/* Title `t` (0: the event's own) expanded with `mode` (CG_EXPAND_REAL / CG_EXPAND_WORST) into `out`: its names,
+   or -- when that does not fit -- its names as pronouns (cie-v6-binary.md 17). */
+static void cg_title_expand(unsigned short t, int mode, char *out, int cap) {
+    static char buf[CG_LABEL_V6 * 4];
+    const ce_adapter *a = ce_adapter_for(cg.game);
+    const char *raw = cg_s(&cg_g, t == 0 ? (unsigned int)cg_g.title : (unsigned int)t - 1u);
+    int room = a != NULL ? a->name_room : 0;
+    if (cg_g.version < 6) {
+        lstrcpynA(out, t == 0 ? cg.title : raw, cap);
+        return;
+    }
+    cg_expand(raw, buf, sizeof buf, mode, room, -1, 0);
+    if (!cg_title_fits(buf)) {
+        cg_pronoun_names = 1;
+        cg_expand(raw, buf, sizeof buf, mode, room, -1, 0);
+        cg_pronoun_names = 0;
+    }
+    lstrcpynA(out, buf, cap);
+}
+
+/* The words of title `t` (0: the event's own) as the player reads them, into `out`. */
 static void cg_title_text(unsigned short t, char *out, int cap) {
-    lstrcpynA(out, t == 0 ? cg.title : cg_s(&cg_g, (unsigned int)t - 1u), cap);
+    cg_title_expand(t, CG_EXPAND_REAL, out, cap);
+}
+
+/* 17: a title's readable form (the log, Pick Island Event, the library): each name "someone", each pronoun "he or
+   she" ..., in the case written; cut to CE_TITLE_BYTES - 1. */
+static void cg_readable_title(const char *raw, char *out, int cap) {
+    static const char *const WORDS[10] = { "he/she", "his/her", "him/her", "man/woman", "himself/herself",
+                                           "woman/man", "boy/girl", "son/daughter", NULL, NULL };
+    static const char *const READ[8] = { "he or she", "his or her", "him or her", "man or woman",
+                                         "himself or herself", "woman or man", "boy or girl", "son or daughter" };
+    int o = 0;
+    if (cap > CE_TITLE_BYTES) {
+        cap = CE_TITLE_BYTES;
+    }
+    while (*raw != '\0' && o < cap - 1) {
+        const char *e = raw + 1, *w, *end;
+        const char *put = "someone";
+        int k, letters = 0, lower = 0, first = 1;
+        if (*raw != '(') {
+            out[o++] = *raw++;
+            continue;
+        }
+        while (*e != '\0' && *e != ')') {
+            ++e;
+        }
+        if (*e != ')') {
+            out[o++] = *raw++;
+            continue;
+        }
+        for (end = raw + 1; end < e && *end != '|'; ++end) {
+        }
+        for (w = end; w > raw + 1 && w[-1] != '.'; --w) {
+        }
+        for (k = 0; WORDS[k] != NULL; ++k) {
+            if (cg_word_is(w, (int)(end - w), WORDS[k])) {
+                put = READ[k];
+            }
+        }
+        for (w = raw + 1; w < end; ++w) {
+            letters += (*w >= 'A' && *w <= 'Z') || (*w >= 'a' && *w <= 'z');
+            lower += *w >= 'a' && *w <= 'z';
+        }
+        for (w = end; w > raw + 1 && w[-1] != '.'; --w) {
+        }
+        for (; *put != '\0' && o < cap - 1; ++put, first = 0) {
+            char c = *put;
+            if ((letters >= 2 && lower == 0) || (first && *w >= 'A' && *w <= 'Z')) {
+                c = (char)(c >= 'a' && c <= 'z' ? c - 'a' + 'A' : c);
+            }
+            out[o++] = c;
+        }
+        raw = e + 1;
+    }
+    out[o] = '\0';
+}
+
+/* Graph `g`'s title in its readable form (17), in a buffer of its own. */
+static const char *cg_readable(const cg_graph *g) {
+    static char buf[CE_TITLE_BYTES];
+    cg_readable_title(cg_s(g, (unsigned int)g->title), buf, sizeof buf);
+    return buf;
 }
 
 /* The title of display `k`'s popup, into `out`. */
@@ -3530,10 +3644,10 @@ static ce_layout cg_notice_layout(const ce_adapter *a) {
 static void cg_widest_title(const cg_popup *p, const ce_layout *l, char *out, int cap) {
     static char t[CE_TITLE_BYTES + 64];
     int j, most = -1;
-    cg_title_text(0, out, cap);
+    cg_title_expand(0, CG_EXPAND_WORST, out, cap);
     for (j = 0; j < p->tcount; ++j) {
         int lines;
-        cg_title_text(p->ttitle[j], t, sizeof t);
+        cg_title_expand(p->ttitle[j], CG_EXPAND_WORST, t, sizeof t);    /* 17: at its widest as shown */
         lines = ce_lines_used_in(l, t, "");
         if (lines > most) {
             most = lines;
@@ -3860,7 +3974,7 @@ static void cg_question_pages(const ce_adapter *a, int game, cg_pages *pages) {
     w.a = a;
     w.first = &q;
     w.rest = &q;
-    cg_title_text(cg_node_title(cg_g.start), title, sizeof title);   /* 14: the start question's own */
+    cg_title_expand(cg_node_title(cg_g.start), CG_EXPAND_WORST, title, sizeof title);   /* 14, 17 */
     w.title = title;
     w.reserve = cg_answer_room(cg_g.start, &q);
     w.pages = pages;
@@ -4479,7 +4593,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         return "Custom Island Event is not available in this game.";
     }
     if (!(cg_g.games & (1u << (game - 1)))) {
-        wsprintfA(reason, "\"%s\" is not made for %s.", cg_s(&cg_g, (unsigned int)cg_g.title), a->game_name);
+        wsprintfA(reason, "\"%s\" is not made for %s.", cg_readable(&cg_g), a->game_name);
         return reason;
     }
     question = cg_node_at(&cg_g, cg_g.start)[0] == CG_QUESTION;
@@ -4502,7 +4616,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             const unsigned char *c = cg_cond_at(&cg_g, (int)cg_u16(all + 2) + k);
             if (c[0] == CGC_PUZZLE && (int)cg_u16(c + 4) == game && !cg_puzzle_solved(game, cg_s(&cg_g, cg_u16(c + 2)))) {
                 wsprintfA(reason, "\"%s\" can only happen once %s is solved. Nothing has been queued.",
-                          cg_s(&cg_g, (unsigned int)cg_g.title), cg_s(&cg_g, cg_u16(c + 2)));
+                          cg_readable(&cg_g), cg_s(&cg_g, cg_u16(c + 2)));
                 return reason;
             }
         }
@@ -4513,7 +4627,7 @@ static const char *cg_refusal(int game, unsigned int *planned) {
     cg_relax_mask = 0;
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_STRICT && !cg_requirement_holds(game, needed)) {
         wsprintfA(reason, "\"%s\" can not happen in this village right now. Nothing has been queued.",
-                  cg_s(&cg_g, (unsigned int)cg_g.title));
+                  cg_readable(&cg_g));
         return reason;
     }
     if (cg_g.version >= 6 && cg_cast_now == CG_CAST_PREFER) {
@@ -4608,7 +4722,7 @@ static int cg_queue(int game, unsigned int planned, int due) {
             cg.alias[r] = -1;
         }
     }
-    lstrcpynA(cg.title, cg_s(&cg_g, (unsigned int)cg_g.title), sizeof cg.title);
+    lstrcpynA(cg.title, cg_readable(&cg_g), sizeof cg.title);
     if (cg.question) {
         static cg_pages pages;
         unsigned int keep = cg.bound;
@@ -5063,7 +5177,7 @@ static void cg_library_scan(int game) {
         }
         if (cg_lib.count < CG_LIBRARY_MAX) {
             lstrcpyA(cg_lib.path[cg_lib.count], path);
-            wsprintfA(cg_lib.label[cg_lib.count], "%s   (%s)", cg_s(&cg_lib_graph, (unsigned int)cg_lib_graph.title),
+            wsprintfA(cg_lib.label[cg_lib.count], "%s   (%s)", cg_readable(&cg_lib_graph),
                       found.cFileName);
             ++cg_lib.count;
         }

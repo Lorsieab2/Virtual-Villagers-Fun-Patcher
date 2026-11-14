@@ -3611,6 +3611,260 @@
    }
   },
   {
+   "name": "title_placeholders_vv3",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "(Name1)'s No Good, Very Bad Day",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "b",
+    "nodes": {
+     "b": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "inv"
+       },
+       {
+        "next": "dis"
+       }
+      ]
+     },
+     "inv": {
+      "text": "(Name) builds a wondrous machine.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "dis": {
+      "title": "The Revolutionary Discovery",
+      "text": "(Name) finds a wondrous cave.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Show the elders?",
+      "choices": [
+       {
+        "label": "Show them",
+        "next": "y"
+       },
+       {
+        "label": "Keep it quiet",
+        "next": "n"
+       }
+      ]
+     },
+     "y": {
+      "title": "(NAME|HE/SHE) Decides For (his/her) Elders",
+      "text": "The elders gather around (him/her).",
+      "children": [
+       {
+        "next": "y2"
+       }
+      ]
+     },
+     "y2": {
+      "text": "They decide to let (him/her) carry on."
+     },
+     "n": {
+      "text": "(Name) keeps the secret."
+     }
+    }
+   },
+   "game": 3,
+   "unicode": false,
+   "rolls": [
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "b",
+     "inv",
+     "q",
+     "y",
+     "y2"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana builds a wondrous machine.",
+     "Show the elders?",
+     "The elders gather around her.",
+     "They decide to let her carry on."
+    ],
+    "titles": [
+     "Ana's No Good, Very Bad Day",
+     "Ana's No Good, Very Bad Day",
+     "Ana's No Good, Very Bad Day",
+     "ANA Decides For her Elders"
+    ],
+    "labels": [
+     [
+      "Show them",
+      "Keep it quiet"
+     ]
+    ],
+    "rolls_used": 1,
+    "cieg_sha256": "bda2e0c0673b1110f6e9991d208152f39509121633d2261e67edfa5bc4f23d42"
+   }
+  },
+  {
+   "name": "title_placeholders_vv1",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "(Name1)'s No Good, Very Bad Day",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "b",
+    "nodes": {
+     "b": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "inv"
+       },
+       {
+        "next": "dis"
+       }
+      ]
+     },
+     "inv": {
+      "text": "(Name) builds a wondrous machine.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "dis": {
+      "title": "The Revolutionary Discovery",
+      "text": "(Name) finds a wondrous cave.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Show the elders?",
+      "choices": [
+       {
+        "label": "Show them",
+        "next": "y"
+       },
+       {
+        "label": "Keep it quiet",
+        "next": "n"
+       }
+      ]
+     },
+     "y": {
+      "title": "(NAME|HE/SHE) Decides For (his/her) Elders",
+      "text": "The elders gather around (him/her).",
+      "children": [
+       {
+        "next": "y2"
+       }
+      ]
+     },
+     "y2": {
+      "text": "They decide to let (him/her) carry on."
+     },
+     "n": {
+      "text": "(Name) keeps the secret."
+     }
+    }
+   },
+   "game": 1,
+   "unicode": false,
+   "rolls": [
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bartholomew Longname Junior",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "b",
+     "inv",
+     "q",
+     "y",
+     "y2"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bartholomew Longname Junior builds a wondrous machine.",
+     "Show the elders?",
+     "The elders gather around him.",
+     "They decide to let him carry on."
+    ],
+    "titles": [
+     "Him's No Good, Very Bad Day",
+     "Him's No Good, Very Bad Day",
+     "Him's No Good, Very Bad Day",
+     "HE Decides For his Elders"
+    ],
+    "labels": [
+     [
+      "Show them",
+      "Keep it quiet"
+     ]
+    ],
+    "rolls_used": 1,
+    "cieg_sha256": "bda2e0c0673b1110f6e9991d208152f39509121633d2261e67edfa5bc4f23d42"
+   }
+  },
+  {
    "name": "named_stranger_vv5",
    "graph": {
     "format": "vvfp-cie-graph",

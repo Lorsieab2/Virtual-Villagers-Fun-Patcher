@@ -1667,7 +1667,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 out.append("W" * game.name_room)
             else:
                 word = max(PRONOUNS_V6[p.what], key=len)
-                out.append(word.upper() if p.upper else word)
+                out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
         else:
             tok = parse_brace(raw[1:-1])
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
@@ -2642,21 +2642,95 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
     """A title's problems (the event's, or a node's popup title, cie-v6-binary.md 5 and 14) in every game of `g`."""
     v6 = g["version"] >= VERSION_V6
     out: list[str] = []
-    if len(title) > TITLE_BYTES:
-        out.append(f"{what} is longer than {TITLE_BYTES} characters")
-    if PLACEHOLDER_RE.search(title):
-        out.append(f"{what} has no placeholders")
-    if not all((text_char_ok(c) or (v6 and c == "\"")) and c != "\n" for c in title):
+    if not v6:
+        if len(title) > TITLE_BYTES:
+            out.append(f"{what} is longer than {TITLE_BYTES} characters")
+        if PLACEHOLDER_RE.search(title):
+            out.append(f"{what} has no placeholders")
+        if not all(text_char_ok(c) and c != "\n" for c in title):
+            out.append(f"{what} has characters the game cannot show")
+        for gn in g["games"]:
+            if len(title) > GAMES[gn].title_width:
+                out.append(f"{GAMES[gn].name}: {what} is longer than its {GAMES[gn].title_width} characters")
+        return out
+    # Version 6 (sections 5, 14, 17): placeholders allowed; the rest as before.
+    bad = False
+    for kind, raw in text_tokens(title):
+        if kind == "lit":
+            bad = bad or not all((text_char_ok(c) or c == "\"") and c not in "\n(){}\\|@" for c in raw)
+        elif kind != "ph":
+            out.append(f"{what} holds placeholders only, not {raw}")
+        else:
+            p = parse_placeholder_v6(raw[1:-1], g["roles"])
+            if p is None or p.role is None:
+                out.append(f"{what}: {raw} is not a placeholder a title can show")
+            elif any(g["roles"].get(m, {}).get("optional") for m in [p.role] + members_of(g["roles"], p.role)):
+                out.append(f"{what}: {raw} names {p.role}, who may not be bound")
+            elif p.what == "name" and g["roles"][p.role]["kind"] == "stranger" and not g["roles"][p.role].get("named"):
+                out.append(f"{what}: {raw}: a stranger has no name")
+    if bad:
         out.append(f"{what} has characters the game cannot show")
+    if len(title) > LABEL_BYTES_V6:
+        out.append(f"{what} is longer than {LABEL_BYTES_V6} characters as written")   # the .cieg's raw title
+    if out:
+        return out
     for gn in g["games"]:
         game = GAMES[gn]
-        if v6 and gn in TITLE_BOX_PX:
-            if title_px(gn, title) > TITLE_BOX_PX[gn]:
-                out.append(f"{game.name}: {what} is {title_px(gn, title)} pixels wide; its popup shows "
-                           f"{TITLE_BOX_PX[gn]}")
-        elif len(title) > game.title_width:
+        worst = worst_v6(title, g, game, None)
+        if title_fits(gn, worst) or title_fits(gn, worst_v6(title, g, game, None, pronoun_names=True)):
+            continue
+        if len(worst) > TITLE_BYTES:
+            out.append(f"{what} is longer than {TITLE_BYTES} characters" + (" with the longest names"
+                                                                            if worst != title else ""))
+        elif gn in TITLE_BOX_PX:
+            out.append(f"{game.name}: {what} is {title_px(gn, worst)} pixels wide; its popup shows "
+                       f"{TITLE_BOX_PX[gn]}")
+        else:
             out.append(f"{game.name}: {what} is longer than its {game.title_width} characters")
     return out
+
+
+def title_fits(game: int, text: str) -> bool:
+    """A version 6 title as shown fits the game (cie-v6-binary.md 5 and 17)."""
+    if len(text) > TITLE_BYTES:
+        return False
+    return title_px(game, text) <= TITLE_BOX_PX[game] if game in TITLE_BOX_PX else len(text) <= GAMES[game].title_width
+
+
+def title_worst(g: dict, title: str, game: "Game") -> str:
+    """A title at its widest as the game shows it: with the longest names when that fits, else with the names as
+    pronouns (section 17)."""
+    if g["version"] < VERSION_V6:
+        return title
+    worst = worst_v6(title, g, game, None)
+    return worst if title_fits(game.number, worst) else worst_v6(title, g, game, None, pronoun_names=True)
+
+
+def title_shown(g: dict, title: str, game: int, bindings: dict, aliases: dict | None = None,
+                unicode: bool = False) -> str:
+    """A title as the player reads it (section 17): the real names, else -- when that does not fit -- pronouns."""
+    real = expand_v6(title, g, bindings, None, None, game, unicode, aliases)
+    if title_fits(game, real):
+        return real
+    return expand_v6(title, g, bindings, None, None, game, unicode, aliases, pronoun_names=True)
+
+
+_READ_PRONOUN = {k: f"{a} or {b}" for k, (a, b) in PRONOUNS_V6.items()}
+_READ_PRONOUN["woman/man"] = "woman or man"
+
+
+def readable_title(title: str) -> str:
+    """A title's readable form (section 17) for the log, Pick Island Event and the library: each name as
+    "someone", each pronoun as "he or she" ..., in the case written; at most TITLE_BYTES."""
+    def one(m: re.Match) -> str:
+        token = m.group(1).partition("|")[0]
+        word = token.rpartition(".")[2]
+        out = _READ_PRONOUN.get(word.lower(), "someone")
+        upper = sum(c.isalpha() for c in token) >= 2 and not any(c.islower() for c in token)
+        if upper:
+            return out.upper()
+        return out[0].upper() + out[1:] if word[:1].isupper() else out
+    return PLACEHOLDER_RE.sub(one, title)[:TITLE_BYTES]
 
 
 def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game") -> str:
@@ -2664,7 +2738,7 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
     lines at the layout's width (the first on a tie): the popup is paged with it (cie-v6-binary.md 14)."""
     best, most = g["title"], -1
     for t in titles or [""]:
-        t = t or g["title"]
+        t = title_worst(g, t or g["title"], game)     # 17: at its widest as shown
         n = len(wrap(t, layout.width))
         if n > most:
             best, most = t, n
@@ -3614,7 +3688,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
-    titles = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in titles]
+    titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()
     for nid in path:
@@ -3775,7 +3849,7 @@ def library_folder(save_folder: str | Path) -> Path:
 
 def library_stem(title: str) -> str:
     """A file name for an event's title: letters, digits, space, - and _ (Windows-safe), at most 64."""
-    stem = re.sub(r"[^A-Za-z0-9 _-]+", "", title).strip()[:64].strip()
+    stem = re.sub(r"[^A-Za-z0-9 _-]+", "", readable_title(title)).strip()[:64].strip()
     return stem or "Custom Island Event"
 
 
