@@ -1201,8 +1201,9 @@ class ManifestTests(unittest.TestCase):
         # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
         # (vv2_scrolling_popups), no executable byte -- its companion writes its call sites at run time; 45 with
         # More Island Events (vv2_more_island_events), no executable byte -- its companion writes its five sites at
-        # run time.
-        self.assertEqual(len(feature_ids), 45)
+        # run time; 46 with Isola Grand Event Collection (vv2_isola_grand_event_collection), no executable byte --
+        # data files the Story / Cheat Upgrades companion reads.
+        self.assertEqual(len(feature_ids), 46)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2629,6 +2630,9 @@ class StockIntegrationTests(unittest.TestCase):
                 # Requires the Origins upgrades row excluded above.
                 "vv1_story_cheat_upgrades",
                 "vv1_story_cheat_upgrades_cost_tech_points",
+                # Require Story / Cheat Upgrades, excluded above.
+                "vv1_more_island_events",
+                "vv1_isola_grand_event_collection",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -4172,6 +4176,8 @@ class StockIntegrationTests(unittest.TestCase):
             # Scrolling Popups: companion only, no executable bytes.
             "vv2_scrolling_popups",
             "vv2_more_island_events",
+            # Isola Grand Event Collection: data files the Story companion reads, no executable bytes.
+            "vv2_isola_grand_event_collection",
             },
         )
         for mode in ALL_MODES:
