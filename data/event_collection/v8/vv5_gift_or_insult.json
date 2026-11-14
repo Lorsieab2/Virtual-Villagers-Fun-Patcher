@@ -1,0 +1,369 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Gift or Insult?",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_gift_or_insult",
+  "source": "v26",
+  "lines": [
+   4199,
+   4274
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4200",
+  "ledger": [
+   {
+    "src": "L4199",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4201",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L4202",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L4207",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4228",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4237",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4244",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4253",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4264",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L4273-4274",
+    "kind": "instruction",
+    "why": "the Building or Devotion effect on the ending page; the Isolan visitor is text only"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "recipient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda2": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c10",
+  "v8_c12"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "the village leader with an enormous nose",
+     "src": "L4208"
+    },
+    {
+     "text": "a healer holding what looks like a dead fish",
+     "src": "L4209"
+    },
+    {
+     "text": "a builder standing beside a collapsed hut",
+     "src": "L4210"
+    },
+    {
+     "text": "a researcher surrounded by crooked numbers",
+     "src": "L4211"
+    },
+    {
+     "text": "two children arguing over a coconut",
+     "src": "L4212"
+    },
+    {
+     "text": "an elder asleep beneath a tree",
+     "src": "L4213"
+    },
+    {
+     "text": "a ceremonial dancer with an unfortunately large backside",
+     "src": "L4214"
+    }
+   ]
+  },
+  "EXPLAIN": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The carving is a symbol of strength, and the exaggerated feature is considered an honor in the visitor's tradition.",
+     "src": "L4229-4230"
+    },
+    {
+     "text": "The figure depicts a famous old story, not the person the villager assumed.",
+     "src": "L4231-4232"
+    },
+    {
+     "text": "The visitor admits (visitor.he/she) is simply terrible at faces.",
+     "src": "L4233"
+    },
+    {
+     "text": "The visitor intended a gentle joke and apologizes when told it caused embarrassment.",
+     "src": "L4234-4235"
+    }
+   ]
+  },
+  "PRIVATE": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The villagers discover the carving has a meaningful history and decide to display it.",
+     "src": "L4238-4239"
+    },
+    {
+     "text": "The recipient admits (recipient.he/she) doesn't want it displayed. The group respects that choice.",
+     "src": "L4240-4241"
+    },
+    {
+     "text": "The misunderstanding is resolved with a quiet conversation.",
+     "src": "L4242"
+    }
+   ]
+  },
+  "HONEST": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The visitor apologizes sincerely and offers to remake it.",
+     "src": "L4245"
+    },
+    {
+     "text": "The visitor is hurt that the gift was misunderstood. Both sides take time to explain their feelings.",
+     "src": "L4246-4247"
+    },
+    {
+     "text": "The recipient realizes (recipient.he/she) jumped to conclusions, and apologizes in return.",
+     "src": "L4248-4249"
+    },
+    {
+     "text": "Neither side agrees about whether the joke was appropriate, but they part respectfully.",
+     "src": "L4250-4251"
+    }
+   ]
+  },
+  "RETURN": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "The villagers carve a friendly caricature of the visitor. The visitor laughs until (visitor.he/she) cries.",
+     "src": "L4254-4255"
+    },
+    {
+     "text": "The return gift is much more insulting than intended. The villagers immediately apologize.",
+     "src": "L4256-4257"
+    },
+    {
+     "text": "The visitors propose an annual exchange of deliberately terrible portraits. Both communities agree.",
+     "src": "L4258-4259"
+    },
+    {
+     "text": "The neutral judge from the woodworking contest is invited to decide whose carving is worse. The judge refuses to get involved.",
+     "src": "L4260-4262"
+    }
+   ]
+  },
+  "END": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "The carving is displayed with a note explaining its meaning.",
+     "src": "L4265"
+    },
+    {
+     "text": "The gift is accepted privately, without a public display.",
+     "src": "L4266"
+    },
+    {
+     "text": "The visitor returns another day with a revised carving.",
+     "src": "L4267"
+    },
+    {
+     "text": "The recipient and visitor laugh about the misunderstanding over a shared meal.",
+     "src": "L4268-4269"
+    },
+    {
+     "text": "They do not become close friends, but each has learned something about the other's perspective.",
+     "src": "L4270-4271"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The carving",
+   "src": "L4204-4205",
+   "text": "An Isolan neighbor arrives with a gift for the village: a carefully carved wooden figure depicting {A}.",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "A joke?",
+   "src": "L4216-4221",
+   "text": "The visitor looks delighted. (Recipient) looks horrified.\n\"Is this supposed to be a joke?\" (recipient.he/she) asks.\nThe Isolan visitor {looks confused|smiles proudly|realizes something is wrong but cannot guess what}.",
+   "choices": [
+    {
+     "label": "ASK WHAT THE CARVING MEANS.",
+     "next": "explain",
+     "src": "L4223"
+    },
+    {
+     "label": "ACCEPT IT POLITELY AND DISCUSS IT LATER.",
+     "next": "private",
+     "src": "L4224"
+    },
+    {
+     "label": "EXPLAIN WHY IT MIGHT BE HURTFUL.",
+     "next": "honest",
+     "src": "L4225"
+    },
+    {
+     "label": "RESPOND WITH A HUMOROUS GIFT.",
+     "next": "return",
+     "src": "L4226"
+    }
+   ]
+  },
+  "explain": {
+   "text": "{EXPLAIN}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "private": {
+   "text": "{PRIVATE}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "honest": {
+   "text": "{HONEST}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "return": {
+   "text": "{RETURN}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "recipient",
+     "skills": [
+      "Building",
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L4273"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c12"
+    }
+   ]
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c12": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c12}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}
