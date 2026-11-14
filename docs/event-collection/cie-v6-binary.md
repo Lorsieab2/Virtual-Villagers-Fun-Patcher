@@ -225,7 +225,9 @@ less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the
 
 **G1: the answer's page.** With 2 to 4 buttons shown, the answer's first page is shown in the question's popup,
 keeping the same room (unchanged). With **5 or more buttons shown**, the answer's first page starts a FRESH popup:
-the result layout with no room for buttons (only the refusal lines when it makes changes). It counts as one more
+the NOTICE layout -- the plain popup's, which is the popup it is shown through (`story_graph.inc
+cg_notice_layout`; New Believers 14 lines, not the result's 17) -- with no room for buttons (only the refusal lines
+when it makes changes). It counts as one more
 popup on the history. `tests/test_cie_graph_v6.py` pins Python and the engine's source together for
 n = 2..7 in all five games. Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
 the popup's inner width in pixels is UNCONFIRMED.

@@ -755,5 +755,45 @@ class PipelinePilots(unittest.TestCase):
         self.assertGreater(ran, 0)
 
 
+@emulated
+class G1LayoutParity(unittest.TestCase):
+    """G1: the answer page after five or more buttons is laid out in the NOTICE layout (the plain popup the engine
+    shows it through) by both sides: for each game, the line counts at which it takes one page and two are the same
+    in the engine and in src/vv_cie_graph.py (GAMES[g].plain) -- New Believers 14 lines, not the result's 17."""
+
+    def engine_pages(self, game: str, lines: int) -> int:
+        text = "\n".join(f"Line {i + 1}." for i in range(lines))
+        choices = [{"label": f"Door {k + 1}", "next": "d"} for k in range(5)]
+        g = gap_graph(game, start="q", nodes={
+            "q": {"type": "question", "text": "(Name) sees doors.", "choices": choices},
+            "d": {"text": text}})
+        r = V6(game, TWO)
+        r.rolls([0] * 40)
+        r.p.export("VvfpStoryProbeGraphScroll", 0)
+        self.assertIsNone(r.queue6(compiled(g)))
+        shown = r.walk_through([0])
+        self.assertEqual(shown[1][1], "", "five buttons: nothing in the question's popup")
+        return len(shown) - 2                      # the question, its (empty) result, then the answer's pages
+
+    def test_the_g1_page_takes_the_notice_layout_in_both(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            n = int(game[2])
+            plain = cg.GAMES[n].plain
+            title = "The Gaps"
+            # The most one-line paragraphs one notice page holds, as Python counts it.
+            fit = max(k for k in range(1, 40)
+                      if len(cg.paginate(plain, title, "\n".join(f"Line {i + 1}." for i in range(k)))[0]) == 1)
+            with self.subTest(game=game, lines=fit):
+                self.assertEqual(self.engine_pages(game, fit), 1, "the engine holds as many on one page")
+            with self.subTest(game=game, lines=fit + 1):
+                self.assertEqual(self.engine_pages(game, fit + 1), 2, "and no more")
+            if n == 5:
+                result = cg.GAMES[5].result
+                self.assertGreater(result.lines, plain.lines, "New Believers: the result popup is taller")
+                self.assertEqual(plain.lines, 14)
+
+
 if __name__ == "__main__":
     unittest.main()
