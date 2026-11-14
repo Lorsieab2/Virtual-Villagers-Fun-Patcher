@@ -124,10 +124,10 @@ Every grammar fix used in scope is listed in `grammar-fixes.md` (the test passes
 ### M5. V11: a sentence is split across two popups (mid-sentence popup breaks)
 - `v11/all_council_of_conundrums.json` `a5` "Most proposals fail," / `a5_2` (L6716); `b1` / `b1_2` (L6724-6727); `b2` (L6731-6735)
   "...Unfortunately," / `b2_2`; `b6` "By sunset," / `b6_2` (L6764).
-- `v11/all_invention_showcase.json` `a2` (L6468-6473), `a4` "While trying to repair it," / `a4_2` (L6485), `a8`, `b7`
-  "After hours of arguing,", `c2`, `c3` "(Subject) begins with the history of coconuts," (L6610).
+- `v11/all_invention_showcase.json` `a2` (L6468-6473), `a4` "While trying to repair it," / `a4_2` (L6485), `a8` (L6521-6526),
+  `b7` "After hours of arguing," (L6583-6587), `c2` (L6601-6606), `c3` "(Subject) begins with the history of coconuts," (L6610).
 - `v11/all_secret_of_life.json` `a2` "Beneath it stands a figure of clay," (L6191-6196), `a4` "The experiment fails,"
-  (L6209), `a5` "At the decisive moment," (L6219-6225), `b2` "(Friend) explains that curiosity is welcome," (L6247-6252).
+  (L6210-6215), `a5` "At the decisive moment," (L6219-6225), `b2` "(Friend) explains that curiosity is welcome," (L6247-6252).
 - **What is wrong:** each first page is a new popup with OK, so the player sees a popup holding three words ending in a
   comma, and the next popup starts in lower case ("but the villagers learn ..."), as simulated.
 - **Fix:** split at a sentence boundary. If an outcome is too long for one page, split it after a full stop; never
