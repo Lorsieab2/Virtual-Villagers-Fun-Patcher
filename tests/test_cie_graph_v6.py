@@ -194,6 +194,45 @@ LULLABY = {
     },
 }
 
+LITTLE = {
+    # Villager-fact conditions (cie-v6-binary.md 8): Little Things They Remember.
+    "format": "vvfp-cie-graph", "version": 6, "title": "Little Things They Remember", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "pools": {"MEMORY": {"items": [
+        {"text": "the first gray hair on (his/her) head", "if": {"age": {"role": "subject", "min": 20, "max": 60}}},
+        {"text": "every wound (he/she) ever healed", "if": {"skill_at_least": {"role": "subject", "skill": "Healing",
+                                                                              "min": 20}}},
+        {"text": "a child who looks just like (him/her)", "if": {"has_living_child": "subject"}},
+        {"text": "a song from long ago"}]}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) remembers {MEMORY}.", "children": [
+            {"next": "old", "if": {"age": {"role": "subject", "min": 50}}, "else": "young"}]},
+        "old": {"popup": "append", "text": "The years go by."},
+        "young": {"popup": "append", "text": "There is time yet."},
+    },
+}
+
+ARBOR = {
+    # The pool-draw condition (cie-v6-binary.md 8): Arbor Day judging follows the materials drawn.
+    "format": "vvfp-cie-graph", "version": 6, "title": "Arbor Day", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "pools": {
+        "MAT": {"items": ["slug slime", "guano", "tree sap"]},
+        "JUDGE": {"items": [
+            {"text": "hold their noses", "if": {"drew": {"pool": "MAT", "item": "guano"}}},
+            {"text": "wipe their hands", "if": {"drew": {"pool": "MAT", "item": "slug slime"}}},
+            {"text": "nod politely", "if": {"not": {"drew": {"pool": "MAT", "item": "guano"}}}}]}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) builds a birdhouse with {MAT}.", "children": [
+            {"next": "slime", "if": {"drew": {"pool": "MAT", "instance": 1, "item": "slug slime"}}},
+            {"next": "other", "if": {"not": {"drew": {"pool": "MAT", "item": "slug slime"}}}}]},
+        "slime": {"text": "It glistens. The judges {JUDGE}."},
+        "other": {"text": "It stands. The judges {JUDGE}."},
+    },
+}
+
 LABELS = {
     # Button labels too wide with the names show pronouns (cie-v6-binary.md 15): the object form by default, the
     # hint's form, in the case written.
@@ -289,6 +328,16 @@ def vector_cases() -> list[dict]:
          "bindings": {"parent": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
         {"name": "sex_words_vv2_mother", "graph": LULLABY, "game": 2, "unicode": False, "rolls": [],
          "bindings": {"parent": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "villager_facts_vv3", "graph": LITTLE, "game": 3, "unicode": False, "rolls": [0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [],
+         "facts": ["harmable:subject", "age:subject:20:60"]},
+        {"name": "villager_facts_vv5", "graph": LITTLE, "game": 5, "unicode": False, "rolls": [1],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [],
+         "facts": ["harmable:subject", "age:subject:20:60"]},
+        {"name": "drew_slime_vv4", "graph": ARBOR, "game": 4, "unicode": False, "rolls": [0, 0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "drew_guano_vv1", "graph": ARBOR, "game": 1, "unicode": False, "rolls": [1, 0],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
         {"name": "named_stranger_vv5", "graph": VISITOR, "game": 5, "unicode": False, "rolls": [],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}, "visitor": {"name": "Aipi", "sex": "f"}},
          "answers": [0], "facts": None},
@@ -1100,6 +1149,55 @@ class TitlePlaceholders(unittest.TestCase):
         self.assertEqual(cg.title_worst(g, g["title"], game), "Him's No Good, Very Bad Day",
                          "27 W's and the rest are 52 characters: A New Home shows the pronoun")
         self.assertEqual(cg.widest_title(g, [""], game.plain, game), "Him's No Good, Very Bad Day")
+
+
+class FactsAndDraws(unittest.TestCase):
+    """Villager-fact conditions and the pool-draw condition (cie-v6-binary.md 8)."""
+
+    def test_round_trip_and_record(self):
+        for d in (LITTLE, ARBOR):
+            g = cg.load(copy.deepcopy(d))
+            blob = cg.compile_graph(g)
+            self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        blob = cg.compile_graph(cg.load(copy.deepcopy(ARBOR)))
+        o_cond, n_cond = struct.unpack_from("<I", blob, 60)[0], struct.unpack_from("<H", blob, 34)[0]
+        drew = [cg._COND.unpack_from(blob, o_cond + 8 * i) for i in range(n_cond)]
+        self.assertIn((16, 0, 0, 1, 0), drew, "MAT (pool 0), instance 1, item 0 (slug slime)")
+
+    def test_refusals(self):
+        def problems(cond, where="child"):
+            d = copy.deepcopy(ARBOR)
+            if where == "child":
+                d["nodes"]["p"]["children"][0]["if"] = cond
+            elif where == "variant":
+                d["nodes"]["slime"]["variants"] = [{"if": cond, "text": "x"}]
+            elif where == "choice":
+                d["nodes"]["slime"] = {"type": "question", "text": "?", "choices": [
+                    {"label": "a", "next": "other", "if": cond}, {"label": "b", "next": "other"}]}
+            else:
+                d["requirement"] = {"if": cond}
+            return " ".join(t.problems_of(d))
+        self.assertIn("is not exactly one item of MAT", problems({"drew": {"pool": "MAT", "item": "mud"}}))
+        self.assertIn("drew names no list", problems({"drew": {"pool": "NOPE", "item": "mud"}}))
+        self.assertIn("a variant's if cannot use drew",
+                      problems({"drew": {"pool": "MAT", "item": "guano"}}, "variant"))
+        self.assertIn("choice", problems({"age": {"role": "subject", "min": 3}}, "choice"))
+        self.assertIn("cannot use visited, harmable, drew", problems({"has_living_child": "subject"}, "req"))
+        self.assertIn("is not a skill of the event's games",
+                      problems({"skill_at_least": {"role": "subject", "skill": "Juggling", "min": 5}}))
+        self.assertIn("names no villager role", problems({"has_living_child": "nobody"}))
+        self.assertIn("age is", problems({"age": {"role": "subject", "min": 60, "max": 20}}))
+
+    def test_simulate(self):
+        g = cg.load(copy.deepcopy(LITTLE))
+        b = {"subject": cg.Binding("Ana", "f")}
+        r = cg.simulate(g, 3, [0], b, facts=frozenset({"age:subject:50:0", "has_living_child:subject"}))
+        self.assertEqual(r["popups"], ["Ana remembers a child who looks just like her. The years go by."])
+        r = cg.simulate(g, 3, [0], b, facts=frozenset())
+        self.assertEqual(r["popups"], ["Ana remembers a song from long ago. There is time yet."])
+        g = cg.load(copy.deepcopy(ARBOR))
+        r = cg.simulate(g, 4, [1, 0], b)
+        self.assertEqual(r["popups"][1], "It stands. The judges hold their noses.")
 
 
 class SexWords(unittest.TestCase):

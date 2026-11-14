@@ -371,8 +371,26 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0})
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change")
-V6_CONDS = ("harmable", "special_present", "min_population", "min_children")
-COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12})
+V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
+            "has_living_child", "drew")
+COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
+                   "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16})
+ROLE_FACTS = ("age", "skill_at_least", "has_living_child")   # items 8: run-time facts of a bound role
+
+
+def fact_of(op: str, arg: Any) -> str:
+    """The fact string of a run-time condition leaf (Context.facts; cie-v6-binary.md 8)."""
+    if op == "age":
+        return f"age:{arg['role']}:{arg['min']}:{arg['max'] or 0}"
+    if op == "skill_at_least":
+        return f"skill_at_least:{arg['role']}:{arg['skill']}:{arg['min']}"
+    if op == "drew":
+        return f"drew:{arg['pool']}:{arg['instance']}:{arg['item']}"
+    return f"{op}:{arg}"
+
+
+def fact_role(op: str, arg: Any) -> str | None:
+    return arg if op == "has_living_child" else arg["role"] if op in ("age", "skill_at_least") else None
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
@@ -600,6 +618,30 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
+        if op == "has_living_child" and not isinstance(arg, str):
+            problems.append(f"{where}: has_living_child names one role")
+            return None
+        if op == "age":
+            if not isinstance(arg, dict) or set(arg) - {"role", "min", "max"} or not isinstance(arg.get("role"), str) \
+                    or ("min" not in arg and "max" not in arg) \
+                    or not _int_in(arg.get("min", 0), 0, 120) or not _int_in(arg.get("max", 120), 1, 120) \
+                    or arg.get("min", 0) > arg.get("max", 120):
+                problems.append(f"{where}: age is {{\"role\": r, \"min\": years, \"max\": years}} (0..120)")
+                return None
+            return {op: {"role": arg["role"], "min": arg.get("min", 0), "max": arg.get("max")}}
+        if op == "skill_at_least":
+            if not isinstance(arg, dict) or set(arg) != {"role", "skill", "min"} or not isinstance(arg["role"], str) \
+                    or not isinstance(arg["skill"], str) or not _int_in(arg["min"], 1, 100):
+                problems.append(f"{where}: skill_at_least is {{\"role\": r, \"skill\": name, \"min\": 1..100}}")
+                return None
+            return {op: dict(arg)}
+        if op == "drew":
+            if not isinstance(arg, dict) or set(arg) - {"pool", "instance", "item"} \
+                    or not isinstance(arg.get("pool"), str) or not isinstance(arg.get("item"), str) \
+                    or not _int_in(arg.get("instance", 1), 1, MAX_INSTANCE):
+                problems.append(f"{where}: drew is {{\"pool\": name, \"instance\": 1..{MAX_INSTANCE}, \"item\": text}}")
+                return None
+            return {op: {"pool": arg["pool"], "instance": arg.get("instance", 1), "item": arg["item"]}}
         return {op: arg}
     if op in ("visited", "role", "patch"):
         if not isinstance(arg, str):
@@ -923,8 +965,9 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             # Version 6: the natural roll's and Pick Island Event's condition (Custom Island Events ignore it).
             c = _norm_cond(req["if"], "requirement", problems, version)
             if c is not None:
-                if _cond_ops(c) & {"visited", "harmable"}:
-                    problems.append("requirement: its condition cannot use visited or harmable")
+                if _cond_ops(c) & {"visited", "harmable", "drew", *ROLE_FACTS}:
+                    problems.append("requirement: its condition cannot use visited, harmable, drew, age, "
+                                    "skill_at_least or has_living_child")
                 g["requirement"]["if"] = c
 
     roles_in = data.get("roles")
@@ -1996,8 +2039,10 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if op == "harmable":
         member = dict(ctx.aliases).get(arg, arg)
         return member in ctx.roles and f"harmable:{member}" in ctx.facts
-    if op in ("special_present", "min_population", "min_children"):
-        return f"{op}:{arg}" in ctx.facts
+    if op in ("special_present", "min_population", "min_children", "drew"):
+        return fact_of(op, arg) in ctx.facts
+    if op in ROLE_FACTS:
+        return fact_role(op, arg) in ctx.roles and fact_of(op, arg) in ctx.facts
     if op == "visited":
         return arg in visited
     if op == "role":
@@ -2085,7 +2130,9 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
         _cond_leaves(c, leaves)
     free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
                    and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
-                  | {f"special_present:{a}" for op, a in leaves if op == "special_present"})
+                  | {f"special_present:{a}" for op, a in leaves if op == "special_present"}
+                  | {fact_of(op, a) for op, a in leaves if op == "drew"}
+                  | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
     out = []
@@ -2343,7 +2390,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         kctx = ctx
         if v6 and gone:
-            kctx = replace(ctx, facts=ctx.facts - {f"harmable:{x}" for x in gone})
+            kctx = replace(ctx, facts=frozenset(
+                f for f in ctx.facts - {f"harmable:{x}" for x in gone}
+                if not (f.split(":")[0] in ROLE_FACTS and f.split(":")[1] in gone)))   # a gone villager's facts
         kids = _resolved_children(node, kctx, path)
         if not kids:
             if node["children"]:
@@ -2445,6 +2494,12 @@ def _cond_refs(c: Any, out: list[tuple[str, str]]) -> None:
     (op, arg), = c.items()
     if op in ("visited", "role", "patch", "harmable"):
         out.append((op, arg))
+    elif op in ROLE_FACTS:
+        out.append(("fact_role", fact_role(op, arg)))
+        if op == "skill_at_least":
+            out.append(("skill", arg["skill"]))
+    elif op == "drew":
+        out.append(("drew", arg))
     elif op == "not":
         _cond_refs(arg, out)
     elif op in ("all", "any"):
@@ -2460,6 +2515,18 @@ def _check_refs(g: dict, where: str, refs: list[tuple[str, str]], problems: list
             problems.append(f"{where}: {op} {ref!r} names no role")
         if op == "patch" and ref not in g["patches"]:
             problems.append(f"{where}: patch {ref!r} is not in patches")
+        if op == "fact_role" and g["roles"].get(ref, {}).get("kind") not in ("villager", "alias", "other"):
+            problems.append(f"{where}: {ref!r} names no villager role")
+        if op == "skill" and not any(ref in GAMES[gn].skills for gn in g["games"]):
+            problems.append(f"{where}: {ref!r} is not a skill of the event's games")
+        if op == "drew":
+            pool = g.get("pools", {}).get(ref["pool"])
+            if pool is None:
+                problems.append(f"{where}: drew names no list ({ref['pool']})")
+            elif sum(1 for it in pool["items"] if it["text"] == ref["item"]) != 1:
+                problems.append(f"{where}: drew: {ref['item']!r} is not exactly one item of {ref['pool']}")
+            elif "|" in ref["item"]:
+                problems.append(f"{where}: drew: an item holding an inline pick cannot be named")
 
 
 def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: bool = False,
@@ -2764,6 +2831,8 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
         refs: list[tuple[str, str]] = []
         for v in n["variants"]:
             _cond_refs(v["if"], refs)
+            if "drew" in _cond_ops(v["if"]):
+                problems.append(f"node {nid}: a variant's if cannot use drew (use a child's or a list item's)")
         for c in n["children"]:
             _cond_refs(c["if"], refs)
         for c in n["choices"] if v6 else ():
@@ -2928,6 +2997,15 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, PRESENT_CODES[arg], 0, 0)
         elif op in ("min_population", "min_children"):
             conds[at] = _COND.pack(code, 0, arg, 0, 0)
+        elif op == "age":
+            conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
+        elif op == "skill_at_least":
+            conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], s(arg["skill"]))
+        elif op == "has_living_child":
+            conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
+        elif op == "drew":
+            item = [it["text"] for it in g["pools"][arg["pool"]]["items"]].index(arg["item"])
+            conds[at] = _COND.pack(code, 0, list(lg["pools"]).index(arg["pool"]), arg["instance"], item)
         elif op == "not":
             conds[at] = _COND.pack(code, 1, cond(arg), 0, 0)
         else:
@@ -3095,12 +3173,20 @@ def _decompile_v6(data: bytes) -> dict:
     def cond(i: int) -> Any:
         if i == NONE:
             return None
-        op, count, a, _b, _ = _COND.unpack_from(data, o_cond + i * _COND.size)
+        op, count, a, b, c3 = _COND.unpack_from(data, o_cond + i * _COND.size)
         name = code_cond[op]
         if name == "visited":
             return {name: node_ids[a]}
-        if name in ("role", "harmable"):
+        if name in ("role", "harmable", "has_living_child"):
             return {name: role_ids[a]}
+        if name == "age":
+            return {name: {"role": role_ids[a], "min": b, "max": c3 or None}}
+        if name == "skill_at_least":
+            return {name: {"role": role_ids[a], "skill": s(c3), "min": b}}
+        if name == "drew":
+            pname, pfirst = _POOL.unpack_from(data, o_pool + a * _POOL.size)[:2]
+            it = _ITEM.unpack_from(data, o_item + (pfirst + c3) * _ITEM.size)[0]
+            return {name: {"pool": s(pname), "instance": b, "item": s(it)}}
         if name == "game":
             return {name: [x for x in range(1, 6) if a & (1 << (x - 1))]}
         if name == "patch":
@@ -3553,6 +3639,14 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     ctx = Context(game, frozenset(patches), frozenset(bound),
                   default_facts(g, bound) if facts is None else frozenset(facts),
                   frozenset(aliases.items()))
+    base_ctx = ctx
+    named_pools = g.get("pools", {})
+
+    def cx(pk: list) -> Context:
+        """The context with the drew facts (item 9) of the picks so far."""
+        drawn = {f"drew:{p[0]}:{p[1]}:{named_pools[p[0]]['items'][p[2]]['text']}" for p in pk
+                 if p[2] is not None and p[0] in named_pools}
+        return replace(base_ctx, facts=base_ctx.facts | drawn) if drawn else base_ctx
 
     def roll_effect(e: dict) -> list[int]:
         do = e["do"]
@@ -3581,7 +3675,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if any(p[0] == name and p[1] == k for p in picks) or name not in lg["pools"]:
                 continue
             pool = lg["pools"][name]
-            eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], ctx, visited)]
+            eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], cx(picks), visited)]
             left = eligible
             if pool["distinct"]:
                 taken = {p[2] for p in picks if p[0] == name}
@@ -3602,7 +3696,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 scan(pool["items"][idx]["text"], visited, picks, depth + 1)
 
     def segment(start: str, path: list, picks: list) -> dict:
-        h = {"nodes": [], "fx": [], "picks": []}
+        h = {"nodes": [], "fx": [], "picks": [], "texts": []}
         nid: str | None = start
         while nid is not None:
             n = lg["nodes"][nid]
@@ -3611,18 +3705,22 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if n["type"] != "question":
                 for e in n["effects"]:
                     h["fx"].append(roll_effect(e))
+            text = ""
             if n["type"] != "branch":
                 state = picks + h["picks"]
-                scan(node_text(n, ctx, visited), visited, state)
+                text = node_text(n, ctx, visited)            # (a variant's if never uses drew)
+                scan(text, visited, state)
                 for c in n["choices"]:
                     if cond_holds(c.get("if"), ctx, visited):
                         scan(c["label"], visited, state)
                 h["picks"] = state[len(picks):]
+            h["texts"].append(text)
             if n["type"] == "question":
                 break
+            now = cx(picks + h["picks"])
             targets, weights = [], []
             for c in n["children"]:
-                if cond_holds(c["if"], ctx, visited) and cond_holds(c.get("guard"), ctx, visited):
+                if cond_holds(c["if"], now, visited) and cond_holds(c.get("guard"), now, visited):
                     targets.append(c["next"])
                 elif c["else"] is not None:
                     targets.append(c["else"])
@@ -3636,6 +3734,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         return h
 
     path: list[str] = []
+    path_texts: list[str] = []
     fx: list[list[int]] = []
     picks: list[list] = []
     seg = segment(lg["start"], path, picks)
@@ -3643,6 +3742,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     qi = 0
     while True:
         path += seg["nodes"]
+        path_texts += seg["texts"]
         fx += seg["fx"]
         picks += seg["picks"]
         last = lg["nodes"][path[-1]]
@@ -3670,12 +3770,12 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     title = lg["title"]
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
-    for nid in path:
+    for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         seen = seen + (nid,)
         if n["type"] == "branch":
             continue
-        t = node_text(n, ctx, seen)
+        t = path_texts[at]
         if n["type"] == "popup" and n["popup"] == "append" and texts:
             texts[-1] = texts[-1] + (" " if n["join"] == "space" else "\n") + t if texts[-1] else t
             title = n.get("title") or title

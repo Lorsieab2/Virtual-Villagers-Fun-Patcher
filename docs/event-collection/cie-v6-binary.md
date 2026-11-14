@@ -226,6 +226,22 @@ A role byte may name an alias; the effect goes to the member drawn.
 | 10 | special_present | 1 golden_child, 2 tribal_chief | that villager is alive and listed |
 | 11 | min_population | n | at least n living, listed villagers (VV5: believers) |
 | 12 | min_children | n | at least n living, listed villagers under 14 |
+| 13 | age | role index; b = min years; the last H = max years (0 = none) | the role's villager is bound, not gone, and its age in whole years is in min..max |
+| 14 | skill_at_least | role index; b = min (1..100); the last H = the skill's name string | the role's villager is bound, not gone, the game has that skill, and its value is at least min (the scale of a role's skill requirement, `cg_skill_value`) |
+| 15 | has_living_child | role index | the role's villager is bound, not gone, and a living, listed villager's recorded father (a male role) or mother (a female one) is it: the parent's name, head and body on the child's record (VV2-VV5; A New Home keeps no parents on its records, so it never holds there) |
+| 16 | drew | pool index; b = instance (1..8); the last H = the item's index in the pool | that pool instance drew that item earlier on the path (the run's picks, this segment's included) |
+
+JSON (items 8 and 9): `{"age": {"role": r, "min": a, "max": b}}` (years 0..120, at least one of min / max);
+`{"skill_at_least": {"role": r, "skill": "Healing", "min": n}}` (a skill some game of the event has);
+`{"has_living_child": r}`; `{"drew": {"pool": "P", "instance": k, "item": "slug slime"}}` -- the item by its TEXT
+(instance defaults to 1; the text must be exactly one item's of that pool, a shared pool's included; the compiler
+writes its index). A role-based op on an alias or other role asks about the member drawn. These are run-time facts:
+the patcher's walk takes each one either way (`harmable` as well); `simulate` takes them from `facts`
+(`"age:<role>:<min>:<max>"`, `"skill_at_least:<role>:<skill>:<min>"`, `"has_living_child:<role>"`, max 0 = none),
+and `drew` from the run's own picks. They may stand in a variant's, a child's or an item's `if`; never in a
+choice's `if` or the requirement's; `drew` never in a variant's either (a page's text is laid out once its segment
+is walked, so only a child's draw and an item's draw see the picks "so far": the child after its node's own pools,
+an item when its instance is drawn).
 
 `role` (op 2) on an alias holds when the alias is bound (6.1). Choice `if` may use only game, patch, role,
 special_present, not, all, any.

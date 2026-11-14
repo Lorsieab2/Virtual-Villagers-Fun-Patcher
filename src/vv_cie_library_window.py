@@ -212,6 +212,15 @@ def describe_cond(c, g: dict | None = None) -> str:
         return f"at least {arg} villagers live in the village"
     if op == "min_children":
         return f"at least {arg} children live in the village"
+    if op == "age":
+        top = f" to {arg['max']}" if arg.get("max") else " or more"
+        return f"{role_words(arg['role'])} is {arg['min']}{top} years old"
+    if op == "skill_at_least":
+        return f"{role_words(arg['role'])} has {arg['skill']} {arg['min']} or more"
+    if op == "has_living_child":
+        return f"{role_words(arg)} has a living child"
+    if op == "drew":
+        return f"the list {arg['pool']} picked \"{arg['item']}\""
     if op == "not":
         (iop, iarg), = arg.items()
         if iop == "role":

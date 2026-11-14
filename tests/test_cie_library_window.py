@@ -601,6 +601,15 @@ class Window(unittest.TestCase):
         self.assertEqual(self.out["pool_rows"], 2)
         self.assertEqual(self.out["distinct_from"], ["DISH"])
 
+    def test_the_new_conditions_in_plain_words(self):
+        self.assertEqual(w.describe_cond({"age": {"role": "subject", "min": 50, "max": None}}),
+                         "the main villager is 50 or more years old")
+        self.assertEqual(w.describe_cond({"skill_at_least": {"role": "subject", "skill": "Healing", "min": 20}}),
+                         "the main villager has Healing 20 or more")
+        self.assertEqual(w.describe_cond({"has_living_child": "subject"}), "the main villager has a living child")
+        self.assertEqual(w.describe_cond({"drew": {"pool": "MAT", "instance": 1, "item": "guano"}}),
+                         "the list MAT picked \"guano\"")
+
     def test_a_named_stranger(self):
         self.assertTrue(self.out["stranger_named"])
         self.assertTrue(self.out["stranger_unnamed"])

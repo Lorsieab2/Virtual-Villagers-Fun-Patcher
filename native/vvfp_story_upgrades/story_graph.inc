@@ -162,7 +162,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
 enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, CGC_ALL = 6, CGC_ANY = 7,
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
-       CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12 };
+       CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12,
+       /* cie-v6-binary.md 8: a bound villager's facts, and a pool instance's draw */
+       CGC_AGE = 13, CGC_SKILL_AT_LEAST = 14, CGC_HAS_LIVING_CHILD = 15, CGC_DREW = 16 };
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
        CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
 #define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
@@ -912,6 +914,19 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         case CGC_HARMABLE: ok = g->version >= 6 && (int)a < g->n_role; break;
         case CGC_SPECIAL_PRESENT: ok = g->version >= 6 && a >= 1u && a <= 2u; break;
         case CGC_MIN_POPULATION: case CGC_MIN_CHILDREN: ok = g->version >= 6 && a <= 1000u; break;
+        case CGC_AGE:
+            ok = g->version >= 6 && (int)a < g->n_role && cg_u16(c + 4) <= 120u && cg_u16(c + 6) <= 120u
+                 && (cg_u16(c + 6) == 0u || cg_u16(c + 4) <= cg_u16(c + 6));
+            break;
+        case CGC_SKILL_AT_LEAST:
+            ok = g->version >= 6 && (int)a < g->n_role && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= 100u
+                 && cg_str_ok(g, cg_u16(c + 6), 0);
+            break;
+        case CGC_HAS_LIVING_CHILD: ok = g->version >= 6 && (int)a < g->n_role; break;
+        case CGC_DREW:
+            ok = g->version >= 6 && (int)a < g->n_pool && cg_u16(c + 4) >= 1u && cg_u16(c + 4) <= CG_MAX_INSTANCE
+                 && cg_u16(c + 6) < cg_u16(cg_pool_at(g, (int)a) + 4);
+            break;
         default: ok = 0; break;
         }
         if (!ok) {
@@ -1963,6 +1978,52 @@ static int cg_harmable(int r, int game) {
     return record != NULL && !cg_protected(a, game, record);
 }
 
+static const cg_pick *cg_find_pick(int pool, int instance);
+
+/* Cond `c` (age, skill_at_least, has_living_child: cie-v6-binary.md 8) on its role's villager (an alias's
+   member), who must be bound and not gone. */
+static int cg_role_fact(const unsigned char *c, int game) {
+    const ce_adapter *a = ce_adapter_for(game);
+    const unsigned char *r;
+    int role = (int)cg_u16(c + 2), i;
+    if (a == NULL || role >= cg_g.n_role || (r = cg_villager(a, cg_resolve_role(role))) == NULL) {
+        return 0;
+    }
+    if (c[0] == CGC_AGE) {
+        int years = ce_age(a, r) / 20;     /* whole years (20 age units a year, as the roles' ages) */
+        return years >= (int)cg_u16(c + 4) && (cg_u16(c + 6) == 0u || years <= (int)cg_u16(c + 6));
+    }
+    if (c[0] == CGC_SKILL_AT_LEAST) {
+        return cg_skill_value(a, r, cg_s(&cg_g, cg_u16(c + 6))) >= (int)cg_u16(c + 4);
+    }
+    /* has_living_child: a living, listed villager whose recorded father (or mother) is this one -- the parent's
+       name, head and body on the child's record (none on A New Home's records). */
+    {
+        int female = ce_sex(a, r) == STORY_SEX_FEMALE;
+        unsigned int off_name = female ? a->off_mother_name : a->off_father_name;
+        unsigned int off_head = female ? a->off_mother_head : a->off_father_head;
+        unsigned int off_body = female ? a->off_mother_body : a->off_father_body;
+        char name[CG_NAME_BYTES], parent[CG_NAME_BYTES];
+        if (off_name == 0u) {
+            return 0;
+        }
+        ce_copy_name(name, CG_NAME_BYTES, r + a->off_name, a->name_bytes);
+        for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+            const unsigned char *kid = a->record(i);
+            if (kid == NULL || kid == r || !a->listed(kid)) {
+                continue;
+            }
+            ce_copy_name(parent, CG_NAME_BYTES, kid + off_name, a->name_bytes);
+            if (parent[0] != '\0' && lstrcmpA(parent, name) == 0
+                && *(const int *)(kid + off_head) == *(const int *)(r + a->off_head)
+                && *(const int *)(kid + off_body) == *(const int *)(r + a->off_body)) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+}
+
 static int cg_holds_cond(int i, int game, int depth) {
     const unsigned char *c;
     unsigned int a;
@@ -2000,6 +2061,12 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_SPECIAL_PRESENT: return cg_special_present(game, (int)a);
     case CGC_MIN_POPULATION: return cg_population(game, 0) >= (int)a;
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
+    case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD:
+        return cg_role_fact(c, game);
+    case CGC_DREW: {
+        const cg_pick *pick = cg_find_pick((int)a, (int)cg_u16(c + 4));
+        return pick != NULL && pick->item == cg_u16(c + 6);
+    }
     case CGC_GAME: return (a >> (game - 1)) & 1u;
     case CGC_PATCH: return (cg.patches >> a) & 1u;
     case CGC_PUZZLE: return (int)cg_u16(c + 4) != game || cg_puzzle_solved(game, cg_s(&cg_g, a));
