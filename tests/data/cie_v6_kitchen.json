@@ -1,0 +1,51 @@
+{
+  "format": "vvfp-cie-graph", "version": 6,
+  "title": "The Market Day",
+  "games": [1, 3],
+  "words": {"chief": {"3": "the Chief", "*": "the elders"}, "Chief": {"3": "The Chief", "*": "The elders"}},
+  "requirement": {"min_eligible": 2, "if": {"min_population": 4}},
+  "roles": {
+    "cook1": {"kind": "villager", "min_age": 14, "skill": {"names": ["Farming"], "min": 1, "pick": "highest"}},
+    "cook2": {"kind": "villager", "min_age": 14, "max_age": 60},
+    "helper": {"kind": "villager", "optional": true, "max_age": 13, "min_age": 5},
+    "either": {"kind": "alias", "of": ["cook1", "cook2"]},
+    "trader": {"kind": "stranger", "sex": "female"}
+  },
+  "pools": {
+    "DISH": {"distinct": true, "items": [
+      "a fish stew",
+      {"text": "a {SPICE} soup", "weight": 3},
+      {"text": "a coconut cake", "if": {"game": [3]}},
+      "roasted roots \\(with salt & herbs\\)"]},
+    "SPICE": {"items": ["hot", {"text": "sweet", "weight": 2}]}
+  },
+  "start": "intro",
+  "nodes": {
+    "intro": {"text": "(Cook1) and (cook2) bring {DISH.1} and {DISH.2} to market; {@chief} watch. (Either) says it is 100% ready.",
+              "children": [{"next": "ask"}]},
+    "ask": {"type": "question", "text": "The trader asks (either.him/her) to choose. {@Chief} wait.",
+            "choices": [
+              {"label": "Trade with {@chief}", "next": "a"},
+              {"label": "Keep it", "next": "b"},
+              {"label": "Share it", "next": "c"},
+              {"label": "Sell it", "next": "d"},
+              {"label": "Ask the Chief", "next": "e", "if": {"game": [3]}}]},
+    "a": {"text": "The trader smiles at (either.himself/herself). {She is pleased|3:She nods}.",
+          "effects": [{"do": "health_change", "role": "either", "min": 5, "max": 15},
+                      {"do": "food", "size": "small", "scaled": false, "defer": true}, {"do": "pay_award"}],
+          "children": [{"next": "a_end", "weight": 2}, {"next": "b_end"}]},
+    "a_end": {"popup": "append", "text": "The village gains (award) (award_unit)."},
+    "b_end": {"popup": "append", "join": "paragraph", "text": "A storm damages a hut.",
+              "effects": [{"do": "damage", "structures": "any", "min": 10, "max": 30}]},
+    "b": {"text": "(Cook1) keeps it; (cook1.his/her) (cook1.son/daughter) cheers.",
+          "effects": [{"do": "skill", "role": "cook1", "skills": ["Farming", "Building"], "set": 100}]},
+    "c": {"text": "Everyone shares; the trader joins in.", "effects": [{"do": "celebrate", "who": "all"}]},
+    "d": {"text": "(Cook2) sells it and scowls.",
+          "effects": [{"do": "mood", "role": "cook2", "mood": "bad"}, {"do": "health_change", "role": "cook2", "min": -20, "max": -10}],
+          "children": [{"next": "d2", "if": {"role": "helper"}, "else": "d3"}]},
+    "d2": {"popup": "append", "text": "(Helper) helps (helper.him/her)self.",
+           "effects": [{"do": "action", "role": "helper", "action": "Dancing"}]},
+    "d3": {"popup": "append", "text": "No one helps."},
+    "e": {"text": "{@Chief} approves."}
+  }
+}
