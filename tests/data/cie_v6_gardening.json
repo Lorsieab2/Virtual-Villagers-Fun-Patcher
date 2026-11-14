@@ -1,0 +1,50 @@
+{
+  "format": "vvfp-cie-graph", "version": 6,
+  "title": "The Gardening Contest",
+  "games": [3],
+  "collection": {"id": "vv3_gardening_contest", "source": "v26", "lines": [3043, 3096],
+                 "section": "V6 additions", "credit": "Test fixture: the design's worked example (A6).",
+                 "draw_weight": 1},
+  "requirement": {"min_eligible": 2},
+  "roles": {
+    "gardener1": {"kind": "villager", "min_age": 14, "skill": {"names": ["Farming"], "min": 1}},
+    "gardener2": {"kind": "villager", "min_age": 14, "skill": {"names": ["Farming"], "min": 1}}
+  },
+  "pools": {
+    "A": {"distinct": true, "items": [
+      "neat rows with carefully labeled plants",
+      "a winding garden with shaded places to sit",
+      "hardy food plants that require little attention",
+      "flowers chosen to attract helpful insects",
+      "a mixture of familiar plants and experimental varieties",
+      "a traditional layout remembered by the elders"]},
+    "END": {"items": [
+      "The village gains a peaceful place to gather and learn.",
+      "The elder rests on a bench, pleased that the younger villagers listened without copying the past blindly.",
+      "A child presents both gardeners with a leaf labeled \"BEST.\"",
+      "A nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task.",
+      "The gardeners agree to compare notes again after the next harvest."]}
+  },
+  "start": "intro",
+  "nodes": {
+    "intro": {"type": "question", "name": "Two plans",
+      "text": "Two skilled gardeners have developed different plans for a small community garden near the village. (Gardener1) favors {A.1}, while (gardener2) favors {A.2}.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
+      "choices": [
+        {"label": "Combine the best features into one shared garden.", "next": "shared"},
+        {"label": "Give each gardener a small plot to demonstrate the plan.", "next": "plots"}]},
+    "shared": {"type": "branch", "children": [{"next": "s1"}, {"next": "s2"}, {"next": "s3"}, {"next": "s4"}]},
+    "s1": {"text": "The gardeners cooperate, creating a beautiful and useful space.",
+           "effects": [{"do": "skill", "role": "gardener1", "skills": ["Farming"], "min": 10, "max": 20},
+                       {"do": "skill", "role": "gardener2", "skills": ["Farming"], "min": 10, "max": 20}],
+           "children": [{"next": "ending"}]},
+    "s2": {"text": "They argue over the path's exact shape, then compromise when the elder suggests a curved path with straight planting beds.", "children": [{"next": "ending"}]},
+    "s3": {"text": "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.", "children": [{"next": "ending"}]},
+    "s4": {"text": "The gardeners realize that the combined plan needs more work than they can manage. They simplify it rather than overpromise.", "children": [{"next": "ending"}]},
+    "plots": {"type": "branch", "children": [{"next": "p1"}, {"next": "p2"}, {"next": "p3"}, {"next": "p4"}]},
+    "p1": {"text": "Both gardens flourish in different ways. The villagers learn which designs suit which purposes.", "children": [{"next": "ending"}]},
+    "p2": {"text": "One garden produces more food, while the other becomes a favorite resting place. Neither is declared a failure.", "children": [{"next": "ending"}]},
+    "p3": {"text": "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.", "children": [{"next": "ending"}]},
+    "p4": {"text": "A plant grows across the dividing line. The gardeners spend an absurd amount of time deciding who owns it.", "children": [{"next": "ending"}]},
+    "ending": {"popup": "append", "join": "paragraph", "text": "{END}"}
+  }
+}
