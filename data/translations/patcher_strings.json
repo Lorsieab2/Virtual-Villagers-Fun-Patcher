@@ -64957,34 +64957,6 @@
    "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_refusal.s1",
-   "english": "Nobody in the village can be the event's %s now: it needs %s. Nothing has been queued.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_refusal.s4",
-   "english": "No two villagers in the village can be the event's %s and %s now: they must be at most %d years apart. Nothing has been queued.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_risk.s0",
    "english": "This event may choose the Golden Child, whom the game's puzzles need.",
    "games": [
@@ -69023,62 +68995,6 @@
    "notes": "a patcher window; %1 = text (person when it is a villager's name)"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_cond_words.s7",
-   "english": "the event's %s to have a living child",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_cond_words.s8",
-   "english": "the event's %s to have %s %d or more",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = a number (number)"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_cond_words.s9",
-   "english": "the event's %s to be %d or older",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)"
-  },
-  {
-   "stem": "vvfp.story/story_graph.cg_cond_words.s10",
-   "english": "the event's %s to be %d to %d years old",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = a number (number)"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_cond_words.s11",
    "english": "fewer than %d %s",
    "games": [
@@ -69219,20 +69135,6 @@
    "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number); %3 = text (person when it is a villager's name)"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_requirement_words.s3",
-   "english": "Nobody in the village can be the event's %s now: it needs %s.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_requirement_words.s4",
    "english": "; or ",
    "games": [
@@ -69275,20 +69177,6 @@
    "notes": "a patcher window; %1 = text (person when it is a villager's name)"
   },
   {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
    "stem": "vvfp.story/story_graph.cg_cond_words.s18",
    "english": " or ",
    "games": [
@@ -69315,6 +69203,62 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_requirement_words.s6",
+   "english": "Nobody in the village can take part now: it needs %s.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s2",
+   "english": "Nobody in the village can take part now: it needs %s. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_refusal.s8",
+   "english": "No two villagers in the village can take part together now: they must be at most %d years apart. Nothing has been queued.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
   }
  ]
 }

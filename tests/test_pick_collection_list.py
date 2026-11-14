@@ -17,6 +17,8 @@ EMULATED (the Story TEST build, each game's executable):
 from __future__ import annotations
 
 import copy
+import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -81,14 +83,46 @@ class Picker:
         return self.entry(["test_event", data["title"], "1,2,3,4,5", "1", ""], cie.compile_graph(g))
 
 
+def _role_ids() -> set[str]:
+    """Every role id of every shipped collection event (code labels: the player never sees them)."""
+    ids = set()
+    for path in (ROOT / "data" / "event_collection").glob("*/*.json"):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict) and isinstance(data.get("roles"), dict):
+            ids |= set(data["roles"])
+    return ids
+
+
+def _companion_words() -> set[str]:
+    """The words the companion's own reason texts use ("child", "elder" ... are words there, not role ids)."""
+    words = set()
+    for name in ("story_graph.inc", "story_collection.inc"):
+        text = (ROOT / "native" / "vvfp_story_upgrades" / name).read_text(encoding="latin-1")
+        for literal in re.findall(r'"((?:[^"\\\n]|\\.)*)"', text):
+            words |= set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", literal))
+    return words
+
+
+ROLE_IDS = _role_ids() | {"zz_helper9"}
+CODE_LABELS = sorted(ROLE_IDS - _companion_words())
+
+
+def no_role_id(test: unittest.TestCase, text: str) -> None:
+    words = set(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", text))
+    test.assertEqual(sorted(words & set(CODE_LABELS)), [], f"a role id in {text!r}")
+
+
 def plain(test: unittest.TestCase, title: str, needs: str, refusal: str) -> None:
-    """A reason in plain words: it says what the event needs, with no code words, and the refusal says it too."""
+    """A reason in plain words: it says what the event needs, with no code words or role ids, and the refusal says
+    it too."""
     test.assertIn("needs ", needs)
     test.assertNotIn("can not happen in this village right now.", needs)       # the old reason-less words
     for word in ("0x", "{", "}", "CGC_", "min_eligible", "Nothing has been queued"):
         test.assertNotIn(word, needs)
     test.assertTrue(refusal.startswith(f"{title} can not happen right now: "), refusal)
     test.assertIn(needs, refusal)
+    no_role_id(test, needs)
+    no_role_id(test, refusal[len(title):])
 
 
 @unittest.skipUnless(GAMES, "needs unicorn, pefile, the stock executables and the Story TEST build")
@@ -163,7 +197,27 @@ class TheReasons(unittest.TestCase):
                 data["roles"]["subject"]["min_age"] = 60
                 data["requirement"] = {"min_eligible": 1}
                 self.check(Picker(game, 2), data,
-                           "Nobody in the village can be the event's subject now: it needs a villager of 60 or more")
+                           "Nobody in the village can take part now: it needs a villager of 60 or more")
+
+    def test_no_role_id_in_any_reason(self) -> None:
+        """Role ids are code labels (the owner: never shown): a role named zz_helper9, in every kind of reason."""
+        self.assertIn("builder1", CODE_LABELS)
+        self.assertIn("zz_helper9", CODE_LABELS)
+        for game in GAMES:
+            picker = Picker(game, 2)
+            cases = (
+                ({"min_age": 60}, {"min_eligible": 1}, "it needs a villager of 60 or more"),
+                ({"min_age": 14}, {"min_eligible": 3}, "it needs 3, each a villager of 14 or more"),
+                ({"min_age": 14}, {"min_eligible": 1, "if": {"min_population": 9}}, "it needs at least 9 "),
+            )
+            for role, requirement, want in cases:
+                with self.subTest(game=game, requirement=requirement):
+                    data = copy.deepcopy(SMALL)
+                    data["roles"] = {"zz_helper9": dict(role, kind="villager")}
+                    data["nodes"]["p"]["text"] = "(zz_helper9.Name) smiles at the sea."
+                    data["title"] = "The Test Day"
+                    data["requirement"] = requirement
+                    self.check(picker, data, want)
 
     def test_an_event_with_no_villager_role(self) -> None:
         """min_eligible counts the villagers when the event casts nobody (28 shipped events were never possible)."""

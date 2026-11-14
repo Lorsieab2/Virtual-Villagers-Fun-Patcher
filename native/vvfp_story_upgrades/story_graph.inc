@@ -4639,10 +4639,11 @@ static int cg_requirement_holds(int game, unsigned int needed) {
 static void cg_role_words(int game, int r, char *out, int size);
 
 /* What requirement condition `i` asks for, in plain words, into `out` (after "it needs "): the first part that does
-   not hold now.  0 when it holds. */
+   not hold now.  0 when it holds.  (A requirement never holds a villager fact: src/vv_cie_graph.py refuses it; never a
+   role's id, a code label the player does not see.) */
 static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     const unsigned char *c;
-    unsigned int a, b;
+    unsigned int a;
     char part[200];
     int k;
     if (i == (int)CG_NONE || i < 0 || i >= cg_g.n_cond || depth > 8 || cg_holds_cond(i, game, 0)) {
@@ -4650,7 +4651,6 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     }
     c = cg_cond_at(&cg_g, i);
     a = cg_u16(c + 2);
-    b = cg_u16(c + 4);
     part[0] = '\0';
     switch (c[0]) {
     case CGC_MIN_POPULATION:
@@ -4671,21 +4671,6 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     case CGC_PUZZLE:
         wsprintfA(part, "%s solved", cg_s(&cg_g, a));
         break;
-    case CGC_AGE:
-    case CGC_SKILL_AT_LEAST:
-    case CGC_HAS_LIVING_CHILD: {
-        const char *who = (int)a < cg_g.n_role ? cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, (int)a) + 4)) : "";
-        if (c[0] == CGC_HAS_LIVING_CHILD) {
-            wsprintfA(part, "the event's %s to have a living child", who);
-        } else if (c[0] == CGC_SKILL_AT_LEAST) {
-            wsprintfA(part, "the event's %s to have %s %d or more", who, cg_s(&cg_g, cg_u16(c + 6)), (int)b);
-        } else if (cg_u16(c + 6) == 0u) {
-            wsprintfA(part, "the event's %s to be %d or older", who, (int)b);
-        } else {
-            wsprintfA(part, "the event's %s to be %d to %d years old", who, (int)b, (int)cg_u16(c + 6));
-        }
-        break;
-    }
     case CGC_ALL:
         for (k = 0; k < c[1]; ++k) {
             if (cg_cond_words((int)a + k, game, depth + 1, out, cap)) {
@@ -4781,8 +4766,7 @@ static void cg_requirement_words(int game, unsigned int needed, char *out) {
         if (i >= a->record_count) {
             char one[200];
             cg_role_words(game, r, one, sizeof one);
-            wsprintfA(out, "Nobody in the village can be the event's %s now: it needs %s.",
-                      cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, r) + 4)), one);
+            wsprintfA(out, "Nobody in the village can take part now: it needs %s.", one);
             return;
         }
     }
@@ -4891,8 +4875,8 @@ static const char *cg_refusal(int game, unsigned int *planned) {
         if (i >= a->record_count) {
             char words[200];
             cg_role_words(game, r, words, sizeof words);
-            wsprintfA(reason, "Nobody in the village can be the event's %s now: it needs %s. Nothing has been queued.",
-                      cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, r) + 4)), words);
+            wsprintfA(reason, "Nobody in the village can take part now: it needs %s. Nothing has been queued.",
+                      words);
             return reason;
         }
     }
@@ -4903,10 +4887,8 @@ static const char *cg_refusal(int game, unsigned int *planned) {
             for (q = 0; q < cg_g.n_role; ++q) {
                 const unsigned char *qs = cg_role_at(&cg_g, q);
                 if (qs[6] != 0 && (needed & (1u << q)) && (needed & (1u << (qs[6] - 1)))) {
-                    wsprintfA(reason, "No two villagers in the village can be the event's %s and %s now: they must be "
-                              "at most %d years apart. Nothing has been queued.",
-                              cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, qs[6] - 1) + 4)), cg_s(&cg_g, cg_u16(qs + 4)),
-                              (int)qs[7]);
+                    wsprintfA(reason, "No two villagers in the village can take part together now: they must be "
+                              "at most %d years apart. Nothing has been queued.", (int)qs[7]);
                     return reason;
                 }
             }
