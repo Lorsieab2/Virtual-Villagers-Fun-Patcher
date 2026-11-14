@@ -1,0 +1,820 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Multicultural Festival",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_multicultural_festival",
+  "source": "v26",
+  "lines": [
+   3356,
+   3494
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3358",
+  "ledger": [
+   {
+    "src": "L3357",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L3359",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L3370",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3381",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3399",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3410",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3420",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3433",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3444",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3458",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3472",
+    "kind": "structural",
+    "why": "bank heading: rare, after (5) (weight 5 against 20)"
+   },
+   {
+    "src": "L3479",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3491-3493",
+    "kind": "instruction",
+    "why": "the skill effects and the food or Tech branch on the quiet ending"
+   },
+   {
+    "src": "L3494",
+    "kind": "note",
+    "why": "safety note: Isolans are never cast; no harmful effect"
+   }
+  ]
+ },
+ "words": {
+  "Chief": {
+   "*": "The leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "planner": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rebel": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "optional": true
+  },
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a parade of hand-carved wooden animals",
+     "src": "L3371"
+    },
+    {
+     "text": "a shared feast and recipe exchange",
+     "src": "L3372"
+    },
+    {
+     "text": "a storytelling circle with elders from both communities",
+     "src": "L3373"
+    },
+    {
+     "text": "a children's performance",
+     "src": "L3374"
+    },
+    {
+     "text": "a friendly contest of crafts and games",
+     "src": "L3375"
+    },
+    {
+     "text": "a ceremonial planting of trees",
+     "src": "L3376"
+    },
+    {
+     "text": "an exhibition of family keepsakes and historical objects",
+     "src": "L3377"
+    }
+   ]
+  },
+  "B": {
+   "set": "B",
+   "items": [
+    {
+     "text": "two activities have been scheduled for the same place and time",
+     "src": "L3382"
+    },
+    {
+     "text": "the decorations arrive in completely the wrong colors",
+     "src": "L3383"
+    },
+    {
+     "text": "the village's best musician refuses to perform before sunset",
+     "src": "L3384"
+    },
+    {
+     "text": "an elder objects to a tradition being changed without consultation",
+     "src": "L3385"
+    },
+    {
+     "text": "the children's rehearsal is louder than the actual festival",
+     "src": "L3386"
+    },
+    {
+     "text": "the food table is far too small",
+     "src": "L3387"
+    },
+    {
+     "text": "the Isolan organizers believe they are guests, while the villagers believe the Isolans are co-hosts",
+     "src": "L3388-3389"
+    },
+    {
+     "text": "someone has accidentally printed the festival's name backward",
+     "src": "L3390"
+    }
+   ]
+  },
+  "AWARD": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "A neutral visitor praises the cooperation between communities. No formal prize is awarded.",
+     "src": "L3459-3460"
+    },
+    {
+     "text": "The children award a ribbon to the most patient adult. The winner looks astonished.",
+     "src": "L3461-3462"
+    },
+    {
+     "text": "The Isolan guests present the village with a small handmade keepsake, thanking everyone for the invitation.",
+     "src": "L3463-3464"
+    },
+    {
+     "text": "The organizers award themselves a prize for surviving the planning. Nobody objects.",
+     "src": "L3465-3466"
+    },
+    {
+     "text": "A child gives the festival's highest honor to the village's most impressive coconut. The adults quietly allow it.",
+     "src": "L3467-3468"
+    },
+    {
+     "text": "There is no award ceremony at all. Everyone is too busy enjoying the celebration to notice.",
+     "src": "L3469-3470"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The festival",
+   "src": "L3362-3366,L3368,L3379",
+   "text": "A joint festival is being planned for the village and its Isolan neighbors. The organizers promise a pleasant afternoon of music, food, games, and friendly conversation. Unfortunately, the planning committee consists of (Planner), who loves schedules, (Rebel), who hates schedules, and an Isolan visitor who has brought an enormous list of suggestions.\nThe festival will feature {A}.\nThe trouble begins when {B}.",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3363",
+     "what": "food at the festival",
+     "reason": "narrative: the festival programme, not a reward"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to do",
+   "src": "L3392",
+   "text": "What should the village do?",
+   "choices": [
+    {
+     "label": "Follow the original schedule as closely as possible.",
+     "next": "sched",
+     "src": "L3394"
+    },
+    {
+     "label": "Let the two communities redesign the festival together.",
+     "next": "joint",
+     "src": "L3395"
+    },
+    {
+     "label": "Give the children a chance to solve the problem.",
+     "next": "kids",
+     "src": "L3396",
+     "if": {
+      "role": "child"
+     }
+    },
+    {
+     "label": "Let the elders and experienced organizers mediate.",
+     "next": "elders",
+     "src": "L3397"
+    }
+   ]
+  },
+  "sched": {
+   "src": "L3400",
+   "text": "(Planner) insists that a festival without a schedule is simply a crowd.",
+   "children": [
+    {
+     "next": "sched_set"
+    }
+   ]
+  },
+  "sched_set": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3401-3402",
+   "text": "The organizers rearrange the activities and everything runs on time. Everyone is impressed, especially (Planner).",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "s2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3403-3404",
+   "text": "The schedule is so strict that nobody has time to enjoy anything. (Rebel) persuades (Planner) to add a long, unscheduled break.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "s3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3405-3406",
+   "text": "The Isolan visitors point out a custom that the schedule overlooks. The organizers apologize and make room for it.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "s4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3407-3408",
+   "text": "The schedule is accidentally used to wrap a basket of fruit. The festival proceeds surprisingly well without it.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "joint": {
+   "src": "L3411",
+   "text": "Both communities gather around the table and exchange suggestions.",
+   "children": [
+    {
+     "next": "joint_set"
+    }
+   ]
+  },
+  "joint_set": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "j1"
+    },
+    {
+     "next": "j2"
+    },
+    {
+     "next": "j3"
+    },
+    {
+     "next": "j4"
+    }
+   ]
+  },
+  "j1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3412",
+   "text": "They combine their traditions into a delightful new celebration.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3412",
+     "what": "a new celebration",
+     "reason": "narrative: the festival plan, not the Celebrating action"
+    }
+   ]
+  },
+  "j2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3413-3414",
+   "text": "A lively debate reveals that both sides had misunderstood what the other wanted. The problem is resolved with a simple question.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "j3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3415-3416",
+   "text": "Every participant insists on adding one activity. The festival becomes so long that the organizers split it across two days.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "j4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3417-3418",
+   "text": "A few people prefer the older customs. The organizers keep a traditional space alongside the new festivities.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "kids": {
+   "src": "L3421-3422",
+   "text": "The children form a committee, appoint (Child) as its leader, and immediately begin issuing orders to the adults.",
+   "children": [
+    {
+     "next": "kids_set"
+    }
+   ]
+  },
+  "kids_set": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    },
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k4"
+    },
+    {
+     "next": "k5"
+    }
+   ]
+  },
+  "k1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3423",
+   "text": "The children propose an ingenious layout that solves the problem.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "k2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3424-3425",
+   "text": "The children decide that all activities should involve dancing. The adults negotiate a more reasonable compromise.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "k3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3426-3427",
+   "text": "A shy child notices that the nursing parents need a quieter area. The organizers make space for rest and feeding.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "k4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3428-3429",
+   "text": "The committee spends its entire meeting arguing about who gets to ring the opening bell. The adults resume planning.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "k5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3430-3431",
+   "text": "The children invent a new game involving decorated coconuts. Nobody knows the rules, including the children.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "elders": {
+   "src": "L3434",
+   "text": "An experienced elder and an Isolan elder sit down with the organizers.",
+   "children": [
+    {
+     "next": "elders_set"
+    }
+   ]
+  },
+  "elders_set": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3435-3436",
+   "text": "They recall how similar celebrations were handled in years past and propose a practical compromise.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3435",
+     "what": "similar celebrations",
+     "reason": "narrative: past festivals"
+    }
+   ]
+  },
+  "e2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3437-3438",
+   "text": "They disagree about an old custom, then discover that both versions have been practiced for generations.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "e3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3439-3440",
+   "text": "One elder confesses that the old festivals were just as chaotic. The organizers feel strangely reassured.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "e4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3441-3442",
+   "text": "The elders advise everyone to eat first and argue afterward. It is unexpectedly effective.",
+   "children": [
+    {
+     "next": "begins"
+    }
+   ]
+  },
+  "begins": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    },
+    {
+     "next": "f4"
+    },
+    {
+     "next": "f5"
+    },
+    {
+     "next": "f6"
+    }
+   ]
+  },
+  "f1": {
+   "src": "L3445-3446",
+   "text": "The celebration is lovely. Villagers and Isolans share food, exchange stories, and enjoy a peaceful evening.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3445",
+     "what": "share food",
+     "reason": "narrative: the feast; the reward is on the quiet ending (L3493)"
+    },
+    {
+     "src": "L3445",
+     "what": "the celebration is lovely",
+     "reason": "narrative: the source gives no Celebrating action"
+    }
+   ]
+  },
+  "f2": {
+   "src": "L3447-3448",
+   "text": "The opening song begins at the wrong time. Half the audience joins in anyway, creating a surprisingly beautiful chorus.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "f3": {
+   "src": "L3449-3450",
+   "text": "The decorations collapse into an enormous pile of flowers. Nobody is hurt. The children declare it a new attraction.",
+   "text_only": [
+    {
+     "src": "L3449",
+     "what": "the decorations collapse",
+     "reason": "decorations, not a structure: nothing is damaged"
+    }
+   ],
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "f4": {
+   "src": "L3451-3452",
+   "text": "{@Chief} or village leader gives a brief welcome. A visiting child loudly asks when the snacks will be served.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "f5": {
+   "src": "L3453-3454",
+   "text": "Two old rivals discover they have made identical festival dishes. They spend the evening arguing over whose tastes better.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "f6": {
+   "src": "L3455-3456",
+   "text": "The festival is interrupted by a sudden shower. Everyone takes shelter together, then resumes once the rain passes.",
+   "children": [
+    {
+     "next": "rare"
+    }
+   ]
+  },
+  "rare": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "award",
+     "weight": 20
+    },
+    {
+     "next": "dispute",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "dispute": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3473-3477",
+   "text": "A villager and an Isolan visitor argue about whether one tradition was represented fairly. The organizers {invite both to explain their concerns|apologize for an oversight|agree to change next year's plans|acknowledge that not everyone will be satisfied}. The disagreement ends without demanding that either person abandon (visitor.his/her) beliefs.",
+   "children": [
+    {
+     "next": "award"
+    }
+   ]
+  },
+  "award": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{AWARD}",
+   "children": [
+    {
+     "next": "gift"
+    }
+   ]
+  },
+  "gift": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "quiet_food"
+    },
+    {
+     "next": "quiet_tech"
+    }
+   ]
+  },
+  "quiet_food": {
+   "name": "Quiet ending",
+   "src": "L3480-3489",
+   "text": "After sunset, the guests begin to leave. A few villagers stay behind to put away the decorations. An exhausted parent carries a sleeping child home; another finishes washing the dishes. The elders trade one last story before saying goodnight.\nThe festival was not perfect. It may not even have been especially well organized. But people came, laughed, argued a little, and shared something of their lives.\nTomorrow, Isola will continue on.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "planner",
+     "skills": [
+      "Devotion",
+      "Building",
+      "Farming",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3491"
+    },
+    {
+     "do": "skill",
+     "role": "rebel",
+     "skills": [
+      "Devotion",
+      "Building",
+      "Farming",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3491"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L3493"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3493",
+     "what": "Tech",
+     "reason": "the source gives \"food or Tech\": this branch gives the food"
+    }
+   ]
+  },
+  "quiet_tech": {
+   "name": "Quiet ending",
+   "src": "L3480-3489",
+   "text": "After sunset, the guests begin to leave. A few villagers stay behind to put away the decorations. An exhausted parent carries a sleeping child home; another finishes washing the dishes. The elders trade one last story before saying goodnight.\nThe festival was not perfect. It may not even have been especially well organized. But people came, laughed, argued a little, and shared something of their lives.\nTomorrow, Isola will continue on.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "planner",
+     "skills": [
+      "Devotion",
+      "Building",
+      "Farming",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3491"
+    },
+    {
+     "do": "skill",
+     "role": "rebel",
+     "skills": [
+      "Devotion",
+      "Building",
+      "Farming",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3491"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3493"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L3493",
+     "what": "food",
+     "reason": "the source gives \"food or Tech\": this branch gives the Tech"
+    }
+   ]
+  }
+ }
+}

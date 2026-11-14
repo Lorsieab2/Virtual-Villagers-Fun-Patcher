@@ -93,18 +93,18 @@ R("vv5_meaning_of_faith", 'The Meaning of "Faith"', [5], 795, 862, "event", "ori
   choice_re=r'^("Faith" .*|Question the assignment itself):$', extra_labels={"(3)": [r"ADDITIONAL \(3\) OUTCOMES"]})
 R("all_grand_isolan_scholasticon", "The Grand Isolan Scholasticon", ALL, 1156, 1329, "event", "universal",
   "universal", 3, {"A": 12, "B": 12, "(1)": 6, "(2)": 6, "(3)": 5, "(4)": 5}, ["tech", "skill:Research"])
-R("all_great_beautification_project", "The Great Beautification Project", ALL, 1331, 1472, "event", "universal",
+R("all_great_beautification", "The Great Beautification Project", ALL, 1331, 1472, "event", "universal",
   "universal", 3, {"A": 9, "(1)": 5, "(2)": 6, "(3)": 5, "(6)": 6}, ["tech", "skill:Building"])
 R("all_doctors_dilemma", "The Doctors' Dilemma", ALL, 1474, 1659, "event", "universal", "universal", 4,
   {"A": 7, "B": 6, "C": 6, "rule": (4, 1511), "(1)": 4, "(2)": 4, "(3)": 5, "(4)": 5, "(5)": (3, None), "(6)": 7},
   ["kill", "skill:Healing", "skill:Research", "tech"], deaths=True)
 R("all_everybodys_a_winner", "Everybody's a Winner?", ALL, 1661, 1822, "event", "universal", "universal", 4,
   {"A": 10, "(1)": 6, "(2)": 6, "(3)": 5, "(4)": 5, "(6)": 5, "(7)": 5}, ["skill:Research", "tech"])
-R("all_great_isolan_storytelling_contest", "The Great Isolan Storytelling Contest", ALL, 1824, 2059, "event",
+R("all_isolan_storytelling", "The Great Isolan Storytelling Contest", ALL, 1824, 2059, "event",
   "universal", "universal", 3, {"A": 12, "B": 12, "(1)": 5, "(2)": 5, "(3)": 5, "C": 8, "(5)": 6, "(7)": 8},
   ["skill:Devotion", "skill:Research", "tech"])
 N("notes_final_implementation", "Final implementation and editorial notes", 2061, 2099, "universal")
-R("vv5_great_woodworking_competition", "The Great Woodworking Competition", [5], 2101, 2396, "event", "vv5_isolan",
+R("vv5_great_woodworking", "The Great Woodworking Competition", [5], 2101, 2396, "event", "vv5_isolan",
   "vv5_isolan", 4, {"JUDGE": 6, "A": 10, "B": 4, "(4)": 4, "(5)": 9, "(6)": 8, "(7)": 7, "(8)": 5, "(9)": 5,
                     "(10)": 5, "(13)": 5, "(14)": 4}, ["skill:Building", "tech"])
 R("vv5_potluck_dispute", "The Potluck Dispute", [5], 2398, 2487, "event", "vv5_isolan", "vv5_isolan", 4,
