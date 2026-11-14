@@ -966,8 +966,9 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
     if sorted(doc.get("games", [])) != sorted(row["games"]):
         rep.add("a SCHEMA", f"games {doc.get('games')} are not the manifest's {row['games']}")
     choices = max((len(n.get("choices", []) or []) for n in doc.get("nodes", {}).values()), default=0)
-    if choices != row["choices"]:
-        rep.add("d TOKENS", f"the widest question has {choices} choices; the source has {row['choices']}")
+    widest = max([row["choices"]] + [rows[a]["choices"] for a in (col.get("addons", []) or []) if a in rows])
+    if choices != widest:
+        rep.add("d TOKENS", f"the widest question has {choices} choices; the source has {widest}")
     # Add-ons (Q14): an add-on row's branches live in its event's file, listed in collection.addons. Their lines
     # join the event's for coverage, and their banks are checked as "<add-on id> <bank>" so equal bank numbers of
     # two add-ons stay distinct.
