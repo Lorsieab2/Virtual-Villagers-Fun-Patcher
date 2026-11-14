@@ -23,6 +23,18 @@
   "title_src": "L9465",
   "ledger": [
    {
+    "src": "L9544",
+    "kind": "note",
+    "text": "(VV5)",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
+    "src": "L9547",
+    "kind": "note",
+    "text": "; the mystery remains deliberately exceptional",
+    "why": "designer note on coda 7"
+   },
+   {
     "src": "L9489",
     "kind": "instruction",
     "text": "Modest",
@@ -41,15 +53,21 @@
     "why": "the large tech effect on b3"
    },
    {
-    "src": "L9526-9527",
-    "kind": "note",
-    "why": "a designer rule for VV3 (neither faction superior)"
-   },
-   {
     "src": "L9518",
     "kind": "structural",
     "text": "VV1  -  SOUTHERN SHORE:",
     "why": "per-game heading"
+   },
+   {
+    "src": "L9519",
+    "kind": "note",
+    "text": "The Golden Child may make an astonishing miniature sculpture or",
+    "why": "author guidance ('may', 'must choose' with no choice, or the Heathens/ alternative)"
+   },
+   {
+    "src": "L9520",
+    "kind": "note",
+    "why": "author guidance, never displayed (decision 5)"
    },
    {
     "src": "L9521",
@@ -58,10 +76,26 @@
     "why": "per-game heading"
    },
    {
+    "src": "L9522",
+    "kind": "note",
+    "text": "A competition may honor the founders, the totems, or the",
+    "why": "author guidance ('may', 'must choose' with no choice, or the Heathens/ alternative)"
+   },
+   {
+    "src": "L9523-9524",
+    "kind": "note",
+    "why": "author guidance, never displayed (decision 5)"
+   },
+   {
     "src": "L9525",
     "kind": "structural",
     "text": "VV3  -  SECRET CITY:",
     "why": "per-game heading"
+   },
+   {
+    "src": "L9526-9527",
+    "kind": "note",
+    "why": "author guidance, never displayed (decision 5)"
    },
    {
     "src": "L9528",
@@ -70,13 +104,42 @@
     "why": "per-game heading"
    },
    {
+    "src": "L9529",
+    "kind": "note",
+    "text": "A dispute arises when someone wants to remove",
+    "why": "author guidance ('may', 'must choose' with no choice, or the Heathens/ alternative)"
+   },
+   {
+    "src": "L9530-9531",
+    "kind": "note",
+    "why": "author guidance, never displayed (decision 5)"
+   },
+   {
     "src": "L9532",
     "kind": "structural",
     "text": "VV5  -  NEW BELIEVERS:",
     "why": "per-game heading"
+   },
+   {
+    "src": "L9532",
+    "kind": "note",
+    "text": "Heathens/",
+    "why": "author guidance ('may', 'must choose' with no choice, or the Heathens/ alternative)"
+   },
+   {
+    "src": "L9533",
+    "kind": "note",
+    "text": "Rival groups accuse each other of",
+    "why": "author guidance ('may', 'must choose' with no choice, or the Heathens/ alternative)"
+   },
+   {
+    "src": "L9534-9536",
+    "kind": "note",
+    "why": "author guidance, never displayed (decision 5)"
    }
   ],
   "shared_lines": [
+   "L9538-9547",
    "L9518-9536"
   ]
  },
@@ -121,8 +184,8 @@
        1
       ]
      },
-     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe fair celebrates the village's first thriving settlement. The Golden Child may make an astonishing miniature sculpture or solve a kiln-design problem, then wander off to play with the other children.",
-     "src": "L9467-9471,L9518-9520"
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe fair celebrates the village's first thriving settlement.",
+     "src": "L9467-9471,L9518-9519"
     },
     {
      "if": {
@@ -130,8 +193,8 @@
        2
       ]
      },
-     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe Lost Children contribute tiny clay animals and painted shells. A competition may honor the founders, the totems, or the Great Falls; an elder discovers a child's apparently childish design is more practical than a master's.",
-     "src": "L9467-9471,L9521-9524"
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nThe Lost Children contribute tiny clay animals and painted shells.",
+     "src": "L9467-9471,L9521-9522"
     },
     {
      "if": {
@@ -148,8 +211,8 @@
        4
       ]
      },
-     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nSculptors and potters incorporate fallen leaves and non-damaging natural motifs. A dispute arises when someone wants to remove living material from the Tree; the villagers must choose preservation or artistic ambition.",
-     "src": "L9467-9471,L9528-9531"
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nSculptors and potters incorporate fallen leaves and non-damaging natural motifs.",
+     "src": "L9467-9471,L9528-9529"
     },
     {
      "if": {
@@ -157,8 +220,8 @@
        5
       ]
      },
-     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nVillagers and Heathens/Isolans can enter as makers, judges, critics, traders, and spectators. Rival groups accuse each other of stealing designs; an Isolan judge may fairly award a prize to a villager, or a village judge may publicly praise an Isolan rival. A mixed team may win the highest honor, provoking either reconciliation or a boycott.",
-     "src": "L9467-9471,L9532-9536"
+     "text": "Woven mats line the clearing. Potters display bowls and jars; weavers offer baskets and patterned cloth; woodcarvers show paddles, ornaments, and masks; craftspeople bring shell jewelry, musical instruments, toys, and ingenious household tools. Visitors barter food, materials, and favors. A loud, merciless judge has been invited to award the festival's highest honor.\nVillagers and Isolans can enter as makers, judges, critics, traders, and spectators.",
+     "src": "L9467-9471,L9532-9533"
     }
    ],
    "text_only": [
@@ -422,40 +485,36 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "coda_v21_2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Disgraced Judge Returns: A former critic seeks a chance to judge fairly.",
+   "src": "L9540",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda_v82"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "coda_v21_4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Artisan's Apprentice: A novice becomes a master and honors the teacher.",
+   "src": "L9542",
    "children": [
     {
-     "next": "coda_c1"
-    },
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v21_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Festival of Two Communities: An annual joint fair becomes a fragile but cherished symbol of peaceful coexistence.",
+   "src": "L9544-9545",
+   "children": [
     {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda_v82"
     }
    ]
   },
@@ -468,11 +527,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
   },
   "coda_c9": {
    "popup": "append",
@@ -494,6 +548,176 @@
    "join": "paragraph",
    "text": "{v8_c15}"
   },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v21_2",
+     "if": {
+      "visited": "a4"
+     }
+    },
+    {
+     "next": "coda_v21_4",
+     "if": {
+      "visited": "a2"
+     }
+    },
+    {
+     "next": "coda_v21_6",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "visited": "b2"
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "a5"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "b5"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "c5"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
   "no_coda": {
    "type": "branch"
   }
@@ -501,7 +725,6 @@
  "include_pools": [
   "v8_c1",
   "v8_c6",
-  "v8_c8",
   "v8_c9",
   "v8_c11",
   "v8_c14",

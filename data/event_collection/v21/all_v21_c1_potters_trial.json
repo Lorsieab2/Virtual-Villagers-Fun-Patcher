@@ -44,8 +44,23 @@
     "src": "L9408",
     "kind": "note",
     "text": "Choose a fitting reputation coda.",
-    "why": "designer note; the V8 contest codas follow"
+    "why": "designer note; the codas follow"
+   },
+   {
+    "src": "L9544",
+    "kind": "note",
+    "text": "(VV5)",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   },
+   {
+    "src": "L9547",
+    "kind": "note",
+    "text": "; the mystery remains deliberately exceptional",
+    "why": "designer note on coda 7"
    }
+  ],
+  "shared_lines": [
+   "L9538-9547"
   ]
  },
  "roles": {
@@ -341,40 +356,58 @@
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "coda_v21_2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Disgraced Judge Returns: A former critic seeks a chance to judge fairly.",
+   "src": "L9540",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda_v82"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "coda_v21_3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Forgotten Potter: A later generation rediscovers an overlooked vessel.",
+   "src": "L9541",
    "children": [
     {
-     "next": "coda_c1"
-    },
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v21_4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Artisan's Apprentice: A novice becomes a master and honors the teacher.",
+   "src": "L9542",
+   "children": [
     {
-     "next": "coda_c6"
-    },
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v21_5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Great Design Feud: Two families dispute ownership of a decorative motif.",
+   "src": "L9543",
+   "children": [
     {
-     "next": "coda_c8"
-    },
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v21_7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Impossible Vessel: An inexplicable pot seems to preserve water, sing, or balance beyond reason.",
+   "src": "L9546-9547",
+   "children": [
     {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda_v82"
     }
    ]
   },
@@ -387,11 +420,6 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
   },
   "coda_c9": {
    "popup": "append",
@@ -413,6 +441,215 @@
    "join": "paragraph",
    "text": "{v8_c15}"
   },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v21_2",
+     "if": {
+      "visited": "c4"
+     }
+    },
+    {
+     "next": "coda_v21_3",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v21_4",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v21_5",
+     "if": {
+      "visited": "b4"
+     }
+    },
+    {
+     "next": "coda_v21_7",
+     "if": {
+      "visited": "b5"
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "visited": "a3"
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "a5"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "b5"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c4"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
   "no_coda": {
    "type": "branch"
   }
@@ -420,7 +657,6 @@
  "include_pools": [
   "v8_c1",
   "v8_c6",
-  "v8_c8",
   "v8_c9",
   "v8_c11",
   "v8_c14",
