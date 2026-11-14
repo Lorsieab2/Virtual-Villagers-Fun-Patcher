@@ -129,7 +129,25 @@
    "items": [
     {
      "text": "The item is returned. The neighbors share a friendly conversation and go about their day.",
-     "src": "L2555-2556"
+     "src": "L2555-2556",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "w2"
+        },
+        {
+         "visited": "f2"
+        },
+        {
+         "visited": "s2"
+        },
+        {
+         "visited": "f4"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "(Finder) and the Isolan visitor exchange sewing tips.",
@@ -137,7 +155,25 @@
     },
     {
      "text": "The owner is embarrassed but grateful. \"I was looking everywhere for that!\"",
-     "src": "L2558-2559"
+     "src": "L2558-2559",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "w2"
+        },
+        {
+         "visited": "f2"
+        },
+        {
+         "visited": "s2"
+        },
+        {
+         "visited": "f4"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "A villager suggests a grand annual laundry festival. The others firmly reject the proposal.",

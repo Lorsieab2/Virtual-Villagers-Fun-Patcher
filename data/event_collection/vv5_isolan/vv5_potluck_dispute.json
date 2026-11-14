@@ -80,6 +80,11 @@
    "src": "L2472",
    "before": "The judges announce",
    "after": "The judge announces"
+  },
+  {
+   "src": "L2419",
+   "before": "prefers (B, different)",
+   "after": "prefers to (B, different)"
   }
  ],
  "requirement": {
@@ -168,7 +173,19 @@
     },
     {
      "text": "The villagers agree that different customs can coexist without anyone having to declare a winner.",
-     "src": "L2477-2478"
+     "src": "L2477-2478",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "d1"
+        },
+        {
+         "visited": "d2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "The meal ends in laughter, with everyone arguing over who should wash the dishes.",
@@ -190,7 +207,7 @@
   "intro": {
    "name": "The feast",
    "src": "L2404-2405,L2407,L2418-2419",
-   "text": "The village has invited a group of Isolan neighbors to a shared feast. Everyone is supposed to bring a favorite dish and a story about it.\nUnfortunately, the villagers disagree about {A}.\n(Organizer), the village organizer, wants to {B.1}. The visiting Isolan organizer prefers {B.2}.",
+   "text": "The village has invited a group of Isolan neighbors to a shared feast. Everyone is supposed to bring a favorite dish and a story about it.\nUnfortunately, the villagers disagree about {A}.\n(Organizer), the village organizer, wants to {B.1}. The visiting Isolan organizer prefers to {B.2}.",
    "text_only": [
     {
      "src": "L2404",

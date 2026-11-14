@@ -74,6 +74,12 @@
     "src": "L2814",
     "kind": "structural",
     "why": "bank heading"
+   },
+   {
+    "src": "L2810",
+    "kind": "note",
+    "text": "If the Golden Child is present,",
+    "why": "designer condition: the item's if (special_present) enforces it"
    }
   ]
  },
@@ -481,7 +487,7 @@
   },
   "g4": {
    "src": "L2810-2812",
-   "text": "If the Golden Child is present, he responds through an existing supported nonverbal gesture. The class treats his contribution as meaningful without requiring speech.",
+   "text": "He responds through an existing supported nonverbal gesture. The class treats his contribution as meaningful without requiring speech.",
    "text_only": [
     {
      "src": "L2810-2811",

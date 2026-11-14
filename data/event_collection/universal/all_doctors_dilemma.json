@@ -200,27 +200,45 @@
    "items": [
     {
      "text": "to attempt a risky treatment that might save the patient's life",
-     "src": "L1496"
+     "src": "L1496",
+     "if": {
+      "visited": "pair1"
+     }
     },
     {
      "text": "to use the last supply of a rare medicinal ingredient",
-     "src": "L1497"
+     "src": "L1497",
+     "if": {
+      "visited": "pair2"
+     }
     },
     {
      "text": "to transfer the patient to a distant healing site",
-     "src": "L1498"
+     "src": "L1498",
+     "if": {
+      "visited": "pair3"
+     }
     },
     {
      "text": "to continue established treatment and monitor (patient.him/her) closely",
-     "src": "L1499"
+     "src": "L1499",
+     "if": {
+      "visited": "pair4"
+     }
     },
     {
      "text": "to isolate the patient until the cause of the illness is known",
-     "src": "L1500"
+     "src": "L1500",
+     "if": {
+      "visited": "pair5"
+     }
     },
     {
      "text": "to respect the patient's refusal of a proposed treatment",
-     "src": "L1501"
+     "src": "L1501",
+     "if": {
+      "visited": "pair6"
+     }
     }
    ]
   },
@@ -229,27 +247,45 @@
    "items": [
     {
      "text": "the treatment could cause serious complications",
-     "src": "L1504"
+     "src": "L1504",
+     "if": {
+      "visited": "pair1"
+     }
     },
     {
      "text": "another patient may need the medicine just as urgently",
-     "src": "L1505"
+     "src": "L1505",
+     "if": {
+      "visited": "pair2"
+     }
     },
     {
      "text": "the journey itself may be dangerous",
-     "src": "L1506"
+     "src": "L1506",
+     "if": {
+      "visited": "pair3"
+     }
     },
     {
      "text": "waiting could allow the illness to progress",
-     "src": "L1507"
+     "src": "L1507",
+     "if": {
+      "visited": "pair4"
+     }
     },
     {
      "text": "isolation may separate the patient from loved ones unnecessarily",
-     "src": "L1508"
+     "src": "L1508",
+     "if": {
+      "visited": "pair5"
+     }
     },
     {
      "text": "the patient may not have understood the consequences of refusing",
-     "src": "L1509"
+     "src": "L1509",
+     "if": {
+      "visited": "pair6"
+     }
     }
    ]
   },
@@ -311,7 +347,7 @@
    ]
   }
  },
- "start": "intro",
+ "start": "pairs",
  "nodes": {
   "intro": {
    "name": "The patient",
@@ -810,9 +846,80 @@
    "effects": [
     {
      "do": "tech",
-     "size": "normal",
+     "size": "small",
      "scaled": true,
      "src": "L1657"
+    }
+   ]
+  },
+  "pair1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair4": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair5": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pair6": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "intro"
+    }
+   ]
+  },
+  "pairs": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pair1"
+    },
+    {
+     "next": "pair2"
+    },
+    {
+     "next": "pair3"
+    },
+    {
+     "next": "pair4"
+    },
+    {
+     "next": "pair5"
+    },
+    {
+     "next": "pair6"
     }
    ]
   }

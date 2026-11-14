@@ -180,7 +180,7 @@
   "box": {
    "name": "The old box",
    "src": "L3299-3305",
-   "text": "The village's oldest (elder.woman/man), (Elder), has been sorting through an old wooden box. Inside are {a worn carving|a faded scrap of cloth|a smooth pebble|a tiny toy|a carefully folded note}. A child, (Child), asks why anyone would bother keeping such an ordinary object.\n\"Ordinary?\" (Elder) says. \"This belonged to {a dear friend|my mother|a child I once cared for|someone who taught me to build}.\"",
+   "text": "The village's oldest (elder.woman/man), (Elder), has been sorting through an old wooden box. Inside is {a worn carving|a faded scrap of cloth|a smooth pebble|a tiny toy|a carefully folded note}. A child, (Child), asks why anyone would bother keeping such an ordinary object.\n\"Ordinary?\" (Elder) says. \"This belonged to {a dear friend|my mother|a child I once cared for|someone who taught me to build}.\"",
    "children": [
     {
      "next": "listener"
@@ -423,5 +423,12 @@
     }
    ]
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3300",
+   "before": "Inside are",
+   "after": "Inside is"
+  }
+ ]
 }

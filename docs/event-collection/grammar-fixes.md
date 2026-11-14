@@ -25,7 +25,6 @@ list or after a quotation that already ends one.
 
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
-| L104 | `is.... ` | `is ` | The Cooking Contest | Four stray dots break the sentence "(Name1) is (A) (B)." (twice on the line) |
 | L135 | `works things out.` | `works things out` | The Cooking Contest, bank B | A full stop in the middle of the sentence the item is inserted into |
 | L138 | `has tried, failed and succeeded throughout life` | `who has tried, failed and succeeded throughout life` | The Cooking Contest, bank B | Every other B item starts "that" / "who"; without it the sentence has no verb link |
 | L163 | `has reliable friends.` | `has reliable friends` | The Cooking Contest, bank C | Stray full stop mid-sentence |
@@ -34,7 +33,7 @@ list or after a quotation that already ends one.
 | L171 | `uses their strong emotions` | `uses (his/her) strong emotions` | The Cooking Contest, bank C | "their" for one contestant |
 | L188 | `value their work` | `value (his/her) work` | The Cooking Contest, bank F | "their" for one contestant (inventory part 1 said L189) |
 | L189 | `value their purpose` | `value (his/her) purpose` | The Cooking Contest, bank F | "their" for one contestant (inventory part 1 said L190) |
-| L263 | `the charismatic crowner` | `the charismatic contender` | The Cooking Contest, bank G | "crowner" is not a word; "contender" is the inventory's suggestion (inventory part 1 said L264) |
+| L263 | `the charismatic crowner` | `the charismatic crooner` | The Cooking Contest, bank G | "crowner" is not a word; a one-letter typo for "crooner" (review R3) (inventory part 1 said L264) |
 | L300 | `knows it can't compare to anything else` | `knows nothing else can compare to it` | The Cooking Contest | The sentence says the opposite of what it means |
 | L305 | `their initial recipe` | `(his/her) initial recipe` | The Cooking Contest | "their" for one contestant |
 | L468 | `brag about their win` | `brag about (his/her) win` | The Cooking Contest, bank P | "their" for one contestant |
@@ -70,11 +69,15 @@ list or after a quotation that already ends one.
 | L1459 | `contestant2` | `(contestant2)` | The Great Beautification Project, (6) | As above |
 | L664 | `/they cancel` | `/They cancel` | The Cooking Contest, add-on 1 (17) | Both options of "(They award ... - 4/they cancel the contest - 8.)" open a sentence |
 | L664 | `8.)` | `8).` | The Cooking Contest, add-on 1 (17) | The full stop belongs after the list, not inside one option |
-| L1003 | `(25). The judges (26).` | `(response). The judges (decision).` | The Cooking Contest, add-on 2 (24) | Not a wording change: "(25)" and "(26)" insert bank items into the sentence, but numbers read as routes |
-| L1104 | `explains that (30).` | `explains that (reason).` | The Cooking Contest, add-on 2 (29) | As above, for "(30)" |
-| L1455 | `The judges (6).` | `The judges (judging).` | The Great Beautification Project, (5) | Not a wording change: here "(6)" inserts a judging outcome into the sentence, but a number at a line's end reads as a route and would drop the sentence's full stop |
 | L2260 | `entries, (6).` | `entries, (6)` | The Great Woodworking Competition | Every (6) interruption is one or more full sentences ending in a full stop; a second full stop follows |
 | L3006 | `begins: (A).` | `begins: (A)` | The Chief's Monumental Speech | Every (A) opening is a full quotation ending in its own full stop or ellipsis; a second full stop follows the closing quote |
+| L192 | `underestimates themselves` | `underestimates (himself/herself)` | The Cooking Contest, bank F | "themselves" for one contestant, as L188/L189 |
+| L194 | `overestimates themselves` | `overestimates (himself/herself)` | The Cooking Contest, bank F | As above |
+| L203 | `put their talents` | `put (his/her) talents` | The Cooking Contest, bank F | "their" for one contestant, as L188/L189 |
+| L300 | `into a (J, different` | `into (J, different` | The Cooking Contest | Every J item starts with its own article: "into a a pot" |
+| L305 | `into a (J, different` | `into (J, different` | The Cooking Contest | As above |
+| L2419 | `prefers (B, different)` | `prefers to (B, different)` | The Potluck Dispute | Every B item is a bare verb ("make a compromise") that needs "to" after "prefers" |
+| L3300 | `Inside are` | `Inside is` | The Keeper of Little Things | Every option is one object ("a smooth pebble") |
 
 ### Part 2 (lines 3520-6836)
 

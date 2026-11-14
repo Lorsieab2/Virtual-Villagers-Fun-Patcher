@@ -44,12 +44,6 @@
     "why": "section label"
    },
    {
-    "src": "L2137",
-    "kind": "gap",
-    "text": ", (Isolan leader),",
-    "why": "the offscreen Isolan leader is never cast, and a stranger has no name"
-   },
-   {
     "src": "L2144",
     "kind": "structural",
     "why": "bank heading"
@@ -157,18 +151,6 @@
     "why": "bank heading"
    },
    {
-    "src": "L2356",
-    "kind": "instruction",
-    "text": "a little practical",
-    "why": "the Building effects on the repair round"
-   },
-   {
-    "src": "L2357",
-    "kind": "instruction",
-    "text": "experience and",
-    "why": "the Building effects on the repair round"
-   },
-   {
     "src": "L2359",
     "kind": "structural",
     "why": "bank heading"
@@ -224,7 +206,8 @@
   },
   "isoleader": {
    "kind": "stranger",
-   "sex": "random"
+   "sex": "random",
+   "named": true
   },
   "boaster": {
    "kind": "stranger",
@@ -364,7 +347,10 @@
     },
     {
      "text": "the Isolan team accuses the village of copying a carving technique. The village points out that it was SHOWN to them earlier. The misunderstanding is resolved after a rather awkward conversation.",
-     "src": "L2268-2270"
+     "src": "L2268-2270",
+     "if": {
+      "visited": "exchange"
+     }
     },
     {
      "text": "one of the creations collapses. The judge pauses the contest and checks whether anyone is hurt. Nobody is injured; the damaged entry is evaluated according to the announced criteria.",
@@ -532,7 +518,7 @@
   "invite": {
    "name": "The invitation",
    "src": "L2121-2139",
-   "text": "An unexpected invitation has arrived at the village workshop.\n\"To our neighbors,\" it reads, \"we propose a friendly contest to determine which community possesses the finest woodworkers on Isola. The contest shall be conducted with dignity, fairness, and absolutely no unnecessary boasting.\"\nBelow the message, someone has added in a different handwriting: \"WE ARE GOING TO WIN.\"\n(Builder1), the village's {most enthusiastic builder|most meticulous craftsperson|self-appointed artistic expert}, reads the invitation aloud. (Builder2) {laughs|looks offended|starts sharpening a carving tool|asks whether the other community knows what it has gotten itself into}.\nThe visitors arrive carrying wood, tools, and a suspiciously large banner. Their team leader greets the villagers with {a solemn bow|a friendly handshake|a dramatic flourish|an extremely competitive smile}.",
+   "text": "An unexpected invitation has arrived at the village workshop.\n\"To our neighbors,\" it reads, \"we propose a friendly contest to determine which community possesses the finest woodworkers on Isola. The contest shall be conducted with dignity, fairness, and absolutely no unnecessary boasting.\"\nBelow the message, someone has added in a different handwriting: \"WE ARE GOING TO WIN.\"\n(Builder1), the village's {most enthusiastic builder|most meticulous craftsperson|self-appointed artistic expert}, reads the invitation aloud. (Builder2) {laughs|looks offended|starts sharpening a carving tool|asks whether the other community knows what it has gotten itself into}.\nThe visitors arrive carrying wood, tools, and a suspiciously large banner. Their team leader, (isoleader), greets the villagers with {a solemn bow|a friendly handshake|a dramatic flourish|an extremely competitive smile}.",
    "children": [
     {
      "next": "judge"
@@ -846,8 +832,8 @@
      "skills": [
       "Building"
      ],
-     "min": 10,
-     "max": 20,
+     "min": 5,
+     "max": 10,
      "src": "L2332"
     },
     {
@@ -856,8 +842,8 @@
      "skills": [
       "Building"
      ],
-     "min": 10,
-     "max": 20,
+     "min": 5,
+     "max": 10,
      "src": "L2332"
     }
    ],
@@ -878,8 +864,8 @@
      "skills": [
       "Building"
      ],
-     "min": 10,
-     "max": 20,
+     "min": 5,
+     "max": 10,
      "src": "L2332"
     },
     {
@@ -888,8 +874,8 @@
      "skills": [
       "Building"
      ],
-     "min": 10,
-     "max": 20,
+     "min": 5,
+     "max": 10,
      "src": "L2332"
     }
    ],
@@ -936,7 +922,7 @@
   "repair": {
    "name": "The repair round",
    "src": "L2348-2357",
-   "text": "The teams have one hour to repair their entries. The village team {reinforces the joints|replaces a broken leg|removes a dangerous splinter|starts again with a simpler design}. The Isolan team {tightens the supports|repairs a cracked panel|removes an unstable decoration|borrows a tool with permission}.\nThe judge {awards the safer finished entry a narrow victory|declares a draw|decides neither entry meets the standard}. Nobody is seriously hurt. The teams gain a great deal of respect for careful workmanship.",
+   "text": "The teams have one hour to repair their entries. The village team {reinforces the joints|replaces a broken leg|removes a dangerous splinter|starts again with a simpler design}. The Isolan team {tightens the supports|repairs a cracked panel|removes an unstable decoration|borrows a tool with permission}.\nThe judge {awards the safer finished entry a narrow victory|declares a draw|decides neither entry meets the standard}. Nobody is seriously hurt. The teams gain a little practical experience and a great deal of respect for careful workmanship.",
    "effects": [
     {
      "do": "skill",

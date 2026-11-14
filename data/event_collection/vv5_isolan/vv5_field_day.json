@@ -133,11 +133,31 @@
     },
     {
      "text": "The winners share their prize with the other team.",
-     "src": "L2634"
+     "src": "L2634",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
     },
     {
      "text": "The losing team practices quietly for next year.",
-     "src": "L2635"
+     "src": "L2635",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
     },
     {
      "text": "The judge announces that the real winner is friendship. Both teams groan. The judge laughs.",
@@ -145,7 +165,19 @@
     },
     {
      "text": "A coconut rolls away with the score sheet attached. Nobody can prove who won. Everyone goes home happy.",
-     "src": "L2638-2639"
+     "src": "L2638-2639",
+     "if": {
+      "not": {
+       "any": [
+        {
+         "visited": "c1"
+        },
+        {
+         "visited": "c2"
+        }
+       ]
+      }
+     }
     },
     {
      "text": "The two team captains shake hands, then immediately start arguing about next year's rules.",

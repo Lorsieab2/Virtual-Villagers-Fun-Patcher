@@ -52,12 +52,6 @@
     "src": "L3234-3235",
     "kind": "note",
     "why": "gameplay note: the nursing parent is cast as the special nursing_parent role (harmless); the event has no effect"
-   },
-   {
-    "src": "L3180",
-    "kind": "gap",
-    "text": "father",
-    "why": "TODO: \"(mother/father)\" needs a word that follows the parent's sex (a mother/father pronoun); until the format has one, only a nursing mother is cast"
    }
   ]
  },
@@ -67,7 +61,6 @@
  "roles": {
   "parent": {
    "kind": "villager",
-   "sex": "female",
    "min_age": 14,
    "special": "nursing_parent"
   },
@@ -142,13 +135,7 @@
    "type": "question",
    "name": "The song",
    "src": "L3180-3182,L3192-3194,L3196",
-   "src_pick": [
-    {
-     "src": "L3180",
-     "alt": "mother"
-    }
-   ],
-   "text": "A nursing mother, (parent), is trying to settle (parent.his/her) infant for a nap. Nearby, (musician) has begun practicing a new song. The melody is {A}.\nThe baby {seems content|begins fussing|falls asleep|watches the musician with wide eyes}. An elder suggests an old lullaby, while an older child insists that (older.he/she) knows a better one.\nWhat should the villagers do?",
+   "text": "A nursing (parent.mother/father), (parent), is trying to settle (parent.his/her) infant for a nap. Nearby, (musician) has begun practicing a new song. The melody is {A}.\nThe baby {seems content|begins fussing|falls asleep|watches the musician with wide eyes}. An elder suggests an old lullaby, while an older child insists that (older.he/she) knows a better one.\nWhat should the villagers do?",
    "choices": [
     {
      "label": "Ask the musician to adapt the song to the family's needs.",
