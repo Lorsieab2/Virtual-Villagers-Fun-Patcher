@@ -1,0 +1,591 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Meaning of Faith",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_meaning_of_faith",
+  "source": "v26",
+  "lines": [
+   795,
+   862
+  ],
+  "section": "original",
+  "credit": "* The Meaning of Faith (VV5): original premise and original event manuscript\n  by Lorsieab2. Later editing and/or expansion where present: ChatGPT.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L797",
+  "ledger": [
+   {
+    "src": "L795",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L804",
+    "kind": "instruction",
+    "text": "[the special conversation is a rare alternative, not the default]",
+    "why": "(5) is rare: weight 5 against 20"
+   },
+   {
+    "src": "L813",
+    "kind": "instruction",
+    "text": "(Randomize these as COMPLETE, grammatically compatible alternatives; do not concatenate mutually contradictory claims into one sentence.)",
+    "why": "each slash list is one inline pick"
+   },
+   {
+    "src": "L832",
+    "kind": "structural",
+    "why": "heading of the added (3) outcomes (randomized independently of the essay: one bank)"
+   },
+   {
+    "src": "L836",
+    "kind": "instruction",
+    "text": "(Small Research experience reward if supported.)",
+    "why": "the Research effect"
+   },
+   {
+    "src": "L838",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L859",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L860",
+    "kind": "instruction",
+    "text": "(For the last three options, prefer the \"individual beliefs\" or \"question the assignment\" choices; for other essays, use a compliment that matches the selected topic.)",
+    "why": "the praise items' if conditions"
+   },
+   {
+    "src": "L862",
+    "kind": "instruction",
+    "text": "(child villager gains experience in Research, Healing, or Devotion, if supported; this does not instantly age the child)",
+    "why": "the skill effect on the coda"
+   },
+   {
+    "src": "L804",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   },
+   {
+    "src": "L807",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   },
+   {
+    "src": "L810",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   },
+   {
+    "src": "L813",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   },
+   {
+    "src": "L816",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   },
+   {
+    "src": "L819",
+    "kind": "structural",
+    "text": "(2) or (5)",
+    "why": "routes"
+   }
+  ]
+ },
+ "grammar_fixes": [
+  {
+   "src": "L799",
+   "before": "said. But long ago",
+   "after": "said. \"But long ago"
+  },
+  {
+   "src": "L819",
+   "before": "There's a lot of things",
+   "after": "There are a lot of things"
+  },
+  {
+   "src": "L826",
+   "before": "on their work",
+   "after": "on (his/her) work"
+  },
+  {
+   "src": "L857",
+   "before": "on their work",
+   "after": "on (his/her) work"
+  }
+ ],
+ "words": {
+  "chief": {
+   "*": "the leaders"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "pools": {
+  "MANNER": {
+   "set": "(4)",
+   "items": [
+    {
+     "text": "with a smile",
+     "src": "L839"
+    },
+    {
+     "text": "with apprehension",
+     "src": "L840"
+    },
+    {
+     "text": "with a blank face",
+     "src": "L841"
+    },
+    {
+     "text": "with no idea what to expect",
+     "src": "L842"
+    },
+    {
+     "text": "with confidence",
+     "src": "L843"
+    },
+    {
+     "text": "with nervousness",
+     "src": "L844"
+    },
+    {
+     "text": "with joy",
+     "src": "L845"
+    },
+    {
+     "text": "with fear",
+     "src": "L846"
+    },
+    {
+     "text": "with a puzzled look",
+     "src": "L847"
+    },
+    {
+     "text": "with confusion",
+     "src": "L848"
+    },
+    {
+     "text": "with a frown",
+     "src": "L849"
+    },
+    {
+     "text": "with quiet determination",
+     "src": "L850"
+    },
+    {
+     "text": "with trembling hands",
+     "src": "L851"
+    },
+    {
+     "text": "with a hopeful expression",
+     "src": "L852"
+    },
+    {
+     "text": "with a sense of relief",
+     "src": "L853"
+    }
+   ]
+  },
+  "PRAISE": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "thinking so deeply about faith",
+     "src": "L860",
+     "if": {
+      "visited": "p1"
+     }
+    },
+    {
+     "text": "standing up for (child.his/her) beliefs",
+     "src": "L860",
+     "if": {
+      "visited": "p2"
+     }
+    },
+    {
+     "text": "seeing the good in others",
+     "src": "L860",
+     "if": {
+      "visited": "p3"
+     }
+    },
+    {
+     "text": "considering the forces that guide people's lives",
+     "src": "L860",
+     "if": {
+      "visited": "p4"
+     }
+    },
+    {
+     "text": "realizing that faith means different things to different people",
+     "src": "L860",
+     "if": {
+      "visited": "p5"
+     }
+    },
+    {
+     "text": "turning the assignment on its head",
+     "src": "L860",
+     "if": {
+      "any": [
+       {
+        "visited": "p5"
+       },
+       {
+        "visited": "p6"
+       }
+      ]
+     }
+    },
+    {
+     "text": "turning the assignment inside out",
+     "src": "L860",
+     "if": {
+      "any": [
+       {
+        "visited": "p5"
+       },
+       {
+        "visited": "p6"
+       }
+      ]
+     }
+    },
+    {
+     "text": "turning the assignment upside down",
+     "src": "L860",
+     "if": {
+      "any": [
+       {
+        "visited": "p5"
+       },
+       {
+        "visited": "p6"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "POWERS": {
+   "items": [
+    {
+     "text": "{@chief}",
+     "src": "L813"
+    },
+    {
+     "text": "the leaders",
+     "src": "L813"
+    },
+    {
+     "text": "the teachers",
+     "src": "L813"
+    },
+    {
+     "text": "(child.his/her) parents",
+     "src": "L813"
+    },
+    {
+     "text": "(child.his/her) elders",
+     "src": "L813"
+    },
+    {
+     "text": "people themselves",
+     "src": "L813"
+    }
+   ]
+  }
+ },
+ "start": "lesson",
+ "nodes": {
+  "lesson": {
+   "name": "The lesson",
+   "src": "L799",
+   "text": "Young (Child) is having trouble learning (child.his/her) lessons. Today, (child.he/she) learned about the two factions that shaped Isola's history. \"Like two friends, Magic and Nature share the island together,\" (teacher) said. \"But long ago, they got into a terrible fight. They fought and fought for a long time, and their conflict almost cost them their lives. It took a lot of faith for them to rebuild their friendship. Yes, children, faith is important to life. For without faith, one cannot truly thrive.\"",
+   "children": [
+    {
+     "next": "essay"
+    }
+   ]
+  },
+  "essay": {
+   "type": "question",
+   "name": "The essay",
+   "src": "L801",
+   "text": "(Child) has only two days to write an essay about what \"faith\" means to (child.him/her). But (child.he/she) doesn't really understand the topic. What should (child) write about?",
+   "choices": [
+    {
+     "label": "\"Faith\" means perseverance in adversity",
+     "next": "p1",
+     "src": "L803"
+    },
+    {
+     "label": "\"Faith\" means sticking to what's right",
+     "next": "p2",
+     "src": "L806"
+    },
+    {
+     "label": "\"Faith\" means believing in the good of others",
+     "next": "p3",
+     "src": "L809"
+    },
+    {
+     "label": "\"Faith\" means believing in a higher power",
+     "next": "p4",
+     "src": "L812"
+    },
+    {
+     "label": "\"Faith\" depends on one's individual beliefs",
+     "next": "p5",
+     "src": "L815"
+    },
+    {
+     "label": "Question the assignment itself",
+     "next": "p6",
+     "src": "L818"
+    }
+   ]
+  },
+  "p1": {
+   "text": "Yes, \"faith\" must mean overcoming any problems {with a kind and patient heart|with maturity|with quiet courage|with strength}. (Child) scribbles down (child.his/her) thoughts and submits (child.his/her) work {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included.",
+   "src": "L804",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "p2": {
+   "text": "Yes, \"faith\" must mean fighting for {what is correct|what you believe in}, even if {the world is against you|people don't always understand your perspective}. (Child) scribbles down (child.his/her) thoughts and submits (child.his/her) work {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included.",
+   "src": "L807",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Yes, \"faith\" must mean thinking {the best of|highly of} others, {especially if they were former friends|because people have an innate goodness to them|because people might have made a mistake|because people are not as different as one thinks}. (Child) scribbles down (child.his/her) thoughts and submits (child.his/her) work {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included.",
+   "src": "L810",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "p4": {
+   "text": "Yes, \"faith\" must mean that {there is something supernatural in control of one's life|there is something natural guiding one's life|there is something magical influencing the world|there are spirits watching over Isola|there is a god|there are gods|there is a guiding hand|there is something or someone watching over us}. Or perhaps {POWERS} have more control over one's life than one thinks. Or maybe {nothing is in control|nothing apparent is guiding our lives|one must take charge of one's own destiny}! Whatever the case, (child) believes that people must {respect the world around them|respect other people's beliefs|take charge of their own destiny|listen to those who guide them|believe what they want to believe|think for themselves}. (Child) scribbles down (child.his/her) thoughts and submits (child.his/her) work {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included.",
+   "src": "L813",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "p5": {
+   "text": "(Child) remains stumped by the cryptic question. There are a lot of things \"faith\" could refer to and (child.he/she) can't decide. Well, except for one thing: if (child.he/she) can't decide on a single thing, perhaps it means that \"faith\" means something different to different people. (child.He/She) decides to write (child.his/her) thoughts down and turns in the paper {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included and at (child.his/her) {cheekiness|utter defiance|refusal to answer the question|cleverness|intelligence|ability to think outside of the box}.",
+   "src": "L816",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "p6": {
+   "text": "(Child) remains stumped by the cryptic question. There are a lot of things \"faith\" could refer to and (child.he/she) can't decide. Well, except for one thing: the question itself must have no right answer. Why ask it in such a vague way, then? (child.He/She) decides to write (child.his/her) thoughts down and turns in the paper {MANNER}. (Teacher) is surprised at the amount of detail (child.he/she) included and at (child.his/her) {cheekiness|utter defiance|refusal to answer the question|cleverness|intelligence|ability to think outside of the box}.",
+   "src": "L819",
+   "children": [
+    {
+     "next": "paper",
+     "weight": 20
+    },
+    {
+     "next": "see_me",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "paper": {
+   "name": "The paper comes back",
+   "src": "L821",
+   "text": "After some time, (child) gets (child.his/her) paper back.",
+   "children": [
+    {
+     "next": "grades"
+    }
+   ]
+  },
+  "grades": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "g1"
+    },
+    {
+     "next": "g2"
+    },
+    {
+     "next": "g3"
+    },
+    {
+     "next": "g4"
+    },
+    {
+     "next": "g5"
+    },
+    {
+     "next": "g6"
+    }
+   ]
+  },
+  "g1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L824",
+   "text": "(child.He/She) gets points for {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} but not the full marks. Oh well, (child) decides to ask (teacher) later for some clarification and pointers."
+  },
+  "g2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L826",
+   "text": "(child.He/She) gets full marks and an Astounding Student award. (Teacher) is impressed by (child)'s {creativity|completeness|grammar|spelling|rhetoric|use of pathos|ethos|logos|vocabulary|literary analysis|phonics} and writes a note of praise on (child.his/her) work."
+  },
+  "g3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L828",
+   "text": "(child.He/She) gets a \"Try Harder\" note on (child.his/her) work. It seems that (child) {has a lot more to learn|needs better spelling|needs to learn how to argue (child.his/her) points better|should alter the flow of (child.his/her) paper better|needs to improve (child.his/her) creativity|needs to improve (child.his/her) completeness|needs to improve (child.his/her) grammar|needs to improve (child.his/her) rhetoric|needs to improve (child.his/her) use of pathos, ethos, or logos|needs to improve (child.his/her) vocabulary|needs to improve (child.his/her) literary analysis|needs to work on phonics}. Oh well, lesson learned."
+  },
+  "g4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L830",
+   "text": "(child.He/She) gets a \"See Me After Class\" note on (child.his/her) work. It seems that (child) {has not yet grasped essential language arts skills like proper spelling|has not yet grasped rhetoric|needs to work on (child.his/her) use of pathos, ethos, or logos|needs more practice with vocabulary|needs help with literary analysis|needs to practice phonics|has a lot more to learn|needs better spelling|needs to learn how to argue (child.his/her) points better|should improve the flow of (child.his/her) paper}. (child) gets partial credit for at least turning SOMETHING in. Oh well, live and learn, I guess."
+  },
+  "g5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L834",
+   "text": "(child.He/She) gets a \"See Me After Class\" note on (child.his/her) work. Apparently, (teacher) {doesn't quite agree with (child.his/her) interpretation of faith|was expecting a different answer|isn't entirely convinced by (child.his/her) arguments}. Uh-oh! (Child) explains (child.his/her) reasoning. The two {have a rather lively discussion|agree to disagree|discover that they have more in common than they thought}. Although (teacher) isn't entirely convinced, (teacher.he/she) gives (child) partial credit for making an effort. Better luck next time!"
+  },
+  "g6": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L836",
+   "text": "(Child) gets (child.his/her) paper back with an unusual note: \"Interesting! Come see me after class.\" Hmm. What could that mean? After class, (teacher) asks (child) why (child.he/she) chose to write about faith that way. The two discuss their ideas, and (teacher) {agrees with some of (child.his/her) points|admits that (teacher.he/she) hadn't considered that perspective before|asks a few more questions}. By the end, (child) has learned something new. Perhaps (teacher) has, too!",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L836"
+    }
+   ]
+  },
+  "see_me": {
+   "name": "See me after class",
+   "src": "L855,L857",
+   "text": "After some time, (child) gets (child.his/her) paper back.\n(child) sees that (teacher) has written a \"See Me After Class\" note on (child.his/her) work. Not knowing what to expect, (child.he/she) sits down at (teacher)'s desk. (teacher) {smiles|raises an eyebrow|chuckles softly|looks rather serious} and...",
+   "children": [
+    {
+     "next": "praise"
+    }
+   ]
+  },
+  "praise": {
+   "popup": "append",
+   "join": "space",
+   "src": "L860",
+   "text": "praises (child) for {PRAISE}. (teacher.He/She) says, \"You raise an interesting point. Faith does not necessarily mean being forced into one single answer. It could mean the ability to question everything around us. One must use one's own brain and heart to come to an answer. Whether your answer is right or wrong is not always up to me. It is up to you to think about what you believe, and why.\"",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L862",
+   "text": "(child) ponders (teacher)'s words. Although (child.he/she) doesn't fully grasp (teacher)'s wisdom now, the words remain with (child.him/her) and guide (child.him/her) as (child.he/she) grows up. (child.He/She) eventually becomes a wise young (child.man/woman), displaying wisdom far beyond (child.his/her) years.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research",
+      "Healing",
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L862"
+    }
+   ]
+  }
+ }
+}
