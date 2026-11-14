@@ -62,7 +62,7 @@ ALL_SKILLS = {1: ("Parenting", "Building", "Farming", "Healing", "Research"),
 SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
-LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref")
+LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines")
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
@@ -139,6 +139,7 @@ def graph_for_engine(doc: dict) -> dict:
         n.pop("src_pick", None)
     for p in g.get("pools", {}).values():
         p.pop("set", None)
+        p.pop("mirror_of", None)
         p["items"] = [i["text"] if isinstance(i, dict) and set(i) <= {"text", "src"} else i for i in p["items"]]
     for k in AUTHORING_TOP:
         g.get("collection", {}).pop(k, None)
@@ -246,7 +247,7 @@ def is_pool_ref(inner: str) -> bool:
     return bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*(?:\.\d)?", inner))
 
 
-def text_regex(text: str, words: dict, top: bool = True) -> str:
+def text_regex(text: str, words: dict, top: bool = True, pools: dict | None = None) -> str:
     """A regex the normalised source must contain for this display text to be faithful."""
     parts = []
     for kind, s in scan(text):
@@ -267,9 +268,12 @@ def text_regex(text: str, words: dict, top: bool = True) -> str:
                 alts = [re.escape(v) for v in vals] + [r"(?:[Tt]he |[Aa] )?Chiefs?"]
                 parts.append("(?:" + "|".join(alts) + ")" if vals else r"(?!x)x")
             elif is_pool_ref(s):
-                parts.append(PH_RE)
+                # one source parenthesis group, or the pool's own items as the source's bare "a/b/c" list
+                items = (pools or {}).get(s.split(".")[0], [])
+                bare = r"\s*/\s*".join(re.escape(i) for i in items)
+                parts.append(f"(?:{PH_RE}|{bare})" if len(items) > 1 else PH_RE)
             else:
-                alts = [text_regex(a, words, False) for a in split_alts(s)]
+                alts = [text_regex(a, words, False, pools) for a in split_alts(s)]
                 parts.append(r"\(?" + r"\s*/\s*".join(alts) + r"\)?")
     rx = "".join(parts)
     if top:
@@ -441,6 +445,8 @@ def ledger_maps(doc: dict, rep: Report):
 def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> None:
     cuts, whole, fixes = ledger_maps(doc, rep)
     words = doc.get("words", {}) or {}
+    pool_texts = {name: [i["text"] if isinstance(i, dict) else i for i in p.get("items", [])]
+                  for name, p in (doc.get("pools", {}) or {}).items()}
     consumed: set[int] = set(whole)
     matched: dict[int, list[tuple[int, int]]] = {}
     text_lines: set[int] = set()
@@ -485,7 +491,7 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
         for para in [p for p in f.text.split("\n") if p.strip()]:
             if not "".join(s for k, s in scan(para) if k in ("lit", "esc")).strip():
                 continue   # a paragraph of tokens only ("{WRONG}"): its items carry their own src
-            rx = text_regex(para.strip(), words)
+            rx = text_regex(para.strip(), words, pools=pool_texts)
             m = re.search(rx, span.text)
             if not m:
                 rep.add("b FIDELITY", f"{f.where} ({f.src}): {para.strip()[:90]!r} is not the source text "
@@ -653,11 +659,27 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
     if row is not None:
         have: dict[str, int] = {}
         for pname, p in (doc.get("pools", {}) or {}).items():
+            if p.get("mirror_of"):
+                # the same bank with its pronouns on the other role (a gap until pool items can follow the role
+                # of the instance): same items, same lines, counted once
+                orig = (doc.get("pools") or {}).get(p["mirror_of"])
+                if orig is None:
+                    rep.add("d TOKENS", f"pool {pname}: mirror_of {p['mirror_of']!r} is not a pool")
+                    continue
+                a = [i.get("src") if isinstance(i, dict) else None for i in orig.get("items", [])]
+                b = [i.get("src") if isinstance(i, dict) else None for i in p.get("items", [])]
+                if a != b:
+                    rep.add("d TOKENS", f"pool {pname}: a mirror has the same items (src) as {p['mirror_of']}")
+                continue
             if p.get("set"):
                 have[p["set"]] = have.get(p["set"], 0) + len(p.get("items", []))
         for nid, n in doc.get("nodes", {}).items():
             if n.get("set"):
                 have[n["set"]] = have.get(n["set"], 0) + len({c["next"] for c in n.get("children", []) or []})
+        for e in doc.get("collection", {}).get("ledger", []) or []:
+            # a bank item the format cannot express yet: listed (kind gap) so the count still matches the source
+            if isinstance(e, dict) and e.get("kind") == "gap" and e.get("set"):
+                have[e["set"]] = have.get(e["set"], 0) + 1
         inline = set(doc.get("collection", {}).get("inline_sets", []) or [])
         for label, size in row.get("pools", {}).items():
             if label in have:

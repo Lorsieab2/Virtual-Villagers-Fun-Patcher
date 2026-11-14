@@ -57,6 +57,26 @@ then fail their checks until they follow the source again.
 | L9453 | `forgive (him/her).` | `forgive (Name2).` | V21 C2 The Statue That Divided the Village | "(him/her)" refers to nobody named |
 | L9592 | `The subject objects` | `(Name2), the subject, objects` | V22-1 The Great Isolan Drawing Competition | "(his/her)" needs a named villager |
 
+### Found while authoring the pilot (not in the inventories)
+
+Placeholders written without their parentheses would show the words "his/her" / "he/she" instead of the villager's
+own pronoun; two stray full stops sit inside a slash list or mid-sentence.
+
+| Line | Before | After | Event | Why |
+|---|---|---|---|---|
+| L171 | `fuel their art.` | `fuel (his/her) art` | The Cooking Contest, bank C | Same line as the inventory's fix: "their" for one contestant and a stray full stop mid-sentence |
+| L469 | `all his/her friends his/her skills` | `all (his/her) friends (his/her) skills` | The Cooking Contest, bank P | Placeholders without parentheses |
+| L473 | `down his/her experiences` | `down (his/her) experiences` | The Cooking Contest, bank P | Placeholder without parentheses |
+| L481 | `showcase his/her award` | `showcase (his/her) award` | The Cooking Contest, bank P | Placeholder without parentheses |
+| L482 | `all his/her detractors` | `all (his/her) detractors` | The Cooking Contest, bank P | Placeholder without parentheses |
+| L483 | `with his/her food` | `with (his/her) food` | The Cooking Contest, bank P | Placeholder without parentheses |
+| L491 | `crosses his/her arms` | `crosses (his/her) arms` | The Cooking Contest, bank Q | Placeholder without parentheses |
+| L492 | `nods his/her head` | `nods (his/her) head` | The Cooking Contest, bank Q | Placeholder without parentheses |
+| L508 | `pretends he/she did not lose` | `pretends (he/she) did not lose` | The Cooking Contest, bank Q | Placeholder without parentheses |
+| L510 | `thankful he/she got` | `thankful (he/she) got` | The Cooking Contest, bank Q | Placeholder without parentheses |
+| L561 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (5) | The full stop belongs after the list, not inside one option |
+| L623 | `can't continue fighting.)` | `can't continue fighting).` | The Cooking Contest, (8) | As above |
+
 ## Not applied (found by the inventories, but not a glaring grammar mistake, or not a grammar question)
 
 These stay as the owner wrote them. Some are handled another way; the rest are listed for the owner's information.
