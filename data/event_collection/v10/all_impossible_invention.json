@@ -1,7 +1,7 @@
 {
  "format": "vvfp-cie-graph",
  "version": 6,
- "title": "The Impossible Invention",
+ "title": "The Village Idiot and the Impossible Invention",
  "games": [
   1,
   2,
@@ -186,7 +186,7 @@
      "src": "L5545"
     },
     {
-     "label": "TELL (SUBJECT) TO STOP BEFORE ANYONE IS HURT.",
+     "label": "TELL (NAME1) TO STOP BEFORE ANYONE IS HURT.",
      "next": "warning",
      "src": "L5546"
     }

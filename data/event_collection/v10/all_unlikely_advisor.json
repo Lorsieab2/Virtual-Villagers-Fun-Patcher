@@ -239,7 +239,7 @@
    "text": "(Subject) is {a shy apprentice|an overlooked parent|a former laughingstock|an elderly gardener|a quiet researcher|a villager whose earlier advice was ignored}.",
    "choices": [
     {
-     "label": "INVITE (SUBJECT) TO SPEAK.",
+     "label": "INVITE (NAME1) TO SPEAK.",
      "next": "speak",
      "src": "L5628"
     },
