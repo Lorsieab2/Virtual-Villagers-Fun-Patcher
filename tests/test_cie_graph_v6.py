@@ -249,6 +249,21 @@ LABELS = {
 }
 
 
+TITLE_VARIANTS = {
+    # A title variant (cie-v6-binary.md 18): New Believers with Guardians of Isola Rewrite shows its own title, and
+    # the page its own words (a page variant); without the patch, and in another game, the file's own.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Homesick Convert",
+    "title_variants": [{"if": {"patch": "guardians_of_isola"}, "title": "The Homesick Newcomer"}],
+    "games": [3, 5], "patches": ["guardians_of_isola"],
+    "roles": {"subject": {"kind": "villager"}},
+    "start": "p",
+    "nodes": {
+        "p": {"text": "(Name) is a recent convert who misses home.",
+              "variants": [{"if": {"patch": "guardians_of_isola"},
+                            "text": "(Name) recently came to live with our tribe and misses home."}]},
+    },
+}
+
 ECHO = {
     # No "!." or "?." (cie-v6-binary.md 6, step 5): an inserted item ending in "!" or "?" drops the "." right after
     # its token -- a pool's, an inline pick's and a nested one's (SIGN's item ends in SHOUT.2) -- and only that one.
@@ -368,6 +383,14 @@ def vector_cases() -> list[dict]:
          "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None},
         {"name": "item_end_marks_vv5", "graph": ECHO, "game": 5, "unicode": False, "rolls": [1, 2, 1, 0],
          "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "title_variant_vv5_guardians", "graph": TITLE_VARIANTS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None,
+         "patches": ["guardians_of_isola"]},
+        {"name": "title_variant_vv5_plain", "graph": TITLE_VARIANTS, "game": 5, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [], "facts": None},
+        {"name": "title_variant_vv3_guardians", "graph": TITLE_VARIANTS, "game": 3, "unicode": False, "rolls": [],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [], "facts": None,
+         "patches": ["guardians_of_isola"]},
     ]
 
 
@@ -375,7 +398,8 @@ def run_case(case: dict) -> dict:
     g = cg.load(case["graph"], True)
     facts = None if case["facts"] is None else frozenset(case["facts"])
     r = cg.simulate(g, case["game"], case["rolls"], binding(case["bindings"]), case["answers"],
-                    facts=facts, unicode=case["unicode"], tribe=case.get("tribe"))
+                    patches=tuple(case.get("patches", ())), facts=facts, unicode=case["unicode"],
+                    tribe=case.get("tribe"))
     r["cieg_sha256"] = sha(cg.compile_graph(g))
     return r
 

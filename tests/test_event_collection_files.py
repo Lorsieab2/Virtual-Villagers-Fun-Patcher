@@ -291,6 +291,49 @@ class ChecksRefuse(unittest.TestCase):
         self.assertEqual(g["pools"]["A"]["items"][0], "neat rows with carefully labeled plants")
         self.assertNotIn("ledger", g["collection"])
         self.assertNotIn("text_only", g["nodes"]["p2"])
+        self.assertNotIn("description", g["collection"])
+
+    def test_missing_or_unplain_description(self):
+        for bad in (None, "", "Two gardeners plan a garden", "(Gardener1) plans a garden.", "x" * 40 + ".",
+                    "A gardener plans {A}.", "A" + " long" * 30 + "."):
+            with self.subTest(bad=bad):
+                d = self.doc()
+                if bad is None:
+                    del d["collection"]["description"]
+                else:
+                    d["collection"]["description"] = bad
+                self.assertTrue(problems(check_doc(d), "i PICK"))
+
+    def test_an_owner_title_must_be_the_new_title(self):
+        rows = cc.manifest_rows()
+        path = ROOT / "data" / "event_collection" / "exclusive" / "vv3_weather_dance_that_went.json"
+        d = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(cc.check_file(path, rows).problems, [])
+        self.assertEqual(d["title"], "The Wacky Weather Dance")
+        d["title"] = "The Weather Dance That Went Wrong"           # the source heading: the owner renamed it
+        self.assertTrue(problems(check_doc(d, "vv3_weather_dance_that_went", "exclusive"), "b FIDELITY"))
+
+    def test_guardians_wording_is_required_in_new_believers(self):
+        """j: blind to ids -- a New Believers text saying Heathen or convert needs its Guardians form."""
+        path = ROOT / "data" / "event_collection" / "exclusive" / "vv5_convert_who_missed_home.json"
+        base = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(check_doc(base, "vv5_convert_who_missed_home", "exclusive").problems, [])
+        cases = {
+            "title variant": lambda d: d.pop("title_variants"),
+            "page variant": lambda d: d["nodes"]["question"].pop("variants"),
+            "description variant": lambda d: d["collection"].pop("description_variants"),
+            "wrong form": lambda d: d["nodes"]["question"]["variants"][0].update(text="A newcomer sits alone."),
+        }
+        for what, change in cases.items():
+            with self.subTest(what=what):
+                d = copy.deepcopy(base)
+                change(d)
+                self.assertTrue(problems(check_doc(d, "vv5_convert_who_missed_home", "exclusive"), "j GUARDIANS"))
+        # a heathen word in a game-5 list item, which the format cannot vary by patch here
+        d = copy.deepcopy(self.doc())
+        d["games"] = [3, 5]
+        d["pools"]["END"]["items"][0]["text"] = "A Heathen neighbour visits."
+        self.assertTrue(problems(check_doc(d), "j GUARDIANS"))
 
 
 class TextRegex(unittest.TestCase):

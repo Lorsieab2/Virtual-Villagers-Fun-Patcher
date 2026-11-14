@@ -29,7 +29,8 @@ Versions 1 to 5 are unchanged byte for byte (pinned by `tests/test_cie_graph_v6.
 | 86 | `H` | item count (at most 8000) |
 | 88 | `H` | flags: bit 0 = the protected guard is on (always 1 in v6) |
 | 90 | `H` | the `collection` block as one string (its canonical JSON, ASCII, `\uXXXX` escapes), or `NONE` **(differs from A4: was 0)**. Never shown in game; the engine may ignore it. |
-| 92 | `I` | 0 |
+| 92 | `H` | the first title variant in the variants table (section 18); 0 when there is none |
+| 94 | `H` | the title variants' count (0 = none; a file made before section 18 holds 0 here) |
 
 Section order in the file: header, roles, nodes, children, effects, conds, variants, patches, **pools, items**,
 strings. The engine must use the offsets, not the order.
@@ -403,3 +404,23 @@ Bad Day`.
   the case written, every pronoun or role-sex word its pair joined by "or" ("he or she", "mother or father"), cut
   to 47 bytes, then letters, digits, space, - and _ only.
 - `VvfpStoryGraphLogged` accepts the title as written, or the title armed (expanded).
+
+## 18. Title variants
+
+JSON (v6): `"title_variants": [{"if": COND, "title": "..."}]` beside `"title"`. The event's title in a game is the
+first variant whose condition holds, else `"title"`. A variant's condition uses only `game`, `patch`, `not`, `all` and
+`any` (it is decided before anyone is cast), and each variant title is checked exactly as the event's title
+(sections 5 and 17). The first use: New Believers with Guardians of Isola Rewrite (`{"patch": "guardians_of_isola"}`)
+shows "The Homesick Newcomer" for "The Homesick Convert" (docs/event-collection/guardians-wording.md).
+
+- **Binary:** variant records (`H cond, H text`, as a node's) placed after every node's variants; header +92 the
+  first, +94 the count. A file without title variants keeps 0, 0 there, so it is byte for byte as before.
+- **Engine** (`story_graph.inc cg_choose_title`): `cg_refusal`, `cg_queue` and the resume of a saved run pick the
+  title with the patches on now (`cg_patches_on`) into `cg_g.title`, so the popups, the log's "Event:" line, the
+  refusals and `VvfpStoryGraphLogged` use it. The loader refuses a variant whose condition or title is not valid.
+- **Lists made before casting** (Pick Island Event, the library's collection group) read the title from the
+  collection's manifest.txt, whose New Believers lines carry the title with Guardians of Isola Rewrite on
+  (`story_collection.inc sc_scan`, `cg_guardians_on`).
+- **Python:** `normalize` keeps it, `compile_graph` / `decompile_graph` round-trip it, `event_title(g, game,
+  patches)` gives the title, and `simulate` returns it as the first popup's title. Pinned by the shared vectors
+  `title_variant_vv5_guardians`, `title_variant_vv5_plain` and `title_variant_vv3_guardians`.

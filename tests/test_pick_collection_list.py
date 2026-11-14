@@ -155,6 +155,87 @@ class TheWholeCollection(unittest.TestCase):
                 self.assertEqual(picker.entry(row, cieg)[1], "(Name1)'s No Good, Very Bad Day")
 
 
+GENERIC = "An event of the Isola Grand Event Collection."
+GUARDIANS_WORDS = re.compile(r"heathen|convert", re.I)
+
+
+def full_entry(picker: Picker, row: list[str], cieg: bytes) -> tuple[str, str, str, str]:
+    """(title, description, needs, refusal) of the list's only entry, from the manifest's WHOLE line `row`."""
+    picker.p.write(picker.text, ("\t".join(row) + "\n").encode("cp1252") + b"\0")
+    picker.p.write(picker.blob, cieg)
+    picker.p.export("VvfpStoryProbeCollectionManifest", picker.text, 0, 0)
+    picker.p.export("VvfpStoryProbeCollectionCieg", picker.blob, len(cieg))
+    k = picker.p.call(picker.p.exports["VvfpStoryProbeMoreEntry"], [picker.n, 0, *picker.bufs, 1200], limit=LIMIT)
+    assert k == 0x4000, k
+    title, needs, refusal = (picker.p.cstring(b, 1200) for b in picker.bufs)
+    desc = picker.p.alloc(400)
+    picker.p.export("VvfpStoryProbeMoreDescription", 0, desc, 400)
+    return title, picker.p.cstring(desc, 400), needs, refusal
+
+
+def install(picker: Picker, text: str) -> None:
+    """The installed patches' list the patcher writes beside the game (story_graph.inc cg_installed_has)."""
+    buf = picker.p.alloc(len(text) + 1)
+    picker.p.write(buf, text.encode("ascii") + b"\0")
+    picker.p.export("VvfpStoryProbeInstalledPatches", picker.n, buf)
+
+
+@unittest.skipUnless(GAMES, "needs unicorn, pefile, the stock executables and the Story TEST build")
+class TheDescriptions(unittest.TestCase):
+    """The owner (2026-11-14): every collection event says in one sentence what happens (collection.description),
+    in place of the generic line; New Believers with Guardians of Isola Rewrite says neither Heathen nor convert
+    (docs/event-collection/guardians-wording.md), and without it nothing changes."""
+
+    def test_every_event_shows_its_own_sentence(self) -> None:
+        for game in GAMES:
+            picker = Picker(game, 4)
+            seen = set()
+            for row in manifest_rows(picker.n):
+                cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+                with self.subTest(game=game, event=row[0]):
+                    self.assertEqual(len(row), 9, "id, title, games, weight, series, credit, description, and the "
+                                                  "two Guardians fields")
+                    title, desc, _needs, _refusal = full_entry(picker, row, cieg)
+                    self.assertEqual(title, row[1])
+                    self.assertEqual(desc, row[6])
+                    self.assertNotEqual(desc, GENERIC)
+                    self.assertRegex(desc, r"^[A-Z][A-Za-z0-9 .,!?:;'-]*[.!?]$")   # no placeholder, brace, role id
+                    no_role_id(self, desc)
+                    seen.add(desc)
+            self.assertGreater(len(seen), 1)
+
+    def test_new_believers_with_and_without_guardians_of_isola(self) -> None:
+        if "vv5" not in GAMES:
+            self.skipTest("needs New Believers' stock executable")
+        rows = manifest_rows(5)
+        varied = [r for r in rows if r[7] or r[8]]
+        self.assertEqual(sorted(r[0] for r in varied), ["vv5_convert_who_missed_home"])
+        for guardians in (False, True):
+            for adults in (4, 1):
+                picker = Picker("vv5", adults)
+                if guardians:
+                    install(picker, "vv5\nvv5_guardians_of_isola_rewrite\n")
+                for row in rows:
+                    cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+                    with self.subTest(guardians=guardians, adults=adults, event=row[0]):
+                        title, desc, needs, refusal = full_entry(picker, row, cieg)
+                        if guardians:
+                            self.assertEqual(title, row[7] or row[1])
+                            self.assertEqual(desc, row[8] or row[6])
+                            for words in (title, desc, needs, refusal):
+                                self.assertIsNone(GUARDIANS_WORDS.search(words), words)
+                        else:
+                            self.assertEqual((title, desc), (row[1], row[6]))
+                            if needs and "not a chief" in needs:
+                                self.assertIn("a puzzle's Heathen", needs)
+        picker = Picker("vv5", 4)
+        row = varied[0]
+        cieg = (ROOT / "assets" / "event_collection" / f"{row[0]}.cieg").read_bytes()
+        self.assertEqual(full_entry(picker, row, cieg)[:2], ("The Homesick Convert", row[6]))
+        install(picker, "vv5\nvv5_guardians_of_isola_rewrite\n")
+        self.assertEqual(full_entry(picker, row, cieg)[:2], ("The Homesick Newcomer", row[8]))
+
+
 @unittest.skipUnless(GAMES, "needs unicorn, pefile, the stock executables and the Story TEST build")
 class TheReasons(unittest.TestCase):
     def check(self, picker: Picker, data: dict, want: str) -> None:

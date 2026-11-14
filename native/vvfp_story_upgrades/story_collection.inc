@@ -895,6 +895,15 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeMoreEntry(int game, int m, cha
     return sm_list.k[m];
 }
 
+/* The sentence the list shows for entry `m` of the list VvfpStoryProbeMoreEntry filled last; its length, -1 past it. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreDescription(int m, char *out, int cap) {
+    if (m < 0 || m >= sm_list.count) {
+        return -1;
+    }
+    lstrcpynA(out, sm_list.description[m], cap);
+    return lstrlenA(out);
+}
+
 /* The trouble guard of the village in the game's own records. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeCollectionTrouble(int game) {
     sc_test_trouble = -1;
