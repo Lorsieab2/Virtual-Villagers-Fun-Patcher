@@ -196,6 +196,7 @@ static void cg_begin_question(int game, char *text, int size);
 static int cg_resolve(int game, int button, char *text, int size);
 static int cg_tallest(int game, int button, char *out, int size);
 static int cg_asked_answers(void);
+static int cg_answer_closes(int game);   /* G1: the question popup closes at the click */
 /* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
 static int cs_multi;
 static void *cs_dialog;

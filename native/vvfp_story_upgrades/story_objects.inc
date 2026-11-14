@@ -260,7 +260,13 @@ static void cs_answer(void *dialog, int answer) {
     ma_dialog_call(g->show, dialog, ma_control(dialog, 0x864u));
 }
 
-static const ma_client CS_CLIENT = { cs_text_id, cs_state, cs_answer };
+/* G1: five or more answers: the answer's page is a popup of its own, so this one closes at the click. */
+static int cs_closes(void *dialog) {
+    (void)dialog;
+    return cg_answer_closes(choice_game);
+}
+
+static const ma_client CS_CLIENT = { cs_text_id, cs_state, cs_answer, cs_closes };
 
 /* After the presenter's constructor (the stubs' own path for 3 or 4 answers): the shared popup's extra buttons, then
    the question's text back (the labels went through it). */

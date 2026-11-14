@@ -163,7 +163,10 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        CGC_PUZZLE = 8,                /* version 3: a = the puzzle's name, b = its game (the requirement) */
        /* version 6: the runtime facts */
        CGC_HARMABLE = 9, CGC_SPECIAL_PRESENT = 10, CGC_MIN_POPULATION = 11, CGC_MIN_CHILDREN = 12 };
-enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2 };
+enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
+       CG_ROLE_OTHER = 3 };            /* G2: the member of a two-member alias that the alias did not draw */
+#define CG_POOL_TRIBE (-2)            /* G5: {@tribe}, built in (no pool): the tribe's name at run time */
+#define CG_POOL_TRIBE_CAP (-3)        /* {@Tribe} */
 /* The origin of a queued run (story_collection.inc, Pick Island Event, the library) and its casting. */
 #define CG_ORIGIN_PURCHASE 0
 #define CG_ORIGIN_PICK 1
@@ -210,7 +213,7 @@ static unsigned int cg_u32(const unsigned char *p) {
 static const unsigned char *cg_role_at(const cg_graph *g, int i) {
     return g->d + g->o_role + g->role_bytes * (unsigned int)i;
 }
-static const unsigned char *cg_pool_at(const cg_graph *g, int i) { return g->d + g->o_pool + 8u * (unsigned int)i; }
+static const unsigned char *cg_pool_at(const cg_graph *g, int i) { return g->d + g->o_pool + 12u * (unsigned int)i; }
 static const unsigned char *cg_item_at(const cg_graph *g, int i) { return g->d + g->o_item + 8u * (unsigned int)i; }
 static const unsigned char *cg_node_at(const cg_graph *g, int i) { return g->d + g->o_node + 28u * (unsigned int)i; }
 static const unsigned char *cg_child_at(const cg_graph *g, int i) { return g->d + g->o_child + 12u * (unsigned int)i; }
@@ -390,7 +393,14 @@ static int cg_parse_brace(const cg_graph *g, const char *s, int *pool, int *inst
     }
     *pool = cg_pool_by_name(g, s + 1, n);
     *instance = k;
-    return *pool >= 0 ? (int)(e - s) + 1 : 0;
+    if (*pool < 0 && n == 6 && k == 1 && e == s + 7) {
+        if (memcmp(s + 1, "@tribe", 6) == 0) {
+            *pool = CG_POOL_TRIBE;     /* G5: built in, filled at run time */
+        } else if (memcmp(s + 1, "@Tribe", 6) == 0) {
+            *pool = CG_POOL_TRIBE_CAP;
+        }
+    }
+    return *pool >= 0 || *pool == CG_POOL_TRIBE || *pool == CG_POOL_TRIBE_CAP ? (int)(e - s) + 1 : 0;
 }
 
 static int cg_word_is(const char *w, int n, const char *lit) {
@@ -500,7 +510,7 @@ static int cg_text_ok(const cg_graph *g, const char *s, int lines, int label) {
             }
             if (*s == '{') {
                 int pool, instance, n = cg_parse_brace(g, s, &pool, &instance);
-                if (n == 0 || (label && cg_s(g, cg_u16(cg_pool_at(g, pool)))[0] != '@')) {
+                if (n == 0 || (label && pool >= 0 && cg_s(g, cg_u16(cg_pool_at(g, pool)))[0] != '@')) {
                     return 0;
                 }
                 s += n - 1;
@@ -612,6 +622,10 @@ static int cg_pool_chain(const cg_graph *g, int p, int depth) {
             if (n == 0 || q == p) {
                 return -1;
             }
+            if (q < 0) {
+                s += n - 1;            /* {@tribe}: no pool */
+                continue;
+            }
             level = cg_pool_chain(g, q, depth + 1);
             if (level < 0) {
                 return -1;
@@ -639,7 +653,8 @@ static int cg_pools_ok(const cg_graph *g) {
         const unsigned char *p = cg_pool_at(g, i);
         unsigned int first = cg_u16(p + 2), count = cg_u16(p + 4);
         if (!cg_str_ok(g, cg_u16(p), 0) || cg_s(g, cg_u16(p))[0] == '\0' || count < 1u
-            || first + count > (unsigned int)g->n_item || p[6] > 1u || p[7] != 0u) {
+            || first + count > (unsigned int)g->n_item || p[6] > 1u || p[7] != 0u
+            || !cg_str_ok(g, cg_u16(p + 8), 1) || cg_u16(p + 10) != 0u) {
             return cg_bad("a pool is not one this game can read");
         }
     }
@@ -709,7 +724,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         g->n_pool = (int)cg_u16(h + 84);
         g->n_item = (int)cg_u16(h + 86);
         g->flags = (int)cg_u16(h + 88);
-        if (g->n_pool > CG_MAX_POOLS || g->n_item > CG_MAX_ITEMS || !cg_section(g, g->o_pool, g->n_pool, 8)
+        if (g->n_pool > CG_MAX_POOLS || g->n_item > CG_MAX_ITEMS || !cg_section(g, g->o_pool, g->n_pool, 12)
             || !cg_section(g, g->o_item, g->n_item, 8) || cg_u32(h + 92) != 0u) {
             return cg_bad("its pools do not fit in the file");
         }
@@ -736,7 +751,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     {
         const char *title = cg_s(g, (unsigned int)g->title);
-        if (title[0] == '\0' || lstrlenA(title) >= CE_TITLE_BYTES || !ce_text_ok(title, 0)) {
+        int ok = 1;
+        const char *t;
+        for (t = title; *t != '\0' && ok; ++t) {
+            ok = ce_text_char_ok(*t) || (*t == '"' && g->version >= 6);   /* version 6: quotes too (G6) */
+        }
+        if (title[0] == '\0' || lstrlenA(title) >= CE_TITLE_BYTES || !ok) {
             return cg_bad("its title is not one the game can show");
         }
     }
@@ -747,10 +767,12 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
     }
     for (i = 0; i < g->n_role; ++i) {
         const unsigned char *r = cg_role_at(g, i);
-        if (r[0] > (g->version >= 6 ? 2u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
+        if (r[0] > (g->version >= 6 ? 3u : 1u) || !cg_str_ok(g, cg_u16(r + 4), 0)
             || (r[0] == 0 && (r[2] > 2u || r[3] > 80u))
-            || (r[0] == 1 && (r[2] < 1u || r[2] > 3u)) || (i == 0 && (r[0] != 0 || (r[1] & CG_ROLE_OPTIONAL)))
-            || (g->version >= 6 && r[1] > 63u)) {
+            || (r[0] == 1 && (r[2] < 1u || r[2] > 3u))
+            || (i == 0 && ((r[0] != CG_ROLE_VILLAGER && !(g->version >= 6 && r[0] == CG_ROLE_STRANGER))
+                           || (r[1] & CG_ROLE_OPTIONAL)))
+            ) {
             return cg_bad("a role is not one this game can read");
         }
         if (g->version >= 6) {
@@ -761,8 +783,29 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                 || r[13] > 1u || r[12] > 100u) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
-            if (r[0] == CG_ROLE_ALIAS) {
-                if (members == 0u || (members >> g->n_role) != 0u || (members & (1u << i)) || r[1] != 0 || r[2] != 0
+            if (r[0] == CG_ROLE_OTHER) {
+                /* G2: exactly one bit, a two-member alias. */
+                int al;
+                for (al = 0; al < g->n_role && members != (1u << al); ++al) {
+                }
+                if (al >= g->n_role || (r[1] & ~CG_ROLE_HARM) != 0 || r[2] != 0 || r[3] != 0 || r[6] != 0
+                    || r[8] != 0 || r[9] != 0 || cg_u16(r + 10) != CG_NONE
+                    || cg_role_at(g, al)[0] != CG_ROLE_ALIAS) {
+                    return cg_bad("an other role is not one this game can read");
+                }
+                {
+                    unsigned int m = cg_u16(cg_role_at(g, al) + 14);
+                    int bits = 0;
+                    for (; m != 0u; m &= m - 1u) {
+                        ++bits;
+                    }
+                    if (bits != 2) {
+                        return cg_bad("an other role follows an alias that does not have two members");
+                    }
+                }
+            } else if (r[0] == CG_ROLE_ALIAS) {
+                if (members == 0u || (members >> g->n_role) != 0u || (members & (1u << i))
+                    || (r[1] & ~CG_ROLE_HARM) != 0 || r[2] != 0
                     || r[3] != 0 || r[6] != 0 || r[8] != 0 || r[9] != 0 || cg_u16(r + 10) != CG_NONE) {
                     return cg_bad("an alias role is not one this game can read");
                 }
@@ -828,7 +871,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             /* A villager role (version 6: or an alias, whose drawn member the effect goes to). */
             ok = e[1] < (unsigned int)g->n_role
                  && (cg_role_at(g, e[1])[0] == CG_ROLE_VILLAGER
-                     || (g->version >= 6 && cg_role_at(g, e[1])[0] == CG_ROLE_ALIAS));
+                     || (g->version >= 6 && cg_role_at(g, e[1])[0] >= CG_ROLE_ALIAS));
         }
         if (ok) {
             switch (e[0]) {
@@ -1110,6 +1153,16 @@ static int cg_answer_room(int node, const ce_layout *l) {
     }
     return room;
 }
+
+/* G1: question `node` (asked as question `qi`) shows five or more buttons, so its answer's first page starts a fresh
+   popup (the notice's: no room for buttons) instead of sharing the question's (docs/event-collection/cie-v6-binary.md
+   11).  Two to four: as before. */
+static int cg_fresh_after(int node, int qi) {
+    unsigned char map[CG_MAX_ANSWERS];
+    return cg_g.version >= 6 && node >= 0 && cg_buttons(node, qi, map) > CG_V4_ANSWERS;
+}
+
+static int cg_answer_fresh_game;       /* the game whose last answer's page comes in a fresh popup (G1) */
 
 /* The buttons of the question on screen (CG_ASKED), else two. */
 static int cg_asked_answers(void) {
@@ -1485,7 +1538,7 @@ static int cg_resolve_role(int r) {
     if (r < 0 || r >= cg_g.n_role) {
         return -1;
     }
-    return cg_role_at(&cg_g, r)[0] == CG_ROLE_ALIAS ? cg.alias[r] : r;
+    return cg_role_at(&cg_g, r)[0] >= CG_ROLE_ALIAS ? cg.alias[r] : r;   /* an alias or an other role */
 }
 
 /* Every alias role drawn among its bound (or planned, before the binding) members, in role order, each members[
@@ -1511,6 +1564,25 @@ static void cg_draw_aliases(const ce_adapter *a, unsigned int bound) {
             }
         }
         cg.alias[r] = (signed char)(n > 0 ? members[ce_random_below(a, n)] : -1);
+    }
+    /* G2: each "other" role, with no roll: its alias's member that was not drawn (unbound when that member or the
+       alias is). */
+    for (r = 0; r < cg_g.n_role; ++r) {
+        const unsigned char *spec = cg_role_at(&cg_g, r);
+        int al;
+        if (spec[0] != CG_ROLE_OTHER) {
+            continue;
+        }
+        for (al = 0; al < cg_g.n_role && cg_u16(spec + 14) != (1u << al); ++al) {
+        }
+        if (al >= cg_g.n_role || cg.alias[al] < 0) {
+            continue;
+        }
+        for (k = 0; k < cg_g.n_role; ++k) {
+            if ((cg_u16(cg_role_at(&cg_g, al) + 14) & (1u << k)) && k != cg.alias[al] && (bound & (1u << k))) {
+                cg.alias[r] = (signed char)k;
+            }
+        }
     }
 }
 
@@ -1700,9 +1772,22 @@ static int cg_holds_cond(int i, int game, int depth) {
     switch (c[0]) {
     case CGC_VISITED: return (cg_visited[a >> 3] >> (a & 7u)) & 1;
     case CGC_ROLE:
-        if (cg_role_at(&cg_g, (int)a)[0] == CG_ROLE_ALIAS) {
-            /* An alias holds when it is bound: its member drawn (before the draw: any member to be bound). */
-            return cg.aliases_drawn ? cg.alias[a] >= 0 : (cg_u16(cg_role_at(&cg_g, (int)a) + 14) & cg.bound) != 0u;
+        if (cg_role_at(&cg_g, (int)a)[0] >= CG_ROLE_ALIAS) {
+            /* An alias (or other role) holds when it is bound: its member drawn (before the draw: an alias's member
+               to be bound; an other role's alias's). */
+            const unsigned char *spec = cg_role_at(&cg_g, (int)a);
+            unsigned int mask = cg_u16(spec + 14);
+            if (cg.aliases_drawn) {
+                return cg.alias[a] >= 0;
+            }
+            if (spec[0] == CG_ROLE_OTHER) {
+                int al;
+                for (al = 0; al < cg_g.n_role && mask != (1u << al); ++al) {
+                }
+                mask = al < cg_g.n_role ? cg_u16(cg_role_at(&cg_g, al) + 14) : 0u;
+                return (mask & cg.bound) == mask && mask != 0u;
+            }
+            return (mask & cg.bound) != 0u;
         }
         return (cg.bound >> a) & 1u;
     case CGC_HARMABLE: return cg_harmable((int)a, game);
@@ -1945,6 +2030,41 @@ static int cg_item_taken(int pool, int item) {
 
 static void cg_scan_pools(const ce_adapter *a, int game, const char *text, int depth);
 
+/* G3: whether `text` is the text of an item drawn so far (the path and the segment) by an instance of a pool that
+   `list` names (comma separated). */
+static int cg_pick_text_is(const cg_pick *k, const char *list, const char *text) {
+    char word[40];
+    int entry;
+    const char *name;
+    const unsigned char *p;
+    if (k->item == CG_NONE) {
+        return 0;
+    }
+    p = cg_pool_at(&cg_g, k->pool);
+    name = cg_s(&cg_g, cg_u16(p));
+    for (entry = 0; ui_list_entry(list, entry, word, sizeof word); ++entry) {
+        if (lstrcmpA(word, name) == 0) {
+            return lstrcmpA(cg_s(&cg_g, cg_u16(cg_item_at(&cg_g, (int)cg_u16(p + 2) + k->item))), text) == 0;
+        }
+    }
+    return 0;
+}
+
+static int cg_text_taken_by(const char *list, const char *text) {
+    int i;
+    for (i = 0; i < cg.pick_count && i < CG_MAX_PICKS; ++i) {
+        if (cg_pick_text_is(&cg.picks[i], list, text)) {
+            return 1;
+        }
+    }
+    for (i = 0; cg_seg_pk != NULL && i < *cg_seg_pk_count; ++i) {
+        if (cg_pick_text_is(&cg_seg_pk[i], list, text)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* Instance `instance` of `pool` drawn, unless the run has it: its eligible items (their conditions hold now; a
    distinct pool's not drawn by its other instances, unless that leaves none), weighted; none: the empty text, no
    roll.  Then the item's own tokens, depth first. */
@@ -1968,12 +2088,16 @@ static void cg_draw_instance(const ce_adapter *a, int game, int pool, int instan
             if (pass == 0 && (p[6] & 1u) && cg_item_taken(pool, k)) {
                 continue;
             }
+            if (pass == 0 && cg_u16(p + 8) != CG_NONE
+                && cg_text_taken_by(cg_s(&cg_g, cg_u16(p + 8)), cg_s(&cg_g, cg_u16(it)))) {
+                continue;              /* G3: the text an instance of a listed pool has drawn */
+            }
             items[depth][n] = k;
             weights[depth][n] = (int)cg_u16(it + 2);
             total += weights[depth][n++];
         }
-        if (!(p[6] & 1u)) {
-            break;                     /* not distinct: one pass */
+        if (!(p[6] & 1u) && cg_u16(p + 8) == CG_NONE) {
+            break;                     /* nothing taken out: one pass */
         }
     }
     if (n > 0) {
@@ -2010,7 +2134,9 @@ static void cg_scan_pools(const ce_adapter *a, int game, const char *text, int d
         if (n == 0) {
             continue;
         }
-        cg_draw_instance(a, game, pool, instance, depth);
+        if (pool >= 0) {
+            cg_draw_instance(a, game, pool, instance, depth);
+        }
         s += n - 1;
     }
 }
@@ -2149,6 +2275,54 @@ static int cg_glyph_fallback(char *out, int n, int cap) {
     return o;
 }
 
+/* G5: THE TRIBE'S NAME ({@tribe} / {@Tribe}), read at run time where every game keeps it: in its save manager (the
+   singleton native/shared/game_save_slot.h names), in the block the game hands its own save writer, at that block's
+   name offset (native/shared/village_identity.c, measured on 348 saves) -- manager + 8 + offset, the read More Island
+   Events' The Troubling Signs makes in The Secret City (troubling_vv3.inc vv3_tribe: +0x12ED4) -- bounded by the
+   field after it (the save slot); only bytes a player could type.  No name: "the village" / "The village". */
+static const unsigned int CG_TRIBE_MANAGER[6] = { 0, 0x48AEDCu, 0x4997BCu, 0x4B309Cu, 0x4CB51Cu, 0x4DACE0u };
+static const unsigned int CG_TRIBE_AT[6] = { 0, 0x10u, 0x10u, 0x12ED4u, 0x170C0u, 0x17D1Cu };
+static const int CG_TRIBE_BYTES[6] = { 0, 33, 33, 21, 21, 21 };   /* the name field (src/vv_tribe_rename.py save_field) */
+#define CG_TRIBE_MAX 64
+
+/* The tribe's name in `game` into `out` (`cap` bytes): 1 when the game holds one. */
+static int cg_tribe_name(int game, char *out, int cap) {
+    int ok = 0;
+    out[0] = '\0';
+    if (game < 1 || game > 5 || cap < 2) {
+        return 0;
+    }
+    __try {
+        const unsigned char *manager = *(const unsigned char *const *)(uintptr_t)CG_TRIBE_MANAGER[game];
+        int i;
+        if (manager != NULL) {
+            const unsigned char *name = manager + CG_TRIBE_AT[game];
+            for (i = 0; i < CG_TRIBE_BYTES[game] && i < cap - 1 && name[i] != 0; ++i) {
+                unsigned char c = name[i];
+                if (c < 0x20 || c == 0x7F) {
+                    break;
+                }
+                out[i] = (char)c;
+            }
+            ok = i > 0 && (i == CG_TRIBE_BYTES[game] || i == cap - 1 || name[i] == 0);
+            out[ok ? i : 0] = '\0';
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ok = 0;
+        out[0] = '\0';
+    }
+    return ok;
+}
+
+/* The words {@tribe} (`capital` 0) or {@Tribe} stand for now. */
+static const char *cg_tribe_words(int capital) {
+    static char name[CG_TRIBE_MAX + 1];
+    if (cg_tribe_name(cg.game, name, sizeof name)) {
+        return name;
+    }
+    return capital ? "The village" : "the village";
+}
+
 /* The text pool token `pool`.`instance` stands for: the item drawn; with none drawn (never on a walked path) the
    longest eligible item for CG_EXPAND_WORST, else the first eligible one. */
 static const char *cg_pool_text(int pool, int instance, int mode) {
@@ -2201,6 +2375,33 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         }
         if (cg_g.version >= 6 && *s == '{') {
             int pool, instance, n = cg_parse_brace(&cg_g, s, &pool, &instance);
+            if (n > 0 && pool < 0) {
+                /* G5: {@tribe} / {@Tribe}: kept for the screen's pass; the worst case W x the longest tribe name
+                   the game allows (31 in the first two games, 19 in the later three), else the name now. */
+                if (mode == CG_EXPAND_AWARD) {
+                    int c;
+                    for (c = 0; c < n && o < cap - 1; ++c) {
+                        out[o++] = s[c];
+                    }
+                } else if (mode == CG_EXPAND_WORST) {
+                    int c, room = cg.game <= 2 ? 31 : 19;
+                    for (c = 0; c < room && o < cap - 1; ++c) {
+                        out[o++] = 'W';
+                    }
+                } else {
+                    const char *t = cg_tribe_words(pool == CG_POOL_TRIBE_CAP);
+                    int first = 1;
+                    for (; *t != '\0' && o < cap - 1; ++t, first = 0) {
+                        char c = *t;
+                        if (first && pool == CG_POOL_TRIBE_CAP && c >= 'a' && c <= 'z') {
+                            c = (char)(c - 'a' + 'A');
+                        }
+                        out[o++] = c;
+                    }
+                }
+                s += n;
+                continue;
+            }
             if (n > 0) {
                 if (depth < CG_POOL_DEPTH) {
                     o += cg_expand_in(cg_pool_text(pool, instance, mode), out + o, cap - o, mode, name_room,
@@ -3057,7 +3258,8 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
     static cg_pages pages;
     static char real[CG_PAGE_BYTES];
     const cg_history *h = &cg.path;
-    ce_layout first = after_question ? ce_result_layout(a) : cg_notice_layout(a);
+    int fresh = after_question && from > 0 && cg_fresh_after(h->node[from - 1], cg.answers);
+    ce_layout first = after_question && !fresh ? ce_result_layout(a) : cg_notice_layout(a);
     ce_layout rest = cg_notice_layout(a);
     ce_layout q = ce_question_layout(a);
     int p, k, i, jobs = cg.jobs_used;
@@ -3072,7 +3274,7 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
         w.reserve = cg_pops[p].effects ? 2 : 0;
         if (question) {
             w.reserve += cg_answer_room(cg_pops[p].question, &q);
-        } else if (p == 0 && after_question && from > 0) {
+        } else if (p == 0 && after_question && from > 0 && !fresh) {
             w.reserve += cg_answer_room(h->node[from - 1], &first);   /* shown in the answered question's popup */
         }
         w.pages = &pages;
@@ -3082,8 +3284,8 @@ static void cg_layout_from(const ce_adapter *a, int game, int from, int after_qu
             int d, kind = CGD_PAGE;
             if (question && k + 1 == pages.count) {
                 kind = CGD_QUESTION;
-            } else if (p == 0 && k == 0 && after_question) {
-                kind = CGD_RESULT;
+            } else if (p == 0 && k == 0 && after_question && !fresh) {
+                kind = CGD_RESULT;     /* G1: after five or more buttons, a page of its own (a notice) */
             }
             cg_expand(pages.buf + pages.off[k], real, sizeof real, CG_EXPAND_REAL, a->name_room, -1, 0);
             d = cg_add_display(real, kind, cg_pops[p].effects);
@@ -3613,6 +3815,7 @@ static void cg_begin_question(int game, char *text, int size) {
     cg.phase = CG_ASKED;
     cg.asking = k;
     cg.display_next = k + 1;
+    cg_answer_fresh_game = 0;
     cg_logged = game;                  /* the question's own popup: the entry's, never a record of its own */
     cg_dirty = 1;
 }
@@ -3672,6 +3875,17 @@ static int cg_resolve(int game, int button, char *text, int size) {
     cg.phase = CG_CHAIN;
     cg.asking = -1;
     cg.display_next = first;
+    cg_answer_fresh_game = 0;
+    if (cg_fresh_after(node, qi) && first < cg.display_count) {
+        /* G1: the question's popup closes at the click (cg_answer_closes); the answer's first page is the next
+           display, a popup of its own, with its effects. */
+        cg_answer_fresh_game = game;
+        if (size > 0) {
+            text[0] = '\0';
+        }
+        cg_dirty = 1;
+        return 1;
+    }
     if (first < cg.display_count) {
         cg_show(a, game, first, text, size);
     } else if (size > 0) {
@@ -3695,6 +3909,12 @@ static int cg_tallest(int game, int button, char *out, int size) {
     int lines = 0, count, used, jobs, k, picks;
     if (a == NULL || button < 0 || cg.phase != CG_ASKED || cg.asking < 0
         || button >= cg_buttons(cg.display_node[cg.asking], cg.answers, map)) {
+        return 0;
+    }
+    if (cg_fresh_after(cg.display_node[cg.asking], cg.answers)) {
+        if (size > 0) {
+            out[0] = '\0';            /* G1: the answer's page is a popup of its own, never this one's */
+        }
         return 0;
     }
     keep_path = cg.path;
@@ -3721,13 +3941,34 @@ static int cg_tallest(int game, int button, char *out, int size) {
     return lines;
 }
 
+/* The question popup on screen should close at the answer's click (G1: its page is a popup of its own). */
+static int cg_answer_closes(int game) {
+    return game != 0 && cg_answer_fresh_game == game;
+}
+
 /* ce_choice_featured: the subject, the villager the question is about. */
 static int cg_featured(int game) {
     const ce_adapter *a = ce_adapter_for(game);
+    int r, i;
     if (a == NULL || !cg_prepare(game)) {
         return -1;
     }
-    return cg_villager(a, 0) != NULL ? cg.record[0] : -1;
+    /* The first villager role bound (version 6: the first role may be a stranger, G7) ... */
+    for (r = 0; r < cg_g.n_role; ++r) {
+        if (cg_role_at(&cg_g, r)[0] == CG_ROLE_VILLAGER && cg_villager(a, r) != NULL) {
+            return cg.record[r];
+        }
+    }
+    /* ... else, with no villager in the event, the first living villager the game lists (the later three games'
+       question popup shows someone; no roll is taken). */
+    for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
+        const unsigned char *rec = a->record(i);
+        if (rec != NULL && a->listed(rec) && !cg_heathen(game, rec)
+            && (a->featurable == NULL || a->featurable(rec))) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /* ---- Queueing ----------------------------------------------------------------------------------------------- */

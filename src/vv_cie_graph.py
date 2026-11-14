@@ -2172,15 +2172,20 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 last.nodes.append(nid)
             else:
                 # An answer's first page is shown in the question's own popup, keeping room for its buttons (two to
-                # four).  G1: after five or more buttons it starts a fresh popup (the result layout, no room).
+                # four).  G1: after five or more buttons it starts a fresh popup -- the island-event notice the
+                # engine shows it through, whose layout is the plain popup's (story_graph.inc cg_notice_layout:
+                # New Believers 14 lines, not the result's 17), with no room for buttons.
                 after = popups and popups[-1].layout == "question"
                 room = 0
+                kind = "plain" if not popups else "result"
                 if after:
                     if not v6:
                         room = popups[-1].room
                     elif popups[-1].answers <= MAX_ANSWERS_V4:
                         room = answer_room(popups[-1].answers, game.result)
-                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid], room=room))
+                    else:
+                        kind = "plain"
+                popups.append(Popup(kind, text, nodes=[nid], room=room))
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
                           [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
