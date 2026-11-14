@@ -86,6 +86,8 @@ own pronoun; two stray full stops sit inside a slash list or mid-sentence.
 | L1459 | `contestant2` | `(contestant2)` | The Great Beautification Project, (6) | As above |
 | L664 | `/they cancel` | `/They cancel` | The Cooking Contest, add-on 1 (17) | Both options of "(They award ... - 4/they cancel the contest - 8.)" open a sentence |
 | L664 | `8.)` | `8).` | The Cooking Contest, add-on 1 (17) | The full stop belongs after the list, not inside one option |
+| L1003 | `(25). The judges (26).` | `(response). The judges (decision).` | The Cooking Contest, add-on 2 (24) | Not a wording change: "(25)" and "(26)" insert bank items into the sentence, but numbers read as routes |
+| L1104 | `explains that (30).` | `explains that (reason).` | The Cooking Contest, add-on 2 (29) | As above, for "(30)" |
 | L1455 | `The judges (6).` | `The judges (judging).` | The Great Beautification Project, (5) | Not a wording change: here "(6)" inserts a judging outcome into the sentence, but a number at a line's end reads as a route and would drop the sentence's full stop |
 | L2260 | `entries, (6).` | `entries, (6)` | The Great Woodworking Competition | Every (6) interruption is one or more full sentences ending in a full stop; a second full stop follows |
 | L3006 | `begins: (A).` | `begins: (A)` | The Chief's Monumental Speech | Every (A) opening is a full quotation ending in its own full stop or ellipsis; a second full stop follows the closing quote |
