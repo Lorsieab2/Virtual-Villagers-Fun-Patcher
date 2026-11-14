@@ -772,6 +772,206 @@
      "src": "L8472-8473"
     }
    ]
+  },
+  "v17_u1": {
+   "items": [
+    {
+     "text": "A boastful master loses to a nervous novice and offers a grudging lesson.",
+     "src": "L8076"
+    }
+   ]
+  },
+  "v17_u2": {
+   "items": [
+    {
+     "text": "The severe judge delivers a devastating critique, then recognizes the contestant's ingenuity and publicly apologizes.",
+     "src": "L8077-8078"
+    }
+   ]
+  },
+  "v17_u3": {
+   "items": [
+    {
+     "text": "A judge's favorite wins despite a clear flaw; the crowd demands a fair second test, which may vindicate or overturn the result.",
+     "src": "L8079-8080"
+    }
+   ]
+  },
+  "v17_u4": {
+   "items": [
+    {
+     "text": "The most hideous entry wins the audience's affection but not the technical prize. Its maker is delighted to be loved and furious to have lost.",
+     "src": "L8081-8082"
+    }
+   ]
+  },
+  "v17_u5": {
+   "items": [
+    {
+     "text": "A beautifully finished entry fails its practical test; an ugly but useful entry wins. The losers spend the evening arguing about what 'best' means.",
+     "src": "L8083-8084"
+    }
+   ]
+  },
+  "v17_u6": {
+   "items": [
+    {
+     "text": "A child inadvertently points out a flaw missed by every master.",
+     "src": "L8085"
+    }
+   ]
+  },
+  "v17_u7": {
+   "items": [
+    {
+     "text": "A contestant recites a familiar verse so badly that it becomes a popular comic song; an elder insists the original must still be taught accurately.",
+     "src": "L8086-8087"
+    }
+   ]
+  },
+  "v17_u8": {
+   "items": [
+    {
+     "text": "A competitor withdraws to help a rival whose work is falling apart; the crowd remembers the kindness longer than the announced winner.",
+     "src": "L8088-8089"
+    }
+   ]
+  },
+  "v17_u9": {
+   "items": [
+    {
+     "text": "The critic is caught accepting a gift. A second panel hears the evidence; no contestant is punished without proof of involvement.",
+     "src": "L8090-8091"
+    }
+   ]
+  },
+  "v17_u10": {
+   "items": [
+    {
+     "text": "Nobody wins because the judges discover an unsafe method. A practical lesson is held instead; prizes are postponed, not confiscated.",
+     "src": "L8092-8093"
+    }
+   ]
+  },
+  "v17_p1": {
+   "items": [
+    {
+     "text": "THE INSULT: A judge calls the rival tradition backward. The visitors threaten to leave. The organizers can demand a public apology or appoint a new judge; the competition resumes only if both sides agree.",
+     "src": "L8355-8357"
+    }
+   ]
+  },
+  "v17_p2": {
+   "items": [
+    {
+     "text": "THE ACCUSATION: The losing team alleges favoritism. A review finds either a real irregularity, a sincere misunderstanding, or no proof. No guilt or punishment is assigned before the review.",
+     "src": "L8358-8360"
+    }
+   ]
+  },
+  "v17_p3": {
+   "items": [
+    {
+     "text": "THE SECRET ALLIANCE: Two competitors have quietly been exchanging techniques for months. Their neighbors call it betrayal; the pair insist that sharing a recipe or craft does not surrender a belief.",
+     "src": "L8361-8363"
+    }
+   ]
+  },
+  "v17_p4": {
+   "items": [
+    {
+     "text": "THE SYMBOL: A winning entry includes a sign sacred to one community. Some cheer; others feel appropriated. The maker explains intent, listens to objections, and may revise the design without being forced.",
+     "src": "L8364-8366"
+    }
+   ]
+  },
+  "v17_p5": {
+   "items": [
+    {
+     "text": "THE UNEXPECTED VOTE: An Isolan judge gives first place to the player's villager. A player-tribe judge favors the Isolan entry. Both face angry whispers and defend the evidence behind their decisions.",
+     "src": "L8367-8369"
+    }
+   ]
+  },
+  "v17_p6": {
+   "items": [
+    {
+     "text": "THE BOYCOTT: A faction refuses to compete under the proposed rules. The organizers can postpone, negotiate or proceed with fewer entries; the absence is not falsely described as reconciliation.",
+     "src": "L8370-8372"
+    }
+   ]
+  },
+  "v17_p7": {
+   "items": [
+    {
+     "text": "THE SHARED VICTORY: A joint entry wins, but both communities argue over whose name should appear first. A child proposes writing both.",
+     "src": "L8373-8374"
+    }
+   ]
+  },
+  "v17_p8": {
+   "items": [
+    {
+     "text": "THE DEFEAT WITH DIGNITY: The losing competitor congratulates the winner publicly, then privately admits that the result still hurts.",
+     "src": "L8375-8376"
+    }
+   ]
+  },
+  "v17_p9": {
+   "items": [
+    {
+     "text": "THE TROPHY DISPUTE: The communities cannot agree where to display the award. They may alternate custody, make two commemorative carvings, or leave it with the actual winner regardless of affiliation.",
+     "src": "L8377-8379"
+    }
+   ]
+  },
+  "v17_p10": {
+   "items": [
+    {
+     "text": "THE UNWANTED HERO: A critic praises the rival community's work and becomes unpopular at home. The critic refuses to retract a fair judgment merely to satisfy the crowd.",
+     "src": "L8380-8382"
+    }
+   ]
+  },
+  "v17_e1": {
+   "items": [
+    {
+     "text": "The visitors depart with a trophy and a few new friends. Some elders still distrust the other community, but the children plan a rematch.",
+     "src": "L8464-8465"
+    }
+   ]
+  },
+  "v17_e2": {
+   "items": [
+    {
+     "text": "The festival ends in argument. A judge's careful written account prevents rumors from becoming accepted history.",
+     "src": "L8466-8467"
+    }
+   ]
+  },
+  "v17_e3": {
+   "items": [
+    {
+     "text": "The harshest critics meet privately and exchange recipes, techniques and insults with surprising affection.",
+     "src": "L8468-8469"
+    }
+   ]
+  },
+  "v17_e4": {
+   "items": [
+    {
+     "text": "The trophy is broken during the closing ceremony. Both communities accuse each other, then discover that a goat knocked it over.",
+     "src": "L8470-8471"
+    }
+   ]
+  },
+  "v17_e5": {
+   "items": [
+    {
+     "text": "No grand reconciliation occurs. Two competitors simply agree to practice together next season. For now, that is enough.",
+     "src": "L8472-8473"
+    }
+   ]
   }
  }
 }
