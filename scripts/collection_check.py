@@ -67,10 +67,10 @@ ALL_SKILLS = {1: ("Parenting", "Building", "Farming", "Healing", "Research"),
               5: ("Farming", "Parenting", "Healing", "Research", "Building", "Devotion")}
 SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
-            "v18", "v20", "v21", "v22", "v23", "v24", "v26")
+            "v18", "v20", "v21", "v22", "v23", "v24", "v27")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref", "gap")
 AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines", "addons", "bank_slots", "description",
-                 "description_variants")
+                 "description_variants", "cast_only")
 # i PICK: the Pick Island Event list's sentence (story_collection.inc sc_pick_fill; its box is 306 x 52 dialog
 # units in Segoe UI 9, about six lines, shared with "Not possible right now: ..."): two lines at most.
 DESCRIPTION_MAX = 130          # and under story_collection.inc sc_entry.description (160 bytes)
@@ -152,6 +152,7 @@ def graph_for_engine(doc: dict) -> dict:
         n.pop("text_only", None)
         n.pop("set", None)
         n.pop("src_pick", None)
+        n.pop("src_cut", None)
     for p in g.get("pools", {}).values():
         p.pop("set", None)
         p.pop("mirror_of", None)
@@ -173,6 +174,7 @@ class Field:
     node: str | None = None
     kind: str = "text"          # text | label | item | variant | title
     picks: list = field(default_factory=list)   # the node's src_pick: [{"src": "L592", "alt": "..."}]
+    cuts: list = field(default_factory=list)    # the node's src_cut: [{"src": "L10598", "text": "..."}]
 
 
 def text_fields(doc: dict) -> list[Field]:
@@ -181,7 +183,8 @@ def text_fields(doc: dict) -> list[Field]:
     out.append(Field("title", doc.get("title", ""), col.get("title_src"), kind="title"))
     for nid, n in doc.get("nodes", {}).items():
         if n.get("text"):
-            out.append(Field(f"node {nid}", n["text"], n.get("src"), nid, picks=n.get("src_pick", []) or []))
+            out.append(Field(f"node {nid}", n["text"], n.get("src"), nid, picks=n.get("src_pick", []) or [],
+                             cuts=n.get("src_cut", []) or []))
         for i, v in enumerate(n.get("variants", []) or []):
             # j: a Guardians of Isola Rewrite form is checked against its page's text, not the source
             out.append(Field(f"node {nid} variant {i + 1}", v.get("text", ""), v.get("src"), nid,
@@ -344,6 +347,27 @@ def apply_pick(p: str, alt: str) -> tuple[str, list[int]] | None:
     return None
 
 
+def apply_cut(p: str, cut: str) -> tuple[str, list[int]] | None:
+    """`p` (a processed line) without `cut` -- a node's src_cut: the words of a sub-branch the node does not show
+    ("A fall causes severe injury or death." is "A fall causes severe injury." on one page and "A fall causes death."
+    on the other) -- with a ledger cut's spacing (no space before punctuation, never two, none at the ends), and the
+    index map back into `p`."""
+    at = p.find(cut)
+    if at < 0 or not cut.strip():
+        return None
+    keep = [i for i in range(len(p)) if not at <= i < at + len(cut)]
+    out: list[int] = []
+    for k, i in enumerate(keep):
+        if p[i] == " ":
+            nxt = next((p[j] for j in keep[k + 1:] if p[j] != " "), "")
+            if not out or p[out[-1]] == " " or nxt in ".,;:!?":
+                continue
+        out.append(i)
+    while out and p[out[-1]] == " ":
+        out.pop()
+    return "".join(p[i] for i in out), out
+
+
 def processed_line(n: int, ledger_cuts: dict[int, list[str]], fixes: dict[int, list[tuple[str, str]]]) -> str:
     s = lib.normalize_source_text(lib.line(n))
     for before, after in fixes.get(n, []):
@@ -356,7 +380,7 @@ def processed_line(n: int, ledger_cuts: dict[int, list[str]], fixes: dict[int, l
 
 
 def build_span(lines: list[int], cuts, fixes, picks: dict[int, list[str]] | None = None,
-               problems: list[str] | None = None) -> Span:
+               problems: list[str] | None = None, node_cuts: dict[int, list[str]] | None = None) -> Span:
     text, starts, maps = "", [], {}
     for n in lines:
         p = processed_line(n, cuts, fixes)
@@ -367,6 +391,15 @@ def build_span(lines: list[int], cuts, fixes, picks: dict[int, list[str]] | None
             if got is None:
                 if problems is not None:
                     problems.append(f"src_pick {alt!r} is not one alternative of a \"(a/b/c)\" list on L{n}")
+                continue
+            prev = maps.get(n)
+            p, m = got
+            maps[n] = [prev[k] for k in m] if prev else m
+        for cut in (node_cuts or {}).get(n, []):
+            got = apply_cut(p, cut)
+            if got is None:
+                if problems is not None:
+                    problems.append(f"src_cut {cut!r} is not on L{n} (after the ledger's cuts)")
                 continue
             prev = maps.get(n)
             p, m = got
@@ -528,8 +561,15 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
                 picks.setdefault(pn, []).append(pk["alt"])
             except (ValueError, KeyError, TypeError):
                 rep.add("b FIDELITY", f"{f.where}: a src_pick is {{\"src\": one line, \"alt\": one alternative}}")
+        node_cuts: dict[int, list[str]] = {}
+        for ct in f.cuts:
+            try:
+                (cn,) = lib.src_lines(ct["src"])
+                node_cuts.setdefault(cn, []).append(ct["text"])
+            except (ValueError, KeyError, TypeError):
+                rep.add("b FIDELITY", f"{f.where}: a src_cut is {{\"src\": one line, \"text\": the words cut}}")
         pick_problems: list[str] = []
-        span = build_span(lines, cuts, fixes, picks, pick_problems)
+        span = build_span(lines, cuts, fixes, picks, pick_problems, node_cuts)
         for x in pick_problems:
             rep.add("b FIDELITY", f"{f.where}: {x}")
         for para in [p for p in f.text.split("\n") if p.strip()]:
@@ -708,8 +748,14 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
             used_roles.add(m)
             if m not in roles:
                 rep.add("d TOKENS", f"role {rid}: alias member {m!r} is not declared")
+    # collection.cast_only: a villager cast only for the event's age or skill gate (V27's "a child", "an elder": the
+    # source names nobody, so no text shows the name)
+    cast_only = set((doc.get("collection") or {}).get("cast_only", []) or [])
+    for rid in sorted(cast_only):
+        if rid not in roles or roles[rid].get("kind", "villager") != "villager":
+            rep.add("d TOKENS", f"cast_only {rid!r} is not a villager role")
     for rid in roles:
-        if rid not in used_roles and not roles[rid].get("special"):   # casting a special villager is the need
+        if rid not in used_roles and not roles[rid].get("special") and rid not in cast_only:
             rep.add("d TOKENS", f"role {rid} is declared but never used")
     # bank sizes against the manifest
     if row is not None:
@@ -1120,8 +1166,8 @@ def check_shape(doc: dict, path: Path, rows: dict, rep: Report) -> dict | None:
         rep.add("a SCHEMA", f"file is in {path.parent.name}/, the manifest's section is {row['section']}/")
     if col.get("lines") != row["lines"]:
         rep.add("a SCHEMA", f"collection.lines {col.get('lines')} is not the manifest's {row['lines']}")
-    if col.get("source") != "v26":
-        rep.add("a SCHEMA", "collection.source is 'v26'")
+    if col.get("source") != lib.SOURCE_ID:
+        rep.add("a SCHEMA", f"collection.source is {lib.SOURCE_ID!r}")
     if col.get("credit") != row["credit"]["text"]:
         rep.add("a SCHEMA", "collection.credit is not the verbatim credit text of the manifest row")
     if col.get("series") != row["series"]:
@@ -1179,7 +1225,7 @@ def fill_from_manifest(doc: dict, rows: dict) -> None:
     row = rows.get(col.get("id")) if isinstance(col, dict) else None
     if row is None:
         return
-    fresh = {"id": row["id"], "source": "v26", "lines": row["lines"], "section": row["section"],
+    fresh = {"id": row["id"], "source": lib.SOURCE_ID, "lines": row["lines"], "section": row["section"],
              "credit": row["credit"]["text"], "draw_weight": col.get("draw_weight", 1), "series": row["series"]}
     rest = {k: v for k, v in col.items() if k not in fresh}
     doc["collection"] = {**fresh, **rest}

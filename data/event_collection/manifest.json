@@ -1,15 +1,15 @@
 {
  "format": "vvfp-event-collection-manifest",
  "version": 1,
- "source": "docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt",
- "source_sha256": "f5abb8bf95f7345eda4f7acf676e58c536841c7767322348aad8134cdc96e567",
+ "source": "docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt",
+ "source_sha256": "319712596bccd325f47df13b10dc895071f0306f7105b17cc8f3ed73bae44c3e",
  "counts": {
-  "rows": 226,
-  "events": 175,
+  "rows": 285,
+  "events": 232,
   "addons": 4,
-  "banks": 8,
-  "notes": 39,
-  "events_and_addons": 179,
+  "banks": 7,
+  "notes": 42,
+  "events_and_addons": 236,
   "series": {
    "v14_golden_child": 25,
    "v17_contests": 34,
@@ -8034,8 +8034,36 @@
    }
   },
   {
-   "id": "bank_v26_materials",
-   "title": "V26 - The Materials of Isola",
+   "id": "notes_v27_header",
+   "title": "V27 - All ages, personality, relationships and consequences: credits and global engine rules",
+   "games": [],
+   "lines": [
+    10433,
+    10487
+   ],
+   "kind": "notes",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10434: V27 ADDITION  -  ALL AGES, PERSONALITY, RELATIONSHIPS & CONSEQUENCES",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "all_v27_01_cry",
+   "title": "The Unsolvable Cry",
    "games": [
     1,
     2,
@@ -8044,17 +8072,17 @@
     5
    ],
    "lines": [
-    10432,
-    10571
+    10489,
+    10495
    ],
-   "kind": "bank",
-   "section": "v26",
+   "kind": "event",
+   "section": "v27",
    "credit": {
     "who": "mixed",
     "lines": [
-     "L10435-10436"
+     "L10436-10438"
     ],
-    "text": "Original creative direction and material suggestions: Lorsieab2\nExpansion and event-writing implementation: ChatGPT (OpenAI)"
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
    },
    "choices": 0,
    "pools": {},
@@ -8062,7 +8090,2024 @@
    "deaths": false,
    "series": null,
    "source_check": {
-    "heading": "L10433: V26  -  THE MATERIALS OF ISOLA: EXPANDED VARIETY RULES",
+    "heading": "L10489: EVENT V27-001  -  The Unsolvable Cry",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_02_little_grip",
+   "title": "The Little Grip",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10497,
+    10503
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10497: EVENT V27-002  -  The Little Grip",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_03_recognition",
+   "title": "The First Recognition",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10505,
+    10511
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10505: EVENT V27-003  -  The First Recognition",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_04_crawling",
+   "title": "The Crawling Expedition",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10513,
+    10519
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10513: EVENT V27-004  -  The Crawling Expedition",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_05_lullaby",
+   "title": "The Borrowed Lullaby",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10521,
+    10527
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10521: EVENT V27-005  -  The Borrowed Lullaby",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_06_grove",
+   "title": "The Forbidden Grove",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10529,
+    10535
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10529: EVENT V27-006  -  The Forbidden Grove",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_07_secret",
+   "title": "The Friend's Secret",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10537,
+    10543
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10537: EVENT V27-007  -  The Friend's Secret",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_08_cruel_joke",
+   "title": "The Cruel Joke",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10545,
+    10551
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10545: EVENT V27-008  -  The Cruel Joke",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_09_kingdom",
+   "title": "The River Kingdom",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10553,
+    10559
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10553: EVENT V27-009  -  The River Kingdom",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_10_supper",
+   "title": "The Missing Child at Supper",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10561,
+    10567
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10561: EVENT V27-010  -  The Missing Child at Supper",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_11_legend",
+   "title": "The Hero of the Legend",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10569,
+    10575
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10569: EVENT V27-011  -  The Hero of the Legend",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_12_new_friend",
+   "title": "The New Friend",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10577,
+    10583
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10577: EVENT V27-012  -  The New Friend",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_13_raft",
+   "title": "The Midnight Raft",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10585,
+    10591
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10585: EVENT V27-013  -  The Midnight Raft",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_14_proof",
+   "title": "The Dangerous Proof",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10593,
+    10599
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10593: EVENT V27-014  -  The Dangerous Proof",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_15_embarrass",
+   "title": "The Public Embarrassment",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10601,
+    10607
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10601: EVENT V27-015  -  The Public Embarrassment",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_16_swap",
+   "title": "The Apprenticeship Swap",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10609,
+    10615
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10609: EVENT V27-016  -  The Apprenticeship Swap",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_17_pact",
+   "title": "The Reckless Pact",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10617,
+    10623
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10617: EVENT V27-017  -  The Reckless Pact",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_18_heartbreak",
+   "title": "The First Heartbreak",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10625,
+    10631
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10625: EVENT V27-018  -  The First Heartbreak",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_19_beam",
+   "title": "The Faulty Beam",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10633,
+    10639
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10633: EVENT V27-019  -  The Faulty Beam",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_20_favor",
+   "title": "The Unasked Favor",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10641,
+    10647
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10641: EVENT V27-020  -  The Unasked Favor",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_21_councilor",
+   "title": "The Loud Councilor",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10649,
+    10655
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10649: EVENT V27-021  -  The Loud Councilor",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_22_doubt",
+   "title": "The Secret Doubt",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10657,
+    10663
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10657: EVENT V27-022  -  The Secret Doubt",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_23_watcher",
+   "title": "The Night Watcher",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10665,
+    10671
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10665: EVENT V27-023  -  The Night Watcher",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_24_explorer",
+   "title": "The Vanishing Explorer",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10673,
+    10679
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10673: EVENT V27-024  -  The Vanishing Explorer",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_25_crossing",
+   "title": "The Last Crossing",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10681,
+    10687
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10681: EVENT V27-025  -  The Last Crossing",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_26_teacher",
+   "title": "The Stubborn Teacher",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10689,
+    10695
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10689: EVENT V27-026  -  The Stubborn Teacher",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_27_empty_chair",
+   "title": "The Empty Chair",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10697,
+    10703
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10697: EVENT V27-027  -  The Empty Chair",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_28_beginning",
+   "title": "The New Beginning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10705,
+    10711
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10705: EVENT V27-028  -  The New Beginning",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_29_route",
+   "title": "The Forgotten Route",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10713,
+    10719
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10713: EVENT V27-029  -  The Forgotten Route",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_30_basket",
+   "title": "The Creature in the Basket",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10721,
+    10727
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10721: EVENT V27-030  -  The Creature in the Basket",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_31_guardian",
+   "title": "The Fierce Little Guardian",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10729,
+    10735
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10729: EVENT V27-031  -  The Fierce Little Guardian",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_32_fish",
+   "title": "The Fish That Followed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10737,
+    10743
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10737: EVENT V27-032  -  The Fish That Followed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_33_insect",
+   "title": "The Unusual Insect",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10745,
+    10751
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10745: EVENT V27-033  -  The Unusual Insect",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_34_pet",
+   "title": "The Unwelcome Pet",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10753,
+    10759
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10753: EVENT V27-034  -  The Unwelcome Pet",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_35_last",
+   "title": "The Pet's Last Morning",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10761,
+    10767
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10761: EVENT V27-035  -  The Pet's Last Morning",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_36_hatchling",
+   "title": "The Strange Hatchling",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10769,
+    10775
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10769: EVENT V27-036  -  The Strange Hatchling",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_37_returned",
+   "title": "The Animal That Returned",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10777,
+    10783
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10777: EVENT V27-037  -  The Animal That Returned",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_38_rough_patch",
+   "title": "The Parents' Rough Patch",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10785,
+    10791
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10785: EVENT V27-038  -  The Parents' Rough Patch",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_39_marriage",
+   "title": "The Quiet Marriage",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10793,
+    10799
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10793: EVENT V27-039  -  The Quiet Marriage",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_40_siblings",
+   "title": "The Sibling Rivalry",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10801,
+    10807
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10801: EVENT V27-040  -  The Sibling Rivalry",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_41_promise",
+   "title": "The Childhood Promise",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10809,
+    10815
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10809: EVENT V27-041  -  The Childhood Promise",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_42_special",
+   "title": "The Special Friend",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10817,
+    10823
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10817: EVENT V27-042  -  The Special Friend",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_43_lovers",
+   "title": "The Lovers' Argument",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10825,
+    10831
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10825: EVENT V27-043  -  The Lovers' Argument",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_44_courtship",
+   "title": "The Awkward Courtship",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10833,
+    10839
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10833: EVENT V27-044  -  The Awkward Courtship",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_45_coworkers",
+   "title": "The Rival Coworkers",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10841,
+    10847
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10841: EVENT V27-045  -  The Rival Coworkers",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_46_ally",
+   "title": "The Ally Who Disagreed",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10849,
+    10855
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10849: EVENT V27-046  -  The Ally Who Disagreed",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_47_grief",
+   "title": "The Neighbor's Grief",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10857,
+    10863
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10857: EVENT V27-047  -  The Neighbor's Grief",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_48_mentor",
+   "title": "The Unlikely Mentor",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10865,
+    10871
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10865: EVENT V27-048  -  The Unlikely Mentor",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_49_chosen",
+   "title": "The Chosen Family",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10873,
+    10879
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10873: EVENT V27-049  -  The Chosen Family",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_50_reunion",
+   "title": "The Reunion That Hurt",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10881,
+    10887
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10881: EVENT V27-050  -  The Reunion That Hurt",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_51_apology",
+   "title": "The Caregiver's Apology",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10889,
+    10895
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10889: EVENT V27-051  -  The Caregiver's Apology",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_52_unexpected",
+   "title": "The Friendship Nobody Expected",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10897,
+    10903
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10897: EVENT V27-052  -  The Friendship Nobody Expected",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_53_shore",
+   "title": "The Unmarked Shore",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10905,
+    10911
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10905: EVENT V27-053  -  The Unmarked Shore",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_54_fever",
+   "title": "The Fever After the Expedition",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10913,
+    10919
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10913: EVENT V27-054  -  The Fever After the Expedition",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_55_deep_pool",
+   "title": "The Legend of the Deep Pool",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10921,
+    10927
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10921: EVENT V27-055  -  The Legend of the Deep Pool",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_56_empty_boat",
+   "title": "The Boat That Came Back Empty",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10929,
+    10935
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10929: EVENT V27-056  -  The Boat That Came Back Empty",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "all_v27_57_bell",
+   "title": "The Forbidden Bell",
+   "games": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "lines": [
+    10937,
+    10943
+   ],
+   "kind": "event",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10937: EVENT V27-057  -  The Forbidden Bell",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "notes_v27_end",
+   "title": "END OF V27 ADDITION",
+   "games": [],
+   "lines": [
+    10945,
+    10945
+   ],
+   "kind": "notes",
+   "section": "v27",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10436-10438"
+    ],
+    "text": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10945: END OF V27 ADDITION",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "notes_v28_addendum",
+   "title": "V28 Addendum - consequences that follow the villagers, and the retrofit instructions",
+   "games": [],
+   "lines": [
+    10948,
+    11125
+   ],
+   "kind": "notes",
+   "section": "v28",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L10950-10951"
+    ],
+    "text": "Creative direction, rules, and requested outcome types: Lorsieab2\nAdditional implementation wording and examples: ChatGPT (OpenAI)"
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source_check": {
+    "heading": "L10949: V28 ADDENDUM  -  CONSEQUENCES THAT FOLLOW THE VILLAGERS",
     "title_found": null,
     "boundary": []
    }

@@ -1,7 +1,7 @@
 """Isola Grand Event Collection: the frozen source, the manifest and every collection file (design E4 a-h).
 
 Pinned here:
-  * the source in the repo is the frozen v26 copy (SHA-256 in data/event_collection/SOURCE.sha256), line count fixed;
+  * the source in the repo is the frozen V28 copy (SHA-256 in data/event_collection/SOURCE.sha256), line count fixed;
   * data/event_collection/manifest.json is current (scripts/collection_manifest.py --check), covers every
     non-blank line of the source with no overlap, and lists its disagreements with the inventories;
   * every data/event_collection/<section>/<id>.json passes scripts/collection_check.py (a SCHEMA and g ROUND are
@@ -46,7 +46,7 @@ def problems(rep: cc.Report, check: str) -> list[str]:
 class FrozenSource(unittest.TestCase):
     def test_sha256_matches_the_record(self):
         self.assertEqual(lib.recorded_sha256(),
-                         "f5abb8bf95f7345eda4f7acf676e58c536841c7767322348aad8134cdc96e567")
+                         "319712596bccd325f47df13b10dc895071f0306f7105b17cc8f3ed73bae44c3e")
         self.assertEqual(lib.source_sha256(), lib.recorded_sha256(),
                          "the frozen source changed (or was checked out with CRLF: see .gitattributes)")
 
@@ -76,8 +76,10 @@ class Manifest(unittest.TestCase):
     def test_counts(self):
         c = self.data["counts"]
         # 22 + 29 + 124 events, 4 add-ons (two Cooking Contest add-ons, V13-A, V13-B): the source has 34 V17
-        # contests where inventory part 3 counted 33 (listed in inventory_disagreements).
-        self.assertEqual(c["events"], 175)
+        # contests where inventory part 3 counted 33 (listed in inventory_disagreements).  The V28 source adds V27's
+        # 57 short events (and removes the V26 materials bank).
+        self.assertEqual(c["events"], 175 + 57)
+        self.assertEqual(c["banks"], 7)
         self.assertEqual(c["addons"], 4)
         self.assertEqual(c["series"], {"v14_golden_child": 25, "v17_contests": 34, "v18_trials": 12,
                                        "v20_crises": 12})

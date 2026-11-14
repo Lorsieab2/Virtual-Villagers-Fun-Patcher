@@ -24,7 +24,7 @@ The owner's two standing rules come first:
 4. Fix every problem it prints, rerun, and commit only when it says `OK`. `--report` prints the ledger summary (grammar
    fixes, text-only effects, typography) for the owner packet.
 
-The source is the frozen copy `docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt`
+The source is the frozen copy `docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt`
 (SHA-256 in `data/event_collection/SOURCE.sha256`). Line numbers always mean that file.
 
 ## 2. Authoring-only keys
@@ -281,7 +281,8 @@ mistakes only, never style) and say so in your report: the owner approves the li
 ```
 
   A coda item that only fits some events gets an `if` (for example `{"visited": "death"}`).
-- **V26 materials** become the shared pool used where events say "material".
+- **V26 materials**: gone. The owner's V28 source (2026-11-14) removed the V26 section, and with it the v26_*
+  shared pools; no event used them.
 - **Series** (Q7): V14 Golden Child scenes, V17 contests, V18 trials and V20 crises. `--format` copies
   `collection.series` from the manifest; within a series every member keeps `draw_weight` 1.
 

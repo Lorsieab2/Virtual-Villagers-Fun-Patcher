@@ -6,7 +6,7 @@ one of the three inventories found: a broken sentence, a wrong word, a missing p
 Nothing stylistic is changed.
 
 Line numbers are the frozen source's
-(`docs/more-island-events/Virtual_Villagers_Isola_Grand_Event_Collection_v26_user_source_credited.txt`, SHA-256 in
+(`docs/more-island-events/Isola_Grand_Event_Collection_V28_Consequences_Claude_Retrofit.txt`, SHA-256 in
 `data/event_collection/SOURCE.sha256`). "Before" is the exact text on that line, with the source's curly quotes and
 dashes written as plain `"` `'` and ` - `. A collection file may only use a fix listed here (its
 `grammar_fixes` entry must match a row exactly); `scripts/collection_check.py` and
@@ -125,7 +125,7 @@ word with no sentence around it (review r2, M8, M18, M19).
 | L8459 | `sincere apology;` | `sincere apology.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 | L8460 | `adult disagreement;` | `adult disagreement.` | V17-E The Children's Peace, the Adults' Quarrel | As above |
 
-### Part 3b (lines 8490-10571: V18-V26)
+### Part 3b (lines 8490-10431: V18-V24)
 
 The compact medical crises (V20 D6-D12) list each choice's outcomes as "the patient recovers; or dies; or ...". Each
 outcome is its own page, so an outcome without its subject would read "Dies". Each fix restores the subject the line
