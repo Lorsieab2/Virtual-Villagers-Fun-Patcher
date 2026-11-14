@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Coconuts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_4_missing",
+  "source": "v26",
+  "lines": [
+   10062,
+   10075
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10062",
+  "ledger": []
+ },
+ "roles": {
+  "investigator": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "Several coconuts disappear from the food stores. (Investigator) suspects theft.",
+   "src": "L10063",
+   "choices": [
+    {
+     "label": "Question witnesses.",
+     "next": "set_a",
+     "src": "L10064"
+    },
+    {
+     "label": "Search the island.",
+     "next": "set_b",
+     "src": "L10068"
+    },
+    {
+     "label": "Set a harmless watch.",
+     "next": "set_c",
+     "src": "L10072"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L10063",
+     "what": "food",
+     "reason": "narrative: a few coconuts go missing and are found again; the stores are unchanged"
+    }
+   ]
+  },
+  "a1": {
+   "text": "A child hid them for a treasure hunt and returns them apologetically.",
+   "src": "L10065"
+  },
+  "a2": {
+   "text": "An innocent villager is accused, then publicly cleared.",
+   "src": "L10066"
+  },
+  "a3": {
+   "text": "A witness remembers that the coconuts were moved for a feast.",
+   "src": "L10067"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "An animal carried several coconuts into the undergrowth.",
+   "src": "L10069"
+  },
+  "b2": {
+   "text": "A forgotten storage basket is discovered behind a hut.",
+   "src": "L10070"
+  },
+  "b3": {
+   "text": "The coconuts appear arranged in a mysterious spiral.",
+   "src": "L10071"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The watchers catch friendly pranksters and demand they return them.",
+   "src": "L10073"
+  },
+  "c2": {
+   "text": "The watchers fall asleep; the coconuts reappear anyway.",
+   "src": "L10074"
+  },
+  "c3": {
+   "text": "The watch becomes a village game and everyone forgets the mystery.",
+   "src": "L10075"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

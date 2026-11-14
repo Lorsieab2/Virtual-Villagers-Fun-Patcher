@@ -104,8 +104,8 @@ class Manifest(unittest.TestCase):
         self.assertEqual(rows["vv2_cooking_contest"]["pools"]["Q"], 27)
         self.assertEqual(rows["vv1_child_of_legend"]["pools"]["(4)"], 11)
         self.assertEqual(rows["vv5_meaning_of_faith"]["choices"], 6)
-        self.assertEqual(rows["all_v20_between_life_and_death"]["choices"], 7)
-        self.assertEqual(rows["all_v22_4_parents_lesson"]["choices"], 7)
+        self.assertEqual(rows["all_v20_between_life"]["choices"], 7)
+        self.assertEqual(rows["all_v22_4_parents"]["choices"], 7)
 
 
 # Format gaps Track A / B must close (each pinned so the test flips when the gap closes): a file listed here may fail

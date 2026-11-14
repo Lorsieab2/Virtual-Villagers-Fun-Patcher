@@ -1,0 +1,169 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Treatment That Does Not Exist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d2_no_such",
+  "source": "v26",
+  "lines": [
+   8970,
+   8982
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L8970",
+  "ledger": [
+   {
+    "src": "L8980",
+    "kind": "instruction",
+    "text": " and earn a large tech reward",
+    "why": "the large tech effect on b2"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A researcher has proposed a treatment that exists only in calculations and sketches. Nobody has ever performed it.",
+   "src": "L8971-8972",
+   "choices": [
+    {
+     "label": "Attempt the proposed technique.",
+     "next": "set_a",
+     "src": "L8973"
+    },
+    {
+     "label": "Research the theory first.",
+     "next": "set_b",
+     "src": "L8978"
+    }
+   ]
+  },
+  "a1": {
+   "text": "It works; the village celebrates a major medical discovery.",
+   "src": "L8974",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8974"
+    }
+   ]
+  },
+  "a2": {
+   "text": "It relieves symptoms but does not cure the illness.",
+   "src": "L8975"
+  },
+  "a3": {
+   "text": "The experiment fails and the patient dies.",
+   "src": "L8976",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L8976"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The patient recovers, but evidence suggests the treatment was irrelevant.",
+   "src": "L8977",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8977"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A fatal flaw is discovered before anyone is harmed.",
+   "src": "L8979"
+  },
+  "b2": {
+   "text": "The scholars devise a safer approach.",
+   "src": "L8980",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L8980"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The patient dies while the researchers are still deliberating.",
+   "src": "L8981",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L8981"
+    }
+   ]
+  },
+  "b4": {
+   "text": "The scholars demonstrate that the original proposal cannot work.",
+   "src": "L8982"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

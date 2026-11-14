@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Corrected the Masters",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d10_child",
+  "source": "v26",
+  "lines": [
+   9063,
+   9069
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9063",
+  "ledger": [
+   {
+    "src": "L9065",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   },
+   {
+    "src": "L9068",
+    "kind": "structural",
+    "text": " or ",
+    "why": "the separator of the outcome list; each outcome is its own page"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A young apprentice quietly challenges a diagnosis.",
+   "src": "L9064",
+   "choices": [
+    {
+     "label": "Listen",
+     "next": "set_a",
+     "src": "L9065"
+    },
+    {
+     "label": "Dismiss the child",
+     "next": "set_b",
+     "src": "L9067"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The apprentice is right.",
+   "src": "L9065-9066"
+  },
+  "a2": {
+   "text": "The apprentice is mistaken but thoughtful.",
+   "src": "L9065-9066"
+  },
+  "a3": {
+   "text": "The apprentice notices a third illness.",
+   "src": "L9065-9066"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The masters later discover the child was right.",
+   "src": "L9067-9069"
+  },
+  "b2": {
+   "text": "The patient recovers but the apprentice loses confidence.",
+   "src": "L9067-9069",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9067"
+    }
+   ]
+  },
+  "b3": {
+   "text": "An elder apologizes and offers mentorship.",
+   "src": "L9067-9069"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L9065",
+   "before": "right; mistaken but thoughtful; or notices",
+   "after": "right; the apprentice is mistaken but thoughtful; or the apprentice notices"
+  },
+  {
+   "src": "L9065",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9067",
+   "before": ";",
+   "after": "."
+  },
+  {
+   "src": "L9068",
+   "before": ";",
+   "after": "."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

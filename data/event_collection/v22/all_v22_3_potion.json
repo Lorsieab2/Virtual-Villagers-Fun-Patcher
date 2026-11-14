@@ -1,0 +1,897 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Isolan Potion-Making Trials",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v22_3_potion",
+  "source": "v26",
+  "lines": [
+   9706,
+   9786
+  ],
+  "section": "v22",
+  "credit": "CREDITS\nOriginal event concepts and requested parenting mechanics: Lorsieab2.\nEvent scripts, additional branches, and detailed outcomes: ChatGPT.\nAll earlier material and its authorship credits are preserved unchanged.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9706",
+  "ledger": [
+   {
+    "src": "L9782-9786",
+    "kind": "note",
+    "why": "design notes, never displayed"
+   },
+   {
+    "src": "L9720",
+    "kind": "instruction",
+    "text": "award Healing skill and a prize.",
+    "why": "the Healing effect on a1"
+   },
+   {
+    "src": "L9723",
+    "kind": "instruction",
+    "text": "Gain Tech and Healing skill.",
+    "why": "the tech and Healing effects on a2"
+   },
+   {
+    "src": "L9726",
+    "kind": "instruction",
+    "text": "No healing prize; gain modest research experience.",
+    "why": "the small Research effect on a3"
+   },
+   {
+    "src": "L9743",
+    "kind": "instruction",
+    "text": "rare supernatural mystery and Tech reward.",
+    "why": "the tech effect on b4; b4 is rare: weight 5 against 20 (review B2)"
+   },
+   {
+    "src": "L9750",
+    "kind": "instruction",
+    "text": "; gain Research skill",
+    "why": "the Research effect on c1"
+   },
+   {
+    "src": "L9752",
+    "kind": "instruction",
+    "text": "Small skill gain.",
+    "why": "the small Research effect on c2"
+   },
+   {
+    "src": "L9757",
+    "kind": "instruction",
+    "text": "Gain a modest Tech reward, but not first prize.",
+    "why": "the small tech effect on c4"
+   },
+   {
+    "src": "L9761",
+    "kind": "instruction",
+    "text": "Gain Healing and Research skill.",
+    "why": "the Healing and Research effects on d1"
+   },
+   {
+    "src": "L9763",
+    "kind": "instruction",
+    "text": "and award a research prize.",
+    "why": "rule 7: a prize is told only"
+   },
+   {
+    "src": "L9768",
+    "kind": "instruction",
+    "text": "; the culprit loses reputation",
+    "why": "rule 7: told only"
+   },
+   {
+    "src": "L9772",
+    "kind": "instruction",
+    "text": "Gain Tech; no untested clinical use.",
+    "why": "the tech effect on e1"
+   },
+   {
+    "src": "L9774",
+    "kind": "instruction",
+    "text": "No prize.",
+    "why": "rule 7: told only"
+   },
+   {
+    "src": "L9963",
+    "kind": "note",
+    "text": "VV5",
+    "why": "the game label: coda 6 is drawn in VV5 only"
+   }
+  ],
+  "shared_lines": [
+   "L9952-9964"
+  ]
+ },
+ "roles": {
+  "brewer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rival": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The beginning",
+   "text": "The healers and herbalists assemble around low tables laden with island plants, clean water, gourds, stone bowls, and carefully labeled samples. The judges announce several possible contests. Some reward a useful preparation; others are demonstrations of harmless magical craft. (Brewer) chooses an entry. A rival declares that (rival.his/her) mixture will be \"the most powerful potion Isola has ever seen.\"",
+   "src": "L9708-9713",
+   "children": [
+    {
+     "next": "question"
+    }
+   ]
+  },
+  "question": {
+   "type": "question",
+   "name": "The choice",
+   "text": "WHAT KIND OF POTION SHOULD (BREWER) MAKE?",
+   "src": "L9715",
+   "choices": [
+    {
+     "label": "THE MOST EFFECTIVE HEALING PREPARATION",
+     "next": "set_a",
+     "src": "L9717"
+    },
+    {
+     "label": "THE STRONGEST POTION",
+     "next": "set_b",
+     "src": "L9731"
+    },
+    {
+     "label": "A POTION THAT DOES ONE SPECIFIC THING",
+     "next": "lead_c",
+     "src": "L9745"
+    },
+    {
+     "label": "THE MOST EFFECTIVE ANTIDOTE OR REMEDY",
+     "next": "set_d",
+     "src": "L9759"
+    },
+    {
+     "label": "THE EXPERIMENTAL OR FORBIDDEN BREW",
+     "next": "set_e",
+     "src": "L9770"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The Careful Healer: Using established methods and careful observation, (Brewer) makes a useful preparation. The judges",
+   "src": "L9718-9720",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9720"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The Promising Discovery: The mixture appears helpful in controlled demonstrations, but the judges insist on further study before calling it a cure.",
+   "src": "L9721-9723",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9723"
+    },
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9723"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The Beautiful Failure: The potion smells wonderful and looks magnificent but performs no better than plain water in the agreed tests.",
+   "src": "L9724-9726",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9726"
+    }
+   ]
+  },
+  "a4": {
+   "text": "The Misidentified Leaf: A judge notices an ingredient mix-up before anyone uses the preparation. The entry is disqualified; the healer gains a lesson in careful identification.",
+   "src": "L9727-9729",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Strength of the Spirit: A fictional, magical preparation briefly grants an adult contestant unusual vigor. The effect fades harmlessly; (Brewer) wins a rare prize.",
+   "src": "L9732-9734",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The Boastful Brew: A rival proclaims extraordinary power, but a simple test reveals that the potion does nothing. The audience applauds the judge's deadpan expression.",
+   "src": "L9735-9737",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "text": "The Potion That Worked Too Well: A harmless fictional calming mixture leaves a judge sleepy through the awards ceremony. The organizers rule that \"strongest\" is not always \"best.\"",
+   "src": "L9738-9740",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4": {
+   "text": "The Impossible Result: A glowing mixture behaves in a way no researcher can explain. It is sealed for further study;",
+   "src": "L9741-9743",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9743"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "weight": 20
+    },
+    {
+     "next": "b3",
+     "weight": 20
+    },
+    {
+     "next": "b4",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "c1": {
+   "text": "Exactly as Requested: The potion performs its assigned task reliably. (Brewer) wins.",
+   "src": "L9749-9750",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9750"
+    }
+   ]
+  },
+  "c2": {
+   "text": "Almost Right: The color changes beautifully but to the wrong shade, or the fragrance fades too quickly.",
+   "src": "L9751-9752",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9752"
+    }
+   ]
+  },
+  "c3": {
+   "text": "The Endless Bubbles: The mixture produces far more bubbles than intended. The judges struggle to keep straight faces.",
+   "src": "L9753-9754",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Unexpected Utility: The mixture fails its assigned task but proves useful for marking baskets or decorating barkcloth.",
+   "src": "L9755-9757",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9757"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "lead_c": {
+   "text": "The judges randomly request a harmless effect: vivid color change, a pleasant fragrance, a long-lasting bubble, a safe cooling sensation, or an explicitly magical but temporary glow.",
+   "src": "L9746-9748",
+   "children": [
+    {
+     "next": "set_c"
+    }
+   ]
+  },
+  "d1": {
+   "text": "The Thoughtful Researcher: (Brewer) correctly matches a known remedy to a simulated case.",
+   "src": "L9760-9761",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9761"
+    },
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9761"
+    }
+   ]
+  },
+  "d2": {
+   "text": "The Cautious Scholar: (Brewer) refuses to make unsupported claims. The judges commend the honesty",
+   "src": "L9762-9763",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d3": {
+   "text": "The Great Mislabeling: Two harmless demonstration samples are swapped; an apprentice notices before judging. The organizers improve their labeling system.",
+   "src": "L9764-9766",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d4": {
+   "text": "The Rival's Sabotage: A competitor tampers with the labels. An inquiry exposes the trick.",
+   "src": "L9767-9768",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "e1": {
+   "text": "A New Principle: A careful experiment reveals a useful property of an island plant.",
+   "src": "L9771-9772",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9772"
+    }
+   ]
+  },
+  "e2": {
+   "text": "The Potion of Hiccups: A rare comic magical mishap gives an adult judge harmless hiccups until sunset.",
+   "src": "L9773-9774",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "e3": {
+   "text": "The Temporary Transformation: A rare magical potion briefly changes the brewer's hair color or makes (brewer.his/her) voice squeak. The effect wears off; the crowd is astonished.",
+   "src": "L9775-9777",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_e": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "e3",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "e4",
+     "weight": 20
+    }
+   ]
+  },
+  "e4_1": {
+   "text": "The Council Intervenes: The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
+   "src": "L9778-9780",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "brewer",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L9780"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9780",
+     "what": "lose reputation",
+     "reason": "rule 7: told only; this copy is the accepted correction"
+    }
+   ]
+  },
+  "e4_2": {
+   "text": "The Council Intervenes: The elders stop a reckless demonstration before anyone is harmed. (Brewer) may accept the correction and gain Research skill, or sulk and lose reputation.",
+   "src": "L9778-9780",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9780",
+     "what": "gain Research skill, or sulk",
+     "reason": "this copy is the sulk: no skill; the reputation is told only (rule 7)"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e4_1"
+    },
+    {
+     "next": "e4_2"
+    }
+   ]
+  },
+  "coda_v22_3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Potion That Became Tradition: A useful, carefully studied preparation enters the healers' records.",
+   "src": "L9957-9958",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_v22_6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Shared Prize: A mixed-team victory helps ease a longstanding village-Isolan disagreement.",
+   "src": "L9963-9964",
+   "children": [
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "coda_v82"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_v22_3",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "e1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_v22_6",
+     "if": {
+      "all": [
+       {
+        "any": [
+         {
+          "visited": "a1"
+         },
+         {
+          "visited": "b1"
+         },
+         {
+          "visited": "c1"
+         }
+        ]
+       },
+       {
+        "game": [
+         5
+        ]
+       }
+      ]
+     }
+    }
+   ],
+   "else": "coda_v82"
+  },
+  "coda_v82": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "visited": "d4"
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "c3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "a4"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "b4"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       },
+       {
+        "visited": "c3"
+       },
+       {
+        "visited": "c4"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       },
+       {
+        "visited": "d3"
+       },
+       {
+        "visited": "d4"
+       },
+       {
+        "visited": "e1"
+       },
+       {
+        "visited": "e2"
+       },
+       {
+        "visited": "e3"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14"
+ ],
+ "requirement": {
+  "min_eligible": 1
+ }
+}

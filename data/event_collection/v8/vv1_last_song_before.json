@@ -1,0 +1,286 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Song Before Sunset",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_last_song_before",
+  "source": "v26",
+  "lines": [
+   3761,
+   3804
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3762",
+  "ledger": [
+   {
+    "src": "L3761",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3763",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L3764",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3780",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3794",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3803",
+    "kind": "note",
+    "why": "designer note: the elder does not die"
+   },
+   {
+    "src": "L3804",
+    "kind": "instruction",
+    "why": "the reward is text only: VV1 has no Devotion skill"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 14,
+   "special": "nursing_parent"
+  }
+ },
+ "include_pools": [
+  "v8_c5_parent",
+  "v8_c7",
+  "v8_c10",
+  "v8_c16_elder"
+ ],
+ "pools": {
+  "END": {
+   "items": [
+    {
+     "text": "The song ends. Nobody speaks for a while.",
+     "src": "L3795"
+    },
+    {
+     "text": "The child promises to teach the song to other children.",
+     "src": "L3796"
+    },
+    {
+     "text": "The parent thanks the elder, then carries the baby home.",
+     "src": "L3797"
+    },
+    {
+     "text": "The elder laughs and says the ancestors would be horrified by the new crab verse. The child looks immensely proud.",
+     "src": "L3798-3799",
+     "if": {
+      "visited": "dev2"
+     }
+    },
+    {
+     "text": "The elder hums one last line, quietly enough that only the nearest listeners hear it.",
+     "src": "L3800-3801"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The old melody",
+   "src": "L3766-3778",
+   "text": "As the sun begins to set, an elderly villager, (Elder), sits near the village's gathering place, humming an old melody.\nA child, (Child), asks where the song came from.\n(Elder) says that (elder.he/she) learned it from {a parent|a childhood friend|a teacher|someone who is no longer alive}. The song was once sung {during storms|at weddings|to soothe frightened children|while waiting for boats to return}.\nA nearby parent, (Parent), pauses with a sleeping baby in (parent.his/her) arms. (parent.He/She) recognizes {one line|the rhythm|the melody|none of it, but listens anyway}.",
+   "text_only": [
+    {
+     "src": "L3804",
+     "what": "small Devotion experience",
+     "reason": "rule 8: VV1 has no Devotion skill; the source allows 'narrative-only'"
+    }
+   ],
+   "children": [
+    {
+     "next": "dev"
+    }
+   ]
+  },
+  "dev": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "dev1"
+    },
+    {
+     "next": "dev2"
+    },
+    {
+     "next": "dev3"
+    },
+    {
+     "next": "dev4"
+    },
+    {
+     "next": "dev5"
+    },
+    {
+     "next": "dev6"
+    }
+   ]
+  },
+  "dev1": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3781-3782",
+   "text": "The elder forgets a verse. The parent remembers it, and they finish the song together."
+  },
+  "dev2": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3783-3784",
+   "text": "The child invents an absurd extra verse about a dancing crab. The elder is scandalized for precisely three seconds."
+  },
+  "dev3": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3785-3786",
+   "text": "The elder explains that the song used to be sung by someone (elder.he/she) misses. The child listens without interrupting."
+  },
+  "dev4": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3787-3788",
+   "text": "The baby wakes and begins crying. The parent hums the melody, and the baby gradually settles."
+  },
+  "dev5": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3789-3790",
+   "text": "The elder sings terribly off-key. The child joins in, somehow making the song even worse. Nobody asks them to stop."
+  },
+  "dev6": {
+   "popup": "append",
+   "join": "paragraph",
+   "children": [
+    {
+     "next": "end"
+    }
+   ],
+   "src": "L3791-3792",
+   "text": "The child asks whether the elder will always remember the song. The elder says, \"I hope so. But perhaps you can remember it too.\""
+  },
+  "end": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda_c5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c5_parent}"
+  },
+  "coda_c7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c7}"
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16_elder}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c5"
+    },
+    {
+     "next": "coda_c7"
+    },
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c16"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}

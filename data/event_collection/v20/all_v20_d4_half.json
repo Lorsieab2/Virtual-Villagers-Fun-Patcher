@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Half-Translated Remedy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d4_half",
+  "source": "v26",
+  "lines": [
+   9001,
+   9014
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L9001",
+  "ledger": [
+   {
+    "src": "L9013",
+    "kind": "structural",
+    "text": "VV5 variation:",
+    "why": "VV5-only label"
+   }
+  ]
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A healer finds ancient writing: \"Gather the leaves beneath the moon, crush them with the pale stone, and never - \" The rest has worn away.",
+   "src": "L9002-9003",
+   "choices": [
+    {
+     "label": "Reconstruct and attempt the remedy.",
+     "next": "set_a",
+     "src": "L9004"
+    },
+    {
+     "label": "Ask scholars and elders to examine the inscription.",
+     "next": "set_b",
+     "src": "L9009"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "text": "A healer finds ancient writing: \"Gather the leaves beneath the moon, crush them with the pale stone, and never - \" The rest has worn away.\nAn Isolan elder knows the rest but demands respect for the community's knowledge before sharing it.",
+     "src": "L9002-9003,L9013-9014"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The interpretation is correct and the patient recovers.",
+   "src": "L9005",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L9005"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The missing words warned against a dangerous plant.",
+   "src": "L9006"
+  },
+  "a3": {
+   "text": "The supposed remedy is actually a recipe for ceremonial pigment.",
+   "src": "L9007"
+  },
+  "a4": {
+   "text": "The name of a long-forgotten healer is recovered.",
+   "src": "L9008"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A single symbol transforms the meaning of the instructions.",
+   "src": "L9010"
+  },
+  "b2": {
+   "text": "Three scholars produce three incompatible translations.",
+   "src": "L9011"
+  },
+  "b3": {
+   "text": "An elder recognizes the missing phrase from an old chant.",
+   "src": "L9012"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

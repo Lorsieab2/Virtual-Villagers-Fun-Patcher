@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Experimental Cure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d3_cure",
+  "source": "v26",
+  "lines": [
+   8984,
+   8999
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L8984",
+  "ledger": []
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "Several villagers have developed an unfamiliar illness. A healer proposes a new plant-based preparation with unknown effects.",
+   "src": "L8985-8986",
+   "choices": [
+    {
+     "label": "Offer the remedy to patients who agree to try it.",
+     "next": "set_a",
+     "src": "L8987"
+    },
+    {
+     "label": "Continue established supportive care.",
+     "next": "set_b",
+     "src": "L8992"
+    },
+    {
+     "label": "Study the remedy further.",
+     "next": "set_c",
+     "src": "L8996"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Several recover; the healer is praised.",
+   "src": "L8988",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8988"
+    }
+   ]
+  },
+  "a2": {
+   "text": "Some improve, while others develop troubling complications.",
+   "src": "L8989",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L8989"
+    }
+   ]
+  },
+  "a3": {
+   "text": "No one improves, but the researchers learn about the illness.",
+   "src": "L8990"
+  },
+  "a4": {
+   "text": "A patient dies, prompting a public examination of the healer's conduct.",
+   "src": "L8991",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L8991"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "Most recover gradually.",
+   "src": "L8993",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L8993"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The illness spreads and the hospital is overwhelmed.",
+   "src": "L8994"
+  },
+  "b3": {
+   "text": "Another healer finds a more reliable approach.",
+   "src": "L8995"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The effective ingredient is identified.",
+   "src": "L8997"
+  },
+  "c2": {
+   "text": "A harmful ingredient is discovered.",
+   "src": "L8998"
+  },
+  "c3": {
+   "text": "A rival scholar steals the notes and claims the discovery.",
+   "src": "L8999"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    }
+   ]
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ }
+}

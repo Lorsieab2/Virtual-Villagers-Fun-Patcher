@@ -46,6 +46,11 @@ ASSETS = ROOT / "assets" / "event_collection"
 FOLDER = "Island Event Collection"          # beside the companions (src/patcher_files.py PATCHER_READ_FOLDERS)
 CREDITS_NAME = "Credits.txt"                # short: every path stays inside the game's own longest file's length
 ID_MAX = 30                                 # an event id's longest (its .cieg's path, likewise)
+# ... in an event A New Home shows: its .cieg ("Virtual Villagers Fun Patcher Files\Island Event Collection\<id>.cieg",
+# 65 characters besides the id) must stay shorter than VV1's old patch-log path in the same folder (90 characters,
+# tests/test_patcher_files_folder.py DeepOutputFoldersPatch), so a deep folder's longest path is still a file the
+# old patcher refused: 24 at most, 22 with a margin of two.
+VV1_ID_MAX = 22
 CREDITS_MD = ROOT / "docs" / "more-island-events" / "Isola Grand Event Collection - Credits.md"
 NAME = "Isola Grand Event Collection"
 GAMES = (1, 2, 3, 4, 5)
@@ -109,9 +114,10 @@ def compile_events(src: Path = DATA) -> list[dict]:
             raise SystemExit(f"{path.relative_to(ROOT)}: " + "; ".join(problems[:5]))
         meta = data["collection"]
         ident = str(meta.get("id", ""))
-        if not re.fullmatch(r"[a-z0-9_]+", ident) or len(ident) > ID_MAX:
+        cap = VV1_ID_MAX if 1 in g.get("games", data.get("games", [])) else ID_MAX
+        if not re.fullmatch(r"[a-z0-9_]+", ident) or len(ident) > cap:
             raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident!r} must be [a-z0-9_], at most "
-                             f"{ID_MAX} characters (a deep game folder's paths must still fit)")
+                             f"{cap} characters (a deep game folder's paths must still fit)")
         if ident in seen:
             raise SystemExit(f"{path.relative_to(ROOT)}: collection id {ident} is also {seen[ident]}")
         seen[ident] = path.relative_to(ROOT).as_posix()

@@ -61,18 +61,45 @@ def R(id, title, games, a, b, kind, section, credit, choices=0, pools=None, effe
       **extra):
     """One manifest row.  pools: {label: n} -- n an int (a bank under that heading), or (n, line) for an inline
     "(a/b/c)" bank on that line, or (n, None) for a count the script cannot locate (unverified)."""
+    if games:
+        id = short_id(id, VV1_ID_MAX if 1 in games else ID_MAX)     # its .cieg's path must fit a deep game folder
     ROWS.append(dict(id=id, title=title, games=list(games), lines=[a, b], kind=kind, section=section, credit=credit,
                      choices=choices, pools=dict(pools or {}), effects=list(effects), deaths=deaths, series=series,
                      **extra))
 
 
-def short_id(id: str) -> str:
-    """A collection id the packager accepts (at most 30 characters, the game's long-path limit): drop "the" words,
-    then cut at the last word boundary that fits."""
-    if len(id) <= 30:
+ID_MAX = 30          # an event id's longest (scripts/build_event_collection_features.py ID_MAX)
+VV1_ID_MAX = 22      # ... and in an event A New Home shows (build_event_collection_features.py VV1_ID_MAX)
+
+
+# Where cutting at a word boundary would leave an id that no longer names its event: the short id to use instead.
+SHORT_NAMES = {
+    "all_grand_isolan_scholasticon": "all_scholasticon",
+    "all_great_beautification": "all_beautification",
+    "all_isolan_storytelling": "all_storytelling",
+    "all_impossible_invention": "all_invention",
+    "all_council_of_conundrums": "all_conundrums",
+    "all_panel_of_impossible": "all_panel_standards",
+    "all_everybodys_a_winner": "all_everybodys_winner",
+    "all_no_good_very_bad_day": "all_very_bad_day",
+    "vv1_v14_06_the_song_of_isola": "vv1_v14_06_song_isola",
+    "all_v18_03_great_question": "all_v18_03_question",
+    "all_v18_04_philosophers_duel": "all_v18_04_duel",
+    "all_v18_09_great_trivia_trial": "all_v18_09_trivia",
+    "all_v18_isolan_decathlon": "all_v18_decathlon",
+    "all_v20_d3_experimental_cure": "all_v20_d3_cure",
+}
+
+
+def short_id(id: str, cap: int = ID_MAX) -> str:
+    """A collection id the packager accepts (at most `cap` characters, the game's long-path limit): its SHORT_NAMES
+    entry, else drop "the" words, then cut at the last word boundary that fits."""
+    if len(id) <= cap:
         return id
+    if len(SHORT_NAMES.get(id, "x" * (cap + 1))) <= cap:
+        return SHORT_NAMES[id]
     id = re.sub(r"_the(?=_)", "", id)
-    while len(id) > 30:
+    while len(id) > cap:
         id = id.rsplit("_", 1)[0]
     return id
 

@@ -1,0 +1,466 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hoop Tournament",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_12_hoop",
+  "source": "v26",
+  "lines": [
+   8855,
+   8882
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": "v18_trials",
+  "title_src": "L8855",
+  "ledger": [
+   {
+    "src": "L8856",
+    "kind": "structural",
+    "why": "games line"
+   },
+   {
+    "src": "L8857",
+    "kind": "note",
+    "why": "who competes: the trials name no villager (no game skill matches these contestants)"
+   },
+   {
+    "src": "L8864",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L8872",
+    "kind": "structural",
+    "why": "heading of the VV5-only outcomes"
+   },
+   {
+    "src": "L8880-8882",
+    "kind": "instruction",
+    "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A1, B1, B3); reputation is told only (rule 7)"
+   }
+  ]
+ },
+ "roles": {
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The trial",
+   "text": "Villagers roll woven hoops along winding courses, toss smaller rings toward pegs, and attempt graceful catches.",
+   "src": "L8859",
+   "choices": [
+    {
+     "label": "Award the fastest completion.",
+     "next": "set_a",
+     "src": "L8861"
+    },
+    {
+     "label": "Award accuracy and inventive technique.",
+     "next": "set_b",
+     "src": "L8862"
+    }
+   ]
+  },
+  "a1": {
+   "text": "A young competitor wins by choosing a careful route instead of rushing.",
+   "src": "L8865",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8880"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8880",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "a2": {
+   "text": "A hoop escapes downhill and leads half the village on an absurd chase.",
+   "src": "L8866",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a3": {
+   "text": "Two finalists finish together and demand a rematch.",
+   "src": "L8867",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b1": {
+   "text": "An inventive contestant uses a new throwing stance and wins the judges' admiration.",
+   "src": "L8868",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8880"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8880",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b2": {
+   "text": "A master athlete misses every peg; a laughing child lands the winning ring.",
+   "src": "L8869",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "text": "A warped hoop makes the contest unfair. The contestants insist on replacing it before proceeding.",
+   "src": "L8870",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8880"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8880",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "p1": {
+   "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",
+   "src": "L8873-8874",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p2": {
+   "text": "An accusation of favoritism forces the judges to disclose their criteria; the disputed result is upheld, reversed, or declared a tie.",
+   "src": "L8875-8876",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Competitors from both communities secretly practice together and publicly acknowledge each other when the results are announced.",
+   "src": "L8877-8878",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_v8",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "no_coda",
+     "weight": 20
+    }
+   ]
+  },
+  "pick_v8": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "p1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11",
+     "if": {
+      "any": [
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c14",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p1"
+       },
+       {
+        "visited": "p2"
+       },
+       {
+        "visited": "p3"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c15",
+     "if": {
+      "any": [
+       {
+        "visited": "a3"
+       },
+       {
+        "visited": "b3"
+       },
+       {
+        "visited": "p2"
+       }
+      ]
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

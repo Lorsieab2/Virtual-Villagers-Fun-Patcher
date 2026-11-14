@@ -329,8 +329,8 @@ remaining features:
 | `original/vv1_child_of_legend.json` | A Golden Child special role, effects on bank items (branch nodes), grammar fixes with placeholders |
 | `original/vv5_meaning_of_faith.json` | Six buttons, a rare route, pool items with `visited` conditions, a game word in a VV5-only event |
 | `universal/all_doctors_dilemma.json` | All five games, `{@chief}`, strangers for text figures, kill, celebrate, a reward branch |
-| `v20/all_v20_between_life_and_death.json` | Seven buttons with choice `if`, an exceptionally rare outcome, many text-only reasons |
-| `v22/all_v22_4_parents_lesson.json` | Seven buttons, Parenting by size, conditional gains, a small skill loss (harm-capable) |
-| `v14/vv1_v14_01_impossible_equation.json` | A one-page Golden Child scene in a series |
+| `v20/all_v20_between_life.json` | Seven buttons with choice `if`, an exceptionally rare outcome, many text-only reasons |
+| `v22/all_v22_4_parents.json` | Seven buttons, Parenting by size, conditional gains, a small skill loss (harm-capable) |
+| `v14/vv1_v14_01_impossible.json` | A one-page Golden Child scene in a series |
 | `v17/vv1_v17_research.json` | A no-choice contest with the festival's shared setting paragraph |
 | `v9/vv4_rotten_structure.json` | Structure damage, banks as pools appended to a lead page |

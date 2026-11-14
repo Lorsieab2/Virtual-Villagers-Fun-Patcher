@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ill-Timed Sneeze",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_2_ill_timed",
+  "source": "v26",
+  "lines": [
+   10013,
+   10031
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10013",
+  "ledger": [
+   {
+    "src": "L10015",
+    "kind": "instruction",
+    "text": "Choose one randomized scene:",
+    "why": "one of S1-S7, equally likely"
+   },
+   {
+    "src": "L10020",
+    "kind": "instruction",
+    "text": "Small food loss.",
+    "why": "the small food loss on s2"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "sneezer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The sneeze",
+   "text": "(Sneezer) develops an irresistible tickle in (sneezer.his/her) nose at precisely the wrong moment.",
+   "src": "L10014-10015",
+   "children": [
+    {
+     "next": "set_s"
+    }
+   ]
+  },
+  "s1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Ceremonial Disaster: A thunderous sneeze interrupts a solemn speech. The speaker attempts to continue while everyone snickers.",
+   "src": "L10016-10017"
+  },
+  "s2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Ruined Feast: (Sneezer) sneezes directly over a freshly prepared communal dish. The cook discards the affected portion and starts again, grumbling the entire time.",
+   "src": "L10018-10020",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L10020"
+    }
+   ]
+  },
+  "s3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Starch Cloud: A sneeze sends finely ground starch into the air, leaving two respected elders looking like pale statues.",
+   "src": "L10021-10022"
+  },
+  "s4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Interrupted Announcement: A speaker's dramatic revelation is drowned out. Nobody agrees what was said.",
+   "src": "L10023-10024"
+  },
+  "s5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Chain Reaction: A startled villager drops a basket; a nearby animal bolts; a clay pot tips over. The entire sequence takes seconds and becomes a favorite village story.",
+   "src": "L10025-10027"
+  },
+  "s6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Omen: Superstitious witnesses insist the sneeze was a warning. A calm researcher offers an ordinary explanation.",
+   "src": "L10028-10029"
+  },
+  "s7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The Lucky Interruption: The sneeze makes a healer look twice at a mislabeled basket, preventing a minor mistake.",
+   "src": "L10030-10031"
+  },
+  "set_s": {
+   "type": "branch",
+   "set": "S",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    },
+    {
+     "next": "s5"
+    },
+    {
+     "next": "s6"
+    },
+    {
+     "next": "s7"
+    }
+   ]
+  }
+ }
+}

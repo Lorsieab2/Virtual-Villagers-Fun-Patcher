@@ -968,7 +968,7 @@ class FormatGaps(unittest.TestCase):
                     self.assertIn("Ana and the visitor talk. She smiles.", norm(" ".join(t for _k, t, _l in shown)))
 
 
-PIPELINE_EVENTS = ("v20/all_v20_between_life_and_death.json", "v22/all_v22_4_parents_lesson.json")
+PIPELINE_EVENTS = ("v20/all_v20_between_life.json", "v22/all_v22_4_parents.json")
 
 
 @emulated

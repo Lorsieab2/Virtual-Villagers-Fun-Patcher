@@ -344,7 +344,7 @@
    }
   },
   {
-   "id": "all_grand_isolan_scholasticon",
+   "id": "all_scholasticon",
    "title": "The Grand Isolan Scholasticon",
    "games": [
     1,
@@ -389,7 +389,7 @@
    }
   },
   {
-   "id": "all_great_beautification",
+   "id": "all_beautification",
    "title": "The Great Beautification Project",
    "games": [
     1,
@@ -488,7 +488,7 @@
    }
   },
   {
-   "id": "all_everybodys_a_winner",
+   "id": "all_everybodys_winner",
    "title": "Everybody's a Winner?",
    "games": [
     1,
@@ -534,7 +534,7 @@
    }
   },
   {
-   "id": "all_isolan_storytelling",
+   "id": "all_storytelling",
    "title": "The Great Isolan Storytelling Contest",
    "games": [
     1,
@@ -844,7 +844,7 @@
    }
   },
   {
-   "id": "vv1_unexpected_question",
+   "id": "vv1_unexpected",
    "title": "The Unexpected Question",
    "games": [
     1
@@ -886,7 +886,7 @@
    }
   },
   {
-   "id": "vv1_elders_favorite_stone",
+   "id": "vv1_elders_favorite",
    "title": "The Elder's Favorite Stone",
    "games": [
     1
@@ -1357,7 +1357,7 @@
    }
   },
   {
-   "id": "vv1_masters_small_apprentice",
+   "id": "vv1_masters_small",
    "title": "The Master's Small Apprentice",
    "games": [
     1
@@ -1396,7 +1396,7 @@
    }
   },
   {
-   "id": "vv1_last_song_before_sunset",
+   "id": "vv1_last_song_before",
    "title": "The Last Song Before Sunset",
    "games": [
     1
@@ -2340,7 +2340,7 @@
    }
   },
   {
-   "id": "all_no_good_very_bad_day",
+   "id": "all_very_bad_day",
    "title": "(Name1)'s No Good, Very Bad Day",
    "games": [
     1,
@@ -2390,7 +2390,7 @@
    }
   },
   {
-   "id": "all_impossible_invention",
+   "id": "all_invention",
    "title": "The Village Idiot and the Impossible Invention",
    "games": [
     1,
@@ -2509,7 +2509,7 @@
    }
   },
   {
-   "id": "all_great_appointment_scandal",
+   "id": "all_great_appointment",
    "title": "The Great Appointment Scandal",
    "games": [
     1,
@@ -2775,7 +2775,7 @@
    }
   },
   {
-   "id": "all_council_of_conundrums",
+   "id": "all_conundrums",
    "title": "The Council of Conundrums",
    "games": [
     1,
@@ -2910,7 +2910,7 @@
    }
   },
   {
-   "id": "all_panel_of_impossible",
+   "id": "all_panel_standards",
    "title": "The Panel of Impossible Standards",
    "games": [
     1,
@@ -2991,7 +2991,7 @@
    }
   },
   {
-   "id": "all_physics_defying_builder",
+   "id": "all_physics_defying",
    "title": "The Physics-Defying Builder",
    "games": [
     1,
@@ -3070,7 +3070,7 @@
    }
   },
   {
-   "id": "all_verse_that_changed_history",
+   "id": "all_verse_that_changed",
    "title": "The Verse That Changed History",
    "games": [
     1,
@@ -3207,7 +3207,7 @@
    }
   },
   {
-   "id": "vv1_v14_01_impossible_equation",
+   "id": "vv1_v14_01_impossible",
    "title": "The Impossible Equation",
    "games": [
     1
@@ -3240,7 +3240,7 @@
    }
   },
   {
-   "id": "vv1_v14_02_worlds_simplest",
+   "id": "vv1_v14_02_worlds",
    "title": "The World's Simplest Explanation",
    "games": [
     1
@@ -3278,7 +3278,7 @@
    }
   },
   {
-   "id": "vv1_v14_03_little_philosopher",
+   "id": "vv1_v14_03_little",
    "title": "The Little Philosopher",
    "games": [
     1
@@ -3311,7 +3311,7 @@
    }
   },
   {
-   "id": "vv1_v14_04_the_living_map",
+   "id": "vv1_v14_04_living_map",
    "title": "The Living Map",
    "games": [
     1
@@ -3344,7 +3344,7 @@
    }
   },
   {
-   "id": "vv1_v14_05_lesson_nobody",
+   "id": "vv1_v14_05_lesson",
    "title": "The Lesson Nobody Expected",
    "games": [
     1
@@ -3377,7 +3377,7 @@
    }
   },
   {
-   "id": "vv1_v14_06_the_song_of_isola",
+   "id": "vv1_v14_06_song_isola",
    "title": "The Song of Isola",
    "games": [
     1
@@ -3410,7 +3410,7 @@
    }
   },
   {
-   "id": "vv1_v14_07_instrument_that",
+   "id": "vv1_v14_07_instrument",
    "title": "The Instrument That Never Existed",
    "games": [
     1
@@ -3443,7 +3443,7 @@
    }
   },
   {
-   "id": "vv1_v14_08_the_tiny_conductor",
+   "id": "vv1_v14_08_tiny",
    "title": "The Tiny Conductor",
    "games": [
     1
@@ -3476,7 +3476,7 @@
    }
   },
   {
-   "id": "vv1_v14_09_the_rainbow_maker",
+   "id": "vv1_v14_09_rainbow",
    "title": "The Rainbow Maker",
    "games": [
     1
@@ -3507,7 +3507,7 @@
    }
   },
   {
-   "id": "vv1_v14_10_little_stormcaller",
+   "id": "vv1_v14_10_little",
    "title": "The Little Stormcaller",
    "games": [
     1
@@ -3538,7 +3538,7 @@
    }
   },
   {
-   "id": "vv1_v14_11_the_thirsty_garden",
+   "id": "vv1_v14_11_thirsty",
    "title": "The Thirsty Garden",
    "games": [
     1
@@ -3604,7 +3604,7 @@
    }
   },
   {
-   "id": "vv1_v14_13_curious_little",
+   "id": "vv1_v14_13_curious",
    "title": "The Curious Little Explorer",
    "games": [
     1
@@ -3642,7 +3642,7 @@
    }
   },
   {
-   "id": "vv1_v14_14_stars_have_names",
+   "id": "vv1_v14_14_stars_have",
    "title": "The Stars Have Names",
    "games": [
     1
@@ -3675,7 +3675,7 @@
    }
   },
   {
-   "id": "vv1_v14_15_the_little_healer",
+   "id": "vv1_v14_15_little",
    "title": "The Little Healer",
    "games": [
     1
@@ -3708,7 +3708,7 @@
    }
   },
   {
-   "id": "vv1_v14_16_child_who_settled",
+   "id": "vv1_v14_16_child_who",
    "title": "The Child Who Settled an Argument",
    "games": [
     1
@@ -3741,7 +3741,7 @@
    }
   },
   {
-   "id": "vv1_v14_17_golden_childs_first",
+   "id": "vv1_v14_17_golden",
    "title": "The Golden Child's First Debate",
    "games": [
     1
@@ -3774,7 +3774,7 @@
    }
   },
   {
-   "id": "vv1_v14_18_little_architect",
+   "id": "vv1_v14_18_little",
    "title": "The Little Architect",
    "games": [
     1
@@ -3807,7 +3807,7 @@
    }
   },
   {
-   "id": "vv1_v14_19_golden_childs",
+   "id": "vv1_v14_19_golden",
    "title": "The Golden Child's History Lesson",
    "games": [
     1
@@ -3840,7 +3840,7 @@
    }
   },
   {
-   "id": "vv1_v14_20_question_that",
+   "id": "vv1_v14_20_question",
    "title": "The Question That Changed Everything",
    "games": [
     1
@@ -3873,7 +3873,7 @@
    }
   },
   {
-   "id": "vv1_v14_21_little_peacemaker",
+   "id": "vv1_v14_21_little",
    "title": "The Little Peacemaker",
    "games": [
     1
@@ -3904,7 +3904,7 @@
    }
   },
   {
-   "id": "vv1_v14_22_golden_childs_great",
+   "id": "vv1_v14_22_golden",
    "title": "The Golden Child's Great Experiment",
    "games": [
     1
@@ -3937,7 +3937,7 @@
    }
   },
   {
-   "id": "vv1_v14_23_little_inventors",
+   "id": "vv1_v14_23_little",
    "title": "The Little Inventor's Disaster",
    "games": [
     1
@@ -3970,7 +3970,7 @@
    }
   },
   {
-   "id": "vv1_v14_24_boy_who_understood",
+   "id": "vv1_v14_24_boy_who",
    "title": "The Boy Who Understood Grief",
    "games": [
     1
@@ -4001,7 +4001,7 @@
    }
   },
   {
-   "id": "vv1_v14_25_child_who_refused",
+   "id": "vv1_v14_25_child_who",
    "title": "The Child Who Refused to Be an Adult",
    "games": [
     1
@@ -6045,7 +6045,7 @@
    }
   },
   {
-   "id": "all_v18_01_warriors_tournament",
+   "id": "all_v18_01_warriors",
    "title": "The Warriors' Tournament",
    "games": [
     1,
@@ -6084,7 +6084,7 @@
    }
   },
   {
-   "id": "all_v18_02_martial_arts",
+   "id": "all_v18_02_martial",
    "title": "The Martial Arts Tournament",
    "games": [
     1,
@@ -6123,7 +6123,7 @@
    }
   },
   {
-   "id": "all_v18_03_great_question",
+   "id": "all_v18_03_question",
    "title": "The Great Question",
    "games": [
     1,
@@ -6162,7 +6162,7 @@
    }
   },
   {
-   "id": "all_v18_04_philosophers_duel",
+   "id": "all_v18_04_duel",
    "title": "The Philosophers' Duel",
    "games": [
     1,
@@ -6201,7 +6201,7 @@
    }
   },
   {
-   "id": "all_v18_05_alchemists_trial",
+   "id": "all_v18_05_alchemists",
    "title": "The Alchemists' Trial",
    "games": [
     1,
@@ -6240,7 +6240,7 @@
    }
   },
   {
-   "id": "all_v18_06_paradox_challenge",
+   "id": "all_v18_06_paradox",
    "title": "The Paradox Challenge",
    "games": [
     1,
@@ -6279,7 +6279,7 @@
    }
   },
   {
-   "id": "all_v18_07_sixteenth_aria",
+   "id": "all_v18_07_sixteenth",
    "title": "The Sixteenth Aria",
    "games": [
     1,
@@ -6318,7 +6318,7 @@
    }
   },
   {
-   "id": "all_v18_08_poets_tournament",
+   "id": "all_v18_08_poets",
    "title": "The Poets' Tournament",
    "games": [
     1,
@@ -6357,7 +6357,7 @@
    }
   },
   {
-   "id": "all_v18_09_great_trivia_trial",
+   "id": "all_v18_09_trivia",
    "title": "The Great Trivia Trial",
    "games": [
     1,
@@ -6396,7 +6396,7 @@
    }
   },
   {
-   "id": "all_v18_10_ball_tournament",
+   "id": "all_v18_10_ball",
    "title": "The Ball Tournament",
    "games": [
     1,
@@ -6474,7 +6474,7 @@
    }
   },
   {
-   "id": "all_v18_12_hoop_tournament",
+   "id": "all_v18_12_hoop",
    "title": "The Hoop Tournament",
    "games": [
     1,
@@ -6513,7 +6513,7 @@
    }
   },
   {
-   "id": "all_v18_isolan_decathlon",
+   "id": "all_v18_decathlon",
    "title": "The Isolan Decathlon",
    "games": [
     1,
@@ -6644,7 +6644,7 @@
    }
   },
   {
-   "id": "all_v20_d2_no_such_treatment",
+   "id": "all_v20_d2_no_such",
    "title": "The Treatment That Does Not Exist",
    "games": [
     1,
@@ -6682,7 +6682,7 @@
    }
   },
   {
-   "id": "all_v20_d3_experimental_cure",
+   "id": "all_v20_d3_cure",
    "title": "The Experimental Cure",
    "games": [
     1,
@@ -6720,7 +6720,7 @@
    }
   },
   {
-   "id": "all_v20_d4_half_translated",
+   "id": "all_v20_d4_half",
    "title": "The Half-Translated Remedy",
    "games": [
     1,
@@ -6795,7 +6795,7 @@
    }
   },
   {
-   "id": "all_v20_d6_physician_refused",
+   "id": "all_v20_d6_physician",
    "title": "The Physician Who Refused",
    "games": [
     1,
@@ -6833,7 +6833,7 @@
    }
   },
   {
-   "id": "all_v20_d7_patient_knew_much",
+   "id": "all_v20_d7_patient",
    "title": "The Patient Who Knew Too Much",
    "games": [
     1,
@@ -6870,7 +6870,7 @@
    }
   },
   {
-   "id": "all_v20_d8_works_too_well",
+   "id": "all_v20_d8_works_too",
    "title": "The Medicine That Works Too Well",
    "games": [
     1,
@@ -6907,7 +6907,7 @@
    }
   },
   {
-   "id": "all_v20_d9_healers_secret",
+   "id": "all_v20_d9_healers",
    "title": "The Healer's Secret",
    "games": [
     1,
@@ -6944,7 +6944,7 @@
    }
   },
   {
-   "id": "all_v20_d10_child_corrected",
+   "id": "all_v20_d10_child",
    "title": "The Child Who Corrected the Masters",
    "games": [
     1,
@@ -6981,7 +6981,7 @@
    }
   },
   {
-   "id": "all_v20_d11_ancient_oath",
+   "id": "all_v20_d11_ancient",
    "title": "The Ancient Oath",
    "games": [
     1,
@@ -7019,7 +7019,7 @@
    }
   },
   {
-   "id": "all_v20_d12_cannot_save_all",
+   "id": "all_v20_d12_cannot",
    "title": "The Doctor Who Could Not Save Everyone",
    "games": [
     1,
@@ -7057,7 +7057,7 @@
    }
   },
   {
-   "id": "all_v20_between_life_and_death",
+   "id": "all_v20_between_life",
    "title": "The Doctors' Dilemma: Between Life and Death",
    "games": [
     1,
@@ -7144,7 +7144,7 @@
    }
   },
   {
-   "id": "all_v20_r1_should_not_exist",
+   "id": "all_v20_r1_should_not",
    "title": "The Thing That Should Not Exist",
    "games": [
     1,
@@ -7216,7 +7216,7 @@
    }
   },
   {
-   "id": "all_v20_r3_isola_discovered",
+   "id": "all_v20_r3_isola",
    "title": "Has Isola Been Discovered?",
    "games": [
     1,
@@ -7253,7 +7253,7 @@
    }
   },
   {
-   "id": "all_v20_r4_relic_outlived",
+   "id": "all_v20_r4_relic",
    "title": "The Relic That Outlived Its Discoverer",
    "games": [
     1,
@@ -7346,7 +7346,7 @@
    }
   },
   {
-   "id": "all_v21_c1_potters_trial",
+   "id": "all_v21_c1_potters",
    "title": "The Great Potters' Trial",
    "games": [
     1,
@@ -7383,7 +7383,7 @@
    }
   },
   {
-   "id": "all_v21_c2_divided_statue",
+   "id": "all_v21_c2_divided",
    "title": "The Statue That Divided the Village",
    "games": [
     1,
@@ -7515,7 +7515,7 @@
    }
   },
   {
-   "id": "all_v22_1_drawing_contest",
+   "id": "all_v22_1_drawing",
    "title": "The Great Isolan Drawing Competition",
    "games": [
     1,
@@ -7552,7 +7552,7 @@
    }
   },
   {
-   "id": "all_v22_2_strength_trials",
+   "id": "all_v22_2_strength",
    "title": "The Great Isolan Strength Trials",
    "games": [
     1,
@@ -7589,7 +7589,7 @@
    }
   },
   {
-   "id": "all_v22_3_potion_making",
+   "id": "all_v22_3_potion",
    "title": "The Great Isolan Potion-Making Trials",
    "games": [
     1,
@@ -7628,7 +7628,7 @@
    }
   },
   {
-   "id": "all_v22_4_parents_lesson",
+   "id": "all_v22_4_parents",
    "title": "The Parent's Lesson",
    "games": [
     1,
@@ -7729,7 +7729,7 @@
    }
   },
   {
-   "id": "all_v23_1_practical_joke",
+   "id": "all_v23_1_practical",
    "title": "The Practical Joke",
    "games": [
     1,
@@ -7767,7 +7767,7 @@
    }
   },
   {
-   "id": "all_v23_2_ill_timed_sneeze",
+   "id": "all_v23_2_ill_timed",
    "title": "The Ill-Timed Sneeze",
    "games": [
     1,
@@ -7806,7 +7806,7 @@
    }
   },
   {
-   "id": "all_v23_3_strange_coincidence",
+   "id": "all_v23_3_strange",
    "title": "The Strange Coincidence",
    "games": [
     1,
@@ -7843,7 +7843,7 @@
    }
   },
   {
-   "id": "all_v23_4_missing_coconuts",
+   "id": "all_v23_4_missing",
    "title": "The Missing Coconuts",
    "games": [
     1,

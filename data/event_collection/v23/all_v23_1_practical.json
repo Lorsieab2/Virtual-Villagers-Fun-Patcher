@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Practical Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v23_1_practical",
+  "source": "v26",
+  "lines": [
+   9978,
+   10011
+  ],
+  "section": "v23",
+  "credit": "CREDITS: Core premises and requested title edits by Lorsieab2; branching\nnarratives and elaborations by ChatGPT. All five games. Ancient tropical,",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9978",
+  "ledger": [
+   {
+    "src": "L9985",
+    "kind": "instruction",
+    "text": "Both gain a little happiness.",
+    "why": "the good mood of both on a1"
+   },
+   {
+    "src": "L10000",
+    "kind": "instruction",
+    "text": "; researchers gain a little Tech",
+    "why": "the small tech effect on b3"
+   },
+   {
+    "src": "L10009",
+    "kind": "instruction",
+    "text": "THE PRANK WAR.",
+    "why": "a text_only reason on c3 (rule 9)"
+   }
+  ]
+ },
+ "roles": {
+  "prankster": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "target": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Prankster) decides that the village has become much too serious. (prankster.He/She) prepares a harmless trick for (Target), using baskets, shells, woven mats, painted gourds, or other ordinary island materials.",
+   "src": "L9979-9981",
+   "choices": [
+    {
+     "label": "PLAY A SIMPLE TRICK",
+     "next": "set_a",
+     "src": "L9983"
+    },
+    {
+     "label": "MAKE AN ELABORATE ILLUSION",
+     "next": "set_b",
+     "src": "L9993"
+    },
+    {
+     "label": "RECRUIT ACCOMPLICES",
+     "next": "set_c",
+     "src": "L10004"
+    }
+   ]
+  },
+  "a1": {
+   "text": "The Perfect Prank: (Target) jumps, then laughs so hard that the whole village joins in.",
+   "src": "L9984-9985",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "prankster",
+     "mood": "good",
+     "src": "L9985"
+    },
+    {
+     "do": "mood",
+     "role": "target",
+     "mood": "good",
+     "src": "L9985"
+    }
+   ]
+  },
+  "a2": {
+   "text": "The Wrong Audience: An elder receives the prank by mistake and gives (Prankster) a long lecture. (Target) finds this hilarious.",
+   "src": "L9986-9987"
+  },
+  "a3": {
+   "text": "The Prankster Pranked: (Target) anticipated everything and replaces the surprise with a carved sign reading, \"TRY AGAIN.\"",
+   "src": "L9988-9989"
+  },
+  "a4": {
+   "text": "The Great Misunderstanding: A mysteriously moving basket convinces several witnesses that an ancestral spirit is visiting.",
+   "src": "L9990-9991"
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The Vanishing Villager: Clever screens and woven mats make (Target) appear to vanish. The researchers spend an embarrassing afternoon investigating the trick.",
+   "src": "L9994-9996",
+   "text_only": [
+    {
+     "src": "L9994",
+     "what": "Vanishing",
+     "reason": "narrative: 'Vanishing' is part of the story, not a change the event makes"
+    },
+    {
+     "src": "L9995",
+     "what": "vanish",
+     "reason": "narrative: an illusion; nobody vanishes"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The Haunted Hut: A hollow bamboo tube produces eerie noises until (Prankster) is caught giggling behind the hut.",
+   "src": "L9997-9998"
+  },
+  "b3": {
+   "text": "The Accidental Discovery: The prank reveals an unusual echo or air current.",
+   "src": "L9999-10000",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L10000"
+    }
+   ]
+  },
+  "b4": {
+   "text": "The Village Panic: The illusion is too convincing. Villagers flee, then demand an apology and help restoring the interrupted work.",
+   "src": "L10001-10002"
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "text": "The Great Conspiracy: Several pranksters maintain straight faces until one bursts out laughing and ruins the surprise.",
+   "src": "L10005-10006"
+  },
+  "c2": {
+   "text": "The Betrayal: A child announces the entire plan to the target.",
+   "src": "L10007"
+  },
+  "c3": {
+   "text": "The Prank War: (Target) organizes a friendly retaliation.",
+   "src": "L10008-10009",
+   "text_only": [
+    {
+     "src": "L10008-10009",
+     "what": "unlock THE PRANK WAR",
+     "reason": "rule 9: a sequel is a later event; The Prank War is drawn on its own"
+    }
+   ]
+  },
+  "c4": {
+   "text": "The Apology: The prank accidentally hurts someone's feelings. The pranksters apologize and make amends; friendship improves.",
+   "src": "L10010-10011"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10008",
+   "before": "retaliation; unlock",
+   "after": "retaliation."
+  }
+ ],
+ "requirement": {
+  "min_eligible": 2
+ }
+}

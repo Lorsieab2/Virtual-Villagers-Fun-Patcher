@@ -20,12 +20,12 @@ def V(*ids):
 
 T = {
     # ---- V8
-    "v8/vv1_masters_small_apprentice.json": ("v8", [
+    "v8/vv1_masters_small.json": ("v8", [
         ("c2", {"coda1": "builder", "coda2": "child"}, V("turn2"), False),
         ("c10", {}, None, False),
         ("c12", {"coda1": "builder", "coda2": "child"}, V("turn1"), False),
         ("c16", {"coda1": "elder"}, None, False)]),
-    "v8/vv1_last_song_before_sunset.json": ("v8", [
+    "v8/vv1_last_song_before.json": ("v8", [
         ("c5", {"coda1": "parent"}, None, False), ("c7", {}, None, False), ("c10", {}, None, False),
         ("c16", {"coda1": "elder"}, None, False)]),
     "v8/vv2_packed_hospital.json": ("v8", [
@@ -76,12 +76,12 @@ T = {
         ("r13", {"coda1": "culprit"}, V("intentional"), False), ("r18", {}, None, False),
         ("r23", {}, V("c1"), False)]),
     # ---- V10
-    "v10/all_no_good_very_bad_day.json": ("v10", [
+    "v10/all_very_bad_day.json": ("v10", [
         ("o1", {}, V("ostracism"), False), ("o3", {}, V("ostracism"), False), ("o14", {}, V("exon"), False),
         ("o15", {}, V("wrong", "x3"), False), ("o16", {}, V("wrong"), False), ("o17", {}, V("unresolved"), False),
         ("o19", {}, V("ostracism"), False), ("o20", {}, V("exon"), False), ("o24", {}, V("exon"), False),
         ("o28", {}, V("wrong"), False)]),
-    "v10/all_impossible_invention.json": ("v10", [
+    "v10/all_invention.json": ("v10", [
         ("o2", {}, V("t2", "t3"), False), ("o3", {}, None, False), ("o4", {}, V("mad"), False),
         ("o16", {}, V("warning"), False), ("o18", {}, None, False), ("o20", {}, V("result", "human"), False),
         ("o29", {}, None, False)]),
@@ -90,7 +90,7 @@ T = {
         ("o26", {}, V("ap1"), False), ("o27", {}, V("ap1", "ap4"), False)]),
     "v10/all_teacher_who_failed.json": ("v10", [("o16", {}, None, False), ("o23", {}, None, False),
                                                ("o29", {}, None, False)]),
-    "v10/all_great_appointment_scandal.json": ("v10", [
+    "v10/all_great_appointment.json": ("v10", [
         ("o17", {}, None, False), ("o19", {}, V("scandal"), False), ("o23", {}, None, False),
         ("o24", {}, None, False), ("o25", {}, V("appoint"), False), ("o27", {}, V("appoint"), False)]),
     "v10/vv345_magician_naturalist.json": ("v10", [
