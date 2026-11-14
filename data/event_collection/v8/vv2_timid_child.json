@@ -1,0 +1,277 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Timid Child",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_timid_child",
+  "source": "v26",
+  "lines": [
+   3896,
+   3948
+  ],
+  "section": "v8",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3897",
+  "ledger": [
+   {
+    "src": "L3896",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3898",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L3899",
+    "kind": "structural",
+    "why": "rule"
+   },
+   {
+    "src": "L3905",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3919",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3929",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3937",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3947",
+    "kind": "instruction",
+    "why": "the reward is text only: 'learning' is not a skill"
+   },
+   {
+    "src": "L3948",
+    "kind": "note",
+    "why": "designer note on tone"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "include_pools": [
+  "v8_c10",
+  "v8_c16"
+ ],
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "being left behind when the older children go exploring",
+     "src": "L3906"
+    },
+    {
+     "text": "forgetting the faces of people from (child.his/her) old home",
+     "src": "L3907"
+    },
+    {
+     "text": "being laughed at for making mistakes",
+     "src": "L3908"
+    },
+    {
+     "text": "growing up and leaving the nursery",
+     "src": "L3909"
+    },
+    {
+     "text": "failing at a skill that everyone else seems to understand",
+     "src": "L3910"
+    },
+    {
+     "text": "being told that crying is childish",
+     "src": "L3911"
+    }
+   ]
+  },
+  "STORY": {
+   "set": "(1)",
+   "items": [
+    {
+     "text": "The adult recalls a time when (adult.he/she) was frightened and somebody helped. The child asks what happened next.",
+     "src": "L3920-3921"
+    },
+    {
+     "text": "The adult admits that (adult.he/she) still gets scared sometimes. The child looks surprised.",
+     "src": "L3922-3923"
+    },
+    {
+     "text": "The adult tells a ridiculous story about mistaking a harmless crab for a terrible monster. The child giggles.",
+     "src": "L3924-3925"
+    },
+    {
+     "text": "The adult talks too much. The child finally interrupts: \"I didn't want a story. I wanted you to stay.\"",
+     "src": "L3926-3927"
+    }
+   ]
+  },
+  "QUESTION": {
+   "set": "(2)",
+   "items": [
+    {
+     "text": "The child asks for company, not advice. They sit together.",
+     "src": "L3930"
+    },
+    {
+     "text": "The child wants to try the frightening activity with help.",
+     "src": "L3931"
+    },
+    {
+     "text": "The child says (child.he/she) doesn't know. The adult says that not knowing is an acceptable answer.",
+     "src": "L3932-3933"
+    },
+    {
+     "text": "The child asks whether the adult will be angry if (child.he/she) cries. The adult says no.",
+     "src": "L3934-3935"
+    }
+   ]
+  },
+  "END": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "The child joins the other children for a short while, then returns when (child.he/she) has had enough.",
+     "src": "L3938-3939"
+    },
+    {
+     "text": "The child stays beside the adult until sunset. No grand breakthrough occurs, but (child.he/she) feels safer.",
+     "src": "L3940-3941"
+    },
+    {
+     "text": "The child makes a new friend who is afraid of the same thing.",
+     "src": "L3942"
+    },
+    {
+     "text": "The child says, \"Maybe I can be brave tomorrow.\" The adult replies, \"You don't have to do everything tomorrow.\"",
+     "src": "L3943-3944"
+    },
+    {
+     "text": "The child takes the adult's hand, then lets go when ready.",
+     "src": "L3945"
+    }
+   ]
+  }
+ },
+ "start": "question",
+ "nodes": {
+  "question": {
+   "type": "question",
+   "name": "Afraid",
+   "src": "L3901-3903,L3913-3914",
+   "text": "A young villager, (Child), has been avoiding the other children. When a caregiver, (Adult), asks what is wrong, (Child) admits that (child.he/she) is afraid of {A}.\n(Adult) {sits beside the child|keeps a respectful distance|offers a cup of water|waits quietly for (child.him/her) to continue}.",
+   "choices": [
+    {
+     "label": "TELL A STORY ABOUT BEING AFRAID.",
+     "next": "story",
+     "src": "L3916"
+    },
+    {
+     "label": "ASK WHAT THE CHILD NEEDS RIGHT NOW.",
+     "next": "ask",
+     "src": "L3917"
+    }
+   ]
+  },
+  "story": {
+   "text": "{STORY}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ask": {
+   "text": "{QUESTION}",
+   "children": [
+    {
+     "next": "ending"
+    }
+   ]
+  },
+  "ending": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{END}",
+   "text_only": [
+    {
+     "src": "L3947",
+     "what": "small child learning experience",
+     "reason": "rule 8: 'learning' is not a skill any game has (the source also allows narrative-only)"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c10"
+    },
+    {
+     "next": "coda_c16"
+    }
+   ]
+  },
+  "coda_c10": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c10}"
+  },
+  "coda_c16": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c16}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ }
+}
