@@ -66,6 +66,17 @@ def R(id, title, games, a, b, kind, section, credit, choices=0, pools=None, effe
                      **extra))
 
 
+def short_id(id: str) -> str:
+    """A collection id the packager accepts (at most 30 characters, the game's long-path limit): drop "the" words,
+    then cut at the last word boundary that fits."""
+    if len(id) <= 30:
+        return id
+    id = re.sub(r"_the(?=_)", "", id)
+    while len(id) > 30:
+        id = id.rsplit("_", 1)[0]
+    return id
+
+
 def N(id, title, a, b, section, credit="ledger", pools=None):
     R(id, title, [], a, b, "notes", section, credit, pools=pools)
 
@@ -215,9 +226,9 @@ N("notes_v11_implementation", "V11 implementation and continuity notes", 6812, 6
 
 # ---- Part 3 (lines 6837-10571) ----------------------------------------------------------------------------------------
 N("notes_v13_credit_and_canon", "V13 credit and canon", 6836, 6860, "v13", "v13")
-R("vv2_cooking_judge_who_feared_no_dish", "The Cooking Contest: The Judge Who Feared No Dish", [2], 6862, 7028,
+R(short_id("vv2_cooking_judge_who_feared_no_dish"), "The Cooking Contest: The Judge Who Feared No Dish", [2], 6862, 7028,
   "addon", "v13", "v13", 4, {"A": (6, None), "B": (5, None), "C": (5, None), "D": (5, None)}, ["skill:Research"])
-R("all_panel_of_impossible_standards", "The Panel of Impossible Standards", ALL, 7030, 7099, "addon", "v13", "v13", 4,
+R(short_id("all_panel_of_impossible_standards"), "The Panel of Impossible Standards", ALL, 7030, 7099, "addon", "v13", "v13", 4,
   {"endings": (8, None)})
 R("all_its_alive", "It's Alive!", ALL, 7101, 7199, "event", "v13", "v13", 3,
   {"A": (4, None), "B": (4, None), "C": (5, None)}, ["skill:Research"])
@@ -248,7 +259,7 @@ _V14 = [(1, "The Impossible Equation", 7651, 7656, ["tech"]), (2, "The World's S
         (25, "The Child Who Refused to Be an Adult", 7815, 7820, [])]
 for _n, _t, _a, _b, _e in _V14:
     _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
-    R(f"vv1_v14_{_n:02d}_{_slug}", _t, [1], _a, _b, "event", "v14", "v14", 0,
+    R(short_id(f"vv1_v14_{_n:02d}_{_slug}"), _t, [1], _a, _b, "event", "v14", "v14", 0,
       {"subject": (11, 7661)} if _n == 2 else {"discovery": (7, None)} if _n == 13 else {}, _e,
       series="v14_golden_child")
 N("notes_v14_variation_rules", "V14 optional variation rules", 7822, 7833, "v14", "v14")
@@ -263,7 +274,7 @@ _EXCL = [(2, "The Secret Behind the Waterfall", 7842, 7855), (2, "The Hospital's
          (5, "The Convert Who Missed Home", 8008, 8017), (5, "The Guardians' Disagreement", 8019, 8028)]
 for _g, _t, _a, _b in _EXCL:
     _slug = re.sub(r"[^a-z0-9]+", "_", _t.lower().replace("'", "")).strip("_")
-    R(f"vv{_g}_{_slug}", _t, [_g], _a, _b, "event", "exclusive", "exclusive", 2, {},
+    R(short_id(f"vv{_g}_{_slug}"), _t, [_g], _a, _b, "event", "exclusive", "exclusive", 2, {},
       ["tech", "food"] if _g in (3, 4, 5) else ["tech", "health_change"])
 R("bank_v17_framework", "V17 - The Five Shores Compete: framework and universal consequence pool", ALL, 8033, 8093,
   "bank", "v17", "v17", 4, {"U": (10, None)})
