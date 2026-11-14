@@ -1,0 +1,59 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Healer",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v14_15_the_little_healer",
+  "source": "v26",
+  "lines": [
+   7752,
+   7756
+  ],
+  "section": "v14",
+  "credit": "ORIGINAL CONCEPTS & CREATIVE DIRECTION: Lorsieab2 — the Golden Child\nsolves equations beyond his peers, explains advanced subjects simply,\ncomposes a song alone, invents an instrument, summons rainbows and storms,\nwaters and regrows crops/berry bush, and helps children discover plants,\nanimals, fungi, stars, planets and hidden places. Also requested more\nage-appropriate actions suggesting an adult's insight in a child's body.\nADDITIONAL CONCEPTS, EVENT PROSE & EXPANSIONS: ChatGPT — the further\nchild-scholar, music, empathy, play, invention and social scenarios below.",
+  "draw_weight": 1,
+  "series": "v14_golden_child",
+  "title_src": "L7752",
+  "ledger": [
+   {
+    "src": "L7756",
+    "kind": "instruction",
+    "why": "the scene's outcome, carried by its effect or text_only reason"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 0,
+   "special": "golden_child"
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The Little Healer",
+   "src": "L7753-7755",
+   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending he can cure everything. The healer praises his judgment.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 5,
+     "max": 10,
+     "src": "L7756"
+    }
+   ]
+  }
+ }
+}
