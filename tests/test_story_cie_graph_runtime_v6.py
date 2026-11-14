@@ -248,7 +248,8 @@ def vector_village(case: dict):
 # question's own words are drawn at the purchase, before the binding): (after this many rolls, [the rolls]).
 BIND_ROLLS = {"gardening_vv3": (2, [0]), "gardening_vv3_plots": (2, [0]),
               "gaps_vv1_tribe": (0, [0]), "gaps_vv3_no_tribe": (0, [0]),
-              "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1])}   # the stranger's name (16)
+              "named_stranger_vv5": (0, [0]), "named_stranger_vv1": (0, [1]),   # the stranger's name (16)
+              "looks_vv1": (0, [0]), "looks_vv3": (0, [0]), "looks_vv5": (0, [0])}   # the subject among two
 
 
 def installed(r, patches) -> None:
@@ -1121,6 +1122,256 @@ class G1LayoutParity(unittest.TestCase):
                 result = cg.GAMES[5].result
                 self.assertGreater(result.lines, plain.lines, "New Believers: the result popup is taller")
                 self.assertEqual(plain.lines, 14)
+
+
+# ---- V28 (docs/event-collection/cie-v6-binary.md 7, 21, 22) ------------------------------------------------------
+
+# Each game's recorded parents on a villager's own record: father's name, mother's name, father's head, body,
+# mother's head, body (the adapters' off_father_name ..; A New Home keeps none: its sidecar, the probe below).
+PARENT_FIELDS = {"vv2": (0x57D, 0x596, 0x5B0, 0x5B4, 0x5B8, 0x5BC),
+                 "vv3": (0xDF8, 0xE11, 0xE2C, 0xE30, 0xE34, 0xE38),
+                 "vv4": (0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00),
+                 "vv5": (0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00)}
+# The expected father on a carrier: name, head, body (cie-v6-binary.md 21).
+EXPECTED_FATHER = {"vv2": (0x5C0, 0x5E0, 0x5DC), "vv3": (0xE48, 0xE68, 0xE64), "vv4": (0x1C10, 0x1C30, 0x1C2C),
+                   "vv5": (0x1C10, 0x1C30, 0x1C2C)}
+
+
+def v28_graph(game: str) -> dict:
+    """A lost baby, a new look and a death with no body, each on its own page."""
+    return {
+        "format": "vvfp-cie-graph", "version": 6, "title": "The Long Night", "games": [int(game[2])],
+        "roles": {"mum": {"kind": "villager", "min_age": 14, "special": "nursing_parent", "protected": "allow"},
+                  "subject": {"kind": "villager", "min_age": 14}, "friend": {"kind": "villager", "min_age": 14}},
+        "start": "p0",
+        "nodes": {
+            "p0": {"text": "(Mum) loses (mum.his/her) baby.", "effects": [{"do": "baby_lost", "role": "mum"}],
+                   "children": [{"next": "p1"}]},
+            "p1": {"text": "(Subject) looks different.",
+                   "effects": [{"do": "appearance", "role": "subject", "head": "random", "body": 5}],
+                   "children": [{"next": "p2"}]},
+            "p2": {"text": "(Friend) is lost at sea.",
+                   "effects": [{"do": "die_unrecovered", "role": "friend", "cause": "unknown"}]},
+        },
+    }
+
+
+def kin_graph(game: str, relation: str) -> dict:
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Family Ties", "games": [int(game[2])],
+            "roles": {"one": {"kind": "villager", "min_age": 0},
+                      "two": {"kind": "villager", "min_age": 0, "relation": {relation: "one"}}},
+            "start": "p", "nodes": {"p": {"text": "(One) and (two) sit together.",
+                                          "effects": [{"do": "celebrate", "who": "two"}]}}}
+
+
+def set_parents(r, game: str, child: int, father=None, mother=None) -> None:
+    """Record `child`'s recorded father and mother: (name, head, body) or None."""
+    if game == "vv1":
+        for which, who in ((0, father), (1, mother)):
+            name, head, body = who or ("", -1, -1)
+            buf = r.p.alloc(32)
+            r.p.write(buf, name.encode() + b"\0")
+            r.p.export("VvfpStoryProbeGraphVv1Parent", child, which, buf, head & 0xFFFFFFFF, body & 0xFFFFFFFF)
+        return
+    fn, mn, fh, fb, mh, mb = PARENT_FIELDS[game]
+    rec = r.v.record(child)
+    for name_at, head_at, body_at, who in ((fn, fh, fb, father), (mn, mh, mb, mother)):
+        name, head, body = who or ("", 0, 0)
+        r.p.write(rec + name_at, name.encode().ljust(0x19, b"\0"))
+        r.p.put32(rec + head_at, head)
+        r.p.put32(rec + body_at, body)
+
+
+def set_expected_father(r, game: str, carrier: int, name: str, head: int, body: int) -> None:
+    if game == "vv1":
+        buf = r.p.alloc(32)
+        r.p.write(buf, name.encode() + b"\0")
+        r.p.export("VvfpStoryProbeGraphVv1Parent", carrier, 2, buf, head, body)   # the sidecar's stash
+        return
+    at_name, at_head, at_body = EXPECTED_FATHER[game]
+    r.p.write(r.v.record(carrier) + at_name, name.encode().ljust(0x18, b"\0"))
+    r.p.put32(r.v.record(carrier) + at_head, head)
+    r.p.put32(r.v.record(carrier) + at_body, body)
+
+
+def looks(r, n: int) -> None:
+    """Villager i: head 10 + i, body 20 + i, no parents recorded."""
+    for i in range(n):
+        r.p.put32(r.v.record(i) + r.v.L["head"], 10 + i)
+        r.p.put32(r.v.record(i) + r.v.L["body"], 20 + i)
+        set_parents(r, r.game, i)
+
+
+@emulated
+class V28Effects(unittest.TestCase):
+    """The lost baby, the new look and the death with no body, in every game; one log entry with their lines."""
+
+    def test_baby_look_and_death_in_every_game(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for chief in ((False, True) if game == "vv3" else (False,)):
+                with self.subTest(game=game, chief=chief):
+                    r = V6(game, [(0, "f", 30, "Ann", 0, True), (1, "m", 31, "Bob", 0, False),
+                                  (2, "m", 32, "Cy", 0, False)])
+                    L = r.v.L
+                    for i in range(3):
+                        r.p.put32(r.v.record(i) + L["head"], 3)
+                        r.p.put32(r.v.record(i) + L["body"], 4)
+                    if chief:
+                        r.p.write(r.v.record(1) + 0xE80, b"\1")    # Bob is The Secret City's Tribal Chief
+                    r.rolls([0] * 40)
+                    r.log(1)
+                    self.assertIsNone(r.queue6(compiled(v28_graph(game))))
+                    shown = r.walk_through()
+                    self.assertEqual(len(shown), 3, [s[1][:40] for s in shown])
+                    self.assertEqual(list(r.state()["records"][:3]), [0, 1, 2], "Ann the nursing mother")
+                    self.assertEqual(r.v.i32(0, L["pregnant"]), 0, "the baby is lost: no longer nursing")
+                    self.assertNotEqual(r.p.read(r.v.record(0) + L["active"], 1), b"\0", "Ann lives")
+                    # The random head is any row but the current one (roll 0: row 0); the robe stays on the chief.
+                    self.assertEqual(r.v.i32(1, L["head"]), 0)
+                    self.assertEqual(r.v.i32(1, L["body"]), 4 if chief else 5)
+                    self.assertEqual(r.p.read(r.v.record(2) + L["active"], 1), b"\0", "Cy is gone: no body")
+                    told = r.told()
+                    self.assertIn((5, 0, "the baby was lost in The Long Night; never born"), told)
+                    self.assertIn((4, 2, "Unknown causes"), told, "told as a death, Unknown causes")
+                    # The emulator has no Cause of Death companion: the death is then told as the disappearance it
+                    # falls back to (an older companion without VvfpCauseDiedUnrecovered), after the death.
+                    self.assertEqual([k for k, i, _w in told if i == 2], [4, 2])
+                    n, _now, filed = r.log()
+                    self.assertEqual(n, 1, "ONE Island Events log entry")
+                    for line in ("Ann's baby was lost.", "Bob's look changed.",
+                                 "Cy died (Unknown causes); the body was not recovered."):
+                        self.assertIn(line, filed)
+
+    def test_a_random_look_is_never_the_current_one(self):
+        game = next((g for g in GAME_IDS if have_stock(g)), None)
+        if game is None:
+            self.skipTest("no stock game")
+        rows = cg.HEAD_ROWS[int(game[2])]
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Mirror", "games": [int(game[2])],
+             "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p",
+             "nodes": {"p": {"text": "(Name) looks again.",
+                             "effects": [{"do": "appearance", "role": "subject", "head": "random"}]}}}
+        data = compiled(g)
+        for current, roll, want in ((3, 2, 2), (3, 3, 4), (rows - 1, rows - 2, rows - 2), (0, 0, 1)):
+            with self.subTest(current=current, roll=roll):
+                r = V6(game, [(0, "m", 30, "Bob", 0, False)])
+                r.p.put32(r.v.record(0) + r.v.L["head"], current)
+                r.rolls([roll] * 40)
+                self.assertIsNone(r.queue6(data))
+                r.walk_through()
+                self.assertEqual(r.v.i32(0, r.v.L["head"]), want)
+
+
+@emulated
+class Kinship(unittest.TestCase):
+    """cie-v6-binary.md 21: each relation from the game's own parent fields (A New Home: its sidecar)."""
+
+    def village(self, game: str):
+        r = V6(game, [(0, "f", 40, "Ann", 0, False), (1, "m", 41, "Bob", 0, False), (2, "m", 8, "Kit", 0, False),
+                      (3, "f", 9, "Lu", 0, False), (4, "m", 7, "Max", 0, False)])
+        looks(r, 5)
+        ann, bob = ("Ann", 10, 20), ("Bob", 11, 21)
+        set_parents(r, game, 2, bob, ann)      # Kit: Bob and Ann's
+        set_parents(r, game, 3, None, ann)     # Lu: Ann's (no father recorded)
+        return r                                # Max: nobody's
+
+    def cast(self, game: str, relation: str, roll: int = 0):
+        r = self.village(game)
+        r.rolls([roll] * 40)
+        why = r.queue6(compiled(kin_graph(game, relation)), strict=True, origin=2)
+        if why is not None:
+            return why
+        r.walk_through()
+        return tuple(r.state()["records"][:2])
+
+    def test_each_relation_in_every_game(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                for roll in range(3):          # two is one's child: (Ann, Kit), (Ann, Lu) or (Bob, Kit)
+                    self.assertIn(self.cast(game, "child_of", roll), {(0, 2), (0, 3), (1, 2)})
+                for roll in range(3):          # two is one's parent
+                    self.assertIn(self.cast(game, "parent_of", roll), {(2, 0), (2, 1), (3, 0)})
+                for roll in range(2):          # siblings by their mother (Kit and Lu); Max shares nobody
+                    self.assertIn(self.cast(game, "sibling_of", roll), {(2, 3), (3, 2)})
+                for roll in range(2):          # spouses: Kit's recorded father and mother
+                    self.assertIn(self.cast(game, "spouse_of", roll), {(0, 1), (1, 0)})
+
+    def test_strict_refuses_prefer_drops(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                data = compiled(kin_graph(game, "spouse_of"))
+                r = V6(game, [(0, "f", 40, "Ann", 0, False), (1, "m", 41, "Bob", 0, False)])
+                looks(r, 2)
+                why = r.queue6(data, strict=True, origin=2)
+                self.assertIsNotNone(why, "strict: nobody is a couple")
+                self.assertIn("spouses", why)
+                r = V6(game, [(0, "f", 40, "Ann", 0, False), (1, "m", 41, "Bob", 0, False)])
+                looks(r, 2)
+                self.assertIsNone(r.queue6(data), "prefer: the relation is dropped, the event queued")
+                self.assertTrue(r.v6state()["relaxed"])
+
+    def test_a_carrier_and_the_expected_father_are_spouses(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for roll in range(3):
+                with self.subTest(game=game, roll=roll):
+                    r = V6(game, [(0, "f", 40, "Ann", 0, True), (1, "m", 41, "Bob", 0, False),
+                                  (2, "m", 42, "Cal", 0, False)])
+                    looks(r, 3)
+                    set_expected_father(r, game, 0, "Bob", 11, 21)
+                    r.rolls([roll] * 40)
+                    self.assertIsNone(r.queue6(compiled(kin_graph(game, "spouse_of")), strict=True, origin=2))
+                    r.walk_through()
+                    self.assertIn(tuple(r.state()["records"][:2]), {(0, 1), (1, 0)}, "never Cal")
+
+
+@emulated
+class ProtectionModel(unittest.TestCase):
+    """The owner's model (cie-v6-binary.md 7): "allow" lets a harmed role take a nursing parent; New Believers'
+    story villagers are never harmed whatever the role allows."""
+
+    @staticmethod
+    def graph(game: str, protected: str) -> dict:
+        g = cast_graph(protected=protected)
+        g["games"] = [int(game[2])]
+        g["nodes"]["p"]["effects"] = [{"do": "health_change", "role": "subject", "min": -5, "max": -5}]
+        return g
+
+    def test_allow_takes_a_nursing_parent(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = V6(game, [(0, "f", 30, "Ann", 0, True)])
+                self.assertIsNotNone(r.queue6(compiled(self.graph(game, "auto")), strict=True, origin=2))
+                r = V6(game, [(0, "f", 30, "Ann", 0, True)])
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(self.graph(game, "allow")), strict=True, origin=2))
+                health0 = r.v.i32(0, r.v.L["health"])
+                r.walk_through()
+                self.assertEqual(r.v.i32(0, r.v.L["health"]), health0 - 5, "harmed, as the author allowed")
+
+    def test_new_believers_story_villagers_are_never_harmed(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock New Believers")
+        data = compiled(self.graph("vv5", "allow"))
+        for roll in range(2):
+            r = V6("vv5", [(0, "m", 50, "Chief", 0, False), (1, "f", 30, "Ann", 0, False)])
+            r.p.put32(r.v.record(0) + 0x1CFC, 12)             # a story villager (roles 12-17)
+            r.rolls([roll] * 40)
+            self.assertIsNone(r.queue6(data, strict=True, origin=2))
+            r.walk_through()
+            self.assertEqual(r.state()["records"][0], 1, "never the story villager")
+        r = V6("vv5", [(0, "m", 50, "Chief", 0, False)])
+        r.p.put32(r.v.record(0) + 0x1CFC, 12)
+        self.assertIsNotNone(r.queue6(data, strict=True, origin=2), "only a story villager: nobody to harm")
 
 
 if __name__ == "__main__":

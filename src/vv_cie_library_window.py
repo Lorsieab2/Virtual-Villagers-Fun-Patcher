@@ -113,9 +113,14 @@ GAME_TITLES = {1: "Virtual Villagers - A New Home", 2: "Virtual Villagers - The 
 
 # Changes, in the order the Add menu offers them, with their plain names.
 EFFECT_ORDER = ("food", "tech", "pay_award", "health", "skill", "preference", "sick", "status", "vanish", "kill",
-                "celebrate", "action", "mood", "health_change", "damage")
-NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage")     # these make the event version 6
+                "celebrate", "action", "mood", "health_change", "damage", "appearance", "die_unrecovered",
+                "baby_lost")
+NEW_KINDS = ("celebrate", "action", "mood", "health_change", "damage",      # these make the event version 6
+             "appearance", "die_unrecovered", "baby_lost")
 EFFECT_NAMES = {
+    "appearance": "Give a villager a new look (head or body)",
+    "die_unrecovered": "A villager dies and the body is never found (no grave)",
+    "baby_lost": "A nursing parent loses the baby",
     "celebrate": "Villagers celebrate",
     "action": "A villager does something (an action of the game's own)",
     "mood": "A villager looks pleased or upset",
@@ -137,7 +142,13 @@ RISKY = {
     "vanish": "Cannot be undone: the villager is gone for good, with no grave.",
     "sick": "A sick villager who is not cured can die.",
     "status": "At your own risk: the villager leaves the believers and becomes a Heathen.",
+    "die_unrecovered": "Cannot be undone: the villager dies with no grave; the Deaths log records the death.",
+    "baby_lost": "Cannot be undone: the baby is lost. The role must be a nursing parent, with protected villagers "
+                 "allowed.",
 }
+LOOK_WORDS = "(keep)"                  # an appearance effect's head or body left as it is
+RELATION_WORDS = {"": "(none)", "spouse_of": "the spouse of", "parent_of": "a parent of", "child_of": "a child of",
+                  "sibling_of": "a brother or sister of"}
 CAUSE_WORDS = {"custom": "Died in a custom island event", "unknown": "Unknown causes"}
 OWN_WORDS = "In my own words:"
 PER_GAME_WORDS = "Different amounts per game (a game left unticked uses the amount above)"
@@ -294,6 +305,15 @@ def describe_effect(e: dict) -> str:
         return f"{who} dies (recorded as \"{CAUSE_WORDS.get(cause, cause)}\")"
     if do == "vanish":
         return f"{who} disappears for good, with no grave"
+    if do == "die_unrecovered":
+        cause = e.get("cause", "unknown")
+        return f"{who} dies and the body is never found (no grave; recorded as \"{CAUSE_WORDS.get(cause, cause)}\")"
+    if do == "baby_lost":
+        return f"{who} loses the baby"
+    if do == "appearance":
+        parts = [f"{part} {'at random' if e[part] == 'random' else e[part]}" for part in ("head", "body")
+                 if e.get(part) is not None]
+        return f"{who} gets a new look: " + ", ".join(parts)
     if do == "status":
         return f"{who} becomes a Heathen"
     if do == "health":
@@ -595,6 +615,10 @@ def new_effect(kind: str, games, role: str = "subject") -> dict:
         e["mood"] = "good"
     elif kind == "health_change":
         e.update(min=10, max=20)
+    elif kind == "appearance":
+        e["head"] = "random"
+    elif kind == "die_unrecovered":
+        e["cause"] = "unknown"
     elif kind == "damage":
         return {"do": "damage", "structures": cg.DAMAGE_ANY, "min": 10, "max": 30}
     return e
@@ -2462,8 +2486,8 @@ class Library:
                 self._effect_changed()
             who.bind("<<ComboboxSelected>>", pick_who)
             row += 1
-            if do == "kill":
-                cause = e.get("cause", "custom")
+            if do in ("kill", "die_unrecovered"):
+                cause = e.get("cause", "custom" if do == "kill" else "unknown")
                 choice = var_of(cause if cause in CAUSE_WORDS else "own")
                 own = var_of("" if cause in CAUSE_WORDS else cause)
                 count = ttk.Label(form, text="")
@@ -2575,6 +2599,34 @@ class Library:
             elif do == "health_change":
                 integer("min", -99, 99, "Health changes by (below 0 lowers it; never below 1) from:")
                 integer("max", -99, 99, "to:")
+            elif do == "appearance":
+                # cie-v6-binary.md 22: a row of the game's own sheets (A New Home 20, the later games 30), "random"
+                # (any other row) or kept.
+                rows = min(cg.HEAD_ROWS[n] for n in self.g["games"]) if self.g["games"] else 20
+                values = [LOOK_WORDS, "random"] + [str(k) for k in range(rows)]
+                for part in ("head", "body"):
+                    ttk.Label(form, text=f"New {part}:").grid(row=row, column=0, sticky="w", pady=2)
+                    pick = ttk.Combobox(form, state="readonly", width=12, values=values)
+                    pick.grid(row=row, column=1, sticky="w")
+                    pick.set(LOOK_WORDS if e.get(part) is None else str(e[part]))
+
+                    def write_look(_e=None, p=part, box=pick):
+                        v = box.get()
+                        if v == LOOK_WORDS:
+                            e.pop(p, None)
+                        else:
+                            e[p] = v if v == "random" else int(v)
+                        self._effect_changed()
+                    pick.bind("<<ComboboxSelected>>", write_look)
+                    row += 1
+                ttk.Label(form, text="Permanent. The Secret City's Tribal Chief keeps the chief's robe.").grid(
+                    row=row, column=0, columnspan=3, sticky="w")
+                row += 1
+            elif do == "baby_lost":
+                ttk.Label(form, text="Ends the nursing: the baby is lost (never born, no grave). Give the role "
+                                     "\"a nursing parent\" and allow protected villagers.").grid(
+                    row=row, column=0, columnspan=3, sticky="w")
+                row += 1
 
     # ---- roles ----
 
@@ -2841,6 +2893,32 @@ class Library:
         partner.bind("<<ComboboxSelected>>", write_gap)
         years.trace_add("write", write_gap)
         row += 1
+        if v6:
+            # Kinship (cie-v6-binary.md 21): this villager is the spouse / parent / child / sibling of another role.
+            kin = role.get("relation") or {}
+            kin_kind, kin_to = next(iter(kin.items()), ("", None))
+            needed = [q for q in others if not self.g["roles"][q].get("optional")]
+            line = ttk.Frame(form)
+            line.grid(row=row, column=0, columnspan=2, sticky="w", pady=(2, 2))
+            ttk.Label(line, text="Family: this villager is").pack(side="left")
+            kind_box = ttk.Combobox(line, state="readonly", width=22, values=list(RELATION_WORDS.values()))
+            kind_box.pack(side="left", padx=4)
+            kind_box.set(RELATION_WORDS.get(kin_kind, RELATION_WORDS[""]))
+            to_box = ttk.Combobox(line, state="readonly", width=24, values=[capital(role_words(q)) for q in needed])
+            to_box.pack(side="left", padx=4)
+            if kin_to in needed:
+                to_box.current(needed.index(kin_to))
+
+            def write_kin(_e=None):
+                kind = next(k for k, v in RELATION_WORDS.items() if v == kind_box.get())
+                if not kind or to_box.current() < 0:
+                    role.pop("relation", None)
+                else:
+                    role["relation"] = {kind: needed[to_box.current()]}
+                self._role_changed()
+            kind_box.bind("<<ComboboxSelected>>", write_kin)
+            to_box.bind("<<ComboboxSelected>>", write_kin)
+            row += 1
         if v6:
             ttk.Label(form, text=PREFER_NOTE, wraplength=480, justify="left").grid(
                 row=row, column=0, columnspan=2, sticky="w", pady=(8, 0))
