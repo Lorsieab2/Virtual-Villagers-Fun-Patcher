@@ -1,0 +1,438 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hut-Sharing Negotiation",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_hut_sharing_negotiation",
+  "source": "v26",
+  "lines": [
+   2920,
+   2994
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2922",
+  "ledger": [
+   {
+    "src": "L2921",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2923",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L2942",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2950",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2960",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2961",
+    "kind": "instruction",
+    "text": "Modest",
+    "why": "the Building effects on m1"
+   },
+   {
+    "src": "L2962",
+    "kind": "instruction",
+    "text": "Building experience for eligible workers.",
+    "why": "the Building effects on m1"
+   },
+   {
+    "src": "L2971",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2981",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2993-2994",
+    "kind": "note",
+    "why": "implementation note: no housing change is made (the games have no housing effect)"
+   }
+  ]
+ },
+ "words": {
+  "chief": {
+   "*": "the village leader"
+  },
+  "Chief": {
+   "*": "The village leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 50
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "Tight quarters",
+   "src": "L2926-2933",
+   "text": "The village has welcomed several newcomers, but sleeping space is tight. A family with a nursing infant needs a quiet place to rest, an elder prefers to remain near familiar neighbors, and two energetic apprentices have somehow accumulated enough tools to fill an entire hut.\n(Builder) has drawn a plan. (Elder) dislikes it. (Apprentice) claims that (apprentice.his/her) tools need \"room to breathe.\" {@Chief} asks everyone to come to an agreement before nightfall.",
+   "text_only": [
+    {
+     "src": "L2931",
+     "what": "(Elder) dislikes the plan",
+     "reason": "dislikes a plan, not a game preference"
+    }
+   ],
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "Priorities",
+   "src": "L2935",
+   "text": "What should the village prioritize?",
+   "choices": [
+    {
+     "label": "Keep families and dependents together.",
+     "next": "family",
+     "src": "L2937"
+    },
+    {
+     "label": "Arrange huts around accessibility and daily needs.",
+     "next": "needs",
+     "src": "L2938"
+    },
+    {
+     "label": "Build or repair more space as soon as possible.",
+     "next": "space",
+     "src": "L2939"
+    },
+    {
+     "label": "Let the affected villagers negotiate their own arrangement.",
+     "next": "talk",
+     "src": "L2940"
+    }
+   ]
+  },
+  "family": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "f1"
+    },
+    {
+     "next": "f2"
+    },
+    {
+     "next": "f3"
+    }
+   ]
+  },
+  "f1": {
+   "src": "L2943-2944",
+   "text": "A quiet corner is reserved for the nursing parent and infant. The apprentices move their tools elsewhere.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f2": {
+   "src": "L2945-2946",
+   "text": "A family offers to share a larger hut with the newcomers. Everyone agrees on privacy and sleeping arrangements.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "f3": {
+   "src": "L2947-2948",
+   "text": "The plan keeps families together but leaves an elder too far from (elder.his/her) usual support. {@Chief} requests revisions.",
+   "children": [
+    {
+     "next": "needs"
+    }
+   ]
+  },
+  "needs": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "n1"
+    },
+    {
+     "next": "n2"
+    },
+    {
+     "next": "n3"
+    },
+    {
+     "next": "n4"
+    }
+   ]
+  },
+  "n1": {
+   "src": "L2951-2952",
+   "text": "The elder is placed near the hospital and familiar neighbors; the family receives a quieter space.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n2": {
+   "src": "L2953-2954",
+   "text": "A builder notices that one path becomes slippery after rain. The village changes the proposed arrangement.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n3": {
+   "src": "L2955-2956",
+   "text": "The villagers discover that the apparently smallest hut has the best ventilation. They reconsider their assumptions.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "n4": {
+   "src": "L2957-2958",
+   "text": "A villager asks whether anyone has actually spoken to the people being moved. {@Chief} pauses the meeting to ask.",
+   "children": [
+    {
+     "next": "talk"
+    }
+   ]
+  },
+  "space": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "m1"
+    },
+    {
+     "next": "m2"
+    },
+    {
+     "next": "m3"
+    },
+    {
+     "next": "m4"
+    }
+   ]
+  },
+  "m1": {
+   "src": "L2961-2962",
+   "text": "Skilled builders repair an unused shelter in time.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2962"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L2962"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L2961",
+     "what": "an unused shelter is repaired",
+     "reason": "rule 8: the event builds no structure; the repair is told"
+    }
+   ],
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "m2": {
+   "src": "L2963-2965",
+   "text": "The project takes longer than expected. The villagers agree on a temporary arrangement without separating the infant from the nursing parent.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "m3": {
+   "src": "L2966-2967",
+   "text": "The apprentices volunteer to build extra storage for their tools. The elder remarks that this is their first good idea.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "m4": {
+   "src": "L2968-2969",
+   "text": "A new doorway is installed backward. The builders fix it before anyone moves in.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "talk": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L2972-2973",
+   "text": "Everyone listens, and the villagers find a compromise that {@chief} had not considered.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L2974-2975",
+   "text": "The apprentices agree to share a workshop instead of storing tools where people sleep.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L2976-2977",
+   "text": "The elder reveals that (elder.he/she) does not mind moving, provided (elder.his/her) favorite chair comes too.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L2978-2979",
+   "text": "The discussion becomes an argument over who snores the loudest. {@Chief} insists this is not a contest.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    },
+    {
+     "next": "e5"
+    }
+   ]
+  },
+  "e1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2982-2983",
+   "text": "By evening, everyone has a safe place to rest. The village feels a little more like home."
+  },
+  "e2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2984-2985",
+   "text": "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives."
+  },
+  "e3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2986-2987",
+   "text": "A father thanks the villagers for asking what his family actually needed instead of making assumptions."
+  },
+  "e4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2988-2989",
+   "text": "The apprentices' tools are finally organized. One immediately loses a hammer."
+  },
+  "e5": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2990-2991",
+   "text": "The elder invites the newcomers for tea and complains about the village's architecture with great affection."
+  }
+ }
+}

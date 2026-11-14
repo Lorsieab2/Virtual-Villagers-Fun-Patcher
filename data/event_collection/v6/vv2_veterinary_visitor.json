@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Veterinary Visitor",
+ "games": [
+  2
+ ],
+ "collection": {
+  "id": "vv2_veterinary_visitor",
+  "source": "v26",
+  "lines": [
+   2865,
+   2918
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2867",
+  "ledger": [
+   {
+    "src": "L2866",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2868",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L2873",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2890",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2900",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2910",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2917",
+    "kind": "instruction",
+    "text": "Small Healing",
+    "why": "the Healing effect on e4"
+   },
+   {
+    "src": "L2918",
+    "kind": "instruction",
+    "text": "experience only if supported; otherwise narrative-only.",
+    "why": "the Healing effect on e4"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a tiny lizard that insists on sitting on the cleanest shelf",
+     "src": "L2874"
+    },
+    {
+     "text": "a crab that has somehow climbed into an empty basket",
+     "src": "L2875"
+    },
+    {
+     "text": "a bird that keeps stealing the healers' bandages",
+     "src": "L2876"
+    },
+    {
+     "text": "a frog that appears to be supervising the medicine table",
+     "src": "L2877"
+    },
+    {
+     "text": "a turtle that has chosen the doorway as its permanent residence",
+     "src": "L2878"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The visitor",
+   "src": "L2871,L2880-2885",
+   "text": "A small animal has wandered into the village hospital. It is {A}.\n(Healer) notices it first. (Child) is delighted. An elder waiting for a routine checkup remarks that the visitor has better bedside manners than some people (elder.he/she) knows.\nThe animal is not injured, but it cannot remain among clean medical supplies. What should the healer do?",
+   "choices": [
+    {
+     "label": "Ask the children to help guide it safely outside.",
+     "next": "kids",
+     "src": "L2887"
+    },
+    {
+     "label": "Move it to a suitable outdoor spot personally.",
+     "next": "healer",
+     "src": "L2888"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L2884",
+     "what": "the animal is not injured",
+     "reason": "narrative: says no one is hurt"
+    }
+   ]
+  },
+  "kids": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "k1"
+    },
+    {
+     "next": "k2"
+    },
+    {
+     "next": "k3"
+    },
+    {
+     "next": "k4"
+    }
+   ]
+  },
+  "k1": {
+   "src": "L2891-2892",
+   "text": "The children calmly guide the animal away from the hospital. The healer praises their patience.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k2": {
+   "src": "L2893-2894",
+   "text": "The children are so enthusiastic that the animal escapes through the window before they begin.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k3": {
+   "src": "L2895-2896",
+   "text": "One child wants to keep it as a pet. The healer explains why a wild animal is usually better left in its own habitat.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "k4": {
+   "src": "L2897-2898",
+   "text": "The animal crawls into the child's empty sandal. The sandal is carefully carried outside.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "healer": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "h1"
+    },
+    {
+     "next": "h2"
+    },
+    {
+     "next": "h3"
+    },
+    {
+     "next": "h4"
+    }
+   ]
+  },
+  "h1": {
+   "src": "L2901-2902",
+   "text": "The healer gently moves the visitor outdoors, then cleans the affected work area.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "h2": {
+   "src": "L2903-2904",
+   "text": "The animal evades capture with surprising agility. The elder gives directions from a chair like a battlefield commander.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "h3": {
+   "src": "L2905-2906",
+   "text": "A nursing mother visiting with her infant points out an open door the healer overlooked. The animal leaves on its own.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "h4": {
+   "src": "L2907-2908",
+   "text": "The healer discovers that the \"animal\" is a beautifully carved wooden toy. The children have been playing a joke.",
+   "children": [
+    {
+     "next": "end"
+    }
+   ]
+  },
+  "end": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2911-2912",
+   "text": "The hospital returns to its normal routine. The children learn to respect both animals and clean medical spaces."
+  },
+  "e2": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2913-2914",
+   "text": "The elder asks whether the animal will be receiving a bill. The healer replies that it left before registering."
+  },
+  "e3": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2915-2916",
+   "text": "A child makes a drawing of the visitor and gives it to the hospital. The healer hangs it where it won't interfere with care."
+  },
+  "e4": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2917-2918",
+   "text": "The healer quietly thanks everyone for helping.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2917"
+    }
+   ]
+  }
+ }
+}

@@ -389,7 +389,7 @@
    }
   },
   {
-   "id": "all_great_beautification_project",
+   "id": "all_great_beautification",
    "title": "The Great Beautification Project",
    "games": [
     1,
@@ -534,7 +534,7 @@
    }
   },
   {
-   "id": "all_great_isolan_storytelling_contest",
+   "id": "all_isolan_storytelling",
    "title": "The Great Isolan Storytelling Contest",
    "games": [
     1,
@@ -610,7 +610,7 @@
    }
   },
   {
-   "id": "vv5_great_woodworking_competition",
+   "id": "vv5_great_woodworking",
    "title": "The Great Woodworking Competition",
    "games": [
     5

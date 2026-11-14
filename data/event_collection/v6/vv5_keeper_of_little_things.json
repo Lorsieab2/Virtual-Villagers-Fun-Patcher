@@ -1,0 +1,427 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Keeper of Little Things",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "vv5_keeper_of_little_things",
+  "source": "v26",
+  "lines": [
+   3293,
+   3354
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3295",
+  "ledger": [
+   {
+    "src": "L3294",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L3296",
+    "kind": "note",
+    "why": "designer summary of the event"
+   },
+   {
+    "src": "L3313",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3323",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3327",
+    "kind": "instruction",
+    "text": "The village gains a little Tech.",
+    "why": "the tech effect on b2"
+   },
+   {
+    "src": "L3341",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L3351-3352",
+    "kind": "instruction",
+    "why": "the Research or Devotion effects on the coda page"
+   },
+   {
+    "src": "L3352-3354",
+    "kind": "note",
+    "why": "safety note: the parent is never cast (text only); Isolans are never cast; the event has no harmful effect"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 50
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "mom": {
+   "kind": "stranger",
+   "sex": "female"
+  },
+  "dad": {
+   "kind": "stranger",
+   "sex": "male"
+  },
+  "isolan": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "a difficult harvest when neighbors shared the little food they had",
+     "src": "L3314"
+    },
+    {
+     "text": "the first time two stubborn villagers learned to work together",
+     "src": "L3315"
+    },
+    {
+     "text": "a child who made an awful carving and insisted it was a masterpiece",
+     "src": "L3316"
+    },
+    {
+     "text": "an old celebration whose songs are nearly forgotten",
+     "src": "L3317"
+    },
+    {
+     "text": "a misunderstanding between the village and Isolan neighbors that ended with an unexpected act of kindness",
+     "src": "L3318-3319"
+    },
+    {
+     "text": "a beloved teacher who always said, \"Try again tomorrow\"",
+     "src": "L3320"
+    },
+    {
+     "text": "a grand expedition that was, in truth, a very long walk to find a lost goat",
+     "src": "L3321"
+    }
+   ]
+  },
+  "PARENT": {
+   "items": [
+    {
+     "text": "(mom.his/her)",
+     "src": "L3328",
+     "if": {
+      "visited": "l_mom"
+     }
+    },
+    {
+     "text": "(dad.his/her)",
+     "src": "L3328",
+     "if": {
+      "visited": "l_dad"
+     }
+    }
+   ]
+  },
+  "C": {
+   "set": "C",
+   "items": [
+    {
+     "text": "The box is closed and returned to its shelf. Tomorrow, another child may ask about it.",
+     "src": "L3342-3343"
+    },
+    {
+     "text": "The villagers begin collecting stories from willing elders, carefully marking what is remembered and what is uncertain.",
+     "src": "L3344-3345"
+    },
+    {
+     "text": "The baby falls asleep. The adults continue talking in whispers.",
+     "src": "L3346",
+     "if": {
+      "any": [
+       {
+        "visited": "l_mom"
+       },
+       {
+        "visited": "l_dad"
+       }
+      ]
+     }
+    },
+    {
+     "text": "The child decides that (child.he/she) would like to become old someday, if only to own a box full of mysterious objects.",
+     "src": "L3347-3348"
+    },
+    {
+     "text": "The elder laughs at an old mistake and says, \"I was young once, too.\"",
+     "src": "L3349"
+    }
+   ]
+  }
+ },
+ "start": "box",
+ "nodes": {
+  "box": {
+   "name": "The old box",
+   "src": "L3299-3305",
+   "text": "The village's oldest (elder.woman/man), (Elder), has been sorting through an old wooden box. Inside are {a worn carving|a faded scrap of cloth|a smooth pebble|a tiny toy|a carefully folded note}. A child, (Child), asks why anyone would bother keeping such an ordinary object.\n\"Ordinary?\" (Elder) says. \"This belonged to {a dear friend|my mother|a child I once cared for|someone who taught me to build}.\"",
+   "children": [
+    {
+     "next": "listener"
+    }
+   ]
+  },
+  "listener": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "l_app"
+    },
+    {
+     "next": "l_mb"
+    },
+    {
+     "next": "l_mom"
+    },
+    {
+     "next": "l_dad"
+    }
+   ]
+  },
+  "l_app": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3307-3308",
+   "src_pick": [
+    {
+     "src": "L3307",
+     "alt": "an apprentice"
+    }
+   ],
+   "text": "Nearby, an apprentice pauses to listen.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "l_mb": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3307-3308",
+   "src_pick": [
+    {
+     "src": "L3307",
+     "alt": "a Master Builder"
+    }
+   ],
+   "text": "Nearby, a Master Builder pauses to listen.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "l_mom": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3307-3309",
+   "src_pick": [
+    {
+     "src": "L3307",
+     "alt": "a nursing mother"
+    }
+   ],
+   "text": "Nearby, a nursing mother pauses to listen. The parent gently rocks (mom.his/her) baby, who seems far more interested in chewing the edge of a blanket than in history.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "l_dad": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3307-3309",
+   "src_pick": [
+    {
+     "src": "L3307",
+     "alt": "a father"
+    }
+   ],
+   "text": "Nearby, a father pauses to listen. The parent gently rocks (dad.his/her) baby, who seems far more interested in chewing the edge of a blanket than in history.",
+   "children": [
+    {
+     "next": "memory"
+    }
+   ]
+  },
+  "memory": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L3311",
+   "text": "The elder tells the story of {A}.",
+   "children": [
+    {
+     "next": "next"
+    }
+   ]
+  },
+  "next": {
+   "type": "branch",
+   "set": "B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2",
+     "if": {
+      "visited": "l_app"
+     }
+    },
+    {
+     "next": "b3",
+     "if": {
+      "any": [
+       {
+        "visited": "l_mom"
+       },
+       {
+        "visited": "l_dad"
+       }
+      ]
+     }
+    },
+    {
+     "next": "b4"
+    },
+    {
+     "next": "b5"
+    },
+    {
+     "next": "b6"
+    },
+    {
+     "next": "b7"
+    }
+   ]
+  },
+  "b1": {
+   "src": "L3324-3325",
+   "text": "The child asks a hundred questions. The elder answers ninety-nine, then admits (elder.he/she) has forgotten the last answer.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b2": {
+   "src": "L3326-3327",
+   "text": "The apprentice realizes that the object's odd shape records an ingenious building technique.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L3327"
+    }
+   ],
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "src": "L3328-3330",
+   "text": "The parent shares a memory from {PARENT} own childhood, and the baby chooses that exact moment to spit up on the family keepsake. The object is cleaned; the story survives.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4": {
+   "src": "L3331-3332",
+   "text": "An Isolan visitor recognizes the same song or design from (isolan.his/her) community. The two compare versions without insisting one is superior.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b5": {
+   "src": "L3333-3335",
+   "text": "The child is disappointed that the story contains no monsters, treasure, or heroic battles. The elder promises that ordinary people are allowed to be interesting too.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b6": {
+   "src": "L3336-3337",
+   "text": "The elder forgets an important detail. Rather than invent an answer, the villagers decide to ask someone else who might remember.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b7": {
+   "src": "L3338-3339",
+   "text": "The child offers the elder a new, crooked little carving to add to the box. The elder accepts it with surprising solemnity.",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "coda": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{C}",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Research",
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3351"
+    },
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research",
+      "Devotion"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3351"
+    }
+   ]
+  }
+ }
+}

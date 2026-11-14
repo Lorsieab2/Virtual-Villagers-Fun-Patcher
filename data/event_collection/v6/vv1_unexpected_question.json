@@ -1,0 +1,497 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Question",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_unexpected_question",
+  "source": "v26",
+  "lines": [
+   2735,
+   2822
+  ],
+  "section": "v6",
+  "credit": "CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION\n* V6–V8 additional VV1–VV5 event prose, variants and codas:\n  ChatGPT, with Lorsieab2's canon guidance, character preferences,\n  requests for emotional complexity and patcher constraints.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2737",
+  "ledger": [
+   {
+    "src": "L2736",
+    "kind": "structural",
+    "why": "game heading"
+   },
+   {
+    "src": "L2738",
+    "kind": "note",
+    "why": "designer summary of the cast"
+   },
+   {
+    "src": "L2744",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2765",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2774",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2783",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2793",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2803",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L2805",
+    "kind": "instruction",
+    "text": "Small Research experience for eligible learners.",
+    "why": "the Research effect on good1"
+   },
+   {
+    "src": "L2809",
+    "kind": "note",
+    "text": "No job assignment.",
+    "why": "designer note: the nursing parent gets no job (no effect)"
+   },
+   {
+    "src": "L2814",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "teacher": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "elder": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "quiet": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "parent": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "pools": {
+  "A": {
+   "set": "A",
+   "items": [
+    {
+     "text": "If the sea is so large, why doesn't it spill over the edge?",
+     "src": "L2745"
+    },
+    {
+     "text": "If a tree falls where nobody hears it, did it make a sound?",
+     "src": "L2746"
+    },
+    {
+     "text": "How do we know the ancestors didn't make mistakes?",
+     "src": "L2747"
+    },
+    {
+     "text": "Why do grown-ups say \"in a minute\" when they mean much longer?",
+     "src": "L2748"
+    },
+    {
+     "text": "If everyone learns from someone, who taught the first teacher?",
+     "src": "L2749"
+    },
+    {
+     "text": "Why are the oldest ruins sometimes buried beneath newer ones?",
+     "src": "L2750"
+    },
+    {
+     "text": "If a bird steals our berries, does that make it a thief?",
+     "src": "L2751"
+    },
+    {
+     "text": "Can two people remember the same day differently and both be sincere?",
+     "src": "L2752"
+    }
+   ]
+  },
+  "RAILS": {
+   "set": "(6)",
+   "items": [
+    {
+     "text": "The teacher promises to research the answer. A child writes \"ADULTS DO NOT KNOW EVERYTHING\" in enormous letters.",
+     "src": "L2815-2816"
+    },
+    {
+     "text": "The elder accidentally sits on the teacher's notes. Everyone spends ten minutes looking for them.",
+     "src": "L2817-2818"
+    },
+    {
+     "text": "A child asks whether the teacher is allowed to give (teacher.himself/herself) homework. The class votes yes.",
+     "src": "L2819-2820"
+    },
+    {
+     "text": "The lesson ends in laughter, and the teacher writes the question down to revisit when everyone has had time to think.",
+     "src": "L2821-2822"
+    }
+   ]
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The question",
+   "src": "L2741-2742,L2754-2756",
+   "text": "A teacher has gathered the village's children for a lesson about the island. The topic is {A}. Unfortunately, (child1) has a question that nobody expected.\nThe teacher {smiles confidently|looks alarmed|asks for a moment to think|pretends to search for a missing page}. Nearby, an elder who was delivering supplies overhears the discussion and offers to help.",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "name": "What to do",
+   "src": "L2758",
+   "text": "The class is waiting. What should the teacher do?",
+   "choices": [
+    {
+     "label": "Answer immediately, even without certainty.",
+     "next": "quick",
+     "src": "L2760"
+    },
+    {
+     "label": "Turn the question into an investigation.",
+     "next": "invest",
+     "src": "L2761"
+    },
+    {
+     "label": "Invite the elder to share a story.",
+     "next": "story",
+     "src": "L2762"
+    },
+    {
+     "label": "Ask the children to propose their own explanations.",
+     "next": "theory",
+     "src": "L2763"
+    }
+   ]
+  },
+  "quick": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "q1"
+    },
+    {
+     "next": "q2"
+    },
+    {
+     "next": "q3"
+    },
+    {
+     "next": "q4"
+    }
+   ]
+  },
+  "q1": {
+   "src": "L2766",
+   "text": "The explanation is sensible and clear. The class is satisfied.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "q2": {
+   "src": "L2767-2768",
+   "text": "The teacher gives an impressive answer that is completely wrong. (Child2) notices a contradiction. The teacher apologizes.",
+   "children": [
+    {
+     "next": "rails"
+    }
+   ]
+  },
+  "q3": {
+   "src": "L2769-2770",
+   "text": "The teacher admits that the answer is only a guess. The children appreciate the honesty more than the explanation.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "q4": {
+   "src": "L2771-2772",
+   "text": "The teacher becomes so tangled in words that the lesson ends with three more questions than it began with.",
+   "children": [
+    {
+     "next": "rails"
+    }
+   ]
+  },
+  "invest": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "i1"
+    },
+    {
+     "next": "i2"
+    },
+    {
+     "next": "i3"
+    },
+    {
+     "next": "i4"
+    }
+   ]
+  },
+  "i1": {
+   "src": "L2775",
+   "text": "The children make observations and discover a useful pattern.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "i2": {
+   "src": "L2776-2777",
+   "text": "Their experiment fails because someone uses the measuring string as a jump rope. They try again.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "i3": {
+   "src": "L2778-2779",
+   "text": "The class discovers that the answer depends on what the question means. The teacher is delighted; the children are less impressed.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "i4": {
+   "src": "L2780-2781",
+   "text": "A quiet child who rarely speaks offers a careful observation. The teacher makes room for (quiet.him/her) to explain.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "story": {
+   "type": "branch",
+   "set": "(3)",
+   "children": [
+    {
+     "next": "s1"
+    },
+    {
+     "next": "s2"
+    },
+    {
+     "next": "s3"
+    },
+    {
+     "next": "s4"
+    }
+   ]
+  },
+  "s1": {
+   "src": "L2784-2785",
+   "text": "The elder remembers how the same question puzzled (elder.him/her) as a child. The children are fascinated.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "s2": {
+   "src": "L2786-2787",
+   "text": "The elder tells a magnificent story, then admits that it is a story, not proof. The class discusses the difference.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "s3": {
+   "src": "L2788-2789",
+   "text": "The elder begins with \"When I was your age...\" and doesn't finish until the children are nearly old enough to be elders themselves.",
+   "children": [
+    {
+     "next": "rails"
+    }
+   ]
+  },
+  "s4": {
+   "src": "L2790-2791",
+   "text": "The elder and teacher disagree respectfully, demonstrating that grown-ups can learn from each other.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "theory": {
+   "type": "branch",
+   "set": "(4)",
+   "children": [
+    {
+     "next": "t1"
+    },
+    {
+     "next": "t2"
+    },
+    {
+     "next": "t3"
+    },
+    {
+     "next": "t4"
+    }
+   ]
+  },
+  "t1": {
+   "src": "L2794-2795",
+   "text": "The children suggest several testable explanations. The class chooses one to investigate tomorrow.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "t2": {
+   "src": "L2796-2797",
+   "text": "(Child1) offers an ingenious idea, while (child2) spots a flaw. Neither takes offense.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "t3": {
+   "src": "L2798-2799",
+   "text": "One child insists that all unanswered questions are caused by invisible coconuts. The teacher asks for evidence.",
+   "children": [
+    {
+     "next": "rails"
+    }
+   ]
+  },
+  "t4": {
+   "src": "L2800-2801",
+   "text": "The children discover they are arguing about different meanings of the same word. The teacher helps them clarify it.",
+   "children": [
+    {
+     "next": "good"
+    }
+   ]
+  },
+  "good": {
+   "type": "branch",
+   "set": "(5)",
+   "children": [
+    {
+     "next": "g1"
+    },
+    {
+     "next": "g2"
+    },
+    {
+     "next": "g3"
+    },
+    {
+     "next": "g4",
+     "if": {
+      "special_present": "golden_child"
+     }
+    }
+   ]
+  },
+  "g1": {
+   "src": "L2804-2805",
+   "text": "The class learns that admitting uncertainty can be the beginning of discovery.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child1",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2805"
+    },
+    {
+     "do": "skill",
+     "role": "child2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2805"
+    }
+   ]
+  },
+  "g2": {
+   "src": "L2806-2807",
+   "text": "The elder thanks the children for making (elder.him/her) think again. The children ask whether (elder.he/she) will visit next week."
+  },
+  "g3": {
+   "src": "L2808-2809",
+   "text": "A nursing parent listening nearby quietly smiles as (parent.his/her) older child explains the lesson to the baby."
+  },
+  "g4": {
+   "src": "L2810-2812",
+   "text": "If the Golden Child is present, he responds through an existing supported nonverbal gesture. The class treats his contribution as meaningful without requiring speech.",
+   "text_only": [
+    {
+     "src": "L2810-2811",
+     "what": "a supported nonverbal gesture",
+     "reason": "rule 8: the games have no gesture the event can make the Golden Child perform; told only, and shown only when the Golden Child is alive"
+    }
+   ]
+  },
+  "rails": {
+   "text": "{RAILS}"
+  }
+ }
+}
