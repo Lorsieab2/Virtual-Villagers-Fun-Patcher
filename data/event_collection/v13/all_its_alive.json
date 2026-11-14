@@ -76,7 +76,7 @@
    "text": "(researcher), a gifted but secretive researcher, unveils a human-shaped figure built from carved wood, clay, tough vines, animal rawhide, polished stones and intricate joints. (researcher.He/She) insists it is more than a sculpture. The figure turns its head, lifts an arm, and whispers something nobody can quite understand.\nThe crowd falls silent. Then the figure takes three steps.",
    "choices": [
     {
-     "label": "Praise (researcher.him/her) for creating something alive.",
+     "label": "Praise (researcher) for creating something alive.",
      "next": "set_a",
      "src": "L7114"
     },

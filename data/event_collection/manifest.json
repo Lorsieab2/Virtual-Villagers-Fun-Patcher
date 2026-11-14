@@ -7,8 +7,8 @@
   "rows": 226,
   "events": 175,
   "addons": 4,
-  "banks": 9,
-  "notes": 38,
+  "banks": 8,
+  "notes": 39,
   "events_and_addons": 179,
   "series": {
    "v14_golden_child": 25,
@@ -4645,7 +4645,7 @@
     8033,
     8093
    ],
-   "kind": "bank",
+   "kind": "notes",
    "section": "v17",
    "credit": {
     "who": "mixed",
@@ -4716,11 +4716,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8105: COOKING  -  THE FIRST GREAT FEAST:",
     "title_found": true,
@@ -4747,11 +4749,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8121: BUILDING  -  A SHELTER FOR THE NEXT STORM:",
     "title_found": true,
@@ -4778,11 +4782,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8131: RESEARCH / INVENTION  -  THE STONE TABLE OF QUESTIONS:",
     "title_found": true,
@@ -4809,11 +4815,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8137: SCULPTURE  -  THE FACE OF THE SOUTHERN SHORE:",
     "title_found": true,
@@ -4840,11 +4848,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 2,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 2,
    "source_check": {
     "heading": "L8143: STORY / SONG  -  THE WORDS WE BROUGHT WITH US:",
     "title_found": true,
@@ -4871,11 +4881,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8150: FARMING  -  THE SEED AND SOIL TRIAL:",
     "title_found": true,
@@ -4902,11 +4914,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8155: CHILDREN'S GAMES  -  THE GREATEST LITTLE CHAMPION:",
     "title_found": true,
@@ -4963,11 +4977,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 2,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 2,
    "source_check": {
     "heading": "L8171: BUILDING  -  THE BRIDGE THAT SHOULD NOT STAND:",
     "title_found": true,
@@ -4994,11 +5010,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8180: RESEARCH  -  THE GREAT FALLS RIDDLE:",
     "title_found": true,
@@ -5025,11 +5043,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8186: SCULPTURE  -  THE TOTEM'S UNFORTUNATE COUSIN:",
     "title_found": true,
@@ -5056,11 +5076,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8193: STORY / SONG  -  THE FOUNDERS' BALLAD:",
     "title_found": true,
@@ -5087,11 +5109,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8199: FARMING  -  THE GREAT BERRY CHALLENGE:",
     "title_found": true,
@@ -5118,11 +5142,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8205: CHILDREN'S GAMES  -  THE CHILDREN'S JURY:",
     "title_found": true,
@@ -5179,11 +5205,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8219: COOKING  -  THE CHIEF'S TABLE:",
     "title_found": true,
@@ -5210,11 +5238,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8232: BUILDING  -  THE STATUE AND THE IMPOSSIBLE ARCH:",
     "title_found": true,
@@ -5241,11 +5271,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8238: RESEARCH  -  MAGIC, NATURE AND MEASUREMENT:",
     "title_found": true,
@@ -5272,11 +5304,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8244: SCULPTURE  -  THE CHIEF'S MOST UNFLATTERING LIKENESS:",
     "title_found": true,
@@ -5303,11 +5337,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8251: STORY / SONG  -  THE TWO HISTORIES:",
     "title_found": true,
@@ -5334,11 +5370,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8257: FARMING  -  THE GARDEN OF RIVAL METHODS:",
     "title_found": true,
@@ -5365,11 +5403,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8263: CHILDREN'S GAMES  -  THE CHIEF FOR A MOMENT:",
     "title_found": true,
@@ -5426,11 +5466,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8278: COOKING  -  THE ROOTS AND RIVER FEAST:",
     "title_found": true,
@@ -5457,11 +5499,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8291: BUILDING  -  THE WATER'S UNLIKELY PATH:",
     "title_found": true,
@@ -5488,11 +5532,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8298: RESEARCH  -  THE QUESTION OF THE TREE:",
     "title_found": true,
@@ -5519,11 +5565,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8304: SCULPTURE  -  THE UGLIEST GUARDIAN:",
     "title_found": true,
@@ -5550,11 +5598,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8312: STORY / SONG  -  THE TREE REMEMBERS:",
     "title_found": true,
@@ -5581,11 +5631,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8318: FARMING  -  THE WATERKEEPERS' TRIAL:",
     "title_found": true,
@@ -5612,11 +5664,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8323: CHILDREN'S GAMES  -  THE MASK-MAKERS' PARADE:",
     "title_found": true,
@@ -5680,6 +5734,8 @@
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 4,
    "source_check": {
     "heading": "L8384: COOKING  -  THE QUESTIONABLE FEAST:",
     "title_found": true,
@@ -5706,11 +5762,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8403: BUILDING  -  THE BRIDGE BETWEEN NEIGHBORS:",
     "title_found": true,
@@ -5742,6 +5800,8 @@
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 4,
    "source_check": {
     "heading": "L8412: RESEARCH / INVENTION  -  WHO OWNS A DISCOVERY?:",
     "title_found": true,
@@ -5773,6 +5833,8 @@
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 4,
    "source_check": {
     "heading": "L8422: SCULPTURE  -  THE TWO FACES OF ISOLA:",
     "title_found": true,
@@ -5804,6 +5866,8 @@
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 4,
    "source_check": {
     "heading": "L8432: STORY / SONG  -  WHO GETS TO TELL ISOLA'S HISTORY?:",
     "title_found": true,
@@ -5830,11 +5894,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 0,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 0,
    "source_check": {
     "heading": "L8444: FARMING  -  THE HARVEST AND THE BORDER:",
     "title_found": true,
@@ -5861,11 +5927,13 @@
     ],
     "text": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact."
    },
-   "choices": 3,
+   "choices": 4,
    "pools": {},
    "effects": [],
    "deaths": false,
    "series": "v17_contests",
+   "shared_choices": 4,
+   "own_choices": 3,
    "source_check": {
     "heading": "L8452: CHILDREN'S GAMES  -  THE CHILDREN'S PEACE, THE ADULTS' QUARREL:",
     "title_found": true,

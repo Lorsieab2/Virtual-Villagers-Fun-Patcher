@@ -18,7 +18,8 @@
   "series": "v17_contests",
   "title_src": "L8263",
   "shared_lines": [
-   "L8214"
+   "L8214",
+   "L8066-8073"
   ],
   "ledger": [
    {
@@ -31,6 +32,30 @@
     "src": "L8268",
     "kind": "note",
     "why": "designer note, never displayed"
+   },
+   {
+    "src": "L8066",
+    "kind": "structural",
+    "text": "INTRO:",
+    "why": "the framework's intro label"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": ", where the game setting makes that meaningful",
+    "why": "designer condition on choice D; every game shows it"
+   },
+   {
+    "src": "L8067",
+    "kind": "note",
+    "text": "In VV5, one competitor may instead be an event-only Isolan",
+    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
+   },
+   {
+    "src": "L8068",
+    "kind": "note",
+    "text": "visitor (Visitor), and",
+    "why": "the rest of the VV5 option"
    }
   ]
  },
@@ -42,6 +67,14 @@
    "kind": "villager",
    "min_age": 3,
    "max_age": 13
+  },
+  "comp1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "comp2": {
+   "kind": "villager",
+   "min_age": 14
   },
   "coda1": {
    "kind": "stranger",
@@ -56,13 +89,48 @@
    "name": "The Chief for a Moment",
    "children": [
     {
+     "next": "common"
+    }
+   ]
+  },
+  "common_d": {
+   "src": "L8072-8073",
+   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
+   "children": [
+    {
      "next": "u"
     }
    ]
   },
+  "common": {
+   "type": "question",
+   "name": "The competition",
+   "src": "L8066-8067",
+   "text": "Two villagers (Comp1) and (comp2) enter a competition before an excited crowd.",
+   "choices": [
+    {
+     "label": "Trust the appointed judges and let the contest proceed.",
+     "next": "u",
+     "src": "L8069"
+    },
+    {
+     "label": "Require a blind or anonymous test of the entries.",
+     "next": "u",
+     "src": "L8070"
+    },
+    {
+     "label": "Invite the competitors to explain or demonstrate their work.",
+     "next": "u",
+     "src": "L8071"
+    },
+    {
+     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
+     "next": "common_d",
+     "src": "L8072-8073"
+    }
+   ]
+  },
   "u": {
-   "popup": "append",
-   "join": "paragraph",
    "text": "{v17_u}",
    "children": [
     {

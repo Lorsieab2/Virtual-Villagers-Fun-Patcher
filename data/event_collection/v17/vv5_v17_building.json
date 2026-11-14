@@ -17,6 +17,10 @@
   "draw_weight": 1,
   "series": "v17_contests",
   "title_src": "L8403",
+  "shared_lines": [
+   "L8066-8073",
+   "L8348-8352"
+  ],
   "ledger": [
    {
     "src": "L8409",
@@ -28,6 +32,35 @@
     "src": "L8410",
     "kind": "note",
     "why": "designer note, never displayed"
+   },
+   {
+    "src": "L8066",
+    "kind": "structural",
+    "text": "INTRO:",
+    "why": "the framework's intro label"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": ", where the game setting makes that meaningful",
+    "why": "designer condition on choice D; every game shows it"
+   },
+   {
+    "src": "L8067",
+    "kind": "note",
+    "text": "In VV5, one competitor may instead be an event-only Isolan",
+    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
+   },
+   {
+    "src": "L8068",
+    "kind": "note",
+    "text": "visitor (Visitor), and",
+    "why": "the rest of the VV5 option"
+   },
+   {
+    "src": "L8348",
+    "kind": "structural",
+    "why": "the political choices' heading"
    }
   ]
  },
@@ -35,6 +68,14 @@
   "min_eligible": 1
  },
  "roles": {
+  "comp1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "comp2": {
+   "kind": "villager",
+   "min_age": 14
+  },
   "coda1": {
    "kind": "stranger",
    "sex": "random"
@@ -48,13 +89,103 @@
    "name": "The Bridge Between Neighbors",
    "children": [
     {
-     "next": "p"
+     "next": "common"
+    }
+   ]
+  },
+  "common_a": {
+   "src": "L8069",
+   "text": "Trust the appointed judges and let the contest proceed.",
+   "children": [
+    {
+     "next": "politics"
+    }
+   ]
+  },
+  "common_b": {
+   "src": "L8070",
+   "text": "Require a blind or anonymous test of the entries.",
+   "children": [
+    {
+     "next": "politics"
+    }
+   ]
+  },
+  "common_c": {
+   "src": "L8071",
+   "text": "Invite the competitors to explain or demonstrate their work.",
+   "children": [
+    {
+     "next": "politics"
+    }
+   ]
+  },
+  "common_d": {
+   "src": "L8072-8073",
+   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
+   "children": [
+    {
+     "next": "politics"
+    }
+   ]
+  },
+  "common": {
+   "type": "question",
+   "name": "The competition",
+   "src": "L8066-8067",
+   "text": "Two villagers (Comp1) and (comp2) enter a competition before an excited crowd.",
+   "choices": [
+    {
+     "label": "Trust the appointed judges and let the contest proceed.",
+     "next": "common_a",
+     "src": "L8069"
+    },
+    {
+     "label": "Require a blind or anonymous test of the entries.",
+     "next": "common_b",
+     "src": "L8070"
+    },
+    {
+     "label": "Invite the competitors to explain or demonstrate their work.",
+     "next": "common_c",
+     "src": "L8071"
+    },
+    {
+     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
+     "next": "common_d",
+     "src": "L8072-8073"
+    }
+   ]
+  },
+  "politics": {
+   "type": "question",
+   "name": "The politics",
+   "src": "L8068",
+   "text": "A judge may belong to either community.",
+   "choices": [
+    {
+     "label": "Let the hosting community appoint the entire judging panel.",
+     "next": "p",
+     "src": "L8349"
+    },
+    {
+     "label": "Require equal representation and publish the criteria beforehand.",
+     "next": "p",
+     "src": "L8350"
+    },
+    {
+     "label": "Hold an anonymous test, hiding the entrants' community affiliations.",
+     "next": "p",
+     "src": "L8351"
+    },
+    {
+     "label": "Invite the two teams to cooperate on one final entry instead.",
+     "next": "p",
+     "src": "L8352"
     }
    ]
   },
   "p": {
-   "popup": "append",
-   "join": "paragraph",
    "text": "{v17_p}",
    "children": [
     {

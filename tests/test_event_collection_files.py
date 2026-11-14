@@ -114,8 +114,14 @@ class Manifest(unittest.TestCase):
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
 KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
     # GAP-VISITOR: V17-E's "(Visitor)" is an offscreen Isolan competitor shown by name; Isolans are never cast
-    # (authoring rule 15) and a stranger has no name, so the format cannot show it yet.
-    "vv5_v17_cooking.json": r"a SCHEMA: (\(scrolling\) )?node \w+: \(Visitor\): a stranger has no name$",
+    # (authoring rule 15) and a stranger has no name, so the format cannot show it yet. Written for the coming named
+    # stranger ({"kind": "stranger", "named": true}: a random name from the game's own list, never a living villager's).
+    "vv5_v17_cooking.json": r"a SCHEMA: (\(scrolling\) )?(node \w+: \(Visitor\): a stranger has no name|"
+                            r"role visitor: unknown fields named)$",
+    # GAP-LABELFIT: "Praise (Name1) for creating something alive." is too wide with the longest names; the engine's
+    # label-only name-to-pronoun fallback for screen fit is coming, so the source's name stays.
+    "all_its_alive.json": r"a SCHEMA: (\(scrolling\) )?[A-Za-z ]+: the label 'Praise \(researcher\) for creating "
+                          r"something alive\.' runs off the screen with the longest names \(\d+ of \d+ pixels\)$",
 }
 
 

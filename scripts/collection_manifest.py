@@ -277,7 +277,7 @@ for _g, _t, _a, _b in _EXCL:
     R(short_id(f"vv{_g}_{_slug}"), _t, [_g], _a, _b, "event", "exclusive", "exclusive", 2, {},
       ["tech", "food"] if _g in (3, 4, 5) else ["tech", "health_change"])
 R("bank_v17_framework", "V17 - The Five Shores Compete: framework and universal consequence pool", ALL, 8033, 8093,
-  "bank", "v17", "v17", 4, {"U": (10, None)})
+  "notes", "v17", "v17", 4, {"U": (10, None)})   # notes: every contest shows its common choices (shared_lines)
 _V17 = [
     ("a", 1, "intro", 8095, 8103, None, 0),
     ("a", 1, "The First Great Feast", 8105, 8119, "cooking", 3), ("a", 1, "A Shelter for the Next Storm", 8121, 8129, "building", 3),
@@ -317,7 +317,10 @@ for _p, _g, _t, _a, _b, _kind, _c in _V17:
             R("bank_v17e_epilogues", "V17-E final VV5 epilogues E1-E5", [5], _a, _b, "bank", "v17", "v17", 0,
               {"E": (5, None)})
         continue
-    R(f"vv{_g}_v17_{_kind}", _t, [_g], _a, _b, "event", "v17", "v17", _c, {}, [], series="v17_contests")
+    # every contest also asks the common competition question (4 choices, L8069-8073) and, in VV5, the political
+    # question (4 choices, L8349-8352): the widest question has 4 buttons
+    R(f"vv{_g}_v17_{_kind}", _t, [_g], _a, _b, "event", "v17", "v17", _c, {}, [], series="v17_contests",
+      shared_choices=4)
 N("notes_exclusive_end", "End of new game-exclusive events", 8030, 8030, "exclusive", "exclusive")
 N("notes_v17_implementation", "V17 implementation and attribution notes", 8475, 8489, "v17", "v17")
 N("notes_v18_framework", "V18 - The Grand Festival of Twelve Trials: credits, rules and framing", 8491, 8521, "v18",
@@ -583,6 +586,10 @@ def verify(row: dict) -> tuple[dict, list[str]]:
         if c is not None and c != row["choices"]:
             disagreements.append(f"choices: inventory {row['choices']}, source {c}")
             row["choices"] = c
+        if row.get("shared_choices"):
+            # the event also shows a section's shared question (its own choices are verified above)
+            row["own_choices"] = row["choices"]
+            row["choices"] = max(row["choices"], row["shared_choices"])
     pools = {}
     for label, spec in row["pools"].items():
         if isinstance(spec, int):
