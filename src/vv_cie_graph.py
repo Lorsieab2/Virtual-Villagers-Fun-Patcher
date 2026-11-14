@@ -1009,7 +1009,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason"} if v6 else set())
+                 "outcome", "name"} | ({"src", "text_only_reason", "title"} if v6 else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1126,6 +1126,15 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     if not isinstance(n[k], str):
                         problems.append(f"{where}: {k} is a string")
                     nodes[nid][k] = n[k]
+            ntitle = n.get("title")
+            if ntitle is not None:
+                # Per-node popup title (cie-v6-binary.md 14): in force from this node's page on.
+                if not isinstance(ntitle, str) or not ntitle.strip():
+                    problems.append(f"{where}: its popup title is a string (leave it out for none)")
+                elif t == "branch":
+                    problems.append(f"{where}: a branch shows no text, so it has no popup title")
+                else:
+                    nodes[nid]["title"] = ntitle
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -2046,6 +2055,7 @@ class Popup:
     nodes: list[str] = field(default_factory=list)
     room: int = 0                       # lines kept for a question's third and fourth buttons (answer_room)
     answers: int = 0                    # a question's buttons shown (version 6: its answer's page room)
+    titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
 
 
 @dataclass
@@ -2114,13 +2124,16 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
     #       a node with changes was reached since then) -- the companion shows each answer's own page first, and a
     #       change needs a page to come with (version 2).
     def visit(nid: str, choice, path: tuple, chance: Fraction, popups: list[Popup], award, paid: bool,
-              gone: frozenset, effects: list, answers: tuple = (), seg: tuple = (False, False, False)) -> None:
+              gone: frozenset, effects: list, answers: tuple = (), seg: tuple = (False, False, False),
+              title: str = "") -> None:
         if len(found) >= MAX_PATHS:
             say(f"more than {MAX_PATHS} histories: the graph is too big")
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers) for p in popups]
+        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles))
+                  for p in popups]
+        ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
         for e in node["effects"]:
@@ -2198,7 +2211,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             else:
                 shown = node["choices"]
                 room = answer_room(len(node["choices"]))
-            popups.append(Popup("question", text, nodes=[nid], room=room, answers=len(shown)))
+            popups.append(Popup("question", text, nodes=[nid], room=room, answers=len(shown),
+                                titles=[ntitle or title]))
         elif node["type"] == "popup":
             paged = True
             if node["popup"] == "append":
@@ -2209,6 +2223,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 sep = " " if node["join"] == "space" else "\n"
                 last.text = last.text + sep + text if last.text else text
                 last.nodes.append(nid)
+                if ntitle:
+                    last.titles.append(ntitle)
             else:
                 # An answer's first page is shown in the question's own popup, keeping room for its buttons (two to
                 # four).  G1: after five or more buttons it starts a fresh popup -- the island-event notice the
@@ -2224,7 +2240,11 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         room = answer_room(popups[-1].answers, game.result)
                     else:
                         kind = "plain"
-                popups.append(Popup(kind, text, nodes=[nid], room=room))
+                # 14: a page shown in the question's own popup keeps that popup's title.
+                in_question = after and (not v6 or popups[-1].answers <= MAX_ANSWERS_V4)
+                titles = [title] + ([ntitle] if ntitle else []) if in_question else [ntitle or title]
+                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles))
+        title = ntitle or title
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
                           [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
@@ -2258,7 +2278,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                     continue
                 if c["next"] in nodes:
                     visit(c["next"], i if choice is None else choice, path, chance, popups, award, paid, gone,
-                          effects, answers + ((nid, i),), (True, False, False))
+                          effects, answers + ((nid, i),), (True, False, False), title)
             return
         kctx = ctx
         if v6 and gone:
@@ -2279,7 +2299,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         for nxt, w in kids:
             if nxt in nodes:
                 visit(nxt, choice, path, chance * Fraction(w, total), popups, award, paid, gone, effects, answers,
-                      (asked, paged, changed))
+                      (asked, paged, changed), title)
 
     if g["start"] not in nodes:
         return found
@@ -2537,7 +2557,7 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     for p in paths:
         game = GAMES[p.ctx.game]
         for pop in p.popups:
-            key = (game.number, pop.layout, pop.worst, pop.effects, pop.room)
+            key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
                 continue
             done.add(key)
@@ -2549,12 +2569,46 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
                 continue
             if scrolling:
                 continue
-            pages, why = paginate(layout, g["title"], pop.worst, (REFUSAL_LINES if pop.effects else 0) + pop.room)
+            pages, why = paginate(layout, widest_title(g, pop.titles, layout, game), pop.worst,
+                                  (REFUSAL_LINES if pop.effects else 0) + pop.room)
             if why:
                 problems.append(f"{game.name}: the popup of {nodes} runs off the screen without scrolling: {why}")
             elif len(pages) > MAX_PAGES:
                 problems.append(f"{game.name}: the popup of {nodes} takes {len(pages)} pages; at most {MAX_PAGES}")
     return problems
+
+
+def title_problems(g: dict, title: str, what: str) -> list[str]:
+    """A title's problems (the event's, or a node's popup title, cie-v6-binary.md 5 and 14) in every game of `g`."""
+    v6 = g["version"] >= VERSION_V6
+    out: list[str] = []
+    if len(title) > TITLE_BYTES:
+        out.append(f"{what} is longer than {TITLE_BYTES} characters")
+    if PLACEHOLDER_RE.search(title):
+        out.append(f"{what} has no placeholders")
+    if not all((text_char_ok(c) or (v6 and c == "\"")) and c != "\n" for c in title):
+        out.append(f"{what} has characters the game cannot show")
+    for gn in g["games"]:
+        game = GAMES[gn]
+        if v6 and gn in TITLE_BOX_PX:
+            if title_px(gn, title) > TITLE_BOX_PX[gn]:
+                out.append(f"{game.name}: {what} is {title_px(gn, title)} pixels wide; its popup shows "
+                           f"{TITLE_BOX_PX[gn]}")
+        elif len(title) > game.title_width:
+            out.append(f"{game.name}: {what} is longer than its {game.title_width} characters")
+    return out
+
+
+def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game") -> str:
+    """Of the titles in force on a popup ("" = the event's own), the one whose worst case wraps into the most
+    lines at the layout's width (the first on a tie): the popup is paged with it (cie-v6-binary.md 14)."""
+    best, most = g["title"], -1
+    for t in titles or [""]:
+        t = t or g["title"]
+        n = len(wrap(t, layout.width))
+        if n > most:
+            best, most = t, n
+    return best
 
 
 def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tuple[dict, list[str]]:
@@ -2609,21 +2663,12 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
 
     # The title and the labels, in every game.
     lg_labels = lower(g) if v6 else None
-    title = g["title"]
-    if len(title) > TITLE_BYTES:
-        problems.append(f"the title is longer than {TITLE_BYTES} characters")
-    if PLACEHOLDER_RE.search(title):
-        problems.append("the title has no placeholders")
-    if not all((text_char_ok(c) or (v6 and c == "\"")) and c != "\n" for c in title):
-        problems.append("the title has characters the game cannot show")
+    problems.extend(title_problems(g, g["title"], "the title"))
+    for nid, n in nodes.items():
+        if n.get("title"):
+            problems.extend(title_problems(g, n["title"], f"node {nid}: its popup title"))
     for gn in g["games"]:
         game = GAMES[gn]
-        if v6 and gn in TITLE_BOX_PX:
-            if title_px(gn, title) > TITLE_BOX_PX[gn]:
-                problems.append(f"{game.name}: the title is {title_px(gn, title)} pixels wide; its popup shows "
-                                f"{TITLE_BOX_PX[gn]}")
-        elif len(title) > game.title_width:
-            problems.append(f"{game.name}: the title is longer than its {game.title_width} characters")
         for nid, n in nodes.items():
             for c in n["choices"]:
                 if v6:
@@ -2824,7 +2869,7 @@ def _compile_v6(g: dict) -> bytes:
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
                             e_first if n["effects"] else NONE, len(n["effects"]), s(n["summary"]),
-                            s(n["outcome"]), 0)
+                            s(n["outcome"]), s(n.get("title")))
     patches = b"".join(_PATCH.pack(s(p)) for p in lg["patches"])
     pools = items = b""
     n_item = 0
@@ -2948,7 +2993,7 @@ def _decompile_v6(data: bytes) -> dict:
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
         (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
-         outcome, _z4) = n
+         outcome, ntitle) = n
         typ = NODE_TYPES[t]
         variants = []
         for k in range(v_count):
@@ -3001,6 +3046,8 @@ def _decompile_v6(data: bytes) -> dict:
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
                       "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
                       "outcome": s(outcome)}
+        if ntitle != NONE:
+            nodes[nid]["title"] = s(ntitle)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -3474,6 +3521,9 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 award = (e["do"], fx[k][0])
             k += 1
     texts: list[str] = []
+    titles: list[str] = []             # 14: the title each popup's first page shows
+    title = lg["title"]
+    room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
     for nid in path:
         n = lg["nodes"][nid]
@@ -3483,11 +3533,22 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         t = node_text(n, ctx, seen)
         if n["type"] == "popup" and n["popup"] == "append" and texts:
             texts[-1] = texts[-1] + (" " if n["join"] == "space" else "\n") + t if texts[-1] else t
+            title = n.get("title") or title
         else:
             texts.append(t)
+            if room_after and n["type"] == "popup":
+                titles.append(title)   # shown in the question's own popup: its title
+                title = n.get("title") or title
+            else:
+                title = n.get("title") or title
+                titles.append(title)
+        room_after = n["type"] == "question" and \
+            sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
-    return {"nodes": path, "fx": fx, "picks": picks, "aliases": aliases, "popups": popups, "rolls_used": used[0]}
+    titles = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in titles]
+    return {"nodes": path, "fx": fx, "picks": picks, "aliases": aliases, "popups": popups, "titles": titles,
+            "rolls_used": used[0]}
 
 
 # ---- The chances of every outcome ----------------------------------------------------------------------------------

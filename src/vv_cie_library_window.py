@@ -658,7 +658,7 @@ def fit_meter(g: dict, nid: str, scrolling: bool) -> dict[int, Fit | None]:
                         fit = Fit(used, cg.POPUP_TEXT_MAX, "characters", used > cg.POPUP_TEXT_MAX)
                     else:
                         layout = getattr(game, pop.layout)
-                        pages, why = cg.paginate(layout, g["title"], pop.worst,
+                        pages, why = cg.paginate(layout, cg.widest_title(g, pop.titles, layout, game), pop.worst,
                                                  cg.REFUSAL_LINES if pop.effects else 0)
                         fit = Fit(len(pages), cg.MAX_PAGES, "pages", bool(why) or len(pages) > cg.MAX_PAGES,
                                   why or "")
@@ -978,6 +978,15 @@ class Library:
         self.join_box.pack(side="left")
         self.join_box.bind("<<ComboboxSelected>>", lambda _e: self._node_set(
             "join", next(k for k, v in JOIN_WORDS.items() if v == self.join_box.get())))
+
+        titled = ttk.Frame(page)
+        titled.pack(fill="x", pady=(8, 0))
+        ttk.Label(titled, text="Popup title from here:").pack(side="left")
+        self.node_title_var = tk.StringVar(master=self.window)
+        self.node_title_entry = ttk.Entry(titled, textvariable=self.node_title_var, width=40)
+        self.node_title_entry.pack(side="left", padx=(4, 4))
+        ttk.Label(titled, text="(empty: the title shown so far stays)").pack(side="left")
+        self.node_title_var.trace_add("write", lambda *_: self._node_title_changed())
 
         which = ttk.Frame(page)
         which.pack(fill="x", pady=(8, 0))
@@ -1637,7 +1646,10 @@ class Library:
             state = "readonly" if n["type"] == "popup" else "disabled"
             self.popup_box.configure(state=state)
             self.join_box.configure(state=state)
-            variants = ["The usual text"] + [f"Variant {i + 1}: {capital(describe_cond(v['if'], self.g))}"
+            self.node_title_var.set(n.get("title", ""))
+            titled = n["type"] != "branch" and self.g.get("version", 1) >= cg.VERSION_V6
+            self.node_title_entry.configure(state="normal" if titled else "disabled")
+            variants =["The usual text"] + [f"Variant {i + 1}: {capital(describe_cond(v['if'], self.g))}"
                                              for i, v in enumerate(n["variants"])]
             self.variant_box.configure(values=variants)
             self.variant_box.current(0)
@@ -1837,6 +1849,18 @@ class Library:
         n[key] = value
         self.changed()
 
+    def _node_title_changed(self) -> None:
+        """The part's popup title (cie-v6-binary.md 14): empty takes it away."""
+        n = self.node()
+        if self._loading or n is None:
+            return
+        words = self.node_title_var.get()
+        if words.strip():
+            n["title"] = words
+        else:
+            n.pop("title", None)
+        self.changed()
+
     def _type_changed(self) -> None:
         n = self.node()
         if n is None:
@@ -1850,6 +1874,7 @@ class Library:
                 self.type_box.set(TYPE_WORDS[n["type"]])
                 return
             n["text"], n["variants"] = "", []
+            n.pop("title", None)       # a silent split has no popup, so no popup title
         if kind == "question":
             if self.nid != self.g["start"]:
                 self.g["version"] = max(self.g.get("version", 1), 2)   # questions anywhere: version 2

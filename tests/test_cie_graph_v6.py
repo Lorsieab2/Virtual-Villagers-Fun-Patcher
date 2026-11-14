@@ -156,6 +156,27 @@ NO_ROLES = {
     },
 }
 
+TITLES = {
+    # Per-node popup titles (cie-v6-binary.md 14): the opening picks the title (V24); the answer's first page,
+    # shown in the question's own popup, keeps the question's title; the next popup takes the answer's.
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Revolution", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager"}},
+    "start": "b",
+    "nodes": {
+        "b": {"type": "branch", "children": [{"next": "inv"}, {"next": "dis"}]},
+        "inv": {"title": "The Revolutionary Invention", "text": "(Name) builds a wondrous machine.",
+                "children": [{"next": "q"}]},
+        "dis": {"title": "The Revolutionary Discovery", "text": "(Name) finds a wondrous cave.",
+                "children": [{"next": "q"}]},
+        "q": {"type": "question", "text": "Show the elders?", "choices": [
+            {"label": "Show them", "next": "y"}, {"label": "Keep it quiet", "next": "n"}]},
+        "y": {"title": "The Elders Decide", "text": "The elders gather around (him/her).",
+              "children": [{"next": "y2"}]},
+        "y2": {"text": "They decide to let (him/her) carry on."},
+        "n": {"text": "(Name) keeps the secret."},
+    },
+}
+
 
 def binding(spec: dict) -> dict:
     return {r: cg.Binding(v["name"], v["sex"]) for r, v in spec.items()}
@@ -201,6 +222,10 @@ def vector_cases() -> list[dict]:
          "answers": [0], "facts": None},
         {"name": "no_roles_vv5", "graph": NO_ROLES, "game": 5, "unicode": False, "rolls": [3, 1, 4, 1, 5],
          "bindings": {}, "answers": [1], "facts": None},
+        {"name": "node_titles_vv2", "graph": TITLES, "game": 2, "unicode": False, "rolls": [0],
+         "bindings": {"subject": {"name": "Ana", "sex": "f"}}, "answers": [0], "facts": None},
+        {"name": "node_titles_vv4", "graph": TITLES, "game": 4, "unicode": False, "rolls": [1],
+         "bindings": {"subject": {"name": "Bo", "sex": "m"}}, "answers": [0], "facts": None},
     ]
 
 
@@ -891,6 +916,57 @@ class Fit(unittest.TestCase):
         d = v6(pools={"X": {"distinct": True, "items": ["a", "b", "x" * 1500]}})
         d["nodes"]["p"]["text"] = "{X.1} {X.2}"
         self.assertTrue(any("longer than 1990" in p for p in t.problems_of(d, True)))
+
+
+class NodeTitles(unittest.TestCase):
+    """Per-node popup titles (cie-v6-binary.md 14)."""
+
+    def test_valid_round_trip_and_record(self):
+        g = cg.load(copy.deepcopy(TITLES))
+        blob = cg.compile_graph(g)
+        self.assertEqual(cg.decompile_graph(blob), cg.without_names(g))
+        names = list(cg.lower(g)["nodes"])
+        o_node = struct.unpack_from("<I", blob, 48)[0]
+        for i, nid in enumerate(names):
+            title = struct.unpack_from("<H", blob, o_node + 28 * i + 26)[0]
+            self.assertEqual(title == cg.NONE, "title" not in g["nodes"][nid], nid)
+
+    def test_refusals(self):
+        d = copy.deepcopy(TITLES)
+        d["nodes"]["b"]["title"] = "A Branch"
+        self.assertTrue(any("a branch shows no text" in p for p in t.problems_of(d)))
+        d = copy.deepcopy(TITLES)
+        d["nodes"]["inv"]["title"] = "W" * 40
+        self.assertTrue(any("node inv: its popup title is" in p and "pixels wide" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "x" * 48
+        self.assertTrue(any("longer than 47" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "Bad (Name)"
+        self.assertTrue(any("node inv: its popup title has no placeholders" in p for p in t.problems_of(d)))
+        d["nodes"]["inv"]["title"] = "Semi;colon"
+        self.assertTrue(any("cannot show" in p for p in t.problems_of(d)))
+        old = t.four_doors(5)
+        next(iter(old["nodes"].values()))["title"] = "Older"
+        self.assertTrue(any("unknown fields title" in p for p in t.problems_of(old)))
+
+    def test_simulate_titles(self):
+        g = cg.load(copy.deepcopy(TITLES))
+        r = cg.simulate(g, 3, [0], {"subject": cg.Binding("Ana", "f")}, [0])
+        self.assertEqual(r["titles"], ["The Revolutionary Invention"] * 3 + ["The Elders Decide"])
+        r = cg.simulate(g, 3, [1], {"subject": cg.Binding("Ana", "f")}, [1])
+        self.assertEqual(r["titles"], ["The Revolutionary Discovery"] * 3)
+
+    def test_the_fit_pages_with_the_widest_title(self):
+        # A New Home leads each page with its title: a node's two-line title takes one more line than the event's.
+        d = copy.deepcopy(TITLES)
+        d["games"] = [1]
+        g = cg.load(d)
+        ctx = cg.contexts(g, [1])[0]
+        pops = [p for h in cg.walk(g, ctx) for p in h.popups if "y" in p.nodes]
+        self.assertEqual(pops[0].titles, ["The Revolutionary Invention", "The Elders Decide"])
+        layout = cg.Layout(10, 14, True)
+        self.assertEqual(cg.widest_title(g, ["", "Short", "Threeline Titleline Hereline"], layout, cg.GAMES[1]),
+                         "Threeline Titleline Hereline")
+        self.assertEqual(cg.widest_title(g, ["", "Short"], layout, cg.GAMES[1]), "The Revolution")
 
 
 if __name__ == "__main__":

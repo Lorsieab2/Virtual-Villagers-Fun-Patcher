@@ -270,8 +270,12 @@
      "Two skilled gardeners have developed different plans for a small community garden near the village. Ana favors a mixture of familiar plants and experimental varieties, while Bo favors a winding garden with shaded places to sit.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
      "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
     ],
+    "titles": [
+     "The Gardening Contest",
+     "The Gardening Contest"
+    ],
     "rolls_used": 6,
-    "cieg_sha256": "9956c6651038de900bd23de60154ca3ab8464e133356e93a1b703af9fa987014"
+    "cieg_sha256": "801f4cbe98f4880a290d81c0405896f702bc718c1ce8cf0c0e79eb0ee033b079"
    }
   },
   {
@@ -543,8 +547,12 @@
      "Two skilled gardeners have developed different plans for a small community garden near the village. Kai favors a traditional layout remembered by the elders, while Lea favors neat rows with carefully labeled plants.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
      "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
     ],
+    "titles": [
+     "The Gardening Contest",
+     "The Gardening Contest"
+    ],
     "rolls_used": 6,
-    "cieg_sha256": "9956c6651038de900bd23de60154ca3ab8464e133356e93a1b703af9fa987014"
+    "cieg_sha256": "801f4cbe98f4880a290d81c0405896f702bc718c1ce8cf0c0e79eb0ee033b079"
    }
   },
   {
@@ -896,8 +904,13 @@
      "The trader asks him to choose. The elders wait.",
      "The trader smiles at himself. She nods.\nA storm damages a hut."
     ],
+    "titles": [
+     "The Market Day",
+     "The Market Day",
+     "The Market Day"
+    ],
     "rolls_used": 11,
-    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
+    "cieg_sha256": "ca6c9cd0b9a87ff0f742c402e46dc919348cc5386cd56fb970b09ed0d834f0e3"
    }
   },
   {
@@ -1249,8 +1262,13 @@
      "The trader asks him to choose. The elders wait.",
      "The trader smiles at himself. She nods.\nA storm damages a hut."
     ],
+    "titles": [
+     "The Market Day",
+     "The Market Day",
+     "The Market Day"
+    ],
     "rolls_used": 11,
-    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
+    "cieg_sha256": "ca6c9cd0b9a87ff0f742c402e46dc919348cc5386cd56fb970b09ed0d834f0e3"
    }
   },
   {
@@ -1583,8 +1601,13 @@
      "The trader asks him to choose. The elders wait.",
      "Ana keeps it, her daughter cheers."
     ],
+    "titles": [
+     "The Market Day",
+     "The Market Day",
+     "The Market Day"
+    ],
     "rolls_used": 10,
-    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
+    "cieg_sha256": "ca6c9cd0b9a87ff0f742c402e46dc919348cc5386cd56fb970b09ed0d834f0e3"
    }
   },
   {
@@ -1931,8 +1954,13 @@
      "The trader asks him to choose. The elders wait.",
      "Bo sells it and scowls. Cy helps himself."
     ],
+    "titles": [
+     "The Market Day",
+     "The Market Day",
+     "The Market Day"
+    ],
     "rolls_used": 11,
-    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
+    "cieg_sha256": "ca6c9cd0b9a87ff0f742c402e46dc919348cc5386cd56fb970b09ed0d834f0e3"
    }
   },
   {
@@ -2261,8 +2289,13 @@
      "The trader asks him to choose. The Chief wait.",
      "The Chief approves."
     ],
+    "titles": [
+     "The Market Day",
+     "The Market Day",
+     "The Market Day"
+    ],
     "rolls_used": 11,
-    "cieg_sha256": "97be54a04adb0fa1de0f7e0ad20134f80a2d1d952aa009dbcca4d9f6efacdf57"
+    "cieg_sha256": "ca6c9cd0b9a87ff0f742c402e46dc919348cc5386cd56fb970b09ed0d834f0e3"
    }
   },
   {
@@ -2341,8 +2374,11 @@
     "popups": [
      "Dee reaches the ledge. She slips and is gone."
     ],
+    "titles": [
+     "The Ledge"
+    ],
     "rolls_used": 1,
-    "cieg_sha256": "97c26f2627105e842f31297242189f94995141f7456eb510b1e91f35202321ec"
+    "cieg_sha256": "7dfb715f23375055768306578756193e3c1794f4784dd26f1052314f030ef54d"
    }
   },
   {
@@ -2414,8 +2450,11 @@
     "popups": [
      "Dee reaches the ledge. She climbs down safely."
     ],
+    "titles": [
+     "The Ledge"
+    ],
     "rolls_used": 0,
-    "cieg_sha256": "97c26f2627105e842f31297242189f94995141f7456eb510b1e91f35202321ec"
+    "cieg_sha256": "7dfb715f23375055768306578756193e3c1794f4784dd26f1052314f030ef54d"
    }
   },
   {
@@ -2628,8 +2667,13 @@
      "Who wins?",
      "Bo wins, Ana sulks and her hut shakes."
     ],
+    "titles": [
+     "The \"Twin\" Cooks",
+     "The \"Twin\" Cooks",
+     "The \"Twin\" Cooks"
+    ],
     "rolls_used": 12,
-    "cieg_sha256": "33f15bf464743cb6e27e67516c7a9832849b8cc830d00ec2811b9f8df403d521"
+    "cieg_sha256": "abee53cb556d6ba6b44a2a79d3effc2564fe6fd3f59405e4578e9e864254483b"
    }
   },
   {
@@ -2847,8 +2891,13 @@
      "Who wins?",
      "Ana wins; Bo sulks and his hut shakes."
     ],
+    "titles": [
+     "The \"Twin\" Cooks",
+     "The \"Twin\" Cooks",
+     "The \"Twin\" Cooks"
+    ],
     "rolls_used": 12,
-    "cieg_sha256": "33f15bf464743cb6e27e67516c7a9832849b8cc830d00ec2811b9f8df403d521"
+    "cieg_sha256": "abee53cb556d6ba6b44a2a79d3effc2564fe6fd3f59405e4578e9e864254483b"
    }
   },
   {
@@ -2928,8 +2977,12 @@
      "Ana builds a machine; he watches.",
      "ANA STOPS. HE CHEERS FOR HER."
     ],
+    "titles": [
+     "The Village Idiot and the Impossible Invention",
+     "The Village Idiot and the Impossible Invention"
+    ],
     "rolls_used": 0,
-    "cieg_sha256": "be7bd6e8550d050603fa2e7b3b37220ce80bc5e77b76e3d8a7a39c5726134268"
+    "cieg_sha256": "37904d9396fc57278bc082eeb8b325b8e9f59749b8634f1824a838d790b3af6a"
    }
   },
   {
@@ -3031,8 +3084,257 @@
      "What do the healers do?",
      "The village comes; the stranger is gone by morning. No one knows where."
     ],
+    "titles": [
+     "A Stranger on the Sand",
+     "A Stranger on the Sand",
+     "A Stranger on the Sand"
+    ],
     "rolls_used": 3,
-    "cieg_sha256": "80871f2cdb7ce2354be717c13d9fe8aaa031e63c8b41136dd8d7ff264ca37b0c"
+    "cieg_sha256": "f3f29f8055cc124008764a5434e7dccbf6e46788c4d289dcd0507fa3262bd715"
+   }
+  },
+  {
+   "name": "node_titles_vv2",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Revolution",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "b",
+    "nodes": {
+     "b": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "inv"
+       },
+       {
+        "next": "dis"
+       }
+      ]
+     },
+     "inv": {
+      "title": "The Revolutionary Invention",
+      "text": "(Name) builds a wondrous machine.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "dis": {
+      "title": "The Revolutionary Discovery",
+      "text": "(Name) finds a wondrous cave.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Show the elders?",
+      "choices": [
+       {
+        "label": "Show them",
+        "next": "y"
+       },
+       {
+        "label": "Keep it quiet",
+        "next": "n"
+       }
+      ]
+     },
+     "y": {
+      "title": "The Elders Decide",
+      "text": "The elders gather around (him/her).",
+      "children": [
+       {
+        "next": "y2"
+       }
+      ]
+     },
+     "y2": {
+      "text": "They decide to let (him/her) carry on."
+     },
+     "n": {
+      "text": "(Name) keeps the secret."
+     }
+    }
+   },
+   "game": 2,
+   "unicode": false,
+   "rolls": [
+    0
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Ana",
+     "sex": "f"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "b",
+     "inv",
+     "q",
+     "y",
+     "y2"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Ana builds a wondrous machine.",
+     "Show the elders?",
+     "The elders gather around her.",
+     "They decide to let her carry on."
+    ],
+    "titles": [
+     "The Revolutionary Invention",
+     "The Revolutionary Invention",
+     "The Revolutionary Invention",
+     "The Elders Decide"
+    ],
+    "rolls_used": 1,
+    "cieg_sha256": "d22b02020f8bc0724b76bb29d79b3038467d8168e61e1a84a48c9737de0fc68f"
+   }
+  },
+  {
+   "name": "node_titles_vv4",
+   "graph": {
+    "format": "vvfp-cie-graph",
+    "version": 6,
+    "title": "The Revolution",
+    "games": [
+     1,
+     2,
+     3,
+     4,
+     5
+    ],
+    "roles": {
+     "subject": {
+      "kind": "villager"
+     }
+    },
+    "start": "b",
+    "nodes": {
+     "b": {
+      "type": "branch",
+      "children": [
+       {
+        "next": "inv"
+       },
+       {
+        "next": "dis"
+       }
+      ]
+     },
+     "inv": {
+      "title": "The Revolutionary Invention",
+      "text": "(Name) builds a wondrous machine.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "dis": {
+      "title": "The Revolutionary Discovery",
+      "text": "(Name) finds a wondrous cave.",
+      "children": [
+       {
+        "next": "q"
+       }
+      ]
+     },
+     "q": {
+      "type": "question",
+      "text": "Show the elders?",
+      "choices": [
+       {
+        "label": "Show them",
+        "next": "y"
+       },
+       {
+        "label": "Keep it quiet",
+        "next": "n"
+       }
+      ]
+     },
+     "y": {
+      "title": "The Elders Decide",
+      "text": "The elders gather around (him/her).",
+      "children": [
+       {
+        "next": "y2"
+       }
+      ]
+     },
+     "y2": {
+      "text": "They decide to let (him/her) carry on."
+     },
+     "n": {
+      "text": "(Name) keeps the secret."
+     }
+    }
+   },
+   "game": 4,
+   "unicode": false,
+   "rolls": [
+    1
+   ],
+   "bindings": {
+    "subject": {
+     "name": "Bo",
+     "sex": "m"
+    }
+   },
+   "answers": [
+    0
+   ],
+   "facts": null,
+   "expect": {
+    "nodes": [
+     "b",
+     "dis",
+     "q",
+     "y",
+     "y2"
+    ],
+    "fx": [],
+    "picks": [],
+    "aliases": {},
+    "popups": [
+     "Bo finds a wondrous cave.",
+     "Show the elders?",
+     "The elders gather around him.",
+     "They decide to let him carry on."
+    ],
+    "titles": [
+     "The Revolutionary Discovery",
+     "The Revolutionary Discovery",
+     "The Revolutionary Discovery",
+     "The Elders Decide"
+    ],
+    "rolls_used": 1,
+    "cieg_sha256": "d22b02020f8bc0724b76bb29d79b3038467d8168e61e1a84a48c9737de0fc68f"
    }
   }
  ]

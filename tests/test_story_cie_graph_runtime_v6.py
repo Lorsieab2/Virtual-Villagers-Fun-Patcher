@@ -57,6 +57,11 @@ def norm(text: str) -> str:
     return " ".join(text.split())
 
 
+def runs(titles: list[str]) -> list[str]:
+    """The titles with each repeat in a row taken out (pages vs popups)."""
+    return [t for i, t in enumerate(titles) if i == 0 or titles[i - 1] != t]
+
+
 def compiled(graph: dict) -> bytes:
     """The graph compiled as the patcher compiles it (its fit checked for a game with Scrolling Popups: the pages
     are the engine's to lay out here)."""
@@ -171,6 +176,14 @@ if HAVE_EMULATOR:
                 out.append(self.p.cstring(at, 4000) if at else "")
             return out
 
+        def titles(self) -> list[str]:
+            """Each display's popup title (cie-v6-binary.md 14)."""
+            out = []
+            for k in range(self.state()["count"]):
+                at = self.p.export("VvfpStoryProbeGraphTitle", k)
+                out.append(self.p.cstring(at) if at else "")
+            return out
+
         def labels(self, count: int = 7) -> list[str]:
             out = []
             for b in range(count):
@@ -270,6 +283,7 @@ class SharedVectors(unittest.TestCase):
                    if m >= 0}
         self.assertEqual(aliases, e["aliases"])
         self.assertEqual(norm(" ".join(r.displays())), norm(" ".join(e["popups"])), "the words the player reads")
+        self.assertEqual(runs(r.titles()), runs(e["titles"]), "the popup titles (cie-v6-binary.md 14)")
         self.assertTrue(shown)
 
     def test_every_vector_in_its_game(self):
@@ -591,6 +605,49 @@ def put_tribe(r, game: str, name: str | None) -> None:
         manager = r.p.alloc(0x18000)
         r.p.put32(va, manager)
     r.p.write(manager + TRIBE_AT[game], (name or "").encode() + b"\0")
+
+
+@emulated
+class NodeTitles(unittest.TestCase):
+    """Per-node popup titles (cie-v6-binary.md 14) in every game."""
+
+    def test_the_title_in_force_on_each_page(self):
+        from test_cie_graph_v6 import TITLES
+        inv, decide = "The Revolutionary Invention", "The Elders Decide"
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)              # Ana; the opening "inv"
+                self.assertIsNone(r.queue6(compiled(TITLES)))
+                shown = r.walk_through([0])
+                self.assertEqual([k for k, _t, _l in shown], ["page", "question", "result", "page"])
+                self.assertEqual(r.titles(), [inv, inv, inv, decide],
+                                 "the answer's first page keeps the question popup's title")
+                if game in ("vv1", "vv2"):
+                    self.assertTrue(shown[0][1].startswith(inv), shown[0][1])
+                    self.assertTrue(shown[1][1].startswith(inv), shown[1][1])
+                    self.assertTrue(shown[3][1].startswith(decide), shown[3][1])
+                at = r.p.alloc(64)
+                r.p.write(at, decide.encode() + b"\0")
+                self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
+
+    def test_the_loader_refuses_a_bad_node_title(self):
+        from test_cie_graph_v6 import TITLES
+        data = bytearray(compiled(TITLES))
+        o_node, n_node = struct.unpack_from("<I", data, 48)[0], struct.unpack_from("<H", data, 28)[0]
+        names = Names(bytes(data))
+        branch = names.nodes.index("b")
+        inv_title = struct.unpack_from("<H", data, o_node + 28 * names.nodes.index("inv") + 26)[0]
+        struct.pack_into("<H", data, o_node + 28 * branch + 26, inv_title)   # a title on a branch
+        struct.pack_into("<I", data, 12, 0)
+        struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+        self.assertEqual(n_node, len(names.nodes))
+        r = V6("vv3" if have_stock("vv3") else GAME_IDS[0], TWO)
+        why = r.queue6(bytes(data))
+        self.assertIsNotNone(why)
+        self.assertIn("popup title", why)
 
 
 @emulated
