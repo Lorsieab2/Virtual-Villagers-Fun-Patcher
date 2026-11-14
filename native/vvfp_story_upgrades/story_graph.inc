@@ -2027,8 +2027,18 @@ static void cg_node_pools(const ce_adapter *a, int game, int node) {
 /* One segment from `from`: the nodes and every effect's roll, up to the next question (included) or the end.
    `game` and the bound roles and patches decide the conditions; the path so far counts as visited.  Per node: its
    effects' rolls, its pools (version 6; into `picks` -- NULL: the path's own), then the child drawn. */
+#ifdef VVFP_TEST
+static int test_graph_nurse = -1;      /* a record that starts nursing as the next walk begins (the harm guard) */
+#endif
+
 static void cg_walk(const ce_adapter *a, int game, int from, cg_history *h, cg_pick *picks, unsigned char *picked) {
     int node = from;
+#ifdef VVFP_TEST
+    if (test_graph_nurse >= 0 && a->record(test_graph_nurse) != NULL) {
+        *(int *)(a->record(test_graph_nurse) + a->off_pregnant) = 1;
+        test_graph_nurse = -1;
+    }
+#endif
     memset(h, 0, sizeof *h);
     cg_seg_pk = picks;
     cg_seg_pk_count = picked;
@@ -4679,6 +4689,18 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeGraphQueue(int game, c
     return refusal;
 }
 
+/* Record `record` starts nursing just before the next walk (after the roles are cast), -1 none. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphNurseAtWalk(int record) {
+    test_graph_nurse = record;
+}
+
+/* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
+    out[0] = (int)CG_FILE_V3_STATE;
+    out[1] = (int)sizeof(cg_file_head);
+    out[2] = (int)sizeof(cg_state);
+}
+
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphQueueOrigin(int game, const unsigned char *data,
                                                                     unsigned int size, int origin, int cast_mode,
@@ -4693,8 +4715,8 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphQueueOrigin(int game, con
 }
 
 /* The version 6 run: out[0] picks, then (pool, instance, item) for each of the first `cap` picks; out[1 + 3 cap ..]:
-   the aliases' members (16), the relaxed roles, the cast, the origin, the asked question's buttons and its map (7).
-   The count of ints written. */
+   the aliases' members (16), the relaxed roles, the cast, the origin, the asked question's buttons and its map (7),
+   the path's effect count and its rolls (a, b; at most 64).  The count of ints written. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPicks(int *out, int cap) {
     int i, o = 1;
     out[0] = cg.pick_count;
@@ -4716,6 +4738,11 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeGraphPicks(int *out, int cap) 
         for (i = 0; i < CG_MAX_ANSWERS; ++i) {
             out[o++] = i < n ? map[i] : -1;
         }
+    }
+    out[o++] = cg.path.fx;             /* then the path's effect rolls (a, b), at most 64 */
+    for (i = 0; i < cg.path.fx && i < 64 && i < CG_MAX_FX; ++i) {
+        out[o++] = cg.path.fx_a[i];
+        out[o++] = cg.path.fx_b[i];
     }
     return o;
 }
@@ -4893,5 +4920,6 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSession(const void *file
     test_graph_told_count = 0;
     test_graph_structures = -1;
     test_graph_unicode = -1;
+    test_graph_nurse = -1;
 }
 #endif

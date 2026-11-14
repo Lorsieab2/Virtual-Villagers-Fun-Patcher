@@ -136,3 +136,5 @@ EXPORTS
     VvfpStoryProbeGraphQueueOrigin=_VvfpStoryProbeGraphQueueOrigin@24
     VvfpStoryProbeGraphPicks=_VvfpStoryProbeGraphPicks@8
     VvfpStoryProbeGraphFacts=_VvfpStoryProbeGraphFacts@12
+    VvfpStoryProbeGraphNurseAtWalk=_VvfpStoryProbeGraphNurseAtWalk@4
+    VvfpStoryProbeGraphFileLayout=_VvfpStoryProbeGraphFileLayout@4
