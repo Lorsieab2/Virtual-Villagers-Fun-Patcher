@@ -1,0 +1,388 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stick Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_11_stick_game",
+  "source": "v26",
+  "lines": [
+   8825,
+   8852
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": "v18_trials",
+  "title_src": "L8825",
+  "ledger": [
+   {
+    "src": "L8826",
+    "kind": "structural",
+    "why": "games line"
+   },
+   {
+    "src": "L8827",
+    "kind": "note",
+    "why": "who competes: the trials name no villager (no game skill matches these contestants)"
+   },
+   {
+    "src": "L8834",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L8842",
+    "kind": "structural",
+    "why": "heading of the VV5-only outcomes"
+   },
+   {
+    "src": "L8850-8852",
+    "kind": "instruction",
+    "why": "a small ('modest') game-scaled food reward on the constructive outcomes (A1, B1, B2, B3); reputation is told only (rule 7)"
+   }
+  ]
+ },
+ "roles": {
+  "player": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The trial",
+   "text": "Competitors use smooth wooden sticks to guide a small ball toward marked goals, testing precision, timing, and cooperation. The playing field is cleared of bystanders.",
+   "src": "L8829",
+   "choices": [
+    {
+     "label": "Hold a fast team match.",
+     "next": "set_a",
+     "src": "L8831"
+    },
+    {
+     "label": "Hold a precision challenge.",
+     "next": "set_b",
+     "src": "L8832"
+    }
+   ]
+  },
+  "a1": {
+   "text": "An unlikely team executes a perfect sequence of passes and wins.",
+   "src": "L8835",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8850"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8850",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "a2": {
+   "text": "A contestant sends the ball into the judges' ceremonial fruit basket. The match is paused for laughter.",
+   "src": "L8836",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a3": {
+   "text": "An aggressive player is penalized for reckless swinging and learns to control (player.his/her) strength.",
+   "src": "L8837",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b1": {
+   "text": "A patient elder wins with three astonishingly accurate strokes.",
+   "src": "L8838",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8850"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8850",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The strongest contestant repeatedly overshoots while a novice succeeds through gentle control.",
+   "src": "L8839",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8850"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8850",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "b3": {
+   "text": "A clever builder designs a fairer goal marker that becomes standard in future games.",
+   "src": "L8840",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8850"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8850",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
+    }
+   ]
+  },
+  "p1": {
+   "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",
+   "src": "L8843-8844",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p2": {
+   "text": "An accusation of favoritism forces the judges to disclose their criteria; the disputed result is upheld, reversed, or declared a tie.",
+   "src": "L8845-8846",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Competitors from both communities secretly practice together and publicly acknowledge each other when the results are announced.",
+   "src": "L8847-8848",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}

@@ -1,0 +1,413 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v18_03_great_question",
+  "source": "v26",
+  "lines": [
+   8585,
+   8612
+  ],
+  "section": "v18",
+  "credit": "CONTRIBUTION CREDITS\nOriginal request and twelve competition concepts: Lorsieab2.\nReplacement of “Brain-Off” with Scholasticon/Decathlon terminology: Lorsieab2.\nEvent narratives, choices, randomized outcome prose, and adaptations: ChatGPT.",
+  "draw_weight": 1,
+  "series": "v18_trials",
+  "title_src": "L8585",
+  "ledger": [
+   {
+    "src": "L8586",
+    "kind": "structural",
+    "why": "games line"
+   },
+   {
+    "src": "L8587",
+    "kind": "note",
+    "why": "who competes: the trials name no villager (no game skill matches these contestants)"
+   },
+   {
+    "src": "L8594",
+    "kind": "structural",
+    "why": "outcome heading"
+   },
+   {
+    "src": "L8602",
+    "kind": "structural",
+    "why": "heading of the VV5-only outcomes"
+   },
+   {
+    "src": "L8610-8612",
+    "kind": "instruction",
+    "why": "a small ('modest') game-scaled tech reward on the constructive outcomes (A1, A3, B1, B2, B3); reputation is told only (rule 7)"
+   }
+  ]
+ },
+ "roles": {
+  "judge": {
+   "kind": "stranger",
+   "sex": "random"
+  },
+  "coda1": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The trial",
+   "text": "The judges present one of these questions: What makes a village truly prosperous? Who owns a discovery? Can a promise become unjust? Is courage possible without fear?",
+   "src": "L8589",
+   "choices": [
+    {
+     "label": "Reward the most persuasive answer.",
+     "next": "set_a",
+     "src": "L8591"
+    },
+    {
+     "label": "Invite the whole village to question the answers.",
+     "next": "set_b",
+     "src": "L8592"
+    }
+   ]
+  },
+  "a1": {
+   "text": "An elder gives an elegant speech, but a child's brief answer moves the audience more deeply.",
+   "src": "L8595",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8610"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8610",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "a2": {
+   "text": "A contestant argues that prosperity means full food stores; another points toward the lonely and forgotten. The judges cannot easily choose.",
+   "src": "L8596",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8596",
+     "what": "food",
+     "reason": "narrative: an argument about what prosperity means, not a food change"
+    }
+   ]
+  },
+  "a3": {
+   "text": "The winner admits uncertainty and explains how to test the claim. The scholars praise intellectual humility.",
+   "src": "L8597",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8610"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8610",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "b1": {
+   "text": "The discussion uncovers an unfair village custom, and the council agrees to reconsider it.",
+   "src": "L8598",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8610"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8610",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "b2": {
+   "text": "Every answer creates three more questions. The competition ends at sunset without a winner but with a thriving new study circle.",
+   "src": "L8599",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8610"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8610",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "b3": {
+   "text": "One villager responds with a joke so apt that it becomes a proverb.",
+   "src": "L8600",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L8610"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8610",
+     "what": "tech, food, or appropriate skill experience",
+     "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
+    }
+   ]
+  },
+  "p1": {
+   "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",
+   "src": "L8603-8604",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p2": {
+   "text": "An accusation of favoritism forces the judges to disclose their criteria; the disputed result is upheld, reversed, or declared a tie.",
+   "src": "L8605-8606",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "p3": {
+   "text": "Competitors from both communities secretly practice together and publicly acknowledge each other when the results are announced.",
+   "src": "L8607-8608",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "p1",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p2",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    },
+    {
+     "next": "p3",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1"
+    },
+    {
+     "next": "coda_c6"
+    },
+    {
+     "next": "coda_c8"
+    },
+    {
+     "next": "coda_c9"
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L8589",
+   "before": "The judges present one question:",
+   "after": "The judges present one of these questions:"
+  }
+ ],
+ "include_pools": [
+  "v8_c1",
+  "v8_c6",
+  "v8_c8",
+  "v8_c9",
+  "v8_c11",
+  "v8_c14",
+  "v8_c15"
+ ]
+}
