@@ -68,6 +68,23 @@ class ThePage(unittest.TestCase):
                 for title in kill + vanish:
                     self.assertIn(title, text)
 
+    def test_the_v28_lines_only_when_an_event_makes_them(self) -> None:
+        """cie-v6-binary.md 7, 22: a death with no body, a lost baby and an author's "allow" are each said on the
+        page, with the events that make them, once an event of the game does."""
+        from unittest import mock
+        game = 3
+        first, title, _s = gc.manifest(game)[0]
+        before = gc.lines(game)
+        self.assertFalse([t for t, _ in before if "body is never found" in t or "lose the baby" in t])
+        changed = {k: dict(v) for k, v in gc.index().items()}
+        changed[first] = dict(changed[first], harm=sorted(set(changed[first]["harm"]) | {"die_unrecovered",
+                                                                                       "baby_lost"}), allow=True)
+        with mock.patch.object(gc, "index", lambda: changed):
+            text = " ".join(t for t, _ in gc.lines(game))
+        self.assertIn(f"the Deaths log records the death, \"Unknown causes\"): {title}.", text)
+        self.assertIn(f"Can make a nursing mother or father lose the baby: {title}.", text)
+        self.assertIn(f"may harm a nursing mother or father, the Tribal Chief: {title}.", text)
+
     def test_the_rules_in_plain_words(self) -> None:
         for game in GAMES:
             text = " ".join(t for t, _ in gc.lines(game))

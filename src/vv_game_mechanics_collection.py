@@ -53,7 +53,12 @@ def manifest(game: int) -> tuple[tuple[str, str, str], ...]:
 
 
 INDEX_PATH = ROOT / "data" / "event_collection_index.json"
-HARMFUL = ("kill", "vanish")                 # the effects listed on the page
+HARMFUL = ("kill", "vanish", "die_unrecovered", "baby_lost")   # the effects listed on the page (cie-v6-binary.md 22)
+
+
+def _allows(graph: dict) -> bool:
+    """A villager role whose author lets protected villagers be harmed (protected "allow"; cie-v6-binary.md 7)."""
+    return any(isinstance(r, dict) and r.get("protected") == "allow" for r in (graph.get("roles") or {}).values())
 
 
 def _effects(node) -> set[str]:
@@ -78,6 +83,8 @@ def build_index() -> dict:
         if not isinstance(graph, dict) or "collection" not in graph:
             continue                                       # manifest.json, shared_pools.json
         out[source.stem] = {"section": graph["collection"]["section"], "harm": sorted(_effects(graph))}
+        if _allows(graph):
+            out[source.stem]["allow"] = True
     return {"format": "vvfp-event-collection-index", "version": 1, "events": out}
 
 
@@ -106,6 +113,16 @@ def deadly(game: int) -> tuple[list[str], list[str]]:
     kill = [title for event_id, title, _ in manifest(game) if "kill" in event_info(event_id)[1]]
     vanish = [title for event_id, title, _ in manifest(game) if "vanish" in event_info(event_id)[1]]
     return kill, vanish
+
+
+def titles_with(game: int, harm: str) -> list[str]:
+    """This game's events that can make the harmful effect `harm` ("die_unrecovered", "baby_lost")."""
+    return [title for event_id, title, _ in manifest(game) if harm in event_info(event_id)[1]]
+
+
+def allowing(game: int) -> list[str]:
+    """This game's events whose author lets a protected villager be harmed (cie-v6-binary.md 7)."""
+    return [title for event_id, title, _ in manifest(game) if index()[event_id].get("allow")]
 
 
 def series_count(game: int) -> int:
@@ -143,6 +160,17 @@ def lines(game: int) -> list[tuple[str, bool]]:
                  + ", ".join(kill) + ".") if kill else "No event in this game kills a villager.", True))
     out.append((("Can make a villager disappear (no grave): " + ", ".join(vanish) + ".") if vanish
                 else "No event in this game makes a villager disappear.", True))
+    # V28 (cie-v6-binary.md 7, 22): said only when an event of this game makes them.
+    unrecovered, baby, allowed = titles_with(game, "die_unrecovered"), titles_with(game, "baby_lost"), allowing(game)
+    if unrecovered:
+        out.append(("Can kill a villager whose body is never found (no grave; the Deaths log records the death, "
+                    "\"Unknown causes\"): " + ", ".join(unrecovered) + ".", True))
+    if baby:
+        out.append(("Can make a nursing mother or father lose the baby: " + ", ".join(baby) + ".", True))
+    if allowed:
+        who = {1: ", the Golden Child", 3: ", the Tribal Chief"}.get(game, "")
+        out.append((f"Where the story calls for it, these may harm a nursing mother or father{who}: "
+                    + ", ".join(allowed) + ".", True))
     for words, titles in sections(game):
         out.append((f"{words} ({len(titles)}): " + ", ".join(titles) + ".", True))
     return out
