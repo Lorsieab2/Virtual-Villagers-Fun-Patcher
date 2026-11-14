@@ -2647,10 +2647,263 @@ static const char *cg_pool_text(int pool, int instance, int mode) {
 static int cg_pronoun_names;          /* cg_label_text's second pass: names as pronouns (cie-v6-binary.md 15) */
 
 /* cg_expand's work at pool depth `depth`. */
+/* ---- Sentence case (cie-v6-binary.md 19; src/vv_cie_graph.py sentence_case / title_case: the same rule) ------
+
+   The owner, 2026-11-14: the entire event text is shown in sentence case.  A run of words written in capitals on one
+   line (two or more words of two or more letters, or one such word on a line with no lower-case word) is shown in
+   sentence case -- its letters and its placeholders' letters made lower case, then a capital where a sentence
+   starts and for "I" -- before anything is filled in, so names keep their own capitals.  A title in capitals is
+   shown in title case.  The graph's text is never changed: each expansion cases its own copy. */
+
+static int cg_up(unsigned char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 0xC0 && c <= 0xDE && c != 0xD7);
+}
+
+static int cg_lo(unsigned char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 0xDF && c != 0xF7);
+}
+
+static int cg_letter(unsigned char c) {
+    return cg_up(c) || cg_lo(c);
+}
+
+static unsigned char cg_to_lo(unsigned char c) {
+    return cg_up(c) ? (unsigned char)(c + 0x20) : c;
+}
+
+static unsigned char cg_to_up(unsigned char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 0xE0 && c <= 0xFE && c != 0xF7) ? (unsigned char)(c - 0x20) : c;
+}
+
+static int cg_id_char(unsigned char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_';
+}
+
+/* The token at `t` (src/vv_cie_graph.py _TOKEN_V6: an escape, a placeholder, a pick): its length (*kind 3, 1, 2),
+   0 for a plain character. */
+static int cg_case_token(const unsigned char *t, unsigned char *kind) {
+    const unsigned char *e;
+    if (t[0] == '\\' && t[1] != 0 && t[1] != '\n') {
+        *kind = 3;
+        return 2;
+    }
+    if (t[0] == '(') {
+        for (e = t + 1; *e != 0 && *e != '(' && *e != ')' && *e != '\n'; ++e) {
+        }
+        if (*e != ')') {
+            return 0;
+        }
+        *kind = 1;
+        return (int)(e - t) + 1;
+    }
+    if (t[0] == '{') {
+        for (e = t + 1;;) {
+            if (*e == 0 || *e == '\n') {
+                return 0;
+            }
+            if (*e == '}') {
+                *kind = 2;
+                return (int)(e - t) + 1;
+            }
+            if (*e == '{') {
+                const unsigned char *f = e + 1;
+                if (*f++ != '@' || !cg_id_char(*f)) {
+                    return 0;
+                }
+                while (cg_id_char(*f)) {
+                    ++f;
+                }
+                if (*f != '}') {
+                    return 0;
+                }
+                e = f + 1;
+                continue;
+            }
+            ++e;
+        }
+    }
+    return 0;
+}
+
+#define CG_CASE_UNITS (CG_RAW_BYTES + 8)
+static int cg_cu_at[CG_CASE_UNITS];             /* each unit's first byte */
+static int cg_cu_len[CG_CASE_UNITS];
+static unsigned char cg_cu_kind[CG_CASE_UNITS]; /* 0 a character, 1 a placeholder, 2 a pick, 3 an escape */
+static int cg_cw_start[CG_CASE_UNITS], cg_cw_end[CG_CASE_UNITS], cg_cw_letters[CG_CASE_UNITS], cg_cw_line[CG_CASE_UNITS];
+static unsigned char cg_cw_lower[CG_CASE_UNITS];
+
+static int cg_cu_char(const unsigned char *t, int u, unsigned char c) {
+    return cg_cu_kind[u] == 0 && t[cg_cu_at[u]] == c;
+}
+
+static int cg_case_start(const unsigned char *t, int u, int item) {
+    int k = u - 1;
+    while (k >= 0 && cg_cu_kind[k] == 0 && (t[cg_cu_at[k]] == ' ' || t[cg_cu_at[k]] == '"' || t[cg_cu_at[k]] == '\'')) {
+        --k;
+    }
+    if (k < 0) {
+        return !item;
+    }
+    return cg_cu_kind[k] == 0 && (t[cg_cu_at[k]] == '.' || t[cg_cu_at[k]] == '!' || t[cg_cu_at[k]] == '?'
+                                  || t[cg_cu_at[k]] == '\n');
+}
+
+/* `text` (NUL-ended, changed in place) with its runs in capitals in sentence case; `item`: a pool's item. */
+static void cg_sentence_case(char *text, int item) {
+    unsigned char *t = (unsigned char *)text;
+    int n = 0, words = 0, k, i, line = 0, upper = 0;
+    for (k = 0; t[k] != 0; ++k) {
+        upper |= cg_up(t[k]);
+    }
+    if (!upper) {
+        return;
+    }
+    for (k = 0; t[k] != 0 && n < CG_CASE_UNITS; ++n) {
+        unsigned char kind = 0;
+        int len = cg_case_token(t + k, &kind);
+        cg_cu_at[n] = k;
+        cg_cu_kind[n] = len > 0 ? kind : 0;
+        cg_cu_len[n] = len > 0 ? len : 1;
+        k += cg_cu_len[n];
+    }
+    if (t[k] != 0) {
+        return;                         /* longer than any popup's text: as written */
+    }
+    for (k = 0; k < n;) {
+        if (cg_cu_kind[k] == 0 && cg_letter(t[cg_cu_at[k]])) {
+            int start = k, letters = 0, lower = 0;
+            while (k < n && cg_cu_kind[k] == 0
+                   && (cg_letter(t[cg_cu_at[k]])
+                       || (t[cg_cu_at[k]] == '\'' && k > start && k + 1 < n && cg_cu_kind[k + 1] == 0
+                           && cg_letter(t[cg_cu_at[k + 1]])))) {
+                letters += cg_letter(t[cg_cu_at[k]]);
+                lower |= cg_lo(t[cg_cu_at[k]]);
+                ++k;
+            }
+            cg_cw_start[words] = start;
+            cg_cw_end[words] = k;
+            cg_cw_letters[words] = letters;
+            cg_cw_lower[words] = (unsigned char)(lower != 0);
+            cg_cw_line[words] = line;
+            ++words;
+            continue;
+        }
+        line += cg_cu_char(t, k, '\n');
+        ++k;
+    }
+    for (i = 0; i < words;) {
+        int first = i, last = i, lower_in_line = 0, j;
+        while (last < words && cg_cw_line[last] == cg_cw_line[first]) {
+            lower_in_line |= cg_cw_lower[last];
+            ++last;
+        }
+        for (j = first; j < last;) {
+            int r0, r1, long_words = 0, w;
+            if (cg_cw_lower[j]) {
+                ++j;
+                continue;
+            }
+            r0 = j;
+            while (j < last && !cg_cw_lower[j]) {
+                long_words += cg_cw_letters[j] >= 2;
+                ++j;
+            }
+            r1 = j;
+            if (long_words >= 2 || (long_words >= 1 && !lower_in_line)) {
+                int u0 = cg_cw_start[r0], u1 = cg_cw_end[r1 - 1], u, b;
+                for (u = u0; u < u1; ++u) {
+                    for (b = 0; b < (cg_cu_kind[u] == 0 || cg_cu_kind[u] == 1 ? cg_cu_len[u] : 0); ++b) {
+                        t[cg_cu_at[u] + b] = cg_to_lo(t[cg_cu_at[u] + b]);
+                    }
+                }
+                for (u = u0; u < u1; ++u) {
+                    if (cg_cu_kind[u] == 1 && cg_cu_len[u] > 1 && cg_case_start(t, u, item)) {
+                        t[cg_cu_at[u] + 1] = cg_to_up(t[cg_cu_at[u] + 1]);
+                    }
+                }
+                for (w = r0; w < r1; ++w) {
+                    int s0 = cg_cw_start[w], e0 = cg_cw_end[w];
+                    unsigned char *c = t + cg_cu_at[s0];
+                    if (cg_case_start(t, s0, item)) {
+                        *c = cg_to_up(*c);
+                    }
+                    if ((*c == 'i' || *c == 'I') && (e0 - s0 == 1 || cg_cu_char(t, s0 + 1, '\''))) {
+                        *c = 'I';
+                    }
+                }
+            }
+        }
+        i = last;
+    }
+}
+
+/* `title` (NUL-ended, changed in place) in title case when it is written in capitals. */
+static void cg_title_case(char *title) {
+    unsigned char *t = (unsigned char *)title;
+    int k, letters = 0, longest = 0, begin = 1;
+    for (k = 0; t[k] != 0;) {
+        unsigned char kind = 0;
+        int len = cg_case_token(t + k, &kind);
+        if (len > 0) {
+            letters = 0;
+            k += len;
+            continue;
+        }
+        if (cg_lo(t[k])) {
+            return;
+        }
+        if (cg_letter(t[k]) || t[k] == '\'') {
+            letters += cg_letter(t[k]);
+            if (letters > longest) {
+                longest = letters;
+            }
+        } else {
+            letters = 0;
+        }
+        ++k;
+    }
+    if (longest < 2) {
+        return;
+    }
+    for (k = 0; t[k] != 0;) {
+        unsigned char kind = 0;
+        int len = cg_case_token(t + k, &kind), b;
+        if (len > 0) {
+            if (kind == 1 && len > 1) {
+                t[k + 1] = cg_to_up(t[k + 1]);         /* "(NAME)": the name, as written */
+                for (b = 2; b < len; ++b) {
+                    t[k + b] = cg_to_lo(t[k + b]);
+                }
+                begin = 0;
+            } else {
+                begin = 1;
+            }
+            k += len;
+            continue;
+        }
+        if (cg_letter(t[k])) {
+            t[k] = begin ? cg_to_up(t[k]) : cg_to_lo(t[k]);
+            begin = 0;
+        } else {
+            begin = t[k] != '\'';
+        }
+        ++k;
+    }
+}
+
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
+    static char cased[CG_POOL_DEPTH + 2][CG_RAW_BYTES];
     int o = 0;
     const char *s = raw;
+    if (cg_g.version >= 6 && mode != CG_EXPAND_AWARD && depth >= 0 && depth < CG_POOL_DEPTH + 2
+        && lstrlenA(raw) < CG_RAW_BYTES) {
+        /* 19: runs in capitals in sentence case, on the text as shown (a popup's whole text: src/vv_cie_graph.py
+           cases the joined text too) */
+        lstrcpynA(cased[depth], raw, CG_RAW_BYTES);
+        cg_sentence_case(cased[depth], depth > 0);
+        s = cased[depth];
+    }
     while (*s != '\0' && o < cap - 1) {
         char word[CG_NAME_BYTES + 32];
         const char *put = NULL;
@@ -3090,10 +3343,14 @@ static void cg_title_expand(unsigned short t, int mode, char *out, int cap) {
     const ce_adapter *a = ce_adapter_for(cg.game);
     const char *raw = cg_s(&cg_g, t == 0 ? (unsigned int)cg_g.title : (unsigned int)t - 1u);
     int room = a != NULL ? a->name_room : 0;
+    static char cased[CG_LABEL_V6 * 4];
     if (cg_g.version < 6) {
         lstrcpynA(out, t == 0 ? cg.title : raw, cap);
         return;
     }
+    lstrcpynA(cased, raw, sizeof cased);
+    cg_title_case(cased);                               /* 19: a title in capitals in title case */
+    raw = cased;
     cg_expand(raw, buf, sizeof buf, mode, room, -1, 0);
     if (!cg_title_fits(buf)) {
         cg_pronoun_names = 1;
@@ -3112,7 +3369,11 @@ static void cg_title_text(unsigned short t, char *out, int cap) {
    she" ..., in the case written; cut to CE_TITLE_BYTES - 1. */
 static void cg_readable_title(const char *raw, char *out, int cap) {
     static char pair[48];
+    static char cased[CG_LABEL_V6 * 4];
     int o = 0;
+    lstrcpynA(cased, raw, sizeof cased);
+    cg_title_case(cased);                               /* 19: a title in capitals in title case */
+    raw = cased;
     if (cap > CE_TITLE_BYTES) {
         cap = CE_TITLE_BYTES;
     }
@@ -5741,6 +6002,15 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupOk(int game, char *tex
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeOnePopupBegun(int game) {
     return cg_op_begun_take(game);
+}
+
+/* 19: `text` (changed in place) in sentence case (title 0; `item` a pool's item) or title case (title 1). */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSentenceCase(char *text, int item, int title) {
+    if (title) {
+        cg_title_case(text);
+    } else {
+        cg_sentence_case(text, item);
+    }
 }
 
 /* The installed patches' list as the patcher would write it (NULL: none, as an older patch), then the patches the

@@ -139,6 +139,7 @@ EXPORTS
     VvfpStoryProbeOnePopupRows=_VvfpStoryProbeOnePopupRows@4
     VvfpStoryProbeOnePopupOk=_VvfpStoryProbeOnePopupOk@12
     VvfpStoryProbeOnePopupBegun=_VvfpStoryProbeOnePopupBegun@4
+    VvfpStoryProbeSentenceCase=_VvfpStoryProbeSentenceCase@12
     VvfpStoryProbeGraphQueueOrigin=_VvfpStoryProbeGraphQueueOrigin@24
     VvfpStoryProbeGraphPicks=_VvfpStoryProbeGraphPicks@8
     VvfpStoryProbeGraphFacts=_VvfpStoryProbeGraphFacts@12
