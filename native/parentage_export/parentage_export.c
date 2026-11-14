@@ -3370,18 +3370,18 @@ static struct {
 /* The last up-to-`cap` - 1 bytes of `path` without its carriage returns, into `out`; their length (-1 unreadable,
    0 empty). */
 static int log_tail(const wchar_t *path, char *out, int cap) {
-    FILE *file = _wfopen(path, L"rb");
-    long size, from;
+    /* The size on disk (log_file_size), as every log here is measured: never the stream's position. */
+    LONGLONG size = log_file_size(path);
+    long from = size > (LONGLONG)(cap - 1) ? (long)(size - (LONGLONG)(cap - 1)) : 0;
     int n = 0, c;
+    FILE *file = _wfopen(path, L"rb");
     if (file == NULL) {
         return 0;
     }
-    if (fseek(file, 0, SEEK_END) != 0 || (size = ftell(file)) < 0) {
+    if (fseek(file, from, SEEK_SET) != 0) {
         fclose(file);
         return -1;
     }
-    from = size > (long)(cap - 1) ? size - (long)(cap - 1) : 0;
-    fseek(file, from, SEEK_SET);
     while ((c = fgetc(file)) != EOF && n < cap - 1) {
         if (c != '\r') {
             out[n++] = (char)c;
@@ -3581,9 +3581,11 @@ static void flush_pending(int game_id, const char *village, int at_save) {
                     text = labelled;
                 }
             }
-            outcome = entry->open_entry > 0
-                          ? append_event_entry(g, village, entry->open_entry - 1, text)   /* its next part */
-                          : append_record(g, village, entry->kind, text);
+            if (entry->open_entry > 0) {
+                outcome = append_event_entry(g, village, entry->open_entry - 1, text);   /* its next part */
+            } else {
+                outcome = append_record(g, village, entry->kind, text);
+            }
             free(labelled);
             if (outcome == APPEND_RETRY) {
                 stopped = 1;                  /* keep it and all after it */
