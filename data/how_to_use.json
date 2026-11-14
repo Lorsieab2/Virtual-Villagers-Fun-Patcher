@@ -248,7 +248,7 @@
     {
       "ids": ["vv1_isola_grand_event_collection", "vv2_isola_grand_event_collection", "vv3_isola_grand_event_collection", "vv4_isola_grand_event_collection", "vv5_isola_grand_event_collection"],
       "guide": [
-        "Off by default; Owner's Defaults ticks it. Select All does not tick it, nor Classic VV Difficulty. Needs Story / Cheat Upgrades.",
+        "Off by default; Owner's Defaults ticks it. Select All does not tick it, nor Classic VV Difficulty. Needs Story / Cheat Upgrades and Scrolling Popups.",
         "Adds the Isola Grand Event Collection: the owner's large collection of island events, with its credits beside the patcher's files.",
         "They are rare and never change the game's own events' chances: after a natural island event a separate roll may bring one some hours later.",
         "About three a week of game time; never in the village's first two events, never in trouble, never in place of a rescue event.",
