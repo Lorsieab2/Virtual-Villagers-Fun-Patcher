@@ -1,0 +1,268 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rotten Structure",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "vv4_rotten_structure",
+  "source": "v26",
+  "lines": [
+   5034,
+   5078
+  ],
+  "section": "v9",
+  "credit": "* V9 \"Age of Terrible Ideas\": event prose, material applications,\n  trial and consequence branches by ChatGPT. Core requests for intense\n  conflict, fights, false guilt, courts, imprisonment, reconciliation,\n  and the sixteen specific bizarre materials by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5035",
+  "ledger": [
+   {
+    "src": "L5036",
+    "kind": "note",
+    "why": "designer summary"
+   },
+   {
+    "src": "L5050",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5056",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5062",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5069",
+    "kind": "structural",
+    "why": "bank heading"
+   },
+   {
+    "src": "L5071-5073",
+    "kind": "note",
+    "why": "designer note: prison is narrative only, never displayed"
+   },
+   {
+    "src": "L5075",
+    "kind": "structural",
+    "why": "bank heading"
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "pools": {
+  "WRONG": {
+   "set": "(3)",
+   "items": [
+    {
+     "text": "They reconcile slowly after a sincere apology.",
+     "src": "L5065"
+    },
+    {
+     "text": "The apprentice accepts the apology but chooses another mentor.",
+     "src": "L5066"
+    },
+    {
+     "text": "The builder is publicly embarrassed and privately remorseful.",
+     "src": "L5067"
+    }
+   ]
+  },
+  "MIXED": {
+   "set": "(5)",
+   "items": [
+    {
+     "text": "Both admit their mistakes and work together.",
+     "src": "L5076"
+    },
+    {
+     "text": "Both remain furious but stop lying about what happened.",
+     "src": "L5077"
+    },
+    {
+     "text": "An elder says, 'The structure failed. Don't let the truth fail too.'",
+     "src": "L5078"
+    }
+   ]
+  }
+ },
+ "start": "collapse",
+ "nodes": {
+  "collapse": {
+   "name": "The collapse",
+   "src": "L5039-5042",
+   "text": "A valuable structure collapses. Nobody is hurt, but the repair will take days. The leader learns that rotten wood was used in its construction. A respected builder accuses an unpopular apprentice of deliberately choosing defective material.",
+   "effects": [
+    {
+     "do": "damage",
+     "structures": "any",
+     "min": 50,
+     "max": 100,
+     "src": "L5039"
+    }
+   ],
+   "children": [
+    {
+     "next": "dispute"
+    }
+   ]
+  },
+  "dispute": {
+   "type": "question",
+   "name": "The dispute",
+   "src": "L5044-5045",
+   "text": "The apprentice insists (apprentice.he/she) followed the builder's instructions. The builder shouts, 'LIAR!' The apprentice shouts back, 'YOU TAUGHT ME!'",
+   "choices": [
+    {
+     "label": "Investigate the construction records.",
+     "next": "records",
+     "src": "L5047"
+    },
+    {
+     "label": "Hold a fair hearing with independent witnesses.",
+     "next": "hearing",
+     "src": "L5048"
+    }
+   ]
+  },
+  "records": {
+   "type": "branch",
+   "set": "(1)",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    },
+    {
+     "next": "r4"
+    }
+   ]
+  },
+  "r1": {
+   "text": "The builder approved the rotten wood and forgot.",
+   "src": "L5051",
+   "children": [
+    {
+     "next": "wrongful"
+    }
+   ]
+  },
+  "r2": {
+   "text": "The apprentice substituted material without telling anyone.",
+   "src": "L5052",
+   "children": [
+    {
+     "next": "misconduct"
+    }
+   ]
+  },
+  "r3": {
+   "text": "A third villager supplied bad wood without realizing it.",
+   "src": "L5053",
+   "children": [
+    {
+     "next": "mixed"
+    }
+   ]
+  },
+  "r4": {
+   "text": "The records are inconclusive; neither can be convicted.",
+   "src": "L5054",
+   "children": [
+    {
+     "next": "mixed"
+    }
+   ]
+  },
+  "hearing": {
+   "type": "branch",
+   "set": "(2)",
+   "children": [
+    {
+     "next": "h1"
+    },
+    {
+     "next": "h2"
+    },
+    {
+     "next": "h3"
+    },
+    {
+     "next": "h4"
+    }
+   ]
+  },
+  "h1": {
+   "text": "A witness confirms the apprentice warned the builder.",
+   "src": "L5057",
+   "children": [
+    {
+     "next": "wrongful"
+    }
+   ]
+  },
+  "h2": {
+   "text": "The apprentice admits knowingly using weak wood to finish quickly.",
+   "src": "L5058",
+   "children": [
+    {
+     "next": "misconduct"
+    }
+   ]
+  },
+  "h3": {
+   "text": "Both made mistakes and concealed them out of embarrassment.",
+   "src": "L5059",
+   "children": [
+    {
+     "next": "mixed"
+    }
+   ]
+  },
+  "h4": {
+   "text": "A false witness admits lying to protect a friend.",
+   "src": "L5060",
+   "children": [
+    {
+     "next": "mixed"
+    }
+   ]
+  },
+  "wrongful": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5063-5064",
+   "text": "The builder must retract the accusation. The apprentice says, 'I trusted you.' The builder cannot find an answer.\n{WRONG}"
+  },
+  "misconduct": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5070",
+   "text": "The responsible adult makes restitution and helps rebuild safely."
+  },
+  "mixed": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{MIXED}"
+  }
+ }
+}

@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Table of Questions",
+ "games": [
+  1
+ ],
+ "collection": {
+  "id": "vv1_v17_research",
+  "source": "v26",
+  "lines": [
+   8131,
+   8135
+  ],
+  "section": "v17",
+  "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
+  "draw_weight": 1,
+  "series": "v17_contests",
+  "title_src": "L8131",
+  "shared_lines": [
+   "L8099-8101"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "contest",
+ "nodes": {
+  "contest": {
+   "name": "The stone table",
+   "src": "L8099-8101,L8132-8135",
+   "text": "The villagers of the Southern Shore celebrate the work that helped their settlement survive. Competitors display their creations near the village center while elders tell the children how much knowledge was once lost.\nResearchers demonstrate practical tools and mathematical puzzles. The harsh scholar dismisses (Researcher)'s odd lever until it lifts a stone that three adults could not budge. Another invention merely flings a coconut into the sea. The scholar demands a record of both results.",
+   "text_only": [
+    {
+     "src": "L8099",
+     "what": "the villagers celebrate",
+     "reason": "the festival's setting, told as scenery; the contest itself gives no reward in the source"
+    }
+   ]
+  }
+ }
+}

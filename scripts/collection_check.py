@@ -63,7 +63,7 @@ SPECIALS = ("golden_child", "tribal_chief", "nursing_parent")
 SECTIONS = ("original", "universal", "vv5_isolan", "v6", "v8", "v9", "v10", "v11", "v13", "v14", "exclusive", "v17",
             "v18", "v20", "v21", "v22", "v23", "v24", "v26")
 LEDGER_KINDS = ("structural", "note", "instruction", "bank_ref")
-AUTHORING_TOP = ("ledger", "title_src", "inline_sets")
+AUTHORING_TOP = ("ledger", "title_src", "inline_sets", "shared_lines")
 
 # The effects keyword table (design E4e): source words that promise a change -> the effect kinds that keep it.
 KEYWORDS = [
@@ -426,6 +426,8 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
         text_lines.update(lines)
         span = build_span(lines, cuts, fixes)
         for para in [p for p in f.text.split("\n") if p.strip()]:
+            if not "".join(s for k, s in scan(para) if k in ("lit", "esc")).strip():
+                continue   # a paragraph of tokens only ("{WRONG}"): its items carry their own src
             rx = text_regex(para.strip(), words)
             m = re.search(rx, span.text)
             if not m:
@@ -447,8 +449,20 @@ def check_fidelity_and_coverage(doc: dict, row: dict | None, rep: Report) -> Non
     missing = [n for n in range(a, b + 1) if n not in consumed and not lib.is_blank_or_separator(n)]
     if missing:
         rep.add("c COVERAGE", f"{len(missing)} source lines consumed by nothing: {compress(missing)}")
-    stray = sorted(n for n in consumed if not a <= n <= b)
-    if stray and not doc.get("collection", {}).get("shared_lines"):
+    # Lines outside the event's own: only a section's shared text (a festival's setting paragraph that each of its
+    # contests opens with), named in collection.shared_lines and belonging to a notes row of the manifest.
+    shared: set[int] = set()
+    for spec in doc.get("collection", {}).get("shared_lines", []) or []:
+        try:
+            shared.update(lib.src_lines(spec))
+        except ValueError as ex:
+            rep.add("c COVERAGE", f"shared_lines: {ex}")
+    notes_lines = {n for r in manifest_rows().values() if r["kind"] == "notes"
+                   for n in range(r["lines"][0], r["lines"][1] + 1)}
+    if shared - notes_lines:
+        rep.add("c COVERAGE", f"shared_lines outside a notes section: {compress(sorted(shared - notes_lines))}")
+    stray = sorted(n for n in consumed if not a <= n <= b and n not in shared)
+    if stray:
         rep.add("c COVERAGE", f"src outside the event's lines {a}-{b}: {compress(stray)}")
     for n in sorted(text_lines - whole):
         p = processed_line(n, cuts, fixes)
@@ -572,7 +586,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
             if m not in roles:
                 rep.add("d TOKENS", f"role {rid}: alias member {m!r} is not declared")
     for rid in roles:
-        if rid not in used_roles:
+        if rid not in used_roles and not roles[rid].get("special"):   # casting a special villager is the need
             rep.add("d TOKENS", f"role {rid} is declared but never used")
     # bank sizes against the manifest
     if row is not None:
