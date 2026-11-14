@@ -113,6 +113,9 @@ class Manifest(unittest.TestCase):
 #   GAP-FIT7: an answer's first page is shown in the question's popup, which keeps the room of 5-7 buttons; without
 #   Scrolling Popups that leaves too few lines for an outcome sentence (design R2, B7.3).
 KNOWN_GAPS: dict[str, str] = {   # G1 (a fresh popup after five to seven buttons) closed both former gaps
+    # GAP-VISITOR: V17-E's "(Visitor)" is an offscreen Isolan competitor shown by name; Isolans are never cast
+    # (authoring rule 15) and a stranger has no name, so the format cannot show it yet.
+    "vv5_v17_cooking.json": r"a SCHEMA: (\(scrolling\) )?node \w+: \(Visitor\): a stranger has no name$",
 }
 
 
