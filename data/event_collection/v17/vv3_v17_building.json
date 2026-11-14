@@ -29,22 +29,28 @@
     "why": "the framework's intro label"
    },
    {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
     "src": "L8067",
     "kind": "note",
     "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
+    "why": "VV5 only (an Isolan competitor); VV5 asks its political question instead"
    },
    {
     "src": "L8068",
     "kind": "note",
-    "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
+    "text": "visitor (Visitor), and a judge may belong to either community.",
+    "why": "VV5 only, as above"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": "to judge",
+    "why": "fit: 'to judge' makes the button 38 px wider than the screen with the longest names; the label stops before it (owner decision)"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": ", where the game setting makes that meaningful.",
+    "why": "designer rule, never shown"
    }
   ]
  },
@@ -61,28 +67,22 @@
    "min_age": 14
   },
   "coda1": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "alias",
+   "of": [
+    "comp1",
+    "comp2"
+   ]
   }
  },
- "start": "contest",
+ "start": "setting",
  "nodes": {
-  "contest": {
-   "src": "L8214,L8233-8236",
-   "text": "The Tribal Chief presides ceremonially over the Secret City's festival.\nThe contestants propose repairs near the city's monumental works. One uses an unfamiliar arch whose stones seem ready to fall upward. The stern stonewright demands proof. A controlled load test vindicates the builder, or exposes a hidden support that must be disclosed before judging.",
-   "name": "The Statue and the Impossible Arch",
+  "setting": {
+   "name": "The festival",
+   "src": "L8214",
+   "text": "The Tribal Chief presides ceremonially over the Secret City's festival.",
    "children": [
     {
      "next": "common"
-    }
-   ]
-  },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
-   "children": [
-    {
-     "next": "u"
     }
    ]
   },
@@ -94,73 +94,139 @@
    "choices": [
     {
      "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "u",
+     "next": "contest",
      "src": "L8069"
     },
     {
      "label": "Require a blind or anonymous test of the entries.",
-     "next": "u",
+     "next": "contest",
      "src": "L8070"
     },
     {
      "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "u",
+     "next": "contest",
      "src": "L8071"
     },
     {
      "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
+     "next": "contest",
      "src": "L8072-8073"
     }
    ]
   },
-  "u": {
-   "text": "{v17_u}",
+  "contest": {
+   "src": "L8233-8236",
+   "text": "The contestants propose repairs near the city's monumental works. One uses an unfamiliar arch whose stones seem ready to fall upward. The stern stonewright demands proof. A controlled load test vindicates the builder, or exposes a hidden support that must be disclosed before judging.",
+   "name": "The Statue and the Impossible Arch",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u1": {
+   "text": "{v17_u1}",
    "children": [
     {
      "next": "coda"
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "u2": {
+   "text": "{v17_u2}",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "u3": {
+   "text": "{v17_u3}",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda"
     }
    ]
   },
-  "no_coda": {
-   "type": "branch"
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u5": {
+   "text": "{v17_u5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1"
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3"
+    },
+    {
+     "next": "u4"
+    },
+    {
+     "next": "u5"
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8"
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10"
+    }
+   ]
   },
   "coda_c1": {
    "popup": "append",
@@ -196,10 +262,135 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u5"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "include_pools": [
-  "v17_u",
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u5",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
   "v8_c1",
   "v8_c6",
   "v8_c8",

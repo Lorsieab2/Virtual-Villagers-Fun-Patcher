@@ -317,10 +317,10 @@ for _p, _g, _t, _a, _b, _kind, _c in _V17:
             R("bank_v17e_epilogues", "V17-E final VV5 epilogues E1-E5", [5], _a, _b, "bank", "v17", "v17", 0,
               {"E": (5, None)})
         continue
-    # every contest also asks the common competition question (4 choices, L8069-8073) and, in VV5, the political
-    # question (4 choices, L8349-8352): the widest question has 4 buttons
+    # a contest with no choices of its own asks the common competition question first (4 choices, L8069-8073), or in
+    # VV5 the political question (L8349-8352); one branch set per trigger (L8054)
     R(f"vv{_g}_v17_{_kind}", _t, [_g], _a, _b, "event", "v17", "v17", _c, {}, [], series="v17_contests",
-      shared_choices=4)
+      shared_choices=4 if _c == 0 else 0)
 N("notes_exclusive_end", "End of new game-exclusive events", 8030, 8030, "exclusive", "exclusive")
 N("notes_v17_implementation", "V17 implementation and attribution notes", 8475, 8489, "v17", "v17")
 N("notes_v18_framework", "V18 - The Grand Festival of Twelve Trials: credits, rules and framing", 8491, 8521, "v18",

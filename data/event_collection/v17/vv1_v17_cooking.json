@@ -18,8 +18,7 @@
   "series": "v17_contests",
   "title_src": "L8105",
   "shared_lines": [
-   "L8099-8101",
-   "L8066-8073"
+   "L8099-8101"
   ],
   "ledger": [
    {
@@ -29,40 +28,22 @@
     "why": "the food effect on A1"
    },
    {
+    "src": "L8113",
+    "kind": "note",
+    "text": "; discard it and postpone judging",
+    "why": "designer rule, never shown"
+   },
+   {
     "src": "L8118",
     "kind": "instruction",
     "text": "; Research reward",
-    "why": "the tech effect on C1 (research reward = tech points)"
+    "why": "the tech effect on C1 (research reward = tech points; owner list m12)"
    },
    {
     "src": "L8119",
     "kind": "instruction",
     "text": "; no food reward, no illness",
     "why": "C2's text-only reason"
-   },
-   {
-    "src": "L8066",
-    "kind": "structural",
-    "text": "INTRO:",
-    "why": "the framework's intro label"
-   },
-   {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
-    "src": "L8067",
-    "kind": "note",
-    "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
-   },
-   {
-    "src": "L8068",
-    "kind": "note",
-    "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
    }
   ]
  },
@@ -83,8 +64,11 @@
    "sex": "random"
   },
   "coda1": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "alias",
+   "of": [
+    "cook1",
+    "cook2"
+   ]
   }
  },
  "start": "contest",
@@ -92,6 +76,7 @@
   "contest": {
    "src": "L8099-8101,L8106-8110",
    "text": "The villagers of the Southern Shore celebrate the work that helped their settlement survive. Competitors display their creations near the village center while elders tell the children how much knowledge was once lost.\n(Cook1) prepares a familiar fish-and-root stew; (cook2) offers an unusual fruit, herb and roasted shellfish dish. A visiting elder who once fed the entire village during a lean season takes the judging spoon.\n\"If this is meant to honor our survival,\" (judge.he/she) says, \"it must first be survivable.\" The crowd laughs uneasily.",
+   "name": "The First Great Feast",
    "text_only": [
     {
      "src": "L8099",
@@ -99,23 +84,46 @@
      "reason": "the festival's setting, told as scenery; the contest itself gives no reward in the source"
     }
    ],
-   "name": "The First Great Feast",
    "type": "question",
    "choices": [
     {
      "label": "Public tasting.",
-     "next": "set_a",
+     "next": "pick_a",
      "src": "L8111"
     },
     {
      "label": "Blind tasting.",
-     "next": "set_b",
+     "next": "pick_b",
      "src": "L8114"
     },
     {
      "label": "Explain the recipes.",
-     "next": "set_c",
+     "next": "pick_c",
      "src": "L8117"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_a"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_b"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_c"
     }
    ]
   },
@@ -132,13 +140,13 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
   "a2": {
    "src": "L8112-8113",
-   "text": "A rancid pot produces a stench so dreadful that everyone flees the square; discard it and postpone judging.",
+   "text": "A rancid pot produces a stench so dreadful that everyone flees the square.",
    "text_only": [
     {
      "src": "L8113",
@@ -153,7 +161,7 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -173,7 +181,7 @@
    "text": "An apprentice defeats the master cook.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -182,7 +190,7 @@
    "text": "Both dishes use the same ancient recipe; the judge awards a tie and asks for stories of the ancestors who taught it.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -210,7 +218,7 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -226,7 +234,7 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -241,90 +249,148 @@
     }
    ]
   },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
-   "children": [
-    {
-     "next": "u"
-    }
-   ]
-  },
-  "common": {
-   "type": "question",
-   "name": "The competition",
-   "src": "L8066-8067",
-   "text": "Two villagers (Cook1) and (cook2) enter a competition before an excited crowd.",
-   "choices": [
-    {
-     "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "u",
-     "src": "L8069"
-    },
-    {
-     "label": "Require a blind or anonymous test of the entries.",
-     "next": "u",
-     "src": "L8070"
-    },
-    {
-     "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "u",
-     "src": "L8071"
-    },
-    {
-     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
-     "src": "L8072-8073"
-    }
-   ]
-  },
-  "u": {
-   "text": "{v17_u}",
+  "u1": {
+   "text": "{v17_u1}",
    "children": [
     {
      "next": "coda"
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "u2": {
+   "text": "{v17_u2}",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "u3": {
+   "text": "{v17_u3}",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda"
     }
    ]
   },
-  "no_coda": {
-   "type": "branch"
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u4",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    }
+   ]
   },
   "coda_c1": {
    "popup": "append",
@@ -360,10 +426,146 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c6",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c8",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "include_pools": [
-  "v17_u",
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
   "v8_c1",
   "v8_c6",
   "v8_c8",

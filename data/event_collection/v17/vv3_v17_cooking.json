@@ -18,8 +18,7 @@
   "series": "v17_contests",
   "title_src": "L8219",
   "shared_lines": [
-   "L8214",
-   "L8066-8073"
+   "L8214"
   ],
   "ledger": [
    {
@@ -27,50 +26,13 @@
     "kind": "instruction",
     "text": "; tech reward",
     "why": "the tech effect on C1"
-   },
-   {
-    "src": "L8066",
-    "kind": "structural",
-    "text": "INTRO:",
-    "why": "the framework's intro label"
-   },
-   {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
-    "src": "L8067",
-    "kind": "note",
-    "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
-   },
-   {
-    "src": "L8068",
-    "kind": "note",
-    "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
    }
   ]
  },
  "requirement": {
   "min_eligible": 1
  },
- "roles": {
-  "comp1": {
-   "kind": "villager",
-   "min_age": 14
-  },
-  "comp2": {
-   "kind": "villager",
-   "min_age": 14
-  },
-  "coda1": {
-   "kind": "stranger",
-   "sex": "random"
-  }
- },
+ "roles": {},
  "start": "contest",
  "nodes": {
   "contest": {
@@ -88,18 +50,42 @@
    "choices": [
     {
      "label": "Invite the critic's public tasting.",
-     "next": "set_a",
+     "next": "pick_a",
      "src": "L8223"
     },
     {
      "label": "Blind tasting.",
-     "next": "set_b",
+     "next": "pick_b",
      "src": "L8226"
     },
     {
      "label": "Permit a cooking demonstration.",
-     "next": "set_c",
+     "next": "pick_c",
      "src": "L8228"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_a"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_b"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_c"
     }
    ]
   },
@@ -108,7 +94,7 @@
    "text": "The critic praises an outsider's unfamiliar seasoning.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -117,7 +103,7 @@
    "text": "The critic insults a traditional dish and must apologize after an elder explains its significance.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -137,7 +123,7 @@
    "text": "The critic unknowingly favors the rival tradition.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -146,7 +132,7 @@
    "text": "Both meals are excellent and the Chief orders a shared feast.",
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -181,7 +167,7 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -202,7 +188,7 @@
    ],
    "children": [
     {
-     "next": "common"
+     "next": "u"
     }
    ]
   },
@@ -217,105 +203,178 @@
     }
    ]
   },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
-   "children": [
-    {
-     "next": "u"
-    }
-   ]
-  },
-  "common": {
-   "type": "question",
-   "name": "The competition",
-   "src": "L8066-8067",
-   "text": "Two villagers (Comp1) and (comp2) enter a competition before an excited crowd.",
-   "choices": [
-    {
-     "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "u",
-     "src": "L8069"
-    },
-    {
-     "label": "Require a blind or anonymous test of the entries.",
-     "next": "u",
-     "src": "L8070"
-    },
-    {
-     "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "u",
-     "src": "L8071"
-    },
-    {
-     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
-     "src": "L8072-8073"
-    }
-   ]
-  },
-  "u": {
-   "text": "{v17_u}",
+  "u1": {
+   "text": "{v17_u1}",
    "children": [
     {
      "next": "coda"
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "u2": {
+   "text": "{v17_u2}",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "u3": {
+   "text": "{v17_u3}",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda"
     }
    ]
   },
-  "no_coda": {
-   "type": "branch"
+  "u4": {
+   "text": "{v17_u4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c1": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c1}"
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c6": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c6}"
+  "u8": {
+   "text": "{v17_u8}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u10": {
+   "text": "{v17_u10}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u3",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u8",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "u9"
+    },
+    {
+     "next": "u10",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    }
+   ]
   },
   "coda_c9": {
    "popup": "append",
@@ -336,13 +395,65 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "u1"
+       },
+       {
+        "visited": "u3"
+       },
+       {
+        "visited": "u4"
+       },
+       {
+        "visited": "u8"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "include_pools": [
-  "v17_u",
-  "v8_c1",
-  "v8_c6",
-  "v8_c8",
+  "v17_u1",
+  "v17_u2",
+  "v17_u3",
+  "v17_u4",
+  "v17_u6",
+  "v17_u8",
+  "v17_u9",
+  "v17_u10",
   "v8_c9",
   "v8_c11",
   "v8_c14",

@@ -16,42 +16,7 @@
   "credit": "CREDITS: Lorsieab2 proposed making the full competition suite available in\nVV1, VV2, VV3, VV4 and VV5, rewriting each to reflect its setting, and\nspecifically proposed VV5 Heathen/Isolan competitors and judges with political\ntensions. The original VV2 Cooking Contest's premise, mechanics and text are\nby Lorsieab2. The game-specific adaptations, fresh dialogue, branching,\npolitical plots and integration notes below are written by ChatGPT.\nExisting universal competitions and their previous credits remain intact.",
   "draw_weight": 1,
   "series": "v17_contests",
-  "title_src": "L8384",
-  "shared_lines": [
-   "L8066-8073",
-   "L8348-8352"
-  ],
-  "ledger": [
-   {
-    "src": "L8066",
-    "kind": "structural",
-    "text": "INTRO:",
-    "why": "the framework's intro label"
-   },
-   {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
-    "src": "L8067",
-    "kind": "note",
-    "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
-   },
-   {
-    "src": "L8068",
-    "kind": "note",
-    "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
-   },
-   {
-    "src": "L8348",
-    "kind": "structural",
-    "why": "the political choices' heading"
-   }
-  ]
+  "title_src": "L8384"
  },
  "requirement": {
   "min_eligible": 1
@@ -72,14 +37,6 @@
   "judge1": {
    "kind": "villager",
    "min_age": 14
-  },
-  "comp2": {
-   "kind": "villager",
-   "min_age": 14
-  },
-  "coda1": {
-   "kind": "stranger",
-   "sex": "random"
   }
  },
  "start": "contest",
@@ -92,23 +49,55 @@
    "choices": [
     {
      "label": "Open tasting.",
-     "next": "set_a",
+     "next": "pick_a",
      "src": "L8389"
     },
     {
      "label": "Blind tasting.",
-     "next": "set_b",
+     "next": "pick_b",
      "src": "L8392"
     },
     {
      "label": "Shared cooking.",
-     "next": "set_c",
+     "next": "pick_c",
      "src": "L8395"
     },
     {
      "label": "Let cooks defend their traditions.",
-     "next": "set_d",
+     "next": "pick_d",
      "src": "L8399"
+    }
+   ]
+  },
+  "pick_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_a"
+    }
+   ]
+  },
+  "pick_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_b"
+    }
+   ]
+  },
+  "pick_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_c"
+    }
+   ]
+  },
+  "pick_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "set_d"
     }
    ]
   },
@@ -117,7 +106,7 @@
    "text": "(Visitor)'s dish wins fairly, and a furious villager accuses the judges of surrendering tradition.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -126,7 +115,7 @@
    "text": "(Competitor)'s dish wins, but an Isolan elder calls it stolen from an old shared recipe.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -146,7 +135,7 @@
    "text": "Each community's harshest critic unknowingly praises the other's cook.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -155,7 +144,7 @@
    "text": "A bowl is mislabeled; organizers discover it and repeat the tasting before announcing a winner.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -175,7 +164,7 @@
    "text": "A magnificent joint feast wins over most of the audience, though a few refuse to eat.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -184,7 +173,7 @@
    "text": "A fermented experiment smells so appalling that BOTH communities evacuate the square together. Their first unanimous agreement: never cook that again.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -204,7 +193,7 @@
    "text": "The cooks discover a common ancestral method.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -213,7 +202,7 @@
    "text": "They disagree respectfully and serve separate dishes, with neither forced to renounce the original recipe.",
    "children": [
     {
-     "next": "common"
+     "next": "pp"
     }
    ]
   },
@@ -228,170 +217,338 @@
     }
    ]
   },
-  "common_a": {
-   "src": "L8069",
-   "text": "Trust the appointed judges and let the contest proceed.",
+  "pp1": {
+   "text": "{v17_p1}",
    "children": [
     {
-     "next": "politics"
+     "next": "epi"
     }
    ]
   },
-  "common_b": {
-   "src": "L8070",
-   "text": "Require a blind or anonymous test of the entries.",
+  "pp2": {
+   "text": "{v17_p2}",
    "children": [
     {
-     "next": "politics"
+     "next": "epi"
     }
    ]
   },
-  "common_c": {
-   "src": "L8071",
-   "text": "Invite the competitors to explain or demonstrate their work.",
+  "pp3": {
+   "text": "{v17_p3}",
    "children": [
     {
-     "next": "politics"
+     "next": "epi"
     }
    ]
   },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
+  "pp4": {
+   "text": "{v17_p4}",
    "children": [
     {
-     "next": "politics"
+     "next": "epi"
     }
    ]
   },
-  "common": {
-   "type": "question",
-   "name": "The competition",
-   "src": "L8066-8067",
-   "text": "Two villagers (Competitor) and (comp2) enter a competition before an excited crowd.",
-   "choices": [
-    {
-     "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "common_a",
-     "src": "L8069"
-    },
-    {
-     "label": "Require a blind or anonymous test of the entries.",
-     "next": "common_b",
-     "src": "L8070"
-    },
-    {
-     "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "common_c",
-     "src": "L8071"
-    },
-    {
-     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
-     "src": "L8072-8073"
-    }
-   ]
-  },
-  "politics": {
-   "type": "question",
-   "name": "The politics",
-   "src": "L8068",
-   "text": "A judge may belong to either community.",
-   "choices": [
-    {
-     "label": "Let the hosting community appoint the entire judging panel.",
-     "next": "p",
-     "src": "L8349"
-    },
-    {
-     "label": "Require equal representation and publish the criteria beforehand.",
-     "next": "p",
-     "src": "L8350"
-    },
-    {
-     "label": "Hold an anonymous test, hiding the entrants' community affiliations.",
-     "next": "p",
-     "src": "L8351"
-    },
-    {
-     "label": "Invite the two teams to cooperate on one final entry instead.",
-     "next": "p",
-     "src": "L8352"
-    }
-   ]
-  },
-  "p": {
-   "text": "{v17_p}",
+  "pp5": {
+   "text": "{v17_p5}",
    "children": [
     {
-     "next": "e"
+     "next": "epi"
     }
    ]
   },
-  "e": {
+  "pp6": {
+   "text": "{v17_p6}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp7": {
+   "text": "{v17_p7}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp8": {
+   "text": "{v17_p8}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp9": {
+   "text": "{v17_p9}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp10": {
+   "text": "{v17_p10}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pp1",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp2",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp3"
+    },
+    {
+     "next": "pp4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp5",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp6",
+     "if": {
+      "any": [
+       {
+        "visited": "b1"
+       },
+       {
+        "visited": "b2"
+       },
+       {
+        "visited": "d1"
+       },
+       {
+        "visited": "d2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp7",
+     "if": {
+      "any": [
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "c2"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp8",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       }
+      ]
+     }
+    },
+    {
+     "next": "pp10"
+    }
+   ]
+  },
+  "ep1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v17_e}",
+   "text": "{v17_e1}",
    "children": [
     {
      "next": "coda"
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "ep2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e2}",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "ep3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e3}",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda"
     }
    ]
   },
-  "no_coda": {
-   "type": "branch"
-  },
-  "coda_c1": {
+  "ep4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v8_c1}"
+   "text": "{v17_e4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c6": {
+  "ep5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v8_c6}"
+   "text": "{v17_e5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
+  "epi": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ep1",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep2"
+    },
+    {
+     "next": "ep3"
+    },
+    {
+     "next": "ep4",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep5"
+    }
+   ]
   },
   "coda_c9": {
    "popup": "append",
@@ -412,14 +569,75 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "a1"
+       },
+       {
+        "visited": "a2"
+       },
+       {
+        "visited": "c1"
+       },
+       {
+        "visited": "pp5"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "include_pools": [
-  "v17_p",
-  "v17_e",
-  "v8_c1",
-  "v8_c6",
-  "v8_c8",
+  "v17_p1",
+  "v17_p2",
+  "v17_p3",
+  "v17_p4",
+  "v17_p5",
+  "v17_p6",
+  "v17_p7",
+  "v17_p8",
+  "v17_p9",
+  "v17_p10",
+  "v17_e1",
+  "v17_e2",
+  "v17_e3",
+  "v17_e4",
+  "v17_e5",
   "v8_c9",
   "v8_c11",
   "v8_c14",

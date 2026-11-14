@@ -35,22 +35,28 @@
     "why": "the framework's intro label"
    },
    {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
     "src": "L8067",
     "kind": "note",
     "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
+    "why": "VV5 only (an Isolan competitor); VV5 asks its political question instead"
    },
    {
     "src": "L8068",
     "kind": "note",
-    "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
+    "text": "visitor (Visitor), and a judge may belong to either community.",
+    "why": "VV5 only, as above"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": "to judge",
+    "why": "fit: 'to judge' makes the button 38 px wider than the screen with the longest names; the label stops before it (owner decision)"
+   },
+   {
+    "src": "L8073",
+    "kind": "note",
+    "text": ", where the game setting makes that meaningful.",
+    "why": "designer rule, never shown"
    }
   ]
  },
@@ -67,35 +73,22 @@
    "min_age": 14
   },
   "coda1": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "alias",
+   "of": [
+    "comp1",
+    "comp2"
+   ]
   }
  },
- "start": "contest",
+ "start": "setting",
  "nodes": {
-  "contest": {
-   "src": "L8274-8276,L8319-8321",
-   "text": "The contests take place near the Tree of Life, with care not to damage its roots, waterways, nearby wildlife or ritual grounds. A critic who demands that beauty justify itself is about to meet a village that disagrees.\nTwo growers compete to nourish the garden without draining the Tree's water supply. The winner demonstrates sustainable irrigation, not simply the largest immediate harvest.",
-   "text_only": [
-    {
-     "src": "L8321",
-     "what": "food reward",
-     "reason": "only if crops truly improve, which the source leaves open; none made"
-    }
-   ],
-   "name": "The Waterkeepers' Trial",
+  "setting": {
+   "name": "The festival",
+   "src": "L8274-8276",
+   "text": "The contests take place near the Tree of Life, with care not to damage its roots, waterways, nearby wildlife or ritual grounds. A critic who demands that beauty justify itself is about to meet a village that disagrees.",
    "children": [
     {
      "next": "common"
-    }
-   ]
-  },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
-   "children": [
-    {
-     "next": "u"
     }
    ]
   },
@@ -107,33 +100,115 @@
    "choices": [
     {
      "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "u",
+     "next": "contest",
      "src": "L8069"
     },
     {
      "label": "Require a blind or anonymous test of the entries.",
-     "next": "u",
+     "next": "contest",
      "src": "L8070"
     },
     {
      "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "u",
+     "next": "contest",
      "src": "L8071"
     },
     {
      "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
+     "next": "contest",
      "src": "L8072-8073"
     }
    ]
   },
-  "u": {
-   "text": "{v17_u}",
+  "contest": {
+   "src": "L8319-8321",
+   "text": "Two growers compete to nourish the garden without draining the Tree's water supply. The winner demonstrates sustainable irrigation, not simply the largest immediate harvest.",
+   "text_only": [
+    {
+     "src": "L8321",
+     "what": "food reward",
+     "reason": "only if crops truly improve, which the source leaves open; none made"
+    }
+   ],
+   "name": "The Waterkeepers' Trial",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
+  },
+  "u2": {
+   "text": "{v17_u2}",
    "children": [
     {
      "next": "coda"
     }
    ]
+  },
+  "u6": {
+   "text": "{v17_u6}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u9": {
+   "text": "{v17_u9}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "u": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "u2"
+    },
+    {
+     "next": "u6"
+    },
+    {
+     "next": "u9"
+    }
+   ]
+  },
+  "coda_c1": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c1}"
+  },
+  "coda_c6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c6}"
+  },
+  "coda_c8": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c8}"
+  },
+  "coda_c9": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c9}"
+  },
+  "coda_c11": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c11}"
+  },
+  "coda_c14": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c14}"
+  },
+  "coda_c15": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v8_c15}"
   },
   "coda": {
    "type": "branch",
@@ -170,49 +245,17 @@
     {
      "next": "coda_c15"
     }
-   ]
+   ],
+   "else": "no_coda"
   },
   "no_coda": {
    "type": "branch"
-  },
-  "coda_c1": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c1}"
-  },
-  "coda_c6": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c6}"
-  },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
-  },
-  "coda_c9": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c9}"
-  },
-  "coda_c11": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c11}"
-  },
-  "coda_c14": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c14}"
-  },
-  "coda_c15": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c15}"
   }
  },
  "include_pools": [
-  "v17_u",
+  "v17_u2",
+  "v17_u6",
+  "v17_u9",
   "v8_c1",
   "v8_c6",
   "v8_c8",

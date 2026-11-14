@@ -23,28 +23,10 @@
   ],
   "ledger": [
    {
-    "src": "L8066",
-    "kind": "structural",
-    "text": "INTRO:",
-    "why": "the framework's intro label"
-   },
-   {
-    "src": "L8073",
-    "kind": "note",
-    "text": ", where the game setting makes that meaningful",
-    "why": "designer condition on choice D; every game shows it"
-   },
-   {
-    "src": "L8067",
-    "kind": "note",
-    "text": "In VV5, one competitor may instead be an event-only Isolan",
-    "why": "the VV5 option of an Isolan competitor: needs a named stranger (GAP-VISITOR); the judge clause is VV5's political question"
-   },
-   {
     "src": "L8068",
     "kind": "note",
     "text": "visitor (Visitor), and",
-    "why": "the rest of the VV5 option"
+    "why": "the Isolan-competitor option; this contest's sides are text"
    },
    {
     "src": "L8348",
@@ -56,96 +38,9 @@
  "requirement": {
   "min_eligible": 1
  },
- "roles": {
-  "comp1": {
-   "kind": "villager",
-   "min_age": 14
-  },
-  "comp2": {
-   "kind": "villager",
-   "min_age": 14
-  },
-  "coda1": {
-   "kind": "stranger",
-   "sex": "random"
-  }
- },
- "start": "contest",
+ "roles": {},
+ "start": "politics",
  "nodes": {
-  "contest": {
-   "src": "L8445-8450",
-   "text": "Two teams cultivate adjacent plots. An Isolan elder accuses the visitors of diverting water; a player-tribe farmer claims the Isolans planted too close to the boundary. A measured inspection can reveal an honest error, a real diversion, or a natural change in the stream. The winning harvest is judged by yield, care for soil and fairness of water use. A joint irrigation agreement may follow, but only if both sides consent.",
-   "name": "The Harvest and the Border",
-   "children": [
-    {
-     "next": "common"
-    }
-   ]
-  },
-  "common_a": {
-   "src": "L8069",
-   "text": "Trust the appointed judges and let the contest proceed.",
-   "children": [
-    {
-     "next": "politics"
-    }
-   ]
-  },
-  "common_b": {
-   "src": "L8070",
-   "text": "Require a blind or anonymous test of the entries.",
-   "children": [
-    {
-     "next": "politics"
-    }
-   ]
-  },
-  "common_c": {
-   "src": "L8071",
-   "text": "Invite the competitors to explain or demonstrate their work.",
-   "children": [
-    {
-     "next": "politics"
-    }
-   ]
-  },
-  "common_d": {
-   "src": "L8072-8073",
-   "text": "Allow a mixed panel of elders, practitioners and ordinary villagers to judge.",
-   "children": [
-    {
-     "next": "politics"
-    }
-   ]
-  },
-  "common": {
-   "type": "question",
-   "name": "The competition",
-   "src": "L8066-8067",
-   "text": "Two villagers (Comp1) and (comp2) enter a competition before an excited crowd.",
-   "choices": [
-    {
-     "label": "Trust the appointed judges and let the contest proceed.",
-     "next": "common_a",
-     "src": "L8069"
-    },
-    {
-     "label": "Require a blind or anonymous test of the entries.",
-     "next": "common_b",
-     "src": "L8070"
-    },
-    {
-     "label": "Invite the competitors to explain or demonstrate their work.",
-     "next": "common_c",
-     "src": "L8071"
-    },
-    {
-     "label": "Allow a mixed panel of elders, practitioners and ordinary villagers",
-     "next": "common_d",
-     "src": "L8072-8073"
-    }
-   ]
-  },
   "politics": {
    "type": "question",
    "name": "The politics",
@@ -154,98 +49,242 @@
    "choices": [
     {
      "label": "Let the hosting community appoint the entire judging panel.",
-     "next": "p",
+     "next": "pol_a",
      "src": "L8349"
     },
     {
      "label": "Require equal representation and publish the criteria beforehand.",
-     "next": "p",
+     "next": "pol_b",
      "src": "L8350"
     },
     {
      "label": "Hold an anonymous test, hiding the entrants' community affiliations.",
-     "next": "p",
+     "next": "pol_c",
      "src": "L8351"
     },
     {
      "label": "Invite the two teams to cooperate on one final entry instead.",
-     "next": "p",
+     "next": "pol_d",
      "src": "L8352"
     }
    ]
   },
-  "p": {
-   "text": "{v17_p}",
+  "pol_a": {
+   "type": "branch",
    "children": [
     {
-     "next": "e"
+     "next": "contest"
     }
    ]
   },
-  "e": {
+  "pol_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "contest"
+    }
+   ]
+  },
+  "pol_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "contest"
+    }
+   ]
+  },
+  "pol_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "contest"
+    }
+   ]
+  },
+  "contest": {
+   "src": "L8445-8450",
+   "text": "Two teams cultivate adjacent plots. An Isolan elder accuses the visitors of diverting water; a player-tribe farmer claims the Isolans planted too close to the boundary. A measured inspection can reveal an honest error, a real diversion, or a natural change in the stream. The winning harvest is judged by yield, care for soil and fairness of water use. A joint irrigation agreement may follow, but only if both sides consent.",
+   "name": "The Harvest and the Border",
+   "children": [
+    {
+     "next": "pp"
+    }
+   ]
+  },
+  "pp2": {
+   "text": "{v17_p2}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp3": {
+   "text": "{v17_p3}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp4": {
+   "text": "{v17_p4}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp7": {
+   "text": "{v17_p7}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp8": {
+   "text": "{v17_p8}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp9": {
+   "text": "{v17_p9}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp10": {
+   "text": "{v17_p10}",
+   "children": [
+    {
+     "next": "epi"
+    }
+   ]
+  },
+  "pp": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pp2"
+    },
+    {
+     "next": "pp3"
+    },
+    {
+     "next": "pp4"
+    },
+    {
+     "next": "pp7",
+     "if": {
+      "visited": "pol_d"
+     }
+    },
+    {
+     "next": "pp8"
+    },
+    {
+     "next": "pp9"
+    },
+    {
+     "next": "pp10"
+    }
+   ]
+  },
+  "ep1": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v17_e}",
+   "text": "{v17_e1}",
    "children": [
     {
      "next": "coda"
     }
    ]
   },
-  "coda": {
-   "type": "branch",
+  "ep2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e2}",
    "children": [
     {
-     "next": "coda_pick"
-    },
-    {
-     "next": "no_coda"
+     "next": "coda"
     }
    ]
   },
-  "coda_pick": {
-   "type": "branch",
+  "ep3": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "{v17_e3}",
    "children": [
     {
-     "next": "coda_c1"
-    },
-    {
-     "next": "coda_c6"
-    },
-    {
-     "next": "coda_c8"
-    },
-    {
-     "next": "coda_c9"
-    },
-    {
-     "next": "coda_c11"
-    },
-    {
-     "next": "coda_c14"
-    },
-    {
-     "next": "coda_c15"
+     "next": "coda"
     }
    ]
   },
-  "no_coda": {
-   "type": "branch"
-  },
-  "coda_c1": {
+  "ep4": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v8_c1}"
+   "text": "{v17_e4}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c6": {
+  "ep5": {
    "popup": "append",
    "join": "paragraph",
-   "text": "{v8_c6}"
+   "text": "{v17_e5}",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
   },
-  "coda_c8": {
-   "popup": "append",
-   "join": "paragraph",
-   "text": "{v8_c8}"
+  "epi": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "ep1",
+     "if": {
+      "any": [
+       {
+        "visited": "contest"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep2"
+    },
+    {
+     "next": "ep3"
+    },
+    {
+     "next": "ep4",
+     "if": {
+      "any": [
+       {
+        "visited": "contest"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "ep5"
+    }
+   ]
   },
   "coda_c9": {
    "popup": "append",
@@ -266,14 +305,63 @@
    "popup": "append",
    "join": "paragraph",
    "text": "{v8_c15}"
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_pick"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "coda_pick": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_c9",
+     "if": {
+      "any": [
+       {
+        "visited": "contest"
+       },
+       {
+        "visited": "pp7"
+       }
+      ]
+     }
+    },
+    {
+     "next": "coda_c11"
+    },
+    {
+     "next": "coda_c14"
+    },
+    {
+     "next": "coda_c15"
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
   }
  },
  "include_pools": [
-  "v17_p",
-  "v17_e",
-  "v8_c1",
-  "v8_c6",
-  "v8_c8",
+  "v17_p2",
+  "v17_p3",
+  "v17_p4",
+  "v17_p7",
+  "v17_p8",
+  "v17_p9",
+  "v17_p10",
+  "v17_e1",
+  "v17_e2",
+  "v17_e3",
+  "v17_e4",
+  "v17_e5",
   "v8_c9",
   "v8_c11",
   "v8_c14",
