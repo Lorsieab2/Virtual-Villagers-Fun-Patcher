@@ -38,7 +38,7 @@ strings. The engine must use the offsets, not the order.
 
 | Offset | Type | Meaning |
 |---|---|---|
-| 0 | `B` | kind: 0 villager, 1 stranger, **2 alias** |
+| 0 | `B` | kind: 0 villager, 1 stranger, **2 alias**, **3 other** (G2) |
 | 1 | `B` | flags: 1 optional, 2 exclude_nursing, 4 exclude_special, 8 believers_only, **16 harm_capable**, **32 exclude_protected**, 64 the author wrote protected "exclude", 128 the author wrote "allow" (64 and 128 are for decompiling only; the engine reads 32) |
 | 2 | `B` | sex: 0 any, 1 male, 2 female, 3 random (strangers) |
 | 3 | `B` | min_age years |
@@ -50,7 +50,7 @@ strings. The engine must use the offsets, not the order.
 | 10 | `H` | skill requirement: the skills' names, comma separated (`NONE` = no skill requirement) |
 | 12 | `B` | skill min (the villager's value in at least one listed skill the game has is at least this) |
 | 13 | `B` | pick: 0 random, 1 highest (keep only the villagers with the top value of the listed skills, then draw) |
-| 14 | `H` | alias only: member mask (bit k = role index k); 0 for other kinds |
+| 14 | `H` | alias: member mask (bit k = role index k); other (kind 3): exactly one bit, the alias it follows; 0 for the rest |
 
 - In v6 the compiler sets flags 2 and 4 exactly when it sets 32, so code that reads only 2 and 4 stays safe.
 - `exclude_protected` (32) = keep out nursing parents of either sex, the Golden Child, the VV3 Tribal Chief, the
@@ -59,7 +59,13 @@ strings. The engine must use the offsets, not the order.
   collection event; in a player's own graph the player may set `protected: "allow"` (see 7).
 - A skill name the game does not have is ignored in that game; when none of the listed names exists in the game,
   the skill requirement does not apply there.
-- Alias (kind 2): flags 0, sex 0, min_age 0, no requirements. It is never cast. See 6.
+- Alias (kind 2): flags 16 when harm-capable, else 0; sex 0, min_age 0, no requirements. It is never cast. See 6.
+- **Other (kind 3, G2):** JSON `{"kind": "other", "of": "<alias role id>"}`. It is the member of that alias's two
+  members that the alias did NOT draw. The alias must have exactly 2 members. Flags 16 when harm-capable, else 0;
+  never cast. Usable wherever a role is: names, pronouns, effects, `role` and `harmable` conditions.
+- **The first role (G7):** a villager the event needs (not optional) or a stranger. When any effect acts on a
+  villager, at least one villager role must exist. An unprefixed placeholder or effect names `subject` when
+  there is one, else the first role.
 
 ## 3. Child record (12 bytes, unchanged size)
 
@@ -75,14 +81,25 @@ strings. The engine must use the offsets, not the order.
 
 ## 4. Pools and items
 
-- **Pool: 8 bytes.** `H name string, H first item, H item count, B flags (1 = distinct), B 0`.
+- **Pool: 12 bytes (G3; was 8).** `H name string, H first item, H item count, B flags (1 = distinct), B 0,
+  H distinct_from (a string: the pool names, comma separated; NONE = none), H 0`.
+- `distinct_from` (G3): an instance of this pool never draws an item whose TEXT equals the text of an item already
+  drawn on the run by any instance of a listed pool (see 6.3).
 - **Item: 8 bytes.** `H text string, H weight (1..10000), H cond (NONE = always), H 0`.
 - Pool names: `[A-Za-z0-9_]{1,32}` for named pools; `@word` for game words; `_iN` (N = 1, 2, ...) for inline
   picks. Names are unique.
 - Game words: each `"words"` entry `w` becomes the pool `@w` with one item per distinct text, each item's cond a
   `game` cond (op 3) of the games that use that text. Exactly one item holds in each listed game.
 - Inline picks `{a|b}` / `{3:a|1:b}` never reach the binary: each becomes its own pool `_iN` and the text holds
-  `{_iN}`.
+  `{_iN}`. An alternative may hold a game word (`{the {@chief}|the elders}`, G4): the `_iN` item then holds
+  `{@chief}`. Nested inline picks are refused.
+- A one-option brace `{x}` (G4) that names no pool and no game word is just the text `x`: `normalize` removes the
+  braces, so it never reaches the binary.
+- **`{@tribe}` and `{@Tribe}` (G5)** are built in: no pool is written for them and authors cannot define them. The
+  engine fills them AT RUN TIME with the player's tribe or village name from the save (the per-game read The
+  Troubling Signs uses, `native/vvfp_more_island_events/troubling_*.inc`), the capital form with its first letter
+  raised; with no name, "the village" / "The village". The worst case is `W` x the longest name the game allows:
+  31 in VV1/VV2, 19 in VV3-5 (`src/vv_tribe_rename.py`).
 
 ## 5. Text grammar in the binary (what `cg_text_ok` and `cg_expand` parse)
 
@@ -98,6 +115,7 @@ strings. The engine must use the offsets, not the order.
   string (it may start with `@` or `_`). Braces never nest in the binary. A pool item's text may itself hold
   placeholders and pool tokens (not its own pool, depth at most 3, checked by the compiler).
 - Labels (choice labels): placeholders, `\(` `\)` and game words `{@w}` only. At most 95 bytes in v6 (v1-v5: 39).
+- Titles (G6): v6 titles may hold `"` too (every game's font draws it); nothing else changes.
 
 ## 6. The walk (cg_walk) and the random stream
 
@@ -106,7 +124,8 @@ strings. The engine must use the offsets, not the order.
 
 1. **Aliases.** At the start of the run (before the first segment's first node), each alias role in role-index
    order is drawn among its members that are bound: `members[random_below(count)]` (members in role-index order).
-   No member bound: the alias is unbound. Stored in the run's picks.
+   No member bound: the alias is unbound. Stored in the run's picks. An `other` role (G2) then binds, with no
+   roll, to its alias's member not drawn; it is unbound when that member is unbound or the alias is.
 2. **Per node**, in this order (v5 order plus step b):
    a. each effect's roll, in effect order (v5 rules, plus the v6 rolls below);
    b. **pools**: the node's chosen text (the variant `cg_node_text` picks; for a question also each label after
@@ -115,7 +134,9 @@ strings. The engine must use the offsets, not the order.
    c. the child draw (v5), with the guard.
 3. **One instance draw:** eligible = the pool's items whose cond holds now (game, patches, bound roles, the path so
    far including this node, and the runtime facts of section 8). If the pool is distinct, take out the items
-   already drawn by its other instances (if that leaves none, keep the full eligible list). None eligible: the
+   already drawn by its other instances; then, with `distinct_from`, take out every item whose text equals the
+   text of an item drawn so far (on the path and this segment) by an instance of a listed pool; if what is left is
+   empty, keep the full eligible list. None eligible: the
    instance is the empty text, no roll. Else `k = roll_index(weights, random_below(sum of weights))`.
    Picks are stored as (pool, instance, item index within the pool); at most 256 a run (`CG_MAX_PICKS`).
 4. **v6 effect rolls** (fx a, fx b as stored in the history):
@@ -128,9 +149,14 @@ strings. The engine must use the offsets, not the order.
    - skill (9) may now be negative (both of min, max in -100..-1): same roll, `lo + random_below(hi - lo + 1)`.
 5. **Expansion** (`CG_EXPAND_REAL`): placeholders by the bindings; `{P.k}` by the drawn item's text, expanded
    again (depth at most 3); `\(` `\)` become `(` `)`; then the glyph fallback (9) over the whole result.
-6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; every pool instance as the pool's
-   longest eligible item, measured after its own worst-case expansion (the first on a tie); then the glyph
-   fallback in VV1/VV2 (the fallback is longer, so this is the worst case).
+6. **Worst case** (`CG_EXPAND_WORST`): names `W` x name_room; the longer pronoun; then the glyph fallback in VV1/VV2.
+   - **Pages (engine).** `cg_fits` pages a popup with `CG_EXPAND_WORST`, and `cg_pool_text` returns the instance's
+     DRAWN item when the run holds a pick (always, once the walk is done): pages are laid out with the drawn
+     items and the longest names. Only with no pick does it take the longest eligible item by its raw bytes.
+   - **Fit check (Python, `worst_v6`).** No run exists, so every pool instance is the pool's longest eligible
+     item measured after its own worst-case expansion (the first on a tie). That is never shorter than any item
+     the engine can draw, so whatever Python accepts the engine can page; Python may refuse a little more than
+     strictly needed. `simulate` returns each popup's whole text, before paging.
 
 ## 7. Harm and the protected filter
 
@@ -183,12 +209,23 @@ VV3-5 never substitute.
 expanded by `normalize` into a v5 `per_game` table (design A3); a loss is the same range negated. The `.cieg`
 holds only `per_game`.
 
+- **damage (G9):** `{"do": "damage", "size": ...}` becomes min..max percent: small 10-30, normal 25-50, large 50-75,
+  huge 75-100 ("collapses", "destroyed", "falls down" = huge; 100 percent = unbuilt, as The Rumblings does).
+- **skill:** `{"do": "skill", "size": ...}` becomes min..max: small 5-10, normal 10-20, large 20-40, huge 30-60
+  (`"loss": true` negates it); "masters" is `"set": 100`.
+
 ## 11. Answers
 
 2 to 7 answers in v6 (`MAX_ANSWERS = 7`). The text lines a question keeps for its buttons beyond the game's two
-(`answer_room`): `3 x (n - 2)` for n <= 4; for n = 5..7, `ceil(2.5 x n) - 6`, but never more than the layout's
-lines less 3, less 5 more in VV1/VV2 (their title and four line breaks are in the text) (provisional until Track
-B's 800x600 render test, R2). Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
+(`answer_room` = `story_graph.inc cg_answer_room`): `3 x (n - 2)` for n <= 4; for n = 5..7,
+`ceil(2.5 x (n - 1) - 3)` (7, 10, 12: `CG_ANSWER_LINES`), and from five answers never more than the layout's lines
+less the title it leads with (5 in VV1/VV2) less 3. The question's pages use the question layout.
+
+**G1: the answer's page.** With 2 to 4 buttons shown, the answer's first page is shown in the question's popup,
+keeping the same room (unchanged). With **5 or more buttons shown**, the answer's first page starts a FRESH popup:
+the result layout with no room for buttons (only the refusal lines when it makes changes). It counts as one more
+popup on the history. `tests/test_cie_graph_v6.py` pins Python and the engine's source together for
+n = 2..7 in all five games. Labels: at most 95 bytes in v6, measured against the screen width (`label_max_px`);
 the popup's inner width in pixels is UNCONFIRMED.
 
 ## 12. Python API (stable names; Track D imports these)

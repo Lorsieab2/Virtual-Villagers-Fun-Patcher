@@ -439,14 +439,21 @@ def answer_letter(b: int) -> str:
     return "ABCDEFG"[b] if 0 <= b < 7 else str(b + 1)
 
 
-def answer_room(answers: int, lines: int | None = None) -> int:
+def answer_room(answers: int, layout: "Layout | None" = None) -> int:
     """The text lines a question's popup (and its answer's first page, shown in it) keeps for its buttons beyond the
-    game's two, so the popup is no taller than with two (story_graph.inc CG_ANSWER_LINES).  Five to seven answers
-    (version 6) are spaced 1.25 button heights: ceil(2.5 n) - 6 lines, never more than the layout's lines less 3."""
+    game's two, as story_graph.inc cg_answer_room keeps them (its CG_ANSWER_LINES table; tests/test_cie_graph_v6.py
+    pins the two together).  Up to four answers: 1.5 button heights (3 lines of 20 px) each past two.  Five to
+    seven (version 6): the buttons stand 1.25 heights apart (vvfp_multi_answer.h ma_step), so the first stands
+    (n - 1) x 1.25 - 1.5 heights above the game's own first: ceil(2.5 (n - 1) - 3) lines; and, laid out in
+    `layout`, never so many that a page keeps fewer than three text lines below the title the popup leads with
+    (A New Home and The Lost Children: the title and four line breaks, 5 lines)."""
     if answers <= MAX_ANSWERS_V4:
         return ANSWER_LINES * max(0, answers - 2)
-    room = -(-5 * answers // 2) - 6
-    return room if lines is None else max(0, min(room, lines - 3))
+    room = -(-(5 * (answers - 1) - 6) // 2)
+    if layout is None:
+        return room
+    most = layout.lines - (5 if layout.with_title else 0) - 3
+    return max(0, most) if room > most else room
 
 
 V6_EXTRA_CHARS = ";/&%"       # version 6 text adds these (VV1/VV2 show them through GLYPH_FALLBACK)
@@ -1907,6 +1914,7 @@ class Popup:
     effects: bool = False               # carries villager effects (refusal lines)
     nodes: list[str] = field(default_factory=list)
     room: int = 0                       # lines kept for a question's third and fourth buttons (answer_room)
+    answers: int = 0                    # a question's buttons shown (version 6: its answer's page room)
 
 
 @dataclass
@@ -1981,7 +1989,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room) for p in popups]
+        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers) for p in popups]
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
         for e in node["effects"]:
@@ -2055,12 +2063,11 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 shown = [i for i, c in enumerate(node["choices"]) if cond_holds(c.get("if"), ctx, path)]
                 if len(shown) < MIN_ANSWERS:
                     say(f"node {nid} ({where}): only {len(shown)} of its answers are shown; at least {MIN_ANSWERS}")
-                # The question popup keeps at least three text lines under its title (A New Home and The Lost
-                # Children put the title and four line breaks in the text).
-                room = answer_room(len(shown), game.question.lines - (5 if game.question.with_title else 0))
+                room = answer_room(len(shown), game.question)
             else:
+                shown = node["choices"]
                 room = answer_room(len(node["choices"]))
-            popups.append(Popup("question", text, nodes=[nid], room=room))
+            popups.append(Popup("question", text, nodes=[nid], room=room, answers=len(shown)))
         elif node["type"] == "popup":
             paged = True
             if node["popup"] == "append":
@@ -2072,9 +2079,13 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 last.text = last.text + sep + text if last.text else text
                 last.nodes.append(nid)
             else:
-                # An answer's first page is shown in the question's own popup: the same room for its buttons.
-                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid],
-                                    room=popups[-1].room if popups and popups[-1].layout == "question" else 0))
+                # An answer's first page is shown in the question's own popup: room for its buttons, capped (version
+                # 6) in the result's layout as story_graph.inc cg_layout_from caps it.
+                after = popups and popups[-1].layout == "question"
+                room = 0
+                if after:
+                    room = answer_room(popups[-1].answers, game.result) if v6 else popups[-1].room
+                popups.append(Popup("plain" if not popups else "result", text, nodes=[nid], room=room))
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
                           [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
